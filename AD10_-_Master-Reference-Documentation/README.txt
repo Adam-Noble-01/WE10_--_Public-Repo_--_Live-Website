@@ -1,5 +1,7 @@
+===============================================================================
 # WE10_--_Public-Repo_--_Live-Website
  GitHub Sites With Noble Architecture Domain Hosting Complete Pages, Apps & Portals
+ ===============================================================================
 
 # Architecture Studio Website
 
@@ -51,3 +53,44 @@ This site is designed to be deployed using GitHub Pages:
 1. Push changes to the `main` branch
 2. GitHub will automatically build and deploy the site
 3. Access the live site at your GitHub Pages URL
+
+-------------------------------------------------------------------------------
+
+===============================================================================
+## GITHUB REPO DETAILS
+
+#### GitHub Repo Name
+WE10_--_Public-Repo_--_Live-Website
+
+#### GitHub Repo URL
+https://GitHub.com/Adam-Noble-01/WE10_--_Public-Repo_--_Live-Website
+
+#### GitHub Pages URL
+https://adam-noble-01.GitHub.io/
+
+#### GitHub Local Repo Path
+D:\WE10_--_Public-Repo_--_Live-Website
+
+-------------------------------------------------------------------------------
+## DNS SETUP
+
+
+### A Records Configuration
+- Configured 04-Apr-2025
+- Configuration Via GoDaddy DNS Manager
+
+### Domain Name
+www.noble-architecture.com
+
+### Domain Name Server
+GoDaddy DNS Manager
+
+### CNAME Configuration
+- Configured 04-Apr-2025
+- Configuration Via GoDaddy DNS Manager
+
+CNAME |  www
+adam-noble-01.GitHub.io
+
+
+===============================================================================
