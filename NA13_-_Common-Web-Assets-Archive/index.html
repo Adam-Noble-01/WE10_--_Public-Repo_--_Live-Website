@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noble Architecture</title>
+    <script>
+        // Load site configuration
+        fetch('site-config.json')
+            .then(response => response.json())
+            .then(config => {
+                // Get requested path from URL (defaults to home)
+                const path = window.location.pathname.split('/')[1] || config.defaultRoute;
+                
+                // Check if this path exists in our routes
+                if (config.routes[path]) {
+                    window.location.href = config.routes[path];
+                } else {
+                    // If path doesn't exist, redirect to default
+                    window.location.href = config.routes[config.defaultRoute];
+                }
+            })
+            .catch(error => {
+                console.error('Error loading site configuration:', error);
+                // Fallback if JSON fails to load
+                window.location.href = '/NA01_-_Site-Home-Page/NA01_01_-_PAGE_-_Site-Home.html';
+            });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Loading...</h1>
+        <p>If you are not redirected automatically, <a href="/NA01_-_Site-Home-Page/NA01_01_-_PAGE_-_Site-Home.html">click here</a>.</p>
+    </div>
+</body>
+</html>
