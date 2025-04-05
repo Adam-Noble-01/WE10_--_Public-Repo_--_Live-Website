@@ -1,0 +1,9 @@
+{
+  "routes": {
+    "home": "/NA01_-_Site-Home-Page/NA01_01_-_PAGE_-_Site-Home.html",
+    "about": "/NA20_-_Business-Pages/about.html",
+    "projects": "/NA30_-_Project-Portals/projects.html",
+    "contact": "/SN30_-_Static-Web-Pages/contact.html"
+  },
+  "defaultRoute": "home"
+} 
