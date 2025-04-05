@@ -34,22 +34,10 @@ www.noble-architecture.com
 - The project portal is a web app built using HTML, CSS, and JavaScript.
 - These pages will have no robots rules applied to them
 
-```Json
-## Site Structure
-- Home Page 
-  - Main landing page with featured projects
-- Projects
-  - Gallery of architectural projects
-  - Individual project pages with details and interactive web apps
-- Internal Tools
-  - Private section with utilities for the team (not publicly accessible)
-    - Cost Calculator
-  - Material Database
-  - CRM
-  - Timeline Generator
-  - Document Templates
-  - Resource Scheduler
-```
+### Site Structure
+- For a full list of the site structure, please refer to the 
+[Site Structure JSON File](https://github.com/Adam-Noble-01/WE10_--_Public-Repo_--_Live-Website/blob/main/AD10_-_Master-Reference-Documentation/AD10_02_-_READ_-_Core-File-And-Code-Naming-Conventions.txt) document.
+
 
 
 # Website Structure & Visibility  
