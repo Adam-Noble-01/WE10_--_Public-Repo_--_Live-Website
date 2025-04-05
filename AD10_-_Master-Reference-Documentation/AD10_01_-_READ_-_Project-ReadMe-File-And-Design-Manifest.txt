@@ -35,8 +35,9 @@ www.noble-architecture.com
 - These pages will have no robots rules applied to them
 
 ### Site Structure
-- For a full list of the site structure, please refer to the 
-[Site Structure JSON File](https://github.com/Adam-Noble-01/WE10_--_Public-Repo_--_Live-Website/blob/main/AD10_-_Master-Reference-Documentation/AD10_02_-_READ_-_Core-File-And-Code-Naming-Conventions.txt) document.
+- For a full list of the site structure, please refer to the [Site Structure](https://github.com/Adam-Noble-01/WE10_--_Public-Repo_--_Live-Website/blob/main/AD10_-_Master-Reference-Documentation/AD10_02_-_READ_-_Core-File-And-Code-Naming-Conventions.txt) document.
+
+
 
 
 
