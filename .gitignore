@@ -49,5 +49,10 @@ assets-archive/
 # Ignore all files in the assets-archive directory
 assets-archive/*
 
+# Ignore Windows shortcuts
+# Windows shortcuts can contain sensitive information like absolute paths to system files
+# Removed as it could reveal username or directory structure and become a security risk
+*.lnk
+
 # Ignore the WE10_--_Public-Repo_--_Live-Website.code-workspace file
-./WE10_--_Public-Repo_--_Live-Website.code-workspace
+WE10_--_Public-Repo_--_Live-Website.code-workspace
