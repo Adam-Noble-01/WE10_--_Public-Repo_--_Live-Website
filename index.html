@@ -16,50 +16,79 @@
     <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     
     <!-- <link rel="stylesheet" href="{{JSON-INJECTION-SCRIPT.js}}"> -->
-</head>
-    <style>
-        body { 
-            font-family: 'Arial', sans-serif; 
-            background-color: #f4f4f4; 
-            color: #333; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-            text-align: center; 
-        }
-        .container { 
-            background-color: #fff; 
-            padding: 3rem 4rem; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-        }
-        .penguin-message { 
-            margin-top: 1.5rem;
-            color: #7f8c8d; 
-            font-size: 2.0rem; 
-        }
-        .penguin-message-text { 
-            margin-top: 1.5rem;
-            color: #7f8c8d; 
-            font-size: 1.0rem; 
-        }
-        h1 { 
-            color: #2c3e50; 
-            margin-bottom: 1.0rem; 
-            font-size: 1.5rem; 
-        }
-        p { 
-            color: #7f8c8d; 
-            font-size: 1.1rem; 
-        }
-    </style>
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/NA10_00_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Coming Soon</h1>
-        <p>The new Noble Architecture website is under construction.</p>
-    </div>
+    <header class="HEAD__container">
+        <nav class="HEAD__nav">
+            <div class="HEAD__logo">
+                <img src="/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_01_-_Logo_-_Primary.svg" alt="Noble Architecture Logo" class="HEAD__logo-image">
+                <span class="HEAD__logo-text">Studio Name</span>
+            </div>
+            <ul class="HEAD__menu">
+                <li><a href="/AD00_-_Master-Index-&-Home-Page/" class="HEAD__link">Home</a></li>
+                <li><a href="/NA20_-_Business-Pages/about.html" class="HEAD__link">About</a></li>
+                <li><a href="/NA30_-_Project-Portals/" class="HEAD__link">Projects</a></li>
+                <li><a href="/NA20_-_Business-Pages/contact.html" class="HEAD__link">Contact</a></li>
+                <li><a href="/SN20_-_Static-Web-Applications/" class="HEAD__link HEAD__link--active">Internal Tools</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main class="MAIN__container">
+        <section class="MAIN__header">
+            <h1 class="MAIN__title">Internal Tools</h1>
+            <p class="MAIN__description">Utilities and tools for internal team use</p>
+        </section>
+        
+        <div class="NOTICE__protected">
+            <strong class="NOTICE__title">Protected Area</strong>
+            This section is for internal team use only and is not accessible to the public.
+            To make this area private, follow the instructions in the README for setting up access control.
+        </div>
+        
+        <section class="TOOL__grid">
+            <div class="TOOL__card">
+                <h3 class="TOOL__title">Project Cost Calculator</h3>
+                <p class="TOOL__description">Quickly estimate project costs based on square footage, materials, and labor.</p>
+                <a href="/SN20_-_Static-Web-Applications/cost-calculator/" class="TOOL__link">Open Tool</a>
+            </div>
+            
+            <div class="TOOL__card">
+                <h3 class="TOOL__title">Material Database</h3>
+                <p class="TOOL__description">Search and browse our database of approved materials with specifications.</p>
+                <a href="/SN20_-_Static-Web-Applications/material-database/" class="TOOL__link">Open Tool</a>
+            </div>
+            
+            <div class="TOOL__card">
+                <h3 class="TOOL__title">Client CRM</h3>
+                <p class="TOOL__description">Client relationship management system for tracking interactions and project status.</p>
+                <a href="/SN20_-_Static-Web-Applications/crm/" class="TOOL__link">Open Tool</a>
+            </div>
+            
+            <div class="TOOL__card">
+                <h3 class="TOOL__title">Project Timeline Generator</h3>
+                <p class="TOOL__description">Create detailed project timelines with milestones and dependencies.</p>
+                <a href="/SN20_-_Static-Web-Applications/timeline-generator/" class="TOOL__link">Open Tool</a>
+            </div>
+            
+            <div class="TOOL__card">
+                <h3 class="TOOL__title">Document Templates</h3>
+                <p class="TOOL__description">Access and download standardized document templates for project deliverables.</p>
+                <a href="/SN20_-_Static-Web-Applications/templates/" class="TOOL__link">Open Tool</a>
+            </div>
+            
+            <div class="TOOL__card">
+                <h3 class="TOOL__title">Resource Scheduler</h3>
+                <p class="TOOL__description">Manage team resources and allocate staff to active projects.</p>
+                <a href="/SN20_-_Static-Web-Applications/scheduler/" class="TOOL__link">Open Tool</a>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="FOOT__container">
+        <p>© 2025 Noble Architecture | All Rights Reserved</p>
+    </footer>
 </body>
 </html> 

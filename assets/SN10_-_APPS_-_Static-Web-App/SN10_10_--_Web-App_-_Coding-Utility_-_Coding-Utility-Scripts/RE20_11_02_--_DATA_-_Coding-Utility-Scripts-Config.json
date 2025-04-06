@@ -1,0 +1,106 @@
+{
+    "file-metadata": {
+        "file-name"         :  "RE20_11_02_--_DATA_-_Coding-Utility-Scripts-Config.json",
+        "file-type"         :  "Application Files Link & Configurations Library",
+        "file-description"  :  "This is the configuration file for the coding utility scripts.",
+        "file-created"      :  "04-Apr-2025",
+        "file-version"      :  "1.2.0",
+        "file-author"       :  "Adam Noble - Studio NoodlFjord",
+        "file-local-path"   :  "D:\\RE20_--_Core_Repo_--_Public\\RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts\\RE20_11_02_--_DATA_-_Coding-Utility-Scripts-Config.json",
+        "file-github-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts/RE20_11_02_--_DATA_-_Coding-Utility-Scripts-Config.json"
+    },
+    "app-files-data": {
+        "app-index-file": {
+            "file-name"         :  "RE20_11_01_--_Index_-_Coding-Utility-Scripts.html",
+            "file-type"         :  "Main Application Index File",
+            "file-description"  :  "This is the main application index file for the coding utility scripts.",
+            "file-added"        :  "04-Apr-2025",
+            "file-version"      :  "1.2.0",
+            "file-local-dir"    :  "D:\\RE20_--_Core_Repo_--_Public\\RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts\\RE20_11_01_--_Index_-_Coding-Utility-Scripts.html",
+            "file-github-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts/RE20_11_01_--_Index_-_Coding-Utility-Scripts.html"
+        },
+        "app-style-sheet-file": {
+            "file-name"         :  "RE20_11_03_--_STYLE_-_Coding-Utility-Style-Sheet.css",
+            "file-type"         :  "Main Application CSS Stylesheet File",
+            "file-description"  :  "This is the main application style file for the coding utility scripts.",
+            "file-added"        :  "04-Apr-2025",
+            "file-version"      :  "1.2.0",
+            "file-local-dir"    :  "D:\\RE20_--_Core_Repo_--_Public\\RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts\\RE20_11_03_--_STYLE_-_Coding-Utility-Style-Sheet.css",
+            "file-github-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts/RE20_11_03_--_STYLE_-_Coding-Utility-Style-Sheet.css"
+        }
+    },
+    "script-files-data": {
+        "tool-script-01": {
+            "script-tool-name"         :  "Code Snapshot To Txt Tool.py",
+            "script-tool-usage"        :  "This tool is usefull for printing a snapshot of the codebase to a text file for easy viewing / sharing / code review etc.",
+            "script-tool-notes"        :  "NIL",
+            "script-file-name"         :  "RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-type"         :  "Python Script",
+            "script-file-description"  :  "This Python script is used to convert a codebase into a single text file",
+            "script-file-added"        :  "04-Apr-2025",
+            "script-file-version"      :  "1.0.0",
+            "script-file-local-dir"    :  "D:\\RE20_--_Core_Repo_--_Public\\RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts\\RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-github-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts/RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py"
+        },
+        "tool-script-02": {
+            "script-tool-name"         :  "VS Code Workspace Template",
+            "script-tool-usage"        :  "VS Code Default Workspace Example File",
+            "script-tool-notes"        :  "NIL",
+            "script-file-name"         :  "RE20_11_11_--_CODE_-_Template_-_VS-Code-Workspace.code-workspace",
+            "script-file-type"         :  "VS Code Workspace",
+            "script-file-description"  :  "Standard VS Code Workspace Template File",
+            "script-file-added"        :  "05-Apr-2025",
+            "script-file-version"      :  "1.0.0",
+            "script-file-local-dir"    :  "D:\\RE20_--_Core_Repo_--_Public\\RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts\\RE20_11_11_--_CODE_-_Template_-_VS-Code-Workspace.code-workspace",
+            "script-file-github-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts/RE20_11_11_--_CODE_-_Template_-_VS-Code-Workspace.code-workspace"
+        },
+        "tool-script-03": {
+            "script-tool-name"         :  "Code Snapshot To Txt Tool.py",
+            "script-tool-usage"        :  "This tool is usefull for printing a snapshot of the codebase to a text file for easy viewing / sharing / code review etc.",
+            "script-tool-notes"        :  "NIL",
+            "script-file-name"         :  "RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-type"         :  "Python Script",
+            "script-file-description"  :  "This Python script is used to convert a codebase into a single text file",
+            "script-file-added"        :  "04-Apr-2025",
+            "script-file-version"      :  "1.0.0",
+            "script-file-local-dir"    :  "D:\\RE20_--_Core_Repo_--_Public\\RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts\\RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-github-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts/RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py"
+        },
+        "tool-script-04": {
+            "script-tool-name"         :  "Code Snapshot To Txt Tool.py",
+            "script-tool-usage"        :  "This tool is usefull for printing a snapshot of the codebase to a text file for easy viewing / sharing / code review etc.",
+            "script-tool-notes"        :  "NIL",
+            "script-file-name"         :  "RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-type"         :  "Python Script",
+            "script-file-description"  :  "This Python script is used to convert a codebase into a single text file",
+            "script-file-added"        :  "04-Apr-2025",
+            "script-file-version"      :  "1.0.0",
+            "script-file-local-dir"    :  "D:\\RE20_--_Core_Repo_--_Public\\RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts\\RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-github-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts/RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py"
+        },
+        "tool-script-05": {
+            "script-tool-name"         :  "Code Snapshot To Txt Tool.py",
+            "script-tool-usage"        :  "This tool is usefull for printing a snapshot of the codebase to a text file for easy viewing / sharing / code review etc.",
+            "script-tool-notes"        :  "NIL",
+            "script-file-name"         :  "RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-type"         :  "Python Script",
+            "script-file-description"  :  "This Python script is used to convert a codebase into a single text file",
+            "script-file-added"        :  "04-Apr-2025",
+            "script-file-version"      :  "1.0.0",
+            "script-file-local-dir"    :  "D:\\RE20_--_Core_Repo_--_Public\\RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts\\RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-github-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts/RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py"
+        },
+        "tool-script-06": {
+            "script-tool-name"         :  "Code Snapshot To Txt Tool.py",
+            "script-tool-usage"        :  "This tool is usefull for printing a snapshot of the codebase to a text file for easy viewing / sharing / code review etc.",
+            "script-tool-notes"        :  "NIL",
+            "script-file-name"         :  "RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-type"         :  "Python Script",
+            "script-file-description"  :  "This Python script is used to convert a codebase into a single text file",
+            "script-file-added"        :  "04-Apr-2025",
+            "script-file-version"      :  "1.0.0",
+            "script-file-local-dir"    :  "D:\\RE20_--_Core_Repo_--_Public\\RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts\\RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py",
+            "script-file-github-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_11_--_Web-App_-_Coding-Utility_-_Coding-Utility-Scripts/RE20_11_10_--_CODE_-_Code-Utility_-_Code-Snapshot-To-Text-File.py"
+        }
+    }
+}

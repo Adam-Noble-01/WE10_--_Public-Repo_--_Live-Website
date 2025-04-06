@@ -1,129 +1,300 @@
-/* Main styles for architecture website */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ================================================================================================
+/* STYLE SHEET FOR THE NOBLE ARCHITECTURE WEBSITE
+   FILE NAME   |  NA10_00_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css
+   FILE TYPE   |  CSS
+   FILE AUTHOR |  Adam Noble
+/* ================================================================================================
+
+   FILE DESCRIPTION: 
+   - This file contains the core default styles for the Noble Architecture website.
+   - It is used to provide a consistent look and feel to the website.
+
+   VERSION HISTORY:
+   1.0.0 - Initial Release
+   1.1.0 - Refactored CSS Conventions
+   1.2.0 - Added Internal Tools Page
+   1.3.0 - Updated for new website design offloaded the code from the index.html file.
+
+
+/* ===============================================================================
+    CSS | VARIABLES & ROOT CONFIGURATION
+    - Introduced in v1.0.0 | Updated in v1.3.0
+    =============================================================================== */
+:root {
+    --header-height      :    55px;
+    --primary-color      :    #555041;          /* Brand color */
+    --primary-hover      :    #3d392e;          /* Darker shade */
+    --secondary-color    :    #86847d;          /* Neutral brand */
+    --secondary-hover    :    #6c6a65;          /* Darker neutral */
+    --success-color      :    #28a745;
+    --danger-color       :    #dc3545;
+    --danger-hover       :    #c82333;
+    --card-bg           :    #ffffff;
+    --card-border       :    #ddd;
+    --code-bg           :    #272822;           /* Okaidia theme */
+    --code-border       :    #444;              /* Code block border */
+    --text-color        :    #333;
+    --text-light        :    #666;
+    --body-bg           :    #f4f4f4;
+    --header-bg         :    #fff;
+    --header-border     :    var(--primary-color);
+    --button-text       :    #fff;
+    --warning-bg        :    #fff3cd;
+    --warning-border    :    #ffeeba;
+    --warning-text      :    #856404;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    line-height: 1.6;
-    color: #333;
+/* ===============================================================================
+   CSS | BASE LAYOUT & RESET (Using PAGE__ Block)
+   - Introduced in v1.0.0 | Updated in v1.3.0
+   =============================================================================== */
+/* - - - - - - - - - - - - -   Base Reset   - - - - - - - - - - - - - */
+html, body {
+    margin              :    0;
+    padding             :    0;
+    width               :    100%;
+    min-height          :    100vh;
+    background-color    :    var(--body-bg);
+    font-family         :    'Arial', sans-serif;
+    font-size           :    14px;
+    color               :    var(--text-color);
+    line-height         :    1.5;
+    display             :    flex;
+    flex-direction      :    column;
 }
 
-header {
-    background-color: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+/* - - - - - - - - - - - - -   Page Container   - - - - - - - - - - - - - */
+.PAGE__container {
+    width               :    100%;
+    min-height          :    100vh;
+    overflow-y          :    auto;
+    display             :    flex;
+    flex-direction      :    column;
 }
 
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 5%;
-    max-width: 1200px;
-    margin: 0 auto;
+/* ===============================================================================
+   CSS | HEADER COMPONENTS (Using HEAD__ Block)
+   - Introduced in v1.0.0 | Updated in v1.3.0
+   =============================================================================== */
+/* - - - - - - - - - - - - -   Header Container   - - - - - - - - - - - - - */
+.HEAD__container {
+    background-color    :    var(--header-bg);
+    box-shadow          :    0 2px 4px rgba(0,0,0,0.1);
+    position            :    sticky;
+    top                 :    0;
+    z-index             :    1000;
+    border-bottom       :    1px solid var(--header-border);
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
+.HEAD__nav {
+    max-width           :    1200px;
+    margin              :    0 auto;
+    padding             :    1rem 2rem;
+    display             :    flex;
+    justify-content     :    space-between;
+    align-items         :    center;
 }
 
-.menu {
-    display: flex;
-    list-style: none;
+.HEAD__logo {
+    display             :    flex;
+    align-items         :    center;
+    gap                 :    1rem;
 }
 
-.menu li {
-    margin-left: 2rem;
+.HEAD__logo-image {
+    height             :    40px;
+    width              :    auto;
 }
 
-.menu a {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    transition: color 0.3s;
+.HEAD__logo-text {
+    font-size          :    1.5rem;
+    font-weight        :    bold;
+    color              :    var(--primary-color);
 }
 
-.menu a:hover {
-    color: #666;
+.HEAD__menu {
+    list-style          :    none;
+    display             :    flex;
+    gap                 :    2rem;
+    margin              :    0;
+    padding             :    0;
 }
 
-main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 5%;
+.HEAD__link {
+    text-decoration     :    none;
+    color               :    var(--text-color);
+    font-weight         :    500;
+    padding             :    0.5rem 1rem;
+    transition          :    color 0.3s;
 }
 
-.hero {
-    text-align: center;
-    padding: 4rem 0;
+.HEAD__link:hover {
+    color               :    var(--primary-color);
 }
 
-.hero h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+.HEAD__link--active {
+    color               :    var(--primary-color);
+    font-weight         :    600;
 }
 
-.featured-projects {
-    margin: 4rem 0;
+/* ===============================================================================
+   CSS | MAIN CONTENT (Using MAIN__ Block)
+   - Introduced in v1.0.0 | Updated in v1.3.0
+   =============================================================================== */
+/* - - - - - - - - - - - - -   Main Container   - - - - - - - - - - - - - */
+.MAIN__container {
+    flex                :    1;
+    max-width           :    1200px;
+    margin              :    2rem auto;
+    padding             :    0 2rem;
 }
 
-.featured-projects h2 {
-    text-align: center;
-    margin-bottom: 2rem;
+.MAIN__header {
+    text-align          :    left;
+    margin-bottom       :    2rem;
 }
 
-.project-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
+.MAIN__title {
+    font-size           :    2rem;
+    color               :    var(--text-color);
+    margin-bottom       :    0.5rem;
 }
 
-.project-card {
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    transition: transform 0.3s;
+.MAIN__description {
+    color               :    var(--text-light);
+    font-size           :    1.1rem;
+    margin              :    0;
 }
 
-.project-card:hover {
-    transform: translateY(-5px);
+/* ===============================================================================
+   CSS | TOOL COMPONENTS (Using TOOL__ Block)
+   - Introduced in v1.2.0 | Updated in v1.3.0
+   =============================================================================== */
+/* - - - - - - - - - - - - -   Tool Grid   - - - - - - - - - - - - - */
+.TOOL__grid {
+    display             :    grid;
+    grid-template-columns:    repeat(auto-fit, minmax(300px, 1fr));
+    gap                 :    2rem;
+    margin              :    2rem 0;
 }
 
-.project-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+.TOOL__card {
+    background-color    :    var(--card-bg);
+    border-radius       :    8px;
+    box-shadow          :    0 3px 10px rgba(0,0,0,0.1);
+    padding             :    1.5rem;
+    transition          :    transform 0.3s, box-shadow 0.3s;
+    display             :    flex;
+    flex-direction      :    column;
 }
 
-.project-card h3, .project-card p {
-    padding: 0.5rem 1rem;
+.TOOL__card:hover {
+    transform           :    translateY(-5px);
+    box-shadow          :    0 5px 15px rgba(0,0,0,0.15);
 }
 
-.project-card a {
-    display: inline-block;
-    margin: 0.5rem 1rem 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #333;
-    color: white;
-    text-decoration: none;
-    border-radius: 3px;
-    transition: background-color 0.3s;
+.TOOL__title {
+    color               :    var(--text-color);
+    margin              :    0 0 1rem 0;
+    font-size           :    1.25rem;
+    border-bottom       :    1px solid var(--card-border);
+    padding-bottom      :    0.75rem;
 }
 
-.project-card a:hover {
-    background-color: #555;
+.TOOL__description {
+    color               :    var(--text-light);
+    margin              :    0 0 1.5rem 0;
+    flex                :    1;
+    line-height         :    1.5;
 }
 
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 2rem;
-    margin-top: 2rem;
-} 
+.TOOL__link {
+    display             :    inline-block;
+    padding             :    0.75rem 1.5rem;
+    background-color    :    var(--primary-color);
+    color               :    var(--button-text);
+    text-decoration     :    none;
+    border-radius       :    4px;
+    transition          :    all 0.3s ease;
+    text-align          :    center;
+    width               :    100%;
+    box-sizing          :    border-box;
+}
+
+.TOOL__link:hover {
+    background-color    :    var(--primary-hover);
+    transform           :    translateY(-2px);
+    box-shadow          :    0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* ===============================================================================
+   CSS | NOTICE COMPONENTS (Using NOTICE__ Block)
+   - Introduced in v1.2.0 | Updated in v1.3.0
+   =============================================================================== */
+/* - - - - - - - - - - - - -   Protected Notice   - - - - - - - - - - - - - */
+.NOTICE__protected {
+    background-color    :    var(--warning-bg);
+    border              :    1px solid var(--warning-border);
+    padding             :    1rem 1.5rem;
+    margin              :    2rem 0;
+    border-radius       :    8px;
+    color               :    var(--warning-text);
+    line-height         :    1.5;
+}
+
+.NOTICE__title {
+    display             :    block;
+    margin-bottom       :    0.5rem;
+    font-weight         :    600;
+}
+
+/* ===============================================================================
+   CSS | FOOTER COMPONENTS (Using FOOT__ Block)
+   - Introduced in v1.0.0 | Updated in v1.3.0
+   =============================================================================== */
+/* - - - - - - - - - - - - -   Footer Container   - - - - - - - - - - - - - */
+.FOOT__container {
+    background          :    var(--header-bg);
+    border-top          :    1px solid var(--header-border);
+    padding             :    1rem 2rem;
+    text-align          :    center;
+    color               :    var(--secondary-color);
+    font-size           :    0.875rem;
+    margin-top          :    auto;
+}
+
+/* ===============================================================================
+   CSS | RESPONSIVE LAYOUTS
+   - Introduced in v1.2.0 | Updated in v1.3.0
+   =============================================================================== */
+@media (max-width: 768px) {
+    .HEAD__nav {
+        padding          :    1rem;
+        flex-direction   :    column;
+        gap              :    1rem;
+    }
+
+    .HEAD__menu {
+        flex-direction   :    column;
+        align-items      :    center;
+        gap              :    1rem;
+    }
+
+    .MAIN__container {
+        padding          :    0 1rem;
+        margin           :    1rem auto;
+    }
+
+    .TOOL__grid {
+        grid-template-columns:    1fr;
+        gap                 :    1rem;
+    }
+
+    .TOOL__card {
+        padding          :    1.25rem;
+    }
+
+    .HEAD__logo-image {
+        height         :    30px;
+    }
+}

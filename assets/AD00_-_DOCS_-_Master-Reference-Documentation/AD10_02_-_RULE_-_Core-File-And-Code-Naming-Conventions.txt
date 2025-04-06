@@ -23,19 +23,31 @@ DESCRIPTION
 http://www.noble-architecture.com/
 
 
-
 ### Project File Type Reference List
 ----------------------------------------------------------------------------------------------------
+
 ```file_type_reference_list
+- - - Information & Documentation Files - - -
 READ  =  Readme files containing information about the project.
 RULE  =  Text File Defining strict rules and MANDATORY coding conventions.
+INFO  =  A Readme file of less importance than a READ or RULE file.
+
+- - - Data Files - - -
 DATA  =  A Directory of data files for the project; note data typically stores data in a structured json format.
+
+- - - Application Files - - -
 APPS  =  A Directory containing collections of scripts making up a complete application typically.
+
+- - - Style Files - - -
 STYL  =  Refers to CSS style sheet files defining a style or set of styles.
+
+- - - Code Files - - -
 HTML  =  Refers to HTML files containing the structure and content of the project.
 JSON  =  Refers to JSON files which store data in a structured format for the project.
 SETP  =  Denotes template files & folders; meaning term means "Setup".
 PAGE  =  Refers to a static page of the website.
+
+- - - Asset Files - - -
 LOGO  =  Refers to a logo or branded graphic file for the project.
 ```
 
