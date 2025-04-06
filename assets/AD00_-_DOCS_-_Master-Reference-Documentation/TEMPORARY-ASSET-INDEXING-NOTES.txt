@@ -6,11 +6,14 @@
 
 -   Convert Site Map To Proper Json 
 -   Build a easy sitemap viewer
+-   property true / false for currently live
 
-```provisional_sitemap
-www.noble-architecture.com/sn-apps/text-to-reader-app/text-to-reader-app
-www.noble-architecture.com/na-project-portal/25-projects/GA06_--_Cloves-Wood
-www.noble-architecture.com/na-project-portal/25-projects/GA06_--_Cloves-Wood/GA06_-_PlanVision_-_Web-Application
+###### Current Live Sitemap
+
+```current_live_sitemap
+https://www.noble-architecture.com/na-project-portal/25-projects/GA06_--_Cloves-Wood
+https://www.noble-architecture.com/na-project-portal/25-projects/GA06_--_Cloves-Wood/GA06_-_PlanVision_-_Web-Application
+https://www.noble-architecture.com/sn-apps/text-to-reader-app/text-to-reader-app
 ```
 
 ---
@@ -56,14 +59,136 @@ assets			    =  Assets related to only the main site & not apps; Github requires
 assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies usually preffered for long term archiving
 ```
 
+
 ---------------------------------------------------------------------------------------------------
+#### Global Favicon Files Library Index
+- Note Prefer SVG format for favicons as it will not pixelate on high res screens.
+- If SVG is not supported, use PNG format.
+- If PNG is not supported, use ICO format.
 
-###### 
+```
+/assets//AD05_-_LIBR_-_Common_-_Icons-and-favicons
+    AD05_01_-_NA_Favicon_-_SVG-h50mm.svg       <-- Use this as the primary default core favicon as it will not pixelate 
+    AD05_02_-_NA_Favicon_-_PNG-h2000px.png     <-- This is used for High resolution square aspect ration profile images.
+    AD05_03_-_NA_Favicon_-_PNG-h1000px.png     <-- This is used for Medium resolution square aspect ration profile images.
+    AD05_04_-_NA_Favicon_-_PNG-h512px.png      <-- This is used for browsers that do not support modern SVG format, use as a fallback.
+    AD05_05_-_NA_Favicon_-_PNG-h192px.png      <-- This is a fallback icon uf the 512px version does not load.
+    AD05_06_-_NA_Favicon_-_PNG-h32px.png       <-- This is the absolute fallback icon uf the SVG, 512px, 192px versions fail to load.
+    AD05_07_-_NA_Favicon_-_ICO-h32px.ico       <-- This is the absolute fallback icon for browsers that do not support the other formats.
+```
 
+#### Reference Favicon Relative Path Index
+./ROOT
+    /assets
+        /AD05_-_LIBR_-_Common_-_Icons-and-favicons
+            /AD05_-_LIBR_-_Common_-_Icons-and-favicons
+            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg
+            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_02_-_NA_Favicon_-_PNG-h2000px.png
+            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_03_-_NA_Favicon_-_PNG-h1000px.png
+            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png
+            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png
+            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png
+            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_PNG-h32px.ico
+
+
+---------------------------------------------------------------------------------------------------
 
 
 ---------------------------------------------------------------------------------------------------
 ###### End Of Notes
 
 
-Save this file as a template for future notes
+
+
+
+
+---------------------------------------------------------------------------------------------------
+
+To get those **square icons (favicons)** to show up in your bookmarks (as seen in your screenshot), you need to:
+
+# FAVICON SETUP FOR BOOKMARK ICONS
+-----------------------------------------------------------------------------------------------------------------------
+
+## What Is a Favicon?
+A *favicon* is a small icon (typically 16×16 or 32×32) shown:
+- In browser tabs
+- On bookmarks/favourites bars
+- When creating website shortcuts
+
+The square icons you're asking about are likely generated from properly implemented **favicon metadata** on your site.
+
+---
+
+## Recommended File Format
+
+### Use `.ico` (Best Compatibility)  
+Browsers still prefer `.ico` files for classic favicons, particularly for legacy support.
+
+### PNG is Also Fine (Modern Browsers)  
+You can use PNG too, especially for higher resolution versions (e.g. 192×192 or 512×512) – used by mobile browsers or pinned apps.
+
+**Recommendation:**  
+Use both `.ico` (for classic favicon) and `.png` (for high-res/modern) and reference them correctly.
+
+---
+
+## File Structure Suggestion
+
+Put your files like this inside your project:
+
+
+
+---
+
+## HTML Code To Include in `<head>`
+
+Insert this in your HTML's `<head>` tag:
+
+```html
+<!-- Classic Favicon -->
+<link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+
+<!-- Modern Browsers -->
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/favicon-192.png">
+```
+
+You can also add this if you want to cover Apple devices or Android homescreens:
+
+```html
+<!-- Apple Touch Icon -->
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+
+<!-- Android Manifest (Optional) -->
+<link rel="manifest" href="/manifest.json">
+```
+
+---
+
+## Creating a `.ico` File
+
+Use any of these free tools:
+- [https://realfavicongenerator.net/](https://realfavicongenerator.net/)
+- [https://favicon.io/](https://favicon.io/)
+
+They allow uploading a PNG or SVG, and will generate `.ico`, `.png`, and HTML tags for you.
+
+---
+
+## Why Your Bookmarks Show Square Icons
+
+In your screenshot, “Portal Links” and “Coding Scripts” have favicons with a **Material Design–style square look**, probably because those pages have favicons using that style in their `.ico` or `.png`.
+
+---
+
+## Checklist To Get It Working
+
+1. ✅ Create `favicon.ico` (plus optional PNGs)
+2. ✅ Save them in your site folder (e.g. `/assets/icons/`)
+3. ✅ Add correct `<link rel="icon"...>` tags in your HTML `<head>`
+4. ✅ Clear your browser cache or test in incognito
+5. ✅ Save the bookmark again after updating
+
+---
+
+Let me know if you'd like me to generate a favicon `.ico` for you or give you the base HTML with placeholder paths.

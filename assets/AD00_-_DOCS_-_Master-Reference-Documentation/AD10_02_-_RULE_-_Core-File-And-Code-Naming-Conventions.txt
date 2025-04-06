@@ -36,6 +36,7 @@ HTML  =  Refers to HTML files containing the structure and content of the projec
 JSON  =  Refers to JSON files which store data in a structured format for the project.
 SETP  =  Denotes template files & folders; meaning term means "Setup".
 PAGE  =  Refers to a static page of the website.
+LOGO  =  Refers to a logo or branded graphic file for the project.
 ```
 
     
@@ -46,3 +47,4 @@ LOAD-FN  =  Loading Function
 
 ----------------------------------------------------------------------------------------------------
 ###### END OF FILE 
+
