@@ -56,4 +56,4 @@ assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies
 ###### End Of Notes
 
 
-
+Save this file as a template for future notes
