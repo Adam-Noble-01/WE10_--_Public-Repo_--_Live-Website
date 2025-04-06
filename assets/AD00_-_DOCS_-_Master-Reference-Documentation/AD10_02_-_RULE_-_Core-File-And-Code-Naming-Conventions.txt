@@ -23,14 +23,9 @@ DESCRIPTION
 http://www.noble-architecture.com/
 
 
-# Architecture Studio Website
-
-A GitHub Pages website for an archit
-# AD10_10_-_READ_-_File-Naming-Reference-Document.txt
-
-## Project File Type Reference List
 
 ### Project File Type Reference List
+----------------------------------------------------------------------------------------------------
 ```file_type_reference_list
 READ  =  Readme files containing information about the project.
 RULE  =  Text File Defining strict rules and MANDATORY coding conventions.
@@ -43,9 +38,9 @@ SETP  =  Denotes template files & folders; meaning term means "Setup".
 PAGE  =  Refers to a static page of the website.
 ```
 
-----------------------------------------------------------------------------------------------------
-
+    
 ### Project JavaScript Function Code Reference List
+----------------------------------------------------------------------------------------------------
 LOAD-FN  =  Loading Function
 
 

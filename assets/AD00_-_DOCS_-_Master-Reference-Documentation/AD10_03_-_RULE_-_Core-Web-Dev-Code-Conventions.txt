@@ -1,11 +1,25 @@
 ---
-File Name   |  RE10_20_01-_SCHEMA_-_Core-Web-Dev-Code-Conventions.txt
-Description |  This File Defines the standards set for all codebases using HTML / CSS / JS
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE & APPLICATIONS - Core Web Development Coding Conventions
+AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
+ 
+VERSION HISTORY
+05-Apr-2025 - Version 1.0 - Initial Draft
+
+DESCRIPTION
+- This document is the core conventions reference document for the codebase style standards.
+- This File Defines the standards set for all codebases using HTML / CSS / JS / Python
+- These codes are global across the project and are used to identify the file type of a given file.
+- These code also define the naming conventions for code objects, variables, functions, etc.
+- All code MUST align with the standards set out in this document.
+
+====================================================================================================
 ---
 
 # Core Web Development Coding Conventions
+###### A Breakdown Of Project-wide Coding Conventions
+----------------------------------------------------------------------------------------------------
 
----
 
 ### Introduction
 
@@ -13,7 +27,7 @@ This document outlines the coding style conventions used in all front end web de
 
 Consistency is paramount. When modifying existing code, adhere to the established style. When adding new features or regions or making modifications.
 
----
+----------------------------------------------------------------------------------------------------
 
 ##### General Principles
 
@@ -43,9 +57,19 @@ Consistency is paramount. When modifying existing code, adhere to the establishe
 
     -   Code is organized into logical blocks using specifically formatted header comments and dividers.
 
+
+---------------------------------------------------------------------------------------------------
+#                         ⚠⚠⚠⚠ END OF PROJECT STANDARDS ⚠⚠⚠⚠
+
+====================================================================================================
+=|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|=
+====================================================================================================
+# ⚠⚠⚠⚠ BELOW IS EXAMPLE IDEAS NOT PART OF THE PROJECT STANDARDS ⚠⚠⚠⚠
+- !Reminder to sort the notes below into the correct sections above!
+- Below are notes that have not been sorted into the correct sections above.
     
 
----
+----------------------------------------------------------------------------------------------------
 
 ### Main Regions
 
@@ -63,7 +87,7 @@ Consistency is paramount. When modifying existing code, adhere to the establishe
 ###### Divider |  Use a line of 80 equal signs (`=`) before the header -  JS Context Shown
 
 ```Code Region Divider Example
-// =============================================================================
+// =============================================================================================
 ```
 
 ###### Header Format |  JS Context Shown
@@ -94,7 +118,7 @@ let isDragging = false;
     -   Switch out the commenting style to suit HTML or CSS Sections.
     -   The same underlying structure allies to HTML / CSS / JS
 
----
+----------------------------------------------------------------------------------------------------
 
 ### Sub-Regions / Functional Blocks
 
@@ -102,7 +126,7 @@ let isDragging = false;
 
 **Divider:** Use a line of 60 hyphens (`-`) before the header.
 ```
-------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 ```
 *(Note: Divider length can vary slightly but should be visually distinct from the main region divider).*
 
@@ -120,11 +144,11 @@ IMPORTANT NOTES (Optional)
 ###### Sub Region Header Example 
 
 ```javascript
-// ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 // FUNCTION | MEASUREMENT LINE DRAWING
 // - This section introduced in v1.8.3
 // Contains functions for drawing measurement lines and indicators on canvas
-// ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 function drawLine(points, strokeStyle) { // ← Draws measurement lines on canvas
     // ... function body ...
 }

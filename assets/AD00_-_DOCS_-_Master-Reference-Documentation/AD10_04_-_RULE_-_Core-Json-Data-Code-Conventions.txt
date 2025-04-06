@@ -89,8 +89,14 @@ This convention should be applied to all JSON files in the project, including co
 
 
 ---------------------------------------------------------------------------------------------------
-# ⚠⚠⚠⚠ BELOW IS EXAMPLE IDEAS NOT PART OF THE PROJECT STANDARDS ⚠⚠⚠⚠
+#                         ⚠⚠⚠⚠ END OF PROJECT STANDARDS ⚠⚠⚠⚠
+
+====================================================================================================
+=|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|=
+====================================================================================================
 # Additional Typical JSON Properties for Website Architecture
+- !Reminder to sort the notes below into the correct sections above!
+- Below are notes that have not been sorted into the correct sections above.
 
 Based on the existing site structure data, here are other properties that might be typical to include in this type of architecture documentation:
 
