@@ -102,8 +102,8 @@ html, body {
 
 .HEAD__nav {
     margin              :    0 auto;
-    padding-top         :    00.85rem;
-    padding-bottom      :    00.85rem;
+    padding-top         :    01.00rem;
+    padding-bottom      :    01.00rem;
     display             :    flex;
     justify-content     :    space-between;
     align-items         :    center;
