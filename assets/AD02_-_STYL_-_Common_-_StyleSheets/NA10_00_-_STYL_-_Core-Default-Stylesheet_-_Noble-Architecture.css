@@ -5,49 +5,60 @@
    FILE AUTHOR |  Adam Noble
 /* ================================================================================================
 
-   FILE DESCRIPTION: 
+   FILE DESCRIPTION
    - This file contains the core default styles for the Noble Architecture website.
    - It is used to provide a consistent look and feel to the website.
 
-   VERSION HISTORY:
+   VERSION HISTORY
    1.0.0 - Initial Release
    1.1.0 - Refactored CSS Conventions
    1.2.0 - Added Internal Tools Page
    1.3.0 - Updated for new website design offloaded the code from the index.html file.
 
+   STYLE CODING CONVENTIONS
+    - All CSS code is written in "column" form visually illustrating the keys and values.
+      - Example:
+      - property    :    value;    /*  <-- Comment         
+    - All comments are prefixed with "/*  <-- "
+
+
+
 
 /* ===============================================================================
-    CSS | VARIABLES & ROOT CONFIGURATION
+    CSS | COLOR PALETTE & DESIGN VARIABLES
     - Introduced in v1.0.0 | Updated in v1.3.0
-    =============================================================================== */
+    - Defines the core color scheme and design variables for the site
+   =============================================================================== */
+
 :root {
     --header-height      :    55px;
-    --primary-color      :    #555041;          /* Brand color */
-    --primary-hover      :    #3d392e;          /* Darker shade */
-    --secondary-color    :    #86847d;          /* Neutral brand */
-    --secondary-hover    :    #6c6a65;          /* Darker neutral */
+    --primary-color      :    #555041;          /*   <-- Brand color */
+    --primary-hover      :    #3d392e;          /*   <-- Darker shade */
+    --secondary-color    :    #86847d;          /*   <-- Neutral brand */
+    --secondary-hover    :    #6c6a65;          /*   <-- Darker neutral */
     --success-color      :    #28a745;
     --danger-color       :    #dc3545;
     --danger-hover       :    #c82333;
-    --card-bg           :    #ffffff;
-    --card-border       :    #ddd;
-    --code-bg           :    #272822;           /* Okaidia theme */
-    --code-border       :    #444;              /* Code block border */
-    --text-color        :    #333;
-    --text-light        :    #666;
-    --body-bg           :    #f4f4f4;
-    --header-bg         :    #fff;
-    --header-border     :    var(--primary-color);
-    --button-text       :    #fff;
-    --warning-bg        :    #fff3cd;
-    --warning-border    :    #ffeeba;
-    --warning-text      :    #856404;
+    --card-bg            :    #ffffff;
+    --card-border        :    #ddd;
+    --code-bg            :    #272822;           /*   <-- Okaidia theme */
+    --code-border        :    #444;              /*   <-- Code block border */
+    --text-color         :    #333;
+    --text-light         :    #666;
+    --body-bg            :    #f4f4f4;
+    --header-bg          :    #fff;
+    --header-border      :    var(--primary-color);
+    --button-text        :    #fff;
+    --warning-bg         :    #fff3cd;
+    --warning-border     :    #ffeeba;
+    --warning-text       :    #856404;
 }
 
 /* ===============================================================================
    CSS | BASE LAYOUT & RESET (Using PAGE__ Block)
    - Introduced in v1.0.0 | Updated in v1.3.0
-   =============================================================================== */
+
+
 /* - - - - - - - - - - - - -   Base Reset   - - - - - - - - - - - - - */
 html, body {
     margin              :    0;
@@ -56,9 +67,12 @@ html, body {
     min-height          :    100vh;
     background-color    :    var(--body-bg);
     font-family         :    'Arial', sans-serif;
-    font-size           :    14px;
+    /* RELATIVE UNIT | 
+      - Note This value is used to calculate the font size of the text in the page. 
+      - It is a relative unit that is based on the font size of the root element.       */
+    font-size           :    18.00px;    /*  <-- CRITICAL VALUE!!  */
     color               :    var(--text-color);
-    line-height         :    1.5;
+    line-height         :    1.4;
     display             :    flex;
     flex-direction      :    column;
 }
@@ -75,7 +89,7 @@ html, body {
 /* ===============================================================================
    CSS | HEADER COMPONENTS (Using HEAD__ Block)
    - Introduced in v1.0.0 | Updated in v1.3.0
-   =============================================================================== */
+
 /* - - - - - - - - - - - - -   Header Container   - - - - - - - - - - - - - */
 .HEAD__container {
     background-color    :    var(--header-bg);
@@ -87,44 +101,46 @@ html, body {
 }
 
 .HEAD__nav {
-    max-width           :    1200px;
     margin              :    0 auto;
-    padding             :    1rem 2rem;
+    padding-top         :    00.55rem;
+    padding-bottom      :    00.55rem;
     display             :    flex;
     justify-content     :    space-between;
     align-items         :    center;
 }
 
-.HEAD__logo {
+.HEAD__na_logo {
     display             :    flex;
     align-items         :    center;
-    gap                 :    1rem;
 }
 
-.HEAD__logo-image {
-    height             :    40px;
-    width              :    auto;
+.HEAD__na_logo-image {
+    height              :    02.00rem;
+    width               :    auto;
 }
 
-.HEAD__logo-text {
-    font-size          :    1.5rem;
-    font-weight        :    bold;
-    color              :    var(--primary-color);
+.HEAD__na_logo-text {
+    display             :    none;  /*   <-- Hidden Main; may be reinstated with certain applications */
 }
 
 .HEAD__menu {
     list-style          :    none;
     display             :    flex;
-    gap                 :    2rem;
+    gap                 :    00.50rem;
     margin              :    0;
     padding             :    0;
+    margin-left         :    auto; 
 }
 
 .HEAD__link {
     text-decoration     :    none;
     color               :    var(--text-color);
-    font-weight         :    500;
-    padding             :    0.5rem 1rem;
+    font-weight         :    400;
+    font-size           :    00.85rem;
+    padding-top         :    00.50rem;
+    padding-bottom      :    00.50rem;
+    padding-left        :    00.50rem;
+    padding-right       :    00.50rem;
     transition          :    color 0.3s;
 }
 
@@ -140,13 +156,17 @@ html, body {
 /* ===============================================================================
    CSS | MAIN CONTENT (Using MAIN__ Block)
    - Introduced in v1.0.0 | Updated in v1.3.0
-   =============================================================================== */
+
 /* - - - - - - - - - - - - -   Main Container   - - - - - - - - - - - - - */
 .MAIN__container {
     flex                :    1;
     max-width           :    1200px;
-    margin              :    2rem auto;
-    padding             :    0 2rem;
+    margin-left         :    02.00rem;
+    margin-right        :    02.00rem;
+    align-self          :    center;
+    transform-origin    :    top center;
+    height              :    50vh;
+    overflow            :    hidden;
 }
 
 .MAIN__header {
@@ -155,21 +175,21 @@ html, body {
 }
 
 .MAIN__title {
-    font-size           :    2rem;
+    font-size           :    01.00rem;
     color               :    var(--text-color);
     margin-bottom       :    0.5rem;
 }
 
 .MAIN__description {
     color               :    var(--text-light);
-    font-size           :    1.1rem;
+    font-size           :    00.65rem;
     margin              :    0;
 }
 
 /* ===============================================================================
    CSS | TOOL COMPONENTS (Using TOOL__ Block)
    - Introduced in v1.2.0 | Updated in v1.3.0
-   =============================================================================== */
+
 /* - - - - - - - - - - - - -   Tool Grid   - - - - - - - - - - - - - */
 .TOOL__grid {
     display             :    grid;
@@ -230,54 +250,58 @@ html, body {
 /* ===============================================================================
    CSS | NOTICE COMPONENTS (Using NOTICE__ Block)
    - Introduced in v1.2.0 | Updated in v1.3.0
-   =============================================================================== */
+
 /* - - - - - - - - - - - - -   Protected Notice   - - - - - - - - - - - - - */
 .NOTICE__protected {
     background-color    :    var(--warning-bg);
     border              :    1px solid var(--warning-border);
-    padding             :    1rem 1.5rem;
-    margin              :    2rem 0;
     border-radius       :    8px;
+        padding             :    1rem 1.5rem;
+    margin              :    2rem 0;
     color               :    var(--warning-text);
     line-height         :    1.5;
 }
 
 .NOTICE__title {
     display             :    block;
-    margin-bottom       :    0.5rem;
+    margin-bottom       :    00.50rem;
     font-weight         :    600;
 }
 
 /* ===============================================================================
    CSS | FOOTER COMPONENTS (Using FOOT__ Block)
-   - Introduced in v1.0.0 | Updated in v1.3.0
-   =============================================================================== */
+   - Introduced in v1.3.0
+
 /* - - - - - - - - - - - - -   Footer Container   - - - - - - - - - - - - - */
 .FOOT__container {
     background          :    var(--header-bg);
     border-top          :    1px solid var(--header-border);
-    padding             :    1rem 2rem;
+    padding-top         :    00.20rem;
+    padding-bottom      :    00.20rem;
+    font-size           :    00.80rem;
     text-align          :    center;
     color               :    var(--secondary-color);
-    font-size           :    0.875rem;
-    margin-top          :    auto;
+    margin-top          :    auto;      /* <-- Pushes footer to bottom   */
 }
 
 /* ===============================================================================
    CSS | RESPONSIVE LAYOUTS
    - Introduced in v1.2.0 | Updated in v1.3.0
-   =============================================================================== */
+*/
+
 @media (max-width: 768px) {
     .HEAD__nav {
         padding          :    1rem;
-        flex-direction   :    column;
-        gap              :    1rem;
+        flex-direction   :    row;          /*   <-- Keep horizontal layout */
+        align-items      :    center;
     }
 
     .HEAD__menu {
-        flex-direction   :    column;
-        align-items      :    center;
-        gap              :    1rem;
+        gap              :    1.5rem;       /*   <-- Reduced gap on mobile */
+    }
+
+    .HEAD__logo-image {
+        height           :    25px;         /*   <-- Smaller logo on mobile */
     }
 
     .MAIN__container {
@@ -292,9 +316,5 @@ html, body {
 
     .TOOL__card {
         padding          :    1.25rem;
-    }
-
-    .HEAD__logo-image {
-        height         :    30px;
     }
 }

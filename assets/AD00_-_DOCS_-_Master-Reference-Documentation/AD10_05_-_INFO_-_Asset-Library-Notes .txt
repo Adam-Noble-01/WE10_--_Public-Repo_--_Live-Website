@@ -40,7 +40,7 @@ https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documen
 ###### Web Application Directory Sitemap
 
 ```web_application_directory_sitemap
-assets			    =  Assets related to only the main site & not apps; Github requires this folder
+assets		 =  Assets related to only the main site & not apps; Github requires this folder
 assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies usually preferred for long term archiving
 na-apps         =  Noble Architecture  - Live App Deployment
 nb-apps         =  Noble Audio - Live App Deployment
@@ -101,22 +101,22 @@ assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies
 
 ```brand_image_library_index
 /assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets
-    NA03_01_01_-_PNG_-_NA_Company_Logo.png        <-- Main company logo
-    NA03_30_-_PNG_-_Email_signature.png           <-- Email signature template
-    NA03_31_-_PNG_-_Handwritten-Signature.png     <-- Digital handwritten signature
-    NA03_40_-_PNG_-_Profile-Logo_-_h1000px.png    <-- Profile logo medium resolution (1000px)
-    NA03_41_-_PNG_-_Profile-Logo_-_h2000px.png    <-- Profile logo high resolution (2000px)
-    NA03_42_-_PNG_-_Profile-Logo_-_h512px.png     <-- Profile logo small resolution (512px)
+    NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png    <-- Main company logo
+    NA03_30_-_PNG_-_NA_Company_Email_signature.png          <-- Email signature template
+    NA03_31_-_PNG_-_Adam_Noble_Handwritten-Signature.png    <-- Digital handwritten signature
+    NA03_40_-_PNG_-_Profile-Logo_-_h1000px.png              <-- Profile logo medium resolution (1000px)
+    NA03_41_-_PNG_-_Profile-Logo_-_h2000px.png              <-- Profile logo high resolution (2000px)
+    NA03_42_-_PNG_-_Profile-Logo_-_h512px.png               <-- Profile logo small resolution (512px)
 ```
 
 #### Reference Brand Image Assets Relative Path Index
 ```brand_image_assets_relative_path_index
 ./ROOT
     /assets
-        NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets
-            /NA03_01_01_-_PNG_-_NA_Company_Logo.png
-            /NA03_30_-_PNG_-_Email_signature.png
-            /NA03_31_-_PNG_-_Handwritten-Signature.png
+        /NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets
+            /NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png
+            /NA03_30_-_PNG_-_NA_Company_Email_signature.png
+            /NA03_31_-_PNG_-_Adam_Noble_Handwritten-Signature.png
             /NA03_40_-_PNG_-_Profile-Logo_-_h1000px.png
             /NA03_41_-_PNG_-_Profile-Logo_-_h2000px.png
             /NA03_42_-_PNG_-_Profile-Logo_-_h512px.png
