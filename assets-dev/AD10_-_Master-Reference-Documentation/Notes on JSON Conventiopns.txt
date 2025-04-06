@@ -1,0 +1,247 @@
+# JSON Formatting Convention
+
+## Aligned Column-Style JSON Format
+
+This project uses a specific JSON formatting convention that enhances readability while maintaining valid JSON syntax. This document explains the formatting rules for contributors and automated tools to follow.
+
+### Key Formatting Rules
+
+**Property Name Alignment**:
+- Identify the longest property name within each object
+- Pad all property names with spaces to match the longest property name
+- Add two spaces after the padded property name
+- Add a colon
+- Add two spaces after the colon before the value
+
+**Example Format**:
+
+```json
+{
+  "shortKey"           :  "value",
+  "longerPropertyName" :  "another value"
+}
+```
+
+**Nested Objects and Arrays**:
+- Maintain standard JSON indentation (2 spaces) for nested objects
+- Apply the same alignment pattern within each nested object level
+- Array elements that are simple values do not require alignment
+
+### Implementation Details
+
+For each object in the JSON:
+
+Calculate the maximum property name length within that object context
+
+For each property in the object:
+- Calculate padding: `maxLength - currentPropertyLength + 2`
+- Add that many spaces after the property name
+- Add colon
+- Add exactly 2 spaces before the value
+
+### Example Implementation
+
+```javascript
+function formatJsonWithAlignedColons(jsonObj) {
+  // Process each object level recursively
+  if (typeof jsonObj !== 'object' || jsonObj === null) return jsonObj;
+  
+  // Find the longest key length for this object
+  const keys = Object.keys(jsonObj);
+  const maxKeyLength = keys.reduce((max, key) => 
+    Math.max(max, key.length), 0);
+  
+  // Format each property
+  const formattedEntries = keys.map(key => {
+    const value = jsonObj[key];
+    // Determine if value needs recursive formatting
+    const formattedValue = typeof value === 'object' && value !== null
+      ? formatJsonWithAlignedColons(value)
+      : value;
+    
+    // Calculate padding for alignment
+    const padding = ' '.repeat(maxKeyLength - key.length + 2);
+    // Return the formatted key-value pair
+    return `"${key}"${padding}:  ${JSON.stringify(formattedValue)}`;
+  });
+  
+  // Construct the formatted object
+  return `{\n  ${formattedEntries.join(',\n  ')}\n}`;
+}
+```
+
+### Rationale
+
+This formatting convention serves several purposes:
+
+**Enhanced Readability**: The column-like appearance makes it easier to scan property names and values
+
+**Consistent Visual Structure**: Creates a predictable visual pattern that helps identify related properties
+
+**Maintainability**: Makes differences more apparent in version control diffs
+
+**Valid JSON**: Despite the custom spacing, the format remains valid JSON that any parser can process
+
+This convention should be applied to all JSON files in the project, including configuration files, data models, and API response examples.
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+# ⚠⚠⚠⚠ BELOW IS EXAMPLE IDEAS NOT PART OF THE PROJECT STANDARDS ⚠⚠⚠⚠
+# Additional Typical JSON Properties for Website Architecture
+
+Based on the existing site structure data, here are other properties that might be typical to include in this type of architecture documentation:
+
+## Page-Level Properties
+
+```json
+{
+  "pageId"            :  "WEB-PAGE-03",
+  "pageTitle"         :  "Projects",
+  "pageLoadNo"        :  2,
+  "pageDescription"   :  "overview of all architecture projects",
+  "pageKeywords"      :  "architecture, projects, portfolio, design, commercial, residential",
+  "pagePath"          :  "projects/index.html",
+  "pageBotVisible"    :  true,
+  "pageStatus"        :  "live",
+  "pageTemplate"      :  "gallery-layout",
+  "pageAuthor"        :  "Adam Noble",
+  "pageCreatedDate"   :  "05-Apr-2025",
+  "pageModifiedDate"  :  "10-Apr-2025",
+  "pageParent"        :  "WEB-PAGE-01",
+  "pageOrder"         :  2,
+  "pageInNavigation"  :  true,
+  "pageCategory"      :  "portfolio",
+  "pagePermissions"   :  "public",
+  "pageAnalyticsID"   :  "UA-12345-01",
+  "pageRedirects"     :  ["old-projects.html", "portfolio.html"],
+  "pageScripts"       :  ["gallery.js", "lightbox.js"],
+  "pageStyles"        :  ["gallery-custom.css"],
+  "pageFeaturedImage" :  "assets/images/featured/project-overview.jpg",
+  "pageRelatedPages"  :  ["WEB-PAGE-04", "WEB-PAGE-05"],
+  "pageCustomFields"  :  {
+    "showContactForm" :  true,
+    "galleryColumns"  :  3,
+    "featuredProject" :  "PRJ-2025-001"
+  }
+}
+```
+
+## Project-Specific Properties
+
+```json
+{
+  "projects": {
+    "description"         :  "gallery of architectural projects",
+    "content"             :  "individual project pages with details and interactive web apps",
+    "projectCategories"   :  ["residential", "commercial", "institutional", "conceptual"],
+    "featuredProjects"    :  ["PRJ-2025-001", "PRJ-2024-012"],
+    "projectItems"        :  [
+      {
+        "projectId"       :  "PRJ-2025-001",
+        "projectTitle"    :  "Riverfront Pavilion",
+        "projectType"     :  "commercial",
+        "projectStatus"   :  "completed",
+        "projectYear"     :  2025,
+        "projectLocation" :  "Riverside, CA",
+        "projectClient"   :  "City of Riverside",
+        "projectBudget"   :  "$1.2M",
+        "projectSize"     :  "3,500 sq ft",
+        "projectTags"     :  ["pavilion", "public space", "waterfront"],
+        "projectGallery"  :  ["img1.jpg", "img2.jpg", "img3.jpg"],
+        "projectFeatured" :  true,
+        "projectPagePath" :  "projects/riverfront-pavilion.html"
+      }
+    ]
+  }
+}
+```
+
+## SEO and Analytics Properties
+
+```json
+{
+  "seoSettings"           :  {
+    "defaultTitle"        :  "Noble Architecture | Award-Winning Design Studio",
+    "titleSeparator"      :  " | ",
+    "defaultDescription"  :  "Noble Architecture specializes in sustainable modern design for residential and commercial projects",
+    "defaultKeywords"     :  "architecture, design, sustainable, modern, portfolio",
+    "canonicalDomain"     :  "https://www.noble-architecture.com",
+    "sitemapPath"         :  "sitemap.xml",
+    "robotsTxtRules"      :  ["User-agent: *", "Disallow: /client-portal/"],
+    "socialImage"         :  "assets/images/social-share.jpg",
+    "socialAccounts"      :  {
+      "instagram"         :  "@noble_architecture",
+      "pinterest"         :  "noblearchitecture",
+      "linkedIn"          :  "noble-architecture"
+    }
+  },
+  "analyticsConfig"       :  {
+    "provider"            :  "Google Analytics",
+    "trackingId"          :  "UA-12345-01",
+    "anonymizeIp"         :  true,
+    "enabledForPages"     :  ["public", "portfolio"],
+    "disabledForPages"    :  ["client-portal"]
+  }
+}
+```
+
+## Global Configuration Properties
+
+```json
+{
+  "siteConfig"            :  {
+    "siteName"            :  "Noble Architecture",
+    "siteVersion"         :  "1.0.1",
+    "siteAuthor"          :  "Adam Noble",
+    "siteEmail"           :  "contact@noble-architecture.com",
+    "sitePhone"           :  "+1 (555) 123-4567",
+    "siteAddress"         :  "123 Design Avenue, Los Angeles, CA 90001",
+    "siteLanguage"        :  "en-US",
+    "siteCurrency"        :  "USD",
+    "siteTimezone"        :  "America/Los_Angeles",
+    "maintenanceMode"     :  false,
+    "enableCaching"       :  true,
+    "lastDeployment"      :  "15-Apr-2025",
+    "devEnvironment"      :  "production",
+    "apiKeys"             :  {
+      "mapbox"            :  "pk_123456789abcdef",
+      "formSubmission"    :  "fs_987654321zyxwv"
+    },
+    "thirdPartyServices"  :  {
+      "fonts"             :  "Google Fonts",
+      "cdn"               :  "Cloudflare",
+      "forms"             :  "Formspree"
+    }
+  }
+}
+```
+
+## User and Permission Properties
+
+```json
+{
+  "userRoles"             :  {
+    "admin"               :  {
+      "accessLevel"       :  10,
+      "permissions"       :  ["read", "write", "delete", "manage_users"]
+    },
+    "editor"              :  {
+      "accessLevel"       :  7,
+      "permissions"       :  ["read", "write", "limited_delete"]
+    },
+    "client"              :  {
+      "accessLevel"       :  3,
+      "permissions"       :  ["read_own", "comment"]
+    },
+    "public"              :  {
+      "accessLevel"       :  1,
+      "permissions"       :  ["read_public"]
+    }
+  }
+}
+```
+
+These additional properties would provide a comprehensive structure for managing website content, SEO, analytics, project information, and user permissions, all while maintaining the column-aligned JSON format established in the original document.

@@ -39,4 +39,13 @@ public/build/
 # Temp files
 *.tmp
 *.temp
-.cache/ 
+.cache/
+
+# Archive directories
+# Ensure this directory is not tracked by Git   
+# Cuts down on the size of the repository
+assets-archive/
+
+# Ignore all files in the assets-archive directory
+assets-archive/*
+

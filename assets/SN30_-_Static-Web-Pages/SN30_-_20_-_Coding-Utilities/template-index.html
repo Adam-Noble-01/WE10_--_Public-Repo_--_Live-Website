@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Website Template</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,500,600,700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Basic Resets & Base Styles --- */
+        *, *::before, *::after {
+            box-sizing: border-box; /* Better box model */
+        }
+        html {
+            scroll-padding-top: 57px; /* Offset for fixed header when jumping to anchors */
+        }
+        body {
+            margin: 0;
+            font-family: 'Open Sans', sans-serif; /* Ensure base font */
+            padding-top: 57px; /* MAKE SURE content starts AFTER the fixed header */
+            background-color: #f8f9fa;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            color: #1c1c1c; /* Default text color */
+            line-height: 1.6; /* Improve readability */
+            display: flex; /* Use flexbox for footer */
+            flex-direction: column; /* Stack body children vertically */
+            min-height: 100vh; /* Ensure body takes at least full viewport height */
+        }
+        ul { list-style: none; padding: 0; margin: 0; }
+        a { text-decoration: none; color: inherit; }
+        button { background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; color: inherit; font-size: inherit; } /* Inherit font size */
+
+        /* --- Header & Container Styles --- */
+        #atIdViewHeader > div:first-child {
+            position: fixed; /* Lock header to top */
+            top: 0; left: 0; width: 100%; z-index: 100;
+            background-color: #ffffff; /* Plain white */
+            border-bottom: 1px solid #e0e0e0; /* Subtle border */
+        }
+        .BbxBP { /* Header inner container */
+            display: flex; align-items: center;
+            padding: 0 16px; min-height: 56px; position: relative;
+            max-width: 1200px; /* Optional: constrain header width */
+            margin: 0 auto; /* Center header content if max-width is used */
+        }
+        .zDUgLc { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-color: transparent; }
+
+        /* --- Color & Theme Context (.G8QRnc - Light Background, Dark Text) --- */
+        .G8QRnc { /* Context class */ }
+        .G8QRnc .YSH9J, .G8QRnc .oNsfjf { color: rgba(28, 28, 28, 1); } /* Dark text/icon */
+        /* Hover */
+        .G8QRnc .PsKE7e.YSH9J:not(.M9vuGd):not([aria-expanded="true"]):hover, /* Exclude active/open */
+        .G8QRnc .PsKE7e.oNsfjf:not(.lhZOrc):not([aria-expanded="true"]):hover, /* Exclude active/open */
+        .G8QRnc .DXsoRd:hover, .G8QRnc .RBEWZc button:hover { color: rgba(28, 28, 28, 0.81); }
+        .JzO0Vc .PsKE7e.oNsfjf:not(.lhZOrc):hover { color: rgba(249, 249, 249, 0.81); background-color: rgba(255, 255, 255, 0.05); } /* Side nav hover */
+        /* Focus */
+         .G8QRnc .iWs3gf:focus, .G8QRnc .DXsoRd:focus { background-color: rgba(28, 28, 28, 0.1); outline: 2px solid rgba(28, 28, 28, 0.5); outline-offset: 1px; border-radius: 50%; }
+        a:focus, button:focus { outline: 2px solid rgba(28, 28, 28, 0.5); outline-offset: 2px; border-radius: 2px; } /* General focus style */
+        button:focus { outline-offset: 0; } /* Button specific focus */
+        .JzO0Vc a:focus, .JzO0Vc button:focus { outline: 2px solid rgba(249, 249, 249, 0.7); outline-offset: 2px; }
+
+        /* --- Mobile Menu Trigger (Hamburger) --- */
+        .DXsoRd { padding: 8px; display: none; cursor: pointer; border-radius: 50%; }
+        .wFCWne { display: block; width: 24px; height: 24px; stroke: currentColor; fill: none; }
+        .hlJH0, .HBu6N, .cLAGQe { stroke-width: 2; }
+
+        /* --- Desktop Navigation Container --- */
+        .VLoccc { display: flex; align-items: center; flex-grow: 1; }
+        .Pvc6xe { margin-right: 24px; } /* Desktop title container */
+        .TlfmSc { font-family: 'Open Sans', sans-serif; font-weight: 600; } /* Base title style */
+        /* Desktop specific title size */
+        .VLoccc .TlfmSc { font-size: 16pt; } /* Slightly larger */
+
+        /* Desktop Nav Links Container */
+        .plFg0c { display: flex; align-items: center; height: 100%; margin-left: auto; /* Pushes nav right if title takes less space */ }
+        .K1Ci7d { display: flex; height: 100%; }
+        .VsJjtf { display: flex; align-items: center; height: 100%; position: relative; }
+        .PsKE7e { /* Wrapper for nav link/button */
+            font-family: 'Open Sans', sans-serif; font-size: 11pt; font-weight: 500; display: flex; align-items: center; height: 100%; padding: 0; /* Padding applied to inner button/link */
+            cursor: default; /* Default cursor for the wrapper */
+        }
+        .PsKE7e > a, .PsKE7e > button { /* Direct link or button inside PsKE7e */
+            display: flex; align-items: center; height: 100%; white-space: nowrap; padding: 0 16px; /* Apply padding here */
+            cursor: pointer; /* Make sure it's clickable */
+        }
+        /* Active Desktop Link */
+        .PsKE7e.M9vuGd > a, .PsKE7e.M9vuGd > button { /* Target the inner button/link */
+            font-weight: 700; border-bottom: 3px solid rgba(28, 28, 28, 1); margin-bottom: -1px; /* Align border with header bottom border */
+        }
+         /* Style for open dropdown trigger */
+         .PsKE7e[aria-expanded="true"] > a, .PsKE7e[aria-expanded="true"] > button {
+            background-color: rgba(28, 28, 28, 0.05); /* Slight background when open */
+         }
+
+        /* Desktop Dropdown Arrow */
+        .mBHtvb { margin-left: 6px; display: flex; align-items: center; pointer-events: none; /* Arrow part of the button/link */ }
+        .dvmRw { width: 16px; height: 16px; fill: currentColor; transition: transform 0.2s ease; }
+        .PsKE7e[aria-expanded="true"] .dvmRw { transform: rotate(180deg); }
+
+        /* Desktop Dropdown Menu */
+         .oGuwee {
+             display: none; /* Hidden by default */
+             position: absolute; top: 100%; left: 0; background-color: rgba(28, 28, 28, 1); color: rgba(249, 249, 249, 1); min-width: 200px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 101; padding: 8px 0; border-radius: 4px; margin-top: 1px; /* Avoid overlap with bottom border */
+         }
+         /* Show dropdown when parent has class (controlled by JS) */
+         .VsJjtf.is-dropdown-open > .oGuwee { display: block; }
+
+         .oGuwee .PsKE7e { height: auto; padding: 0; font-size: 10.5pt; font-weight: 400; }
+         .oGuwee .PsKE7e > a { padding: 8px 16px; width: 100%; height: auto; } /* Style the link inside */
+         .oGuwee .aJHbb { height: auto; width: 100%; } /* Keep this? maybe redundant */
+         .G8QRnc .oGuwee .PsKE7e.lhZOrc > a { font-weight: 600; background-color: rgba(249, 249, 249, 0.1); } /* Active in desktop dropdown */
+         .G8QRnc .oGuwee .PsKE7e:hover > a { background-color: rgba(249, 249, 249, 0.07); color: rgba(249, 249, 249, 0.9); } /* Hover in dropdown */
+
+        /* --- Search Icon --- */
+        .RBEWZc { margin-left: 16px; } /* Keep consistent margin */
+        .RBEWZc button { padding: 8px; border-radius: 50%; } /* Apply padding/radius to button */
+        .iWs3gf { display: flex; align-items: center; justify-content: center; }
+        .vu8Pwe.tCHXDc { display: block; width: 24px; height: 24px; fill: currentColor; }
+
+        /* --- Mobile Side Navigation Panel --- */
+        .JzO0Vc {
+            position: fixed; top: 0; left: 0; bottom: 0; width: 280px; max-width: 80%;
+            background-color: rgba(28, 28, 28, 1); color: rgba(249, 249, 249, 1);
+            z-index: 1000;
+            padding-top: 16px; /* More balanced padding */
+            padding-bottom: 16px;
+            overflow-y: auto;
+            transform: translateX(-105%);
+            transition: transform 0.4s ease-in-out;
+            visibility: hidden;
+        }
+        .JzO0Vc.is-mobile-nav-open { transform: translateX(0); visibility: visible; }
+         /* Side Nav UL */
+         .JzO0Vc .jYxBte { padding: 8px 0; }
+         /* Side Nav Link Container (li > div) */
+         .JzO0Vc .PsKE7e { font-family: 'Open Sans', sans-serif; font-size: 12pt; font-weight: 400; padding: 0; height: auto; display: block; }
+         /* Inner container for text/icon alignment */
+         .JzO0Vc .I35ICb {
+             display: flex; align-items: center;
+             padding: 14px 24px; /* INCREASED vertical padding for better spacing */
+             min-height: 48px; /* Ensure minimum tap height */
+             line-height: 1.4; /* Better text spacing */
+         }
+         .JzO0Vc .aJHbb { /* The link text itself */
+             height: auto;
+             flex-grow: 1; /* Allow text to take space */
+             margin-right: 8px; /* Add space between text and arrow */
+             display: block; /* Ensure it fills vertically */
+         }
+         /* Active Side Nav Link */
+         .JzO0Vc .PsKE7e.lhZOrc { font-weight: 600; background-color: rgba(255, 255, 255, 0.1); }
+         /* Side Nav Dropdown Arrow Button */
+         .JzO0Vc .j10yRb {
+             margin-left: auto; /* Pushes to the right */
+             padding: 8px; /* Larger tap target */
+             display: flex; /* Align icon */
+             align-items: center;
+             justify-content: center;
+             border-radius: 50%; /* Make focus outline circular */
+             flex-shrink: 0; /* Prevent shrinking */
+         }
+         .JzO0Vc .dvmRw { width: 20px; height: 20px; fill: currentColor; transition: transform 0.3s ease; }
+         /* Rotate arrow when expanded */
+         .JzO0Vc .PsKE7e[aria-expanded="true"] .j10yRb .dvmRw { transform: rotate(180deg); }
+
+         /* Side Nav Submenu */
+         .JzO0Vc .oGuwee { /* Submenu UL container */
+             display: block; /* Always block level */
+             max-height: 0; /* Start collapsed */
+             overflow: hidden; /* Hide content */
+             transition: max-height 0.3s ease-out; /* Animate height */
+             position: static; background-color: transparent; box-shadow: none; padding: 0; border-radius: 0; color: inherit; margin-left: 24px; border-left: 1px solid rgba(255, 255, 255, 0.15); /* Slightly more visible border */
+         }
+          /* Expanded state for submenu */
+         .JzO0Vc .PsKE7e[aria-expanded="true"] + .oGuwee {
+             /* Calculate max-height based on content or use a large enough value */
+              max-height: 40vh; /* Use viewport height as a fallback limit */
+          }
+
+          .JzO0Vc .oGuwee .VcS63b { padding: 8px 0; }
+          .JzO0Vc .oGuwee .PsKE7e { font-size: 11pt; } /* Sub-item font size */
+           .JzO0Vc .oGuwee .I35ICb {
+               padding: 12px 16px 12px 24px; /* Indented padding */
+               min-height: 44px; /* Slightly smaller min height */
+           }
+
+         /* Mobile Overlay */
+         .mobile-nav-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out; }
+         .mobile-nav-overlay.is-visible { opacity: 1; visibility: visible; }
+
+        /* --- MOBILE SPECIFIC LAYOUT & TITLE POSITIONING --- */
+         .mobile-site-title {
+             display: none; /* Hidden by default, shown via media query */
+             margin-left: 12px; /* Space between hamburger and title */
+         }
+         .mobile-site-title .TlfmSc {
+              font-size: 13.5pt; /* Adjusted size */
+              font-weight: 600;
+              display: flex; /* Align link content vertically */
+              align-items: center;
+              height: 100%; /* Match header height */
+         }
+
+
+        /* --- Responsiveness --- */
+        @media (max-width: 959px) { /* Adjusted breakpoint */
+            .VLoccc { display: none; } /* Hide desktop title/nav */
+            .plFg0c { display: none; } /* Hide desktop nav UL */
+            .DXsoRd { display: flex; } /* Show hamburger */
+            .BbxBP {
+                 padding: 0 8px; /* Less padding on mobile header */
+                 justify-content: flex-start; /* Align items to the start */
+            }
+            .mobile-site-title { display: block; } /* Show mobile title */
+            .RBEWZc {
+                 margin-left: auto; /* PUSH search icon to the far right */
+            }
+             /* Hide desktop dropdowns if somehow visible */
+             .VsJjtf.is-dropdown-open > .oGuwee { display: none; }
+        }
+         @media (min-width: 960px) { /* Adjusted breakpoint */
+             /* Ensure desktop layout is correct */
+             .VLoccc { display: flex; }
+             .plFg0c { display: flex; }
+             .DXsoRd { display: none; }
+             .JzO0Vc { display: none !important; /* Ensure side nav is hidden */ }
+             .mobile-nav-overlay { display: none !important; /* Ensure overlay is hidden */ }
+             .mobile-site-title { display: none; }
+             .BbxBP { justify-content: space-between; } /* Restore desktop spacing */
+             .RBEWZc { margin-left: 16px; } /* Restore desktop margin */
+         }
+
+         /* --- Main Content Styling --- */
+         main {
+            padding: 20px;
+            max-width: 900px; /* Constrain content width for readability */
+            margin: 0 auto; /* Center content area */
+            font-family: 'Open Sans', sans-serif; /* Explicitly set font */
+            line-height: 1.6; /* Ensure consistent line height */
+            flex-grow: 1; /* Allow main to grow and push footer down */
+            width: 100%; /* Ensure it takes available width */
+         }
+         /* Style content within the wrapper */
+         #page-content-wrapper h1,
+         #page-content-wrapper h2,
+         #page-content-wrapper h3 {
+            font-weight: 600;
+            color: #333;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+         }
+          #page-content-wrapper p {
+              margin-bottom: 1em;
+          }
+         #page-content-wrapper ul,
+         #page-content-wrapper ol {
+             margin-left: 20px; /* Indent lists */
+             padding-left: 20px; /* Add padding for bullet/number */
+             margin-bottom: 1em;
+         }
+         #page-content-wrapper li {
+             margin-bottom: 0.5em;
+         }
+         #page-content-wrapper ul { list-style: disc; }
+         #page-content-wrapper ol { list-style: decimal; }
+
+         /* --- Footer Styling --- */
+         .site-footer {
+             flex-shrink: 0; /* Prevent footer from shrinking */
+             width: 100%;
+             background-color: #f1f1f1; /* Light background for footer */
+             padding: 15px 16px; /* Padding top/bottom and sides */
+             border-top: 1px solid #dddddd; /* Adjusted divider line (0.5px is tricky, 1px is more reliable) */
+             margin-top: 30px; /* Space above footer */
+         }
+         .site-footer p {
+             margin: 0; /* Remove default paragraph margin */
+             text-align: center;
+             font-size: 10px; /* Small text as requested (was 8px, slightly increased) */
+             color: #888888; /* Light gray text */
+             font-weight: 400;
+         }
+
+    </style>
+</head>
+<body>
+
+    <header id="atIdViewHeader">
+        <div> <!-- Fixed position wrapper -->
+            <div class="BbxBP G8QRnc K5Zlne">
+                <div class="zDUgLc"></div>
+
+                <!-- Mobile Menu Trigger -->
+                <button class="DXsoRd YTv4We oNsfjf" aria-label="Toggle Menu" aria-expanded="false" aria-controls="mobile-side-nav">
+                     <svg class="wFCWne" viewBox="0 0 24 24"><g transform="translate(12,12)"><path class="hlJH0" d="M-9 -5 L9 -5"></path><path class="HBu6N" d="M-9 0 L9 0"></path><path class="cLAGQe" d="M-9 5 L9 5"></path></g></svg>
+                </button>
+
+                <!-- Mobile Site Title (Aligned Left) -->
+                <div class="mobile-site-title">
+                     <div class="TlfmSc YSH9J">
+                         <a class="GAuSPc" href="/">Sample Site</a>
+                    </div>
+                </div>
+
+                <!-- Desktop Title & Nav (Hidden on Mobile) -->
+                <div class="VLoccc K5Zlne QDWEj U8eYrb">
+                    <div class="Pvc6xe"><div class="TlfmSc YSH9J"><a class="GAuSPc" href="/">Sample Site</a></div></div>
+                    <nav class="plFg0c" id="WDxLfe">
+                        <ul class="K1Ci7d oXBWEc jYxBte">
+                            <li class="VsJjtf"><div class="PsKE7e YSH9J"><a href="/">Home</a></div></li>
+                            <li class="VsJjtf"><div class="PsKE7e YSH9J M9vuGd" aria-current="page"><a href="#">About Us</a></div></li>
+                            <li class="VsJjtf desktop-dropdown-parent"> {/* Add class for JS */}
+                                 <div class="PsKE7e YSH9J">
+                                     {/* Use button for toggle action */}
+                                     <button class="desktop-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                                         Products
+                                         <span class="mBHtvb"><svg class="dvmRw" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"></path></svg></span>
+                                     </button>
+                                 </div>
+                                 <ul class="oGuwee">
+                                      <li><div class="PsKE7e oNsfjf"><a href="#">Product A</a></div></li>
+                                      <li><div class="PsKE7e oNsfjf"><a href="#">Product B</a></div></li>
+                                      <li><div class="PsKE7e oNsfjf lhZOrc"><a href="#">Product C (Active Sub)</a></div></li>
+                                      <li><div class="PsKE7e oNsfjf"><a href="#">Product D</a></div></li>
+                                 </ul>
+                             </li>
+                            <li class="VsJjtf"><div class="PsKE7e YSH9J"><a href="#">Services</a></div></li>
+                             <li class="VsJjtf desktop-dropdown-parent"> {/* Add class for JS */}
+                                 <div class="PsKE7e YSH9J">
+                                     <button class="desktop-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                                         Resources
+                                         <span class="mBHtvb"><svg class="dvmRw" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"></path></svg></span>
+                                     </button>
+                                 </div>
+                                 <ul class="oGuwee">
+                                      <li><div class="PsKE7e oNsfjf"><a href="#">FAQ</a></div></li>
+                                      <li><div class="PsKE7e oNsfjf"><a href="#">Documentation</a></div></li>
+                                      <li><div class="PsKE7e oNsfjf"><a href="#">Downloads</a></div></li>
+                                 </ul>
+                             </li>
+                            <li class="VsJjtf"><div class="PsKE7e YSH9J"><a href="#">Contact</a></div></li>
+                        </ul>
+                    </nav>
+                </div>
+
+                 <!-- Search Icon (Pushed Right on Mobile) -->
+                 <div class="RBEWZc">
+                     <button class="U26fgb iWs3gf" aria-label="Search Site">
+                        <svg class="vu8Pwe tCHXDc YSH9J" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                     </button>
+                 </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Side Navigation Panel -->
+    <nav class="JzO0Vc" id="mobile-side-nav" role="navigation" tabindex="-1" aria-hidden="true">
+         <ul class="jYxBte Fpy8Db">
+             <li jsname="ibnC6b"><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="/">Home</a></div></div></li>
+             <li jsname="ibnC6b"><div class="PsKE7e oNsfjf lhZOrc" aria-current="page"><div class="I35ICb"><a class="aJHbb" href="#">About Us</a></div></div></li>
+             <li jsname="ibnC6b">
+                  {/* Parent div now acts as state container for aria-expanded */}
+                  <div class="PsKE7e oNsfjf" aria-expanded="false" aria-controls="mobile-subnav-products">
+                     <div class="I35ICb">
+                        {/* Link remains separate from toggle button */}
+                        <a class="aJHbb" href="#">Products</a>
+                        <button class="j10yRb" aria-label="Toggle Products Submenu">
+                            <svg class="dvmRw" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"></path></svg>
+                         </button>
+                    </div>
+                </div>
+                <div class="oGuwee Mkt3Tc" id="mobile-subnav-products">
+                     <ul class="VcS63b">
+                         <li><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="#">Product A</a></div></div></li>
+                         <li><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="#">Product B</a></div></div></li>
+                         <li><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="#">Product C (Active Sub)</a></div></div></li>
+                         <li><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="#">Product D</a></div></div></li>
+                     </ul>
+                 </div>
+             </li>
+             <li jsname="ibnC6b"><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="#">Services</a></div></div></li>
+             <li jsname="ibnC6b">
+                  <div class="PsKE7e oNsfjf" aria-expanded="false" aria-controls="mobile-subnav-resources">
+                     <div class="I35ICb">
+                        <a class="aJHbb" href="#">Resources</a>
+                        <button class="j10yRb" aria-label="Toggle Resources Submenu">
+                           <svg class="dvmRw" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"></path></svg>
+                         </button>
+                    </div>
+                </div>
+                <div class="oGuwee Mkt3Tc" id="mobile-subnav-resources">
+                     <ul class="VcS63b">
+                         <li><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="#">FAQ</a></div></div></li>
+                         <li><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="#">Documentation</a></div></div></li>
+                         <li><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="#">Downloads</a></div></div></li>
+                     </ul>
+                 </div>
+             </li>
+              <li jsname="ibnC6b"><div class="PsKE7e oNsfjf"><div class="I35ICb"><a class="aJHbb" href="#">Contact</a></div></div></li>
+         </ul>
+    </nav>
+
+     <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+
+    <main role="main">
+        <!-- ====================================================== -->
+        <!-- START: Easily Removable Page Content Wrapper          -->
+        <!-- Replace the content inside this div with your        -->
+        <!-- specific application or page content.                -->
+        <!-- ====================================================== -->
+        <div id="page-content-wrapper">
+            <h1>Welcome to Our Sample Site</h1>
+            <p>This is a demonstration page using the generalized navigation template. All text on this page, including headings and paragraphs, should be rendered using the 'Open Sans' font family.</p>
+
+            <h2>About This Template</h2>
+            <p>This template provides a responsive navigation structure that adapts from a desktop view with a top navigation bar to a mobile view featuring a slide-out side menu triggered by a hamburger icon. Key features include:</p>
+            <ul>
+                <li>Clean, modern design with a white header and dark text.</li>
+                <li>Fixed header ensuring navigation is always visible.</li>
+                <li>Content area starts below the header, not underneath it.</li>
+                <li>Responsive layout adapting below 960px width.</li>
+                <li>Accessible markup with ARIA attributes for navigation elements.</li>
+                <li>Click-to-open dropdown menus for both desktop and mobile navigation.</li>
+                <li>Smooth transitions for the mobile menu and overlay.</li>
+                <li>Use of 'Open Sans' font throughout the interface and content.</li>
+                <li>A simple, centered footer with copyright information.</li>
+            </ul>
+
+            <h2>Placeholder Content</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <ol>
+                <li>First ordered item.</li>
+                <li>Second ordered item with more text to see how wrapping behaves within the list context.</li>
+                <li>Third ordered item.</li>
+            </ol>
+            <p>Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula.</p>
+
+            <p style="height: 100vh;">Adding some vertical space to demonstrate scrolling behavior with the fixed header and footer.</p>
+            <p>End of the main content area within the wrapper.</p>
+        </div>
+        <!-- ====================================================== -->
+        <!-- END: Easily Removable Page Content Wrapper            -->
+        <!-- ====================================================== -->
+    </main>
+
+    <footer class="site-footer">
+        <p>© 2025 Noble Architecture</p>
+    </footer>
+
+    <script>
+        // --- Mobile Nav Logic ---
+        const hamburgerButton = document.querySelector('.DXsoRd');
+        const sideNav = document.getElementById('mobile-side-nav');
+        const overlay = document.getElementById('mobile-nav-overlay');
+        const body = document.body;
+        let firstFocusableElement, lastFocusableElement; // For trap focus
+
+        function getFocusableElements(container) {
+            return Array.from(
+                container.querySelectorAll(
+                'a[href]:not([disabled]), button:not([disabled]), textarea:not([disabled]), input[type="text"]:not([disabled]), input[type="radio"]:not([disabled]), input[type="checkbox"]:not([disabled]), select:not([disabled])'
+                )
+            );
+        }
+
+        function openMobileNav() {
+            const focusableElements = getFocusableElements(sideNav);
+            if (focusableElements.length > 0) {
+                firstFocusableElement = focusableElements[0];
+                lastFocusableElement = focusableElements[focusableElements.length - 1];
+            } else {
+                 // Handle case with no focusable elements if necessary
+                 firstFocusableElement = sideNav; // Focus container itself
+                 lastFocusableElement = sideNav;
+            }
+
+
+            sideNav.classList.add('is-mobile-nav-open');
+            sideNav.setAttribute('aria-hidden', 'false');
+            sideNav.focus(); // Focus the nav container first
+            overlay.classList.add('is-visible');
+            hamburgerButton.setAttribute('aria-expanded', 'true');
+            body.style.overflow = 'hidden'; // Prevent background scroll
+
+             // Trap focus
+            document.addEventListener('keydown', trapFocus);
+        }
+
+        function closeMobileNav() {
+            sideNav.classList.remove('is-mobile-nav-open');
+            sideNav.setAttribute('aria-hidden', 'true');
+            overlay.classList.remove('is-visible');
+            hamburgerButton.setAttribute('aria-expanded', 'false');
+            hamburgerButton.focus(); // Return focus to the toggle button
+            body.style.overflow = ''; // Restore background scroll
+
+            document.removeEventListener('keydown', trapFocus); // Remove trap
+        }
+
+        function toggleMobileNav() {
+            if (sideNav.classList.contains('is-mobile-nav-open')) {
+                closeMobileNav();
+            } else {
+                openMobileNav();
+            }
+        }
+
+        // Mobile Submenu Toggle
+        const mobileSubmenuToggles = sideNav.querySelectorAll('.I35ICb .j10yRb'); // Target the button inside I35ICb
+
+        mobileSubmenuToggles.forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent click bubbling up if needed
+                const parentItemDiv = toggle.closest('.PsKE7e[aria-controls]'); // Find the controlling div
+                const submenu = document.getElementById(parentItemDiv.getAttribute('aria-controls'));
+                const isExpanded = parentItemDiv.getAttribute('aria-expanded') === 'true';
+
+                parentItemDiv.setAttribute('aria-expanded', String(!isExpanded));
+                if (!isExpanded) {
+                    // Calculate and set max-height for expansion
+                    submenu.style.maxHeight = submenu.scrollHeight + "px";
+                } else {
+                    // Collapse
+                    submenu.style.maxHeight = '0';
+                }
+            });
+        });
+
+         // Trap focus inside mobile nav
+         function trapFocus(event) {
+             if (!sideNav.classList.contains('is-mobile-nav-open') || event.key !== 'Tab') {
+                 return;
+             }
+
+             if (event.shiftKey) { // Shift + Tab
+                 if (document.activeElement === firstFocusableElement) {
+                     lastFocusableElement.focus();
+                     event.preventDefault();
+                 }
+             } else { // Tab
+                 if (document.activeElement === lastFocusableElement) {
+                     firstFocusableElement.focus();
+                     event.preventDefault();
+                 }
+             }
+         }
+
+
+        if (hamburgerButton && sideNav && overlay) {
+            hamburgerButton.addEventListener('click', toggleMobileNav);
+            overlay.addEventListener('click', closeMobileNav); // Use closeNav directly
+        }
+
+        // --- Desktop Dropdown Logic ---
+        const desktopDropdownToggles = document.querySelectorAll('.desktop-dropdown-toggle');
+        const desktopDropdownParents = document.querySelectorAll('.desktop-dropdown-parent');
+
+        desktopDropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent body click handler from closing it immediately
+                const parentLi = toggle.closest('.desktop-dropdown-parent');
+                const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+                // Close all other dropdowns first
+                closeAllDesktopDropdowns(parentLi);
+
+                // Toggle the current one
+                toggle.setAttribute('aria-expanded', String(!isExpanded));
+                parentLi.classList.toggle('is-dropdown-open', !isExpanded);
+            });
+        });
+
+        // Function to close all dropdowns, optionally excluding one
+        function closeAllDesktopDropdowns(excludeParent = null) {
+            desktopDropdownParents.forEach(parent => {
+                if (parent !== excludeParent) {
+                    parent.classList.remove('is-dropdown-open');
+                    const toggle = parent.querySelector('.desktop-dropdown-toggle');
+                    if (toggle) {
+                        toggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            });
+        }
+
+        // Close dropdowns if clicking outside
+        document.addEventListener('click', (event) => {
+            // Close mobile nav if click is outside
+             if (sideNav.classList.contains('is-mobile-nav-open') && !sideNav.contains(event.target) && event.target !== hamburgerButton) {
+                closeMobileNav();
+            }
+
+            // Close desktop dropdowns if click is outside
+             const isClickInsideDropdown = event.target.closest('.desktop-dropdown-parent');
+             if (!isClickInsideDropdown) {
+                 closeAllDesktopDropdowns();
+             }
+        });
+
+
+        // --- General Event Listeners ---
+        document.addEventListener('keydown', (event) => {
+            // Close mobile nav on Escape
+            if (event.key === 'Escape' && sideNav.classList.contains('is-mobile-nav-open')) {
+                 closeMobileNav();
+             }
+             // Close desktop dropdowns on Escape
+             const openDropdown = document.querySelector('.desktop-dropdown-parent.is-dropdown-open');
+             if (event.key === 'Escape' && openDropdown) {
+                const toggle = openDropdown.querySelector('.desktop-dropdown-toggle');
+                closeAllDesktopDropdowns();
+                if(toggle) toggle.focus(); // Return focus to the toggle
+             }
+        });
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+=======================================================================================================================
+00_01_-_READ_-_File-Naming-Reference-Document.txt
+-----------------------------------------------------------------------------------------------------------------------
+04-Apr-2025 - Version 1.0
+- This file is a reference document for the file naming conventions used in the application.
+- All files must be named using this convention.
+=======================================================================================================================
+
+### Project File Type Reference List
+READ     =  Generate a Readme files
+RULE     =  Text File Defining a strict rule or set of conventions
+
+
+
+### Project JavaScript Function Code Reference List
+LOAD-FN  =  Loading Function

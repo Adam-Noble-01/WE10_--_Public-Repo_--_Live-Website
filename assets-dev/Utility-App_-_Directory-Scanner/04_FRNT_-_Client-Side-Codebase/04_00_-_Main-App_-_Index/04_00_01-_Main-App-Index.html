@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directory Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='04_10_-_Main-App_-_Style-Sheet-CSS-Library/04_10_01_-_Main-App_-_Style-Sheet.css') }}">
+</head>
+<body>
+    <h1>Directory Scanner & JSON Exporter</h1>
+    <p>Scan a folder, preview its structure, and export to JSON</p>
+
+    <div class="container">
+        <!-- Combined Controls and Status Pane -->
+        <div class="controls-pane">
+            <h2>Controls & Status</h2>
+
+            <!-- Essential Scan Inputs -->
+            <div class="form-group">
+                <label for="input-dir">Target Directory Path:</label>
+                <input type="text" id="input-dir" placeholder="e.g., C:\Users\Public or ./my_folder">
+                <div class="error-text" id="input-dir-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="input-depth">Max Scan Depth (optional):</label>
+                <input type="number" id="input-depth" placeholder="e.g., 3 (blank for infinite)" min="0">
+                <div class="error-text" id="input-depth-error"></div>
+            </div>
+            
+            <!-- JSON Export Toggle -->
+            <div class="form-group toggle-container">
+                <label class="toggle-label">
+                    <input type="checkbox" id="enable-json-export">
+                    <span class="toggle-text">Enable JSON Export</span>
+                </label>
+            </div>
+            
+            <!-- JSON Export Options (initially hidden) -->
+            <div id="json-export-options" style="display: none;">
+                <div class="form-group">
+                    <label for="input-json">Output JSON File Path:</label>
+                    <input type="text" id="input-json" placeholder="e.g., C:\data\scan_result.json or results.json">
+                    <div class="error-text" id="input-json-error"></div>
+                </div>
+            </div>
+            
+            <button id="btn-scan" class="btn btn-primary">Start Scan</button>
+
+            <!-- Status -->
+            <hr>
+            <h3>Status</h3>
+            <div id="status-text">Idle.</div>
+            <div id="loading" class="loading-indicator" style="display: none;">
+                <div class="spinner"></div> Scanning...
+            </div>
+            <div id="export-status" class="export-status"></div>
+            <button id="btn-export" class="btn btn-success" disabled style="display: none;">Export to JSON</button>
+        </div>
+
+        <!-- Output Preview Pane -->
+        <div class="output-pane">
+            <h2>Preview</h2>
+            <div id="preview-tree" class="tree-container">
+                <p>Scan results will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import the main application loader using ES modules -->
+    <script type="module" src="{{ url_for('static', filename='04_60_-_Main-App_-_JavaScript-Library/04_60_01_-_Main-App_-_Loader-Functions/appLoader.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,536 @@
+# -*- coding: utf-8 -*-
+import os
+import json
+import time
+import sys
+from pathlib import Path
+from typing import Dict, Any, Optional, Tuple, List, Union
+import threading
+from queue import Queue
+import uuid
+import logging # Import logging
+
+from flask import Flask, request, jsonify, render_template, Response, stream_with_context, send_from_directory
+from rich.filesize import decimal as format_size # Re-use from rich or write your own
+
+# --- Constants ---
+FILE_COUNT_THRESHOLD = 500
+        
+# --- Flask App Setup ---
+# Update template and static folder paths to use the new structure
+app = Flask(__name__, 
+            template_folder='../04_FRNT_-_Client-Side-Codebase/04_00_-_Main-App_-_Index',
+            static_folder='../04_FRNT_-_Client-Side-Codebase')
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# In-memory store (same as before)
+scan_states = {}
+
+# --- Helper Functions (format_size imported) ---
+
+def validate_path(path_str: str, check_is_dir: bool = False, is_output_file_path: bool = False) -> Tuple[Optional[Path], Optional[str]]:
+    """Validates a path string, returning Path object or error message.
+
+    Args:
+        path_str: The path string to validate.
+        check_is_dir: If True, validates that the path exists and is a directory (for input).
+        is_output_file_path: If True, validates that the *parent* exists and the path itself
+                             is not an *existing directory* (for output).
+    """
+    if not path_str:
+        return None, "Path cannot be empty."
+    path_str = path_str.strip().strip('"')
+    try:
+        p = Path(path_str)
+        resolved_p = p.resolve(strict=False) # Resolve first, don't require existence yet
+
+        if check_is_dir:
+            # Input directory validation: Must exist and be a directory
+            resolved_p = p.resolve(strict=True) # Now enforce existence
+            if not resolved_p.is_dir():
+                return None, f"Input path is not a directory: {resolved_p}"
+            # Check read permissions - basic check, might fail later during scan
+            if not os.access(resolved_p, os.R_OK):
+                 return None, f"Read permission denied for input directory: {resolved_p}"
+
+        elif is_output_file_path:
+            # Output file path validation:
+            # 1. Parent directory must exist
+            parent_dir = resolved_p.parent
+            try:
+                # Attempt to resolve parent strictly to check existence AND permissions
+                parent_dir_resolved = parent_dir.resolve(strict=True)
+                if not parent_dir_resolved.is_dir():
+                     return None, f"Output path's parent is not a directory: {parent_dir_resolved}"
+                # Check write permissions for the parent directory
+                if not os.access(parent_dir_resolved, os.W_OK):
+                     return None, f"Write permission denied for output directory: {parent_dir_resolved}"
+            except FileNotFoundError:
+                 return None, f"Output directory does not exist: {parent_dir}"
+            except PermissionError:
+                 return None, f"Permission denied accessing output directory: {parent_dir}"
+
+
+            # 2. The path itself cannot be an *existing directory*
+            # Use exists() which doesn't raise error if path doesn't exist
+            if resolved_p.exists() and resolved_p.is_dir():
+                return None, f"Output path cannot be an existing directory. Please provide a filename (e.g., results.json)."
+            # 3. (Optional but good) Check if it looks like it lacks a filename
+            if not resolved_p.name or '.' not in resolved_p.name:
+                 # Simple check, might not cover all edge cases but helps
+                 app.logger.warning(f"Output path '{resolved_p.name}' might be missing a filename or extension.")
+                 # Return None, "Output path should include a filename with an extension (e.g., output.json)."
+
+        # If no specific check, just ensure it's a valid path conceptually
+        # (resolve already handles basic syntax errors)
+
+        return resolved_p, None
+    except FileNotFoundError:
+         # This is now mainly for strict=True cases (check_is_dir)
+         return None, f"Path not found: {path_str}"
+    except PermissionError:
+        # Catch permission errors during resolve() itself
+        return None, f"Permission denied for path: {path_str}"
+    except Exception as e:
+        app.logger.error(f"Unexpected path validation error for '{path_str}': {e}", exc_info=True)
+        return None, f"Invalid path: {path_str}. Error: {e}"
+
+
+# --- Background Scanning Logic (_scan_directory_recursive remains the same) ---
+def _scan_directory_recursive(
+    current_path: Path,
+    max_depth: Optional[int],
+    current_depth: int,
+    progress_callback: callable,
+    cancel_event: threading.Event
+) -> Optional[Dict[str, Any]]:
+    """Recursive helper adapted for web backend. Now uses callback for progress."""
+    if cancel_event.is_set(): return None
+
+    try:
+        # Report progress before potential permission errors on the dir itself
+        progress_callback(str(current_path))
+    except Exception as e:
+        # Handle cases where callback fails (less likely)
+        app.logger.error(f"Error in progress callback for {current_path}: {e}")
+
+
+    if max_depth is not None and current_depth > max_depth:
+        return None # Stop recursion
+
+    folder_data: Dict[str, Any] = {
+        "name": current_path.name,
+        "type": "folder",
+        "path": str(current_path),
+        "size": 0,
+        "children": [],
+        "warning": None,
+        "error": None, # Initialize error field
+    }
+    total_size = 0
+    all_items = []
+
+    try:
+        # --- Check Read Permission on current_path before iterdir ---
+        if not os.access(current_path, os.R_OK | os.X_OK): # Need read and execute(list) perm
+             raise PermissionError(f"Cannot access directory contents: {current_path}")
+
+        # --- Get items and Check File Count ---
+        scan_iterator = os.scandir(current_path) # Use scandir for potential efficiency
+        file_count = 0
+
+        # Iterate once for counting and basic checks
+        temp_items = []
+        with scan_iterator: # Ensure iterator is closed
+             for entry in scan_iterator:
+                 temp_items.append(entry) # Store Direntry objects
+                 if entry.is_file(follow_symlinks=False): # Don't follow symlinks here
+                     file_count += 1
+
+        all_items = temp_items # Assign stored items for processing
+
+        if file_count > FILE_COUNT_THRESHOLD:
+             folder_data["warning"] = (
+                 f"Contains {file_count} files. "
+                 f"Individual file processing may be slow."
+             )
+
+        # --- Process Items ---
+        for entry in all_items: # Iterate over stored Direntry objects
+            if cancel_event.is_set(): return None
+            item_path = Path(entry.path) # Get Path object
+
+            try:
+                if entry.is_file(follow_symlinks=False):
+                    try:
+                        # Use entry.stat() - often faster as data might be cached
+                        stat_result = entry.stat(follow_symlinks=False)
+                        file_size = stat_result.st_size
+                        file_data = {
+                            "name": entry.name,
+                            "type": "file",
+                            "path": str(item_path),
+                            "size": file_size
+                        }
+                        folder_data["children"].append(file_data)
+                        total_size += file_size
+                    except (FileNotFoundError, PermissionError, OSError) as e:
+                        # Handle cases where file disappears or permissions change after scandir
+                        app.logger.warning(f"Could not stat file '{entry.name}': {e}")
+                        folder_data["children"].append({
+                           "name": entry.name, "type": "file", "path": str(item_path),
+                           "error": f"Could not get size: {e}", "size": 0
+                        })
+
+                elif entry.is_dir(follow_symlinks=False):
+                    # Pass callback and cancel event down
+                    sub_folder_data = _scan_directory_recursive(
+                        item_path, max_depth, current_depth + 1, progress_callback, cancel_event
+                    )
+                    if sub_folder_data:
+                        folder_data["children"].append(sub_folder_data)
+                        total_size += sub_folder_data.get("size", 0)
+                # Handle symlinks or other types if needed - currently ignored
+                # elif entry.is_symlink():
+                #     # ... handle symlink ...
+
+            except OSError as e:
+                 # Catch errors during is_file/is_dir calls if entry became invalid
+                 app.logger.warning(f"Error checking type of '{entry.name}': {e}")
+                 folder_data["children"].append({
+                    "name": entry.name, "type": "unknown", "path": str(item_path),
+                    "error": f"Could not determine type: {e}", "size": 0
+                 })
+
+
+    except PermissionError as e:
+        app.logger.warning(f"Permission denied scanning directory '{current_path}': {e}")
+        folder_data["error"] = f"Permission denied: {e}"
+        # Can't proceed further into this dir, return what we have (name, type, error)
+    except FileNotFoundError as e:
+        app.logger.warning(f"Directory not found during scan '{current_path}': {e}")
+        folder_data["error"] = f"Directory disappeared during scan: {e}"
+    except OSError as e: # Catch other OS-level errors during scandir/stat
+        app.logger.error(f"OS error scanning directory '{current_path}': {e}", exc_info=True)
+        folder_data["error"] = f"OS error: {e}"
+    except Exception as e:
+        app.logger.error(f"Unexpected error scanning directory '{current_path}': {e}", exc_info=True)
+        folder_data["error"] = f"Unexpected error: {e}"
+
+
+    folder_data["size"] = total_size
+    # Sort children only if no error occurred during listing/processing
+    if folder_data["error"] is None:
+        folder_data["children"].sort(key=lambda x: (x.get("type", "file") != "folder", x.get("name", "").lower()))
+
+    return folder_data
+
+# --- perform_scan_worker_sse remains largely the same, calling the updated _scan_directory_recursive ---
+def perform_scan_worker_sse(scan_id: str, target_path: Path, max_depth: Optional[int]):
+    """Worker function UPDATED for SSE list approach."""
+    global scan_states
+
+    # Define callbacks that append to the shared list
+    def report_progress_sse(current_path_str: str):
+        global scan_states
+        if scan_id in scan_states and 'progress_messages' in scan_states[scan_id]:
+            message = f"data: {json.dumps({'type': 'progress', 'path': current_path_str})}\n\n"
+            scan_states[scan_id]['progress_messages'].append(message)
+
+    def complete_or_error_sse(is_error: bool, data: Union[str, Dict]):
+        global scan_states
+        if scan_id in scan_states and 'progress_messages' in scan_states[scan_id]:
+            message_data = {}
+            if is_error:
+                message_data = {'type': 'error', 'message': str(data)}
+                app.logger.info(f"Scan {scan_id} reporting error: {str(data)}") # Log error reporting
+            else:
+                 message_data = {'type': 'complete', 'result': data}
+                 app.logger.info(f"Scan {scan_id} reporting completion.") # Log completion
+
+            message = f"data: {json.dumps(message_data)}\n\n"
+            scan_states[scan_id]['progress_messages'].append(message)
+            # Also append the end stream signal right after the final message
+            scan_states[scan_id]['progress_messages'].append("event: end_stream\ndata: finished\n\n")
+            app.logger.info(f"Scan {scan_id} appended end_stream event.") # Log end stream
+
+    # Ensure state is initialized (moved to /scan route just before thread start)
+
+    try:
+        # Ensure the initial state exists before starting the scan logic
+        if scan_id not in scan_states:
+             app.logger.error(f"Scan state for {scan_id} not found at start of worker thread.")
+             return # Cannot proceed without state
+
+        app.logger.info(f"Scan worker {scan_id} starting recursive scan for {target_path}")
+        scan_states[scan_id]['status'] = 'running' # Mark as running *within* the thread now
+
+        tree_data = _scan_directory_recursive(
+            target_path,
+            max_depth,
+            current_depth=0,
+            progress_callback=report_progress_sse,
+            cancel_event=threading.Event()
+        )
+
+        # Check if scan completed but returned no data (e.g. depth 0 or empty dir)
+        # or if an error happened at the root level reported inside tree_data
+        if tree_data is not None:
+             if tree_data.get("error"):
+                 # If the root itself had an error (e.g., permissions on root)
+                 scan_error_message = f"Error scanning root directory '{target_path.name}': {tree_data['error']}"
+                 app.logger.error(f"Scan {scan_id} failed at root: {tree_data['error']}")
+                 scan_states[scan_id]['status'] = 'error'
+                 scan_states[scan_id]['error'] = scan_error_message
+                 complete_or_error_sse(is_error=True, data=scan_error_message)
+             else:
+                # Successful scan, potentially with partial errors deeper down
+                scan_states[scan_id]['status'] = 'complete'
+                scan_states[scan_id]['result'] = tree_data
+                complete_or_error_sse(is_error=False, data=tree_data)
+        elif scan_id in scan_states and scan_states[scan_id].get('status') == 'running':
+             # _scan_directory_recursive returned None, likely depth limit or cancel
+             # Treat as complete but possibly empty, rather than error, unless cancelled.
+             # Check cancel_event if you implement it.
+             # For now, assume it means "finished, maybe empty".
+             scan_states[scan_id]['status'] = 'complete'
+             # Create minimal valid tree structure indicating empty/depth limited result
+             empty_tree = {"name": target_path.name, "type": "folder", "path": str(target_path), "size": 0, "children": [], "warning":"Scan returned no data (check depth limit or if directory is empty)."}
+             scan_states[scan_id]['result'] = empty_tree
+             complete_or_error_sse(is_error=False, data=empty_tree)
+             app.logger.info(f"Scan {scan_id} completed but returned no tree data (depth limit/empty dir?).")
+
+    except Exception as e:
+        # Catch unexpected errors within the worker thread itself
+        error_message = f"Unexpected worker error: {e}"
+        app.logger.error(f"Scan worker {scan_id} crashed: {e}", exc_info=True)
+        if scan_id in scan_states: # Ensure state exists before updating
+            scan_states[scan_id]['status'] = 'error'
+            scan_states[scan_id]['error'] = error_message
+            # Try to send error via SSE if possible
+            try:
+                 complete_or_error_sse(is_error=True, data=error_message)
+            except Exception as sse_e:
+                 app.logger.error(f"Scan worker {scan_id}: Failed to send final error via SSE: {sse_e}")
+    finally:
+        # Ensure end_stream is sent if not already done by complete/error callbacks
+        if scan_id in scan_states and 'progress_messages' in scan_states[scan_id]:
+            last_message = scan_states[scan_id]['progress_messages'][-1] if scan_states[scan_id]['progress_messages'] else ""
+            if "event: end_stream" not in last_message:
+                app.logger.warning(f"Scan worker {scan_id} adding fallback end_stream event.")
+                scan_states[scan_id]['progress_messages'].append("event: end_stream\ndata: finished_fallback\n\n")
+
+
+
+# --- Flask Routes ---
+
+@app.route('/')
+def index():
+    """Serves the main HTML page."""
+    return render_template('04_00_01-_Main-App-Index.html')
+
+@app.route('/static/style.css')
+def serve_css():
+    """Serves the CSS file from the new location."""
+    return send_from_directory('../04_FRNT_-_Client-Side-Codebase/04_10_-_Main-App_-_Style-Sheet-CSS-Library', 
+                              '04_10_01_-_Main-App_-_Style-Sheet.css', 
+                              mimetype='text/css')
+
+# Routes for the modular JavaScript files
+@app.route('/static/<path:file_path>')
+def serve_static_files(file_path):
+    """Serves static files from the client-side codebase."""
+    directory = '../04_FRNT_-_Client-Side-Codebase'
+    return send_from_directory(directory, file_path)
+
+@app.route('/scan', methods=['POST'])
+def start_scan_sse():
+    """Starts a new directory scan (using SSE worker)."""
+    global scan_states
+    data = request.get_json()
+    if not data:
+        return jsonify({"errors": {"_global": "Invalid request body"}}), 400
+
+    dir_path_str = data.get('directory_path')
+    json_path_str = data.get('output_path', None)  # Make it optional with default None
+    depth_str = data.get('max_depth')
+
+    # --- Validate directory path (always required) ---
+    target_path, dir_error = validate_path(dir_path_str, check_is_dir=True)
+
+    # --- Only validate JSON path if it's provided ---
+    json_path = None
+    json_error = None
+    if json_path_str:  # Only validate if a value was actually provided
+        json_path, json_error = validate_path(json_path_str, is_output_file_path=True)
+
+    # --- Validate depth ---
+    depth_val = None
+    depth_error = None
+    if depth_str:  # Allow empty string for infinite depth
+        try:
+            depth_val = int(depth_str)
+            if depth_val < 0:
+                depth_error = "Depth must be non-negative."
+                depth_val = None  # Invalidate if negative
+        except ValueError:
+            depth_error = "Depth must be a valid integer."
+
+    # --- Collect errors ---
+    errors = {}
+    if dir_error: errors['directory_path'] = dir_error
+    if json_error: errors['output_path'] = json_error
+    if depth_error: errors['max_depth'] = depth_error
+
+    if errors:
+        return jsonify({"errors": errors}), 400
+
+    # --- Initiate Scan ---
+    scan_id = str(uuid.uuid4())
+    app.logger.info(f"Received valid scan request {scan_id} for '{target_path}' (Depth: {depth_val}, Output: '{json_path}')")
+
+    # Initialize state IMMEDIATELY before starting thread
+    scan_states[scan_id] = {
+        'status': 'starting',
+        'progress_messages': [],
+        'result': None,
+        'error': None,
+        'target_path': str(target_path),
+        'output_path': str(json_path) if json_path else None,  # Store validated output path or None
+    }
+
+    scan_thread = threading.Thread(
+        target=perform_scan_worker_sse,
+        args=(scan_id, target_path, depth_val),
+        daemon=True
+    )
+    scan_thread.start()
+    app.logger.info(f"Scan thread {scan_id} started.")
+
+    return jsonify({"scan_id": scan_id}), 202  # Accepted
+
+
+@app.route('/status/<scan_id>')
+def stream_status(scan_id):
+    """Streams scan progress using Server-Sent Events (SSE)."""
+    def generate():
+        global scan_states
+        if scan_id not in scan_states:
+            app.logger.warning(f"SSE request for unknown/stale scan ID: {scan_id}")
+            yield f"event: error\ndata: {json.dumps({'message': 'Invalid or unknown scan ID'})}\n\n"
+            yield "event: end_stream\ndata: error_unknown_id\n\n"
+            return
+
+        app.logger.info(f"SSE connection opened for scan {scan_id}")
+        last_sent_index = 0
+        # Check immediately if the scan finished *before* the SSE connection was established
+        initial_state = scan_states.get(scan_id, {})
+        initial_status = initial_state.get('status')
+        initial_messages_count = len(initial_state.get('progress_messages', []))
+
+        if initial_status not in ['starting', 'running'] and initial_messages_count > 0:
+             app.logger.info(f"SSE for {scan_id}: Scan already completed ({initial_status}). Sending backlog.")
+             # Send all messages at once if scan is already done
+             current_messages = initial_state.get('progress_messages', [])
+             for msg in current_messages:
+                 yield msg
+             last_sent_index = len(current_messages)
+             # Check if the last message was indeed the end_stream event
+             if not current_messages or "event: end_stream" not in current_messages[-1]:
+                  app.logger.warning(f"SSE for {scan_id}: Completed state but end_stream missing? Adding fallback.")
+                  yield "event: end_stream\ndata: finished_immediate_complete\n\n"
+             app.logger.info(f"SSE connection for completed scan {scan_id} closed after sending backlog.")
+             return # End the generator immediately
+
+
+        # If scan is starting or running, enter the polling loop
+        while True:
+            if scan_id not in scan_states: # Check if state was removed during loop
+                app.logger.warning(f"SSE for {scan_id}: Scan state disappeared during streaming.")
+                yield "event: error\ndata: {json.dumps({'message': 'Scan state lost'})}\n\n"
+                yield "event: end_stream\ndata: error_state_lost\n\n"
+                break
+
+            state = scan_states[scan_id]
+            current_messages = state.get('progress_messages', [])
+            new_messages_count = len(current_messages) - last_sent_index
+
+            if new_messages_count > 0:
+                app.logger.debug(f"SSE for {scan_id}: Sending {new_messages_count} new messages.")
+                for i in range(last_sent_index, len(current_messages)):
+                    yield current_messages[i]
+                    # Check if end_stream event was just sent
+                    if "event: end_stream" in current_messages[i]:
+                        app.logger.info(f"SSE for {scan_id}: Detected end_stream event. Closing SSE connection.")
+                        # Optional: Consider cleaning up scan_states[scan_id] here or periodically
+                        return # Stop the generator
+                last_sent_index = len(current_messages)
+
+            # If no new messages, check if status changed to indicate completion/error
+            # This handles cases where the final state is set but messages might lag or fail
+            current_status = state.get('status')
+            if current_status not in ['starting', 'running'] and last_sent_index == len(current_messages):
+                 app.logger.warning(f"SSE for {scan_id}: Status is {current_status} but no new messages. Ending stream.")
+                 # Send a final status message if appropriate (though callbacks *should* handle this)
+                 # Add end_stream just in case it was missed
+                 yield "event: end_stream\ndata: finished_status_change\n\n"
+                 return # End stream
+
+            # Add a small delay to prevent busy-waiting
+            time.sleep(0.2) # Check for updates 5 times per second
+
+    # Set headers for SSE
+    response = Response(stream_with_context(generate()), content_type='text/event-stream')
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['X-Accel-Buffering'] = 'no' # Useful for nginx buffering issues
+    return response
+
+
+@app.route('/export', methods=['POST'])
+def export_json():
+    """Saves the scan data (provided by frontend) to a JSON file."""
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid request body"}), 400
+
+    scan_data = data.get('scan_data')
+    output_path_str = data.get('output_path')
+
+    if not scan_data:
+        return jsonify({"error": "Missing scan_data"}), 400
+    if not output_path_str:
+        return jsonify({"error": "Missing output_path"}), 400
+
+    # *** Crucially, re-validate the output path on the server side before writing ***
+    output_path, path_error = validate_path(output_path_str, is_output_file_path=True)
+    if path_error:
+        app.logger.warning(f"Export request failed validation for path '{output_path_str}': {path_error}")
+        return jsonify({"error": f"Invalid output path: {path_error}"}), 400
+
+    try:
+        # Ensure parent directory exists (double check, although validation should cover it)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(scan_data, f, indent=4, ensure_ascii=False)
+
+        app.logger.info(f"Successfully exported data to {output_path}")
+        return jsonify({"message": f"Successfully exported to: {output_path}"}), 200
+
+    except PermissionError as e:
+        app.logger.error(f"Permission denied writing export file to '{output_path}': {e}")
+        return jsonify({"error": f"Permission denied writing to output file: {e}. Check write permissions for the directory '{output_path.parent}'."}), 403 # Forbidden
+    except OSError as e: # Catch other OS errors like disk full, etc.
+         app.logger.error(f"OS error writing export file to '{output_path}': {e}", exc_info=True)
+         return jsonify({"error": f"OS error writing file: {e}"}), 500
+    except Exception as e:
+        app.logger.error(f"Unexpected error exporting JSON to '{output_path}': {e}", exc_info=True)
+        return jsonify({"error": f"Unexpected error exporting JSON: {e}"}), 500
+
+# --- Main execution ---
+if __name__ == '__main__':
+    # Use host='0.0.0.0' to make it accessible on your network if needed
+    # Ensure debug=False for any kind of production/shared use
+    is_debug = os.environ.get('FLASK_DEBUG', '0') == '1'
+    app.run(debug=is_debug, host='127.0.0.1', port=5000, threaded=True)

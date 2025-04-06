@@ -1,0 +1,141 @@
+=======================================================================================================================
+00_10_-_RULE_-_Core-Conventions_-_CSS-Coding-Styling.txt
+-----------------------------------------------------------------------------------------------------------------------
+04-Apr-2025 - Version 1.0
+- This file is a strict set of rules for the CSS naming conventions used in the application.
+- All CSS files must be named using this convention.
+=======================================================================================================================
+
+
+# CORE CONVENTIONS |  CSS NAMING STANDARDS 
+- Must always be consistently used accross entire application.
+- Uses a 3 level structure
+    -Note | Whilst similar to BIM in 3 layer structure, Case standards are unique to this project.
+        - Block Level      =    
+        - Elemnent Level   =  
+        - Modifier Level   =  
+
+
+### STANDARDS |  Block-Level Component Style Naming Conventions
+- Always uses a 4 Leter code to define the block type.
+- Used to delinate the broad type and scopt that the style is applied to
+
+| CODE | VERBOSE DESCRIPTION | FULL DESCRIPTION                                                              |
+| ---- | ------------------- | ----------------------------------------------------------------------------- |
+| HEAD | Application Header  | Elements grouped within the header bar section at the top of the application. |
+| FOOT | Application Footer  | Elements grouped within the footer section at the bottom of the application.  |
+| MENU | Menu UI Blocks      | Broadly defines the style block level for any menu type in the application.   |
+
+
+-----------------------------------------------------------------------------------------------------------------------
+
+### CSS Formatting Code Block Format Breakdown
+
+#### Objective
+
+Create visually organized and consistent CSS code with standardized spacing for improved readability.
+
+#### Required Format
+
+-   Each CSS property-value pair should be aligned with consistent spacing
+-   Headers should be centered and surrounded by hyphens
+-   Colons should be aligned based on the longest property name
+-   Values should be aligned to start at the same position
+-   Comments should have consistent spacing
+
+#### Key Structuring Rules
+
+**Headers**: Centre text and surround with hyphens , aim for a line length of 80 Chars 
+    ```css
+    /* - - - - - - - - - - - - - - -  Header Text   - - - - - - - - - - - - - - - */
+    ```
+**Property Names**  :  Right-align and pad with spaces to match the longest property
+**Colons**    :  Add 4 spaces after each property name, followed by the colon
+**Values**    :  Add 4 spaces after each colon before the value
+**Comments**  :  Add 4 spaces after each value before inline comments
+
+----
+
+### Examples 
+
+###### Example: Incorrect Format
+```css
+/* Specific Button Styles */
+.BTNS__item--code {
+   background-color: var(--primary-color);
+   position: absolute; /* Position code copy button */
+   top: 10px; 
+   right: 10px;
+   opacity: 0.7; /* Make it less intrusive */
+   z-index: 5; 
+}
+```
+
+
+###### Example: Correct Format
+```css
+/* - - - - - - - - - - -   Styles for the <code> element   - - - - - - - - - - */
+.BTNS__item--code {
+   background-color    :    var(--primary-color);    /* <-- Always space comments 4x space */
+   position            :    absolute;                /* <-- From the longest value */
+   top                 :    10px; 
+   right               :    10px;
+   opacity             :    0.7;
+   z-index             :    5; 
+}
+```
+
+-   Using the formatting shown above creates a clean & grid-like structure.
+-   This makes that makes CSS properties and values easier to scan and maintain.
+-   Readability should be prioritised over lean code.
+
+---
+
+
+
+
+
+
+
+=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=
+-----------------------------------------------------------------------------------------------------------------------
+=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=
+
+
+# REFERENCE |  BEM Block-Level Components
+- Gathered Refences but not used in the application 
+- Below this line, all information is not relevant to this application, just a store of knowledege gathered
+
+
+
+| Block Name  | BRIEF DESCRIPTION                                | FULL DESCRIPTION                                                                                                                                |
+| ----------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| header      | Top section of a page or section                 | Represents the uppermost section of a page layout, typically containing the logo, navigation, search bar, or call-to-action buttons.            |
+| footer      | Bottom section with site-wide information        | The base of a page layout, often containing legal links, contact info, navigation items, or company branding and social media links.            |
+| nav         | Main or sectional navigation                     | A block dedicated to navigation, typically horizontal or vertical menus with links that direct users to key pages or sections.                  |
+| menu        | Reusable set of navigation links                 | A styled navigation component that may appear in various forms such as dropdowns, sidebars, or responsive toggles.                              |
+| button      | Clickable user action control                    | A small, reusable control component used to initiate user actions like submit, save, close, or navigate.                                        |
+| card        | Compact, reusable content container              | A modular box for displaying a cohesive piece of content, typically with an image, heading, description, and action links or buttons.           |
+| form        | User input section                               | A self-contained component housing input fields, checkboxes, selects, and submit buttons, often used for login, search, or contact purposes.    |
+| input       | Field for text or data entry                     | An input-specific block (sometimes nested in form) where users can enter data such as text, passwords, or numbers.                              |
+| list        | Styled wrapper for repeated content items        | A block wrapping multiple uniform items, such as blog posts, search results, or feature highlights. Often used with list__item elements.        |
+| modal       | Overlay for focused user interaction             | A floating container overlaid on the UI, used for forms, alerts, confirmations, or embedded media requiring focused attention.                  |
+| sidebar     | Vertical supporting navigation or content        | A vertically-aligned column on either side of the main content, typically containing navigation, filters, or related links.                     |
+| section     | Distinct page layout area                        | A general-purpose block representing a full-width section of the page, often used to group similar content types (e.g. testimonials, services). |
+| gallery     | Container for images or media previews           | A media-oriented component displaying multiple items, usually in grid or carousel format, with controls or previews.                            |
+| table       | Structured data layout component                 | A responsive or styled block used to display tabular data, with columns and rows styled for readability and hierarchy.                          |
+| tabs        | Component with multiple toggleable panels        | A UI pattern allowing users to switch between different views or content panels without navigating to a new page.                               |
+| breadcrumb  | Page hierarchy navigation component              | A horizontally arranged navigation trail that helps users understand their current page in relation to the site’s structure.                    |
+| alert       | Feedback or notification block                   | Used to present feedback messages to users, such as success, error, warning, or info states. These blocks are often styled with modifiers.      |
+| accordion   | Expandable/collapsible content container         | A UI block allowing users to expand or collapse content panels, typically used for FAQs or nested lists of information.                         |
+| carousel    | Rotating container for slides or images          | A content slider block that rotates through multiple items, usually with autoplay, navigation arrows, or pagination dots.                       |
+| banner      | Highlighted promotional or announcement section  | A block used to draw attention to key messaging, announcements, or marketing content. Usually appears prominently near the top of a page.       |
+| hero        | Primary visual introduction to a page            | A visually prominent block usually containing a headline, background image, and call to action, often found at the top of landing pages.        |
+| logo        | Brand identifier or image                        | A standalone block representing the company or site's brand mark, typically linked to the homepage and embedded in the header or footer.        |
+| pagination  | Page navigation for multi-page content           | A block containing links or controls to move between pages of content, e.g. blog posts or search results.                                       |
+| loader      | Visual indicator during async operations         | A temporary visual block that displays while content is loading, such as a spinner or progress bar.                                             |
+| tooltip     | Hover-activated informational box                | A small contextual block that appears on hover or focus to provide additional information or instructions about an element.                     |
+| dropdown    | Toggleable content revealed by clicking          | A menu-style component that reveals content or options on user interaction, typically attached to buttons or navigation items.                  |
+
+-----------------------------------------------------------------------------------------------------------------------
+

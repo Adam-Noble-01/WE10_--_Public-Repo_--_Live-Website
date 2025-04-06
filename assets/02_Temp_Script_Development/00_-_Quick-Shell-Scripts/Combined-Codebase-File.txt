@@ -1,0 +1,1878 @@
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\snapshot_code.py
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\02_SERV_-_Server-Side-Codebase\02_01_--_SERV_-_Directory-Scanner-Flask-App.py
+================================================================================
+
+# -*- coding: utf-8 -*-
+import os
+import json
+import time
+import sys
+from pathlib import Path
+from typing import Dict, Any, Optional, Tuple, List, Union
+import threading
+from queue import Queue
+import uuid
+import logging # Import logging
+
+from flask import Flask, request, jsonify, render_template, Response, stream_with_context, send_from_directory
+from rich.filesize import decimal as format_size # Re-use from rich or write your own
+
+# --- Constants ---
+FILE_COUNT_THRESHOLD = 500
+        
+# --- Flask App Setup ---
+# Update template and static folder paths to use the new structure
+app = Flask(__name__, 
+            template_folder='../04_FRNT_-_Client-Side-Codebase/04_00_-_Main-App_-_Index',
+            static_folder='../04_FRNT_-_Client-Side-Codebase')
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# In-memory store (same as before)
+scan_states = {}
+
+# --- Helper Functions (format_size imported) ---
+
+def validate_path(path_str: str, check_is_dir: bool = False, is_output_file_path: bool = False) -> Tuple[Optional[Path], Optional[str]]:
+    """Validates a path string, returning Path object or error message.
+
+    Args:
+        path_str: The path string to validate.
+        check_is_dir: If True, validates that the path exists and is a directory (for input).
+        is_output_file_path: If True, validates that the *parent* exists and the path itself
+                             is not an *existing directory* (for output).
+    """
+    if not path_str:
+        return None, "Path cannot be empty."
+    path_str = path_str.strip().strip('"')
+    try:
+        p = Path(path_str)
+        resolved_p = p.resolve(strict=False) # Resolve first, don't require existence yet
+
+        if check_is_dir:
+            # Input directory validation: Must exist and be a directory
+            resolved_p = p.resolve(strict=True) # Now enforce existence
+            if not resolved_p.is_dir():
+                return None, f"Input path is not a directory: {resolved_p}"
+            # Check read permissions - basic check, might fail later during scan
+            if not os.access(resolved_p, os.R_OK):
+                 return None, f"Read permission denied for input directory: {resolved_p}"
+
+        elif is_output_file_path:
+            # Output file path validation:
+            # 1. Parent directory must exist
+            parent_dir = resolved_p.parent
+            try:
+                # Attempt to resolve parent strictly to check existence AND permissions
+                parent_dir_resolved = parent_dir.resolve(strict=True)
+                if not parent_dir_resolved.is_dir():
+                     return None, f"Output path's parent is not a directory: {parent_dir_resolved}"
+                # Check write permissions for the parent directory
+                if not os.access(parent_dir_resolved, os.W_OK):
+                     return None, f"Write permission denied for output directory: {parent_dir_resolved}"
+            except FileNotFoundError:
+                 return None, f"Output directory does not exist: {parent_dir}"
+            except PermissionError:
+                 return None, f"Permission denied accessing output directory: {parent_dir}"
+
+
+            # 2. The path itself cannot be an *existing directory*
+            # Use exists() which doesn't raise error if path doesn't exist
+            if resolved_p.exists() and resolved_p.is_dir():
+                return None, f"Output path cannot be an existing directory. Please provide a filename (e.g., results.json)."
+            # 3. (Optional but good) Check if it looks like it lacks a filename
+            if not resolved_p.name or '.' not in resolved_p.name:
+                 # Simple check, might not cover all edge cases but helps
+                 app.logger.warning(f"Output path '{resolved_p.name}' might be missing a filename or extension.")
+                 # Return None, "Output path should include a filename with an extension (e.g., output.json)."
+
+        # If no specific check, just ensure it's a valid path conceptually
+        # (resolve already handles basic syntax errors)
+
+        return resolved_p, None
+    except FileNotFoundError:
+         # This is now mainly for strict=True cases (check_is_dir)
+         return None, f"Path not found: {path_str}"
+    except PermissionError:
+        # Catch permission errors during resolve() itself
+        return None, f"Permission denied for path: {path_str}"
+    except Exception as e:
+        app.logger.error(f"Unexpected path validation error for '{path_str}': {e}", exc_info=True)
+        return None, f"Invalid path: {path_str}. Error: {e}"
+
+
+# --- Background Scanning Logic (_scan_directory_recursive remains the same) ---
+def _scan_directory_recursive(
+    current_path: Path,
+    max_depth: Optional[int],
+    current_depth: int,
+    progress_callback: callable,
+    cancel_event: threading.Event
+) -> Optional[Dict[str, Any]]:
+    """Recursive helper adapted for web backend. Now uses callback for progress."""
+    if cancel_event.is_set(): return None
+
+    try:
+        # Report progress before potential permission errors on the dir itself
+        progress_callback(str(current_path))
+    except Exception as e:
+        # Handle cases where callback fails (less likely)
+        app.logger.error(f"Error in progress callback for {current_path}: {e}")
+
+
+    if max_depth is not None and current_depth > max_depth:
+        return None # Stop recursion
+
+    folder_data: Dict[str, Any] = {
+        "name": current_path.name,
+        "type": "folder",
+        "path": str(current_path),
+        "size": 0,
+        "children": [],
+        "warning": None,
+        "error": None, # Initialize error field
+    }
+    total_size = 0
+    all_items = []
+
+    try:
+        # --- Check Read Permission on current_path before iterdir ---
+        if not os.access(current_path, os.R_OK | os.X_OK): # Need read and execute(list) perm
+             raise PermissionError(f"Cannot access directory contents: {current_path}")
+
+        # --- Get items and Check File Count ---
+        scan_iterator = os.scandir(current_path) # Use scandir for potential efficiency
+        file_count = 0
+
+        # Iterate once for counting and basic checks
+        temp_items = []
+        with scan_iterator: # Ensure iterator is closed
+             for entry in scan_iterator:
+                 temp_items.append(entry) # Store Direntry objects
+                 if entry.is_file(follow_symlinks=False): # Don't follow symlinks here
+                     file_count += 1
+
+        all_items = temp_items # Assign stored items for processing
+
+        if file_count > FILE_COUNT_THRESHOLD:
+             folder_data["warning"] = (
+                 f"Contains {file_count} files. "
+                 f"Individual file processing may be slow."
+             )
+
+        # --- Process Items ---
+        for entry in all_items: # Iterate over stored Direntry objects
+            if cancel_event.is_set(): return None
+            item_path = Path(entry.path) # Get Path object
+
+            try:
+                if entry.is_file(follow_symlinks=False):
+                    try:
+                        # Use entry.stat() - often faster as data might be cached
+                        stat_result = entry.stat(follow_symlinks=False)
+                        file_size = stat_result.st_size
+                        file_data = {
+                            "name": entry.name,
+                            "type": "file",
+                            "path": str(item_path),
+                            "size": file_size
+                        }
+                        folder_data["children"].append(file_data)
+                        total_size += file_size
+                    except (FileNotFoundError, PermissionError, OSError) as e:
+                        # Handle cases where file disappears or permissions change after scandir
+                        app.logger.warning(f"Could not stat file '{entry.name}': {e}")
+                        folder_data["children"].append({
+                           "name": entry.name, "type": "file", "path": str(item_path),
+                           "error": f"Could not get size: {e}", "size": 0
+                        })
+
+                elif entry.is_dir(follow_symlinks=False):
+                    # Pass callback and cancel event down
+                    sub_folder_data = _scan_directory_recursive(
+                        item_path, max_depth, current_depth + 1, progress_callback, cancel_event
+                    )
+                    if sub_folder_data:
+                        folder_data["children"].append(sub_folder_data)
+                        total_size += sub_folder_data.get("size", 0)
+                # Handle symlinks or other types if needed - currently ignored
+                # elif entry.is_symlink():
+                #     # ... handle symlink ...
+
+            except OSError as e:
+                 # Catch errors during is_file/is_dir calls if entry became invalid
+                 app.logger.warning(f"Error checking type of '{entry.name}': {e}")
+                 folder_data["children"].append({
+                    "name": entry.name, "type": "unknown", "path": str(item_path),
+                    "error": f"Could not determine type: {e}", "size": 0
+                 })
+
+
+    except PermissionError as e:
+        app.logger.warning(f"Permission denied scanning directory '{current_path}': {e}")
+        folder_data["error"] = f"Permission denied: {e}"
+        # Can't proceed further into this dir, return what we have (name, type, error)
+    except FileNotFoundError as e:
+        app.logger.warning(f"Directory not found during scan '{current_path}': {e}")
+        folder_data["error"] = f"Directory disappeared during scan: {e}"
+    except OSError as e: # Catch other OS-level errors during scandir/stat
+        app.logger.error(f"OS error scanning directory '{current_path}': {e}", exc_info=True)
+        folder_data["error"] = f"OS error: {e}"
+    except Exception as e:
+        app.logger.error(f"Unexpected error scanning directory '{current_path}': {e}", exc_info=True)
+        folder_data["error"] = f"Unexpected error: {e}"
+
+
+    folder_data["size"] = total_size
+    # Sort children only if no error occurred during listing/processing
+    if folder_data["error"] is None:
+        folder_data["children"].sort(key=lambda x: (x.get("type", "file") != "folder", x.get("name", "").lower()))
+
+    return folder_data
+
+# --- perform_scan_worker_sse remains largely the same, calling the updated _scan_directory_recursive ---
+def perform_scan_worker_sse(scan_id: str, target_path: Path, max_depth: Optional[int]):
+    """Worker function UPDATED for SSE list approach."""
+    global scan_states
+
+    # Define callbacks that append to the shared list
+    def report_progress_sse(current_path_str: str):
+        global scan_states
+        if scan_id in scan_states and 'progress_messages' in scan_states[scan_id]:
+            message = f"data: {json.dumps({'type': 'progress', 'path': current_path_str})}\n\n"
+            scan_states[scan_id]['progress_messages'].append(message)
+
+    def complete_or_error_sse(is_error: bool, data: Union[str, Dict]):
+        global scan_states
+        if scan_id in scan_states and 'progress_messages' in scan_states[scan_id]:
+            message_data = {}
+            if is_error:
+                message_data = {'type': 'error', 'message': str(data)}
+                app.logger.info(f"Scan {scan_id} reporting error: {str(data)}") # Log error reporting
+            else:
+                 message_data = {'type': 'complete', 'result': data}
+                 app.logger.info(f"Scan {scan_id} reporting completion.") # Log completion
+
+            message = f"data: {json.dumps(message_data)}\n\n"
+            scan_states[scan_id]['progress_messages'].append(message)
+            # Also append the end stream signal right after the final message
+            scan_states[scan_id]['progress_messages'].append("event: end_stream\ndata: finished\n\n")
+            app.logger.info(f"Scan {scan_id} appended end_stream event.") # Log end stream
+
+    # Ensure state is initialized (moved to /scan route just before thread start)
+
+    try:
+        # Ensure the initial state exists before starting the scan logic
+        if scan_id not in scan_states:
+             app.logger.error(f"Scan state for {scan_id} not found at start of worker thread.")
+             return # Cannot proceed without state
+
+        app.logger.info(f"Scan worker {scan_id} starting recursive scan for {target_path}")
+        scan_states[scan_id]['status'] = 'running' # Mark as running *within* the thread now
+
+        tree_data = _scan_directory_recursive(
+            target_path,
+            max_depth,
+            current_depth=0,
+            progress_callback=report_progress_sse,
+            cancel_event=threading.Event()
+        )
+
+        # Check if scan completed but returned no data (e.g. depth 0 or empty dir)
+        # or if an error happened at the root level reported inside tree_data
+        if tree_data is not None:
+             if tree_data.get("error"):
+                 # If the root itself had an error (e.g., permissions on root)
+                 scan_error_message = f"Error scanning root directory '{target_path.name}': {tree_data['error']}"
+                 app.logger.error(f"Scan {scan_id} failed at root: {tree_data['error']}")
+                 scan_states[scan_id]['status'] = 'error'
+                 scan_states[scan_id]['error'] = scan_error_message
+                 complete_or_error_sse(is_error=True, data=scan_error_message)
+             else:
+                # Successful scan, potentially with partial errors deeper down
+                scan_states[scan_id]['status'] = 'complete'
+                scan_states[scan_id]['result'] = tree_data
+                complete_or_error_sse(is_error=False, data=tree_data)
+        elif scan_id in scan_states and scan_states[scan_id].get('status') == 'running':
+             # _scan_directory_recursive returned None, likely depth limit or cancel
+             # Treat as complete but possibly empty, rather than error, unless cancelled.
+             # Check cancel_event if you implement it.
+             # For now, assume it means "finished, maybe empty".
+             scan_states[scan_id]['status'] = 'complete'
+             # Create minimal valid tree structure indicating empty/depth limited result
+             empty_tree = {"name": target_path.name, "type": "folder", "path": str(target_path), "size": 0, "children": [], "warning":"Scan returned no data (check depth limit or if directory is empty)."}
+             scan_states[scan_id]['result'] = empty_tree
+             complete_or_error_sse(is_error=False, data=empty_tree)
+             app.logger.info(f"Scan {scan_id} completed but returned no tree data (depth limit/empty dir?).")
+
+    except Exception as e:
+        # Catch unexpected errors within the worker thread itself
+        error_message = f"Unexpected worker error: {e}"
+        app.logger.error(f"Scan worker {scan_id} crashed: {e}", exc_info=True)
+        if scan_id in scan_states: # Ensure state exists before updating
+            scan_states[scan_id]['status'] = 'error'
+            scan_states[scan_id]['error'] = error_message
+            # Try to send error via SSE if possible
+            try:
+                 complete_or_error_sse(is_error=True, data=error_message)
+            except Exception as sse_e:
+                 app.logger.error(f"Scan worker {scan_id}: Failed to send final error via SSE: {sse_e}")
+    finally:
+        # Ensure end_stream is sent if not already done by complete/error callbacks
+        if scan_id in scan_states and 'progress_messages' in scan_states[scan_id]:
+            last_message = scan_states[scan_id]['progress_messages'][-1] if scan_states[scan_id]['progress_messages'] else ""
+            if "event: end_stream" not in last_message:
+                app.logger.warning(f"Scan worker {scan_id} adding fallback end_stream event.")
+                scan_states[scan_id]['progress_messages'].append("event: end_stream\ndata: finished_fallback\n\n")
+
+
+
+# --- Flask Routes ---
+
+@app.route('/')
+def index():
+    """Serves the main HTML page."""
+    return render_template('04_00_01-_Main-App-Index.html')
+
+@app.route('/static/style.css')
+def serve_css():
+    """Serves the CSS file from the new location."""
+    return send_from_directory('../04_FRNT_-_Client-Side-Codebase/04_10_-_Main-App_-_Style-Sheet-CSS-Library', 
+                              '04_10_01_-_Main-App_-_Style-Sheet.css', 
+                              mimetype='text/css')
+
+# Routes for the modular JavaScript files
+@app.route('/static/<path:file_path>')
+def serve_static_files(file_path):
+    """Serves static files from the client-side codebase."""
+    directory = '../04_FRNT_-_Client-Side-Codebase'
+    return send_from_directory(directory, file_path)
+
+@app.route('/scan', methods=['POST'])
+def start_scan_sse():
+    """Starts a new directory scan (using SSE worker)."""
+    global scan_states
+    data = request.get_json()
+    if not data:
+        return jsonify({"errors": {"_global": "Invalid request body"}}), 400
+
+    dir_path_str = data.get('directory_path')
+    json_path_str = data.get('output_path', None)  # Make it optional with default None
+    depth_str = data.get('max_depth')
+
+    # --- Validate directory path (always required) ---
+    target_path, dir_error = validate_path(dir_path_str, check_is_dir=True)
+
+    # --- Only validate JSON path if it's provided ---
+    json_path = None
+    json_error = None
+    if json_path_str:  # Only validate if a value was actually provided
+        json_path, json_error = validate_path(json_path_str, is_output_file_path=True)
+
+    # --- Validate depth ---
+    depth_val = None
+    depth_error = None
+    if depth_str:  # Allow empty string for infinite depth
+        try:
+            depth_val = int(depth_str)
+            if depth_val < 0:
+                depth_error = "Depth must be non-negative."
+                depth_val = None  # Invalidate if negative
+        except ValueError:
+            depth_error = "Depth must be a valid integer."
+
+    # --- Collect errors ---
+    errors = {}
+    if dir_error: errors['directory_path'] = dir_error
+    if json_error: errors['output_path'] = json_error
+    if depth_error: errors['max_depth'] = depth_error
+
+    if errors:
+        return jsonify({"errors": errors}), 400
+
+    # --- Initiate Scan ---
+    scan_id = str(uuid.uuid4())
+    app.logger.info(f"Received valid scan request {scan_id} for '{target_path}' (Depth: {depth_val}, Output: '{json_path}')")
+
+    # Initialize state IMMEDIATELY before starting thread
+    scan_states[scan_id] = {
+        'status': 'starting',
+        'progress_messages': [],
+        'result': None,
+        'error': None,
+        'target_path': str(target_path),
+        'output_path': str(json_path) if json_path else None,  # Store validated output path or None
+    }
+
+    scan_thread = threading.Thread(
+        target=perform_scan_worker_sse,
+        args=(scan_id, target_path, depth_val),
+        daemon=True
+    )
+    scan_thread.start()
+    app.logger.info(f"Scan thread {scan_id} started.")
+
+    return jsonify({"scan_id": scan_id}), 202  # Accepted
+
+
+@app.route('/status/<scan_id>')
+def stream_status(scan_id):
+    """Streams scan progress using Server-Sent Events (SSE)."""
+    def generate():
+        global scan_states
+        if scan_id not in scan_states:
+            app.logger.warning(f"SSE request for unknown/stale scan ID: {scan_id}")
+            yield f"event: error\ndata: {json.dumps({'message': 'Invalid or unknown scan ID'})}\n\n"
+            yield "event: end_stream\ndata: error_unknown_id\n\n"
+            return
+
+        app.logger.info(f"SSE connection opened for scan {scan_id}")
+        last_sent_index = 0
+        # Check immediately if the scan finished *before* the SSE connection was established
+        initial_state = scan_states.get(scan_id, {})
+        initial_status = initial_state.get('status')
+        initial_messages_count = len(initial_state.get('progress_messages', []))
+
+        if initial_status not in ['starting', 'running'] and initial_messages_count > 0:
+             app.logger.info(f"SSE for {scan_id}: Scan already completed ({initial_status}). Sending backlog.")
+             # Send all messages at once if scan is already done
+             current_messages = initial_state.get('progress_messages', [])
+             for msg in current_messages:
+                 yield msg
+             last_sent_index = len(current_messages)
+             # Check if the last message was indeed the end_stream event
+             if not current_messages or "event: end_stream" not in current_messages[-1]:
+                  app.logger.warning(f"SSE for {scan_id}: Completed state but end_stream missing? Adding fallback.")
+                  yield "event: end_stream\ndata: finished_immediate_complete\n\n"
+             app.logger.info(f"SSE connection for completed scan {scan_id} closed after sending backlog.")
+             return # End the generator immediately
+
+
+        # If scan is starting or running, enter the polling loop
+        while True:
+            if scan_id not in scan_states: # Check if state was removed during loop
+                app.logger.warning(f"SSE for {scan_id}: Scan state disappeared during streaming.")
+                yield "event: error\ndata: {json.dumps({'message': 'Scan state lost'})}\n\n"
+                yield "event: end_stream\ndata: error_state_lost\n\n"
+                break
+
+            state = scan_states[scan_id]
+            current_messages = state.get('progress_messages', [])
+            new_messages_count = len(current_messages) - last_sent_index
+
+            if new_messages_count > 0:
+                app.logger.debug(f"SSE for {scan_id}: Sending {new_messages_count} new messages.")
+                for i in range(last_sent_index, len(current_messages)):
+                    yield current_messages[i]
+                    # Check if end_stream event was just sent
+                    if "event: end_stream" in current_messages[i]:
+                        app.logger.info(f"SSE for {scan_id}: Detected end_stream event. Closing SSE connection.")
+                        # Optional: Consider cleaning up scan_states[scan_id] here or periodically
+                        return # Stop the generator
+                last_sent_index = len(current_messages)
+
+            # If no new messages, check if status changed to indicate completion/error
+            # This handles cases where the final state is set but messages might lag or fail
+            current_status = state.get('status')
+            if current_status not in ['starting', 'running'] and last_sent_index == len(current_messages):
+                 app.logger.warning(f"SSE for {scan_id}: Status is {current_status} but no new messages. Ending stream.")
+                 # Send a final status message if appropriate (though callbacks *should* handle this)
+                 # Add end_stream just in case it was missed
+                 yield "event: end_stream\ndata: finished_status_change\n\n"
+                 return # End stream
+
+            # Add a small delay to prevent busy-waiting
+            time.sleep(0.2) # Check for updates 5 times per second
+
+    # Set headers for SSE
+    response = Response(stream_with_context(generate()), content_type='text/event-stream')
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['X-Accel-Buffering'] = 'no' # Useful for nginx buffering issues
+    return response
+
+
+@app.route('/export', methods=['POST'])
+def export_json():
+    """Saves the scan data (provided by frontend) to a JSON file."""
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid request body"}), 400
+
+    scan_data = data.get('scan_data')
+    output_path_str = data.get('output_path')
+
+    if not scan_data:
+        return jsonify({"error": "Missing scan_data"}), 400
+    if not output_path_str:
+        return jsonify({"error": "Missing output_path"}), 400
+
+    # *** Crucially, re-validate the output path on the server side before writing ***
+    output_path, path_error = validate_path(output_path_str, is_output_file_path=True)
+    if path_error:
+        app.logger.warning(f"Export request failed validation for path '{output_path_str}': {path_error}")
+        return jsonify({"error": f"Invalid output path: {path_error}"}), 400
+
+    try:
+        # Ensure parent directory exists (double check, although validation should cover it)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(scan_data, f, indent=4, ensure_ascii=False)
+
+        app.logger.info(f"Successfully exported data to {output_path}")
+        return jsonify({"message": f"Successfully exported to: {output_path}"}), 200
+
+    except PermissionError as e:
+        app.logger.error(f"Permission denied writing export file to '{output_path}': {e}")
+        return jsonify({"error": f"Permission denied writing to output file: {e}. Check write permissions for the directory '{output_path.parent}'."}), 403 # Forbidden
+    except OSError as e: # Catch other OS errors like disk full, etc.
+         app.logger.error(f"OS error writing export file to '{output_path}': {e}", exc_info=True)
+         return jsonify({"error": f"OS error writing file: {e}"}), 500
+    except Exception as e:
+        app.logger.error(f"Unexpected error exporting JSON to '{output_path}': {e}", exc_info=True)
+        return jsonify({"error": f"Unexpected error exporting JSON: {e}"}), 500
+
+# --- Main execution ---
+if __name__ == '__main__':
+    # Use host='0.0.0.0' to make it accessible on your network if needed
+    # Ensure debug=False for any kind of production/shared use
+    is_debug = os.environ.get('FLASK_DEBUG', '0') == '1'
+    app.run(debug=is_debug, host='127.0.0.1', port=5000, threaded=True)
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_00_-_Main-App_-_Index\04_00_01-_Main-App-Index.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directory Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='04_10_-_Main-App_-_Style-Sheet-CSS-Library/04_10_01_-_Main-App_-_Style-Sheet.css') }}">
+</head>
+<body>
+    <h1>Directory Scanner & JSON Exporter</h1>
+    <p>Scan a folder, preview its structure, and export to JSON</p>
+
+    <div class="container">
+        <!-- Combined Controls and Status Pane -->
+        <div class="controls-pane">
+            <h2>Controls & Status</h2>
+
+            <!-- Essential Scan Inputs -->
+            <div class="form-group">
+                <label for="input-dir">Target Directory Path:</label>
+                <input type="text" id="input-dir" placeholder="e.g., C:\Users\Public or ./my_folder">
+                <div class="error-text" id="input-dir-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="input-depth">Max Scan Depth (optional):</label>
+                <input type="number" id="input-depth" placeholder="e.g., 3 (blank for infinite)" min="0">
+                <div class="error-text" id="input-depth-error"></div>
+            </div>
+            
+            <!-- JSON Export Toggle -->
+            <div class="form-group toggle-container">
+                <label class="toggle-label">
+                    <input type="checkbox" id="enable-json-export">
+                    <span class="toggle-text">Enable JSON Export</span>
+                </label>
+            </div>
+            
+            <!-- JSON Export Options (initially hidden) -->
+            <div id="json-export-options" style="display: none;">
+                <div class="form-group">
+                    <label for="input-json">Output JSON File Path:</label>
+                    <input type="text" id="input-json" placeholder="e.g., C:\data\scan_result.json or results.json">
+                    <div class="error-text" id="input-json-error"></div>
+                </div>
+            </div>
+            
+            <button id="btn-scan" class="btn btn-primary">Start Scan</button>
+
+            <!-- Status -->
+            <hr>
+            <h3>Status</h3>
+            <div id="status-text">Idle.</div>
+            <div id="loading" class="loading-indicator" style="display: none;">
+                <div class="spinner"></div> Scanning...
+            </div>
+            <div id="export-status" class="export-status"></div>
+            <button id="btn-export" class="btn btn-success" disabled style="display: none;">Export to JSON</button>
+        </div>
+
+        <!-- Output Preview Pane -->
+        <div class="output-pane">
+            <h2>Preview</h2>
+            <div id="preview-tree" class="tree-container">
+                <p>Scan results will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import the main application loader using ES modules -->
+    <script type="module" src="{{ url_for('static', filename='04_60_-_Main-App_-_JavaScript-Library/04_60_01_-_Main-App_-_Loader-Functions/appLoader.js') }}"></script>
+</body>
+</html>
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_10_-_Main-App_-_Style-Sheet-CSS-Library\04_10_01_-_Main-App_-_Style-Sheet.css
+================================================================================
+
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0; /* Remove default margin */
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Header Styling */
+h1 {
+    background-color: #0056b3; /* Header background */
+    color: white;
+    padding: 15px 20px;
+    margin: 0;
+    font-size: 1.8em;
+}
+body > p { /* Target the subtitle paragraph directly under body */
+    background-color: #007bff;
+    color: white;
+    padding: 5px 20px 10px; /* Adjust padding */
+    margin: 0 0 20px 0; /* Margin below subtitle */
+    font-size: 1.1em;
+}
+
+
+.container {
+    display: grid;
+    /* Updated grid: Controls take ~1/3, Preview ~2/3 */
+    grid-template-columns: minmax(320px, 1fr) 2fr;
+    gap: 20px;
+    padding: 0 20px 20px 20px; /* Add padding around container */
+    max-width: 1600px; /* Optional: Max width for large screens */
+    margin: 0 auto; /* Center container */
+}
+
+.controls-pane, .output-pane {
+    border: 1px solid #ddd;
+    padding: 20px; /* Increased padding */
+    border-radius: 8px; /* Slightly larger radius */
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08); /* Subtle shadow */
+    /* Ensure panes can shrink/grow */
+    overflow: hidden; /* Prevent content spillover */
+}
+
+.controls-pane h2, .output-pane h2 {
+    margin-top: 0; /* Remove top margin from headings inside panes */
+    color: #0056b3;
+    border-bottom: 2px solid #eee; /* Add line under heading */
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+.controls-pane h3 { /* Status subheading */
+     margin-top: 15px;
+     margin-bottom: 8px;
+     color: #333;
+     font-size: 1.1em;
+}
+
+.form-group {
+    margin-bottom: 18px; /* Slightly more space */
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    font-size: 0.95em; /* Slightly smaller label */
+    color: #555;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: calc(100% - 22px); /* Adjust for padding/border */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.btn {
+    padding: 10px 18px; /* Slightly larger padding */
+    border: none;
+    border-radius: 5px; /* More rounded */
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold; /* Bolder text */
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    margin-top: 10px;
+    margin-right: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Button shadow */
+}
+.btn:hover:not(:disabled) {
+     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+.btn-primary:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+ .btn-success:hover:not(:disabled) {
+    background-color: #1e7e34;
+}
+
+.btn:disabled {
+    background-color: #cccccc;
+    color: #666; /* Darker text for disabled */
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+
+.error-text {
+    color: #dc3545; /* Red for errors */
+    font-size: 0.85em; /* Smaller error text */
+    margin-top: 5px;
+    min-height: 1.1em; /* Reserve space */
+}
+
+ .success-text {
+     color: #28a745; /* Green for success */
+     font-size: 0.9em;
+     margin-top: 5px;
+     white-space: pre-wrap; /* Allow wrapping */
+     font-weight: bold;
+ }
+
+ #status-text, .export-status {
+     margin-bottom: 10px;
+     font-weight: bold;
+     min-height: 1.2em; /* Reserve space */
+     word-wrap: break-word; /* Wrap long paths */
+ }
+ .export-status {
+     margin-top: 10px; /* Space above export status */
+ }
+
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+/* Loading Indicator with Spinner */
+.loading-indicator {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center;
+    font-style: italic;
+    color: #666;
+    margin-bottom: 10px; /* Space below loader */
+}
+
+.spinner {
+    border: 3px solid #f3f3f3; /* Light grey */
+    border-top: 3px solid #007bff; /* Blue */
+    border-radius: 50%;
+    width: 16px; /* Size of spinner */
+    height: 16px;
+    animation: spin 1s linear infinite;
+    margin-right: 8px; /* Space between spinner and text */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Tree Styling */
+.tree-container {
+    max-height: 60vh; /* Limit height relative to viewport */
+    overflow-y: auto;
+    border: 1px solid #eee;
+    padding: 10px;
+    background-color: #fdfdfd; /* Very light grey */
+}
+
+.tree-container ul {
+    list-style-type: none;
+    padding-left: 20px;
+    margin: 0; /* Remove default ul margin */
+}
+.tree-container li {
+    margin: 0; /* Remove default li margin */
+    padding: 2px 0; /* Add small padding */
+}
+ .tree-node {
+    cursor: default; /* Default cursor for all nodes */
+    position: relative;
+    padding: 2px 0; /* Padding inside node */
+    display: flex; /* Use flex for alignment */
+    align-items: center; /* Vertically center content */
+ }
+ .tree-node.folder {
+    cursor: pointer; /* Pointer ONLY for folders */
+ }
+
+ /* Toggle Arrow - using ::before */
+.tree-node.folder::before {
+    /* content: "►"; /* Collapsed - Right pointing triangle */
+    content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>');
+    display: inline-block;
+    width: 16px; /* Width for the arrow */
+    height: 16px; /* Height */
+    margin-right: 4px; /* Space after arrow */
+    transition: transform 0.1s ease-in-out;
+    flex-shrink: 0; /* Prevent arrow from shrinking */
+}
+.tree-node.folder.expanded::before {
+    /* content: "▼"; /* Expanded - Down pointing triangle */
+    content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+    /* transform: rotate(90deg); /* Rotate the '>' */
+}
+
+
+.tree-node .icon {
+     display: inline-block;
+     width: 1.5em; /* Wider space for icon */
+     text-align: center; /* Center icon */
+     margin-right: 3px;
+     flex-shrink: 0;
+ }
+ .tree-node .name {
+      /* Allow name to grow */
+      flex-grow: 1;
+      white-space: nowrap; /* Prevent name wrapping initially */
+      overflow: hidden; /* Hide overflow */
+      text-overflow: ellipsis; /* Show ... for long names */
+      margin-right: 5px; /* Space before size */
+ }
+ .tree-node .size {
+    font-size: 0.85em;
+    color: #555;
+    margin-left: 5px;
+    white-space: nowrap; /* Prevent size wrapping */
+    flex-shrink: 0;
+ }
+.tree-node .warning,
+.tree-node .error {
+     font-size: 0.8em;
+     margin-left: 10px;
+     white-space: nowrap;
+     flex-shrink: 0;
+ }
+ .tree-node .warning {
+    color: #B7950B; /* Darker Yellow */
+    font-weight: bold;
+ }
+.tree-node .error {
+     color: #dc3545; /* Red error */
+     font-weight: bold;
+ }
+
+ /* Hide children by default */
+ .tree-container > ul > li > ul { /* Target nested ULs */
+    display: none;
+ }
+/* Show children when LI parent is expanded */
+.tree-container > ul > li.expanded > ul {
+    display: block;
+}
+
+/* Toggle Switch Styles */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.toggle-label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+    position: absolute;
+}
+
+.toggle-label .toggle-text {
+    margin-left: 10px;
+    font-weight: bold;
+    position: relative;
+    padding-left: 50px;
+}
+
+.toggle-label .toggle-text::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 20px;
+    transition: background-color 0.3s;
+}
+
+.toggle-label .toggle-text::after {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+.toggle-label input:checked + .toggle-text::before {
+    background-color: #28a745;
+}
+
+.toggle-label input:checked + .toggle-text::after {
+    transform: translateX(20px);
+}
+
+/* JSON Export Section */
+.json-export-section {
+    border-left: 2px solid #28a745;
+    padding-left: 10px;
+    margin-left: 5px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_01_-_Main-App_-_Loader-Functions\04_40_00_-_LOAD-FN_-_Load-App-Index-Json-file.js
+================================================================================
+
+
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_01_-_Main-App_-_Loader-Functions\04_40_01_-_LOAD-FN_-_Fetch-API-Utilities.js
+================================================================================
+
+
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_01_-_Main-App_-_Loader-Functions\04_40_10_-_LOAD-FN_-_Load-App-Assets-Json-Function.js
+================================================================================
+
+
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_01_-_Main-App_-_Loader-Functions\appLoader.js
+================================================================================
+
+import { initDOMElements, setupJsonExportToggle } from '../04_60_05_-_Main-App_-_DOM-Interaction-Functions/domElements.js';
+import { setupScanButtonHandler, setupExportButtonHandler } from '../04_60_03_-_Main-App_-_UI-Event-Handling-Functions/eventHandlers.js';
+
+/**
+ * Initializes the application when the DOM is loaded
+ */
+function initApp() {
+    console.log('Initializing Directory Scanner application...');
+    
+    // Application state
+    const state = {
+        scanData: null,
+    };
+    
+    try {
+        // Initialize DOM elements
+        const elements = initDOMElements();
+        
+        // Check that critical elements exist
+        if (!elements.btnScan || !elements.previewTree) {
+            console.error('Critical DOM elements missing. Cannot initialize app.');
+            return;
+        }
+        
+        // Set up UI interactions
+        setupJsonExportToggle(elements, state);
+        setupScanButtonHandler(elements, state);
+        setupExportButtonHandler(elements, state);
+        
+        console.log('Application initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize application:', error);
+    }
+}
+
+// Initialize the app when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', initApp);
+
+// Export for testing or external initialization
+export { initApp };
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_02_-_Main-App_-_Parsing-Functions\04_40_00_-_LOAD-FN_-_Load-App-Index-Json-file.js
+================================================================================
+
+
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_02_-_Main-App_-_Parsing-Functions\04_40_10_-_LOAD-FN_-_Load-App-Assets-Json-Function.js
+================================================================================
+
+
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_03_-_Main-App_-_Global-Helper-Functions\04_41_01_-_GLOB-FN_-_Data-Validation-Functions.js
+================================================================================
+
+
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_03_-_Main-App_-_Global-Helper-Functions\04_41_01_-_GLOB-FN_-_String-Utilities.js
+================================================================================
+
+
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_03_-_Main-App_-_Global-Helper-Functions\04_41_02_-_GLOB-FN_-_Date-Time-Functions.js
+================================================================================
+
+
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_03_-_Main-App_-_Global-Helper-Functions\formatBytes.js
+================================================================================
+
+/**
+ * Formats a byte value into a human-readable string with appropriate unit (B, KB, MB, etc.)
+ * @param {number} bytes - The size in bytes to format
+ * @param {number} decimals - Number of decimal places to show (default: 2)
+ * @returns {string} - Formatted string representing the size
+ */
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === undefined || bytes === null || isNaN(bytes)) return '';
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1000; // Use 1000 for KB, MB (standard for storage reporting)
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const sizeIndex = Math.min(i, sizes.length - 1);
+    const divisor = sizeIndex === 0 ? 1 : Math.pow(k, sizeIndex);
+    if (divisor === 0) return '0 Bytes'; // Avoid division by zero
+
+    return parseFloat((bytes / divisor).toFixed(dm)) + ' ' + sizes[sizeIndex];
+}
+
+// Export the function for use in other modules
+export { formatBytes };
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_03_-_Main-App_-_UI-Event-Handling-Functions\eventHandlers.js
+================================================================================
+
+import { validateScanForm, validateExportForm, displayServerErrors } from '../04_60_90_-_Main-App_-__Error-Handling-Functions/formValidation.js';
+import { startScan, exportToJson } from '../04_60_04_-_Main-App_-_System-Level-API-Functions/apiClient.js';
+import { setLoadingState, updateStatus, clearErrors, updateExportStatus } from '../04_60_05_-_Main-App_-_DOM-Interaction-Functions/domElements.js';
+import { renderDirectoryTree } from '../04_60_29_-_Main-App_-_UI-Rendering-Functions/treeRenderer.js';
+
+/**
+ * Sets up the scan button click handler
+ * @param {Object} elements - DOM elements object
+ * @param {Object} state - Application state object
+ */
+function setupScanButtonHandler(elements, state) {
+    const {
+        btnScan,
+        btnExport,
+        inputDir,
+        inputDepth,
+        inputJson,
+        enableJsonExport,
+        previewTree
+    } = elements;
+
+    btnScan.addEventListener('click', async () => {
+        // Reset UI and state
+        setLoadingState(elements, true);
+        updateStatus(elements, 'Validating inputs...');
+        previewTree.innerHTML = '<p>Scanning...</p>';
+        clearErrors(elements);
+        state.scanData = null;
+        btnExport.disabled = true;
+        
+        // Get input values
+        const dirPath = inputDir.value.trim();
+        const depth = inputDepth.value.trim();
+        const jsonExportEnabled = enableJsonExport.checked;
+        const jsonPath = jsonExportEnabled ? inputJson.value.trim() : '';
+        
+        // Client-side validation
+        const validation = validateScanForm(
+            { dirPath, depth, jsonExportEnabled, jsonPath },
+            elements
+        );
+        
+        if (!validation.valid) {
+            updateStatus(elements, 'Validation failed. Check errors above.');
+            setLoadingState(elements, false);
+            return;
+        }
+        
+        // Set up callbacks for the scan process
+        const callbacks = {
+            onProgress: (message) => {
+                updateStatus(elements, message);
+                // If called without arguments, return current status (used in end_stream)
+                if (!message) return elements.statusText.textContent;
+                return null;
+            },
+            onComplete: (result) => {
+                state.scanData = result;
+                renderDirectoryTree(result, previewTree);
+                setLoadingState(elements, false);
+                
+                // Enable export button if JSON export is enabled
+                if (jsonExportEnabled) {
+                    btnExport.style.display = 'inline-block';
+                    btnExport.disabled = false;
+                }
+            },
+            onError: (message) => {
+                previewTree.innerHTML = `<p style="color: red;">Error during scan: ${message}</p>`;
+                updateStatus(elements, `Scan failed: ${message}`);
+                setLoadingState(elements, false);
+            }
+        };
+        
+        // Start the scan
+        const scanResult = await startScan(
+            { dirPath, depth, jsonExportEnabled, jsonPath },
+            callbacks
+        );
+        
+        if (!scanResult.success) {
+            // Handle API errors
+            displayServerErrors(scanResult.errors, elements, jsonExportEnabled);
+            setLoadingState(elements, false);
+            previewTree.innerHTML = '<p>Scan failed to start.</p>';
+        }
+    });
+}
+
+/**
+ * Sets up the export button click handler
+ * @param {Object} elements - DOM elements object
+ * @param {Object} state - Application state object
+ */
+function setupExportButtonHandler(elements, state) {
+    const { btnExport, inputJson } = elements;
+    
+    btnExport.addEventListener('click', async () => {
+        // Validate export parameters
+        const outputPath = inputJson.value.trim();
+        const validation = validateExportForm(
+            { scanData: state.scanData, outputPath },
+            elements
+        );
+        
+        if (!validation.valid) {
+            updateExportStatus(elements, `Error: ${validation.error}`, true);
+            if (validation.error.includes('output file path')) {
+                inputJson.focus();
+            }
+            return;
+        }
+        
+        // Update UI for export
+        updateExportStatus(elements, 'Exporting...');
+        btnExport.disabled = true;
+        
+        // Set up callbacks
+        const callbacks = {
+            onSuccess: (message) => {
+                updateExportStatus(elements, message);
+                setTimeout(() => {
+                    btnExport.disabled = false;
+                }, 1500);
+            },
+            onError: (message) => {
+                updateExportStatus(elements, message, true);
+                btnExport.disabled = false;
+            }
+        };
+        
+        // Start export
+        await exportToJson(
+            { scanData: state.scanData, outputPath },
+            callbacks
+        );
+    });
+}
+
+export { 
+    setupScanButtonHandler, 
+    setupExportButtonHandler 
+};
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_04_-_Main-App_-_System-Level-API-Functions\apiClient.js
+================================================================================
+
+/**
+ * Module for handling API calls to the server
+ */
+
+// Module-level state for SSE connection
+let currentEventSource = null;
+let currentScanId = null;
+
+/**
+ * Starts a directory scan by calling the API
+ * @param {Object} scanParams - Parameters for the scan
+ * @param {Function} callbacks - Object containing callback functions
+ * @returns {Promise<Object>} - Promise resolving to the scan result
+ */
+async function startScan(scanParams, callbacks) {
+    const { dirPath, depth, jsonExportEnabled, jsonPath } = scanParams;
+    const { onProgress, onComplete, onError } = callbacks;
+    
+    // Prepare request body
+    const requestBody = {
+        directory_path: dirPath,
+        max_depth: depth
+    };
+    
+    // Only include output_path if JSON export is enabled
+    if (jsonExportEnabled && jsonPath) {
+        requestBody.output_path = jsonPath;
+    }
+    
+    try {
+        // Make the API call
+        const response = await fetch('/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            // Return error information
+            return { 
+                success: false, 
+                errors: result.errors || { _global: result.error || response.statusText } 
+            };
+        } else {
+            // Scan started successfully
+            currentScanId = result.scan_id;
+            connectToSSE(currentScanId, callbacks);
+            return { success: true, scanId: currentScanId };
+        }
+    } catch (error) {
+        console.error("Error calling /scan:", error);
+        return { 
+            success: false, 
+            errors: { _global: `Failed to initiate scan: ${error.message}` } 
+        };
+    }
+}
+
+/**
+ * Connects to Server-Sent Events for real-time scan updates
+ * @param {string} scanId - ID of the scan to monitor
+ * @param {Object} callbacks - Callback functions for events
+ */
+function connectToSSE(scanId, callbacks) {
+    const { onProgress, onComplete, onError } = callbacks;
+    
+    // Close any existing SSE connection
+    closeSSE();
+    
+    // Update the status text
+    onProgress(`Connecting to status stream for scan ${scanId.substring(0, 8)}...`);
+    
+    // Create a new EventSource
+    currentEventSource = new EventSource(`/status/${scanId}`);
+
+    // Set up event handlers
+    currentEventSource.onopen = () => {
+        onProgress(`Connected, waiting for scan updates...`);
+    };
+
+    currentEventSource.onmessage = (event) => {
+        console.debug("SSE message received:", event.data);
+        
+        try {
+            const data = JSON.parse(event.data);
+            
+            switch (data.type) {
+                case 'progress':
+                    onProgress(`Scanning: ${data.path}`);
+                    break;
+                    
+                case 'complete':
+                    onProgress('Scan complete!');
+                    onComplete(data.result);
+                    closeSSE();
+                    break;
+
+                case 'error':
+                    onError(data.message);
+                    closeSSE();
+                    break;
+                    
+                default:
+                    console.warn("Unknown SSE message type:", data.type, data);
+            }
+        } catch (e) {
+            console.error("Error parsing SSE data:", e, "Raw data:", event.data);
+            onError(`Received unparsable data: ${event.data}`);
+        }
+    };
+
+    currentEventSource.addEventListener('end_stream', (event) => {
+        console.log("SSE server signaled end of stream:", event.data);
+        closeSSE();
+        
+        // Check for unexpected stream endings
+        if (onProgress) {
+            const currentStatus = onProgress();
+            if (currentStatus && currentStatus.toLowerCase().includes('scanning')) {
+                onError('Scan stream ended unexpectedly.');
+            } else if (currentStatus && currentStatus.toLowerCase().includes('connecting')) {
+                onError('Failed to receive scan status.');
+            }
+        }
+    });
+
+    currentEventSource.onerror = (error) => {
+        console.error("SSE connection error:", error);
+        let isFatal = !currentEventSource || currentEventSource.readyState === EventSource.CLOSED;
+        onError(`Status stream connection error${isFatal ? ' (closed)' : ''}.`);
+        
+        if (isFatal && currentEventSource) {
+            closeSSE();
+        }
+    };
+}
+
+/**
+ * Closes the current SSE connection if one exists
+ */
+function closeSSE() {
+    if (currentEventSource) {
+        currentEventSource.close();
+        console.log(`SSE connection closed for scan ${currentScanId}`);
+        currentEventSource = null;
+    }
+}
+
+/**
+ * Exports scan data to a JSON file
+ * @param {Object} exportParams - Parameters for export
+ * @param {Object} callbacks - Callback functions
+ * @returns {Promise<Object>} - Promise resolving to the export result
+ */
+async function exportToJson(exportParams, callbacks) {
+    const { scanData, outputPath } = exportParams;
+    const { onSuccess, onError } = callbacks;
+    
+    try {
+        const response = await fetch('/export', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                scan_data: scanData,
+                output_path: outputPath
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            onError(`Error exporting: ${result.error || response.statusText}`);
+            return { 
+                success: false, 
+                error: result.error || response.statusText 
+            };
+        } else {
+            onSuccess(result.message || 'Export successful!');
+            return { 
+                success: true, 
+                message: result.message 
+            };
+        }
+    } catch (error) {
+        console.error("Error calling /export:", error);
+        onError(`Export failed: ${error.message}`);
+        return { 
+            success: false, 
+            error: error.message 
+        };
+    }
+}
+
+export { 
+    startScan, 
+    connectToSSE, 
+    closeSSE, 
+    exportToJson 
+};
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_05_-_Main-App_-_DOM-Interaction-Functions\domElements.js
+================================================================================
+
+/**
+ * Central module for managing DOM element references
+ * This provides a single source of truth for element selectors
+ */
+
+// Initialize DOM elements when the document is loaded
+function initDOMElements() {
+    // Main UI buttons
+    const elements = {
+        btnScan: document.getElementById('btn-scan'),
+        btnExport: document.getElementById('btn-export'),
+        
+        // Input fields
+        inputDir: document.getElementById('input-dir'),
+        inputDepth: document.getElementById('input-depth'),
+        inputJson: document.getElementById('input-json'),
+        enableJsonExport: document.getElementById('enable-json-export'),
+        
+        // Containers and status elements
+        jsonExportOptions: document.getElementById('json-export-options'),
+        statusText: document.getElementById('status-text'),
+        loadingIndicator: document.getElementById('loading'),
+        previewTree: document.getElementById('preview-tree'),
+        exportStatus: document.getElementById('export-status'),
+        
+        // Error display elements
+        dirError: document.getElementById('input-dir-error'),
+        depthError: document.getElementById('input-depth-error'),
+        jsonError: document.getElementById('input-json-error')
+    };
+    
+    // Check that all elements were found
+    for (const [key, element] of Object.entries(elements)) {
+        if (!element) {
+            console.error(`DOM element not found: ${key}`);
+        }
+    }
+    
+    return elements;
+}
+
+/**
+ * Sets up the JSON export toggle functionality
+ * @param {Object} elements - Object containing DOM element references
+ * @param {Object} state - Application state object to update
+ */
+function setupJsonExportToggle(elements, state) {
+    const { enableJsonExport, jsonExportOptions, btnExport } = elements;
+    
+    enableJsonExport.addEventListener('change', () => {
+        jsonExportOptions.style.display = enableJsonExport.checked ? 'block' : 'none';
+        
+        if (state.scanData && enableJsonExport.checked) {
+            btnExport.style.display = 'inline-block';
+            btnExport.disabled = false;
+        } else {
+            btnExport.style.display = enableJsonExport.checked ? 'inline-block' : 'none';
+            btnExport.disabled = true;
+        }
+    });
+}
+
+/**
+ * Shows or hides the loading indicator
+ * @param {Object} elements - DOM elements object
+ * @param {boolean} isLoading - Whether to show (true) or hide (false) the loading indicator
+ */
+function setLoadingState(elements, isLoading) {
+    elements.loadingIndicator.style.display = isLoading ? 'flex' : 'none';
+    elements.btnScan.disabled = isLoading;
+}
+
+/**
+ * Updates the status text
+ * @param {Object} elements - DOM elements object
+ * @param {string} message - Status message to display
+ */
+function updateStatus(elements, message) {
+    elements.statusText.textContent = message;
+}
+
+/**
+ * Resets all error messages
+ * @param {Object} elements - DOM elements object
+ */
+function clearErrors(elements) {
+    elements.dirError.textContent = '';
+    elements.depthError.textContent = '';
+    elements.jsonError.textContent = '';
+    elements.exportStatus.textContent = '';
+}
+
+/**
+ * Updates the export status message
+ * @param {Object} elements - DOM elements object
+ * @param {string} message - Status message
+ * @param {boolean} isError - Whether this is an error message
+ */
+function updateExportStatus(elements, message, isError = false) {
+    elements.exportStatus.textContent = message;
+    elements.exportStatus.className = isError ? 'export-status error-text' : 'export-status success-text';
+}
+
+export { 
+    initDOMElements, 
+    setupJsonExportToggle,
+    setLoadingState,
+    updateStatus,
+    clearErrors,
+    updateExportStatus
+};
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_29_-_Main-App_-_UI-Rendering-Functions\treeRenderer.js
+================================================================================
+
+import { formatBytes } from '../04_60_03_-_Main-App_-_Global-Helper-Functions/formatBytes.js';
+
+/**
+ * Renders a tree structure for directory/file visualization
+ * @param {Array} nodeDataArray - Array of node data objects to render
+ * @returns {HTMLElement} - A UL element containing the rendered tree
+ */
+function renderTree(nodeDataArray) {
+    const ul = document.createElement('ul');
+    
+    nodeDataArray.forEach(item => {
+        const li = document.createElement('li');
+        const nodeDiv = document.createElement('div');
+        nodeDiv.classList.add('tree-node', item.type);
+
+        if (item.type === 'folder') {
+            li.classList.add('expanded');
+            nodeDiv.classList.add('expanded');
+
+            nodeDiv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                li.classList.toggle('expanded');
+                nodeDiv.classList.toggle('expanded');
+                const isExpanded = li.classList.contains('expanded');
+                nodeDiv.setAttribute('aria-expanded', isExpanded.toString());
+                const childUl = li.querySelector('ul');
+                if (childUl) {
+                    childUl.style.display = isExpanded ? 'block' : 'none';
+                }
+            });
+            
+            nodeDiv.setAttribute('role', 'treeitem');
+            nodeDiv.setAttribute('aria-expanded', 'true');
+        } else {
+            nodeDiv.setAttribute('role', 'treeitem');
+        }
+
+        const iconSpan = document.createElement('span');
+        iconSpan.classList.add('icon');
+        iconSpan.setAttribute('aria-hidden', 'true');
+        iconSpan.textContent = item.type === 'folder' ? '📁' : '📄';
+        nodeDiv.appendChild(iconSpan);
+
+        const nameSpan = document.createElement('span');
+        nameSpan.classList.add('name');
+        nameSpan.textContent = item.name;
+        nodeDiv.appendChild(nameSpan);
+
+        if (item.size !== undefined) {
+            const sizeSpan = document.createElement('span');
+            sizeSpan.classList.add('size');
+            sizeSpan.textContent = `(${formatBytes(item.size)})`;
+            nodeDiv.appendChild(sizeSpan);
+        }
+
+        if (item.warning) {
+            const warningSpan = document.createElement('span');
+            warningSpan.classList.add('warning');
+            warningSpan.textContent = `[!] ${item.warning}`;
+            nodeDiv.appendChild(warningSpan);
+        }
+        
+        if (item.error) {
+            const errorSpan = document.createElement('span');
+            errorSpan.classList.add('error');
+            errorSpan.textContent = `[Error] ${item.error}`;
+            nodeDiv.appendChild(errorSpan);
+        }
+
+        li.appendChild(nodeDiv);
+
+        if (item.type === 'folder' && item.children && item.children.length > 0) {
+            const childUl = renderTree(item.children);
+            childUl.style.display = 'block';
+            li.appendChild(childUl);
+        }
+        
+        ul.appendChild(li);
+    });
+    
+    return ul;
+}
+
+/**
+ * Creates a root tree node and renders the entire tree structure
+ * @param {Object} rootData - Data for the root node
+ * @param {HTMLElement} container - Container element to append the tree to
+ */
+function renderDirectoryTree(rootData, container) {
+    container.innerHTML = ''; // Clear container
+    
+    if (!rootData || typeof rootData !== 'object') {
+        container.innerHTML = '<p>No valid data structure received.</p>';
+        return;
+    }
+    
+    const rootUl = document.createElement('ul');
+    rootUl.setAttribute('role', 'tree');
+    rootUl.setAttribute('aria-label', 'Directory Scan Results');
+
+    const rootLi = document.createElement('li');
+    const rootDiv = document.createElement('div');
+    rootDiv.classList.add('tree-node', 'folder', 'expanded');
+    rootDiv.setAttribute('role', 'treeitem');
+    rootDiv.setAttribute('aria-expanded', 'true');
+
+    rootDiv.innerHTML = `<span class="icon" aria-hidden="true">📁</span> <span class="name">${rootData.name || 'Root'}</span> <span class="size">(${formatBytes(rootData.size)})</span>`;
+    
+    if (rootData.warning) {
+        rootDiv.innerHTML += ` <span class="warning">[!] ${rootData.warning}</span>`;
+    }
+    
+    if (rootData.error) {
+        rootDiv.innerHTML += ` <span class="error">[Error] ${rootData.error}</span>`;
+    }
+
+    rootDiv.addEventListener('click', (e) => {
+        e.stopPropagation();
+        rootLi.classList.toggle('expanded');
+        rootDiv.classList.toggle('expanded');
+        const isExpanded = rootLi.classList.contains('expanded');
+        rootDiv.setAttribute('aria-expanded', isExpanded.toString());
+        const childUl = rootLi.querySelector('ul');
+        if (childUl) {
+            childUl.style.display = isExpanded ? 'block' : 'none';
+        }
+    });
+
+    rootLi.appendChild(rootDiv);
+    rootLi.classList.add('expanded');
+
+    if (rootData.children && rootData.children.length > 0) {
+        const childUl = renderTree(rootData.children);
+        childUl.style.display = 'block';
+        rootLi.appendChild(childUl);
+    }
+
+    rootUl.appendChild(rootLi);
+    container.appendChild(rootUl);
+}
+
+export { renderTree, renderDirectoryTree };
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\04_60_-_Main-App_-_JavaScript-Library\04_60_90_-_Main-App_-__Error-Handling-Functions\formValidation.js
+================================================================================
+
+/**
+ * Module for handling form validation
+ */
+
+/**
+ * Validates scan form inputs
+ * @param {Object} formData - Form data to validate
+ * @param {Object} elements - DOM elements for displaying errors
+ * @returns {Object} - Validation result { valid: boolean, errors: Object }
+ */
+function validateScanForm(formData, elements) {
+    const { dirPath, depth, jsonExportEnabled, jsonPath } = formData;
+    const { dirError, depthError, jsonError } = elements;
+    
+    let hasError = false;
+    
+    // Clear previous errors
+    dirError.textContent = '';
+    depthError.textContent = '';
+    jsonError.textContent = '';
+    
+    // Validate directory path
+    if (!dirPath) {
+        dirError.textContent = 'Directory path cannot be empty.';
+        hasError = true;
+    }
+    
+    // Validate depth
+    if (depth && isNaN(parseInt(depth))) {
+        depthError.textContent = 'Max depth must be a number.';
+        hasError = true;
+    } else if (depth && parseInt(depth) < 0) {
+        depthError.textContent = 'Max depth must be non-negative.';
+        hasError = true;
+    }
+    
+    // Validate JSON path if export is enabled
+    if (jsonExportEnabled) {
+        if (!jsonPath) {
+            jsonError.textContent = 'Output JSON file path cannot be empty when export is enabled.';
+            hasError = true;
+        } else if (!jsonPath.includes('.') || jsonPath.endsWith('/') || jsonPath.endsWith('\\')) {
+            jsonError.textContent = 'Please provide a valid file path with filename and extension.';
+            hasError = true;
+        }
+    }
+    
+    return {
+        valid: !hasError,
+        errors: {
+            directory_path: dirError.textContent,
+            max_depth: depthError.textContent,
+            output_path: jsonError.textContent
+        }
+    };
+}
+
+/**
+ * Validates export form inputs
+ * @param {Object} exportData - Export data to validate
+ * @param {Object} elements - DOM elements for displaying errors
+ * @returns {Object} - Validation result { valid: boolean, error: string }
+ */
+function validateExportForm(exportData, elements) {
+    const { scanData, outputPath } = exportData;
+    const { jsonError } = elements;
+    
+    // Clear previous errors
+    jsonError.textContent = '';
+    
+    // Validate scan data
+    if (!scanData) {
+        return {
+            valid: false,
+            error: 'No scan data available to export.'
+        };
+    }
+    
+    // Validate output path
+    if (!outputPath) {
+        jsonError.textContent = 'Output JSON file path is required for export.';
+        return {
+            valid: false,
+            error: 'Please specify the output JSON file path.'
+        };
+    } 
+    
+    if (!outputPath.includes('.') || outputPath.endsWith('/') || outputPath.endsWith('\\')) {
+        jsonError.textContent = 'Please provide a valid file path with filename and extension.';
+        return {
+            valid: false,
+            error: 'Invalid output file path format.'
+        };
+    }
+    
+    return {
+        valid: true
+    };
+}
+
+/**
+ * Displays server-side validation errors
+ * @param {Object} errors - Error object from the server
+ * @param {Object} elements - DOM elements for displaying errors
+ * @param {boolean} jsonExportEnabled - Whether JSON export is enabled
+ */
+function displayServerErrors(errors, elements, jsonExportEnabled) {
+    const { dirError, depthError, jsonError, statusText } = elements;
+    
+    if (!errors) return;
+    
+    // Display field-specific errors
+    if (errors.directory_path) {
+        dirError.textContent = errors.directory_path;
+    }
+    
+    if (errors.max_depth) {
+        depthError.textContent = errors.max_depth;
+    }
+    
+    if (jsonExportEnabled && errors.output_path) {
+        jsonError.textContent = errors.output_path;
+    }
+    
+    // Display global error
+    if (errors._global) {
+        statusText.textContent = errors._global;
+    } else {
+        statusText.textContent = 'Validation failed. Check errors above.';
+    }
+}
+
+export {
+    validateScanForm,
+    validateExportForm,
+    displayServerErrors
+};
+================================================================================
+
+================================================================================
+### C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\04_FRNT_-_Client-Side-Codebase\static\css\style.css
+================================================================================
+
+
+================================================================================
