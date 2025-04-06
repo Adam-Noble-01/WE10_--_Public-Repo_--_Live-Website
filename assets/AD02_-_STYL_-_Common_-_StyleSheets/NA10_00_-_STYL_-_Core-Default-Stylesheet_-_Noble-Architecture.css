@@ -102,8 +102,8 @@ html, body {
 
 .HEAD__nav {
     margin              :    0 auto;
-    padding-top         :    01.00rem;
-    padding-bottom      :    01.00rem;
+    padding-top         :    00.75rem;
+    padding-bottom      :    00.75rem;
     display             :    flex;
     justify-content     :    space-between;
     align-items         :    center;
@@ -123,7 +123,7 @@ html, body {
 .HEAD__menu {
     list-style          :    none;
     display             :    flex;
-    gap                 :    00.50rem;
+    gap                 :    00.65rem;
     margin              :    0;
     padding             :    0;
     margin-left         :    auto; 
@@ -133,7 +133,7 @@ html, body {
     text-decoration     :    none;
     color               :    var(--text-color);
     font-weight         :    400;
-    font-size           :    00.85rem;
+    font-size           :    01.00rem;
     padding-top         :    00.50rem;
     padding-bottom      :    00.50rem;
     padding-left        :    00.50rem;
@@ -213,7 +213,7 @@ html, body {
 .TOOL__title {
     color               :    var(--text-color);
     margin              :    0 0 1rem 0;
-    font-size           :    1.25rem;
+    font-size           :    1.20rem;
     border-bottom       :    1px solid var(--card-border);
     padding-bottom      :    0.75rem;
 }
@@ -223,6 +223,7 @@ html, body {
     margin              :    0 0 1.5rem 0;
     flex                :    1;
     line-height         :    1.5;
+    font-size           :    0.85rem;
 }
 
 .TOOL__link {
@@ -233,6 +234,7 @@ html, body {
     text-decoration     :    none;
     border-radius       :    4px;
     transition          :    all 0.3s ease;
+    font-size           :    0.80rem;
     text-align          :    center;
     width               :    100%;
     box-sizing          :    border-box;
