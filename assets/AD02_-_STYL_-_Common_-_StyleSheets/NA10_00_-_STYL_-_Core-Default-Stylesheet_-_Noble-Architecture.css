@@ -70,7 +70,7 @@ html, body {
     /* RELATIVE UNIT | 
       - Note This value is used to calculate the font size of the text in the page. 
       - It is a relative unit that is based on the font size of the root element.       */
-    font-size           :    18.00px;    /*  <-- CRITICAL VALUE!!  */
+    font-size           :    16.00px;    /*  <-- CRITICAL VALUE!!  */
     color               :    var(--text-color);
     line-height         :    1.4;
     display             :    flex;
@@ -102,8 +102,8 @@ html, body {
 
 .HEAD__nav {
     margin              :    0 auto;
-    padding-top         :    00.55rem;
-    padding-bottom      :    00.55rem;
+    padding-top         :    00.85rem;
+    padding-bottom      :    00.85rem;
     display             :    flex;
     justify-content     :    space-between;
     align-items         :    center;
