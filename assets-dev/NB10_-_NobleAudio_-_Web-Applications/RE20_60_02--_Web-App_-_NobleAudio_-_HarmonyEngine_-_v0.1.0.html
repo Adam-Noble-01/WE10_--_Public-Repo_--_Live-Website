@@ -1,0 +1,516 @@
+L<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NobleAudio - Harmonic Flux</title>
+    <style>
+        :root {
+            --pad-size: clamp(150px, 35vmin, 350px);
+            --indicator-color: #00ccff;
+            --background-color: #0a0a0a;
+            --pad-background: #1f1f1f;
+            --text-color: #e0e0e0;
+            --control-bg: #2a2a2a;
+            --control-hover-bg: #3a3a3a;
+            --slider-bg: #252525;
+            --slider-thumb-bg: #00ccff;
+            --slider-track-bg: #404040;
+            --slider-width: clamp(40px, 8vw, 60px);
+            --top-bar-height: 60px;
+            --side-padding: 15px;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: manipulation;
+            min-height: 320px;
+            min-width: 480px;
+        }
+
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px var(--side-padding);
+            height: var(--top-bar-height);
+            background-color: #151515;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        #title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #bbb;
+            white-space: nowrap;
+        }
+
+        #top-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #top-controls button, #top-controls select {
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: var(--control-bg);
+            color: var(--text-color);
+            border: 1px solid #555;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        #top-controls select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e0e0e0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.4-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 10px auto;
+            padding-right: 30px;
+        }
+
+        #top-controls button:hover, #top-controls select:hover {
+            background-color: var(--control-hover-bg);
+        }
+
+        #randomizeButton {
+            min-width: 120px;
+        }
+
+        #seedDisplay {
+            font-weight: bold;
+            color: var(--indicator-color);
+        }
+
+        #main-content {
+            display: flex;
+            flex-grow: 1;
+            align-items: center;
+            justify-content: center;
+            padding: 10px var(--side-padding);
+            gap: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .slider-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(var(--pad-size) * 1.5);
+            min-height: 200px;
+            width: var(--slider-width);
+            background-color: var(--slider-bg);
+            border-radius: 5px;
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+
+        input[type="range"].vertical-slider {
+            appearance: slider-vertical;
+            width: calc(100% - 20px);
+            height: var(--slider-width);
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            margin: 0;
+        }
+
+        input[type="range"].vertical-slider::-webkit-slider-runnable-track {
+            height: 5px;
+            background: var(--slider-track-bg);
+            border-radius: 3px;
+        }
+
+        input[type="range"].vertical-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: calc(var(--slider-width) * 0.8);
+            height: 20px;
+            background: var(--slider-thumb-bg);
+            border-radius: 3px;
+            border: 1px solid #777;
+            margin-top: -8px;
+        }
+
+        #pads-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            height: 100%;
+        }
+
+        .xy-pad {
+            position: relative;
+            width: var(--pad-size);
+            height: var(--pad-size);
+            background-color: var(--pad-background);
+            border: 2px solid #444;
+            cursor: crosshair;
+            touch-action: none;
+            user-select: none;
+            overflow: hidden;
+            border-radius: 5px;
+        }
+
+        .indicator {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border: 2px solid var(--indicator-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 0 8px var(--indicator-color);
+        }
+
+        .crosshair {
+            position: absolute;
+            background-color: var(--indicator-color);
+            pointer-events: none;
+            display: none;
+            opacity: 0.5;
+        }
+
+        .crosshair-h {
+            width: 100%;
+            height: 1px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .crosshair-v {
+            width: 1px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div id="top-bar">
+            <div id="title">NobleAudio - Harmonic Flux</div>
+            <div id="top-controls">
+                <button id="recallSeedButton">Recall Seed</button>
+                <select id="keySelector"></select>
+                <button id="randomizeButton">Seed: <span id="seedDisplay">N/A</span></button>
+            </div>
+        </div>
+        <div id="main-content">
+            <div class="slider-container">
+                <input type="range" min="0" max="100" value="50" class="vertical-slider" id="sliderL">
+            </div>
+            <div id="pads-container">
+                <div class="xy-pad" id="xyPad1">
+                    <div class="indicator"></div>
+                    <div class="crosshair crosshair-h"></div>
+                    <div class="crosshair crosshair-v"></div>
+                </div>
+                <div class="xy-pad" id="xyPad2">
+                    <div class="indicator"></div>
+                    <div class="crosshair crosshair-h"></div>
+                    <div class="crosshair crosshair-v"></div>
+                </div>
+            </div>
+            <div class="slider-container">
+                <input type="range" min="0" max="100" value="50" class="vertical-slider" id="sliderR">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Seedrandom PRNG for consistent randomization
+        (function(global, pool, math) {
+            var width = 256, chunks = 6, digits = 52, startdenom = math.pow(width, chunks),
+                significance = math.pow(2, digits), overflow = significance * 2, mask = width - 1;
+            function seedrandom(seed) {
+                var key = [];
+                var shortseed = mixkey(seed.toString(), key);
+                var arc4 = new ARC4(key);
+                var prng = function() {
+                    var n = arc4.g(chunks), d = startdenom, x = 0;
+                    while (n < significance) { n = (n + x) * width; d *= width; x = arc4.g(1); }
+                    while (n >= overflow) { n /= 2; d /= 2; x >>>= 1; }
+                    return (n + x) / d;
+                };
+                mixkey(tostring(arc4.S), pool);
+                return prng;
+            }
+            function ARC4(key) {
+                var t, keylen = key.length, me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+                if (!keylen) { key = [keylen++]; }
+                while (i < width) { s[i] = i++; }
+                for (i = 0; i < width; i++) { s[i] = s[j = mask & (j + key[i % keylen] + (t = s[i]))]; s[j] = t; }
+                me.g = function(count) {
+                    var t, r = 0, i = me.i, j = me.j, s = me.S;
+                    while (count--) { t = s[i = mask & (i + 1)]; r = r * width + s[mask & ((s[i] = s[j = mask & (j + t)]) + (s[j] = t))]; }
+                    me.i = i; me.j = j; return r;
+                };
+            }
+            function mixkey(seed, key) {
+                var smear, j = 0;
+                while (j < seed.length) { key[mask & j] = mask & ((smear ^= key[mask & j] * 19) + seed.charCodeAt(j++)); }
+                return tostring(key);
+            }
+            function tostring(a) { return String.fromCharCode.apply(0, a); }
+            math['seedrandom'] = seedrandom;
+        })(this, [], Math);
+
+        // DOM Elements
+        const xyPad1 = document.getElementById('xyPad1');
+        const xyPad2 = document.getElementById('xyPad2');
+        const sliderL = document.getElementById('sliderL');
+        const sliderR = document.getElementById('sliderR');
+        const randomizeButton = document.getElementById('randomizeButton');
+        const recallSeedButton = document.getElementById('recallSeedButton');
+        const keySelector = document.getElementById('keySelector');
+        const seedDisplay = document.getElementById('seedDisplay');
+
+        // Audio Context and Nodes
+        let audioContext = null;
+        let mainGain, filter, delay, reverb, chordOscs = [], arpScheduler;
+
+        // State Management
+        const activePointers = new Map();
+        const padStates = { pad1: { x: 0.5, y: 0.5, active: false }, pad2: { x: 0.5, y: 0.5, active: false } };
+        const sliderStates = { sliderL: 0.5, sliderR: 0.5 };
+        let currentSeed = null, currentKey = 'C2', isPlaying = false;
+
+        // Key Frequencies (C2 to B3)
+        const keyFrequencies = {
+            'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
+            'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61, 'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 'A#3': 233.08, 'B3': 246.94
+        };
+
+        // Chord Definitions (semitone offsets)
+        const chordTypes = {
+            'maj7': [0, 4, 7, 11], 'min7': [0, 3, 7, 10], 'dom7': [0, 4, 7, 10], 'min9': [0, 3, 7, 10, 14]
+        };
+
+        // Synth Parameters
+        let params = {
+            baseFreq: keyFrequencies[currentKey],
+            numVoices: 5,
+            arpRate: 0.15,
+            filterCutoff: 1200,
+            filterQ: 2,
+            delayTime: 0.25,
+            delayFeedback: 0.45,
+            reverbWet: 0.25,
+            masterGain: 0.25,
+            currentChord: 'min7'
+        };
+
+        // Audio Initialization
+        function initAudio() {
+            if (audioContext && audioContext.state === 'running') return;
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            mainGain = audioContext.createGain();
+            filter = audioContext.createBiquadFilter();
+            delay = audioContext.createDelay(2);
+            reverb = audioContext.createConvolver();
+
+            mainGain.gain.setValueAtTime(0, audioContext.currentTime);
+            filter.type = 'lowpass';
+            filter.frequency.value = params.filterCutoff;
+            filter.Q.value = params.filterQ;
+            delay.delayTime.value = params.delayTime;
+
+            // Simple reverb impulse
+            const impulse = audioContext.createBuffer(2, audioContext.sampleRate * 2, audioContext.sampleRate);
+            for (let ch = 0; ch < 2; ch++) {
+                const data = impulse.getChannelData(ch);
+                for (let i = 0; i < data.length; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioContext.sampleRate * 0.5));
+                }
+            }
+            reverb.buffer = impulse;
+
+            // Audio routing
+            mainGain.connect(filter);
+            filter.connect(delay);
+            delay.connect(reverb);
+            reverb.connect(audioContext.destination);
+            const feedbackGain = audioContext.createGain();
+            feedbackGain.gain.value = params.delayFeedback;
+            delay.connect(feedbackGain);
+            feedbackGain.connect(delay);
+            const reverbGain = audioContext.createGain();
+            reverbGain.gain.value = params.reverbWet;
+            reverb.connect(reverbGain);
+            reverbGain.connect(audioContext.destination);
+
+            audioContext.resume();
+        }
+
+        // Arpeggiator
+        class Arpeggiator {
+            constructor() {
+                this.notes = [];
+                this.currentStep = 0;
+                this.timeoutId = null;
+            }
+            updateNotes(chordNotes) {
+                this.notes = [];
+                chordNotes.forEach(note => {
+                    this.notes.push(note);
+                    this.notes.push(note + 12); // Add octave up
+                });
+                this.notes.sort((a, b) => a - b);
+            }
+            start() {
+                if (this.timeoutId) clearTimeout(this.timeoutId);
+                this.scheduleNext();
+            }
+            stop() {
+                if (this.timeoutId) clearTimeout(this.timeoutId);
+                chordOscs.forEach(osc => osc.gain.gain.setTargetAtTime(0, audioContext.currentTime, 0.1));
+            }
+            scheduleNext() {
+                if (!audioContext || !isPlaying) return;
+                const now = audioContext.currentTime;
+                const noteIdx = this.currentStep % this.notes.length;
+                const freq = params.baseFreq * Math.pow(2, this.notes[noteIdx] / 12);
+                const osc = chordOscs[this.currentStep % params.numVoices];
+
+                osc.osc.frequency.setValueAtTime(freq, now);
+                osc.gain.gain.cancelScheduledValues(now);
+                osc.gain.gain.setValueAtTime(0, now);
+                osc.gain.gain.linearRampToValueAtTime(0.3 / params.numVoices, now + 0.01);
+                osc.gain.gain.exponentialRampToValueAtTime(0.001, now + params.arpRate * 0.8);
+
+                this.currentStep++;
+                this.timeoutId = setTimeout(() => this.scheduleNext(), params.arpRate * 1000);
+            }
+        }
+
+        // Randomization
+        function randomizeSeed(seed = null) {
+            initAudio();
+            if (seed === null) currentSeed = Math.floor(Math.random() * 1000000);
+            else currentSeed = Math.floor(seed);
+            Math.seedrandom(currentSeed);
+            seedDisplay.textContent = currentSeed;
+
+            params.baseFreq = keyFrequencies[currentKey];
+            params.numVoices = Math.floor(Math.random() * 3) + 4; // 4-6 voices
+            params.arpRate = 0.1 + Math.random() * 0.2;
+            params.filterCutoff = 800 + Math.random() * 2000;
+            params.filterQ = 1 + Math.random() * 3;
+            params.delayTime = 0.1 + Math.random() * 0.3;
+            params.delayFeedback = 0.3 + Math.random() * 0.3;
+            params.reverbWet = 0.2 + Math.random() * 0.3;
+            params.masterGain = 0.2 + Math.random() * 0.1;
+            params.currentChord = Object.keys(chordTypes)[Math.floor(Math.random() * Object.keys(chordTypes).length)];
+
+            // Reset Oscillators
+            chordOscs.forEach(osc => { osc.osc.stop(); osc.osc.disconnect(); osc.gain.disconnect(); });
+            chordOscs = [];
+            for (let i = 0; i < params.numVoices; i++) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = Math.random() > 0.5 ? 'sawtooth' : 'triangle';
+                osc.frequency.value = params.baseFreq;
+                osc.connect(gain);
+                gain.connect(mainGain);
+                gain.gain.value = 0;
+                osc.start();
+                chordOscs.push({ osc, gain });
+            }
+            arpScheduler = new Arpeggiator();
+            arpScheduler.updateNotes(chordTypes[params.currentChord]);
+
+            updateSynthParams(true);
+        }
+
+        // Update Synth Parameters
+        function updateSynthParams(forceBase = false) {
+            if (!audioContext) return;
+            const now = audioContext.currentTime;
+
+            const x1 = padStates.pad1.active || forceBase ? padStates.pad1.x : 0.5;
+            const y1 = padStates.pad1.active || forceBase ? padStates.pad1.y : 0.5;
+            const x2 = padStates.pad2.active || forceBase ? padStates.pad2.x : 0.5;
+            const y2 = padStates.pad2.active || forceBase ? padStates.pad2.y : 0.5;
+            const slL = sliderStates.sliderL;
+            const slR = sliderStates.sliderR;
+
+            params.filterCutoff = 800 + x1 * 2000;
+            params.filterQ = 1 + y1 * 3;
+            params.delayTime = 0.1 + x2 * 0.3;
+            params.delayFeedback = 0.3 + y2 * 0.3;
+            params.reverbWet = 0.2 + slR * 0.3;
+            params.arpRate = 0.1 + slL * 0.2;
+
+            filter.frequency.setValueAtTime(params.filterCutoff, now);
+            filter.Q.setValueAtTime(params.filterQ, now);
+            delay.delayTime.setValueAtTime(params.delayTime, now);
+            delay.feedbackGain.gain.setValueAtTime(params.delayFeedback, now);
+            reverb.gain.gain.setValueAtTime(params.reverbWet, now);
+
+            arpScheduler.updateNotes(chordTypes[params.currentChord]);
+            if (isPlaying) mainGain.gain.setValueAtTime(params.masterGain, now);
+        }
+
+        // Event Handlers
+        function handlePointerDown(e) {
+            const pad = e.target.closest('.xy-pad');
+            if (!pad) return;
+            e.preventDefault();
+            initAudio();
+
+            const padId = pad.id === 'xyPad1' ? 'pad1' : 'pad2';
+            if (activePointers.has(e.pointerId)) return;
+
+            activePointers.set(e.pointerId, { padId });
+            pad.setPointerCapture(e.pointerId);
+            padStates[padId].active = true;
+
+            const indicator = pad.querySelector('.indicator');
+            const crossH = pad.querySelector('.crosshair-h');
+            const crossV = pad.querySelector('.crosshair-v');
+            indicator.style.display = 'block';
+            crossH.style.display = 'block';
+            crossV.style.display = 'block';
+            updatePointerPosition(e, pad);
+
+            if (!isPlaying) {
+                isPlaying = true;
+                arpScheduler.start();
+                mainGain.gain.setTargetAtTime(params.masterGain, audioContext.currentTime, 0.05);
+            }
+            updateSynthParams();
+        }
+
+        function handlePointerMove(e) {
+            if (!activePointers.has(e.pointerId)) return;
+            e.preventDefault();
+            const { padId } = activePointers.get(e.pointerId);
+            const pad = document.getElementBy

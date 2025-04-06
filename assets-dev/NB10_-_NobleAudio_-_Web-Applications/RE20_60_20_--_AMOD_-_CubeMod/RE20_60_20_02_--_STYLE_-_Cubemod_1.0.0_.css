@@ -1,0 +1,81 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    /* Hygge/Millennial muted beige background */
+    background-color: #F5F5DC; /* Beige */
+    font-family: sans-serif;
+    touch-action: none; /* Prevent default touch behaviors */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #333; /* Darker text for light background */
+}
+canvas {
+    display: block;
+}
+#info {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #555; /* Dark grey text */
+    background: rgba(255, 255, 255, 0.85); /* Slightly less transparent */
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    line-height: 1.5;
+    pointer-events: none;
+    min-width: 210px; /* Increased width for more params */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    z-index: 5; /* Ensure info is above canvas */
+}
+#info b { /* Make labels stand out slightly */
+    color: #000;
+    font-weight: 600;
+}
+#instructions {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    color: #777;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    text-align: center;
+    pointer-events: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    z-index: 5;
+}
+#start-button {
+    position: absolute;
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    /* Muted green */
+    background-color: #A8D8B9;
+    color: #333;
+    border: none;
+    border-radius: 5px;
+    z-index: 10;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+}
+#osc-indicator { /* Simple text indicator for oscillator type */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #777;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    pointer-events: none;
+    z-index: 5;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+body.audio-active #start-button { display: none; }
+body:not(.audio-active) #c { display: none; }
+body:not(.audio-active) #info { display: none; }
+body:not(.audio-active) #instructions { display: none; }
+body:not(.audio-active) #osc-indicator { display: none; }

@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Ensure landscape layout and disable zoom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <title>NobleAudio - Chaos Engine</title>
+<!-- 
+# NobleAudio - Chaos Engine
+
+===============================================================================
+- - - - - - - - - - - - -   WEB APPLICATION NOTES   - - - - - - - - - - - - - -
+Subject :  NobleAudio - Chaos Engine
+Date    :  04-Apr-2025
+===============================================================================
+
+KEY FILE INFORMATION
+- Format: A single `.html` file containing all components necessary for the application's functionality.
+- Contents include the full HTML structure, embedded CSS for styling, and integrated JavaScript for logic handling.
+- Core Technology: Utilizes the Web Audio API to enable real-time audio synthesis and modulation directly within the browser.
+- Randomization is powered by an embedded seeded pseudo-random number generator (`seedrandom.js` by David Bau), which allows for reliable sound patch recall using a specific seed number.
+- No additional dependencies are required aside from a modern web browser that supports the Web Audio API.
+
+DESCRIPTION
+- NobleAudio Chaos Engine is a touch-first, interactive web application developed to quickly generate and manipulate bass sounds suited for modern Drum and Bass music.
+- Its interface supports real-time performance and interaction through dual XY pads and sliders, promoting tactile, expressive sound design.
+- The system bypasses traditional synthesis workflows in favor of a semi-randomized engine, supporting rapid sonic exploration and experimentation.
+- Aimed at accelerating idea generation, the tool is especially beneficial for uncovering unique bass textures that would otherwise be time-consuming to build manually.
+
+DESIGN MANIFEST & PHILOSOPHY
+
+TARGET SOUND: MODERN UNDERGROUND DNB BASS
+- Focuses exclusively on bass sounds tailored for contemporary underground Drum and Bass production.
+- Targets textures similar to artists like Alix Perez, Monty, Visages and labels such as 1985 Music—prioritizing harmonically rich, textured, filtered, and dynamic basslines.
+- Avoids generic synthesis approaches and instead embraces complexity through randomization and modulation.
+- Encourages exploration of new timbral territory as part of the "sound design arms race."
+
+INTERACTION: TACTILE & PERFORMATIVE
+- Designed with a touch-first approach, optimized for tablets and phones in landscape orientation.
+- Central interface feature includes dual XY pads, designed to be controlled simultaneously with both thumbs, supporting expressive, real-time modulation.
+- Visual feedback elements like crosshairs and indicator circles reinforce the connection between user interaction and sonic output.
+- Desktop usage is supported via mouse input, though limited to controlling one pad at a time.
+
+SYNTHESIS ENGINE: COMPLEX & SEMI-RANDOMIZED
+- Synthesis architecture includes FM synthesis, additive/subtractive methods via multiple oscillators, waveshaping distortion, and dynamic filtering.
+- Key feature is the randomization mechanic:
+  - A "Seed" button generates a new sound patch and randomizes the modulation matrix entirely.
+  - Each seed redefines the routing between performance controls (XY pads, sliders, LFOs) and synthesis parameters (e.g., FM depth, distortion, filter cutoff).
+- The seeded PRNG ensures patches are fully recallable via their unique seed number, maintaining consistency.
+
+CONTROL PARADIGM: BALANCING CHAOS & INTENTION
+- While the engine randomly determines the initial configuration, users are empowered through intuitive performance controls:
+  - XY Pads serve as the primary modulation tools, with each seed producing a different mapping and behavior.
+  - Left Slider (Mod Wheel): A spring-back controller for brief, expressive modulation bursts. Its routing is randomized per seed.
+  - Right Slider (Chaos Fader): A persistent intensity controller, adjusting the overall modulation complexity. Lower settings result in subtler, darker tones.
+  - Key Selector: Allows the user to lock the generated patch into a specific musical key or root note.
+  - Seed Recall: Enables reproducibility and exploration of discovered sounds using the original seed.
+
+GOAL: SONIC EXPLORATION & IDEA GENERATION
+- Chaos Engine serves as an idea generator and exploration tool for unique bass sounds.
+- Its purpose is not to replace full-scale production tools but to accelerate discovery of raw sonic material.
+- The output is intended to be sampled and further refined within a DAW, fitting into a larger music production workflow.
+- Encourages creative spontaneity and unpredictability, enabling producers to escape habitual sound design patterns.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+END OF NOTES
+
+-->
+
+    <style>
+        :root {
+            --pad-size: clamp(150px, 35vmin, 350px); /* Slightly smaller pads for landscape */
+            --indicator-color: #0f0;
+            --background-color: #111;
+            --pad-background: #222;
+            --text-color: #eee;
+            --control-bg: #333;
+            --control-hover-bg: #444;
+            --slider-bg: #2a2a2a;
+            --slider-thumb-bg: #555;
+            --slider-track-bg: #444;
+            --slider-width: clamp(40px, 8vw, 60px);
+            --top-bar-height: 60px; /* Increased for controls */
+            --side-padding: 15px;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh; /* Use viewport height */
+            width: 100vw; /* Use viewport width */
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: monospace;
+            display: flex;
+            flex-direction: column; /* Main layout: Top Bar, Content */
+            overflow: hidden; /* Prevent scrolling */
+            touch-action: manipulation; /* Improve touch responsiveness */
+            /* Force landscape */
+            min-height: 320px; /* Minimum sensible height */
+             min-width: 480px; /* Minimum sensible width */
+        }
+
+        /* Landscape Enforcement Overlay */
+        @media (orientation: portrait) {
+            body::before {
+                content: "Please rotate your device to Landscape Mode";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: rgba(0, 0, 0, 0.9);
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 1.5em;
+                text-align: center;
+                padding: 20px;
+                z-index: 1000; /* Ensure it's on top */
+            }
+             /* Hide main content in portrait */
+             #app-container { display: none; }
+        }
+        @media (orientation: landscape) {
+             #app-container { display: flex; flex-grow: 1; flex-direction: column; } /* Show in landscape */
+        }
+
+        #app-container {
+            width: 100%;
+            height: 100%; /* Fill viewport */
+            /* flex-direction: column; /* Stack top-bar and main-content */
+        }
+
+
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px var(--side-padding);
+            height: var(--top-bar-height);
+            background-color: #1a1a1a;
+            box-sizing: border-box;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        #title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #aaa;
+            white-space: nowrap;
+        }
+
+        #top-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #top-controls button, #top-controls select {
+             padding: 8px 12px;
+             font-size: 14px;
+             background-color: var(--control-bg);
+             color: var(--text-color);
+             border: 1px solid #555;
+             cursor: pointer;
+             border-radius: 4px;
+             transition: background-color 0.2s ease;
+             min-width: 80px;
+             text-align: center;
+        }
+        #top-controls select {
+             appearance: none;
+             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23eee%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.4-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 10px auto;
+             padding-right: 30px; /* Space for arrow */
+        }
+
+
+        #top-controls button:hover, #top-controls select:hover {
+            background-color: var(--control-hover-bg);
+        }
+
+         #randomizeButton { min-width: 120px; } /* Give seed more space */
+        #seedDisplay { font-weight: bold; color: var(--indicator-color); }
+
+
+        #main-content {
+            display: flex;
+            flex-grow: 1; /* Takes remaining height */
+            align-items: center; /* Center items vertically */
+            justify-content: center; /* Center items horizontally */
+            padding: 10px var(--side-padding);
+            gap: 15px; /* Space between sliders and pads */
+             width: 100%;
+            box-sizing: border-box;
+            overflow: hidden; /* Prevent content overflow */
+        }
+
+        .slider-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(var(--pad-size) * 1.5); /* Make sliders taller than pads */
+             min-height: 200px;
+             max-height: 80vh; /* Limit slider height */
+            width: var(--slider-width);
+             background-color: var(--slider-bg);
+             border-radius: 5px;
+             padding: 10px 0; /* Padding top/bottom */
+             box-sizing: border-box;
+             flex-shrink: 0; /* Prevent sliders from shrinking */
+        }
+
+        input[type="range"].vertical-slider {
+            appearance: slider-vertical; /* Preferred way for vertical */
+             /* Fallback/alternative using transforms if slider-vertical is not supported */
+            /* appearance: none;
+            transform: rotate(-90deg);
+            transform-origin: center center; */
+            width: calc(100% - 20px); /* Fit within container padding */
+             height: var(--slider-width); /* Width becomes height when rotated */
+
+            cursor: pointer;
+            background: transparent; /* Hide default track */
+             border: none;
+             margin: 0;
+             display: block; /* Needed for consistent layout */
+        }
+
+        /* Style the track (the bar) - webkit */
+        input[type="range"].vertical-slider::-webkit-slider-runnable-track {
+            height: 5px;
+            background: var(--slider-track-bg);
+            border-radius: 3px;
+        }
+         /* Style the track (the bar) - moz */
+        input[type="range"].vertical-slider::-moz-range-track {
+             height: 5px;
+             background: var(--slider-track-bg);
+             border-radius: 3px;
+        }
+
+        /* Style the thumb (the handle) - webkit */
+        input[type="range"].vertical-slider::-webkit-slider-thumb {
+            appearance: none;
+             width: calc(var(--slider-width) * 0.8); /* Thumb proportional to slider width */
+             height: 20px;
+            background: var(--slider-thumb-bg);
+            border-radius: 3px;
+            border: 1px solid #777;
+            margin-top: -8px; /* Center thumb vertically on track */
+        }
+         /* Style the thumb (the handle) - moz */
+        input[type="range"].vertical-slider::-moz-range-thumb {
+             width: calc(var(--slider-width) * 0.8);
+             height: 20px;
+            background: var(--slider-thumb-bg);
+            border-radius: 3px;
+            border: 1px solid #777;
+        }
+
+
+        #pads-container {
+            display: flex;
+            flex-direction: row; /* Pads side-by-side */
+            justify-content: center;
+            align-items: center;
+            gap: 10px; /* Reduced gap between pads */
+            flex-grow: 1; /* Allow pads container to take space */
+            height: 100%; /* Fill vertical space of main-content */
+            min-width: calc(var(--pad-size) * 2 + 10px); /* Ensure pads have minimum space */
+        }
+
+        .xy-pad {
+            position: relative;
+            width: var(--pad-size);
+            height: var(--pad-size);
+            background-color: var(--pad-background);
+            border: 2px solid #444;
+            cursor: crosshair;
+            touch-action: none; /* Crucial for touch interaction */
+            user-select: none; /* Prevent text selection */
+            overflow: hidden; /* Keep indicators inside */
+            border-radius: 5px;
+            flex-shrink: 0; /* Prevent pads from shrinking too much */
+        }
+
+        .indicator {
+            position: absolute;
+            width: 25px; /* Smaller indicator */
+            height: 25px;
+            border: 2px solid var(--indicator-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%); /* Center on pointer */
+            pointer-events: none; /* Don't interfere with pad events */
+            display: none; /* Hidden initially */
+            box-shadow: 0 0 8px var(--indicator-color);
+        }
+
+        .crosshair {
+            position: absolute;
+            background-color: var(--indicator-color);
+            pointer-events: none;
+            display: none; /* Hidden initially */
+            opacity: 0.4; /* Slightly dimmer */
+        }
+
+        .crosshair-h {
+            width: 100%;
+            height: 1px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .crosshair-v {
+            width: 1px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Landscape Enforcement message shown via CSS -->
+
+    <div id="app-container">
+
+        <div id="top-bar">
+            <div id="title">NobleAudio - Chaos Engine</div>
+            <div id="top-controls">
+                <button id="recallSeedButton">Recall Seed</button>
+                <select id="keySelector">
+                    <!-- Options added by JS -->
+                </select>
+                <button id="randomizeButton">Seed: <span id="seedDisplay">N/A</span></button>
+            </div>
+        </div>
+
+        <div id="main-content">
+            <div class="slider-container">
+                 <!-- Mod Wheel: 0-100, snaps back to 50 -->
+                <input type="range" min="0" max="100" value="50" class="vertical-slider" id="sliderL">
+            </div>
+
+            <div id="pads-container">
+                <div class="xy-pad" id="xyPad1">
+                    <div class="indicator"></div>
+                    <div class="crosshair crosshair-h"></div>
+                    <div class="crosshair crosshair-v"></div>
+                </div>
+                <div class="xy-pad" id="xyPad2">
+                    <div class="indicator"></div>
+                    <div class="crosshair crosshair-h"></div>
+                    <div class="crosshair crosshair-v"></div>
+                </div>
+            </div>
+
+            <div class="slider-container">
+                 <!-- Chaos Fader: 0-100 -->
+                <input type="range" min="0" max="100" value="50" class="vertical-slider" id="sliderR">
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Embedded Seedrandom PRNG (Credit: David Bau) ---
+        // https://github.com/davidbau/seedrandom
+        (function(global, pool, math) {
+            var width = 256, chunks = 6, digits = 52, rngname = 'random', startdenom = math.pow(width, chunks),
+                significance = math.pow(2, digits), overflow = significance * 2, mask = width - 1, nodecrypto;
+            function seedrandom(seed, options, callback) {
+                var key = [];
+                options = (options == true) ? { entropy: true } : (options || {});
+                var shortseed = mixkey(flatten(options.entropy ? [seed, tostring(pool)] : (seed == null) ? autoseed() : seed, 3), key);
+                var arc4 = new ARC4(key);
+                var prng = function() {
+                    var n = arc4.g(chunks), d = startdenom, x = 0;
+                    while (n < significance) { n = (n + x) * width; d *= width; x = arc4.g(1); }
+                    while (n >= overflow) { n /= 2; d /= 2; x >>>= 1; }
+                    return (n + x) / d;
+                };
+                prng.int32 = function() { return arc4.g(4) | 0; }
+                prng.quick = function() { return arc4.g(4) / 0x100000000; }
+                prng.double = prng;
+                mixkey(tostring(arc4.S), pool);
+                return (options.pass || callback ||
+                    function(prng, seed, is_math_call, state) {
+                        if (state) {
+                            if (state.S) { copy(state, arc4); }
+                            prng.state = function() { return copy(arc4, {}); }
+                        }
+                        if (is_math_call) { math[rngname] = prng; return seed; }
+                        else return prng;
+                    })(prng, shortseed, 'global' in options ? options.global : (this == math), options.state);
+            }
+            function ARC4(key) {
+                var t, keylen = key.length, me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+                if (!keylen) { key = [keylen++]; }
+                while (i < width) { s[i] = i++; }
+                for (i = 0; i < width; i++) {
+                    s[i] = s[j = mask & (j + key[i % keylen] + (t = s[i]))];
+                    s[j] = t;
+                }
+                (me.g = function(count) {
+                    var t, r = 0, i = me.i, j = me.j, s = me.S;
+                    while (count--) {
+                        t = s[i = mask & (i + 1)];
+                        r = r * width + s[mask & ((s[i] = s[j = mask & (j + t)]) + (s[j] = t))];
+                    }
+                    me.i = i; me.j = j;
+                    return r;
+                })(width);
+            }
+            function copy(f, t) {
+                t.i = f.i; t.j = f.j; t.S = f.S.slice(); return t;
+            }
+            function flatten(obj, depth) {
+                var result = [], typ = (typeof obj), prop;
+                if (depth && typ == 'object') {
+                    for (prop in obj) {
+                        try { result.push(flatten(obj[prop], depth - 1)); } catch (e) {}
+                    }
+                }
+                return (result.length ? result : typ == 'string' ? obj : obj + '\0');
+            }
+            function mixkey(seed, key) {
+                var stringseed = seed + '', smear, j = 0;
+                while (j < stringseed.length) {
+                    key[mask & j] = mask & ((smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++));
+                }
+                return tostring(key);
+            }
+            function autoseed() { try { var out; if (nodecrypto) { out = nodecrypto.randomBytes(width); } return tostring(out); } catch (e) { var pool = global.crypto || global.msCrypto || {}; var arr = pool.getRandomValues && pool.getRandomValues(new Uint8Array(width)); return tostring(arr); } }
+            function tostring(a) { return String.fromCharCode.apply(0, a); }
+            math['seed' + rngname] = seedrandom; mixkey(math.random(), pool);
+        }(this, [], Math));
+        // --- End Seedrandom ---
+
+        const xyPad1 = document.getElementById('xyPad1');
+        const xyPad2 = document.getElementById('xyPad2');
+        const sliderL = document.getElementById('sliderL');
+        const sliderR = document.getElementById('sliderR');
+        const randomizeButton = document.getElementById('randomizeButton');
+        const recallSeedButton = document.getElementById('recallSeedButton');
+        const keySelector = document.getElementById('keySelector');
+        const seedDisplay = document.getElementById('seedDisplay');
+
+        let audioContext;
+        let mainGain;
+        let osc1, osc2, osc3; // Carrier, FM Mod, Additive/Sub
+        let fmGain;
+        let osc3Gain;
+        let filter;
+        let distortion;
+        let lfo1, lfo2, vibLFO; // Added vibrato LFO
+        let lfo1Gain, lfo2Gain, vibGain; // Added vibrato gain
+
+        const activePointers = new Map(); // Track active pointers { pointerId: { padId: 'pad1'|'pad2', lastX, lastY, lastTime, currentX, currentY } }
+        const padStates = {
+            pad1: { x: 0.5, y: 0.5, active: false },
+            pad2: { x: 0.5, y: 0.5, active: false }
+        };
+        const sliderStates = {
+            sliderL: 0.5, // 0..1, represents -0.5..+0.5 for mod matrix
+            sliderR: 0.5  // 0..1 (Chaos)
+        };
+
+        let currentSeed = null;
+        let currentKey = 'C2'; // Default Key
+
+        // --- Key Frequencies (MIDI Note -> Hz approx) ---
+        const keyFrequencies = { // Range C1 to B2
+            'C1': 32.70, 'C#1': 34.65, 'D1': 36.71, 'D#1': 38.89, 'E1': 41.20, 'F1': 43.65, 'F#1': 46.25, 'G1': 49.00, 'G#1': 51.91, 'A1': 55.00, 'A#1': 58.27, 'B1': 61.74,
+            'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
+        };
+
+        // --- Synth Parameters (Defaults & Randomizable) ---
+        let params = {
+            osc1Type: 'sawtooth', osc1BaseFreq: keyFrequencies[currentKey], osc2DetuneRatio: 1.5, osc2BaseDetune: 0,
+            osc3Type: 'square', osc3DetuneRatio: 0.5, osc3BaseDetune: 0, osc3BaseGain: 0.2, fmBaseDepth: 50,
+            filterType: 'lowpass', filterBaseCutoff: 1000, filterBaseQ: 1, distortionAmount: 0.4, distortionOversample: '2x',
+            attackTime: 0.02, releaseTime: 0.3,
+            lfo1Freq: 2, lfo1BaseDepth: 0, lfo2Freq: 3.5, lfo2BaseDepth: 0,
+            vibLFOFreq: 8, vibLFODepth: 5, // Vibrato params (depth in cents)
+            masterGain: 0.3
+        };
+
+        // --- Modulation Matrix ---
+        // Sources: x1, y1, x2, y2, sliderL, sliderR, lfo1, lfo2
+        // Destinations: [same as before + vibLFODepth]
+        let modMatrix = {};
+        const possibleModTargets = [
+            'osc1Freq', 'fmDepth', 'osc3Gain', 'filterCutoff', 'filterQ',
+            'distortionMix', 'mainVol', 'lfo1Depth', 'lfo2Depth', 'osc2Detune', 'osc3Detune',
+             'lfo1Freq', 'lfo2Freq', 'vibLFODepth' // Vibrato Depth can be modulated
+        ];
+        const modSources = ['x1', 'y1', 'x2', 'y2', 'sliderL', 'sliderR', 'lfo1', 'lfo2'];
+
+
+        // --- Audio Initialization ---
+        function initAudio() {
+            if (audioContext) return;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                mainGain = audioContext.createGain();
+                mainGain.gain.setValueAtTime(0, audioContext.currentTime);
+                mainGain.connect(audioContext.destination);
+
+                filter = audioContext.createBiquadFilter();
+                distortion = audioContext.createWaveShaper();
+                osc1 = audioContext.createOscillator();
+                osc2 = audioContext.createOscillator();
+                fmGain = audioContext.createGain();
+                osc3 = audioContext.createOscillator();
+                osc3Gain = audioContext.createGain();
+
+                lfo1 = audioContext.createOscillator();
+                lfo1Gain = audioContext.createGain();
+                lfo2 = audioContext.createOscillator();
+                lfo2Gain = audioContext.createGain();
+                vibLFO = audioContext.createOscillator(); // Vibrato LFO
+                vibGain = audioContext.createGain();      // Vibrato Amount Gain
+
+                // Routing
+                osc2.connect(fmGain);
+                fmGain.connect(osc1.frequency);
+                osc1.connect(osc3Gain);
+                osc3.connect(osc3Gain);
+                osc3Gain.connect(distortion);
+                distortion.connect(filter);
+                filter.connect(mainGain);
+
+                lfo1.connect(lfo1Gain);
+                lfo2.connect(lfo2Gain);
+                vibLFO.connect(vibGain); // Vibrato LFO -> Gain
+                vibGain.connect(osc1.detune); // Vibrato affects osc1 detune (better than frequency for pitch stability)
+
+                // Set initial params (using currentKey)
+                params.osc1BaseFreq = keyFrequencies[currentKey];
+
+                osc1.type = params.osc1Type;
+                osc2.type = 'sine';
+                osc3.type = params.osc3Type;
+                osc1.frequency.setValueAtTime(params.osc1BaseFreq, audioContext.currentTime);
+                osc1.detune.setValueAtTime(0, audioContext.currentTime); // Initialize detune
+                osc2.frequency.setValueAtTime(calculateFreq(params.osc1BaseFreq, params.osc2DetuneRatio, params.osc2BaseDetune), audioContext.currentTime);
+                osc3.frequency.setValueAtTime(calculateFreq(params.osc1BaseFreq, params.osc3DetuneRatio, params.osc3BaseDetune), audioContext.currentTime);
+                osc3Gain.gain.setValueAtTime(params.osc3BaseGain, audioContext.currentTime);
+                fmGain.gain.setValueAtTime(params.fmBaseDepth, audioContext.currentTime);
+
+                filter.type = params.filterType;
+                filter.frequency.setValueAtTime(params.filterBaseCutoff, audioContext.currentTime);
+                filter.Q.setValueAtTime(params.filterBaseQ, audioContext.currentTime);
+
+                distortion.oversample = params.distortionOversample;
+                makeDistortionCurve(params.distortionAmount * 100);
+
+
+                lfo1.frequency.setValueAtTime(params.lfo1Freq, audioContext.currentTime);
+                lfo1Gain.gain.setValueAtTime(params.lfo1BaseDepth, audioContext.currentTime);
+                lfo2.frequency.setValueAtTime(params.lfo2Freq, audioContext.currentTime);
+                lfo2Gain.gain.setValueAtTime(params.lfo2BaseDepth, audioContext.currentTime);
+                vibLFO.type = 'sine'; // Vibrato usually sine
+                vibLFO.frequency.setValueAtTime(params.vibLFOFreq, audioContext.currentTime);
+                vibGain.gain.setValueAtTime(0, audioContext.currentTime); // Vibrato starts OFF (controls depth in cents)
+
+                osc1.start();
+                osc2.start();
+                osc3.start();
+                lfo1.start();
+                lfo2.start();
+                vibLFO.start();
+
+
+                console.log("AudioContext initialized.");
+
+            } catch (e) {
+                console.error("Audio Init Error:", e);
+                alert("Error initializing audio.");
+            }
+        }
+
+        function calculateFreq(baseFreq, ratio, detuneCents) {
+            const freqRatio = Math.pow(2, detuneCents / 1200);
+            return baseFreq * ratio * freqRatio;
+        }
+
+        function makeDistortionCurve(amount) {
+            if (!distortion) return;
+            const k = Math.max(0, typeof amount === 'number' ? amount : 50); // Ensure amount is non-negative
+            const n_samples = 44100;
+            const curve = new Float32Array(n_samples);
+            //const deg = Math.PI / 180; // Only needed for alternative curve
+            let x;
+            for (let i = 0; i < n_samples; ++i) {
+                x = i * 2 / n_samples - 1;
+                curve[i] = Math.tanh(x * (1 + k / 50)); // Basic tanh, more drive with k
+                 // Optional alternative: curve[i] = (3 + k / 10) * x * 20 * deg / (Math.PI + k / 10 * Math.abs(x));
+            }
+             // Apply headroom reduction more aggressively for high distortion amounts
+             const headroom = 1.0 / (1.0 + k / 100 + k*k / 5000); // Reduce more as k increases quadratically
+            for (let i = 0; i < n_samples; ++i) {
+                curve[i] *= headroom;
+            }
+            distortion.curve = curve;
+        }
+
+
+        // --- Randomization (Now uses seeded PRNG) ---
+        function randomizeSeed(seed = null) {
+             initAudio(); // Ensure audio is ready or initialized
+
+             if (seed === null || typeof seed !== 'number' || isNaN(seed)) {
+                currentSeed = Math.floor(Math.random() * 1000000); // Generate new seed if none provided or invalid
+            } else {
+                 currentSeed = Math.floor(seed); // Use provided seed
+             }
+
+            // --- SEED the PRNG ---
+             Math.seedrandom(currentSeed.toString()); // Seed with string version
+             console.log("Using Seed:", currentSeed);
+             seedDisplay.textContent = currentSeed;
+
+
+             // --- Randomize Base Synth Parameters using seeded Math.random() ---
+             const oscTypes = ['sine', 'square', 'sawtooth', 'triangle'];
+             const filterTypes = ['lowpass', 'highpass', 'bandpass', 'notch'];
+
+            // Update base frequency based on selected key FIRST
+             params.osc1BaseFreq = keyFrequencies[currentKey];
+
+            params.osc1Type = oscTypes[Math.floor(Math.random() * oscTypes.length)];
+             // Base freq is set by key, don't randomize here
+             params.osc2DetuneRatio = 0.25 + Math.random() * 5;
+             params.osc2BaseDetune = (Math.random() - 0.5) * 100;
+            params.osc3Type = oscTypes[Math.floor(Math.random() * oscTypes.length)];
+            params.osc3DetuneRatio = 0.25 + Math.random() * 3;
+             params.osc3BaseDetune = (Math.random() - 0.5) * 100;
+            params.osc3BaseGain = Math.random() * 0.6;
+
+            params.fmBaseDepth = Math.random() * 300 + 10;
+
+            params.filterType = filterTypes[Math.floor(Math.random() * filterTypes.length)];
+             params.filterBaseCutoff = 50 + Math.random() * 2500; // Wider cutoff range possible
+             params.filterBaseQ = 0.5 + Math.random() * 12; // Slightly wider Q
+
+            params.distortionAmount = Math.random() * 0.9; // Up to 0.9 strength
+             params.distortionOversample = ['none', '2x', '4x'][Math.floor(Math.random() * 3)];
+
+
+             params.attackTime = 0.01 + Math.random() * 0.05;
+             params.releaseTime = 0.1 + Math.random() * 0.7;
+
+             params.lfo1Freq = 0.1 + Math.random() * 12;
+             params.lfo1BaseDepth = Math.random() < 0.2 ? 0 : Math.random() * 150; // Less likely off, wider depth range
+             params.lfo2Freq = 0.1 + Math.random() * 15;
+             params.lfo2BaseDepth = Math.random() < 0.2 ? 0 : Math.random() * 150;
+
+            // Vibrato parameters also randomized slightly
+            params.vibLFOFreq = 5 + Math.random() * 10; // 5-15 Hz
+            params.vibLFODepth = 2 + Math.random() * 15; // 2-17 cents depth default (when active)
+
+             params.masterGain = 0.25 + Math.random() * 0.15; // Conservative gain 0.25-0.4
+
+
+            // --- Apply static randomized parameters immediately ---
+            // (Make sure audio nodes exist first)
+             if (osc1) {
+                 osc1.type = params.osc1Type;
+                 osc1.frequency.setTargetAtTime(params.osc1BaseFreq, audioContext.currentTime, 0.01); // Ensure base freq is updated
+                 osc1.detune.setTargetAtTime(0, audioContext.currentTime, 0.01); // Reset base detune
+             }
+            if (osc3) osc3.type = params.osc3Type;
+             if (filter) filter.type = params.filterType;
+             if (distortion) {
+                makeDistortionCurve(params.distortionAmount * 100);
+                distortion.oversample = params.distortionOversample;
+             }
+             if (lfo1) lfo1.frequency.setTargetAtTime(params.lfo1Freq, audioContext.currentTime, 0.01);
+             if (lfo2) lfo2.frequency.setTargetAtTime(params.lfo2Freq, audioContext.currentTime, 0.01);
+             if (vibLFO) vibLFO.frequency.setTargetAtTime(params.vibLFOFreq, audioContext.currentTime, 0.01);
+
+
+            // --- Randomize Modulation Matrix ---
+             modMatrix = {};
+            const targetsUsed = new Set(); // Track targets to encourage variety
+
+             modSources.forEach(source => {
+                // SliderR (Chaos) always modulates 'chaosAmount' pseudo-target, handled specially later.
+                 if (source === 'sliderR') return;
+
+                 // Give other sources a ~75% chance of being active
+                if (Math.random() < 0.75) {
+                    // Filter out 'mainVol' as a target for LFOs or Sliders for stability? Optional.
+                    let potentialTargets = possibleModTargets.filter(t => !targetsUsed.has(t));
+                    if (source.startsWith('lfo') || source.startsWith('slider')) {
+                        potentialTargets = potentialTargets.filter(t => t !== 'mainVol');
+                    }
+                    if (potentialTargets.length === 0) potentialTargets = possibleModTargets.filter(t => t !== 'mainVol'); // Fallback, avoid mainVol if possible
+                    if (potentialTargets.length === 0) potentialTargets = possibleModTargets; // Absolute fallback
+
+
+                    const target = potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
+                    targetsUsed.add(target);
+
+                    let amount;
+                    let baseValue = 0; // Base value *of the target parameter*
+                    const bipolar = source === 'sliderL' || Math.random() > 0.3; // SliderL is often bipolar, others maybe
+                     let scale = bipolar ? (Math.random() * 2 - 1) : Math.random(); // Bipolar (-1 to 1), Unipolar (0 to 1)
+
+                    // Determine amount scale based on target
+                     switch (target) {
+                        case 'osc1Freq': amount = scale * (params.osc1BaseFreq * 1.5); baseValue = params.osc1BaseFreq; break;
+                        case 'osc2Detune': amount = scale * 200; baseValue = params.osc2BaseDetune; break;
+                        case 'osc3Detune': amount = scale * 200; baseValue = params.osc3BaseDetune; break;
+                        case 'fmDepth': amount = scale * (params.fmBaseDepth * 5 + 700); baseValue = params.fmBaseDepth; break;
+                         case 'osc3Gain': amount = scale * 0.8; baseValue = params.osc3BaseGain; break;
+                        case 'filterCutoff': amount = scale * 8000; baseValue = params.filterBaseCutoff; break;
+                        case 'filterQ': amount = scale * 18; baseValue = params.filterBaseQ; break;
+                        case 'distortionMix': amount = scale * 1.2; baseValue = params.distortionAmount; break;
+                        case 'mainVol': amount = scale * (params.masterGain * 0.6); baseValue = params.masterGain; break;
+                         case 'lfo1Freq': amount = scale * 15; baseValue = params.lfo1Freq; break;
+                        case 'lfo2Freq': amount = scale * 18; baseValue = params.lfo2Freq; break;
+                         case 'lfo1Depth': amount = scale * 300; baseValue = params.lfo1BaseDepth; break;
+                        case 'lfo2Depth': amount = scale * 300; baseValue = params.lfo2BaseDepth; break;
+                         case 'vibLFODepth': amount = scale * 20; baseValue = params.vibLFODepth; break; // This is the base wiggle amount in Cents
+                        default: amount = scale * 100; baseValue = 0;
+                    }
+
+                    // Ensure baseValue aligns with current state params if changed (like osc1BaseFreq)
+                    if (target === 'osc1Freq') baseValue = params.osc1BaseFreq;
+                    if (target === 'filterCutoff') baseValue = params.filterBaseCutoff; // Use original base before chaos scaling
+                    if (target === 'distortionMix') baseValue = params.distortionAmount; // Use original base before chaos scaling
+
+
+                    modMatrix[source] = { target, amount, baseValue };
+                 }
+            });
+
+             console.log("Randomized Params:", params);
+             console.log("Randomized Mod Matrix:", modMatrix);
+
+             // Reset slider values to default visually and internally on randomize
+            sliderL.value = 50;
+            sliderR.value = 50;
+            sliderStates.sliderL = 0.5;
+            sliderStates.sliderR = 0.5;
+
+             // Apply base values immediately
+            updateSynthParams(true); // Force update with base values
+         }
+
+         // --- Update Synth ---
+        function updateSynthParams(forceBase = false) {
+            if (!audioContext || audioContext.state !== 'running' || !osc1) return;
+
+            const now = audioContext.currentTime;
+            const smoothTime = 0.015; // Faster smoothing
+
+             // Current input states
+             const x1 = padStates.pad1.active || forceBase ? padStates.pad1.x : 0.5;
+            const y1 = padStates.pad1.active || forceBase ? padStates.pad1.y : 0.5; // Remember y is inverted (0=bottom, 1=top)
+             const x2 = padStates.pad2.active || forceBase ? padStates.pad2.x : 0.5;
+            const y2 = padStates.pad2.active || forceBase ? padStates.pad2.y : 0.5;
+             const slL = sliderStates.sliderL; // Already 0-1
+             const slR = sliderStates.sliderR; // 0-1 (Chaos)
+
+             // Map sliderL (0..1) to bipolar (-0.5 .. +0.5) for modulation calcs
+            const bipolarSliderL = slL - 0.5;
+
+            // Approx LFO values (read gain node value directly)
+             const lfo1Val = lfo1Gain ? lfo1Gain.gain.value : 0;
+             const lfo2Val = lfo2Gain ? lfo2Gain.gain.value : 0;
+             // Don't normalize LFO vals here, use their raw depth value as modulation input
+
+            // --- Chaos Factor (from sliderR) ---
+            const chaosFactor = slR * 2.0;
+            const chaosFilterCutoffScale = 0.3 + slR * 0.7;
+             let currentFilterBaseCutoff = params.filterBaseCutoff * chaosFilterCutoffScale;
+             let currentDistortionBase = params.distortionAmount * (0.5 + slR);
+
+             // --- Modulation Sources Map ---
+             const modValues = {
+                 x1: x1, y1: y1, x2: x2, y2: y2,
+                 sliderL: bipolarSliderL, // Use bipolar value
+                 lfo1: lfo1Val, // Use raw gain value
+                 lfo2: lfo2Val  // Use raw gain value
+                 // sliderR is not included here, handled separately
+             };
+
+            // Apply Modulation Function
+            const applyMod = (targetParam, baseValue, targetNode, allowChaosScaling = true) => {
+                 let totalMod = 0;
+                 modSources.forEach(source => {
+                     if (source === 'sliderR') return; // Skip sliderR here
+                    if (modMatrix[source] && modMatrix[source].target === targetParam) {
+                        let modInput = modValues[source] ?? 0; // Default to 0 if source value is undefined
+
+                        // Special handling for LFO sources: Mod input is LFO output value,
+                        // but the 'amount' in the matrix determines how *much* that LFO output affects the target.
+                        // No further scaling needed here for LFOs.
+
+                         let effectiveAmount = modMatrix[source].amount;
+                        if (allowChaosScaling && !source.startsWith('lfo')) { // Don't scale LFO influence itself with chaos? Or maybe do? Let's test NOT scaling LFOs.
+                            effectiveAmount *= chaosFactor; // Scale modulation amount by Chaos Fader
+                        }
+                         totalMod += modInput * effectiveAmount;
+                    }
+                });
+                let finalValue = baseValue + totalMod;
+
+                // Clamping
+                if (targetNode && targetNode.constructor.name === 'AudioParam') { // Check if it's an AudioParam
+                     const minVal = targetNode.minValue ?? -3.4e38; // Default min/max if not defined
+                     const maxVal = targetNode.maxValue ?? 3.4e38;
+
+                     // Apply specific clamps for known parameters, overriding default min/max if needed
+                     if (targetParam === 'filterCutoff') finalValue = Math.max(20, Math.min(audioContext.sampleRate / 2 * 0.95, finalValue));
+                     else if (targetParam === 'filterQ') finalValue = Math.max(0.001, Math.min(40, finalValue));
+                     else if (targetParam === 'osc1Freq') finalValue = Math.max(10, Math.min(audioContext.sampleRate / 4, finalValue));
+                     else if (targetParam.includes('Freq')) finalValue = Math.max(0.01, Math.min(100, finalValue)); // LFO Freq Clamp higher
+                     else if (targetParam.includes('Gain') || targetParam === 'mainVol') finalValue = Math.max(0, Math.min(2.0, finalValue)); // Allow gains > 1 slightly
+                     else if (targetParam === 'fmDepth') finalValue = Math.max(0, Math.min(20000, finalValue)); // FM depth usually positive
+                     else if (targetParam.includes('Detune') || targetParam === 'vibLFODepth') finalValue = Math.max(-10000, Math.min(10000, finalValue)); // Detune/Vibrato cents range
+                     else { // Use default param range if available
+                         finalValue = Math.max(minVal, Math.min(maxVal, finalValue));
+                     }
+
+                     targetNode.setTargetAtTime(finalValue, now, smoothTime);
+                }
+                // Return clamped value even if not setting a node (e.g., for distortionMix)
+                // Apply some reasonable clamps for non-AudioParam values used later
+                else if (targetParam === 'distortionMix') finalValue = Math.max(0, Math.min(1.5, finalValue));
+                else if (targetParam.includes('Detune')) finalValue = Math.max(-1200, Math.min(1200, finalValue)); // Clamp detune cents reasonably
+
+
+                return finalValue;
+            };
+
+            // Apply mods
+            applyMod('osc1Freq', params.osc1BaseFreq, osc1.frequency);
+            applyMod('fmDepth', params.fmBaseDepth, fmGain.gain);
+            applyMod('osc3Gain', params.osc3BaseGain, osc3Gain.gain);
+            applyMod('filterCutoff', currentFilterBaseCutoff, filter.frequency);
+            applyMod('filterQ', params.filterBaseQ, filter.Q);
+            applyMod('lfo1Depth', params.lfo1BaseDepth, lfo1Gain.gain);
+            applyMod('lfo2Depth', params.lfo2BaseDepth, lfo2Gain.gain);
+            applyMod('lfo1Freq', params.lfo1Freq, lfo1.frequency, false); // Don't chaos scale LFO freq modulation
+            applyMod('lfo2Freq', params.lfo2Freq, lfo2.frequency, false);
+
+            // Store modulated vibrato depth (in Cents) for wiggle function
+            const modulatedVibDepth = applyMod('vibLFODepth', params.vibLFODepth, null, false); // Don't chaos scale base wiggle depth
+
+            const osc2FinalDetune = applyMod('osc2Detune', params.osc2BaseDetune, null);
+            const osc3FinalDetune = applyMod('osc3Detune', params.osc3BaseDetune, null);
+            const distortionFinalMix = applyMod('distortionMix', currentDistortionBase, null);
+
+            // Update non-AudioParams
+            const currentOsc1Freq = osc1.frequency.value; // Get approx current frequency after modulation
+            if (osc2?.frequency) osc2.frequency.setTargetAtTime(calculateFreq(currentOsc1Freq, params.osc2DetuneRatio, osc2FinalDetune), now, smoothTime);
+            if (osc3?.frequency) osc3.frequency.setTargetAtTime(calculateFreq(currentOsc1Freq, params.osc3DetuneRatio, osc3FinalDetune), now, smoothTime);
+            makeDistortionCurve(distortionFinalMix * 100);
+
+             // Update Main Volume Last (if modulated) - only when a pad is active
+             if (padStates.pad1.active || padStates.pad2.active) {
+                let targetGain = params.masterGain;
+                // Allow mainVol modulation only if specified by relevant sources
+                if (modSources.some(s => modMatrix[s]?.target === 'mainVol' && !s.startsWith('lfo') && s !== 'sliderR')) {
+                     targetGain = applyMod('mainVol', params.masterGain, null, false); // Calculate modulated gain, don't chaos scale
+                }
+                targetGain = Math.max(0, Math.min(1.0, targetGain)); // Clamp strictly 0-1 for safety
+
+                 // Use smoothing time for volume changes unless coming from zero
+                const volSmooth = (mainGain.gain.value < 0.01) ? params.attackTime : smoothTime;
+                 mainGain.gain.setTargetAtTime(targetGain, now, volSmooth);
+
+            }
+             // Update global variable used by handleWiggle
+             currentModulatedVibDepth = modulatedVibDepth;
+         }
+         let currentModulatedVibDepth = 0; // Store globally for handleWiggle
+
+        // --- Wiggle Effect Logic ---
+         const WIGGLE_THRESHOLD_VELOCITY_SQ = 0.01;
+         const WIGGLE_OFF_TIME = 0.15;
+         let wiggleTimeout = null;
+
+         function handleWiggle(pointerInfo) {
+             if (!pointerInfo || !vibGain || !audioContext || audioContext.state !== 'running' || !osc1) return;
+
+             const now = performance.now();
+            const timeDelta = (now - pointerInfo.lastTime) / 1000.0;
+
+             if (timeDelta > 0.001 && timeDelta < 0.1) {
+                const dx = pointerInfo.currentX - pointerInfo.lastX;
+                const dy = pointerInfo.currentY - pointerInfo.lastY;
+                const distSq = dx * dx + dy * dy;
+                const velocitySq = distSq / (timeDelta * timeDelta);
+
+                 if (velocitySq > WIGGLE_THRESHOLD_VELOCITY_SQ) {
+                     // Use the currently modulated vibrato depth (in Cents)
+                     const vibDepthCents = currentModulatedVibDepth;
+                     vibGain.gain.setTargetAtTime(vibDepthCents, audioContext.currentTime, 0.01); // Target vibrato depth in cents
+
+                     if (wiggleTimeout) clearTimeout(wiggleTimeout);
+                    wiggleTimeout = setTimeout(() => {
+                         if (vibGain) vibGain.gain.setTargetAtTime(0, audioContext.currentTime, WIGGLE_OFF_TIME);
+                        wiggleTimeout = null;
+                     }, WIGGLE_OFF_TIME * 1000);
+
+                 }
+            }
+
+             // Update pointer info for next frame
+            pointerInfo.lastX = pointerInfo.currentX;
+            pointerInfo.lastY = pointerInfo.currentY;
+            pointerInfo.lastTime = now;
+         }
+
+
+        // --- Event Handling (Pads) ---
+
+        // *** CORRECTED handlePointerDown Function ***
+         function handlePointerDown(e) {
+             // console.log("Pointer Down Event Fired"); // DEBUG
+             if (!audioContext) {
+                 // console.log("Initializing Audio Context..."); // DEBUG
+                 initAudio();
+             }
+             // Always try resuming on interaction, handles suspended state
+            if (audioContext && audioContext.state === 'suspended') {
+                 // console.log("Resuming Audio Context..."); // DEBUG
+                audioContext.resume().then(() => console.log("AudioContext Resumed.")).catch(err => console.error("Resume failed:", err));
+             }
+             // Add a small delay before checking state again, resume is async
+             setTimeout(() => {
+                 if (!audioContext || audioContext.state !== 'running') {
+                    console.error("Audio Context not running after resume attempt, cannot process input."); // DEBUG
+                    return;
+                 }
+
+                 const pad = e.target.closest('.xy-pad');
+                 if (!pad) return;
+                 e.preventDefault(); // Prevent default touch actions
+
+                 const padId = pad.id === 'xyPad1' ? 'pad1' : 'pad2';
+                 if (activePointers.has(e.pointerId)) {
+                     // console.log("Pointer already active, ignoring duplicate down."); // DEBUG
+                     return; // Already tracking
+                 }
+
+                 // console.log(`Pointer Down on Pad: ${padId}, Pointer ID: ${e.pointerId}`); // DEBUG
+
+                 // Initialize pointer tracking info
+                 const pointerInfo = {
+                     padId: padId,
+                     lastX: 0.5, lastY: 0.5, lastTime: performance.now(),
+                     currentX: 0.5, currentY: 0.5
+                 };
+                 activePointers.set(e.pointerId, pointerInfo);
+
+                 try { // Add try/catch for robustness
+                     pad.setPointerCapture(e.pointerId);
+                 } catch (err) {
+                     console.error("Error setting pointer capture:", err);
+                 }
+                 padStates[padId].active = true;
+                 // console.log("Pad States after down:", JSON.stringify(padStates)); // DEBUG
+                 // console.log("Active Pointers Map after down:", activePointers); // DEBUG
+
+
+                 // Show indicator
+                 const indicator = pad.querySelector('.indicator');
+                 const crossH = pad.querySelector('.crosshair-h');
+                 const crossV = pad.querySelector('.crosshair-v');
+                 if (indicator) indicator.style.display = 'block';
+                 if (crossH) crossH.style.display = 'block';
+                 if (crossV) crossV.style.display = 'block';
+
+                 updatePointerPosition(e, pad); // Initial position
+
+                 // --- Start sound / ramp up gain (check if it's the FIRST active pad) ---
+                 let activePadCount = 0;
+                 activePointers.forEach(info => {
+                     // Check the padState associated with the pointer's padId
+                     if (padStates[info.padId] && padStates[info.padId].active) {
+                         activePadCount++;
+                     }
+                 });
+                 // console.log("Active Pad Count on Down:", activePadCount); // DEBUG
+
+                 if (activePadCount === 1) {
+                     // console.log("Synth ON - First active pad"); // DEBUG
+                     mainGain.gain.cancelScheduledValues(audioContext.currentTime);
+                     const targetGain = calculateTargetMainGain();
+                     // console.log("Calculated Target Gain on Attack:", targetGain); // DEBUG
+                     // *** FIX APPLIED HERE: Always set target with attack time when first pad activates ***
+                     mainGain.gain.setTargetAtTime(targetGain, audioContext.currentTime, params.attackTime);
+                 } else {
+                     // If other pads are already active, just update parameters smoothly
+                     // console.log("Synth already ON - updating params"); // DEBUG
+                     updateSynthParams(); // Update params based on this new touch as well
+                 }
+
+                 // Update synth based on new state (important for initial XY influence)
+                 updateSynthParams();
+
+            }, 50); // 50ms delay to allow context to resume fully
+         }
+
+
+        function handlePointerMove(e) {
+            if (!activePointers.has(e.pointerId)) return;
+            e.preventDefault();
+
+            const pointerInfo = activePointers.get(e.pointerId);
+            const padId = pointerInfo.padId;
+             const pad = document.getElementById(padId === 'pad1' ? 'xyPad1' : 'xyPad2');
+             if (!padStates[padId].active) return;
+
+            updatePointerPosition(e, pad);
+            handleWiggle(pointerInfo); // Check for wiggle effect
+            updateSynthParams(); // Update synth continuously
+         }
+
+        function handlePointerUpOrLeave(e) {
+            if (!activePointers.has(e.pointerId)) return;
+            e.preventDefault();
+
+            const pointerInfo = activePointers.get(e.pointerId);
+            const padId = pointerInfo.padId;
+            const pad = document.getElementById(padId === 'pad1' ? 'xyPad1' : 'xyPad2');
+
+            try { // Add try/catch
+                if (pad.hasPointerCapture(e.pointerId)) {
+                     pad.releasePointerCapture(e.pointerId);
+                }
+            } catch(err) {
+                console.error("Error releasing pointer capture:", err);
+            }
+
+            activePointers.delete(e.pointerId);
+            padStates[padId].active = false;
+            // console.log("Pad States after up:", JSON.stringify(padStates)); // DEBUG
+            // console.log("Active Pointers Map after up:", activePointers); // DEBUG
+
+
+            // Hide indicator
+             const indicator = pad.querySelector('.indicator');
+             const crossH = pad.querySelector('.crosshair-h');
+             const crossV = pad.querySelector('.crosshair-v');
+             if(indicator) indicator.style.display = 'none';
+             if(crossH) crossH.style.display = 'none';
+             if(crossV) crossV.style.display = 'none';
+
+
+            // Stop sound if *all* pads are now inactive
+            let anyPadActive = false;
+            activePointers.forEach(info => { if(padStates[info.padId].active) anyPadActive = true; });
+            // console.log("Any Pad Active after Up check:", anyPadActive); // DEBUG
+
+
+            if (!anyPadActive) {
+                if (mainGain && audioContext && audioContext.state === 'running') {
+                     // console.log("Synth OFF - Last pad released"); // DEBUG
+                    mainGain.gain.cancelScheduledValues(audioContext.currentTime);
+                    mainGain.gain.setTargetAtTime(0, audioContext.currentTime, params.releaseTime);
+
+                     // Also ensure vibrato is off
+                     if (wiggleTimeout) clearTimeout(wiggleTimeout);
+                     if (vibGain) vibGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.05); // Turn off fast
+                }
+            } else {
+                 // If one pad is still active, update params to reflect released pad state
+                 // console.log("Synth still ON - updating params after one pad released"); // DEBUG
+                updateSynthParams();
+            }
+         }
+
+         // Helper to update XY state, visuals, and pointerInfo
+         function updatePointerPosition(e, pad) {
+            const rect = pad.getBoundingClientRect();
+            const padId = pad.id === 'xyPad1' ? 'pad1' : 'pad2';
+            const pointerInfo = activePointers.get(e.pointerId);
+
+
+            let x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            let y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+            y = 1 - y; // Flip Y: 0=bottom, 1=top
+
+            padStates[padId].x = x;
+            padStates[padId].y = y;
+             // Update current position in pointerInfo for wiggle detection
+             if(pointerInfo){
+                pointerInfo.currentX = x;
+                pointerInfo.currentY = y;
+             }
+
+
+             // Update visuals
+             const indicator = pad.querySelector('.indicator');
+             const crossH = pad.querySelector('.crosshair-h');
+             const crossV = pad.querySelector('.crosshair-v');
+             if (!indicator || !crossH || !crossV) return; // Safety check
+
+             const displayX = x * 100;
+             const displayY = (1 - y) * 100; // Use original y for CSS top
+
+             indicator.style.left = `${displayX}%`;
+             indicator.style.top = `${displayY}%`;
+             crossH.style.top = `${displayY}%`;
+             crossV.style.left = `${displayX}%`;
+         }
+
+        function calculateTargetMainGain() {
+             if (!audioContext || !params) return 0;
+            let baseGain = params.masterGain;
+            let finalGain = baseGain;
+            let modulated = false;
+
+             // Get current input states for calculation
+            const x1_st = padStates.pad1.x, y1_st = padStates.pad1.y, x2_st = padStates.pad2.x, y2_st = padStates.pad2.y;
+            const slL_st = sliderStates.sliderL - 0.5;
+             // Approx LFO values (can't easily get exact phase-correct value here)
+             const lfo1_st = lfo1Gain ? lfo1Gain.gain.value : 0;
+             const lfo2_st = lfo2Gain ? lfo2Gain.gain.value : 0;
+
+            const modValuesNow = { x1: x1_st, y1: y1_st, x2: x2_st, y2: y2_st, sliderL: slL_st, lfo1: lfo1_st, lfo2: lfo2_st };
+
+            modSources.forEach(source => {
+                 if (source === 'sliderR') return; // Chaos slider intentionally excluded
+                if (modMatrix[source] && modMatrix[source].target === 'mainVol') {
+                     // Check if the source is considered 'active' for volume modulation
+                    let sourceActive = false;
+                    if (source === 'x1' || source === 'y1') sourceActive = padStates.pad1.active;
+                    else if (source === 'x2' || source === 'y2') sourceActive = padStates.pad2.active;
+                     else if (source === 'sliderL') sourceActive = true; // Slider always potentially active
+                     else if (source.startsWith('lfo')) sourceActive = true; // LFOs always potentially active
+
+
+                    if(sourceActive) {
+                         let modInput = modValuesNow[source] ?? 0;
+                         finalGain += modInput * modMatrix[source].amount; // Use unscaled amount for volume
+                         modulated = true;
+                     }
+                 }
+            });
+
+             // Only return non-zero if modulated OR a pad is active
+             if (modulated || padStates.pad1.active || padStates.pad2.active) {
+                return Math.max(0, Math.min(1.0, finalGain)); // Strict 0-1 clamp
+            } else {
+                return 0; // Target 0 if nothing active and not modulated
+             }
+        }
+
+        // --- Event Handling (Sliders) ---
+         sliderL.addEventListener('input', (e) => {
+             sliderStates.sliderL = parseFloat(e.target.value) / 100; // Store 0-1 value
+            if (audioContext && audioContext.state === 'running') updateSynthParams();
+         });
+
+        sliderR.addEventListener('input', (e) => {
+            sliderStates.sliderR = parseFloat(e.target.value) / 100; // Store 0-1 value
+            if (audioContext && audioContext.state === 'running') updateSynthParams();
+         });
+
+        // Snapback for Slider L
+        const snapbackSliderL = () => {
+            sliderL.value = 50; // Visual snapback
+            sliderStates.sliderL = 0.5; // Internal state snapback
+            if (audioContext && audioContext.state === 'running') updateSynthParams();
+        };
+        sliderL.addEventListener('pointerup', snapbackSliderL);
+        sliderL.addEventListener('touchend', snapbackSliderL); // Also handle touch release
+        sliderL.addEventListener('keyup', (e) => { // Snapback if using keyboard arrows
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                 snapbackSliderL();
+            }
+        });
+
+
+        // --- Event Handling (Top Controls) ---
+         randomizeButton.addEventListener('click', () => {
+            // Ensure context is running before randomizing audio params
+             if (!audioContext) initAudio();
+             if (audioContext && audioContext.state === 'suspended') audioContext.resume();
+             setTimeout(() => { randomizeSeed() }, 50); // Delay slightly
+         });
+
+        recallSeedButton.addEventListener('click', () => {
+             const seedInput = prompt("Enter Seed Number to Recall:", currentSeed || '');
+            if (seedInput !== null) {
+                 const seedNum = parseInt(seedInput.trim(), 10); // Trim whitespace
+                 if (!isNaN(seedNum)) {
+                     // Ensure context is running before randomizing audio params
+                     if (!audioContext) initAudio();
+                     if (audioContext && audioContext.state === 'suspended') audioContext.resume();
+                     setTimeout(() => { randomizeSeed(seedNum) }, 50); // Delay slightly
+                 } else {
+                    alert("Invalid seed number.");
+                }
+             }
+         });
+
+        keySelector.addEventListener('change', (e) => {
+            currentKey = e.target.value;
+             console.log("Key changed to:", currentKey);
+             // Update base frequency and retune - important after changing key!
+             params.osc1BaseFreq = keyFrequencies[currentKey];
+            if(audioContext && audioContext.state === 'running' && osc1) {
+                 osc1.frequency.setTargetAtTime(params.osc1BaseFreq, audioContext.currentTime, 0.01);
+                 updateSynthParams(true); // Force update using new base frequency
+            } else if (audioContext && audioContext.state === 'running' && !osc1) {
+                 // This case shouldn't happen if initAudio worked, but safety check
+                 randomizeSeed(currentSeed); // Re-randomize based on current seed to apply key
+             }
+        });
+
+
+         // --- Initial Setup ---
+        function setupControls() {
+            // Populate Key Selector
+            keySelector.innerHTML = ''; // Clear existing
+            Object.keys(keyFrequencies).forEach(key => {
+                 const option = document.createElement('option');
+                 option.value = key;
+                 option.textContent = key;
+                 keySelector.appendChild(option);
+             });
+            keySelector.value = currentKey; // Set initial value
+
+            // Set initial slider values correctly
+             sliderL.value = sliderStates.sliderL * 100;
+             sliderR.value = sliderStates.sliderR * 100;
+        }
+
+        // --- Global Event Listeners for Pads (Delegate) ---
+        // Attach listeners to a parent container to handle pointers entering/leaving pads
+        const mainContent = document.getElementById('main-content');
+        mainContent.addEventListener('pointerdown', handlePointerDown);
+        mainContent.addEventListener('pointermove', handlePointerMove);
+        mainContent.addEventListener('pointerup', handlePointerUpOrLeave);
+        mainContent.addEventListener('pointercancel', handlePointerUpOrLeave); // Handle cancelled pointers
+        mainContent.addEventListener('pointerleave', handlePointerUpOrLeave); // Handle pointer leaving the main area
+
+
+         window.addEventListener('DOMContentLoaded', () => {
+             setupControls();
+             console.log("DOM loaded. Landscape enforced via CSS. Ready for interaction.");
+            // Generate an initial sound config, but audio context waits for interaction.
+             randomizeSeed();
+         });
+
+    </script>
+
+</body>
+</html>
+
+
+<!-- 
+STUDY MY PREVIOUS WORK ON THIS PROJECT.
+- I want you to create a sister project to this one.
+- Instead of a Bass Music synth, 
+  - Make a new new tool will be named "NobleAudio - Contemplation Engine"
+- It will be a hybrid of a granular synth , additive fm etc.
+- Use exactly the same core user interface components as this project.
+- Use the same interactions and user controls that manipulate and shape the sound.
+- Instead of bass this tool should be focussed on creating deep and rich harmonic sounds.
+- Random chords may be triggered by the same pad interaction as in this project.
+- Or the path can be more singular padlike
+- The synth should be capable of playing chords and harmonies.
+  - Use the same feature where in which you set the root but then modulations can affect the harmony.
+- The chaos engine have green pad overlays, make the contemplation engines overlays blue.
+- Sounds should again fit in with the modern deep and minimal style of Drum & Bass
+- Ensure sounds may be truly polyphonic and automation can be randomly applied to each voice.
+  - This will allow for more complex and evolving sounds to be created.
+
+SONIC CHARACTER
+- Deep
+- Introspective
+- Rich
+- Dense
+- Harmonious
+- Contemplative
+Patches generated from seeds could vary from:
+- From Soothing To Uneasy
+- From Pleasant To Unsettling
+- From Beautiful To Haunting
+- From Mysterious To Eerie
+- From Calm To Nervous
+- From Peaceful To Restless
+
+etc -->
+
+
+
+

@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<!-- saved from url=(0087)https://dl3.pushbulletusercontent.com/4wn2Xm7ZYGeWltvxHfoAjUyRsJZip7Sw/code%20(14).html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CubeMod Enhanced Audio Demo (Persistent)</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* Hygge/Millennial muted beige background */
+            background-color: #F5F5DC; /* Beige */
+            font-family: sans-serif;
+            touch-action: none; /* Prevent default touch behaviors */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333; /* Darker text for light background */
+        }
+        canvas {
+            display: block;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #555; /* Dark grey text */
+            background: rgba(255, 255, 255, 0.85); /* Slightly less transparent */
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            line-height: 1.5;
+            pointer-events: none;
+            min-width: 210px; /* Increased width for more params */
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 5; /* Ensure info is above canvas */
+        }
+         #info b { /* Make labels stand out slightly */
+             color: #000;
+             font-weight: 600;
+         }
+        #instructions {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            color: #777;
+            background: rgba(255, 255, 255, 0.8);
+             padding: 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            text-align: center;
+            pointer-events: none;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+             z-index: 5;
+        }
+        #start-button {
+            position: absolute;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+             /* Muted green */
+             background-color: #A8D8B9;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            z-index: 10;
+             box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+         }
+        #osc-indicator { /* Simple text indicator for oscillator type */
+             position: absolute;
+             top: 10px;
+             right: 10px;
+             color: #777;
+             background: rgba(255, 255, 255, 0.6);
+             padding: 5px 8px;
+             border-radius: 4px;
+             font-size: 10px;
+             pointer-events: none;
+             z-index: 5;
+             border: 1px solid rgba(0, 0, 0, 0.1);
+         }
+        body.audio-active #start-button { display: none; }
+        body:not(.audio-active) #c { display: none; }
+        body:not(.audio-active) #info { display: none; }
+        body:not(.audio-active) #instructions { display: none; }
+        body:not(.audio-active) #osc-indicator { display: none; }
+    </style>
+</head>
+<body class=""> <!-- Start without audio-active -->
+    <button id="start-button">Click or Tap to Start Audio</button>
+
+    <div id="info">
+        <b>CubeMod Audio Demo (Persistent)</b><br>
+        Active Face: <span id="face-index">-</span><br>
+        <!-- Dynamic section - content changes based on active face -->
+        <div id="param-details">Click Start Button...</div>
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 5px 0;">
+         Touches: <span id="touch-count">0</span> |
+         Mode: <span id="interaction-mode">Idle</span>
+    </div>
+    <div id="instructions">
+        <b>Controls:</b> 1/2 fingers (apart) on Face: Set Params (Persist) | 3 fingers drag: Rotate Cube | 4 quick taps: Toggle Osc<br>
+        <b>Faces:</b> Front (Lilac): Filter | Right (Rose): Delay/Poly | Top (Blue): Reverb/Detune | Left (Sage): Pulse(BPM)/Tremolo | Bottom (Ochre): FM Synth
+    </div>
+     <div id="osc-indicator">Osc: Sawtooth</div> <!-- Oscillator type display -->
+    <canvas id="c" data-engine="three.js r164" width="1016" height="1128" style="width: 1016px; height: 1128px;"></canvas>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.164.1/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- Audio Constants ---
+        const MAX_VOICES = 4;
+        const BASE_FREQUENCY = 110; // A2
+        const MAX_DETUNE_CENTS = 35;
+        const MAX_DELAY_TIME = 1.0;
+        const MAX_DELAY_FEEDBACK = 0.75;
+        const REVERB_MAX_WET = 0.6;
+        const RAMP_TIME = 0.04; // Faster ramp for responsiveness
+        const RAMP_TIME_SLOW = 0.08; // Slower ramp for LFO changes
+
+        // --- BPM and LFO Constants ---
+        const BPM = 120.0;
+        const LFO_NOTE_VALUES = [1/32, 1/16, 1/12, 1/8, 1/6, 1/4, 1/2, 1];
+        const LFO_FREQUENCIES_HZ = LFO_NOTE_VALUES.map(duration => BPM / 60 / duration).sort((a, b) => a - b); // Sorted slowest to fastest
+        const PULSE_LFO_MAX_DEPTH = 1.0;
+        const TREMOLO_LFO_RATE = 6; // Fixed rate for tremolo (Hz)
+        const TREMOLO_LFO_MAX_DEPTH = 0.8;
+
+        // --- FM Constants ---
+        const FM_MAX_MODULATION_INDEX = 1500;
+        const FM_MODULATOR_MIN_FREQ_RATIO = 0.1;
+        const FM_MODULATOR_MAX_FREQ_RATIO = 8;
+
+        // --- Tap Detection Constants ---
+        const MAX_TAP_INTERVAL = 350;
+        const REQUIRED_TAPS = 4;
+
+        // --- Web Audio API Setup ---
+        let audioContext;
+        let masterGain;
+        let voices = [];
+        let voiceSummingGain;
+        let filter;
+        const MIN_FILTER_FREQ = 80; const MAX_FILTER_FREQ = 18000;
+        const MIN_FILTER_Q = 0.1; const MAX_FILTER_Q = 18;
+        let delayNode; let delayFeedbackGain; let delayWetGain; let delayDryGain;
+        let reverbInputGain; let reverbWetGain; let reverbDryGain;
+        let reverbDelay1, reverbDelay2, reverbFeedback1, reverbFeedback2;
+        let currentDetuneSpread = 0.0;
+        let pulseLfoOsc;
+        let pulseLfoDepthGain;
+        let tremoloLfoOsc;
+        let tremoloLfoDepthGain;
+        let pulseTremoloModGain;
+        let fmModulatorOsc;
+        let fmModulatorGain;
+        let audioInitialized = false;
+        let currentOscillatorType = 'sawtooth';
+        const oscillatorTypes = ['sawtooth', 'sine'];
+        let oscIndicatorEl;
+        let tapCount = 0;
+        let lastTapTime = 0;
+
+        const faceFunctionMap = {
+            4: 'Filter',       // Front (+Z, Lilac)
+            0: 'DelayPoly',    // Right (+X, Rose)
+            2: 'ReverbDetune', // Top (+Y, Blue)
+            1: 'PulseTremolo', // Left (-X, Sage)
+            3: 'FM',           // Bottom (-Y, Ochre)
+            5: 'Unassigned',   // Back (-Z, Grey)
+        };
+
+        let previousActiveFaceIndex = -1; // Used ONLY to know which face's parameters were LAST set/being set
+
+        function setupAudio() {
+            if (audioInitialized) return;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const now = audioContext.currentTime;
+                oscIndicatorEl = document.getElementById('osc-indicator');
+
+                masterGain = audioContext.createGain();
+                masterGain.gain.setValueAtTime(0.5, now);
+                masterGain.connect(audioContext.destination);
+
+                reverbDryGain = audioContext.createGain(); reverbWetGain = audioContext.createGain();
+                reverbInputGain = audioContext.createGain(); reverbDelay1 = audioContext.createDelay(0.2);
+                reverbDelay2 = audioContext.createDelay(0.2); reverbFeedback1 = audioContext.createGain();
+                reverbFeedback2 = audioContext.createGain(); reverbDryGain.gain.setValueAtTime(1.0, now);
+                reverbWetGain.gain.setValueAtTime(0.0, now); reverbFeedback1.gain.setValueAtTime(0.25, now);
+                reverbFeedback2.gain.setValueAtTime(0.2, now); reverbInputGain.connect(reverbDelay1);
+                reverbInputGain.connect(reverbDelay2); reverbDelay1.connect(reverbFeedback1);
+                reverbFeedback1.connect(reverbDelay2); reverbDelay2.connect(reverbFeedback2);
+                reverbFeedback2.connect(reverbDelay1);
+                reverbFeedback1.connect(reverbWetGain);
+                reverbFeedback2.connect(reverbWetGain);
+                reverbDryGain.connect(masterGain); reverbWetGain.connect(masterGain);
+
+                delayNode = audioContext.createDelay(MAX_DELAY_TIME); delayFeedbackGain = audioContext.createGain();
+                delayWetGain = audioContext.createGain(); delayDryGain = audioContext.createGain();
+                delayNode.delayTime.setValueAtTime(0.01, now); delayFeedbackGain.gain.setValueAtTime(0.0, now);
+                delayWetGain.gain.setValueAtTime(1.0, now); delayDryGain.gain.setValueAtTime(1.0, now);
+                delayNode.connect(delayWetGain); delayNode.connect(delayFeedbackGain);
+                delayFeedbackGain.connect(delayNode); delayDryGain.connect(reverbDryGain);
+                delayDryGain.connect(reverbInputGain); delayWetGain.connect(reverbDryGain);
+                delayWetGain.connect(reverbInputGain);
+
+                filter = audioContext.createBiquadFilter();
+                const initialCutoff = calculateExponentialFrequency(0.5); const initialQ = calculateLinearQ(0.5);
+                filter.type = 'lowpass'; filter.frequency.setValueAtTime(initialCutoff, now);
+                filter.Q.setValueAtTime(initialQ, now);
+                filter.connect(delayDryGain); filter.connect(delayNode);
+
+                pulseTremoloModGain = audioContext.createGain();
+                pulseTremoloModGain.gain.setValueAtTime(1.0, now);
+                pulseTremoloModGain.connect(filter);
+
+                pulseLfoOsc = audioContext.createOscillator();
+                pulseLfoOsc.type = 'square';
+                pulseLfoOsc.frequency.setValueAtTime(LFO_FREQUENCIES_HZ[Math.floor(LFO_FREQUENCIES_HZ.length / 2)], now);
+                pulseLfoDepthGain = audioContext.createGain();
+                pulseLfoDepthGain.gain.setValueAtTime(0, now); // Start silent - depth controlled per face
+
+                tremoloLfoOsc = audioContext.createOscillator();
+                tremoloLfoOsc.type = 'sine';
+                tremoloLfoOsc.frequency.setValueAtTime(TREMOLO_LFO_RATE, now);
+                tremoloLfoDepthGain = audioContext.createGain();
+                tremoloLfoDepthGain.gain.setValueAtTime(0, now); // Start silent - depth controlled per face
+
+                pulseLfoOsc.connect(pulseLfoDepthGain);
+                pulseLfoDepthGain.connect(pulseTremoloModGain.gain);
+                tremoloLfoOsc.connect(tremoloLfoDepthGain);
+                tremoloLfoDepthGain.connect(pulseTremoloModGain.gain);
+                pulseLfoOsc.start(0);
+                tremoloLfoOsc.start(0);
+
+                fmModulatorOsc = audioContext.createOscillator();
+                fmModulatorOsc.type = 'sine';
+                const initialModFreq = BASE_FREQUENCY * calculateFmModFrequencyRatio(0.5);
+                fmModulatorOsc.frequency.setValueAtTime(initialModFreq, now);
+                fmModulatorGain = audioContext.createGain();
+                fmModulatorGain.gain.setValueAtTime(0, now); // Start silent - depth controlled per face
+                fmModulatorOsc.connect(fmModulatorGain);
+                fmModulatorOsc.start(0);
+
+                voiceSummingGain = audioContext.createGain();
+                voiceSummingGain.gain.setValueAtTime(1.0 / Math.sqrt(MAX_VOICES) * 0.6, now);
+                voiceSummingGain.connect(pulseTremoloModGain);
+
+                voices = [];
+                createVoice(0); // Create the first voice
+                updateVoiceCount(1); // Set initial active voice state
+
+                audioInitialized = true;
+                console.log("Audio Initialized. Context State:", audioContext.state);
+                document.body.classList.add('audio-active');
+                updateOscillatorIndicator();
+                updateUI();
+                updateParamDetailUI(-1);
+
+            } catch (e) {
+                console.error("Error initializing Web Audio API:", e);
+                alert("Web Audio API could not be initialized. Check browser compatibility and permissions.");
+                 document.body.classList.remove('audio-active');
+             }
+        }
+
+        // --- Voice Management ---
+        function createVoice(voiceId) {
+            if (!audioContext) return;
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            osc.type = currentOscillatorType;
+            const freq = calculateDetunedFrequency(BASE_FREQUENCY, voiceId, voices.length, currentDetuneSpread);
+            osc.frequency.setValueAtTime(freq, now);
+            const gain = audioContext.createGain();
+            gain.gain.setValueAtTime(0.0, now);
+
+            if (fmModulatorGain) {
+                fmModulatorGain.connect(osc.frequency); // Connect FM mod depth control TO osc freq param
+            } else { console.warn("FM Modulator Gain not ready?"); }
+
+            osc.connect(gain);
+            gain.connect(voiceSummingGain);
+            osc.start(0);
+            voices.push({ osc, gain, id: voiceId });
+        }
+
+        function updateVoiceCount(targetCount) {
+            if (!audioContext) return;
+            targetCount = Math.max(1, Math.min(MAX_VOICES, Math.round(targetCount)));
+            const now = audioContext.currentTime;
+
+            // Add voices if needed
+            while (voices.length < targetCount) { createVoice(voices.length); }
+
+            // Activate/Deactivate voices (targetCount drives activation)
+            for (let i = 0; i < voices.length; i++) {
+                const voice = voices[i];
+                const targetGain = (i < targetCount) ? 1.0 : 0.0;
+                const currentGain = voice.gain.gain.value;
+
+                // Use setTarget for smooth transitions, but set directly if needed
+                if (Math.abs(targetGain - currentGain) > 0.01) {
+                    voice.gain.gain.setTargetAtTime(targetGain, now, RAMP_TIME_SLOW);
+                 } else if (targetGain > 0 && currentGain <= 0.01) {
+                    voice.gain.gain.setValueAtTime(1.0, now); // Force on if it should be on
+                 } else if (targetGain === 0.0 && currentGain > 0.01) {
+                    voice.gain.gain.setTargetAtTime(0.0, now, RAMP_TIME_SLOW); // Ensure fade out
+                 }
+
+                // Recalculate frequency ONLY for voices that should be active
+                // This applies detune/spread based on the current number of ACTIVE voices
+                if (i < targetCount) {
+                    const freq = calculateDetunedFrequency(BASE_FREQUENCY, i, targetCount, currentDetuneSpread);
+                     voice.osc.frequency.setTargetAtTime(freq, now, RAMP_TIME);
+                }
+            }
+            // Global FM modulator frequency may also need update based on active voice context
+            // This happens within updateAudioParams when the FM face is active
+        }
+
+        function calculateDetunedFrequency(baseFreq, voiceIndex, numActiveVoices, detuneAmount) {
+            if (numActiveVoices <= 1) return baseFreq;
+            const spreadRangeCents = detuneAmount * MAX_DETUNE_CENTS;
+            const position = numActiveVoices <= 1 ? 0 : (voiceIndex / (numActiveVoices - 1) - 0.5) * 2.0;
+            const detuneCents = position * spreadRangeCents;
+            return baseFreq * Math.pow(2, detuneCents / 1200);
+        }
+
+
+         // --- Oscillator Type Control ---
+         function toggleOscillatorType() {
+             if (!audioInitialized) return;
+             let currentIndex = oscillatorTypes.indexOf(currentOscillatorType);
+             currentIndex = (currentIndex + 1) % oscillatorTypes.length;
+             currentOscillatorType = oscillatorTypes[currentIndex];
+
+             console.log("Oscillator type changed to:", currentOscillatorType);
+             updateOscillatorIndicator();
+             voices.forEach(voice => { voice.osc.type = currentOscillatorType; });
+         }
+         function updateOscillatorIndicator() { if (oscIndicatorEl) { oscIndicatorEl.textContent = `Osc: ${currentOscillatorType.charAt(0).toUpperCase() + currentOscillatorType.slice(1)}`; } }
+
+         // --- Start Button ---
+         const startButton = document.getElementById('start-button');
+         startButton.addEventListener('click', () => {
+             if (!audioContext) { setupAudio(); }
+             if (audioContext && audioContext.state === 'suspended') {
+                 audioContext.resume().then(() => {
+                     console.log("AudioContext resumed.");
+                     if (!audioInitialized) setupAudio();
+                      document.body.classList.add('audio-active');
+                      // After resuming, re-apply the *last known* parameter state
+                      updateAudioParams(previousActiveFaceIndex); // Use the latched index
+                 }).catch(e => console.error("Error resuming AudioContext:", e));
+             } else if (!audioInitialized) {
+                 setupAudio();
+             }
+             if(audioContext?.state === 'running' && audioInitialized) {
+                 document.body.classList.add('audio-active');
+             }
+         });
+
+
+        // --- Parameter Mapping Functions ---
+        function calculateExponentialFrequency(value) { return MIN_FILTER_FREQ * Math.pow(MAX_FILTER_FREQ / MIN_FILTER_FREQ, value); }
+        function calculateLinearQ(value) { return MIN_FILTER_Q + value * (MAX_FILTER_Q - MIN_FILTER_Q); }
+        function calculateDelayTime(value) { return Math.max(0.001, Math.pow(value, 1.5) * MAX_DELAY_TIME); }
+        function calculateFeedback(value) { return value * MAX_DELAY_FEEDBACK; }
+        function calculateNumberOfVoices(value) { return Math.max(1, Math.min(MAX_VOICES, 1 + Math.floor(value * 3.999))); }
+        function calculateReverbDelayTimes(value) { const base1 = 0.025, base2 = 0.035; const scale = 1 + value * 3; return { time1: base1 * scale, time2: base2 * scale }; }
+        function selectLfoFrequency(value) { const index = Math.min(Math.floor(value * LFO_FREQUENCIES_HZ.length), LFO_FREQUENCIES_HZ.length - 1); return { freq: LFO_FREQUENCIES_HZ[clampedIndex], noteValue: LFO_NOTE_VALUES[clampedIndex] }; }
+        function getNoteValueString(noteValue) { if (noteValue === 1) return "1/1"; if (noteValue > 0 && 1/noteValue === Math.round(1/noteValue)) return `1/${Math.round(1/noteValue)}`; return "?"; }
+        function calculatePulseLfoDepth(value) { return value * PULSE_LFO_MAX_DEPTH; }
+        function calculateTremoloDepth(value) { return value * TREMOLO_LFO_MAX_DEPTH; }
+        function calculateFmModIndex(value) { return value * FM_MAX_MODULATION_INDEX; }
+        function calculateFmModFrequencyRatio(value) { if (value <= 0) return FM_MODULATOR_MIN_FREQ_RATIO; if (value >= 1) return FM_MODULATOR_MAX_FREQ_RATIO; return FM_MODULATOR_MIN_FREQ_RATIO * Math.pow(FM_MODULATOR_MAX_FREQ_RATIO / FM_MODULATOR_MIN_FREQ_RATIO, value); }
+
+        // --- Central function to update audio parameters based on the face being actively touched ---
+        // It NO LONGER resets params when touch stops; parameters persist until explicitly changed again.
+        function updateAudioParams(faceIndex) { // faceIndex is the *currently targeted* face, or -1 if none
+            if (!audioInitialized || !audioContext) return; // Audio not ready
+
+            const now = audioContext.currentTime;
+            const currentFunc = faceFunctionMap[faceIndex]; // Function of the face being interacted with RIGHT NOW
+
+            // --- Apply Parameters ONLY for the *Currently Interacted* Face ---
+             if (faceIndex >= 0 && faceIndex < faceXYValues.length && faceXYValues[faceIndex]) {
+                const x = faceXYValues[faceIndex].x;
+                const y = faceXYValues[faceIndex].y;
+                const targetVoiceCount = calculateNumberOfVoices(y); // Pre-calculate for shared use
+
+                // Store the index of the face being actively changed for UI latching display
+                previousActiveFaceIndex = faceIndex;
+
+                switch (currentFunc) {
+                    case 'Filter':
+                        filter.frequency.setTargetAtTime(calculateExponentialFrequency(x), now, RAMP_TIME);
+                        filter.Q.setTargetAtTime(calculateLinearQ(y), now, RAMP_TIME);
+                        break;
+
+                    case 'DelayPoly':
+                        delayNode.delayTime.setTargetAtTime(calculateDelayTime(x), now, RAMP_TIME);
+                        delayFeedbackGain.gain.setTargetAtTime(calculateFeedback(x), now, RAMP_TIME);
+                        // The updateVoiceCount function handles detuning based on its OWN internal state of 'targetCount'
+                        updateVoiceCount(targetVoiceCount);
+                        break;
+
+                    case 'ReverbDetune':
+                        const targetReverbTimes = calculateReverbDelayTimes(x);
+                        const targetWetness = y * REVERB_MAX_WET;
+                        currentDetuneSpread = y; // Update the global detune spread state
+                        reverbDelay1.delayTime.setTargetAtTime(targetReverbTimes.time1, now, RAMP_TIME);
+                        reverbDelay2.delayTime.setTargetAtTime(targetReverbTimes.time2, now, RAMP_TIME);
+                        reverbWetGain.gain.setTargetAtTime(targetWetness, now, RAMP_TIME);
+                        reverbDryGain.gain.setTargetAtTime(1.0 - targetWetness * 0.5, now, RAMP_TIME);
+                        // Immediately update frequencies of *potentially* active voices with the new spread
+                         let activeVoiceTarget = voices.filter((v,idx) => v.gain.gain.value > 0.01).length; // How many are actually audible NOW
+                         activeVoiceTarget = Math.max(1, activeVoiceTarget); // At least 1 for calc base
+                         for (let i = 0; i < voices.length; i++) {
+                             if(voices[i] && voices[i].gain.gain.value > 0.01) { // Only recalc for active voices
+                                 const freq = calculateDetunedFrequency(BASE_FREQUENCY, i, activeVoiceTarget, currentDetuneSpread);
+                                 voices[i].osc.frequency.setTargetAtTime(freq, now, RAMP_TIME);
+                             }
+                         }
+                        break;
+
+                    case 'PulseTremolo':
+                        const { freq: targetPulseRate } = selectLfoFrequency(x);
+                        const targetPulseDepth = calculatePulseLfoDepth(x); // X also controls pulse depth
+                        const targetTremoloDepth = calculateTremoloDepth(y);
+                        pulseLfoOsc.frequency.setTargetAtTime(targetPulseRate, now, RAMP_TIME_SLOW);
+                        // Directly set depth based on XY - NO MORE AUTO-RESET
+                        pulseLfoDepthGain.gain.setTargetAtTime(targetPulseDepth, now, RAMP_TIME);
+                        tremoloLfoDepthGain.gain.setTargetAtTime(targetTremoloDepth, now, RAMP_TIME);
+                        break;
+
+                     case 'FM':
+                        const targetModIndex = calculateFmModIndex(x);
+                        const targetModRatio = calculateFmModFrequencyRatio(y);
+                        // Base calculation on the average *current* frequency of active voices, or default
+                        let avgCarrierFreq = 0;
+                        let activeCount = 0;
+                        voices.forEach(v => { if(v.gain.gain.value > 0.01) { avgCarrierFreq += v.osc.frequency.value; activeCount++; } });
+                        avgCarrierFreq = activeCount > 0 ? avgCarrierFreq / activeCount : BASE_FREQUENCY;
+
+                        const targetModFreq = Math.max(1, avgCarrierFreq * targetModRatio);
+                         fmModulatorOsc.frequency.setTargetAtTime(targetModFreq, now, RAMP_TIME);
+                         // Directly set depth based on XY - NO MORE AUTO-RESET
+                         fmModulatorGain.gain.setTargetAtTime(targetModIndex, now, RAMP_TIME);
+                        break;
+
+                    default: // Unassigned face - Still store the face index as 'last touched' for UI
+                        // previousActiveFaceIndex = faceIndex; // Already set above
+                        break;
+                }
+            }
+             // else {
+                 // No face is being *actively interacted* with right now (faceIndex === -1).
+                 // DO NOTHING. Audio parameters remain at their last set values (persistence).
+                 // `previousActiveFaceIndex` still holds the index of the last face that *was* interacted with.
+             //}
+
+            // Update the detailed parameter UI based on the LAST face that was modified.
+            updateParamDetailUI(previousActiveFaceIndex);
+        }
+
+
+        // --- Three.js Setup ---
+        const canvas = document.getElementById('c');
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+         renderer.setClearColor(0x000000, 0); // Transparent background
+         renderer.setSize(window.innerWidth, window.innerHeight);
+         renderer.setPixelRatio(window.devicePixelRatio); // Crisper rendering
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 3;
+        const ambientLight = new THREE.AmbientLight(0xcccccc, 1.0); scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8); directionalLight.position.set(0.8, 1, 1.5).normalize(); scene.add(directionalLight);
+        const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8); directionalLight2.position.set(-0.8, -0.5, -1).normalize(); scene.add(directionalLight2);
+
+        // --- CubeMod Setup ---
+        const CUBE_SIZE = 1.5 * 0.9; // Slightly smaller cube
+        const geometry = new THREE.BoxGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE);
+        const materials = [ // Order corresponds to BoxGeometry face indices: +X, -X, +Y, -Y, +Z, -Z
+            new THREE.MeshPhongMaterial({ color: 0xE6BFB3, name: 'Delay/Poly' }),   // 0: Right (Rose)
+            new THREE.MeshPhongMaterial({ color: 0xA8D8B9, name: 'Pulse/Trem' }),    // 1: Left (Sage)
+            new THREE.MeshPhongMaterial({ color: 0xAEC6CF, name: 'Reverb/Detune' }),// 2: Top (Blue)
+            new THREE.MeshPhongMaterial({ color: 0xE0CBA8, name: 'FM Synth' }),     // 3: Bottom (Ochre)
+            new THREE.MeshPhongMaterial({ color: 0xC7B9E4, name: 'Filter' }),       // 4: Front (Lilac)
+            new THREE.MeshPhongMaterial({ color: 0xCEC8C1, name: 'Unassigned' })    // 5: Back (Grey)
+        ];
+        const cube = new THREE.Mesh(geometry, materials);
+        scene.add(cube);
+        // Initialize XY values with defaults (center 0.5, 0.5) for ALL faces
+        const faceXYValues = Array(6).fill(null).map(() => ({ x: 0.5, y: 0.5 }));
+
+        // --- Touch Feedback Visuals ---
+        const MAX_TOUCH_INDICATORS = 3; // Show up to 3 points
+        const touchIndicators = [];
+        const touchIndicatorMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7, side: THREE.DoubleSide, depthTest: false }); // Slightly more opaque
+        const touchIndicatorGeometry = new THREE.PlaneGeometry(0.15, 0.15); // MODIFIED: Slightly larger square
+        for (let i = 0; i < MAX_TOUCH_INDICATORS; i++) {
+            const indicator = new THREE.Mesh(touchIndicatorGeometry, touchIndicatorMaterial);
+            indicator.visible = false;
+            indicator.renderOrder = 1; // Render on top
+            scene.add(indicator);
+            touchIndicators.push(indicator);
+        }
+
+        // --- Interaction State ---
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+        const activeTouches = new Map(); // Map<pointerId, { startPos: Vector2, currentPos: Vector2, indicatorIndex?: number }>
+        let interactionMode = 'idle'; // idle, xy_control, rotate
+        let startPointerPos = null;
+        let startMidpointPos = null;
+        let startAvgPos3 = null;
+        let prevAvgPos3 = null;
+        let activeFaceIndex = -1;     // Face index actively being controlled BY TOUCH (-1 if none)
+        let controllingFace = false;  // Is an XY interaction CURRENTLY happening?
+        const MIN_TWO_FINGER_DISTANCE_SQ = 100 * 100;
+
+        // --- UI Update Elements ---
+        const faceIndexEl = document.getElementById('face-index');
+        const touchCountEl = document.getElementById('touch-count');
+        const interactionModeEl = document.getElementById('interaction-mode');
+        const paramDetailsEl = document.getElementById('param-details');
+
+        // --- Helper Functions ---
+        function updatePointerPosition(x, y) { pointer.x = (x / window.innerWidth) * 2 - 1; pointer.y = -(y / window.innerHeight) * 2 + 1; }
+        function getTouchCentroid(touchMap) { const centroid = new THREE.Vector2(0, 0); if (touchMap.size === 0) return centroid; for (const touch of touchMap.values()) { centroid.x += touch.currentPos.x; centroid.y += touch.currentPos.y; } centroid.divideScalar(touchMap.size); return centroid; }
+        function getAveragePointerPos(touchMap) { if (touchMap.size === 0) return null; let avgX = 0, avgY = 0; for (const touch of touchMap.values()) { avgX += touch.currentPos.x; avgY += touch.currentPos.y; } return new THREE.Vector2(avgX / touchMap.size, avgY / touchMap.size); }
+
+        function updateUI() {
+            touchCountEl.textContent = activeTouches.size;
+            interactionModeEl.textContent = interactionMode.toUpperCase().replace('_', ' ');
+
+            let faceDisplay = '-';
+             // Use previousActiveFaceIndex to show the last controlled/set face, add [L] if not currently touching
+             const faceIdxToShow = previousActiveFaceIndex; // Always show last interacted face params
+             if (faceIdxToShow !== -1 && materials[faceIdxToShow]) {
+                const isCurrentlyControllingThisFace = (controllingFace && activeFaceIndex === faceIdxToShow);
+                 const latchMarker = isCurrentlyControllingThisFace ? '' : ' [L]'; // Add Latch marker if not actively touching THIS face
+                 const faceName = materials[faceIdxToShow].name || '??';
+                 faceDisplay = `${faceIdxToShow} (${faceName})${latchMarker}`;
+             }
+             faceIndexEl.innerHTML = faceDisplay;
+         }
+
+        // Updates the DYNAMIC parameter display based on the LAST ACTIVE face
+        function updateParamDetailUI(displayFaceIdx) { // Expects the index of the face whose params should be displayed (-1 ok)
+            if (!audioInitialized) { paramDetailsEl.innerHTML = `Click Start Button...`; return; }
+
+            let details = 'Idle / No Control';
+             const faceIdxToShow = (displayFaceIdx !== -1) ? displayFaceIdx : -1; // Ensure we have a valid index or -1
+             const func = faceFunctionMap[faceIdxToShow];
+             // IMPORTANT: Get XY values directly from the stored array for the specific face index
+             const values = (faceIdxToShow !== -1 && faceXYValues[faceIdxToShow]) ? faceXYValues[faceIdxToShow] : { x: 0.5, y: 0.5 }; // Use stored value or default
+
+             switch (func) {
+                 case 'Filter': const freq = calculateExponentialFrequency(values.x); const q = calculateLinearQ(values.y); details = `<b>Filter:</b><br>Cutoff (X): ${freq.toFixed(0)} Hz<br>Resonance (Y): ${q.toFixed(2)}`; break;
+                 case 'DelayPoly': const delayTime = calculateDelayTime(values.x); const voicesCount = calculateNumberOfVoices(values.y); const feedback = calculateFeedback(values.x); details = `<b>Delay & Poly:</b><br>Time/Fdbk (X): ${delayTime.toFixed(3)}s / ${feedback.toFixed(2)}<br>Voices (Y): ${voicesCount}`; break;
+                 case 'ReverbDetune': const reverbSize = values.x; const wetness = values.y * REVERB_MAX_WET; const detune = values.y * MAX_DETUNE_CENTS; details = `<b>Reverb & Detune:</b><br>Size (X): ${(reverbSize * 100).toFixed(0)}%<br>Wet/Spread (Y): ${wetness.toFixed(2)} / ${detune.toFixed(1)}¢`; break;
+                 case 'PulseTremolo':
+                     const { freq: pulseRate, noteValue } = selectLfoFrequency(values.x);
+                     const tremoloDepth = calculateTremoloDepth(values.y);
+                     const noteStr = getNoteValueString(noteValue);
+                     const pulseDepthVal = calculatePulseLfoDepth(values.x); // Get current LFO depth value
+                     details = `<b>Pulse (BPM) / Tremolo:</b><br>Rate/Depth (X): ${noteStr} (${pulseRate.toFixed(1)}Hz)/${pulseDepthVal.toFixed(2)}<br>Trem Depth (Y): ${tremoloDepth.toFixed(2)}`;
+                    break;
+                 case 'FM':
+                     const modIndex = calculateFmModIndex(values.x);
+                     const modRatio = calculateFmModFrequencyRatio(values.y);
+                     let approxCarrier = 0; let fmActiveCount = 0; // Recalculate based on current state for display
+                     voices.forEach(v => { if(v.gain.gain.value > 0.01) { approxCarrier += v.osc.frequency.value; fmActiveCount++; } });
+                     approxCarrier = fmActiveCount > 0 ? approxCarrier / fmActiveCount : BASE_FREQUENCY;
+                     const modFreq = approxCarrier * modRatio;
+                     details = `<b>FM Synthesis:</b><br>Mod Index (X): ${modIndex.toFixed(0)} Hz<br>Mod Ratio (Y): ${modRatio.toFixed(2)}x (${modFreq.toFixed(0)} Hz)`;
+                     break;
+                 default:
+                     if (faceIdxToShow !== -1 && faceFunctionMap[faceIdxToShow] === 'Unassigned') {
+                         details = `<b>Unassigned Face ${faceIdxToShow}:</b><br>X: ${values.x.toFixed(2)}<br>Y: ${values.y.toFixed(2)}`;
+                     } else {
+                          details = `Control an assigned face...<br>(F:Filt R:Dly T:Rev L:Pulse B:FM)`;
+                     }
+                     break;
+             }
+             paramDetailsEl.innerHTML = details;
+         }
+
+        // --- Touch Indicator Management ---
+        function hideAllTouchIndicators() { touchIndicators.forEach(ind => ind.visible = false); activeTouches.forEach(touch => touch.indicatorIndex = undefined); }
+        function assignIndicator(touchId) { for(let i=0; i < touchIndicators.length; i++) { let inUse = false; activeTouches.forEach(t => { if(t.indicatorIndex === i) inUse = true; }); if (!inUse) { if(activeTouches.get(touchId)) activeTouches.get(touchId).indicatorIndex = i; return i; } } return undefined; }
+
+        // MODIFIED: Simplified touch indicator logic
+        function updateTouchIndicatorPosition(touchData) {
+            // If not assigned an indicator slot, bail early
+            if (touchData.indicatorIndex === undefined) return;
+
+            const indicator = touchIndicators[touchData.indicatorIndex];
+
+            // Show indicators ONLY if we are actively controlling a face
+            if (controllingFace && activeFaceIndex >= 0) {
+                updatePointerPosition(touchData.currentPos.x, touchData.currentPos.y);
+                raycaster.setFromCamera(pointer, camera);
+                const intersects = raycaster.intersectObject(cube);
+
+                // If the raycast hits the cube *anywhere* while controlling
+                if (intersects.length > 0) {
+                    const intersect = intersects[0];
+                    const point = intersect.point;
+                    const normal = intersect.face.normal.clone().transformDirection(cube.matrixWorld).normalize();
+                    const offset = normal.multiplyScalar(0.015); // Slightly more offset maybe?
+
+                    indicator.position.copy(point).add(offset);
+                    indicator.lookAt(point.add(normal.multiplyScalar(1))); // Point indicator away from surface normal
+                    indicator.visible = true;
+                } else {
+                    // Ray didn't hit the cube, hide this specific indicator
+                    indicator.visible = false;
+                }
+            } else {
+                // Not actively controlling any face, ensure indicator is hidden
+                indicator.visible = false;
+            }
+        }
+
+
+        // --- Event Listeners ---
+
+        function onPointerDown(event) {
+             if (!audioInitialized || (audioContext && audioContext.state !== 'running')) {
+                 const startBtn = document.getElementById('start-button');
+                 if (startBtn) { startBtn.click(); }
+                 setTimeout(() => { if (!audioInitialized) return; }, 50);
+            }
+             if (!audioInitialized) return;
+
+            event.preventDefault();
+            canvas.setPointerCapture(event.pointerId);
+
+            const now = performance.now();
+            if (now - lastTapTime < MAX_TAP_INTERVAL) { tapCount++; } else { tapCount = 1; }
+            lastTapTime = now;
+            if (tapCount === REQUIRED_TAPS) { toggleOscillatorType(); tapCount = 0; /* Reset tap count */ return; }
+
+            const currentPos = new THREE.Vector2(event.clientX, event.clientY);
+            activeTouches.set(event.pointerId, { startPos: currentPos.clone(), currentPos: currentPos, indicatorIndex: undefined });
+
+            controllingFace = false; // Reset flag on new touch sequence start
+            hideAllTouchIndicators(); // Clear visuals
+
+            const numTouches = activeTouches.size;
+            let potentialFaceIndex = -1; // Which face *might* we start controlling?
+
+            // Determine Mode & Potential Face
+            if (numTouches === 1) {
+                 interactionMode = 'idle';
+                 startPointerPos = currentPos.clone();
+                 updatePointerPosition(event.clientX, event.clientY);
+                 raycaster.setFromCamera(pointer, camera);
+                 const intersects = raycaster.intersectObject(cube);
+                  if (intersects.length > 0 && faceFunctionMap[intersects[0].face.materialIndex] !== 'Unassigned') {
+                    potentialFaceIndex = intersects[0].face.materialIndex;
+                    interactionMode = 'xy_control';
+                 }
+            } else if (numTouches === 2) {
+                 if (interactionMode === 'rotate') return; // Prevent starting XY if already rotating
+                 interactionMode = 'idle';
+                 const touches = Array.from(activeTouches.values());
+                 const distSq = touches[0].currentPos.distanceToSquared(touches[1].currentPos);
+                 if (distSq >= MIN_TWO_FINGER_DISTANCE_SQ) {
+                     startMidpointPos = getTouchCentroid(activeTouches);
+                     updatePointerPosition(startMidpointPos.x, startMidpointPos.y);
+                     raycaster.setFromCamera(pointer, camera);
+                     const intersects = raycaster.intersectObject(cube);
+                      if (intersects.length > 0 && faceFunctionMap[intersects[0].face.materialIndex] !== 'Unassigned') {
+                         potentialFaceIndex = intersects[0].face.materialIndex;
+                         interactionMode = 'xy_control';
+                     }
+                 }
+             } else if (numTouches >= 3) {
+                 if (interactionMode !== 'rotate') { // Just entered rotate?
+                    hideAllTouchIndicators();
+                    controllingFace = false; // Explicitly stop XY if entering rotate
+                    activeFaceIndex = -1;    // Clear the 'current touch' face index
+                    // NO audio param reset needed here, persistence handles it.
+                    startAvgPos3 = getAveragePointerPos(activeTouches);
+                 }
+                 interactionMode = 'rotate';
+                 prevAvgPos3 = getAveragePointerPos(activeTouches); // Update for delta calc
+             }
+
+            // Activate Face Control State if applicable
+            if (interactionMode === 'xy_control' && potentialFaceIndex !== -1) {
+                 controllingFace = true;
+                 activeFaceIndex = potentialFaceIndex; // This is the face being actively touched NOW
+                 // Trigger audio update IMMEDIATELY with the current stored values for this face
+                 updateAudioParams(activeFaceIndex);
+                 // Assign indicators to touches involved
+                 let touchesToAssign = Array.from(activeTouches.keys()).slice(0, MAX_TOUCH_INDICATORS);
+                 touchesToAssign.forEach(id => {
+                     assignIndicator(id);
+                     updateTouchIndicatorPosition(activeTouches.get(id)); // Update position right away
+                 });
+             }
+
+            updateUI();
+             // Always update detail display based on the *last* face touched/set (persistent view)
+            updateParamDetailUI(previousActiveFaceIndex);
+        }
+
+        function onPointerMove(event) {
+            if (!activeTouches.has(event.pointerId) || !audioInitialized || !canvas.hasPointerCapture(event.pointerId)) return;
+
+            const touchData = activeTouches.get(event.pointerId);
+            touchData.currentPos.set(event.clientX, event.clientY);
+
+             // --- XY Control Logic (applies changes immediately) ---
+             if (interactionMode === 'xy_control' && controllingFace && activeFaceIndex !== -1) {
+                 let currentDragPos = (activeTouches.size === 1) ? touchData.currentPos : getTouchCentroid(activeTouches);
+                 let startDragPos = (activeTouches.size === 1) ? startPointerPos : startMidpointPos;
+                 if (!startDragPos || !currentDragPos) return;
+
+                 const sensitivity = 0.004;
+                 const totalDeltaX = currentDragPos.x - startDragPos.x;
+                 const totalDeltaY = currentDragPos.y - startDragPos.y;
+
+                 // Update the specific face's stored XY values
+                 faceXYValues[activeFaceIndex].x = THREE.MathUtils.clamp(0.5 + totalDeltaX * sensitivity, 0, 1);
+                 faceXYValues[activeFaceIndex].y = THREE.MathUtils.clamp(0.5 - totalDeltaY * sensitivity, 0, 1); // Invert Y
+
+                 updateAudioParams(activeFaceIndex); // Continuous audio update for the controlled face
+
+                 // Update indicators for *all* active touches involved
+                 activeTouches.forEach(td => { updateTouchIndicatorPosition(td); });
+
+            // --- Rotation Logic ---
+             } else if (interactionMode === 'rotate' && activeTouches.size >= 3) {
+                const currentAvgPos = getAveragePointerPos(activeTouches);
+                if (!prevAvgPos3 || !currentAvgPos) return;
+                const deltaX = currentAvgPos.x - prevAvgPos3.x;
+                const deltaY = currentAvgPos.y - prevAvgPos3.y;
+                const rotationSpeed = 0.008;
+                cube.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), deltaX * rotationSpeed);
+                const cameraXAxis = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+                cube.rotateOnWorldAxis(cameraXAxis, deltaY * rotationSpeed);
+                prevAvgPos3.copy(currentAvgPos);
+             }
+             updateUI(); // Update mode, touch count display
+             // Param details are updated within updateAudioParams or PointerUp
+         }
+
+        function onPointerUpOrCancel(event) {
+            if (!activeTouches.has(event.pointerId) || !audioInitialized) return;
+
+            const liftedTouchData = activeTouches.get(event.pointerId);
+            if(liftedTouchData?.indicatorIndex !== undefined && touchIndicators[liftedTouchData.indicatorIndex]) {
+                 touchIndicators[liftedTouchData.indicatorIndex].visible = false; // Hide specifically lifted touch's indicator
+            }
+
+            activeTouches.delete(event.pointerId);
+            //canvas.releasePointerCapture(event.pointerId); // Usually handled automatically
+
+            const numTouches = activeTouches.size;
+            let needsUIRefresh = true;
+
+            // --- Transition Logic ---
+            if (interactionMode === 'xy_control') {
+                // If we were controlling XY, we stop *actively controlling* when any finger lifts
+                controllingFace = false;
+                activeFaceIndex = -1; // No longer actively TOUCHING a control face
+                hideAllTouchIndicators(); // Clear visuals as active control stops
+
+                // Now, determine the NEW mode based on remaining touches
+                if (numTouches >= 3) {
+                    interactionMode = 'rotate';
+                    prevAvgPos3 = getAveragePointerPos(activeTouches); // Set up for rotation
+                } else if (numTouches === 2) {
+                    const touches = Array.from(activeTouches.values());
+                    const distSq = touches[0].currentPos.distanceToSquared(touches[1].currentPos);
+                    if (distSq >= MIN_TWO_FINGER_DISTANCE_SQ) {
+                        // Dropped to 2 fingers apart: Check if they are *still* on a valid face
+                        startMidpointPos = getTouchCentroid(activeTouches);
+                        updatePointerPosition(startMidpointPos.x, startMidpointPos.y);
+                        raycaster.setFromCamera(pointer, camera);
+                        const intersects = raycaster.intersectObject(cube);
+                        if (intersects.length > 0 && faceFunctionMap[intersects[0].face.materialIndex] !== 'Unassigned') {
+                            // RE-ENGAGE XY control immediately with 2 fingers
+                            interactionMode = 'xy_control';
+                            controllingFace = true;
+                            activeFaceIndex = intersects[0].face.materialIndex;
+                            updateAudioParams(activeFaceIndex); // Trigger audio for this face
+                             let touchesToAssign = Array.from(activeTouches.keys()).slice(0, MAX_TOUCH_INDICATORS);
+                             touchesToAssign.forEach(id => { assignIndicator(id); updateTouchIndicatorPosition(activeTouches.get(id)); });
+                        } else { interactionMode = 'idle'; } // 2 fingers, but not on a face -> idle
+                    } else { interactionMode = 'idle'; } // 2 fingers too close -> idle
+                } else if (numTouches === 1) {
+                     // Dropped to 1 finger: Check if it's on a valid face
+                     startPointerPos = Array.from(activeTouches.values())[0].currentPos.clone();
+                     updatePointerPosition(startPointerPos.x, startPointerPos.y);
+                     raycaster.setFromCamera(pointer, camera);
+                     const intersects = raycaster.intersectObject(cube);
+                     if (intersects.length > 0 && faceFunctionMap[intersects[0].face.materialIndex] !== 'Unassigned') {
+                         // RE-ENGAGE XY control immediately with 1 finger
+                         interactionMode = 'xy_control';
+                         controllingFace = true;
+                         activeFaceIndex = intersects[0].face.materialIndex;
+                         updateAudioParams(activeFaceIndex); // Trigger audio for this face
+                         let touchesToAssign = Array.from(activeTouches.keys()).slice(0, MAX_TOUCH_INDICATORS);
+                          touchesToAssign.forEach(id => { assignIndicator(id); updateTouchIndicatorPosition(activeTouches.get(id)); });
+                     } else { interactionMode = 'idle'; } // 1 finger, not on a face -> idle
+                } else { // numTouches === 0
+                     interactionMode = 'idle';
+                     // Audio params remain latched via 'previousActiveFaceIndex'
+                }
+
+            } else if (interactionMode === 'rotate') {
+                // If we were rotating, check if we drop below 3 fingers
+                if (numTouches < 3) {
+                     controllingFace = false; // Ensure control is off
+                     activeFaceIndex = -1;
+                     hideAllTouchIndicators();
+                     // Check if remaining fingers (1 or 2) land on a face to potentially start XY
+                    if (numTouches === 2) { /* Check for 2-finger XY engage, similar to above */
+                        const touches = Array.from(activeTouches.values());
+                        const distSq = touches[0].currentPos.distanceToSquared(touches[1].currentPos);
+                         if (distSq >= MIN_TWO_FINGER_DISTANCE_SQ) {
+                            startMidpointPos = getTouchCentroid(activeTouches); /* Re-check intersection and maybe set xy_control */
+                            updatePointerPosition(startMidpointPos.x, startMidpointPos.y); raycaster.setFromCamera(pointer, camera);
+                             const intersects = raycaster.intersectObject(cube);
+                             if (intersects.length > 0 && faceFunctionMap[intersects[0].face.materialIndex] !== 'Unassigned') { interactionMode = 'xy_control'; controllingFace = true; activeFaceIndex = intersects[0].face.materialIndex; updateAudioParams(activeFaceIndex); /* Assign indicators...*/ } else { interactionMode = 'idle'; }
+                         } else { interactionMode = 'idle'; }
+                    } else if (numTouches === 1) { /* Check for 1-finger XY engage, similar to above */
+                        startPointerPos = Array.from(activeTouches.values())[0].currentPos.clone(); /* Re-check intersection and maybe set xy_control */
+                        updatePointerPosition(startPointerPos.x, startPointerPos.y); raycaster.setFromCamera(pointer, camera);
+                        const intersects = raycaster.intersectObject(cube);
+                         if (intersects.length > 0 && faceFunctionMap[intersects[0].face.materialIndex] !== 'Unassigned') { interactionMode = 'xy_control'; controllingFace = true; activeFaceIndex = intersects[0].face.materialIndex; updateAudioParams(activeFaceIndex); /* Assign indicators...*/ } else { interactionMode = 'idle'; }
+                    } else { // 0 touches left
+                         interactionMode = 'idle';
+                    }
+                } else {
+                    // Still 3+ touches, remain in rotate mode
+                    prevAvgPos3 = getAveragePointerPos(activeTouches); // Update rotation base
+                }
+            } else { // Was 'idle', a finger lifted, stay idle if touches > 0, otherwise handled by numTouches check
+                 if (numTouches === 0) {
+                     interactionMode = 'idle';
+                     controllingFace = false;
+                     activeFaceIndex = -1;
+                     startPointerPos = null; startMidpointPos = null; startAvgPos3 = null; prevAvgPos3 = null;
+                     hideAllTouchIndicators();
+                 } // If touches remain, likely just a mis-tap, stay idle
+            }
+
+            // Final UI state update
+            if(needsUIRefresh) {
+                 updateUI(); // Update touch count, mode, face latch indicator
+                 updateParamDetailUI(previousActiveFaceIndex); // Keep showing params of last set face
+            }
+        }
+
+        // --- Standard Event Listeners & Resize ---
+        canvas.addEventListener('pointerdown', onPointerDown);
+        canvas.addEventListener('pointermove', onPointerMove);
+        canvas.addEventListener('pointerup', onPointerUpOrCancel);
+        canvas.addEventListener('pointercancel', onPointerUpOrCancel);
+        canvas.addEventListener('pointerleave', (e) => { if(activeTouches.has(e.pointerId)) { onPointerUpOrCancel(e); }});
+        canvas.addEventListener('contextmenu', (event) => event.preventDefault());
+
+        window.addEventListener('resize', () => {
+            if (!renderer || !camera) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+        });
+
+        // --- Animation Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!audioInitialized || !renderer || !scene || !camera || !document.body.classList.contains('audio-active')) {
+                 return; // Don't render if not ready/active
+            }
+            renderer.render(scene, camera);
+         }
+
+        // --- Initial Setup Calls ---
+        updateParamDetailUI(-1); // Show default before start
+        animate(); // Start render loop
+
+    </script>
+
+</body></html>

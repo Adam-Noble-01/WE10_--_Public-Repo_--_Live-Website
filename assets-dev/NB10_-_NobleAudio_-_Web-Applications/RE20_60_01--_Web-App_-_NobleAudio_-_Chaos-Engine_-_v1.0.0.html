@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>DnB Bass Synth</title>
+    <style>
+        :root {
+            --pad-size: clamp(150px, 45vmin, 400px); /* Responsive pad size */
+            --indicator-color: #0f0; /* Bright green for visibility */
+            --background-color: #111;
+            --pad-background: #222;
+            --text-color: #eee;
+            --button-bg: #333;
+            --button-hover-bg: #444;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Prevent scrolling */
+            touch-action: manipulation; /* Improve touch responsiveness, less delay */
+        }
+
+        .synth-container {
+            display: flex;
+            flex-direction: row; /* Default for landscape */
+            justify-content: space-around;
+            align-items: center;
+            width: 95%;
+            height: 95%;
+            gap: 20px;
+        }
+
+        .xy-pad {
+            position: relative;
+            width: var(--pad-size);
+            height: var(--pad-size);
+            background-color: var(--pad-background);
+            border: 2px solid #444;
+            cursor: crosshair;
+            touch-action: none; /* Crucial for touch interaction */
+            user-select: none; /* Prevent text selection */
+            overflow: hidden; /* Keep indicators inside */
+            border-radius: 5px;
+        }
+
+        .indicator {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--indicator-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%); /* Center on pointer */
+            pointer-events: none; /* Don't interfere with pad events */
+            display: none; /* Hidden initially */
+            box-shadow: 0 0 10px var(--indicator-color);
+        }
+
+        .crosshair {
+            position: absolute;
+            background-color: var(--indicator-color);
+            pointer-events: none;
+            display: none; /* Hidden initially */
+            opacity: 0.5;
+        }
+
+        .crosshair-h {
+            width: 100%;
+            height: 1px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .crosshair-v {
+            width: 1px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        #controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: absolute; /* Position relative to body/viewport */
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #randomizeButton {
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            border: 1px solid #555;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+            min-width: 150px; /* Ensure enough space for seed */
+            text-align: center;
+        }
+
+        #randomizeButton:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        #seedDisplay {
+            font-weight: bold;
+            color: var(--indicator-color);
+        }
+
+        /* Simple media query for portrait - stacks pads */
+        @media (orientation: portrait) {
+            .synth-container {
+                flex-direction: column;
+                width: 90%;
+                height: 80%;
+            }
+            #controls {
+                 position: relative; /* Reset positioning */
+                 bottom: auto;
+                 left: auto;
+                 transform: none;
+                 margin-top: 20px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="synth-container">
+        <div class="xy-pad" id="xyPad1">
+            <div class="indicator"></div>
+            <div class="crosshair crosshair-h"></div>
+            <div class="crosshair crosshair-v"></div>
+        </div>
+        <div class="xy-pad" id="xyPad2">
+            <div class="indicator"></div>
+            <div class="crosshair crosshair-h"></div>
+            <div class="crosshair crosshair-v"></div>
+        </div>
+    </div>
+
+    <div id="controls">
+        <button id="randomizeButton">Seed: <span id="seedDisplay">N/A</span></button>
+    </div>
+
+    <script>
+        const xyPad1 = document.getElementById('xyPad1');
+        const xyPad2 = document.getElementById('xyPad2');
+        const randomizeButton = document.getElementById('randomizeButton');
+        const seedDisplay = document.getElementById('seedDisplay');
+
+        let audioContext;
+        let mainGain;
+        let osc1, osc2, osc3; // Carrier, FM Mod, Additive/Sub
+        let fmGain;          // Controls FM depth
+        let osc3Gain;        // Controls Osc3 mix level
+        let filter;
+        let distortion;
+        let lfo1, lfo2;
+        let lfo1Gain, lfo2Gain;
+
+        const activePointers = new Map(); // Track active pointers per pad { pointerId: padId }
+        const padStates = {
+            pad1: { x: 0.5, y: 0.5, active: false },
+            pad2: { x: 0.5, y: 0.5, active: false }
+        };
+
+        let currentSeed = null;
+
+        // --- Synth Parameters (Defaults & Randomizable) ---
+        let params = {
+            // Oscillator settings
+            osc1Type: 'sawtooth', // sine, square, sawtooth, triangle
+            osc1BaseFreq: 40,   // Base note (Hz) - low for bass
+            osc2DetuneRatio: 1.5, // Freq ratio for FM osc relative to osc1
+            osc2BaseDetune: 0,   // Fine detune for FM osc
+            osc3Type: 'square',
+            osc3DetuneRatio: 0.5, // Freq ratio for Osc3
+            osc3BaseDetune: 0,    // Fine detune for Osc3
+            osc3BaseGain: 0.2,   // Base mix level for Osc3
+
+            // FM
+            fmBaseDepth: 50,   // Base FM modulation index (Hz)
+
+            // Filter
+            filterType: 'lowpass', // lowpass, highpass, bandpass, notch
+            filterBaseCutoff: 1000, // Hz
+            filterBaseQ: 1,       // Resonance
+
+            // Distortion
+            distortionAmount: 0.4, // 0 to 1 (or more) - how much curve affects signal
+            distortionOversample: '2x', // 'none', '2x', '4x'
+
+            // Envelope (simple ramps)
+            attackTime: 0.02,
+            releaseTime: 0.3,
+
+            // LFOs
+            lfo1Freq: 2,   // Hz
+            lfo1BaseDepth: 0,
+            lfo2Freq: 3.5, // Hz
+            lfo2BaseDepth: 0,
+
+            // Master Gain
+            masterGain: 0.3 // Keep low initially to prevent clipping
+        };
+
+        // --- Modulation Matrix ---
+        // Source: x1, y1, x2, y2, lfo1, lfo2
+        // Destination: osc1Freq, fmDepth, osc3Gain, filterCutoff, filterQ, distortionMix, mainVol, lfo1Depth, lfo2Depth, osc2Detune, osc3Detune
+        let modMatrix = {}; // Populated by randomize function e.g., { x1: { target: 'filterCutoff', amount: 5000 }, y1: {...} }
+
+        const possibleModTargets = [
+            'osc1Freq', 'fmDepth', 'osc3Gain', 'filterCutoff', 'filterQ',
+            'distortionMix', 'mainVol', 'lfo1Depth', 'lfo2Depth', 'osc2Detune', 'osc3Detune',
+             'lfo1Freq', 'lfo2Freq' // LFOs can modulate each other's Freq/Depth
+        ];
+        const modSources = ['x1', 'y1', 'x2', 'y2', 'lfo1', 'lfo2'];
+
+        // --- Audio Initialization ---
+        function initAudio() {
+            if (audioContext) return; // Already initialized
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                // Create core nodes
+                mainGain = audioContext.createGain();
+                mainGain.gain.setValueAtTime(0, audioContext.currentTime); // Start silent
+                mainGain.connect(audioContext.destination);
+
+                filter = audioContext.createBiquadFilter();
+                distortion = audioContext.createWaveShaper();
+                makeDistortionCurve(params.distortionAmount * 100); // Initial curve based on default amount
+                distortion.oversample = params.distortionOversample;
+
+                osc1 = audioContext.createOscillator();
+                osc2 = audioContext.createOscillator();
+                fmGain = audioContext.createGain(); // Controls FM amount
+
+                osc3 = audioContext.createOscillator();
+                osc3Gain = audioContext.createGain(); // Controls Osc3 mix level
+
+                lfo1 = audioContext.createOscillator();
+                lfo1Gain = audioContext.createGain();
+                lfo2 = audioContext.createOscillator();
+                lfo2Gain = audioContext.createGain();
+
+                // --- Routing ---
+                // FM Path: osc2 -> fmGain -> osc1.frequency
+                osc2.connect(fmGain);
+                fmGain.connect(osc1.frequency); // Modulate frequency
+
+                // Main Signal Path: osc1 -> osc3Gain (summing point) -> distortion -> filter -> mainGain -> Destination
+                osc1.connect(osc3Gain); // osc1 is the primary source to osc3Gain input
+
+                // Additive/Sub path: osc3 -> osc3Gain -> distortion...
+                osc3.connect(osc3Gain); // osc3 also connects to osc3Gain input
+
+                osc3Gain.connect(distortion);
+                distortion.connect(filter);
+                filter.connect(mainGain);
+
+                // LFO Paths: lfo -> lfoGain -> Parameter.AudioParam
+                lfo1.connect(lfo1Gain);
+                lfo2.connect(lfo2Gain);
+
+                // Set initial static parameters
+                osc1.type = params.osc1Type;
+                osc2.type = 'sine'; // FM Modulator often sine
+                osc3.type = params.osc3Type;
+                osc1.frequency.setValueAtTime(params.osc1BaseFreq, audioContext.currentTime);
+                osc2.frequency.setValueAtTime(calculateFreq(params.osc1BaseFreq, params.osc2DetuneRatio, params.osc2BaseDetune), audioContext.currentTime);
+                osc3.frequency.setValueAtTime(calculateFreq(params.osc1BaseFreq, params.osc3DetuneRatio, params.osc3BaseDetune), audioContext.currentTime);
+                osc3Gain.gain.setValueAtTime(params.osc3BaseGain, audioContext.currentTime); // Set initial mix level
+                fmGain.gain.setValueAtTime(params.fmBaseDepth, audioContext.currentTime); // Set initial FM depth
+
+                filter.type = params.filterType;
+                filter.frequency.setValueAtTime(params.filterBaseCutoff, audioContext.currentTime);
+                filter.Q.setValueAtTime(params.filterBaseQ, audioContext.currentTime);
+
+                lfo1.frequency.setValueAtTime(params.lfo1Freq, audioContext.currentTime);
+                lfo1Gain.gain.setValueAtTime(params.lfo1BaseDepth, audioContext.currentTime);
+                lfo2.frequency.setValueAtTime(params.lfo2Freq, audioContext.currentTime);
+                lfo2Gain.gain.setValueAtTime(params.lfo2BaseDepth, audioContext.currentTime);
+
+                // Start oscillators
+                osc1.start();
+                osc2.start();
+                osc3.start();
+                lfo1.start();
+                lfo2.start();
+
+                console.log("AudioContext initialized.");
+
+            } catch (e) {
+                console.error("Web Audio API is not supported in this browser or initialization failed", e);
+                alert("Error initializing audio. Your browser might not support the Web Audio API.");
+            }
+        }
+
+        // Function to calculate frequency based on base, ratio, and fine detune (in cents)
+        function calculateFreq(baseFreq, ratio, detuneCents) {
+            const freqRatio = Math.pow(2, detuneCents / 1200);
+            return baseFreq * ratio * freqRatio;
+        }
+
+         // --- Distortion Curve ---
+        function makeDistortionCurve(amount) {
+            if (!distortion) return; // Check if node exists
+            const k = typeof amount === 'number' ? amount : 50; // Default amount if none provided
+            const n_samples = 44100; // Standard sample rate for curve detail
+            const curve = new Float32Array(n_samples);
+            const deg = Math.PI / 180;
+            let x;
+            for (let i = 0; i < n_samples; ++i) {
+                x = i * 2 / n_samples - 1;
+                // Basic tanh distortion - adjust multiplier (1+k/100) for drive
+                 curve[i] = Math.tanh(x * (1 + k/50));
+                // Alternative curve for more grit:
+                // curve[i] = (3 + k/10) * x * 20 * deg / (Math.PI + k/10 * Math.abs(x));
+            }
+             // Apply headroom reduction based on distortion amount to prevent extreme loudness
+            const headroom = 1.0 / (1.0 + k / 200); // Less headroom for more distortion
+             for (let i = 0; i < n_samples; ++i) {
+                curve[i] *= headroom;
+            }
+
+            distortion.curve = curve;
+        }
+
+
+        // --- Randomization ---
+        function randomizeSeed() {
+            initAudio(); // Ensure audio is ready
+
+            currentSeed = Math.floor(Math.random() * 1000000);
+            seedDisplay.textContent = currentSeed;
+            console.log("New Seed:", currentSeed);
+
+            // --- Randomize Base Synth Parameters ---
+            const oscTypes = ['sine', 'square', 'sawtooth', 'triangle'];
+            const filterTypes = ['lowpass', 'highpass', 'bandpass', 'notch'];
+
+            params.osc1Type = oscTypes[Math.floor(Math.random() * oscTypes.length)];
+            params.osc1BaseFreq = 30 + Math.random() * 50; // Low frequency range 30-80Hz
+            params.osc2DetuneRatio = 0.25 + Math.random() * 5; // 0.25x to 5.25x of base freq
+            params.osc2BaseDetune = (Math.random() - 0.5) * 100; // +/- 50 cents
+            params.osc3Type = oscTypes[Math.floor(Math.random() * oscTypes.length)];
+            params.osc3DetuneRatio = 0.25 + Math.random() * 3;
+            params.osc3BaseDetune = (Math.random() - 0.5) * 100; // +/- 50 cents
+            params.osc3BaseGain = Math.random() * 0.6; // 0 to 0.6 mix level
+
+            params.fmBaseDepth = Math.random() * 300 + 10; // 10Hz to 310Hz depth
+
+            params.filterType = filterTypes[Math.floor(Math.random() * filterTypes.length)];
+            params.filterBaseCutoff = 50 + Math.random() * 1500; // 50Hz to 1550Hz - biased low
+             params.filterBaseQ = 0.5 + Math.random() * 10; // 0.5 to 10.5
+
+            params.distortionAmount = Math.random() * 0.8; // 0 to 0.8 strength
+             params.distortionOversample = ['none', '2x', '4x'][Math.floor(Math.random() * 3)];
+
+
+            params.attackTime = 0.01 + Math.random() * 0.05; // Short attack
+            params.releaseTime = 0.1 + Math.random() * 0.6; // Variable release
+
+            params.lfo1Freq = 0.1 + Math.random() * 10; // 0.1Hz to 10.1Hz
+             params.lfo1BaseDepth = Math.random() < 0.3 ? 0 : Math.random() * 100; // LFOs sometimes off, depth range varies per param
+             params.lfo2Freq = 0.1 + Math.random() * 12;
+             params.lfo2BaseDepth = Math.random() < 0.3 ? 0 : Math.random() * 100;
+
+            params.masterGain = 0.2 + Math.random() * 0.2; // Keep master gain conservative (0.2-0.4)
+
+
+            // Apply static randomized parameters immediately
+            if (osc1) osc1.type = params.osc1Type;
+            if (osc3) osc3.type = params.osc3Type;
+             if (filter) filter.type = params.filterType;
+            if (distortion) {
+                makeDistortionCurve(params.distortionAmount * 100);
+                 distortion.oversample = params.distortionOversample;
+            }
+             if (lfo1) lfo1.frequency.setTargetAtTime(params.lfo1Freq, audioContext.currentTime, 0.01);
+             if (lfo2) lfo2.frequency.setTargetAtTime(params.lfo2Freq, audioContext.currentTime, 0.01);
+
+
+             // --- Randomize Modulation Matrix ---
+            modMatrix = {};
+             const targetsUsed = new Set(); // Prevent multiple sources modulating the exact same thing directly (can still happen via LFOs)
+
+            modSources.forEach(source => {
+                 // Give each source a ~70% chance of being active
+                if (Math.random() < 0.7) {
+                     let potentialTargets = possibleModTargets.filter(t => !targetsUsed.has(t));
+                    if (potentialTargets.length === 0) potentialTargets = possibleModTargets; // Reuse targets if all used once
+
+                    const target = potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
+                    targetsUsed.add(target);
+
+                     // Determine appropriate modulation amount based on target
+                    let amount;
+                    let baseValue = 0;
+                     const bipolar = Math.random() > 0.5; // +/- modulation?
+                    const scale = bipolar ? (Math.random() * 2 - 1) : Math.random(); // +/- 1 or 0-1
+
+
+                    switch (target) {
+                        case 'osc1Freq': amount = scale * (params.osc1BaseFreq * 1); baseValue = params.osc1BaseFreq; break; // Modulate up to 1 octave relative to base
+                        case 'osc2Detune': amount = scale * 100; baseValue = params.osc2BaseDetune; break; // Modulate +/- 100 cents
+                        case 'osc3Detune': amount = scale * 100; baseValue = params.osc3BaseDetune; break;
+                        case 'fmDepth': amount = scale * (params.fmBaseDepth * 4 + 500); baseValue = params.fmBaseDepth; break; // Modulate significantly
+                         case 'osc3Gain': amount = scale * 0.6; baseValue = params.osc3BaseGain; break; // Modulate up to +/- 0.6
+                        case 'filterCutoff': amount = scale * 6000; baseValue = params.filterBaseCutoff; break; // Wide frequency range
+                        case 'filterQ': amount = scale * 15; baseValue = params.filterBaseQ; break; // Q range 0 to ~15
+                        case 'distortionMix': amount = scale * 1.0; baseValue = params.distortionAmount; break; // Map XY directly (sort of)
+                        case 'mainVol': amount = scale * (params.masterGain * 0.8); baseValue = params.masterGain; break; // Modulate volume subtly
+                         case 'lfo1Freq': amount = scale * 10; baseValue = params.lfo1Freq; break;
+                        case 'lfo2Freq': amount = scale * 12; baseValue = params.lfo2Freq; break;
+                         case 'lfo1Depth': amount = scale * 200; baseValue = params.lfo1BaseDepth; break; // Mod amount varies wildly depending on LFO target
+                        case 'lfo2Depth': amount = scale * 200; baseValue = params.lfo2BaseDepth; break;
+                         default: amount = scale * 100; baseValue = 0; // Default case
+                    }
+
+                     modMatrix[source] = { target, amount, baseValue };
+                }
+            });
+
+             console.log("Randomized Params:", params);
+             console.log("Randomized Mod Matrix:", modMatrix);
+
+            // Apply base values immediately after randomization based on new params & matrix
+             updateSynthParams(true); // Force update with base values
+        }
+
+        // --- Update Synth based on XY and Matrix ---
+        function updateSynthParams(forceBase = false) {
+             if (!audioContext || audioContext.state === 'suspended') return; // Don't update if suspended or not ready
+             if (!osc1) return; // Don't update if nodes aren't ready
+
+            const now = audioContext.currentTime;
+            const smoothTime = 0.02; // Time constant for smoothing parameter changes
+
+             const x1 = padStates.pad1.active || forceBase ? padStates.pad1.x : 0.5;
+            const y1 = padStates.pad1.active || forceBase ? padStates.pad1.y : 0.5;
+             const x2 = padStates.pad2.active || forceBase ? padStates.pad2.x : 0.5;
+            const y2 = padStates.pad2.active || forceBase ? padStates.pad2.y : 0.5;
+
+             // Get current LFO values (these are audio-rate signals, we read their gain nodes)
+             const lfo1Val = lfo1Gain.gain.value; // Approx current value, not perfect but ok for control rate
+             const lfo2Val = lfo2Gain.gain.value; // We use the baseDepth to scale this below
+
+            const modValues = { x1, y1, x2, y2, lfo1: lfo1Val / (params.lfo1BaseDepth || 1), lfo2: lfo2Val / (params.lfo2BaseDepth || 1) }; // Normalize LFO approx
+
+             // Helper to apply modulation
+             const applyMod = (targetParam, baseValue, targetNode) => {
+                 let totalMod = 0;
+                 modSources.forEach(source => {
+                    if (modMatrix[source] && modMatrix[source].target === targetParam) {
+                        let modInput = modValues[source];
+                        // Remap 0-1 XY to -1 to 1 if source is X or Y axis? Sometimes useful. For now, use 0-1.
+                        // if (source.includes('x') || source.includes('y')) modInput = modInput * 2 - 1;
+                         totalMod += modInput * modMatrix[source].amount;
+                    }
+                });
+                 let finalValue = baseValue + totalMod;
+
+                 // Clamp values to reasonable ranges
+                 if (targetParam === 'filterCutoff') finalValue = Math.max(20, Math.min(audioContext.sampleRate / 2, finalValue));
+                 else if (targetParam === 'filterQ') finalValue = Math.max(0.01, Math.min(30, finalValue));
+                 else if (targetParam === 'osc1Freq') finalValue = Math.max(10, Math.min(audioContext.sampleRate / 2, finalValue));
+                 else if (targetParam.includes('Freq')) finalValue = Math.max(0.01, Math.min(50, finalValue)); // LFO Freq Clamp
+                else if (targetParam.includes('Gain') || targetParam === 'mainVol' || targetParam === 'distortionMix') finalValue = Math.max(0, Math.min(1.5, finalValue)); // Gains clamped (allow a bit > 1 for push)
+                else if (targetParam.includes('Depth') || targetParam.includes('Detune')) {
+                    // Depth/detune can be negative, clamp magnitude
+                     finalValue = Math.max(-20000, Math.min(20000, finalValue)); // Large range for FM/Detune depths
+                }
+
+
+                if (targetNode && targetNode.value !== undefined) { // Check if it's an AudioParam
+                     targetNode.setTargetAtTime(finalValue, now, smoothTime);
+                }
+                 return finalValue; // Return value for use in non-AudioParam updates if needed
+             };
+
+
+             // Calculate target values based on matrix
+            applyMod('osc1Freq', params.osc1BaseFreq, osc1.frequency);
+             applyMod('fmDepth', params.fmBaseDepth, fmGain.gain);
+             applyMod('osc3Gain', params.osc3BaseGain, osc3Gain.gain);
+             applyMod('filterCutoff', params.filterBaseCutoff, filter.frequency);
+             applyMod('filterQ', params.filterBaseQ, filter.Q);
+            applyMod('lfo1Depth', params.lfo1BaseDepth, lfo1Gain.gain);
+            applyMod('lfo2Depth', params.lfo2BaseDepth, lfo2Gain.gain);
+            applyMod('lfo1Freq', params.lfo1Freq, lfo1.frequency);
+             applyMod('lfo2Freq', params.lfo2Freq, lfo2.frequency);
+
+             const osc2FinalDetune = applyMod('osc2Detune', params.osc2BaseDetune, null); // No direct AudioParam for detune ratio calc
+             const osc3FinalDetune = applyMod('osc3Detune', params.osc3BaseDetune, null);
+            const distortionFinalMix = applyMod('distortionMix', params.distortionAmount, null); // Not directly connected to curve param
+
+             // Update parameters that depend on others or aren't directly AudioParams
+             const currentOsc1Freq = osc1.frequency.value; // Get the approx current modulated frequency
+            osc2.frequency.setTargetAtTime(calculateFreq(currentOsc1Freq, params.osc2DetuneRatio, osc2FinalDetune), now, smoothTime);
+             osc3.frequency.setTargetAtTime(calculateFreq(currentOsc1Freq, params.osc3DetuneRatio, osc3FinalDetune), now, smoothTime);
+            makeDistortionCurve(distortionFinalMix * 100); // Recalculate curve based on modulated mix value
+
+
+             // Update Main Volume Last (if modulated) - only when a pad is active
+             if (padStates.pad1.active || padStates.pad2.active) {
+                let targetGain = params.masterGain;
+                // Allow mainVol modulation only if specified, otherwise use masterGain
+                if (modSources.some(s => modMatrix[s]?.target === 'mainVol')) {
+                     targetGain = applyMod('mainVol', params.masterGain, null); // Calculate modulated gain
+                     targetGain = Math.max(0, Math.min(1.0, targetGain)); // Clamp strictly 0-1 for safety
+                }
+                mainGain.gain.setTargetAtTime(targetGain, now, params.attackTime + 0.001); // Use attack ramp if turning on
+            }
+        }
+
+
+        // --- Event Handling ---
+        function handlePointerDown(e) {
+             // Crucial: Resume audio context on user interaction
+            if (!audioContext) {
+                initAudio();
+            } else if (audioContext.state === 'suspended') {
+                audioContext.resume().then(() => console.log("AudioContext resumed."));
+            }
+             if (!audioContext) return; // Exit if context failed
+
+             const pad = e.target.closest('.xy-pad');
+             if (!pad) return;
+            e.preventDefault(); // Prevent scrolling/selection
+
+            const padId = pad.id === 'xyPad1' ? 'pad1' : 'pad2';
+             if (activePointers.has(e.pointerId)) return; // Already tracking this pointer
+
+            activePointers.set(e.pointerId, padId);
+             pad.setPointerCapture(e.pointerId); // Capture events for this pointer
+             padStates[padId].active = true;
+
+             // Show indicator
+             const indicator = pad.querySelector('.indicator');
+             const crossH = pad.querySelector('.crosshair-h');
+             const crossV = pad.querySelector('.crosshair-v');
+             indicator.style.display = 'block';
+             crossH.style.display = 'block';
+             crossV.style.display = 'block';
+
+            updatePointerPosition(e, pad); // Initial position update
+            updateSynthParams(); // Update synth
+
+            // Start sound (ramp up gain) if this is the *first* active pad
+            if ([...activePointers.values()].filter(id => padStates[id].active).length === 1) {
+                 console.log("Synth ON");
+                 mainGain.gain.cancelScheduledValues(audioContext.currentTime);
+                 // Use setTargetAtTime for a smooth ramp from current value to target gain
+                 const targetGain = calculateTargetMainGain(); // Use modulated gain value if matrix defines it
+                mainGain.gain.setTargetAtTime(targetGain, audioContext.currentTime, params.attackTime);
+            }
+        }
+
+         function handlePointerMove(e) {
+             if (!activePointers.has(e.pointerId)) return; // Only track active pointers
+            e.preventDefault();
+
+            const padId = activePointers.get(e.pointerId);
+             const pad = document.getElementById(padId === 'pad1' ? 'xyPad1' : 'xyPad2');
+             if (!padStates[padId].active) return; // Should not happen with capture, but safety check
+
+            updatePointerPosition(e, pad);
+            updateSynthParams(); // Update synth continuously
+         }
+
+         function handlePointerUpOrLeave(e) {
+             if (!activePointers.has(e.pointerId)) return;
+             e.preventDefault();
+
+            const padId = activePointers.get(e.pointerId);
+            const pad = document.getElementById(padId === 'pad1' ? 'xyPad1' : 'xyPad2');
+
+            pad.releasePointerCapture(e.pointerId); // Release capture
+             activePointers.delete(e.pointerId);
+            padStates[padId].active = false;
+
+            // Hide indicator
+             const indicator = pad.querySelector('.indicator');
+             const crossH = pad.querySelector('.crosshair-h');
+             const crossV = pad.querySelector('.crosshair-v');
+            indicator.style.display = 'none';
+            crossH.style.display = 'none';
+            crossV.style.display = 'none';
+
+            // Stop sound (ramp down gain) only if *all* pads are now inactive
+            if ([...activePointers.keys()].length === 0) {
+                if (mainGain && audioContext && audioContext.state === 'running') {
+                     console.log("Synth OFF");
+                    mainGain.gain.cancelScheduledValues(audioContext.currentTime);
+                    // Use setTargetAtTime for smooth release ramp to 0
+                    mainGain.gain.setTargetAtTime(0, audioContext.currentTime, params.releaseTime);
+                 }
+             } else {
+                // If one pad is still active, ensure its parameters control the synth
+                 updateSynthParams();
+            }
+         }
+
+        // Helper to update XY state and visuals
+        function updatePointerPosition(e, pad) {
+            const rect = pad.getBoundingClientRect();
+            const padId = pad.id === 'xyPad1' ? 'pad1' : 'pad2';
+
+            // Calculate coordinates relative to the pad, clamped to 0-1 range
+             let x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+             let y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+
+             // Flip Y axis so bottom=0, top=1 (more intuitive for some mappings like filter cutoff)
+             y = 1 - y;
+
+            padStates[padId].x = x;
+            padStates[padId].y = y;
+
+            // Update indicator visuals
+             const indicator = pad.querySelector('.indicator');
+             const crossH = pad.querySelector('.crosshair-h');
+             const crossV = pad.querySelector('.crosshair-v');
+             const displayX = x * 100; // Percentage for CSS positioning
+            const displayY = (1 - y) * 100; // Use original y for CSS top
+
+            indicator.style.left = `${displayX}%`;
+             indicator.style.top = `${displayY}%`;
+             crossH.style.top = `${displayY}%`;
+             crossV.style.left = `${displayX}%`;
+        }
+
+         // Helper to calculate the target gain including modulation
+        function calculateTargetMainGain() {
+             if (!audioContext) return 0;
+            let baseGain = params.masterGain;
+             let finalGain = baseGain;
+            let modulated = false;
+
+             // Check if any active source modulates mainVol
+            modSources.forEach(source => {
+                 if (modMatrix[source] && modMatrix[source].target === 'mainVol' && padStates[source.substring(0,4)].active) {
+                    let modInput = modValues[source];
+                     finalGain += modInput * modMatrix[source].amount;
+                    modulated = true;
+                 }
+            });
+
+             if (!modulated && !padStates.pad1.active && !padStates.pad2.active) {
+                 // If not modulated and no pads active, target is 0
+                return 0;
+            }
+
+             // If modulated OR pads active without explicit modulation, return calculated/base gain clamped.
+            return Math.max(0, Math.min(1.0, finalGain)); // Strict 0-1 clamp for main output safety
+        }
+
+
+        // --- Event Listeners Setup ---
+         xyPad1.addEventListener('pointerdown', handlePointerDown);
+         xyPad1.addEventListener('pointermove', handlePointerMove);
+         xyPad1.addEventListener('pointerup', handlePointerUpOrLeave);
+         xyPad1.addEventListener('pointerleave', handlePointerUpOrLeave); // Important for mouse leaving window
+
+        xyPad2.addEventListener('pointerdown', handlePointerDown);
+        xyPad2.addEventListener('pointermove', handlePointerMove);
+        xyPad2.addEventListener('pointerup', handlePointerUpOrLeave);
+         xyPad2.addEventListener('pointerleave', handlePointerUpOrLeave);
+
+        randomizeButton.addEventListener('click', randomizeSeed);
+
+        // Initial setup
+        window.addEventListener('DOMContentLoaded', () => {
+             console.log("DOM loaded. Ready for interaction.");
+             // Generate an initial sound configuration on load
+            randomizeSeed();
+            // Note: AudioContext only starts after first user interaction (pad touch/click)
+        });
+
+        // Handle potential context interruption (e.g., device sleep)
+        // This is advanced and might not be strictly necessary for a basic tool
+        // if (audioContext) {
+        //     audioContext.onstatechange = () => {
+        //         console.log("AudioContext state changed:", audioContext.state);
+        //         if (audioContext.state === 'interrupted') {
+        //             // Optionally try to resume later or prompt user
+        //         } else if (audioContext.state === 'running') {
+        //            // Context running again
+        //         }
+        //     };
+        // }
+
+    </script>
+
+</body>
+</html>

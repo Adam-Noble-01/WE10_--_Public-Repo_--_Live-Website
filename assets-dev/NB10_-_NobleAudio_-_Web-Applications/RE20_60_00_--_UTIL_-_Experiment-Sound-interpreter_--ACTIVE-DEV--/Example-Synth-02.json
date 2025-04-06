@@ -1,0 +1,57 @@
+{
+  "seed": "1960a6359aa",
+  "key": "D#",
+  "scale": "minor",
+  "bpm": 250,
+  "synth": {
+    "type": "PolySynth(Synth)",
+    "oscillator": "sine",
+    "envelope": {
+      "attack": 0.13669173596404466,
+      "release": 0.8276796400250632
+    }
+  },
+  "effects": [
+    {
+      "type": "Filter",
+      "initialFreq": 3377.42052371944
+    },
+    {
+      "type": "Reverb",
+      "initialDecay": 3.650855383017867,
+      "initialWet": 0.5622019028307235
+    },
+    {
+      "type": "Chorus",
+      "initialFreq": 1.1694243022564113,
+      "initialWet": 0.356573394679812
+    }
+  ],
+  "sequencing": {
+    "type": "chords",
+    "progression": [
+      "D#2/F#2/A#2",
+      "A#2/C#2/F3",
+      "B2/D#3/F#3",
+      "G#2/B2/D#3"
+    ],
+    "totalLength": 1.9199999999999997
+  },
+  "modulations": {
+    "x": [
+      {
+        "path": "chorus.wet",
+        "min": 0,
+        "max": 1,
+        "name": "Chorus Wet"
+      }
+    ],
+    "y": [
+      {
+        "path": "reverb.decay",
+        "min": 0.5,
+        "max": 8,
+        "name": "Reverb Decay"
+      }
+    ]
+  }

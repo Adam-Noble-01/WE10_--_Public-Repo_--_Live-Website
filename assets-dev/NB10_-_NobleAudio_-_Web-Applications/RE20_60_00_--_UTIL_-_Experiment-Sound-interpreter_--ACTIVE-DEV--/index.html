@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Audio Config Tester</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/lint.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Noble Audio |  JSON Audio Config Tester</h1>
+
+        <label for="jsonConfig">Enter JSON Configuration:</label>
+        <textarea id="jsonConfig">{
+  "seed"               :  "dynamic-fm-test",
+  "key"                :  "C",
+  "scale"              :  "major",
+  "bpm"                :  130,
+  "synth"              :  {
+    "type"             :  "FMSynth",
+    "harmonicity"      :  1.5,
+    "modulationIndex"  :  5,
+    "oscillator"       :  { "type": "sine" },
+    "modulation"       :  { "type": "square" },
+    "envelope"         :  {
+      "attack"         :  0.02,
+      "decay"          :  0.2,
+      "sustain"        :  0.4,
+      "release"        :  0.8
+    },
+    "modulationEnvelope": {
+        "attack"       :  0.01,
+        "decay"        :  0.5,
+        "sustain"      :  0.1,
+        "release"      :  0.5
+    }
+  },
+  "effects"            :  [
+    {
+      "type"           :  "Filter",
+      "filterType"     :  "lowpass",
+      "initialFreq"    :  5000,
+      "Q"              :  1.5,
+      "rolloff"        :  -24
+    },
+    {
+      "type"           :  "Phaser",
+      "frequency"      :  0.8,
+      "octaves"        :  4,
+      "stages"         :  8,
+      "Q"              :  5,
+      "baseFrequency"  :  440,
+      "wet"            :  0.6
+    },
+    {
+      "type"           :  "PingPongDelay",
+      "delayTime"      :  "8n.",
+      "feedback"       :  0.4,
+      "wet"            :  0.35
+    },
+    {
+      "type"           :  "Reverb",
+      "initialDecay"   :  2.5,
+      "preDelay"       :  0.02,
+      "initialWet"     :  0.4
+    }
+  ],
+  "sequencing"         :  {
+    "type"             :  "chords",
+    "progression"      :  [
+      "C4/E4/G4", "G4/B4/D5", "A4/C5/E5", "F4/A4/C5"
+    ],
+    "totalLength"      :  "1m",
+    "noteDuration"     :  "4n",
+    "subdivision"      :  "4n"
+  },
+  "modulations"        :  {
+    "x"                :  [
+      {
+        "path"         :  "effects[1].frequency",
+        "min"          :  0.1,
+        "max"          :  5,
+        "name"         :  "Phaser Rate"
+      }
+    ],
+    "y"                :  [
+      {
+        "path"         :  "effects[0].frequency",
+        "min"          :  200,
+        "max"          :  8000,
+        "name"         :  "Filter Cutoff"
+      },
+      {
+        "path"         :  "synth.modulationIndex",
+        "min"          :  1,
+        "max"          :  20,
+        "name"         :  "FM Amount"
+      }
+    ]
+  }
+}</textarea>
+
+        <!-- Status for JSON validity -->
+        <div id="validationStatus" class="status validation-error"></div>
+
+        <!-- Visualization Area -->
+        <div class="visualization-container">
+            <label>Waveform:</label>
+            <canvas id="waveformCanvas" width="600" height="100"></canvas>
+        </div>
+
+        <!-- Buttons -->
+        <div class="button-container">
+            <button id="formatButton" disabled>Format JSON</button> <!-- Start disabled -->
+            <button id="playButton" disabled>Play Sound</button> <!-- Start disabled -->
+            <button id="stopButton" style="display: none;">Stop Sound</button> <!-- Hidden initially -->
+        </div>
+
+        <!-- General status messages -->
+        <div id="status" class="status"></div>
+    </div>
+
+    <!-- Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.3/jsonlint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/lint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/json-lint.min.js"></script>
+
+    <!-- Application Scripts (Order is important!) -->
+    <script src="json_parser.js"></script>
+    <script src="modulation.js"></script>
+    <script src="visual-waveform.js"></script>
+    <script src="audio_engine.js"></script>
+    <script src="ui.js"></script> <!-- Initializes app -->
+
+</body>
+</html>

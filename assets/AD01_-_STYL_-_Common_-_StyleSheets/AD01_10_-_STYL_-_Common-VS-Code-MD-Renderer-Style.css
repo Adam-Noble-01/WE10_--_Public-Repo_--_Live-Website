@@ -1,0 +1,436 @@
+/* region[col01]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------ |  Noble Architecture Markdown Theme  | ------------------------------------ */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/* DATE CREATED  |  21/09/2024                                                                                       */
+/*                                                                                                                   */
+/* VERSION TRACKER                                                                                                   */
+/* 1.0.0 - 21-Apr-2024 | File Creation and organized                                                                 */
+/* 1.0.1 - 21-Apr-2024 | Updated Bold (Global Strong) to ensure no breaking for table headers                        */
+/* 1.0.2 - 21-Apr-2024 | Rewritten for consistent alignment and unit usage                                           */
+/* 1.2.1 - 22-Apr-2024 | Adjusted padding and margins to fix text overflow and front matter position                 */
+/* 1.3.1 - 28-Apr-2024 | Updated headings, added level 5 for above tables                                            */
+/* 2.0.0 - 14-Apr-2024 | Applied coding conventions, restructured code                                               */
+/* 2.1.0 - 17-Apr-2024 | Added Section 12 improving consistency with how the code previews render                    */
+/* 2.1.1 - 18-Apr-2024 | Table Height Marginally increased, rows are now 00.50mm Taller                              */
+/* 3.0.0 - 18-Apr-2024 | Ported to Noble Architecture Markdown for VS Code / Curssor AI                              */
+/* 3.1.0 - 04-Apr-2025 | Refactored based on Section 01 conventions, removed Typora specifics, simplified lists      */
+/*                                                                                                                   */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+
+
+/* region[col03]---------------------------------------------------------------------------------------------------- */
+/* --------------------------------- |  Section 03  –  Canvas & Page Settings  | ----------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+body {                                                                  /* <--- Background canvas */
+    background-color    :    #fafafa;
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+}
+
+#write {                                                                /* <--- Paper space object */
+    /* Box Model */
+    box-sizing          :    border-box;
+    margin-top          :    10.00mm;
+    margin-bottom       :    10.00mm;
+    margin-left         :    auto;
+    margin-right        :    auto;
+    padding-top         :    10.00mm;                                   /* <--- Padding: top       */
+    padding-bottom      :    20.00mm;                                   /* <--- Padding: bottom    */
+    padding-left        :    11.00mm;                                   /* <--- Padding: left      */
+    padding-right       :    11.00mm;                                   /* <--- Padding: right     */
+    width               :    100%;
+    max-width           :    210.00mm;                                  /* <--- Limit the width to A4 size */
+    /* Color & Background */
+    background-color    :    #ffffff;
+    box-shadow          :    00.00mm 00.00mm 02.00mm rgba(0, 0, 0, 0.495);
+    /* Typography & Misc */
+    word-wrap           :    break-word;                                /* <--- Ensure text breaks inside the container */
+    overflow-wrap       :    break-word;                                /* <--- Compatibility for older browsers        */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col04]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------- |  Section 04  –  Standard Text Styles  | --------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+p {                                                                     /* <--- Paragraphs */
+    /* Box Model */
+    margin-top          :    00.00mm;                                   /* <--- Added for consistency */
+    margin-bottom       :    03.50mm;
+    margin-left         :    00.00mm;
+    margin-right        :    00.00mm;
+    color               :    #141414;
+    font-size           :    10.00pt;
+    font-weight         :    400;                                       /* <--- Added: Ensure normal font weight */
+    line-height         :    1.40;
+    word-wrap           :    break-word;
+    overflow-wrap       :    break-word;                                /* <--- Legacy support */
+    word-break          :    break-word;                                /* <--- Ensures long words break */
+}
+
+b, strong {                                                             /* <--- Global style for bold text */
+    /* Color & Background */
+    color               :    #555041;
+    /* Typography & Misc */
+    font-family         :    "Open Sans", sans-serif;
+    font-weight         :    500;
+}
+
+i, em {                                                                 /* <--- Global style for italic text */
+    /* Color & Background */
+    color               :    #646464;
+    /* Typography & Misc */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    08.00pt;
+    font-style          :    italic;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col05]---------------------------------------------------------------------------------------------------- */
+/* --------------------------------------- |  Section 05  –  Heading Styles  | ------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+    /* Box Model */
+    margin-top          :    00.00mm;                                   /* <--- Adjusted based on specific heading margins below */
+    margin-bottom       :    00.00mm;                                   /* <--- Adjusted based on specific heading margins below */
+    margin-left         :    00.00mm;
+    margin-right        :    00.00mm;
+}
+
+h1 {
+    /* Box Model */
+    margin-top          :    00.00mm;                                   /* <--- Default assumption, adjust if needed */
+    margin-bottom       :    03.00mm;
+    margin-left         :    00.00mm;                                   /* <--- Inherited */
+    margin-right        :    00.00mm;                                   /* <--- Inherited */
+    /* Color & Background */
+    color               :    #555041;
+    /* Typography & Misc */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    20.00pt;
+    font-weight         :    500;
+    line-height         :    1.00;
+}
+
+h2 {
+    /* Box Model */
+    margin-top          :    00.00mm;                                   /* <--- Default assumption, adjust if needed */
+    margin-bottom       :    02.00mm;
+    margin-left         :    00.00mm;                                   /* <--- Inherited */
+    margin-right        :    00.00mm;                                   /* <--- Inherited */
+    /* Color & Background */
+    color               :    #555041;
+    /* Typography & Misc */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    16.00pt;
+    font-weight         :    500;
+    line-height         :    1.40;
+}
+
+h3 {
+    /* Box Model */
+    margin-top          :    00.00mm;                                   /* <--- Default assumption, adjust if needed */
+    margin-bottom       :    02.00mm;
+    margin-left         :    00.00mm;                                   /* <--- Inherited */
+    margin-right        :    00.00mm;                                   /* <--- Inherited */
+    /* Color & Background */
+    color               :    #555041;
+    /* Typography & Misc */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    12.00pt;
+    font-weight         :    500;
+    line-height         :    1.40;
+}
+
+h4 {
+    /* Box Model */
+    margin-top          :    07.00mm;
+    margin-bottom       :    01.00mm;
+    margin-left         :    00.00mm;                                   /* <--- Inherited */
+    margin-right        :    00.00mm;                                   /* <--- Inherited */
+    /* Color & Background */
+    color               :    #555041;
+    /* Typography & Misc */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    font-weight         :    500;
+    line-height         :    1.00;
+}
+
+/* SPECIAL HEADING – Heading Level 5 */
+/* This level is used where zero gap is required between header and next element */
+/* Example: Table Headings */
+h5 {
+    /* Box Model */
+    margin-top          :    00.00mm;                                   /* <--- Default assumption, adjust if needed */
+    margin-bottom       :    00.00mm;
+    margin-left         :    00.00mm;                                   /* <--- Inherited */
+    margin-right        :    00.00mm;                                   /* <--- Inherited */
+    /* Color & Background */
+    color               :    #555041;
+    /* Typography & Misc */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    11.00pt;
+    font-weight         :    500;
+    line-height         :    1.00;
+}
+
+/* SPECIAL HEADING – Heading Level 6 */
+/* Used for subheadings or supporting strap-lines to create subtle subtext under main titles */
+h6 {
+    /* Box Model */
+    margin-top          :    00.00mm;                                   /* <--- Default assumption, adjust if needed */
+    margin-bottom       :    00.00mm;
+    margin-left         :    00.00mm;                                   /* <--- Inherited */
+    margin-right        :    00.00mm;                                   /* <--- Inherited */
+    /* Color & Background */
+    color               :    #787878;
+    /* Typography & Misc */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    font-weight         :    200;                                       /* <--- Light weight for H6 elements */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col06]---------------------------------------------------------------------------------------------------- */
+/* -------------------------------- |  Section 06  –  Bullet List (Unordered) Styles  | ---------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+ul {                                                                    /* <--- Unordered Bullet Lists */
+    /* Box Model */
+    padding-top         :    01.00mm;                                   /* <--- Added for consistency */
+    padding-bottom      :    01.00mm;                                   /* <--- Added for consistency */
+    padding-left        :    06.00mm;                                   /* <--- Standard indent */
+    list-style-type     :    disc;                                      /* <--- Standard disc bullets */
+    color               :    #141414;
+    font-size           :    10.00pt;
+    font-weight         :    400;                                       /* <--- Added: Ensure normal font weight */
+    line-height         :    1.40;
+}
+
+ul li {
+    padding-top         :    01.00mm;                                   /* <--- Added for consistency */
+    padding-bottom      :    01.00mm;                                   /* <--- Added for consistency */
+    padding-left        :    00.00mm;                                   /* <--- Reset padding, handled by ul */
+    color               :    #141414;
+    font-size           :    10.00pt;
+    font-weight         :    400;                                       /* <--- Added: Ensure normal font weight */
+    line-height         :    1.40;
+}
+
+/* Removed complex ::before styling for simplicity */
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col07]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------- |  Section 07  –  Numbered List (Ordered) Styles  | ----------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+ol {
+    /* Box Model */
+    margin-left         :    00.00mm;
+    margin-right        :    00.00mm;
+    padding-top         :    01.00mm;                                   /* <--- Added for consistency */
+    padding-bottom      :    01.00mm;                                   /* <--- Added for consistency */
+    padding-left        :    06.00mm;                                   /* <--- Standard indent */
+    padding-right       :    00.00mm;                                   /* <--- Added for consistency */
+    list-style-type     :    decimal;                                   /* <--- Standard decimal numbering */
+    color               :    #141414;
+    font-size           :    10.00pt;
+    font-weight         :    400;                                       /* <--- Added: Ensure normal font weight */
+    line-height         :    1.40;
+}
+
+ol li {
+    /* Box Model */
+    padding-top         :    01.00mm;                                   /* <--- Added for consistency */
+    padding-bottom      :    01.00mm;                                   /* <--- Added for consistency */
+    padding-left        :    00.00mm;                                   /* <--- Reset padding, handled by ol */                                    /* <--- Added: Match paragraph weight */
+    color               :    #141414;
+    font-size           :    10.00pt;
+    font-weight         :    400;                                       /* <--- Added: Ensure normal font weight */
+    line-height         :    1.40;
+}
+
+/* Removed complex ::before and counter styling for simplicity */
+/* Nested lists (ol ol, ol ol ol) will inherit standard browser indentation */
+ol ol, ol ol ol {
+    padding-top         :    01.00mm;                                   /* <--- Added for consistency */
+    padding-bottom      :    01.00mm;                                   /* <--- Added for consistency */                             /* <--- Adjust nested list bottom margin */
+    color               :    #141414;
+    font-size           :    10.00pt;
+    font-weight         :    400;                                       /* <--- Added: Ensure normal font weight */
+    line-height         :    1.40;
+}
+
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col08]---------------------------------------------------------------------------------------------------- */
+/* ----------------------------------------- |  Section 08  –  Table Styles  | ------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+table {
+    /* Box Model */
+    border-collapse     :    collapse;
+    margin-top          :    00.00mm;
+    margin-bottom       :    02.00mm;
+    margin-left         :    00.00mm;                                   /* <--- Added for consistency */
+    margin-right        :    00.00mm;                                   /* <--- Added for consistency */
+    width               :    100%;
+}
+
+th, td {
+    /* Box Model */
+    padding-top         :    01.25mm;
+    padding-bottom      :    01.25mm;
+    padding-left        :    01.00mm;
+    padding-right       :    01.00mm;
+    /* Typography & Misc */
+    font-size           :    09.00pt;
+    line-height         :    1.20;
+    vertical-align      :    top;                                       /* <--- Align content to top */
+}
+
+th {
+    /* Box Model */
+    height              :    08.00mm;
+    text-align          :    left;
+    /* Color & Background */
+    background-color    :    #f5f5f5;
+    color               :    #555041;
+    /* Typography & Misc */
+    font-size           :    11.00pt;
+    font-weight         :    500;
+}
+
+td {
+    /* Box Model */
+    /* Inherits padding */
+    /* Color & Background */
+    background-color    :    inherit;                                   /* <--- Ensures transparent background by default */
+}
+
+tr:nth-child(even) td {                                                 /* <--- Apply zebra striping only to td */
+    /* Color & Background */
+    background-color    :    #fafafa;
+}
+
+td:first-child, th:first-child {
+    /* Typography & Misc */
+    white-space         :    normal;                                    /* <--- Ensure natural text wrapping */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col09]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------ |  Section 09  –  Special Elements Styles  | ------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+hr {
+    /* Box Model */
+    border              :    none;                                      /* <--- Remove default border */
+    height              :    00.50px;                                       /* <--- Explicit height */
+    margin-top          :    07.50mm;
+    margin-bottom       :    07.50mm;
+    margin-left         :    00.00mm;                                   /* <--- Added for consistency */
+    margin-right        :    00.00mm;                                   /* <--- Added for consistency */
+    background-color    :    #aaaaaa;                                   /* <--- Fill the height with a visible color */
+}
+
+mark {
+    /* Box Model */
+    padding             :    00.85mm;
+    margin-top          :    01.50mm;                                   /* <--- Should this be applied inline? */
+    margin-bottom       :    00.00mm;                                   /* <--- Added for consistency */
+    margin-left         :    00.00mm;                                   /* <--- Added for consistency */
+    margin-right        :    00.00mm;                                   /* <--- Added for consistency */
+    border-radius       :    00.50em;                                   /* <--- Kept 'em' for relative sizing */
+    /* Color & Background */
+    background-color    :    hsl(54, 100%, 80%);                        /* <--- Simplified background */
+    color               :    #0f1f55;
+    /* Typography & Misc */
+    line-height         :    1.25;                                      /* <--- Use unitless line-height */
+}
+
+a {
+    /* Color & Background */
+    color               :    #3c3c3c;                                   /* <--- Standard dark grey */
+    /* Typography & Misc */
+    text-decoration     :    none;
+    font-size           :    08.00pt;
+}
+
+a:visited {
+    /* Color & Background */
+    color               :    #3c3c3c;                                   /* <--- Keep visited same color */
+}
+
+a:hover {
+    /* Color & Background */
+    color               :    #6ea8c2;                                   /* <--- Hover color (light blue) */
+    /* Typography & Misc */
+    text-decoration     :    underline;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col02]---------------------------------------------------------------------------------------------------- */
+/*-------------------------- |  Section 10  –  Custom Noble Arch Document Classes  | --------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+
+.na_doc_header_info {                                                     /* <--- Class: Standard Document Header Section For Noble Architecture Docs */
+    /* Display & Positioning */
+    display             :    flex;
+    flex-direction      :    column;                                      /* <--- Stacks children div elements vertically */
+    align-items         :    flex-start;                                  /* <--- Aligns the items to the start of the container */
+    /* Box Model */
+    margin-top          :    10.00mm;
+    margin-bottom       :    05.00mm;
+    margin-left         :    00.00mm;                                   /* <--- Added for consistency */
+    margin-right        :    00.00mm;                                   /* <--- Added for consistency */
+    padding-top         :    10.00mm;                                   /* <--- Added for consistency */
+    padding-bottom      :    00.00mm;                                   /* <--- Added for consistency */
+    padding-left        :    00.00mm;                                   /* <--- Added for consistency */
+    padding-right       :    00.00mm;                                   /* <--- Added for consistency */
+    /* Typography & Misc */
+    font-size           :    12.00pt;
+}
+
+
+.na_doc_header_info_bold {
+    /* Typography & Misc */
+    font-size           :    12.00pt;                                    /* <--- Changed to match parent, adjust if needed */
+    font-weight         :    500;
+}
+
+
+.na_doc_header_info_pipe_divider {
+    /* Box Model */
+    margin-top          :    01.00mm;
+    margin-bottom       :    01.00mm;
+    margin-left         :    02.00mm;                                   /* <--- Adjusts spacing left of the pipe_divider   */
+    margin-right        :    02.00mm;                                   /* <--- Adjusts spacing right of the pipe_divider  */
+    /* Typography & Misc */
+    font-size           :    10.00pt;
+    vertical-align      :    middle;                                    /* <--- Aligns the ns_pipe_divider vertically */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col10]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------- |  Section 14  –  END OF STYLE SHEET  | ----------------------------------- */
+/* endregion-------------------------------------------------------------------------------------------------------- */

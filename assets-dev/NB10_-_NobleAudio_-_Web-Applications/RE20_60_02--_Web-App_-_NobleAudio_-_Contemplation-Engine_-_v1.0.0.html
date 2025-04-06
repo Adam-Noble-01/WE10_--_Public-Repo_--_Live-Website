@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Ensure landscape layout and disable zoom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <title>NobleAudio - Contemplation Engine</title>
+<!--
+# NobleAudio - Contemplation Engine
+
+===============================================================================
+- - - - - - - - - - - - -   WEB APPLICATION NOTES   - - - - - - - - - - - - - -
+Subject :  NobleAudio - Contemplation Engine
+Date    :  04-Apr-2025
+===============================================================================
+
+KEY FILE INFORMATION
+- Format: A single `.html` file containing all components necessary for the application's functionality.
+- Contents include the full HTML structure, embedded CSS for styling, and integrated JavaScript for logic handling.
+- Core Technology: Utilizes the Web Audio API to enable real-time audio synthesis and modulation directly within the browser.
+- Randomization is powered by an embedded seeded pseudo-random number generator (`seedrandom.js` by David Bau), which allows for reliable sound patch recall using a specific seed number.
+- No additional dependencies are required aside from a modern web browser that supports the Web Audio API.
+
+DESCRIPTION
+- NobleAudio Contemplation Engine is a touch-first, interactive web application developed to generate and manipulate deep and rich harmonic sounds.
+- Its interface supports real-time performance and interaction through dual XY pads and sliders, promoting tactile, expressive sound design.
+- The system employs a semi-randomized engine that blends granular, additive, and FM synthesis to create evolving harmonic textures.
+- Aimed at inspiring introspection and sonic exploration, the tool is beneficial for generating ambient soundscapes and complex harmonic textures.
+
+DESIGN MANIFEST & PHILOSOPHY
+
+TARGET SOUND: DEEP & INTROSPECTIVE HARMONIES
+- Focuses on generating deep, rich, and evolving harmonic sounds.
+- Targets soundscapes suitable for ambient, minimal, and introspective musical contexts within the broader realm of Drum and Bass and beyond.
+- Prioritizes harmonically rich, textured, dynamic sounds with a contemplative and sometimes unsettling edge.
+- Embraces a hybrid synthesis approach to move beyond traditional synthesis paradigms.
+- Aims to create sounds that inspire a sense of depth, mystery, and emotional complexity.
+
+INTERACTION: TACTILE & PERFORMATATIVE
+- Designed with a touch-first approach, optimized for tablets and phones in landscape orientation.
+- Central interface feature includes dual XY pads, designed for simultaneous dual-thumb control for expressive, real-time modulation of harmonic and timbral elements.
+- Visual feedback via crosshairs and indicators maintains user engagement and tactile feel.
+- Desktop use via mouse is supported, albeit with single-pad control at a time.
+
+SYNTHESIS ENGINE: HYBRID & SEMI-RANDOMIZED (GRANULAR/ADDITIVE/FM)
+- Synthesis architecture combines granular synthesis for textural complexity, additive synthesis for harmonic richness, and FM for dynamic and evolving timbres.
+- Key feature is the randomization mechanic:
+  - A "Seed" button generates a new sound patch, randomizing the synthesis engine parameters, granular textures, additive harmonic profiles, and FM modulation schemes.
+  - Each seed provides a unique harmonic and textural starting point, ensuring recallability and patch sharing.
+- The seeded PRNG enables patch recall via unique seed numbers, facilitating consistent sonic exploration.
+
+CONTROL PARADIGM: GUIDED EXPLORATION & HARMONIC SHAPING
+- The engine starts with randomized configurations but allows user guidance through intuitive controls:
+  - XY Pads are primary modulation tools, with each seed establishing different mappings to harmonic and synthesis parameters.
+  - Left Slider (Mod Wheel): Spring-back control for transient, expressive modulation bursts. Routing is randomized per seed for dynamic sonic shaping.
+  - Right Slider (Chaos Fader): Intensity control for overall modulation complexity, affecting harmonic density and texture. Lower settings create simpler, sparser textures, while higher settings increase complexity and density.
+  - Key Selector: Locks the generated patch to a specific musical key or root note, grounding the harmonic output.
+  - Seed Recall: Guarantees patch reproducibility, enabling deep exploration and revisiting of discovered soundscapes.
+
+GOAL: SONIC INTROSPECTION & TEXTURAL DEPTH
+- Contemplation Engine is designed as a tool for sonic introspection and creating soundscapes with depth and texture.
+- Its purpose is to facilitate the generation of complex, evolving harmonic textures rather than replacing production synths.
+- The output is intended to be used as foundational layers in music production, encouraging further refinement within a DAW.
+- Encourages spontaneous creation and discovery of unique harmonic soundscapes, promoting an escape from conventional sound design.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+END OF NOTES
+
+-->
+
+    <style>
+        :root {
+            --pad-size: clamp(150px, 35vmin, 350px); /* Slightly smaller pads for landscape */
+            --indicator-color: skyblue; /* Changed to Blue */
+            --background-color: #111;
+            --pad-background: #222;
+            --text-color: #eee;
+            --control-bg: #333;
+            --control-hover-bg: #444;
+            --slider-bg: #2a2a2a;
+            --slider-thumb-bg: #555;
+            --slider-track-bg: #444;
+            --slider-width: clamp(40px, 8vw, 60px);
+            --top-bar-height: 60px; /* Increased for controls */
+            --side-padding: 15px;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh; /* Use viewport height */
+            width: 100vw; /* Use viewport width */
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: monospace;
+            display: flex;
+            flex-direction: column; /* Main layout: Top Bar, Content */
+            overflow: hidden; /* Prevent scrolling */
+            touch-action: manipulation; /* Improve touch responsiveness */
+            /* Force landscape */
+            min-height: 320px; /* Minimum sensible height */
+             min-width: 480px; /* Minimum sensible width */
+        }
+
+        /* Landscape Enforcement Overlay */
+        @media (orientation: portrait) {
+            body::before {
+                content: "Please rotate your device to Landscape Mode";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: rgba(0, 0, 0, 0.9);
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 1.5em;
+                text-align: center;
+                padding: 20px;
+                z-index: 1000; /* Ensure it's on top */
+            }
+             /* Hide main content in portrait */
+             #app-container { display: none; }
+        }
+        @media (orientation: landscape) {
+             #app-container { display: flex; flex-grow: 1; flex-direction: column; } /* Show in landscape */
+        }
+
+        #app-container {
+            width: 100%;
+            height: 100%; /* Fill viewport */
+            /* flex-direction: column; /* Stack top-bar and main-content */
+        }
+
+
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px var(--side-padding);
+            height: var(--top-bar-height);
+            background-color: #1a1a1a;
+            box-sizing: border-box;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        #title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #aaa;
+            white-space: nowrap;
+        }
+
+        #top-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #top-controls button, #top-controls select {
+             padding: 8px 12px;
+             font-size: 14px;
+             background-color: var(--control-bg);
+             color: var(--text-color);
+             border: 1px solid #555;
+             cursor: pointer;
+             border-radius: 4px;
+             transition: background-color 0.2s ease;
+             min-width: 80px;
+             text-align: center;
+        }
+        #top-controls select {
+             appearance: none;
+             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23eee%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.4-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 10px auto;
+             padding-right: 30px; /* Space for arrow */
+        }
+
+
+        #top-controls button:hover, #top-controls select:hover {
+            background-color: var(--control-hover-bg);
+        }
+
+         #randomizeButton { min-width: 120px; } /* Give seed more space */
+        #seedDisplay { font-weight: bold; color: var(--indicator-color); }
+
+
+        #main-content {
+            display: flex;
+            flex-grow: 1; /* Takes remaining height */
+            align-items: center; /* Center items vertically */
+            justify-content: center; /* Center items horizontally */
+            padding: 10px var(--side-padding);
+            gap: 15px; /* Space between sliders and pads */
+             width: 100%;
+            box-sizing: border-box;
+            overflow: hidden; /* Prevent content overflow */
+        }
+
+        .slider-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(var(--pad-size) * 1.5); /* Make sliders taller than pads */
+             min-height: 200px;
+             max-height: 80vh; /* Limit slider height */
+            width: var(--slider-width);
+             background-color: var(--slider-bg);
+             border-radius: 5px;
+             padding: 10px 0; /* Padding top/bottom */
+             box-sizing: border-box;
+             flex-shrink: 0; /* Prevent sliders from shrinking */
+        }
+
+        input[type="range"].vertical-slider {
+            appearance: slider-vertical; /* Preferred way for vertical */
+             /* Fallback/alternative using transforms if slider-vertical is not supported */
+            /* appearance: none;
+            transform: rotate(-90deg);
+            transform-origin: center center; */
+            width: calc(100% - 20px); /* Fit within container padding */
+             height: var(--slider-width); /* Width becomes height when rotated */
+
+            cursor: pointer;
+            background: transparent; /* Hide default track */
+             border: none;
+             margin: 0;
+             display: block; /* Needed for consistent layout */
+        }
+
+        /* Style the track (the bar) - webkit */
+        input[type="range"].vertical-slider::-webkit-slider-runnable-track {
+            height: 5px;
+            background: var(--slider-track-bg);
+            border-radius: 3px;
+        }
+         /* Style the track (the bar) - moz */
+        input[type="range"].vertical-slider::-moz-range-track {
+             height: 5px;
+             background: var(--slider-track-bg);
+             border-radius: 3px;
+        }
+
+        /* Style the thumb (the handle) - webkit */
+        input[type="range"].vertical-slider::-webkit-slider-thumb {
+            appearance: none;
+             width: calc(var(--slider-width) * 0.8); /* Thumb proportional to slider width */
+             height: 20px;
+            background: var(--slider-thumb-bg);
+            border-radius: 3px;
+            border: 1px solid #777;
+            margin-top: -8px; /* Center thumb vertically on track */
+        }
+         /* Style the thumb (the handle) - moz */
+        input[type="range"].vertical-slider::-moz-range-thumb {
+             width: calc(var(--slider-width) * 0.8);
+             height: 20px;
+            background: var(--slider-thumb-bg);
+            border-radius: 3px;
+            border: 1px solid #777;
+        }
+
+
+        #pads-container {
+            display: flex;
+            flex-direction: row; /* Pads side-by-side */
+            justify-content: center;
+            align-items: center;
+            gap: 10px; /* Reduced gap between pads */
+            flex-grow: 1; /* Allow pads container to take space */
+            height: 100%; /* Fill vertical space of main-content */
+            min-width: calc(var(--pad-size) * 2 + 10px); /* Ensure pads have minimum space */
+        }
+
+        .xy-pad {
+            position: relative;
+            width: var(--pad-size);
+            height: var(--pad-size);
+            background-color: var(--pad-background);
+            border: 2px solid #444;
+            cursor: crosshair;
+            touch-action: none; /* Crucial for touch interaction */
+            user-select: none; /* Prevent text selection */
+            overflow: hidden; /* Keep indicators inside */
+            border-radius: 5px;
+            flex-shrink: 0; /* Prevent pads from shrinking too much */
+        }
+
+        .indicator {
+            position: absolute;
+            width: 25px; /* Smaller indicator */
+            height: 25px;
+            border: 2px solid var(--indicator-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%); /* Center on pointer */
+            pointer-events: none; /* Don't interfere with pad events */
+            display: none; /* Hidden initially */
+            box-shadow: 0 0 8px var(--indicator-color);
+        }
+
+        .crosshair {
+            position: absolute;
+            background-color: var(--indicator-color);
+            pointer-events: none;
+            display: none; /* Hidden initially */
+            opacity: 0.4; /* Slightly dimmer */
+        }
+
+        .crosshair-h {
+            width: 100%;
+            height: 1px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .crosshair-v {
+            width: 1px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Landscape Enforcement message shown via CSS -->
+
+    <div id="app-container">
+
+        <div id="top-bar">
+            <div id="title">NobleAudio - Contemplation Engine</div>
+            <div id="top-controls">
+                <button id="recallSeedButton">Recall Seed</button>
+                <select id="keySelector">
+                    <!-- Options added by JS -->
+                </select>
+                <button id="randomizeButton">Seed: <span id="seedDisplay">N/A</span></button>
+            </div>
+        </div>
+
+        <div id="main-content">
+            <div class="slider-container">
+                 <!-- Mod Wheel: 0-100, snaps back to 50 -->
+                <input type="range" min="0" max="100" value="50" class="vertical-slider" id="sliderL">
+            </div>
+
+            <div id="pads-container">
+                <div class="xy-pad" id="xyPad1">
+                    <div class="indicator"></div>
+                    <div class="crosshair crosshair-h"></div>
+                    <div class="crosshair crosshair-v"></div>
+                </div>
+                <div class="xy-pad" id="xyPad2">
+                    <div class="indicator"></div>
+                    <div class="crosshair crosshair-h"></div>
+                    <div class="crosshair crosshair-v"></div>
+                </div>
+            </div>
+
+            <div class="slider-container">
+                 <!-- Chaos Fader: 0-100 -->
+                <input type="range" min="0" max="100" value="50" class="vertical-slider" id="sliderR">
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Embedded Seedrandom PRNG (Credit: David Bau) ---
+        // https://github.com/davidbau/seedrandom
+        (function(global, pool, math) {
+            var width = 256, chunks = 6, digits = 52, rngname = 'random', startdenom = math.pow(width, chunks),
+                significance = math.pow(2, digits), overflow = significance * 2, mask = width - 1, nodecrypto;
+            function seedrandom(seed, options, callback) {
+                var key = [];
+                options = (options == true) ? { entropy: true } : (options || {});
+                var shortseed = mixkey(flatten(options.entropy ? [seed, tostring(pool)] : (seed == null) ? autoseed() : seed, 3), key);
+                var arc4 = new ARC4(key);
+                var prng = function() {
+                    var n = arc4.g(chunks), d = startdenom, x = 0;
+                    while (n < significance) { n = (n + x) * width; d *= width; x = arc4.g(1); }
+                    while (n >= overflow) { n /= 2; d /= 2; x >>>= 1; }
+                    return (n + x) / d;
+                };
+                prng.int32 = function() { return arc4.g(4) | 0; }
+                prng.quick = function() { return arc4.g(4) / 0x100000000; }
+                prng.double = prng;
+                mixkey(tostring(arc4.S), pool);
+                return (options.pass || callback ||
+                    function(prng, seed, is_math_call, state) {
+                        if (state) {
+                            if (state.S) { copy(state, arc4); }
+                            prng.state = function() { return copy(arc4, {}); }
+                        }
+                        if (is_math_call) { math[rngname] = prng; return seed; }
+                        else return prng;
+                    })(prng, shortseed, 'global' in options ? options.global : (this == math), options.state);
+            }
+            function ARC4(key) {
+                var t, keylen = key.length, me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+                if (!keylen) { key = [keylen++]; }
+                while (i < width) { s[i] = i++; }
+                for (i = 0; i < width; i++) {
+                    s[i] = s[j = mask & (j + key[i % keylen] + (t = s[i]))];
+                    s[j] = t;
+                }
+                (me.g = function(count) {
+                    var t, r = 0, i = me.i, j = me.j, s = me.S;
+                    while (count--) {
+                        t = s[i = mask & (i + 1)];
+                        r = r * width + s[mask & ((s[i] = s[j = mask & (j + t)]) + (s[j] = t))];
+                    }
+                    me.i = i; me.j = j;
+                    return r;
+                })(width);
+            }
+            function copy(f, t) {
+                t.i = f.i; t.j = f.j; t.S = f.S.slice(); return t;
+            }
+            function flatten(obj, depth) {
+                var result = [], typ = (typeof obj), prop;
+                if (depth && typ == 'object') {
+                    for (prop in obj) {
+                        try { result.push(flatten(obj[prop], depth - 1)); } catch (e) {}
+                    }
+                }
+                return (result.length ? result : typ == 'string' ? obj : obj + '\0');
+            }
+            function mixkey(seed, key) {
+                var stringseed = seed + '', smear, j = 0;
+                while (j < stringseed.length) {
+                    key[mask & j] = mask & ((smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++));
+                }
+                return tostring(key);
+            }
+            function autoseed() { try { var out; if (nodecrypto) { out = nodecrypto.randomBytes(width); } return tostring(out); } catch (e) { var pool = global.crypto || global.msCrypto || {}; var arr = pool.getRandomValues && pool.getRandomValues(new Uint8Array(width)); return tostring(arr); } }
+            function tostring(a) { return String.fromCharCode.apply(0, a); }
+            math['seed' + rngname] = seedrandom; mixkey(math.random(), pool);
+        }(this, [], Math));
+        // --- End Seedrandom ---
+
+        const xyPad1 = document.getElementById('xyPad1');
+        const xyPad2 = document.getElementById('xyPad2');
+        const sliderL = document.getElementById('sliderL');
+        const sliderR = document.getElementById('sliderR');
+        const randomizeButton = document.getElementById('randomizeButton');
+        const recallSeedButton = document.getElementById('recallSeedButton');
+        const keySelector = document.getElementById('keySelector');
+        const seedDisplay = document.getElementById('seedDisplay');
+
+        let audioContext;
+        let mainGain;
+        // --- Synth Components (Hybrid Granular/Additive/FM) ---
+        let granularOscs = []; // Array of Granular Oscillators (Sources)
+        let additiveGain = null; // Gain for Additive layer
+        let fmOsc = null;      // FM Oscillator (Modulator for granular pitch or other)
+        let fmGain = null;     // FM Gain
+        let filter = null;
+        let reverb = null;     // Reverb for spaciousness
+        let delay = null;       // Delay for rhythmic textures
+        let masterCompressor = null; // Compressor for dynamic control
+        let lfo1, lfo2, harmonyLFO; // LFOs - Harmony LFO for chord variations
+
+        const activePointers = new Map();
+        const padStates = {
+            pad1: { x: 0.5, y: 0.5, active: false },
+            pad2: { x: 0.5, y: 0.5, active: false }
+        };
+        const sliderStates = {
+            sliderL: 0.5, // Mod Wheel
+            sliderR: 0.5  // Chaos / Texture Density
+        };
+
+        let currentSeed = null;
+        let currentKey = 'C2'; // Default Key
+
+        // --- Key Frequencies (MIDI Note -> Hz approx) ---
+        const keyFrequencies = { // Same keys C1 to B2
+            'C1': 32.70, 'C#1': 34.65, 'D1': 36.71, 'D#1': 38.89, 'E1': 41.20, 'F1': 43.65, 'F#1': 46.25, 'G1': 49.00, 'G#1': 51.91, 'A1': 55.00, 'A#1': 58.27, 'B1': 61.74,
+            'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
+        };
+
+        // --- Chord Progressions (Example - Minimal DNB style) ---
+        const chordProgressions = [
+            ['minorTriad', 'majorTriad', 'minor7th'], // i - III - vi (in C minor approx - Am - C - Dm7)
+            ['minorTriad', 'diminishedTriad', 'majorTriad'], // i - ii dim - III (Am - Bdim - C)
+            ['major7th', 'minor7th', 'sus4'],         // Imaj7 - vi7 - IVsus4 (Cmaj7 - Dm7 - Fsus4)
+            ['minor7th', 'dominant7th', 'minorTriad'] // vi7 - V7 - i (Dm7 - G7 - Am)
+             // ... add more progressions, targeting introspective and DNB mood
+        ];
+
+        // --- Chord Types and Intervals ---
+        const chordTypes = {
+            'majorTriad': [0, 4, 7],       // Major (root, major 3rd, perfect 5th)
+            'minorTriad': [0, 3, 7],       // Minor (root, minor 3rd, perfect 5th)
+            'diminishedTriad': [0, 3, 6],   // Diminished (root, minor 3rd, diminished 5th)
+            'augmentedTriad': [0, 4, 8],    // Augmented (root, major 3rd, augmented 5th)
+            'major7th': [0, 4, 7, 11],      // Major 7th (major triad + major 7th)
+            'minor7th': [0, 3, 7, 10],      // Minor 7th (minor triad + minor 7th)
+            'dominant7th': [0, 4, 7, 10],  // Dominant 7th (major triad + minor 7th)
+            'sus4': [0, 5, 7],              // Suspended 4th (root, perfect 4th, perfect 5th)
+            'sus2': [0, 2, 7],              // Suspended 2nd (root, major 2nd, perfect 5th)
+             // ... expand chord types as needed - consider voicings too?
+        };
+
+
+        // --- Synth Parameters (Defaults & Randomizable) ---
+        let params = {
+            numGranularOscs: 8,  grainSize: 0.1, grainOverlap: 0.5, grainDensity: 30, grainPitchVar: 3,  // Granular Params
+            additiveHarmonics: 12, additiveBaseGain: 0.1, additiveEvenOddRatio: 0.5,                  // Additive Params
+            fmDepth: 100, fmModFreqRatio: 3, fmCarrierFreqRatio: 1,                                     // FM Params (for Granular mod, not main osc)
+            filterType: 'lowpass', filterBaseCutoff: 800, filterBaseQ: 2,                                // Filter
+            reverbWet: 0.3, reverbDecay: 3, delayTime: 0.35, delayFeedback: 0.4,                        // FX
+            lfo1Freq: 1.2, lfo1BaseDepth: 20, lfo2Freq: 0.5, lfo2BaseDepth: 15, harmonyLFOFreq: 0.2, harmonyLFODepth: 0.1, // LFOs - harmony LFO controls chord voicing or progression subtly
+            masterGain: 0.2, compressorThreshold: -20, compressorRatio: 12,                             // Output
+            chordProgressionIndex: 0, currentChordType: 'minor7th' // Chord related parameters, randomized but constrained
+        };
+
+        // --- Modulation Matrix ---
+        let modMatrix = {};
+        const possibleModTargets = [
+            'grainSize', 'grainDensity', 'grainPitchVar', 'additiveGain', 'fmDepth',
+            'filterCutoff', 'filterQ', 'reverbWet', 'delayWet', 'mainVol',
+            'lfo1Depth', 'lfo2Depth', 'grainOverlap', 'reverbDecay', 'delayTime', 'delayFeedback',
+            'grainPanSpread', 'grainDetuneSpread', 'harmonyLFOAmount', 'chordProgressionVariety' // Add Harmony & Chord targets
+        ];
+        const modSources = ['x1', 'y1', 'x2', 'y2', 'sliderL', 'sliderR', 'lfo1', 'lfo2'];
+
+
+        // --- Audio Initialization ---
+        function initAudio() {
+            if (audioContext) return;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                mainGain = audioContext.createGain();
+                masterCompressor = audioContext.create dynamicsCompressor(); // Create Compressor
+                reverb = audioContext.createConvolver();
+                delay = audioContext.createDelay(5.0); // Max delay time of 5 seconds
+                filter = audioContext.createBiquadFilter();
+                additiveGain = audioContext.createGain(); // For additive synthesis level
+                fmOsc = audioContext.createOscillator();  // FM modulator osc
+                fmGain = audioContext.createGain();      // FM modulator gain
+
+                lfo1 = audioContext.createOscillator();
+                lfo1Gain = audioContext.createGain();
+                lfo2 = audioContext.createOscillator();
+                lfo2Gain = audioContext.createGain();
+                harmonyLFO = audioContext.createOscillator(); // Harmony LFO
+                let harmonyLFOGain = audioContext.createGain(); // Gain for Harmony LFO (unused directly in routing yet, for modulation)
+
+
+                // Granular Oscillators (Initialize)
+                granularOscs = [];
+                for (let i = 0; i < params.numGranularOscs; i++) {
+                    const granOsc = audioContext.createBufferSource(); // Using BufferSource as a placeholder
+                    const granGain = audioContext.createGain();
+                    const granPanner = audioContext.createStereoPanner(); // Panner for granular spread
+
+                    granOsc.connect(granGain);
+                    granGain.connect(granPanner);
+                    granPanner.connect(additiveGain); // Connect to shared Additive Gain node (or direct to filter if additive layer not used)
+
+                    granOscs.push({ osc: granOsc, gain: granGain, panner: granPanner }); // Store osc and gain
+                    granOsc.start(); // Start granular oscs immediately
+                }
+
+                fmOsc.connect(fmGain);                // FM Modulator routing
+                fmGain.connect(additiveGain.gain); // FM modulates the gain of the additive layer
+
+                lfo1.connect(lfo1Gain);             // LFO routings
+                lfo2.connect(lfo2Gain);
+                harmonyLFO.connect(harmonyLFOGain); // Harmony LFO routing
+
+                // Routing Graph: GranularOscs -> AdditiveGain -> Filter -> Reverb -> Delay -> Compressor -> MainGain -> Destination
+                additiveGain.connect(filter);       // Combined granular & additive into filter
+                filter.connect(reverb);
+                reverb.connect(delay);
+                delay.connect(masterCompressor);
+                masterCompressor.connect(mainGain);
+                mainGain.connect(audioContext.destination);
+
+                // Set Initial Params (using currentKey and base frequency)
+                params.baseFrequency = keyFrequencies[currentKey]; // Store base frequency
+
+                // FM Params
+                fmOsc.type = 'sine'; // Simpler sine for FM
+                fmOsc.frequency.setValueAtTime(params.baseFrequency * params.fmModFreqRatio, audioContext.currentTime); // Mod Freq
+                fmGain.gain.setValueAtTime(params.fmDepth, audioContext.currentTime);                             // FM Depth
+                fmOsc.start();
+
+                // Filter, Reverb, Delay, Compressor settings
+                filter.type = params.filterType;
+                filter.frequency.setValueAtTime(params.filterBaseCutoff, audioContext.currentTime);
+                filter.Q.setValueAtTime(params.filterBaseQ, audioContext.currentTime);
+
+                reverb.wetGain = audioContext.createGain(); // Use gain node for wet/dry mix on reverb
+                reverb.wetGain.gain.setValueAtTime(params.reverbWet, audioContext.currentTime);
+                reverb.connect(delay); // Reverb output into delay input (now managed by wet/dry inside setReverbImpulse)
+                delay.delayTime.setValueAtTime(params.delayTime, audioContext.currentTime);
+
+                delay.feedbackGain = audioContext.createGain();
+                delay.output.connect(delay.feedbackGain);
+                delay.feedbackGain.connect(delay.input); // Feedback loop
+                delay.feedbackGain.gain.setValueAtTime(params.delayFeedback, audioContext.currentTime);
+
+                masterCompressor.threshold.setValueAtTime(params.compressorThreshold, audioContext.currentTime);
+                masterCompressor.ratio.setValueAtTime(params.compressorRatio, audioContext.currentTime);
+
+                mainGain.gain.setValueAtTime(params.masterGain, audioContext.currentTime); // Initial Master Gain
+
+                // LFOs setup
+                lfo1.type = 'sine';
+                lfo1.frequency.setValueAtTime(params.lfo1Freq, audioContext.currentTime);
+                lfo1Gain.gain.setValueAtTime(params.lfo1BaseDepth, audioContext.currentTime);
+                lfo1.start();
+
+                lfo2.type = 'triangle';
+                lfo2.frequency.setValueAtTime(params.lfo2Freq, audioContext.currentTime);
+                lfo2Gain.gain.setValueAtTime(params.lfo2BaseDepth, audioContext.currentTime);
+                lfo2.start();
+
+                harmonyLFO.type = 'sine'; // Example for harmony variations - can be more complex
+                harmonyLFO.frequency.setValueAtTime(params.harmonyLFOFreq, audioContext.currentTime);
+                harmonyLFOGain.gain.setValueAtTime(params.harmonyLFODepth, audioContext.currentTime);
+                harmonyLFO.start();
+
+                // Load Reverb Impulse Response (optional, can use procedural reverb too)
+                loadReverbImpulse('impulses/ir_hall.wav'); // Example impulse file
+
+
+                console.log("Contemplation Engine AudioContext initialized.");
+
+            } catch (e) {
+                console.error("Audio Init Error:", e);
+                alert("Error initializing audio for Contemplation Engine.");
+            }
+        }
+
+        // --- Reverb Impulse Loading ---
+        function loadReverbImpulse(url) {
+            if (!audioContext || !reverb) return;
+            fetch(url)
+                .then(response => response.arrayBuffer())
+                .then(buffer => audioContext.decodeAudioData(buffer))
+                .then(audioBuffer => {
+                     reverb.buffer = audioBuffer;
+                     console.log("Reverb impulse loaded:", url);
+                })
+                .catch(e => {
+                     console.error("Error loading reverb impulse:", url, e);
+                     // Fallback: if loading fails, maybe bypass reverb or use procedural reverb?
+                });
+        }
+
+
+        // --- Granular Synthesis Engine ---
+        function updateGranularParameters() {
+            if (!audioContext || !granularOscs.length) return;
+
+            const now = audioContext.currentTime;
+            const grainDuration = params.grainSize;
+            const overlap = params.grainOverlap;
+            const grainRate = params.grainDensity; // Grains per second roughly
+            const pitchVariationCents = params.grainPitchVar; // Pitch variation range in cents
+
+             granularOscs.forEach(granOscObj => {
+                const osc = granOscObj.osc;
+                const gainNode = granOscObj.gain;
+                const pannerNode = granOscObj.panner;
+
+                 // Schedule new grain (simplified scheduling, can be improved with tighter timing)
+                 const nextGrainTime = now + Math.random() / grainRate;
+
+                 // Create a very short grain buffer (example - placeholder, use actual audio buffers later)
+                 const grainBuffer = audioContext.createBuffer(1, audioContext.sampleRate * grainDuration, audioContext.sampleRate);
+                 const channelData = grainBuffer.getChannelData(0);
+                 for (let i = 0; i < grainBuffer.length; i++) {
+                     // Simple envelope for grains (e.g., sine window)
+                     const normalizedTime = i / grainBuffer.length;
+                     const envelope = Math.sin(normalizedTime * Math.PI);
+                     channelData[i] = envelope * (Math.random() * 0.5 + 0.5); // Example random waveform within envelope
+                 }
+
+                 // Setup and start a new buffer source for the grain
+                 const grainSource = audioContext.createBufferSource();
+                 grainSource.buffer = grainBuffer;
+                 grainSource.playbackRate.setValueAtTime(1 + (Math.random() - 0.5) * pitchVariationCents / 100, now); // Pitch variation
+                 grainSource.connect(gainNode);
+                 grainSource.start(nextGrainTime);
+                 grainSource.stop(nextGrainTime + grainDuration);
+
+
+                 // Panning - randomize per grain for stereo spread (example)
+                 const panValue = (Math.random() * 2 - 1) * params.grainPanSpread; // Pan -1 to +1, scaled by parameter
+                 pannerNode.pan.setValueAtTime(panValue, now);
+
+                 // Detune spread per grain (optional - subtle pitch variation within grain itself, not rate)
+                 const detuneAmount = (Math.random() * 2 - 1) * params.grainDetuneSpread; // Detune cents range
+                 grainSource.detune.setValueAtTime(detuneAmount, now);
+
+            });
+
+             // Schedule next granular update (rate can be modulated for grain density changes)
+             const updateInterval = 1 / grainRate;
+             setTimeout(updateGranularParameters, updateInterval * 1000 * (1 - overlap/2)); // Basic scheduling - can refine based on overlap
+        }
+
+
+        // --- Additive Synthesis Engine (Basic Harmonic Series) ---
+        function updateAdditiveHarmonics() {
+            if (!audioContext || !additiveGain) return;
+
+            const now = audioContext.currentTime;
+            const numHarmonics = params.additiveHarmonics;
+            const baseFreq = params.baseFrequency; // Use base frequency derived from KeySelector
+            const harmonicGain = params.additiveBaseGain / numHarmonics; // Distribute gain over harmonics
+
+            // Clear existing oscillators? Or dynamically adjust if needed? For now, re-create for simplicity
+            if (additiveGain.inputs) { // Check if inputs array exists (depends on browser and impl.)
+                 additiveGain.disconnect(); // Disconnect all existing inputs - assume they are harmonics from prev update
+            }
+             // Reconnect output if disconnected (for full reset in re-randomize or init)
+            if (additiveGain.numberOfOutputs > 0 && !filter) {
+                additiveGain.connect(filter); // Reconnect if lost - maybe on re-randomize, check correct filter node ID later.
+            }
+
+            for (let i = 1; i <= numHarmonics; i++) {
+                 const harmonicOsc = audioContext.createOscillator();
+                 harmonicOsc.type = 'sine'; // Simple sine waves for additive
+                 harmonicOsc.frequency.setValueAtTime(baseFreq * i, now); // Freq = harmonic * base freq
+
+                 const gain = harmonicGain * (i % 2 === 0 && Math.random() > params.additiveEvenOddRatio ? 0.5 : 1); // Even harmonics sometimes quieter/absent
+                 const gainNode = audioContext.createGain();
+                 gainNode.gain.setValueAtTime(gain, now);
+
+                 harmonicOsc.connect(gainNode);
+                 gainNode.connect(additiveGain); // Sum all harmonic gains into additiveGain node
+                 harmonicOsc.start(); // Start each harmonic oscillator
+            }
+        }
+
+
+        // --- Randomization (Now uses seeded PRNG, Harmonic Focus) ---
+        function randomizeSeed(seed = null) {
+             initAudio(); // Ensure audio is ready, important on first load or after errors.
+
+             if (seed === null || typeof seed !== 'number' || isNaN(seed)) {
+                currentSeed = Math.floor(Math.random() * 1000000);
+            } else {
+                 currentSeed = Math.floor(seed);
+             }
+
+             Math.seedrandom(currentSeed.toString()); // Seed PRNG
+             console.log("Contemplation Engine - Using Seed:", currentSeed);
+             seedDisplay.textContent = currentSeed;
+
+             // --- Randomize Synth Parameters (Harmonic & Textural Focus) ---
+             const filterTypes = ['lowpass', 'bandpass', 'notch', 'allpass']; // Less harsh HP for harmonic context?
+
+             // Base Frequency (set by key) already updated via keySelector change handler if needed
+             params.baseFrequency = keyFrequencies[currentKey]; // Ensure it's based on selected key
+
+             params.numGranularOscs = Math.floor(Math.random() * 12) + 4;  // 4-16 granular oscs
+             params.grainSize = 0.05 + Math.random() * 0.3;          // 50ms to 350ms grains
+             params.grainOverlap = 0.3 + Math.random() * 0.7;         // 30-100% overlap
+             params.grainDensity = 10 + Math.random() * 60;           // Grains/sec (10-70 density)
+             params.grainPitchVar = Math.random() * 8;                // Up to +/- 8 cents pitch variation
+             params.grainPanSpread = Math.random() * 0.9;             // Panning spread +/- 90%
+             params.grainDetuneSpread = Math.random() * 5;            // Detune spread in cents within grain
+
+             params.additiveHarmonics = Math.floor(Math.random() * 16) + 4; // 4-20 harmonics
+             params.additiveBaseGain = 0.05 + Math.random() * 0.3;      // Lower overall additive gain
+             params.additiveEvenOddRatio = Math.random();                // Ratio for even harmonic reduction
+
+
+             params.fmDepth = Math.random() * 250 + 50;               // Moderate FM depth for texture
+             params.fmModFreqRatio = 1 + Math.random() * 8;            // Mod freq ratio variation 1-9x base
+
+             params.filterType = filterTypes[Math.floor(Math.random() * filterTypes.length)];
+             params.filterBaseCutoff = 150 + Math.random() * 3000;     // Wider cutoff range, starting higher
+             params.filterBaseQ = 1 + Math.random() * 8;                // Wider Q range
+
+             params.reverbWet = Math.random() * 0.5;                   // Up to 50% reverb mix
+             params.reverbDecay = 1 + Math.random() * 8;              // Reverb decay time (1-9 sec)
+             params.delayTime = 0.1 + Math.random() * 0.6;             // Delay times 100ms - 600ms
+             params.delayFeedback = Math.random() * 0.6;               // Feedback 0-60%
+
+             params.lfo1Freq = 0.1 + Math.random() * 5;              // Slower LFO1 (0.1-5Hz)
+             params.lfo1BaseDepth = Math.random() < 0.3 ? 0 : Math.random() * 50; // Depth for LFO1 (may be off)
+             params.lfo2Freq = 0.05 + Math.random() * 3;             // Even slower LFO2 (0.05 - 3Hz)
+             params.lfo2BaseDepth = Math.random() < 0.4 ? 0 : Math.random() * 40; // Depth LFO2 (may be off more often)
+             params.harmonyLFOFreq = 0.02 + Math.random() * 0.2;     // Very slow harmony LFO
+             params.harmonyLFODepth = Math.random() * 0.08;            // Subtle harmony LFO depth (0-0.08)
+
+             params.masterGain = 0.15 + Math.random() * 0.1;          // Conservative master gain
+             params.compressorThreshold = -30 - Math.random() * 15;    // Lower threshold for gentler compression
+             params.compressorRatio = 8 + Math.random() * 8;          // Ratio 8:1 to 16:1 range
+
+             params.chordProgressionIndex = Math.floor(Math.random() * chordProgressions.length); // Select random progression
+             params.currentChordType = chordProgressions[params.chordProgressionIndex][Math.floor(Math.random() * chordProgressions[params.chordProgressionIndex].length)]; // Pick a chord type from it
+
+             // --- Apply Randomized Base Parameters ---
+             if (fmOsc) fmOsc.frequency.setTargetAtTime(params.baseFrequency * params.fmModFreqRatio, audioContext.currentTime, 0.01);
+             if (fmGain) fmGain.gain.setTargetAtTime(params.fmDepth, audioContext.currentTime, 0.01);
+             if (filter) {
+                filter.type = params.filterType;
+                filter.frequency.setTargetAtTime(params.filterBaseCutoff, audioContext.currentTime, 0.01);
+                filter.Q.setTargetAtTime(params.filterBaseQ, audioContext.currentTime, 0.01);
+             }
+             if (reverb?.wetGain) reverb.wetGain.gain.setTargetAtTime(params.reverbWet, audioContext.currentTime, 0.01); // Ensure .wetGain exists
+             if (delay) {
+                delay.delayTime.setTargetAtTime(params.delayTime, audioContext.currentTime, 0.01);
+                delay.feedbackGain.gain.setTargetAtTime(params.delayFeedback, audioContext.currentTime, 0.01);
+             }
+             if (masterCompressor) {
+                masterCompressor.threshold.setTargetAtTime(params.compressorThreshold, audioContext.currentTime, 0.01);
+                masterCompressor.ratio.setTargetAtTime(params.compressorRatio, audioContext.currentTime, 0.01);
+             }
+             if (lfo1) lfo1.frequency.setTargetAtTime(params.lfo1Freq, audioContext.currentTime, 0.01);
+             if (lfo1Gain) lfo1Gain.gain.setTargetAtTime(params.lfo1BaseDepth, audioContext.currentTime, 0.01);
+             if (lfo2) lfo2.frequency.setTargetAtTime(params.lfo2Freq, audioContext.currentTime, 0.01);
+             if (lfo2Gain) lfo2Gain.gain.setTargetAtTime(params.lfo2BaseDepth, audioContext.currentTime, 0.01);
+             if (harmonyLFO) harmonyLFO.frequency.setTargetAtTime(params.harmonyLFOFreq, audioContext.currentTime, 0.01);
+
+
+             // --- Randomize Modulation Matrix (Harmonic Focus Targets) ---
+             modMatrix = {};
+             const targetsUsed = new Set();
+
+             modSources.forEach(source => {
+                 if (source === 'sliderR') return; // Chaos (sliderR) special case - handled separately
+
+                if (Math.random() < 0.7) { // ~70% chance of mod per source
+                    let potentialTargets = possibleModTargets.filter(t => !targetsUsed.has(t));
+                    if (source.startsWith('lfo')) {
+                         potentialTargets = potentialTargets.filter(t => t !== 'mainVol'); // No LFO -> mainVol mod usually
+                    }
+                    if (potentialTargets.length === 0) potentialTargets = possibleModTargets.filter(t => t !== 'mainVol'); // Fallback
+                    if (potentialTargets.length === 0) potentialTargets = possibleModTargets; // Absolute fallback
+
+                    const target = potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
+                    targetsUsed.add(target);
+
+                    let amount;
+                    const bipolar = source === 'sliderL' || Math.random() > 0.4; // SliderL and some others bipolar
+                    let scale = bipolar ? (Math.random() * 2 - 1) : Math.random();
+
+                    switch (target) {
+                         case 'grainSize': amount = scale * 0.4; break; // Grain size +/- 400ms
+                        case 'grainDensity': amount = scale * 50; break; // +/- 50 grains/sec
+                        case 'grainPitchVar': amount = scale * 10; break; // +/- 10 cents
+                         case 'additiveGain': amount = scale * 0.2; break; // Additive gain +/- 0.2
+                         case 'fmDepth': amount = scale * 200; break;    // +/- 200 FM depth
+                        case 'filterCutoff': amount = scale * 4000; break; // Cutoff +/- 4kHz
+                         case 'filterQ': amount = scale * 10; break;       // Q +/- 10
+                         case 'reverbWet': amount = scale * 0.4; break;     // Reverb +/- 40%
+                        case 'delayWet': amount = scale * 0.4; break;      // Delay wet +/- 40%
+                        case 'mainVol': amount = scale * (params.masterGain * 0.4); break; // +/- % of master vol
+                         case 'lfo1Depth': amount = scale * 100; break;     // LFO depths wider range
+                        case 'lfo2Depth': amount = scale * 100; break;
+                         case 'grainOverlap': amount = scale * 0.8; break;  // Overlap +/- 80%
+                        case 'reverbDecay': amount = scale * 5; break;      // Reverb decay +/- 5s
+                        case 'delayTime': amount = scale * 0.5; break;      // Delay time +/- 500ms
+                         case 'delayFeedback': amount = scale * 0.5; break;  // Feedback +/- 50%
+                        case 'grainPanSpread': amount = scale * 1.0; break; // Pan spread +/- 100%
+                        case 'grainDetuneSpread': amount = scale * 8; break; // Detune +/- 8 cents
+                        case 'harmonyLFOAmount': amount = scale * 0.1; break; // Harmony LFO amount
+                        case 'chordProgressionVariety': amount = scale * 1.0; break; // Chord Variety +/- 1, for progression index? (or maybe a step-within-chord var)
+
+                        default: amount = scale * 50; // Default scale
+                    }
+                     modMatrix[source] = { target, amount, baseValue: params[target] }; // Store base value for target
+
+                }
+             });
+
+
+             console.log("Contemplation Engine - Randomized Params:", params);
+             console.log("Contemplation Engine - Randomized Mod Matrix:", modMatrix);
+
+             // Reset sliders to defaults
+            sliderL.value = 50;
+            sliderR.value = 50;
+            sliderStates.sliderL = 0.5;
+            sliderStates.sliderR = 0.5;
+
+            // Start or Restart Engines after randomization
+            updateGranularParameters(); // Start granular grain scheduling
+            updateAdditiveHarmonics();   // Generate initial additive harmonic set
+
+             updateSynthParams(true); // Initial param update (force base values first)
+
+         }
+
+         // --- Update Synth Parameters Based on Input & Modulation ---
+         function updateSynthParams(forceBase = false) {
+             if (!audioContext || audioContext.state !== 'running' || !additiveGain) return;
+
+             const now = audioContext.currentTime;
+             const smoothTime = 0.03; // Slightly slower smoothing for ambient
+
+             // Input states
+             const x1 = padStates.pad1.active || forceBase ? padStates.pad1.x : 0.5;
+             const y1 = padStates.pad1.active || forceBase ? padStates.pad1.y : 0.5;
+             const x2 = padStates.pad2.active || forceBase ? padStates.pad2.x : 0.5;
+             const y2 = padStates.pad2.active || forceBase ? padStates.pad2.y : 0.5;
+             const slL = sliderStates.sliderL;
+             const slR = sliderStates.sliderR; // Chaos
+
+             const bipolarSliderL = slL - 0.5; // Bipolar slider value
+
+             const lfo1Val = lfo1Gain ? lfo1Gain.gain.value : 0; // Get current LFO output vals
+             const lfo2Val = lfo2Gain ? lfo2Gain.gain.value : 0;
+
+             // --- Chaos Factor (from sliderR) ---
+             const chaosFactor = slR * 1.8; // Slightly less intense chaos effect for harmonic context?
+             const chaosFilterCutoffScale = 0.5 + slR * 0.5; // Cutoff scale adjusted by chaos
+
+             let currentFilterBaseCutoff = params.filterBaseCutoff * chaosFilterCutoffScale; // Apply to base cutoff for modulation
+
+             // --- Modulation Values Map ---
+             const modValues = {
+                x1: x1, y1: y1, x2: x2, y2: y2,
+                sliderL: bipolarSliderL,
+                lfo1: lfo1Val, lfo2: lfo2Val
+             };
+
+             // Apply Modulation Function
+             const applyMod = (targetParam, baseValue, targetNode, allowChaosScaling = true) => {
+                let totalMod = 0;
+                modSources.forEach(source => {
+                    if (source === 'sliderR') return; // Skip Chaos slider here
+                     if (modMatrix[source] && modMatrix[source].target === targetParam) {
+                        let modInput = modValues[source] ?? 0; // Default to 0 if undefined
+
+                         let effectiveAmount = modMatrix[source].amount;
+                         if (allowChaosScaling && !source.startsWith('lfo')) {
+                            effectiveAmount *= chaosFactor; // Chaos scale non-LFO mod amounts
+                         }
+                         totalMod += modInput * effectiveAmount;
+                     }
+                 });
+                let finalValue = baseValue + totalMod;
+
+
+                if (targetNode && targetNode.constructor.name === 'AudioParam') {
+                     const minVal = targetNode.minValue ?? -3.4e38;
+                     const maxVal = targetNode.maxValue ?? 3.4e38;
+
+                     // Parameter-specific clamping, more harmonic focus ranges
+                     if (targetParam === 'filterCutoff') finalValue = Math.max(50, Math.min(audioContext.sampleRate / 2 * 0.95, finalValue)); // Lower floor
+                     else if (targetParam === 'filterQ') finalValue = Math.max(0.1, Math.min(25, finalValue));  // Adjusted Q range
+                     else if (targetParam === 'grainSize') finalValue = Math.max(0.01, Math.min(1.0, finalValue)); // Grain size range 10ms - 1s
+                     else if (targetParam === 'grainDensity') finalValue = Math.max(1, Math.min(100, finalValue)); // 1-100 grains/sec density
+                     else if (targetParam === 'grainPitchVar') finalValue = Math.max(0, Math.min(24, finalValue)); // Pitch var in cents, 2 octave range?
+                     else if (targetParam === 'reverbWet' || targetParam === 'delayWet') finalValue = Math.max(0, Math.min(1.0, finalValue)); // Wet/dry 0-1
+                     else if (targetParam === 'reverbDecay') finalValue = Math.max(0.1, Math.min(15, finalValue)); // Decay time 0.1 - 15s
+                     else if (targetParam === 'delayTime') finalValue = Math.max(0.01, Math.min(3.0, finalValue)); // Delay 10ms - 3s
+                     else if (targetParam === 'delayFeedback') finalValue = Math.max(0, Math.min(0.95, finalValue)); // Feedback 0-95% for stability
+                     else if (targetParam.includes('Gain') || targetParam === 'mainVol') finalValue = Math.max(0, Math.min(1.5, finalValue)); // Gains up to 1.5
+                     else if (targetParam.includes('LFOFreq')) finalValue = Math.max(0.001, Math.min(20, finalValue)); // LFO freq range
+                     else if (targetParam.includes('LFOAmount') || targetParam.includes('Depth')) finalValue = Math.max(-200, Math.min(200, finalValue)); // LFO amount/depth - wider range
+
+
+                     targetNode.setTargetAtTime(finalValue, now, smoothTime);
+                }
+                 // Non-AudioParam value clamping (e.g., for granular) - if needed add here
+                return finalValue;
+             };
+
+
+             // --- Apply Modulations ---
+             applyMod('grainSize', params.grainSize, null, true);          // No direct node for grainSize - used in granular scheduling
+             applyMod('grainDensity', params.grainDensity, null, true);    // Density also in scheduling rate
+             applyMod('grainPitchVar', params.grainPitchVar, null, true);   // Grain Pitch Var
+             applyMod('grainOverlap', params.grainOverlap, null, true);     // Grain overlap param
+
+             applyMod('additiveGain', params.additiveBaseGain, additiveGain.gain, true); // Modulate additive layer level
+             applyMod('fmDepth', params.fmDepth, fmGain.gain, true);                   // FM Depth mod
+             applyMod('filterCutoff', currentFilterBaseCutoff, filter.frequency);
+             applyMod('filterQ', params.filterBaseQ, filter.Q);
+             applyMod('reverbWet', params.reverbWet, reverb.wetGain?.gain);              // Reverb wet level - use optional chaining for .wetGain
+             applyMod('delayWet', params.reverbWet, delay.feedbackGain?.gain);          // Example - modulate delay feedback too (typo? 'delayWet' for feedback, check param targets)
+             applyMod('lfo1Depth', params.lfo1BaseDepth, lfo1Gain.gain);
+             applyMod('lfo2Depth', params.lfo2BaseDepth, lfo2Gain.gain);
+             applyMod('lfo1Freq', params.lfo1Freq, lfo1.frequency, false);      // Don't chaos-scale LFO freqs
+             applyMod('lfo2Freq', params.lfo2Freq, lfo2.frequency, false);
+             applyMod('grainPanSpread', params.grainPanSpread, null, true);     // No direct audio param for panSpread in update, used within grain scheduling
+
+             // --- Chord and Harmony Modulation (Example using Harmony LFO target) ---
+             let harmonyLFOAmount = applyMod('harmonyLFOAmount', params.harmonyLFODepth, null, false); // Get modulated LFO Amount (not directly applied)
+
+             // Example of parameter affecting chord choices based on pad interaction or LFO?
+             if (padStates.pad1.active || padStates.pad2.active) {
+                 // Chord progression or voicing could change subtly based on pad Y position, etc.
+                 const padYAvg = (padStates.pad1.y + padStates.pad2.y) / 2; // Example - use average Y position
+
+                 // Maybe step through progression slowly based on LFO or pad position
+                 const progressionStep = Math.floor(padYAvg * chordProgressions[params.chordProgressionIndex].length) % chordProgressions[params.chordProgressionIndex].length;
+                 params.currentChordType = chordProgressions[params.chordProgressionIndex][progressionStep]; // Update current chord type
+                 updateAdditiveHarmonics(); // Rebuild additive harmonics based on new chord/type
+
+
+                 // Subtle chord variety/variation using harmony LFO or pad data (example idea)
+                 const varietyAmount = applyMod('chordProgressionVariety', harmonyLFOAmount, null, false) * 0.5; // Scaled var.
+                 // (Need to define how 'variety' parameter translates into sonic change - e.g., slight pitch shifts, inversions, etc. Not implemented fully yet)
+
+                 // Re-trigger granular & additive layers to refresh textures - can refine timing
+                 updateGranularParameters();
+                 updateAdditiveHarmonics();
+
+             }
+
+
+             // --- Master Volume - Update Last (only on active pad) ---
+             if (padStates.pad1.active || padStates.pad2.active) {
+                 let targetGain = params.masterGain;
+                 if (modSources.some(s => modMatrix[s]?.target === 'mainVol' && !s.startsWith('lfo') && s !== 'sliderR')) {
+                     targetGain = applyMod('mainVol', params.masterGain, null, false); // Modulated gain - no chaos scale for mainVol
+                 }
+                 targetGain = Math.max(0, Math.min(1.0, targetGain)); // Clamp strictly 0-1
+                 const volSmooth = (mainGain.gain.value < 0.01) ? 0.05 : smoothTime; // Attack-like start if volume very low
+                 mainGain.gain.setTargetAtTime(targetGain, now, volSmooth);
+             }
+         }
+
+
+        // --- Event Handling (Pads) - Identical to Chaos Engine ---
+        // *** KEEP IDENTICAL PAD EVENT HANDLING AS CHAOS ENGINE ***
+         function handlePointerDown(e) {
+             if (!audioContext) {
+                 initAudio();
+             }
+             if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().then(() => console.log("AudioContext Resumed.")).catch(err => console.error("Resume failed:", err));
+             }
+             setTimeout(() => {
+                 if (!audioContext || audioContext.state !== 'running') {
+                    console.error("Audio Context not running after resume attempt, cannot process input.");
+                    return;
+                 }
+
+                 const pad = e.target.closest('.xy-pad');
+                 if (!pad) return;
+                 e.preventDefault();
+
+                 const padId = pad.id === 'xyPad1' ? 'pad1' : 'pad2';
+                 if (activePointers.has(e.pointerId)) return;
+
+                 const pointerInfo = {
+                     padId: padId,
+                     lastX: 0.5, lastY: 0.5, lastTime: performance.now(),
+                     currentX: 0.5, currentY: 0.5
+                 };
+                 activePointers.set(e.pointerId, pointerInfo);
+
+                 try {
+                     pad.setPointerCapture(e.pointerId);
+                 } catch (err) {
+                     console.error("Error setting pointer capture:", err);
+                 }
+                 padStates[padId].active = true;
+
+                 const indicator = pad.querySelector('.indicator');
+                 const crossH = pad.querySelector('.crosshair-h');
+                 const crossV = pad.querySelector('.crosshair-v');
+                 if (indicator) indicator.style.display = 'block';
+                 if (crossH) crossH.style.display = 'block';
+                 if (crossV) crossV.style.display = 'block';
+
+                 updatePointerPosition(e, pad);
+
+                 let activePadCount = 0;
+                 activePointers.forEach(info => {
+                     if (padStates[info.padId] && padStates[info.padId].active) {
+                         activePadCount++;
+                     }
+                 });
+
+                 if (activePadCount === 1) {
+                     mainGain.gain.cancelScheduledValues(audioContext.currentTime);
+                     const targetGain = calculateTargetMainGain();
+                     mainGain.gain.setTargetAtTime(targetGain, audioContext.currentTime, 0.05); // Shorter attack for harmonic? Adjust as needed.
+                 } else {
+                     updateSynthParams();
+                 }
+                 updateSynthParams();
+
+            }, 50);
+         }
+
+
+        function handlePointerMove(e) {
+            if (!activePointers.has(e.pointerId)) return;
+            e.preventDefault();
+
+            const pointerInfo = activePointers.get(e.pointerId);
+            const padId = pointerInfo.padId;
+             const pad = document.getElementById(padId === 'pad1' ? 'xyPad1' : 'xyPad2');
+             if (!padStates[padId].active) return;
+
+            updatePointerPosition(e, pad);
+            updateSynthParams();
+         }
+
+        function handlePointerUpOrLeave(e) {
+            if (!activePointers.has(e.pointerId)) return;
+            e.preventDefault();
+
+            const pointerInfo = activePointers.get(e.pointerId);
+            const padId = pointerInfo.padId;
+            const pad = document.getElementById(padId === 'xyPad1' ? 'xyPad1' : 'xyPad2');
+
+            try {
+                if (pad.hasPointerCapture(e.pointerId)) {
+                     pad.releasePointerCapture(e.pointerId);
+                }
+            } catch(err) {
+                console.error("Error releasing pointer capture:", err);
+            }
+
+            activePointers.delete(e.pointerId);
+            padStates[padId].active = false;
+
+             const indicator = pad.querySelector('.indicator');
+             const crossH = pad.querySelector('.crosshair-h');
+             const crossV = pad.querySelector('.crosshair-v');
+             if(indicator) indicator.style.display = 'none';
+             if(crossH) crossH.style.display = 'none';
+             if(crossV) crossV.style.display = 'none';
+
+
+            let anyPadActive = false;
+            activePointers.forEach(info => { if(padStates[info.padId].active) anyPadActive = true; });
+
+            if (!anyPadActive) {
+                if (mainGain && audioContext && audioContext.state === 'running') {
+                    mainGain.gain.cancelScheduledValues(audioContext.currentTime);
+                    mainGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.4); // Longer release for harmonic decay
+                }
+            } else {
+                updateSynthParams();
+            }
+         }
+
+         // Helper to update XY state, visuals, and pointerInfo - Identical
+         function updatePointerPosition(e, pad) {
+            const rect = pad.getBoundingClientRect();
+            const padId = pad.id === 'xyPad1' ? 'pad1' : 'pad2';
+            const pointerInfo = activePointers.get(e.pointerId);
+
+
+            let x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            let y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+            y = 1 - y; // Flip Y
+
+            padStates[padId].x = x;
+            padStates[padId].y = y;
+             if(pointerInfo){
+                pointerInfo.currentX = x;
+                pointerInfo.currentY = y;
+             }
+
+
+             const indicator = pad.querySelector('.indicator');
+             const crossH = pad.querySelector('.crosshair-h');
+             const crossV = pad.querySelector('.crosshair-v');
+             if (!indicator || !crossH || !crossV) return;
+
+             const displayX = x * 100;
+             const displayY = (1 - y) * 100;
+
+             indicator.style.left = `${displayX}%`;
+             indicator.style.top = `${displayY}%`;
+             crossH.style.top = `${displayY}%`;
+             crossV.style.left = `${displayX}%`;
+         }
+
+        function calculateTargetMainGain() {
+             if (!audioContext || !params) return 0;
+            let baseGain = params.masterGain;
+            let finalGain = baseGain;
+            let modulated = false;
+
+
+            const x1_st = padStates.pad1.x, y1_st = padStates.pad1.y, x2_st = padStates.pad2.x, y2_st = padStates.pad2.y;
+            const slL_st = sliderStates.sliderL - 0.5;
+             const lfo1_st = lfo1Gain ? lfo1Gain.gain.value : 0;
+             const lfo2_st = lfo2Gain ? lfo2Gain.gain.value : 0;
+
+            const modValuesNow = { x1: x1_st, y1: y1_st, x2: x2_st, y2: y2_st, sliderL: slL_st, lfo1: lfo1_st, lfo2: lfo2_st };
+
+            modSources.forEach(source => {
+                 if (source === 'sliderR') return;
+                if (modMatrix[source] && modMatrix[source].target === 'mainVol') {
+                    let sourceActive = false;
+                    if (source === 'x1' || source === 'y1') sourceActive = padStates.pad1.active;
+                    else if (source === 'x2' || source === 'y2') sourceActive = padStates.pad2.active;
+                     else if (source === 'sliderL') sourceActive = true;
+                     else if (source.startsWith('lfo')) sourceActive = true;
+
+
+                    if(sourceActive) {
+                         let modInput = modValuesNow[source] ?? 0;
+                         finalGain += modInput * modMatrix[source].amount;
+                         modulated = true;
+                     }
+                 }
+            });
+
+             if (modulated || padStates.pad1.active || padStates.pad2.active) {
+                return Math.max(0, Math.min(1.0, finalGain));
+            } else {
+                return 0;
+             }
+        }
+
+        // --- Event Handling (Sliders) - Identical ---
+         sliderL.addEventListener('input', (e) => {
+             sliderStates.sliderL = parseFloat(e.target.value) / 100;
+            if (audioContext && audioContext.state === 'running') updateSynthParams();
+         });
+
+        sliderR.addEventListener('input', (e) => {
+            sliderStates.sliderR = parseFloat(e.target.value) / 100;
+            if (audioContext && audioContext.state === 'running') updateSynthParams();
+         });
+
+        // Snapback for Slider L - Identical
+        const snapbackSliderL = () => {
+            sliderL.value = 50;
+            sliderStates.sliderL = 0.5;
+            if (audioContext && audioContext.state === 'running') updateSynthParams();
+        };
+        sliderL.addEventListener('pointerup', snapbackSliderL);
+        sliderL.addEventListener('touchend', snapbackSliderL);
+        sliderL.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                 snapbackSliderL();
+            }
+        });
+
+
+        // --- Event Handling (Top Controls) - Identical ---
+         randomizeButton.addEventListener('click', () => {
+             if (!audioContext) initAudio();
+             if (audioContext && audioContext.state === 'suspended') audioContext.resume();
+             setTimeout(() => { randomizeSeed() }, 50);
+         });
+
+        recallSeedButton.addEventListener('click', () => {
+             const seedInput = prompt("Enter Seed Number to Recall:", currentSeed || '');
+            if (seedInput !== null) {
+                 const seedNum = parseInt(seedInput.trim(), 10);
+                 if (!isNaN(seedNum)) {
+                     if (!audioContext) initAudio();
+                     if (audioContext && audioContext.state === 'suspended') audioContext.resume();
+                     setTimeout(() => { randomizeSeed(seedNum) }, 50);
+                 } else {
+                    alert("Invalid seed number.");
+                }
+             }
+         });
+
+        keySelector.addEventListener('change', (e) => {
+            currentKey = e.target.value;
+             console.log("Key changed to:", currentKey);
+             params.baseFrequency = keyFrequencies[currentKey];
+            if(audioContext && audioContext.state === 'running') {
+                 updateSynthParams(true);
+            } else if (audioContext && audioContext.state === 'running' && !additiveGain) { // Check for synth component init
+                 randomizeSeed(currentSeed);
+             }
+        });
+
+
+         // --- Initial Setup - Identical ---
+        function setupControls() {
+            keySelector.innerHTML = '';
+            Object.keys(keyFrequencies).forEach(key => {
+                 const option = document.createElement('option');
+                 option.value = key;
+                 option.textContent = key;
+                 keySelector.appendChild(option);
+             });
+            keySelector.value = currentKey;
+
+             sliderL.value = sliderStates.sliderL * 100;
+             sliderR.value = sliderStates.sliderR * 100;
+        }
+
+        // --- Global Event Listeners for Pads (Delegate) - Identical ---
+        const mainContent = document.getElementById('main-content');
+        mainContent.addEventListener('pointerdown', handlePointerDown);
+        mainContent.addEventListener('pointermove', handlePointerMove);
+        mainContent.addEventListener('pointerup', handlePointerUpOrLeave);
+        mainContent.addEventListener('pointercancel', handlePointerUpOrLeave);
+        mainContent.addEventListener('pointerleave', handlePointerUpOrLeave);
+
+
+         window.addEventListener('DOMContentLoaded', () => {
+             setupControls();
+             console.log("Contemplation Engine DOM loaded. Landscape enforced via CSS. Ready for interaction.");
+             randomizeSeed(); // Generate initial sound config on load
+         });
+
+    </script>
+
+</body>
+</html>

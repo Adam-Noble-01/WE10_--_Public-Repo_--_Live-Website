@@ -1,0 +1,15 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "markdown.styles": ["./RE20_60_00_--_Markdown-Stylesheet.css"],
+        "markdown.preview.defaultStyles": false,
+        "files.associations": {
+            "*notes.txt": "markdown",
+            "*readme.txt": "markdown"
+        }
+    }
+}

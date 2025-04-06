@@ -1,0 +1,182 @@
+/* --- Global Resets & Font Setup --- */
+html, body {
+    height: 100%; /* Ensure body can fill viewport height */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Consistent box model */
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400; /* Regular */
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f7f9; /* Slightly softer background */
+    display: flex; /* Enable flexbox for vertical fill */
+    flex-direction: column; /* Stack container vertically */
+}
+
+/* --- Main Container Layout --- */
+.container {
+    flex: 1; /* Allow container to grow and fill vertical space */
+    display: flex;
+    flex-direction: column; /* Stack elements vertically inside container */
+    width: 95%; /* Responsive width */
+    max-width: 1200px; /* Max width constraint */
+    margin: 20px auto; /* Center container horizontally, add top/bottom margin */
+    padding: 25px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Typography --- */
+h1 {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 600; /* Semi-bold */
+    color: #2c3e50;
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+label {
+    display: block; /* Ensure labels take full width */
+    margin-bottom: 8px;
+    font-weight: 600; /* Slightly bolder */
+    color: #495057;
+}
+
+/* --- CodeMirror Editor --- */
+/* Container label */
+label[for="jsonConfig"] {
+    margin-bottom: 8px;
+}
+
+/* Style the CodeMirror wrapper */
+.CodeMirror {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    /* height: auto; Allow auto height based on content */
+    min-height: 800px; /* Minimum editor height */
+    /* flex-grow: 1; Allow editor to take up available vertical space */
+    margin-bottom: 20px; /* Space below editor */
+    font-size: 0.7rem; /* Slightly smaller font inside editor */
+    line-height: 1.1;
+}
+
+/* --- Status & Validation Messages --- */
+.status {
+    padding: 10px 15px;
+    margin-top: 15px; /* Space above status messages */
+    border-radius: 4px;
+    font-size: 0.95em;
+    text-align: center; /* Center align text in status boxes */
+    word-wrap: break-word; /* Prevent long messages from overflowing */
+}
+
+#validationStatus {
+    margin-top: 10px; /* Space between editor and validation */
+    margin-bottom: 10px; /* Space between validation and visualization */
+}
+
+/* Default (Info) Status */
+.status {
+    background-color: #e9ecef;
+    color: #495057;
+    border: 1px solid #ced4da;
+}
+
+/* Validation Error Status */
+.validation-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    font-weight: 600; /* Bolder text for invalid state */
+}
+
+/* Validation Success Status */
+.validation-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+
+/* --- Visualization Styling --- */
+.visualization-container {
+    margin-top: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.visualization-container label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #495057;
+    text-align: center; /* Center waveform label */
+}
+
+#waveformCanvas {
+    display: block; /* Make canvas block element */
+    width: 100%; /* Make canvas responsive width */
+    max-width: 600px; /* Optional: Set max width */
+    height: 100px; /* Fixed height */
+    background-color: #263238; /* Match CodeMirror dark theme */
+    border-radius: 4px;
+    margin: 0 auto; /* Center canvas */
+}
+
+
+/* --- Button Styling --- */
+.button-container {
+    text-align: center;
+    margin-top: 20px; /* Space above buttons */
+    margin-bottom: 10px; /* Space below buttons */
+    padding-top: 15px; /* Add some padding if container flex pushes them up */
+    border-top: 1px solid #eee; /* Separator line */
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px 8px; /* Add horizontal margin */
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    font-family: 'Open Sans', sans-serif; /* Ensure button font */
+    font-weight: 600;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    min-width: 120px; /* Minimum width for buttons */
+}
+
+button:hover:not(:disabled) {
+    background-color: #0056b3;
+    opacity: 0.9;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+#stopButton {
+    background-color: #dc3545; /* Red for stop */
+}
+
+#stopButton:hover:not(:disabled) {
+    background-color: #c82333;
+}

@@ -1,0 +1,48 @@
+# Temporary Notes
+###### This document is intended to hold placeholder notes that have not been sorted
+---
+
+### Sitemap Notes
+
+-   Convert Site Map To Proper Json 
+-   Build a easy sitemap viewer
+
+```provisional_sitemap
+www.noble-architecture.com/sn-apps/text-to-reader-app/text-to-reader-app
+www.noble-architecture.com/na-project-portal/25-projects/GA06_--_Cloves-Wood
+www.noble-architecture.com/na-project-portal/25-projects/GA06_--_Cloves-Wood/GA06_-_PlanVision_-_Web-Application
+```
+
+###### Web Application Directory Sitemap
+
+```web_application_directory_sitemap
+assets			    =  Assets related to only the main site & not apps; Github requires this folder
+assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies usually preffered for long term archiving
+na-apps         =  Noble Architecture  - Live App Deployment
+nb-apps         =  Noble Audio - Live App Deployment
+sn-apps         =  Studio NoodlFjørd - Live App Deployment
+assets-dev      =  Pages / Applications currently under active develiopment not yet deployed or archived
+```
+
+---
+
+#### Global Assets Library Map
+
+-   Used Globally for  serving files for web apps and static pages
+
+```web_application_directory_sitemap
+assets			    =  Assets related to only the main site & not apps; Github requires this folder
+assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies usually preffered for long term archiving
+```
+
+---------------------------------------------------------------------------------------------------
+
+###### 
+
+
+
+---------------------------------------------------------------------------------------------------
+###### End Of Notes
+
+
+
