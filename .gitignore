@@ -49,3 +49,5 @@ assets-archive/
 # Ignore all files in the assets-archive directory
 assets-archive/*
 
+# Ignore the WE10_--_Public-Repo_--_Live-Website.code-workspace file
+./WE10_--_Public-Repo_--_Live-Website.code-workspace
