@@ -31,13 +31,19 @@ A GitHub Pages website for an archit
 ## Project File Type Reference List
 
 ### Project File Type Reference List
+```file_type_reference_list
 READ  =  Readme files containing information about the project.
-RULE  =  Text File Defining strict rules and manditory coding conventions.
+RULE  =  Text File Defining strict rules and MANDATORY coding conventions.
+DATA  =  A Directory of data files for the project; note data typically stores data in a structured json format.
+APPS  =  A Directory containing collections of scripts making up a complete application typically.
 STYL  =  Refers to CSS style sheet files defining a style or set of styles.
 HTML  =  Refers to HTML files containing the structure and content of the project.
 JSON  =  Refers to JSON files which store data in a structured format for the project.
 SETP  =  Denotes template files & folders; meaning term means "Setup".
 PAGE  =  Refers to a static page of the website.
+```
+
+----------------------------------------------------------------------------------------------------
 
 ### Project JavaScript Function Code Reference List
 LOAD-FN  =  Loading Function
