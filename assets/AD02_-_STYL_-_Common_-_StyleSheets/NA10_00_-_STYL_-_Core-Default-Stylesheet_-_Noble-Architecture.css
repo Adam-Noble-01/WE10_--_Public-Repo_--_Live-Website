@@ -109,14 +109,12 @@ html, body {
     align-items         :    center;
 }
 
-.HEAD__na_logo {
+.HEAD__na_logo-image {
     display             :    flex;
     align-items         :    center;
-}
-
-.HEAD__na_logo-image {
     height              :    02.00rem;
 }
+
 
 .HEAD__na_logo-text {
     display             :    none;  /*   <-- Hidden Main; may be reinstated with certain applications */
