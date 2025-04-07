@@ -1,44 +1,73 @@
 ---
 ====================================================================================================
-NOBLE ARCHITECTURE WEBSITE - CORE FILE METASCRIPT BOILERPLATE TEMPLATE
-FILE NAME |  AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
-FILE TYPE |  [INFO/RULE/READ/DLIS/SETP]
+NOBLE ARCHITECTURE WEBSITE - IMPROVEMENTS LIST & TASKS
+FILE NAME |  AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+FILE TYPE |  DLIS
 
 VERSION HISTORY
 04-Apr-2025 - Version 1.0.0 - Initial Draft
 04-Apr-2025 - Version 1.1.0 
-- [List Notes]
-- [List Notes]
-- [List Notes]
+- Created task tracking document
+- Added sections for current tasks, known problems, and improvement ideas
+- Established placeholder structure for ongoing development
 
 DESCRIPTION
-- This file is a boilerplate for creating new files in the project.
-- All code should align with the standards set out in this document.
-- This document illustrates the markdown formatting style preferred for the project documentation.
+- This file tracks ongoing tasks, known issues, and potential improvements for the project.
+- Use this document to log bugs, feature requests, and development priorities.
+- Regular updates to this document help maintain project momentum and focus.
 ====================================================================================================
 ---
 
-# [DOCUMENT TITLE]
-----------------------------------------------------------------------------------------------------
+# NOBLE ARCHITECTURE IMPROVEMENTS & TASKS
+--------------------------------------------------------------------------------
 
 ## DOCUMENT OVERVIEW
 
 #### Document Purpose
-[Brief description of document clearly stating the purpose of the document]
+This document serves as a central repository for tracking development tasks, known issues, and potential improvements for the Noble Architecture website project.
 
 #### Document Introduction Section
-[Write a brief introduction to the document here]
+- The Noble Architecture website is under continuous development. 
+- This document helps organise and prioritise work items, track bugs, and capture improvement ideas. 
+- Regular review of this document ensures that development efforts remain aligned with project goals.
 
 
-----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-## [SECTION ONE]
-### [Subsection Title]
-- [Content point]
-- [Content point]
-- [Content point]
+## PROJECT MANAGEMENT
 
-#### [Detailed Information]
+### CURRENT TASKS UNDER DEVELOPMENT
+--------------------------------------------------------------------------------
+- [Placeholder]
+- [Placeholder]
+- [Placeholder]
 
-----------------------------------------------------------------------------------------------------
+
+### KNOWN PROBLEMS & BUG REPORTING
+--------------------------------------------------------------------------------
+- [Placeholder]
+- [Placeholder]
+- [Placeholder]
+
+
+### IMPROVEMENT IDEAS SECTION
+--------------------------------------------------------------------------------
+- [Placeholder]
+- [Placeholder]
+- [Placeholder]
+
+--------------------------------------------------------------------------------
 ###### END OF FILE 
+
+## DIRECTORY CONTENTS
+
+### Files in AD00_-_DOCS_-_Master-Reference-Documentation
+- AD10_10_-_DOCS_-_Master-Reference-Documentation.txt
+- AD10_20_-_DOCS_-_Project-Overview.txt
+- AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+- AD10_40_-_DOCS_-_Coding-Standards.txt
+- AD10_50_-_DOCS_-_File-Naming-Conventions.txt
+- AD10_60_-_DOCS_-_Directory-Structure.txt
+- AD10_70_-_DOCS_-_Version-History.txt
+- AD10_80_-_DOCS_-_Contributor-Guidelines.txt
+- AD10_90_-_DOCS_-_License-Information.txt

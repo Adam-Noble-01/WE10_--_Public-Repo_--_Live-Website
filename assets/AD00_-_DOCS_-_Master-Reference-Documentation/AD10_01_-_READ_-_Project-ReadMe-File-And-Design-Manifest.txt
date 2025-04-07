@@ -38,65 +38,24 @@ www.noble-architecture.com
 - For a full list of the site structure, please refer to the [Site Structure](https://github.com/Adam-Noble-01/WE10_--_Public-Repo_--_Live-Website/blob/main/AD10_-_Master-Reference-Documentation/AD10_02_-_READ_-_Core-File-And-Code-Naming-Conventions.txt) document.
 
 
-
-
-
-# Website Structure & Visibility  
+## REFERENCE DOCUMENTATION DIRECTORY
 ----------------------------------------------------------------------------------------------------
 
-This site is being developed as a dual-layer system with clearly separated public and private zones, designed to serve both as a public-facing portfolio and a private client project portal.
-
----
-
-## Current Structure
-
-- **Homepage (`index.html`)** sits at the root level and serves as the landing page.
-- **Child pages** are structured in subfolders and named according to a **sequential file system** (e.g. `1001.html`, `1002.html`, etc.) to align with internal project filing.
-- Pages can be **manually linked** or dynamically injected into navigation via a central `pages.json` file.
-
----
-
-## JSON-Driven Metadata
-
-Each page is referenced in `pages.json` with metadata including:
-- Title
-- Description
-- Keywords
-- Path
-- Search engine visibility toggle
-
-### Example Key
-```json
-{
-    "title": "Project Alpha",
-    "path": "folio/1001.html",
-    "description": "Private client portal for Project Alpha",
-    "keywords": "residential, extension, planning",
-    "searchEngineVisible": false
-}
+```reference-documentation-directory
+./AD00_-_DOCS_-_Master-Reference-Documentation
+    /AD10_10_-_DOCS_-_Master-Reference-Documentation.txt
+    /AD10_20_-_DOCS_-_Project-Overview.txt
+    /AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+    /AD10_40_-_DOCS_-_Coding-Standards.txt
+    /AD10_50_-_DOCS_-_File-Naming-Conventions.txt
+    /AD10_60_-_DOCS_-_Directory-Structure.txt
+    /AD10_70_-_DOCS_-_Version-History.txt
+    /AD10_80_-_DOCS_-_Contributor-Guidelines.txt
+    /AD10_90_-_DOCS_-_License-Information.txt
 ```
 
-----------------------------------------------------------------------------------------------------
-## Robots & Meta Tag Handling
 
-- During development, **all pages will have `<meta name="robots" content="noindex, nofollow">` applied by default**.
-- A JavaScript parser will check each page's `searchEngineVisible` value from the JSON file.
-    - If **`false` or missing**, `noindex, nofollow` will remain active.
-    - If **`true`**, the tag will be removed or replaced to allow indexing.
-- This creates a future-proof system for selectively exposing only the finished and approved public portfolio sections.
-
----
-
-## Future Considerations
-
-- Potential integration of a basic dashboard or interface for toggling visibility without editing source files.
-- Optional lightweight access barriers for client portals if required.
-- Support for SPA-style portals using dynamic content loading driven by the JSON manifest.
-
----
-
-Let me know if you'd like this dropped into a `README.md` or versioned into a `design-notes.md` so it stays separate from build instructions.
-
+www.noble-architecture.com/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_10_-_DOCS_-_Master-Reference-Documentation.txt
 
 ----------------------------------------------------------------------------------------------------
 ## GITHUB REPO DETAILS
