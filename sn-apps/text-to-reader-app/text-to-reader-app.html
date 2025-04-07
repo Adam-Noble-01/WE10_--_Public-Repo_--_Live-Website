@@ -8,7 +8,7 @@
     FILE TYPE    |  HTML/CSS/JS Single-File Web Application
     APP DETAILS  |  A utility to parse WhatsApp chat text or render Markdown text into a readable format.
     AUTHOR       |  Adam Noble - Studio NoodlFjord
-    VERSION      |  1.2.1
+    VERSION      |  1.2.3
     ====================================================================================================================
 
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -94,6 +94,16 @@
                         - Updated version history tracking.
                         - Added Accessibility improvements (label for input, ARIA for output).
 
+    07-Apr-2025 - v1.2.3  |  CSS STYLE GUIDE ALIGNMENT
+                        - Refactored CSS to align with project style guide.
+                        - Implemented proper block naming conventions (PAGE__, HEAD__, etc.).
+                        - Converted pixel values to rem units.
+                        - Added CSS variables for colors and other values.
+                        - Applied column-like formatting for CSS properties.
+                        - Updated HTML to use class-based selectors instead of IDs.
+                        - Added responsive design improvements.
+                        - Updated JavaScript to work with new class names.
+
     ??-???-???? - vX.Y.Z  |  LIST FUTURE UPDATES HERE
 
     ====================================================================================================================
@@ -102,7 +112,7 @@
     <!-- 
     =============================================================================================
     HTML | HEAD SECTION: META, TITLE, FONTS, CSS
-    - Introduced in v1.0.0 | Updated v1.2.1 (Added Version Meta)
+    - Introduced in v1.0.0 | Updated v1.2.1 (Added Version Meta) | Updated v1.2.3
     Contains metadata (including application version), page title, font links, 
     and all CSS styles for the application.
     =============================================================================================
@@ -110,7 +120,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Add Application Version Meta Tag -->
-    <meta name="application-version" content="1.2.1"> <!-- ← CONFIG | Set Application Version Here -->
+    <meta name="application-version" content="1.2.3"> <!-- ← CONFIG | Set Application Version Here -->
     <title>Text To Reader Utility</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet"> <!-- ← KEY LINK | Google Fonts Dependency -->
     
@@ -128,214 +138,305 @@
     <style>
         /* =============================================================================================
            CSS | BASIC RESET & LAYOUT
-           - Introduced in v1.0.0 | Refactored v1.2.1
+           - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3 (Style Guide Alignment)
            ============================================================================================= */
+        :root {
+            --primary-color      :    #555041;          /*   <-- Brand color */
+            --primary-hover      :    #3d392e;          /*   <-- Darker shade */
+            --secondary-color    :    #86847d;          /*   <-- Neutral brand */
+            --secondary-hover    :    #6c6a65;          /*   <-- Darker neutral */
+            --success-color      :    #28a745;          /*   <-- Success state */
+            --danger-color       :    #dc3545;          /*   <-- Error state */
+            --danger-hover       :    #c82333;          /*   <-- Error hover */
+            --card-bg            :    #ffffff;           /*   <-- Card background */
+            --card-border        :    #ddd;              /*   <-- Card border */
+            --code-bg            :    #272822;           /*   <-- Code block background */
+            --code-border        :    #444;              /*   <-- Code block border */
+            --text-color         :    #333;              /*   <-- Primary text */
+            --text-light         :    #666;              /*   <-- Secondary text */
+            --body-bg            :    #f4f4f4;           /*   <-- Body background */
+            --header-bg          :    #fff;              /*   <-- Header background */
+            --header-border      :    var(--primary-color); /*   <-- Header border */
+            --button-text        :    #fff;              /*   <-- Button text */
+            --warning-bg         :    #fff3cd;           /*   <-- Warning background */
+            --warning-border     :    #ffeeba;           /*   <-- Warning border */
+            --warning-text       :    #856404;           /*   <-- Warning text */
+            --header-height      :    55px;              /*   <-- Header height */
+        }
+
         html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            min-height: 100%; 
-            background: #f0f0f0;
-            font-family: 'Open Sans', sans-serif;
-            font-size: 14px; 
-            color: #333;
-            line-height: 1.5;
+            margin              :    0;
+            padding             :    0;
+            width               :    100%;
+            min-height          :    100vh;
+            background-color    :    var(--body-bg);
+            font-family         :    'Open Sans', sans-serif;
+            font-size           :    16.00px;            /*   <-- CRITICAL VALUE!!  */
+            color               :    var(--text-color);
+            line-height         :    1.5;
         }
-        #app-container {
-            width: 100%;
-            min-height: 100vh; 
-            overflow-y: auto; 
+
+        /* - - - - - - - - - - - - -   Page Container   - - - - - - - - - - - - - */
+        .PAGE__container {
+            width               :    100%;
+            min-height          :    100vh;
+            overflow-y          :    auto;
         }
 
         /* =============================================================================================
-           CSS | HEADER STYLING
-           - Introduced in v1.0.0 | Updated v1.2.1
+           CSS | HEADER COMPONENTS (Using HEAD__ Block)
+           - Introduced in v1.0.0 | Updated v1.2.1 | Refactored v1.2.3
            ============================================================================================= */
-        #header {
-            width: 100%;
-            height: 55px; 
-            background: #fff;
-            border-bottom: 2px solid #4a4a4a; 
-            display: flex;
-            align-items: center;
-            padding: 0 20px; 
-            box-sizing: border-box;
-            position: sticky; 
-            top: 0;
-            z-index: 10;
+        .HEAD__container {
+            width               :    100%;
+            height              :    var(--header-height);
+            background          :    var(--header-bg);
+            border-bottom       :    2px solid var(--header-border);
+            display             :    flex;
+            align-items         :    center;
+            padding             :    0 01.25rem;
+            box-sizing          :    border-box;
+            position            :    sticky;
+            top                 :    0;
+            z-index             :    10;
         }
-        #app-title {
-            font-size: 22px; 
-            color: #4a4a4a;
-            font-weight: 600;
-            display: flex; 
-            align-items: baseline; 
-            gap: 8px; 
+
+        .HEAD__title {
+            font-size           :    01.375rem;
+            color               :    var(--text-color);
+            font-weight         :    600;
+            display             :    flex;
+            align-items         :    baseline;
+            gap                 :    00.50rem;
         }
-        #app-title .version-note {
-             /* Styles applied via JS */
+
+        .HEAD__version-note {
+            /* Styles applied via JS */
         }
 
         /* =============================================================================================
-           CSS | MAIN CONTENT AREA
-           - Introduced in v1.0.0 | Refactored v1.2.1
+           CSS | MAIN CONTENT AREA (Using MAIN__ Block)
+           - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
            ============================================================================================= */
-        #main {
-            width: 90%; 
-            max-width: 800px; 
-            margin: 30px auto; 
-            padding: 25px;
-            background-color: #ffffff; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        .MAIN__container {
+            width               :    90%;
+            max-width           :    800px;
+            margin              :    01.875rem auto;
+            padding             :    01.5625rem;
+            background-color    :    var(--card-bg);
+            border-radius       :    00.50rem;
+            box-shadow          :    0 2px 10px rgba(0,0,0,0.1);
         }
 
         /* =============================================================================================
-           CSS | TEXTAREA INPUT STYLING & LABEL
-           - Introduced in v1.0.0 | Refactored v1.2.1 | Added Label Style v1.2.2 (implicitly)
+           CSS | FORM COMPONENTS (Using FORM__ Block)
+           - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
            ============================================================================================= */
-         /* Style for the input label */
-         label[for="inputText"] {
-             display: block; 
-             margin-bottom: 8px; 
-             font-weight: 600;
-             font-size: 14px;
-             color: #333;
-             text-align: left; 
-         }
+        .FORM__label {
+            display             :    block;
+            margin-bottom       :    00.50rem;
+            font-weight         :    600;
+            font-size           :    00.875rem;
+            color               :    var(--text-color);
+            text-align          :    left;
+        }
         
-        #inputText {
-            width: 100%;
-            height: 250px; 
-            padding: 12px;
-            font-size: 14px; 
-            color: #282828;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            resize: vertical;
-            font-family: monospace; 
-            line-height: 1.6;
-            margin-bottom: 20px; 
+        .FORM__textarea {
+            width               :    100%;
+            height              :    15.625rem;
+            padding             :    00.75rem;
+            font-size           :    00.875rem;
+            color               :    var(--text-color);
+            border              :    1px solid var(--card-border);
+            border-radius       :    00.3125rem;
+            box-sizing          :    border-box;
+            resize              :    vertical;
+            font-family         :    monospace;
+            line-height         :    1.6;
+            margin-bottom       :    01.25rem;
         }
 
         /* =============================================================================================
-           CSS | BUTTON CONTAINER & BUTTONS
-           - Introduced in v1.0.0 | Refactored v1.2.1
+           CSS | BUTTON COMPONENTS (Using BTTN__ Block)
+           - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
            ============================================================================================= */
-        .button-container {
-            display: flex;
-            justify-content: flex-end; 
-            gap: 10px; 
-            margin-top: 10px; 
+        .BTTN__container {
+            display             :    flex;
+            justify-content     :    flex-end;
+            gap                 :    00.625rem;
+            margin-top          :    00.625rem;
         }
-        #renderButton, #clearButton {
-            padding: 10px 20px; 
-            font-size: 14px; 
-            border: none;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+
+        .BTTN__primary, .BTTN__danger {
+            padding             :    00.625rem 01.25rem;
+            font-size           :    00.875rem;
+            border              :    none;
+            color               :    var(--button-text);
+            border-radius       :    00.25rem;
+            cursor              :    pointer;
+            transition          :    background-color 0.2s ease;
         }
-        #renderButton {
-            background-color: #0078D7; 
+
+        .BTTN__primary {
+            background-color    :    var(--primary-color);
         }
-        #renderButton:hover {
-            background-color: #005a9e;
+
+        .BTTN__primary:hover {
+            background-color    :    var(--primary-hover);
         }
-        #clearButton {
-            background-color: #dc3545; 
+
+        .BTTN__danger {
+            background-color    :    var(--danger-color);
         }
-        #clearButton:hover {
-            background-color: #c82333;
+
+        .BTTN__danger:hover {
+            background-color    :    var(--danger-hover);
         }
 
         /* =============================================================================================
-           CSS | OUTPUT AREA STYLING
-           - Introduced in v1.0.0 | Refactored v1.2.1
+           CSS | OUTPUT COMPONENTS (Using MAIN__ Block)
+           - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
            ============================================================================================= */
-        #output-heading { 
-            margin-top: 30px; 
-            margin-bottom: 10px; 
-            font-size: 18px; 
-            color: #333;
-            text-align: left;
-            border-bottom: 1px solid #eee; 
-            padding-bottom: 5px;
+        .MAIN__output-heading {
+            margin-top          :    01.875rem;
+            margin-bottom       :    00.625rem;
+            font-size           :    01.125rem;
+            color               :    var(--text-color);
+            text-align          :    left;
+            border-bottom       :    1px solid var(--card-border);
+            padding-bottom      :    00.3125rem;
         }
            
-        #output {
-            padding: 15px; 
-            border: 1px solid #ddd; 
-            border-radius: 5px;
-            background-color: #f9f9f9; 
-            min-height: 250px; 
-            text-align: left; 
-            line-height: 1.6; 
-            font-size: 14px; 
-            white-space: pre-wrap; 
-            word-wrap: break-word; 
-            overflow-y: auto; 
+        .MAIN__output {
+            padding             :    00.9375rem;
+            border              :    1px solid var(--card-border);
+            border-radius       :    00.3125rem;
+            background-color    :    var(--body-bg);
+            min-height          :    15.625rem;
+            text-align          :    left;
+            line-height         :    1.6;
+            font-size           :    00.875rem;
+            white-space         :    pre-wrap;
+            word-wrap           :    break-word;
+            overflow-y          :    auto;
         }
-        /* Styling for elements generated by Marked.js */
-        #output p { margin: 0 0 1em 0; }
-        #output strong, #output b { font-weight: 600; }
-        #output em, #output i { font-style: italic; }
-        #output pre { background-color: #eee; padding: 10px; border-radius: 4px; overflow-x: auto; }
-        #output code { font-family: monospace; background-color: #eee; padding: 0.2em 0.4em; border-radius: 3px; }
-        #output pre code { padding: 0; background-color: transparent; }
-        #output blockquote { border-left: 4px solid #ccc; padding-left: 10px; margin-left: 0; color: #666; }
-        #output ul, #output ol { padding-left: 25px; }
-        #output li { margin-bottom: 0.5em; }
+
+        /* - - - - - - - - - - - - -   Marked.js Output Styling   - - - - - - - - - - - - - */
+        .MAIN__output p {
+            margin              :    0 0 01.00rem 0;
+        }
+
+        .MAIN__output strong, .MAIN__output b {
+            font-weight         :    600;
+        }
+
+        .MAIN__output em, .MAIN__output i {
+            font-style          :    italic;
+        }
+
+        .MAIN__output pre {
+            background-color    :    var(--code-bg);
+            padding             :    00.625rem;
+            border-radius       :    00.25rem;
+            overflow-x          :    auto;
+        }
+
+        .MAIN__output code {
+            font-family         :    monospace;
+            background-color    :    var(--code-bg);
+            padding             :    00.20rem 00.40rem;
+            border-radius       :    00.1875rem;
+        }
+
+        .MAIN__output pre code {
+            padding             :    0;
+            background-color    :    transparent;
+        }
+
+        .MAIN__output blockquote {
+            border-left         :    4px solid var(--card-border);
+            padding-left        :    00.625rem;
+            margin-left         :    0;
+            color               :    var(--text-light);
+        }
+
+        .MAIN__output ul, .MAIN__output ol {
+            padding-left        :    01.5625rem;
+        }
+
+        .MAIN__output li {
+            margin-bottom       :    00.3125rem;
+        }
+
+        /* =============================================================================================
+           CSS | RESPONSIVE LAYOUTS
+           - Introduced in v1.2.3
+           ============================================================================================= */
+        @media (max-width: 768px) {
+            .MAIN__container {
+                width               :    95%;
+                padding             :    01.00rem;
+                margin              :    01.00rem auto;
+            }
+
+            .BTTN__container {
+                flex-direction       :    column;
+            }
+
+            .BTTN__primary, .BTTN__danger {
+                width               :    100%;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- 
     =============================================================================================
     HTML | APP CONTAINER & HEADER
-    - Introduced in v1.0.0 | Updated v1.2.1 
+    - Introduced in v1.0.0 | Updated v1.2.1 | Refactored v1.2.3
     =============================================================================================
     -->
-    <div id="app-container">
-        <div id="header">
-            <span id="app-title">Text To Reader Utility</span> 
+    <div class="PAGE__container">
+        <div class="HEAD__container">
+            <span class="HEAD__title">Text To Reader Utility</span> 
         </div>
 
         <!-- 
         =============================================================================================
         HTML | MAIN CONTENT: Input, Buttons, Output
-        - Introduced in v1.0.0 | Refactored v1.2.1 | Accessibility v1.2.2 (implicitly)
+        - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
         =============================================================================================
         -->
-        <div id="main">
+        <div class="MAIN__container">
 
             <!-- -----------------------------------------------------------------------------------------
                HTML | INPUT AREA
-               - Introduced in v1.0.0 | Accessibility v1.2.2 (Added Label)
+               - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
                ----------------------------------------------------------------------------------------- -->
-            <label for="inputText">Input Text (WhatsApp or Markdown):</label> 
+            <label for="inputText" class="FORM__label">Input Text (WhatsApp or Markdown):</label> 
             <textarea
                 id="inputText"
+                class="FORM__textarea"
                 placeholder="Paste your text (WhatsApp or Markdown) here..."
             ></textarea>
 
             <!-- -----------------------------------------------------------------------------------------
                HTML | ACTION BUTTONS
-               - Introduced in v1.0.0
+               - Introduced in v1.0.0 | Updated v1.2.3
                ----------------------------------------------------------------------------------------- -->
-            <div class="button-container">
-                <button id="renderButton">Render Text To Page</button>
-                <button id="clearButton">Clear Text</button>
+            <div class="BTTN__container">
+                <button id="renderButton" class="BTTN__primary">Render Text To Page</button>
+                <button id="clearButton" class="BTTN__danger">Clear Text</button>
             </div>
 
             <!-- -----------------------------------------------------------------------------------------
                HTML | OUTPUT AREA
-               - Introduced in v1.0.0 | Accessibility v1.2.2 (Added ARIA attributes & heading ID)
+               - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
                ----------------------------------------------------------------------------------------- -->
-            <h2 id="output-heading">Output</h2> 
+            <h2 id="output-heading" class="MAIN__output-heading">Output</h2> 
             <div 
                 id="output" 
+                class="MAIN__output"
                 role="region" 
                 aria-live="polite" 
                 aria-labelledby="output-heading"
@@ -343,8 +444,8 @@
                 <!-- Rendered content will appear here -->
             </div>
 
-        </div> <!-- End #main -->
-    </div> <!-- End #app-container -->
+        </div> <!-- End MAIN__container -->
+    </div> <!-- End PAGE__container -->
 
     <!-- 
     =============================================================================================
@@ -363,7 +464,7 @@
     <script>
         // =============================================================================================
         // JAVASCRIPT | GLOBAL VARIABLES & CONSTANTS
-        // - Introduced in v1.2.1
+        // - Introduced in v1.2.1 | Updated v1.2.3
         // Defines global constants and caches frequently accessed DOM elements.
         // =============================================================================================
         const G_DOM_ELEMENTS = {
@@ -482,7 +583,7 @@
 
             // --- Create the Version Note Span ---
             const versionSpan = document.createElement('span');
-            versionSpan.className = 'version-note';
+            versionSpan.className = 'HEAD__version-note';
             versionSpan.textContent = `${config.prefix}${versionString}${config.suffix}`;
 
             // --- Apply Styling ---
@@ -562,16 +663,16 @@
 
         // =============================================================================================
         // INITIALIZATION | MAIN APPLICATION INIT
-        // - Introduced in v1.2.1
+        // - Introduced in v1.2.1 | Updated v1.2.3
         // DESCRIPTION
         // - Sets up the application on page load: caches DOM elements, injects version note,
         //   and attaches global event listeners.
         // =============================================================================================
         function initApp() {
-            console.log(`Initializing Text To Reader Utility v1.2.1...`); 
+            console.log(`Initializing Text To Reader Utility v1.2.3...`); 
 
             // --- Cache DOM Elements ---
-            G_DOM_ELEMENTS.appTitle = document.getElementById('app-title');
+            G_DOM_ELEMENTS.appTitle = document.querySelector('.HEAD__title');
             G_DOM_ELEMENTS.inputText = document.getElementById('inputText');
             G_DOM_ELEMENTS.renderButton = document.getElementById('renderButton');
             G_DOM_ELEMENTS.clearButton = document.getElementById('clearButton');
