@@ -74,6 +74,8 @@ NA04_09_-_NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png
 READ  =  Readme files containing information about the project.
 RULE  =  Text File Defining strict rules and MANDATORY coding conventions.
 INFO  =  A Readme file of less importance than a READ or RULE file.
+USER  =  A User Guide or User Manual designed for non-technical users of the project.
+DLIS  =  Defines task lists, improvements ideas and other notes during development, means "Development List".
 
 - - - Data Files - - -
 DATA  =  A Directory of data files for the project; note data typically stores data in a structured json format.
