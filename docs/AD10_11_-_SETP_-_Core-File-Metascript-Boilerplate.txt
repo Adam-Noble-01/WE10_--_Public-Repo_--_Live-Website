@@ -1,0 +1,44 @@
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - CORE FILE METASCRIPT BOILERPLATE TEMPLATE
+FILE NAME |  AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+FILE TYPE |  [INFO/RULE/READ/DLIS/SETP]
+
+VERSION HISTORY
+04-Apr-2025 - Version 1.0.0 - Initial Draft
+04-Apr-2025 - Version 1.1.0 
+- [List Notes]
+- [List Notes]
+- [List Notes]
+
+DESCRIPTION
+- This file is a boilerplate for creating new files in the project.
+- All code should align with the standards set out in this document.
+- This document illustrates the markdown formatting style preferred for the project documentation.
+====================================================================================================
+---
+
+# [DOCUMENT TITLE]
+----------------------------------------------------------------------------------------------------
+
+## DOCUMENT OVERVIEW
+
+#### Document Purpose
+[Brief description of document clearly stating the purpose of the document]
+
+#### Document Introduction Section
+[Write a brief introduction to the document here]
+
+
+----------------------------------------------------------------------------------------------------
+
+## [SECTION ONE]
+### [Subsection Title]
+- [Content point]
+- [Content point]
+- [Content point]
+
+#### [Detailed Information]
+
+----------------------------------------------------------------------------------------------------
+###### END OF FILE 

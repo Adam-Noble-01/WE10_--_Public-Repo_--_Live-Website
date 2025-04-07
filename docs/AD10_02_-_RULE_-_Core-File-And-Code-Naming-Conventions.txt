@@ -1,0 +1,107 @@
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE & APPLICATIONS - Core Project File & Code Naming Conventions
+AD10_02_-_READ_-_Core-Project-File-And-Code-Naming-Conventions-Document.txt
+ 
+VERSION HISTORY
+05-Apr-2025 - Version 1.0 - Initial Draft
+
+DESCRIPTION
+- This document is the core conventions reference document for the project.
+- These codes are global across the project and are used to identify the file type of a given file.
+- These code also define the naming conventions for code objects, variables, functions, etc.
+- All code MUST align with the standards set out in this document.
+
+====================================================================================================
+---
+
+# Website Design Manifest
+###### A Breakdown Of The Website Design Manifest
+----------------------------------------------------------------------------------------------------
+
+### Website URL
+http://www.noble-architecture.com/
+
+
+
+## ASSET NAMING CONVENTION RULES
+###### A Breakdown Of The Projects Core Asset Naming Conventions
+-------------------------------------------------------------------------------
+
+#### Notes On Image & Graphical Asset Naming Conventions
+Format Example String
+ ```NA0#_0#_-_NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png```
+ 
+Filename Breakdown
+    - `NA0#`            :    Noble Architecture prefix matching the parent directory prefix code.
+    - `0#`              :    Sequential item number within the series (e.g., `01, 02, 03` etc.)
+    - `NA-Pictogram`    :    Asset type identifier
+    - `PNG`             :    File format
+    - `1500px`          :    Resolution/size specification
+    - `Idea-Lightbulb`  :    Descriptive name of the pictogram in Title Case with hyphens
+
+- Always use string with no white spaces or special characters.
+- Never spaces in filenames.
+- Use hyphens `-` instead of underscores `_` for word separation in the descriptive part.
+- Create clear string sections using `_-_`
+- Use sequential numbering for each file listed.
+- File number prefix codes are always unique globally.
+    - This ensure easy searching sorting and indexing of all assets.
+- Use descriptive names are brief but clear
+- Descriptions are always in `Title Case`
+
+#### Example File Names
+- This context shows a directory containing graphical assets.
+
+```example_file_names
+NA04_01_-_NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png
+NA04_02_-_NA-Pictogram_-_PNG_-_1500px_-_Drafting-Tools.png
+NA04_03_-_NA-Pictogram_-_PNG_-_1500px_-_Existing-Plan.png
+NA04_04_-_NA-Pictogram_-_PNG_-_1500px_-_Proposed-Plan.png
+NA04_05_-_NA-Pictogram_-_PNG_-_1500px_-_Approval-Stamp.png
+NA04_06_-_NA-Pictogram_-_PNG_-_1500px_-_Existing-Elevation.png
+NA04_07_-_NA-Pictogram_-_PNG_-_1500px_-_Site-Measure.png
+NA04_08_-_NA-Pictogram_-_PNG_-_1500px_-_Search-Magnifying-Glass.png
+NA04_09_-_NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png
+```
+
+
+### Project File Type Reference List
+----------------------------------------------------------------------------------------------------
+
+```file_type_reference_list
+- - - Information & Documentation Files - - -
+READ  =  Readme files containing information about the project.
+RULE  =  Text File Defining strict rules and MANDATORY coding conventions.
+INFO  =  A Readme file of less importance than a READ or RULE file.
+USER  =  A User Guide or User Manual designed for non-technical users of the project.
+DLIS  =  Defines task lists, improvements ideas and other notes during development, means "Development List".
+
+- - - Data Files - - -
+DATA  =  A Directory of data files for the project; note data typically stores data in a structured json format.
+
+- - - Application Files - - -
+APPS  =  A Directory containing collections of scripts making up a complete application typically.
+
+- - - Style Files - - -
+STYL  =  Refers to CSS style sheet files defining a style or set of styles.
+
+- - - Code Files - - -
+HTML  =  Refers to HTML files containing the structure and content of the project.
+JSON  =  Refers to JSON files which store data in a structured format for the project.
+SETP  =  Denotes template files & folders; meaning term means "Setup".
+PAGE  =  Refers to a static page of the website.
+
+- - - Asset Files - - -
+LOGO  =  Refers to a logo or branded graphic file for the project.
+```
+
+    
+### Project JavaScript Function Code Reference List
+----------------------------------------------------------------------------------------------------
+LOAD-FN  =  Loading Function
+
+
+----------------------------------------------------------------------------------------------------
+###### END OF FILE 
+

@@ -1,0 +1,122 @@
+{"na-project-data-library":{
+    "file-metadata":{
+        "file-name"                 :    "SM05_-_DATA_-_Document-Library.json",
+        "file-type"                 :    ".json",
+        "file-purpose"              :    "Project Specific Documentation Link Library",
+        "file-description"          :    "This JSON file stores Noble Architecture project file documentation links in a single location and ensures quick retrieval.",
+        "file-created"              :    "17-Mar-2025",
+        "file-author"               :    "Adam Noble - Noble Architecture",
+        "file-key-required"         :    "FALSE",
+        "file-key-note"             :    "Public Repo File - Sensitive Data Omitted",
+        "file-links"    :    {
+            "windows-dir-path"      :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM05_-_DATA_-_Document-Library.json",
+            "github-link-url"       :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/SM05_--_Wollaton-Vale/SM05_-_DATA_-_Document-Library.json"
+        }
+    },
+    "project-details":{
+        "project-name-nickname"        :    "SM05 | Wollaton Vale",
+        "project-name-string"          :    "SM05_--_Wollaton-Vale",
+        "project-address--house"       :    "Wollaton Vale",
+        "project-address--house-no"    :    "130",
+        "project-address-street"       :    "Wollaton Vale",
+        "project-address-town"         :    "Wollaton",
+        "project-address-city"         :    "Nottingham",
+        "project-address-postcode"     :    "NG8 2PL",
+        "project-general-notes-01"     :    "NIL",
+        "project-portal-links":{
+            "portal-url-home"          :    "https://sites.google.com/view/sm03--project-portal/home",
+            "portal-url-planvision"    :    "https://sites.google.com/view/sm03--project-portal/planvision-drawings-app",
+            "portal-url-truevision"    :    "https://sites.google.com/view/sm03--project-portal/truevision-drawings-app"
+        }
+    },  
+    "project-documentation":{
+        "project-drawings":{
+            "drawing-01"               :    {
+                "file-name"            :    "SM03_T03_D01_--_Technical-Plan_-_Ground-Floor.pdf",
+                "added-to-register"    :    "09-Feb-2025",
+                "document-type"         :   "Drawing",
+                "document-name"         :   "Ground Floor Plan",
+                "document-scale"       :    "1:50",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions"   :    {
+                    "revision-a"       :    "NIL",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "03-02-2025"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D01_--_Technical-Plan_-_Ground-Floor.png",
+                    "pdf--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D01_--_Technical-Plan_-_Ground-Floor.pdf",
+                    "png--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/SM05_--_Wollaton-Vale/SM03_T03_D01_--_Technical-Plan_-_Ground-Floor.png",
+                    "pdf--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/SM05_--_Wollaton-Vale/SM03_T03_D01_--_Technical-Plan_-_Ground-Floor.pdf"
+                }
+            },
+            "drawing-02":{
+                "file-name"    :    "SM03_T03_D02_--_Technical-Plan_-_Frist-Floor.pdf",
+                "added-to-register"     :    "09-Feb-2025",
+                "document-type"         :    "Drawing",
+                "document-name"         :    "First Floor Plan",
+                "document-scale"        :    "1:50",
+                "document-status"       :    "Construction Phase Drawing",
+                "document-notes"        :    "NIL",
+                "document-revisions"    :    {
+                    "revision-a"        :    "NIL",
+                    "revision-b"        :    "NIL",
+                    "revision-c"        :    "NIL",
+                    "revision-d"        :    "NIL",
+                    "revision-e"        :    "03-02-2025"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D02_--_Technical-Plan_-_Frist-Floor.png",
+                    "pdf--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D02_--_Technical-Plan_-_Frist-Floor.pdf",
+                    "png--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/SM05_--_Wollaton-Vale/SM03_T03_D02_--_Technical-Plan_-_Frist-Floor.png",
+                    "pdf--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/SM05_--_Wollaton-Vale/SM03_T03_D02_--_Technical-Plan_-_Frist-Floor.pdf"
+                }
+            },
+            "drawing-03":{
+                "file-name"             :    "SM03_T03_D03_--_Technical-Elevations.pdf",
+                "added-to-register"     :    "09-Feb-2025",
+                "document-type"         :    "Drawing",
+                "document-name"         :    "Elevations Drawing",
+                "document-scale"        :    "1:50",
+                "document-status"       :    "Construction Phase Drawing",
+                "document-notes"        :    "NIL",
+                "document-revisions":{
+                    "revision-a"        :    "03-02-2025"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D03_--_Technical-Elevations.png",
+                    "pdf--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D03_--_Technical-Elevations.pdf",
+                    "png--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/SM05_--_Wollaton-Vale/SM03_T03_D03_--_Technical-Elevations.png",
+                    "pdf--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/SM05_--_Wollaton-Vale/SM03_T03_D03_--_Technical-Elevations.pdf"
+                }
+            },
+            "drawing-04"    :    {
+                "file-name"    :    "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}",
+                "added-to-register"    :    "{{ENTER_DATE}}",
+                "document-name"        :    "Drawing",
+                "document-type"        :    "Elevations Drawing",
+                "document-scale"       :    "1:50",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions"   :    {
+                    "revision-a"       :    "{{ENTER_DATE}}",
+                    "revision-b"       :    "{{ENTER_DATE}}",
+                    "revision-c"       :    "{{ENTER_DATE}}",
+                    "revision-d"       :    "{{ENTER_DATE}}",
+                    "revision-e"       :    "{{ENTER_DATE}}",
+                    "revision-f"       :    "{{ENTER_DATE}}"
+                },
+                "document-links"    :    {
+                    "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                    "pdf--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf",
+                    "png--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                    "pdf--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf"
+                }
+            }
+        }
+    }
+}
+}

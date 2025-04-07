@@ -1,0 +1,48 @@
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - VERSION HISTORY
+FILE NAME |  AD10_90_-_DOCS_-_Version-History.txt
+FILE TYPE |  DOCS
+
+DESCRIPTION
+- This file tracks version history for the Noble Architecture website project.
+- All significant changes must be documented in this file.
+====================================================================================================
+---
+
+# NOBLE ARCHITECTURE VERSION HISTORY
+--------------------------------------------------------------------------------
+
+#### DOCUMENT OVERVIEW
+- This document tracks version history for the Noble Architecture website project.
+- Version tracking is essential for project management
+- This history applies to all project components
+- Regular updates ensure accurate version tracking
+
+#### VERSION HISTORY TRACKING FORMAT
+- Use Semantic Versioning
+- Major.Minor.Patch
+Example: 1.2.3
+  - Major version       <--  Major changes & overhauls / implementation of numerous new features
+    - Minor version     <--  New Features
+      - Patch version   <--  Bug Fixes
+
+
+--------------------------------------------------------------------------------
+## VERSION LOG
+--------------------------------------------------------------------------------
+
+#### Version 1.1.0  -  04-Apr-2025
+- New Features:
+  - Core CSS Style defined, file made and document created.
+  - Updated documentation
+
+#### Version 1.0.0  -  04-Apr-2025  
+- Initial Release
+- Core Features:
+  - Basic website directory structure built out 
+  - Documentation framework setup
+  - Asset organisation and standardisation of naming conventions applied
+
+--------------------------------------------------------------------------------
+###### END OF FILE 

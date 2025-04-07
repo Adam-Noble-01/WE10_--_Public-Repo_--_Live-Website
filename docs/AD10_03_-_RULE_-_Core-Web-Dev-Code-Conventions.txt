@@ -1,0 +1,439 @@
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE & APPLICATIONS - Core Web Development Coding Conventions
+AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
+ 
+VERSION HISTORY
+05-Apr-2025 - Version 1.0 - Initial Draft
+
+DESCRIPTION
+- This document is the core conventions reference document for the codebase style standards.
+- This File Defines the standards set for all codebases using HTML / CSS / JS / Python
+- These codes are global across the project and are used to identify the file type of a given file.
+- These code also define the naming conventions for code objects, variables, functions, etc.
+- All code MUST align with the standards set out in this document.
+
+====================================================================================================
+---
+
+# Core Web Development Coding Conventions
+###### A Breakdown Of Project-wide Coding Conventions
+----------------------------------------------------------------------------------------------------
+
+
+### Introduction
+
+This document outlines the coding style conventions used in all front end web development and **Web Tools / Web Apps** and must be **Strictly Adhered To** to maintain a coherent codebase for all projects. Adhering to this guide ensures consistency, readability, and maintainability across the project. 
+
+Consistency is paramount. When modifying existing code, adhere to the established style. When adding new features or regions or making modifications.
+
+----------------------------------------------------------------------------------------------------
+
+##### General Principles
+
+- **Consistency** 
+  
+    - Apply these conventions uniformly throughout the codebase.
+    - When provided with snippets outside of these conventions such as old codebase sections that predate these conventions, always refactor new code ensuring all new code complies with these rules.
+    
+- **Clarity**
+  
+    - Write code that is easy to understand. 
+    - Prioritize readability over overly clever or terse solutions.
+    - Code does not need to be lean, linting will be applied prior to final packaging.
+    
+- **Organisation**
+  
+    - Structure code logically using regions.
+    - further break up code using sub-regions.
+    
+- **Commenting**
+  
+    - Use comments effectively to explain why code exists;
+    - not just what it does (unless the "what" is complex). 
+    - Document complex logic, workarounds, and version introductions.
+    
+- **Commenting & Code Regional Structure** 
+
+    -   Code is organized into logical blocks using specifically formatted header comments and dividers.
+
+
+---------------------------------------------------------------------------------------------------
+#                         ⚠⚠⚠⚠ END OF PROJECT STANDARDS ⚠⚠⚠⚠
+
+====================================================================================================
+=|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|=
+====================================================================================================
+# ⚠⚠⚠⚠ BELOW IS EXAMPLE IDEAS NOT PART OF THE PROJECT STANDARDS ⚠⚠⚠⚠
+- !Reminder to sort the notes below into the correct sections above!
+- Below are notes that have not been sorted into the correct sections above.
+    
+
+----------------------------------------------------------------------------------------------------
+
+### Main Regions
+
+#### Purpose
+
+-   Main Regions are used to Define major sections of the application, Examples Include;
+    -   Global Variables.
+    -   Global Constants.
+    -   Initialisation.
+    -   Event Listeners.
+    -   Major Features.
+    -   Functions.
+    -   Common Helper Functions Called Throughout.
+
+###### Divider |  Use a line of 80 equal signs (`=`) before the header -  JS Context Shown
+
+```Code Region Divider Example
+// =============================================================================================
+```
+
+###### Header Format |  JS Context Shown
+
+```Section Header Format Example
+{{TYPE}} | {{DESCRIPTIVE TITLE IN ALL CAPS}}
+- Introduced in vX.Y.Z  // Or: - Added | DD-Mon-YYYY - vX.Y.Z
+DESCRIPTION
+- Brief explanation of the region's purpose (can be multi-line).
+```
+
+###### Main Region Header Section Example |  JS Context Shown
+
+```javascript
+// =============================================================================================
+// JAVASCRIPT |  GLOBAL VARIABLES & CONSTANTS
+// - This section introduced in v1.8.1
+// Contains all global variables and constant definitions for the application
+// =============================================================================================
+const MIN_ZOOM = 0.1;
+let isDragging = false;
+// ... more variables
+```
+
+#### Main Regions Further Notes
+
+-   The example above show a JS Content Example;
+    -   Switch out the commenting style to suit HTML or CSS Sections.
+    -   The same underlying structure allies to HTML / CSS / JS
+
+----------------------------------------------------------------------------------------------------
+
+### Sub-Regions / Functional Blocks
+
+**Purpose:** Further segment code within a main region for better organization (e.g., specific features, groups of related functions, complex event handlers).
+
+**Divider:** Use a line of 60 hyphens (`-`) before the header.
+```
+----------------------------------------------------------------------------------------------------
+```
+*(Note: Divider length can vary slightly but should be visually distinct from the main region divider).*
+
+###### Sub Region Header Format
+
+```
+{{TYPE}} | {{DESCRIPTIVE TITLE IN ALL CAPS}}
+- Introduced in vX.Y.Z // Or: - Added | DD-Mon-YYYY - vX.Y.Z
+DESCRIPTION
+- Brief explanation of the block's purpose.
+IMPORTANT NOTES (Optional)
+- Critical details, lessons learned, or potential pitfalls.
+```
+
+###### Sub Region Header Example 
+
+```javascript
+// ---------------------------------------------------------------------------------------------
+// FUNCTION | MEASUREMENT LINE DRAWING
+// - This section introduced in v1.8.3
+// Contains functions for drawing measurement lines and indicators on canvas
+// ---------------------------------------------------------------------------------------------
+function drawLine(points, strokeStyle) { // ← Draws measurement lines on canvas
+    // ... function body ...
+}
+```
+
+---
+
+##### Header Type Prefixes (`{{TYPE}}`)
+
+###### Use the following prefixes in header comments to categorize the code block:
+
+| Prefix              | Description                                                  | Example Usage                                      |
+| :------------------ | :----------------------------------------------------------- | :------------------------------------------------- |
+| `JAVASCRIPT`        | General code block, often used for top-level regions like variables. | `JAVASCRIPT \| GLOBAL VARIABLES & CONSTANTS`       |
+| `FUNCTION`          | A primary, self-contained function or a group of closely related functions. | `FUNCTION \| BASIC GEOMETRY CALCULATIONS`          |
+| `HELPER FUNCTION`   | A utility function supporting a primary function or feature. | `HELPER FUNCTION \| POINT TO LINE DISTANCE`        |
+| `HANDLER SECTION`   | A block of code dedicated to handling a specific category of events or logic. | `HANDLER SECTION \| MARKUP TOOLS RELEASE HANDLING` |
+| `EVENT HANDLER`     | Code specifically handling a single DOM event (e.g., click, mousemove). | `EVENT HANDLER \| SELECTION TOOL FINALIZATION`     |
+| `DETECTION HANDLER` | Code specifically handling detection logic within a broader handler. | `DETECTION HANDLER \| PENCIL PATH DETECTION`       |
+| `INITIALISATION`    | Code related to setting up the application or a specific module. | `INITIALIZATION \| MAIN APPLICATION INIT`          |
+|                     |                                                              |                                                    |
+| `MODULE`            | A distinct functional module or feature set.                 | `MODULE \| MARKUP TOOLSET`                         |
+| `LISTENER`          | Code specifically attaching event listeners.                 | `LISTENER \| CANVAS EVENT LISTENERS`               |
+| `UTILITY`           | General utility functions not specific to one feature.       | `UTILITY \| COORDINATE TRANSFORMATION`             |
+
+---
+
+##### Inline Comments
+
+* Use single-line comments `//` for explaining specific lines or blocks of code.
+* Use the `// ← Comment` style for brief, targeted explanations directly related to the preceding line of code.
+* These will be used for two main purposes.
+    * Seeing current development phase changes.
+    * Identifying key areas with variable values, such as a URL hardcoded link or directory path etc
+    * Tagging these items like so makes them easy to find / and / or replace quickly.
+
+
+```Inline Comment Examples
+CODE UPDATE COMMENTS 
+<JS_Code_Placeholder>        // ← UPDATED | Example the updates made to the code section like this //
+<HTML_Code_Placeholder>        <!-- UPDATED | Example the updates made to the code section like this -->
+<CSS_Code_Placeholder>        /* ← UPDATED | Example the updates made to the code section like this */
+
+USER CONFIG COMMENTS 
+- Key for flagging sections of code where values may be changed per project
+<JS_Code_Placeholder>        // ← CONFIG | Example here shows a part of the code with key user configurable settings //
+<HTML_Code_Placeholder>        <!-- CONFIG | Example here shows a part of the code with key user configurable settings -->
+<CSS_Code_Placeholder>        /* ← CONFIG | Example here shows a part of the code with key user configurable settings */
+
+KEY LINK COMMENTS 
+- Used to tag key links such as depency URLs, or other files that must be refernced and or loaded with static links
+<JS_Code_Placeholder>        // ← KEY LINK | | Flags a part of the code esnuring key paths can be searched quickly //
+<HTML_Code_Placeholder>        <!-- KEY LINK | Flags a part of the code esnuring key paths can be searched quickly -->
+<CSS_Code_Placeholder>        /* ← KEY LINK | Flags a part of the code esnuring key paths can be searched quickly */
+```
+
+
+
+---
+
+#### Naming Conventions
+
+* **Variables:** Use `camelCase` (e.g., `isToolbarOpen`, `markupColor`, `planCanvas`).
+* **Constants:** Use `UPPER_SNAKE_CASE` for true constants whose values should never change (e.g., `MIN_ZOOM`, `MAX_ZOOM`, `JSON_URL`).
+* **Functions:** Use `camelCase` (e.g., `WorkspaceAssetLibrary`, `onMouseDown`, `drawSketchyPath`).
+* **DOM Element Variables:** Use `camelCase` and descriptive names (e.g., `planCanvas`, `loadingOverlay`, `toggleToolbarBtn`).
+
+
+
+---
+
+#### Code Formatting
+
+* **Indentation:** Use consistent indentation (4 spaces observed in the sample).
+* **Braces:** Use braces `{}` for all control structures (`if`, `else`, `for`, `while`, `try...catch`), even single-line ones. Place the opening brace on the same line as the statement.
+  
+    ```javascript
+    if (condition) {
+        // code
+    } else {
+        // code
+    }
+    ```
+* **Whitespace:** Use whitespace liberally for readability (e.g., around operators, after commas, between logical blocks within functions).
+
+
+
+---
+
+#### 7. Specific Patterns
+
+* **Asynchronous Operations:** Use `async/await` for handling Promises, especially for `Workspace` operations.
+* **Error Handling:** Use `try...catch` blocks for operations that might fail (like network requests). Log errors using `console.error` and display user-friendly messages via `displayError` where appropriate.
+* **DOM Manipulation:** Use standard `document.getElementById`, `document.createElement`, `appendChild`, `classList`, etc. Cache frequently accessed DOM elements in variables (as seen in the Global Variables section).
+* **Logging:** Use `console.log` for general debugging information and status updates. Use `console.warn` for non-critical issues or potential problems. Use `console.error` for actual errors.
+
+
+
+---
+
+##### Version Notes
+
+- Detailed version tracking is important as the project is still in development, detailed notes are preffered.
+- Add brief notes to the Master File Header each time changes are implemented.
+    - Log date of changes.
+    - Log version.
+    - Log brief updates and note regions affected.
+- Add more detailed granular update notes to the respective Region Header.
+    - Log date of changes.
+    - Log version.
+    - Log brief updates and note regions affected.
+
+
+
+----
+
+## Master File Header
+
+#### Purpose
+
+-   Provides a comprehensive, high-level overview of the file's identity, purpose, key architectural decisions, notable issues, and development history directly within the source code.
+
+-   Serves as essential metadata for anyone opening the file, aiding quick understanding and context without needing external documentation immediately.
+
+-   Mandatory for all primary application files (e.g., main HTML, core CSS, main JS file if separated).
+
+
+#### Placement
+
+-   Must be placed at the very top of the file.
+
+-   For HTML: Inside the <head>, immediately following the <meta charset="UTF-8"> tag.
+
+-   For CSS/JS (if separated): At the absolute beginning of the file.
+    
+
+#### Format and Structure
+
+-   Main Dividers: The entire header block is enclosed by top and bottom divider lines consisting of 100 equal signs (=). This distinguishes it visually from the main code region dividers used later in the file body.
+
+-   Subsection Divider: Internal sections (Script Description, Issues, Architecture, etc.) are separated by a divider line consisting of 80 hyphens (-).
+
+-   Required Subsections (in order):
+
+
+#### File Details
+
+Uses a structured key-value pair format (Key | Value).
+
+###### File Details Format Example - Must include
+
+```File Details Format Example
+APPLICATION | [Application Name]
+FILE NAME   | [Full File Name including extension and version]
+FILE TYPE   | [e.g., HTML/CSS/JS Single-File Web Application, CSS Stylesheet]
+APP DETAILS | [Brief one-sentence description of the application]
+AUTHOR      |  Adam Noble - Studio NoodlFjord
+```
+
+#### Script Description
+
+-   Prose format.
+
+-   Provides a more detailed overview of the file's purpose and key functionalities it implements.
+
+
+#### Issues & Lessons Learned
+
+-   Prose or bullet points.
+
+-   Documents significant challenges encountered during development, solutions implemented, and important takeaways to avoid repeating mistakes. Critical for maintainability.
+
+-   [FEATURE] ARCHITECTURE (Optional but Recommended):
+
+-   Replace [FEATURE] with the relevant concept (e.g., TOOL MODULE ARCHITECTURE, ASSET LOADING ARCHITECTURE).
+
+-   Describes the design and structure of key application components or systems within this file. Include details on:
+
+-   Structure (e.g., class/object structure, data flow).
+
+-   Key properties/methods/components.
+
+-   Interaction patterns.
+
+-   Extensibility points.
+
+
+#### Visual [Feature] Hierarchy Tree *(Optional If Required)*
+
+-   Used if applicable or if file or module etc relationships are needed for quick visual reference
+-   Provides a text-based tree diagram to visually represent the structure described in the ARCHITECTURE section (e.g., JSON structure, component hierarchy).
+
+#### Future Script Improvements & Ideas
+
+-   Bullet points or prose.
+
+-   Lists planned features, refactoring ideas, or potential enhancements.
+
+
+#### Script Development & Version History Tracker
+
+-   Chronological list format (DD-Mon-YYYY - vX.Y.Z | Description).
+-   Briefly logs significant changes, feature additions, or major bug fixes for each version increment. 
+-   Must be kept up-to-date.
+
+###### Example Master Header |  Based on Regex UI Tool v1.1.0
+
+```html
+<!--
+====================================================================================================================
+APPLICATION  |  Regex UI Tool Web App
+FILE NAME    |  SN40_01_02_--_Web-App_-_Regex-UI-Tool_v1.1.0.html    <!-- Ensure Filename & Version are Accurate -->
+FILE TYPE    |  HTML/CSS/JS Single-File Web Application
+APP DETAILS  |  A user-friendly web tool for common text manipulation tasks using simplified Regex interfaces.
+AUTHOR       |  Adam Noble - Studio NoodlFjord
+VERSION      |  1.1.0    <!-- Ensure Version is Accurate -->
+====================================================================================================================
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SCRIPT DESCRIPTION
+
+This HTML file contains the complete code for the User-Friendly Regex Tool...
+[...omitted for brevity...]
+- Dynamic injection of the application version (from meta tag) into the header title.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ISSUES & LESSONS LEARNED  
+
+- Regex Complexity: Standard Regex can be unintuitive...
+[...omitted for brevity...]
+- Modularity: The `REGEX_TOOL_MODULES` array provides good modularity...
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+TOOL MODULE ARCHITECTURE
+
+The application's core extensibility comes from the `REGEX_TOOL_MODULES` JavaScript array...
+[...omitted for brevity...]
+4. Extensibility: Adding a new tool involves...
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+VISUAL JAVASCRIPT MODULE HIERARCHY TREE (Simplified)
+
+REGEX_TOOL_MODULES (Array)
+└── Module Object 1 (e.g., Find & Replace)
+│   ├── id: 'findReplace'
+...[omitted for brevity...]
+    └── ... more module objects
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+FUTURE SCRIPT IMPROVEMENTS & IDEAS
+
+- Pre-built Patterns: Add modules for extracting common patterns...
+[...omitted for brevity...]
+- Real-time Preview: Show a live preview...
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SCRIPT DEVELOPMENT & VERSION HISTORY TRACKER
+
+03-Apr-2025 - v1.0.0  |  Initial creation based on user request...
+[...omitted for brevity...]
+
+03-Apr-2025 - v1.1.0  |  FEATURE ADDITIONS & REFINEMENTS...
+[...omitted for brevity...]
+                    - Added this master header comment block.
+
+??-???-???? - vX.Y.Z  |  LIST FUTURE UPDATES HERE
+
+====================================================================================================================
+-->
+```
+
+
+
+##### Master Header Section Notes
+
+-   Version Notes (Specific to Master Header)
+-   The FILE DETAILS section within this master header provides an at-a-glance reference for the file's specific name and potentially its version.
+
+-   The SCRIPT DEVELOPMENT & VERSION HISTORY TRACKER subsection provides a high-level chronological overview of changes to this specific file.
+
+-   It complements the more granular version notes (- Introduced in vX.Y.Z) used within the main code/CSS region headers as defined elsewhere in these conventions. Both should be maintained.
+
+
+
+
+
+
+----
