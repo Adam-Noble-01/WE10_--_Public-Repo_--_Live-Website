@@ -150,7 +150,8 @@
             --danger-hover       :    #c82333;          /*   <-- Error hover */
             --card-bg            :    #ffffff;           /*   <-- Card background */
             --card-border        :    #ddd;              /*   <-- Card border */
-            --code-bg            :    #272822;           /*   <-- Code block background */
+            --code-bg            :    #3b3b3b;           /*   <-- Code block background */
+            --code-text          :    #d9d9d9;           /*   <-- Code block text */
             --code-border        :    #444;              /*   <-- Code block border */
             --text-color         :    #333;              /*   <-- Primary text */
             --text-light         :    #666;              /*   <-- Secondary text */
@@ -161,7 +162,7 @@
             --warning-bg         :    #fff3cd;           /*   <-- Warning background */
             --warning-border     :    #ffeeba;           /*   <-- Warning border */
             --warning-text       :    #856404;           /*   <-- Warning text */
-            --header-height      :    55px;              /*   <-- Header height */
+            --header-height      :    55px;                /*   <-- Header height */
         }
 
         html, body {
@@ -173,7 +174,7 @@
             font-family         :    'Open Sans', sans-serif;
             font-size           :    16.00px;            /*   <-- CRITICAL VALUE!!  */
             color               :    var(--text-color);
-            line-height         :    1.5;
+            line-height         :    1.40;
         }
 
         /* - - - - - - - - - - - - -   Page Container   - - - - - - - - - - - - - */
@@ -323,7 +324,7 @@
 
         /* - - - - - - - - - - - - -   Marked.js Output Styling   - - - - - - - - - - - - - */
         .MAIN__output p {
-            margin              :    0 0 01.00rem 0;
+            margin              :    0 0 00.50rem 0;    /*   <-- Reduced paragraph margin */
         }
 
         .MAIN__output strong, .MAIN__output b {
@@ -339,18 +340,24 @@
             padding             :    00.625rem;
             border-radius       :    00.25rem;
             overflow-x          :    auto;
+            color               :    var(--code-text);    /*   <-- Added code text color */
         }
 
         .MAIN__output code {
             font-family         :    monospace;
             background-color    :    var(--code-bg);
-            padding             :    00.20rem 00.40rem;
+            padding-left        :    00.20rem;
+            padding-right       :    00.20rem;
             border-radius       :    00.1875rem;
+            color               :    var(--code-text);    /*   <-- Added code text color */
+            margin-left         :    00.20rem;
+            margin-right        :    00.20rem;
         }
 
         .MAIN__output pre code {
             padding             :    0;
             background-color    :    transparent;
+            color              :    var(--code-text);    /*   <-- Ensure nested code maintains color */
         }
 
         .MAIN__output blockquote {
@@ -362,10 +369,16 @@
 
         .MAIN__output ul, .MAIN__output ol {
             padding-left        :    01.5625rem;
+            margin-bottom       :    00.15rem;          /*   <-- Added small top margin */
         }
 
         .MAIN__output li {
-            margin-bottom       :    00.3125rem;
+            margin-bottom       :    00.15rem;          /*   <-- Reduced list item spacing */
+            line-height         :    1.2;               /*   <-- Tighter line height for lists */
+        }
+
+        .MAIN__output li:last-child {
+            margin-bottom       :    0;                 /*   <-- Remove margin from last item */
         }
 
         /* =============================================================================================
@@ -499,12 +512,10 @@
         // ------------------------------------------------------------
         function parseWhatsAppMessages(rawText) {
             // Regex to test if the text *contains* the WhatsApp prefix pattern.
-            // Need to escape square brackets: \[ and \]
             const testPattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/;
 
             // Check if the pattern exists anywhere in the text.
             if (!testPattern.test(rawText)) {
-                // Not WhatsApp format (or at least doesn't start with the pattern), return as-is for Markdown.
                 console.log("Input doesn't match WhatsApp pattern, treating as Markdown.");
                 return rawText;
             }
@@ -513,14 +524,24 @@
             // Regex to *globally replace* the WhatsApp prefix pattern.
             const replacePattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/g;
             
-            // Replace all occurrences of the prefix with double newlines for paragraph breaks.
-            let replaced = rawText.replace(replacePattern, "\n\n");
+            // Replace all occurrences of the prefix with a single newline
+            let replaced = rawText.replace(replacePattern, "\n");
             
-            // Collapse multiple (3+) consecutive newlines into just two to prevent excessive spacing.
-            replaced = replaced.replace(/\n{3,}/g, "\n\n");
+            // Collapse multiple consecutive newlines into just one
+            replaced = replaced.replace(/\n{2,}/g, "\n");
             
-            // Trim leading/trailing whitespace that might result from replacements.
-            return replaced.trim();
+            // Trim leading/trailing whitespace
+            replaced = replaced.trim();
+
+            // Convert single newlines to list items for better formatting
+            replaced = replaced.split("\n").map(line => line.trim()).filter(line => line).join("\n- ");
+            
+            // Add initial list marker
+            if (replaced) {
+                replaced = "- " + replaced;
+            }
+            
+            return replaced;
         }
         
         // ------------------------------------------------------------
