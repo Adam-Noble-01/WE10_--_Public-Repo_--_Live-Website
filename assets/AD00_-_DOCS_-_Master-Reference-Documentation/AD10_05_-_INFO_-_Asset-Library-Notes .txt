@@ -123,6 +123,41 @@ assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies
 ```
 
 
+---------------------------------------------------------------------------------------------------
+#### Global Brand Image Assets Library Index
+- Core brand pictogram graphics used across the Noble Architecture website and applications
+- These assets maintain consistent branding across all platforms
+
+```brand_pictogram_graphics_library_index
+/assets/NA04_-_LIBR_-_NA-Site_-_Pictogram-Graphics-Library
+NA04_01-NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png            <-- Add a description here in the future
+NA04_02-NA-Pictogram_-_PNG_-_1500px_-_Drafting-Tools.png            <-- Add a description here in the future
+NA04_03-NA-Pictogram_-_PNG_-_1500px_-_Existing-Plan.png             <-- Add a description here in the future
+NA04_04-NA-Pictogram_-_PNG_-_1500px_-_Proposed-Plan.png             <-- Add a description here in the future
+NA04_05-NA-Pictogram_-_PNG_-_1500px_-_Approval-Stamp.png            <-- Add a description here in the future
+NA04_06-NA-Pictogram_-_PNG_-_1500px_-_Existing-Elevation.png        <-- Add a description here in the future
+NA04_07-NA-Pictogram_-_PNG_-_1500px_-_Site-Measure.png              <-- Add a description here in the future
+NA04_08-NA-Pictogram_-_PNG_-_1500px_-_Search-Magnifying-Glass.png   <-- Add a description here in the future
+NA04_09-NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png           <-- Add a description here in the future
+```
+
+#### Reference Brand Image Assets Relative Path Index
+```brand_image_assets_relative_path_index
+./ROOT
+    /assets
+        /NA04_-_LIBR_-_NA-Site_-_Pictogram-Graphics-Library
+            /NA04_01-NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png         
+            /NA04_02-NA-Pictogram_-_PNG_-_1500px_-_Drafting-Tools.png         
+            /NA04_03-NA-Pictogram_-_PNG_-_1500px_-_Existing-Plan.png          
+            /NA04_04-NA-Pictogram_-_PNG_-_1500px_-_Proposed-Plan.png          
+            /NA04_05-NA-Pictogram_-_PNG_-_1500px_-_Approval-Stamp.png         
+            /NA04_06-NA-Pictogram_-_PNG_-_1500px_-_Existing-Elevation.png     
+            /NA04_07-NA-Pictogram_-_PNG_-_1500px_-_Site-Measure.png           
+            /NA04_08-NA-Pictogram_-_PNG_-_1500px_-_Search-Magnifying-Glass.png
+            /NA04_09-NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png        
+```
+
+
 
 ---------------------------------------------------------------------------------------------------
 ###### End Of Notes

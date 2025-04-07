@@ -1,0 +1,152 @@
+# STYLE GUIDE & BREAKDOWN  
+-----------------------------------------------------------------------------------------------------------------------
+
+## INDUSTRY CONTEXT
+
+### Visual Identity Relevance
+-   Noble Architecture Pictogram Design
+-   All pictograms clearly belong within the British Architectural & Construction Industry, specifically:
+    - Residential architectural design
+    - Planning and technical stages
+    - Client-facing project timelines or web interfaces
+-   The aesthetic should generally convey project sequencing representing design stage markers
+-   Suitable for a practice offering RIBA-inspired service stage breakdowns for clients.
+
+### Where Are To Be Used
+- All Noble Architecture projects
+- All Noble Architecture Web Applications
+- All Noble Architecture Web Pages
+- Client Portal Interfaces
+- Digital client dashboards
+- Explainer sections in architectural proposals
+- Web-based Design Stage Walkthroughs & Guide documents and pages.
+- Stage headers in PDF or print design packs
+
+
+-------------------------------------------------------------------------------
+## NAMING CONVENTION RULES
+
+#### Notes On File Naming Conventions
+ Format =  `stage-XX_descriptive-name.png`
+- Always use string with no white spaces or special characters.
+- Never spaces in filenames.
+- Use hyphens `-` instead of underscores `_` for word separation in the descriptive part.
+- Create clear string sections using `_-_`
+- Use sequential numbering for each file listed.
+- File number prefix codes are always unique globally.
+    - This ensure easy searching sorting and indexing of all assets.
+- Use descriptive names are brief but clear
+- Descriptions are always in `Title Case`
+
+#### Example File Names
+- This context shows a directory containing graphical assets.
+
+```example_file_names
+NA04_01-NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png
+NA04_02-NA-Pictogram_-_PNG_-_1500px_-_Drafting-Tools.png
+NA04_03-NA-Pictogram_-_PNG_-_1500px_-_Existing-Plan.png
+NA04_04-NA-Pictogram_-_PNG_-_1500px_-_Proposed-Plan.png
+NA04_05-NA-Pictogram_-_PNG_-_1500px_-_Approval-Stamp.png
+NA04_06-NA-Pictogram_-_PNG_-_1500px_-_Existing-Elevation.png
+NA04_07-NA-Pictogram_-_PNG_-_1500px_-_Site-Measure.png
+NA04_08-NA-Pictogram_-_PNG_-_1500px_-_Search-Magnifying-Glass.png
+NA04_09-NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png
+```
+
+
+===============================================================================
+RANDOM NOTES DO NOT REFERENCE UNTIL SORTED
+===============================================================================
+
+
+# STYLE GUIDE  
+-----------------------------------------------------------------------------------------------------------------------
+
+## OVERALL FORMAT
+
+### Canvas
+- **Shape**: Circular badge  
+- **Background**: Pure white (`#FFFFFF`)
+- **Border**: Uniform round stroke, medium-weight, muted brown/grey tone (`#726C64` approx.)
+
+### Composition
+- Centre-aligned line illustration
+- Equal margin within the circle for all elements (approx. 10–15% padding)
+- Negative space used generously for legibility and visual hierarchy
+
+---
+
+## COLOUR PALETTE
+
+| Element           | Colour       | HEX Code   |
+|-------------------|--------------|------------|
+| Linework & Icons  | Taupe Grey   | `#726C64`  |
+| Background        | White        | `#FFFFFF`  |
+| Shadow / Depth    | None         | –          |
+
+---
+
+## TYPOGRAPHY
+- **None used within the icons themselves** – pure pictographic clarity.
+- Any accompanying text would likely use clean modern sans-serif such as **Open Sans**, matching Adam's preferences.
+
+---
+
+## LINE STYLE
+
+- **Weight**: Uniform stroke weight (approx. 2–3px in 768x768 canvas)
+- **Ends**: Square caps, no rounded corners
+- **Style**: Minimalist outline with occasional filled detail elements (e.g. stamp in Approved Form icon)
+
+---
+
+## STYLE PRINCIPLES
+
+- **Neutral tone** for broad professional use
+- **Scalable** clarity (works at small and large sizes)
+- **Non-directional** (no strong shadows or gradients)
+- **Stylised realism**: Enough recognisability to communicate the concept, but abstracted to feel universal
+
+
+# REPRODUCTION STEPS  
+-------------------------------------------------------------------------------
+
+### Step 1: Create Canvas
+- Open artboard |  Artboard Size = 1500px x 1500px
+- Draw a white circle, centre it, and apply a stroke (`#726C64`, 3px)
+
+### Step 2: Draw Icon
+- Use line tool / shape tool only (no raster effects)
+- Keep within central ~80% of canvas
+- Ensure icon is vertically and horizontally balanced
+
+### Step 3: Export
+- Format: SVG (preferred for scalability), PNG fallback
+- Background: Transparent or white depending on usage
+
+## VECTOR DRAWING SETUP (Illustrator or Figma)
+## CANVAS SETUP
+
+### Dimensions
+- **Size**: 1500 x 1500 px
+- **Shape**: Circle with filled background and thin outline stroke
+
+### Grid / Margins
+- Internal grid for alignment: 12x12 with central focus
+- Margin around artwork: 80–100 px from circle edge
+
+---
+
+### Line Settings
+- Stroke Weight: `3 px`
+- Stroke Colour: `#726C64`
+- No fills unless needed for semantic accent (e.g. stamp handle)
+
+
+
+
+
+
+
+
+
