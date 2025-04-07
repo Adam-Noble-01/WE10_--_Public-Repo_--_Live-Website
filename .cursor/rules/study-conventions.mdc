@@ -3,10 +3,29 @@ description:
 globs: 
 alwaysApply: true
 ---
+# Noble Architecture Website Documentation
 
-# Your rule content
+## CORE DOCUMENTATION
+- [Project ReadMe & Design Manifest](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt)
+- [Core File And Code Naming Conventions](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt)
+- [Core Web Dev Code Conventions](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt)
+- [Core JSON Data Code Conventions](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt)
+- [Core CSS Style Code Conventions](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt)
+- [Asset Library Notes](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_06_-_INFO_-_Asset-Library-Notes .txt)
+- [Pictogram Graphic Files And Design](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt)
+- [Core File Metascript Boilerplate](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt)
+- [Improvements List & Tasks](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt)
 
 ## STYLE RULES MUST ADHERE TO THIS DOCUMENT
-[00_10_-_RULE_-_Core-Conventions_-_CSS-Coding-Styling.txt](mdc:RE20_05_--_Utility-App_-_Directory-Scanner/00_DOCS_-_Project-Documentation/00_10_-_RULE_-_Core-Conventions_-_CSS-Coding-Styling.txt)
-  - Fallback
-  "C:\02_Temp_Script_Development\RE20_05_--_Utility-App_-_Directory-Scanner\00_DOCS_-_Project-Documentation\00_10_-_RULE_-_Core-Conventions_-_CSS-Coding-Styling.txt"
+[Core CSS Style Code Conventions](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt)
+
+## PLAINTEXT DOCUMENTATION URLS
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_06_-_INFO_-_Asset-Library-Notes .txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt

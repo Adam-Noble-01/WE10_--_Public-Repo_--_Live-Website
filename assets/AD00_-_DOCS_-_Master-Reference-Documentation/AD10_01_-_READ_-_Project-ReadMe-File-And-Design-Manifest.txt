@@ -42,20 +42,42 @@ www.noble-architecture.com
 ----------------------------------------------------------------------------------------------------
 
 ```reference-documentation-directory
-./AD00_-_DOCS_-_Master-Reference-Documentation
-    /AD10_10_-_DOCS_-_Master-Reference-Documentation.txt
-    /AD10_20_-_DOCS_-_Project-Overview.txt
-    /AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
-    /AD10_40_-_DOCS_-_Coding-Standards.txt
-    /AD10_50_-_DOCS_-_File-Naming-Conventions.txt
-    /AD10_60_-_DOCS_-_Directory-Structure.txt
-    /AD10_70_-_DOCS_-_Version-History.txt
-    /AD10_80_-_DOCS_-_Contributor-Guidelines.txt
-    /AD10_90_-_DOCS_-_License-Information.txt
+./assets
+    AD00_-_DOCS_-_Master-Reference-Documentation/
+        AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+        AD10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
+        AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
+        AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
+        AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
+        AD10_06_-_INFO_-_Asset-Library-Notes .txt
+        AD10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+        AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+        AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
 ```
 
+### CORE DOCUMENTATION URLS
+- [Project ReadMe & Design Manifest](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt)
+- [Core File And Code Naming Conventions](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt)
+- [Core Web Dev Code Conventions](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt)
+- [Core JSON Data Code Conventions](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt)
+- [Core CSS Style Code Conventions](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt)
+- [Asset Library Notes](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_06_-_INFO_-_Asset-Library-Notes .txt)
+- [Pictogram Graphic Files And Design](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt)
+- [Core File Metascript Boilerplate](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt)
+- [Improvements List & Tasks](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt)
 
-www.noble-architecture.com/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_10_-_DOCS_-_Master-Reference-Documentation.txt
+
+### PLAINTEXT DOCUMENTATION URLS
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_06_-_INFO_-_Asset-Library-Notes .txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+
 
 ----------------------------------------------------------------------------------------------------
 ## GITHUB REPO DETAILS

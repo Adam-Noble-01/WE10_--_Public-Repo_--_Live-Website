@@ -39,7 +39,10 @@ public/build/
 # Temp files
 *.tmp
 *.temp
+
+# Temp folders & caches
 .cache/
+temp/
 
 # Archive directories
 # Ensure this directory is not tracked by Git   
@@ -53,6 +56,10 @@ assets-archive/*
 # Windows shortcuts can contain sensitive information like absolute paths to system files
 # Removed as it could reveal username or directory structure and become a security risk
 *.lnk
+
+# Ignore backup files
+*.--BAK
+
 
 # Ignore the WE10_--_Public-Repo_--_Live-Website.code-workspace file
 WE10_--_Public-Repo_--_Live-Website.code-workspace
