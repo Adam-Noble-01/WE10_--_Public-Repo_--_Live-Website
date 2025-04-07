@@ -23,37 +23,6 @@
 - Stage headers in PDF or print design packs
 
 
--------------------------------------------------------------------------------
-## NAMING CONVENTION RULES
-
-#### Notes On File Naming Conventions
- Format =  `stage-XX_descriptive-name.png`
-- Always use string with no white spaces or special characters.
-- Never spaces in filenames.
-- Use hyphens `-` instead of underscores `_` for word separation in the descriptive part.
-- Create clear string sections using `_-_`
-- Use sequential numbering for each file listed.
-- File number prefix codes are always unique globally.
-    - This ensure easy searching sorting and indexing of all assets.
-- Use descriptive names are brief but clear
-- Descriptions are always in `Title Case`
-
-#### Example File Names
-- This context shows a directory containing graphical assets.
-
-```example_file_names
-NA04_01-NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png
-NA04_02-NA-Pictogram_-_PNG_-_1500px_-_Drafting-Tools.png
-NA04_03-NA-Pictogram_-_PNG_-_1500px_-_Existing-Plan.png
-NA04_04-NA-Pictogram_-_PNG_-_1500px_-_Proposed-Plan.png
-NA04_05-NA-Pictogram_-_PNG_-_1500px_-_Approval-Stamp.png
-NA04_06-NA-Pictogram_-_PNG_-_1500px_-_Existing-Elevation.png
-NA04_07-NA-Pictogram_-_PNG_-_1500px_-_Site-Measure.png
-NA04_08-NA-Pictogram_-_PNG_-_1500px_-_Search-Magnifying-Glass.png
-NA04_09-NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png
-```
-
-
 ===============================================================================
 RANDOM NOTES DO NOT REFERENCE UNTIL SORTED
 ===============================================================================
