@@ -8,7 +8,7 @@
     FILE TYPE    |  HTML/CSS/JS Single-File Web Application
     APP DETAILS  |  A utility to parse WhatsApp chat text or render Markdown text into a readable format.
     AUTHOR       |  Adam Noble - Studio NoodlFjord
-    VERSION      |  1.2.3
+    VERSION      |  1.2.4
     ====================================================================================================================
 
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -104,6 +104,13 @@
                         - Added responsive design improvements.
                         - Updated JavaScript to work with new class names.
 
+    08-Apr-2025 - v1.2.4  |  STYLESHEET OPTIMISATION
+                        - Integrated with main Noble Architecture stylesheet.
+                        - Removed duplicate styles.
+                        - Added proper font-face declarations.
+                        - Ensured consistent naming conventions.
+                        - Reduced application size by leveraging shared styles.
+
     ??-???-???? - vX.Y.Z  |  LIST FUTURE UPDATES HERE
 
     ====================================================================================================================
@@ -112,7 +119,7 @@
     <!-- 
     =============================================================================================
     HTML | HEAD SECTION: META, TITLE, FONTS, CSS
-    - Introduced in v1.0.0 | Updated v1.2.1 (Added Version Meta) | Updated v1.2.3
+    - Introduced in v1.0.0 | Updated v1.2.1 (Added Version Meta) | Updated v1.2.3 | Updated v1.2.4
     Contains metadata (including application version), page title, font links, 
     and all CSS styles for the application.
     =============================================================================================
@@ -120,9 +127,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Add Application Version Meta Tag -->
-    <meta name="application-version" content="1.2.3"> <!-- ← CONFIG | Set Application Version Here -->
+    <meta name="application-version" content="1.2.4"> <!-- ← CONFIG | Set Application Version Here -->
     <title>Text To Reader Utility</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet"> <!-- ← KEY LINK | Google Fonts Dependency -->
     
     <!--  - - - - - - - - - - - - - - - - - -  FAVICON CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
     <!-- Primary SVG Favicon (Best for modern browsers) -->
@@ -135,100 +141,58 @@
     <link rel="icon" type="image/x-icon" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
     <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     
+    <!--  - - - - - - - - - - - - - - - - - -  STYLESHEET CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
+    <!-- Main Noble Architecture Stylesheet -->
+    <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css">
+    <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    
     <style>
         /* =============================================================================================
-           CSS | BASIC RESET & LAYOUT
-           - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3 (Style Guide Alignment)
+           CSS | APP-SPECIFIC STYLES
+           - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3 | Updated v1.2.4
            ============================================================================================= */
-        :root {
-            --primary-color      :    #555041;          /*   <-- Brand color */
-            --primary-hover      :    #3d392e;          /*   <-- Darker shade */
-            --secondary-color    :    #86847d;          /*   <-- Neutral brand */
-            --secondary-hover    :    #6c6a65;          /*   <-- Darker neutral */
-            --success-color      :    #28a745;          /*   <-- Success state */
-            --danger-color       :    #dc3545;          /*   <-- Error state */
-            --danger-hover       :    #c82333;          /*   <-- Error hover */
-            --card-bg            :    #ffffff;           /*   <-- Card background */
-            --card-border        :    #ddd;              /*   <-- Card border */
-            --code-bg            :    #3b3b3b;           /*   <-- Code block background */
-            --code-text          :    #d9d9d9;           /*   <-- Code block text */
-            --code-border        :    #444;              /*   <-- Code block border */
-            --text-color         :    #333;              /*   <-- Primary text */
-            --text-light         :    #666;              /*   <-- Secondary text */
-            --body-bg            :    #f4f4f4;           /*   <-- Body background */
-            --header-bg          :    #fff;              /*   <-- Header background */
-            --header-border      :    var(--primary-color); /*   <-- Header border */
-            --button-text        :    #fff;              /*   <-- Button text */
-            --warning-bg         :    #fff3cd;           /*   <-- Warning background */
-            --warning-border     :    #ffeeba;           /*   <-- Warning border */
-            --warning-text       :    #856404;           /*   <-- Warning text */
-            --header-height      :    55px;                /*   <-- Header height */
-        }
-
-        html, body {
-            margin              :    0;
-            padding             :    0;
-            width               :    100%;
-            min-height          :    100vh;
-            background-color    :    var(--body-bg);
-            font-family         :    'Open Sans', sans-serif;
-            font-size           :    16.00px;            /*   <-- CRITICAL VALUE!!  */
-            color               :    var(--text-color);
-            line-height         :    1.40;
-        }
-
-        /* - - - - - - - - - - - - -   Page Container   - - - - - - - - - - - - - */
-        .PAGE__container {
-            width               :    100%;
-            min-height          :    100vh;
-            overflow-y          :    auto;
-        }
-
+        
         /* =============================================================================================
-           CSS | HEADER COMPONENTS (Using HEAD__ Block)
-           - Introduced in v1.0.0 | Updated v1.2.1 | Refactored v1.2.3
+           CSS | HEADER COMPONENTS
+           - Introduced in v1.2.4
            ============================================================================================= */
-        .HEAD__container {
-            width               :    100%;
-            height              :    var(--header-height);
-            background          :    var(--header-bg);
-            border-bottom       :    2px solid var(--header-border);
-            display             :    flex;
-            align-items         :    center;
-            padding             :    0 01.25rem;
-            box-sizing          :    border-box;
-            position            :    sticky;
-            top                 :    0;
-            z-index             :    10;
-        }
-
-        .HEAD__title {
-            font-size           :    01.375rem;
-            color               :    var(--text-color);
-            font-weight         :    600;
-            display             :    flex;
-            align-items         :    baseline;
-            gap                 :    00.50rem;
+        .HEAD__nav {
+            max-width          :    1200px;
+            padding-left       :    1rem;
+            padding-right      :    1rem;
+            margin            :    0 auto;
         }
 
         .HEAD__version-note {
-            /* Styles applied via JS */
+            font-size          :    0.75rem;
+            color              :    var(--text-light);
+            font-weight        :    normal;
+            margin-left        :    0.5rem;
         }
 
         /* =============================================================================================
-           CSS | MAIN CONTENT AREA (Using MAIN__ Block)
-           - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
+           CSS | FULL PAGE APP CONTAINER
+           - Introduced in v1.2.4
            ============================================================================================= */
-        .MAIN__container {
-            width               :    90%;
-            max-width           :    800px;
-            margin              :    01.875rem auto;
-            padding             :    01.5625rem;
-            background-color    :    var(--card-bg);
-            border-radius       :    00.50rem;
-            box-shadow          :    0 2px 10px rgba(0,0,0,0.1);
+        .FULL__page-app-container {
+            width              :    100%;
+            max-width          :    1200px;
+            margin             :    0 auto;
+            padding            :    2rem 1rem;
+            box-sizing         :    border-box;
+            flex               :    1;
         }
 
+        /* =============================================================================================
+           CSS | BUTTON CONTAINER
+           - Introduced in v1.2.4
+           ============================================================================================= */
+        .BTTN__container {
+            display             :    flex;
+            gap                 :    01.00rem;
+            margin-bottom       :    01.25rem;
+        }
+        
         /* =============================================================================================
            CSS | FORM COMPONENTS (Using FORM__ Block)
            - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
@@ -258,43 +222,6 @@
         }
 
         /* =============================================================================================
-           CSS | BUTTON COMPONENTS (Using BTTN__ Block)
-           - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
-           ============================================================================================= */
-        .BTTN__container {
-            display             :    flex;
-            justify-content     :    flex-end;
-            gap                 :    00.625rem;
-            margin-top          :    00.625rem;
-        }
-
-        .BTTN__primary, .BTTN__danger {
-            padding             :    00.625rem 01.25rem;
-            font-size           :    00.875rem;
-            border              :    none;
-            color               :    var(--button-text);
-            border-radius       :    00.25rem;
-            cursor              :    pointer;
-            transition          :    background-color 0.2s ease;
-        }
-
-        .BTTN__primary {
-            background-color    :    var(--primary-color);
-        }
-
-        .BTTN__primary:hover {
-            background-color    :    var(--primary-hover);
-        }
-
-        .BTTN__danger {
-            background-color    :    var(--danger-color);
-        }
-
-        .BTTN__danger:hover {
-            background-color    :    var(--danger-hover);
-        }
-
-        /* =============================================================================================
            CSS | OUTPUT COMPONENTS (Using MAIN__ Block)
            - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
            ============================================================================================= */
@@ -312,7 +239,7 @@
             padding             :    00.9375rem;
             border              :    1px solid var(--card-border);
             border-radius       :    00.3125rem;
-            background-color    :    var(--body-bg);
+            background-color    :    #FFFFFF;
             min-height          :    15.625rem;
             text-align          :    left;
             line-height         :    1.6;
@@ -320,11 +247,12 @@
             white-space         :    pre-wrap;
             word-wrap           :    break-word;
             overflow-y          :    auto;
+            box-shadow          :    0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         /* - - - - - - - - - - - - -   Marked.js Output Styling   - - - - - - - - - - - - - */
         .MAIN__output p {
-            margin              :    0 0 00.50rem 0;    /*   <-- Reduced paragraph margin */
+            margin              :    0 0 00.50rem 0;
         }
 
         .MAIN__output strong, .MAIN__output b {
@@ -340,7 +268,7 @@
             padding             :    00.625rem;
             border-radius       :    00.25rem;
             overflow-x          :    auto;
-            color               :    var(--code-text);    /*   <-- Added code text color */
+            color               :    var(--code-text);
         }
 
         .MAIN__output code {
@@ -349,7 +277,7 @@
             padding-left        :    00.20rem;
             padding-right       :    00.20rem;
             border-radius       :    00.1875rem;
-            color               :    var(--code-text);    /*   <-- Added code text color */
+            color               :    var(--code-text);
             margin-left         :    00.20rem;
             margin-right        :    00.20rem;
         }
@@ -357,7 +285,7 @@
         .MAIN__output pre code {
             padding             :    0;
             background-color    :    transparent;
-            color              :    var(--code-text);    /*   <-- Ensure nested code maintains color */
+            color              :    var(--code-text);
         }
 
         .MAIN__output blockquote {
@@ -369,34 +297,28 @@
 
         .MAIN__output ul, .MAIN__output ol {
             padding-left        :    01.5625rem;
-            margin-bottom       :    00.15rem;          /*   <-- Added small top margin */
+            margin-bottom       :    00.15rem;
         }
 
         .MAIN__output li {
-            margin-bottom       :    00.15rem;          /*   <-- Reduced list item spacing */
-            line-height         :    1.2;               /*   <-- Tighter line height for lists */
+            margin-bottom       :    00.15rem;
+            line-height         :    1.2;
         }
 
         .MAIN__output li:last-child {
-            margin-bottom       :    0;                 /*   <-- Remove margin from last item */
+            margin-bottom       :    0;
         }
 
         /* =============================================================================================
-           CSS | RESPONSIVE LAYOUTS
-           - Introduced in v1.2.3
+           CSS | APP-SPECIFIC RESPONSIVE LAYOUTS
+           - Introduced in v1.2.3 | Updated v1.2.4
            ============================================================================================= */
         @media (max-width: 768px) {
-            .MAIN__container {
-                width               :    95%;
-                padding             :    01.00rem;
-                margin              :    01.00rem auto;
-            }
-
             .BTTN__container {
                 flex-direction       :    column;
             }
 
-            .BTTN__primary, .BTTN__danger {
+            .BTTN__standard, .BTTN__cancel {
                 width               :    100%;
             }
         }
@@ -410,63 +332,72 @@
     =============================================================================================
     -->
     <div class="PAGE__container">
-        <div class="HEAD__container">
-            <span class="HEAD__title">Text To Reader Utility</span> 
-        </div>
+        <header class="HEAD__container">
+            <nav class="HEAD__nav">
+                <span class="HEAD__title">Text To Reader Utility</span>
+            </nav>
+        </header>
 
-        <!-- 
-        =============================================================================================
-        HTML | MAIN CONTENT: Input, Buttons, Output
-        - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
-        =============================================================================================
-        -->
-        <div class="MAIN__container">
+        <div class="FULL__page-app-container">
+            <!-- 
+            =============================================================================================
+            HTML | MAIN CONTENT: Input, Buttons, Output
+            - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
+            =============================================================================================
+            -->
+            <div class="MAIN__container">
 
-            <!-- -----------------------------------------------------------------------------------------
-               HTML | INPUT AREA
-               - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
-               ----------------------------------------------------------------------------------------- -->
-            <label for="inputText" class="FORM__label">Input Text (WhatsApp or Markdown):</label> 
-            <textarea
-                id="inputText"
-                class="FORM__textarea"
-                placeholder="Paste your text (WhatsApp or Markdown) here..."
-            ></textarea>
+                <!-- -----------------------------------------------------------------------------------------
+                   HTML | INPUT AREA
+                   - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
+                   ----------------------------------------------------------------------------------------- -->
+                <label for="inputText" class="FORM__label">Input Text (WhatsApp or Markdown):</label> 
+                <textarea
+                    id="inputText"
+                    class="FORM__textarea"
+                    placeholder="Paste your text (WhatsApp or Markdown) here..."
+                ></textarea>
 
-            <!-- -----------------------------------------------------------------------------------------
-               HTML | ACTION BUTTONS
-               - Introduced in v1.0.0 | Updated v1.2.3
-               ----------------------------------------------------------------------------------------- -->
-            <div class="BTTN__container">
-                <button id="renderButton" class="BTTN__primary">Render Text To Page</button>
-                <button id="clearButton" class="BTTN__danger">Clear Text</button>
-            </div>
+                <!-- -----------------------------------------------------------------------------------------
+                   HTML | ACTION BUTTONS
+                   - Introduced in v1.0.0 | Updated v1.2.3 | Updated v1.2.4
+                   ----------------------------------------------------------------------------------------- -->
+                <div class="BTTN__container">
+                    <button id="renderButton" class="BTTN__standard">Render Text To Page</button>
+                    <button id="clearButton" class="BTTN__cancel">Clear Text</button>
+                </div>
 
-            <!-- -----------------------------------------------------------------------------------------
-               HTML | OUTPUT AREA
-               - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
-               ----------------------------------------------------------------------------------------- -->
-            <h2 id="output-heading" class="MAIN__output-heading">Output</h2> 
-            <div 
-                id="output" 
-                class="MAIN__output"
-                role="region" 
-                aria-live="polite" 
-                aria-labelledby="output-heading"
-            >
-                <!-- Rendered content will appear here -->
-            </div>
+                <!-- -----------------------------------------------------------------------------------------
+                   HTML | OUTPUT AREA
+                   - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
+                   ----------------------------------------------------------------------------------------- -->
+                <h2 id="output-heading" class="MAIN__output-heading">Output</h2> 
+                <div 
+                    id="output" 
+                    class="MAIN__output"
+                    role="region" 
+                    aria-live="polite" 
+                    aria-labelledby="output-heading"
+                >
+                    <!-- Rendered content will appear here -->
+                </div>
 
-        </div> <!-- End MAIN__container -->
-    </div> <!-- End PAGE__container -->
+            </div> <!-- End MAIN__container -->
+        </div> <!-- End FULL__page-app-container -->
+
+        <footer class="FOOT__container">
+            &copy; 2025 Noble Architecture
+        </footer>
+    </div>
 
     <!-- 
     =============================================================================================
-    JAVASCRIPT | THIRD-PARTY LIBRARIES
-    - Introduced in v1.0.0
+    JAVASCRIPT | THIRD-PARTY LIBRARIES & UTILITIES
+    - Introduced in v1.0.0 | Updated v1.2.4
     =============================================================================================
     -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> <!-- ← KEY LINK | Marked.js Dependency -->
+    <script src="/src/js/header-version-injector.js"></script> <!-- ← UTILITY | Header Version Injector -->
 
     <!-- 
     =============================================================================================
@@ -477,16 +408,15 @@
     <script>
         // =============================================================================================
         // JAVASCRIPT | GLOBAL VARIABLES & CONSTANTS
-        // - Introduced in v1.2.1 | Updated v1.2.3
+        // - Introduced in v1.2.1 | Updated v1.2.3 | Updated v1.2.4
         // Defines global constants and caches frequently accessed DOM elements.
         // =============================================================================================
         const G_DOM_ELEMENTS = {
-            appTitle: null,
             inputText: null,
             renderButton: null,
             clearButton: null,
             output: null,
-            // No need to cache outputHeading unless manipulated by JS
+            outputHeading: null
         };
 
         // =============================================================================================
@@ -544,82 +474,6 @@
             return replaced;
         }
         
-        // ------------------------------------------------------------
-        // HELPER FUNCTION | INJECT VERSION NOTE
-        // - Introduced in v1.2.1 (Adapted from Regex Tool example)
-        // DESCRIPTION
-        // - Dynamically reads the application version from the meta tag and adds a styled
-        //   version note into the application title element (#app-title).
-        // ARGUMENTS
-        // - options (Object, optional): Configuration options (see defaults inline).
-        // IMPORTANT NOTES
-        // - Assumes meta tag `name="application-version"` and element `#app-title` exist.
-        // ------------------------------------------------------------
-        function injectVersionNote(options = {}) {
-             // --- Configuration with Defaults ---
-            const config = {
-                metaTagName: options.metaTagName || 'application-version',
-                targetElementId: options.targetElementId || 'app-title',
-                prefix: options.prefix !== undefined ? options.prefix : ' - Version ', // Adjusted prefix
-                suffix: options.suffix !== undefined ? options.suffix : '', // No suffix by default
-                style: options.style || {
-                    fontSize: '12px',
-                    color: '#656565',
-                    fontWeight: 'normal' // Ensure normal weight
-                }
-            };
-
-            // --- Find Target Element ---
-            const targetElement = G_DOM_ELEMENTS.appTitle; // Use cached element
-             if (!targetElement) {
-                console.error(`Error: Target element #${config.targetElementId} not found for injecting version note.`);
-                return;
-            }
-
-            // --- Get Version from Meta Tag ---
-            const metaTag = document.querySelector(`meta[name="${config.metaTagName}"]`);
-            if (!metaTag) {
-                console.warn(`Warning: Meta tag with name="${config.metaTagName}" not found. Cannot inject version note.`);
-                return;
-            }
-            const versionString = metaTag.getAttribute('content');
-            if (!versionString) {
-                 console.warn(`Warning: Meta tag "${config.metaTagName}" found, but has no content attribute. Cannot inject version note.`);
-                return;
-            }
-            console.log(`Injecting version: ${versionString}`);
-
-            // --- Get Base Title ---
-            let baseTitle = '';
-            for (let i = 0; i < targetElement.childNodes.length; i++) {
-                if (targetElement.childNodes[i].nodeType === Node.TEXT_NODE) {
-                    baseTitle = targetElement.childNodes[i].textContent.trim();
-                    break;
-                }
-            }
-             if (!baseTitle) { // Fallback
-                 baseTitle = targetElement.textContent.split(config.prefix.trim())[0].trim() || 'App';
-                 console.warn(`#${config.targetElementId} base text determined via fallback. Current text: "${targetElement.textContent}"`);
-             }
-
-            // --- Create the Version Note Span ---
-            const versionSpan = document.createElement('span');
-            versionSpan.className = 'HEAD__version-note';
-            versionSpan.textContent = `${config.prefix}${versionString}${config.suffix}`;
-
-            // --- Apply Styling ---
-            for (const property in config.style) {
-                if (config.style.hasOwnProperty(property)) {
-                    versionSpan.style[property] = config.style[property];
-                }
-            }
-
-            // --- Inject into DOM ---
-            targetElement.innerHTML = ''; // Clear existing content
-            targetElement.appendChild(document.createTextNode(baseTitle)); // Add base title text node
-            targetElement.appendChild(versionSpan); // Append the new version span
-        }
-
         // =============================================================================================
         // JAVASCRIPT | EVENT HANDLERS
         // - Introduced in v1.0.0 | Refactored into named functions in v1.2.1
@@ -636,12 +490,12 @@
         function handleRenderClick() {
             if (!G_DOM_ELEMENTS.inputText || !G_DOM_ELEMENTS.output) {
                  console.error("Render handler: Input or output element missing.");
-                 return;
+                return;
             }
             if (typeof marked === 'undefined') {
                  console.error("Render handler: Marked.js library is not loaded.");
-                 G_DOM_ELEMENTS.output.innerHTML = '<p style="color: red;">Error: Marked.js library failed to load. Cannot render text.</p>';
-                 return;
+                G_DOM_ELEMENTS.output.innerHTML = '<p style="color: red;">Error: Marked.js library failed to load. Cannot render text.</p>';
+                return;
             }
 
             // 1) Get raw input
@@ -659,7 +513,7 @@
                 G_DOM_ELEMENTS.output.innerHTML = renderedHtml;
             } catch (error) {
                  console.error("Error during Marked.js parsing:", error);
-                 G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering Markdown: ${error.message}</p>`;
+                G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering Markdown: ${error.message}</p>`;
             }
         }
 
@@ -672,56 +526,55 @@
         function handleClearClick() {
              if (G_DOM_ELEMENTS.inputText) {
                 G_DOM_ELEMENTS.inputText.value = '';
-             } else {
-                 console.warn("Clear handler: Input element missing.");
-             }
-             if (G_DOM_ELEMENTS.output) {
+            } else {
+                console.warn("Clear handler: Input element missing.");
+            }
+            if (G_DOM_ELEMENTS.output) {
                 G_DOM_ELEMENTS.output.innerHTML = '';
-             } else {
-                 console.warn("Clear handler: Output element missing.");
-             }
+            } else {
+                console.warn("Clear handler: Output element missing.");
+            }
         }
 
         // =============================================================================================
         // INITIALIZATION | MAIN APPLICATION INIT
-        // - Introduced in v1.2.1 | Updated v1.2.3
+        // - Introduced in v1.2.1 | Updated v1.2.3 | Updated v1.2.4
         // DESCRIPTION
         // - Sets up the application on page load: caches DOM elements, injects version note,
         //   and attaches global event listeners.
         // =============================================================================================
         function initApp() {
-            console.log(`Initializing Text To Reader Utility v1.2.3...`); 
+            console.log(`Initializing Text To Reader Utility v1.2.4...`); 
 
             // --- Cache DOM Elements ---
-            G_DOM_ELEMENTS.appTitle = document.querySelector('.HEAD__title');
             G_DOM_ELEMENTS.inputText = document.getElementById('inputText');
             G_DOM_ELEMENTS.renderButton = document.getElementById('renderButton');
             G_DOM_ELEMENTS.clearButton = document.getElementById('clearButton');
             G_DOM_ELEMENTS.output = document.getElementById('output');
+            G_DOM_ELEMENTS.outputHeading = document.getElementById('output-heading');
 
             // --- Check if all essential elements were found ---
             let essentialElementsFound = true;
-             for (const key in G_DOM_ELEMENTS) {
-                if (G_DOM_ELEMENTS[key] === null) {
-                     console.error(`Initialization Error: DOM element for '${key}' not found.`);
-                     essentialElementsFound = false;
+            for (const key in G_DOM_ELEMENTS) {
+                if (G_DOM_ELEMENTS[key] === null && key !== 'outputHeading') {
+                    console.error(`Initialization Error: DOM element for '${key}' not found.`);
+                    essentialElementsFound = false;
                 }
-             }
+            }
 
-             if (!essentialElementsFound) {
-                 // Display a critical error message if essential elements are missing
-                 document.body.innerHTML = '<p style="color: red; font-weight: bold; padding: 20px;">Error: Application could not initialize. Essential HTML elements are missing. Check the console for details.</p>';
-                 return; // Stop initialization
-             }
-             
-             // --- Inject Version Note ---
-             injectVersionNote(); // Use default settings
+            if (!essentialElementsFound) {
+                document.body.innerHTML = '<p style="color: red; font-weight: bold; padding: 20px;">Error: Application could not initialize. Essential HTML elements are missing. Check the console for details.</p>';
+                return;
+            }
+              
+            // --- Inject Version Note using the modular script ---
+            injectVersionNote();
 
             // --- Attach Global Event Listeners ---
             G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);
             G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);
 
-             console.log("Text To Reader Utility Initialized Successfully.");
+            console.log("Text To Reader Utility Initialized Successfully.");
         }
 
         // =============================================================================================
@@ -731,7 +584,6 @@
         // - Ensures the DOM is fully parsed before running the main initialization script.
         // =============================================================================================
         document.addEventListener('DOMContentLoaded', initApp);
-
     </script>
 
 </body>
