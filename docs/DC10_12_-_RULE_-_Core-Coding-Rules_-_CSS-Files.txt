@@ -46,17 +46,44 @@ DESCRIPTION
 - Stick to using `rem` units for all numerical values.
 - Base font size is `16.00px` this sets the default size for the website.
     - Setting the base font size to `16.00px` allows for easy calculations of the `rem` units.
-- Use leading zeros for decimal values (e.g., 00.50rem, not .5rem)
-- For small values under 1, use leading zeros with 2 decimal places (e.g., 00.75rem)
-- For whole numbers, use 2 decimal places for consistency (e.g., 01.00rem, 02.00rem)
-- Always use at least `00.00` as this mostly keeps alot of the values in a consistent column-like format.
+- For size-related properties (font sizes, margins, padding, width, height, etc.):
+    - Always use two digits before the decimal point (e.g., `01.00rem`, `00.75rem`)
+    - Always use two digits after the decimal point (e.g., `01.00rem`, `00.75rem`)
+    - This format applies to: font-size, margin, padding, width, height, border-radius, etc.
+- For non-size properties (colors, percentages, opacity, etc.):
+    - Use standard formatting without leading zeros
+    - Examples: `#555041`, `100%`, `0.65`, etc.
+- Always use at least `00.00` for size values to maintain a consistent column-like format.
 
 #### Example
 ```css
 .selector {
-    property-name       :    value;
-    longer-property     :    value;
-    short-prop          :    value;
+    font-size           :    01.00rem;
+    margin-top          :    00.75rem;
+    padding-bottom      :    02.00rem;
+    width               :    100%;
+    opacity             :    0.65;
+}
+```
+
+### Margin and Padding Properties
+- Always use explicit margin and padding properties instead of shorthand
+- Define each side separately: top, right, bottom, left
+- This improves readability and maintainability
+- Makes it easier to modify individual sides without affecting others
+
+#### Example
+```css
+.selector {
+    margin-top          :    00.75rem;
+    margin-right        :    01.00rem;
+    margin-bottom       :    00.75rem;
+    margin-left         :    01.00rem;
+    
+    padding-top         :    00.50rem;
+    padding-right       :    01.00rem;
+    padding-bottom      :    00.50rem;
+    padding-left        :    01.00rem;
 }
 ```
 

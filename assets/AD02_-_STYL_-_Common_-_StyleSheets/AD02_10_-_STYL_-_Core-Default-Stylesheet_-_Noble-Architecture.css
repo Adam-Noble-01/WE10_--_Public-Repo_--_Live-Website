@@ -104,36 +104,36 @@ CSS | FONT FACE DECLARATIONS
    =============================================================================== */
 
 :root {
-    --header-height      :    55px;
-    --primary-color      :    #555041;          /*   <-- Brand color */
-    --primary-hover      :    #3d392e;          /*   <-- Darker shade */
-    --secondary-color    :    #86847d;          /*   <-- Neutral brand */
-    --secondary-hover    :    #6c6a65;          /*   <-- Darker neutral */
-    --success-color      :    #28a745;
-    --danger-color       :    #dc3545;
-    --danger-hover       :    #c82333;
-    --card-bg            :    #ffffff;
-    --card-border        :    #ddd;
-    --code-bg            :    #272822;           /*   <-- Okaidia theme */
-    --code-border        :    #444;              /*   <-- Code block border */
-    --text-color         :    #333;
-    --text-light         :    #666;
-    --body-bg            :    #f4f4f4;
-    --header-bg          :    #fff;
-    --header-border      :    var(--primary-color);
-    --button-text        :    #fdfdfd;           /*   <-- Standard button text color */
-    --button-bg          :    #504c46;           /*   <-- Standard button background color */
-    --button-hover-bg    :    #3e3b36;           /*   <-- Standard button hover background color */
-    --button-hover-text  :    #fdfdfd;           /*   <-- Standard button hover text color */
-    --button-cancel-bg   :    #BA5050;           /*   <-- Cancel button background color */
-    --button-cancel-text :    #fdfdfd;           /*   <-- Cancel button text color */
-    --button-cancel-hover-bg   :    #9E2D2D;     /*   <-- Cancel button hover background color */
-    --button-cancel-hover-text :    #fdfdfd;     /*   <-- Cancel button hover text color */
-    --warning-bg         :    #fff3cd;
-    --warning-border     :    #ffeeba;
-    --warning-text       :    #856404;
-    --font-primary       :    'Open Sans', sans-serif;  /*   <-- Primary font family */
-    --font-handwritten   :    'Caveat', cursive;               /*   <-- Handwritten font family */
+    --header-height            :    55px;
+    --primary-color            :    #555041;          /*   <-- Brand color */
+    --primary-hover            :    #3d392e;          /*   <-- Darker shade */
+    --secondary-color          :    #86847d;          /*   <-- Neutral brand */
+    --secondary-hover          :    #6c6a65;          /*   <-- Darker neutral */
+    --success-color            :    #28a745;
+    --danger-color             :    #dc3545;
+    --danger-hover             :    #c82333;
+    --card-bg                  :    #ffffff;
+    --card-border              :    #ddd;
+    --code-bg                  :    #272822;           /*   <-- Okaidia theme */
+    --code-border              :    #444;              /*   <-- Code block border */
+    --text-color               :    #333;
+    --text-light               :    #666;
+    --body-bg                  :    #f4f4f4;
+    --header-bg                :    #fff;
+    --header-border            :    var(--primary-color);
+    --button-text              :    #fdfdfd;           /*   <-- Standard button text color */
+    --button-bg                :    #504c46;           /*   <-- Standard button background color */
+    --button-hover-bg          :    #3e3b36;           /*   <-- Standard button hover background color */
+    --button-hover-text        :    #fdfdfd;           /*   <-- Standard button hover text color */
+    --button-cancel-bg         :    #BA5050;           /*   <-- Cancel button background color */
+    --button-cancel-text       :    #fdfdfd;           /*   <-- Cancel button text color */
+    --button-cancel-hover-bg   :    #9E2D2D;           /*   <-- Cancel button hover background color */
+    --button-cancel-hover-text :    #fdfdfd;           /*   <-- Cancel button hover text color */
+    --warning-bg               :    #fff3cd;
+    --warning-border           :    #ffeeba;
+    --warning-text             :    #856404;
+    --font-primary             :    'Open Sans', sans-serif;  /*   <-- Primary font family */
+    --font-handwritten         :    'Caveat', cursive;        /*   <-- Handwritten font family */
 }
 
 /* ===============================================================================
@@ -143,8 +143,14 @@ CSS | FONT FACE DECLARATIONS
 
 /* - - - - - - - - - - - - -   Base Reset   - - - - - - - - - - - - - */
 html, body {
-    margin              :    0;
-    padding             :    0;
+    margin-top          :    00.00rem;
+    margin-right        :    00.00rem;
+    margin-bottom       :    00.00rem;
+    margin-left         :    00.00rem;
+    padding-top         :    00.00rem;
+    padding-right       :    00.00rem;
+    padding-bottom      :    00.00rem;
+    padding-left        :    00.00rem;
     width               :    100%;
     min-height          :    100vh;
     background-color    :    var(--body-bg);
@@ -183,9 +189,14 @@ html, body {
 }
 
 .HEAD__nav {
-    margin              :    0 auto;
+    margin-top          :    0.00rem;
+    margin-right        :    auto;
+    margin-bottom       :    0.00rem;
+    margin-left         :    auto;
     padding-top         :    00.75rem;
+    padding-right       :    00.00rem;
     padding-bottom      :    00.75rem;
+    padding-left        :    00.00rem;
     display             :    flex;
     justify-content     :    space-between;
     align-items         :    center;
@@ -206,9 +217,14 @@ html, body {
     list-style          :    none;
     display             :    flex;
     gap                 :    00.65rem;
-    margin              :    0;
-    padding             :    0;
-    margin-left         :    auto; 
+    margin-top          :    0.00rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    0.00rem;
+    margin-left         :    auto;
+    padding-top         :    0.00rem;
+    padding-right       :    0.00rem;
+    padding-bottom      :    0.00rem;
+    padding-left        :    0.00rem;
 }
 
 .HEAD__link {
@@ -217,9 +233,9 @@ html, body {
     font-weight         :    400;
     font-size           :    01.00rem;
     padding-top         :    00.50rem;
+    padding-right       :    00.50rem;
     padding-bottom      :    00.50rem;
     padding-left        :    00.50rem;
-    padding-right       :    00.50rem;
     transition          :    color 0.3s;
 }
 
@@ -240,8 +256,10 @@ html, body {
 .MAIN__container {
     flex                :    1;
     max-width           :    1200px;
-    margin-left         :    02.00rem;
+    margin-top          :    0.00rem;
     margin-right        :    02.00rem;
+    margin-bottom       :    0.00rem;
+    margin-left         :    02.00rem;
     align-self          :    center;
     transform-origin    :    top center;
     height              :    50vh;
@@ -250,20 +268,29 @@ html, body {
 
 .MAIN__header {
     text-align          :    left;
-    margin-bottom       :    2rem;
+    margin-top          :    0.00rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    02.00rem;
+    margin-left         :    0.00rem;
 }
 
 .MAIN__title {
     font-size           :    01.00rem;
     color               :    var(--text-color);
-    margin-bottom       :    0.5rem;
+    margin-top          :    0.00rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    00.50rem;
+    margin-left         :    0.00rem;
     font-weight         :    600;
 }
 
 .MAIN__description {
     color               :    var(--text-light);
     font-size           :    00.65rem;
-    margin              :    0;
+    margin-top          :    0.00rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    0.00rem;
+    margin-left         :    0.00rem;
     font-weight         :    400;
 }
 
@@ -275,15 +302,21 @@ html, body {
 .TOOL__grid {
     display             :    grid;
     grid-template-columns:    repeat(auto-fit, minmax(300px, 1fr));
-    gap                 :    2rem;
-    margin              :    2rem 0;
+    gap                 :    02.00rem;
+    margin-top          :    02.00rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    0.00rem;
+    margin-left         :    0.00rem;
 }
 
 .TOOL__card {
     background-color    :    var(--card-bg);
     border-radius       :    8px;
     box-shadow          :    0 3px 10px rgba(0,0,0,0.1);
-    padding             :    1.5rem;
+    padding-top         :    01.50rem;
+    padding-right       :    01.50rem;
+    padding-bottom      :    01.50rem;
+    padding-left        :    01.50rem;
     transition          :    transform 0.3s, box-shadow 0.3s;
     display             :    flex;
     flex-direction      :    column;
@@ -296,31 +329,43 @@ html, body {
 
 .TOOL__title {
     color               :    var(--text-color);
-    margin              :    0 0 1rem 0;
-    font-size           :    1.20rem;
+    margin-top          :    0.00rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    01.00rem;
+    margin-left         :    0.00rem;
+    font-size           :    01.20rem;
     border-bottom       :    1px solid var(--card-border);
-    padding-bottom      :    0.75rem;
+    padding-top         :    0.00rem;
+    padding-right       :    0.00rem;
+    padding-bottom      :    00.75rem;
+    padding-left        :    0.00rem;
     font-weight         :    600;
 }
 
 .TOOL__description {
     color               :    var(--text-light);
-    margin              :    0 0 1.5rem 0;
+    margin-top          :    0.00rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    01.50rem;
+    margin-left         :    0.00rem;
     flex                :    1;
     line-height         :    1.5;
-    font-size           :    0.85rem;
+    font-size           :    00.85rem;
     font-weight         :    400;
 }
 
 .TOOL__link {
     display             :    inline-block;
-    padding             :    0.75rem 1.5rem;
+    padding-top         :    00.75rem;
+    padding-right       :    01.50rem;
+    padding-bottom      :    00.75rem;
+    padding-left        :    01.50rem;
     background-color    :    var(--primary-color);
     color               :    var(--button-text);
     text-decoration     :    none;
     border-radius       :    4px;
     transition          :    all 0.3s ease;
-    font-size           :    0.80rem;
+    font-size           :    00.80rem;
     text-align          :    center;
     width               :    100%;
     box-sizing          :    border-box;
@@ -341,8 +386,14 @@ html, body {
     background-color    :    var(--warning-bg);
     border              :    1px solid var(--warning-border);
     border-radius       :    8px;
-        padding             :    1rem 1.5rem;
-    margin              :    2rem 0;
+    padding-top         :    01.00rem;
+    padding-right       :    01.50rem;
+    padding-bottom      :    01.00rem;
+    padding-left        :    01.50rem;
+    margin-top          :    02.00rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    0.00rem;
+    margin-left         :    0.00rem;
     color               :    var(--warning-text);
     line-height         :    1.5;
 }
@@ -350,9 +401,12 @@ html, body {
 .NOTICE__title {
     font-family         :    var(--font-handwritten);
     font-weight         :    600;
-    font-size           :    1.5rem;
+    font-size           :    01.50rem;
     color               :    var(--primary-color);
-    margin-bottom       :    0.5rem;
+    margin-top          :    0.00rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    00.50rem;
+    margin-left         :    0.00rem;
     display             :    block;
 }
 
@@ -365,11 +419,123 @@ html, body {
     background          :    var(--header-bg);
     border-top          :    1px solid var(--header-border);
     padding-top         :    00.20rem;
+    padding-right       :    0.00rem;
     padding-bottom      :    00.20rem;
+    padding-left        :    0.00rem;
     font-size           :    00.80rem;
     text-align          :    center;
     color               :    var(--secondary-color);
     margin-top          :    auto;      /* <-- Pushes footer to bottom   */
+}
+
+
+/* ===============================================================================
+   CSS | BUTTON COMPONENTS (Using BTTN__ Block)
+   - Introduced in v1.5.0
+   - Defines the standard button styles for the Noble Architecture website
+
+/* - - - - - - - - - - - - -   Standard Button   - - - - - - - - - - - - - */
+.BTTN__standard {
+    display             :    inline-block;
+    padding-top         :    00.75rem;
+    padding-right       :    01.50rem;
+    padding-bottom      :    00.75rem;
+    padding-left        :    01.50rem;
+    background-color    :    var(--button-bg);
+    color               :    var(--button-text);
+    text-decoration     :    none;
+    border-radius       :    4px;
+    transition          :    all 0.3s ease;
+    font-size           :    00.80rem;
+    text-align          :    center;
+    border              :    none;
+    cursor              :    pointer;
+    font-weight         :    500;
+}
+
+.BTTN__standard:hover {
+    background-color    :    var(--button-hover-bg);
+    color               :    var(--button-hover-text);
+    transform           :    translateY(-2px);
+    box-shadow          :    0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* - - - - - - - - - - - - -   Cancel Button   - - - - - - - - - - - - - */
+.BTTN__cancel {
+    display             :    inline-block;
+    padding-top         :    00.75rem;
+    padding-right       :    01.50rem;
+    padding-bottom      :    00.75rem;
+    padding-left        :    01.50rem;
+    background-color    :    var(--button-cancel-bg);
+    color               :    var(--button-cancel-text);
+    text-decoration     :    none;
+    border-radius       :    4px;
+    transition          :    all 0.3s ease;
+    font-size           :    00.80rem;
+    text-align          :    center;
+    border              :    none;
+    cursor              :    pointer;
+    font-weight         :    500;
+}
+
+.BTTN__cancel:hover {
+    background-color    :    var(--button-cancel-hover-bg);
+    color               :    var(--button-cancel-hover-text);
+    transform           :    translateY(-2px);
+    box-shadow          :    0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* - - - - - - - - - - - - -   Button Sizes   - - - - - - - - - - - - - */
+.BTTN__small {
+    padding-top         :    00.50rem;
+    padding-right       :    01.00rem;
+    padding-bottom      :    00.50rem;
+    padding-left        :    01.00rem;
+    font-size           :    00.70rem;
+}
+
+.BTTN__large {
+    padding-top         :    01.00rem;
+    padding-right       :    02.00rem;
+    padding-bottom      :    01.00rem;
+    padding-left        :    02.00rem;
+    font-size           :    00.90rem;
+}
+
+/* - - - - - - - - - - - - -   Button States   - - - - - - - - - - - - - */
+.BTTN__disabled {
+    opacity             :    0.65;
+    cursor              :    not-allowed;
+    pointer-events      :    none;
+}
+
+.BTTN__loading {
+    position            :    relative;
+    color               :    transparent;
+}
+
+.BTTN__loading::after {
+    content             :    "";
+    position            :    absolute;
+    width               :    01.00rem;
+    height              :    01.00rem;
+    top                 :    50%;
+    left                :    50%;
+    margin-top          :    -00.50rem;
+    margin-right        :    0.00rem;
+    margin-bottom       :    0.00rem;
+    margin-left         :    -00.50rem;
+    border              :    2px solid var(--button-text);
+    border-radius       :    50%;
+    border-right-color  :    transparent;
+    animation           :    spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform       :    rotate(360deg);
+    }
 }
 
 /* ===============================================================================
@@ -391,108 +557,15 @@ html, body {
     /* Adjust container widths for mobile */
     .MAIN__container {
         max-width         :    100%;
-        margin-left       :    1.00rem;
-        margin-right      :    1.00rem;
+        margin-top        :    0.00rem;
+        margin-right      :    01.00rem;
+        margin-bottom     :    0.00rem;
+        margin-left       :    01.00rem;
     }
     
     /* Ensure images scale properly */
     img {
         max-width         :    100%;
         height            :    auto;
-    }
-}
-
-/* ===============================================================================
-   CSS | BUTTON COMPONENTS (Using BTTN__ Block)
-   - Introduced in v1.5.0
-   - Defines the standard button styles for the Noble Architecture website
-
-/* - - - - - - - - - - - - -   Standard Button   - - - - - - - - - - - - - */
-.BTTN__standard {
-    display             :    inline-block;
-    padding             :    0.75rem 1.5rem;
-    background-color    :    var(--button-bg);
-    color               :    var(--button-text);
-    text-decoration     :    none;
-    border-radius       :    4px;
-    transition          :    all 0.3s ease;
-    font-size           :    0.80rem;
-    text-align          :    center;
-    border              :    none;
-    cursor              :    pointer;
-    font-weight         :    500;
-}
-
-.BTTN__standard:hover {
-    background-color    :    var(--button-hover-bg);
-    color               :    var(--button-hover-text);
-    transform           :    translateY(-2px);
-    box-shadow          :    0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* - - - - - - - - - - - - -   Cancel Button   - - - - - - - - - - - - - */
-.BTTN__cancel {
-    display             :    inline-block;
-    padding             :    0.75rem 1.5rem;
-    background-color    :    var(--button-cancel-bg);
-    color               :    var(--button-cancel-text);
-    text-decoration     :    none;
-    border-radius       :    4px;
-    transition          :    all 0.3s ease;
-    font-size           :    0.80rem;
-    text-align          :    center;
-    border              :    none;
-    cursor              :    pointer;
-    font-weight         :    500;
-}
-
-.BTTN__cancel:hover {
-    background-color    :    var(--button-cancel-hover-bg);
-    color               :    var(--button-cancel-hover-text);
-    transform           :    translateY(-2px);
-    box-shadow          :    0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* - - - - - - - - - - - - -   Button Sizes   - - - - - - - - - - - - - */
-.BTTN__small {
-    padding             :    0.50rem 1.00rem;
-    font-size           :    0.70rem;
-}
-
-.BTTN__large {
-    padding             :    1.00rem 2.00rem;
-    font-size           :    0.90rem;
-}
-
-/* - - - - - - - - - - - - -   Button States   - - - - - - - - - - - - - */
-.BTTN__disabled {
-    opacity             :    0.65;
-    cursor              :    not-allowed;
-    pointer-events      :    none;
-}
-
-.BTTN__loading {
-    position            :    relative;
-    color               :    transparent;
-}
-
-.BTTN__loading::after {
-    content             :    "";
-    position            :    absolute;
-    width               :    1rem;
-    height              :    1rem;
-    top                 :    50%;
-    left                :    50%;
-    margin-left         :    -0.5rem;
-    margin-top          :    -0.5rem;
-    border              :    2px solid var(--button-text);
-    border-radius       :    50%;
-    border-right-color  :    transparent;
-    animation           :    spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform       :    rotate(360deg);
     }
 }
