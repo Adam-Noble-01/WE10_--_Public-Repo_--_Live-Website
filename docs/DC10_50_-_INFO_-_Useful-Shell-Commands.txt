@@ -1,0 +1,17 @@
+# Useful Shell Commands for Noble Architecture Website
+
+## File Operations
+
+### Batch Rename Files
+To rename multiple files by replacing a prefix (e.g., changing 'AD' to 'DC'):
+```powershell
+Get-ChildItem -Path "AD10_*" | ForEach-Object { Rename-Item -Path $_.FullName -NewName ($_.Name -replace '^AD', 'DC') }
+```
+
+This command:
+1. `Get-ChildItem -Path "AD10_*"` - Gets all files starting with "AD10_"
+2. `ForEach-Object { ... }` - Processes each file
+3. `Rename-Item` - Renames each file
+4. `-replace '^AD', 'DC'` - Replaces 'AD' at the start of the filename with 'DC'
+
+Note: Make sure you're in the correct directory before running the command. 

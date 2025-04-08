@@ -59,7 +59,7 @@ Consistency is paramount. When modifying existing code, adhere to the establishe
 
 
 ---------------------------------------------------------------------------------------------------
-#                         ⚠⚠⚠⚠ END OF PROJECT STANDARDS ⚠⚠⚠⚠
+#                      ⚠⚠⚠⚠ END OF DOCUMENT VALIDATED INFORMATION ⚠⚠⚠⚠
 
 ====================================================================================================
 =|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|=
@@ -68,6 +68,17 @@ Consistency is paramount. When modifying existing code, adhere to the establishe
 - !Reminder to sort the notes below into the correct sections above!
 - Below are notes that have not been sorted into the correct sections above.
     
+
+---------------------------------------------------------------------------------------------------
+#                      ⚠⚠⚠⚠ END OF DOCUMENT VALIDATED INFORMATION ⚠⚠⚠⚠
+
+====================================================================================================
+=|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|=
+====================================================================================================
+# ⚠⚠⚠⚠ BELOW IS EXAMPLE IDEAS NOT PART OF THE PROJECT STANDARDS ⚠⚠⚠⚠
+- !Reminder to sort the notes below into the correct sections above!
+- Below are notes that have not been sorted into the correct sections above.
+
 
 ----------------------------------------------------------------------------------------------------
 

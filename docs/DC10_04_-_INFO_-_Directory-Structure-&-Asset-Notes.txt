@@ -1,5 +1,65 @@
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - DIRECTORY STRUCTURE
+FILE NAME |  AD10_60_-_DOCS_-_Directory-Structure.txt
+FILE TYPE |  DOCS
+
+VERSION HISTORY
+04-Apr-2025 - Version 1.0.0 - Initial Draft
+04-Apr-2025 - Version 1.1.0 
+- Created directory structure document
+- Established core directory organization
+- Added detailed structure documentation
+
+DESCRIPTION
+- This file defines the directory structure for the Noble Architecture website project.
+- Proper directory organization is essential for project maintainability.
+- All files must be placed in their appropriate directories according to this structure.
+====================================================================================================
+---
+
+# NOBLE ARCHITECTURE DIRECTORY STRUCTURE
+--------------------------------------------------------------------------------
+
+## DOCUMENT OVERVIEW
+
+#### Document Purpose
+This document establishes the directory structure for the Noble Architecture website project.
+
+#### Document Introduction Section
+- Clear directory structure is essential for project organisation
+- This structure applies to all project files
+- Following this structure ensures proper file organization
+
+--------------------------------------------------------------------------------
+
+## DIRECTORY STRUCTURE
+
+### ROOT DIRECTORY
+--------------------------------------------------------------------------------
+/
+├── assets/
+│   ├── AD00_-_DOCS_-_Master-Reference-Documentation/
+│   ├── AD10_-_DOCS_-_Project-Documentation/
+│   ├── AD20_-_IMGS_-_Images/
+│   ├── AD30_-_FONT_-_Fonts/
+│   └── AD40_-_ICON_-_Icons/
+├── src/
+│   ├── js/
+│   ├── css/
+│   └── html/
+└── dist/
+
+
+
+THIS FILE IS A PLACEHOLDER MAKE A JSON FILE WHEN TIME
+
+
+
 # Temporary Notes
+
 ###### This document is intended to hold placeholder notes that have not been sorted
+
 ---
 
 ### Sitemap Notes
@@ -51,6 +111,7 @@ assets-dev      =  Pages / Applications currently under active development and n
 ---
 
 #### Global Assets Library Map
+
 -   Used Globally for  serving files for web apps and static pages
 
 ```web_application_directory_sitemap
@@ -60,7 +121,9 @@ assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies
 
 
 ---------------------------------------------------------------------------------------------------
+
 #### Global Favicon Files Library Index
+
 - Note Prefer SVG format for favicons as it will not pixelate on high res screens.
 - If SVG is not supported, use PNG format.
 - If PNG is not supported, use ICO format.
@@ -77,6 +140,7 @@ assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies
 ```
 
 #### Reference Favicon Relative Path Index
+
 ```favicon_relative_path_index
 ./ROOT
     /assets
@@ -95,7 +159,9 @@ assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies
 
 
 ---------------------------------------------------------------------------------------------------
+
 #### Global Brand Image Assets Library Index
+
 - Core brand images used across the Noble Architecture website and applications
 - These assets maintain consistent branding across all platforms
 
@@ -110,6 +176,7 @@ assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies
 ```
 
 #### Reference Brand Image Assets Relative Path Index
+
 ```brand_image_assets_relative_path_index
 ./ROOT
     /assets
@@ -125,7 +192,9 @@ assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies
 
 
 #### Global Brand Image Assets Library Index
+
 ---------------------------------------------------------------------------------------------------
+
 - Core brand pictogram graphics used across the Noble Architecture website and applications
 - These assets maintain consistent branding across all platforms
 
@@ -143,6 +212,7 @@ NA04_09-NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png           <-- Add a de
 ```
 
 #### Reference Brand Image Assets Relative Path Index
+
 ```brand_image_assets_relative_path_index
 ./ROOT
     /assets
@@ -160,45 +230,51 @@ NA04_09-NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png           <-- Add a de
 
 
 ## REFERENCE DOCUMENTATION DIRECTORY
+
 ----------------------------------------------------------------------------------------------------
 
 ```reference-documentation-directory
-./assets
-    AD00_-_DOCS_-_Master-Reference-Documentation/
-        AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
-        AD10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
-        AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
-        AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
-        AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
-        AD10_06_-_INFO_-_Asset-Library-Notes .txt
-        AD10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
-        AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
-        AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+./docs/
+    DC_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+    DC_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
+    DC_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
+    DC_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
+    DC_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
+    DC_06_-_INFO_-_Asset-Library-Notes .txt
+    DC_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+    DC_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+    DC_30_-_DLIS_-_Improvements-List-&-Tasks.txt
 ```
 
 ### CORE DOCUMENTATION URLS
-- [Project ReadMe & Design Manifest](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt)
-- [Core File And Code Naming Conventions](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt)
-- [Core Web Dev Code Conventions](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt)
-- [Core JSON Data Code Conventions](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt)
-- [Core CSS Style Code Conventions](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt)
-- [Asset Library Notes](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_06_-_INFO_-_Asset-Library-Notes .txt)
-- [Pictogram Graphic Files And Design](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt)
-- [Core File Metascript Boilerplate](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt)
-- [Improvements List & Tasks](https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt)
+
+- [Project ReadMe & Design Manifest](https://www.noble-architecture.com/docs/DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt)
+- [Core File And Code Naming Conventions](https://www.noble-architecture.com/docs/DC10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt)
+- [Core Web Dev Code Conventions](https://www.noble-architecture.com/docs/DC10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt)
+- [Core JSON Data Code Conventions](https://www.noble-architecture.com/docs/DC10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt)
+- [Core CSS Style Code Conventions](https://www.noble-architecture.com/docs/DC10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt)
+- [Asset Library Notes](https://www.noble-architecture.com/docs/DC10_06_-_INFO_-_Asset-Library-Notes .txt)
+- [Pictogram Graphic Files And Design](https://www.noble-architecture.com/docs/DC10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt)
+- [Core File Metascript Boilerplate](https://www.noble-architecture.com/docs/DC10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt)
+- [Improvements List & Tasks](https://www.noble-architecture.com/docs/DC10_30_-_DLIS_-_Improvements-List-&-Tasks.txt)
 
 
 ### PLAINTEXT DOCUMENTATION URLS
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_06_-_INFO_-_Asset-Library-Notes .txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+https://www.noble-architecture.com/docs/DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+https://www.noble-architecture.com/docs/DC10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
+https://www.noble-architecture.com/docs/DC10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
+https://www.noble-architecture.com/docs/DC10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
+https://www.noble-architecture.com/docs/DC10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
+https://www.noble-architecture.com/docs/DC10_06_-_INFO_-_Asset-Library-Notes .txt
+https://www.noble-architecture.com/docs/DC10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+https://www.noble-architecture.com/docs/DC10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+https://www.noble-architecture.com/docs/DC10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+
 
 
 ---------------------------------------------------------------------------------------------------
+
 ###### End Of Notes
+
+--------------------------------------------------------------------------------
+###### END OF FILE 
