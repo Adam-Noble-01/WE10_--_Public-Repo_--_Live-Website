@@ -375,9 +375,11 @@ html, body {
     background-color    :    var(--primary-color);
     color               :    var(--button-text);
     text-decoration     :    none;
-    border-radius       :    4px;
+    border-radius       :    6px;
     transition          :    all 0.3s ease;
-    font-size           :    00.80rem;
+    font-size           :    var(--font-button-size);
+    font-family         :    var(--font-button);
+    font-weight         :    var(--font-button-weight);
     text-align          :    center;
     width               :    100%;
     box-sizing          :    border-box;
@@ -456,7 +458,7 @@ html, body {
     background-color    :    var(--button-bg);
     color               :    var(--button-text);
     text-decoration     :    none;
-    border-radius       :    4px;
+    border-radius       :    6px;
     transition          :    all 0.3s ease;
     font-size           :    var(--font-button-size);
     font-family         :    var(--font-button);
@@ -483,7 +485,7 @@ html, body {
     background-color    :    var(--button-cancel-bg);
     color               :    var(--button-cancel-text);
     text-decoration     :    none;
-    border-radius       :    4px;
+    border-radius       :    6px;
     transition          :    all 0.3s ease;
     font-size           :    var(--font-button-size);
     font-family         :    var(--font-button);
