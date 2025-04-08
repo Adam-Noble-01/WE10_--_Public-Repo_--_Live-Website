@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Color Palette Utility - Refined</title>
+
+    <!-- Google Fonts Import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* - - - - - - - - - - - - - - -  CSS Variables Definition  - - - - - - - - - - - - - - - */
+        :root {
+            /* - - - - - - - - - - - - - - -  Base Font Size  - - - - - - - - - - - - - - - */
+            --font-size-root                :    16px;                /* Base font size for REM calculations (browser default = 16px) */
+
+            /* - - - - - - - - - - - - - - -  Colors  - - - - - - - - - - - - - - - */
+            --color-bg-page                 :    #f4f4f4;
+            --color-bg-container            :    #fff;
+            --color-bg-palette              :    #ecf0f1;
+            --color-bg-swatch-text          :    rgba(255, 255, 255, 0.85);    /* Slightly less transparent */
+            --color-text-primary            :    #333;
+            --color-text-heading            :    #2c3e50;
+            --color-text-light              :    #fff;
+            --color-accent                  :    #3498db;
+            --color-accent-hover            :    #2980b9;
+            --color-danger                  :    #e74c3c;
+            --color-danger-hover            :    #c0392b;
+            --color-border-light            :    #ccc;
+            --color-border-medium           :    #bdc3c7;
+            --color-border-drag-over        :    var(--color-accent);
+            --color-border-dragging         :    #333;
+            --color-white                   :    #fff;
+            --color-black                   :    #000;
+
+            /* - - - - - - - - - - - - - - -  Fonts  - - - - - - - - - - - - - - - */
+            --font-family-base              :    'Open Sans', sans-serif;
+            --font-weight-normal            :    400;
+            --font-weight-semibold          :    600;
+            --font-size-base                :    1rem;        
+            --font-size-h1                  :    2rem;        
+            --font-size-label               :    1rem;        
+            --font-size-button              :    1rem;        
+            --font-size-swatch-text         :    0.9rem;      
+            --font-size-delete-btn          :    1rem;        
+
+            /* - - - - - - - - - - - - - - -  Spacing & Sizes  - - - - - - - - - - - - - - - */
+            --spacing-unit                  :    0.5rem;            
+            --gap-input                     :    0.625rem;          
+            --gap-palette                   :    1.25rem;           
+            --padding-body                  :    1.25rem;           
+            --padding-container             :    1.5625rem;         
+            --padding-input                 :    0.625rem 0.75rem;  
+            --padding-button                :    0.625rem 1.25rem;  
+            --padding-swatch                :    0.625rem;          
+            --padding-swatch-text           :    0.25rem 0.5rem;    
+            --margin-container-y            :    1.875rem;          
+            --margin-heading-bottom         :    1.5625rem;         
+            --margin-input-area-bottom      :    1.875rem;          
+            --margin-label-right            :    0.3125rem;         
+            --swatch-size                   :    17.00rem;          
+            --delete-btn-size               :    1.75rem;           
+            --container-max-width           :    60rem;             
+            --input-min-width               :    9.375rem;          
+            --palette-min-height            :    15.00rem;          
+            --palette-max-width-4-items     :    calc(4 * var(--swatch-size) + 5 * var(--gap-palette));    /* 4*150 + 5*20 = 700px = 43.75rem */
+
+            /* - - - - - - - - - - - - - - -  Borders & Shadows  - - - - - - - - - - - - - - - */
+            --border-radius-small           :    0.25rem;           
+            --border-radius-medium          :    0.5rem;            
+            --border-radius-circle          :    50%;
+            --border-width-standard         :    0.0625rem;         
+            --border-width-thick            :    0.125rem;          
+            --border-width-delete           :    0.125rem;          
+            --border-width-drag-over        :    0.3125rem;         
+            --box-shadow-container          :    0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+            --box-shadow-swatch             :    0 0.125rem 0.3125rem rgba(0,0,0,0.15);
+            --box-shadow-swatch-active      :    0 0.3125rem 0.9375rem rgba(0,0,0,0.25);
+            --box-shadow-delete-btn         :    0 0.0625rem 0.1875rem rgba(0,0,0,0.3);
+
+            /* - - - - - - - - - - - - - - -  Transitions  - - - - - - - - - - - - - - - */
+            --transition-fast               :    0.1s ease;
+            --transition-medium             :    0.2s ease;
+        }
+
+        /* - - - - - - - - - - - - - - -  Base Font Size  - - - - - - - - - - - - - - - */
+        html {
+            font-size                :    var(--font-size-root);
+        }
+
+        /* - - - - - - - - - - - - - - -  Basic Reset & Body Styling  - - - - - - - - - - - - - - - */
+        * {
+            box-sizing               :    border-box;
+            margin                   :    0;
+            padding                  :    0;
+        }
+
+        body {
+            font-family              :    var(--font-family-base);
+            font-weight              :    var(--font-weight-normal);
+            background-color         :    var(--color-bg-page);
+            padding                  :    var(--padding-body);
+            color                    :    var(--color-text-primary);
+            user-select              :    none;                 /* Keep user-select none to prevent text selection during drag */
+            -webkit-user-select      :    none;
+            -moz-user-select         :    none;
+            -ms-user-select          :    none;
+        }
+
+        /* - - - - - - - - - - - - - - -  Container  - - - - - - - - - - - - - - - */
+        .CONT__main {
+            max-width                :    var(--container-max-width);
+            margin                   :    var(--margin-container-y) auto;
+            padding                  :    var(--padding-container);
+            background-color         :    var(--color-bg-container);
+            border-radius            :    var(--border-radius-medium);
+            box-shadow               :    var(--box-shadow-container);
+            display                  :    flex;                 /* Center child elements like the palette container */
+            flex-direction           :    column;
+            align-items              :    center;
+        }
+
+        /* - - - - - - - - - - - - - - -  Heading  - - - - - - - - - - - - - - - */
+        .HEAD__title {
+            text-align               :    center;
+            margin-bottom            :    var(--margin-heading-bottom);
+            color                    :    var(--color-text-heading);
+            font-weight              :    var(--font-weight-semibold);
+            font-size                :    var(--font-size-h1);
+        }
+
+        /* - - - - - - - - - - - - - - -  Input Area  - - - - - - - - - - - - - - - */
+        .FORM__input-area {
+            display                  :    flex;
+            gap                      :    var(--gap-input);
+            margin-bottom            :    var(--margin-input-area-bottom);
+            align-items              :    center;
+            flex-wrap                :    wrap;
+            width                    :    100%;                 /* Make input area take full width */
+            max-width                :    var(--palette-max-width-4-items);    /* Align input width with palette */
+        }
+
+        .FORM__input-area .FORM__label {
+            font-weight              :    var(--font-weight-semibold);
+            margin-right             :    var(--margin-label-right);
+            flex-shrink              :    0;
+            font-size                :    var(--font-size-label);
+        }
+
+        .FORM__input-area .FORM__input {
+            flex-grow                :    1;
+            padding                  :    var(--padding-input);
+            border                   :    var(--border-width-standard) solid var(--color-border-light);
+            border-radius            :    var(--border-radius-small);
+            font-size                :    var(--font-size-base);
+            min-width                :    var(--input-min-width);
+            font-family              :    var(--font-family-base);
+        }
+
+        .FORM__input-area .BTNS__add {
+            padding                  :    var(--padding-button);
+            background-color         :    var(--color-accent);
+            color                    :    var(--color-white);
+            border                   :    none;
+            border-radius            :    var(--border-radius-small);
+            cursor                   :    pointer;
+            font-size                :    var(--font-size-button);
+            font-weight              :    var(--font-weight-semibold);
+            transition               :    background-color var(--transition-medium);
+            font-family              :    var(--font-family-base);
+        }
+
+        .FORM__input-area .BTNS__add:hover {
+            background-color         :    var(--color-accent-hover);
+        }
+
+        /* - - - - - - - - - - - - - - -  Palette Container  - - - - - - - - - - - - - - - */
+        .PALT__container {
+            display                  :    flex;                 /* Using Flexbox */
+            flex-wrap                :    wrap;
+            justify-content          :    center;               /* Center the items horizontally */
+            gap                      :    var(--gap-palette);
+            padding                  :    var(--gap-palette);   /* Use gap for padding */
+            background-color         :    var(--color-bg-palette);
+            border-radius            :    var(--border-radius-small);
+            min-height               :    var(--palette-min-height);
+            border                   :    var(--border-width-standard) dashed var(--color-border-medium);
+            position                 :    relative;
+            width                    :    100%;                 /* Take available width */
+            max-width                :    var(--palette-max-width-4-items);    /* Limit width to fit max 4 items */
+            margin                   :    0 auto;              /* Center the container itself if parent allows */
+        }
+
+        /* - - - - - - - - - - - - - - -  Individual Color Swatch  - - - - - - - - - - - - - - - */
+        .SWCH__item {
+            width                    :    var(--swatch-size);
+            height                   :    var(--swatch-size);
+            border                   :    var(--border-width-standard) solid var(--color-border-medium);
+            border-radius            :    var(--border-radius-small);
+            display                  :    flex;
+            flex-direction           :    column;
+            justify-content          :    flex-end;             /* Text at bottom */
+            align-items              :    center;
+            padding                  :    var(--padding-swatch);
+            overflow                 :    hidden;               /* Keep hidden to clip text if needed, but delete button stays visible */
+            position                 :    relative;             /* Needed for absolute positioning of delete btn */
+            box-shadow               :    var(--box-shadow-swatch);
+            text-align               :    center;
+            cursor                   :    grab;
+            transition               :    transform var(--transition-medium), box-shadow var(--transition-medium), opacity var(--transition-medium);
+        }
+
+        .SWCH__item:active {
+            cursor                   :    grabbing;
+            box-shadow               :    var(--box-shadow-swatch-active);
+        }
+
+        .SWCH__item .SWCH__text {
+            background-color         :    var(--color-bg-swatch-text);
+            border-radius            :    var(--border-radius-small);
+            padding                  :    var(--padding-swatch-text);
+            font-size                :    var(--font-size-swatch-text);
+            font-weight              :    var(--font-weight-semibold);
+            max-width                :    calc(100% - 2 * var(--padding-swatch-text));    /* Prevent text overlap */
+            word-wrap                :    break-word;
+            color                    :    var(--color-text-primary);    /* Will be overridden by JS */
+            pointer-events           :    none;                 /* Text doesn't interfere with clicks/drags */
+            margin-bottom            :    var(--spacing-unit);  /* Add space between text and bottom edge */
+        }
+
+        /* - - - - - - - - - - - - - - -  Dragging Styles  - - - - - - - - - - - - - - - */
+        .SWCH__item--dragging {
+            opacity                  :    0.5;
+            border                   :    var(--border-width-thick) dashed var(--color-border-dragging);
+            transform                :    scale(0.95);
+        }
+
+        .SWCH__item--drag-over {
+            border-left              :    var(--border-width-drag-over) solid var(--color-border-drag-over);
+            /* Optional: Slight scale up to indicate drop target */
+            /* transform: scale(1.02); */
+        }
+
+        /* - - - - - - - - - - - - - - -  Delete Button Styling  - - - - - - - - - - - - - - - */
+        .BTNS__delete {
+            position                 :    absolute;
+            top                      :    var(--spacing-unit);   /* 8px from top */
+            right                    :    var(--spacing-unit);   /* 8px from right */
+            width                    :    var(--delete-btn-size);
+            height                   :    var(--delete-btn-size);
+            background-color         :    var(--color-danger);
+            color                    :    var(--color-white);
+            border                   :    var(--border-width-delete) solid var(--color-white);
+            border-radius            :    var(--border-radius-circle);
+            display                  :    flex;
+            justify-content          :    center;
+            align-items              :    center;
+            font-size                :    var(--font-size-delete-btn);
+            font-weight              :    var(--font-weight-semibold);
+            cursor                   :    pointer;
+            box-shadow               :    var(--box-shadow-delete-btn);
+            z-index                  :    10;                   /* Ensure button is above swatch content */
+            transition               :    transform var(--transition-fast), background-color var(--transition-fast);
+            line-height              :    1;                    /* Ensure 'X' is centered vertically */
+        }
+
+        .BTNS__delete:hover {
+            background-color         :    var(--color-danger-hover);
+            transform                :    scale(1.1);           /* Slightly larger on hover */
+        }
+
+        .BTNS__delete:active {
+            transform                :    scale(0.95);          /* Slightly smaller on press */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="CONT__main">
+        <h1 class="HEAD__title">Hex Color Palette Utility</h1>
+
+        <div class="FORM__input-area">
+            <label for="hexInput" class="FORM__label">Enter Hex Code:</label>
+            <input type="text" id="hexInput" class="FORM__input" placeholder="#RRGGBB or RRGGBB">
+            <button id="addColorBtn" class="BTNS__add">Add Color</button>
+        </div>
+
+        <div id="paletteContainer" class="PALT__container">
+            <!-- Color swatches will be added here -->
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const hexInput = document.getElementById('hexInput');
+        const addColorBtn = document.getElementById('addColorBtn');
+        const paletteContainer = document.getElementById('paletteContainer');
+
+        // --- State Variables ---
+        let draggedItem = null;
+        let lastTapTime = 0;
+        const DOUBLE_TAP_DELAY = 300; // ms
+
+        // --- Event Listeners ---
+        addColorBtn.addEventListener('click', addColorFromInput);
+        hexInput.addEventListener('keypress', handleInputKeypress);
+
+        // --- Palette Container Event Delegation ---
+        // Using event delegation for performance on potentially many swatches
+        paletteContainer.addEventListener('dragstart', handleDragStart);
+        paletteContainer.addEventListener('dragend', handleDragEnd);
+        paletteContainer.addEventListener('dragover', handleDragOver);
+        paletteContainer.addEventListener('dragenter', handleDragEnter);
+        paletteContainer.addEventListener('dragleave', handleDragLeave);
+        paletteContainer.addEventListener('drop', handleDrop);
+        paletteContainer.addEventListener('dblclick', handleDoubleClick); // For desktop
+        paletteContainer.addEventListener('touchstart', handleTouchStart, { passive: false }); // For mobile double-tap
+
+        // --- Document Level Listener ---
+        // Used to remove delete buttons when clicking outside
+        document.addEventListener('click', handleDocumentClick);
+
+
+        // --- Functions ---
+
+        function handleInputKeypress(event) {
+            // Allow Enter key to add color
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                event.preventDefault(); // Prevent form submission if inside one
+                addColorFromInput();
+            }
+        }
+
+        function addColorFromInput() {
+            let hexValue = hexInput.value.trim();
+            // Automatically prepend '#' if missing
+            if (hexValue && !hexValue.startsWith('#')) {
+                hexValue = '#' + hexValue;
+            }
+
+            if (!isValidHex(hexValue)) {
+                alert(`"${hexInput.value}" is not a valid Hex color code. Please use #RRGGBB, RRGGBB, #RGB or RGB format.`);
+                return;
+            }
+
+             // Expand 3-digit hex to 6-digit for consistency
+            hexValue = expandShorthandHex(hexValue);
+
+            createColorSwatch(hexValue);
+            hexInput.value = ''; // Clear input
+            hexInput.focus(); // Keep focus on input
+        }
+
+        function isValidHex(hex) {
+            // Updated regex to accept #RGB, RGB, #RRGGBB, RRGGBB
+            const hexRegex = /^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+            return hexRegex.test(hex);
+        }
+
+         function expandShorthandHex(hex) {
+            hex = hex.replace("#", "");
+            if (hex.length === 3) {
+                return "#" + hex.split('').map(char => char + char).join('');
+            }
+            if (hex.length === 6) {
+                return "#" + hex;
+            }
+            return hex; // Should already be validated, return original if somehow invalid length here
+        }
+
+
+        function createColorSwatch(hexCode) {
+            removeActiveDeleteButtons(); // Clear any existing buttons first
+
+            const swatch = document.createElement('div');
+            swatch.classList.add('SWCH__item');
+            swatch.style.backgroundColor = hexCode;
+            swatch.dataset.hex = hexCode; // Store hex code for reference
+            swatch.draggable = true; // Make it draggable
+
+            const hexText = document.createElement('span');
+            hexText.classList.add('SWCH__text');
+            hexText.textContent = hexCode.toUpperCase();
+            hexText.style.color = getContrastColor(hexCode); // Determine light/dark text
+
+            swatch.appendChild(hexText);
+            paletteContainer.appendChild(swatch);
+        }
+
+        function getContrastColor(hexcolor) {
+            // Removes # if present
+            hexcolor = hexcolor.replace("#", "");
+            let r, g, b;
+            // Handles 3-digit shorthand or 6-digit hex
+            if (hexcolor.length === 3) {
+                r = parseInt(hexcolor.charAt(0).repeat(2), 16);
+                g = parseInt(hexcolor.charAt(1).repeat(2), 16);
+                b = parseInt(hexcolor.charAt(2).repeat(2), 16);
+            } else if (hexcolor.length === 6) {
+                r = parseInt(hexcolor.substring(0, 2), 16);
+                g = parseInt(hexcolor.substring(2, 4), 16);
+                b = parseInt(hexcolor.substring(4, 6), 16);
+            } else {
+                return 'var(--color-black)'; // Default fallback
+            }
+            // Calculate YIQ luminance
+            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            // Return black or white based on YIQ threshold (128 is common)
+            return (yiq >= 128) ? 'var(--color-black)' : 'var(--color-white)';
+        }
+
+        // --- Drag and Drop Handlers ---
+
+        function handleDragStart(event) {
+            // Only allow dragging swatches, not gaps or other elements
+            const targetSwatch = event.target.closest('.SWCH__item');
+            if (targetSwatch && !event.target.classList.contains('BTNS__delete')) { // Don't drag if starting on delete btn
+                draggedItem = targetSwatch;
+                // Delay adding class slightly to allow browser to capture drag image correctly
+                setTimeout(() => {
+                   if(draggedItem) draggedItem.classList.add('SWCH__item--dragging');
+                }, 0);
+                event.dataTransfer.effectAllowed = 'move';
+                // Set data (useful if dragging between windows/apps, less critical here)
+                event.dataTransfer.setData('text/plain', draggedItem.dataset.hex);
+                removeActiveDeleteButtons(); // Hide delete button when drag starts
+            } else {
+                event.preventDefault(); // Prevent drag if not on a draggable part of swatch
+            }
+        }
+
+        function handleDragEnd(event) {
+            // Cleanup regardless of whether drop was successful
+             setTimeout(() => { // Use timeout to ensure it runs after drop logic
+                if (draggedItem) {
+                    draggedItem.classList.remove('SWCH__item--dragging');
+                }
+                // Clear any residual drag-over styles from potential targets
+                document.querySelectorAll('.SWCH__item--drag-over').forEach(sw => sw.classList.remove('SWCH__item--drag-over'));
+                draggedItem = null; // Reset reference
+            }, 0);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault(); // Necessary to allow dropping
+            event.dataTransfer.dropEffect = 'move'; // Visual feedback
+
+            const targetElement = event.target;
+            const targetSwatch = targetElement.closest('.SWCH__item');
+
+            // Clear previous drag-over indicators first
+            document.querySelectorAll('.SWCH__item--drag-over').forEach(sw => {
+               if (sw !== targetSwatch) { // Don't remove from current target just yet
+                   sw.classList.remove('SWCH__item--drag-over');
+               }
+            });
+
+             // Add indicator only if dragging over a *different* swatch
+            if (targetSwatch && targetSwatch !== draggedItem) {
+                 // Determine if dragging over left or right half (for side indicator)
+                const rect = targetSwatch.getBoundingClientRect();
+                const isOverLeftHalf = event.clientX < rect.left + rect.width / 2;
+
+                 // Apply a class based on position (or use the simple border-left)
+                targetSwatch.classList.add('SWCH__item--drag-over'); // Use the simple border indicator
+                // Alternative: if (isOverLeftHalf) targetSwatch.classList.add('drag-over-left'); else targetSwatch.classList.add('drag-over-right');
+            }
+        }
+
+         function handleDragEnter(event) {
+            event.preventDefault(); // Standard practice
+            // Typically handle visual indication in handleDragOver
+             const targetSwatch = event.target.closest('.SWCH__item');
+             if (targetSwatch && targetSwatch !== draggedItem) {
+                 // Can add temporary style here if desired, but dragOver usually suffices
+             }
+         }
+
+         function handleDragLeave(event) {
+            const targetSwatch = event.target.closest('.SWCH__item');
+             // Only remove highlight if leaving the swatch element itself,
+             // and not just moving onto an element inside it (like the span or delete button)
+             if (targetSwatch && !targetSwatch.contains(event.relatedTarget)) {
+                 targetSwatch.classList.remove('SWCH__item--drag-over');
+                 // Also remove specific side classes if used:
+                 // targetSwatch.classList.remove('drag-over-left', 'drag-over-right');
+             }
+         }
+
+        function handleDrop(event) {
+            event.preventDefault(); // Prevent default browser behavior (e.g., opening link)
+            if (!draggedItem) return; // Exit if nothing is being dragged
+
+            const dropTargetElement = event.target;
+            const targetSwatch = dropTargetElement.closest('.SWCH__item');
+
+            // Remove visual indicator from the element dropped onto
+             document.querySelectorAll('.SWCH__item--drag-over').forEach(sw => sw.classList.remove('SWCH__item--drag-over'));
+
+             // Find the element to insert *before* based on horizontal position
+            const afterElement = getDragAfterElement(paletteContainer, event.clientX);
+
+            // Insert the dragged item
+            if (afterElement === null) {
+                 // If no element is found (likely means dragging to the end)
+                paletteContainer.appendChild(draggedItem);
+            } else {
+                 // Insert before the calculated element
+                paletteContainer.insertBefore(draggedItem, afterElement);
+            }
+
+            // handleDragEnd will perform the final cleanup (remove 'dragging' class, reset draggedItem)
+        }
+
+        // Helper function to determine where to insert the dragged element
+        function getDragAfterElement(container, x) {
+             // Get all swatches currently in the container, excluding the one being dragged
+             const draggableElements = [...container.querySelectorAll('.SWCH__item:not(.SWCH__item--dragging)')];
+
+             // Find the element whose center is *closest* to the right of the cursor
+             return draggableElements.reduce((closest, child) => {
+                 const box = child.getBoundingClientRect();
+                 // Offset = cursor position - horizontal center of the child element
+                 const offset = x - box.left - box.width / 2;
+
+                 // We want the element where the offset is negative (cursor is to its left)
+                 // and closest to zero (nearest element to the right of the cursor)
+                 if (offset < 0 && offset > closest.offset) {
+                     return { offset: offset, element: child };
+                 } else {
+                     return closest; // Keep the previous closest element
+                 }
+             }, { offset: Number.NEGATIVE_INFINITY }).element; // Initial closest is infinitely far away
+             // If no element is found (all elements are to the left), .element will be undefined/null
+        }
+
+
+        // --- Deletion Logic ---
+
+        function handleDoubleClick(event) {
+             // Trigger toggle on double-click, but not on the delete button itself
+            const swatch = event.target.closest('.SWCH__item');
+            if (swatch && !event.target.closest('.BTNS__delete')) {
+                toggleDeleteButton(swatch);
+            }
+        }
+
+        function handleTouchStart(event) {
+             const swatch = event.target.closest('.SWCH__item');
+             if (!swatch) {
+                 // If tapping outside any swatch, remove existing delete buttons
+                 removeActiveDeleteButtons();
+                 return;
+             }
+
+            // Don't do anything if touch starts on the delete button itself
+            if(event.target.closest('.BTNS__delete')) {
+                // event.stopPropagation(); // Maybe stop propagation here? Button handler does it anyway.
+                return;
+            }
+
+             const currentTime = Date.now();
+             const timeSinceLastTap = currentTime - lastTapTime;
+
+             if (timeSinceLastTap < DOUBLE_TAP_DELAY && timeSinceLastTap > 0) {
+                 // Double tap detected
+                 event.preventDefault(); // Prevent zoom/scroll on double-tap
+                 toggleDeleteButton(swatch);
+                 lastTapTime = 0; // Reset tap timer
+             } else {
+                 // Single tap
+                 lastTapTime = currentTime;
+                 // On single tap, we *don't* necessarily remove other delete buttons yet.
+                 // handleDocumentClick takes care of removing buttons if tap is *outside*.
+                 // This allows tapping swatch A, then tapping swatch B to show B's button.
+             }
+        }
+
+        function handleDocumentClick(event) {
+            // Get the closest swatch and delete button to the click target
+            const clickedSwatch = event.target.closest('.SWCH__item');
+            const clickedDeleteButton = event.target.closest('.BTNS__delete');
+
+            // If the click was on a delete button, its own handler already dealt with it (and stopped propagation)
+            if (clickedDeleteButton) {
+                return;
+            }
+
+            // If the click was outside *any* swatch, remove all active delete buttons
+            if (!clickedSwatch) {
+                removeActiveDeleteButtons();
+                return;
+            }
+
+            // If the click was inside a swatch, but not on its (potential) delete button:
+            // Check if there's *another* swatch with an active delete button. If so, remove it.
+            // The double-click/double-tap handlers will manage showing the new button if needed.
+             const existingButton = document.querySelector('.BTNS__delete');
+             if (existingButton && !clickedSwatch.contains(existingButton)) {
+                 removeActiveDeleteButtons();
+             }
+        }
+
+
+        function toggleDeleteButton(swatch) {
+            const existingButton = swatch.querySelector('.BTNS__delete');
+
+            if (existingButton) {
+                 // If button already exists on this swatch, remove it
+                existingButton.remove();
+            } else {
+                 // If no button on this swatch, remove any buttons on *other* swatches first
+                removeActiveDeleteButtons();
+                 // Then, create the button on *this* swatch
+                createDeleteButton(swatch);
+            }
+        }
+
+        function createDeleteButton(swatch) {
+             const deleteBtn = document.createElement('button');
+             deleteBtn.classList.add('BTNS__delete');
+             deleteBtn.innerHTML = '&times;'; // Use HTML entity for 'X'
+             deleteBtn.setAttribute('aria-label', `Remove color ${swatch.dataset.hex}`);
+             deleteBtn.title = `Remove color ${swatch.dataset.hex}`; // Tooltip
+
+             // ** SIMPLIFIED & ROBUST CLICK HANDLER **
+             // Handles both mouse clicks and touch taps (via synthesized click event)
+             deleteBtn.addEventListener('click', (event) => {
+                 // ** CRUCIAL: Stop propagation **
+                 // Prevent this click from bubbling up to the swatch (triggering double-click/tap)
+                 // or the document (triggering handleDocumentClick unnecessarily)
+                 event.stopPropagation();
+
+                 // Remove the parent swatch element directly
+                 swatch.remove();
+                 // No need to call removeActiveDeleteButtons() here, as the button is removed with the swatch
+             });
+
+            // Prevent double-click on button from bubbling to swatch
+             deleteBtn.addEventListener('dblclick', (event) => event.stopPropagation());
+             // Optional: Prevent touchstart on button from bubbling (might help prevent minor side effects)
+             deleteBtn.addEventListener('touchstart', (event) => event.stopPropagation(), { passive: true });
+
+
+             swatch.appendChild(deleteBtn);
+        }
+
+        // Helper to remove ALL currently visible delete buttons
+        function removeActiveDeleteButtons() {
+             const existingButtons = document.querySelectorAll('.BTNS__delete');
+             existingButtons.forEach(button => button.remove());
+        }
+
+    </script>
+
+</body>
+</html>

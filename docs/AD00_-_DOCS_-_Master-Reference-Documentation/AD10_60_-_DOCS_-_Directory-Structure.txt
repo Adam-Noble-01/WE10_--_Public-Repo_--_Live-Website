@@ -1,0 +1,112 @@
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - DIRECTORY STRUCTURE
+FILE NAME |  AD10_60_-_DOCS_-_Directory-Structure.txt
+FILE TYPE |  DOCS
+
+VERSION HISTORY
+04-Apr-2025 - Version 1.0.0 - Initial Draft
+04-Apr-2025 - Version 1.1.0 
+- Created directory structure document
+- Established core directory organization
+- Added detailed structure documentation
+
+DESCRIPTION
+- This file defines the directory structure for the Noble Architecture website project.
+- Proper directory organization is essential for project maintainability.
+- All files must be placed in their appropriate directories according to this structure.
+====================================================================================================
+---
+
+# NOBLE ARCHITECTURE DIRECTORY STRUCTURE
+--------------------------------------------------------------------------------
+
+## DOCUMENT OVERVIEW
+
+#### Document Purpose
+This document establishes the directory structure for the Noble Architecture website project.
+
+#### Document Introduction Section
+- Clear directory structure is essential for project organization
+- This structure applies to all project files
+- Following this structure ensures proper file organization
+
+--------------------------------------------------------------------------------
+
+## DIRECTORY STRUCTURE
+
+### ROOT DIRECTORY
+--------------------------------------------------------------------------------
+/
+├── assets/
+│   ├── AD00_-_DOCS_-_Master-Reference-Documentation/
+│   ├── AD10_-_DOCS_-_Project-Documentation/
+│   ├── AD20_-_IMGS_-_Images/
+│   ├── AD30_-_FONT_-_Fonts/
+│   └── AD40_-_ICON_-_Icons/
+├── src/
+│   ├── js/
+│   ├── css/
+│   └── html/
+└── dist/
+
+
+
+
+
+
+
+### ASSETS DIRECTORY
+--------------------------------------------------------------------------------
+#### Documentation
+- AD00_-_DOCS_-_Master-Reference-Documentation/
+  - Core documentation files
+  - Project standards
+  - Naming conventions
+
+#### Images
+- AD20_-_IMGS_-_Images/
+  - Website images
+  - Graphics
+  - Media assets
+
+#### Fonts
+- AD30_-_FONT_-_Fonts/
+  - Typography files
+  - Font resources
+
+#### Icons
+- AD40_-_ICON_-_Icons/
+  - Icon sets
+  - Pictograms
+  - UI elements
+
+### SOURCE DIRECTORY
+--------------------------------------------------------------------------------
+#### JavaScript
+- src/js/
+  - Core utilities
+  - Application code
+  - Components
+
+#### CSS
+- src/css/
+  - Stylesheets
+  - Themes
+  - Components
+
+#### HTML
+- src/html/
+  - Page templates
+  - Components
+  - Layouts
+
+### DISTRIBUTION DIRECTORY
+--------------------------------------------------------------------------------
+- dist/
+  - Compiled assets
+  - Production files
+  - Deployment ready code
+
+--------------------------------------------------------------------------------
+###### END OF FILE 
