@@ -454,6 +454,13 @@
            CSS | OUTPUT COMPONENTS (Using MAIN__ Block)
            - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3
            ============================================================================================= */
+        .MAIN__output-container {
+            position           :    relative;
+            z-index           :    10;
+            background-color  :    #FFFFFF;
+            margin-bottom     :    2rem;
+        }
+
         .MAIN__output-heading {
             margin-top          :    01.875rem;
             margin-bottom       :    00.625rem;
@@ -475,7 +482,6 @@
             white-space         :    pre-wrap;
             word-wrap           :    break-word;
             box-shadow          :    0 1px 3px rgba(0, 0, 0, 0.05);
-            margin-bottom       :    2rem; /* Add bottom margin for spacing */
         }
 
         /* - - - - - - - - - - - - -   Marked.js Output Styling   - - - - - - - - - - - - - */
@@ -488,7 +494,9 @@
         }
 
         .MAIN__output em, .MAIN__output i {
-            font-style          :    italic;
+            font-family         :    var(--font-primary);
+            color              :    var(--text-color);
+            font-weight        :    500;
         }
 
         .MAIN__output pre {
@@ -560,30 +568,19 @@
             /* Ensure the container has proper padding on mobile */
             .FULL__page-app-container {
                 padding            :    1rem 0.5rem;
-                min-height         :    auto; /* Let content determine height */
-            }
-            
-            /* Simplified footer styling */
-            .FOOT__container {
-                padding           :    1rem;
-                text-align        :    center;
-                border-top        :    1px solid var(--card-border);
-                background-color  :    #f8f9fa;
-                margin-top        :    2rem;
             }
 
-            /* Remove fixed positioning styles */
-            body {
-                min-height        :    100vh;
-                display           :    flex;
-                flex-direction    :    column;
-            }
-
-            /* Keep flex layout for proper content distribution */
+            /* Simple flex layout for content */
             .PAGE__container {
-                flex              :    1;
                 display           :    flex;
                 flex-direction    :    column;
+            }
+
+            /* Ensure output is always visible on mobile */
+            .MAIN__output-container {
+                position         :    relative;
+                z-index         :    10;
+                margin-bottom   :    1rem;
             }
         }
     </style>
@@ -635,15 +632,17 @@
                    HTML | OUTPUT AREA
                    - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
                    ----------------------------------------------------------------------------------------- -->
-                <h2 id="output-heading" class="MAIN__output-heading">Output</h2> 
-                <div 
-                    id="output" 
-                    class="MAIN__output"
-                    role="region" 
-                    aria-live="polite" 
-                    aria-labelledby="output-heading"
-                >
-                    <!-- Rendered content will appear here -->
+                <div class="MAIN__output-container">
+                    <h2 id="output-heading" class="MAIN__output-heading">Output</h2> 
+                    <div 
+                        id="output" 
+                        class="MAIN__output"
+                        role="region" 
+                        aria-live="polite" 
+                        aria-labelledby="output-heading"
+                    >
+                        <!-- Rendered content will appear here -->
+                    </div>
                 </div>
 
             </div> <!-- End MAIN__container -->
