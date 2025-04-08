@@ -137,6 +137,18 @@ CSS | FONT FACE DECLARATIONS
 }
 
 /* ===============================================================================
+    CSS | FONT VARIABLES
+    - Introduced in v1.5.0
+    - Defines the font variables for different components
+   =============================================================================== */
+
+:root {
+    --font-button              :    var(--font-primary);  /*   <-- Button font family */
+    --font-button-weight       :    600;                  /*   <-- Button font weight (SemiBold) */
+    --font-button-size         :    00.80rem;             /*   <-- Button font size */
+}
+
+/* ===============================================================================
    CSS | BASE LAYOUT & RESET (Using PAGE__ Block)
    - Introduced in v1.0.0 | Updated in v1.3.0
 
@@ -446,11 +458,12 @@ html, body {
     text-decoration     :    none;
     border-radius       :    4px;
     transition          :    all 0.3s ease;
-    font-size           :    00.80rem;
+    font-size           :    var(--font-button-size);
+    font-family         :    var(--font-button);
+    font-weight         :    var(--font-button-weight);
     text-align          :    center;
     border              :    none;
     cursor              :    pointer;
-    font-weight         :    500;
 }
 
 .BTTN__standard:hover {
@@ -472,11 +485,12 @@ html, body {
     text-decoration     :    none;
     border-radius       :    4px;
     transition          :    all 0.3s ease;
-    font-size           :    00.80rem;
+    font-size           :    var(--font-button-size);
+    font-family         :    var(--font-button);
+    font-weight         :    var(--font-button-weight);
     text-align          :    center;
     border              :    none;
     cursor              :    pointer;
-    font-weight         :    500;
 }
 
 .BTTN__cancel:hover {
@@ -542,16 +556,16 @@ html, body {
    CSS | RESPONSIVE LAYOUTS
    - Introduced in v1.2.0
    08-Apr-2025 - v1.3.0
-     - Simplfied Responsive design handling, simplified the scaling down of the page to mobile devices.
+     - Simplified Responsive design handling, simplified the scaling down of the page to mobile devices.
      - Removed the scaling down of the page to mobile devices, as it was causing issues with the layout.
-     - Added a new media query for the mobile devices, which scales up the page to 125% of the original size.
-     - Note: This makes elements larger on mobile for better touch interaction and readability.
+     - Updated to use standard 100% font size for consistent display across all devices.
+     - Note: This ensures consistent sizing while maintaining responsive layout.
 */
 
 @media (max-width: 768px) {
-    /* Scale up all elements by 125% on mobile devices */
+    /* Use standard 100% font size for consistent display */
     html, body {
-        font-size         :    20.00px;    /*  <-- CRITICAL VALUE!! - This is 125% of the base font size */
+        font-size         :    16.00px;    /*  <-- CRITICAL VALUE!! - This is 100% of the base font size */
     }
     
     /* Adjust container widths for mobile */
