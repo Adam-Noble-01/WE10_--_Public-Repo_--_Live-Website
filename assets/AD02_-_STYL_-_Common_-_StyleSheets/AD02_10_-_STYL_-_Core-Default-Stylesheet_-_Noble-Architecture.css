@@ -367,13 +367,18 @@ html, body {
 
 /* ===============================================================================
    CSS | RESPONSIVE LAYOUTS
-   - Introduced in v1.2.0 | Updated in v1.3.0
+   - Introduced in v1.2.0
+   08-Apr-2025 - v1.3.0
+     - Simplfied Responsive design handling, simplified the scaling down of the page to mobile devices.
+     - Removed the scaling down of the page to mobile devices, as it was causing issues with the layout.
+     - Added a new media query for the mobile devices, which scales down the page to 75% of the original size.
+     - Note: If testing shows elements are still too small, consider adjusting to 50% scale.
 */
 
 @media (max-width: 768px) {
-    /* Scale down all elements by 50% on mobile devices */
+    /* Scale down all elements by 75% on mobile devices */
     html, body {
-        font-size         :    8.00px;    /*  <-- CRITICAL VALUE!! - This is 50% of the base font size */
+        font-size         :    12.00px;    /*  <-- CRITICAL VALUE!! - This is 75% of the base font size */
     }
     
     /* Adjust container widths for mobile */
