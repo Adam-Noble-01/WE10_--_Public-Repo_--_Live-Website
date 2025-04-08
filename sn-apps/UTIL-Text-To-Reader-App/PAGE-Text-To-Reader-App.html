@@ -144,96 +144,6 @@
     <!--  - - - - - - - - - - - - - - - - - -  STYLESHEET CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
     <!-- Main Noble Architecture Stylesheet -->
     <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css">
-    <!-- Fallback for when external stylesheet fails to load -->
-    <script>
-        // Check if the external stylesheet loaded successfully
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get all stylesheets
-            const stylesheets = document.styleSheets;
-            let externalStylesheetLoaded = false;
-            
-            // Check if our external stylesheet is loaded
-            for (let i = 0; i < stylesheets.length; i++) {
-                try {
-                    const href = stylesheets[i].href;
-                    if (href && href.includes('AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css')) {
-                        externalStylesheetLoaded = true;
-                        break;
-                    }
-                } catch (e) {
-                    // Cross-origin stylesheets will throw an error, we can ignore those
-                    console.warn('Could not access stylesheet:', e);
-                }
-            }
-            
-            // If external stylesheet didn't load, add critical fallback styles
-            if (!externalStylesheetLoaded) {
-                console.warn('External stylesheet failed to load, applying fallback styles');
-                
-                // Create a style element for fallback styles
-                const fallbackStyle = document.createElement('style');
-                fallbackStyle.textContent = `
-                    /* Fallback styles for when external stylesheet fails to load */
-                    :root {
-                        --text-color: #333;
-                        --text-light: #666;
-                        --card-border: #ddd;
-                        --code-bg: #f5f5f5;
-                        --code-text: #333;
-                    }
-                    
-                    body {
-                        font-family: Arial, sans-serif;
-                        line-height: 1.6;
-                        color: var(--text-color);
-                        margin: 0;
-                        padding: 0;
-                    }
-                    
-                    .PAGE__container {
-                        display: flex;
-                        flex-direction: column;
-                        min-height: 100vh;
-                    }
-                    
-                    .HEAD__container {
-                        background-color: #f8f9fa;
-                        padding: 1rem 0;
-                        border-bottom: 1px solid var(--card-border);
-                    }
-                    
-                    .FOOT__container {
-                        background-color: #f8f9fa;
-                        padding: 1rem 0;
-                        text-align: center;
-                        border-top: 1px solid var(--card-border);
-                        margin-top: auto;
-                    }
-                    
-                    .BTTN__standard, .BTTN__cancel {
-                        padding: 0.5rem 1rem;
-                        border-radius: 0.25rem;
-                        border: none;
-                        cursor: pointer;
-                        font-size: 0.875rem;
-                    }
-                    
-                    .BTTN__standard {
-                        background-color: #007bff;
-                        color: white;
-                    }
-                    
-                    .BTTN__cancel {
-                        background-color: #6c757d;
-                        color: white;
-                    }
-                `;
-                
-                // Add the fallback styles to the document
-                document.head.appendChild(fallbackStyle);
-            }
-        });
-    </script>
     <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     
     <!-- 
@@ -362,6 +272,32 @@
 
                 // 4) Display result
                 G_DOM_ELEMENTS.output.innerHTML = renderedHtml;
+
+                // 5) Scroll to the output if it's below the viewport
+                const outputRect = G_DOM_ELEMENTS.output.getBoundingClientRect();
+                if (outputRect.bottom > window.innerHeight) {
+                    G_DOM_ELEMENTS.output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+
+                // 6) Ensure content is visible on mobile
+                if (window.innerWidth <= 768) {
+                    // Add a small delay to ensure content is rendered
+                    setTimeout(() => {
+                        const contentHeight = G_DOM_ELEMENTS.output.scrollHeight;
+                        const viewportHeight = window.innerHeight;
+                        const footerHeight = 3; // 3rem
+                        const headerHeight = 4; // Approximate header height in rem
+                        
+                        // Convert rem to pixels
+                        const remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+                        const minHeight = Math.max(
+                            contentHeight + (footerHeight + headerHeight) * remToPx,
+                            viewportHeight
+                        );
+                        
+                        document.body.style.minHeight = `${minHeight}px`;
+                    }, 100);
+                }
             } catch (error) {
                  console.error("Error during Marked.js parsing:", error);
                 G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering Markdown: ${error.message}</p>`;
@@ -553,14 +489,13 @@
             border              :    1px solid var(--card-border);
             border-radius       :    00.3125rem;
             background-color    :    #FFFFFF;
-            min-height          :    15.625rem;
             text-align          :    left;
             line-height         :    1.6;
             font-size           :    00.875rem;
             white-space         :    pre-wrap;
             word-wrap           :    break-word;
-            overflow-y          :    auto;
             box-shadow          :    0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom       :    2rem; /* Add bottom margin for spacing */
         }
 
         /* - - - - - - - - - - - - -   Marked.js Output Styling   - - - - - - - - - - - - - */
@@ -645,15 +580,10 @@
             /* Ensure the container has proper padding on mobile */
             .FULL__page-app-container {
                 padding            :    1rem 0.5rem;
-                padding-bottom     :    5rem; /* Add extra padding at bottom for mobile */
+                padding-bottom     :    4rem; /* Reduced padding to account for dynamic content */
+                min-height         :    calc(100vh - 8rem); /* Account for header and footer */
             }
             
-            /* Ensure the output area is properly sized on mobile */
-            .MAIN__output {
-                min-height          :    10rem;
-                margin-bottom       :    2rem; /* Add margin at bottom of output */
-            }
-
             /* Ensure footer stays at bottom and doesn't overlap content */
             .FOOT__container {
                 position           :    fixed;
@@ -670,6 +600,16 @@
             /* Add padding to body to prevent footer overlap */
             body {
                 padding-bottom    :    3rem;
+                min-height        :    100vh;
+                display           :    flex;
+                flex-direction    :    column;
+            }
+
+            /* Ensure the page container takes full height */
+            .PAGE__container {
+                flex              :    1;
+                display           :    flex;
+                flex-direction    :    column;
             }
         }
     </style>
