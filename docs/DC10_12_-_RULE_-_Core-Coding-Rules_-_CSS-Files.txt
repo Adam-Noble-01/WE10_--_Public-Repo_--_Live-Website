@@ -206,7 +206,72 @@ DESCRIPTION
 - Create semantic color variables based on usage (e.g., `--warning-text`, `--button-text`)
 - Include both base colors and contextual usage colors
 
+## BUTTON STANDARDS
+----------------------------------------------------------------------------------------------------
+### Standard Buttons
+- Used as the standard button style for the website on the main pages
+- Should be the go-to standard button style
+- Offers a clean and modern look
+- Offers a subtle hover state to indicate selection
 
+#### Standard Button Colors
+```css
+:root {
+    --button-bg          :    #504c46;           /*   <-- Standard button background color */
+    --button-text        :    #fdfdfd;           /*   <-- Standard button text color */
+    --button-hover-bg    :    #3e3b36;           /*   <-- Standard button hover background color */
+    --button-hover-text  :    #fdfdfd;           /*   <-- Standard button hover text color */
+}
+```
+
+### Cancel Action Buttons
+- Used mainly on app & tool UIs
+- Colored red to stand out against standard button colors
+- Ensures quick recognition of the action when tools are in use
+- Assists users to quickly identify cancel actions if they made a mistake
+- Improves the overall user experience, reducing stress and confusion
+
+#### Cancel Button Colors
+```css
+:root {
+    --button-cancel-bg         :    #BA5050;           /*   <-- Cancel button background color */
+    --button-cancel-text       :    #fdfdfd;           /*   <-- Cancel button text color */
+    --button-cancel-hover-bg   :    #9E2D2D;     /*   <-- Cancel button hover background color */
+    --button-cancel-hover-text :    #fdfdfd;     /*   <-- Cancel button hover text color */
+}
+```
+
+### Button Component Structure
+- Use the BTTN__ block for all button components
+- Follow the naming convention: `.BTTN__[type]`
+- Include hover states for all interactive buttons
+- Provide size variations (small, standard, large)
+- Include state variations (disabled, loading)
+
+#### Example
+```css
+.BTTN__standard {
+    display             :    inline-block;
+    padding             :    0.75rem 1.5rem;
+    background-color    :    var(--button-bg);
+    color               :    var(--button-text);
+    text-decoration     :    none;
+    border-radius       :    4px;
+    transition          :    all 0.3s ease;
+    font-size           :    0.80rem;
+    text-align          :    center;
+    border              :    none;
+    cursor              :    pointer;
+    font-weight         :    500;
+}
+
+.BTTN__standard:hover {
+    background-color    :    var(--button-hover-bg);
+    color               :    var(--button-hover-text);
+    transform           :    translateY(-2px);
+    box-shadow          :    0 4px 8px rgba(0,0,0,0.1);
+}
+```
 
 ## FONT STANDARDISATION
 ----------------------------------------------------------------------------------------------------

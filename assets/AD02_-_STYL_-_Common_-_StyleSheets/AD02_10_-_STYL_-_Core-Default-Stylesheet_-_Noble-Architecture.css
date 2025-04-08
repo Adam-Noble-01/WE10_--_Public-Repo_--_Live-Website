@@ -121,7 +121,14 @@ CSS | FONT FACE DECLARATIONS
     --body-bg            :    #f4f4f4;
     --header-bg          :    #fff;
     --header-border      :    var(--primary-color);
-    --button-text        :    #fff;
+    --button-text        :    #fdfdfd;           /*   <-- Standard button text color */
+    --button-bg          :    #504c46;           /*   <-- Standard button background color */
+    --button-hover-bg    :    #3e3b36;           /*   <-- Standard button hover background color */
+    --button-hover-text  :    #fdfdfd;           /*   <-- Standard button hover text color */
+    --button-cancel-bg   :    #BA5050;           /*   <-- Cancel button background color */
+    --button-cancel-text :    #fdfdfd;           /*   <-- Cancel button text color */
+    --button-cancel-hover-bg   :    #9E2D2D;     /*   <-- Cancel button hover background color */
+    --button-cancel-hover-text :    #fdfdfd;     /*   <-- Cancel button hover text color */
     --warning-bg         :    #fff3cd;
     --warning-border     :    #ffeeba;
     --warning-text       :    #856404;
@@ -392,5 +399,100 @@ html, body {
     img {
         max-width         :    100%;
         height            :    auto;
+    }
+}
+
+/* ===============================================================================
+   CSS | BUTTON COMPONENTS (Using BTTN__ Block)
+   - Introduced in v1.5.0
+   - Defines the standard button styles for the Noble Architecture website
+
+/* - - - - - - - - - - - - -   Standard Button   - - - - - - - - - - - - - */
+.BTTN__standard {
+    display             :    inline-block;
+    padding             :    0.75rem 1.5rem;
+    background-color    :    var(--button-bg);
+    color               :    var(--button-text);
+    text-decoration     :    none;
+    border-radius       :    4px;
+    transition          :    all 0.3s ease;
+    font-size           :    0.80rem;
+    text-align          :    center;
+    border              :    none;
+    cursor              :    pointer;
+    font-weight         :    500;
+}
+
+.BTTN__standard:hover {
+    background-color    :    var(--button-hover-bg);
+    color               :    var(--button-hover-text);
+    transform           :    translateY(-2px);
+    box-shadow          :    0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* - - - - - - - - - - - - -   Cancel Button   - - - - - - - - - - - - - */
+.BTTN__cancel {
+    display             :    inline-block;
+    padding             :    0.75rem 1.5rem;
+    background-color    :    var(--button-cancel-bg);
+    color               :    var(--button-cancel-text);
+    text-decoration     :    none;
+    border-radius       :    4px;
+    transition          :    all 0.3s ease;
+    font-size           :    0.80rem;
+    text-align          :    center;
+    border              :    none;
+    cursor              :    pointer;
+    font-weight         :    500;
+}
+
+.BTTN__cancel:hover {
+    background-color    :    var(--button-cancel-hover-bg);
+    color               :    var(--button-cancel-hover-text);
+    transform           :    translateY(-2px);
+    box-shadow          :    0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* - - - - - - - - - - - - -   Button Sizes   - - - - - - - - - - - - - */
+.BTTN__small {
+    padding             :    0.50rem 1.00rem;
+    font-size           :    0.70rem;
+}
+
+.BTTN__large {
+    padding             :    1.00rem 2.00rem;
+    font-size           :    0.90rem;
+}
+
+/* - - - - - - - - - - - - -   Button States   - - - - - - - - - - - - - */
+.BTTN__disabled {
+    opacity             :    0.65;
+    cursor              :    not-allowed;
+    pointer-events      :    none;
+}
+
+.BTTN__loading {
+    position            :    relative;
+    color               :    transparent;
+}
+
+.BTTN__loading::after {
+    content             :    "";
+    position            :    absolute;
+    width               :    1rem;
+    height              :    1rem;
+    top                 :    50%;
+    left                :    50%;
+    margin-left         :    -0.5rem;
+    margin-top          :    -0.5rem;
+    border              :    2px solid var(--button-text);
+    border-radius       :    50%;
+    border-right-color  :    transparent;
+    animation           :    spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform       :    rotate(360deg);
     }
 }
