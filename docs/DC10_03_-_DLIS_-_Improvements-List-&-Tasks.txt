@@ -21,57 +21,48 @@ DESCRIPTION
 # NOBLE ARCHITECTURE IMPROVEMENTS & TASKS
 --------------------------------------------------------------------------------
 
-## DOCUMENT OVERVIEW
-
-#### Document Purpose
-This document serves as a central repository for tracking development tasks, known issues, and potential improvements for the Noble Architecture website project.
-
 #### Document Introduction Section
 - The Noble Architecture website is under continuous development. 
 - This document helps organise and prioritise work items, track bugs, and capture improvement ideas. 
 - Regular review of this document ensures that development efforts remain aligned with project goals.
+- This document serves as a central repository for tracking development tasks, known issues, and potential improvements.
 
 
---------------------------------------------------------------------------------
 
 ## PROJECT MANAGEMENT
-
-### CURRENT TASKS UNDER DEVELOPMENT
 --------------------------------------------------------------------------------
-- Implement handlding for standard fonts served by noble architecture website
-    - Implement handlding for standard icons served by noble architecture website
-- [Placeholder]
 
-- [Placeholder]
+#### CURRENT TASKS UNDER DEVELOPMENT
+- Implement handling for standard fonts served by noble architecture website.
+- Move version header js from reader app into Core Web Utility JS Library
+
+
 
 ### LOW PRIORITY TASKS
---------------------------------------------------------------------------------
-- Rebuild Plan Vision
-- Move version header js from reader app into Core Web Utility JS Library
-- [Placeholder]
+
+#### Update Plan Vision Application
+- Rebuild Plan Vision Application using new standards and conventions
+- Add the new Favicon handling to the Plan Vision Application
+
+
 
 ### KNOWN PROBLEMS & BUG REPORTING
 --------------------------------------------------------------------------------
 - [Placeholder]
-- [Placeholder]
-- [Placeholder]
+
 
 
 ### IMPROVEMENT IDEAS SECTION
 --------------------------------------------------------------------------------
 - [Placeholder]
-- [Placeholder]
-- [Placeholder]
+
+
 
 --------------------------------------------------------------------------------
 ###### END OF FILE 
 
-## DIRECTORY CONTENTS
 
-### Files in AD00_-_DOCS_-_Master-Reference-Documentation
 
-- AD10_40_-_DOCS_-_Coding-Standards.txt
-- AD10_50_-_DOCS_-_File-Naming-Conventions.txt
 
 
 

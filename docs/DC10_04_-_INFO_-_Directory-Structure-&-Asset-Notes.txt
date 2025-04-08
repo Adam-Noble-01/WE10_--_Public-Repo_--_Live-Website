@@ -230,51 +230,51 @@ NA04_09-NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png           <-- Add a de
 
 
 ## REFERENCE DOCUMENTATION DIRECTORY
-
 ----------------------------------------------------------------------------------------------------
+NOTE : All project documentation files are stored in the `./docs` directory.
 
-```reference-documentation-directory
-./docs/
-    DC_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
-    DC_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
-    DC_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
-    DC_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
-    DC_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
-    DC_06_-_INFO_-_Asset-Library-Notes .txt
-    DC_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
-    DC_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
-    DC_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+### Core Documentation
+- DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+- DC10_02_-_INFO_-_Version-History.txt
+- DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt
+- DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt
+- DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt
+
+### Coding Rules & Standards
+- DC10_10_-_RULE_-_Core-Coding-Rules_-_General-Web-Dev-.txt
+- DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
+- DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
+- DC10_15_-_RULE_-_Core-Coding-Rules_-_HTML-Files.txt
+- DC10_16_-_RULE_-_Core-Coding-Rules_-_Python-Files.txt
+
+### Design & Assets
+- DC10_20_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+
+### Development Tools & Setup
+- DC10_40_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+- DC10_50_-_INFO_-_Useful-Shell-Commands.txt
+
+### Main Website URL
+https://www.noble-architecture.com/
+
+### Documents Hosted On The Main Website
+```document-directory-url-list
+https://www.noble-architecture.com/docs/DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+https://www.noble-architecture.com/docs/DC10_02_-_INFO_-_Version-History.txt
+https://www.noble-architecture.com/docs/DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt
+https://www.noble-architecture.com/docs/DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt
+https://www.noble-architecture.com/docs/DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt
+https://www.noble-architecture.com/docs/DC10_10_-_RULE_-_Core-Coding-Rules_-_General-Web-Dev-.txt
+https://www.noble-architecture.com/docs/DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
+https://www.noble-architecture.com/docs/DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
+https://www.noble-architecture.com/docs/DC10_15_-_RULE_-_Core-Coding-Rules_-_HTML-Files.txt
+https://www.noble-architecture.com/docs/DC10_16_-_RULE_-_Core-Coding-Rules_-_Python-Files.txt
+https://www.noble-architecture.com/docs/DC10_20_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+https://www.noble-architecture.com/docs/DC10_40_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+https://www.noble-architecture.com/docs/DC10_50_-_INFO_-_Useful-Shell-Commands.txt
 ```
 
-### CORE DOCUMENTATION URLS
 
-- [Project ReadMe & Design Manifest](https://www.noble-architecture.com/docs/DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt)
-- [Core File And Code Naming Conventions](https://www.noble-architecture.com/docs/DC10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt)
-- [Core Web Dev Code Conventions](https://www.noble-architecture.com/docs/DC10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt)
-- [Core JSON Data Code Conventions](https://www.noble-architecture.com/docs/DC10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt)
-- [Core CSS Style Code Conventions](https://www.noble-architecture.com/docs/DC10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt)
-- [Asset Library Notes](https://www.noble-architecture.com/docs/DC10_06_-_INFO_-_Asset-Library-Notes .txt)
-- [Pictogram Graphic Files And Design](https://www.noble-architecture.com/docs/DC10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt)
-- [Core File Metascript Boilerplate](https://www.noble-architecture.com/docs/DC10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt)
-- [Improvements List & Tasks](https://www.noble-architecture.com/docs/DC10_30_-_DLIS_-_Improvements-List-&-Tasks.txt)
-
-
-### PLAINTEXT DOCUMENTATION URLS
-https://www.noble-architecture.com/docs/DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
-https://www.noble-architecture.com/docs/DC10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
-https://www.noble-architecture.com/docs/DC10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
-https://www.noble-architecture.com/docs/DC10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
-https://www.noble-architecture.com/docs/DC10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
-https://www.noble-architecture.com/docs/DC10_06_-_INFO_-_Asset-Library-Notes .txt
-https://www.noble-architecture.com/docs/DC10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
-https://www.noble-architecture.com/docs/DC10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
-https://www.noble-architecture.com/docs/DC10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
-
-
-
----------------------------------------------------------------------------------------------------
-
-###### End Of Notes
 
 --------------------------------------------------------------------------------
 ###### END OF FILE 

@@ -35,7 +35,8 @@ www.noble-architecture.com
 - These pages will have no robots rules applied to them
 
 ### Site Structure
-- For a full list of the site structure, please refer to the [Site Structure](https://github.com/Adam-Noble-01/WE10_--_Public-Repo_--_Live-Website/blob/main/AD10_-_Master-Reference-Documentation/AD10_02_-_READ_-_Core-File-And-Code-Naming-Conventions.txt) document.
+- For a full list of the site structure, please refer to the site structure document.
+  - `DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt`
 
 
 ## REFERENCE DOCUMENTATION DIRECTORY
@@ -63,6 +64,10 @@ NOTE : All project documentation files are stored in the `./docs` directory.
 - DC10_40_-_SETP_-_Core-File-Metascript-Boilerplate.txt
 - DC10_50_-_INFO_-_Useful-Shell-Commands.txt
 
+### Main Website URL
+https://www.noble-architecture.com/
+
+### Documents Hosted On The Main Website
 ```document-directory-url-list
 https://www.noble-architecture.com/docs/DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
 https://www.noble-architecture.com/docs/DC10_02_-_INFO_-_Version-History.txt
@@ -79,8 +84,9 @@ https://www.noble-architecture.com/docs/DC10_40_-_SETP_-_Core-File-Metascript-Bo
 https://www.noble-architecture.com/docs/DC10_50_-_INFO_-_Useful-Shell-Commands.txt
 ```
 
-----------------------------------------------------------------------------------------------------
+
 ## GITHUB REPO DETAILS
+----------------------------------------------------------------------------------------------------
 
   #### GitHub Repo Name
   WE10_--_Public-Repo_--_Live-Website
@@ -94,8 +100,9 @@ https://www.noble-architecture.com/docs/DC10_50_-_INFO_-_Useful-Shell-Commands.t
   #### GitHub Local Repo Path
   D:\WE10_--_Public-Repo_--_Live-Website
 
-----------------------------------------------------------------------------------------------------
+
 ## DNS SETUP
+----------------------------------------------------------------------------------------------------
 
   #### A Records Configuration
   - GoDaddy serve as the DNS provider

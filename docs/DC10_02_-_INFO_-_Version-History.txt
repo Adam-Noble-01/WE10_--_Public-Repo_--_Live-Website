@@ -32,10 +32,13 @@ Example: 1.2.3
 ## VERSION LOG
 --------------------------------------------------------------------------------
 
-#### Version 1.1.0  -  04-Apr-2025
+#### Version 1.1.0  -  08-Apr-2025
 - New Features:
   - Core CSS Style defined, file made and document created.
   - Updated documentation
+  - Made new docs directory for the project documentation files.
+  - Implemented handling for standard icons served by Noble Architecture website
+    - A HTML Header was created linking the icons now served by the website.
 
 #### Version 1.0.0  -  04-Apr-2025  
 - Initial Release

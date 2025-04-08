@@ -18,14 +18,20 @@ alwaysApply: true
 
 ## STYLE RULES MUST ADHERE TO THIS DOCUMENT
 [Core CSS Style Code Conventions](mdc:https:/www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt)
+DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
+
 
 ## PLAINTEXT DOCUMENTATION URLS
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_02_-_RULE_-_Core-File-And-Code-Naming-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_06_-_INFO_-_Asset-Library-Notes .txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_10_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+https://www.noble-architecture.com/docs/DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+https://www.noble-architecture.com/docs/DC10_02_-_INFO_-_Version-History.txt
+https://www.noble-architecture.com/docs/DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt
+https://www.noble-architecture.com/docs/DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt
+https://www.noble-architecture.com/docs/DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt
+https://www.noble-architecture.com/docs/DC10_10_-_RULE_-_Core-Coding-Rules_-_General-Web-Dev-.txt
+https://www.noble-architecture.com/docs/DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
+https://www.noble-architecture.com/docs/DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
+https://www.noble-architecture.com/docs/DC10_15_-_RULE_-_Core-Coding-Rules_-_HTML-Files.txt
+https://www.noble-architecture.com/docs/DC10_16_-_RULE_-_Core-Coding-Rules_-_Python-Files.txt
+https://www.noble-architecture.com/docs/DC10_20_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+https://www.noble-architecture.com/docs/DC10_40_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+https://www.noble-architecture.com/docs/DC10_50_-_INFO_-_Useful-Shell-Commands.txt
