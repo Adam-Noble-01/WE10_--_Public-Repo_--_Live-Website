@@ -39,6 +39,13 @@ Example: 1.2.3
   - Made new docs directory for the project documentation files.
   - Implemented handling for standard icons served by Noble Architecture website
     - A HTML Header was created linking the icons now served by the website.
+  - Implemented handling for standard fonts served by Noble Architecture website
+    - A HTML Header was created linking the fonts now served by the website.
+    - Open Sans font is now linked to the website.
+    - Caveat font is now linked to the website.
+    - Index header HTML was updated to link to the new fonts.
+    - Main CSS file was updated to link to the new fonts.
+  - Font & Favicon handling tested, edge reports no console errors.
 
 #### Version 1.0.0  -  04-Apr-2025  
 - Initial Release
