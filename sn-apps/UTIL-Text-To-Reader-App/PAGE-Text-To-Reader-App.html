@@ -153,228 +153,20 @@
     Contains external dependencies and utility scripts required by the application.
     =============================================================================================
     -->
-    <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> <!-- ← KEY LINK | Marked.js Dependency -->
-    <script defer src="/src/js/header-version-injector.js"></script> <!-- ← UTILITY | Header Version Injector -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/src/js/header-version-injector.js"></script>
 
-    <!-- 
-    =============================================================================================
-    JAVASCRIPT | CORE APPLICATION SCRIPT
-    - Introduced in v1.0.0 | Refactored v1.2.1
-    Contains the main application logic including event handlers and initialization.
-    =============================================================================================
-    -->
-    <script defer>
-        // =============================================================================================
-        // JAVASCRIPT | GLOBAL VARIABLES & CONSTANTS
-        // - Introduced in v1.2.1 | Updated v1.2.3 | Updated v1.2.4
-        // Defines global constants and caches frequently accessed DOM elements.
-        // =============================================================================================
-        const G_DOM_ELEMENTS = {
-            inputText: null,
-            renderButton: null,
-            clearButton: null,
-            output: null,
-            outputHeading: null
-        };
-
-        // =============================================================================================
-        // JAVASCRIPT | HELPER FUNCTIONS
-        // - Sections introduced as needed, refined in v1.2.1
-        // Contains utility functions used by other parts of the script.
-        // =============================================================================================
-
-        // ------------------------------------------------------------
-        // HELPER FUNCTION | PARSE WHATSAPP MESSAGES
-        // - Introduced in v1.0.0 | Refactored v1.2.1
-        // DESCRIPTION
-        // - Attempts to detect and clean WhatsApp chat log prefixes.
-        // - If the text matches the WhatsApp pattern, it removes the timestamp/sender
-        //   prefixes (`[dd/mm, HH:MM] Sender Name: `) and replaces them with paragraph breaks.
-        // - If no match, returns the original text for standard Markdown processing.
-        // ARGUMENTS
-        // - rawText (String): The input text from the textarea.
-        // RETURNS
-        // - (String): The cleaned text (if WhatsApp) or the original text.
-        // IMPORTANT NOTES
-        // - Relies on a specific regex pattern for detection and replacement.
-        // ------------------------------------------------------------
-        function parseWhatsAppMessages(rawText) {
-            // Regex to test if the text *contains* the WhatsApp prefix pattern.
-            const testPattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/;
-
-            // Check if the pattern exists anywhere in the text.
-            if (!testPattern.test(rawText)) {
-                console.log("Input doesn't match WhatsApp pattern, treating as Markdown.");
-                return rawText;
-            }
-            
-            console.log("WhatsApp pattern detected, attempting to clean prefixes.");
-            // Regex to *globally replace* the WhatsApp prefix pattern.
-            const replacePattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/g;
-            
-            // Replace all occurrences of the prefix with a single newline
-            let replaced = rawText.replace(replacePattern, "\n");
-            
-            // Collapse multiple consecutive newlines into just one
-            replaced = replaced.replace(/\n{2,}/g, "\n");
-            
-            // Trim leading/trailing whitespace
-            replaced = replaced.trim();
-
-            // Convert single newlines to list items for better formatting
-            replaced = replaced.split("\n").map(line => line.trim()).filter(line => line).join("\n- ");
-            
-            // Add initial list marker
-            if (replaced) {
-                replaced = "- " + replaced;
-            }
-            
-            return replaced;
-        }
-        
-        // =============================================================================================
-        // JAVASCRIPT | EVENT HANDLERS
-        // - Introduced in v1.0.0 | Refactored into named functions in v1.2.1
-        // Contains functions that handle specific user interactions (button clicks).
-        // =============================================================================================
-
-        // ------------------------------------------------------------
-        // EVENT HANDLER | RENDER BUTTON CLICK
-        // - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.4
-        // DESCRIPTION
-        // - Gets input text, attempts WhatsApp parsing, renders using Marked.js,
-        //   and displays the result in the output area.
-        // ------------------------------------------------------------
-        function handleRenderClick(event) {
-            // Prevent default button behavior
-            event.preventDefault();
-            
-            if (!G_DOM_ELEMENTS.inputText || !G_DOM_ELEMENTS.output) {
-                 console.error("Render handler: Input or output element missing.");
-                return;
-            }
-            if (typeof marked === 'undefined') {
-                 console.error("Render handler: Marked.js library is not loaded.");
-                G_DOM_ELEMENTS.output.innerHTML = '<p style="color: red;">Error: Marked.js library failed to load. Cannot render text.</p>';
-                return;
-            }
-
-            // 1) Get raw input
-            const rawInput = G_DOM_ELEMENTS.inputText.value;
-
-            // 2) Attempt to parse as WhatsApp text (or get original back)
-            const cleanedText = parseWhatsAppMessages(rawInput);
-
-            try {
-                // 3) Convert cleaned/original text to HTML via Marked.js
-                // Configure marked to sanitize potentially harmful HTML
-                const renderedHtml = marked.parse(cleanedText, { sanitize: true }); // Added basic sanitization
-
-                // 4) Display result
-                G_DOM_ELEMENTS.output.innerHTML = renderedHtml;
-
-                // 5) Scroll to the output if it's below the viewport
-                const outputRect = G_DOM_ELEMENTS.output.getBoundingClientRect();
-                if (outputRect.bottom > window.innerHeight) {
-                    G_DOM_ELEMENTS.output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            } catch (error) {
-                 console.error("Error during Marked.js parsing:", error);
-                G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering Markdown: ${error.message}</p>`;
-            }
-        }
-
-        // ------------------------------------------------------------
-        // EVENT HANDLER | CLEAR BUTTON CLICK
-        // - Introduced in v1.0.0 | Refactored v1.2.1
-        // DESCRIPTION
-        // - Clears the content of the input textarea and the output display area.
-        // ------------------------------------------------------------
-        function handleClearClick() {
-             if (G_DOM_ELEMENTS.inputText) {
-                G_DOM_ELEMENTS.inputText.value = '';
-            } else {
-                console.warn("Clear handler: Input element missing.");
-            }
-            if (G_DOM_ELEMENTS.output) {
-                G_DOM_ELEMENTS.output.innerHTML = '';
-            } else {
-                console.warn("Clear handler: Output element missing.");
-            }
-        }
-
-        // =============================================================================================
-        // INITIALIZATION | MAIN APPLICATION INIT
-        // - Introduced in v1.2.1 | Updated v1.2.3 | Updated v1.2.4
-        // DESCRIPTION
-        // - Sets up the application on page load: caches DOM elements, injects version note,
-        //   and attaches global event listeners.
-        // =============================================================================================
-        function initApp() {
-            console.log(`Initializing Text To Reader Utility v1.2.4...`); 
-            
-            // Add debugging information for mobile devices
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            console.log(`Device type: ${isMobile ? 'Mobile' : 'Desktop'}`);
-            console.log(`Screen width: ${window.innerWidth}px, Screen height: ${window.innerHeight}px`);
-            console.log(`User agent: ${navigator.userAgent}`);
-
-            // --- Cache DOM Elements ---
-            G_DOM_ELEMENTS.inputText = document.getElementById('inputText');
-            G_DOM_ELEMENTS.renderButton = document.getElementById('renderButton');
-            G_DOM_ELEMENTS.clearButton = document.getElementById('clearButton');
-            G_DOM_ELEMENTS.output = document.getElementById('output');
-            G_DOM_ELEMENTS.outputHeading = document.getElementById('output-heading');
-
-            // --- Log which elements were found/not found ---
-            console.log('DOM Elements found:');
-            for (const key in G_DOM_ELEMENTS) {
-                console.log(`- ${key}: ${G_DOM_ELEMENTS[key] ? 'Found' : 'Not found'}`);
-            }
-
-            // --- Check if all essential elements were found ---
-            let essentialElementsFound = true;
-            for (const key in G_DOM_ELEMENTS) {
-                if (G_DOM_ELEMENTS[key] === null && key !== 'outputHeading') {
-                    console.error(`Initialization Error: DOM element for '${key}' not found.`);
-                    essentialElementsFound = false;
-                }
-            }
-
-            if (!essentialElementsFound) {
-                document.body.innerHTML = '<p style="color: red; font-weight: bold; padding: 20px;">Error: Application could not initialize. Essential HTML elements are missing. Check the console for details.</p>';
-                return;
-            }
-              
-            // --- Inject Version Note using the modular script ---
-            try {
-                injectVersionNote();
-            } catch (error) {
-                console.error('Error injecting version note:', error);
-            }
-
-            // --- Attach Global Event Listeners ---
-            try {
-                G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);
-                G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);
-                console.log('Event listeners attached successfully');
-            } catch (error) {
-                console.error('Error attaching event listeners:', error);
-            }
-
-            console.log("Text To Reader Utility Initialized Successfully.");
-        }
-
-        // =============================================================================================
-        // LISTENER | DOM CONTENT LOADED
-        // - Introduced in v1.2.1
-        // DESCRIPTION
-        // - Ensures the DOM is fully parsed before running the main initialization script.
-        // =============================================================================================
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
 
     <style>
+        /* =============================================================================================
+           CSS | ROOT FONT SIZE DEFINITION
+           - Introduced in v1.2.4
+           Establishes the base for rem units (1rem = 16px)
+           ============================================================================================= */
+        :root {
+            font-size           :    16px;
+        }
+
         /* =============================================================================================
            CSS | APP-SPECIFIC STYLES
            - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.3 | Updated v1.2.4
@@ -385,9 +177,9 @@
            - Introduced in v1.2.4
            ============================================================================================= */
         .HEAD__nav {
-            max-width          :    1200px;
-            padding-left       :    1rem;
-            padding-right      :    1rem;
+            max-width          :    90%;
+            padding-left       :    2rem;
+            padding-right      :    2rem;
             margin            :    0 auto;
         }
 
@@ -404,11 +196,23 @@
            ============================================================================================= */
         .FULL__page-app-container {
             width              :    100%;
-            max-width          :    1200px;
+            max-width          :    90%;
             margin             :    0 auto;
-            padding            :    2rem 1rem;
+            padding            :    2rem;
             box-sizing         :    border-box;
             flex               :    1;
+            display            :    flex;
+            flex-direction     :    column;
+        }
+
+        /* =============================================================================================
+           CSS | MAIN CONTAINER
+           - Introduced in v1.2.4
+           ============================================================================================= */
+        .MAIN__container {
+            width             :    100%;
+            max-width         :    100%;
+            margin           :    0 auto;
         }
 
         /* =============================================================================================
@@ -456,9 +260,10 @@
            ============================================================================================= */
         .MAIN__output-container {
             position           :    relative;
-            z-index           :    10;
-            background-color  :    #FFFFFF;
-            margin-bottom     :    2rem;
+            background-color   :    #FFFFFF;
+            margin-bottom      :    2rem;
+            overflow-y         :    auto;
+            max-height         :    70vh;
         }
 
         .MAIN__output-heading {
@@ -552,6 +357,11 @@
         @media (max-width: 768px) {
             .BTTN__container {
                 flex-direction       :    column;
+                position            :    sticky;
+                top                 :    0;
+                background-color    :    #FFFFFF;
+                z-index            :    20;
+                padding            :    0.5rem 0;
             }
 
             .BTTN__standard, .BTTN__cancel {
@@ -579,8 +389,8 @@
             /* Ensure output is always visible on mobile */
             .MAIN__output-container {
                 position         :    relative;
-                z-index         :    10;
                 margin-bottom   :    1rem;
+                max-height      :    60vh;
             }
         }
     </style>
@@ -653,5 +463,138 @@
         </footer>
     </div>
 
+
+    <!-- Application Script -->
+    <script>
+        // Global Variables & Constants
+        const G_DOM_ELEMENTS = {
+            inputText: null,
+            renderButton: null,
+            clearButton: null,
+            output: null,
+            outputHeading: null
+        };
+
+        // Helper Functions
+        function parseWhatsAppMessages(rawText) {
+            const testPattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/;
+
+            if (!testPattern.test(rawText)) {
+                console.log("Input doesn't match WhatsApp pattern, treating as Markdown.");
+                return rawText;
+            }
+            
+            console.log("WhatsApp pattern detected, attempting to clean prefixes.");
+            const replacePattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/g;
+            
+            let replaced = rawText.replace(replacePattern, "\n");
+            replaced = replaced.replace(/\n{2,}/g, "\n");
+            replaced = replaced.trim();
+            replaced = replaced.split("\n").map(line => line.trim()).filter(line => line).join("\n- ");
+            
+            if (replaced) {
+                replaced = "- " + replaced;
+            }
+            
+            return replaced;
+        }
+
+        // Event Handlers
+        function handleRenderClick(event) {
+            event.preventDefault();
+            
+            if (!G_DOM_ELEMENTS.inputText || !G_DOM_ELEMENTS.output) {
+                 console.error("Render handler: Input or output element missing.");
+                return;
+            }
+            if (typeof marked === 'undefined') {
+                 console.error("Render handler: Marked.js library is not loaded.");
+                G_DOM_ELEMENTS.output.innerHTML = '<p style="color: red;">Error: Marked.js library failed to load. Cannot render text.</p>';
+                return;
+            }
+
+            const rawInput = G_DOM_ELEMENTS.inputText.value;
+            const cleanedText = parseWhatsAppMessages(rawInput);
+
+            try {
+                const renderedHtml = marked.parse(cleanedText, { sanitize: true });
+                G_DOM_ELEMENTS.output.innerHTML = renderedHtml;
+
+                const outputRect = G_DOM_ELEMENTS.output.getBoundingClientRect();
+                if (outputRect.bottom > window.innerHeight) {
+                    G_DOM_ELEMENTS.output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            } catch (error) {
+                 console.error("Error during Marked.js parsing:", error);
+                G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering Markdown: ${error.message}</p>`;
+            }
+        }
+
+        function handleClearClick() {
+             if (G_DOM_ELEMENTS.inputText) {
+                G_DOM_ELEMENTS.inputText.value = '';
+            } else {
+                console.warn("Clear handler: Input element missing.");
+            }
+            if (G_DOM_ELEMENTS.output) {
+                G_DOM_ELEMENTS.output.innerHTML = '';
+            } else {
+                console.warn("Clear handler: Output element missing.");
+            }
+        }
+
+        // Application Initialization
+        function initApp() {
+            console.log(`Initializing Text To Reader Utility v1.2.4...`); 
+            
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            console.log(`Device type: ${isMobile ? 'Mobile' : 'Desktop'}`);
+            console.log(`Screen width: ${window.innerWidth}px, Screen height: ${window.innerHeight}px`);
+            console.log(`User agent: ${navigator.userAgent}`);
+
+            G_DOM_ELEMENTS.inputText = document.getElementById('inputText');
+            G_DOM_ELEMENTS.renderButton = document.getElementById('renderButton');
+            G_DOM_ELEMENTS.clearButton = document.getElementById('clearButton');
+            G_DOM_ELEMENTS.output = document.getElementById('output');
+            G_DOM_ELEMENTS.outputHeading = document.getElementById('output-heading');
+
+            console.log('DOM Elements found:');
+            for (const key in G_DOM_ELEMENTS) {
+                console.log(`- ${key}: ${G_DOM_ELEMENTS[key] ? 'Found' : 'Not found'}`);
+            }
+
+            let essentialElementsFound = true;
+            for (const key in G_DOM_ELEMENTS) {
+                if (G_DOM_ELEMENTS[key] === null && key !== 'outputHeading') {
+                    console.error(`Initialization Error: DOM element for '${key}' not found.`);
+                    essentialElementsFound = false;
+                }
+            }
+
+            if (!essentialElementsFound) {
+                document.body.innerHTML = '<p style="color: red; font-weight: bold; padding: 20px;">Error: Application could not initialize. Essential HTML elements are missing. Check the console for details.</p>';
+                return;
+            }
+              
+            try {
+                injectVersionNote();
+            } catch (error) {
+                console.error('Error injecting version note:', error);
+            }
+
+            try {
+                G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);
+                G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);
+                console.log('Event listeners attached successfully');
+            } catch (error) {
+                console.error('Error attaching event listeners:', error);
+            }
+
+            console.log("Text To Reader Utility Initialized Successfully.");
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
 </body>
 </html>
