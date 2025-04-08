@@ -80,17 +80,10 @@ CSS | FONT FACE DECLARATIONS
     font-display        :    swap;
 }
 
-@font-face {
-    font-family         :    'Caveat';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_23_-_Handwritten-Font_-_Caveat-Light.ttf') format('truetype');
-    font-weight         :    300;
-    font-style          :    normal;
-    font-display        :    swap;
-}
 
 @font-face {
     font-family         :    'Caveat';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_24_-_Handwritten-Font_-_Caveat-Medium.ttf') format('truetype');
+    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_23_-_Handwritten-Font_-_Caveat-Medium.ttf') format('truetype');
     font-weight         :    500;
     font-style          :    normal;
     font-display        :    swap;
@@ -98,7 +91,7 @@ CSS | FONT FACE DECLARATIONS
 
 @font-face {
     font-family         :    'Caveat';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_25_-_Handwritten-Font_-_Caveat-Bold.ttf') format('truetype');
+    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_24_-_Handwritten-Font_-_Caveat-Bold.ttf') format('truetype');
     font-weight         :    700;
     font-style          :    normal;
     font-display        :    swap;
