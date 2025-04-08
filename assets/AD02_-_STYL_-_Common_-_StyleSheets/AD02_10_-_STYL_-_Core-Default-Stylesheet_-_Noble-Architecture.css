@@ -371,14 +371,14 @@ html, body {
    08-Apr-2025 - v1.3.0
      - Simplfied Responsive design handling, simplified the scaling down of the page to mobile devices.
      - Removed the scaling down of the page to mobile devices, as it was causing issues with the layout.
-     - Added a new media query for the mobile devices, which scales down the page to 90% of the original size.
-     - Note: If testing shows elements are still too small, consider adjusting to 75% scale.
+     - Added a new media query for the mobile devices, which scales up the page to 125% of the original size.
+     - Note: This makes elements larger on mobile for better touch interaction and readability.
 */
 
 @media (max-width: 768px) {
-    /* Scale down all elements by 90% on mobile devices */
+    /* Scale up all elements by 125% on mobile devices */
     html, body {
-        font-size         :    14.40px;    /*  <-- CRITICAL VALUE!! - This is 90% of the base font size */
+        font-size         :    20.00px;    /*  <-- CRITICAL VALUE!! - This is 125% of the base font size */
     }
     
     /* Adjust container widths for mobile */

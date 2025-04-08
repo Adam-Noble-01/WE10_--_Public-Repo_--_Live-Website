@@ -255,8 +255,9 @@ AD04_24_-_Handwritten-Font_-_Caveat-Bold.ttf
 - Use standard breakpoints consistently across the project
 - Default mobile breakpoint: 768px max-width
 - For mobile devices, scale the entire site by adjusting the base font size
-  - Current implementation: 90% scaling (14.40px) for screens under 768px
+  - Current implementation: 125% scaling (20.00px) for screens under 768px
   - This approach automatically scales all rem-based elements proportionally
+  - Makes elements larger on mobile for better touch interaction and readability
 
 ### Mobile Scaling Approach
 - Instead of individual element adjustments, use a single font-size change
@@ -267,9 +268,9 @@ AD04_24_-_Handwritten-Font_-_Caveat-Bold.ttf
 #### Example
 ```css
 @media (max-width: 768px) {
-    /* Scale down all elements by 90% on mobile devices */
+    /* Scale up all elements by 125% on mobile devices */
     html, body {
-        font-size         :    14.40px;    /*  <-- CRITICAL VALUE!! - This is 90% of the base font size */
+        font-size         :    20.00px;    /*  <-- CRITICAL VALUE!! - This is 125% of the base font size */
     }
     
     /* Adjust container widths for mobile */
