@@ -146,6 +146,207 @@
     <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css">
     <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     
+    <!-- 
+    =============================================================================================
+    JAVASCRIPT | THIRD-PARTY LIBRARIES & UTILITIES
+    - Introduced in v1.0.0 | Updated v1.2.4
+    Contains external dependencies and utility scripts required by the application.
+    =============================================================================================
+    -->
+    <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> <!-- ← KEY LINK | Marked.js Dependency -->
+    <script defer src="/src/js/header-version-injector.js"></script> <!-- ← UTILITY | Header Version Injector -->
+
+    <!-- 
+    =============================================================================================
+    JAVASCRIPT | CORE APPLICATION SCRIPT
+    - Introduced in v1.0.0 | Refactored v1.2.1
+    Contains the main application logic including event handlers and initialization.
+    =============================================================================================
+    -->
+    <script defer>
+        // =============================================================================================
+        // JAVASCRIPT | GLOBAL VARIABLES & CONSTANTS
+        // - Introduced in v1.2.1 | Updated v1.2.3 | Updated v1.2.4
+        // Defines global constants and caches frequently accessed DOM elements.
+        // =============================================================================================
+        const G_DOM_ELEMENTS = {
+            inputText: null,
+            renderButton: null,
+            clearButton: null,
+            output: null,
+            outputHeading: null
+        };
+
+        // =============================================================================================
+        // JAVASCRIPT | HELPER FUNCTIONS
+        // - Sections introduced as needed, refined in v1.2.1
+        // Contains utility functions used by other parts of the script.
+        // =============================================================================================
+
+        // ------------------------------------------------------------
+        // HELPER FUNCTION | PARSE WHATSAPP MESSAGES
+        // - Introduced in v1.0.0 | Refactored v1.2.1
+        // DESCRIPTION
+        // - Attempts to detect and clean WhatsApp chat log prefixes.
+        // - If the text matches the WhatsApp pattern, it removes the timestamp/sender
+        //   prefixes (`[dd/mm, HH:MM] Sender Name: `) and replaces them with paragraph breaks.
+        // - If no match, returns the original text for standard Markdown processing.
+        // ARGUMENTS
+        // - rawText (String): The input text from the textarea.
+        // RETURNS
+        // - (String): The cleaned text (if WhatsApp) or the original text.
+        // IMPORTANT NOTES
+        // - Relies on a specific regex pattern for detection and replacement.
+        // ------------------------------------------------------------
+        function parseWhatsAppMessages(rawText) {
+            // Regex to test if the text *contains* the WhatsApp prefix pattern.
+            const testPattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/;
+
+            // Check if the pattern exists anywhere in the text.
+            if (!testPattern.test(rawText)) {
+                console.log("Input doesn't match WhatsApp pattern, treating as Markdown.");
+                return rawText;
+            }
+            
+            console.log("WhatsApp pattern detected, attempting to clean prefixes.");
+            // Regex to *globally replace* the WhatsApp prefix pattern.
+            const replacePattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/g;
+            
+            // Replace all occurrences of the prefix with a single newline
+            let replaced = rawText.replace(replacePattern, "\n");
+            
+            // Collapse multiple consecutive newlines into just one
+            replaced = replaced.replace(/\n{2,}/g, "\n");
+            
+            // Trim leading/trailing whitespace
+            replaced = replaced.trim();
+
+            // Convert single newlines to list items for better formatting
+            replaced = replaced.split("\n").map(line => line.trim()).filter(line => line).join("\n- ");
+            
+            // Add initial list marker
+            if (replaced) {
+                replaced = "- " + replaced;
+            }
+            
+            return replaced;
+        }
+        
+        // =============================================================================================
+        // JAVASCRIPT | EVENT HANDLERS
+        // - Introduced in v1.0.0 | Refactored into named functions in v1.2.1
+        // Contains functions that handle specific user interactions (button clicks).
+        // =============================================================================================
+
+        // ------------------------------------------------------------
+        // EVENT HANDLER | RENDER BUTTON CLICK
+        // - Introduced in v1.0.0 | Refactored v1.2.1 | Updated v1.2.4
+        // DESCRIPTION
+        // - Gets input text, attempts WhatsApp parsing, renders using Marked.js,
+        //   and displays the result in the output area.
+        // ------------------------------------------------------------
+        function handleRenderClick(event) {
+            // Prevent default button behavior
+            event.preventDefault();
+            
+            if (!G_DOM_ELEMENTS.inputText || !G_DOM_ELEMENTS.output) {
+                 console.error("Render handler: Input or output element missing.");
+                return;
+            }
+            if (typeof marked === 'undefined') {
+                 console.error("Render handler: Marked.js library is not loaded.");
+                G_DOM_ELEMENTS.output.innerHTML = '<p style="color: red;">Error: Marked.js library failed to load. Cannot render text.</p>';
+                return;
+            }
+
+            // 1) Get raw input
+            const rawInput = G_DOM_ELEMENTS.inputText.value;
+
+            // 2) Attempt to parse as WhatsApp text (or get original back)
+            const cleanedText = parseWhatsAppMessages(rawInput);
+
+            try {
+                // 3) Convert cleaned/original text to HTML via Marked.js
+                // Configure marked to sanitize potentially harmful HTML
+                const renderedHtml = marked.parse(cleanedText, { sanitize: true }); // Added basic sanitization
+
+                // 4) Display result
+                G_DOM_ELEMENTS.output.innerHTML = renderedHtml;
+            } catch (error) {
+                 console.error("Error during Marked.js parsing:", error);
+                G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering Markdown: ${error.message}</p>`;
+            }
+        }
+
+        // ------------------------------------------------------------
+        // EVENT HANDLER | CLEAR BUTTON CLICK
+        // - Introduced in v1.0.0 | Refactored v1.2.1
+        // DESCRIPTION
+        // - Clears the content of the input textarea and the output display area.
+        // ------------------------------------------------------------
+        function handleClearClick() {
+             if (G_DOM_ELEMENTS.inputText) {
+                G_DOM_ELEMENTS.inputText.value = '';
+            } else {
+                console.warn("Clear handler: Input element missing.");
+            }
+            if (G_DOM_ELEMENTS.output) {
+                G_DOM_ELEMENTS.output.innerHTML = '';
+            } else {
+                console.warn("Clear handler: Output element missing.");
+            }
+        }
+
+        // =============================================================================================
+        // INITIALIZATION | MAIN APPLICATION INIT
+        // - Introduced in v1.2.1 | Updated v1.2.3 | Updated v1.2.4
+        // DESCRIPTION
+        // - Sets up the application on page load: caches DOM elements, injects version note,
+        //   and attaches global event listeners.
+        // =============================================================================================
+        function initApp() {
+            console.log(`Initializing Text To Reader Utility v1.2.4...`); 
+
+            // --- Cache DOM Elements ---
+            G_DOM_ELEMENTS.inputText = document.getElementById('inputText');
+            G_DOM_ELEMENTS.renderButton = document.getElementById('renderButton');
+            G_DOM_ELEMENTS.clearButton = document.getElementById('clearButton');
+            G_DOM_ELEMENTS.output = document.getElementById('output');
+            G_DOM_ELEMENTS.outputHeading = document.getElementById('output-heading');
+
+            // --- Check if all essential elements were found ---
+            let essentialElementsFound = true;
+            for (const key in G_DOM_ELEMENTS) {
+                if (G_DOM_ELEMENTS[key] === null && key !== 'outputHeading') {
+                    console.error(`Initialization Error: DOM element for '${key}' not found.`);
+                    essentialElementsFound = false;
+                }
+            }
+
+            if (!essentialElementsFound) {
+                document.body.innerHTML = '<p style="color: red; font-weight: bold; padding: 20px;">Error: Application could not initialize. Essential HTML elements are missing. Check the console for details.</p>';
+                return;
+            }
+              
+            // --- Inject Version Note using the modular script ---
+            injectVersionNote();
+
+            // --- Attach Global Event Listeners ---
+            G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);
+            G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);
+
+            console.log("Text To Reader Utility Initialized Successfully.");
+        }
+
+        // =============================================================================================
+        // LISTENER | DOM CONTENT LOADED
+        // - Introduced in v1.2.1
+        // DESCRIPTION
+        // - Ensures the DOM is fully parsed before running the main initialization script.
+        // =============================================================================================
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+
     <style>
         /* =============================================================================================
            CSS | APP-SPECIFIC STYLES
@@ -363,8 +564,8 @@
                    - Introduced in v1.0.0 | Updated v1.2.3 | Updated v1.2.4
                    ----------------------------------------------------------------------------------------- -->
                 <div class="BTTN__container">
-                    <button id="renderButton" class="BTTN__standard">Render Text To Page</button>
-                    <button id="clearButton" class="BTTN__cancel">Clear Text</button>
+                    <button id="renderButton" type="button" class="BTTN__standard">Render Text To Page</button>
+                    <button id="clearButton" type="button" class="BTTN__cancel">Clear Text</button>
                 </div>
 
                 <!-- -----------------------------------------------------------------------------------------
@@ -389,202 +590,6 @@
             &copy; 2025 Noble Architecture
         </footer>
     </div>
-
-    <!-- 
-    =============================================================================================
-    JAVASCRIPT | THIRD-PARTY LIBRARIES & UTILITIES
-    - Introduced in v1.0.0 | Updated v1.2.4
-    =============================================================================================
-    -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> <!-- ← KEY LINK | Marked.js Dependency -->
-    <script src="/src/js/header-version-injector.js"></script> <!-- ← UTILITY | Header Version Injector -->
-
-    <!-- 
-    =============================================================================================
-    JAVASCRIPT | CORE APPLICATION SCRIPT
-    - Introduced in v1.0.0 | Refactored v1.2.1
-    =============================================================================================
-    -->
-    <script>
-        // =============================================================================================
-        // JAVASCRIPT | GLOBAL VARIABLES & CONSTANTS
-        // - Introduced in v1.2.1 | Updated v1.2.3 | Updated v1.2.4
-        // Defines global constants and caches frequently accessed DOM elements.
-        // =============================================================================================
-        const G_DOM_ELEMENTS = {
-            inputText: null,
-            renderButton: null,
-            clearButton: null,
-            output: null,
-            outputHeading: null
-        };
-
-        // =============================================================================================
-        // JAVASCRIPT | HELPER FUNCTIONS
-        // - Sections introduced as needed, refined in v1.2.1
-        // Contains utility functions used by other parts of the script.
-        // =============================================================================================
-
-        // ------------------------------------------------------------
-        // HELPER FUNCTION | PARSE WHATSAPP MESSAGES
-        // - Introduced in v1.0.0 | Refactored v1.2.1
-        // DESCRIPTION
-        // - Attempts to detect and clean WhatsApp chat log prefixes.
-        // - If the text matches the WhatsApp pattern, it removes the timestamp/sender
-        //   prefixes (`[dd/mm, HH:MM] Sender Name: `) and replaces them with paragraph breaks.
-        // - If no match, returns the original text for standard Markdown processing.
-        // ARGUMENTS
-        // - rawText (String): The input text from the textarea.
-        // RETURNS
-        // - (String): The cleaned text (if WhatsApp) or the original text.
-        // IMPORTANT NOTES
-        // - Relies on a specific regex pattern for detection and replacement.
-        // ------------------------------------------------------------
-        function parseWhatsAppMessages(rawText) {
-            // Regex to test if the text *contains* the WhatsApp prefix pattern.
-            const testPattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/;
-
-            // Check if the pattern exists anywhere in the text.
-            if (!testPattern.test(rawText)) {
-                console.log("Input doesn't match WhatsApp pattern, treating as Markdown.");
-                return rawText;
-            }
-            
-            console.log("WhatsApp pattern detected, attempting to clean prefixes.");
-            // Regex to *globally replace* the WhatsApp prefix pattern.
-            const replacePattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/g;
-            
-            // Replace all occurrences of the prefix with a single newline
-            let replaced = rawText.replace(replacePattern, "\n");
-            
-            // Collapse multiple consecutive newlines into just one
-            replaced = replaced.replace(/\n{2,}/g, "\n");
-            
-            // Trim leading/trailing whitespace
-            replaced = replaced.trim();
-
-            // Convert single newlines to list items for better formatting
-            replaced = replaced.split("\n").map(line => line.trim()).filter(line => line).join("\n- ");
-            
-            // Add initial list marker
-            if (replaced) {
-                replaced = "- " + replaced;
-            }
-            
-            return replaced;
-        }
-        
-        // =============================================================================================
-        // JAVASCRIPT | EVENT HANDLERS
-        // - Introduced in v1.0.0 | Refactored into named functions in v1.2.1
-        // Contains functions that handle specific user interactions (button clicks).
-        // =============================================================================================
-
-        // ------------------------------------------------------------
-        // EVENT HANDLER | RENDER BUTTON CLICK
-        // - Introduced in v1.0.0 | Refactored v1.2.1
-        // DESCRIPTION
-        // - Gets input text, attempts WhatsApp parsing, renders using Marked.js,
-        //   and displays the result in the output area.
-        // ------------------------------------------------------------
-        function handleRenderClick() {
-            if (!G_DOM_ELEMENTS.inputText || !G_DOM_ELEMENTS.output) {
-                 console.error("Render handler: Input or output element missing.");
-                return;
-            }
-            if (typeof marked === 'undefined') {
-                 console.error("Render handler: Marked.js library is not loaded.");
-                G_DOM_ELEMENTS.output.innerHTML = '<p style="color: red;">Error: Marked.js library failed to load. Cannot render text.</p>';
-                return;
-            }
-
-            // 1) Get raw input
-            const rawInput = G_DOM_ELEMENTS.inputText.value;
-
-            // 2) Attempt to parse as WhatsApp text (or get original back)
-            const cleanedText = parseWhatsAppMessages(rawInput);
-
-            try {
-                // 3) Convert cleaned/original text to HTML via Marked.js
-                // Configure marked to sanitize potentially harmful HTML
-                const renderedHtml = marked.parse(cleanedText, { sanitize: true }); // Added basic sanitization
-
-                // 4) Display result
-                G_DOM_ELEMENTS.output.innerHTML = renderedHtml;
-            } catch (error) {
-                 console.error("Error during Marked.js parsing:", error);
-                G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering Markdown: ${error.message}</p>`;
-            }
-        }
-
-        // ------------------------------------------------------------
-        // EVENT HANDLER | CLEAR BUTTON CLICK
-        // - Introduced in v1.0.0 | Refactored v1.2.1
-        // DESCRIPTION
-        // - Clears the content of the input textarea and the output display area.
-        // ------------------------------------------------------------
-        function handleClearClick() {
-             if (G_DOM_ELEMENTS.inputText) {
-                G_DOM_ELEMENTS.inputText.value = '';
-            } else {
-                console.warn("Clear handler: Input element missing.");
-            }
-            if (G_DOM_ELEMENTS.output) {
-                G_DOM_ELEMENTS.output.innerHTML = '';
-            } else {
-                console.warn("Clear handler: Output element missing.");
-            }
-        }
-
-        // =============================================================================================
-        // INITIALIZATION | MAIN APPLICATION INIT
-        // - Introduced in v1.2.1 | Updated v1.2.3 | Updated v1.2.4
-        // DESCRIPTION
-        // - Sets up the application on page load: caches DOM elements, injects version note,
-        //   and attaches global event listeners.
-        // =============================================================================================
-        function initApp() {
-            console.log(`Initializing Text To Reader Utility v1.2.4...`); 
-
-            // --- Cache DOM Elements ---
-            G_DOM_ELEMENTS.inputText = document.getElementById('inputText');
-            G_DOM_ELEMENTS.renderButton = document.getElementById('renderButton');
-            G_DOM_ELEMENTS.clearButton = document.getElementById('clearButton');
-            G_DOM_ELEMENTS.output = document.getElementById('output');
-            G_DOM_ELEMENTS.outputHeading = document.getElementById('output-heading');
-
-            // --- Check if all essential elements were found ---
-            let essentialElementsFound = true;
-            for (const key in G_DOM_ELEMENTS) {
-                if (G_DOM_ELEMENTS[key] === null && key !== 'outputHeading') {
-                    console.error(`Initialization Error: DOM element for '${key}' not found.`);
-                    essentialElementsFound = false;
-                }
-            }
-
-            if (!essentialElementsFound) {
-                document.body.innerHTML = '<p style="color: red; font-weight: bold; padding: 20px;">Error: Application could not initialize. Essential HTML elements are missing. Check the console for details.</p>';
-                return;
-            }
-              
-            // --- Inject Version Note using the modular script ---
-            injectVersionNote();
-
-            // --- Attach Global Event Listeners ---
-            G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);
-            G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);
-
-            console.log("Text To Reader Utility Initialized Successfully.");
-        }
-
-        // =============================================================================================
-        // LISTENER | DOM CONTENT LOADED
-        // - Introduced in v1.2.1
-        // DESCRIPTION
-        // - Ensures the DOM is fully parsed before running the main initialization script.
-        // =============================================================================================
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
 
 </body>
 </html>
