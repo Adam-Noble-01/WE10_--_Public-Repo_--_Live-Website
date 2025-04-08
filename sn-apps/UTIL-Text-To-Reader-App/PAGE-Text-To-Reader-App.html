@@ -125,7 +125,7 @@
     =============================================================================================
     -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- Add Application Version Meta Tag -->
     <meta name="application-version" content="1.2.4"> <!-- ← CONFIG | Set Application Version Here -->
     <title>Text To Reader Utility</title>
@@ -144,6 +144,96 @@
     <!--  - - - - - - - - - - - - - - - - - -  STYLESHEET CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
     <!-- Main Noble Architecture Stylesheet -->
     <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css">
+    <!-- Fallback for when external stylesheet fails to load -->
+    <script>
+        // Check if the external stylesheet loaded successfully
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all stylesheets
+            const stylesheets = document.styleSheets;
+            let externalStylesheetLoaded = false;
+            
+            // Check if our external stylesheet is loaded
+            for (let i = 0; i < stylesheets.length; i++) {
+                try {
+                    const href = stylesheets[i].href;
+                    if (href && href.includes('AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css')) {
+                        externalStylesheetLoaded = true;
+                        break;
+                    }
+                } catch (e) {
+                    // Cross-origin stylesheets will throw an error, we can ignore those
+                    console.warn('Could not access stylesheet:', e);
+                }
+            }
+            
+            // If external stylesheet didn't load, add critical fallback styles
+            if (!externalStylesheetLoaded) {
+                console.warn('External stylesheet failed to load, applying fallback styles');
+                
+                // Create a style element for fallback styles
+                const fallbackStyle = document.createElement('style');
+                fallbackStyle.textContent = `
+                    /* Fallback styles for when external stylesheet fails to load */
+                    :root {
+                        --text-color: #333;
+                        --text-light: #666;
+                        --card-border: #ddd;
+                        --code-bg: #f5f5f5;
+                        --code-text: #333;
+                    }
+                    
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: var(--text-color);
+                        margin: 0;
+                        padding: 0;
+                    }
+                    
+                    .PAGE__container {
+                        display: flex;
+                        flex-direction: column;
+                        min-height: 100vh;
+                    }
+                    
+                    .HEAD__container {
+                        background-color: #f8f9fa;
+                        padding: 1rem 0;
+                        border-bottom: 1px solid var(--card-border);
+                    }
+                    
+                    .FOOT__container {
+                        background-color: #f8f9fa;
+                        padding: 1rem 0;
+                        text-align: center;
+                        border-top: 1px solid var(--card-border);
+                        margin-top: auto;
+                    }
+                    
+                    .BTTN__standard, .BTTN__cancel {
+                        padding: 0.5rem 1rem;
+                        border-radius: 0.25rem;
+                        border: none;
+                        cursor: pointer;
+                        font-size: 0.875rem;
+                    }
+                    
+                    .BTTN__standard {
+                        background-color: #007bff;
+                        color: white;
+                    }
+                    
+                    .BTTN__cancel {
+                        background-color: #6c757d;
+                        color: white;
+                    }
+                `;
+                
+                // Add the fallback styles to the document
+                document.head.appendChild(fallbackStyle);
+            }
+        });
+    </script>
     <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     
     <!-- 
@@ -306,6 +396,12 @@
         // =============================================================================================
         function initApp() {
             console.log(`Initializing Text To Reader Utility v1.2.4...`); 
+            
+            // Add debugging information for mobile devices
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            console.log(`Device type: ${isMobile ? 'Mobile' : 'Desktop'}`);
+            console.log(`Screen width: ${window.innerWidth}px, Screen height: ${window.innerHeight}px`);
+            console.log(`User agent: ${navigator.userAgent}`);
 
             // --- Cache DOM Elements ---
             G_DOM_ELEMENTS.inputText = document.getElementById('inputText');
@@ -313,6 +409,12 @@
             G_DOM_ELEMENTS.clearButton = document.getElementById('clearButton');
             G_DOM_ELEMENTS.output = document.getElementById('output');
             G_DOM_ELEMENTS.outputHeading = document.getElementById('output-heading');
+
+            // --- Log which elements were found/not found ---
+            console.log('DOM Elements found:');
+            for (const key in G_DOM_ELEMENTS) {
+                console.log(`- ${key}: ${G_DOM_ELEMENTS[key] ? 'Found' : 'Not found'}`);
+            }
 
             // --- Check if all essential elements were found ---
             let essentialElementsFound = true;
@@ -329,11 +431,20 @@
             }
               
             // --- Inject Version Note using the modular script ---
-            injectVersionNote();
+            try {
+                injectVersionNote();
+            } catch (error) {
+                console.error('Error injecting version note:', error);
+            }
 
             // --- Attach Global Event Listeners ---
-            G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);
-            G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);
+            try {
+                G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);
+                G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);
+                console.log('Event listeners attached successfully');
+            } catch (error) {
+                console.error('Error attaching event listeners:', error);
+            }
 
             console.log("Text To Reader Utility Initialized Successfully.");
         }
@@ -521,6 +632,23 @@
 
             .BTTN__standard, .BTTN__cancel {
                 width               :    100%;
+            }
+            
+            /* Add mobile-specific styling for the textarea */
+            .FORM__textarea {
+                height              :    10rem; /* Reduce height on mobile */
+                font-size           :    1rem; /* Increase font size for better readability */
+                padding             :    0.5rem; /* Reduce padding */
+            }
+            
+            /* Ensure the container has proper padding on mobile */
+            .FULL__page-app-container {
+                padding            :    1rem 0.5rem;
+            }
+            
+            /* Ensure the output area is properly sized on mobile */
+            .MAIN__output {
+                min-height          :    10rem;
             }
         }
     </style>
