@@ -242,10 +242,9 @@ AD04_23_-_Handwritten-Font_-_Caveat-Medium.ttf
 AD04_24_-_Handwritten-Font_-_Caveat-Bold.ttf
 ```
 
-----------------------------------------------------------------------------------------------------
 
 ## RESPONSIVE DESIGN
-
+----------------------------------------------------------------------------------------------------
 ### Responsive Values
 - Prefer relative units `rem` units over absolute units (px)
 - Base font size should be explicitly set (16.00px)
@@ -255,15 +254,38 @@ AD04_24_-_Handwritten-Font_-_Caveat-Bold.ttf
 - Group responsive overrides at the end of stylesheet
 - Use standard breakpoints consistently across the project
 - Default mobile breakpoint: 768px max-width
+- For mobile devices, scale the entire site by adjusting the base font size
+  - Current implementation: 90% scaling (14.40px) for screens under 768px
+  - This approach automatically scales all rem-based elements proportionally
+
+### Mobile Scaling Approach
+- Instead of individual element adjustments, use a single font-size change
+- This simplifies maintenance and ensures consistent scaling
+- The base font size change affects all elements using rem units
+- Additional adjustments may be needed for specific elements that don't use rem units
 
 #### Example
 ```css
 @media (max-width: 768px) {
-    .selector {
-        property          :    value;       /*   <-- Descriptive comment */
+    /* Scale down all elements by 90% on mobile devices */
+    html, body {
+        font-size         :    14.40px;    /*  <-- CRITICAL VALUE!! - This is 90% of the base font size */
     }
-}       
-``` 
+    
+    /* Adjust container widths for mobile */
+    .MAIN__container {
+        max-width         :    100%;
+        margin-left       :    1.00rem;
+        margin-right      :    1.00rem;
+    }
+    
+    /* Ensure images scale properly */
+    img {
+        max-width         :    100%;
+        height            :    auto;
+    }
+}
+```
 
 
 ## PERFORMANCE CONSIDERATIONS
