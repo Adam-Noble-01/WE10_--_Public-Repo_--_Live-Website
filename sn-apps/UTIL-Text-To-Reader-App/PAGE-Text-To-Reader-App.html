@@ -355,42 +355,70 @@
            - Introduced in v1.2.3 | Updated v1.2.4
            ============================================================================================= */
         @media (max-width: 768px) {
-            .BTTN__container {
-                flex-direction       :    column;
-                position            :    sticky;
-                top                 :    0;
-                background-color    :    #FFFFFF;
-                z-index            :    20;
-                padding            :    0.5rem 0;
+            :root {
+                /* Adjust root font size for mobile */
+                font-size          :    14px;
             }
 
-            .BTTN__standard, .BTTN__cancel {
-                width               :    100%;
-            }
-            
-            /* Add mobile-specific styling for the textarea */
-            .FORM__textarea {
-                height              :    10rem; /* Reduce height on mobile */
-                font-size           :    1rem; /* Increase font size for better readability */
-                padding             :    0.5rem; /* Reduce padding */
-            }
-            
-            /* Ensure the container has proper padding on mobile */
-            .FULL__page-app-container {
-                padding            :    1rem 0.5rem;
-            }
-
-            /* Simple flex layout for content */
             .PAGE__container {
                 display           :    flex;
                 flex-direction    :    column;
+                min-height        :    100vh;
+                overflow-x        :    hidden;
             }
 
-            /* Ensure output is always visible on mobile */
+            .FULL__page-app-container {
+                padding            :    1rem 0.5rem;
+                max-width          :    100%;
+                flex               :    1;
+            }
+
+            .MAIN__container {
+                height             :    calc(100vh - 8rem);
+                display            :    flex;
+                flex-direction     :    column;
+            }
+
+            .BTTN__container {
+                flex-direction     :    column;
+                position          :    sticky;
+                top               :    0;
+                background-color  :    #FFFFFF;
+                z-index          :    20;
+                padding          :    0.5rem 0;
+                margin-bottom     :    0.5rem;
+            }
+
+            .BTTN__standard, .BTTN__cancel {
+                width             :    100%;
+            }
+            
+            .FORM__textarea {
+                height            :    30vh;
+                min-height        :    8rem;
+                font-size         :    1rem;
+                padding           :    0.5rem;
+                margin-bottom     :    0.5rem;
+            }
+            
             .MAIN__output-container {
-                position         :    relative;
-                margin-bottom   :    1rem;
-                max-height      :    60vh;
+                position          :    relative;
+                margin-bottom     :    0.5rem;
+                height            :    calc(70vh - 10rem);
+                min-height        :    10rem;
+                overflow-y        :    auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .MAIN__output {
+                height            :    auto;
+                min-height        :    100%;
+            }
+
+            .FOOT__container {
+                position          :    relative;
+                padding           :    1rem;
+                text-align        :    center;
             }
         }
     </style>
@@ -520,9 +548,32 @@
                 const renderedHtml = marked.parse(cleanedText, { sanitize: true });
                 G_DOM_ELEMENTS.output.innerHTML = renderedHtml;
 
-                const outputRect = G_DOM_ELEMENTS.output.getBoundingClientRect();
-                if (outputRect.bottom > window.innerHeight) {
-                    G_DOM_ELEMENTS.output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                // Handle mobile viewport adjustments
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    // On mobile, smoothly scroll to the output container
+                    G_DOM_ELEMENTS.output.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'nearest'
+                    });
+                    
+                    // Adjust viewport for mobile keyboards
+                    window.scrollTo(0, 0);
+                    setTimeout(() => {
+                        const outputContainer = document.querySelector('.MAIN__output-container');
+                        if (outputContainer) {
+                            outputContainer.style.height = `${window.innerHeight * 0.6}px`;
+                        }
+                    }, 100);
+                } else {
+                    // Desktop behavior
+                    const outputRect = G_DOM_ELEMENTS.output.getBoundingClientRect();
+                    if (outputRect.bottom > window.innerHeight) {
+                        G_DOM_ELEMENTS.output.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'nearest' 
+                        });
+                    }
                 }
             } catch (error) {
                  console.error("Error during Marked.js parsing:", error);
@@ -543,6 +594,17 @@
             }
         }
 
+        // Add resize handler for mobile
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                const outputContainer = document.querySelector('.MAIN__output-container');
+                if (outputContainer) {
+                    outputContainer.style.height = `${window.innerHeight * 0.6}px`;
+                }
+            }
+        }
+
         // Application Initialization
         function initApp() {
             console.log(`Initializing Text To Reader Utility v1.2.4...`); 
@@ -552,16 +614,17 @@
             console.log(`Screen width: ${window.innerWidth}px, Screen height: ${window.innerHeight}px`);
             console.log(`User agent: ${navigator.userAgent}`);
 
+            // Cache DOM elements
             G_DOM_ELEMENTS.inputText = document.getElementById('inputText');
             G_DOM_ELEMENTS.renderButton = document.getElementById('renderButton');
             G_DOM_ELEMENTS.clearButton = document.getElementById('clearButton');
             G_DOM_ELEMENTS.output = document.getElementById('output');
             G_DOM_ELEMENTS.outputHeading = document.getElementById('output-heading');
 
-            console.log('DOM Elements found:');
-            for (const key in G_DOM_ELEMENTS) {
-                console.log(`- ${key}: ${G_DOM_ELEMENTS[key] ? 'Found' : 'Not found'}`);
-            }
+            // Add resize listener for mobile
+            window.addEventListener('resize', handleResize);
+            // Initial resize call
+            handleResize();
 
             let essentialElementsFound = true;
             for (const key in G_DOM_ELEMENTS) {
