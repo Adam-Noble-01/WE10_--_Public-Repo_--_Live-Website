@@ -503,6 +503,7 @@
             display             :    flex;
             gap                 :    01.00rem;
             margin-bottom       :    01.25rem;
+            justify-content     :    center; /* Center buttons horizontally */
         }
         
         /* =============================================================================================
@@ -644,11 +645,31 @@
             /* Ensure the container has proper padding on mobile */
             .FULL__page-app-container {
                 padding            :    1rem 0.5rem;
+                padding-bottom     :    5rem; /* Add extra padding at bottom for mobile */
             }
             
             /* Ensure the output area is properly sized on mobile */
             .MAIN__output {
                 min-height          :    10rem;
+                margin-bottom       :    2rem; /* Add margin at bottom of output */
+            }
+
+            /* Ensure footer stays at bottom and doesn't overlap content */
+            .FOOT__container {
+                position           :    fixed;
+                bottom            :    0;
+                left              :    0;
+                right             :    0;
+                background-color  :    #f8f9fa;
+                padding           :    0.5rem;
+                text-align        :    center;
+                border-top        :    1px solid var(--card-border);
+                z-index           :    100;
+            }
+
+            /* Add padding to body to prevent footer overlap */
+            body {
+                padding-bottom    :    3rem;
             }
         }
     </style>
