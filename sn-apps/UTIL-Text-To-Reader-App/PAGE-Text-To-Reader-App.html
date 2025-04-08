@@ -278,26 +278,6 @@
                 if (outputRect.bottom > window.innerHeight) {
                     G_DOM_ELEMENTS.output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
-
-                // 6) Ensure content is visible on mobile
-                if (window.innerWidth <= 768) {
-                    // Add a small delay to ensure content is rendered
-                    setTimeout(() => {
-                        const contentHeight = G_DOM_ELEMENTS.output.scrollHeight;
-                        const viewportHeight = window.innerHeight;
-                        const footerHeight = 3; // 3rem
-                        const headerHeight = 4; // Approximate header height in rem
-                        
-                        // Convert rem to pixels
-                        const remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
-                        const minHeight = Math.max(
-                            contentHeight + (footerHeight + headerHeight) * remToPx,
-                            viewportHeight
-                        );
-                        
-                        document.body.style.minHeight = `${minHeight}px`;
-                    }, 100);
-                }
             } catch (error) {
                  console.error("Error during Marked.js parsing:", error);
                 G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering Markdown: ${error.message}</p>`;
@@ -580,32 +560,26 @@
             /* Ensure the container has proper padding on mobile */
             .FULL__page-app-container {
                 padding            :    1rem 0.5rem;
-                padding-bottom     :    4rem; /* Reduced padding to account for dynamic content */
-                min-height         :    calc(100vh - 8rem); /* Account for header and footer */
+                min-height         :    auto; /* Let content determine height */
             }
             
-            /* Ensure footer stays at bottom and doesn't overlap content */
+            /* Simplified footer styling */
             .FOOT__container {
-                position           :    fixed;
-                bottom            :    0;
-                left              :    0;
-                right             :    0;
-                background-color  :    #f8f9fa;
-                padding           :    0.5rem;
+                padding           :    1rem;
                 text-align        :    center;
                 border-top        :    1px solid var(--card-border);
-                z-index           :    100;
+                background-color  :    #f8f9fa;
+                margin-top        :    2rem;
             }
 
-            /* Add padding to body to prevent footer overlap */
+            /* Remove fixed positioning styles */
             body {
-                padding-bottom    :    3rem;
                 min-height        :    100vh;
                 display           :    flex;
                 flex-direction    :    column;
             }
 
-            /* Ensure the page container takes full height */
+            /* Keep flex layout for proper content distribution */
             .PAGE__container {
                 flex              :    1;
                 display           :    flex;
