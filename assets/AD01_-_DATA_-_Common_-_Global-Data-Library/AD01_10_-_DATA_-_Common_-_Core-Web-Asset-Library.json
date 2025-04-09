@@ -46,7 +46,6 @@
         "library-added-by"      :   "Adam Noble",
         "library-last-updated"  :   "04-Sep-2024",
         "library-active-status" :   true,
-        "assets": {
             "font-open-sans-regular": {
                 "asset-name"            :   "Open Sans Regular Font",
                 "asset-dir-path"        :   "./assets/AD04_-_LIBR_-_Common_-_Front-Files",
@@ -182,7 +181,6 @@
                 "asset-last-updated"    :   "04-Sep-2024",
                 "asset-active-status"   :   true
             }
-        }
     },
     
     "AD05_-_LIBR_-_Common_-_Icons-and-favicons": {
