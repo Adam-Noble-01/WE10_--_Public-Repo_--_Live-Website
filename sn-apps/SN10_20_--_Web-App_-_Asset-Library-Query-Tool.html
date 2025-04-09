@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Add Application Version Meta Tag -->
+    <meta name="application-version" content="1.0.0"> <!-- ← CONFIG | Set Application Version Here -->
+    <title>Noble Architecture - Asset Library Query Tool</title>
+    
+    <!--  - - - - - - - - - - - - - - - - - -  FAVICON CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
+    <!-- Primary SVG Favicon (Best for modern browsers) -->
+    <link rel="icon" type="image/svg+xml" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+    <!-- PNG Fallbacks for various resolutions -->
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png">
+    <!-- ICO Fallback for legacy browsers -->
+    <link rel="icon" type="image/x-icon" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
+    <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    
+    <!--  - - - - - - - - - - - - - - - - - -  STYLESHEET CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
+    <!-- Main Noble Architecture Stylesheet -->
+    <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css">
+    <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <style>
+        /* =============================================================================================
+           CSS | ROOT FONT SIZE DEFINITION
+           - Introduced in v1.0.0
+           Establishes the base for rem units (1rem = 16px)
+           ============================================================================================= */
+        :root {
+            font-size           :    16.00px;    /*  <-- CRITICAL VALUE!! - Base font size */
+        }
+
+        /* =============================================================================================
+           CSS | HEADER COMPONENTS
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .HEAD__container {
+            background-color   :    white;
+            border-bottom      :    01px solid var(--card-border);
+            padding            :    00.75rem 0;
+            width              :    100%;
+        }
+        
+        .HEAD__nav {
+            max-width          :    960px;  /* <-- Inset Slightly to taste */
+            padding-left       :    01.00rem;
+            padding-right      :    01.00rem;
+            margin             :    0 auto;
+            display            :    flex;
+            align-items        :    center;
+        }
+
+        .HEAD__title {
+            font-size          :    01.25rem;
+            font-weight        :    600;
+            color              :    var(--primary-color);
+        }
+
+        .HEAD__version-note {
+            font-size          :    00.75rem;
+            color              :    var(--text-light);
+            font-weight        :    normal;
+            margin-left        :    00.50rem;
+        }
+
+        /* =============================================================================================
+           CSS | FULL PAGE APP CONTAINER
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .PAGE__container {
+            min-height        :    100vh;
+            display           :    flex;
+            flex-direction    :    column;
+            overflow-x        :    hidden;
+            background-color  :    white;  /* Change to white background */
+        }
+
+        .FULL__page-app-container {
+            width             :    100%;
+            max-width         :    100%;  /* Use full width */
+            margin            :    0 auto;
+            padding           :    0;
+            box-sizing        :    border-box;
+            flex              :    1;
+            display           :    flex;
+            flex-direction    :    column;
+            overflow-y        :    auto;
+            background-color  :    white;
+        }
+
+        /* =============================================================================================
+           CSS | MAIN CONTAINER
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .MAIN__container {
+            width            :    100%;
+            max-width        :    1000px;  /* Set a reasonable max-width for the form */
+            margin           :    1rem auto;
+            padding          :    0 1rem;
+            display          :    flex;
+            flex-direction   :    column;
+            gap              :    1.25rem;
+            box-sizing       :    border-box;
+        }
+
+        /* =============================================================================================
+           CSS | QUERY BLOCK
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .QURY__block {
+            background-color :    white;
+            border           :    01px solid var(--card-border);
+            border-radius    :    00.3125rem;
+            padding          :    1.25rem;
+            margin-bottom    :    1rem;
+            width            :    100%;
+            box-sizing       :    border-box;
+        }
+
+        .QURY__heading {
+            font-size        :    01.00rem;
+            font-weight      :    600;
+            color            :    var(--text-color);
+            margin-bottom    :    01.00rem;
+            padding-bottom   :    00.50rem;
+            border-bottom    :    01px solid var(--card-border);
+        }
+
+        /* =============================================================================================
+           CSS | FORM COMPONENTS
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .FORM__group {
+            margin-bottom     :    00.75rem;
+            width             :    100%;
+            box-sizing        :    border-box;
+        }
+
+        .FORM__label {
+            display           :    block;
+            margin-bottom     :    00.50rem;
+            font-weight       :    600;
+            font-size         :    00.875rem;
+            color             :    var(--text-color);
+        }
+
+        .FORM__select, .FORM__input {
+            width             :    100%;
+            padding           :    00.625rem 00.75rem;
+            border            :    01px solid var(--card-border);
+            border-radius     :    00.3125rem;
+            font-size         :    00.875rem;
+            background-color  :    white;
+            box-sizing        :    border-box;
+        }
+
+        .FORM__select:focus, .FORM__input:focus {
+            outline           :    none;
+            border-color      :    var(--secondary-color);
+            box-shadow        :    0 0 0 02px rgba(0, 102, 153, 0.2);
+        }
+
+        /* =============================================================================================
+           CSS | BUTTON COMPONENTS
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .BTTN__container {
+            display          :    flex;
+            flex-direction   :    row;
+            gap              :    00.50rem;
+            margin-top       :    01.00rem;
+            justify-content  :    space-between;
+        }
+        
+        .BTTN__standard {
+            background-color :    #757575;  /* More muted neutral gray */
+            color            :    white;
+            border           :    none;
+            padding          :    00.625rem 01.25rem;
+            border-radius    :    00.3125rem;
+            cursor           :    pointer;
+            font-size        :    00.875rem;
+            font-weight      :    600;
+            transition       :    background-color 0.2s, transform 0.1s;
+            letter-spacing   :    00.03125rem;
+            flex-grow        :    1;
+        }
+        
+        .BTTN__standard:hover {
+            background-color :    #5d5d5d;
+        }
+        
+        .BTTN__standard:active {
+            transform       :    translateY(01px);
+        }
+        
+        .BTTN__query {
+            background-color :    var(--secondary-color);
+            flex-basis      :    60%;
+        }
+        
+        .BTTN__query:hover {
+            background-color :    #005580;
+        }
+        
+        .BTTN__export {
+            background-color :    #3d8b40;  /* More muted green */
+            flex-basis      :    40%;
+        }
+        
+        .BTTN__export:hover {
+            background-color :    #2d6a30;
+        }
+        
+        .BTTN__cancel {
+            background-color :    #BA5050;  /* Standard cancel button background color */
+            color           :    #fdfdfd;  /* Standard cancel button text color */
+            border          :    none;
+            padding         :    00.625rem 01.25rem;
+            border-radius   :    00.3125rem;
+            cursor          :    pointer;
+            font-size       :    00.875rem;
+            font-weight     :    600;
+            transition      :    background-color 0.2s, transform 0.1s;
+            letter-spacing  :    00.03125rem;
+            flex-basis      :    40%;
+        }
+        
+        .BTTN__cancel:hover {
+            background-color :    #9E2D2D;  /* Standard cancel button hover background color */
+        }
+        
+        .BTTN__cancel:active {
+            transform       :    translateY(01px);
+        }
+
+        /* =============================================================================================
+           CSS | RESULTS BLOCK
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .RSLT__block {
+            background-color :    white;
+            border          :    01px solid var(--card-border);
+            border-radius   :    00.3125rem;
+            padding         :    1.25rem;
+            width           :    100%;
+            flex            :    1;
+            min-height      :    30vh;
+            display         :    flex;
+            flex-direction  :    column;
+            overflow        :    hidden;
+            box-sizing      :    border-box;
+        }
+
+        .RSLT__header {
+            display          :    flex;
+            justify-content  :    space-between;
+            align-items      :    center;
+            margin-bottom    :    00.75rem;
+            padding-bottom   :    00.50rem;
+            border-bottom    :    01px solid var(--card-border);
+        }
+
+        .RSLT__heading {
+            font-size        :    01.00rem;
+            font-weight      :    600;
+            color           :    var(--text-color);
+            margin          :    0;
+        }
+
+        .RSLT__count {
+            font-size        :    00.75rem;
+            color            :    var(--text-light);
+            font-weight      :    500;
+        }
+
+        .RSLT__loading, .RSLT__no-results {
+            text-align       :    center;
+            padding          :    01.875rem;
+            color            :    var(--text-light);
+            background-color :    #f9f9f9;
+            border-radius    :    00.3125rem;
+            font-style       :    italic;
+        }
+
+        /* =============================================================================================
+           CSS | URL LIST
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .URL__list {
+            list-style       :    none;
+            border           :    01px solid var(--card-border);
+            border-radius    :    00.3125rem;
+            overflow         :    hidden;
+            background-color :    white;
+            flex             :    1;
+            overflow-y       :    auto;
+            margin           :    0;
+            padding          :    0;
+        }
+
+        .URL__item {
+            padding          :    00.75rem;
+            border-bottom    :    01px solid var(--card-border);
+            display          :    flex;
+            align-items      :    center;
+            justify-content  :    space-between;
+        }
+
+        .URL__item:last-child {
+            border-bottom    :    none;
+        }
+
+        .URL__item:hover {
+            background-color :    #f5f5f5;
+        }
+
+        .URL__link {
+            color            :    var(--secondary-color);
+            word-break       :    break-all;
+            text-decoration  :    none;
+            flex-grow        :    1;
+            padding-right    :    00.625rem;
+            font-size        :    00.75rem;  /* Reduced by 25% from 1rem to 0.75rem */
+        }
+
+        .URL__link:hover {
+            text-decoration  :    underline;
+        }
+
+        .URL__copy-btn {
+            background-color :    #3d8b40;  /* Muted green to match export button */
+            color            :    white;
+            border           :    none;
+            padding          :    00.3125rem 00.625rem;
+            font-size        :    00.75rem;
+            border-radius    :    00.3125rem;
+            flex-shrink      :    0;
+            cursor           :    pointer;
+            transition       :    background-color 0.2s, color 0.2s;
+        }
+
+        .URL__copy-btn:hover {
+            background-color :    #2d6a30;
+        }
+
+        /* =============================================================================================
+           CSS | ERROR MESSAGE
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .ERRR__container {
+            color            :    var(--error-color);
+            padding          :    00.75rem 00.9375rem;
+            background-color :    #fde8e8;
+            border-radius    :    00.3125rem;
+            margin-bottom    :    01.25rem;
+            border-left      :    04px solid var(--error-color);
+        }
+
+        /* =============================================================================================
+           CSS | FOOTER
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        .FOOT__container {
+            padding         :    00.75rem;
+            text-align      :    center;
+            background-color:    white;
+            border-top     :    01px solid var(--card-border);
+            flex-shrink    :    0;
+            font-size      :    00.75rem;
+            color          :    var(--text-light);
+            width          :    100%;
+        }
+
+        /* =============================================================================================
+           CSS | RESPONSIVE DESIGN
+           - Introduced in v1.0.0
+           ============================================================================================= */
+        @media (max-width: 768px) {
+            .FULL__page-app-container {
+                max-width     :    100%;
+                margin        :    0;
+                border-radius :    0;
+                height        :    100vh;
+                box-shadow    :    none;
+            }
+
+            .MAIN__container {
+                padding       :    1rem;
+            }
+
+            .HEAD__nav {
+                padding-left  :    1rem;
+                padding-right :    1rem;
+            }
+
+            .QURY__block,
+            .RSLT__block {
+                border-radius: 00.3125rem;
+            }
+
+            .BTTN__container {
+                flex-direction: column;
+            }
+            
+            .BTTN__query,
+            .BTTN__cancel,
+            .BTTN__export {
+                width: 100%;
+                margin-bottom: 00.50rem;
+            }
+
+            .URL__item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .URL__link {
+                margin-bottom: 00.50rem;
+                padding-right: 0;
+            }
+
+            .URL__copy-btn {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="PAGE__container">
+        <header class="HEAD__container">
+            <nav class="HEAD__nav">
+                <span class="HEAD__title">Asset Library Query Tool</span>
+                <span class="HEAD__version-note">v1.0.0</span>
+            </nav>
+        </header>
+
+        <div class="FULL__page-app-container">
+            <div class="MAIN__container">
+                <!-- Query Section -->
+                <div class="QURY__block">
+                    <h2 class="QURY__heading">Asset Query</h2>
+                    
+                    <div class="FORM__group">
+                        <label for="library-type" class="FORM__label">Select Library Type:</label>
+                        <select id="library-type" class="FORM__select">
+                            <option value="">-- Select Library Type --</option>
+                            <option value="Common_Web_Assets_Libraries">Common Web Assets Libraries</option>
+                            <option value="Core-Source-Code-Library">Core Source Code Library</option>
+                            <option value="Core_Documentation_Files_Library">Core Documentation Files Library</option>
+                        </select>
+                    </div>
+                    
+                    <div class="FORM__group">
+                        <label for="asset-type" class="FORM__label">Filter by Asset Type (optional):</label>
+                        <select id="asset-type" class="FORM__select">
+                            <option value="">-- All Asset Types --</option>
+                            <option value="font">Font</option>
+                            <option value="icon">Icon</option>
+                            <option value="documentation">Documentation</option>
+                            <option value="source code">Source Code</option>
+                        </select>
+                    </div>
+                    
+                    <div class="FORM__group">
+                        <label for="search-term" class="FORM__label">Search by Name or Description (optional):</label>
+                        <input type="text" id="search-term" class="FORM__input" placeholder="Enter search term...">
+                    </div>
+                    
+                    <div class="BTTN__container">
+                        <button id="query-btn" class="BTTN__standard BTTN__query">Query Assets</button>
+                        <button id="reset-btn" class="BTTN__cancel">Reset Tool</button>
+                    </div>
+                </div>
+                
+                <div id="error-container" class="ERRR__container" style="display: none;"></div>
+                
+                <!-- Results Section -->
+                <div class="RSLT__block">
+                    <div class="RSLT__header">
+                        <h2 class="RSLT__heading">Results</h2>
+                        <div class="RSLT__count" id="results-count"></div>
+                    </div>
+                    
+                    <div id="loading" class="RSLT__loading" style="display: none;">Loading asset data...</div>
+                    
+                    <div id="no-results" class="RSLT__no-results" style="display: none;">
+                        No results found. Try adjusting your search criteria.
+                    </div>
+                    
+                    <div class="BTTN__container" style="margin-bottom: 00.75rem; display: none;" id="export-container">
+                        <button id="export-btn" class="BTTN__standard BTTN__export">Export URLs</button>
+                    </div>
+                    
+                    <ul id="url-list" class="URL__list"></ul>
+                </div>
+            </div>
+        </div>
+
+        <footer class="FOOT__container">
+            &copy; 2025 Noble Architecture
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const libraryTypeSelect = document.getElementById('library-type');
+            const assetTypeSelect = document.getElementById('asset-type');
+            const searchTermInput = document.getElementById('search-term');
+            const queryBtn = document.getElementById('query-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const urlList = document.getElementById('url-list');
+            const resultsCount = document.getElementById('results-count');
+            const noResults = document.getElementById('no-results');
+            const loading = document.getElementById('loading');
+            const errorContainer = document.getElementById('error-container');
+            const exportBtn = document.getElementById('export-btn');
+            const exportContainer = document.getElementById('export-container');
+            
+            // Asset Library Data
+            let assetLibraryData = null;
+            
+            // Fetch the asset library data
+            async function fetchAssetLibraryData() {
+                try {
+                    loading.style.display = 'block';
+                    errorContainer.style.display = 'none';
+                    
+                    const response = await fetch('../AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json');
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
+                    assetLibraryData = await response.json();
+                    return assetLibraryData;
+                } catch (error) {
+                    console.error('Error fetching asset library data:', error);
+                    errorContainer.textContent = `Error loading asset data: ${error.message}`;
+                    errorContainer.style.display = 'block';
+                    return null;
+                } finally {
+                    loading.style.display = 'none';
+                }
+            }
+            
+            // Reset the tool
+            function resetTool() {
+                // Clear form fields
+                libraryTypeSelect.value = '';
+                assetTypeSelect.value = '';
+                searchTermInput.value = '';
+                
+                // Clear results
+                urlList.innerHTML = '';
+                resultsCount.textContent = '';
+                
+                // Hide result elements
+                noResults.style.display = 'none';
+                exportContainer.style.display = 'none';
+                
+                // Clear any errors
+                errorContainer.style.display = 'none';
+            }
+            
+            // Query assets based on selected criteria
+            function queryAssets() {
+                if (!assetLibraryData) {
+                    errorContainer.textContent = 'Asset library data not loaded. Please try again.';
+                    errorContainer.style.display = 'block';
+                    return;
+                }
+                
+                const libraryType = libraryTypeSelect.value;
+                const assetType = assetTypeSelect.value.toLowerCase();
+                const searchTerm = searchTermInput.value.toLowerCase();
+                
+                if (!libraryType) {
+                    errorContainer.textContent = 'Please select a library type.';
+                    errorContainer.style.display = 'block';
+                    return;
+                }
+                
+                errorContainer.style.display = 'none';
+                let urls = [];
+                
+                // Get the selected library
+                const library = assetLibraryData[libraryType];
+                
+                if (!library) {
+                    errorContainer.textContent = 'Selected library not found.';
+                    errorContainer.style.display = 'block';
+                    return;
+                }
+                
+                // Process different library structures
+                if (libraryType === 'Common_Web_Assets_Libraries') {
+                    // Process each sub-library in Common Web Assets
+                    for (const subLibraryKey in library) {
+                        const subLibrary = library[subLibraryKey];
+                        
+                        // Check if the sub-library has assets
+                        if (subLibrary.assets) {
+                            for (const assetKey in subLibrary.assets) {
+                                const asset = subLibrary.assets[assetKey];
+                                if (matchesCriteria(asset, assetType, searchTerm)) {
+                                    urls.push({
+                                        url: asset["asset-web-url"] || '',
+                                        name: asset["asset-name"] || assetKey
+                                    });
+                                }
+                            }
+                        } else {
+                            // Handle case where assets are direct properties of the sub-library
+                            for (const assetKey in subLibrary) {
+                                if (assetKey !== 'library-dir-path' && 
+                                    assetKey !== 'library-web-url' && 
+                                    assetKey !== 'library-file-name' && 
+                                    assetKey !== 'library-id-code' && 
+                                    assetKey !== 'library-type' && 
+                                    assetKey !== 'library-category' && 
+                                    assetKey !== 'library-description' && 
+                                    assetKey !== 'library-usage' && 
+                                    assetKey !== 'library-added-by' && 
+                                    assetKey !== 'library-last-updated' && 
+                                    assetKey !== 'library-active-status' && 
+                                    assetKey !== 'assets') {
+                                    
+                                    const asset = subLibrary[assetKey];
+                                    if (typeof asset === 'object' && matchesCriteria(asset, assetType, searchTerm)) {
+                                        urls.push({
+                                            url: asset["asset-web-url"] || '',
+                                            name: asset["asset-name"] || assetKey
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Process Core Source Code Library and Core Documentation Files Library
+                    if (library.assets) {
+                        for (const assetKey in library.assets) {
+                            const asset = library.assets[assetKey];
+                            if (matchesCriteria(asset, assetType, searchTerm)) {
+                                urls.push({
+                                    url: asset["asset-web-url"] || '',
+                                    name: asset["asset-name"] || assetKey
+                                });
+                            }
+                        }
+                    }
+                }
+                
+                // Display results
+                displayUrls(urls);
+            }
+            
+            // Check if an asset matches the search criteria
+            function matchesCriteria(asset, assetType, searchTerm) {
+                if (!asset || typeof asset !== 'object') return false;
+                
+                // Check asset type filter
+                if (assetType && asset["asset-type"] && asset["asset-type"].toLowerCase() !== assetType) {
+                    return false;
+                }
+                
+                // Check search term
+                if (searchTerm) {
+                    const name = (asset["asset-name"] || '').toLowerCase();
+                    const description = (asset["asset-description"] || '').toLowerCase();
+                    const category = (asset["asset-category"] || '').toLowerCase();
+                    
+                    if (!name.includes(searchTerm) && 
+                        !description.includes(searchTerm) && 
+                        !category.includes(searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+            
+            // Display the URLs
+            function displayUrls(urls) {
+                urlList.innerHTML = '';
+                
+                if (urls.length === 0) {
+                    noResults.style.display = 'block';
+                    exportContainer.style.display = 'none';
+                    urlList.style.display = 'none';
+                    return;
+                }
+                
+                noResults.style.display = 'none';
+                urlList.style.display = 'block';
+                resultsCount.textContent = `${urls.length} URL(s) found`;
+                exportContainer.style.display = 'flex';
+                
+                // Sort URLs alphabetically
+                urls.sort((a, b) => a.url.localeCompare(b.url));
+                
+                urls.forEach(item => {
+                    if (!item.url) return;
+                    
+                    const li = document.createElement('li');
+                    li.className = 'URL__item';
+                    
+                    const link = document.createElement('a');
+                    link.href = item.url;
+                    link.target = '_blank';
+                    link.className = 'URL__link';
+                    link.textContent = item.url;
+                    link.title = item.name || '';
+                    
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'URL__copy-btn';
+                    copyBtn.textContent = 'Copy To Clipboard';
+                    copyBtn.addEventListener('click', function() {
+                        navigator.clipboard.writeText(item.url)
+                            .then(() => {
+                                copyBtn.textContent = 'Copied!';
+                                setTimeout(() => {
+                                    copyBtn.textContent = 'Copy To Clipboard';
+                                }, 2000);
+                            })
+                            .catch(err => {
+                                console.error('Failed to copy: ', err);
+                            });
+                    });
+                    
+                    li.appendChild(link);
+                    li.appendChild(copyBtn);
+                    
+                    urlList.appendChild(li);
+                });
+            }
+            
+            // Export URLs to clipboard
+            function exportUrls() {
+                const urls = Array.from(urlList.querySelectorAll('.URL__link'))
+                    .map(a => a.href);
+                
+                if (urls.length === 0) {
+                    return;
+                }
+                
+                const urlsText = urls.join('\n');
+                
+                navigator.clipboard.writeText(urlsText)
+                    .then(() => {
+                        exportBtn.textContent = 'URLs Copied!';
+                        setTimeout(() => {
+                            exportBtn.textContent = 'Export URLs';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy URLs: ', err);
+                    });
+            }
+            
+            // Event Listeners
+            queryBtn.addEventListener('click', queryAssets);
+            resetBtn.addEventListener('click', resetTool);
+            exportBtn.addEventListener('click', exportUrls);
+            
+            // Initialize by loading the asset library data
+            fetchAssetLibraryData();
+        });
+    </script>
+</body>
+</html> 

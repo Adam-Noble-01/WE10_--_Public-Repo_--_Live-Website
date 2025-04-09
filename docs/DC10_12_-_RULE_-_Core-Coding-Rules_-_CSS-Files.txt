@@ -251,6 +251,38 @@ DESCRIPTION
 }
 ```
 
+### Query Action Buttons
+- Used for primary actions in tools and applications
+- Blue color to indicate data processing or query actions
+- Stands out as the main action button when paired with other buttons
+- Indicates to users this is the primary task action button
+
+#### Query Button Colors
+```css
+:root {
+    --button-query-bg         :    #006699;           /*   <-- Query button background color */
+    --button-query-text       :    #fdfdfd;           /*   <-- Query button text color */
+    --button-query-hover-bg   :    #005580;           /*   <-- Query button hover background color */
+    --button-query-hover-text :    #fdfdfd;           /*   <-- Query button hover text color */
+}
+```
+
+### Export Action Buttons
+- Used for export, save or confirmation actions in tools and applications
+- Green color to indicate a positive outcome or data export
+- Provides clear visual differentiation from standard and cancel buttons
+- Helps users easily identify exporting or saving functionality
+
+#### Export Button Colors
+```css
+:root {
+    --button-export-bg         :    #3d8b40;        /*   <-- Export button background color */
+    --button-export-text       :    #fdfdfd;        /*   <-- Export button text color */
+    --button-export-hover-bg   :    #2d6a30;        /*   <-- Export button hover background color */
+    --button-export-hover-text :    #fdfdfd;        /*   <-- Export button hover text color */
+}
+```
+
 ### Cancel Action Buttons
 - Used mainly on app & tool UIs
 - Colored red to stand out against standard button colors
@@ -261,10 +293,10 @@ DESCRIPTION
 #### Cancel Button Colors
 ```css
 :root {
-    --button-cancel-bg         :    #BA5050;           /*   <-- Cancel button background color */
-    --button-cancel-text       :    #fdfdfd;           /*   <-- Cancel button text color */
-    --button-cancel-hover-bg   :    #9E2D2D;     /*   <-- Cancel button hover background color */
-    --button-cancel-hover-text :    #fdfdfd;     /*   <-- Cancel button hover text color */
+    --button-cancel-bg         :    #BA5050;        /*   <-- Cancel button background color */
+    --button-cancel-text       :    #fdfdfd;        /*   <-- Cancel button text color */
+    --button-cancel-hover-bg   :    #9E2D2D;        /*   <-- Cancel button hover background color */
+    --button-cancel-hover-text :    #fdfdfd;        /*   <-- Cancel button hover text color */
 }
 ```
 
@@ -279,13 +311,13 @@ DESCRIPTION
 ```css
 .BTTN__standard {
     display             :    inline-block;
-    padding             :    0.75rem 1.5rem;
+    padding             :    00.75rem 01.50rem;
     background-color    :    var(--button-bg);
     color               :    var(--button-text);
     text-decoration     :    none;
-    border-radius       :    4px;
+    border-radius       :    00.25rem;
     transition          :    all 0.3s ease;
-    font-size           :    0.80rem;
+    font-size           :    00.80rem;
     text-align          :    center;
     border              :    none;
     cursor              :    pointer;
@@ -295,8 +327,38 @@ DESCRIPTION
 .BTTN__standard:hover {
     background-color    :    var(--button-hover-bg);
     color               :    var(--button-hover-text);
-    transform           :    translateY(-2px);
-    box-shadow          :    0 4px 8px rgba(0,0,0,0.1);
+    transform           :    translateY(-02px);
+    box-shadow          :    0 04px 08px rgba(0,0,0,0.1);
+}
+
+.BTTN__query {
+    background-color    :    var(--button-query-bg);
+    color               :    var(--button-query-text);
+}
+
+.BTTN__query:hover {
+    background-color    :    var(--button-query-hover-bg);
+    color               :    var(--button-query-hover-text);
+}
+
+.BTTN__export {
+    background-color    :    var(--button-export-bg);
+    color               :    var(--button-export-text);
+}
+
+.BTTN__export:hover {
+    background-color    :    var(--button-export-hover-bg);
+    color               :    var(--button-export-hover-text);
+}
+
+.BTTN__cancel {
+    background-color    :    var(--button-cancel-bg);
+    color               :    var(--button-cancel-text);
+}
+
+.BTTN__cancel:hover {
+    background-color    :    var(--button-cancel-hover-bg);
+    color               :    var(--button-cancel-hover-text);
 }
 ```
 
