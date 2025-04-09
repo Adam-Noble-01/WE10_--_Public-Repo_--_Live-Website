@@ -1,0 +1,52 @@
+
+{
+    "siteStructure": [
+      {
+        "pageId"            :  "WEB-PAGE-01",
+        "pageTitle"         :  "Home",
+        "pageLoadNo"        :  1,
+        "pageDescription"   :  "main landing page with featured projects",
+        "pageKeywords"      :  "architecture, projects, portfolio",
+        "pagePath"          :  "index.html",
+        "pageBotVisible"    :  false,
+        "pageStatus"        :  "live",
+        "pageDevLogs": [
+          {
+            "logVersion"    :  "1.0.0",
+            "logTitle"      :  "initial commit",
+            "logDate"       :  "04-Apr-2025",
+            "logNotes"      :  "Website setup and published to GitHub Pages"
+          },
+          {
+            "logVersion"    :  "1.0.0",
+            "logTitle"      :  "initial commit",
+            "logDate"       :  "04-Apr-2025",
+            "logNotes"      :  "Website setup and published to GitHub Pages"
+          }
+        ]
+      },
+      {
+        "pageId"            :  "WEB-PAGE-02",
+          }
+        ]
+      }
+    ],
+    "projects": {
+      "description"         :  "gallery of architectural projects",
+      "content"             :  "individual project pages with details and interactive web apps"
+    },
+    "internalTools": {
+      "unlistedPages": [
+        "app cost calculator",
+        "material database",
+        "timeline generator",
+        "document templates",
+        "coding templates"
+      ],
+      "description"         :  "private section with utilities for the team (not publicly accessible)",
+      "sections": [
+        "client-portal"
+      ]
+    }
+  }
+  

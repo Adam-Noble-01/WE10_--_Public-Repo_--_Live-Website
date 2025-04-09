@@ -1,4 +1,156 @@
 {
+    "site-config":{
+        "site-name"            :  "Noble Architecture",
+        "site-version"         :  "1.0.1",
+        "site-author"          :  "Adam Noble",
+        "site-email"           :  "info@noble-architecture.com",
+        "site-phone"           :  "NIL",
+        "site-address"         :  "NIL",
+        "site-language"        :  "en-GB",
+        "site-currency"        :  "GBP",
+        "site-timezone"        :  "Europe/London",
+        "site-developer-mode":{
+            "site-dev-tools-mode"        :  false,
+            "site-dev-maintenance-mode"  :  false,
+            "site-dev-enable-caching"    :  true,
+            "site-dev-last-deployment"   :  "PLACEHOLDER",
+            "site-dev-dev-environment"   :  "production",
+            "site-dev-api-keys":{
+                    "mapbox"             :  "{{THIS_IS_A_PLACEHOLDER}}",
+                    "form-submission"    :  "{{THIS_IS_A_PLACEHOLDER}}"
+            }
+        },
+        "third-party-services"  :  {
+            "third-party-fonts-notes" : "ONLY USE GOOGLE FONTS FOR FALLBACKS! Otherwise use main Noble Architecture website to serve fonts",
+            "fonts"                   :  "Google Fonts",
+            "cdn"                     :  "PLACEHOLDER",
+            "forms"                   :  "PLACEHOLDER"
+        }
+    }
+}
+
+
+
+{
+  "file_metadata": {
+      "file-name"         :  "SN40_31_--_PlanVision_-_Asset-Link-Library.json",
+      "file-CDN-URL"      :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/refs/heads/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_31_--_PlanVision_-_Asset-Link-Library.json",
+      "file-author"       :  "Adam Noble",
+      "file-description"  :  "This JSON file serves as a centralised assets repository reference for the Architecture Drawing Application. It organises all essential app resources into clearly defined categories. Each asset is identified by a unique key with the value pointing to a GitHub repository URL or public CDN URL. This structure simplifies asset management, enhances maintainability, and streamlines referencing within the application codebase."
+  },
+  "file_revisions": [
+      {
+          "version": "0.1.0",
+          "last-updated": "25-Mar-2025",
+          "changes": [
+              "Initial release with structured asset categories.",
+              "Defined unique keys for all assets.",
+              "Integrated references to GitHub/CDN URLs."
+          ]
+      }
+  ],
+  "core-commmon_assets": {
+      "images_png": {
+          "na-brand-logo": {
+              "dir_path": "/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_41_-_PNG_-_Profile-Logo_-_h2000px.png",
+              "web_url": "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_41_-_PNG_-_Profile-Logo_-_h2000px.png"
+          },
+          "icon_toolbar": {
+              "dir_path": "/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_ICON_-_Toolbar-Icon.png",
+              "web_url": "https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_ICON_-_Toolbar-Icon.png"
+          },
+          "placeholder_drawing-a1-format": {
+              "dir_path": "/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/NA01_01_-_PLACE_-_Drawing-A1-Format.png",
+              "web_url": "https://www.noble-architecture.com/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/NA01_01_-_PLACE_-_Drawing-A1-Format.png"
+          },
+          "placeholder_drawing-a2-format": {
+              "dir_path": "/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/NA01_02_-_PLACE_-_Drawing-A2-Format.png",
+              "web_url": "https://www.noble-architecture.com/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/NA01_02_-_PLACE_-_Drawing-A2-Format.png"
+          }
+      },
+      "core-commmon_fonts": {
+          "fonts-open-sans": {
+              "open-sans-regular": {
+                  "dir_path": "/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_01_-_Standard-Font_-_Open-Sans-Regular.ttf",
+                  "web_url": "https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_01_-_Standard-Font_-_Open-Sans-Regular.ttf"
+              },
+              "open-sans-semi-bold": {
+                  "dir_path": "/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf",
+                  "web_url": "https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf"
+              },
+              "open-sans-light": {
+                  "dir_path": "/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf",
+                  "web_url": "https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf"
+              }
+          },
+          "fonts-caveat": {
+              "caveat-regular": {
+                  "dir_path": "/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_21_-_Handwritten-Font_-_Caveat-Regular.ttf",
+                  "web_url": "https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_21_-_Handwritten-Font_-_Caveat-Regular.ttf"
+              },
+              "caveat-semi-bold": {
+                  "dir_path": "/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_22_-_Handwritten-Font_-_Caveat-SemiBold.ttf",
+                  "web_url": "https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_22_-_Handwritten-Font_-_Caveat-SemiBold.ttf"
+              }
+          }
+      },
+      "core-commmon_snippets": {
+          "drawing_canvas": {
+              "dir_path": "/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/drawing_canvas.js",
+              "web_url": "https://www.noble-architecture.com/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/drawing_canvas.js"
+          },
+          "measurement_tool": {
+              "dir_path": "/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/measurement_tool.js",
+              "web_url": "https://www.noble-architecture.com/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/measurement_tool.js"
+          },
+          "annotation_handler": {
+              "dir_path": "/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/annotation_handler.js",
+              "web_url": "https://www.noble-architecture.com/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/annotation_handler.js"
+          }
+      },  
+      "core-commmon_components": {  
+          "toolbar_component": {
+              "dir_path": "/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/toolbar_component.js",
+              "web_url": "https://www.noble-architecture.com/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/toolbar_component.js"
+          },
+          "sidebar_component": {
+              "dir_path": "/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/sidebar_component.js",
+              "web_url": "https://www.noble-architecture.com/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/sidebar_component.js"
+          },
+          "footer_component": {
+              "dir_path": "/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/footer_component.js",
+              "web_url": "https://www.noble-architecture.com/assets/NA01_-_DATA_-_NA-Site_-_Project-Data/footer_component.js"
+          }
+      },  
+      "core-commmon_stylesheets": {  
+          "main_styles": {
+              "dir_path": "/assets/NA03_-_STYL_-_NA-Site_-_StyleSheets/main_styles.css",
+              "web_url": "https://www.noble-architecture.com/assets/NA03_-_STYL_-_NA-Site_-_StyleSheets/main_styles.css"
+          },
+          "toolbar_styles": {
+              "dir_path": "/assets/NA03_-_STYL_-_NA-Site_-_StyleSheets/toolbar_styles.css",
+              "web_url": "https://www.noble-architecture.com/assets/NA03_-_STYL_-_NA-Site_-_StyleSheets/toolbar_styles.css"
+          },
+          "annotation_styles": {
+              "dir_path": "/assets/NA03_-_STYL_-_NA-Site_-_StyleSheets/annotation_styles.css",
+              "web_url": "https://www.noble-architecture.com/assets/NA03_-_STYL_-_NA-Site_-_StyleSheets/annotation_styles.css"
+          }
+      },
+      "core-commmon_javascript_libraries": {
+          "fabric_js": {
+              "dir_path": "/src/NA01_-_DATA_-_NA-Site_-_Project-Data/fabric_js.js",
+              "web_url": "https://www.noble-architecture.com/src/NA01_-_DATA_-_NA-Site_-_Project-Data/fabric_js.js"
+          },
+          "chart_js": {
+              "dir_path": "/src/NA01_-_DATA_-_NA-Site_-_Project-Data/chart_js.js",
+              "web_url": "https://www.noble-architecture.com/src/NA01_-_DATA_-_NA-Site_-_Project-Data/chart_js.js"
+          }
+      }
+  }
+}
+
+
+{
   "siteStructure": [
     {
       "pageId"            :  "WEB-PAGE-01",

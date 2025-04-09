@@ -87,7 +87,7 @@ AD04_05_-_Standard-Font_-_Open-Sans-Bold.ttf
 - These fonts are served by the website.
 - Noble Architecture uses `Caveat` as the brands handwritten font style.
 
-```example_handwrittenfont_file_names
+```example_handwritten-font_file_names
 AD04_21_-_Handwritten-Font_-_Caveat-Regular.ttf
 AD04_22_-_Handwritten-Font_-_Caveat-SemiBold.ttf
 AD04_23_-_Handwritten-Font_-_Caveat-Light.ttf
@@ -103,11 +103,20 @@ AD04_25_-_Handwritten-Font_-_Caveat-Bold.ttf
 - The first two letter and two number section at the very beginning of the filename.
 - This section is used to identify the main group the file belongs to.
 
+#### High Level File Group Codes
 `DC##`  =  Project Specific Documentation such as this file.
 `AD##`  =  Common Asset Directory; containing images, fonts, icons, etc.
 `NA##`  =  Noble Architecture Directory; containing company specific files.
 `NB##`  =  NobleAudio Directory; containing NobleAudio specific files.
 `SN##`  =  'Studio NoodlFjørd' (Programming Studio Name) Directory; containing programming files.
+
+#### Script File Type Codes
+`JS##`  =  JavaScript File
+`CS##`  =  CSS Style Sheet File
+`HT##`  =  HTML Document File
+`JN##`  =  JSON Data File
+
+
 
 
 

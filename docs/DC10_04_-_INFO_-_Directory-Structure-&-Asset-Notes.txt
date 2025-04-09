@@ -31,24 +31,114 @@ This document establishes the directory structure for the Noble Architecture web
 - This structure applies to all project files
 - Following this structure ensures proper file organization
 
---------------------------------------------------------------------------------
 
-## DIRECTORY STRUCTURE
+### MAIN DIRECTORY STRUCTURE OUTLINE
+--------------------------------------------------------------------------------
+- Structure truncated for brevity.
+- Truncated at the first child directory level.
+- Always refer to the full Json file for a complete list of all files and directories.
+    `AD01_01_-_DATA_-_Core-Global-Web-Asset-Data-&-Config.json`
+- Below is for quick reference only and is not a complete list of all files and directories.
+--------------------------------------------------------------------------------
+/ROOT
+├── assets/
+│   ├── AD01_-_DATA_-_Coomon_-_Global-Data-Library/
+│   ├── AD02_-_STYL_-_Common_-_StyleSheets/
+│   ├── AD03_-_LIBR_-_Common_-_Libraries/
+│   ├── AD04_-_LIBR_-_Common_-_Font-Files/
+│   ├── AD05_-_LIBR_-_Common_-_Icons-and-favicons/ 
+│   ├── NA01_-_DATA_-_NA-Site_-_Project-Data/
+│   └── NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets
+|
+├── docs/
+│   └── Documentation files are stored at this level.
+|
+└── src/
+    ├── Core-JavaScript-Library/
+        └── JS00_-_UTIL_-_Web-Page_-_Static-Page-Utility-Scripts/
+        └── JS01_-_UTIL_-_Web-App_-_Page-Utility-Scripts/
+        └── JS02_-_UTIL_-_Web-App_-_Client-Application-Utility-Scripts/
+        └── JS03_-_UTIL_-_Web-App_-_Server-Application-Utility-Scripts/
+        └── JS04_-_UTIL_-_Web-App_-_Third-Party-Libraries/
+        └── JS05_-_UTIL_-_Web-App_-_File-Loading-&-Processing-Scripts/
+        └── JS06_-_UTIL_-_Web-App_-_Json-&-Data-Loading-Parsing-&-Processing/
+        └── JS07_-_UTIL_-_Web-App_-_State-&-Data-Management-Scripts/
+        └── JS08_-_UTIL_-_Web-App_-_UI-&-DOM-Interaction-Scripts/
+        └── JS09_-_UTIL_-_Web-App_-_API-&-Data-Integration-Scripts/
+        └── JS10_-_FUNC_-_User-Interface-&-DOM-Interaction-Functions/
+            └── JS10_01_-_FUNC_-_UI-Modal-Dialog-Functions.js
+            └── JS10_02_-_FUNC_-_Form-Validation-UI-Functions.js
+            └── JS10_03_-_FUNC_-_Dropdown-Menu-Functions.js
+            └── JS10_04_-_FUNC_-_Accordion-Panel-Functions.js
+            └── JS10_05_-_FUNC_-_Tab-Interface-Functions.js
+            └── JS10_06_-_FUNC_-_Tooltip-Display-Functions.js
+            └── JS10_07_-_FUNC_-_Notification-Banner-Functions.js
+            └── JS10_08_-_FUNC_-_Image-Gallery-UI-Functions.js
+            └── JS10_09_-_FUNC_-_Pagination-Control-Functions.js
+            └── JS10_10_-_FUNC_-_Drag-and-Drop-Interface-Functions.js
+        └── JS11_-_UTIL_-_Web-App_-_Common-User-InterfaceScripts/
+        └── JS12_-_UTIL_-_Web-App_-_DOM-Interaction-Scripts/
+        └── JS14_-_UTIL_-_Web-App_-_User-Interaction-Event-Handling-Scripts/
+        └── JS20_-_FUNC_-_Rendering-&-Canvas-Specific-Functions/
+            └── JS20_01_-_FUNC_-_Canvas-Drawing-Primitives.js
+            └── JS20_02_-_FUNC_-_2D-Shape-Rendering-Functions.js
+            └── JS20_03_-_FUNC_-_WebGL-Shader-Management.js
+            └── JS20_04_-_FUNC_-_3D-Model-Rendering-Functions.js
+            └── JS20_05_-_FUNC_-_Texture-Mapping-Functions.js
+            └── JS20_06_-_FUNC_-_Lighting-and-Shading-Functions.js
+            └── JS20_07_-_FUNC_-_Camera-and-Viewport-Functions.js
+            └── JS20_08_-_FUNC_-_Scene-Graph-Management.js
+            └── JS20_09_-_FUNC_-_Particle-System-Functions.js
+            └── JS20_10_-_FUNC_-_Post-Processing-Effects.js
+        └── JS21_-_UTIL_-_Web-App_-_Rendering-Loop-Scripts/
+        └── JS22_-_UTIL_-_Web-App_-_Canvas-Setup-Scripts/
+        └── JS23_-_UTIL_-_Web-App_-_Animation-&-Transition-Scripts/
+        └── JS30_-_UTIL_-_Web-App_-_Security-&-Privacy-Scripts/
+        └── JS40_-_UTIL_-_Web-App_-_Error-Handling-&-Debugging-Scripts/
+        └── JS41_-_UTIL_-_Web-App_-_Performance-Optimisation-Scripts/
+        └── JS50_-_FUNC_-_Global-Utility-Functions/
+            ├── JS50_01_-_FUNC_-_String-Manipulation-Functions.js
+            ├── JS50_02_-_FUNC_-_Array-Processing-Functions.js
+            ├── JS50_03_-_FUNC_-_Object-Manipulation-Functions.js
+            ├── JS50_04_-_FUNC_-_Date-Time-Formatting-Functions.js
+            ├── JS50_05_-_FUNC_-_Number-Formatting-Functions.js
+            ├── JS50_06_-_FUNC_-_Form-Validation-Functions.js
+            ├── JS50_07_-_FUNC_-_URL-Parsing-Functions.js
+            ├── JS50_08_-_FUNC_-_Cookie-Management-Functions.js
+            ├── JS50_09_-_FUNC_-_Local-Storage-Functions.js
+            ├── JS50_10_-_FUNC_-_DOM-Manipulation-Functions.js
+            ├── JS50_11_-_FUNC_-_Async-Helper-Functions.js
+            ├── JS50_12_-_FUNC_-_Debounce-Throttle-Functions.js
+            ├── JS50_13_-_FUNC_-_Math-Calculation-Functions.js
+            ├── JS50_14_-_FUNC_-_Colour-Manipulation-Functions.js
+            ├── JS50_15_-_FUNC_-_Device-Detection-Functions.js
+            ├── JS50_16_-_FUNC_-_Browser-Feature-Detection-Functions.js
+            ├── JS50_17_-_FUNC_-_Error-Handling-Functions.js
+            ├── JS50_18_-_FUNC_-_Logging-Functions.js
+            ├── JS50_19_-_FUNC_-_Data-Conversion-Functions.js
+            └── JS50_20_-_FUNC_-_Performance-Measurement-Functions.js
+        └── JS51_-_FUNC_-_Global-Math-Functions/
+            ├── JS51_01_-_FUNC_-_Basic-Arithmetic-Functions.js
+            ├── JS51_02_-_FUNC_-_Trigonometric-Functions.js
+            ├── JS51_03_-_FUNC_-_Vector-Calculation-Functions.js
+            ├── JS51_04_-_FUNC_-_Matrix-Operation-Functions.js
+            ├── JS51_05_-_FUNC_-_Geometry-Calculation-Functions.js
+            ├── JS51_06_-_FUNC_-_Statistical-Functions.js
+            ├── JS51_07_-_FUNC_-_Unit-Conversion-Functions.js
+            ├── JS51_08_-_FUNC_-_Interpolation-Functions.js
+            ├── JS51_09_-_FUNC_-_Random-Number-Generation-Functions.js
+            ├── JS51_10_-_FUNC_-_Coordinate-System-Transformation-Functions.js
+            └── JS51_11_-_FUNC_-_Advanced-Mathematical-Utility-Functions.js
+    |
+    └── Core-Python-Library/
+
+
 
 ### ROOT DIRECTORY
 --------------------------------------------------------------------------------
-/
-├── assets/
-│   ├── AD00_-_DOCS_-_Master-Reference-Documentation/
-│   ├── AD10_-_DOCS_-_Project-Documentation/
-│   ├── AD20_-_IMGS_-_Images/
-│   ├── AD30_-_FONT_-_Fonts/
-│   └── AD40_-_ICON_-_Icons/
-├── src/
-│   ├── js/
-│   ├── css/
-│   └── html/
-└── dist/
+- For a complete list of all files and directories
+- please refer to the complete list of website assets refer to the following file:
+    `AD01_01_-_DATA_-_Core-Global-Web-Asset-Data-&-Config.json`
 
 
 
@@ -85,17 +175,7 @@ https://www.noble-architecture.com/sn-apps/text-to-reader-app/text-to-reader-app
 www.noble-architecture.com/assets/AD01_-_STYL_-_Common_-_StyleSheets/AD01_10_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css
 ```
 
-###### Project Documentation Index
 
-```project_documentation_directory_link_index
-- - - - -   MAIN MARKDOWN RENDERER FOR VSCODE STYLE   - - - - - 
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
-https://www.noble-architecture.com/assets/AD00_-_DOCS_-_Master-Reference-Documentation/AD10_04_-_RULE_-_Core-Json-Data-Code-Conventions.txt
-```
-
----
 
 ###### Web Application Directory Sitemap
 
@@ -116,7 +196,7 @@ assets-dev      =  Pages / Applications currently under active development and n
 
 ```web_application_directory_sitemap
 assets		    =  Assets related to only the main site & not apps; Github requires this folder
-assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies usually preferred for long term archiving
+assets-archive  =  Deprecate Assets no longer in use but sidelined; local copies usually preferred for long term archiving
 ```
 
 

@@ -1,0 +1,57 @@
+{
+    "file_metadata": {
+        "file-name"         :  "SN40_31_--_PlanVision_-_Asset-Link-Library.json",
+        "file-CDN-URL"      :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/refs/heads/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_31_--_PlanVision_-_Asset-Link-Library.json",
+        "file-author"       :  "Adam Noble",
+        "file-description"  :  "This JSON file serves as a centralised assets repository reference for the Architecture Drawing Application. It organises all essential app resources into clearly defined categories. Each asset is identified by a unique key with the value pointing to a GitHub repository URL or public CDN URL. This structure simplifies asset management, enhances maintainability, and streamlines referencing within the application codebase."
+    },
+    "file_revisions": [
+        {
+            "version": "0.1.0",
+            "last-updated": "25-Mar-2025",
+            "changes": [
+                "Initial release with structured asset categories.",
+                "Defined unique keys for all assets.",
+                "Integrated references to GitHub/CDN URLs."
+            ]
+        }
+    ],
+    "na_assets": {
+        "images_png": {
+            "na-brand-logo"                  :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_01_-_FILES_-_Noble-Architecture_-_Core-Brand-Image-Assets/RE20_22_01_01_-_PNG_-_NA_Company_Logo.png",
+            "icon_toolbar"                   :  "https://cdn.example.com/assets/icons/toolbar-icon.png",
+            "placeholder_drawing-a1-format"  :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_04_-_FILES_-_Noble-Architecture_-_Placeholder-Files/RE20_22_04_01-_Placeholder-Drawing_-_A1-Format.png",
+            "placeholder_drawing-a2-format"  :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_04_-_FILES_-_Noble-Architecture_-_Placeholder-Files/RE20_22_04_02-_Placeholder-Drawing_-_A2-Format.png"
+        },
+        "na_fonts": {
+            "fonts-open-sans": {
+                "open-sans-regular"    :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_03_-_FILES_-_Noble-Architecture_-_Fronts-and-type-files/01_-_Main-Typeface_-_Open-Sans-Regular/OpenSans-Regular.ttf",
+                "open-sans-semi-bold"  :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_03_-_FILES_-_Noble-Architecture_-_Fronts-and-type-files/02_-_Main-Typeface_-_Open-Sans-Semi-Bold/OpenSans-SemiBold.ttf",
+                "open-sans-light"      :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_03_-_FILES_-_Noble-Architecture_-_Fronts-and-type-files/03_-_Main-Typeface_-_Open-Sans-Light/OpenSans-Light.ttf"
+                },
+            "fonts-caveat": {
+                "caveat-regular"       :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_03_-_FILES_-_Noble-Architecture_-_Fronts-and-type-files/21_-_Handwritten_-_Caveat-Regular/Caveat-Regular.ttf",
+                "caveat-semi-bold"     :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_03_-_FILES_-_Noble-Architecture_-_Fronts-and-type-files/23_-_Handwritten_-_Caveat-Semi-Bold/Caveat-SemiBold.ttf"
+                }
+        },
+        "na_code_snippets": {
+            "drawing_canvas"       :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE",
+            "measurement_tool"     :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE",
+            "annotation_handler"   :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE"
+        },  
+        "na_html_components": {  
+            "toolbar_component"    :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE",
+            "sidebar_component"    :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE",
+            "footer_component"     :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE"
+        },  
+        "na_css_stylesheets": {  
+            "main_styles"          :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE",
+            "toolbar_styles"       :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE",
+            "annotation_styles"    :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HEREs"
+        },
+        "na_javascript_libraries": {
+            "fabric_js"            :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE",
+            "chart_js"             :  "PLACEHOLDER_-_ADD_ACTUAL_URL_IN_FUTURE_HERE"
+        }
+    }
+}
