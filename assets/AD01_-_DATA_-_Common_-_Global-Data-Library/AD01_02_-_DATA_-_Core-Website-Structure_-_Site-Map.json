@@ -1,52 +1,84 @@
-
 {
-    "siteStructure": [
-      {
-        "pageId"            :  "WEB-PAGE-01",
-        "pageTitle"         :  "Home",
-        "pageLoadNo"        :  1,
-        "pageDescription"   :  "main landing page with featured projects",
-        "pageKeywords"      :  "architecture, projects, portfolio",
-        "pagePath"          :  "index.html",
-        "pageBotVisible"    :  false,
-        "pageStatus"        :  "live",
-        "pageDevLogs": [
-          {
-            "logVersion"    :  "1.0.0",
-            "logTitle"      :  "initial commit",
-            "logDate"       :  "04-Apr-2025",
-            "logNotes"      :  "Website setup and published to GitHub Pages"
-          },
-          {
-            "logVersion"    :  "1.0.0",
-            "logTitle"      :  "initial commit",
-            "logDate"       :  "04-Apr-2025",
-            "logNotes"      :  "Website setup and published to GitHub Pages"
-          }
+    "File_Metadata": {
+        "file-name"            :  "AD01_02_-_DATA_-_Core-Website-Structure_-_Site-Map.json",
+        "file-dir-path"        :  "/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_02_-_DATA_-_Core-Website-Structure_-_Site-Map.json",
+        "file-web-url"         :  "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_02_-_DATA_-_Core-Website-Structure_-_Site-Map.json",
+        "file-type"            :  "json",
+        "file-category"        :  "Site Map Data",
+        "file-purpose"         :  "Core Website Site Map Data",
+        "file-author"          :  "Adam Noble",
+        "file-description"     :  {
+            "file-description-heading"  :  "This file contains the core configuration data for the website.",
+            "file-description-text"     :  [
+                "- Identifies each standardised value for the website",
+                "- Provides a centralised reference for all global website settings"
+            ]
+        },
+        "file-version-history-log": [
+            {
+                "version"        :  "0.0.9",
+                "log-date"       :  "09-Apr-2025",
+                "log-title"      :  "Initial Creation",
+                "log-changes"    :  [
+                    "- Initial creation of the site map",
+                    "- Defines the structure of the website",
+                    "- Identifies each page and its purpose"
+                ]
+            }
         ]
-      },
-      {
-        "pageId"            :  "WEB-PAGE-02",
-          }
-        ]
-      }
-    ],
-    "projects": {
-      "description"         :  "gallery of architectural projects",
-      "content"             :  "individual project pages with details and interactive web apps"
     },
-    "internalTools": {
-      "unlistedPages": [
-        "app cost calculator",
-        "material database",
-        "timeline generator",
-        "document templates",
-        "coding templates"
-      ],
-      "description"         :  "private section with utilities for the team (not publicly accessible)",
-      "sections": [
-        "client-portal"
-      ]
+    "site-structure": [
+        {
+            "page-id"            :  "WEB-PAGE-01",
+            "page-title"         :  "Home",
+            "page-load-no"       :  1,
+            "page-description"   :  "main landing page with featured projects",
+            "page-keywords"      :  "architecture, projects, portfolio",
+            "page-path"          :  "index.html",
+            "page-bot-visible"   :  false,
+            "page-status"        :  "live",
+            "page-dev-logs"      :  [
+                {
+                    "log-version"    :  "1.0.0",
+                    "log-title"      :  "initial commit",
+                    "log-date"       :  "04-Apr-2025",
+                    "log-notes"      :  "Website setup and published to GitHub Pages"
+                }
+            ]
+        },
+        {
+            "page-id"            :  "WEB-PAGE-02",
+            "page-title"         :  "Placeholder",
+            "page-load-no"       :  2,
+            "page-description"   :  "Placeholder",
+            "page-keywords"      :  "Placeholder",
+            "page-path"          :  "placeholder.html",
+            "page-bot-visible"   :  false,
+            "page-status"        :  "live"
+        },
+        {
+            "page-id"            :  "WEB-PAGE-03",
+            "page-title"         :  "Placeholder",
+            "page-load-no"       :  3,
+            "page-description"   :  "Placeholder",
+            "page-keywords"      :  "Placeholder",
+            "page-path"          :  "placeholder.html",
+            "page-bot-visible"   :  false,
+            "page-status"        :  "live"
+        }
+    ],
+    "internal-tools": {
+        "unlisted-pages"        :  [
+            "app cost calculator",
+            "material database",
+            "timeline generator",
+            "document templates",
+            "coding templates"
+        ],
+        "description"          :  "private section with utilities for the team (not publicly accessible)",
+        "sections"             :  [
+            "client-portal"
+        ]
     }
-  }
+}
   

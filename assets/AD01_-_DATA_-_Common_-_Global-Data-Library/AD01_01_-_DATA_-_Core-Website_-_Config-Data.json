@@ -1,24 +1,23 @@
 {
     "File_Metadata": {
-        "file-name"         :  "AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
-        "file-dir-path"     :  "/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
-        "file-web-url"      :  "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
-        "file-type"         :  "json",
-        "file-category"     :  "Configuration Files",
-        "file-purpose"      :  "Core Website Configuration Data",
-        "file-author"       :  "Adam Noble",
-        "file-description"  :  {
-            "file-description-heading": 
-            "This file contains the core configuration data for the website.",
-            "file-description-text": [
+        "file-name"            :  "AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
+        "file-dir-path"        :  "/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
+        "file-web-url"         :  "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
+        "file-type"            :  "json",
+        "file-category"        :  "Configuration Files",
+        "file-purpose"         :  "Core Website Configuration Data",
+        "file-author"          :  "Adam Noble",
+        "file-description"     :  {
+            "file-description-heading"  :  "This file contains the core configuration data for the website.",
+            "file-description-text"     :  [
                 "- Identifies each standardised value for the website",
                 "- Provides a centralised reference for all global website settings"
             ]
         }
     },
-    "File_Version_History_Log": [
+    "file-version-history-log": [
         {
-            "version"         :  "1.0.3",
+            "version"         :  "1.0.4",
             "log-date"        :  "TBD",
             "log-title"       :  "Placeholder for future update",
             "log-changes"     :  [
@@ -26,28 +25,32 @@
             ]
         },
         {
-            "version"         :  "1.0.2",
-            "log-date"        :  "25-Mar-2025",
-            "log-title"       :  "25-Mar-2025",
+            "version"         :  "1.0.3",
+            "log-date"        :  "TBD",
+            "log-title"       :  "Placeholder for future update",
             "log-changes"     :  [
-                "Initial release with structured asset categories.",
-                "Defined unique keys for all assets.",
-                "Integrated references to GitHub/CDN URLs."
+                "- Initial creation of the config data",
+                "- Defines the core settings for the website"
             ]
         }
     ],
-    "Site_Config_Settings": {
-        "site-name"         :  "Noble Architecture",
-        "site-url"          :  "https://www.noble-architecture.com/",
-        "site-version"      :  "1.0.2",
-        "site-author"       :  "Adam Noble",
-        "site-email"        :  "info@noble-architecture.com",
-        "site-language"     :  "en-GB",
-        "site-currency"     :  "GBP",
-        "site-timezone"     :  "Europe/London",
-        "site-phone"        :  "NIL",
-        "site-address"      :  "NIL",
-        "site-developer-mode": {
+    "site-config-settings": {
+        "site-name"               :  "Noble Architecture",
+        "site-url"                :  "https://www.noble-architecture.com/",
+        "site-version"            :  "1.0.2",
+        "site-author"             :  "Adam Noble",
+        "site-email"              :  "info@noble-architecture.com",
+        "site-language"           :  "en-GB",
+        "site-currency"           :  "GBP",
+        "site-timezone"           :  "Europe/London",
+        "site-date-format"        :  "dd-mmm-yyyy",
+        "site-phone"              :  "NIL",
+        "site-address"            :  "NIL",
+        "site-hosted"             :  "Github Pages",
+        "site-hosted-url"         :  "https://adam-noble-01.github.io/WE10_--_Public-Repo_--_Live-Website/main/",
+        "site-domain-registrar"   :  "GoDaddy",
+        "site-domain-name"        :  "noble-architecture.com",
+        "site-developer-mode"     :  {
             "site-dev-tools-mode"        :  false,
             "site-dev-maintenance-mode"  :  false,
             "site-dev-enable-caching"    :  true,

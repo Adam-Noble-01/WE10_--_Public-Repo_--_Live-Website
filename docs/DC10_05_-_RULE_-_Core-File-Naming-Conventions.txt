@@ -156,6 +156,21 @@ AD04_25_-_Handwritten-Font_-_Caveat-Bold.ttf
 
 
 
+### CORE UNITS FORMAT REFERENCE
+----------------------------------------------------------------------------------------------------
+
+*Date Format:*      |   `dd-mmm-yyyy`
+*Time Format:*      |   `hh:mm`
+
+*Example*
+`09-Apr-2025 | 14:45`
+
+#### Rationale
+- This format is clear, compact 
+- Widely used in British administrative and technical documents. 
+- It avoids confusion between UK and US date styles.
+
+
 ----------------------------------------------------------------------------------------------------
 ###### END OF FILE 
 
