@@ -71,44 +71,143 @@
 ],
 
 
-"studio-noodlefjord-site-structure": [
+"sn-app-library": [
     {
-        "app-id"            :  "UTILITY-PAGE-01",
-        "app-title"         :  "Text To Reader Utility",
-        "app-description"   :  "A simple utility to read text aloud",
-        "app-keywords"      :  "Reader, Text to Speech, Utility",
-        "app-path"          :  "./sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App.html",
-        "app-url"           :  "https://www.noble-architecture.com/sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App.html",
-        "app-bot-visible"   :  false,
-        "app-status"        :  "live",
-            "page-dev-logs"      :  [
-                {
-                    "log-version"    :  "1.0.0",
-                    "log-title"      :  "initial commit",
-                    "log-date"       :  "09-Apr-2025",
-                    "log-notes"      :  "Refactored the page style to match the newly created asset query tool"
+        "app-name"            :   "Text To Reader Utility",
+        "app-id-code"         :   "SN10_01_01",
+        "app-browser-title"   :   "Text To Reader",
+        "app-description"     :   "A utility to parse WhatsApp chat text or render Markdown text into a readable format",
+        "app-category"        :   "UTIL",
+        "app-keywords"        :   "Reader, Text to Speech, Utility, WhatsApp, Markdown",
+        "app-usage"           :   "For converting Whatsapp messages / markdown text into a readable format",
+        "app-dir-path"        :   "./sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App",
+        "app-web-url"         :   "https://www.noble-architecture.com/sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App",
+        "app-file-name"       :   "SN10_01_01_-_PAGE_-_Text-To-Reader-App.html",
+        "app-file-format"     :   "html",
+        "app-type"            :   "Productivity Utility",
+        "app-created"         :   "08-Apr-2025",
+        "app-author"          :   "Adam Noble",
+        "app-last-updated"    :   "09-Apr-2025",
+        "app-version"         :   "1.2.4",
+        "app-bot-visible"     :   false,
+        "app-active-status"   :   true,
+        "page-dev-logs"       :  [
+            {
+                "version-1.0.0":{
+                    "version-title"     :    "Initial Version",
+                    "version-date"      :    "08-Apr-2025",
+                    "version-notes"     :    "First release of the WhatsApp/Markdown text reader utility"
                 }
-            ]
+            },
+            {
+                "version-1.2.4":{
+                    "version-title"     :    "Style Update",
+                    "version-date"      :    "09-Apr-2025",
+                    "version-notes"     :    "Refactored the page style to match the organization's design patterns"
+                }
+            }
+        ]
     },
     {
-        "page-id"            :  "WEB-PAGE-02",
-        "page-title"         :  "Placeholder",
-        "page-load-no"       :  2,
-        "page-description"   :  "Placeholder",
-        "page-keywords"      :  "Placeholder",
-        "page-path"          :  "placeholder.html",
-        "page-bot-visible"   :  false,
-        "page-status"        :  "live"
+        "app-name"            :   "Asset Library Query Tool",
+        "app-id-code"         :   "SN10_10_01",
+        "app-browser-title"   :   "Asset Library Query",
+        "app-description"     :   "A utility to search and export URLs from the asset library",
+        "app-category"        :   "UTIL",
+        "app-keywords"        :   "Asset Library, Query, Search, Export, Utility",
+        "app-usage"           :   "For searching assets and exporting their URLs",
+        "app-dir-path"        :   "./sn-apps/SN10_10_-_UTIL_-_Asset-Library-Query-Tool/SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility",
+        "app-web-url"         :   "https://www.noble-architecture.com/sn-apps/SN10_10_-_UTIL_-_Asset-Library-Query-Tool/SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility",
+        "app-file-name"       :   "SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility.html",
+        "app-file-format"     :   "html",
+        "app-type"            :   "Productivity Utility",
+        "app-created"         :   "09-Apr-2025",
+        "app-author"          :   "Adam Noble",
+        "app-last-updated"    :   "09-Apr-2025",
+        "app-version"         :   "1.0.0",
+        "app-bot-visible"     :   false,
+        "app-active-status"   :   true,
+        "page-dev-logs"       :  [
+            {
+                "version-1.0.0":{
+                    "version-title"     :    "Initial Version",
+                    "version-date"      :    "09-Apr-2025",
+                    "version-notes"     :    "First release of the Asset Library Query Tool"
+                }
+            }
+        ]
     },
     {
-        "page-id"            :  "WEB-PAGE-03",
-        "page-title"         :  "Placeholder",
-        "page-load-no"       :  3,
-        "page-description"   :  "Placeholder",
-        "page-keywords"      :  "Placeholder",
-        "page-path"          :  "placeholder.html",
-        "page-bot-visible"   :  false,
-        "page-status"        :  "live"
+        "app-name"            :   "Hex Colour Grid Tool",
+        "app-id-code"         :   "SN10_20_01",
+        "app-browser-title"   :   "Hex Colour Grid",
+        "app-description"     :   "A utility to create and manage color palettes with hex values",
+        "app-category"        :   "UTIL",
+        "app-keywords"        :   "Color, Palette, Hex, Design, Utility",
+        "app-usage"           :   "For creating and organizing color palettes for design work",
+        "app-dir-path"        :   "./sn-apps/SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool/SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool",
+        "app-web-url"         :   "https://www.noble-architecture.com/sn-apps/SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool/SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool",
+        "app-file-name"       :   "SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool.html",
+        "app-file-format"     :   "html",
+        "app-type"            :   "Design Utility",
+        "app-created"         :   "08-Apr-2025",
+        "app-author"          :   "Adam Noble",
+        "app-last-updated"    :   "08-Apr-2025",
+        "app-version"         :   "1.0.0",
+        "app-bot-visible"     :   false,
+        "app-active-status"   :   true,
+        "page-dev-logs"       :  [
+            {
+                "version-1.0.0":{
+                    "version-title"     :    "Initial Version",
+                    "version-date"      :    "08-Apr-2025",
+                    "version-notes"     :    "First release of the Hex Colour Grid Tool"
+                }
+            }
+        ]
+    },
+    {
+        "app-name"            :   "Coding Utility Scripts Viewer",
+        "app-id-code"         :   "SN10_30_01",
+        "app-browser-title"   :   "Code Snippets",
+        "app-description"     :   "A viewer for code snippets with syntax highlighting and copy functionality",
+        "app-category"        :   "UTIL",
+        "app-keywords"        :   "Code, Snippets, Syntax, Highlighting, Utility",
+        "app-usage"           :   "For viewing and copying code snippets with proper formatting",
+        "app-dir-path"        :   "./sn-apps/SN10_30_-_UTIL_-_Coding-Utility-Scripts-Blocks/SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks",
+        "app-web-url"         :   "https://www.noble-architecture.com/sn-apps/SN10_30_-_UTIL_-_Coding-Utility-Scripts-Blocks/SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks",
+        "app-file-name"       :   "SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks.html",
+        "app-file-format"     :   "html",
+        "app-type"            :   "Development Utility",
+        "app-created"         :   "05-Apr-2025",
+        "app-author"          :   "Adam Noble",
+        "app-last-updated"    :   "08-Apr-2025",
+        "app-version"         :   "1.1.1",
+        "app-bot-visible"     :   false,
+        "app-active-status"   :   true,
+        "page-dev-logs"       :  [
+            {
+                "version-1.0.0":{
+                    "version-title"     :    "Initial Version",
+                    "version-date"      :    "05-Apr-2025",
+                    "version-notes"     :    "First release of the Code Snippets Viewer"
+                }
+            },
+            {
+                "version-1.1.0":{
+                    "version-title"     :    "Feature Update",
+                    "version-date"      :    "06-Apr-2025",
+                    "version-notes"     :    "Added external JSON configuration, syntax highlighting, and copy buttons"
+                }
+            },
+            {
+                "version-1.1.1":{
+                    "version-title"     :    "Performance Update",
+                    "version-date"      :    "08-Apr-2025",
+                    "version-notes"     :    "Added modular CSS loading and optimized script structure"
+                }
+            }
+        ]
     }
 ],
 
