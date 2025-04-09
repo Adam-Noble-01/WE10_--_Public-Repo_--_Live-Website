@@ -524,13 +524,16 @@
             // Asset Library Data
             let assetLibraryData = null;
             
-            // Fetch the asset library data
+
+            // CONFIGURATION | Fetch the asset library data
+            // -------------------------------------------------------------------------------------
             async function fetchAssetLibraryData() {
                 try {
                     loading.style.display = 'block';
                     errorContainer.style.display = 'none';
                     
-                    const response = await fetch('../AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json');
+                    const response = await fetch
+                    ('../../assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json');
                     
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
