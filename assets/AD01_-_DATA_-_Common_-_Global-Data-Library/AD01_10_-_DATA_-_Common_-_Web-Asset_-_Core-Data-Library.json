@@ -1,1 +1,8 @@
 Enter JSON Here
+
+"- Organises all essential app resources into clearly defined categories",
+"- Identifies each asset by a unique key",
+"- References GitHub repository URLs or public CDN URLs",
+"- Simplifies asset management",
+"- Enhances maintainability",
+"- Streamlines referencing within the application codebase"

@@ -1,64 +1,71 @@
 {
-  "File_Metadata": {
-    "file-name"         :  "AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
-    "file-dir-path"     :  "/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
-    "file-web-url"      :  "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
-    "file-type"         :  "json",
-    "file-category"     :  "Configuration Files",
-    "file-purpose"      :  "Core Website Configuration Data",
-    "file-author"       :  "Adam Noble",
-    "file-description"  :  "This JSON file serves as a centralised assets repository reference for the Architecture Drawing Application. It organises all essential app resources into clearly defined categories. Each asset is identified by a unique key with the value pointing to a GitHub repository URL or public CDN URL. This structure simplifies asset management, enhances maintainability, and streamlines referencing within the application codebase."
-  },
-  "File_Version_History_Log": [
-    {
-      "version"         :  "1.0.3",
-      "log-date"        :  "TBD",
-      "log-title"       :  "Placeholder for future update",
-      "log-changes"     :  [
-        "Placeholder for future changes"
-      ]
+    "File_Metadata": {
+        "file-name"         :  "AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
+        "file-dir-path"     :  "/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
+        "file-web-url"      :  "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
+        "file-type"         :  "json",
+        "file-category"     :  "Configuration Files",
+        "file-purpose"      :  "Core Website Configuration Data",
+        "file-author"       :  "Adam Noble",
+        "file-description"  :  {
+            "file-description-heading": 
+            "This file contains the core configuration data for the website.",
+            "file-description-text": [
+                "- Identifies each standardised value for the website",
+                "- Provides a centralised reference for all global website settings"
+            ]
+        }
     },
-    {
-      "version"         :  "1.0.2",
-      "log-date"        :  "25-Mar-2025",
-      "log-title"       :  "25-Mar-2025",
-      "log-changes"     :  [
-        "Initial release with structured asset categories.",
-        "Defined unique keys for all assets.",
-        "Integrated references to GitHub/CDN URLs."
-      ]
+    "File_Version_History_Log": [
+        {
+            "version"         :  "1.0.3",
+            "log-date"        :  "TBD",
+            "log-title"       :  "Placeholder for future update",
+            "log-changes"     :  [
+                "Placeholder for future changes"
+            ]
+        },
+        {
+            "version"         :  "1.0.2",
+            "log-date"        :  "25-Mar-2025",
+            "log-title"       :  "25-Mar-2025",
+            "log-changes"     :  [
+                "Initial release with structured asset categories.",
+                "Defined unique keys for all assets.",
+                "Integrated references to GitHub/CDN URLs."
+            ]
+        }
+    ],
+    "Site_Config_Settings": {
+        "site-name"         :  "Noble Architecture",
+        "site-url"          :  "https://www.noble-architecture.com/",
+        "site-version"      :  "1.0.2",
+        "site-author"       :  "Adam Noble",
+        "site-email"        :  "info@noble-architecture.com",
+        "site-language"     :  "en-GB",
+        "site-currency"     :  "GBP",
+        "site-timezone"     :  "Europe/London",
+        "site-phone"        :  "NIL",
+        "site-address"      :  "NIL",
+        "site-developer-mode": {
+            "site-dev-tools-mode"        :  false,
+            "site-dev-maintenance-mode"  :  false,
+            "site-dev-enable-caching"    :  true,
+            "site-dev-last-deployment"   :  "PLACEHOLDER",
+            "site-dev-dev-environment"   :  "production",
+            "site-dev-api-keys"          :  {
+                "mapbox"                   :  "{{THIS_IS_A_PLACEHOLDER}}",
+                "form-submission"          :  "{{THIS_IS_A_PLACEHOLDER}}"
+            }
+        },
+        "site-style-sheets"            :  {
+            "third-party-fonts-notes"    :  "ONLY USE GOOGLE FONTS FOR FALLBACKS! Otherwise use main Noble Architecture website to serve fonts"
+        },
+        "website-third-party-services" :  {
+            "third-party-fonts-notes"    :  "ONLY USE GOOGLE FONTS FOR FALLBACKS! Otherwise use main Noble Architecture website to serve fonts",
+            "third-party-fonts"          :  "Google Fonts",
+            "third-party-cdn"            :  "PLACEHOLDER",
+            "third-party-forms"          :  "PLACEHOLDER"
+        }
     }
-  ],
-  "Site_Config_Settings": {
-    "site-name"         :  "Noble Architecture",
-    "site-url"          :  "https://www.noble-architecture.com/",
-    "site-version"      :  "1.0.2",
-    "site-author"       :  "Adam Noble",
-    "site-email"        :  "info@noble-architecture.com",
-    "site-language"     :  "en-GB",
-    "site-currency"     :  "GBP",
-    "site-timezone"     :  "Europe/London",
-    "site-phone"        :  "NIL",
-    "site-address"      :  "NIL",
-    "site-developer-mode": {
-      "site-dev-tools-mode"        :  false,
-      "site-dev-maintenance-mode"  :  false,
-      "site-dev-enable-caching"    :  true,
-      "site-dev-last-deployment"   :  "PLACEHOLDER",
-      "site-dev-dev-environment"   :  "production",
-      "site-dev-api-keys"          :  {
-        "mapbox"                   :  "{{THIS_IS_A_PLACEHOLDER}}",
-        "form-submission"          :  "{{THIS_IS_A_PLACEHOLDER}}"
-      }
-    },
-    "site-style-sheets"            :  {
-      "third-party-fonts-notes"    :  "ONLY USE GOOGLE FONTS FOR FALLBACKS! Otherwise use main Noble Architecture website to serve fonts"
-    },
-    "website-third-party-services" :  {
-      "third-party-fonts-notes"    :  "ONLY USE GOOGLE FONTS FOR FALLBACKS! Otherwise use main Noble Architecture website to serve fonts",
-      "third-party-fonts"          :  "Google Fonts",
-      "third-party-cdn"            :  "PLACEHOLDER",
-      "third-party-forms"          :  "PLACEHOLDER"
-    }
-  }
 }
