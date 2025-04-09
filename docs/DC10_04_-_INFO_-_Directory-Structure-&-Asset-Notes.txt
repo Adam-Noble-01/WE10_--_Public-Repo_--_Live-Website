@@ -40,319 +40,64 @@ This document establishes the directory structure for the Noble Architecture web
     `AD01_01_-_DATA_-_Core-Global-Web-Asset-Data-&-Config.json`
 - Below is for quick reference only and is not a complete list of all files and directories.
 --------------------------------------------------------------------------------
+
 /ROOT
 ├── assets/
-│   ├── AD01_-_DATA_-_Coomon_-_Global-Data-Library/
+│   ├── AD01_-_DATA_-_Common_-_Global-Data-Library/
+│   │   └── AD01_01_-_DATA_-_Core-Website_-_Config-Data.json
+│   │   └── AD01_02_-_DATA_-_Core-Website-Structure_-_Site-Map.json
+│   │   └── AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json
+|   |
 │   ├── AD02_-_STYL_-_Common_-_StyleSheets/
+│   │   └── AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css
+|   |
 │   ├── AD03_-_LIBR_-_Common_-_Libraries/
+|   |
 │   ├── AD04_-_LIBR_-_Common_-_Font-Files/
-│   ├── AD05_-_LIBR_-_Common_-_Icons-and-favicons/ 
+│   │   └── Font-Files-In-This-Directory
+|   |
+│   ├── AD05_-_LIBR_-_Common_-_Icons-and-favicons/
+│   │   └── Icons-and-favicons-In-This-Directory
+|   |
 │   ├── NA01_-_DATA_-_NA-Site_-_Project-Data/
-│   └── NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets
-|
+│   │   └── Noble-Architecture-Project-Data-In-This-Directory
+|   |
+│   └── NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/
+│   │   └── Noble-Architecture-Brand-Image-Assets-In-This-Directory
+|   |
 ├── docs/
-│   └── Documentation files are stored at this level.
+│   ├── DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+│   ├── DC10_02_-_INFO_-_Version-History.txt
+│   ├── DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt
+│   ├── DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt
+│   ├── DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt
+│   ├── DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
+│   └── DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
 |
 └── src/
     ├── Core-JavaScript-Library/
-        └── JS00_-_UTIL_-_Web-Page_-_Static-Page-Utility-Scripts/
-        └── JS01_-_UTIL_-_Web-App_-_Page-Utility-Scripts/
-        └── JS02_-_UTIL_-_Web-App_-_Client-Application-Utility-Scripts/
-        └── JS03_-_UTIL_-_Web-App_-_Server-Application-Utility-Scripts/
-        └── JS04_-_UTIL_-_Web-App_-_Third-Party-Libraries/
-        └── JS05_-_UTIL_-_Web-App_-_File-Loading-&-Processing-Scripts/
-        └── JS06_-_UTIL_-_Web-App_-_Json-&-Data-Loading-Parsing-&-Processing/
-        └── JS07_-_UTIL_-_Web-App_-_State-&-Data-Management-Scripts/
-        └── JS08_-_UTIL_-_Web-App_-_UI-&-DOM-Interaction-Scripts/
-        └── JS09_-_UTIL_-_Web-App_-_API-&-Data-Integration-Scripts/
-        └── JS10_-_FUNC_-_User-Interface-&-DOM-Interaction-Functions/
-            └── JS10_01_-_FUNC_-_UI-Modal-Dialog-Functions.js
-            └── JS10_02_-_FUNC_-_Form-Validation-UI-Functions.js
-            └── JS10_03_-_FUNC_-_Dropdown-Menu-Functions.js
-            └── JS10_04_-_FUNC_-_Accordion-Panel-Functions.js
-            └── JS10_05_-_FUNC_-_Tab-Interface-Functions.js
-            └── JS10_06_-_FUNC_-_Tooltip-Display-Functions.js
-            └── JS10_07_-_FUNC_-_Notification-Banner-Functions.js
-            └── JS10_08_-_FUNC_-_Image-Gallery-UI-Functions.js
-            └── JS10_09_-_FUNC_-_Pagination-Control-Functions.js
-            └── JS10_10_-_FUNC_-_Drag-and-Drop-Interface-Functions.js
-        └── JS11_-_UTIL_-_Web-App_-_Common-User-InterfaceScripts/
-        └── JS12_-_UTIL_-_Web-App_-_DOM-Interaction-Scripts/
-        └── JS14_-_UTIL_-_Web-App_-_User-Interaction-Event-Handling-Scripts/
-        └── JS20_-_FUNC_-_Rendering-&-Canvas-Specific-Functions/
-            └── JS20_01_-_FUNC_-_Canvas-Drawing-Primitives.js
-            └── JS20_02_-_FUNC_-_2D-Shape-Rendering-Functions.js
-            └── JS20_03_-_FUNC_-_WebGL-Shader-Management.js
-            └── JS20_04_-_FUNC_-_3D-Model-Rendering-Functions.js
-            └── JS20_05_-_FUNC_-_Texture-Mapping-Functions.js
-            └── JS20_06_-_FUNC_-_Lighting-and-Shading-Functions.js
-            └── JS20_07_-_FUNC_-_Camera-and-Viewport-Functions.js
-            └── JS20_08_-_FUNC_-_Scene-Graph-Management.js
-            └── JS20_09_-_FUNC_-_Particle-System-Functions.js
-            └── JS20_10_-_FUNC_-_Post-Processing-Effects.js
-        └── JS21_-_UTIL_-_Web-App_-_Rendering-Loop-Scripts/
-        └── JS22_-_UTIL_-_Web-App_-_Canvas-Setup-Scripts/
-        └── JS23_-_UTIL_-_Web-App_-_Animation-&-Transition-Scripts/
-        └── JS30_-_UTIL_-_Web-App_-_Security-&-Privacy-Scripts/
-        └── JS40_-_UTIL_-_Web-App_-_Error-Handling-&-Debugging-Scripts/
-        └── JS41_-_UTIL_-_Web-App_-_Performance-Optimisation-Scripts/
-        └── JS50_-_FUNC_-_Global-Utility-Functions/
-            ├── JS50_01_-_FUNC_-_String-Manipulation-Functions.js
-            ├── JS50_02_-_FUNC_-_Array-Processing-Functions.js
-            ├── JS50_03_-_FUNC_-_Object-Manipulation-Functions.js
-            ├── JS50_04_-_FUNC_-_Date-Time-Formatting-Functions.js
-            ├── JS50_05_-_FUNC_-_Number-Formatting-Functions.js
-            ├── JS50_06_-_FUNC_-_Form-Validation-Functions.js
-            ├── JS50_07_-_FUNC_-_URL-Parsing-Functions.js
-            ├── JS50_08_-_FUNC_-_Cookie-Management-Functions.js
-            ├── JS50_09_-_FUNC_-_Local-Storage-Functions.js
-            ├── JS50_10_-_FUNC_-_DOM-Manipulation-Functions.js
-            ├── JS50_11_-_FUNC_-_Async-Helper-Functions.js
-            ├── JS50_12_-_FUNC_-_Debounce-Throttle-Functions.js
-            ├── JS50_13_-_FUNC_-_Math-Calculation-Functions.js
-            ├── JS50_14_-_FUNC_-_Colour-Manipulation-Functions.js
-            ├── JS50_15_-_FUNC_-_Device-Detection-Functions.js
-            ├── JS50_16_-_FUNC_-_Browser-Feature-Detection-Functions.js
-            ├── JS50_17_-_FUNC_-_Error-Handling-Functions.js
-            ├── JS50_18_-_FUNC_-_Logging-Functions.js
-            ├── JS50_19_-_FUNC_-_Data-Conversion-Functions.js
-            └── JS50_20_-_FUNC_-_Performance-Measurement-Functions.js
-        └── JS51_-_FUNC_-_Global-Math-Functions/
-            ├── JS51_01_-_FUNC_-_Basic-Arithmetic-Functions.js
-            ├── JS51_02_-_FUNC_-_Trigonometric-Functions.js
-            ├── JS51_03_-_FUNC_-_Vector-Calculation-Functions.js
-            ├── JS51_04_-_FUNC_-_Matrix-Operation-Functions.js
-            ├── JS51_05_-_FUNC_-_Geometry-Calculation-Functions.js
-            ├── JS51_06_-_FUNC_-_Statistical-Functions.js
-            ├── JS51_07_-_FUNC_-_Unit-Conversion-Functions.js
-            ├── JS51_08_-_FUNC_-_Interpolation-Functions.js
-            ├── JS51_09_-_FUNC_-_Random-Number-Generation-Functions.js
-            ├── JS51_10_-_FUNC_-_Coordinate-System-Transformation-Functions.js
-            └── JS51_11_-_FUNC_-_Advanced-Mathematical-Utility-Functions.js
+    │   ├── Core-JavaScript-Library-In-This-Directory
+    |   └── Directory-contains-functions-and-modules-for-the-project.
     |
     └── Core-Python-Library/
+       ├── Core-Python-Library-In-This-Directory
+       └── Directory-contains-functions-and-modules-for-the-project.
 
 
-
-### ROOT DIRECTORY
+### COMPLETE LIST OF ALL FILES AND DIRECTORIES
 --------------------------------------------------------------------------------
 - For a complete list of all files and directories
 - please refer to the complete list of website assets refer to the following file:
     `AD01_01_-_DATA_-_Core-Global-Web-Asset-Data-&-Config.json`
 
 
-
-THIS FILE IS A PLACEHOLDER MAKE A JSON FILE WHEN TIME
-
-
-
-# Temporary Notes
-
-###### This document is intended to hold placeholder notes that have not been sorted
-
----
-
-### Sitemap Notes
-
--   Convert Site Map To Proper Json 
--   Build a easy sitemap viewer
--   property true / false for currently live
-
-###### Current Live Sitemap
-
-```current_live_sitemap
-https://www.noble-architecture.com/na-project-portal/25-projects/GA06_--_Cloves-Wood
-https://www.noble-architecture.com/na-project-portal/25-projects/GA06_--_Cloves-Wood/GA06_-_PlanVision_-_Web-Application
-https://www.noble-architecture.com/sn-apps/text-to-reader-app/text-to-reader-app
-```
-
----
-
-###### Web Styles Directory Index
-
-```project_stylesheet_directory_link_index
-- - - - -   MAIN MARKDOWN RENDERER FOR VSCODE STYLE   - - - - - 
-www.noble-architecture.com/assets/AD01_-_STYL_-_Common_-_StyleSheets/AD01_10_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css
-```
-
-
-
-###### Web Application Directory Sitemap
-
-```web_application_directory_sitemap
-assets		 =  Assets related to only the main site & not apps; Github requires this folder
-assets-archive  =  Deprecate	Assets no longer in use but sidelined; local copies usually preferred for long term archiving
-na-apps         =  Noble Architecture  - Live App Deployment
-nb-apps         =  Noble Audio - Live App Deployment
-sn-apps         =  Studio NoodlFjørd - Live App Deployment
-assets-dev      =  Pages / Applications currently under active development and not yet deployed or archived
-```
-
----
-
-#### Global Assets Library Map
-
--   Used Globally for  serving files for web apps and static pages
-
-```web_application_directory_sitemap
-assets		    =  Assets related to only the main site & not apps; Github requires this folder
-assets-archive  =  Deprecate Assets no longer in use but sidelined; local copies usually preferred for long term archiving
-```
-
-
----------------------------------------------------------------------------------------------------
-
-#### Global Favicon Files Library Index
-
-- Note Prefer SVG format for favicons as it will not pixelate on high res screens.
-- If SVG is not supported, use PNG format.
-- If PNG is not supported, use ICO format.
-
-```favicon_library_index
-/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons
-    AD05_01_-_NA_Favicon_-_SVG-h50mm.svg       <-- Use this as the primary default core favicon as it will not pixelate 
-    AD05_02_-_NA_Favicon_-_PNG-h2000px.png     <-- This is used for High resolution square aspect ration profile images.
-    AD05_03_-_NA_Favicon_-_PNG-h1000px.png     <-- This is used for Medium resolution square aspect ration profile images.
-    AD05_04_-_NA_Favicon_-_PNG-h512px.png      <-- This is used for browsers that do not support modern SVG format, use as a fallback.
-    AD05_05_-_NA_Favicon_-_PNG-h192px.png      <-- This is a fallback icon uf the 512px version does not load.
-    AD05_06_-_NA_Favicon_-_PNG-h32px.png       <-- This is the absolute fallback icon uf the SVG, 512px, 192px versions fail to load.
-    AD05_07_-_NA_Favicon_-_ICO-h32px.ico       <-- This is the absolute fallback icon for browsers that do not support the other formats.
-```
-
-#### Reference Favicon Relative Path Index
-
-```favicon_relative_path_index
-./ROOT
-    /assets
-        /AD05_-_LIBR_-_Common_-_Icons-and-favicons
-            /AD05_-_LIBR_-_Common_-_Icons-and-favicons
-            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg
-            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_02_-_NA_Favicon_-_PNG-h2000px.png
-            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_03_-_NA_Favicon_-_PNG-h1000px.png
-            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png
-            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png
-            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png
-            /AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_PNG-h32px.ico
-```
-
----------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
-
-#### Global Brand Image Assets Library Index
-
-- Core brand images used across the Noble Architecture website and applications
-- These assets maintain consistent branding across all platforms
-
-```brand_image_library_index
-/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets
-    NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png    <-- Main company logo
-    NA03_30_-_PNG_-_NA_Company_Email_signature.png          <-- Email signature template
-    NA03_31_-_PNG_-_Adam_Noble_Handwritten-Signature.png    <-- Digital handwritten signature
-    NA03_40_-_PNG_-_Profile-Logo_-_h1000px.png              <-- Profile logo medium resolution (1000px)
-    NA03_41_-_PNG_-_Profile-Logo_-_h2000px.png              <-- Profile logo high resolution (2000px)
-    NA03_42_-_PNG_-_Profile-Logo_-_h512px.png               <-- Profile logo small resolution (512px)
-```
-
-#### Reference Brand Image Assets Relative Path Index
-
-```brand_image_assets_relative_path_index
-./ROOT
-    /assets
-        /NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets
-            /NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png
-            /NA03_30_-_PNG_-_NA_Company_Email_signature.png
-            /NA03_31_-_PNG_-_Adam_Noble_Handwritten-Signature.png
-            /NA03_40_-_PNG_-_Profile-Logo_-_h1000px.png
-            /NA03_41_-_PNG_-_Profile-Logo_-_h2000px.png
-            /NA03_42_-_PNG_-_Profile-Logo_-_h512px.png
-```
-
-
-
-#### Global Brand Image Assets Library Index
-
----------------------------------------------------------------------------------------------------
-
-- Core brand pictogram graphics used across the Noble Architecture website and applications
-- These assets maintain consistent branding across all platforms
-
-```brand_pictogram_graphics_library_index
-/assets/NA04_-_LIBR_-_NA-Site_-_Pictogram-Graphics-Library
-NA04_01-NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png            <-- Add a description here in the future
-NA04_02-NA-Pictogram_-_PNG_-_1500px_-_Drafting-Tools.png            <-- Add a description here in the future
-NA04_03-NA-Pictogram_-_PNG_-_1500px_-_Existing-Plan.png             <-- Add a description here in the future
-NA04_04-NA-Pictogram_-_PNG_-_1500px_-_Proposed-Plan.png             <-- Add a description here in the future
-NA04_05-NA-Pictogram_-_PNG_-_1500px_-_Approval-Stamp.png            <-- Add a description here in the future
-NA04_06-NA-Pictogram_-_PNG_-_1500px_-_Existing-Elevation.png        <-- Add a description here in the future
-NA04_07-NA-Pictogram_-_PNG_-_1500px_-_Site-Measure.png              <-- Add a description here in the future
-NA04_08-NA-Pictogram_-_PNG_-_1500px_-_Search-Magnifying-Glass.png   <-- Add a description here in the future
-NA04_09-NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png           <-- Add a description here in the future
-```
-
-#### Reference Brand Image Assets Relative Path Index
-
-```brand_image_assets_relative_path_index
-./ROOT
-    /assets
-        /NA04_-_LIBR_-_NA-Site_-_Pictogram-Graphics-Library
-            /NA04_01-NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png         
-            /NA04_02-NA-Pictogram_-_PNG_-_1500px_-_Drafting-Tools.png         
-            /NA04_03-NA-Pictogram_-_PNG_-_1500px_-_Existing-Plan.png          
-            /NA04_04-NA-Pictogram_-_PNG_-_1500px_-_Proposed-Plan.png          
-            /NA04_05-NA-Pictogram_-_PNG_-_1500px_-_Approval-Stamp.png         
-            /NA04_06-NA-Pictogram_-_PNG_-_1500px_-_Existing-Elevation.png     
-            /NA04_07-NA-Pictogram_-_PNG_-_1500px_-_Site-Measure.png           
-            /NA04_08-NA-Pictogram_-_PNG_-_1500px_-_Search-Magnifying-Glass.png
-            /NA04_09-NA-Pictogram_-_PNG_-_1500px_-_Builder-Profile.png        
-```
-
-
-## REFERENCE DOCUMENTATION DIRECTORY
-----------------------------------------------------------------------------------------------------
-NOTE : All project documentation files are stored in the `./docs` directory.
-
-### Core Documentation
-- DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
-- DC10_02_-_INFO_-_Version-History.txt
-- DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt
-- DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt
-- DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt
-
-### Coding Rules & Standards
-- DC10_10_-_RULE_-_Core-Coding-Rules_-_General-Web-Dev-.txt
-- DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
-- DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
-- DC10_15_-_RULE_-_Core-Coding-Rules_-_HTML-Files.txt
-- DC10_16_-_RULE_-_Core-Coding-Rules_-_Python-Files.txt
-
-### Design & Assets
-- DC10_20_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
-
-### Development Tools & Setup
-- DC10_40_-_SETP_-_Core-File-Metascript-Boilerplate.txt
-- DC10_50_-_INFO_-_Useful-Shell-Commands.txt
-
-### Main Website URL
-https://www.noble-architecture.com/
-
-### Documents Hosted On The Main Website
-```document-directory-url-list
-https://www.noble-architecture.com/docs/DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
-https://www.noble-architecture.com/docs/DC10_02_-_INFO_-_Version-History.txt
-https://www.noble-architecture.com/docs/DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt
-https://www.noble-architecture.com/docs/DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt
-https://www.noble-architecture.com/docs/DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt
-https://www.noble-architecture.com/docs/DC10_10_-_RULE_-_Core-Coding-Rules_-_General-Web-Dev-.txt
-https://www.noble-architecture.com/docs/DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
-https://www.noble-architecture.com/docs/DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
-https://www.noble-architecture.com/docs/DC10_15_-_RULE_-_Core-Coding-Rules_-_HTML-Files.txt
-https://www.noble-architecture.com/docs/DC10_16_-_RULE_-_Core-Coding-Rules_-_Python-Files.txt
-https://www.noble-architecture.com/docs/DC10_20_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
-https://www.noble-architecture.com/docs/DC10_40_-_SETP_-_Core-File-Metascript-Boilerplate.txt
-https://www.noble-architecture.com/docs/DC10_50_-_INFO_-_Useful-Shell-Commands.txt
-```
+###### WEB APPLICATION DIRECTORY GLOSSARY
+`assets`		  =   Assets related to only the main site & not apps; Github requires this folder
+`assets-archive`  =   Deprecate	Assets no longer in use but sidelined; local copies usually preferred for long term archiving
+`na-apps`         =   Noble Architecture  - Live App Deployment
+`nb-apps`         =   Noble Audio - Live App Deployment
+`sn-apps`         =   Studio NoodlFjørd - Live App Deployment
+`assets-dev`      =   Pages / Applications currently under active development and not yet deployed or archived
 
 
 
