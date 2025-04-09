@@ -32,6 +32,18 @@ Example: 1.2.3
 ## VERSION LOG
 --------------------------------------------------------------------------------
 
+#### Version 1.2.0  -  09-Apr-2025
+- Created website configuration Json file.
+    `./assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json`
+- Created website configuration Json file.
+    `./assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_02_-_DATA_-_Core-Website-Structure_-_Site-Map.json`
+- Created new Core Web Asset Library Json file.
+    `./assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json`
+- Rebuilt /src directory structure
+- Rebuilt and styled Reader App
+- Created new Asset query tool
+    - This web UI tool loads the Core Web Asset Library Json file and displays the assets in a searchable format.
+
 #### Version 1.1.0  -  08-Apr-2025
 - New Features:
   - Core CSS Style defined, file made and document created.

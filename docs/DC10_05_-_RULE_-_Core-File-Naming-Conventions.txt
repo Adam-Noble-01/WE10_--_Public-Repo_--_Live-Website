@@ -131,6 +131,7 @@ This structured approach ensures that:
 **Code Files**
 `HTML`  =  Refers to HTML files containing the structure and content of the project.
 `JSON`  =  Refers to JSON files which store data in a structured format for the project.
+`SCRP`  =  Refers to standardised project script files containing JavaScript code.
 `SETP`  =  Denotes template files & folders; meaning term means "Setup".
 `PAGE`  =  Refers to a static page of the website.
 
@@ -158,6 +159,24 @@ This structured approach ensures that:
 - This format is clear, compact 
 - Widely used in British administrative and technical documents. 
 - It avoids confusion between UK and US date styles.
+
+
+
+### PRELIMINARY SCRP FILES INDEX
+----------------------------------------------------------------------------------------------------
+- This list is temporary and will be replaced with a more permanent list of files in the future.
+- Replaced with a proper Json file in the future.
+
+#### SCRIPT ROOT DIRECTORY
+`src/Core-JavaScript-Library/`
+
+**Directory**   |   `JS01_-_UTIL_-_Utility-Scripts_-_Page-&-HTML-Manipulation`
+**File-Name**   |   `JS01_01_-_UTIL_-_Version-Number-Header-Injection.js`  
+**Path**        |   `src/Core-JavaScript-Library/JS01_-_UTIL_-_Utility-Scripts_-_Page-&-HTML-Manipulation/JS01_01_-_UTIL_-_Version-Number-Header-Injection.js`  
+- A utility script for injecting the version number into the header of a web page.
+- Useful to use the already present version meta tag in the head of the document.
+- Reduces the amount places version numbers need to be updated in the codebase.
+
 
 
 ----------------------------------------------------------------------------------------------------

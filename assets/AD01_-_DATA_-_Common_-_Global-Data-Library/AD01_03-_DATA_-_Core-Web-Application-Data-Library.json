@@ -1,0 +1,178 @@
+{
+    "File_Metadata": {
+        "file-name"            :  "AD01_03_-_DATA_-_Core-Web-Application-Data-Library.json",
+        "file-dir-path"        :  "/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_03-_DATA_-_Core-Web-Application-Data-Library.json",
+        "file-web-url"         :  "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_03-_DATA_-_Core-Web-Application-Data-Library.json",
+        "file-type"            :  "json",
+        "file-category"        :  "Global Data Library",
+        "file-purpose"         :  "Core Web Application Data Library",
+        "file-author"          :  "Adam Noble",
+        "file-description"     :  {
+            "file-description-heading"  :  "Centralised data library for all Web Applications in the project",
+            "file-description-text"     :  [
+                "- Organises all essential app resources into clearly defined categories",
+                "- Identifies each application by a Unique ID Code",
+                "- Each web application in the project has a unique ID code",
+                "- Used by Application in the project to load key metadata about each app",
+                "- Simplifies app version management",
+                "- Enhances maintainability",
+                "- Used to load apps via JSON data file"
+            ]
+        },
+        "File_Version_History_Log": {
+            "version"         :  "1.0.0",
+            "log-date"        :  "2025-04-09",
+            "log-title"       :  "Initial Creation",
+            "log-changes"     :  [
+                "Created This Web Application Data Library file",
+                "Established standardised application data structure"
+            ]
+        }
+    },
+
+    "sn-app-library": {
+        "SN10_01_-_UTIL_-_Text-To-Reader-App": {
+            "app-name"            :  "Text To Reader Utility",
+            "app-browser-title"   :  "Text To Reader",
+            "app-description"     :  "A utility to parse WhatsApp chat text or render Markdown text into a readable format",
+            "app-category"        :  "UTIL",
+            "app-keywords"        :  "Reader, Text to Speech, Utility, WhatsApp, Markdown",
+            "app-usage"           :  "For converting Whatsapp messages / markdown text into a readable format",
+            "app-dir-path"        :  "./sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App",
+            "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App",
+            "app-file-name"       :  "SN10_01_01_-_PAGE_-_Text-To-Reader-App.html",
+            "app-file-format"     :  "html",
+            "app-type"            :  "Productivity Utility",
+            "app-created"         :  "08-Apr-2025",
+            "app-author"          :  "Adam Noble",
+            "app-last-updated"    :  "09-Apr-2025",
+            "app-version"         :  "1.2.4",
+            "app-bot-visible"     :  false,
+            "app-active-status"   :  true,
+            "app-assets-loader"  :  {
+                "app-assets-config" :  {
+                    "assets-required"         :  true,
+                    "assets-fonts-required"   :  true,
+                    "assets-scripts-required" :  true,
+                    "assets-external-libs"    :  true,
+                    "assets-required-notes"   :  "This app requires the following assets to be loaded: fonts, scripts"
+                },
+                "app-scripts-loader" :  {
+                    "dynamic-version-" :  {
+                        "script-unique-id"        :  "JS01_01_-_UTIL_-_Version-Number-Header-Injection.js",
+                        "script-functionality"    :  "Injects the version number from the core app data file into the applications top menu",
+                        "script-directory-path"   :  "/src/Core-JavaScript-Library/JS01_-_UTIL_-_Utility-Scripts_-_Page-&-HTML-Manipulation/JS01_01_-_UTIL_-_Version-Number-Header-Injection.js"
+                    }
+                }
+            },
+            "app-development-logs":{
+                "Version - 1.3.0": {
+                    "version-title"  :  "Style Update",
+                    "version-date"   :  "09-Apr-2025",
+                    "version-notes"  :  "Refactored the page style to match the organisation's design patterns"
+                },
+                "Version - 1.2.4": {
+                    "version-title"  :  "Style Update",
+                    "version-date"   :  "09-Apr-2025",
+                    "version-notes"  :  "Refactored the page style to match the organisation's design patterns"
+                },
+                "Version - 1.0.0": {
+                    "version-title"  :  "Initial Version",
+                    "version-date"   :  "08-Apr-2025",
+                    "version-notes"  :  "First release of the WhatsApp/Markdown text reader utility"
+                }
+            }
+        },
+
+        "SN10_10_-_UTIL_-_Asset-Library-Query-Tool": {
+            "app-name"            :  "Asset Library Query Tool",
+            "app-browser-title"   :  "Asset Library Query",
+            "app-description"     :  "A utility to search and export URLs from the asset library",
+            "app-category"        :  "UTIL",
+            "app-keywords"        :  "Asset Library, Query, Search, Export, Utility",
+            "app-usage"           :  "For searching assets and exporting their URLs",
+            "app-dir-path"        :  "./sn-apps/SN10_10_-_UTIL_-_Asset-Library-Query-Tool/SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility",
+            "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_10_-_UTIL_-_Asset-Library-Query-Tool/SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility",
+            "app-file-name"       :  "SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility.html",
+            "app-file-format"     :  "html",
+            "app-type"            :  "Productivity Utility",
+            "app-created"         :  "09-Apr-2025",
+            "app-author"          :  "Adam Noble",
+            "app-last-updated"    :  "09-Apr-2025",
+            "app-version"         :  "1.0.0",
+            "app-bot-visible"     :  false,
+            "app-active-status"   :  true,
+            "app-development-logs"        :  {
+                "1.0.0": {
+                    "version-title"  :  "Initial Version",
+                    "version-date"   :  "09-Apr-2025",
+                    "version-notes"  :  "First release of the Asset Library Query Tool"
+                }
+            }
+        },
+
+        "SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool": {
+            "app-name"            :  "Hex Colour Grid Tool",
+            "app-browser-title"   :  "Hex Colour Grid",
+            "app-description"     :  "A utility to create and manage color palettes with hex values",
+            "app-category"        :  "UTIL",
+            "app-keywords"        :  "Color, Palette, Hex, Design, Utility",
+            "app-usage"           :  "For creating and organizing color palettes for design work",
+            "app-dir-path"        :  "./sn-apps/SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool/SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool",
+            "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool/SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool",
+            "app-file-name"       :  "SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool.html",
+            "app-file-format"     :  "html",
+            "app-type"            :  "Design Utility",
+            "app-created"         :  "08-Apr-2025",
+            "app-author"          :  "Adam Noble",
+            "app-last-updated"    :  "08-Apr-2025",
+            "app-version"         :  "1.0.0",
+            "app-bot-visible"     :  false,
+            "app-active-status"   :  true,
+            "app-development-logs"        :  {
+                "1.0.0": {
+                    "version-title"  :  "Initial Version",
+                    "version-date"   :  "08-Apr-2025",
+                    "version-notes"  :  "First release of the Hex Colour Grid Tool"
+                }
+            }
+        },
+
+        "SN10_30_-_UTIL_-_Coding-Utility-Scripts-Block": {
+            "app-name"            :  "Coding Utility Scripts Viewer",
+            "app-browser-title"   :  "Code Snippets",
+            "app-description"     :  "A viewer for code snippets with syntax highlighting and copy functionality",
+            "app-category"        :  "UTIL",
+            "app-keywords"        :  "Code, Snippets, Syntax, Highlighting, Utility",
+            "app-usage"           :  "For viewing and copying code snippets with proper formatting",
+            "app-dir-path"        :  "./sn-apps/SN10_30_-_UTIL_-_Coding-Utility-Scripts-Blocks/SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks",
+            "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_30_-_UTIL_-_Coding-Utility-Scripts-Blocks/SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks",
+            "app-file-name"       :  "SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks.html",
+            "app-file-format"     :  "html",
+            "app-type"            :  "Development Utility",
+            "app-created"         :  "05-Apr-2025",
+            "app-author"          :  "Adam Noble",
+            "app-last-updated"    :  "08-Apr-2025",
+            "app-version"         :  "1.1.1",
+            "app-bot-visible"     :  false,
+            "app-active-status"   :  true,
+            "app-development-logs"        :  {
+                "1.0.0": {
+                    "version-title"  :  "Initial Version",
+                    "version-date"   :  "05-Apr-2025",
+                    "version-notes"  :  "First release of the Code Snippets Viewer"
+                },
+                "1.1.0": {
+                    "version-title"  :  "Feature Update",
+                    "version-date"   :  "06-Apr-2025",
+                    "version-notes"  :  "Added external JSON configuration, syntax highlighting, and copy buttons"
+                },
+                "1.1.1": {
+                    "version-title"  :  "Performance Update",
+                    "version-date"   :  "08-Apr-2025",
+                    "version-notes"  :  "Added modular CSS loading and optimized script structure"
+                }
+            }
+        }
+    }
+}

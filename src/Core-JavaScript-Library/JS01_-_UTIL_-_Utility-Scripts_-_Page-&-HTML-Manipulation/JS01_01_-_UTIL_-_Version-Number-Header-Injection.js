@@ -1,52 +1,52 @@
 /**
- * ====================================================================================================================
- * SCRIPT      |  Header Version Injector
- * FILE NAME   |  header-version-injector.js
- * DESCRIPTION |  A utility script to inject version numbers into Noble Architecture app headers
- * AUTHOR      |  Adam Noble - Studio NoodlFjord
- * VERSION     |  1.0.0
- * ====================================================================================================================
- * 
- * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- * SCRIPT DESCRIPTION
- * 
- * This JavaScript module provides a reusable function for injecting version numbers into
- * Noble Architecture application headers. It's designed to:
- * - Read version information from a meta tag in the HTML.
- * - Find and update the header title element with the version.
- * - Apply consistent styling to the version note.
- * - Handle various edge cases and provide helpful console feedback.
- * 
- * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- * USAGE EXAMPLE
- * 
- * 1. Include the script in your HTML:
- *    <script src="/src/js/header-version-injector.js"></script>
- * 
- * 2. Add a meta tag with your version:
- *    <meta name="application-version" content="1.0.0">
- * 
- * 3. Call the function (with optional configuration):
- *    injectVersionNote();
- *    // or with options
- *    injectVersionNote({
- *        metaTagName: 'my-version',
- *        prefix: ' v',
- *        style: { fontSize: '14px' }
- *    });
- * 
- * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- * DEVELOPMENT NOTES & LESSONS LEARNED
- * 
- * - Meta Tag Dependency: Relies on presence of meta tag for version info.
- * - DOM Structure: Expects specific class names unless overridden via options.
- * - Text Node Handling: Carefully preserves existing title text while adding version.
- * - Error States: Provides detailed console feedback for troubleshooting.
- * 
- * ====================================================================================================================
+    ===============================================================================================
+    SCRIPT      |  Header Version Injector
+    FILE NAME   |  header-version-injector.js
+    DESCRIPTION |  A utility script to inject version numbers into Noble Architecture app headers
+    AUTHOR      |  Adam Noble - Studio NoodlFjord
+    VERSION     |  1.0.0
+    ===============================================================================================
+
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    SCRIPT DESCRIPTION
+
+    This JavaScript module provides a reusable function for injecting version numbers into
+    Noble Architecture application headers. It's designed to:
+    - Read version information from a meta tag in the HTML.
+    - Find and update the header title element with the version.
+    - Apply consistent styling to the version note.
+    - Handle various edge cases and provide helpful console feedback.
+
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    USAGE EXAMPLE
+
+    1. Include the script in your HTML:
+       <script src="/src/js/header-version-injector.js"></script>
+
+    2. Add a meta tag with your version:
+       <meta name="application-version" content="1.0.0">
+
+    3. Call the function (with optional configuration):
+       injectVersionNote();
+       // or with options
+       injectVersionNote({
+           metaTagName: 'my-version',
+           prefix: ' v',
+           style: { fontSize: '14px' }
+       });
+
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    DEVELOPMENT NOTES & LESSONS LEARNED
+
+    - Meta Tag Dependency: Relies on presence of meta tag for version info.
+    - DOM Structure: Expects specific class names unless overridden via options.
+    - Text Node Handling: Carefully preserves existing title text while adding version.
+    - Error States: Provides detailed console feedback for troubleshooting.
+
+    ==============================================================================================
  */
 
-// =============================================================================================
+// ==============================================================================================
 // JAVASCRIPT | CONFIGURATION & TYPE DEFINITIONS
 // - Introduced in v1.0.0
 // Contains JSDoc type definitions and default configuration values.
