@@ -1,0 +1,57 @@
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - IMPROVEMENTS LIST & TASKS
+FILE NAME |  DC10_09_-_DLIS_-_Backup-Log.txt
+FILE TYPE |  DLIS
+
+VERSION HISTORY
+08-Apr-2025 - Version 1.0.0  - Created
+- Basic implementation Created
+
+DESCRIPTION
+- This file serves as a backup log for the Noble Architecture Website.
+- It documents all physical and digital backups with dates, locations, and version information.
+- Regular logging of backups helps maintain data integrity and provides recovery options.
+====================================================================================================
+---
+
+# WEBSITE BACKUP LOG
+--------------------------------------------------------------------------------
+`Master`    -  Reference to the current master branch
+`Physical`  -  Refers to a server backup to physical storage medium
+`Pys Loc`   -  Reference to the physical location of the backup
+`BAK Code`  -  Reference to the backup storage device used.
+
+
+### PHYSICAL BACKUP LOG
+--------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------
+#### Full Website Backup
+*Date*      |   08-Apr-2025
+*BAK Code*  |   NA_-_010
+*Type*      |   Physical
+*Pys Loc*   |   BDRM
+*Win Dir*   |   `D:\WE10_--_Public-Repo_--_Live-Website`
+*Version*   |   1.0.2
+**Backup Notes**
+- First Physical Backup
+- Developed on Master branch
+-----------------------------------------------------------
+
+
+### WEB BACKUP SERVICES USED
+--------------------------------------------------------------------------------
+- [Placeholder]
+
+
+
+--------------------------------------------------------------------------------
+###### END OF FILE 
+
+
+
+
+
+
