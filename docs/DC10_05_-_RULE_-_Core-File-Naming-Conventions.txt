@@ -4,7 +4,8 @@ NOBLE ARCHITECTURE WEBSITE & APPLICATIONS - Core Project File & Code Naming Conv
 AD10_02_-_READ_-_Core-Project-File-And-Code-Naming-Conventions-Document.txt
  
 VERSION HISTORY
-05-Apr-2025 - Version 1.0 - Initial Draft
+05-Apr-2025 - Version 1.0.1 - Initial Draft
+09-Apr-2025 - Version 1.1.1 - Added Unique Asset Identification System breakdown
 
 DESCRIPTION
 - This document is the core conventions reference document for the project.
@@ -15,22 +16,13 @@ DESCRIPTION
 ====================================================================================================
 ---
 
-# Website Design Manifest
-###### A Breakdown Of The Website Design Manifest
-----------------------------------------------------------------------------------------------------
-
-### Website URL
-http://www.noble-architecture.com/
-
-
-
 ## ASSET NAMING CONVENTION RULES
 ###### A Breakdown Of The Projects Core Asset Naming Conventions
 -------------------------------------------------------------------------------
 
 #### Notes On Image & Graphical Asset Naming Conventions
 Format Example String
- ```NA0#_0#_-_NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png```
+ `NA0#_0#_-_NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png`
  
 Filename Breakdown
     - `NA0#`            :    Variable prefix matching 2 letter + 2 digit code; used to group files by type.
@@ -39,7 +31,6 @@ Filename Breakdown
     - `PNG`             :    File format
     - `1500px`          :    Resolution/size specification
     - `Idea-Lightbulb`  :    Descriptive name of the pictogram in Title Case with hyphens
-
 
 - Always use string with no white spaces or special characters.
 - Never spaces in filenames.
@@ -51,49 +42,50 @@ Filename Breakdown
 - Use descriptive names are brief but clear
 - Descriptions are always in `Title Case`
 
-#### Example File Names
-- This context shows a directory containing graphical assets.
 
-```example_noble-architecture-pictogram_file_names
-NA04_01_-_NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png
-NA04_02_-_NA-Pictogram_-_PNG_-_1500px_-_Drafting-Tools.png
-NA04_03_-_NA-Pictogram_-_PNG_-_1500px_-_Existing-Plan.png
-```
+### UNIQUE ASSET IDENTIFICATION SYSTEM
+----------------------------------------------------------------------------------------------------
+- The Noble Architecture website uses a asset identification system that ensures every asset in the project has a truly unique identifier code.
+- This system follows a hierarchical pattern that reflects both the asset's category and its specific instance.
 
-```example_favicon_file_names
-AD05_01_-_NA_Favicon_-_SVG-h50mm.svg
-AD05_02_-_NA_Favicon_-_PNG-h2000px.png
-AD05_03_-_NA_Favicon_-_PNG-h1000px.png
-```
+#### Basic Format
+Asset ID codes follow one of two formats:
+- Two-level format: `XX##_##`
+- Three-level format: `XX##_##_##`
 
-#### Standard Font File Names
-- `assets/AD04_-_LIBR_-_Common_-_Front-Files/`
-- These are the standard fonts used on the website.
-- These fonts are served by the website.
-- Noble Architecture uses `Open Sans` as the brands standard font.
+Where:
+- `XX` represents a two-letter category prefix
+- `##` represents a two-digit numeric identifier
+- `_##` represents an additional two-digit numeric identifier
+- `_##` (optional) represents a third two-digit numeric identifier for more specific categorization
 
-```example_standard-font_file_names
-AD04_01_-_Standard-Font_-_Open-Sans-Regular.ttf
-AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf
-AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf
-AD04_04_-_Standard-Font_-_Open-Sans-Medium.ttf
-AD04_05_-_Standard-Font_-_Open-Sans-Bold.ttf
-```
+#### Category Prefixes
+The first two letters of each asset ID code indicate the asset's primary category:
+- `AD` - Common Data assets
+- `DC` - Documentation files
+- `NA` - Noble Architecture specific assets
+- `SN` - Static website assets
 
-#### Handwritten Font File Names
-- `assets/AD04_-_LIBR_-_Common_-_Front-Files/`
-- These are the handwritten fonts used for the PlanVision Application.
-    - Specifically used for the Markup & Annotation features.
-- These fonts are served by the website.
-- Noble Architecture uses `Caveat` as the brands handwritten font style.
+#### Uniqueness Guarantee
+This system guarantees uniqueness through several mechanisms:
 
-```example_handwritten-font_file_names
-AD04_21_-_Handwritten-Font_-_Caveat-Regular.ttf
-AD04_22_-_Handwritten-Font_-_Caveat-SemiBold.ttf
-AD04_23_-_Handwritten-Font_-_Caveat-Light.ttf
-AD04_24_-_Handwritten-Font_-_Caveat-Medium.ttf
-AD04_25_-_Handwritten-Font_-_Caveat-Bold.ttf
-```
+*Hierarchical Organization* | The prefix-letter combination creates a top-level category (e.g., AD for Common Data)
+*Sequential Numbering*      | The first numeric component (##) creates a subcategory
+*Instance Identification*   | The second numeric component (_##) identifies specific instances within that subcategory
+*Extended Specificity*      | When needed, a third numeric component (_##) provides even more specific identification
+
+#### Examples from the Codebase
+- `AD04_01` - First font in the Common Front Files category (Open Sans Regular)
+- `AD04_21` - First handwritten font in the Common Front Files category (Caveat Regular)
+- `AD05_07` - Seventh icon in the Common Icons category (Favicon ICO)
+- `DC10_12` - Twelfth document in the Core Coding Rules category (CSS Files)
+
+This structured approach ensures that:
+- No two assets can ever have the same ID code
+- The ID code itself provides information about the asset's category and purpose
+- The system is extensible for future additions
+- Asset relationships can be inferred from their ID codes
+
 
 
 ### FILE PREFIX SECTION BREAKDOWN
@@ -117,35 +109,32 @@ AD04_25_-_Handwritten-Font_-_Caveat-Bold.ttf
 `JN##`  =  JSON Data File
 
 
-
-
-
 ### Project File Type Reference List
 ----------------------------------------------------------------------------------------------------
 
-- - - Information & Documentation Files - - -
+**Information & Documentation Files**
 `READ`  =  Readme files containing information about the project.
 `RULE`  =  Text File Defining strict rules and MANDATORY coding conventions.
 `INFO`  =  A Readme file of less importance than a READ or RULE file.
 `USER`  =  A User Guide or User Manual designed for non-technical users of the project.
 `DLIS`  =  Defines task lists, improvements ideas and other notes during development, means "Development List".
 
-- - - Data Files - - -
+**Data Files**
 `DATA`  =  A Directory of data files for the project; note data typically stores data in a structured json format.
 
-- - - Application Files - - -
+**Application Files**
 `APPS`  =  A Directory containing collections of scripts making up a complete application typically.
 
-- - - Style Files - - -
+**Style Files**
 `STYL`  =  Refers to CSS style sheet files defining a style or set of styles.
 
-- - - Code Files - - -
+**Code Files**
 `HTML`  =  Refers to HTML files containing the structure and content of the project.
 `JSON`  =  Refers to JSON files which store data in a structured format for the project.
 `SETP`  =  Denotes template files & folders; meaning term means "Setup".
 `PAGE`  =  Refers to a static page of the website.
 
-- - - Asset Files - - -
+**Asset Files**
 `LOGO`  =  Refers to a logo or branded graphic file for the project.
 
 
@@ -173,6 +162,4 @@ AD04_25_-_Handwritten-Font_-_Caveat-Bold.ttf
 
 ----------------------------------------------------------------------------------------------------
 ###### END OF FILE 
-
-
 
