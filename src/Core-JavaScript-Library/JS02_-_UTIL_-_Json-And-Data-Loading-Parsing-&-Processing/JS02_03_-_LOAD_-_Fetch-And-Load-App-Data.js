@@ -71,15 +71,7 @@ This script will be named . . .
             "assets-external-libs"    :  false,
             "assets-required-notes"   :  ""
         },
-        "app-styles-loader" :  {
-            "AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css":{
-                "style-load-order"       :  1,
-                "style-unique-id"        :  "AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css",
-                "style-description"      :  "Loads the main common style sheet for the project, used by all apps to standardise the look and feel of all project elements",
-                "style-directory-path"   :  "./assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css",
-                "style-web-url"          :  "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css",
-                "styles-to-load-prior"   :  "N/A"
-            },
+
         "app-scripts-loader" :  {
             "JS02_03_-_UTIL_-_Fetch-And-Load-App-Data-JSON-Data.js":{
                 "script-load-order"       :  1,
