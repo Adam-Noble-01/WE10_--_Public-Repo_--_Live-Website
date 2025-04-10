@@ -106,8 +106,8 @@ VERSION HISTORY
 .HEAD__container {
     background-color    :    var(--color-white);
     border-bottom       :    01px solid var(--color-gray-400);
-    padding-top         :    00.50rem;
-    padding-bottom      :    00.50rem;
+    padding-top         :    00.25rem;
+    padding-bottom      :    00.25rem;
     width               :    100%;
 }
 
@@ -127,7 +127,7 @@ VERSION HISTORY
 }
 
 .HEAD__version-note {
-    font-size           :    00.75rem;
+    font-size           :    01.00rem;
     color               :    var(--color-gray-600);
     font-weight         :    normal;
     margin-left         :    00.50rem;
