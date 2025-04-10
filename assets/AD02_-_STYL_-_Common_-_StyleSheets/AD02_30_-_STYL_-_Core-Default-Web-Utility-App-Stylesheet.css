@@ -140,8 +140,8 @@ VERSION HISTORY
 .FOOT__container {
     background-color    :    var(--color-white);
     border-top          :    01px solid var(--color-gray-400);
-    padding-top         :    00.25rem;
-    padding-bottom      :    00.25rem;
+    padding-top         :    00.50rem;
+    padding-bottom      :    00.50rem;
     width               :    100%;
     text-align          :    center;
     font-size           :    00.75rem;
