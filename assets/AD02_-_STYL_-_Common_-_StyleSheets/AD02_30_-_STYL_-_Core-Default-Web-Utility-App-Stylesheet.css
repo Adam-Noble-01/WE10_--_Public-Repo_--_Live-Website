@@ -25,11 +25,11 @@ VERSION HISTORY
 
 /* ==============================================================================================
    CSS | COLOR VARIABLES
-   - Defines all colors used in the application
+   - Defines all Colours used in the application
    - All color values should reference these variables
    ============================================================================================== */
 :root {
-    /* Base Colors */
+    /* Base Colours */
     --color-white       :    #ffffff;    /*   <-- Pure white */
     --color-black       :    #000000;    /*   <-- Pure black */
     
@@ -43,19 +43,20 @@ VERSION HISTORY
     --color-gray-700    :    #555;       /*   <-- Dark gray */
     --color-gray-800    :    #333;       /*   <-- Very dark gray */
     
-    /* Brand Colors */
+    /* Brand Colours */
     --color-brand             :    #555041;    /*   <-- Noble Architecture brand colour */
-    --color-brand-Lighter     :    #504c46;    /*   <-- NA Secondary brand colour */
+    --color-brand-light       :    #504c46;    /*   <-- NA Secondary brand colour */
+    --color-brand-mid-tone    :    #5d5d5d;    /*   <-- NA Tertiary brand colour */
     
-    /* Action Colors */
-    --color-action-primary    :    #504c46;    /*   <-- Primary action color (buttons, links) */
+    /* Button & Link Action Colours */
+    --color-action-primary    :    #5d5d5d;    /*   <-- Primary action colour (buttons, links) */
     --color-action-hover      :    #005580;    /*   <-- Hover state for primary actions */
     --color-success           :    #3d8b40;    /*   <-- Success/export actions */
     --color-success-hover     :    #2d6a30;    /*   <-- Hover state for success actions */
     --color-danger            :    #BA5050;    /*   <-- Danger/cancel actions */
     --color-danger-hover      :    #9E2D2D;    /*   <-- Hover state for danger actions */
     
-    /* Status Colors */
+    /* Status Colours */
     --color-alert             :    #856404;    /*   <-- Alert text colour */
     --color-alert-bg          :    #fff3cd;    /*   <-- Alert background colour */
     --color-error             :    #BA5050;    /*   <-- Error text colour */
