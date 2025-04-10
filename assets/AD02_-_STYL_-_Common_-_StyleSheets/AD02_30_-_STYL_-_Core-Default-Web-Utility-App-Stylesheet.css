@@ -12,6 +12,7 @@ FILE DESCRIPTION
 
 VERSION HISTORY
 1.0.0 - Initial Release - Unified stylesheet for utility web apps
+1.1.0 - Enhanced color variable mapping for consistency and future theming support
 
 /* ==============================================================================================
    CSS | ROOT FONT SIZE DEFINITION
@@ -22,18 +23,96 @@ VERSION HISTORY
 }
 
 /* ==============================================================================================
-   CSS | UTILITY APP COLOR VARIABLES
-   - Defines the color variables specific to utility web apps
+   CSS | COLOR VARIABLE MAPPING - PRIMARY COLOR DEFINITIONS
+   - Defines the core color palette for utility web apps
+   - All color values should reference these variables
    ============================================================================================== */
 :root {
-    --bg-color          :    #f0f0f0;    /*   <-- App background color */
-    --primary-color     :    #555041;    /*   <-- Brand primary color */
-    --secondary-color   :    #066;       /*   <-- Interactive elements color */
-    --text-color        :    #333;       /*   <-- Primary text color */
-    --text-light        :    #666;       /*   <-- Secondary text color */
-    --card-border       :    #ddd;       /*   <-- Card border color */
-    --code-bg           :    #f5f5f5;    /*   <-- Code background color */
-    --code-text         :    #333;       /*   <-- Code text color */
+    /* Base Colors */
+    --color-white       :    #ffffff;    /*   <-- Pure white */
+    --color-black       :    #000000;    /*   <-- Pure black */
+    
+    /* Gray Scale */
+    --color-gray-100    :    #f0f0f0;    /*   <-- Lightest gray (background) */
+    --color-gray-200    :    #f5f5f5;    /*   <-- Very light gray */
+    --color-gray-300    :    #e0e0e0;    /*   <-- Light gray */
+    --color-gray-400    :    #ddd;       /*   <-- Medium light gray */
+    --color-gray-500    :    #999;       /*   <-- Medium gray */
+    --color-gray-600    :    #666;       /*   <-- Medium dark gray */
+    --color-gray-700    :    #555;       /*   <-- Dark gray */
+    --color-gray-800    :    #333;       /*   <-- Very dark gray */
+    
+    /* Brand Colors */
+    --color-brand-primary     :    #555041;    /*   <-- Noble Architecture primary brand color */
+    --color-brand-secondary   :    #066;       /*   <-- Secondary brand color for interactive elements */
+    
+    /* Action Colors */
+    --color-action-primary    :    #066;       /*   <-- Primary action color (buttons, links) */
+    --color-action-hover      :    #005580;    /*   <-- Hover state for primary actions */
+    --color-success           :    #3d8b40;    /*   <-- Success/export actions */
+    --color-success-hover     :    #2d6a30;    /*   <-- Hover state for success actions */
+    --color-danger            :    #BA5050;    /*   <-- Danger/cancel actions */
+    --color-danger-hover      :    #9E2D2D;    /*   <-- Hover state for danger actions */
+    
+    /* Status Colors */
+    --color-alert             :    #856404;    /*   <-- Alert text color */
+    --color-alert-bg          :    #fff3cd;    /*   <-- Alert background color */
+    --color-error             :    #BA5050;    /*   <-- Error text color */
+    --color-error-bg          :    #fde8e8;    /*   <-- Error background color */
+}
+
+/* ==============================================================================================
+   CSS | SEMANTIC COLOR MAPPING
+   - Maps the primary color definitions to semantic usage
+   - Use these variables in the actual CSS rules
+   ============================================================================================== */
+:root {
+    /* App Structure Colors */
+    --bg-color          :    var(--color-gray-100);    /*   <-- App background color */
+    --text-color        :    var(--color-gray-800);    /*   <-- Primary text color */
+    --text-light        :    var(--color-gray-600);    /*   <-- Secondary text color */
+    --primary-color     :    var(--color-brand-primary);    /*   <-- Brand primary color */
+    --secondary-color   :    var(--color-brand-secondary);  /*   <-- Interactive elements color */
+    
+    /* UI Element Colors */
+    --card-bg           :    var(--color-white);       /*   <-- Card background color */
+    --card-border       :    var(--color-gray-400);    /*   <-- Card border color */
+    --code-bg           :    var(--color-gray-200);    /*   <-- Code background color */
+    --code-text         :    var(--color-gray-800);    /*   <-- Code text color */
+    --table-header-bg   :    var(--color-gray-200);    /*   <-- Table header background */
+    --table-border      :    var(--color-gray-400);    /*   <-- Table border color */
+    --table-row-hover   :    var(--color-gray-200);    /*   <-- Table row hover color */
+}
+
+/* ==============================================================================================
+   CSS | BUTTON COLOR VARIABLES
+   - Defines color variables specifically for buttons
+   - Ensures consistent button styling across the application
+   ============================================================================================== */
+:root {
+    /* Standard Button */
+    --button-bg              :    var(--color-action-primary);    /*   <-- Standard button background */
+    --button-text            :    var(--color-white);             /*   <-- Standard button text */
+    --button-hover-bg        :    var(--color-action-hover);      /*   <-- Standard button hover background */
+    --button-hover-text      :    var(--color-white);             /*   <-- Standard button hover text */
+    
+    /* Query Button */
+    --button-query-bg        :    var(--color-action-primary);    /*   <-- Query button background */
+    --button-query-text      :    var(--color-white);             /*   <-- Query button text */
+    --button-query-hover-bg  :    var(--color-action-hover);      /*   <-- Query button hover background */
+    --button-query-hover-text:    var(--color-white);             /*   <-- Query button hover text */
+    
+    /* Export Button */
+    --button-export-bg       :    var(--color-success);           /*   <-- Export button background */
+    --button-export-text     :    var(--color-white);             /*   <-- Export button text */
+    --button-export-hover-bg :    var(--color-success-hover);     /*   <-- Export button hover background */
+    --button-export-hover-text:   var(--color-white);             /*   <-- Export button hover text */
+    
+    /* Cancel Button */
+    --button-cancel-bg       :    var(--color-danger);            /*   <-- Cancel button background */
+    --button-cancel-text     :    var(--color-white);             /*   <-- Cancel button text */
+    --button-cancel-hover-bg :    var(--color-danger-hover);      /*   <-- Cancel button hover background */
+    --button-cancel-hover-text:   var(--color-white);             /*   <-- Cancel button hover text */
 }
 
 /* ==============================================================================================
@@ -58,7 +137,7 @@ VERSION HISTORY
     display             :    flex;
     flex-direction      :    column;
     overflow-y          :    auto;
-    background-color    :    #f0f0f0;
+    background-color    :    var(--bg-color);
 }
 
 .MAIN__container {
@@ -77,7 +156,7 @@ VERSION HISTORY
    - Defines the header components for utility web apps
    ============================================================================================== */
 .HEAD__container {
-    background-color    :    white;
+    background-color    :    var(--color-white);
     border-bottom       :    01px solid var(--card-border);
     padding             :    00.75rem 0;
     width               :    100%;
@@ -110,7 +189,7 @@ VERSION HISTORY
    - Defines common card blocks used across utility web apps
    ============================================================================================== */
 .FORM__block, .CTRL__block, .RSLT__block, .QURY__block {
-    background-color    :    white;
+    background-color    :    var(--card-bg);
     border              :    01px solid var(--card-border);
     border-radius       :    00.3125rem;
     padding             :    01.00rem;
@@ -166,7 +245,7 @@ VERSION HISTORY
     border              :    01px solid var(--card-border);
     border-radius       :    00.3125rem;
     font-size           :    00.875rem;
-    background-color    :    white;
+    background-color    :    var(--color-white);
     box-sizing          :    border-box;
 }
 
@@ -197,8 +276,8 @@ VERSION HISTORY
 }
 
 .BTTN__standard {
-    background-color    :    var(--secondary-color);
-    color               :    white;
+    background-color    :    var(--button-bg);
+    color               :    var(--button-text);
     border              :    none;
     padding             :    00.625rem 01.25rem;
     border-radius       :    00.3125rem;
@@ -210,7 +289,8 @@ VERSION HISTORY
 }
 
 .BTTN__standard:hover {
-    background-color    :    #005580;
+    background-color    :    var(--button-hover-bg);
+    color               :    var(--button-hover-text);
 }
 
 .BTTN__standard:active {
@@ -218,26 +298,30 @@ VERSION HISTORY
 }
 
 .BTTN__query {
-    background-color    :    var(--secondary-color);
+    background-color    :    var(--button-query-bg);
+    color               :    var(--button-query-text);
     flex-basis          :    60%;
 }
 
 .BTTN__query:hover {
-    background-color    :    #005580;
+    background-color    :    var(--button-query-hover-bg);
+    color               :    var(--button-query-hover-text);
 }
 
 .BTTN__export {
-    background-color    :    #3d8b40;
+    background-color    :    var(--button-export-bg);
+    color               :    var(--button-export-text);
     flex-basis          :    40%;
 }
 
 .BTTN__export:hover {
-    background-color    :    #2d6a30;
+    background-color    :    var(--button-export-hover-bg);
+    color               :    var(--button-export-hover-text);
 }
 
 .BTTN__cancel {
-    background-color    :    #BA5050;
-    color               :    white;
+    background-color    :    var(--button-cancel-bg);
+    color               :    var(--button-cancel-text);
     border              :    none;
     padding             :    00.625rem 01.25rem;
     border-radius       :    00.3125rem;
@@ -249,7 +333,8 @@ VERSION HISTORY
 }
 
 .BTTN__cancel:hover {
-    background-color    :    #9E2D2D;
+    background-color    :    var(--button-cancel-hover-bg);
+    color               :    var(--button-cancel-hover-text);
 }
 
 .BTTN__cancel:active {
@@ -267,7 +352,7 @@ VERSION HISTORY
     margin              :    0;
     border              :    01px solid var(--card-border);
     border-radius       :    00.3125rem;
-    background-color    :    white;
+    background-color    :    var(--card-bg);
 }
 
 /* ==============================================================================================
@@ -318,8 +403,8 @@ VERSION HISTORY
 }
 
 .RSLT__table th {
-    background-color    :    #f5f5f5;
-    border-bottom       :    01px solid #ddd;
+    background-color    :    var(--table-header-bg);
+    border-bottom       :    01px solid var(--table-border);
     padding             :    00.50rem;
     text-align          :    left;
     font-weight         :    600;
@@ -327,13 +412,13 @@ VERSION HISTORY
 }
 
 .RSLT__table td {
-    border-bottom       :    01px solid #eee;
+    border-bottom       :    01px solid var(--color-gray-300);
     padding             :    00.50rem;
     font-size           :    00.875rem;
 }
 
 .RSLT__table tr:hover {
-    background-color    :    #f9f9f9;
+    background-color    :    var(--table-row-hover);
 }
 
 /* ==============================================================================================
