@@ -134,6 +134,32 @@ VERSION HISTORY
 }
 
 /* ==============================================================================================
+   CSS | FOOTER COMPONENTS
+   - Defines the footer components for utility web apps
+   ============================================================================================== */
+.FOOT__container {
+    background-color    :    var(--color-white);
+    border-top          :    01px solid var(--color-gray-400);
+    padding-top         :    00.25rem;
+    padding-bottom      :    00.25rem;
+    width               :    100%;
+    text-align          :    center;
+    font-size           :    00.75rem;
+    color               :    var(--color-gray-600);
+    flex-shrink         :    0;
+}
+
+.FOOT__content {
+    max-width           :    960px;
+    padding-left        :    01.00rem;
+    padding-right       :    01.00rem;
+    margin              :    0 auto;
+    display             :    flex;
+    align-items         :    center;
+    justify-content     :    center;
+}
+
+/* ==============================================================================================
    CSS | COMMON CARD BLOCKS
    - Defines common card blocks used across utility web apps
    ============================================================================================== */
