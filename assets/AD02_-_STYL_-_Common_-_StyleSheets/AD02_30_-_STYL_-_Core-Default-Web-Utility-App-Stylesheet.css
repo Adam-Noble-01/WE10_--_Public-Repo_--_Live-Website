@@ -373,19 +373,19 @@ VERSION HISTORY
    CSS | RESPONSIVE ADJUSTMENTS
    - Responsive design adjustments for mobile devices
    ============================================================================================== */
-@media (max-width: 768px) {
-    .MAIN__container {
-        padding-left    :    00.50rem;
-        padding-right   :    00.50rem;
-    }
-    
-    .BTTN__container {
-        flex-direction  :    column;
-    }
-    
-    .BTTN__standard, .BTTN__cancel, .BTTN__query, .BTTN__export {
-        width           :    100%;
-        flex-basis      :    auto;
-        margin-bottom   :    00.50rem;
-    }
-} 
+                /* @media (max-width: 768px) {
+                    .MAIN__container {
+                        padding-left    :    00.50rem;
+                        padding-right   :    00.50rem;
+                    }
+                    
+                    .BTTN__container {
+                        flex-direction  :    column;
+                    }
+                    
+                    .BTTN__standard, .BTTN__cancel, .BTTN__query, .BTTN__export {
+                        width           :    100%;
+                        flex-basis      :    auto;
+                        margin-bottom   :    00.50rem;
+                    }
+                }  */
