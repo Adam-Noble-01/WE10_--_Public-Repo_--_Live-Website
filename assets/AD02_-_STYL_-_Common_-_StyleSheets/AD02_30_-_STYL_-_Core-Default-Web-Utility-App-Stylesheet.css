@@ -13,6 +13,7 @@ FILE DESCRIPTION
 VERSION HISTORY
 1.0.0 - Initial Release - Unified stylesheet for utility web apps
 1.1.0 - Enhanced color variable mapping for consistency and future theming support
+1.2.0 - Simplified color variable system for easier maintenance
 
 /* ==============================================================================================
    CSS | ROOT FONT SIZE DEFINITION
@@ -23,8 +24,8 @@ VERSION HISTORY
 }
 
 /* ==============================================================================================
-   CSS | COLOR VARIABLE MAPPING - PRIMARY COLOR DEFINITIONS
-   - Defines the core color palette for utility web apps
+   CSS | COLOR VARIABLES
+   - Defines all colors used in the application
    - All color values should reference these variables
    ============================================================================================== */
 :root {
@@ -43,11 +44,11 @@ VERSION HISTORY
     --color-gray-800    :    #333;       /*   <-- Very dark gray */
     
     /* Brand Colors */
-    --color-brand-primary     :    #555041;    /*   <-- Noble Architecture primary brand color */
-    --color-brand-secondary   :    #066;       /*   <-- Secondary brand color for interactive elements */
+    --color-brand             :    #555041;    /*   <-- Noble Architecture brand colour */
+    --color-brand-Lighter     :    #504c46;    /*   <-- NA Secondary brand colour */
     
     /* Action Colors */
-    --color-action-primary    :    #066;       /*   <-- Primary action color (buttons, links) */
+    --color-action-primary    :    #504c46;    /*   <-- Primary action color (buttons, links) */
     --color-action-hover      :    #005580;    /*   <-- Hover state for primary actions */
     --color-success           :    #3d8b40;    /*   <-- Success/export actions */
     --color-success-hover     :    #2d6a30;    /*   <-- Hover state for success actions */
@@ -55,64 +56,10 @@ VERSION HISTORY
     --color-danger-hover      :    #9E2D2D;    /*   <-- Hover state for danger actions */
     
     /* Status Colors */
-    --color-alert             :    #856404;    /*   <-- Alert text color */
-    --color-alert-bg          :    #fff3cd;    /*   <-- Alert background color */
-    --color-error             :    #BA5050;    /*   <-- Error text color */
-    --color-error-bg          :    #fde8e8;    /*   <-- Error background color */
-}
-
-/* ==============================================================================================
-   CSS | SEMANTIC COLOR MAPPING
-   - Maps the primary color definitions to semantic usage
-   - Use these variables in the actual CSS rules
-   ============================================================================================== */
-:root {
-    /* App Structure Colors */
-    --bg-color          :    var(--color-gray-100);    /*   <-- App background color */
-    --text-color        :    var(--color-gray-800);    /*   <-- Primary text color */
-    --text-light        :    var(--color-gray-600);    /*   <-- Secondary text color */
-    --primary-color     :    var(--color-brand-primary);    /*   <-- Brand primary color */
-    --secondary-color   :    var(--color-brand-secondary);  /*   <-- Interactive elements color */
-    
-    /* UI Element Colors */
-    --card-bg           :    var(--color-white);       /*   <-- Card background color */
-    --card-border       :    var(--color-gray-400);    /*   <-- Card border color */
-    --code-bg           :    var(--color-gray-200);    /*   <-- Code background color */
-    --code-text         :    var(--color-gray-800);    /*   <-- Code text color */
-    --table-header-bg   :    var(--color-gray-200);    /*   <-- Table header background */
-    --table-border      :    var(--color-gray-400);    /*   <-- Table border color */
-    --table-row-hover   :    var(--color-gray-200);    /*   <-- Table row hover color */
-}
-
-/* ==============================================================================================
-   CSS | BUTTON COLOR VARIABLES
-   - Defines color variables specifically for buttons
-   - Ensures consistent button styling across the application
-   ============================================================================================== */
-:root {
-    /* Standard Button */
-    --button-bg              :    var(--color-action-primary);    /*   <-- Standard button background */
-    --button-text            :    var(--color-white);             /*   <-- Standard button text */
-    --button-hover-bg        :    var(--color-action-hover);      /*   <-- Standard button hover background */
-    --button-hover-text      :    var(--color-white);             /*   <-- Standard button hover text */
-    
-    /* Query Button */
-    --button-query-bg        :    var(--color-action-primary);    /*   <-- Query button background */
-    --button-query-text      :    var(--color-white);             /*   <-- Query button text */
-    --button-query-hover-bg  :    var(--color-action-hover);      /*   <-- Query button hover background */
-    --button-query-hover-text:    var(--color-white);             /*   <-- Query button hover text */
-    
-    /* Export Button */
-    --button-export-bg       :    var(--color-success);           /*   <-- Export button background */
-    --button-export-text     :    var(--color-white);             /*   <-- Export button text */
-    --button-export-hover-bg :    var(--color-success-hover);     /*   <-- Export button hover background */
-    --button-export-hover-text:   var(--color-white);             /*   <-- Export button hover text */
-    
-    /* Cancel Button */
-    --button-cancel-bg       :    var(--color-danger);            /*   <-- Cancel button background */
-    --button-cancel-text     :    var(--color-white);             /*   <-- Cancel button text */
-    --button-cancel-hover-bg :    var(--color-danger-hover);      /*   <-- Cancel button hover background */
-    --button-cancel-hover-text:   var(--color-white);             /*   <-- Cancel button hover text */
+    --color-alert             :    #856404;    /*   <-- Alert text colour */
+    --color-alert-bg          :    #fff3cd;    /*   <-- Alert background colour */
+    --color-error             :    #BA5050;    /*   <-- Error text colour */
+    --color-error-bg          :    #fde8e8;    /*   <-- Error background colour */
 }
 
 /* ==============================================================================================
@@ -124,7 +71,7 @@ VERSION HISTORY
     display             :    flex;
     flex-direction      :    column;
     overflow-x          :    hidden;
-    background-color    :    var(--bg-color);
+    background-color    :    var(--color-gray-100);
 }
 
 .FULL__page-app-container {
@@ -137,7 +84,7 @@ VERSION HISTORY
     display             :    flex;
     flex-direction      :    column;
     overflow-y          :    auto;
-    background-color    :    var(--bg-color);
+    background-color    :    var(--color-gray-100);
 }
 
 .MAIN__container {
@@ -157,7 +104,7 @@ VERSION HISTORY
    ============================================================================================== */
 .HEAD__container {
     background-color    :    var(--color-white);
-    border-bottom       :    01px solid var(--card-border);
+    border-bottom       :    01px solid var(--color-gray-400);
     padding             :    00.75rem 0;
     width               :    100%;
 }
@@ -174,12 +121,12 @@ VERSION HISTORY
 .HEAD__title {
     font-size           :    01.25rem;
     font-weight         :    600;
-    color               :    var(--primary-color);
+    color               :    var(--color-brand);
 }
 
 .HEAD__version-note {
     font-size           :    00.75rem;
-    color               :    var(--text-light);
+    color               :    var(--color-gray-600);
     font-weight         :    normal;
     margin-left         :    00.50rem;
 }
@@ -189,8 +136,8 @@ VERSION HISTORY
    - Defines common card blocks used across utility web apps
    ============================================================================================== */
 .FORM__block, .CTRL__block, .RSLT__block, .QURY__block {
-    background-color    :    var(--card-bg);
-    border              :    01px solid var(--card-border);
+    background-color    :    var(--color-white);
+    border              :    01px solid var(--color-gray-400);
     border-radius       :    00.3125rem;
     padding             :    01.00rem;
     margin-bottom       :    01.00rem;
@@ -207,10 +154,10 @@ VERSION HISTORY
 .CTRL__heading, .QURY__heading {
     font-size           :    01.00rem;
     font-weight         :    600;
-    color               :    var(--text-color);
+    color               :    var(--color-gray-800);
     margin-bottom       :    01.00rem;
     padding-bottom      :    00.50rem;
-    border-bottom       :    01px solid var(--card-border);
+    border-bottom       :    01px solid var(--color-gray-400);
 }
 
 .RSLT__block {
@@ -236,13 +183,13 @@ VERSION HISTORY
     margin-bottom       :    00.50rem;
     font-weight         :    600;
     font-size           :    00.875rem;
-    color               :    var(--text-color);
+    color               :    var(--color-gray-800);
 }
 
 .FORM__select, .FORM__input, .FORM__textarea {
     width               :    100%;
     padding             :    00.625rem 00.75rem;
-    border              :    01px solid var(--card-border);
+    border              :    01px solid var(--color-gray-400);
     border-radius       :    00.3125rem;
     font-size           :    00.875rem;
     background-color    :    var(--color-white);
@@ -259,7 +206,7 @@ VERSION HISTORY
 
 .FORM__select:focus, .FORM__input:focus, .FORM__textarea:focus {
     outline             :    none;
-    border-color        :    var(--secondary-color);
+    border-color        :    var(--color-action-primary);
     box-shadow          :    0 0 0 02px rgba(0, 102, 153, 0.2);
 }
 
@@ -276,8 +223,8 @@ VERSION HISTORY
 }
 
 .BTTN__standard {
-    background-color    :    var(--button-bg);
-    color               :    var(--button-text);
+    background-color    :    var(--color-action-primary);
+    color               :    var(--color-white);
     border              :    none;
     padding             :    00.625rem 01.25rem;
     border-radius       :    00.3125rem;
@@ -289,8 +236,8 @@ VERSION HISTORY
 }
 
 .BTTN__standard:hover {
-    background-color    :    var(--button-hover-bg);
-    color               :    var(--button-hover-text);
+    background-color    :    var(--color-action-hover);
+    color               :    var(--color-white);
 }
 
 .BTTN__standard:active {
@@ -298,30 +245,30 @@ VERSION HISTORY
 }
 
 .BTTN__query {
-    background-color    :    var(--button-query-bg);
-    color               :    var(--button-query-text);
+    background-color    :    var(--color-action-primary);
+    color               :    var(--color-white);
     flex-basis          :    60%;
 }
 
 .BTTN__query:hover {
-    background-color    :    var(--button-query-hover-bg);
-    color               :    var(--button-query-hover-text);
+    background-color    :    var(--color-action-hover);
+    color               :    var(--color-white);
 }
 
 .BTTN__export {
-    background-color    :    var(--button-export-bg);
-    color               :    var(--button-export-text);
+    background-color    :    var(--color-success);
+    color               :    var(--color-white);
     flex-basis          :    40%;
 }
 
 .BTTN__export:hover {
-    background-color    :    var(--button-export-hover-bg);
-    color               :    var(--button-export-hover-text);
+    background-color    :    var(--color-success-hover);
+    color               :    var(--color-white);
 }
 
 .BTTN__cancel {
-    background-color    :    var(--button-cancel-bg);
-    color               :    var(--button-cancel-text);
+    background-color    :    var(--color-danger);
+    color               :    var(--color-white);
     border              :    none;
     padding             :    00.625rem 01.25rem;
     border-radius       :    00.3125rem;
@@ -333,8 +280,8 @@ VERSION HISTORY
 }
 
 .BTTN__cancel:hover {
-    background-color    :    var(--button-cancel-hover-bg);
-    color               :    var(--button-cancel-hover-text);
+    background-color    :    var(--color-danger-hover);
+    color               :    var(--color-white);
 }
 
 .BTTN__cancel:active {
@@ -350,9 +297,9 @@ VERSION HISTORY
     overflow-y          :    auto;
     padding             :    01.00rem;
     margin              :    0;
-    border              :    01px solid var(--card-border);
+    border              :    01px solid var(--color-gray-400);
     border-radius       :    00.3125rem;
-    background-color    :    var(--card-bg);
+    background-color    :    var(--color-white);
 }
 
 /* ==============================================================================================
@@ -369,23 +316,23 @@ VERSION HISTORY
 
 .MAIN__output em, .MAIN__output i {
     font-style          :    italic;
-    color               :    var(--text-color);
+    color               :    var(--color-gray-800);
 }
 
 .MAIN__output pre {
-    background-color    :    var(--code-bg);
+    background-color    :    var(--color-gray-200);
     padding             :    00.625rem;
     border-radius       :    00.25rem;
     overflow-x          :    auto;
-    color               :    var(--code-text);
+    color               :    var(--color-gray-800);
 }
 
 .MAIN__output code {
     font-family         :    monospace;
-    background-color    :    var(--code-bg);
+    background-color    :    var(--color-gray-200);
     padding             :    0 00.20rem;
     border-radius       :    00.1875rem;
-    color               :    var(--code-text);
+    color               :    var(--color-gray-800);
 }
 
 .MAIN__output pre code {
@@ -403,8 +350,8 @@ VERSION HISTORY
 }
 
 .RSLT__table th {
-    background-color    :    var(--table-header-bg);
-    border-bottom       :    01px solid var(--table-border);
+    background-color    :    var(--color-gray-200);
+    border-bottom       :    01px solid var(--color-gray-400);
     padding             :    00.50rem;
     text-align          :    left;
     font-weight         :    600;
@@ -418,7 +365,7 @@ VERSION HISTORY
 }
 
 .RSLT__table tr:hover {
-    background-color    :    var(--table-row-hover);
+    background-color    :    var(--color-gray-200);
 }
 
 /* ==============================================================================================
