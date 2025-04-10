@@ -32,55 +32,67 @@
 
 
 "SN10_01_-_UTIL_-_Text-To-Reader-App": {
-    "app-name"              :  "Text To Reader Utility",
-    "app-browser-title"     :  "Text To Reader",
-    "app-description"       :  "A utility to parse WhatsApp chat text or render Markdown text into a readable format",
-    "app-category"          :  "UTIL",
-    "app-keywords"          :  "Reader, Text to Speech, Utility, WhatsApp, Markdown",
-    "app-usage"             :  "For converting Whatsapp messages / markdown text into a readable format",
-    "app-dir-path"          :  "./sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App",
-    "app-web-url"           :  "https://www.noble-architecture.com/sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App",
-    "app-file-name"         :  "SN10_01_01_-_PAGE_-_Text-To-Reader-App.html",
-    "app-file-format"       :  "html",
-    "app-type"              :  "Productivity Utility",
-    "app-created"           :  "08-Apr-2025",
-    "app-author"            :  "Adam Noble",
-    "app-last-updated"      :  "09-Apr-2025",
-    "app-current-version"   :  "1.2.4",
-    "app-bot-visible"       :  false,
-    "app-active-status"     :  true,
-    "app-assets-loader":{
-        "app-assets-config":{
+    "app-metadata": {
+        "app-name"              :  "Text To Reader Utility",
+        "app-browser-title"     :  "Text To Reader",
+        "app-description"       :  "A utility to parse WhatsApp chat text or render Markdown text into a readable format",
+        "app-category"          :  "UTIL",
+        "app-keywords"          :  "Reader, Text to Speech, Utility, WhatsApp, Markdown",
+        "app-usage"             :  "For converting Whatsapp messages / markdown text into a readable format",
+        "app-dir-path"          :  "./sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App",
+        "app-web-url"           :  "https://www.noble-architecture.com/sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Reader-App",
+        "app-file-name"         :  "SN10_01_01_-_PAGE_-_Text-To-Reader-App.html",
+        "app-file-format"       :  "html",
+        "app-type"              :  "Productivity Utility",
+        "app-created"           :  "08-Apr-2025",
+        "app-author"            :  "Adam Noble",
+        "app-last-updated"      :  "09-Apr-2025",
+        "app-current-version"   :  "1.2.4",
+        "app-bot-visible"       :  false,
+        "app-active-status"     :  true
+    },
+    "app-assets-loader": {
+        "app-assets-config": {
             "assets-required"         :  true,
             "assets-fonts-required"   :  true,
             "assets-scripts-required" :  true,
-            "assets-external-libs"    :  true,
-            "assets-required-notes"   :  "This app requires the following assets to be loaded: fonts, scripts"
+            "assets-external-libs"    :  false,
+            "assets-required-notes"   :  ""
         },
-        "app-scripts-loader" :  {
-            "JS02_01_-_UTIL_-_Fetch-And-Load-App-Data-JSON-Data.js":{
-                "script-load-order"       :  1,
-                "script-unique-id"        :  "JS02_01_-_UTIL_-_Fetch-And-Load-App-Data-JSON-Data.js",
-                "script-functionality"    :  "Loads the app data from the JSON file into the app",
-                "script-directory-path"   :  "/src/Core-JavaScript-Library/JS02_-_UTIL_-_Json-And-Data-Loading-Parsing-And-Processing/JS02_01_-_UTIL_-_Fetch-And-Load-App-Data-JSON-Data.js",
-                "script-web-url"          :  "https://www.noble-architecture.com/src/Core-JavaScript-Library/JS02_-_UTIL_-_Json-And-Data-Loading-Parsing-And-Processing/JS02_01_-_UTIL_-_Fetch-And-Load-App-Data-JSON-Data.js",
-                "scripts-to-load-prior"   :  "N/A"
-            },
-            "JS01_01_-_UTIL_-_Version-Number-Header-Injection.js":{
-                "script-load-order"       :  2,
-                "script-unique-id"        :  "JS01_01_-_UTIL_-_Version-Number-Header-Injection.js",
-                "script-functionality"    :  "Injects the version number from the core app data file into the applications top menu",
-                "script-directory-path"   :  "/src/Core-JavaScript-Library/JS01_-_UTIL_-_Utility-Scripts_-_Page-And-HTML-Manipulation/JS01_01_-_UTIL_-_Version-Number-Header-Injection.js",
-                "script-web-url"          :  "https://www.noble-architecture.com/src/Core-JavaScript-Library/JS01_-_UTIL_-_Utility-Scripts_-_Page-And-HTML-Manipulation/JS01_01_-_UTIL_-_Version-Number-Header-Injection.js",
-                "scripts-to-load-prior"   :  "N/A"
-            },
-            "app-script-parameter-manager" :  {
-                "placeholder-parameter-1" :  "Placeholder Parameter 1",
-                "placeholder-parameter-2" :  "Placeholder Parameter 2",
-                "placeholder-parameter-3" :  "Placeholder Parameter 3"
+        "app-styles-loader": {
+            "AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css": {
+                "style-load-order"        :  1,
+                "style-unique-id"         :  "AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css",
+                "style-description"       :  "Loads the main common style sheet for the project, used by all apps to standardise the look and feel of all project elements",
+                "style-directory-path"    :  "./assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css",
+                "style-web-url"           :  "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css",
+                "styles-to-load-prior"    :  "N/A"
             }
         },
-        "app-development-logs":{
+        "app-scripts-loader": {
+            "JS02_02_-_UTIL_-_Fetch-And-Load-App-Data-JSON-Data.js": {
+                "script-load-order"       :  1,
+                "script-unique-id"        :  "JS02_02_-_UTIL_-_Fetch-And-Load-App-Data.js",
+                "script-functionality"    :  "Loads the app data from the JSON file into the app",
+                "script-directory-path"   :  "/src/Core-JavaScript-Library/JS02_-_UTIL_-_Json-And-Data-Loading-Parsing-And-Processing/JS02_03_-_UTIL_-_Fetch-And-Load-App-Data.js",
+                "script-web-url"          :  "https://www.noble-architecture.com/src/Core-JavaScript-Library/JS02_-_UTIL_-_Json-And-Data-Loading-Parsing-And-Processing/JS02_03_-_UTIL_-_Fetch-And-Load-App-Data.js",
+                "scripts-to-load-prior"   :  "N/A"
+            },
+            "JS03_01_-_UTIL_-_Version-Number-Header-Injection.js": {
+                "script-load-order"       :  2,
+                "script-unique-id"        :  "JS03_01_-_UTIL_-_Version-Number-Header-Injection.js",
+                "script-functionality"    :  "Injects the version number from the core app data file into the applications top menu",
+                "script-directory-path"   :  "/src/Core-JavaScript-Library/JS01_-_UTIL_-_Utility-Scripts_-_Page-And-HTML-Manipulation/JS03_01_-_UTIL_-_Version-Number-Header-Injection.js",
+                "script-web-url"          :  "https://www.noble-architecture.com/src/Core-JavaScript-Library/JS01_-_UTIL_-_Utility-Scripts_-_Page-And-HTML-Manipulation/JS03_01_-_UTIL_-_Version-Number-Header-Injection.js",
+                "scripts-to-load-prior"   :  "N/A"
+            },
+            "app-script-parameter-manager": {
+                "placeholder-parameter-1": "Placeholder Parameter 1",
+                "placeholder-parameter-2": "Placeholder Parameter 2",
+                "placeholder-parameter-3": "Placeholder Parameter 3"
+            }
+        },
+        "app-development-logs": {
             "Version - 1.3.0": {
                 "version-title"  :  "Style Update",
                 "version-date"   :  "09-Apr-2025",
@@ -100,25 +112,28 @@
     }
 },
 
+
 "SN10_10_-_UTIL_-_Asset-Library-Query-Tool": {
-    "app-name"            :  "Asset Library Query Tool",
-    "app-browser-title"   :  "Asset Library Query",
-    "app-description"     :  "A utility to search and export URLs from the asset library",
-    "app-category"        :  "UTIL",
-    "app-keywords"        :  "Asset Library, Query, Search, Export, Utility",
-    "app-usage"           :  "For searching assets and exporting their URLs",
-    "app-dir-path"        :  "./sn-apps/SN10_10_-_UTIL_-_Asset-Library-Query-Tool/SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility",
-    "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_10_-_UTIL_-_Asset-Library-Query-Tool/SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility",
-    "app-file-name"       :  "SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility.html",
-    "app-file-format"     :  "html",
-    "app-type"            :  "Productivity Utility",
-    "app-created"         :  "09-Apr-2025",
-    "app-author"          :  "Adam Noble",
-    "app-last-updated"    :  "09-Apr-2025",
-    "app-current-version"         :  "1.0.0",
-    "app-bot-visible"     :  false,
-    "app-active-status"   :  true,
-    "app-development-logs"        :  {
+    "app-metadata": {
+        "app-name"            :  "Asset Library Query Tool",
+        "app-browser-title"   :  "Asset Library Query",
+        "app-description"     :  "A utility to search and export URLs from the asset library",
+        "app-category"        :  "UTIL",
+        "app-keywords"        :  "Asset Library, Query, Search, Export, Utility",
+        "app-usage"           :  "For searching assets and exporting their URLs",
+        "app-dir-path"        :  "./sn-apps/SN10_10_-_UTIL_-_Asset-Library-Query-Tool/SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility",
+        "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_10_-_UTIL_-_Asset-Library-Query-Tool/SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility",
+        "app-file-name"       :  "SN10_10_01_-_PAGE_-_Asset-Library-Query-Utility.html",
+        "app-file-format"     :  "html",
+        "app-type"            :  "Productivity Utility",
+        "app-created"         :  "09-Apr-2025",
+        "app-author"          :  "Adam Noble",
+        "app-last-updated"    :  "09-Apr-2025",
+        "app-current-version" :  "1.0.0",
+        "app-bot-visible"     :  false,
+        "app-active-status"   :  true
+    },
+    "app-development-logs": {
         "1.0.0": {
             "version-title"  :  "Initial Version",
             "version-date"   :  "09-Apr-2025",
@@ -128,24 +143,26 @@
 },
 
 "SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool": {
-    "app-name"            :  "Hex Colour Grid Tool",
-    "app-browser-title"   :  "Hex Colour Grid",
-    "app-description"     :  "A utility to create and manage color palettes with hex values",
-    "app-category"        :  "UTIL",
-    "app-keywords"        :  "Color, Palette, Hex, Design, Utility",
-    "app-usage"           :  "For creating and organizing color palettes for design work",
-    "app-dir-path"        :  "./sn-apps/SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool/SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool",
-    "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool/SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool",
-    "app-file-name"       :  "SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool.html",
-    "app-file-format"     :  "html",
-    "app-type"            :  "Design Utility",
-    "app-created"         :  "08-Apr-2025",
-    "app-author"          :  "Adam Noble",
-    "app-last-updated"    :  "08-Apr-2025",
-    "app-current-version"         :  "1.0.0",
-    "app-bot-visible"     :  false,
-    "app-active-status"   :  true,
-    "app-development-logs"        :  {
+    "app-metadata": {
+        "app-name"            :  "Hex Colour Grid Tool",
+        "app-browser-title"   :  "Hex Colour Grid",
+        "app-description"     :  "A utility to create and manage color palettes with hex values",
+        "app-category"        :  "UTIL",
+        "app-keywords"        :  "Color, Palette, Hex, Design, Utility",
+        "app-usage"           :  "For creating and organizing color palettes for design work",
+        "app-dir-path"        :  "./sn-apps/SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool/SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool",
+        "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_20_-_UTIL_-_Hex-Colour-Grid-Tool/SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool",
+        "app-file-name"       :  "SN10_20_01-_PAGE_-_Hex-Colour-Grid-Tool.html",
+        "app-file-format"     :  "html",
+        "app-type"            :  "Design Utility",
+        "app-created"         :  "08-Apr-2025",
+        "app-author"          :  "Adam Noble",
+        "app-last-updated"    :  "08-Apr-2025",
+        "app-current-version" :  "1.0.0",
+        "app-bot-visible"     :  false,
+        "app-active-status"   :  true
+    },
+    "app-development-logs": {
         "1.0.0": {
             "version-title"  :  "Initial Version",
             "version-date"   :  "08-Apr-2025",
@@ -155,24 +172,26 @@
 },
 
 "SN10_30_-_UTIL_-_Coding-Utility-Scripts-Block": {
-    "app-name"            :  "Coding Utility Scripts Viewer",
-    "app-browser-title"   :  "Code Snippets",
-    "app-description"     :  "A viewer for code snippets with syntax highlighting and copy functionality",
-    "app-category"        :  "UTIL",
-    "app-keywords"        :  "Code, Snippets, Syntax, Highlighting, Utility",
-    "app-usage"           :  "For viewing and copying code snippets with proper formatting",
-    "app-dir-path"        :  "./sn-apps/SN10_30_-_UTIL_-_Coding-Utility-Scripts-Blocks/SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks",
-    "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_30_-_UTIL_-_Coding-Utility-Scripts-Blocks/SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks",
-    "app-file-name"       :  "SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks.html",
-    "app-file-format"     :  "html",
-    "app-type"            :  "Development Utility",
-    "app-created"         :  "05-Apr-2025",
-    "app-author"          :  "Adam Noble",
-    "app-last-updated"    :  "08-Apr-2025",
-    "app-current-version"         :  "1.1.1",
-    "app-bot-visible"     :  false,
-    "app-active-status"   :  true,
-    "app-development-logs"        :  {
+    "app-metadata": {
+        "app-name"            :  "Coding Utility Scripts Viewer",
+        "app-browser-title"   :  "Code Snippets",
+        "app-description"     :  "A viewer for code snippets with syntax highlighting and copy functionality",
+        "app-category"        :  "UTIL",
+        "app-keywords"        :  "Code, Snippets, Syntax, Highlighting, Utility",
+        "app-usage"           :  "For viewing and copying code snippets with proper formatting",
+        "app-dir-path"        :  "./sn-apps/SN10_30_-_UTIL_-_Coding-Utility-Scripts-Blocks/SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks",
+        "app-web-url"         :  "https://www.noble-architecture.com/sn-apps/SN10_30_-_UTIL_-_Coding-Utility-Scripts-Blocks/SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks",
+        "app-file-name"       :  "SN10_30_01_-_PAGE_-_Coding-Utility-Scripts-Blocks.html",
+        "app-file-format"     :  "html",
+        "app-type"            :  "Development Utility",
+        "app-created"         :  "05-Apr-2025",
+        "app-author"          :  "Adam Noble",
+        "app-last-updated"    :  "08-Apr-2025",
+        "app-current-version" :  "1.1.1",
+        "app-bot-visible"     :  false,
+        "app-active-status"   :  true
+    },
+    "app-development-logs": {
         "1.0.0": {
             "version-title"  :  "Initial Version",
             "version-date"   :  "05-Apr-2025",
