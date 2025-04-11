@@ -18,7 +18,7 @@
 
 
 "Core_App_Config"  :  {
-    "app-dev-mode"        :  true,
+    "app-dev-mode"         :  true,
     "app-assets-location"  :  "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json",
     "app-style-location"   :  "NA40_03_-_STYL_-_Style-Library/NA02_02_01_-_NA_Plan-Vision-App_-_2.0.0_-_StyleSheet.css",
     "app-fallback-style"   :  "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css"

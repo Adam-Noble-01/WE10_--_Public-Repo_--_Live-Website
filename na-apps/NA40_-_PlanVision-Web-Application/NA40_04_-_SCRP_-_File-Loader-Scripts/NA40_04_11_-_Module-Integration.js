@@ -30,10 +30,8 @@ window.moduleStatus = {
     uiNavigation: false
 };
 
-/**
- * Register a module as loaded and ready for use
- * @param {string} moduleName - The name of the module being registered
- */
+// FUNCTION |  Register a module as loaded and ready for use
+// --------------------------------------------------------- //
 function registerModuleReady(moduleName) {
     if (!window.moduleStatus.hasOwnProperty(moduleName)) {
         console.warn(`Unknown module '${moduleName}' being registered`);
@@ -51,9 +49,8 @@ function registerModuleReady(moduleName) {
     checkAllModulesReady();
 }
 
-/**
- * Check if all critical modules are loaded and notify the application
- */
+// FUNCTION |  Check if all critical modules are loaded and notify the application
+// --------------------------------------------------------- //
 function checkAllModulesReady() {
     // Define which modules are critical for the application to function
     const criticalModules = ['assetLoader', 'projectAssets', 'canvasRenderer'];
@@ -79,10 +76,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Connect the Font Asset Loader to other modules
- * This ensures proper font loading before other components
- */
+// FUNCTION |  Connect the Font Asset Loader to other modules
+// --------------------------------------------------------- //
 function connectFontLoaderToModules() {
     console.log("Connecting Font Asset Loader to modules");
     
@@ -103,10 +98,8 @@ function connectFontLoaderToModules() {
     });
 }
 
-/**
- * Connect the Project Assets Loader with the Canvas Renderer
- * This ensures that when assets are loaded, the renderer is updated
- */
+// FUNCTION |  Connect the Project Assets Loader with the Canvas Renderer
+// --------------------------------------------------------- //
 function connectProjectAssetsToRenderer() {
     console.log("Connecting Project Assets to Canvas Renderer");
     
@@ -140,10 +133,8 @@ function connectProjectAssetsToRenderer() {
     checkForUnannouncedModules();
 }
 
-/**
- * Attempt to initialize the Canvas Renderer
- * @param {Event} event - The event that triggered the initialization attempt
- */
+// FUNCTION |  Attempt to initialize the Canvas Renderer
+// --------------------------------------------------------- //
 function initializeCanvasRenderer(event) {
     // Ensure the canvas renderer exists
     if (window.canvasRenderer) {
@@ -193,9 +184,8 @@ function initializeCanvasRenderer(event) {
     }
 }
 
-/**
- * Periodically check for modules that exist but haven't announced themselves
- */
+// FUNCTION |  Periodically check for modules that exist but haven't announced themselves
+// --------------------------------------------------------- //
 function checkForUnannouncedModules() {
     console.log("Setting up checks for unannounced modules");
     
@@ -252,10 +242,8 @@ function checkForUnannouncedModules() {
     }, 30000);
 }
 
-/**
- * Update the Canvas Renderer with the current image from Project Assets
- * This is a critical function that ensures the image is properly passed to the renderer
- */
+// FUNCTION |  Update the Canvas Renderer with the current image from Project Assets
+// --------------------------------------------------------- //
 function updateRendererWithCurrentImage() {
     console.log("Attempting to update renderer with current image");
     
@@ -323,9 +311,8 @@ function updateRendererWithCurrentImage() {
     return false;
 }
 
-/**
- * Update the Canvas Controller with the current image
- */
+// FUNCTION |  Update the Canvas Controller with the current image
+// --------------------------------------------------------- //
 function updateCanvasControllerWithCurrentImage() {
     if (!window.canvasController || !window.projectAssets) return;
     
@@ -360,25 +347,22 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Notify all modules that the renderer is ready
- */
+// FUNCTION |  Notify all modules that the renderer is ready
+// --------------------------------------------------------- //
 function notifyRendererReady() {
     console.log("Notifying that renderer is ready");
     document.dispatchEvent(new CustomEvent('rendererReady'));
 }
 
-/**
- * Notify all modules to refresh their rendering
- */
+// FUNCTION |  Notify all modules to refresh their rendering
+// --------------------------------------------------------- //
 function notifyRefreshRendering() {
     console.log("Requesting render refresh");
     document.dispatchEvent(new CustomEvent('refreshRendering'));
 }
 
-/**
- * Notify all modules that fonts are ready
- */
+// FUNCTION |  Notify all modules that fonts are ready
+// --------------------------------------------------------- //
 function notifyFontsReady() {
     console.log("Notifying that fonts are ready");
     document.dispatchEvent(new CustomEvent('fontsReady'));
@@ -393,14 +377,16 @@ DESCRIPTION
 --------------------------------------------
 */
 
-// Make public API available for module registration
+// MODULE |  Make public API available for module registration
+// --------------------------------------------------------- //
 window.moduleIntegration = {
     registerModuleReady: registerModuleReady,
     getModuleStatus: () => window.moduleStatus,
     updateRenderer: updateRendererWithCurrentImage
 };
 
-// Initialize when DOM is loaded
+// EVENT |  Initialize when DOM is loaded
+// --------------------------------------------------------- //
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Setting up module integration");
     connectFontLoaderToModules();
@@ -410,13 +396,12 @@ document.addEventListener('DOMContentLoaded', () => {
     registerModuleReady('moduleIntegration');
 });
 
-// Export our module status
+// EXPORT |  Export our module status
+// --------------------------------------------------------- //
 window.getModuleStatus = () => window.moduleStatus;
 
-/**
- * Global function to force load a drawing
- * This can be called from the console for debugging
- */
+// FUNCTION |  Global function to force load a drawing
+// --------------------------------------------------------- //
 window.debugForceLoadDrawing = function(drawingIndex = 0) {
     try {
         console.log("Debug: Attempting to force load drawing with index:", drawingIndex);

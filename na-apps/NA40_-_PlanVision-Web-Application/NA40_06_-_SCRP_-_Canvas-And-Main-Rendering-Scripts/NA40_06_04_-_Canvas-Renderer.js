@@ -30,9 +30,8 @@ let lastY = 0;
 // Create namespace for this module
 window.canvasRenderer = {};
 
-/**
- * Initialize the canvas renderer
- */
+// FUNCTION |  Initialize the canvas renderer
+// --------------------------------------------------------- //
 window.canvasRenderer.init = function() {
     // Get the canvas element
     canvas = document.getElementById("CNVS__Plan");
@@ -67,9 +66,8 @@ window.canvasRenderer.init = function() {
     });
 };
 
-/**
- * Resize the canvas to match its container
- */
+// FUNCTION |  Resize the canvas to match its container
+// --------------------------------------------------------- //
 window.canvasRenderer.resizeCanvas = function() {
     if (!canvas) return;
     
@@ -87,9 +85,8 @@ window.canvasRenderer.resizeCanvas = function() {
     requestAnimationFrame(window.canvasRenderer.drawCanvas);
 };
 
-/**
- * Set up event listeners for canvas interactions
- */
+// FUNCTION |  Set up event listeners for canvas interactions
+// --------------------------------------------------------- //
 window.canvasRenderer.attachEventListeners = function() {
     if (!canvas) return;
     
@@ -105,18 +102,16 @@ window.canvasRenderer.attachEventListeners = function() {
     console.log("CANVAS_RENDERER: Event listeners attached");
 };
 
-/**
- * Start the rendering loop
- */
+// FUNCTION |  Start the rendering loop
+// --------------------------------------------------------- //
 window.canvasRenderer.startRenderLoop = function() {
     // Request first animation frame
     requestAnimationFrame(window.canvasRenderer.renderLoop);
     console.log("CANVAS_RENDERER: Render loop started");
 };
 
-/**
- * Main render loop
- */
+// FUNCTION |  Main render loop
+// --------------------------------------------------------- //
 window.canvasRenderer.renderLoop = function() {
     // Draw canvas
     window.canvasRenderer.drawCanvas();
@@ -125,9 +120,8 @@ window.canvasRenderer.renderLoop = function() {
     requestAnimationFrame(window.canvasRenderer.renderLoop);
 };
 
-/**
- * Draw the canvas
- */
+// FUNCTION |  Draw the canvas
+// --------------------------------------------------------- //
 window.canvasRenderer.drawCanvas = function() {
     if (!ctx || !canvas) return;
     
@@ -178,9 +172,8 @@ window.canvasRenderer.drawCanvas = function() {
     }
 };
 
-/**
- * Handle mouse wheel event for zooming
- */
+// FUNCTION |  Handle mouse wheel event for zooming
+// --------------------------------------------------------- //
 window.canvasRenderer.onMouseWheel = function(e) {
     e.preventDefault();
     
@@ -199,9 +192,8 @@ window.canvasRenderer.onMouseWheel = function(e) {
     window.canvasRenderer.zoom(factor, mouseX, mouseY);
 };
 
-/**
- * Handle mouse down event for panning
- */
+// FUNCTION |  Handle mouse down event for panning
+// --------------------------------------------------------- //
 window.canvasRenderer.onMouseDown = function(e) {
     // Only start dragging on middle button or left button without active tool
     if (e.button === 1 || (e.button === 0 && (!window.measurementTools || !window.measurementTools.isToolActive()))) {
@@ -213,9 +205,8 @@ window.canvasRenderer.onMouseDown = function(e) {
     }
 };
 
-/**
- * Handle mouse move event for panning
- */
+// FUNCTION |  Handle mouse move event for panning
+// --------------------------------------------------------- //
 window.canvasRenderer.onMouseMove = function(e) {
     if (isDragging) {
         // Calculate the distance moved
@@ -235,9 +226,8 @@ window.canvasRenderer.onMouseMove = function(e) {
     }
 };
 
-/**
- * Handle mouse up event for panning
- */
+// FUNCTION |  Handle mouse up event for panning
+// --------------------------------------------------------- //
 window.canvasRenderer.onMouseUp = function(e) {
     if (isDragging) {
         isDragging = false;
@@ -245,12 +235,8 @@ window.canvasRenderer.onMouseUp = function(e) {
     }
 };
 
-/**
- * Perform zoom operation
- * @param {number} factor - Zoom factor (> 1 to zoom in, < 1 to zoom out)
- * @param {number} centerX - X coordinate of zoom center
- * @param {number} centerY - Y coordinate of zoom center
- */
+// FUNCTION |  Perform zoom operation
+// --------------------------------------------------------- //
 window.canvasRenderer.zoom = function(factor, centerX, centerY) {
     // Calculate points before zoom
     const beforeX = (centerX - offsetX) / zoomFactor;
@@ -274,9 +260,8 @@ window.canvasRenderer.zoom = function(factor, centerX, centerY) {
     requestAnimationFrame(window.canvasRenderer.drawCanvas);
 };
 
-/**
- * Reset the view to fit the image
- */
+// FUNCTION |  Reset the view to fit the image
+// --------------------------------------------------------- //
 window.canvasRenderer.resetView = function() {
     if (!canvas || !window.projectAssets || !window.projectAssets.isImageLoaded()) return;
     
@@ -302,10 +287,8 @@ window.canvasRenderer.resetView = function() {
     requestAnimationFrame(window.canvasRenderer.drawCanvas);
 };
 
-/**
- * Set current image to render
- * @param {HTMLImageElement} image - The image to render
- */
+// FUNCTION |  Set current image to render
+// --------------------------------------------------------- //
 window.canvasRenderer.setCurrentImage = function(image) {
     // This function is included for backward compatibility
     // The image is now managed by the projectAssets module
@@ -313,52 +296,38 @@ window.canvasRenderer.setCurrentImage = function(image) {
     requestAnimationFrame(window.canvasRenderer.drawCanvas);
 };
 
-/**
- * Get the current canvas
- * @returns {HTMLCanvasElement} The canvas element
- */
+// FUNCTION |  Get the current canvas
+// --------------------------------------------------------- //
 window.canvasRenderer.getCanvas = function() {
     return canvas;
 };
 
-/**
- * Get the current context
- * @returns {CanvasRenderingContext2D} The canvas 2D context
- */
+// FUNCTION |  Get the current context
+// --------------------------------------------------------- //
 window.canvasRenderer.getContext = function() {
     return ctx;
 };
 
-/**
- * Get the current zoom factor
- * @returns {number} The current zoom factor
- */
+// FUNCTION |  Get the current zoom factor
+// --------------------------------------------------------- //
 window.canvasRenderer.getZoomFactor = function() {
     return zoomFactor;
 };
 
-/**
- * Get the current X offset
- * @returns {number} The current X offset
- */
+// FUNCTION |  Get the current X offset
+// --------------------------------------------------------- //
 window.canvasRenderer.getOffsetX = function() {
     return offsetX;
 };
 
-/**
- * Get the current Y offset
- * @returns {number} The current Y offset
- */
+// FUNCTION |  Get the current Y offset
+// --------------------------------------------------------- //
 window.canvasRenderer.getOffsetY = function() {
     return offsetY;
 };
 
-/**
- * Convert screen coordinates to plan coordinates
- * @param {number} screenX - X coordinate on screen
- * @param {number} screenY - Y coordinate on screen
- * @returns {Object} Object with x and y properties in plan coordinates
- */
+// FUNCTION |  Convert screen coordinates to plan coordinates
+// --------------------------------------------------------- //
 window.canvasRenderer.toPlanCoords = function(screenX, screenY) {
     return {
         x: (screenX - offsetX) / zoomFactor,
@@ -366,10 +335,12 @@ window.canvasRenderer.toPlanCoords = function(screenX, screenY) {
     };
 };
 
-// Log that this module has loaded
+// LOG |  Module loaded
+// --------------------------------------------------------- //
 console.log("CANVAS_RENDERER: Module loaded");
 
-// Register this module with the module integration system
+// REGISTRATION |  Register with module integration system
+// --------------------------------------------------------- //
 if (window.moduleIntegration && typeof window.moduleIntegration.registerModuleReady === 'function') {
     window.moduleIntegration.registerModuleReady("canvasRenderer");
 } 

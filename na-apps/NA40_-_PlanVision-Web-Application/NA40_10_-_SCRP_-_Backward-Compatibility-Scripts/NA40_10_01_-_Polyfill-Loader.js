@@ -3,8 +3,7 @@
  * Automatically detects browser capability and loads polyfills as needed
  * for backward compatibility with older browsers.
  * 
- * Part of Plan Vision App 3.0.0
- * Noble Architecture
+ * Part of Plan Vision App v2.0.0
  */
 
 (function() {

@@ -70,9 +70,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Initialize measurement tools
- */
+// FUNCTION |  Initialize measurement tools
+// --------------------------------------------------------- //
 function initMeasurementTools() {
     // Get DOM references
     mainCanvas = document.getElementById("CNVS__Plan");
@@ -103,10 +102,8 @@ function initMeasurementTools() {
     console.log("Measurement tools initialized");
 }
 
-/**
- * Set the current measurement tool
- * @param {string} toolName - The tool to activate (linear, area, rectangle)
- */
+// FUNCTION |  Set the current measurement tool
+// --------------------------------------------------------- //
 function setTool(toolName) {
     // Clear any previous measurement in progress
     resetCurrentMeasurement();
@@ -134,9 +131,8 @@ function setTool(toolName) {
     console.log(`Measurement tool set to: ${toolName}`);
 }
 
-/**
- * Reset the current measurement in progress
- */
+// FUNCTION |  Reset the current measurement in progress
+// --------------------------------------------------------- //
 function resetCurrentMeasurement() {
     measuringPoints = [];
     isLinearMeasuring = false;
@@ -152,18 +148,16 @@ function resetCurrentMeasurement() {
     mainCanvas.style.cursor = "default";
 }
 
-/**
- * Clear all measurements
- */
+// FUNCTION |  Clear all measurements
+// --------------------------------------------------------- //
 function clearMeasurements() {
     measurements = [];
     resetCurrentMeasurement();
     console.log("All measurements cleared");
 }
 
-/**
- * Cancel the current tool/measurement
- */
+// FUNCTION |  Cancel the current tool/measurement
+// --------------------------------------------------------- //
 function cancelTool() {
     resetCurrentMeasurement();
     console.log("Measurement tool canceled");
@@ -178,10 +172,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Handle mouse down event for measurements
- * @param {Object} event - Mouse event
- */
+// FUNCTION |  Handle mouse down event for measurements
+// --------------------------------------------------------- //
 function handleMeasurementMouseDown(event) {
     if (!currentTool) return;
     
@@ -199,10 +191,8 @@ function handleMeasurementMouseDown(event) {
     }
 }
 
-/**
- * Handle mouse move event for measurements
- * @param {Object} event - Mouse event
- */
+// FUNCTION |  Handle mouse move event for measurements
+// --------------------------------------------------------- //
 function handleMeasurementMouseMove(event) {
     if (!currentTool) return;
     
@@ -218,10 +208,8 @@ function handleMeasurementMouseMove(event) {
     }
 }
 
-/**
- * Handle mouse up event for measurements
- * @param {Object} event - Mouse event
- */
+// FUNCTION |  Handle mouse up event for measurements
+// --------------------------------------------------------- //
 function handleMeasurementMouseUp(event) {
     if (currentTool === "rectangle" && isRectDragging) {
         isRectDragging = false;
@@ -240,10 +228,8 @@ function handleMeasurementMouseUp(event) {
     }
 }
 
-/**
- * Handle linear measurement mouse down
- * @param {Object} coords - Plan coordinates
- */
+// FUNCTION |  Handle linear measurement mouse down
+// --------------------------------------------------------- //
 function handleLinearMeasurementMouseDown(coords) {
     if (measuringPoints.length === 0) {
         // First point
@@ -258,10 +244,8 @@ function handleLinearMeasurementMouseDown(coords) {
     }
 }
 
-/**
- * Handle linear measurement mouse move
- * @param {Object} coords - Plan coordinates
- */
+// FUNCTION |  Handle linear measurement mouse move
+// --------------------------------------------------------- //
 function handleLinearMeasurementMouseMove(coords) {
     if (measuringPoints.length === 1) {
         // Show dynamic preview
@@ -274,10 +258,8 @@ function handleLinearMeasurementMouseMove(coords) {
     }
 }
 
-/**
- * Handle area measurement mouse down
- * @param {Object} coords - Plan coordinates
- */
+// FUNCTION |  Handle area measurement mouse down
+// --------------------------------------------------------- //
 function handleAreaMeasurementMouseDown(coords) {
     // Add a new point
     measuringPoints.push(coords);
@@ -303,10 +285,8 @@ function handleAreaMeasurementMouseDown(coords) {
     }
 }
 
-/**
- * Handle rectangle measurement mouse down
- * @param {Object} coords - Plan coordinates
- */
+// FUNCTION |  Handle rectangle measurement mouse down
+// --------------------------------------------------------- //
 function handleRectMeasurementMouseDown(coords) {
     if (measuringPoints.length === 0) {
         // First corner
@@ -318,10 +298,8 @@ function handleRectMeasurementMouseDown(coords) {
     }
 }
 
-/**
- * Handle rectangle measurement mouse move
- * @param {Object} coords - Plan coordinates
- */
+// FUNCTION |  Handle rectangle measurement mouse move
+// --------------------------------------------------------- //
 function handleRectMeasurementMouseMove(coords) {
     if (isRectDragging && measuringPoints.length === 2) {
         // Update the second corner
@@ -338,28 +316,24 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Show the cancel tool button
- */
+// FUNCTION |  Show the cancel tool button
+// --------------------------------------------------------- //
 function showCancelTool() {
     if (cancelToolBtn) {
         cancelToolBtn.style.display = "block";
     }
 }
 
-/**
- * Hide the cancel tool button
- */
+// FUNCTION |  Hide the cancel tool button
+// --------------------------------------------------------- //
 function hideCancelTool() {
     if (cancelToolBtn) {
         cancelToolBtn.style.display = "none";
     }
 }
 
-/**
- * Show instructions overlay with text
- * @param {string} text - Instruction text to display
- */
+// FUNCTION |  Show instructions overlay with text
+// --------------------------------------------------------- //
 function showInstructions(text) {
     if (instructionsOverlay && instructionsText) {
         instructionsText.textContent = text;
@@ -376,18 +350,16 @@ function showInstructions(text) {
     }
 }
 
-/**
- * Hide the instructions overlay
- */
+// FUNCTION |  Hide the instructions overlay
+// --------------------------------------------------------- //
 function hideInstructions() {
     if (instructionsOverlay) {
         instructionsOverlay.style.display = "none";
     }
 }
 
-/**
- * Position the confirm measurement button near the last point
- */
+// FUNCTION |  Position the confirm measurement button near the last point
+// --------------------------------------------------------- //
 function adjustConfirmButtonPosition() {
     if (!finishBtn || measuringPoints.length === 0) return;
     
@@ -425,32 +397,22 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Calculate distance between two points
- * @param {Object} a - First point {x, y}
- * @param {Object} b - Second point {x, y}
- * @returns {number} - Distance in pixels
- */
+// FUNCTION |  Calculate distance between two points
+// --------------------------------------------------------- //
 function dist(a, b) {
     return Math.hypot(b.x - a.x, b.y - a.y);
 }
 
-/**
- * Calculate the centroid of a polygon
- * @param {Array} pts - Array of points {x, y}
- * @returns {Object} - Centroid point {x, y}
- */
+// FUNCTION |  Calculate the centroid of a polygon
+// --------------------------------------------------------- //
 function polygonCentroid(pts) {
     let xSum = 0, ySum = 0;
     pts.forEach(p => { xSum += p.x; ySum += p.y; });
     return { x: xSum / pts.length, y: ySum / pts.length };
 }
 
-/**
- * Calculate the area of a polygon
- * @param {Array} pts - Array of points {x, y}
- * @returns {number} - Area in square pixels
- */
+// FUNCTION |  Calculate the area of a polygon
+// --------------------------------------------------------- //
 function polygonArea(pts) {
     let area = 0;
     for (let i = 0; i < pts.length; i++) {
@@ -460,12 +422,8 @@ function polygonArea(pts) {
     return Math.abs(area / 2);
 }
 
-/**
- * Convert screen coordinates to plan coordinates
- * @param {number} x - Screen X coordinate
- * @param {number} y - Screen Y coordinate
- * @returns {Object} - Plan coordinates {x, y}
- */
+// FUNCTION |  Convert screen coordinates to plan coordinates
+// --------------------------------------------------------- //
 function toPlanCoords(x, y) {
     return {
         x: (x - offsetX) / zoomFactor,
@@ -482,10 +440,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Finalize a measurement
- * @param {string} type - Measurement type (linear, area, rectangle)
- */
+// FUNCTION |  Finalize a measurement
+// --------------------------------------------------------- //
 function finalizeMeasurement(type) {
     if (type === "linear" && measuringPoints.length === 2) {
         finalizeLinearMeasurement();
@@ -496,9 +452,8 @@ function finalizeMeasurement(type) {
     }
 }
 
-/**
- * Finalize a linear measurement
- */
+// FUNCTION |  Finalize a linear measurement
+// --------------------------------------------------------- //
 function finalizeLinearMeasurement() {
     const [start, end] = measuringPoints;
     const pxDist = dist(start, end);
@@ -521,9 +476,8 @@ function finalizeLinearMeasurement() {
     resetCurrentMeasurement();
 }
 
-/**
- * Finalize an area measurement
- */
+// FUNCTION |  Finalize an area measurement
+// --------------------------------------------------------- //
 function finalizeAreaMeasurement() {
     const areaPx2 = polygonArea(measuringPoints);
     
@@ -541,9 +495,8 @@ function finalizeAreaMeasurement() {
     resetCurrentMeasurement();
 }
 
-/**
- * Finalize a rectangle measurement
- */
+// FUNCTION |  Finalize a rectangle measurement
+// --------------------------------------------------------- //
 function finalizeRectangleMeasurement() {
     const widthPx = Math.abs(measuringPoints[1].x - measuringPoints[0].x);
     const heightPx = Math.abs(measuringPoints[1].y - measuringPoints[0].y);
@@ -583,10 +536,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Draw all measurements on the canvas
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- */
+// FUNCTION |  Draw all measurements on the canvas
+// --------------------------------------------------------- //
 function drawAllMeasurements(ctx) {
     if (!ctx) return;
     
@@ -641,12 +592,8 @@ function drawAllMeasurements(ctx) {
     }
 }
 
-/**
- * Draw a line between two points
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Array} points - Array of two points
- * @param {string} strokeStyle - Line color
- */
+// FUNCTION |  Draw a line between two points
+// --------------------------------------------------------- //
 function drawLine(ctx, points, strokeStyle) {
     if (points.length < 2) return;
     
@@ -664,12 +611,8 @@ function drawLine(ctx, points, strokeStyle) {
     ctx.restore();
 }
 
-/**
- * Draw markers at points
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Array} points - Array of points
- * @param {string} color - Marker color
- */
+// FUNCTION |  Draw markers at points
+// --------------------------------------------------------- //
 function drawMarkers(ctx, points, color) {
     ctx.save();
     ctx.translate(offsetX, offsetY);
@@ -691,13 +634,8 @@ function drawMarkers(ctx, points, color) {
     ctx.restore();
 }
 
-/**
- * Draw a label for a line measurement
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Array} points - Array of two points
- * @param {number} distanceMM - Distance in millimeters
- * @param {string} color - Label color
- */
+// FUNCTION |  Draw a label for a line measurement
+// --------------------------------------------------------- //
 function drawLineLabel(ctx, points, distanceMM, color) {
     if (points.length < 2) return;
     
@@ -718,14 +656,8 @@ function drawLineLabel(ctx, points, distanceMM, color) {
     ctx.restore();
 }
 
-/**
- * Draw a rectangle
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Object} start - Start point {x, y}
- * @param {Object} end - End point {x, y}
- * @param {string} strokeStyle - Line color
- * @param {string} fillStyle - Fill color (optional)
- */
+// FUNCTION |  Draw a rectangle
+// --------------------------------------------------------- //
 function drawRectangle(ctx, start, end, strokeStyle, fillStyle = null) {
     ctx.save();
     ctx.translate(offsetX, offsetY);
@@ -748,15 +680,8 @@ function drawRectangle(ctx, start, end, strokeStyle, fillStyle = null) {
     ctx.restore();
 }
 
-/**
- * Draw a label for a rectangle measurement
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Object} start - Start point {x, y}
- * @param {Object} end - End point {x, y}
- * @param {number} widthMm - Width in millimeters
- * @param {number} heightMm - Height in millimeters
- * @param {string} areaM2 - Area in square meters
- */
+// FUNCTION |  Draw a label for a rectangle measurement
+// --------------------------------------------------------- //
 function drawRectLabel(ctx, start, end, widthMm, heightMm, areaM2) {
     ctx.save();
     ctx.translate(offsetX, offsetY);
@@ -789,13 +714,8 @@ function drawRectLabel(ctx, start, end, widthMm, heightMm, areaM2) {
     ctx.restore();
 }
 
-/**
- * Draw a polygon
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Array} points - Array of points
- * @param {string} fillStyle - Fill color
- * @param {string} strokeStyle - Line color
- */
+// FUNCTION |  Draw a polygon
+// --------------------------------------------------------- //
 function drawPolygon(ctx, points, fillStyle, strokeStyle) {
     if (points.length < 3) return;
     
@@ -820,12 +740,8 @@ function drawPolygon(ctx, points, fillStyle, strokeStyle) {
     ctx.restore();
 }
 
-/**
- * Draw an open polygon (not closed)
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Array} points - Array of points
- * @param {string} strokeStyle - Line color
- */
+// FUNCTION |  Draw an open polygon (not closed)
+// --------------------------------------------------------- //
 function drawOpenPolygon(ctx, points, strokeStyle) {
     if (points.length < 2) return;
     
@@ -853,11 +769,8 @@ function drawOpenPolygon(ctx, points, strokeStyle) {
     ctx.restore();
 }
 
-/**
- * Draw a label for an area measurement
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Object} measurement - Area measurement object
- */
+// FUNCTION |  Draw a label for an area measurement
+// --------------------------------------------------------- //
 function drawAreaLabel(ctx, measurement) {
     ctx.save();
     ctx.translate(offsetX, offsetY);
@@ -871,12 +784,8 @@ function drawAreaLabel(ctx, measurement) {
     ctx.restore();
 }
 
-/**
- * Draw labels for each edge of a polygon
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Array} points - Array of points
- * @param {string} color - Label color
- */
+// FUNCTION |  Draw labels for each edge of a polygon
+// --------------------------------------------------------- //
 function drawEdgeLabels(ctx, points, color) {
     if (points.length < 2) return;
     
@@ -918,7 +827,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-// Export the module's public API
+// MODULE |  Export the module's public API
+// --------------------------------------------------------- //
 window.measurementTools = {
     // Initialization
     init: initMeasurementTools,
@@ -954,17 +864,20 @@ DESCRIPTION
 --------------------------------------------
 */
 
-// Initialize when the DOM is fully loaded
+// EVENT |  Initialize when the DOM is fully loaded
+// --------------------------------------------------------- //
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Measurement Tools module waiting for drawing to be loaded...');
 });
 
-// Initialize when a drawing is loaded
+// EVENT |  Initialize when a drawing is loaded
+// --------------------------------------------------------- //
 document.addEventListener('drawingLoaded', () => {
     initMeasurementTools();
 });
 
-// Optional: Auto-initialize if the document is already loaded
+// INITIALIZATION |  Auto-initialize if document is already loaded
+// --------------------------------------------------------- //
 if (document.readyState === 'complete') {
     console.log('Document already loaded, initializing Measurement Tools module...');
     initMeasurementTools();

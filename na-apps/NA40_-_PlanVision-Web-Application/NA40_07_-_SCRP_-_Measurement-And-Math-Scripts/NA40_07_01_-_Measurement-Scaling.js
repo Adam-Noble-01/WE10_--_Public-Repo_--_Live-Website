@@ -42,9 +42,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Initialize the measurement scaling system
- */
+// FUNCTION |  Initialize the measurement scaling system
+// --------------------------------------------------------- //
 function initMeasurementScaling() {
     console.log("Initializing measurement scaling...");
     
@@ -57,10 +56,8 @@ function initMeasurementScaling() {
     console.log("Measurement scaling initialized");
 }
 
-/**
- * Handle drawing loaded events
- * @param {CustomEvent} event - Drawing loaded event
- */
+// FUNCTION |  Handle drawing loaded events
+// --------------------------------------------------------- //
 function onDrawingLoaded(event) {
     // Update drawing information from the event
     if (event.detail) {
@@ -81,9 +78,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-/**
- * Calculate the scale ratio (metres per pixel)
- */
+// FUNCTION |  Calculate the scale ratio (metres per pixel)
+// --------------------------------------------------------- //
 function calculateScaleRatio() {
     // Get natural image dimensions from project assets if available
     let naturalImageWidth = 0;
@@ -117,11 +113,8 @@ function calculateScaleRatio() {
     console.log(`Scale calculated: ${scaleMetresPerPixel} metres per pixel (Drawing scale: ${currentDrawingScale}, Size: ${currentDrawingSize})`);
 }
 
-/**
- * Parse a scale ratio string (e.g., "1:50" => 50)
- * @param {string} scaleString - Scale string in format "1:X"
- * @returns {number} - Scale ratio (e.g., 50 for "1:50")
- */
+// FUNCTION |  Parse a scale ratio string (e.g., "1:50" => 50)
+// --------------------------------------------------------- //
 function parseScaleRatio(scaleString) {
     if (!scaleString) return 50; // Default to 1:50 if no scale provided
     
@@ -143,7 +136,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-// Export the module's public API
+// MODULE |  Export the module's public API
+// --------------------------------------------------------- //
 window.measurementScaling = {
     // Initialization
     init: initMeasurementScaling,
@@ -166,7 +160,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-// Register with Application Scheduler
+// REGISTRATION |  Register with Application systems
+// --------------------------------------------------------- //
 if (window.applicationScheduler) {
     console.log("Measurement Scaling registering with Application Scheduler");
     // Any registration code here
@@ -177,7 +172,8 @@ if (window.applicationScheduler) {
     console.log("Warning: Application Scheduler not found, measurement scaling may not be properly initialized");
 }
 
-// Drawing scale reference data
+// DATA |  Drawing scale reference data
+// --------------------------------------------------------- //
 const SCALE_FACTORS = {
     "1:1": 1,
     "1:2": 2,
@@ -193,7 +189,8 @@ const SCALE_FACTORS = {
     "1:2500": 2500
 };
 
-// Drawing size reference data (in mm)
+// DATA |  Drawing size reference data (in mm)
+// --------------------------------------------------------- //
 const PAPER_SIZES = {
     "A0": { width: 841, height: 1189 },
     "A1": { width: 594, height: 841 },
@@ -202,16 +199,12 @@ const PAPER_SIZES = {
     "A4": { width: 210, height: 297 }
 };
 
-// Default pixels per mm at 96 DPI
+// CONSTANT |  Default pixels per mm at 96 DPI
+// --------------------------------------------------------- //
 const DEFAULT_PIXELS_PER_MM = 96 / 25.4;
 
-/**
- * Convert pixels to millimeters
- * @param {number} pixels - Number of pixels to convert
- * @param {string} scale - Drawing scale (e.g. "1:50")
- * @param {string} paperSize - Drawing paper size (e.g. "A1")
- * @returns {number} Equivalent length in millimeters
- */
+// FUNCTION |  Convert pixels to millimeters
+// --------------------------------------------------------- //
 window.measurementScaling.pixelsToMillimeters = function(pixels, scale, paperSize) {
     // Get scale factor
     const scaleFactor = SCALE_FACTORS[scale] || 50; // Default to 1:50 if scale not found
@@ -240,13 +233,8 @@ window.measurementScaling.pixelsToMillimeters = function(pixels, scale, paperSiz
     return (pixels / pixelsPerMm) * scaleFactor;
 };
 
-/**
- * Convert pixels to square meters
- * @param {number} pixelArea - Area in pixels
- * @param {string} scale - Drawing scale (e.g. "1:50")
- * @param {string} paperSize - Drawing paper size (e.g. "A1")
- * @returns {number} Equivalent area in square meters
- */
+// FUNCTION |  Convert pixels to square meters
+// --------------------------------------------------------- //
 window.measurementScaling.pixelsToSquareMeters = function(pixelArea, scale, paperSize) {
     // Get scale factor
     const scaleFactor = SCALE_FACTORS[scale] || 50; // Default to 1:50 if scale not found
@@ -281,29 +269,20 @@ window.measurementScaling.pixelsToSquareMeters = function(pixelArea, scale, pape
     return realAreaMm2 / 1000000;
 };
 
-/**
- * Get scale factor from scale string
- * @param {string} scale - Drawing scale (e.g. "1:50")
- * @returns {number} Scale factor number
- */
+// FUNCTION |  Get scale factor from scale string
+// --------------------------------------------------------- //
 window.measurementScaling.getScaleFactor = function(scale) {
     return SCALE_FACTORS[scale] || 50; // Default to 1:50 if scale not found
 };
 
-/**
- * Get paper dimensions for a given paper size
- * @param {string} paperSize - Drawing paper size (e.g. "A1")
- * @returns {Object} Object with width and height in millimeters
- */
+// FUNCTION |  Get paper dimensions for a given paper size
+// --------------------------------------------------------- //
 window.measurementScaling.getPaperDimensions = function(paperSize) {
     return PAPER_SIZES[paperSize] || PAPER_SIZES["A1"]; // Default to A1 if paper size not found
 };
 
-/**
- * Calculate pixels per millimeter based on image and paper dimensions
- * @param {string} paperSize - Drawing paper size (e.g. "A1")
- * @returns {number} Pixels per millimeter
- */
+// FUNCTION |  Calculate pixels per millimeter based on image and paper dimensions
+// --------------------------------------------------------- //
 window.measurementScaling.calculatePixelsPerMm = function(paperSize) {
     let pixelsPerMm = DEFAULT_PIXELS_PER_MM;
     
@@ -327,13 +306,16 @@ window.measurementScaling.calculatePixelsPerMm = function(paperSize) {
     return pixelsPerMm;
 };
 
-// Log that this module has loaded
+// LOG |  Module loaded
+// --------------------------------------------------------- //
 console.log("MEASUREMENT_SCALING: Module loaded");
 
-// Register this module with the module integration system
+// REGISTRATION |  Register with module integration system
+// --------------------------------------------------------- //
 if (window.moduleIntegration && typeof window.moduleIntegration.registerModuleReady === 'function') {
     window.moduleIntegration.registerModuleReady("measurementScaling");
 }
 
-// Backwards compatibility with direct module approach
+// COMPATIBILITY |  Backwards compatibility alias
+// --------------------------------------------------------- //
 window.scaleCalculator = window.measurementScaling; 

@@ -64,9 +64,9 @@
     /* Typography */
     --font-family-primary   :    'Open Sans', sans-serif;  /*   <-- Primary font family */
     --font-family-handwritten :  'Caveat', 'Comic Sans MS', cursive, sans-serif;  /*   <-- Handwritten font */
-    --font-weight-normal    :    400;              /*   <-- Normal font weight */
-    --font-weight-medium    :    500;              /*   <-- Medium font weight */
-    --font-weight-semibold  :    600;              /*   <-- SemiBold font weight */
+    --font-weight-normal    :    300;              /*   <-- Normal font weight */
+    --font-weight-medium    :    400;              /*   <-- Medium font weight */
+    --font-weight-semibold  :    500;              /*   <-- SemiBold font weight */
     --font-weight-bold      :    700;              /*   <-- Bold font weight */
 }
 

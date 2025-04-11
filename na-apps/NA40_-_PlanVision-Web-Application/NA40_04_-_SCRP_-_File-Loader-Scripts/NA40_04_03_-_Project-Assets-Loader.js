@@ -10,12 +10,12 @@ DESCRIPTION
 
 // Module-level variables
 let planImage = new Image();
-planImage.crossOrigin = "anonymous";
-let imageLoadedFlag = false;
-let naturalImageWidth = 0;
-let naturalImageHeight = 0;
-let currentDrawingScale = "1:50"; // Default scale
-let currentDrawingSize = "A1"; // Default size
+planImage.crossOrigin   =   "anonymous";
+let imageLoadedFlag     =         false;
+let naturalImageWidth   =             0;
+let naturalImageHeight  =             0;
+let currentDrawingScale =        "1:50";    // <-- Default scale
+let currentDrawingSize  =          "A1";    // <-- Default size
 
 // Create namespace for this module
 window.projectAssets = {};
