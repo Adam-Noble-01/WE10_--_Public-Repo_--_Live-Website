@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -21,17 +21,17 @@ FILE DETAILS
 File Name   | NA_Plan-Vision-App_-_2.0.0.html
 File Type   | HTML Web Application with external CSS/JS
 App Details | A web application for viewing and interacting with architectural drawings
-Author      | Adam Noble – Noble Architecture
+Author      | Adam Noble â€“ Noble Architecture
 Version     | 2.0.0 (11-Apr-2025)
 
 Documentation Links:
-- Design Manifesto: /na-apps/NA40_-_PlanVision-Web-Application/PlanVision_-_Design-Manifesto.md
-- Revision Notes:   /na-apps/NA40_-_PlanVision-Web-Application/PlanVision_-_Revision-Notes.md
+- Design Manifesto: /na-apps/NA40_-_PlanVision-Web-Application/NA40_01_-_DOCS_-_Application-Documentation/PlanVision_-_Design-Manifesto.txt
+- Revision Notes:   /na-apps/NA40_-_PlanVision-Web-Application/NA40_01_-_DOCS_-_Application-Documentation/PlanVision_-_Revision-Notes.txt
 ================================================================================================================
 -->
 
     <!-- External CSS for styling -->
-    <link rel="stylesheet" href="NA_Plan-Vision-App_-_2.0.0_-_StyleSheet.css">
+    <link rel="stylesheet" href="NA40_03_-_STYL_-_Style-Library/NA02_02_01_-_NA_Plan-Vision-App_-_2.0.0_-_StyleSheet.css">
 
     <!-- Polyfill Conditional Loader
         -----------------------------------------------------------------------------------------------------
@@ -73,14 +73,14 @@ Documentation Links:
         - Fetches font definitions from centralized asset library
         - Applies correct font-face declarations and weights to elements
     ----------------------------------------------------------------------------------------------------- -->
-    <script src="NA_Plan-Vision-App_-_2.0.0_-_Font-Asset-Loader.js"></script>
+    <script src="NA40_05_-_SCRP_-_Core-Utility-Scripts/NA40_04_06_-_Font-Asset-Loader.js"></script>
 </head>
 <body>
 <div id="PLAN__App">
     <div id="PLAN__Container">
         <!-- HEADER -->
         <div id="HEAD__Container">
-            <button id="NAVB__Toggle-Button">☰</button>
+            <button id="NAVB__Toggle-Button">â˜°</button>
             <span id="HEAD__Title">PlanVision
                 <span style="font-size: 12px; color: #656565;">- Version 2.0.0</span>
             </span>
@@ -117,8 +117,8 @@ Documentation Links:
             <div id="TOOL__Markup-Container">
                 <div class="MENU__Drawing-Header-Text">Markup Tools Menu</div>
                 <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-                    <button class="BTTN__Tool" id="BTTN__Markup-Undo" style="width:48%;">↩ Undo</button>
-                    <button class="BTTN__Tool" id="BTTN__Markup-Redo" style="width:48%;">Redo ↪</button>
+                    <button class="BTTN__Tool" id="BTTN__Markup-Undo" style="width:48%;">â†© Undo</button>
+                    <button class="BTTN__Tool" id="BTTN__Markup-Redo" style="width:48%;">Redo â†ª</button>
                 </div>
                 <button class="BTTN__Tool" id="BTTN__Markup-Clear">Clear Drawing Markup</button>
                 <button class="BTTN__Tool" id="BTTN__Markup-Save">Download Markup Image</button>
@@ -197,28 +197,29 @@ Documentation Links:
 </div>
 
 <!-- Core utilities and global services -->
-<script src="NA_Plan-Vision-App_-_2.0.0_-_URL-Parser.js"></script>
+<script src="NA40_05_-_SCRP_-_Core-Utility-Scripts/NA40_08_01_-_URL-Parser.js"></script>
 
 <!-- Application coordination modules (should load early to coordinate other modules) -->
-<script src="NA_Plan-Vision-App_-_2.0.0_-_Module-Integration.js"></script>
-<script src="NA_Plan-Vision-App_-_2.0.0_-_Application-Controller.js"></script>
+<script src="NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_11_-_Module-Integration.js"></script>
+<script src="NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_10_-_Application-Controller.js"></script>
 
 <!-- Asset loading modules -->
-<script src="NA_Plan-Vision-App_-_2.0.0_-_App-Assets-Loader.js"></script>
-<script src="NA_Plan-Vision-App_-_2.0.0_-_Project-Assets-Loader.js"></script>
+<script src="NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_01_-_Core-App-Config-And-Assets-Loader.js"></script>
+<script src="NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_02_-_Project-Assets-Loader.js"></script>
 
 <!-- Rendering modules -->
-<script src="NA_Plan-Vision-App_-_2.0.0_-_Canvas-Renderer.js"></script>
-<script src="NA_Plan-Vision-App_-_2.0.0_-_Canvas-Controller.js"></script>
+<script src="NA40_06_-_SCRP_-_Canvas-And-Main-Rendering-Scripts/NA40_06_04_-_Canvas-Renderer.js"></script>
+<script src="NA40_06_-_SCRP_-_Canvas-And-Main-Rendering-Scripts/NA40_06_03_-_Canvas-Controller.js"></script>
 
 <!-- Measurement and UI modules -->
-<script src="NA_Plan-Vision-App_-_2.0.0_-_Measurement-Scaling.js"></script>
-<script src="NA_Plan-Vision-App_-_2.0.0_-_Measurement-Tools.js"></script>
-<script src="NA_Plan-Vision-App_-_2.0.0_-_UI-Navigation.js"></script>
+<script src="NA40_07_-_SCRP_-_Measurement-And-Math-Scripts/NA40_07_01_-_Measurement-Scaling.js"></script>
+<script src="NA40_07_-_SCRP_-_Measurement-And-Math-Scripts/NA40_07_02_-_Measurement-Tools.js"></script>
+<script src="NA40_08_-_SCRP_-_User-Interface-And-Navigation/NA40_08_01_-_UI-Navigation.js"></script>
 
 <!-- Debug tools (should load last) -->
-<script src="NA_Plan-Vision-App_-_2.0.0_-_Debug-Panel.js"></script>
+<script src="NA40_20_-_DEVP_-_Development-Files/NA40_20_01_-_Debug-Panel.js"></script>
 </body>
 </html>
+
 
 

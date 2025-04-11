@@ -19,8 +19,8 @@ IMPORTANT NOTES
 --------------------------------------------
 */
 
-// Asset library path - Updated to use local file
-const ASSET_LIBRARY_PATH = "NA20_01_01_-_DATA_-_Asset-Link-Library.json";
+// App configuration file path
+const APP_CONFIG_PATH = "NA40_02_-_DATA_-_App-Files-And-App-Config/NA40_01_01_-_DATA_-_PlanVision-App-Config.json";
 
 // Font loading configuration
 const FONT_FAMILIES = {
@@ -50,12 +50,19 @@ async function initAssetLoading() {
     try {
         console.log("Initializing asset loading...");
         
-        // Fetch asset library data
-        const assetLibrary = await fetchAssetLibrary();
+        // First fetch the app configuration
+        const appConfig = await fetchAppConfig();
+        if (!appConfig) {
+            throw new Error("Failed to load application configuration");
+        }
+        
+        // Then fetch the global asset library using the URL from the config
+        const assetLibraryUrl = appConfig["Core_App_Config"]["app-assets-location"];
+        const assetLibrary = await fetchAssetLibrary(assetLibraryUrl);
         
         // Load fonts
-        if (assetLibrary && assetLibrary.fonts) {
-            loadFonts(assetLibrary.fonts);
+        if (assetLibrary && assetLibrary.na_assets && assetLibrary.na_assets.na_fonts) {
+            loadFonts(assetLibrary.na_assets.na_fonts);
         } else {
             console.error("Font data not found in asset library");
         }
@@ -64,7 +71,7 @@ async function initAssetLoading() {
         initLogoAndBranding(assetLibrary);
         
         console.log("Asset loading complete");
-        return assetLibrary;
+        return { appConfig, assetLibrary };
     } catch (error) {
         console.error("Error loading assets:", error);
         showErrorMessage("Failed to load application assets. Please refresh and try again.");
@@ -73,13 +80,34 @@ async function initAssetLoading() {
 }
 
 /**
+ * Fetches the application configuration JSON data
+ */
+async function fetchAppConfig() {
+    try {
+        console.log("Attempting to fetch application configuration from:", APP_CONFIG_PATH);
+        
+        const response = await fetch(APP_CONFIG_PATH);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch application configuration (${response.status})`);
+        }
+        
+        const configData = await response.json();
+        console.log("Application configuration loaded successfully");
+        return configData;
+    } catch (error) {
+        console.error("Error fetching application configuration:", error);
+        return null;
+    }
+}
+
+/**
  * Fetches the asset library JSON data
  */
-async function fetchAssetLibrary() {
+async function fetchAssetLibrary(assetLibraryUrl) {
     try {
-        console.log("Attempting to fetch asset library from:", ASSET_LIBRARY_PATH);
+        console.log("Attempting to fetch asset library from:", assetLibraryUrl);
         
-        const response = await fetch(ASSET_LIBRARY_PATH);
+        const response = await fetch(assetLibraryUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch asset library (${response.status})`);
         }

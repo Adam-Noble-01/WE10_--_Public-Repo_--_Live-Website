@@ -43,6 +43,43 @@ DESCRIPTION
 */
 
 /**
+ * Main initialization function
+ */
+async function initializeApplication() {
+    try {
+        console.log("Initializing application...");
+        
+        showLoadingOverlay();
+        
+        // First load the assets and configuration
+        const result = await initAssetLoading();
+        if (!result) {
+            throw new Error("Failed to initialize asset loading");
+        }
+        
+        // Store the app config in a global variable for other modules to access
+        window.appConfig = result.appConfig;
+        
+        // Initialize UI components
+        initializeUI();
+        
+        // Load project assets
+        await loadProjectAssets();
+        
+        // Initialize canvas when assets are loaded
+        initializeCanvas();
+        
+        // Hide loading overlay when everything is ready
+        hideLoadingOverlay();
+        
+        console.log("Application initialization complete");
+    } catch (error) {
+        console.error("Error initializing application:", error);
+        showErrorMessage("Failed to initialize application. Please refresh the page.");
+    }
+}
+
+/**
  * Initialize the application
  */
 function initApplication() {

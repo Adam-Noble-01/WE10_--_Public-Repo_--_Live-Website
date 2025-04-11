@@ -1,4 +1,5 @@
 {
+
 "File_Metadata": {
     "file-name"            :  "AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json",
     "file-dir-path"        :  "/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json",
@@ -19,6 +20,16 @@
         ]
     },
     "File_Version_History_Log": [
+        {
+            "version"         :  "1.1.0",
+            "log-date"        :  "12-Apr-2025",
+            "log-title"       :  "Expanded Library Documentation",
+            "log-changes"     :  [
+                "Added complete Common_Data_Libraries section with all assets",
+                "Added complete Common_Style_Libraries section with all assets",
+                "Updated metadata and descriptions for all entries"
+            ]
+        },
         {
             "version"         :  "1.0.2",
             "log-date"        :  "11-Apr-2025",
@@ -48,6 +59,144 @@
             ]
         }
     ]
+},
+
+"Common_Data_Libraries": {
+    "library-dir-path"      :   "./assets/AD01_-_DATA_-_Common_-_Global-Data-Library",
+    "library-web-url"       :   "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/",
+    "library-file-name"     :   "Common Data Libraries",
+    "library-id-code"       :   "AD01",
+    "library-type"          :   "Data Library",
+    "library-category"      :   "Global Data Library",
+    "library-description"   :   "Common Data Libraries for Core Website Configuration",
+    "library-usage"         :   "Single point of access for all global configuration data used across the project",
+    "library-added-by"      :   "Adam Noble",
+    "library-last-updated"  :   "11-Apr-2025",
+    "library-active-status" :   true,
+    "assets": {
+        "core-website-config": {
+            "asset-name"            :   "Core Website Configuration Data",
+            "asset-dir-path"        :   "./assets/AD01_-_DATA_-_Common_-_Global-Data-Library",
+            "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
+            "asset-file-name"       :   "AD01_01_-_DATA_-_Core-Website_-_Config-Data.json",
+            "asset-id-code"         :   "AD01_01",
+            "asset-type"            :   "data",
+            "asset-category"        :   "configuration",
+            "asset-format"          :   "json",
+            "asset-description"     :   "Core configuration settings for the Noble Architecture website",
+            "asset-usage"           :   "primary configuration for website settings",
+            "asset-added-by"        :   "Adam Noble",
+            "asset-last-updated"    :   "11-Apr-2025",
+            "asset-active-status"   :   true
+        },
+        "site-map-structure": {
+            "asset-name"            :   "Core Website Structure - Site Map",
+            "asset-dir-path"        :   "./assets/AD01_-_DATA_-_Common_-_Global-Data-Library",
+            "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_02_-_DATA_-_Core-Website-Structure_-_Site-Map.json",
+            "asset-file-name"       :   "AD01_02_-_DATA_-_Core-Website-Structure_-_Site-Map.json",
+            "asset-id-code"         :   "AD01_02",
+            "asset-type"            :   "data",
+            "asset-category"        :   "site structure",
+            "asset-format"          :   "json",
+            "asset-description"     :   "Site map and navigation structure for the Noble Architecture website",
+            "asset-usage"           :   "defines website navigation and page hierarchy",
+            "asset-added-by"        :   "Adam Noble",
+            "asset-last-updated"    :   "11-Apr-2025",
+            "asset-active-status"   :   true
+        },
+        "web-application-data": {
+            "asset-name"            :   "Core Web Application Data Library",
+            "asset-dir-path"        :   "./assets/AD01_-_DATA_-_Common_-_Global-Data-Library",
+            "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_03_-_DATA_-_Core-Web-Application-Data-Library.json",
+            "asset-file-name"       :   "AD01_03_-_DATA_-_Core-Web-Application-Data-Library.json",
+            "asset-id-code"         :   "AD01_03",
+            "asset-type"            :   "data",
+            "asset-category"        :   "application data",
+            "asset-format"          :   "json",
+            "asset-description"     :   "Core data sets for web applications",
+            "asset-usage"           :   "provides data for interactive web applications",
+            "asset-added-by"        :   "Adam Noble",
+            "asset-last-updated"    :   "11-Apr-2025",
+            "asset-active-status"   :   true
+        },
+        "core-web-asset-library": {
+            "asset-name"            :   "Core Web Asset Library",
+            "asset-dir-path"        :   "./assets/AD01_-_DATA_-_Common_-_Global-Data-Library",
+            "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json",
+            "asset-file-name"       :   "AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json",
+            "asset-id-code"         :   "AD01_10",
+            "asset-type"            :   "data",
+            "asset-category"        :   "asset library",
+            "asset-format"          :   "json",
+            "asset-description"     :   "Comprehensive asset library mapping all project resources",
+            "asset-usage"           :   "master inventory of all web assets (self-referential)",
+            "asset-added-by"        :   "Adam Noble",
+            "asset-last-updated"    :   "11-Apr-2025",
+            "asset-active-status"   :   true
+        }
+    }
+},
+
+
+"Common_Style_Libraries": {
+    "library-dir-path"      :   "./assets/AD02_-_STYL_-_Common_-_StyleSheets",
+    "library-web-url"       :   "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/",
+    "library-file-name"     :   "Common Style Libraries",
+    "library-id-code"       :   "AD02",
+    "library-type"          :   "Style Library",
+    "library-category"      :   "CSS Stylesheets",
+    "library-description"   :   "Common CSS Style Libraries for Website and Utility Apps",
+    "library-usage"         :   "Single point of access for all CSS stylesheets used across the project",
+    "library-added-by"      :   "Adam Noble",
+    "library-last-updated"  :   "11-Apr-2025",
+    "library-active-status" :   true,
+    "assets": {
+        "core-default-stylesheet": {
+            "asset-name"            :   "Core Default Stylesheet - Noble Architecture",
+            "asset-dir-path"        :   "./assets/AD02_-_STYL_-_Common_-_StyleSheets",
+            "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css",
+            "asset-file-name"       :   "AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css",
+            "asset-id-code"         :   "AD02_10",
+            "asset-type"            :   "stylesheet",
+            "asset-category"        :   "main website",
+            "asset-format"          :   "css",
+            "asset-description"     :   "Main stylesheet for the Noble Architecture website",
+            "asset-usage"           :   "primary styling for all website pages",
+            "asset-added-by"        :   "Adam Noble",
+            "asset-last-updated"    :   "11-Apr-2025",
+            "asset-active-status"   :   true
+        },
+        "markdown-renderer-style": {
+            "asset-name"            :   "Common VS Code MD Renderer Style",
+            "asset-dir-path"        :   "./assets/AD02_-_STYL_-_Common_-_StyleSheets",
+            "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css",
+            "asset-file-name"       :   "AD02_20_-_STYL_-_Common-VS-Code-MD-Renderer-Style.css",
+            "asset-id-code"         :   "AD02_20",
+            "asset-type"            :   "stylesheet",
+            "asset-category"        :   "documentation",
+            "asset-format"          :   "css",
+            "asset-description"     :   "Styling for VS Code Markdown renderers",
+            "asset-usage"           :   "enhances markdown documentation appearance",
+            "asset-added-by"        :   "Adam Noble",
+            "asset-last-updated"    :   "11-Apr-2025",
+            "asset-active-status"   :   true
+        },
+        "utility-app-stylesheet": {
+            "asset-name"            :   "Core Default Web Utility App Stylesheet",
+            "asset-dir-path"        :   "./assets/AD02_-_STYL_-_Common_-_StyleSheets",
+            "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css",
+            "asset-file-name"       :   "AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css",
+            "asset-id-code"         :   "AD02_30",
+            "asset-type"            :   "stylesheet",
+            "asset-category"        :   "utility applications",
+            "asset-format"          :   "css",
+            "asset-description"     :   "Stylesheet for web utility applications",
+            "asset-usage"           :   "styling for internal utility tools and apps",
+            "asset-added-by"        :   "Adam Noble",
+            "asset-last-updated"    :   "11-Apr-2025",
+            "asset-active-status"   :   true
+        }
+    }
 },
 
 
@@ -400,8 +549,6 @@
 },
     
 
-
-
 "Core-Source-Code-Library": {
     "library-dir-path"      :   "./src",
     "library-web-url"       :   "https://www.noble-architecture.com/src/",
@@ -445,6 +592,7 @@
         }
     }
 },
+
 
 "Core_Documentation_Files_Library": {
     "library-dir-path"      :   "./docs",
@@ -566,4 +714,6 @@
         }
     }
 }
+
+
 }

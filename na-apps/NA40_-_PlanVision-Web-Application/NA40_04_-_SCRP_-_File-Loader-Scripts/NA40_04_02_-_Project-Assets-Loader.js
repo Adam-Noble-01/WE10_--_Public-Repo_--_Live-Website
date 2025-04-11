@@ -46,12 +46,31 @@ let naturalImageHeight = 0;
 let isImageLoaded = false;
 
 /**
+ * Find the path to the document data file
+ */
+function getDocumentDataPath() {
+    if (window.appConfig && window.appConfig["Project_Documents"] && 
+        window.appConfig["Project_Documents"]["project-data-file-location"]) {
+        return window.appConfig["Project_Documents"]["project-data-file-location"];
+    } else {
+        // Fallback to the old direct path if the new configuration is not available
+        console.warn("Using fallback document data path");
+        return "NA20_01_02_-_DATA_-_Document-Link-Library.json";
+    }
+}
+
+/**
  * Fetch drawings data from JSON configuration file
  */
-async function fetchDrawings(jsonUrl = PROJECT_DATA_PATH) {
+async function fetchDrawingData() {
     try {
-        console.log("Fetching drawing data from:", jsonUrl);
-        const response = await fetch(jsonUrl);
+        console.log("Fetching drawing data...");
+        
+        // Get document data file path from app configuration
+        const documentDataPath = getDocumentDataPath();
+        console.log("Document data path:", documentDataPath);
+        
+        const response = await fetch(documentDataPath);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -520,7 +539,7 @@ async function initProjectAssets() {
     
     try {
         // Fetch drawings data from JSON
-        const drawings = await fetchDrawings();
+        const drawings = await fetchDrawingData();
         
         if (drawings) {
             // Create buttons for each drawing

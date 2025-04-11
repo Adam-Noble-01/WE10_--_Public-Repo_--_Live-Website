@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- Add Application Version Meta Tag -->
-    <meta name="application-version" content="1.4.1">       <!-- ← CONFIG | Set Application Version Here -->
+    <meta name="application-version" content="1.6.0">       <!-- ← CONFIG | Set Application Version Here -->
     <title>Noble Architecture - Asset Library Query Tool</title>
     
     <!--  - - - - - - - - - - - - - - - - - -  FAVICON CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
@@ -40,6 +40,19 @@
             font-weight             :   600;
             font-style              :   normal;
         }
+        
+        /* Style for disabled dropdowns */
+        .DROPDOWN__static.disabled {
+            opacity                 :   0.7;
+            cursor                  :   default;
+            pointer-events          :   none;
+            border-color            :   var(--color-gray-300);
+        }
+        
+        .DROPDOWN__static.disabled .DROPDOWN__static-option:first-child {
+            color                   :   var(--color-gray-600);
+            font-style              :   italic;
+        }
     </style>
     <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
@@ -55,7 +68,7 @@
         <header class="HEAD__container">
             <nav class="HEAD__nav">
                 <span class="HEAD__title">Asset Library Query Tool</span>
-                <span class="HEAD__version-note">v1.4.1</span>
+                <span class="HEAD__version-note">v1.6.0</span>
             </nav>
         </header>
 
@@ -69,9 +82,12 @@
                         <label for="library-type" class="FORM__label">Select Library Type:</label>
                         <div class="DROPDOWN__static" id="library-type-dropdown">
                             <div class="DROPDOWN__static-option" data-value="">Select Library Type</div>
-                            <div class="DROPDOWN__static-option" data-value="Common_Web_Assets_Libraries">Common Web Assets Libraries</div>
+                            <div class="DROPDOWN__static-option" data-value="Common_Web_Assets_Libraries">Common Web Assets Libraries</div>    
+                            <div class="DROPDOWN__static-option" data-value="Common_Data_Libraries">Common Data Libraries</div>
+                            <div class="DROPDOWN__static-option" data-value="Common_Style_Libraries">Common Style Libraries</div>
                             <div class="DROPDOWN__static-option" data-value="Core-Source-Code-Library">Core Source Code Library</div>
                             <div class="DROPDOWN__static-option" data-value="Core_Documentation_Files_Library">Core Documentation Files Library</div>
+                            <div class="DROPDOWN__static-option" data-value="Show_Full_Assets_List">Show Full Assets List</div>
                         </div>
                         <input type="hidden" id="library-type" value="">
                     </div>
@@ -80,11 +96,13 @@
                         <label for="asset-type" class="FORM__label">Filter by Asset Type (optional):</label>
                         <div class="DROPDOWN__static" id="asset-type-dropdown">
                             <div class="DROPDOWN__static-option" data-value="">All Asset Types</div>
+                            <div class="DROPDOWN__static-option" data-value="data">Data</div>
+                            <div class="DROPDOWN__static-option" data-value="documentation">Documentation</div>
                             <div class="DROPDOWN__static-option" data-value="font">Font</div>
                             <div class="DROPDOWN__static-option" data-value="icon">Icon</div>
                             <div class="DROPDOWN__static-option" data-value="image">Image</div>
-                            <div class="DROPDOWN__static-option" data-value="documentation">Documentation</div>
                             <div class="DROPDOWN__static-option" data-value="source code">Source Code</div>
+                            <div class="DROPDOWN__static-option" data-value="stylesheet">Stylesheet</div>
                         </div>
                         <input type="hidden" id="asset-type" value="">
                     </div>
@@ -93,10 +111,21 @@
                         <label for="asset-category" class="FORM__label">Filter by Asset Category (optional):</label>
                         <div class="DROPDOWN__static" id="asset-category-dropdown">
                             <div class="DROPDOWN__static-option" data-value="">All Categories</div>
-                            <div class="DROPDOWN__static-option" data-value="placeholder">Placeholder</div>
+                            <div class="DROPDOWN__static-option" data-value="application data">Application Data</div>
+                            <div class="DROPDOWN__static-option" data-value="asset library">Asset Library</div>
+                            <div class="DROPDOWN__static-option" data-value="configuration">Configuration</div>
+                            <div class="DROPDOWN__static-option" data-value="coding standards">Coding Standards</div>
+                            <div class="DROPDOWN__static-option" data-value="directory info">Directory Info</div>
+                            <div class="DROPDOWN__static-option" data-value="documentation">Documentation</div>
                             <div class="DROPDOWN__static-option" data-value="favicon">Favicon</div>
-                            <div class="DROPDOWN__static-option" data-value="standard typefaces">Standard Typefaces</div>
                             <div class="DROPDOWN__static-option" data-value="handwritten typefaces">Handwritten Typefaces</div>
+                            <div class="DROPDOWN__static-option" data-value="main website">Main Website</div>
+                            <div class="DROPDOWN__static-option" data-value="placeholder">Placeholder</div>
+                            <div class="DROPDOWN__static-option" data-value="site structure">Site Structure</div>
+                            <div class="DROPDOWN__static-option" data-value="standard typefaces">Standard Typefaces</div>
+                            <div class="DROPDOWN__static-option" data-value="stylesheet documentation">Stylesheet Documentation</div>
+                            <div class="DROPDOWN__static-option" data-value="ui element">UI Element</div>
+                            <div class="DROPDOWN__static-option" data-value="utility applications">Utility Applications</div>
                         </div>
                         <input type="hidden" id="asset-category" value="">
                     </div>
@@ -240,6 +269,31 @@
                             
                             // Close the dropdown
                             dropdownContainer.classList.remove('active');
+                            
+                            // If this is the library type dropdown and the selected option is "Show Full Assets List",
+                            // update the other dropdowns to indicate they are ignored
+                            if (dropdownContainer.id === 'library-type-dropdown' && value === 'Show_Full_Assets_List') {
+                                // Update asset type dropdown appearance
+                                const assetTypeOptions = assetTypeDropdown.querySelectorAll('.DROPDOWN__static-option');
+                                assetTypeOptions[0].textContent = '(All Types - Filter Ignored)';
+                                assetTypeDropdown.classList.add('disabled');
+                                assetTypeInput.value = '';
+                                
+                                // Update asset category dropdown appearance
+                                const assetCategoryOptions = assetCategoryDropdown.querySelectorAll('.DROPDOWN__static-option');
+                                assetCategoryOptions[0].textContent = '(All Categories - Filter Ignored)';
+                                assetCategoryDropdown.classList.add('disabled');
+                                assetCategoryInput.value = '';
+                            } else if (dropdownContainer.id === 'library-type-dropdown') {
+                                // Reset the dropdowns if another library type is selected
+                                const assetTypeOptions = assetTypeDropdown.querySelectorAll('.DROPDOWN__static-option');
+                                assetTypeOptions[0].textContent = 'All Asset Types';
+                                assetTypeDropdown.classList.remove('disabled');
+                                
+                                const assetCategoryOptions = assetCategoryDropdown.querySelectorAll('.DROPDOWN__static-option');
+                                assetCategoryOptions[0].textContent = 'All Categories';
+                                assetCategoryDropdown.classList.remove('disabled');
+                            }
                         });
                     }
                 });
@@ -280,6 +334,15 @@
                 resetDropdownSelection(assetTypeDropdown);
                 resetDropdownSelection(assetCategoryDropdown);
                 
+                // Reset dropdown default texts and remove disabled styles
+                const assetTypeOptions = assetTypeDropdown.querySelectorAll('.DROPDOWN__static-option');
+                assetTypeOptions[0].textContent = 'All Asset Types';
+                assetTypeDropdown.classList.remove('disabled');
+                
+                const assetCategoryOptions = assetCategoryDropdown.querySelectorAll('.DROPDOWN__static-option');
+                assetCategoryOptions[0].textContent = 'All Categories';
+                assetCategoryDropdown.classList.remove('disabled');
+                
                 // Clear results
                 urlList.innerHTML = '';
                 resultsCount.textContent = '';
@@ -314,7 +377,83 @@
                 errorContainer.style.display = 'none';
                 let urls = [];
                 
-                // Get the selected library
+                // Special case: Show all assets regardless of library or filter
+                if (libraryType === 'Show_Full_Assets_List') {
+                    // Process Common_Web_Assets_Libraries
+                    const webAssetsLibrary = assetLibraryData['Common_Web_Assets_Libraries'];
+                    if (webAssetsLibrary) {
+                        for (const subLibraryKey in webAssetsLibrary) {
+                            const subLibrary = webAssetsLibrary[subLibraryKey];
+                            
+                            // Check if the sub-library has assets
+                            if (subLibrary.assets) {
+                                for (const assetKey in subLibrary.assets) {
+                                    const asset = subLibrary.assets[assetKey];
+                                    if (asset && typeof asset === 'object' && asset["asset-web-url"]) {
+                                        urls.push({
+                                            url: asset["asset-web-url"],
+                                            name: asset["asset-name"] || assetKey
+                                        });
+                                    }
+                                }
+                            } else {
+                                // Handle case where assets are direct properties of the sub-library
+                                for (const assetKey in subLibrary) {
+                                    if (assetKey !== 'library-dir-path' && 
+                                        assetKey !== 'library-web-url' && 
+                                        assetKey !== 'library-file-name' && 
+                                        assetKey !== 'library-id-code' && 
+                                        assetKey !== 'library-type' && 
+                                        assetKey !== 'library-category' && 
+                                        assetKey !== 'library-description' && 
+                                        assetKey !== 'library-usage' && 
+                                        assetKey !== 'library-added-by' && 
+                                        assetKey !== 'library-last-updated' && 
+                                        assetKey !== 'library-active-status' && 
+                                        assetKey !== 'assets') {
+                                        
+                                        const asset = subLibrary[assetKey];
+                                        if (asset && typeof asset === 'object' && asset["asset-web-url"]) {
+                                            urls.push({
+                                                url: asset["asset-web-url"],
+                                                name: asset["asset-name"] || assetKey
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Process libraries with standard assets collection
+                    const libraryTypes = [
+                        'Common_Data_Libraries',
+                        'Common_Style_Libraries',
+                        'Core-Source-Code-Library',
+                        'Core_Documentation_Files_Library'
+                    ];
+                    
+                    libraryTypes.forEach(libType => {
+                        const library = assetLibraryData[libType];
+                        if (library && library.assets) {
+                            for (const assetKey in library.assets) {
+                                const asset = library.assets[assetKey];
+                                if (asset && typeof asset === 'object' && asset["asset-web-url"]) {
+                                    urls.push({
+                                        url: asset["asset-web-url"],
+                                        name: asset["asset-name"] || assetKey
+                                    });
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Display results - no filtering
+                    displayUrls(urls);
+                    return;
+                }
+                
+                // Get the selected library for normal filtering
                 const library = assetLibraryData[libraryType];
                 
                 if (!library) {
@@ -364,6 +503,19 @@
                                         });
                                     }
                                 }
+                            }
+                        }
+                    }
+                } else if (libraryType === 'Common_Data_Libraries' || libraryType === 'Common_Style_Libraries') {
+                    // Process Data and Style Libraries with assets collection
+                    if (library.assets) {
+                        for (const assetKey in library.assets) {
+                            const asset = library.assets[assetKey];
+                            if (matchesCriteria(asset, assetType, assetCategory, searchTerm)) {
+                                urls.push({
+                                    url: asset["asset-web-url"] || '',
+                                    name: asset["asset-name"] || assetKey
+                                });
                             }
                         }
                     }

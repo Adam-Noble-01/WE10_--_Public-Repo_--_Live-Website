@@ -1,0 +1,165 @@
+﻿{
+"File_Metadata"  :  {
+    "file-metadata"  :  {
+        "file-name"          :  "SN40_-_DATA_-_Document-Library.json",
+        "file-type"          :  ".json",
+        "file-purpose"       :  "Project Specific Documentation Link Library",
+        "file-description"   :  "This JSON file stores Noble Architecture project file documentation links in a single location and ensures quick retrieval.",
+        "file-created"       :  "01-Apr-2025",
+        "file-author"        :  "Adam Noble - Noble Architecture",
+        "file-key-required"  :  "FALSE",
+        "file-key-note"      :  "Public Repo File - Sensitive Data Omitted",
+        "file-links"         :  {
+            "web-url"   :  "https://www.noble-architecture.com//na-apps/NA40_-_PlanVision-Web-Application/NA40_02_-_DATA_-_App-Files-And-App-Config/NA40_01_01_-_DATA_-_PlanVision-App-Config.json",
+            "rel-dir"  :  "/na-apps/NA40_-_PlanVision-Web-Application/NA40_02_-_DATA_-_App-Files-And-App-Config/NA40_01_01_-_DATA_-_PlanVision-App-Config.json"
+        }
+    }
+},  
+
+
+"Core_App_Config"  :  {
+    "app-dev-mode"        :  true,
+    "app-assets-location"  :  "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json",
+    "app-style-location"   :  "NA40_03_-_STYL_-_Style-Library/NA02_02_01_-_NA_Plan-Vision-App_-_2.0.0_-_StyleSheet.css",
+    "app-fallback-style"   :  "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css"
+},
+
+
+"Project_Details"  :  {
+    "project-name-nickname"     :  "Wollaton Vale",
+    "project-name-string"       :  "NA06_--_Wollaton-Vale",
+    "project-address--house"    :  "Cloves Wood",
+    "project-address--house-no" :  "123",
+    "project-address-street"    :  "Capybara Close",
+    "project-address-town"      :  "Capyville",
+    "project-address-city"      :  "Capyton",
+    "project-address-county"    :  "Capyshire",
+    "project-address-postcode"  :  "CY3 B4A",
+    "project-general-notes-01"  :  "NIL",
+    "project-portal-links":{
+        "portal-url-home"        :  "https://sites.google.com/view/na06-project-portal/home",
+        "portal-url-planvision"  :  "https://sites.google.com/view/na06-project-portal/planvision-web-app",
+        "portal-url-truevision"  :  "https://sites.google.com/view/na06-project-portal/truevision-web-app"
+    }
+},
+
+
+"Project_Documentation"  :  {
+    "project-drawings"  :  {
+        "drawing-01"  :  {
+            "file-name"           :  "GA06_T02_D11_--_PD-Site-Plans",
+            "added-to-register"   :  "01/04/2025",
+            "document-type"       :  "Drawing",
+            "document-name"       :  "Site Plan Drawing",
+            "document-scale"      :  "1:500",
+            "document-size"       :  "A2",
+            "document-status"     :  "Planning Phase Drawing",
+            "document-notes"      :  "NIL",
+            "document-revisions"  :  {
+                "revision-a"  :  "01/04/2025"
+            },
+            "document-links"  :  {
+                "png--windows-dir-path"  :  "D:\\RE20_--_Core_Repo_--_Public\\SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library\\SN40_32_--_PlanVision_-_Placeholder-Testing-Assets\\GA06_T02_D11_--_PD-Site-Plans.png",
+                "png--github-link-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_32_--_PlanVision_-_Placeholder-Testing-Assets/GA06_T02_D11_--_PD-Site-Plans.png",
+                "pdf--windows-dir-path"  :  "D:\\RE20_--_Core_Repo_--_Public\\SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library\\SN40_32_--_PlanVision_-_Placeholder-Testing-Assets\\GA06_T02_D11_--_PD-Site-Plans.pdf",
+                "pdf--github-link-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_32_--_PlanVision_-_Placeholder-Testing-Assets/GA06_T02_D11_--_PD-Site-Plans.pdf"
+            }
+        },
+        "drawing-02"  :  {
+            "file-name"           :  "GA06_T02_D22_--_PD-Elevations-Drawing",
+            "added-to-register"   :  "01/04/2025",
+            "document-type"       :  "Drawing",
+            "document-name"       :  "Elevations Drawing",
+            "document-scale"      :  "1:50",
+            "document-size"       :  "A1",
+            "document-status"     :  "Planning Phase Drawing",
+            "document-notes"      :  "NIL",
+            "document-revisions"  :  {
+                "revision-a"  :  "01/04/2025"
+            },
+            "document-links"  :  {
+                "png--windows-dir-path"  :  "D:\\RE20_--_Core_Repo_--_Public\\SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library\\SN40_32_--_PlanVision_-_Placeholder-Testing-Assets\\GA06_T02_D22_--_PD-Elevations-Drawing.png",
+                "png--github-link-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_32_--_PlanVision_-_Placeholder-Testing-Assets/GA06_T02_D22_--_PD-Elevations-Drawing.png",
+                "pdf--windows-dir-path"  :  "D:\\RE20_--_Core_Repo_--_Public\\SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library\\SN40_32_--_PlanVision_-_Placeholder-Testing-Assets\\GA06_T02_D22_--_PD-Elevations-Drawing.pdf",
+                "pdf--github-link-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_32_--_PlanVision_-_Placeholder-Testing-Assets/GA06_T02_D22_--_PD-Elevations-Drawing.pdf"
+            }
+        },
+        "drawing-03"  :  {
+            "file-name"           :  "JH03_T02_D02_--_Floor-Plans",
+            "added-to-register"   :  "01/04/2025",
+            "document-type"       :  "Drawing",
+            "document-name"       :  "Floor Plans",
+            "document-scale"      :  "1:100",
+            "document-size"       :  "A1",
+            "document-status"     :  "Planning Phase Drawing",
+            "document-notes"      :  "NIL",
+            "document-revisions"  :  {
+                "revision-a"  :  "01/04/2025"
+            },
+            "document-links"  :  {
+                "png--windows-dir-path"  :  "D:\\RE20_--_Core_Repo_--_Public\\SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library\\SN40_32_--_PlanVision_-_Placeholder-Testing-Assets\\JH03_T02_D02_--_Floor-Plans.png",
+                "png--github-link-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_32_--_PlanVision_-_Placeholder-Testing-Assets/JH03_T02_D02_--_Floor-Plans.png",
+                "pdf--windows-dir-path"  :  "D:\\RE20_--_Core_Repo_--_Public\\SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library\\SN40_32_--_PlanVision_-_Placeholder-Testing-Assets\\JH03_T02_D02_--_Floor-Plans.pdf",
+                "pdf--github-link-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_32_--_PlanVision_-_Placeholder-Testing-Assets/JH03_T02_D02_--_Floor-Plans.pdf"
+            }
+        },
+        "drawing-04"  :  {
+            "file-name"           :  "JH03_T02_D03_--_Elevations",
+            "added-to-register"   :  "01/04/2025",
+            "document-type"       :  "Drawing",
+            "document-name"       :  "Elevations",
+            "document-scale"      :  "1:100",
+            "document-size"       :  "A1",
+            "document-status"     :  "Planning Phase Drawing",
+            "document-notes"      :  "NIL",
+            "document-revisions"  :  {
+                "revision-a"  :  "01/04/2025"
+            },
+            "document-links"  :  {
+                "png--windows-dir-path"  :  "D:\\RE20_--_Core_Repo_--_Public\\SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library\\SN40_32_--_PlanVision_-_Placeholder-Testing-Assets\\JH03_T02_D03_--_Elevations.png",
+                "png--github-link-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_32_--_PlanVision_-_Placeholder-Testing-Assets/JH03_T02_D03_--_Elevations.png",
+                "pdf--windows-dir-path"  :  "D:\\RE20_--_Core_Repo_--_Public\\SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library\\SN40_32_--_PlanVision_-_Placeholder-Testing-Assets\\JH03_T02_D03_--_Elevations.pdf",
+                "pdf--github-link-url"   :  "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_32_--_PlanVision_-_Placeholder-Testing-Assets/JH03_T02_D03_--_Elevations.pdf"
+            }
+        }
+    }
+},
+
+
+"Button_Menu_Config"  :  {
+    "buttons"  :  {
+        "BTTN__Download-PDF"  :  {
+            "function"  :  "downloadPDF",
+            "script"    :  "Canvas-Controller.js"
+        },
+        "BTTN__Reset-View"  :  {
+            "function"  :  "resetView",
+            "script"    :  "Canvas-Controller.js" 
+        },
+        "BTTN__Linear-Measure"  :  {
+            "function"  :  "activateLinearMeasurementTool",
+            "script"    :  "Measurement-Tools.js"
+        },
+        "BTTN__Rect-Measure"  :  {
+            "function"  :  "activateRectangleMeasurementTool",
+            "script"    :  "Measurement-Tools.js"
+        },
+        "BTTN__Area-Measure"  :  {
+            "function"  :  "activateAreaMeasurementTool",
+            "script"    :  "Measurement-Tools.js"
+        },
+        "BTTN__Clear-Measurements"  :  {
+            "function"  :  "clearAllMeasurements",
+            "script"    :  "Measurement-Tools.js"
+        },
+        "BTTN__Cancel-Tool"  :  {
+            "function"  :  "cancelActiveTool",
+            "script"    :  "Measurement-Tools.js"
+        },
+        "BTTN__Fullscreen-Toggle"  :  {
+            "function"  :  "toggleFullscreen",
+            "script"    :  "UI-Navigation.js"
+        }
+    }
+}
+}
