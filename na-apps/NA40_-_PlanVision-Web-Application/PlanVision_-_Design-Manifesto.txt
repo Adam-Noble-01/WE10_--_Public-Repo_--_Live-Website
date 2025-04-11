@@ -1,0 +1,153 @@
+# PlanVision Design Manifesto
+
+## Application Overview
+PlanVision is a web application for viewing and interacting with architectural drawings, providing functionalities including:
+- A linear measurement tool for precise distance calculations
+- An area measurement tool for computing polygon areas
+- A rectangular measurement tool for quick area calculations
+- A PDF download feature allowing users to download formatted drawings
+- Responsive design ensuring compatibility across various devices
+- Dynamic loading of drawing data via a remote JSON configuration file
+- Centralized asset library for consistent fonts and images across all devices
+- Markup tools for annotating drawings with freehand notes and sketches
+
+## Issues & Lessons Learned
+
+- **PDF vs PNG Implementation**  
+  Initial PDF-only approach caused performance and memory issues on iOS devices. The integration of PNG image handling resolved these issues and improved cross-device compatibility. Maintaining two separate files (PNG and PDF) leverages the benefits of both in-app viewing and downloadable formatted documents.
+
+- **DOM Loading Sequence**  
+  Application failed to load due to missing root DOM element (`#app`). The script was executing before the DOM fully loaded, causing critical errors. Resolved by ensuring the `#app` element exists before running JavaScript logic.
+
+- **Full Screen Mode Limitations**  
+  Full screen mode did not function properly in Google Sites embeds. Browsers restrict fullscreen access within iframes, affecting functionality. Added fallback handling for unsupported fullscreen environments.
+
+- **Mobile Usability Improvements**  
+  Mobile usability was initially poor due to lack of user guidance. The previous implementation displayed a static message instructing users to rotate their device. This was replaced with a dynamic tutorial animation that visually introduces the tools menu.
+
+- **Toolbar UI Refinements**  
+  Initially, the toolbar left a grey margin when hidden, affecting canvas usability. The toolbar was adjusted to overlay the canvas instead of affecting its dimensions.
+
+- **Measurement Tool Interface**  
+  Previously, the measurement tools' buttons were not intuitive for first-time users. Added clear instructions and improved the visibility of the confirm/cancel buttons.
+
+- **Device Detection Improvements**  
+  Early mobile detection logic only considered width constraints, missing certain tablets. Implemented improved detection for phones, tablets, and iPads, ensuring proper UI scaling.
+
+## Asset Loading Architecture
+
+The application uses a two-tier approach for loading resources:
+
+### 1. App Assets (Centralised Asset Library)
+- Loads core UI assets from a centralised JSON repository
+- Fetches from "SN40_31_--_PlanVision_-_Asset-Link-Library.json"
+- Provides consistent fonts, logos, and UI elements across all instances
+- Assets include:
+  * Fonts: Open Sans (regular, light, semi-bold) and Caveat (regular, semi-bold)
+  * Logo: Noble Architecture brand imagery
+  * UI elements: Common interface components
+- Font loading is handled via dynamic @font-face declarations injected into a style element
+- Ensures visual consistency across different deployments and devices
+
+### 2. Project Assets (Drawing Library)
+- Loads project-specific drawings from a project JSON repository
+- Each project has its own data file (e.g., "GA06_-_DATA_-_Document-Library.json")
+- Contains links to:
+  * PNG files for on-screen display
+  * PDF files for high-quality downloads
+- Supports multiple drawings per project with dynamic toolbar buttons
+- Drawing metadata includes document names and proper filenames for downloads
+
+The dual-library approach separates core application assets from project-specific content, allowing the same app version to be used across multiple projects while maintaining consistent branding and UI elements.
+
+## Dynamic Loading from Remote JSON Configuration
+
+### JSON Functionality Overview
+- Dynamically loads drawing data by fetching a JSON file from a remote source
+- Expects a nested JSON structure under "na-project-data-library" → "project-documentation" → "project-drawings"
+- Dynamically creates toolbar buttons for each drawing entry (ignoring template placeholders)
+- Extracts drawing scale and paper size metadata to configure accurate measurement tools
+- Automatically applies correct scale factors based on document-scale and document-size values
+- Updates the PDF download link dynamically based on the selected drawing's metadata
+- Implements asynchronous loading (using async/await) for a non-blocking user interface
+
+### JSON Keys and Their Roles
+- **"na-project-data-library"**
+  - Root container for all project-related data
+- **"project-documentation"**
+  - Nested under the root; contains documentation details including drawings
+- **"project-drawings"**
+  - Nested under "project-documentation"; holds individual drawing entries
+
+### Drawing Entry Keys
+Each key starting with "drawing-" contains:
+- **"file-name"**
+  - Specifies the drawing file's name; template entries are ignored
+- **"document-name"**
+  - Provides the display name for the drawing, used as the label on toolbar buttons
+- **"document-scale"**
+  - Specifies the drawing scale (e.g., "1:50") used for accurate measurements
+  - Supports values from "1:1" through "1:2500"
+- **"document-size"**
+  - Specifies the paper size (e.g., "A1") for dimension calculations
+  - Supports standard A-series sizes (A0-A4)
+- **"document-links"**
+  - Contains URLs for drawing assets:
+    - **"png--github-link-url"**: URL to load the drawing image (PNG) onto the canvas
+    - **"pdf--github-link-url"**: URL for the downloadable PDF version of the drawing
+
+### Visual JSON Hierarchy Tree
+```
+na-project-data-library  
+└── project-documentation  
+    └── project-drawings  
+        ├── drawing-01  
+        │  ├── file-name          
+        │  ├── added-to-register  
+        │  ├── document-type      
+        │  ├── document-name      
+        │  ├── document-scale     
+        │  ├── document-size      
+        │  ├── document-status    
+        │  ├── document-notes     
+        │  ├── document-revisions
+        │  │  └── revision-a, revision-b, etc.
+        │  └── document-links  
+        │    ├── png--windows-dir-path
+        │    ├── pdf--windows-dir-path
+        │    ├── png--github-link-url  
+        │    └── pdf--github-link-url  
+        └── drawing-02 …  
+```
+
+## Coding Conventions
+
+### Region & Sub-Region Structure
+
+#### Main Regions
+- Main regions must be clearly defined using a header comment that follows this format:
+  - Format:  
+    ---------------------------------------------------------------------------
+    {{LANGUAGE_OR_FUNCTION}} |  {{DESCRIPTIVE_TITLE}}
+    ---------------------------------------------------------------------------
+    - Main regions to have a horizontal line above and below the header comment.
+        - Use 80x hyphen signs (-) for the divider line.
+    - Immediately after the title, include a version note (e.g. "Introduced in v1.8.1") that dynamically reflects the version when the section was added.
+    - Follow with a DESCRIPTION section that briefly explains the purpose and functionality of the code block.
+    - A divider line made up of 80 equal signs (=) must separate each main region.
+
+
+#### Sub-Regions
+- Sub-regions are used to further segment code within a main region.
+  - Format:  
+    {{LANGUAGE_OR_FUNCTION}} |  {{DESCRIPTIVE_TITLE}}
+    ---------------------------------------------------------------------------
+    - Sub-regions to have a horizontal line ONLY below the header comment.
+    - Use 80x hyphen signs (-) for the divider line.
+    - Include a version note indicating when the sub-region was introduced.
+    - Add a DESCRIPTION section and, if needed, an IMPORTANT NOTES section.
+    - A divider line composed of 60 hyphens (-) must be used to mark the beginning of a sub-region. 
+
+
+----------------------------------------------------------------------------------------------------
+###### END OF FILE 

@@ -302,8 +302,58 @@
                 "asset-active-status"   :   true
             }
         }
-    }
+    },
+
+    "AD11_-_LIBR_-_Common_-_Placeholder-Files": {
+        "library-dir-path"      :   "./assets/AD11_-_LIBR_-_Common_-_Placeholder-Files",
+        "library-web-url"       :   "https://www.noble-architecture.com/assets/AD11_-_LIBR_-_Common_-_Placeholder-Files/",
+        "library-file-name"     :   "Common Placeholder Files",
+        "library-id-code"       :   "AD11",
+        "library-type"          :   "Asset Library",
+        "library-category"      :   "Placeholder Files",
+        "library-description"   :   "Common Placeholder File Library",
+        "library-usage"         :   "Single point of access for all placeholder files such as images to display as fallbacks etc, used across the project",
+        "library-added-by"      :   "Adam Noble",
+        "library-last-updated"  :   "11-Apr-2025",
+        "library-active-status" :   true,
+        "assets": {
+            "placeholder-a1-drawing": {
+                "asset-name"            :   "Noble Architecture Placeholder Drawing - A1 Format.png",
+                "asset-dir-path"        :   "./assets/AD11_-_LIBR_-_Common_-_Placeholder-Files",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD11_-_LIBR_-_Common_-_Placeholder-Files/AD11_21-_Placeholder-Drawing_-_A1-Format.png",
+                "asset-file-name"       :   "AD11_21-_Placeholder-Drawing_-_A1-Format.png",
+                "asset-id-code"         :   "AD11_21",
+                "asset-type"            :   "image",
+                "asset-category"        :   "placeholder",
+                "asset-format"          :   "png",
+                "asset-description"     :   "Noble Architecture Placeholder Drawing - A1 Format",
+                "asset-usage"           :   "used as a image placeholder for A1 Drawings",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "11-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "placeholder-a2-drawing": {
+                "asset-name"            :   "Noble Architecture Placeholder Drawing - A2 Format.png",
+                "asset-dir-path"        :   "./assets/AD11_-_LIBR_-_Common_-_Placeholder-Files",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD11_-_LIBR_-_Common_-_Placeholder-Files/AD11_22-_Placeholder-Drawing_-_A2-Format.png",
+                "asset-file-name"       :   "AD11_22-_Placeholder-Drawing_-_A2-Format.png",
+                "asset-id-code"         :   "AD11_22",
+                "asset-type"            :   "image",
+                "asset-category"        :   "placeholder",
+                "asset-format"          :   "png",
+                "asset-description"     :   "Noble Architecture Placeholder Drawing - A2 Format",
+                "asset-usage"           :   "used as a image placeholder for A2 Drawings",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "11-Apr-2025",
+                "asset-active-status"   :   true
+            }
+        }
+    },
+
 },
+    
+
+
 
 "Core-Source-Code-Library": {
     "library-dir-path"      :   "./src",

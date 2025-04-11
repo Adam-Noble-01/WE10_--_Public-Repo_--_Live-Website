@@ -1,0 +1,80 @@
+========================================================
+- - - - - - - -    TASK BREAKDOWN   - - - - - - - - - - 
+Subject :  PlanVision 2.0 Refactor & Modularisation Plan
+Date    :  11-Apr-2025
+========================================================
+
+OVERVIEW & CONTEXT
+- The task is to refactor the existing PlanVision 1.8.8 architectural drawing viewer application into a cleaner and more maintainable version called PlanVision 2.0.
+- This involves no changes to the core logic or features but a complete reorganization and modernization of the codebase.
+- The current application consists of a single monolithic HTML file of over 5000 lines that includes embedded CSS and JavaScript.
+- The goal is to modularize the application by offloading styles and scripts into separate components.
+- PlanVision is an app that allows uploading and viewing architectural drawings with features such as scaling, measuring, and markup tools.
+- The refactor aims to make future updates, scaling, and bug fixing easier and faster due to improved maintainability and code structure.
+
+REFACTORING STRATEGY
+- Completely modularize the codebase.
+- Move all styles into their own CSS file and update all styles to match the current three-tier naming convention.
+- All colors should use CSS variables in line with the current web app standards.
+- Offload all major functional JavaScript into separate modular files.
+- Use explicit root paths during development for easier testing and identification.
+- Retain original 1.8.8 version as a reference.
+- Final goal is to create a scalable, maintainable, and professional codebase.
+
+DOCUMENTATION FILE SPLIT
+- Extract the current large README from the main HTML into two separate files:
+  - A **Design Manifesto** file that explains core design principles, technical breakdown, and lessons learned.
+  - A **Revision Notes** README that tracks version history and includes a new entry for version 2.0.0 summarizing all changes and work done.
+- Revision notes should be the final task to update, done after all other refactoring is complete.
+
+HTML STRUCTURE REBUILD PLAN
+- Create a simple new HTML file that will act as the index and the scaffold for the application.
+- This file will reference modular scripts and styles using standard headers from the main index in the root directory.
+- Load fonts, graphics, and favicons from the standard library used across other apps.
+
+CSS TASKS
+- Offload embedded CSS from the HTML into a new external stylesheet located in the same directory as the HTML.
+- Rename all classes and IDs to align with the latest three-stage naming convention as documented in the `/docs` folder.
+- Match all color usage with CSS variables used in newer apps to support future theming.
+- Button styling specifically must be aligned with the web app standards in the `/assets` folder (ignore styles for markdown and marketing site).
+
+SCRIPT MODULARIZATION PLAN
+- Scripts to be offloaded as modular files and placed in the same folder as the HTML for testing purposes.
+- Each script should be removed from the monolithic file, saved as a new .js file, and referenced back in the HTML.
+- After each module is extracted and linked, testing must be done before proceeding to the next one.
+- Scripts should be thoughtfully ordered and optimized for better loading. Preliminary suggested order:
+  - CSS
+  - App Assets Loader (JSON)
+  - Project Specific Assets Loader (JSON)
+  - All functional scripts follow in a logical order after loaders
+
+KEY JAVASCRIPT MODULES TO CREATE
+- **App Assets Loader**: Loads core assets via JSON
+- **Project Assets Loader**: Loads drawings, images, PDFs via JSON (with PNG/PDF dual handling)
+- **Measurement Scaling**: Handles conversions for scale tools
+- **Measurement Tools Logic**: Manages ruler and other measurement utilities
+- **Drawing Tools Logic**: Manages drawing/markup features
+- **Render Pipeline**: Handles canvas rendering and loop
+- **UI & DOM Manipulation**: Manages UI interactions, interface changes, and DOM animation
+- **Event Handlers**: Handles all touch, mouse, and complex user interactions
+
+GENERAL IMPLEMENTATION NOTES
+- Avoid deleting any original code, especially JavaScript logic. Do not use placeholders for removed scripts.
+- Recheck script load order during HTML rebuild; ensure JSON loaders are among the first to execute.
+- The loading screen logic should be preserved and reviewed for correct order execution.
+- Make careful and methodical changes; 
+    - I (USER) will test each script module incrementally to isolate bugs and avoid large cumulative issues.
+    - Do not continue through all tasks without asking for me feedback on each module you complete.
+    - Its important that I (USER) understand the process and the changes you are making.
+    - This will limit commutative mistakes and the risk of introducing new bugs.
+- This process will be iterative, starting with:
+  - Step 1: Offload README into two files
+  - Step 2: Offload and refactor CSS
+  - Step 3: Modularize JavaScript scripts one by one with testing between each
+
+### REFERENCE FOLDERS
+`/docs` - Documentation folder - Contains all documentation files
+`/assets` - Asset folder - Contains all images, fonts, and graphics, and CSS style to reference
+
+- - - - - - - - - - - - - - - - - - - - - - - - - 
+END OF NOTES
