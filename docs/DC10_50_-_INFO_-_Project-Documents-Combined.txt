@@ -1,0 +1,1471 @@
+
+-------------------------------------------------------------------------------
+DOCUMENT 1 |  `DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt`
+-------------------------------------------------------------------------------
+
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - PROJECT README FILE AND DESIGN MANIFEST
+AD10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+ 
+VERSION HISTORY
+04-Apr-2025 - Version 1.0 - Initial Draft
+
+DESCRIPTION
+- This file is the core reference document for the project.
+- All code should align with the standards set out in this document.
+- This document explains the purpose of the project and the core design principles.
+====================================================================================================
+---
+
+# Website Design Manifest
+###### A Breakdown Of The Website Design Manifest
+----------------------------------------------------------------------------------------------------
+
+### Website URL
+http://www.noble-architecture.com/
+
+### Website URL Shorthand
+www.noble-architecture.com
+
+### Main Website Introduction
+- The Noble Architecture Website is served by GitHub Pages and is a public-facing website.
+- The main website is a static website built using HTML, CSS, and JavaScript.
+- The main website is used as a portfolio page to showcase the work of the Architecture business.
+
+### Project Portal Introduction
+- The domain also contains a project portal which is a private section of the website.
+- The project portal is used to store and share project information with the client.
+- The project portal is a web app built using HTML, CSS, and JavaScript.
+- These pages will have no robots rules applied to them
+
+### Site Structure
+- For a full list of the site structure, please refer to the site structure document.
+  - `DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt`
+
+
+## REFERENCE DOCUMENTATION DIRECTORY
+----------------------------------------------------------------------------------------------------
+NOTE : All project documentation files are stored in the `./docs` directory.
+
+### Core Documentation
+- DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+- DC10_02_-_INFO_-_Version-History.txt
+- DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt
+- DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt
+- DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt
+
+### Coding Rules & Standards
+- DC10_10_-_RULE_-_Core-Coding-Rules_-_General-Web-Dev-.txt
+- DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
+- DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
+- DC10_15_-_RULE_-_Core-Coding-Rules_-_HTML-Files.txt
+- DC10_16_-_RULE_-_Core-Coding-Rules_-_Python-Files.txt
+
+### Design & Assets
+- DC10_20_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+
+### Development Tools & Setup
+- DC10_40_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+- DC10_50_-_INFO_-_Useful-Shell-Commands.txt
+
+### Main Website URL
+https://www.noble-architecture.com/
+
+### Documents Hosted On The Main Website
+```document-directory-url-list
+https://www.noble-architecture.com/docs/DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+https://www.noble-architecture.com/docs/DC10_02_-_INFO_-_Version-History.txt
+https://www.noble-architecture.com/docs/DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt
+https://www.noble-architecture.com/docs/DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt
+https://www.noble-architecture.com/docs/DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt
+https://www.noble-architecture.com/docs/DC10_10_-_RULE_-_Core-Coding-Rules_-_General-Web-Dev-.txt
+https://www.noble-architecture.com/docs/DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
+https://www.noble-architecture.com/docs/DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
+https://www.noble-architecture.com/docs/DC10_15_-_RULE_-_Core-Coding-Rules_-_HTML-Files.txt
+https://www.noble-architecture.com/docs/DC10_16_-_RULE_-_Core-Coding-Rules_-_Python-Files.txt
+https://www.noble-architecture.com/docs/DC10_20_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt
+https://www.noble-architecture.com/docs/DC10_40_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+https://www.noble-architecture.com/docs/DC10_50_-_INFO_-_Useful-Shell-Commands.txt
+```
+
+
+## GITHUB REPO DETAILS
+----------------------------------------------------------------------------------------------------
+
+  #### GitHub Repo Name
+  WE10_--_Public-Repo_--_Live-Website
+
+  #### GitHub Repo URL
+  https://GitHub.com/Adam-Noble-01/WE10_--_Public-Repo_--_Live-Website
+
+  #### GitHub Pages URL
+  https://adam-noble-01.GitHub.io/
+
+  #### GitHub Local Repo Path
+  D:\WE10_--_Public-Repo_--_Live-Website
+
+
+## DNS SETUP
+----------------------------------------------------------------------------------------------------
+
+  #### A Records Configuration
+  - GoDaddy serve as the DNS provider
+  - Configured 04-Apr-2025
+  - Configuration Via GoDaddy DNS Manager
+
+  #### SSL Certificate Configuration
+  - Confirmed of Certificate - 04-Apr-2025
+  - Configuration Via GitHub Sites Settings Menu
+
+  #### Domain Name
+  www.noble-architecture.com
+
+  #### Domain Name Server
+  GoDaddy DNS Manager
+
+  #### CNAME Configuration
+  - Configured 04-Apr-2025
+  - Configuration Via GoDaddy DNS Manager
+
+  #### DNS CNAME - Saved Settings GoDaddy
+  **DNS CNAME**  =  www
+  **DNS Field**  = adam-noble-01.GitHub.io
+
+  #### CNAME File Location
+  D:\WE10_--_Public-Repo_--_Live-Website\CNAME
+
+  GitHub CNAME File Location
+  https://github.com/Adam-Noble-01/WE10_--_Public-Repo_--_Live-Website/settings/pages
+
+  ### Website URL
+  http://www.noble-architecture.com/
+
+
+
+----------------------------------------------------------------------------------------------------
+###### END OF FILE 
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 2 |  `DC10_02_-_INFO_-_Version-History.txt`
+-------------------------------------------------------------------------------
+
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - VERSION HISTORY
+FILE NAME |  AD10_90_-_DOCS_-_Version-History.txt
+FILE TYPE |  DOCS
+
+DESCRIPTION
+- This file tracks version history for the Noble Architecture website project.
+- All significant changes must be documented in this file.
+====================================================================================================
+---
+
+# NOBLE ARCHITECTURE VERSION HISTORY
+--------------------------------------------------------------------------------
+
+#### DOCUMENT OVERVIEW
+- This document tracks version history for the Noble Architecture website project.
+- Version tracking is essential for project management
+- This history applies to all project components
+- Regular updates ensure accurate version tracking
+
+#### VERSION HISTORY TRACKING FORMAT
+- Use Semantic Versioning
+- Major.Minor.Patch
+Example: 1.2.3
+  - Major version       <--  Major changes & overhauls / implementation of numerous new features
+    - Minor version     <--  New Features
+      - Patch version   <--  Bug Fixes
+
+
+--------------------------------------------------------------------------------
+## VERSION LOG
+--------------------------------------------------------------------------------
+
+#### Version 1.2.0  -  09-Apr-2025
+- Created website configuration Json file.
+    `./assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_01_-_DATA_-_Core-Website_-_Config-Data.json`
+- Created website configuration Json file.
+    `./assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_02_-_DATA_-_Core-Website-Structure_-_Site-Map.json`
+- Created new Core Web Asset Library Json file.
+    `./assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json`
+- Rebuilt /src directory structure
+- Rebuilt and styled Reader App
+- Created new Asset query tool
+    - This web UI tool loads the Core Web Asset Library Json file and displays the assets in a searchable format.
+
+#### Version 1.1.0  -  08-Apr-2025
+- New Features:
+  - Core CSS Style defined, file made and document created.
+  - Updated documentation
+  - Made new docs directory for the project documentation files.
+  - Implemented handling for standard icons served by Noble Architecture website
+    - A HTML Header was created linking the icons now served by the website.
+  - Implemented handling for standard fonts served by Noble Architecture website
+    - A HTML Header was created linking the fonts now served by the website.
+    - Open Sans font is now linked to the website.
+    - Caveat font is now linked to the website.
+    - Index header HTML was updated to link to the new fonts.
+    - Main CSS file was updated to link to the new fonts.
+  - Font & Favicon handling tested, edge reports no console errors.
+
+#### Version 1.0.0  -  04-Apr-2025  
+- Initial Release
+- Core Features:
+  - Basic website directory structure built out 
+  - Documentation framework setup
+  - Asset organisation and standardisation of naming conventions applied
+
+--------------------------------------------------------------------------------
+###### END OF FILE 
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 3 |  `DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt`
+-------------------------------------------------------------------------------
+
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - IMPROVEMENTS LIST & TASKS
+FILE NAME |  AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+FILE TYPE |  DLIS
+
+VERSION HISTORY
+04-Apr-2025 - Version 1.0.0 - Initial Draft
+04-Apr-2025 - Version 1.1.0 
+- Created task tracking document
+- Added sections for current tasks, known problems, and improvement ideas
+- Established placeholder structure for ongoing development
+
+DESCRIPTION
+- This file tracks ongoing tasks, known issues, and potential improvements for the project.
+- Use this document to log bugs, feature requests, and development priorities.
+- Regular updates to this document help maintain project momentum and focus.
+====================================================================================================
+---
+
+# NOBLE ARCHITECTURE IMPROVEMENTS & TASKS
+--------------------------------------------------------------------------------
+
+#### Document Introduction Section
+- The Noble Architecture website is under continuous development. 
+- This document helps organise and prioritise work items, track bugs, and capture improvement ideas. 
+- Regular review of this document ensures that development efforts remain aligned with project goals.
+- This document serves as a central repository for tracking development tasks, known issues, and potential improvements.
+
+
+
+## PROJECT MANAGEMENT
+--------------------------------------------------------------------------------
+
+#### CURRENT TASKS UNDER DEVELOPMENT
+- Implement handling for standard fonts served by noble architecture website.
+- Move version header js from reader app into Core Web Utility JS Library
+
+
+
+### LOW PRIORITY TASKS
+
+#### Update Plan Vision Application
+- Rebuild Plan Vision Application using new standards and conventions
+- Add the new Favicon handling to the Plan Vision Application
+
+
+
+### KNOWN PROBLEMS & BUG REPORTING
+--------------------------------------------------------------------------------
+- [Placeholder]
+
+
+
+### IMPROVEMENT IDEAS SECTION
+--------------------------------------------------------------------------------
+- [Placeholder]
+
+
+
+--------------------------------------------------------------------------------
+###### END OF FILE 
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 4 |  `DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt`
+-------------------------------------------------------------------------------
+
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - DIRECTORY STRUCTURE
+FILE NAME |  AD10_60_-_DOCS_-_Directory-Structure.txt
+FILE TYPE |  DOCS
+
+VERSION HISTORY
+04-Apr-2025 - Version 1.0.0 - Initial Draft
+04-Apr-2025 - Version 1.1.0 
+- Created directory structure document
+- Established core directory organization
+- Added detailed structure documentation
+
+DESCRIPTION
+- This file defines the directory structure for the Noble Architecture website project.
+- Proper directory organization is essential for project maintainability.
+- All files must be placed in their appropriate directories according to this structure.
+====================================================================================================
+---
+
+# NOBLE ARCHITECTURE DIRECTORY STRUCTURE
+--------------------------------------------------------------------------------
+
+## DOCUMENT OVERVIEW
+
+#### Document Purpose
+This document establishes the directory structure for the Noble Architecture website project.
+
+#### Document Introduction Section
+- Clear directory structure is essential for project organisation
+- This structure applies to all project files
+- Following this structure ensures proper file organization
+
+
+### MAIN DIRECTORY STRUCTURE OUTLINE
+--------------------------------------------------------------------------------
+- Structure truncated for brevity.
+- Truncated at the first child directory level.
+- Always refer to the full Json file for a complete list of all files and directories.
+    `AD01_01_-_DATA_-_Core-Global-Web-Asset-Data-&-Config.json`
+- Below is for quick reference only and is not a complete list of all files and directories.
+--------------------------------------------------------------------------------
+
+/ROOT
+├── assets/
+│   ├── AD01_-_DATA_-_Common_-_Global-Data-Library/
+│   │   └── AD01_01_-_DATA_-_Core-Website_-_Config-Data.json
+│   │   └── AD01_02_-_DATA_-_Core-Website-Structure_-_Site-Map.json
+│   │   └── AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json
+|   |
+│   ├── AD02_-_STYL_-_Common_-_StyleSheets/
+│   │   └── AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css
+|   |
+│   ├── AD03_-_LIBR_-_Common_-_Libraries/
+|   |
+│   ├── AD04_-_LIBR_-_Common_-_Font-Files/
+│   │   └── Font-Files-In-This-Directory
+|   |
+│   ├── AD05_-_LIBR_-_Common_-_Icons-and-favicons/
+│   │   └── Icons-and-favicons-In-This-Directory
+|   |
+│   ├── NA01_-_DATA_-_NA-Site_-_Project-Data/
+│   │   └── Noble-Architecture-Project-Data-In-This-Directory
+|   |
+│   └── NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/
+│   │   └── Noble-Architecture-Brand-Image-Assets-In-This-Directory
+|   |
+├── docs/
+│   ├── DC10_01_-_READ_-_Project-ReadMe-File-And-Design-Manifest.txt
+│   ├── DC10_02_-_INFO_-_Version-History.txt
+│   ├── DC10_03_-_DLIS_-_Improvements-List-&-Tasks.txt
+│   ├── DC10_04_-_INFO_-_Directory-Structure-&-Asset-Notes.txt
+│   ├── DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt
+│   ├── DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
+│   └── DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt
+|
+└── src/
+    ├── Core-JavaScript-Library/
+    │   ├── Core-JavaScript-Library-In-This-Directory
+    |   └── Directory-contains-functions-and-modules-for-the-project.
+    |
+    └── Core-Python-Library/
+       ├── Core-Python-Library-In-This-Directory
+       └── Directory-contains-functions-and-modules-for-the-project.
+
+
+### COMPLETE LIST OF ALL FILES AND DIRECTORIES
+--------------------------------------------------------------------------------
+- For a complete list of all files and directories
+- please refer to the complete list of website assets refer to the following file:
+    `AD01_01_-_DATA_-_Core-Global-Web-Asset-Data-&-Config.json`
+
+
+###### WEB APPLICATION DIRECTORY GLOSSARY
+`assets`		  =   Assets related to only the main site & not apps; Github requires this folder
+`assets-archive`  =   Deprecate	Assets no longer in use but sidelined; local copies usually preferred for long term archiving
+`na-apps`         =   Noble Architecture  - Live App Deployment
+`nb-apps`         =   Noble Audio - Live App Deployment
+`sn-apps`         =   Studio NoodlFjørd - Live App Deployment
+`assets-dev`      =   Pages / Applications currently under active development and not yet deployed or archived
+
+
+
+--------------------------------------------------------------------------------
+###### END OF FILE 
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 5 |  `DC10_05_-_RULE_-_Core-File-Naming-Conventions.txt`
+-------------------------------------------------------------------------------
+
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE & APPLICATIONS - Core Project File & Code Naming Conventions
+AD10_02_-_READ_-_Core-Project-File-And-Code-Naming-Conventions-Document.txt
+ 
+VERSION HISTORY
+05-Apr-2025 - Version 1.0.1 - Initial Draft
+09-Apr-2025 - Version 1.1.1 - Added Unique Asset Identification System breakdown
+
+DESCRIPTION
+- This document is the core conventions reference document for the project.
+- These codes are global across the project and are used to identify the file type of a given file.
+- These code also define the naming conventions for code objects, variables, functions, etc.
+- All code MUST align with the standards set out in this document.
+
+====================================================================================================
+---
+
+## ASSET NAMING CONVENTION RULES
+###### A Breakdown Of The Projects Core Asset Naming Conventions
+-------------------------------------------------------------------------------
+
+#### Notes On Image & Graphical Asset Naming Conventions
+Format Example String
+ `NA0#_0#_-_NA-Pictogram_-_PNG_-_1500px_-_Idea-Lightbulb.png`
+ 
+Filename Breakdown
+    - `NA0#`            :    Variable prefix matching 2 letter + 2 digit code; used to group files by type.
+    - `0#`              :    Sequential item number within the series (e.g., `01, 02, 03` etc.)
+    - `NA-Pictogram`    :    Asset type identifier
+    - `PNG`             :    File format
+    - `1500px`          :    Resolution/size specification
+    - `Idea-Lightbulb`  :    Descriptive name of the pictogram in Title Case with hyphens
+
+- Always use string with no white spaces or special characters.
+- Never spaces in filenames.
+- Use hyphens `-` instead of underscores `_` for word separation in the descriptive part.
+- Create clear string sections using `_-_`
+- Use sequential numbering for each file listed.
+- File number prefix codes are always unique globally.
+    - This ensure easy searching sorting and indexing of all assets.
+- Use descriptive names are brief but clear
+- Descriptions are always in `Title Case`
+
+
+### UNIQUE ASSET IDENTIFICATION SYSTEM
+----------------------------------------------------------------------------------------------------
+- The Noble Architecture website uses a asset identification system that ensures every asset in the project has a truly unique identifier code.
+- This system follows a hierarchical pattern that reflects both the asset's category and its specific instance.
+
+#### Basic Format
+Asset ID codes follow one of two formats:
+- Two-level format: `XX##_##`
+- Three-level format: `XX##_##_##`
+
+Where:
+- `XX` represents a two-letter category prefix
+- `##` represents a two-digit numeric identifier
+- `_##` represents an additional two-digit numeric identifier
+- `_##` (optional) represents a third two-digit numeric identifier for more specific categorization
+
+#### Category Prefixes
+The first two letters of each asset ID code indicate the asset's primary category:
+- `AD` - Common Data assets
+- `DC` - Documentation files
+- `NA` - Noble Architecture specific assets
+- `SN` - Static website assets
+
+#### Uniqueness Guarantee
+This system guarantees uniqueness through several mechanisms:
+
+*Hierarchical Organization* | The prefix-letter combination creates a top-level category (e.g., AD for Common Data)
+*Sequential Numbering*      | The first numeric component (##) creates a subcategory
+*Instance Identification*   | The second numeric component (_##) identifies specific instances within that subcategory
+*Extended Specificity*      | When needed, a third numeric component (_##) provides even more specific identification
+
+#### Examples from the Codebase
+- `AD04_01` - First font in the Common Front Files category (Open Sans Regular)
+- `AD04_21` - First handwritten font in the Common Front Files category (Caveat Regular)
+- `AD05_07` - Seventh icon in the Common Icons category (Favicon ICO)
+- `DC10_12` - Twelfth document in the Core Coding Rules category (CSS Files)
+
+This structured approach ensures that:
+- No two assets can ever have the same ID code
+- The ID code itself provides information about the asset's category and purpose
+- The system is extensible for future additions
+- Asset relationships can be inferred from their ID codes
+
+
+
+### FILE PREFIX SECTION BREAKDOWN
+----------------------------------------------------------------------------------------------------
+
+### Primary Prefix Codes
+- The first two letter and two number section at the very beginning of the filename.
+- This section is used to identify the main group the file belongs to.
+
+#### High Level File Group Codes
+`DC##`  =  Project Specific Documentation such as this file.
+`AD##`  =  Common Asset Directory; containing images, fonts, icons, etc.
+`NA##`  =  Noble Architecture Directory; containing company specific files.
+`NB##`  =  NobleAudio Directory; containing NobleAudio specific files.
+`SN##`  =  'Studio NoodlFjørd' (Programming Studio Name) Directory; containing programming files.
+
+#### Script File Type Codes
+`JS##`  =  JavaScript File
+`CS##`  =  CSS Style Sheet File
+`HT##`  =  HTML Document File
+`JN##`  =  JSON Data File
+
+
+### Project File Type Reference List
+----------------------------------------------------------------------------------------------------
+
+**Information & Documentation Files**
+`READ`  =  Readme files containing information about the project.
+`RULE`  =  Text File Defining strict rules and MANDATORY coding conventions.
+`INFO`  =  A Readme file of less importance than a READ or RULE file.
+`USER`  =  A User Guide or User Manual designed for non-technical users of the project.
+`DLIS`  =  Defines task lists, improvements ideas and other notes during development, means "Development List".
+
+**Data Files**
+`DATA`  =  A Directory of data files for the project; note data typically stores data in a structured json format.
+
+**Application Files**
+`APPS`  =  A Directory containing collections of scripts making up a complete application typically.
+
+**Style Files**
+`STYL`  =  Refers to CSS style sheet files defining a style or set of styles.
+
+**Code Files**
+`HTML`  =  Refers to HTML files containing the structure and content of the project.
+`JSON`  =  Refers to JSON files which store data in a structured format for the project.
+`SCRP`  =  Refers to standardised project script files containing JavaScript code.
+`SETP`  =  Denotes template files & folders; meaning term means "Setup".
+`PAGE`  =  Refers to a static page of the website.
+
+**Asset Files**
+`LOGO`  =  Refers to a logo or branded graphic file for the project.
+
+
+    
+### Project JavaScript Function Code Reference List
+----------------------------------------------------------------------------------------------------
+`LOAD-FN`  =  Loading Function
+
+
+
+### CORE UNITS FORMAT REFERENCE
+----------------------------------------------------------------------------------------------------
+
+*Date Format:*      |   `dd-mmm-yyyy`
+*Time Format:*      |   `hh:mm`
+
+*Example*
+`09-Apr-2025 | 14:45`
+
+#### Rationale
+- This format is clear, compact 
+- Widely used in British administrative and technical documents. 
+- It avoids confusion between UK and US date styles.
+
+
+
+### PRELIMINARY SCRP FILES INDEX
+----------------------------------------------------------------------------------------------------
+- This list is temporary and will be replaced with a more permanent list of files in the future.
+- Replaced with a proper Json file in the future.
+
+#### SCRIPT ROOT DIRECTORY
+`src/Core-JavaScript-Library/`
+
+**Directory**   |   `JS01_-_UTIL_-_Utility-Scripts_-_Page-&-HTML-Manipulation`
+**File-Name**   |   `JS01_01_-_UTIL_-_Version-Number-Header-Injection.js`  
+**Path**        |   `src/Core-JavaScript-Library/JS01_-_UTIL_-_Utility-Scripts_-_Page-&-HTML-Manipulation/JS01_01_-_UTIL_-_Version-Number-Header-Injection.js`  
+- A utility script for injecting the version number into the header of a web page.
+- Useful to use the already present version meta tag in the head of the document.
+- Reduces the amount places version numbers need to be updated in the codebase.
+
+
+
+----------------------------------------------------------------------------------------------------
+###### END OF FILE 
+
+
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 7 |  `DC10_10_-_RULE_-_Core-Coding-Rules_-_General-Web-Dev-.txt`
+-------------------------------------------------------------------------------
+
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE & APPLICATIONS - Core Web Development Coding Conventions
+AD00_-_DOCS_-_Master-Reference-Documentation/AD10_03_-_RULE_-_Core-Web-Dev-Code-Conventions.txt
+ 
+VERSION HISTORY
+05-Apr-2025 - Version 1.0 - Initial Draft
+
+DESCRIPTION
+- This document is the core conventions reference document for the codebase style standards.
+- This File Defines the standards set for all codebases using HTML / CSS / JS / Python
+- These codes are global across the project and are used to identify the file type of a given file.
+- These code also define the naming conventions for code objects, variables, functions, etc.
+- All code MUST align with the standards set out in this document.
+
+====================================================================================================
+---
+
+# Core Web Development Coding Conventions
+###### A Breakdown Of Project-wide Coding Conventions
+----------------------------------------------------------------------------------------------------
+
+
+### Introduction
+
+This document outlines the coding style conventions used in all front end web development and **Web Tools / Web Apps** and must be **Strictly Adhered To** to maintain a coherent codebase for all projects. Adhering to this guide ensures consistency, readability, and maintainability across the project. 
+
+Consistency is paramount. When modifying existing code, adhere to the established style. When adding new features or regions or making modifications.
+
+----------------------------------------------------------------------------------------------------
+
+##### General Principles
+
+- **Consistency** 
+  
+    - Apply these conventions uniformly throughout the codebase.
+    - When provided with snippets outside of these conventions such as old codebase sections that predate these conventions, always refactor new code ensuring all new code complies with these rules.
+    
+- **Clarity**
+  
+    - Write code that is easy to understand. 
+    - Prioritize readability over overly clever or terse solutions.
+    - Code does not need to be lean, linting will be applied prior to final packaging.
+    
+- **Organisation**
+  
+    - Structure code logically using regions.
+    - further break up code using sub-regions.
+    
+- **Commenting**
+  
+    - Use comments effectively to explain why code exists;
+    - not just what it does (unless the "what" is complex). 
+    - Document complex logic, workarounds, and version introductions.
+    
+- **Commenting & Code Regional Structure** 
+
+    -   Code is organized into logical blocks using specifically formatted header comments and dividers.
+
+
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 8 |  `DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt`
+-------------------------------------------------------------------------------
+
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - CORE JSON CODING RULES
+FILE NAME |  DC10_11_-_RULE_-_Core-Coding-Rules_-_Json-Files.txt
+FILE TYPE |  RULE
+
+VERSION HISTORY
+04-Apr-2025 - Version 1.0.0 - Initial Draft
+04-Apr-2025 - Version 1.1.0 
+- Updated indentation rules to 4 spaces
+- Standardized JSON formatting conventions
+- Added tiered architecture documentation
+- Enhanced property alignment rules
+
+DESCRIPTION
+- This document defines the structure, naming conventions, and design principles for JSON-based configuration files.
+- All JSON files in the project must adhere to these formatting and structural rules.
+- These rules ensure consistency, readability, and maintainability across all JSON configurations.
+====================================================================================================
+---
+
+# JSON Formatting Convention
+----------------------------------------------------------------------------------------------------
+
+## DOCUMENT OVERVIEW
+
+#### Document Purpose
+This document defines the structure, naming conventions, and design principles for JSON-based configuration files used across Noble Architecture's digital systems.
+
+#### Project JSON Files Key Concepts
+- These files act as centralised sources of truth for website and platform configuration data
+- Ensures consistency, clarity, and easy validation
+- A critical point is to use easy-to-read JSON files for automation
+- The Noble Architecture website and apps are built on the principle of JSON-driven automation
+- JSON files are the standard configuration format for the website and associated applications
+- JSON files serve as the **primary metadata store** for every page, asset, or component
+- Each page or app has its own associated JSON file, which defines:
+  - Metadata
+  - Dependencies
+  - Version history
+- JSON files also record dependencies for any file or asset that must be served by the website or application
+- Third-party libraries, tools, and CDN references are also recorded using structured JSON entries
+
+
+## TIERED JSON NESTING ARCHITECTURE AND INDENTATION RULES
+----------------------------------------------------------------------------------------------------
+
+### Structural Levels
+
+#### Level 1 — Top-Level Objects
+- Use `Title_Case_With_Underscores`
+- Represent major structural categories
+- Examples: `File_Metadata`, `Site_Config_Settings`
+
+#### Level 2 and Beyond — Nested Keys
+- Use `lowercase-hyphen-format`
+- All nested keys maintain this format regardless of depth
+- Examples: `file-name`, `site-dev-tools-mode`
+
+### Key Formatting Rules
+
+#### Property Name Alignment
+- All property names must be left-aligned within their level
+- Add exactly 2 spaces after the property name
+- Add a colon
+- Add exactly 2 spaces after the colon before the value
+
+#### Example Format
+```json
+{
+    "File_Metadata": {
+        "file-name"         :  "example.json",
+        "file-type"         :  "json",
+        "file-category"     :  "Configuration Files",
+        "file-description"  :  {
+            "heading"       :  "Example File",
+            "details"       :  [
+                "First point",
+                "Second point"
+            ]
+        }
+    }
+}
+```
+
+### Indentation Rules
+- Use 4 spaces for each indentation level
+- Never use tabs
+- Maintain consistent indentation throughout the file
+- Array elements should align with their parent property
+
+### Version History Format
+Version history should follow this structure:
+```json
+{
+    "File_Version_History_Log": [
+        {
+            "version"         :  "1.0.0",
+            "log-date"        :  "YYYY-MM-DD",
+            "log-title"       :  "Title",
+            "log-changes"     :  [
+                "Change 1",
+                "Change 2"
+            ]
+        }
+    ]
+}
+```
+
+
+## RATIONALE AND BENEFITS
+----------------------------------------------------------------------------------------------------
+
+### Enhanced Readability
+- Clear visual hierarchy with 4-space indentation
+- Aligned colons create scannable columns
+- Consistent spacing makes patterns immediately visible
+
+### Maintainability
+- Predictable structure makes updates easier
+- Clear version history tracking
+- Easy to spot changes in version control
+
+### Automation-Friendly
+- Consistent naming conventions support automated processing
+- Predictable structure enables reliable parsing
+- Standard format makes validation straightforward
+
+### Error Prevention
+- Clear visual structure helps spot missing or malformed entries
+- Consistent spacing makes structural errors obvious
+- Standard naming prevents confusion
+
+----------------------------------------------------------------------------------------------------
+
+
+
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 9 |  `DC10_12_-_RULE_-_Core-Coding-Rules_-_CSS-Files.txt`
+-------------------------------------------------------------------------------
+
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - CORE CSS STYLE CODE CONVENTIONS
+FILE NAME |  AD10_05_-_RULE_-_Core-CSS-Style-Code-Conventions.txt
+FILE TYPE |  RULE
+
+VERSION HISTORY
+01-May-2024 - Version 1.0.0 - Original Version
+07-Apr-2025 - Version 1.1.0 
+- Added comprehensive CSS naming conventions
+- Added CSS property alignment standards
+- Added section block formatting guidelines
+- Added numerical values & units guidelines
+- Added comment formatting guidelines
+
+DESCRIPTION
+- This file defines the CSS coding conventions for the Noble Architecture website.
+- All CSS code must adhere to these standards for consistency.
+- The guidelines ensure maintainable and readable stylesheets across the project.
+====================================================================================================
+---
+
+# NOBLE ARCHITECTURE CSS CODING STYLE GUIDE
+----------------------------------------------------------------------------------------------------
+
+#### Document Purpose
+- This document outlines the core CSS style conventions globally for the project.
+- It its CRITICAL to consistent code formatting, naming patterns, and structure across all stylesheets.
+
+#### CSS Coding Conventions Overview & Philosophy
+- This project uses a systematic approach to CSS.
+- Emphasising readability, maintainability, modularity, and structured component naming. 
+- These conventions ensure that styles remain consistent across the project and that developers can easily identify and modify components as needed.
+
+
+## CSS PROPERTIES, VALUES & COMMENTS CODE STRUCTURE & FORMATTING
+----------------------------------------------------------------------------------------------------
+### Column-Like Code Structure Formatting
+- Properties and values must be written in "column" form for visual clarity
+- Align colons and values in a consistent pattern
+- Property names should be left-aligned
+- Colons should be aligned with spaces (4 spaces minimum)
+- Values should be aligned after colons (4 spaces minimum)
+
+### Numerical Values & Units
+- Stick to using `rem` units for all numerical values.
+- Base font size is `16.00px` this sets the default size for the website.
+    - Setting the base font size to `16.00px` allows for easy calculations of the `rem` units.
+- For size-related properties (font sizes, margins, padding, width, height, etc.):
+    - Always use two digits before the decimal point (e.g., `01.00rem`, `00.75rem`)
+    - Always use two digits after the decimal point (e.g., `01.00rem`, `00.75rem`)
+    - This format applies to: font-size, margin, padding, width, height, border-radius, etc.
+- For non-size properties (colors, percentages, opacity, etc.):
+    - Use standard formatting without leading zeros
+    - Examples: `#555041`, `100%`, `0.65`, etc.
+- Always use at least `00.00` for size values to maintain a consistent column-like format.
+
+#### Example
+```css
+.selector {
+    font-size           :    01.00rem;
+    margin-top          :    00.75rem;
+    padding-bottom      :    02.00rem;
+    width               :    100%;
+    opacity             :    0.65;
+}
+```
+
+### Margin and Padding Properties
+- Always use explicit margin and padding properties instead of shorthand
+- Define each side separately: top, right, bottom, left
+- This improves readability and maintainability
+- Makes it easier to modify individual sides without affecting others
+
+#### Example
+```css
+.selector {
+    margin-top          :    00.75rem;
+    margin-right        :    01.00rem;
+    margin-bottom       :    00.75rem;
+    margin-left         :    01.00rem;
+    
+    padding-top         :    00.50rem;
+    padding-right       :    01.00rem;
+    padding-bottom      :    00.50rem;
+    padding-left        :    01.00rem;
+}
+```
+
+### Comment Formatting
+- Inline comments must be formatted with `/*   <-- [comment] */` pattern
+- Maintain consistent spacing in comments
+- Comments should explain purpose, not restate the obvious
+- Aim to align groups of comments as best as possible to create a consistent column-like format.
+
+
+#### Example
+```css
+.selector {
+    display             :    none;       /*   <-- Hidden by default */
+    font-size           :    16.00px;    /*  <-- CRITICAL VALUE!!  */
+}
+```
+
+
+
+## NAMING CONVENTIONS
+----------------------------------------------------------------------------------------------------
+
+### Nesting Levels & Their Meaning / Purpose
+- LEVEL 1 - Block Name              =  ALL CAPS
+    - Then double-underscores `__`
+- LEVEL 2 - Element Name            =  Title Case with hyphens
+    - Then double-hyphens `--`
+- LEVEL 3 - State Name / Modifier   =  lowercase with hyphens
+    - NO MORE NESTING IS ALLOWED
+- Avoid deep nesting of selectors (maximum 3 levels)
+- Prefer class selectors over element selectors for specificity.
+- Keep selectors as short as possible while maintaining clarity.
+
+
+### Block Naming Pattern
+- Use double-underscore naming convention for component blocks
+- Format as `[BLOCK]__[element]` using uppercase for block names
+- Block names should be in all caps & 4 characters ONLY.
+    - This keeps the block names short & concise, and keeps them in column style format.
+- Example blocks
+
+```css
+/* - - - - - - - Core Layout Blocks - - - - - - - - */
+    PAGE__      /* =  Page Container Block          */
+    HEAD__      /* =  Header Container Block        */
+    MAIN__      /* =  Main Content Container Block  */
+    FOOT__      /* =  Footer Container Block        */
+    SIDE__      /* =  Sidebar Container Block       */
+    NAVB__      /* =  Navigation Bar Block          */
+    DASH__      /* =  Dashboard Container Block     */
+/* - - - - - - - Common UI Components - - - - - - - */
+    FORM__      /* =  Form Container Block          */
+    BTTN__      /* =  Button Container Block        */
+    MENU__      /* =  Menu Container Block          */
+    CARD__      /* =  Card Container Block          */
+    TABS__      /* =  Tabs Container Block          */
+    LIST__      /* =  List Container Block          */
+    HERO__      /* =  Hero Container Block          */
+    MODL__      /* =  Modal Container Block         */
+    ICNB__      /* =  Icon Button Block             */
+/* - - - - - - - Interactive Elements - - - - - - - */
+    DPDW__      /* =  Dropdown Container Block      */
+    SRCH__      /* =  Search Container Block        */
+    FLTR__      /* =  Filter Container Block        */
+    SORT__      /* =  Sorting Container Block       */
+    TOGL__      /* =  Toggle Container Block        */
+    SLDR__      /* =  Slider Container Block        */
+/* - - - - - - - Navigation Components - - - - - -  */
+    BRDP__      /* =  Breadcrumb Path Block         */
+    PAGI__      /* =  Pagination Block              */
+    STPR__      /* =  Stepper Container Block       */
+/* - - - - - - Feedback & Notifications - - - - - - */
+    LOAD__      /* =  Loading/Spinner Block         */
+    PROG__      /* =  Progress Bar Block            */
+    NOTE__      /* =  Notice Container Block        */
+    TOOL__      /* =  Tooltip Container Block       */
+    SNBR__      /* =  Snackbar Container Block      */
+/* - - - - - - - Container Components - - - - - - - */
+    GRID__      /* =  Grid Container Block          */
+    ACCR__      /* =  Accordion Container Block     */
+    DRWR__      /* =  Drawer Container Block        */
+    DLOG__      /* =  Dialog Container Block        */
+    TRAY__      /* =  Tray Container Block          */
+    CRSL__      /* =  Carousel Container Block      */
+    CHIP__      /* =  Chip/Tag Container Block      */
+    TBVW__      /* =  Table View Block              */
+```
+
+
+### Classes and Elements
+----------------------------------------------------------------------------------------------------
+- Element names should be lowercase with hyphens for multi-word elements
+- State variations should use double-hyphens
+- Use descriptive, functional names rather than presentational names
+
+#### Examples
+```css
+    /* Header Block Examples */
+    .HEAD__Container {}
+    .HEAD__Nav {}
+    .HEAD__Nav-Logo-Image {}
+    .HEAD__Link--active {}
+    .HEAD__Link--disabled {}
+    .HEAD__Menu-Button--hover {}
+    /* Main Content Block Examples */
+    .MAIN__Container {}
+    .MAIN__Content-Area {}
+    .MAIN__Article-Card {}
+    .MAIN__Article-Card--featured {}
+    .MAIN__Article-Card--archived {}
+    .MAIN__Search-Bar--focused {}
+    /* Form Block Examples */
+    .FORM__Container {}
+    .FORM__Input-Group {}
+    .FORM__Text-Field {}
+    .FORM__Submit-Button {}
+    .FORM__Text-Field--error {}
+    .FORM__Text-Field--valid {}
+    .FORM__Submit-Button--disabled {}
+```
+
+
+
+## CSS VARIABLES AND COLOR MANAGEMENT
+----------------------------------------------------------------------------------------------------
+
+### CSS Custom Properties
+- Define all global variables in `:root` selector
+- Use consistent naming pattern: `--[category]-[property]`
+- Include comments for color purpose/usage
+- Group related variables together (colors, spacing, typography)
+- Use descriptive names that indicate purpose rather than value
+- Maintain alphabetical ordering within groups for easy reference
+
+#### Example
+```css
+:root {
+    --primary-color      :    #555041;          /*   <-- Brand color */
+    --primary-hover      :    #3d392e;          /*   <-- Darker shade */
+    --text-color         :    #333;
+}
+```
+
+### Color Usage
+- Always use CSS variables for colors, never hardcode hex values in components
+- Create semantic color variables based on usage (e.g., `--warning-text`, `--button-text`)
+- Include both base colors and contextual usage colors
+
+## BUTTON STANDARDS
+----------------------------------------------------------------------------------------------------
+### Standard Buttons
+- Used as the standard button style for the website on the main pages
+- Should be the go-to standard button style
+- Offers a clean and modern look
+- Offers a subtle hover state to indicate selection
+
+#### Standard Button Colors
+```css
+:root {
+    --button-bg          :    #504c46;           /*   <-- Standard button background color */
+    --button-text        :    #fdfdfd;           /*   <-- Standard button text color */
+    --button-hover-bg    :    #3e3b36;           /*   <-- Standard button hover background color */
+    --button-hover-text  :    #fdfdfd;           /*   <-- Standard button hover text color */
+}
+```
+
+### Query Action Buttons
+- Used for primary actions in tools and applications
+- Blue color to indicate data processing or query actions
+- Stands out as the main action button when paired with other buttons
+- Indicates to users this is the primary task action button
+
+#### Query Button Colors
+```css
+:root {
+    --button-query-bg         :    #006699;           /*   <-- Query button background color */
+    --button-query-text       :    #fdfdfd;           /*   <-- Query button text color */
+    --button-query-hover-bg   :    #005580;           /*   <-- Query button hover background color */
+    --button-query-hover-text :    #fdfdfd;           /*   <-- Query button hover text color */
+}
+```
+
+### Export Action Buttons
+- Used for export, save or confirmation actions in tools and applications
+- Green color to indicate a positive outcome or data export
+- Provides clear visual differentiation from standard and cancel buttons
+- Helps users easily identify exporting or saving functionality
+
+#### Export Button Colors
+```css
+:root {
+    --button-export-bg         :    #3d8b40;        /*   <-- Export button background color */
+    --button-export-text       :    #fdfdfd;        /*   <-- Export button text color */
+    --button-export-hover-bg   :    #2d6a30;        /*   <-- Export button hover background color */
+    --button-export-hover-text :    #fdfdfd;        /*   <-- Export button hover text color */
+}
+```
+
+### Cancel Action Buttons
+- Used mainly on app & tool UIs
+- Colored red to stand out against standard button colors
+- Ensures quick recognition of the action when tools are in use
+- Assists users to quickly identify cancel actions if they made a mistake
+- Improves the overall user experience, reducing stress and confusion
+
+#### Cancel Button Colors
+```css
+:root {
+    --button-cancel-bg         :    #BA5050;        /*   <-- Cancel button background color */
+    --button-cancel-text       :    #fdfdfd;        /*   <-- Cancel button text color */
+    --button-cancel-hover-bg   :    #9E2D2D;        /*   <-- Cancel button hover background color */
+    --button-cancel-hover-text :    #fdfdfd;        /*   <-- Cancel button hover text color */
+}
+```
+
+### Button Component Structure
+- Use the BTTN__ block for all button components
+- Follow the naming convention: `.BTTN__[type]`
+- Include hover states for all interactive buttons
+- Provide size variations (small, standard, large)
+- Include state variations (disabled, loading)
+
+#### Example
+```css
+.BTTN__standard {
+    display             :    inline-block;
+    padding             :    00.75rem 01.50rem;
+    background-color    :    var(--button-bg);
+    color               :    var(--button-text);
+    text-decoration     :    none;
+    border-radius       :    00.25rem;
+    transition          :    all 0.3s ease;
+    font-size           :    00.80rem;
+    text-align          :    center;
+    border              :    none;
+    cursor              :    pointer;
+    font-weight         :    500;
+}
+
+.BTTN__standard:hover {
+    background-color    :    var(--button-hover-bg);
+    color               :    var(--button-hover-text);
+    transform           :    translateY(-02px);
+    box-shadow          :    0 04px 08px rgba(0,0,0,0.1);
+}
+
+.BTTN__query {
+    background-color    :    var(--button-query-bg);
+    color               :    var(--button-query-text);
+}
+
+.BTTN__query:hover {
+    background-color    :    var(--button-query-hover-bg);
+    color               :    var(--button-query-hover-text);
+}
+
+.BTTN__export {
+    background-color    :    var(--button-export-bg);
+    color               :    var(--button-export-text);
+}
+
+.BTTN__export:hover {
+    background-color    :    var(--button-export-hover-bg);
+    color               :    var(--button-export-hover-text);
+}
+
+.BTTN__cancel {
+    background-color    :    var(--button-cancel-bg);
+    color               :    var(--button-cancel-text);
+}
+
+.BTTN__cancel:hover {
+    background-color    :    var(--button-cancel-hover-bg);
+    color               :    var(--button-cancel-hover-text);
+}
+```
+
+## FONT STANDARDISATION
+----------------------------------------------------------------------------------------------------
+- Fonts are served by the website and must be used as the primary source of fonts used across the project.
+- Always use `https://noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/` as the primary source of fonts.
+    - Google fonts may to be used as a fallback source for the fonts if the Noble Architecture fonts are not available.
+
+#### Standard Font File Names
+- `assets/AD04_-_LIBR_-_Common_-_Front-Files/`
+- These are the standard fonts used on the website.
+- These fonts are served by the website.
+- Noble Architecture uses `Open Sans` as the brands standard font.
+
+```example_standard-font_file_names
+AD04_01_-_Standard-Font_-_Open-Sans-Regular.ttf
+AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf
+AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf
+AD04_04_-_Standard-Font_-_Open-Sans-Medium.ttf
+AD04_05_-_Standard-Font_-_Open-Sans-Bold.ttf
+```
+
+#### Handwritten Font File Names
+- `assets/AD04_-_LIBR_-_Common_-_Front-Files/`
+- These are the handwritten fonts used for the PlanVision Application.
+    - Specifically used for the Markup & Annotation features.
+- These fonts are served by the website.
+- Noble Architecture uses `Caveat` as the brands handwritten font style.
+
+```example_handwrittenfont_file_names
+AD04_21_-_Handwritten-Font_-_Caveat-Regular.ttf
+AD04_22_-_Handwritten-Font_-_Caveat-SemiBold.ttf
+AD04_23_-_Handwritten-Font_-_Caveat-Medium.ttf
+AD04_24_-_Handwritten-Font_-_Caveat-Bold.ttf
+```
+
+
+
+## PERFORMANCE CONSIDERATIONS
+----------------------------------------------------------------------------------------------------
+
+### Efficiency Guidelines
+- Minimize use of expensive properties (box-shadow, text-shadow, gradients)
+- Group transitions and animations for better performance
+- Use transform and opacity for animations when possible
+- Avoid using !important except in utility classes
+
+### Accessibility
+- Text should be resizable and readable at different viewport sizes
+    - Achieved using rem units for font sizes.
+
+
+----------------------------------------------------------------------------------------------------
+
+## FILE STRUCTURE AND FORMATTING
+
+### Header Documentation
+- Each CSS file must begin with a standardized header comment block
+- The header must include file name, type, author, and description
+- Version history should be maintained in the header
+```css
+/* ================================================================================================
+/* STYLE SHEET FOR THE NOBLE ARCHITECTURE WEBSITE
+   FILE NAME   |  [FILENAME].css
+   FILE TYPE   |  CSS
+/* ================================================================================================
+
+   FILE DESCRIPTION
+   - [Brief description]
+   - [Purpose statement]
+
+   VERSION HISTORY
+   [Version] - [Description]
+```
+
+### Section Formatting
+- Use standard section dividers with clear titles and version information
+- Sections should be organized by component type or functional area
+- Include introduction/update version history with each section
+```css
+/* =============================================================================
+   CSS | [SECTION NAME]
+   - Introduced in v[X.X.X] | Updated in v[X.X.X]
+   - [Brief description]
+   ========================================================================== */
+```
+
+### Subsection Formatting
+- Use consistent hyphen-line dividers for subsections
+- Include descriptive titles for each subsection
+```css
+/* - - - - - - - - - - - - -   [Subsection Title]   - - - - - - - - - - - - - */
+```
+
+
+----------------------------------------------------------------------------------------------------
+###### END OF FILE 
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 10 |  `DC10_15_-_RULE_-_Core-Coding-Rules_-_HTML-Files.txt`
+-------------------------------------------------------------------------------
+
+# THIS FILE NEEDS TO BE WRITTEN
+
+## THIS IS A PLACEHOLDER
+
+### SO FILL IN THE INFO WHEN THERE IS TIME TO DO SO
+
+
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 11 |  `DC10_16_-_RULE_-_Core-Coding-Rules_-_Python-Files.txt`
+-------------------------------------------------------------------------------
+
+# THIS FILE NEEDS TO BE WRITTEN
+
+## THIS IS A PLACEHOLDER
+
+### SO FILL IN THE INFO WHEN THERE IS TIME TO DO SO
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 12 |  `DC10_20_-_INFO_-_Pictogram-Graphic-Files-And-Design.txt`
+-------------------------------------------------------------------------------
+
+# STYLE GUIDE & BREAKDOWN  
+-----------------------------------------------------------------------------------------------------------------------
+
+## INDUSTRY CONTEXT
+
+### Visual Identity Relevance
+-   Noble Architecture Pictogram Design
+-   All pictograms clearly belong within the British Architectural & Construction Industry, specifically:
+    - Residential architectural design
+    - Planning and technical stages
+    - Client-facing project timelines or web interfaces
+-   The aesthetic should generally convey project sequencing representing design stage markers
+-   Suitable for a practice offering RIBA-inspired service stage breakdowns for clients.
+
+### Where Are To Be Used
+- All Noble Architecture projects
+- All Noble Architecture Web Applications
+- All Noble Architecture Web Pages
+- Client Portal Interfaces
+- Digital client dashboards
+- Explainer sections in architectural proposals
+- Web-based Design Stage Walkthroughs & Guide documents and pages.
+- Stage headers in PDF or print design packs
+
+
+===============================================================================
+RANDOM NOTES DO NOT REFERENCE UNTIL SORTED
+===============================================================================
+
+
+# STYLE GUIDE  
+-----------------------------------------------------------------------------------------------------------------------
+
+## OVERALL FORMAT
+
+### Canvas
+- **Shape**: Circular badge  
+- **Background**: Pure white (`#FFFFFF`)
+- **Border**: Uniform round stroke, medium-weight, muted brown/grey tone (`#726C64` approx.)
+
+### Composition
+- Centre-aligned line illustration
+- Equal margin within the circle for all elements (approx. 10–15% padding)
+- Negative space used generously for legibility and visual hierarchy
+
+---
+
+## COLOUR PALETTE
+
+| Element           | Colour       | HEX Code   |
+|-------------------|--------------|------------|
+| Linework & Icons  | Taupe Grey   | `#726C64`  |
+| Background        | White        | `#FFFFFF`  |
+| Shadow / Depth    | None         | –          |
+
+---
+
+## TYPOGRAPHY
+- **None used within the icons themselves** – pure pictographic clarity.
+- Any accompanying text would likely use clean modern sans-serif such as **Open Sans**, matching Adam's preferences.
+
+---
+
+## LINE STYLE
+
+- **Weight**: Uniform stroke weight (approx. 2–3px in 768x768 canvas)
+- **Ends**: Square caps, no rounded corners
+- **Style**: Minimalist outline with occasional filled detail elements (e.g. stamp in Approved Form icon)
+
+---
+
+## STYLE PRINCIPLES
+
+- **Neutral tone** for broad professional use
+- **Scalable** clarity (works at small and large sizes)
+- **Non-directional** (no strong shadows or gradients)
+- **Stylised realism**: Enough recognisability to communicate the concept, but abstracted to feel universal
+
+
+# REPRODUCTION STEPS  
+-------------------------------------------------------------------------------
+
+### Step 1: Create Canvas
+- Open artboard |  Artboard Size = 1500px x 1500px
+- Draw a white circle, centre it, and apply a stroke (`#726C64`, 3px)
+
+### Step 2: Draw Icon
+- Use line tool / shape tool only (no raster effects)
+- Keep within central ~80% of canvas
+- Ensure icon is vertically and horizontally balanced
+
+### Step 3: Export
+- Format: SVG (preferred for scalability), PNG fallback
+- Background: Transparent or white depending on usage
+
+## VECTOR DRAWING SETUP (Illustrator or Figma)
+## CANVAS SETUP
+
+### Dimensions
+- **Size**: 1500 x 1500 px
+- **Shape**: Circle with filled background and thin outline stroke
+
+### Grid / Margins
+- Internal grid for alignment: 12x12 with central focus
+- Margin around artwork: 80–100 px from circle edge
+
+---
+
+### Line Settings
+- Stroke Weight: `3 px`
+- Stroke Colour: `#726C64`
+- No fills unless needed for semantic accent (e.g. stamp handle)
+
+
+
+
+
+-------------------------------------------------------------------------------
+DOCUMENT 13 |  `DC10_40_-_SETP_-_Core-File-Metascript-Boilerplate.txt`
+-------------------------------------------------------------------------------
+
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - CORE FILE METASCRIPT BOILERPLATE TEMPLATE
+FILE NAME |  AD10_11_-_SETP_-_Core-File-Metascript-Boilerplate.txt
+FILE TYPE |  [INFO/RULE/READ/DLIS/SETP]
+
+VERSION HISTORY
+04-Apr-2025 - Version 1.0.0 - Initial Draft
+04-Apr-2025 - Version 1.1.0 
+- [List Notes]
+- [List Notes]
+- [List Notes]
+
+DESCRIPTION
+- This file is a boilerplate for creating new files in the project.
+- All code should align with the standards set out in this document.
+- This document illustrates the markdown formatting style preferred for the project documentation.
+====================================================================================================
+---
+
+# [DOCUMENT TITLE]
+----------------------------------------------------------------------------------------------------
+
+## DOCUMENT OVERVIEW
+
+#### Document Purpose
+[Brief description of document clearly stating the purpose of the document]
+
+#### Document Introduction Section
+[Write a brief introduction to the document here]
+
+
+----------------------------------------------------------------------------------------------------
+
+## [SECTION ONE]
+### [Subsection Title]
+- [Content point]
+- [Content point]
+- [Content point]
+
+#### [Detailed Information]
+
+----------------------------------------------------------------------------------------------------
+###### END OF FILE 
+
+
