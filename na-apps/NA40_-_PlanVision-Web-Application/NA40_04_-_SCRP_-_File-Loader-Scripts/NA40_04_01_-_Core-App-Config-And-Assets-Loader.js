@@ -9,31 +9,30 @@ DESCRIPTION
 */
 
 /*
---------------------------------------------
+------------------------------------------------------------
 JAVASCRIPT |  ASSET LIBRARY CONFIGURATION
 - Introduced in v2.0.0
 DESCRIPTION
 - Configuration constants for asset loading
 IMPORTANT NOTES
 - Update these paths if the asset structure changes
---------------------------------------------
+------------------------------------------------------------
 */
 
 // App configuration file path
 const APP_CONFIG_PATH = "NA40_02_-_DATA_-_App-Files-And-App-Config/NA40_01_01_-_DATA_-_PlanVision-App-Config.json";
 
 /*
---------------------------------------------
+------------------------------------------------------------
 JAVASCRIPT |  ASSET LOADING FUNCTIONS
 - Introduced in v2.0.0
 DESCRIPTION
 - Core functions for loading application assets
---------------------------------------------
+------------------------------------------------------------
 */
 
-/**
- * Initializes the asset loading process
- */
+// FUNCTION | Initializes the asset loading process
+// --------------------------------------------------------- //
 async function initAssetLoading() {
     try {
         console.log("Initializing asset loading...");
@@ -63,9 +62,8 @@ async function initAssetLoading() {
     }
 }
 
-/**
- * Fetches the application configuration JSON data
- */
+// FUNCTION | Fetches the application configuration JSON data
+// --------------------------------------------------------- //
 async function fetchAppConfig() {
     try {
         console.log("Attempting to fetch application configuration from:", APP_CONFIG_PATH);
@@ -113,9 +111,8 @@ async function fetchAppConfig() {
     }
 }
 
-/**
- * Fetches the asset library JSON data
- */
+// FUNCTION | Fetches the asset library JSON data
+// --------------------------------------------------------- //
 async function fetchAssetLibrary(assetLibraryUrl) {
     try {
         console.log("Attempting to fetch asset library from:", assetLibraryUrl);
@@ -166,9 +163,8 @@ async function fetchAssetLibrary(assetLibraryUrl) {
     }
 }
 
-/**
- * Initialize logo and branding assets
- */
+// FUNCTION | Initialize logo and branding assets
+// --------------------------------------------------------- //
 function initLogoAndBranding(assetLibrary) {
     if (!assetLibrary) {
         console.error("Asset library not found");
@@ -215,9 +211,8 @@ function initLogoAndBranding(assetLibrary) {
     }
 }
 
-/**
- * Shows an error message to the user
- */
+// FUNCTION | Shows an error message to the user
+// --------------------------------------------------------- //
 function showErrorMessage(message) {
     const errorElement = document.getElementById('NOTE__Error');
     if (errorElement) {
@@ -227,12 +222,12 @@ function showErrorMessage(message) {
 }
 
 /*
---------------------------------------------
+------------------------------------------------------------
 JAVASCRIPT |  INITIALIZATION
 - Introduced in v2.0.0
 DESCRIPTION
 - Main initialization function that kicks off the asset loading process
---------------------------------------------
+------------------------------------------------------------
 */
 
 // Start asset loading when the DOM is fully loaded
@@ -261,10 +256,8 @@ const ASSETS_URL = "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Comm
 // Create namespace for this module
 window.coreAppConfig = {};
 
-/**
- * Fetch drawings data from JSON configuration file
- * @returns {Object} Object containing drawing data
- */
+// METHOD | Fetch drawings data from JSON configuration file
+// --------------------------------------------------------- //
 window.coreAppConfig.fetchDrawings = async function() {
     console.log("CONFIG_LOADER: Fetching drawings from:", JSON_URL);
     
@@ -294,10 +287,8 @@ window.coreAppConfig.fetchDrawings = async function() {
     }
 };
 
-/**
- * Fetch the asset library
- * @returns {Object} Asset library data
- */
+// METHOD | Fetch the asset library
+// --------------------------------------------------------- //
 window.coreAppConfig.fetchAssetLibrary = async function() {
     console.log("CONFIG_LOADER: Fetching asset library from:", ASSETS_URL);
     

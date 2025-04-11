@@ -1,23 +1,30 @@
 /*
 ================================================================================
-JAVASCRIPT DEBUG PANEL UTILITY (v2.0.0)
-- Provides a draggable, resizable debug panel for development.
-- Captures console.log output and displays it in an overlay.
-- Manages application dev mode state, loads app config, offers JSON helpers, 
-  debug helpers, and a test JSON fetch utility – all consolidated into one script.
+JAVASCRIPT |  DEBUG PANEL UTILITY
+- Based on reference implementation v2.0.0
+DESCRIPTION
+- Provides a draggable, resizable debug panel for development
+- Captures console.log output and displays it in an overlay
+- Manages application dev mode state, loads app config, offers JSON helpers,
+  debug helpers, and a test JSON fetch utility
 ================================================================================
+*/
+
+/*
+------------------------------------------------------------
+JAVASCRIPT |  APP CONFIGURATION
+- Introduced in v2.0.0
+DESCRIPTION
+- State variables for application development mode
+------------------------------------------------------------
 */
 
 // App configuration state
 let appDevMode = false;       // Whether app dev mode is enabled
 let devToolbarElement = null; // Reference to the dev toolbar element
 
-/**
- * Initialize dev mode functionality:
- * - Checks/loads app config.
- * - Creates debug panel & dev toolbar.
- * - Sets up debug buttons, console interception, error tracking, etc.
- */
+// FUNCTION | Initialize dev mode functionality
+// --------------------------------------------------------- //
 async function initDevMode() {
     console.log("[DevMode] Initializing dev mode...");
 
@@ -65,10 +72,8 @@ async function initDevMode() {
     }
 }
 
-/**
- * Load application configuration
- * @returns {Promise<Object>} App configuration object
- */
+// FUNCTION | Load application configuration
+// --------------------------------------------------------- //
 async function loadAppConfig() {
     const configPath = "NA40_02_-_DATA_-_App-Files-And-App-Config/NA40_01_01_-_DATA_-_PlanVision-App-Config.json";
     console.log("[DevMode] Attempting to load app config from:", configPath);
@@ -91,9 +96,8 @@ async function loadAppConfig() {
     }
 }
 
-/**
- * Create the dev toolbar that appears at the top of the page when dev mode is enabled
- */
+// FUNCTION | Create the dev toolbar
+// --------------------------------------------------------- //
 function createDevToolbar() {
     console.log("Creating dev toolbar");
     
@@ -138,9 +142,8 @@ function createDevToolbar() {
     document.body.appendChild(devToolbarElement);
 }
 
-/**
- * Helper function to create a styled button for the dev toolbar
- */
+// FUNCTION | Helper function to create a styled button for the dev toolbar
+// --------------------------------------------------------- //
 function createToolbarButton(text, onClickHandler) {
     const btn = document.createElement('button');
     btn.textContent = text;
@@ -161,9 +164,8 @@ function createToolbarButton(text, onClickHandler) {
     return btn;
 }
 
-/**
- * Toggle the debug panel visibility
- */
+// FUNCTION | Toggle the debug panel visibility
+// --------------------------------------------------------- //
 function toggleDebugPanel() {
     if (panelElement) {
         const isVisible = panelElement.style.display !== 'none';
@@ -174,9 +176,8 @@ function toggleDebugPanel() {
     }
 }
 
-/**
- * Handle keyboard shortcuts for dev tools (Ctrl+Shift+D to toggle panel)
- */
+// FUNCTION | Handle keyboard shortcuts for dev tools
+// --------------------------------------------------------- //
 function handleKeyboardShortcuts(event) {
     if (event.ctrlKey && event.shiftKey && (event.key === 'D' || event.key === 'd')) {
         event.preventDefault();
@@ -184,9 +185,8 @@ function handleKeyboardShortcuts(event) {
     }
 }
 
-/**
- * Resolve multiple possible paths to JSON
- */
+// FUNCTION | Resolve multiple possible paths to JSON
+// --------------------------------------------------------- //
 function resolveJsonPath() {
     const possiblePaths = [
         "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_-_DATA_-_Document-Library.json",
@@ -197,9 +197,8 @@ function resolveJsonPath() {
     return possiblePaths;
 }
 
-/**
- * Fetch JSON from multiple possible sources
- */
+// FUNCTION | Fetch JSON from multiple possible sources
+// --------------------------------------------------------- //
 async function fetchJsonFromAnySource() {
     const paths = resolveJsonPath();
     let lastError = null;
@@ -223,9 +222,8 @@ async function fetchJsonFromAnySource() {
     throw new Error(`Failed to load JSON from any source: ${lastError?.message || "Unknown error"}`);
 }
 
-/**
- * Extract drawings from JSON based on known structures
- */
+// FUNCTION | Extract drawings from JSON based on known structures
+// --------------------------------------------------------- //
 function extractDrawingsFromJson(jsonData) {
     console.log("📊 Extracting drawings from JSON data");
     
@@ -250,9 +248,8 @@ function extractDrawingsFromJson(jsonData) {
 // Path for test data
 const TEST_PROJECT_DATA_PATH = "../NA40_02_-_DATA_-_App-Files-And-App-Config/NA40_01_01_-_DATA_-_PlanVision-App-Config.json";
 
-/**
- * Test function to fetch the project data
- */
+// FUNCTION | Test function to fetch the project data
+// --------------------------------------------------------- //
 async function testJsonFetch() {
     try {
         console.log("🧪 TEST: Attempting to fetch project data from:", TEST_PROJECT_DATA_PATH);
@@ -280,9 +277,8 @@ async function testJsonFetch() {
     }
 }
 
-/**
- * Force load the first available drawing for debugging
- */
+// FUNCTION | Force load the first available drawing for debugging
+// --------------------------------------------------------- //
 function debugForceLoadDrawing() {
     console.log("🛠️ DEBUG: Force loading drawing");
     try {
@@ -318,9 +314,8 @@ function debugForceLoadDrawing() {
     }
 }
 
-/**
- * Attempt to load the first drawing from the data
- */
+// FUNCTION | Attempt to load the first drawing from the data
+// --------------------------------------------------------- //
 function tryLoadFirstDrawing(drawings) {
     try {
         if (!drawings) {
@@ -351,9 +346,8 @@ function tryLoadFirstDrawing(drawings) {
     }
 }
 
-/**
- * Manually load a drawing (fallback)
- */
+// FUNCTION | Manually load a drawing (fallback)
+// --------------------------------------------------------- //
 function manualLoadDrawing(drawing) {
     try {
         console.log("🛠️ DEBUG: Manual loading of drawing data:", drawing);
@@ -395,9 +389,8 @@ function manualLoadDrawing(drawing) {
     }
 }
 
-/**
- * Check the status of modules and log to console
- */
+// FUNCTION | Check the status of modules and log to console
+// --------------------------------------------------------- //
 function debugCheckModuleStatus() {
     console.log("🛠️ DEBUG: === Checking Module Status ===\n");
     
@@ -433,6 +426,15 @@ function debugCheckModuleStatus() {
     console.log(`🛠️ DEBUG: - Dev Toolbar: ${devToolbarElement ? 'Created' : 'Not Created'}`);
     console.log("🛠️ DEBUG: === Module Status Check Complete ===\n");
 }
+
+/*
+------------------------------------------------------------
+JAVASCRIPT |  PANEL CONFIGURATION
+- Introduced in v2.0.0
+DESCRIPTION
+- Configuration for the debug panel's appearance and behavior
+------------------------------------------------------------
+*/
 
 // Panel configuration defaults
 const DEFAULT_CONFIG = {
@@ -485,9 +487,8 @@ let errorsByModule = {};
 let lastErrorTime = null;
 let originalDimensions = null;
 
-/**
- * Create the debug panel and add it to the DOM
- */
+// FUNCTION | Create the debug panel and add it to the DOM
+// --------------------------------------------------------- //
 function createDebugPanel() {
     if (document.getElementById('debug-panel')) {
         console.warn("Debug panel already exists. Aborting creation.");
@@ -567,9 +568,8 @@ function createDebugPanel() {
     console.log("Debug panel created and added to DOM.");
 }
 
-/**
- * Create the panel header with controls
- */
+// FUNCTION | Create the panel header with controls
+// --------------------------------------------------------- //
 function createPanelHeader() {
     const header = document.createElement('div');
     header.id = 'debug-panel-header';
@@ -629,9 +629,8 @@ function createPanelHeader() {
     return header;
 }
 
-/**
- * Create the resize handle
- */
+// FUNCTION | Create the resize handle
+// --------------------------------------------------------- //
 function createResizeHandle() {
     const resizeHandle = document.createElement('div');
     resizeHandle.id = 'debug-panel-resize';
@@ -653,9 +652,8 @@ function createResizeHandle() {
     return resizeHandle;
 }
 
-/**
- * Apply styles to the debug panel
- */
+// FUNCTION | Apply styles to the debug panel
+// --------------------------------------------------------- //
 function applyPanelStyles() {
     if (!panelElement) return;
     const theme = THEMES[panelConfig.theme];
@@ -704,9 +702,8 @@ function applyPanelStyles() {
     renderLogs();
 }
 
-/**
- * Apply styles to buttons in the panel header
- */
+// FUNCTION | Apply styles to buttons in the panel header
+// --------------------------------------------------------- //
 function setPanelButtonStyle(button, isHideButton = false) {
     const theme = THEMES[panelConfig.theme];
     
@@ -726,9 +723,17 @@ function setPanelButtonStyle(button, isHideButton = false) {
     button.onmouseout = () => { button.style.opacity = '1'; };
 }
 
-/**
- * Start dragging the panel
- */
+/*
+------------------------------------------------------------
+JAVASCRIPT |  PANEL INTERACTION
+- Introduced in v2.0.0
+DESCRIPTION
+- Functions for dragging, resizing, and interacting with the debug panel
+------------------------------------------------------------
+*/
+
+// FUNCTION | Start dragging the panel
+// --------------------------------------------------------- //
 function startDragging(event) {
     if (event.button !== 0 || isResizing) return;
     event.preventDefault();
@@ -743,9 +748,8 @@ function startDragging(event) {
     document.addEventListener('mouseup', stopDragging);
 }
 
-/**
- * Drag the panel
- */
+// FUNCTION | Drag the panel
+// --------------------------------------------------------- //
 function dragPanel(event) {
     if (!isDragging) return;
     const dx = event.clientX - dragStartX;
@@ -764,9 +768,8 @@ function dragPanel(event) {
     panelElement.style.bottom = 'auto';
 }
 
-/**
- * Stop dragging the panel
- */
+// FUNCTION | Stop dragging the panel
+// --------------------------------------------------------- //
 function stopDragging() {
     if (!isDragging) return;
     isDragging = false;
@@ -785,9 +788,8 @@ function stopDragging() {
     document.removeEventListener('mouseup', stopDragging);
 }
 
-/**
- * Start resizing the panel
- */
+// FUNCTION | Start resizing the panel
+// --------------------------------------------------------- //
 function startResizing(event) {
     if (event.button !== 0 || isDragging) return;
     event.preventDefault();
@@ -801,9 +803,8 @@ function startResizing(event) {
     document.addEventListener('mouseup', stopResizing);
 }
 
-/**
- * Resize the panel
- */
+// FUNCTION | Resize the panel
+// --------------------------------------------------------- //
 function resizePanel(event) {
     if (!isResizing) return;
     const dx = dragStartX - event.clientX;
@@ -827,9 +828,8 @@ function resizePanel(event) {
     panelElement.style.top = 'auto';
 }
 
-/**
- * Stop resizing the panel
- */
+// FUNCTION | Stop resizing the panel
+// --------------------------------------------------------- //
 function stopResizing() {
     if (!isResizing) return;
     isResizing = false;
@@ -845,9 +845,8 @@ function stopResizing() {
     document.removeEventListener('mouseup', stopResizing);
 }
 
-/**
- * Toggle between maximized and normal size panel
- */
+// FUNCTION | Toggle between maximized and normal size panel
+// --------------------------------------------------------- //
 function toggleMaximize() {
     if (!panelElement) return;
     const maxBtn = document.getElementById('debug-panel-max-btn');
@@ -883,18 +882,16 @@ function toggleMaximize() {
     applyPanelStyles();
 }
 
-/**
- * Hide the debug panel
- */
+// FUNCTION | Hide the debug panel
+// --------------------------------------------------------- //
 function hidePanel() {
     if (panelElement) {
         panelElement.style.display = 'none';
     }
 }
 
-/**
- * Show the debug panel
- */
+// FUNCTION | Show the debug panel
+// --------------------------------------------------------- //
 function showPanel() {
     if (panelElement) {
         panelElement.style.display = 'block';
@@ -903,17 +900,24 @@ function showPanel() {
     }
 }
 
-/**
- * Toggle the panel theme
- */
+// FUNCTION | Toggle the panel theme
+// --------------------------------------------------------- //
 function toggleTheme() {
     panelConfig.theme = panelConfig.theme === 'dark' ? 'light' : 'dark';
     applyPanelStyles();
 }
 
-/**
- * Clear all log entries
- */
+/*
+------------------------------------------------------------
+JAVASCRIPT |  LOGGING FUNCTIONS
+- Introduced in v2.0.0
+DESCRIPTION
+- Functions for handling console logging and displaying in the debug panel
+------------------------------------------------------------
+*/
+
+// FUNCTION | Clear all log entries
+// --------------------------------------------------------- //
 function clearLog() {
     logEntries = [];
     if (logContainer) {
@@ -921,9 +925,8 @@ function clearLog() {
     }
 }
 
-/**
- * Override console methods to capture logs
- */
+// FUNCTION | Override console methods to capture logs
+// --------------------------------------------------------- //
 function interceptConsoleMethods() {
     if (console.log === oldConsoleMethods.log) {
         console.log("Console methods already intercepted.");
@@ -959,9 +962,8 @@ function interceptConsoleMethods() {
     };
 }
 
-/**
- * Restore original console methods
- */
+// FUNCTION | Restore original console methods
+// --------------------------------------------------------- //
 function restoreConsoleMethods() {
     console.log("Restoring original console methods.");
     if (oldConsoleMethods.log) console.log = oldConsoleMethods.log;
@@ -972,9 +974,8 @@ function restoreConsoleMethods() {
     oldConsoleMethods = {};
 }
 
-/**
- * Format log arguments into a string
- */
+// FUNCTION | Format log arguments into a string
+// --------------------------------------------------------- //
 function formatLogArguments(args) {
     return args.map(arg => {
         if (typeof arg === 'object' && arg !== null) {
@@ -990,9 +991,8 @@ function formatLogArguments(args) {
     }).join(' ');
 }
 
-/**
- * Add a log entry to the panel
- */
+// FUNCTION | Add a log entry to the panel
+// --------------------------------------------------------- //
 function addLogEntry(type, args) {
     if (!logContainer) return;
     
@@ -1016,9 +1016,8 @@ function addLogEntry(type, args) {
     logContainer.scrollTop = logContainer.scrollHeight;
 }
 
-/**
- * Render a single log entry element
- */
+// FUNCTION | Render a single log entry element
+// --------------------------------------------------------- //
 function renderLogEntry(entry) {
     if (!logContainer) return;
     const theme = THEMES[panelConfig.theme];
@@ -1054,18 +1053,25 @@ function renderLogEntry(entry) {
     logContainer.appendChild(logEntry);
 }
 
-/**
- * Render all log entries (used on theme change)
- */
+// FUNCTION | Render all log entries (used on theme change)
+// --------------------------------------------------------- //
 function renderLogs() {
     if (!logContainer) return;
     logContainer.innerHTML = '';
     logEntries.forEach(entry => renderLogEntry(entry));
 }
 
-/**
- * Create a tab button element
- */
+/*
+------------------------------------------------------------
+JAVASCRIPT |  TAB MANAGEMENT
+- Introduced in v2.0.0
+DESCRIPTION
+- Functions for managing tabs in the debug panel
+------------------------------------------------------------
+*/
+
+// FUNCTION | Create a tab button element
+// --------------------------------------------------------- //
 function createTabButton(label, id, isActive = false) {
     const theme = THEMES[panelConfig.theme];
     const tab = document.createElement('div');
@@ -1087,9 +1093,8 @@ function createTabButton(label, id, isActive = false) {
     return tab;
 }
 
-/**
- * Switch between tabs (Logs/Status)
- */
+// FUNCTION | Switch between tabs (Logs/Status)
+// --------------------------------------------------------- //
 function switchTab(tabId) {
     const logTab = document.getElementById('log-tab');
     const statusTab = document.getElementById('status-tab');
@@ -1113,9 +1118,17 @@ function switchTab(tabId) {
     }
 }
 
-/**
- * Set up global error tracking
- */
+/*
+------------------------------------------------------------
+JAVASCRIPT |  ERROR TRACKING
+- Introduced in v2.0.0
+DESCRIPTION
+- Functions for tracking and displaying application errors
+------------------------------------------------------------
+*/
+
+// FUNCTION | Set up global error tracking
+// --------------------------------------------------------- //
 function setupErrorTracking() {
     const handleError = (errorSource, error, moduleName) => {
         if (!error) return;
@@ -1150,9 +1163,8 @@ function setupErrorTracking() {
     console.log("Global error tracking initialized.");
 }
 
-/**
- * Extract a module name from an error stack trace
- */
+// FUNCTION | Extract a module name from an error stack trace
+// --------------------------------------------------------- //
 function extractModuleFromError(error) {
     if (!error || !error.stack) return 'Unknown';
     const stackLines = error.stack.split('\n');
@@ -1174,9 +1186,17 @@ function extractModuleFromError(error) {
     return 'Unknown';
 }
 
-/**
- * Start periodic status updates
- */
+/*
+------------------------------------------------------------
+JAVASCRIPT |  STATUS UPDATES
+- Introduced in v2.0.0
+DESCRIPTION
+- Functions for updating and displaying status information
+------------------------------------------------------------
+*/
+
+// FUNCTION | Start periodic status updates
+// --------------------------------------------------------- //
 function startStatusUpdates() {
     if (statusUpdateInterval) return;
     updateStatusDisplay();
@@ -1184,9 +1204,8 @@ function startStatusUpdates() {
     console.log("Status update interval started.");
 }
 
-/**
- * Stop status updates
- */
+// FUNCTION | Stop status updates
+// --------------------------------------------------------- //
 function stopStatusUpdates() {
     if (statusUpdateInterval) {
         clearInterval(statusUpdateInterval);
@@ -1195,9 +1214,8 @@ function stopStatusUpdates() {
     }
 }
 
-/**
- * Update the status display tab
- */
+// FUNCTION | Update the status display tab
+// --------------------------------------------------------- //
 function updateStatusDisplay() {
     if (!statusContainer || statusContainer.style.display === 'none') return;
     statusContainer.innerHTML = '';
@@ -1217,9 +1235,8 @@ function updateStatusDisplay() {
     updateErrorSummary(sections.errors);
 }
 
-/**
- * Create a status section element (header + content)
- */
+// FUNCTION | Create a status section element (header + content)
+// --------------------------------------------------------- //
 function createStatusSection(title) {
     const theme = THEMES[panelConfig.theme];
     const section = document.createElement('div');
@@ -1252,9 +1269,8 @@ function createStatusSection(title) {
     return section;
 }
 
-/**
- * Add a status item (label: value) to a section
- */
+// FUNCTION | Add a status item (label: value) to a section
+// --------------------------------------------------------- //
 function addStatusItem(section, label, value, status = 'ok') {
     const content = section.querySelector('.debug-status-section-content');
     if (!content) return;
@@ -1300,9 +1316,8 @@ function addStatusItem(section, label, value, status = 'ok') {
     content.appendChild(item);
 }
 
-/**
- * Update system information section
- */
+// FUNCTION | Update system information section
+// --------------------------------------------------------- //
 function updateSystemInfo(section) {
     if (!section) return;
     addStatusItem(section, 'Time', new Date().toLocaleTimeString(), 'info');
@@ -1315,9 +1330,8 @@ function updateSystemInfo(section) {
     addStatusItem(section, 'Debug Panel', !!panelElement);
 }
 
-/**
- * Update canvas renderer status
- */
+// FUNCTION | Update canvas renderer status
+// --------------------------------------------------------- //
 function updateCanvasStatus(section) {
     if (!section) return;
     if (window.canvasRenderer && window.canvasRenderer.viewState) {
@@ -1343,9 +1357,8 @@ function updateCanvasStatus(section) {
     }
 }
 
-/**
- * Update asset loading status
- */
+// FUNCTION | Update asset loading status
+// --------------------------------------------------------- //
 function updateAssetLoadingStatus(section) {
     if (!section) return;
     if (window.projectAssets) {
@@ -1383,9 +1396,8 @@ function updateAssetLoadingStatus(section) {
     }
 }
 
-/**
- * Update error summary section
- */
+// FUNCTION | Update error summary section
+// --------------------------------------------------------- //
 function updateErrorSummary(section) {
     if (!section) return;
     const errorStatus = errorCount > 0 ? 'error' : 'ok';
@@ -1457,30 +1469,17 @@ function updateErrorSummary(section) {
     }
 }
 
-// Export helper objects
-window.JSON_HELPER = {
-    resolveJsonPath,
-    fetchJsonFromAnySource,
-    extractDrawingsFromJson
-};
+/*
+------------------------------------------------------------
+JAVASCRIPT |  DEBUG PANEL UI
+- Introduced in v2.0.0
+DESCRIPTION
+- Functions for managing the debug toolbar integration
+------------------------------------------------------------
+*/
 
-window.DEBUG_HELPERS = {
-    debugForceLoadDrawing,
-    debugCheckModuleStatus,
-    testJsonFetch
-};
-
-// Initialise on DOM load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("[DevMode] Debug script DOM content loaded event fired");
-    initDevMode();
-});
-
-console.log("Consolidated Debug Panel Script Loaded.");
-
-/**
- * Toggle the visibility of debug menu elements in the toolbar
- */
+// FUNCTION | Toggle the visibility of debug menu elements in the toolbar
+// --------------------------------------------------------- //
 function toggleDebugMenuVisibility(show) {
     const debugHeader = document.getElementById('TOOL__Debug-Header');
     const debugLoadButton = document.getElementById('BTTN__Debug-Load-Drawing');
@@ -1495,9 +1494,8 @@ function toggleDebugMenuVisibility(show) {
     console.log(`[DevMode] Debug menu elements ${show ? 'shown' : 'hidden'}`);
 }
 
-/**
- * Set up event listeners for debug buttons in the toolbar
- */
+// FUNCTION | Set up event listeners for debug buttons in the toolbar
+// --------------------------------------------------------- //
 function setupDebugButtonHandlers() {
     console.log("[DevMode] Setting up debug button handlers");
     
@@ -1560,3 +1558,33 @@ function setupDebugButtonHandlers() {
         console.warn("[DevMode] Debug Legacy Load button not found");
     }
 }
+
+/*
+------------------------------------------------------------
+JAVASCRIPT |  EXPORTS & INITIALIZATION
+- Introduced in v2.0.0
+DESCRIPTION
+- Export helper objects and initialize the debug panel
+------------------------------------------------------------
+*/
+
+// Export helper objects
+window.JSON_HELPER = {
+    resolveJsonPath,
+    fetchJsonFromAnySource,
+    extractDrawingsFromJson
+};
+
+window.DEBUG_HELPERS = {
+    debugForceLoadDrawing,
+    debugCheckModuleStatus,
+    testJsonFetch
+};
+
+// Initialise on DOM load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("[DevMode] Debug script DOM content loaded event fired");
+    initDevMode();
+});
+
+console.log("Consolidated Debug Panel Script Loaded.");

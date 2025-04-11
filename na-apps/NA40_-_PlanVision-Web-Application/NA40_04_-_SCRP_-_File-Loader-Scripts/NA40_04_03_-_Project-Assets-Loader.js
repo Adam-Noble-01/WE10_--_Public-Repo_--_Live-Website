@@ -20,19 +20,15 @@ let currentDrawingSize = "A1"; // Default size
 // Create namespace for this module
 window.projectAssets = {};
 
-/**
- * Initialize the project assets loader
- */
+// METHOD | Initialize the project assets loader
+// --------------------------------------------------------- //
 window.projectAssets.init = function() {
     console.log("PROJECT_ASSETS: Initializing...");
     console.log("PROJECT_ASSETS: Initialized successfully");
 };
 
-/**
- * Load a specific drawing
- * @param {Object} drawing - Drawing object from the JSON configuration
- * @returns {Promise} Promise that resolves when the drawing is loaded
- */
+// METHOD | Load a specific drawing
+// --------------------------------------------------------- //
 window.projectAssets.loadDrawing = async function(drawing) {
     if (window.uiNavigation) window.uiNavigation.showLoading();
     console.log("PROJECT_ASSETS: Loading drawing:", drawing);
@@ -83,11 +79,8 @@ window.projectAssets.loadDrawing = async function(drawing) {
     }
 };
 
-/**
- * Load the plan image
- * @param {string} url - URL of the image to load
- * @returns {Promise} Promise that resolves when the image is loaded
- */
+// METHOD | Load the plan image
+// --------------------------------------------------------- //
 window.projectAssets.loadPlanImage = function(url) {
     return new Promise((resolve, reject) => {
         console.log("PROJECT_ASSETS: Loading image from URL:", url);
@@ -117,11 +110,8 @@ window.projectAssets.loadPlanImage = function(url) {
     });
 };
 
-/**
- * Update the PDF download link
- * @param {string} pdfUrl - URL of the PDF file
- * @param {string} documentName - Name of the document (for download filename)
- */
+// METHOD | Update the PDF download link
+// --------------------------------------------------------- //
 window.projectAssets.updateDownloadLink = function(pdfUrl, documentName) {
     const downloadBtn = document.getElementById("BTTN__Download-PDF");
     if (!downloadBtn) {
@@ -142,50 +132,38 @@ window.projectAssets.updateDownloadLink = function(pdfUrl, documentName) {
     downloadBtn.disabled = false;
 };
 
-/**
- * Get the loaded plan image
- * @returns {HTMLImageElement} The loaded image element
- */
+// METHOD | Get the loaded plan image
+// --------------------------------------------------------- //
 window.projectAssets.getPlanImage = function() {
     return planImage;
 };
 
-/**
- * Check if an image is loaded
- * @returns {boolean} Whether an image is loaded
- */
+// METHOD | Check if an image is loaded
+// --------------------------------------------------------- //
 window.projectAssets.isImageLoaded = function() {
     return imageLoadedFlag;
 };
 
-/**
- * Get the natural width of the loaded image
- * @returns {number} Natural width of the image
- */
+// METHOD | Get the natural width of the loaded image
+// --------------------------------------------------------- //
 window.projectAssets.getNaturalImageWidth = function() {
     return naturalImageWidth;
 };
 
-/**
- * Get the natural height of the loaded image
- * @returns {number} Natural height of the image
- */
+// METHOD | Get the natural height of the loaded image
+// --------------------------------------------------------- //
 window.projectAssets.getNaturalImageHeight = function() {
     return naturalImageHeight;
 };
 
-/**
- * Get the current drawing scale
- * @returns {string} Current drawing scale (e.g. "1:50")
- */
+// METHOD | Get the current drawing scale
+// --------------------------------------------------------- //
 window.projectAssets.getCurrentDrawingScale = function() {
     return currentDrawingScale;
 };
 
-/**
- * Get the current drawing size
- * @returns {string} Current drawing size (e.g. "A1")
- */
+// METHOD | Get the current drawing size
+// --------------------------------------------------------- //
 window.projectAssets.getCurrentDrawingSize = function() {
     return currentDrawingSize;
 };

@@ -1,24 +1,24 @@
-/**
- * ================================================================================================
- * FONT ASSET LOADER FOR PLANVISION APPLICATION
- * FILE NAME   |  NA_Plan-Vision-App_-_2.0.0_-_Font-Asset-Loader.js
- * FILE TYPE   |  JavaScript
- * ================================================================================================
- *
- * FILE DESCRIPTION
- * - Loads font assets from the centralized web asset library
- * - Extracts font URLs from asset JSON data
- * - Makes font data available for the application to use
- *
- * VERSION HISTORY
- * v1.0.0 - Initial implementation of font asset loader
- * v1.1.0 - Refactored to separate font loading from CSS styling
- */
+/*
+================================================================================
+JAVASCRIPT |  FONT ASSET LOADER FOR PLANVISION APPLICATION
+- Based on reference implementation v1.1.0
+DESCRIPTION
+- Loads font assets from the centralized web asset library
+- Extracts font URLs from asset JSON data
+- Makes font data available for the application to use
+================================================================================
+*/
 
-/**
- * FontAssetLoader Class
- * Handles loading font data from the centralized asset library
- */
+/*
+------------------------------------------------------------
+JAVASCRIPT |  FONT LOADER CLASS
+- Introduced in v1.0.0
+DESCRIPTION
+- Main class for loading and managing font assets
+------------------------------------------------------------
+*/
+
+// Font asset loader class
 class FontAssetLoader {
     constructor() {
         // Use relative path to the asset library
@@ -26,11 +26,8 @@ class FontAssetLoader {
         this.fontData = null;
     }
 
-    /**
-     * Initialize the font loader
-     * Fetches the asset library and extracts font data
-     * @returns {Promise<Object|null>} - Font data object or null if failed
-     */
+    // METHOD | Initialize the font loader
+    // --------------------------------------------------------- //
     async initialize() {
         try {
             console.log("Font Asset Loader: Initializing...");
@@ -95,11 +92,8 @@ class FontAssetLoader {
         }
     }
 
-    /**
-     * Extract font data from the asset library
-     * @param {Object} assetLibrary - The complete asset library object
-     * @returns {Object} - Extracted font data
-     */
+    // METHOD | Extract font data from the asset library
+    // --------------------------------------------------------- //
     extractFontData(assetLibrary) {
         console.log("Font Asset Loader: Extracting font data from asset library");
         
@@ -159,10 +153,8 @@ class FontAssetLoader {
         return null;
     }
 
-    /**
-     * Get fallback font data if the asset library loading fails
-     * @returns {Object} - Fallback font data with CDN URLs
-     */
+    // METHOD | Get fallback font data if the asset library loading fails
+    // --------------------------------------------------------- //
     getFallbackFontData() {
         // Return fallback data with CDN URLs for common fonts
         return {
@@ -197,14 +189,21 @@ class FontAssetLoader {
         };
     }
 
-    /**
-     * Get the loaded font data
-     * @returns {Object|null} - The loaded font data or null if not loaded
-     */
+    // METHOD | Get the loaded font data
+    // --------------------------------------------------------- //
     getFontData() {
         return this.fontData;
     }
 }
+
+/*
+------------------------------------------------------------
+JAVASCRIPT |  INITIALIZATION
+- Introduced in v1.0.0
+DESCRIPTION
+- Sets up the font loader when the DOM is ready
+------------------------------------------------------------
+*/
 
 // Initialize the font loader when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

@@ -9,12 +9,12 @@ DESCRIPTION
 */
 
 /*
---------------------------------------------
+------------------------------------------------------------
 JAVASCRIPT |  APPLICATION STATE
 - Introduced in v2.0.0
 DESCRIPTION
 - Module-level state variables
---------------------------------------------
+------------------------------------------------------------
 */
 
 // Application state
@@ -34,17 +34,16 @@ let moduleLoadAttempts = {};         // Tracks load attempts for each module
 let moduleErrors = {};               // Tracks errors during module initialization
 
 /*
---------------------------------------------
+------------------------------------------------------------
 JAVASCRIPT |  INITIALIZATION
 - Introduced in v2.0.0
 DESCRIPTION
 - Coordinates initialization of all application modules
---------------------------------------------
+------------------------------------------------------------
 */
 
-/**
- * Main initialization function
- */
+// FUNCTION | Main initialization function
+// --------------------------------------------------------- //
 async function initializeApplication() {
     try {
         console.log("Initializing application...");
@@ -85,9 +84,8 @@ async function initializeApplication() {
     }
 }
 
-/**
- * Initialize the application
- */
+// FUNCTION | Initialize the application
+// --------------------------------------------------------- //
 function initApplication() {
     console.log("Initializing PlanVision application...");
     
@@ -114,9 +112,8 @@ function initApplication() {
     }
 }
 
-/**
- * Log module initialization status to debug panel
- */
+// FUNCTION | Log module initialization status to debug panel
+// --------------------------------------------------------- //
 function logModuleStatusToDebugPanel() {
     // Check if debug panel is available
     if (!window.debugPanel) {
@@ -144,10 +141,8 @@ function logModuleStatusToDebugPanel() {
     }, 5000); // Check every 5 seconds
 }
 
-/**
- * Track module initialization attempt
- * @param {string} moduleName - Name of the module being initialized
- */
+// FUNCTION | Track module initialization attempt
+// --------------------------------------------------------- //
 function trackModuleInitAttempt(moduleName) {
     if (!moduleLoadAttempts[moduleName]) {
         moduleLoadAttempts[moduleName] = 0;
@@ -159,11 +154,8 @@ function trackModuleInitAttempt(moduleName) {
     }
 }
 
-/**
- * Record module initialization error
- * @param {string} moduleName - Name of the module with error
- * @param {Error} error - Error object
- */
+// FUNCTION | Record module initialization error
+// --------------------------------------------------------- //
 function recordModuleError(moduleName, error) {
     if (!moduleErrors[moduleName]) {
         moduleErrors[moduleName] = [];
@@ -179,9 +171,8 @@ function recordModuleError(moduleName, error) {
     }
 }
 
-/**
- * Handler for when app assets are loaded
- */
+// FUNCTION | Handler for when app assets are loaded
+// --------------------------------------------------------- //
 function onAssetsLoaded(event) {
     console.log("App assets loaded");
     modulesInitialized.appAssetsLoader = true;
@@ -189,9 +180,8 @@ function onAssetsLoaded(event) {
     // Project Assets will be loaded automatically after this event
 }
 
-/**
- * Handler for when project assets are ready
- */
+// FUNCTION | Handler for when project assets are ready
+// --------------------------------------------------------- //
 function onProjectAssetsReady(event) {
     console.log("Project assets ready");
     modulesInitialized.projectAssetsLoader = true;
@@ -210,9 +200,8 @@ function onProjectAssetsReady(event) {
     checkAllModulesInitialized();
 }
 
-/**
- * Handler for when a drawing is loaded
- */
+// FUNCTION | Handler for when a drawing is loaded
+// --------------------------------------------------------- //
 function onDrawingLoaded(event) {
     console.log("Drawing loaded");
     
@@ -241,9 +230,8 @@ function onDrawingLoaded(event) {
     checkAllModulesInitialized();
 }
 
-/**
- * Check if all modules have been initialized, and if so, complete application initialization
- */
+// FUNCTION | Check if all modules have been initialized
+// --------------------------------------------------------- //
 function checkAllModulesInitialized() {
     if (appInitialized) return;
     
@@ -278,9 +266,8 @@ function checkAllModulesInitialized() {
     }
 }
 
-/**
- * Complete the application initialization after all modules are loaded
- */
+// FUNCTION | Complete the application initialization
+// --------------------------------------------------------- //
 function completeApplicationInitialization() {
     if (appInitialized) return;
     
@@ -297,17 +284,16 @@ function completeApplicationInitialization() {
 }
 
 /*
---------------------------------------------
+------------------------------------------------------------
 JAVASCRIPT |  UTILITY FUNCTIONS
 - Introduced in v2.0.0
 DESCRIPTION
 - Helper functions for the application scheduler
---------------------------------------------
+------------------------------------------------------------
 */
 
-/**
- * Hide the loading overlay
- */
+// FUNCTION | Hide the loading overlay
+// --------------------------------------------------------- //
 function hideLoadingOverlay() {
     const loadingOverlay = document.getElementById("LOAD__Overlay");
     if (loadingOverlay) {
@@ -315,9 +301,8 @@ function hideLoadingOverlay() {
     }
 }
 
-/**
- * Handle application errors
- */
+// FUNCTION | Handle application errors
+// --------------------------------------------------------- //
 function onApplicationError(error) {
     console.error("Application error:", error);
     
@@ -336,11 +321,8 @@ function onApplicationError(error) {
     hideLoadingOverlay();
 }
 
-/**
- * Extract module name from error
- * @param {Error} error - Error object
- * @returns {string} Module name
- */
+// FUNCTION | Extract module name from error
+// --------------------------------------------------------- //
 function extractModuleFromError(error) {
     if (!error || !error.stack) return 'Unknown';
     
@@ -360,12 +342,12 @@ function extractModuleFromError(error) {
 }
 
 /*
---------------------------------------------
+------------------------------------------------------------
 JAVASCRIPT |  PUBLIC API
 - Introduced in v2.0.0
 DESCRIPTION
 - Export functions for use by other modules
---------------------------------------------
+------------------------------------------------------------
 */
 
 // Export the module's public API
@@ -378,12 +360,12 @@ window.applicationScheduler = {
 };
 
 /*
---------------------------------------------
+------------------------------------------------------------
 JAVASCRIPT |  INITIALIZATION
 - Introduced in v2.0.0
 DESCRIPTION
 - Sets up event listeners for DOM content loading
---------------------------------------------
+------------------------------------------------------------
 */
 
 // Initialize when the DOM is loaded
@@ -472,10 +454,8 @@ if (isDebugMode) {
     });
 }
 
-/**
- * Load and display a drawing based on the selection
- * @param {Object} drawing - Drawing data object
- */
+// FUNCTION | Load and display a drawing
+// --------------------------------------------------------- //
 function loadDrawing(drawing) {
     console.log(`Loading drawing: ${JSON.stringify(drawing)}`);
     
@@ -487,9 +467,8 @@ function loadDrawing(drawing) {
 // Create namespace for this module
 window.applicationScheduler = {};
 
-/**
- * Initialize the application scheduler
- */
+// METHOD | Initialize the application scheduler
+// --------------------------------------------------------- //
 window.applicationScheduler.init = async function() {
     console.log("APPLICATION_SCHEDULER: Initializing application");
     
@@ -554,17 +533,14 @@ window.applicationScheduler.init = async function() {
     }
 };
 
-/**
- * Get the version of the application
- * @returns {string} Application version
- */
+// METHOD | Get the version of the application
+// --------------------------------------------------------- //
 window.applicationScheduler.getVersion = function() {
     return "3.0.0";
 };
 
-/**
- * Log modules status to the console
- */
+// METHOD | Log modules status to the console
+// --------------------------------------------------------- //
 window.applicationScheduler.logModulesStatus = function() {
     console.log("-------- MODULES STATUS --------");
     console.log("Application Scheduler: " + (typeof window.applicationScheduler !== 'undefined' ? "Loaded" : "Not Loaded"));
