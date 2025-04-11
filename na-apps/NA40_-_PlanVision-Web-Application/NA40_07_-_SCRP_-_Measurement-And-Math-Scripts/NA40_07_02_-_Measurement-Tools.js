@@ -823,37 +823,32 @@ function drawEdgeLabels(ctx, points, color) {
 JAVASCRIPT |  PUBLIC API
 - Introduced in v2.0.0
 DESCRIPTION
-- Export functions for use by other modules
+- Exposes measurement tool functions for external use
 --------------------------------------------
 */
 
-// MODULE |  Export the module's public API
-// --------------------------------------------------------- //
-window.measurementTools = {
+// Create a namespace for measurement tools
+window.MeasurementTools = {
+    // Tool activation
+    activateLinearMeasurementTool: () => setTool('linear'),
+    activateRectangleMeasurementTool: () => setTool('rectangle'),
+    activateAreaMeasurementTool: () => setTool('area'),
+    
+    // Tool management
+    clearAllMeasurements: clearMeasurements,
+    cancelActiveTool: cancelTool,
+    completeMeasurement: () => {
+        if (currentTool) {
+            finalizeMeasurement(currentTool);
+        }
+    },
+    
     // Initialization
-    init: initMeasurementTools,
-    
-    // Drawing functions for external use (mainly by the Canvas Controller)
-    drawAllMeasurements: drawAllMeasurements,
-    
-    // Event handlers
-    handleMouseDown: handleMeasurementMouseDown,
-    handleMouseMove: handleMeasurementMouseMove,
-    handleMouseUp: handleMeasurementMouseUp,
-    
-    // State management
-    setTool: setTool,
-    cancelTool: cancelTool,
-    clearMeasurements: clearMeasurements,
-    
-    // Internal state for coordinating with other modules
-    offsetX: 0,
-    offsetY: 0,
-    zoomFactor: 1,
-    
-    // Utility functions
-    toPlanCoords: toPlanCoords
+    init: initMeasurementTools
 };
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', window.MeasurementTools.init);
 
 /*
 --------------------------------------------

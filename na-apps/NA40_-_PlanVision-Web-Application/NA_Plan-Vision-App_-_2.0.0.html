@@ -55,8 +55,14 @@ Documentation Links:
     <!-- LOAD 07 | Load the Core App UI and Navigation -->
     <script src="./NA40_08_-_SCRP_-_User-Interface-And-Navigation/NA40_08_01_-_Core-App-UI-And-Navigation.js"></script>
 
+    <!-- LOAD 07B | Load Measurement Tool Button Handlers -->
+    <script src="./NA40_08_-_SCRP_-_User-Interface-And-Navigation/NA40_08_02_-_Measurement-Tool-Button-Handlers.js"></script>
 
-    <!-- LOAD 08 | Load Backward Compatibility Scripts -->
+    <!-- LOAD 08 | Load Font Asset Loader and Style Generator -->
+    <script src="./NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_02_-_Font-Asset-Loader.js"></script>
+    <script src="./NA40_08_-_SCRP_-_User-Interface-And-Navigation/NA40_08_10_-_Font-Style-Generator.js"></script>
+
+    <!-- LOAD 09 | Load Backward Compatibility Scripts -->
     <script src="./NA40_10_-_SCRP_-_Backward-Compatibility-Scripts/NA40_10_01_-_Polyfill-Loader.js"></script>
 
     <!-- Font Loading from Asset Library -->
@@ -64,9 +70,9 @@ Documentation Links:
         /* Dynamic font declarations will be inserted here after asset library is loaded */
     </style>
     
-    <!-- LOAD 09 | Load Consolidated Development/Debug Tools -->
-    <!-- This script initializes dev mode, provides the debug panel, and includes helper functions -->
-    <script src="./NA40_20_-_DEVP_-_Development-Files/NA40_20_01_-_Debug-Panel.js"></script>
+    <!-- LOAD 10 | Load Consolidated Development/Debug Tools -->
+    <!-- This script initializes Dev-Mode, provides the Dev-Mode panel, and includes helper functions -->
+    <script src="./NA40_20_-_SCRP_-_Dev-Mode-Scripts/NA40_20_01_-_Dev-Mode-Panel.js"></script>
 
 </head>
 <body>
@@ -97,8 +103,8 @@ Documentation Links:
             <button class="BTTN__Tool" id="BTTN__Download-PDF">Download PDF</button>
             <button class="BTTN__Tool" id="BTTN__Reset-View">Reset View</button>
 
-            <!-- Debug Section -->
-            <div class="MENU__Drawing-Header-Text" id="TOOL__Debug-Header">Debug Tools</div>
+            <!-- Dev-Mode Section -->
+            <div class="MENU__Drawing-Header-Text" id="TOOL__Debug-Header">Dev-Mode Tools</div>
             <button class="BTTN__Tool" id="BTTN__Debug-Load-Drawing">Force Load Drawing</button>
             <button class="BTTN__Tool" id="BTTN__Debug-Check-Status">Check Module Status</button>
             <button class="BTTN__Tool" id="BTTN__Debug-Legacy-Load">Legacy Load Method</button>

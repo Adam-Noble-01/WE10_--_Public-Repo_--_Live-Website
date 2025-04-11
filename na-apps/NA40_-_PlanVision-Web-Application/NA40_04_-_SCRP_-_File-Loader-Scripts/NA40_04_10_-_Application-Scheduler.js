@@ -19,7 +19,7 @@ DESCRIPTION
 
 // Application state
 let appInitialized = false;         // Whether the application has been fully initialized
-let isDebugMode = false;             // Set to true to enable debug logging
+let isDevMode = false;             // Set to true to enable Dev-Mode logging
 let modulesInitialized = {           // Tracking which modules have been initialized
     appAssetsLoader: false,
     projectAssetsLoader: false,
@@ -59,10 +59,10 @@ async function initializeApplication() {
         // Store the app config in a global variable for other modules to access
         window.appConfig = result.appConfig;
         
-        // Check if debug mode is enabled in the configuration
+        // Check if Dev-Mode is enabled in the configuration
         if (window.appConfig && window.appConfig.Core_App_Config && window.appConfig.Core_App_Config["app-dev-mode"] === true) {
-            isDebugMode = true;
-            console.log("Debug mode enabled in application scheduler");
+            isDevMode = true;
+            console.log("Dev-Mode enabled in application scheduler");
         }
         
         // Initialize UI components
@@ -86,38 +86,49 @@ async function initializeApplication() {
 
 // FUNCTION | Initialize the application
 // --------------------------------------------------------- //
-function initApplication() {
+async function initApplication() {
     console.log("Initializing PlanVision application...");
     
-    // Register event listeners for module initialization events
-    document.addEventListener('assetsLoaded', onAssetsLoaded);
-    document.addEventListener('projectAssetsReady', onProjectAssetsReady);
-    document.addEventListener('drawingLoaded', onDrawingLoaded);
-    
-    // Set up error handling
-    window.addEventListener('error', onApplicationError);
-    
-    // Mark the UI Navigation as initialized when it's loaded
-    if (window.uiNavigation) {
-        modulesInitialized.uiNavigation = true;
-    }
-    
-    // App Assets are loaded first, then project assets, then everything else
-    // This is handled by the event listeners above, but we need to wait for the HTML to load
-    checkAllModulesInitialized();
-    
-    // In debug mode, log information about modules
-    if (isDebugMode) {
-        logModuleStatusToDebugPanel();
+    try {
+        // First load the configuration to set Dev Mode before anything else
+        const result = await initAssetLoading();
+        if (!result) {
+            throw new Error("Failed to initialize asset loading");
+        }
+        
+        // Store the app config and set Dev Mode
+        window.appConfig = result.appConfig;
+        isDevMode = window.appConfig?.Core_App_Config?.["app-dev-mode"] === true;
+        console.log("Dev Mode status:", isDevMode);
+        
+        // Continue with rest of initialization
+        // Register event listeners for module initialization events
+        document.addEventListener('assetsLoaded', onAssetsLoaded);
+        document.addEventListener('projectAssetsReady', onProjectAssetsReady);
+        document.addEventListener('drawingLoaded', onDrawingLoaded);
+        
+        // Set up error handling
+        window.addEventListener('error', onApplicationError);
+        
+        // Mark the UI Navigation as initialized when it's loaded
+        if (window.uiNavigation) {
+            modulesInitialized.uiNavigation = true;
+        }
+        
+        checkAllModulesInitialized();
+        
+    } catch (error) {
+        console.error("Error during initialization:", error);
+        showErrorMessage("Failed to initialize application. Please refresh the page.");
     }
 }
 
-// FUNCTION | Log module initialization status to debug panel
+// FUNCTION | Log module initialization status to Dev-Mode panel
 // --------------------------------------------------------- //
-function logModuleStatusToDebugPanel() {
-    // Check if debug panel is available
+function logModuleStatusToDevModePanel() {
+    // Check if Dev-Mode panel is available
     if (!window.debugPanel) {
-        console.warn("Debug panel not available for module status logging");
+        console.warn("Dev-Mode panel not available for module status logging");
         return;
     }
     
@@ -149,7 +160,7 @@ function trackModuleInitAttempt(moduleName) {
     }
     moduleLoadAttempts[moduleName]++;
     
-    if (isDebugMode) {
+    if (isDevMode) {
         console.info(`Initialization attempt for module '${moduleName}': #${moduleLoadAttempts[moduleName]}`);
     }
 }
@@ -166,7 +177,7 @@ function recordModuleError(moduleName, error) {
         time: new Date()
     });
     
-    if (isDebugMode) {
+    if (isDevMode) {
         console.error(`Error initializing '${moduleName}':`, error);
     }
 }
@@ -380,8 +391,8 @@ if (document.readyState === 'complete') {
     initApplication();
 }
 
-// Debug utility - creates debug panel when in debug mode
-if (isDebugMode) {
+// Debug utility - creates debug panel when in Dev-Mode
+if (isDevMode) {
     window.addEventListener('DOMContentLoaded', () => {
         // Create debug panel
         const debugPanel = document.createElement('div');
