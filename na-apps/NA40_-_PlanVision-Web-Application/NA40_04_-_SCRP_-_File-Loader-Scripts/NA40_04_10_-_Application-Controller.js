@@ -1,10 +1,10 @@
 /*
 ================================================================================
 JAVASCRIPT |  APPLICATION CONTROLLER
-- Introduced in v2.0.0
+- Based on the reference implementation v1.8.8
 DESCRIPTION
-- Main application controller that coordinates between all modules
-- Manages initialization sequence and module dependencies
+- Main application controller that initializes and coordinates all modules
+- Handles application startup, loading drawings, and module registration
 ================================================================================
 */
 
@@ -477,3 +477,118 @@ function loadDrawing(drawing) {
     const urls = urlParser.extractUrls(drawing);
     console.log(`URLs extracted by URL Parser:`);
 }
+
+// Create namespace for this module
+window.applicationController = {};
+
+/**
+ * Initialize the application controller
+ */
+window.applicationController.init = async function() {
+    console.log("APPLICATION_CONTROLLER: Initializing application");
+    
+    try {
+        // Wait for DOM to fully load
+        if (document.readyState === "loading") {
+            await new Promise(resolve => {
+                document.addEventListener("DOMContentLoaded", resolve);
+            });
+        }
+        
+        console.log("APPLICATION_CONTROLLER: DOM loaded");
+        
+        // Initialize modules in the correct order
+        if (window.uiNavigation) {
+            window.uiNavigation.init();
+            console.log("APPLICATION_CONTROLLER: UI Navigation initialized");
+        }
+        
+        if (window.canvasRenderer) {
+            window.canvasRenderer.init();
+            console.log("APPLICATION_CONTROLLER: Canvas Renderer initialized");
+        }
+        
+        if (window.measurementTools) {
+            window.measurementTools.init();
+            console.log("APPLICATION_CONTROLLER: Measurement Tools initialized");
+        }
+        
+        // Fetch drawings data
+        if (window.configLoader) {
+            const drawings = await window.configLoader.fetchDrawings();
+            console.log("APPLICATION_CONTROLLER: Drawings data fetched");
+            
+            if (drawings) {
+                // Create drawing buttons
+                if (window.uiNavigation) {
+                    window.uiNavigation.createDrawingButtons(drawings);
+                    console.log("APPLICATION_CONTROLLER: Drawing buttons created");
+                }
+                
+                // Load the first drawing automatically
+                const firstDrawingKey = Object.keys(drawings).find(
+                    key => key.startsWith("drawing-") && 
+                    drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}"
+                );
+                
+                if (firstDrawingKey && window.projectAssets) {
+                    console.log("APPLICATION_CONTROLLER: Loading first drawing");
+                    await window.projectAssets.loadDrawing(drawings[firstDrawingKey]);
+                }
+            }
+        }
+        
+        console.log("APPLICATION_CONTROLLER: Initialization complete");
+        
+    } catch (error) {
+        console.error("APPLICATION_CONTROLLER: Error initializing application:", error);
+        if (window.uiNavigation) {
+            window.uiNavigation.displayError("Error initializing application: " + error.message);
+        }
+    }
+};
+
+/**
+ * Get the version of the application
+ * @returns {string} Application version
+ */
+window.applicationController.getVersion = function() {
+    return "3.0.0";
+};
+
+/**
+ * Log modules status to the console
+ */
+window.applicationController.logModulesStatus = function() {
+    console.log("-------- MODULES STATUS --------");
+    console.log("Application Controller: " + (typeof window.applicationController !== 'undefined' ? "Loaded" : "Not Loaded"));
+    console.log("Config Loader: " + (typeof window.configLoader !== 'undefined' ? "Loaded" : "Not Loaded"));
+    console.log("Project Assets: " + (typeof window.projectAssets !== 'undefined' ? "Loaded" : "Not Loaded"));
+    console.log("Canvas Renderer: " + (typeof window.canvasRenderer !== 'undefined' ? "Loaded" : "Not Loaded"));
+    console.log("UI Navigation: " + (typeof window.uiNavigation !== 'undefined' ? "Loaded" : "Not Loaded"));
+    console.log("Measurement Tools: " + (typeof window.measurementTools !== 'undefined' ? "Loaded" : "Not Loaded"));
+    console.log("Measurement Scaling: " + (typeof window.measurementScaling !== 'undefined' ? "Loaded" : "Not Loaded"));
+    console.log("--------------------------------");
+};
+
+// Set up the check status button
+document.addEventListener('DOMContentLoaded', function() {
+    const checkStatusBtn = document.getElementById("BTTN__Debug-Check-Status");
+    if (checkStatusBtn) {
+        checkStatusBtn.addEventListener("click", window.applicationController.logModulesStatus);
+    }
+});
+
+// Initialize the application when the script is loaded
+window.applicationController.init();
+
+// Log that this module has loaded
+console.log("APPLICATION_CONTROLLER: Module loaded");
+
+// Register this module with the module integration system
+if (window.moduleIntegration && typeof window.moduleIntegration.registerModuleReady === 'function') {
+    window.moduleIntegration.registerModuleReady("applicationController");
+}
+
+// Backwards compatibility with direct module approach
+window.appController = window.applicationController;

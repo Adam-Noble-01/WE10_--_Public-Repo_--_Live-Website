@@ -1,10 +1,10 @@
 /*
 ================================================================================
-JAVASCRIPT |  MEASUREMENT SCALING
-- Introduced in v2.0.0
+JAVASCRIPT |  MEASUREMENT SCALING MODULE
+- Based on the reference implementation v1.8.8
 DESCRIPTION
-- Handles scale conversion from pixels to real-world measurements
-- Ensures measurements remain accurate regardless of zoom level or drawing scale
+- Handles conversions between pixels and real-world measurements
+- Provides functions to convert between pixels, millimeters, and square meters
 ================================================================================
 */
 
@@ -172,4 +172,165 @@ DESCRIPTION
 if (!window.applicationController && document.readyState === 'complete') {
     console.log('Document already loaded, initializing measurement scaling directly...');
     initMeasurementScaling();
-} 
+}
+
+// Drawing scale reference data
+const SCALE_FACTORS = {
+    "1:1": 1,
+    "1:2": 2,
+    "1:5": 5,
+    "1:10": 10,
+    "1:20": 20,
+    "1:50": 50,
+    "1:100": 100,
+    "1:200": 200,
+    "1:500": 500,
+    "1:1000": 1000,
+    "1:1250": 1250,
+    "1:2500": 2500
+};
+
+// Drawing size reference data (in mm)
+const PAPER_SIZES = {
+    "A0": { width: 841, height: 1189 },
+    "A1": { width: 594, height: 841 },
+    "A2": { width: 420, height: 594 },
+    "A3": { width: 297, height: 420 },
+    "A4": { width: 210, height: 297 }
+};
+
+// Default pixels per mm at 96 DPI
+const DEFAULT_PIXELS_PER_MM = 96 / 25.4;
+
+/**
+ * Convert pixels to millimeters
+ * @param {number} pixels - Number of pixels to convert
+ * @param {string} scale - Drawing scale (e.g. "1:50")
+ * @param {string} paperSize - Drawing paper size (e.g. "A1")
+ * @returns {number} Equivalent length in millimeters
+ */
+window.measurementScaling.pixelsToMillimeters = function(pixels, scale, paperSize) {
+    // Get scale factor
+    const scaleFactor = SCALE_FACTORS[scale] || 50; // Default to 1:50 if scale not found
+    
+    // Calculate pixels per mm based on image dimensions and paper size
+    let pixelsPerMm = DEFAULT_PIXELS_PER_MM;
+    
+    if (window.projectAssets) {
+        const imgWidth = window.projectAssets.getNaturalImageWidth();
+        const imgHeight = window.projectAssets.getNaturalImageHeight();
+        
+        if (imgWidth > 0 && imgHeight > 0 && paperSize && PAPER_SIZES[paperSize]) {
+            const paperWidth = PAPER_SIZES[paperSize].width;
+            const paperHeight = PAPER_SIZES[paperSize].height;
+            
+            // Calculate pixels per mm based on image and paper dimensions
+            const widthPixelsPerMm = imgWidth / paperWidth;
+            const heightPixelsPerMm = imgHeight / paperHeight;
+            
+            // Use the average for better accuracy
+            pixelsPerMm = (widthPixelsPerMm + heightPixelsPerMm) / 2;
+        }
+    }
+    
+    // Convert pixels to mm using scale factor
+    return (pixels / pixelsPerMm) * scaleFactor;
+};
+
+/**
+ * Convert pixels to square meters
+ * @param {number} pixelArea - Area in pixels
+ * @param {string} scale - Drawing scale (e.g. "1:50")
+ * @param {string} paperSize - Drawing paper size (e.g. "A1")
+ * @returns {number} Equivalent area in square meters
+ */
+window.measurementScaling.pixelsToSquareMeters = function(pixelArea, scale, paperSize) {
+    // Get scale factor
+    const scaleFactor = SCALE_FACTORS[scale] || 50; // Default to 1:50 if scale not found
+    
+    // Calculate pixels per mm based on image dimensions and paper size
+    let pixelsPerMm = DEFAULT_PIXELS_PER_MM;
+    
+    if (window.projectAssets) {
+        const imgWidth = window.projectAssets.getNaturalImageWidth();
+        const imgHeight = window.projectAssets.getNaturalImageHeight();
+        
+        if (imgWidth > 0 && imgHeight > 0 && paperSize && PAPER_SIZES[paperSize]) {
+            const paperWidth = PAPER_SIZES[paperSize].width;
+            const paperHeight = PAPER_SIZES[paperSize].height;
+            
+            // Calculate pixels per mm based on image and paper dimensions
+            const widthPixelsPerMm = imgWidth / paperWidth;
+            const heightPixelsPerMm = imgHeight / paperHeight;
+            
+            // Use the average for better accuracy
+            pixelsPerMm = (widthPixelsPerMm + heightPixelsPerMm) / 2;
+        }
+    }
+    
+    // Convert pixel area to mm²
+    const areaMm2 = pixelArea / (pixelsPerMm * pixelsPerMm);
+    
+    // Apply scale factor to get real-world area in mm²
+    const realAreaMm2 = areaMm2 * scaleFactor * scaleFactor;
+    
+    // Convert mm² to m²
+    return realAreaMm2 / 1000000;
+};
+
+/**
+ * Get scale factor from scale string
+ * @param {string} scale - Drawing scale (e.g. "1:50")
+ * @returns {number} Scale factor number
+ */
+window.measurementScaling.getScaleFactor = function(scale) {
+    return SCALE_FACTORS[scale] || 50; // Default to 1:50 if scale not found
+};
+
+/**
+ * Get paper dimensions for a given paper size
+ * @param {string} paperSize - Drawing paper size (e.g. "A1")
+ * @returns {Object} Object with width and height in millimeters
+ */
+window.measurementScaling.getPaperDimensions = function(paperSize) {
+    return PAPER_SIZES[paperSize] || PAPER_SIZES["A1"]; // Default to A1 if paper size not found
+};
+
+/**
+ * Calculate pixels per millimeter based on image and paper dimensions
+ * @param {string} paperSize - Drawing paper size (e.g. "A1")
+ * @returns {number} Pixels per millimeter
+ */
+window.measurementScaling.calculatePixelsPerMm = function(paperSize) {
+    let pixelsPerMm = DEFAULT_PIXELS_PER_MM;
+    
+    if (window.projectAssets) {
+        const imgWidth = window.projectAssets.getNaturalImageWidth();
+        const imgHeight = window.projectAssets.getNaturalImageHeight();
+        
+        if (imgWidth > 0 && imgHeight > 0 && paperSize && PAPER_SIZES[paperSize]) {
+            const paperWidth = PAPER_SIZES[paperSize].width;
+            const paperHeight = PAPER_SIZES[paperSize].height;
+            
+            // Calculate pixels per mm based on image and paper dimensions
+            const widthPixelsPerMm = imgWidth / paperWidth;
+            const heightPixelsPerMm = imgHeight / paperHeight;
+            
+            // Use the average for better accuracy
+            pixelsPerMm = (widthPixelsPerMm + heightPixelsPerMm) / 2;
+        }
+    }
+    
+    return pixelsPerMm;
+};
+
+// Log that this module has loaded
+console.log("MEASUREMENT_SCALING: Module loaded");
+
+// Register this module with the module integration system
+if (window.moduleIntegration && typeof window.moduleIntegration.registerModuleReady === 'function') {
+    window.moduleIntegration.registerModuleReady("measurementScaling");
+}
+
+// Backwards compatibility with direct module approach
+window.scaleCalculator = window.measurementScaling; 

@@ -1,10 +1,10 @@
 /*
 ================================================================================
 JAVASCRIPT |  MEASUREMENT TOOLS
-- Introduced in v2.0.0
+- Based on the reference implementation v1.8.8
 DESCRIPTION
-- Implements measurement tools for linear, area, and rectangular measurements
-- Coordinates with Measurement Scaling module for accurate real-world dimensions
+- Handles measurement tools for linear, area, and rectangle measurements
+- Manages drawing and updating measurements on the canvas
 ================================================================================
 */
 
@@ -42,6 +42,8 @@ let isLinearMeasuring = false;         // Whether linear measurement is in progr
 let linearMeasurementLocked = false;   // Whether linear measurement is locked (prevent accidental changes)
 let isRectMeasuring = false;           // Whether rectangle measurement is in progress
 let isRectDragging = false;            // Whether user is dragging rectangle corner
+let isAreaMeasuring = false;           // Whether area measurement is in progress
+let isAreaComplete = false;            // Whether area measurement is complete
 let finishBtn = null;                  // Reference to the finish measurement button
 let cancelToolBtn = null;              // Reference to the cancel tool button
 let instructionsOverlay = null;        // Reference to the instructions overlay
@@ -51,6 +53,13 @@ let ctx = null;                        // Canvas context
 let offsetX = 0;                       // Canvas pan X offset
 let offsetY = 0;                       // Canvas pan Y offset
 let zoomFactor = 1;                    // Canvas zoom level
+
+// Marker display configuration
+const DISTANCE_OFFSET = 20;
+const CONFIRM_BUTTON_OFFSET_X_PC = 20;
+const CONFIRM_BUTTON_OFFSET_Y_PC = 20;
+const CONFIRM_BUTTON_OFFSET_X_TOUCH = 40;
+const CONFIRM_BUTTON_OFFSET_Y_TOUCH = 40;
 
 /*
 --------------------------------------------
@@ -134,6 +143,8 @@ function resetCurrentMeasurement() {
     linearMeasurementLocked = false;
     isRectMeasuring = false;
     isRectDragging = false;
+    isAreaMeasuring = false;
+    isAreaComplete = false;
     currentTool = null;
     hideInstructions();
     hideCancelTool();

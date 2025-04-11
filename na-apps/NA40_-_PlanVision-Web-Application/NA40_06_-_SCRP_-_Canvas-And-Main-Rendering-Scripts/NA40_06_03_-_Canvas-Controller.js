@@ -55,6 +55,8 @@ let animationStartTime = 0;           // Start time for zoom animation
 let initialZoom = DEFAULT_ZOOM_FACTOR;// Initial zoom level for animation
 let initialOffsetX = 0;               // Initial X offset for animation
 let initialOffsetY = 0;               // Initial Y offset for animation
+let isInitialized = false;            // Flag to track if controller is initialized
+let currentImage = null;              // Current image being displayed
 
 /*
 --------------------------------------------
@@ -69,6 +71,13 @@ DESCRIPTION
  * Initialize the canvas controller
  */
 function initCanvasController() {
+    if (isInitialized) {
+        console.log("Canvas controller already initialized");
+        return;
+    }
+    
+    console.log("Initializing canvas controller...");
+    
     // Get the canvas element
     planCanvas = document.getElementById("CNVS__Plan");
     if (!planCanvas) {
@@ -109,7 +118,44 @@ function initCanvasController() {
     // Start render loop
     requestAnimationFrame(renderLoop);
     
-    console.log("Canvas controller initialized");
+    // Mark as initialized
+    isInitialized = true;
+    
+    console.log("Canvas controller initialized successfully");
+    
+    // Register with module system if available
+    if (window.moduleIntegration && typeof window.moduleIntegration.registerModuleReady === "function") {
+        window.moduleIntegration.registerModuleReady("canvasController");
+    }
+    
+    // Listen for image loaded events
+    document.addEventListener('imageLoaded', (event) => {
+        console.log("Image loaded event received in Canvas Controller");
+        if (event.detail && event.detail.image) {
+            setCurrentImage(event.detail.image);
+        }
+    });
+    
+    return true;
+}
+
+/**
+ * Set the current image for rendering
+ * @param {HTMLImageElement} image - The image to render
+ */
+function setCurrentImage(image) {
+    if (!image) {
+        console.warn("Attempted to set null image");
+        return;
+    }
+    
+    console.log("Setting current image in Canvas Controller:", 
+        `${image.width}x${image.height} (natural: ${image.naturalWidth}x${image.naturalHeight})`);
+    
+    currentImage = image;
+    
+    // Reset view to show the full image
+    resetView();
 }
 
 /**
@@ -303,42 +349,28 @@ DESCRIPTION
 */
 
 /**
- * Reset the view to fit the drawing
+ * Reset the view to show the entire image centered
  */
 function resetView() {
-    // Get drawing dimensions from project assets
-    const projectAssets = window.projectAssets;
-    if (!projectAssets || typeof projectAssets.getPlanImage !== "function") {
-        console.warn("Project assets not available, cannot reset view");
-        return;
-    }
+    // Cancel any ongoing animation
+    isAnimating = false;
     
-    const planImage = projectAssets.getPlanImage();
-    if (!planImage) {
-        console.warn("Plan image not available, cannot reset view");
-        return;
-    }
-    
-    // Calculate scaling to fit the image in the canvas
-    const imgWidth = planImage.naturalWidth;
-    const imgHeight = planImage.naturalHeight;
-    
-    if (imgWidth === 0 || imgHeight === 0) {
-        console.warn("Plan image dimensions are zero, cannot reset view");
-        return;
-    }
-    
-    // Calculate scaling to fit the image in the canvas
-    const scaleX = canvasWidth / imgWidth;
-    const scaleY = canvasHeight / imgHeight;
-    const scale = Math.min(scaleX, scaleY) * 0.95; // 5% margin
+    // Reset zoom factor
+    zoomFactor = DEFAULT_ZOOM_FACTOR;
     
     // Center the image
-    const newOffsetX = (canvasWidth - imgWidth * scale) / 2;
-    const newOffsetY = (canvasHeight - imgHeight * scale) / 2;
+    if (currentImage && currentImage.naturalWidth && currentImage.naturalHeight) {
+        // Calculate the position to center the image
+        offsetX = (canvasWidth - currentImage.naturalWidth * zoomFactor) / 2;
+        offsetY = (canvasHeight - currentImage.naturalHeight * zoomFactor) / 2;
+    } else {
+        // If no image is available, just center at origin
+        offsetX = canvasWidth / 2;
+        offsetY = canvasHeight / 2;
+    }
     
-    // Animate to the new view
-    animateZoom(scale, imgWidth / 2, imgHeight / 2, newOffsetX, newOffsetY);
+    // Force a re-render
+    requestAnimationFrame(renderLoop);
 }
 
 /**
@@ -466,71 +498,55 @@ DESCRIPTION
  * @param {number} timestamp - Current animation timestamp
  */
 function renderLoop(timestamp) {
-    // Request the next frame immediately
-    requestAnimationFrame(renderLoop);
+    // Clear the canvas
+    if (ctx) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    }
     
-    // Update zoom animation if in progress
+    // Handle zoom animation if active
     if (isAnimating) {
         updateZoomAnimation(timestamp);
     }
     
-    // Clear the canvas
-    ctx.clearRect(0, 0, planCanvas.width, planCanvas.height);
-    
-    // Save canvas state
-    ctx.save();
-    
-    // Apply transformations for panning and zooming
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
-    
-    // Get the project assets
-    const projectAssets = window.projectAssets;
-    const isImageLoaded = projectAssets && typeof projectAssets.isImageLoaded === "function" && projectAssets.isImageLoaded();
-    
-    // Draw the content based on what's available
-    if (isImageLoaded) {
-        // Check if we're using fallback HTML content
-        if (window.usingFallbackContent && window.fallbackIframe) {
-            // No need to draw fallback content - the iframe is behind the canvas
-            // Just draw a frame to show the drawing area
-            ctx.strokeStyle = "#999";
-            ctx.lineWidth = 2 / zoomFactor;
-            ctx.strokeRect(0, 0, 800, 600);
-        } else {
-            // Draw the plan image
-            const planImage = projectAssets.getPlanImage();
+    // Render the current plan image
+    if (ctx && currentImage) {
+        try {
+            ctx.save();
             
-            // Add drop shadow effect
-            ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 5;
-            ctx.shadowOffsetY = 5;
+            // Apply transformations for pan and zoom
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(zoomFactor, zoomFactor);
             
             // Draw the image
-            ctx.drawImage(planImage, 0, 0);
+            ctx.drawImage(currentImage, 0, 0);
+            
+            ctx.restore();
+        } catch (error) {
+            console.error("Error rendering image:", error);
         }
-    } else {
-        // Draw a loading/empty state indicator
-        ctx.font = (30 / zoomFactor) + "px Arial";
-        ctx.fillStyle = "#666";
+    } else if (ctx) {
+        // Display a message if no image is loaded
+        ctx.save();
+        ctx.fillStyle = "#777";
+        ctx.font = "16px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("Loading drawing...", 400, 300);
+        ctx.fillText("No image loaded", canvasWidth / 2, canvasHeight / 2);
+        ctx.restore();
     }
     
-    // Restore canvas state
-    ctx.restore();
-    
-    // Draw measurements if available
-    if (window.measurementTools && typeof window.measurementTools.drawAllMeasurements === "function") {
-        // Update the measurement tools with current transform
-        window.measurementTools.offsetX = offsetX;
-        window.measurementTools.offsetY = offsetY;
-        window.measurementTools.zoomFactor = zoomFactor;
-        
-        // Draw all measurements
-        window.measurementTools.drawAllMeasurements(ctx);
+    // Render measurements if available
+    if (window.measurementTools && typeof window.measurementTools.renderMeasurements === "function") {
+        try {
+            ctx.save();
+            window.measurementTools.renderMeasurements(ctx, offsetX, offsetY, zoomFactor);
+            ctx.restore();
+        } catch (error) {
+            console.error("Error rendering measurements:", error);
+        }
     }
+    
+    // Continue the render loop
+    requestAnimationFrame(renderLoop);
 }
 
 /*
@@ -563,7 +579,11 @@ window.canvasController = {
     // Animation state (internal)
     useCustomOffset: false,
     finalOffsetX: 0,
-    finalOffsetY: 0
+    finalOffsetY: 0,
+    
+    // Additional methods
+    setCurrentImage: setCurrentImage,
+    isInitialized: () => isInitialized
 };
 
 /*
@@ -575,20 +595,8 @@ DESCRIPTION
 --------------------------------------------
 */
 
-// Initialize when a drawing is loaded
-document.addEventListener('drawingLoaded', () => {
-    console.log('Drawing loaded, initializing canvas controller...');
-    initCanvasController();
-});
-
 // Initialize when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing canvas controller...');
-    initCanvasController();
-});
-
-// Optional: Auto-initialize if the document is already loaded
-if (document.readyState === 'complete') {
-    console.log('Document already loaded, initializing canvas controller...');
-    initCanvasController();
-} 
+    // Don't auto-initialize - let the module system handle it
+    console.log("Canvas Controller ready for initialization");
+}); 

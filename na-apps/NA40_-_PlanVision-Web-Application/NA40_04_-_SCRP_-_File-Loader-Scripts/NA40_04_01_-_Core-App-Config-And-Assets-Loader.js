@@ -1,10 +1,10 @@
 /*
 ================================================================================
-JAVASCRIPT |  APP ASSETS LOADER
-- Introduced in v2.0.0
+JAVASCRIPT |  CORE APP CONFIG AND ASSETS LOADER
+- Based on the reference implementation v1.8.8
 DESCRIPTION
-- Loads core application assets from the centralized JSON repository
-- Initializes font loading and other common resources
+- Loads configuration and drawing data from JSON
+- Provides functions for managing drawings and asset loading
 ================================================================================
 */
 
@@ -21,18 +21,6 @@ IMPORTANT NOTES
 
 // App configuration file path
 const APP_CONFIG_PATH = "NA40_02_-_DATA_-_App-Files-And-App-Config/NA40_01_01_-_DATA_-_PlanVision-App-Config.json";
-
-// Font loading configuration
-const FONT_FAMILIES = {
-    openSans: {
-        name: "Open Sans",
-        weights: ["regular", "light", "semi-bold"]
-    },
-    caveat: {
-        name: "Caveat",
-        weights: ["regular", "semi-bold"]
-    }
-};
 
 /*
 --------------------------------------------
@@ -60,12 +48,8 @@ async function initAssetLoading() {
         const assetLibraryUrl = appConfig["Core_App_Config"]["app-assets-location"];
         const assetLibrary = await fetchAssetLibrary(assetLibraryUrl);
         
-        // Load fonts
-        if (assetLibrary && assetLibrary.na_assets && assetLibrary.na_assets.na_fonts) {
-            loadFonts(assetLibrary.na_assets.na_fonts);
-        } else {
-            console.error("Font data not found in asset library");
-        }
+        // Note: Font loading is handled by the dedicated Font-Asset-Loader.js
+        // so we don't need to handle it here
         
         // Initialize logo and other assets
         initLogoAndBranding(assetLibrary);
@@ -86,7 +70,22 @@ async function fetchAppConfig() {
     try {
         console.log("Attempting to fetch application configuration from:", APP_CONFIG_PATH);
         
-        const response = await fetch(APP_CONFIG_PATH);
+        // Determine if we need to use a relative or absolute path
+        let configPath = APP_CONFIG_PATH;
+        
+        // If this is not already an absolute URL, make it relative to the current page
+        if (!configPath.startsWith('http://') && !configPath.startsWith('https://')) {
+            // Check if we should use root-relative (starting with /) or document-relative path
+            if (!configPath.startsWith('/')) {
+                // Use document-relative path - prepend with the current directory
+                const currentPath = window.location.pathname;
+                const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+                configPath = currentDir + configPath;
+            }
+        }
+        
+        console.log("Resolved config path:", configPath);
+        const response = await fetch(configPath);
         if (!response.ok) {
             throw new Error(`Failed to fetch application configuration (${response.status})`);
         }
@@ -96,6 +95,20 @@ async function fetchAppConfig() {
         return configData;
     } catch (error) {
         console.error("Error fetching application configuration:", error);
+        
+        // Try a fallback approach using URL Parser if available
+        if (window.urlParser && typeof window.urlParser.generatePlaceholderAssets === 'function') {
+            console.warn("Using placeholder configuration for local development");
+            return {
+                "Core_App_Config": {
+                    "app-dev-mode": true,
+                    "app-assets-location": "/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json",
+                    "app-style-location": "NA40_03_-_STYL_-_Style-Library/NA02_02_01_-_NA_Plan-Vision-App_-_2.0.0_-_StyleSheet.css",
+                    "app-fallback-style": "/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css"
+                }
+            };
+        }
+        
         return null;
     }
 }
@@ -107,7 +120,32 @@ async function fetchAssetLibrary(assetLibraryUrl) {
     try {
         console.log("Attempting to fetch asset library from:", assetLibraryUrl);
         
-        const response = await fetch(assetLibraryUrl);
+        // Ensure we have a properly formatted URL
+        let resolvedUrl = assetLibraryUrl;
+        
+        // If this is not already an absolute URL, resolve it properly
+        if (!resolvedUrl.startsWith('http://') && !resolvedUrl.startsWith('https://')) {
+            // Check if we should use root-relative (starting with /) path
+            if (resolvedUrl.startsWith('/')) {
+                // Root-relative path - prefix with origin
+                resolvedUrl = window.location.origin + resolvedUrl;
+            } else {
+                // Document-relative path - prefix with current directory
+                const currentPath = window.location.pathname;
+                const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+                resolvedUrl = window.location.origin + currentDir + resolvedUrl;
+            }
+        }
+        
+        console.log("Resolved asset library URL:", resolvedUrl);
+        
+        // Use the URL Parser if available to handle any special encoding
+        if (window.urlParser && typeof window.urlParser.fixURLEncoding === 'function') {
+            resolvedUrl = window.urlParser.fixURLEncoding(resolvedUrl);
+            console.log("URL after encoding fix:", resolvedUrl);
+        }
+        
+        const response = await fetch(resolvedUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch asset library (${response.status})`);
         }
@@ -129,90 +167,50 @@ async function fetchAssetLibrary(assetLibraryUrl) {
 }
 
 /**
- * Loads fonts from the asset library
- */
-function loadFonts(fontData) {
-    // Get the style element where font declarations will be inserted
-    const fontStylesElement = document.getElementById('FONT__Styles-Dynamic');
-    if (!fontStylesElement) {
-        console.error("Font styles element not found");
-        return;
-    }
-    
-    let fontFaceDeclarations = '';
-    
-    // Process Open Sans fonts with URL Parser if available
-    if (fontData.openSans) {
-        fontData.openSans.forEach(font => {
-            // Try to use URL Parser for font URLs
-            let fontUrl = font.url;
-            if (window.urlParser && typeof window.urlParser.fixURLEncoding === 'function') {
-                fontUrl = window.urlParser.fixURLEncoding(fontUrl);
-            }
-            
-            fontFaceDeclarations += `
-            @font-face {
-                font-family: 'Open Sans';
-                src: url('${fontUrl}') format('${font.format}');
-                font-weight: ${font.weight};
-                font-style: normal;
-                font-display: swap;
-            }`;
-        });
-    }
-    
-    // Process Caveat fonts with URL Parser if available
-    if (fontData.caveat) {
-        fontData.caveat.forEach(font => {
-            // Try to use URL Parser for font URLs
-            let fontUrl = font.url;
-            if (window.urlParser && typeof window.urlParser.fixURLEncoding === 'function') {
-                fontUrl = window.urlParser.fixURLEncoding(fontUrl);
-            }
-            
-            fontFaceDeclarations += `
-            @font-face {
-                font-family: 'Caveat';
-                src: url('${fontUrl}') format('${font.format}');
-                font-weight: ${font.weight};
-                font-style: normal;
-                font-display: swap;
-            }`;
-        });
-    }
-    
-    // Insert the font declarations into the style element
-    fontStylesElement.textContent = fontFaceDeclarations;
-    console.log("Font declarations loaded");
-}
-
-/**
  * Initialize logo and branding assets
  */
 function initLogoAndBranding(assetLibrary) {
-    if (!assetLibrary || !assetLibrary.na_assets) {
-        console.error("Branding assets not found");
+    if (!assetLibrary) {
+        console.error("Asset library not found");
         return;
     }
     
     // Set logo image if available
     const logoImg = document.getElementById('HEAD__Logo');
     if (logoImg) {
-        // Use URL Parser to get the logo URL
+        // Try to find the company logo in the asset library
         let logoUrl = null;
         
+        // First check if URL Parser can handle this
         if (window.urlParser && typeof window.urlParser.getLogoURL === 'function') {
             logoUrl = window.urlParser.getLogoURL(assetLibrary);
-        } else if (assetLibrary.na_assets.images_png && assetLibrary.na_assets.images_png["na-brand-logo"]) {
-            // Fallback if URL Parser isn't available
-            logoUrl = assetLibrary.na_assets.images_png["na-brand-logo"];
+            console.log("Using URL Parser to get logo URL:", logoUrl);
+        } 
+        // Otherwise look in the correct location in the asset library
+        else {
+            // Check if we have Core Brand Image Assets
+            try {
+                // Logo is likely in the NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets section
+                if (assetLibrary.na_brand_assets && assetLibrary.na_brand_assets.company_logo) {
+                    logoUrl = assetLibrary.na_brand_assets.company_logo.asset_url;
+                }
+                // Fallback to using the path we know from earlier fixes
+                else {
+                    logoUrl = '/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png';
+                    console.log("Using fallback logo URL:", logoUrl);
+                }
+            } catch (error) {
+                console.warn("Error finding logo in asset library:", error);
+                // Use the fallback
+                logoUrl = '/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png';
+            }
         }
         
         if (logoUrl) {
             logoImg.src = logoUrl;
             console.log("Logo image set:", logoUrl);
         } else {
-            console.warn("No logo URL found in asset library");
+            console.warn("No logo URL found in asset library - using current src");
         }
     }
 }
@@ -254,4 +252,77 @@ document.addEventListener('DOMContentLoaded', () => {
                 }));
             }
         });
-}); 
+});
+
+// Configuration constants
+const JSON_URL = "NA40_02_-_DATA_-_App-Files-And-App-Config/NA40_01_01_-_DATA_-_PlanVision-App-Config.json";
+const ASSETS_URL = "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json";
+
+// Create namespace for this module
+window.coreAppConfig = {};
+
+/**
+ * Fetch drawings data from JSON configuration file
+ * @returns {Object} Object containing drawing data
+ */
+window.coreAppConfig.fetchDrawings = async function() {
+    console.log("CONFIG_LOADER: Fetching drawings from:", JSON_URL);
+    
+    try {
+        const response = await fetch(JSON_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("CONFIG_LOADER: Fetched data:", data);
+
+        // In the new format, drawings are at Project_Documentation.project-drawings
+        if (data["Project_Documentation"] && data["Project_Documentation"]["project-drawings"]) {
+            const drawings = data["Project_Documentation"]["project-drawings"];
+            console.log("CONFIG_LOADER: Found drawings:", drawings);
+            return drawings;
+        } else {
+            throw new Error("Missing project-drawings in JSON");
+        }
+    } catch (error) {
+        console.error("CONFIG_LOADER: Error fetching JSON:", error);
+        if (window.uiNavigation) {
+            window.uiNavigation.displayError("Failed to load drawing data: " + error.message);
+        }
+        return null;
+    }
+};
+
+/**
+ * Fetch the asset library
+ * @returns {Object} Asset library data
+ */
+window.coreAppConfig.fetchAssetLibrary = async function() {
+    console.log("CONFIG_LOADER: Fetching asset library from:", ASSETS_URL);
+    
+    try {
+        const response = await fetch(ASSETS_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("CONFIG_LOADER: Asset library loaded successfully");
+        return data;
+    } catch (error) {
+        console.error("CONFIG_LOADER: Error fetching asset library:", error);
+        return null;
+    }
+};
+
+// Log that this module has loaded
+console.log("CONFIG_LOADER: Module loaded");
+
+// Register this module with the module integration system
+if (window.moduleIntegration && typeof window.moduleIntegration.registerModuleReady === 'function') {
+    window.moduleIntegration.registerModuleReady("coreAppConfig");
+}
+
+// Backwards compatibility with direct module approach
+window.configLoader = window.coreAppConfig; 
