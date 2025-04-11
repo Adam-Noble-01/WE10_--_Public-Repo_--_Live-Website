@@ -20,8 +20,26 @@
     },
     "File_Version_History_Log": [
         {
+            "version"         :  "1.0.2",
+            "log-date"        :  "11-Apr-2025",
+            "log-title"       :  "Added UI Icons",
+            "log-changes"     :  [
+                "Added Clipboard and Checkmark SVG icons to Icons Library",
+                "Updated library metadata"
+            ]
+        },
+        {
+            "version"         :  "1.0.1",
+            "log-date"        :  "11-Apr-2025",
+            "log-title"       :  "Initial Creation",
+            "log-changes"     :  [
+                "Added Placeholder Files Library",
+                "Validated all asset paths and URLs"
+            ]
+        },
+        {
             "version"         :  "1.0.0",
-            "log-date"        :  "2025-04-09",
+            "log-date"        :  "11-Apr-2025",
             "log-title"       :  "Initial Creation",
             "log-changes"     :  [
                 "Created comprehensive asset library file",
@@ -300,6 +318,36 @@
                 "asset-added-by"        :   "Adam Noble",
                 "asset-last-updated"    :   "06-Apr-2025",
                 "asset-active-status"   :   true
+            },
+            "icon-clipboard": {
+                "asset-name"            :   "Clipboard Icon SVG",
+                "asset-dir-path"        :   "./assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_11_-_Icon_-_Clipboard.svg",
+                "asset-file-name"       :   "AD05_11_-_Icon_-_Clipboard.svg",
+                "asset-id-code"         :   "AD05_11",
+                "asset-type"            :   "icon",
+                "asset-category"        :   "ui element",
+                "asset-format"          :   "svg",
+                "asset-description"     :   "Clipboard Icon for Copy Function",
+                "asset-usage"           :   "used for copy-to-clipboard functionality in utility tools",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "11-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "icon-checkmark": {
+                "asset-name"            :   "Checkmark Icon SVG",
+                "asset-dir-path"        :   "./assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_12_-_Icon_-_Checkmark.svg",
+                "asset-file-name"       :   "AD05_12_-_Icon_-_Checkmark.svg",
+                "asset-id-code"         :   "AD05_12",
+                "asset-type"            :   "icon",
+                "asset-category"        :   "ui element",
+                "asset-format"          :   "svg",
+                "asset-description"     :   "Checkmark Icon for Success Confirmation",
+                "asset-usage"           :   "used to indicate successful operations in utility tools",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "11-Apr-2025",
+                "asset-active-status"   :   true
             }
         }
     },
@@ -348,8 +396,7 @@
                 "asset-active-status"   :   true
             }
         }
-    },
-
+    }
 },
     
 

@@ -68,9 +68,16 @@ Next we will create a new folder structure for the PlanVision Web Application
 |    |__PlanVision_-_Version-2.0.0._-_Notes.txt
 |    |__PlanVision_-_Version-2.0.0_-_Task-Breakdown.txt
 |
-|__NA01_-_Data-Files-And-App-Config      <-- Contains All Data Files And App Config Files
+|__NA01_-_Data-Files-And-App-Config      <-- Contains All Data Files And App Config Files, app should be driven by these files
 |    |
 |    |__NA20_01_01_-_DATA_-_PlanVision-App-Config.json
+|    |      |
+|    |      |__File_Metadata     <-- A simple first group containing my standard metadata for the file (See /Assets and look at my other Json files for the format)
+|    |      |__App_config        <--Contains the secttings that drive the app 
+|    |          |
+|    |          |__project-data-file-location   :   [url]     <-- This defines the location of the project data file that will be loaded by the app
+|    |          |__project-data-file-location   :   [url]     <-- This defines the location of the project data file that will be loaded by the app
+|    |     
 |    |__NA20_01_02_-_DATA_-_Asset-Link-Library.json
 |    |__NA20_01_03_-_DATA_-_Document-Link-Library.json
 |
