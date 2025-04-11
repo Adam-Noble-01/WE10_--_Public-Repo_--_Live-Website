@@ -15,6 +15,7 @@ VERSION HISTORY
 1.2.0 - Added Internal Tools Page
 1.3.0 - Updated for new website design offloaded the code from the index.html file.
 1.4.0 - Added proper font-face declarations for Open Sans and Caveat fonts
+1.5.0 - Standardized CSS variables and aligned with utility app stylesheet
 
 /* ===============================================================================
 CSS | FONT FACE DECLARATIONS
@@ -24,77 +25,150 @@ CSS | FONT FACE DECLARATIONS
 
 /* Standard Fonts (Open Sans) */
 @font-face {
-    font-family         :    'Open Sans';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_01_-_Standard-Font_-_Open-Sans-Regular.ttf') format('truetype');
-    font-weight         :    400;
-    font-style          :    normal;
-    font-display        :    swap;
+    font-family             :   'Open Sans Regular';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_01_-_Standard-Font_-_Open-Sans-Regular.ttf') format('truetype');
+    font-weight             :   400;
+    font-style              :   normal;
+    font-display            :   swap;
 }
 
 @font-face {
-    font-family         :    'Open Sans';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf') format('truetype');
-    font-weight         :    600;
-    font-style          :    normal;
-    font-display        :    swap;
+    font-family             :   'Open Sans SemiBold';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf') format('truetype');
+    font-weight             :   600;
+    font-style              :   normal;
+    font-display            :   swap;
 }
 
 @font-face {
-    font-family         :    'Open Sans';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf') format('truetype');
-    font-weight         :    300;
-    font-style          :    normal;
-    font-display        :    swap;
+    font-family             :   'Open Sans Light';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf') format('truetype');
+    font-weight             :   300;
+    font-style              :   normal;
+    font-display            :   swap;
 }
 
 @font-face {
-    font-family         :    'Open Sans';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_04_-_Standard-Font_-_Open-Sans-Medium.ttf') format('truetype');
-    font-weight         :    500;
-    font-style          :    normal;
-    font-display        :    swap;
+    font-family             :   'Open Sans Medium';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_04_-_Standard-Font_-_Open-Sans-Medium.ttf') format('truetype');
+    font-weight             :   500;
+    font-style              :   normal;
+    font-display            :   swap;
 }
 
 @font-face {
-    font-family         :    'Open Sans';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_05_-_Standard-Font_-_Open-Sans-Bold.ttf') format('truetype');
-    font-weight         :    700;
-    font-style          :    normal;
-    font-display        :    swap;
+    font-family             :   'Open Sans Bold';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_05_-_Standard-Font_-_Open-Sans-Bold.ttf') format('truetype');
+    font-weight             :   700;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+/* Also keep the original Open Sans for backward compatibility */
+@font-face {
+    font-family             :   'Open Sans';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_01_-_Standard-Font_-_Open-Sans-Regular.ttf') format('truetype');
+    font-weight             :   400;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+@font-face {
+    font-family             :   'Open Sans';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf') format('truetype');
+    font-weight             :   600;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+@font-face {
+    font-family             :   'Open Sans';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf') format('truetype');
+    font-weight             :   300;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+@font-face {
+    font-family             :   'Open Sans';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_04_-_Standard-Font_-_Open-Sans-Medium.ttf') format('truetype');
+    font-weight             :   500;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+@font-face {
+    font-family             :   'Open Sans';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_05_-_Standard-Font_-_Open-Sans-Bold.ttf') format('truetype');
+    font-weight             :   700;
+    font-style              :   normal;
+    font-display            :   swap;
 }
 
 /* Handwritten Fonts (Caveat) */
 @font-face {
-    font-family         :    'Caveat';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_21_-_Handwritten-Font_-_Caveat-Regular.ttf') format('truetype');
-    font-weight         :    400;
-    font-style          :    normal;
-    font-display        :    swap;
+    font-family             :   'Caveat Regular';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_21_-_Handwritten-Font_-_Caveat-Regular.ttf') format('truetype');
+    font-weight             :   400;
+    font-style              :   normal;
+    font-display            :   swap;
 }
 
 @font-face {
-    font-family         :    'Caveat';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_22_-_Handwritten-Font_-_Caveat-SemiBold.ttf') format('truetype');
-    font-weight         :    600;
-    font-style          :    normal;
-    font-display        :    swap;
-}
-
-
-@font-face {
-    font-family         :    'Caveat';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_23_-_Handwritten-Font_-_Caveat-Medium.ttf') format('truetype');
-    font-weight         :    500;
-    font-style          :    normal;
-    font-display        :    swap;
+    font-family             :   'Caveat SemiBold';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_22_-_Handwritten-Font_-_Caveat-SemiBold.ttf') format('truetype');
+    font-weight             :   600;
+    font-style              :   normal;
+    font-display            :   swap;
 }
 
 @font-face {
-    font-family         :    'Caveat';
-    src                 :    url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_24_-_Handwritten-Font_-_Caveat-Bold.ttf') format('truetype');
-    font-weight         :    700;
-    font-style          :    normal;
-    font-display        :    swap;
+    font-family             :   'Caveat Medium';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_23_-_Handwritten-Font_-_Caveat-Medium.ttf') format('truetype');
+    font-weight             :   500;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+@font-face {
+    font-family             :   'Caveat Bold';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_24_-_Handwritten-Font_-_Caveat-Bold.ttf') format('truetype');
+    font-weight             :   700;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+/* Also keep the original Caveat for backward compatibility */
+@font-face {
+    font-family             :   'Caveat';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_21_-_Handwritten-Font_-_Caveat-Regular.ttf') format('truetype');
+    font-weight             :   400;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+@font-face {
+    font-family             :   'Caveat';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_22_-_Handwritten-Font_-_Caveat-SemiBold.ttf') format('truetype');
+    font-weight             :   600;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+@font-face {
+    font-family             :   'Caveat';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_23_-_Handwritten-Font_-_Caveat-Medium.ttf') format('truetype');
+    font-weight             :   500;
+    font-style              :   normal;
+    font-display            :   swap;
+}
+
+@font-face {
+    font-family             :   'Caveat';
+    src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_24_-_Handwritten-Font_-_Caveat-Bold.ttf') format('truetype');
+    font-weight             :   700;
+    font-style              :   normal;
+    font-display            :   swap;
 }
 
 /* ===============================================================================
@@ -104,34 +178,74 @@ CSS | FONT FACE DECLARATIONS
    =============================================================================== */
 
 :root {
+    /* Base Layout Variables */
     --header-height            :    55px;
-    --primary-color            :    #555041;          /*   <-- Brand color */
-    --primary-hover            :    #3d392e;          /*   <-- Darker shade */
-    --secondary-color          :    #86847d;          /*   <-- Neutral brand */
-    --secondary-hover          :    #6c6a65;          /*   <-- Darker neutral */
-    --success-color            :    #28a745;
-    --danger-color             :    #dc3545;
-    --danger-hover             :    #c82333;
-    --card-bg                  :    #ffffff;
-    --card-border              :    #ddd;
-    --code-bg                  :    #272822;           /*   <-- Okaidia theme */
-    --code-border              :    #444;              /*   <-- Code block border */
-    --text-color               :    #333;
-    --text-light               :    #666;
-    --body-bg                  :    #f4f4f4;
-    --header-bg                :    #fff;
-    --header-border            :    var(--primary-color);
-    --button-text              :    #fdfdfd;           /*   <-- Standard button text color */
-    --button-bg                :    #504c46;           /*   <-- Standard button background color */
-    --button-hover-bg          :    #3e3b36;           /*   <-- Standard button hover background color */
-    --button-hover-text        :    #fdfdfd;           /*   <-- Standard button hover text color */
-    --button-cancel-bg         :    #BA5050;           /*   <-- Cancel button background color */
-    --button-cancel-text       :    #fdfdfd;           /*   <-- Cancel button text color */
-    --button-cancel-hover-bg   :    #9E2D2D;           /*   <-- Cancel button hover background color */
-    --button-cancel-hover-text :    #fdfdfd;           /*   <-- Cancel button hover text color */
-    --warning-bg               :    #fff3cd;
-    --warning-border           :    #ffeeba;
-    --warning-text             :    #856404;
+    
+    /* Base Colors */
+    --color-white              :    #ffffff;
+    --color-black              :    #000000;
+    
+    /* Gray Scale */
+    --color-gray-100           :    #f4f4f4;    /*   <-- Lightest gray (background) */
+    --color-gray-200           :    #f5f5f5;    /*   <-- Very light gray */
+    --color-gray-300           :    #e0e0e0;    /*   <-- Light gray */
+    --color-gray-400           :    #ddd;       /*   <-- Medium light gray */
+    --color-gray-500           :    #999;       /*   <-- Medium gray */
+    --color-gray-600           :    #666;       /*   <-- Medium dark gray */
+    --color-gray-700           :    #555;       /*   <-- Dark gray */
+    --color-gray-800           :    #333;       /*   <-- Very dark gray */
+    
+    /* Brand Colors */
+    --color-brand              :    #555041;    /*   <-- Noble Architecture brand color */
+    --color-brand-light        :    #504c46;    /*   <-- NA Secondary brand color */
+    --color-brand-mid-tone     :    #5d5d5d;    /*   <-- NA Tertiary brand color */
+    --primary-color            :    #555041;    /*   <-- Legacy brand color */
+    --primary-hover            :    #3d392e;    /*   <-- Darker shade */
+    --secondary-color          :    #86847d;    /*   <-- Legacy neutral brand */
+    --secondary-hover          :    #6c6a65;    /*   <-- Legacy darker neutral */
+    
+    /* Button & Link Action Colors */
+    --color-action-primary     :    #5d5d5d;    /*   <-- Primary action color (buttons, links) */
+    --color-action-hover       :    #005580;    /*   <-- Hover state for primary actions */
+    --color-success            :    #3d8b40;    /*   <-- Success/export actions */
+    --color-success-hover      :    #2d6a30;    /*   <-- Hover state for success actions */
+    --color-danger             :    #BA5050;    /*   <-- Danger/cancel actions */
+    --color-danger-hover       :    #9E2D2D;    /*   <-- Hover state for danger actions */
+    --success-color            :    #28a745;    /*   <-- Legacy success color */
+    --danger-color             :    #dc3545;    /*   <-- Legacy danger color */
+    --danger-hover             :    #c82333;    /*   <-- Legacy danger hover color */
+    
+    /* Status Colors */
+    --color-alert              :    #856404;    /*   <-- Alert text color */
+    --color-alert-bg           :    #fff3cd;    /*   <-- Alert background color */
+    --color-error              :    #BA5050;    /*   <-- Error text color */
+    --color-error-bg           :    #fde8e8;    /*   <-- Error background color */
+    --warning-bg               :    #fff3cd;    /*   <-- Legacy warning background */
+    --warning-border           :    #ffeeba;    /*   <-- Legacy warning border */
+    --warning-text             :    #856404;    /*   <-- Legacy warning text */
+    
+    /* Component Background Colors */
+    --card-bg                  :    #ffffff;    /*   <-- Card background */
+    --card-border              :    #ddd;       /*   <-- Card border */
+    --code-bg                  :    #272822;    /*   <-- Okaidia theme */
+    --code-border              :    #444;       /*   <-- Code block border */
+    --text-color               :    #333;       /*   <-- Legacy text color */
+    --text-light               :    #666;       /*   <-- Legacy light text */
+    --body-bg                  :    #f4f4f4;    /*   <-- Legacy body background */
+    --header-bg                :    #fff;       /*   <-- Legacy header background */
+    --header-border            :    var(--primary-color); /*   <-- Legacy header border */
+    
+    /* Button Colors - Legacy */
+    --button-text              :    #fdfdfd;    /*   <-- Standard button text color */
+    --button-bg                :    #504c46;    /*   <-- Standard button background color */
+    --button-hover-bg          :    #3e3b36;    /*   <-- Standard button hover background color */
+    --button-hover-text        :    #fdfdfd;    /*   <-- Standard button hover text color */
+    --button-cancel-bg         :    #BA5050;    /*   <-- Cancel button background color */
+    --button-cancel-text       :    #fdfdfd;    /*   <-- Cancel button text color */
+    --button-cancel-hover-bg   :    #9E2D2D;    /*   <-- Cancel button hover background color */
+    --button-cancel-hover-text :    #fdfdfd;    /*   <-- Cancel button hover text color */
+    
+    /* Font Families - Legacy */
     --font-primary             :    'Open Sans', sans-serif;  /*   <-- Primary font family */
     --font-handwritten         :    'Caveat', cursive;        /*   <-- Handwritten font family */
 }
@@ -143,9 +257,31 @@ CSS | FONT FACE DECLARATIONS
    =============================================================================== */
 
 :root {
+    /* Standard Typefaces */
+    --font-regular             :    'Open Sans', sans-serif;
+    --font-semibold            :    'Open Sans', sans-serif;
+    --font-light               :    'Open Sans', sans-serif;
+    --font-medium              :    'Open Sans', sans-serif;
+    --font-bold                :    'Open Sans', sans-serif;
+    
+    /* Handwritten Typefaces */
+    --font-handwritten-regular :    'Caveat', cursive;
+    --font-handwritten-medium  :    'Caveat', cursive;
+    --font-handwritten-semibold:    'Caveat', cursive;
+    --font-handwritten-bold    :    'Caveat', cursive;
+    
+    /* Legacy Font Variables */
     --font-button              :    var(--font-primary);  /*   <-- Button font family */
     --font-button-weight       :    600;                  /*   <-- Button font weight (SemiBold) */
     --font-button-size         :    00.80rem;             /*   <-- Button font size */
+}
+
+/* ==============================================================================================
+   CSS | ROOT FONT SIZE DEFINITION
+   - Base font size for rem units (1rem = 16px)
+   ============================================================================================== */
+:root {
+    font-size           :    16.00px;    /*  <-- CRITICAL VALUE!! - Base font size */
 }
 
 /* ===============================================================================
@@ -167,10 +303,6 @@ html, body {
     min-height          :    100vh;
     background-color    :    var(--body-bg);
     font-family         :    var(--font-primary);
-    /* RELATIVE UNIT | 
-      - Note This value is used to calculate the font size of the text in the page. 
-      - It is a relative unit that is based on the font size of the root element.       */
-    font-size           :    16.00px;    /*  <-- CRITICAL VALUE!!  */
     color               :    var(--text-color);
     line-height         :    1.4;
     display             :    flex;
@@ -229,14 +361,14 @@ html, body {
     list-style          :    none;
     display             :    flex;
     gap                 :    00.65rem;
-    margin-top          :    0.00rem;
-    margin-right        :    0.00rem;
-    margin-bottom       :    0.00rem;
+    margin-top          :    00.00rem;
+    margin-right        :    00.00rem;
+    margin-bottom       :    00.00rem;
     margin-left         :    auto;
-    padding-top         :    0.00rem;
-    padding-right       :    0.00rem;
-    padding-bottom      :    0.00rem;
-    padding-left        :    0.00rem;
+    padding-top         :    00.00rem;
+    padding-right       :    00.00rem;
+    padding-bottom      :    00.00rem;
+    padding-left        :    00.00rem;
 }
 
 .HEAD__link {

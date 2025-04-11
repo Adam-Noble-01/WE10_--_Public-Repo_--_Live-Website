@@ -13,10 +13,13 @@ FILE DESCRIPTION
 VERSION HISTORY
 1.0.0 - Initial Release - Unified stylesheet for utility web apps
 1.1.0 - Enhanced color variable mapping for consistency and future theming support
-1.2.0 - Simplified color variable system for easier maintenance
-1.3.0 - Added URL List common styles and form element extensions
-1.4.0 - Added font variable system for standardized typography
-1.5.0 - Added custom dropdown styling with visible greyed options
+1.2.0 - Simplified colour variable system for easier maintenance
+
+1.2.1 - 11-Apr-2025
+- Added font variable system for standardized typography
+- Added custom dropdown styling with visible greyed options
+- Added URL List common styles
+
 
 /* ==============================================================================================
    CSS | ROOT FONT SIZE DEFINITION
