@@ -110,7 +110,10 @@ window.uiNavigation.attachEventListeners = function() {
     
     // Debug buttons
     const checkStatusButton = document.getElementById("BTTN__Debug-Check-Status");
-    if (checkStatusButton && window.appController) {
+    if (checkStatusButton && window.applicationScheduler) {
+        checkStatusButton.addEventListener("click", window.applicationScheduler.logModulesStatus);
+    } else if (checkStatusButton && window.appController) {
+        // Backward compatibility
         checkStatusButton.addEventListener("click", window.appController.logModulesStatus);
     }
     
@@ -194,31 +197,38 @@ DESCRIPTION
 */
 
 /**
- * Toggle the toolbar open/closed
+ * Toggle the toolbar visibility
  */
 window.uiNavigation.toggleToolbar = function() {
-    const toolbar = document.getElementById("TOOL__Container");
-    if (!toolbar) return;
-    
-    if (isToolbarOpen) {
-        // Close the toolbar
-        toolbar.classList.add("collapsed");
-        isToolbarOpen = false;
-    } else {
-        // Open the toolbar
-        toolbar.classList.remove("collapsed");
-        isToolbarOpen = true;
+    const toolbar = document.getElementById('TOOL__Container');
+    if (toolbar) {
+        // First, ensure the toolbar is not collapsed by removing any transform
+        toolbar.style.transform = '';
         
-        // Hide the tutorial overlay if it's visible
-        const tutorialOverlay = document.getElementById("MENU__Tutorial-Overlay");
-        if (tutorialOverlay) {
-            tutorialOverlay.style.display = "none";
+        // Get computed style to check if it's currently visible
+        const computedStyle = window.getComputedStyle(toolbar);
+        const isVisible = computedStyle.display !== 'none' && 
+                          !toolbar.classList.contains('TOOL__Container--collapsed');
+        
+        // Toggle visibility
+        if (isVisible) {
+            toolbar.classList.add('TOOL__Container--collapsed');
+            console.log("Toolbar hidden");
+        } else {
+            toolbar.classList.remove('TOOL__Container--collapsed');
+            console.log("Toolbar shown");
         }
-    }
-    
-    // Trigger resize to adjust canvas
-    if (window.canvasRenderer) {
-        window.canvasRenderer.resizeCanvas();
+        
+        // Force debug menu items to be visible regardless of toolbar state
+        const debugHeader = document.getElementById('TOOL__Debug-Header');
+        const debugLoadButton = document.getElementById('BTTN__Debug-Load-Drawing');
+        const debugStatusButton = document.getElementById('BTTN__Debug-Check-Status');
+        const debugLegacyButton = document.getElementById('BTTN__Debug-Legacy-Load');
+        
+        if (debugHeader) debugHeader.style.display = 'block';
+        if (debugLoadButton) debugLoadButton.style.display = 'block';
+        if (debugStatusButton) debugStatusButton.style.display = 'block';
+        if (debugLegacyButton) debugLegacyButton.style.display = 'block';
     }
 };
 

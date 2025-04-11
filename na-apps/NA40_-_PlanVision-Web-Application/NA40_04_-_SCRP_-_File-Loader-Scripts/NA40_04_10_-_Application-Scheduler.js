@@ -1,10 +1,10 @@
 /*
 ================================================================================
-JAVASCRIPT |  APPLICATION CONTROLLER
+JAVASCRIPT |  APPLICATION SCHEDULER
 - Based on the reference implementation v1.8.8
 DESCRIPTION
-- Main application controller that initializes and coordinates all modules
-- Handles application startup, loading drawings, and module registration
+- Main application scheduler that coordinates initialization and loading sequence
+- Handles application startup, module loading, and scheduling of components
 ================================================================================
 */
 
@@ -59,6 +59,12 @@ async function initializeApplication() {
         
         // Store the app config in a global variable for other modules to access
         window.appConfig = result.appConfig;
+        
+        // Check if debug mode is enabled in the configuration
+        if (window.appConfig && window.appConfig.Core_App_Config && window.appConfig.Core_App_Config["app-dev-mode"] === true) {
+            isDebugMode = true;
+            console.log("Debug mode enabled in application scheduler");
+        }
         
         // Initialize UI components
         initializeUI();
@@ -295,7 +301,7 @@ function completeApplicationInitialization() {
 JAVASCRIPT |  UTILITY FUNCTIONS
 - Introduced in v2.0.0
 DESCRIPTION
-- Helper functions for the application controller
+- Helper functions for the application scheduler
 --------------------------------------------
 */
 
@@ -363,7 +369,7 @@ DESCRIPTION
 */
 
 // Export the module's public API
-window.applicationController = {
+window.applicationScheduler = {
     // Initialization
     init: initApplication,
     
@@ -382,13 +388,13 @@ DESCRIPTION
 
 // Initialize when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing application controller...');
+    console.log('DOM loaded, initializing application scheduler...');
     initApplication();
 });
 
 // Optional: Auto-initialize if the document is already loaded
 if (document.readyState === 'complete') {
-    console.log('Document already loaded, initializing application controller...');
+    console.log('Document already loaded, initializing application scheduler...');
     initApplication();
 }
 
@@ -479,13 +485,13 @@ function loadDrawing(drawing) {
 }
 
 // Create namespace for this module
-window.applicationController = {};
+window.applicationScheduler = {};
 
 /**
- * Initialize the application controller
+ * Initialize the application scheduler
  */
-window.applicationController.init = async function() {
-    console.log("APPLICATION_CONTROLLER: Initializing application");
+window.applicationScheduler.init = async function() {
+    console.log("APPLICATION_SCHEDULER: Initializing application");
     
     try {
         // Wait for DOM to fully load
@@ -495,34 +501,34 @@ window.applicationController.init = async function() {
             });
         }
         
-        console.log("APPLICATION_CONTROLLER: DOM loaded");
+        console.log("APPLICATION_SCHEDULER: DOM loaded");
         
         // Initialize modules in the correct order
         if (window.uiNavigation) {
             window.uiNavigation.init();
-            console.log("APPLICATION_CONTROLLER: UI Navigation initialized");
+            console.log("APPLICATION_SCHEDULER: UI Navigation initialized");
         }
         
         if (window.canvasRenderer) {
             window.canvasRenderer.init();
-            console.log("APPLICATION_CONTROLLER: Canvas Renderer initialized");
+            console.log("APPLICATION_SCHEDULER: Canvas Renderer initialized");
         }
         
         if (window.measurementTools) {
             window.measurementTools.init();
-            console.log("APPLICATION_CONTROLLER: Measurement Tools initialized");
+            console.log("APPLICATION_SCHEDULER: Measurement Tools initialized");
         }
         
         // Fetch drawings data
         if (window.configLoader) {
             const drawings = await window.configLoader.fetchDrawings();
-            console.log("APPLICATION_CONTROLLER: Drawings data fetched");
+            console.log("APPLICATION_SCHEDULER: Drawings data fetched");
             
             if (drawings) {
                 // Create drawing buttons
                 if (window.uiNavigation) {
                     window.uiNavigation.createDrawingButtons(drawings);
-                    console.log("APPLICATION_CONTROLLER: Drawing buttons created");
+                    console.log("APPLICATION_SCHEDULER: Drawing buttons created");
                 }
                 
                 // Load the first drawing automatically
@@ -532,16 +538,16 @@ window.applicationController.init = async function() {
                 );
                 
                 if (firstDrawingKey && window.projectAssets) {
-                    console.log("APPLICATION_CONTROLLER: Loading first drawing");
+                    console.log("APPLICATION_SCHEDULER: Loading first drawing");
                     await window.projectAssets.loadDrawing(drawings[firstDrawingKey]);
                 }
             }
         }
         
-        console.log("APPLICATION_CONTROLLER: Initialization complete");
+        console.log("APPLICATION_SCHEDULER: Initialization complete");
         
     } catch (error) {
-        console.error("APPLICATION_CONTROLLER: Error initializing application:", error);
+        console.error("APPLICATION_SCHEDULER: Error initializing application:", error);
         if (window.uiNavigation) {
             window.uiNavigation.displayError("Error initializing application: " + error.message);
         }
@@ -552,16 +558,16 @@ window.applicationController.init = async function() {
  * Get the version of the application
  * @returns {string} Application version
  */
-window.applicationController.getVersion = function() {
+window.applicationScheduler.getVersion = function() {
     return "3.0.0";
 };
 
 /**
  * Log modules status to the console
  */
-window.applicationController.logModulesStatus = function() {
+window.applicationScheduler.logModulesStatus = function() {
     console.log("-------- MODULES STATUS --------");
-    console.log("Application Controller: " + (typeof window.applicationController !== 'undefined' ? "Loaded" : "Not Loaded"));
+    console.log("Application Scheduler: " + (typeof window.applicationScheduler !== 'undefined' ? "Loaded" : "Not Loaded"));
     console.log("Config Loader: " + (typeof window.configLoader !== 'undefined' ? "Loaded" : "Not Loaded"));
     console.log("Project Assets: " + (typeof window.projectAssets !== 'undefined' ? "Loaded" : "Not Loaded"));
     console.log("Canvas Renderer: " + (typeof window.canvasRenderer !== 'undefined' ? "Loaded" : "Not Loaded"));
@@ -575,20 +581,20 @@ window.applicationController.logModulesStatus = function() {
 document.addEventListener('DOMContentLoaded', function() {
     const checkStatusBtn = document.getElementById("BTTN__Debug-Check-Status");
     if (checkStatusBtn) {
-        checkStatusBtn.addEventListener("click", window.applicationController.logModulesStatus);
+        checkStatusBtn.addEventListener("click", window.applicationScheduler.logModulesStatus);
     }
 });
 
 // Initialize the application when the script is loaded
-window.applicationController.init();
+window.applicationScheduler.init();
 
 // Log that this module has loaded
-console.log("APPLICATION_CONTROLLER: Module loaded");
+console.log("APPLICATION_SCHEDULER: Module loaded");
 
 // Register this module with the module integration system
 if (window.moduleIntegration && typeof window.moduleIntegration.registerModuleReady === 'function') {
-    window.moduleIntegration.registerModuleReady("applicationController");
+    window.moduleIntegration.registerModuleReady("applicationScheduler");
 }
 
 // Backwards compatibility with direct module approach
-window.appController = window.applicationController;
+window.appController = window.applicationScheduler;

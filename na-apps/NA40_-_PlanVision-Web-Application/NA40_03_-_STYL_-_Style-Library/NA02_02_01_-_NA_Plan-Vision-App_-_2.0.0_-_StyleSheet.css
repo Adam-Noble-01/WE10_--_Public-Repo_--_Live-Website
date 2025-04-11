@@ -119,7 +119,7 @@ html, body {
     border-bottom       :    2px solid var(--color-brand);
     display             :    flex;
     align-items         :    center;
-    z-index             :    9999;
+    z-index             :    400;
     padding-left        :    10px;
 }
 
@@ -168,7 +168,7 @@ html, body {
     border-right        :    2px solid var(--color-brand);
     padding             :    10px;
     box-sizing          :    border-box;
-    z-index             :    9998;
+    z-index             :    110;
     overflow-y          :    auto;
     transition          :    transform 0.3s ease;
 }
@@ -247,7 +247,7 @@ html, body {
 /* CONFIRM MEASUREMENT BUTTON */
 #BTTN__Finish-Measurement {
     position            :    absolute;
-    z-index             :    13000;
+    z-index             :    300;
     background-color    :    var(--color-success);
     color               :    var(--color-white);
     border              :    none;
@@ -290,16 +290,22 @@ html, body {
 #CNVS__Container {
     position            :    absolute;
     top                 :    var(--header-height);
-    left                :    0;
-    right               :    0;
-    bottom              :    0px;
+    left                :    0; /* Start from the left edge */
+    right               :    0; /* Stretch to the right edge */
+    bottom              :    var(--footer-height); /* Stop above the footer */
     overflow            :    hidden;
     background          :    var(--color-gray-100);
     display             :    flex;
     justify-content     :    center;
     align-items         :    center;
     touch-action        :    none;
-    z-index             :    9996;
+    z-index             :    100; /* Lower z-index */
+}
+
+#CNVS__Plan {
+    display             :   block;          /* Often good practice for canvas */
+    position            :   relative;       /* Establish stacking context if needed, but keep low */
+    z-index             :   110;              /* Explicitly low z-index for the canvas itself */
 }
 
 /* =============================================================================
@@ -321,7 +327,7 @@ html, body {
     justify-content     :    center;
     align-items         :    center;
     font-size           :    18px;
-    z-index             :    10000;
+    z-index             :    1000;
     transition          :    opacity 0.3s ease;
 }
 
@@ -356,7 +362,7 @@ html, body {
     border              :    1px solid var(--color-error);
     color               :    var(--color-error);
     display             :    none;
-    z-index             :    10001;
+    z-index             :    400;
 }
 
 /* TOOL INSTRUCTIONS OVERLAY */
@@ -372,7 +378,7 @@ html, body {
     align-items         :    center;
     justify-content     :    center;
     text-align          :    center;
-    z-index             :    12000;
+    z-index             :    300;
     padding             :    20px;
     box-sizing          :    border-box;
 }
@@ -399,7 +405,7 @@ html, body {
     top                 :    60px; /* just below the header */
     left                :    10px;
     display             :    none;
-    z-index             :    13000;
+    z-index             :    301;
     pointer-events      :    none; /* so it doesn't block clicks if desired */
 }
 
@@ -435,7 +441,7 @@ html, body {
     justify-content     :    center;
     font-size           :    10px;
     color               :    var(--color-gray-600);
-    z-index             :    12000;
+    z-index             :    302;
 }
 
 /* =============================================================================
@@ -498,7 +504,7 @@ html, body {
     border-radius       :    50%;
     transform           :    translate(-50%, -50%);
     cursor              :    move;
-    z-index             :    10000;
+    z-index             :    100;
 }
 
 .CNVS__Handle-Point {
@@ -510,14 +516,14 @@ html, body {
     border-radius       :    50%;
     transform           :    translate(-50%, -50%);
     cursor              :    pointer;
-    z-index             :    9990;
+    z-index             :    200;
 }
 
 .CNVS__Handle-Line {
     position            :    absolute;
     height              :    1px;
     background          :    #a0a0a0;
-    z-index             :    9980;
+    z-index             :    201;
     pointer-events      :    none;
 }
         
@@ -553,7 +559,7 @@ html, body {
 /* Text Entry Dialog */
 #DLOG__Markup-Text {
     position            :    absolute;
-    z-index             :    13000;
+    z-index             :    400;
     background          :    var(--color-white);
     border              :    1px solid var(--color-brand);
     padding             :    15px;
@@ -630,7 +636,7 @@ html, body {
     border-radius       :    50%;
     transform           :    translate(-50%, -50%);
     cursor              :    move;
-    z-index             :    10000;
+    z-index             :    305;
 }
 
 #CNVS__Plan--markup-selection {

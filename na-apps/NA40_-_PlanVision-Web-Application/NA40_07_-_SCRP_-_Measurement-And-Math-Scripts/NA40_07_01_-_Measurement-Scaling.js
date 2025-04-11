@@ -166,12 +166,15 @@ DESCRIPTION
 --------------------------------------------
 */
 
-// This will be called by the Application Controller instead of auto-initializing
-// When being used standalone (outside of the Application Controller framework),
-// this code will self-initialize
-if (!window.applicationController && document.readyState === 'complete') {
-    console.log('Document already loaded, initializing measurement scaling directly...');
-    initMeasurementScaling();
+// Register with Application Scheduler
+if (window.applicationScheduler) {
+    console.log("Measurement Scaling registering with Application Scheduler");
+    // Any registration code here
+} else if (window.applicationController) {
+    console.log("Measurement Scaling registering with Application Controller (legacy)");
+    // Legacy registration code
+} else if (!window.applicationScheduler && document.readyState === 'complete') {
+    console.log("Warning: Application Scheduler not found, measurement scaling may not be properly initialized");
 }
 
 // Drawing scale reference data

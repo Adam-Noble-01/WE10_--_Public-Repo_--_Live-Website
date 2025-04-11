@@ -1,0 +1,31 @@
+CHANGE THESE STYLE SUBHEADING 
+
+
+
+
+##### Notes
+- Main headdings use 80 x "-"
+- Subheadings use 60 x "-"
+- Sub-subheadings use 40 x "-"
+- Function used as an example above however this can be changed to be more descriptive to what the code section does but must always be one word like "FUNCTION" or "METHOD" or "CLASS" or "HELPER" or "UTILITY" etc.
+
+
+```Current!--module-sub-section-example
+/**
+ * Update asset loading status
+ */ 
+   <code>  
+   <code> 
+ 
+```
+
+### Desired Example
+```example
+// FUNCTION |  Update asset loading status
+// --------------------------------------------------------- //
+<code>  
+<code>  
+
+
+
+

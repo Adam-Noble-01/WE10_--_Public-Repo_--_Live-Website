@@ -34,39 +34,40 @@ Documentation Links:
     <link rel="stylesheet" href="NA40_03_-_STYL_-_Style-Library/NA02_02_01_-_NA_Plan-Vision-App_-_2.0.0_-_StyleSheet.css">
 
     <!-- LOAD 01 | Load the Core App Config and Assets Loader -->
-    <script src="NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_01_-_Core-App-Config-And-Assets-Loader.js"></script>
+    <script src="./NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_01_-_Core-App-Config-And-Assets-Loader.js"></script>
 
-    <!-- LOAD 02 | Load the Application Controller -->
-    <script src="NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_10_-_Application-Controller.js"></script>
+    <!-- LOAD 02 | Load the Application Scheduler -->
+    <script src="./NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_10_-_Application-Scheduler.js"></script>
 
     <!-- LOAD 03 | Load the Project Assets Loader -->
-    <script src="NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_03_-_Project-Assets-Loader.js"></script>
+    <script src="./NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_03_-_Project-Assets-Loader.js"></script>
 
     <!-- LOAD 04 | THEN Load the Measurement Scaling Module -->
-    <script src="NA40_07_-_SCRP_-_Measurement-And-Math-Scripts/NA40_07_01_-_Measurement-Scaling.js"></script>
+    <script src="./NA40_07_-_SCRP_-_Measurement-And-Math-Scripts/NA40_07_01_-_Measurement-Scaling.js"></script>
     
     <!-- LOAD 05 | Load the Canvas Renderer -->
-    <script src="NA40_06_-_SCRP_-_Canvas-And-Main-Rendering-Scripts/NA40_06_04_-_Canvas-Renderer.js"></script>
+    <script src="./NA40_06_-_SCRP_-_Canvas-And-Main-Rendering-Scripts/NA40_06_04_-_Canvas-Renderer.js"></script>
 
     <!-- LOAD 06 | Load the Measurement Tools -->
-    <script src="NA40_07_-_SCRP_-_Measurement-And-Math-Scripts/NA40_07_02_-_Measurement-Tools.js"></script>
+    <script src="./NA40_07_-_SCRP_-_Measurement-And-Math-Scripts/NA40_07_02_-_Measurement-Tools.js"></script>
 
 
     <!-- LOAD 07 | Load the Core App UI and Navigation -->
-    <script src="NA40_08_-_SCRP_-_User-Interface-And-Navigation/NA40_08_01_-_Core-App-UI-And-Navigation.js"></script>
+    <script src="./NA40_08_-_SCRP_-_User-Interface-And-Navigation/NA40_08_01_-_Core-App-UI-And-Navigation.js"></script>
 
 
     <!-- LOAD 08 | Load Backward Compatibility Scripts -->
-    <script src="NA40_10_-_SCRP_-_Backward-Compatibility-Scripts/NA40_10_01_-_Polyfill-Loader.js"></script>
+    <script src="./NA40_10_-_SCRP_-_Backward-Compatibility-Scripts/NA40_10_01_-_Polyfill-Loader.js"></script>
 
     <!-- Font Loading from Asset Library -->
     <style id="FONT__Styles-Dynamic">
         /* Dynamic font declarations will be inserted here after asset library is loaded */
     </style>
     
-    <!-- Debug helpers (remove in production) -->
-    <script src="NA40_20_-_DEVP_-_Development-Files/debug-helpers.js"></script>
-    <script src="NA40_20_-_DEVP_-_Development-Files/direct-canvas-test.js"></script>
+    <!-- LOAD 09 | Load Consolidated Development/Debug Tools -->
+    <!-- This script initializes dev mode, provides the debug panel, and includes helper functions -->
+    <script src="./NA40_20_-_DEVP_-_Development-Files/NA40_20_01_-_Debug-Panel.js"></script>
+
 </head>
 <body>
 <div id="PLAN__App">
@@ -96,8 +97,8 @@ Documentation Links:
             <button class="BTTN__Tool" id="BTTN__Download-PDF">Download PDF</button>
             <button class="BTTN__Tool" id="BTTN__Reset-View">Reset View</button>
 
-            <!-- Debug Section (remove in production) -->
-            <div class="MENU__Drawing-Header-Text">Debug Tools</div>
+            <!-- Debug Section -->
+            <div class="MENU__Drawing-Header-Text" id="TOOL__Debug-Header">Debug Tools</div>
             <button class="BTTN__Tool" id="BTTN__Debug-Load-Drawing">Force Load Drawing</button>
             <button class="BTTN__Tool" id="BTTN__Debug-Check-Status">Check Module Status</button>
             <button class="BTTN__Tool" id="BTTN__Debug-Legacy-Load">Legacy Load Method</button>
@@ -190,29 +191,11 @@ Documentation Links:
 
         <!-- FOOTER -->
         <div id="FOOT__Container">
-            PlanVision 2.0.0 &copy; 2025 Noble Architecture - All rights reserved
+            &copy; 2025 Noble Architecture - All rights reserved - PlanVision 2.0.0 
         </div>
     </div>
 </div>
 
 
-
-<!-- Debug tools -->
-<script src="NA40_20_-_DEVP_-_Development-Files/NA40_20_01_-_Debug-Panel.js"></script>
-<script src="NA40_20_-_DEVP_-_Development-Files/test-json-fetch.js"></script>
-
-<!-- Final initialization script -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing Plan Vision 3.0');
-    
-    // Small delay to ensure all scripts are loaded
-    setTimeout(function() {
-        if (window.appController && typeof window.appController.logModulesStatus === 'function') {
-            window.appController.logModulesStatus();
-        }
-    }, 500);
-});
-</script>
 </body>
 </html> 
