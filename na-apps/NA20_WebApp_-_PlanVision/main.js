@@ -9,14 +9,25 @@
 
 
 // LOW PRIORITY TASKS
+// ----------------------------------------------------------------------------
 // - Remove The Cdn Font Backup And Instead Use The Asset Library Fonts
 // - Update Asset loader script to pull from new asset library json file
+// - 
+// ----------------------------------------------------------------------------
 
 
+// ITEMS SUCCESSFULLY OFFLOADED
+// ----------------------------------------------------------------------------
+// - Asset Loader Module        =   `./asset-loader.js`
+// - Drawing Loader Module      =   `./drawing-loader.js`
+// - Loading Screen Module      =   `./loading-screen.js`
+// ----------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 // MODULE VARIABLES
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 
 // LOAD & PARSE |  Asset Loader Module
 // ---------------------------------------------------------------------------
@@ -71,14 +82,14 @@ import {
 // - This section introduced in v1.8.1
 // Contains all global variables and constant definitions for the application
 // =============================================================================================
-const MIN_ZOOM = 0.1;
-const MAX_ZOOM = 2;
-const ROUND_DIMENSIONS_ENABLED = true;
-const ROUNDING_INTERVAL = 5;
-const CONFIRM_BUTTON_OFFSET_X_PC = 10;
-const CONFIRM_BUTTON_OFFSET_Y_PC = -10;
-const CONFIRM_BUTTON_OFFSET_X_TOUCH = 10;
-const CONFIRM_BUTTON_OFFSET_Y_TOUCH = -25;
+const MIN_ZOOM                         =     0.1;
+const MAX_ZOOM                         =       2;
+const ROUND_DIMENSIONS_ENABLED         =    true;
+const ROUNDING_INTERVAL                =       5;
+const CONFIRM_BUTTON_OFFSET_X_PC       =      10;
+const CONFIRM_BUTTON_OFFSET_Y_PC       =     -10;
+const CONFIRM_BUTTON_OFFSET_X_TOUCH    =      10;
+const CONFIRM_BUTTON_OFFSET_Y_TOUCH    =     -25;
 
 const planCanvas = document.getElementById("planCanvas");
 const ctx = planCanvas.getContext("2d");
