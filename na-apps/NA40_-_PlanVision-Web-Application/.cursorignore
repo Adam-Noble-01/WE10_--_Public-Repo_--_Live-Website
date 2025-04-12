@@ -1,0 +1,7 @@
+# Ignore all files in the assets-archive directory
+assets-archive/*
+
+# Ignore all files with the .--BAK extension
+.--BAK
+
+

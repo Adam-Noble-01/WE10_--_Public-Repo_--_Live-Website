@@ -33,6 +33,28 @@ const STANDARD_SIZES = {
     "A4": { width: 210, height: 297 }
 };
 
+// Avoid redeclaring these variables later in the file
+const SCALE_FACTORS = {
+    "1:1": 1,
+    "1:2": 2,
+    "1:5": 5,
+    "1:10": 10,
+    "1:20": 20,
+    "1:50": 50,
+    "1:100": 100,
+    "1:200": 200,
+    "1:500": 500,
+    "1:1000": 1000,
+    "1:1250": 1250,
+    "1:2500": 2500
+};
+
+// Drawing size reference data (in mm) - avoid redeclaring PAPER_SIZES later
+const PAPER_SIZES = STANDARD_SIZES;
+
+// Default pixels per mm at 96 DPI
+const DEFAULT_PIXELS_PER_MM = 96 / 25.4;
+
 /*
 --------------------------------------------
 JAVASCRIPT |  INITIALIZATION
@@ -171,37 +193,6 @@ if (window.applicationScheduler) {
 } else if (!window.applicationScheduler && document.readyState === 'complete') {
     console.log("Warning: Application Scheduler not found, measurement scaling may not be properly initialized");
 }
-
-// DATA |  Drawing scale reference data
-// --------------------------------------------------------- //
-const SCALE_FACTORS = {
-    "1:1": 1,
-    "1:2": 2,
-    "1:5": 5,
-    "1:10": 10,
-    "1:20": 20,
-    "1:50": 50,
-    "1:100": 100,
-    "1:200": 200,
-    "1:500": 500,
-    "1:1000": 1000,
-    "1:1250": 1250,
-    "1:2500": 2500
-};
-
-// DATA |  Drawing size reference data (in mm)
-// --------------------------------------------------------- //
-const PAPER_SIZES = {
-    "A0": { width: 841, height: 1189 },
-    "A1": { width: 594, height: 841 },
-    "A2": { width: 420, height: 594 },
-    "A3": { width: 297, height: 420 },
-    "A4": { width: 210, height: 297 }
-};
-
-// CONSTANT |  Default pixels per mm at 96 DPI
-// --------------------------------------------------------- //
-const DEFAULT_PIXELS_PER_MM = 96 / 25.4;
 
 // FUNCTION |  Convert pixels to millimeters
 // --------------------------------------------------------- //

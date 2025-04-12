@@ -49,7 +49,7 @@ let cancelToolBtn = null;              // Reference to the cancel tool button
 let instructionsOverlay = null;        // Reference to the instructions overlay
 let instructionsText = null;           // Reference to the instructions text element
 let mainCanvas = null;                 // Reference to the main canvas
-let ctx = null;                        // Canvas context
+let canvasContext = null;              // Canvas context (renamed to avoid redeclaration)
 let offsetX = 0;                       // Canvas pan X offset
 let offsetY = 0;                       // Canvas pan Y offset
 let zoomFactor = 1;                    // Canvas zoom level
@@ -80,7 +80,7 @@ function initMeasurementTools() {
         return;
     }
     
-    ctx = mainCanvas.getContext("2d");
+    canvasContext = mainCanvas.getContext("2d");
     finishBtn = document.getElementById("BTTN__Finish-Measurement");
     cancelToolBtn = document.getElementById("BTTN__Cancel-Tool");
     instructionsOverlay = document.getElementById("TOOL__Instructions-Overlay");
@@ -538,57 +538,72 @@ DESCRIPTION
 
 // FUNCTION |  Draw all measurements on the canvas
 // --------------------------------------------------------- //
-function drawAllMeasurements(ctx) {
+function drawAllMeasurements(renderContext) {
+    // Use provided context or the module's default context
+    const ctx = renderContext || canvasContext;
     if (!ctx) return;
     
-    // Store these for reference by other functions
-    window.measurementTools.offsetX = offsetX;
-    window.measurementTools.offsetY = offsetY;
-    window.measurementTools.zoomFactor = zoomFactor;
-    
-    // Draw saved measurements
-    measurements.forEach(m => {
-        if (m.type === "linear") {
-            drawLine(ctx, m.points, "blue");
-            drawMarkers(ctx, m.points, "blue");
-            drawLineLabel(ctx, m.points, m.distanceMM, "blue");
-        } else if (m.type === "area") {
-            drawPolygon(ctx, m.points, "rgba(255,0,0,0.2)", "red");
-            drawMarkers(ctx, m.points, "red");
-            drawAreaLabel(ctx, m);
-            drawEdgeLabels(ctx, m.points, "red");
-        } else if (m.type === "rectangle") {
-            drawRectangle(ctx, m.points[0], m.points[1], "blue", "rgba(0,0,255,0.2)");
-            drawMarkers(ctx, m.points, "blue");
-            drawRectLabel(ctx, m.points[0], m.points[1], m.widthMm, m.heightMm, m.areaM2);
-        }
-    });
-    
-    // Draw current measurement in progress
-    if (currentTool === "linear" && isLinearMeasuring) {
-        if (measuringPoints.length === 2) {
-            drawLine(ctx, measuringPoints, "green");
-            drawMarkers(ctx, measuringPoints, "green");
-        } else if (measuringPoints.length === 1) {
-            drawMarkers(ctx, measuringPoints, "green");
+    // Draw each saved measurement
+    for (const measurement of measurements) {
+        if (measurement.type === "linear") {
+            drawLine(ctx, measurement.points, "#FF0000");
+            drawMarkers(ctx, measurement.points, "#FF0000");
+            drawLineLabel(ctx, measurement.points, measurement.distanceMM, "#FF0000");
+        } else if (measurement.type === "rectangle") {
+            drawRectangle(ctx, measurement.start, measurement.end, "#00AA00");
+            drawRectLabel(ctx, measurement.start, measurement.end, 
+                          measurement.widthMM, measurement.heightMM, 
+                          measurement.areaSqM);
+        } else if (measurement.type === "area") {
+            drawPolygon(ctx, measurement.points, "rgba(0, 128, 255, 0.2)", "#0080FF");
+            drawAreaLabel(ctx, measurement);
+            drawEdgeLabels(ctx, measurement.points, "#0080FF");
         }
     }
     
-    if (currentTool === "area" && measuringPoints.length > 0) {
-        drawOpenPolygon(ctx, measuringPoints, "red");
-        drawMarkers(ctx, measuringPoints, "red");
-    }
-    
-    if (currentTool === "rectangle" && isRectMeasuring && measuringPoints.length === 2) {
-        drawRectangle(ctx, measuringPoints[0], measuringPoints[1], "green");
-        drawMarkers(ctx, measuringPoints, "green");
-    } else if (currentTool === "rectangle" && measuringPoints.length === 1) {
-        drawMarkers(ctx, measuringPoints, "green");
-    }
-    
-    // Position the confirm button if needed
-    if (finishBtn && finishBtn.style.display === "block") {
-        adjustConfirmButtonPosition();
+    // Draw the measurement in progress
+    if (measuringPoints.length > 0) {
+        if (currentTool === "linear") {
+            if (measuringPoints.length === 1) {
+                // Draw single point
+                drawMarkers(ctx, [measuringPoints[0]], "#FF6600");
+            } else if (measuringPoints.length === 2) {
+                // Draw complete line
+                drawLine(ctx, measuringPoints, "#FF6600");
+                drawMarkers(ctx, measuringPoints, "#FF6600");
+                
+                // Calculate distance in mm
+                const distancePx = dist(measuringPoints[0], measuringPoints[1]);
+                let distanceMM = convertPixelsToMillimeters(distancePx);
+                
+                // Draw the distance label
+                drawLineLabel(ctx, measuringPoints, distanceMM, "#FF6600");
+            }
+        } else if (currentTool === "rectangle" && measuringPoints.length === 2) {
+            // Draw the rectangle
+            drawRectangle(ctx, measuringPoints[0], measuringPoints[1], "#00AA00");
+            
+            // Calculate dimensions and area
+            const width = Math.abs(measuringPoints[1].x - measuringPoints[0].x);
+            const height = Math.abs(measuringPoints[1].y - measuringPoints[0].y);
+            
+            // Convert to real-world measurements
+            const widthMM = convertPixelsToMillimeters(width);
+            const heightMM = convertPixelsToMillimeters(height);
+            const areaSqM = (widthMM * heightMM) / 1000000; // convert sq mm to sq m
+            
+            // Draw the dimension labels
+            drawRectLabel(ctx, measuringPoints[0], measuringPoints[1], widthMM, heightMM, areaSqM);
+        } else if (currentTool === "area") {
+            // Draw the polygon points and lines
+            drawMarkers(ctx, measuringPoints, "#0080FF");
+            drawOpenPolygon(ctx, measuringPoints, "#0080FF");
+            
+            // If there are at least 3 points, draw edge measurements
+            if (measuringPoints.length >= 3) {
+                drawEdgeLabels(ctx, measuringPoints, "#0080FF");
+            }
+        }
     }
 }
 

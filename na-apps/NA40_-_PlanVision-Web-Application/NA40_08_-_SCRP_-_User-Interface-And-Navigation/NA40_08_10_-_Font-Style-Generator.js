@@ -42,8 +42,29 @@ window.fontStyleGenerator.init = function() {
     // Get reference to the style element
     fontStylesElement = document.getElementById('FONT__Styles-Dynamic');
     
-    // Listen for font data loaded event
+    // Listen for font data loaded event from the master asset loader
     document.addEventListener('fontDataLoaded', window.fontStyleGenerator.handleFontDataLoaded);
+    
+    // Also listen for the general assets loaded event
+    document.addEventListener('assetsLoaded', window.fontStyleGenerator.handleAssetsLoaded);
+};
+
+/**
+ * Handler for when all assets are loaded
+ * @param {CustomEvent} event - The assets loaded event
+ */
+window.fontStyleGenerator.handleAssetsLoaded = function(event) {
+    console.log("FONT_STYLE_GENERATOR: Assets loaded event received");
+    
+    // Check if we have font data in the event detail
+    if (event.detail && event.detail.fontData) {
+        window.fontStyleGenerator.handleFontDataLoaded({
+            detail: {
+                fontData: event.detail.fontData,
+                isFallback: false
+            }
+        });
+    }
 };
 
 /**
@@ -57,7 +78,7 @@ window.fontStyleGenerator.handleFontDataLoaded = function(event) {
     const isFallback = event.detail.isFallback || false;
     
     // Check if fallback assets are disabled in the app config
-    const disableFallbackAssets = window.appConfigData?.Core_App_Config?.["disable-fallback-assets"] || false;
+    const disableFallbackAssets = window.appConfig?.Core_App_Config?.["disable-fallback-assets"] || false;
     
     // If fallback assets are disabled and this is fallback data, don't use it
     if (disableFallbackAssets && isFallback) {

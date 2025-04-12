@@ -1,0 +1,68 @@
+---
+====================================================================================================
+NOBLE ARCHITECTURE WEBSITE - IMPROVEMENTS LIST & TASKS
+FILE NAME |  AD10_30_-_DLIS_-_Improvements-List-&-Tasks.txt
+FILE TYPE |  DLIS
+
+VERSION HISTORY
+04-Apr-2025 - Version 1.0.0 - Initial Draft
+04-Apr-2025 - Version 1.1.0 
+- Created task tracking document
+- Added sections for current tasks, known problems, and improvement ideas
+- Established placeholder structure for ongoing development
+
+DESCRIPTION
+- This file tracks ongoing tasks, known issues, and potential improvements for the project.
+- Use this document to log bugs, feature requests, and development priorities.
+- Regular updates to this document help maintain project momentum and focus.
+====================================================================================================
+---
+
+# NOBLE ARCHITECTURE IMPROVEMENTS & TASKS
+--------------------------------------------------------------------------------
+
+#### Document Introduction Section
+- The Noble Architecture website is under continuous development. 
+- This document helps organise and prioritise work items, track bugs, and capture improvement ideas. 
+- Regular review of this document ensures that development efforts remain aligned with project goals.
+- This document serves as a central repository for tracking development tasks, known issues, and potential improvements.
+
+
+
+## PROJECT MANAGEMENT
+--------------------------------------------------------------------------------
+
+#### CURRENT TASKS UNDER DEVELOPMENT
+- Implement handling for standard fonts served by noble architecture website.
+- Move version header js from reader app into Core Web Utility JS Library
+
+
+
+### LOW PRIORITY TASKS
+
+#### Update Plan Vision Application
+- Rebuild Plan Vision Application using new standards and conventions
+- Add the new Favicon handling to the Plan Vision Application
+
+
+
+### KNOWN PROBLEMS & BUG REPORTING
+--------------------------------------------------------------------------------
+- [Placeholder]
+
+
+
+### IMPROVEMENT IDEAS SECTION
+--------------------------------------------------------------------------------
+- [Placeholder]
+
+
+
+--------------------------------------------------------------------------------
+###### END OF FILE 
+
+
+
+
+
+

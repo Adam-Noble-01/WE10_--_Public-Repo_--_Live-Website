@@ -2,13 +2,19 @@
 
 ## Version History
 
+#### v2.0.1 - 12-Apr-2025 | PLACEHOLDER
+
+- Placeholder
+
 #### v2.0.0 - 11-Apr-2025 | MAJOR REFACTOR & MODULARISATION
+
 - Complete refactoring and modularization of the application
 - Extracted embedded CSS into separate external stylesheet with updated naming conventions
 - Modularized JavaScript into separate component files
+    - Note : This process is incomplete!
+
 - Created new scaffolded HTML file with proper references to external resources
-- No changes to core functionality or features, only code organization and structure improvements
-- Implemented CSS variables for all colors to support theming
+- Implemented CSS variables for all colours to support theming
 - Improved maintainability with clear module separation and standard file structure
 
 #### v1.8.8 - 02-Apr-2025 | PREVIOUS VERSION

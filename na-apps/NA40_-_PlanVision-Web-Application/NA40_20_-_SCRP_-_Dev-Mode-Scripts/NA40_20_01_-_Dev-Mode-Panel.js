@@ -67,6 +67,20 @@ function showDevTools() {
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', initDevMode);
 
+// Define empty placeholders for debug functions
+function debugForceLoadDrawing() {
+    console.log("[Dev-Mode] Debug force load drawing called but not implemented");
+}
+
+function debugCheckModuleStatus() {
+    console.log("[Dev-Mode] Debug check module status called but not implemented");
+}
+
+function testJsonFetch() {
+    console.log("[Dev-Mode] Test JSON fetch called but not implemented");
+}
+
+// Export debug helpers
 window.DEBUG_HELPERS = {
     debugForceLoadDrawing,
     debugCheckModuleStatus,

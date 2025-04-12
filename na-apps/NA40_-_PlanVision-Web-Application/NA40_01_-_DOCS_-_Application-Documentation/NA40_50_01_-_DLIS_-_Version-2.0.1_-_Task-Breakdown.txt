@@ -1,0 +1,75 @@
+# TASK | Build Complete Index of Project Directory and Files
+-------------------------------------------------------------------------------
+- Go Through the Project Directory and File Structure.
+- Build a complete index of the project.
+- My aim is to build a complete index of the project.
+- I want to be able to use this index to navigate the project.
+- I want to be able to use this index to understand the project.
+- I need to understand the loading order of the files.
+- I need to understand the dependencies between the files.
+- I need to understand the core purpose of the files.
+- I need to understand the core purpose of the directories.
+- I need to understand if there are any redundancies in the project.
+- I need to understand if there are any missing files in the project.
+
+
+
+### DIRECTORY-01-NAME-EXAMPLES
+-------------------------------------------------------------------------------
+Relative Path  |    `<Directory Name>`                               ← Use Relative Path From Root
+Web URL        |    `https://www.noble-architecture.com/<Web URL>`   ← Use Web URL From Root
+Description    |    `<Description>`                                  ← Description of the Directory       
+Core Purpose   |    `<Core Purpose>`                                 ← State the Core Purpose of the Directory
+
+#### FILES WITHIN `<Directory Name>`
+
+  **FILE-NAME.example**
+    Relative Path  |  `<File Name>`                                    ← Use Relative Path From Root
+    Web URL        |  `https://www.noble-architecture.com/<Web URL>`   ← Use Web URL From Root
+    Description    |  `<Description>`                                  ← Description of the File       
+    Core Purpose   |  `<Core Purpose>`                                 ← State the Core Purpose of the File
+    Loading Order  |  `<Loading Order>`                                ← State the Loading Order of the File
+    Notes
+    - File may require additional notes to ensure that the description is accurate and fully understood
+    - Break down in more detail exactly what the file does 
+
+  **FILE-NAME.example**
+    Relative Path  |  `<File Name>`                                    ← Use Relative Path From Root
+    Web URL        |  `https://www.noble-architecture.com/<Web URL>`   ← Use Web URL From Root
+    Description    |  `<Description>`                                  ← Description of the File       
+    Core Purpose   |  `<Core Purpose>`                                 ← State the Core Purpose of the File
+    Loading Order  |  `<Loading Order>`                                ← State the Loading Order of the File
+    Notes
+    - File may require additional notes to ensure that the description is accurate and fully understood
+    - Break down in more detail exactly what the file does 
+
+
+
+### DIRECTORY-02-NAME-EXAMPLES
+-------------------------------------------------------------------------------
+Relative Path  |    `<Directory Name>`                               ← Use Relative Path From Root
+Web URL        |    `https://www.noble-architecture.com/<Web URL>`   ← Use Web URL From Root
+Description    |    `<Description>`                                  ← Description of the Directory       
+Core Purpose   |    `<Core Purpose>`                                 ← State the Core Purpose of the Directory
+
+#### FILES WITHIN `<Directory Name>`
+
+  **FILE-NAME.example**
+    Relative Path  |  `<File Name>`                                    ← Use Relative Path From Root
+    Web URL        |  `https://www.noble-architecture.com/<Web URL>`   ← Use Web URL From Root
+    Description    |  `<Description>`                                  ← Description of the File       
+    Core Purpose   |  `<Core Purpose>`                                 ← State the Core Purpose of the File
+    Loading Order  |  `<Loading Order>`                                ← State the Loading Order of the File
+    Notes
+    - File may require additional notes to ensure that the description is accurate and fully understood
+    - Break down in more detail exactly what the file does 
+
+  **FILE-NAME.example**
+    Relative Path  |  `<File Name>`                                    ← Use Relative Path From Root
+    Web URL        |  `https://www.noble-architecture.com/<Web URL>`   ← Use Web URL From Root
+    Description    |  `<Description>`                                  ← Description of the File       
+    Core Purpose   |  `<Core Purpose>`                                 ← State the Core Purpose of the File
+    Loading Order  |  `<Loading Order>`                                ← State the Loading Order of the File
+    Notes
+    - File may require additional notes to ensure that the description is accurate and fully understood
+    - Break down in more detail exactly what the file does 
