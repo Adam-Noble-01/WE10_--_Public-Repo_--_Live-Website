@@ -201,9 +201,9 @@ async function initializeApplication() {
         
         showLoadingOverlay();
         
-        // First ensure that project assets loader is available
-        if (!window.projectAssets) {
-            throw new Error("Project Assets Loader is not available");
+        // First ensure that master asset loader is available
+        if (!window.masterAssetLoader) {
+            throw new Error("Master Asset Loader is not available");
         }
         
         // Check if Dev-Mode should be enabled
@@ -218,10 +218,10 @@ async function initializeApplication() {
         // Initialize UI components
         initializeUI();
         
-        // Initialize the project assets loader
-        if (typeof window.projectAssets.init === "function") {
-            window.projectAssets.init();
-            modulesInitialized.projectAssets = true;
+        // Initialize the master asset loader
+        if (typeof window.masterAssetLoader.init === "function") {
+            await window.masterAssetLoader.init();
+            modulesInitialized.masterAssetLoader = true;
         }
         
         // Initialize canvas when assets are loaded
@@ -262,9 +262,8 @@ async function initApplication() {
     try {
         console.log("Application startup initiated");
         
-        // Register for asset loading events from projectAssets
-        document.addEventListener('imageLoaded', onImageLoaded);
-        document.addEventListener('drawingLoaded', onDrawingLoaded);
+        // Register for asset loading events from masterAssetLoader
+        document.addEventListener('assetsLoaded', onProjectAssetsReady);
         
         // Begin application initialization
         await initializeApplication();
@@ -357,13 +356,13 @@ function onImageLoaded(event) {
 // EVENT HANDLER | When a project's assets are ready
 // --------------------------------------------------------- //
 function onProjectAssetsReady(event) {
-    console.log("APP_SCHEDULER: Project assets loaded");
-    
-    // Mark the masterAssetLoader as initialized
-    modulesInitialized.masterAssetLoader = true;
-    
-    // Check if all modules are initialized
-    checkAllModulesInitialized();
+    console.log("APP_SCHEDULER: Project assets ready event received");
+    if (window.masterAssetLoader && window.masterAssetLoader.isImageLoaded && window.masterAssetLoader.isImageLoaded()) {
+        console.log("APP_SCHEDULER: Image is loaded, proceeding with initialization");
+        initializeApplication();
+    } else {
+        console.warn("APP_SCHEDULER: Image not loaded yet");
+    }
 }
 
 // EVENT HANDLER | When a drawing is loaded
@@ -410,7 +409,7 @@ function onDrawingLoaded(event) {
 // --------------------------------------------------------- //
 function checkAllModulesInitialized() {
     const requiredModules = [
-        'projectAssets',
+        'masterAssetLoader',
         'measurementScaling',
         'canvasController',
         'uiNavigation'
@@ -560,7 +559,7 @@ function extractModuleFromError(error) {
     
     // Define patterns to match module names in error strings
     const modulePatterns = [
-        { pattern: /projectAssets|Project-Assets-Loader/i, name: 'projectAssets' },
+        { pattern: /masterAssetLoader|Master-Asset-Loader/i, name: 'masterAssetLoader' },
         { pattern: /measurementScaling|Measurement-Scaling/i, name: 'measurementScaling' },
         { pattern: /canvasRenderer|Canvas-Renderer/i, name: 'canvasController' },
         { pattern: /measurementTools|Measurement-Tools/i, name: 'measurementTools' },
@@ -636,7 +635,7 @@ function initializeCanvas() {
     if (window.canvasRenderer && typeof window.canvasRenderer.init === 'function') {
         try {
             // Check if we have an image loaded first
-            if (window.projectAssets && window.projectAssets.isImageLoaded && window.projectAssets.isImageLoaded()) {
+            if (window.masterAssetLoader && window.masterAssetLoader.isImageLoaded && window.masterAssetLoader.isImageLoaded()) {
                 // Initialize the canvas with the loaded image
                 window.canvasRenderer.init();
                 modulesInitialized.canvasController = true;
@@ -659,27 +658,17 @@ function initializeCanvas() {
 
 // FUNCTION | Load a specific drawing
 // --------------------------------------------------------- //
-function loadDrawing(drawing) {
-    console.log("Loading drawing:", drawing);
-    
-    if (window.projectAssets && typeof window.projectAssets.loadDrawing === 'function') {
-        try {
-            // Show loading overlay
-            showLoadingOverlay();
-            
-            // Load the drawing
-            window.projectAssets.loadDrawing(drawing);
-            return true;
-        } catch (error) {
-            console.error("Error loading drawing:", error);
-            hideLoadingOverlay();
-            showErrorMessage("Failed to load drawing. Please try again.");
-            recordModuleError('projectAssets', error);
-            return false;
+async function loadDrawing(drawing) {
+    try {
+        if (window.masterAssetLoader && typeof window.masterAssetLoader.loadDrawing === 'function') {
+            await window.masterAssetLoader.loadDrawing(drawing);
+            console.log("APP_SCHEDULER: Drawing loaded successfully");
+        } else {
+            throw new Error("Master Asset Loader not available or loadDrawing function not found");
         }
-    } else {
-        console.warn("Project Assets module not available for loading drawing");
-        return false;
+    } catch (error) {
+        console.error("APP_SCHEDULER: Error loading drawing:", error);
+        recordModuleError('masterAssetLoader', error);
     }
 }
 
