@@ -81,6 +81,12 @@
             "action": "prefer"
         },
         {
+            "name": "Use // Comments Over /* */ Style",
+            "description": "All comments must use // single-line comment style for readability and consistency.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+         },
+        {
             "name": "Detailed Error Messages in Logs",
             "description": "All thrown or logged errors must include contextual details such as variables or function names.",
             "pattern": "**/*.js",

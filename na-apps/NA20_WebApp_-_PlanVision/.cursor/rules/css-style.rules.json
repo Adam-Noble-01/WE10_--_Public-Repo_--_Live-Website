@@ -1,0 +1,96 @@
+{
+    "description": "Noble Architecture CSS Style Conventions — Cursor Enforcement Rules",
+    "patterns": ["**/*.css"],
+    "rules": [
+        {
+            "name": "Align CSS Property Colons and Values",
+            "description": "All CSS declarations must align colons and values vertically in a column-like format using 4+ spaces.",
+            "pattern": "**/*.css",
+            "action": "enforce"
+        },
+        {
+            "name": "Use REM Units With 00.00 Format for Sizes",
+            "description": "Size-related values must use rem units with two digits before and after the decimal point (e.g. 01.00rem).",
+            "pattern": "**/*.css",
+            "action": "enforce"
+        },
+        {
+            "name": "Do Not Use Shorthand for Margin and Padding",
+            "description": "Always use explicit properties (margin-top, margin-right, etc.) instead of shorthand for spacing.",
+            "pattern": "**/*.css",
+            "action": "enforce"
+        },
+        {
+            "name": "Use CSS Variables for Colours and Text Values",
+            "description": "Use CSS custom properties (variables) for all colour and text-based styling. Do not hardcode hex values.",
+            "pattern": "**/*.css",
+            "action": "enforce"
+        },
+        {
+            "name": "Comment Format — /*   <-- Your comment */",
+            "description": "All inline comments must use the specified spacing format to align and annotate clearly.",
+            "pattern": "**/*.css",
+            "action": "prefer"
+        },
+        {
+            "name": "Use Full Section Headers at Top of Files",
+            "description": "All CSS files must start with a full-width header comment block detailing filename, type, and version history.",
+            "pattern": "**/*.css",
+            "action": "enforce"
+        },
+        {
+            "name": "Use Section Titles With Dividers and Version Tags",
+            "description": "Sections should be introduced using a title block with version history and formatted header dividers.",
+            "pattern": "**/*.css",
+            "action": "prefer"
+        },
+        {
+            "name": "Follow BEM Naming With Noble Block Format",
+            "description": "Class names must follow Noble’s BEM-like pattern: 4-letter UPPERCASE block, double underscore, Title Case element, and double hyphen state modifier.",
+            "pattern": "**/*.css",
+            "action": "enforce"
+        },
+        {
+            "name": "Limit Nesting to 3 Levels",
+            "description": "Avoid deep nesting. Selectors should use no more than 3 levels (BLOCK__Element--modifier).",
+            "pattern": "**/*.css",
+            "action": "warn"
+        },
+        {
+            "name": "All Colour Declarations Must Use Semantic Variables",
+            "description": "Colours must be declared using semantic custom properties like --button-hover-bg, not literal hex or RGB.",
+            "pattern": "**/*.css",
+            "action": "enforce"
+        },
+        {
+            "name": "Use Descriptive CSS Variable Names",
+            "description": "CSS variable names should indicate semantic purpose (e.g. --primary-hover), not raw colour values.",
+            "pattern": "**/*.css",
+            "action": "prefer"
+        },
+        {
+            "name": "Place Media Queries at Bottom of Stylesheet",
+            "description": "All responsive overrides must be grouped at the end of the file using standardised breakpoints.",
+            "pattern": "**/*.css",
+            "action": "enforce"
+        },
+        {
+            "name": "Mobile Scaling Via Root Font Size",
+            "description": "Apply responsive scaling by increasing root font size instead of resizing individual components.",
+            "pattern": "**/*.css",
+            "action": "prefer"
+        },
+        {
+            "name": "Avoid !important Unless In Utility Classes",
+            "description": "Do not use !important unless explicitly required in global utilities.",
+            "pattern": "**/*.css",
+            "action": "warn"
+        },
+        {
+            "name": "Avoid Box Shadow and Gradient Overuse",
+            "description": "Limit use of box-shadow and gradients. Reserve for UI focus or essential highlights only.",
+            "pattern": "**/*.css",
+            "action": "prefer"
+        }
+    ]
+}
