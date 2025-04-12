@@ -18,11 +18,13 @@ DESCRIPTION
 -------------------------------------------------------------------------------
 */
 
-// Reference to the style element for font declarations
-let fontStylesElement = null;
+// Reference to the style element for font declarations - Check if it exists before declaring
+if (typeof fontStylesElement === 'undefined') {
+    var fontStylesElement = null;
+}
 
 // Initialize the window object for this module
-window.fontStyleGenerator = {};
+window.fontStyleGenerator = window.fontStyleGenerator || {};
 
 /*
 -------------------------------------------------------------------------------

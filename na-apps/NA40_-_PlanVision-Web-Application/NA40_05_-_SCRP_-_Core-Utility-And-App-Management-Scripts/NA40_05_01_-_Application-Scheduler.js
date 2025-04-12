@@ -55,6 +55,12 @@ const scriptsToLoad = [
         path: './NA40_05_-_SCRP_-_Core-Utility-And-App-Management-Scripts/NA40_05_02_-_Module-Integration.js',
         critical: true
     },
+    // Event Listener Manager - centralized event handling
+    {
+        name: 'eventListenerManager',
+        path: './NA40_05_-_SCRP_-_Core-Utility-And-App-Management-Scripts/NA40_05_03_-_Event-Listener-Manager.js',
+        critical: true
+    },
     // Drawing loading and management
     {
         name: 'drawingManager',
@@ -142,6 +148,9 @@ function loadScript(scriptConfig) {
         const script = document.createElement('script');
         script.src = scriptConfig.path;
         script.async = false; // Keep scripts in order
+        
+        // Add additional property to prevent duplicate variable declarations
+        script.setAttribute('data-loaded-by-scheduler', 'true');
         
         // Handle success
         script.onload = () => {

@@ -19,11 +19,20 @@ IMPORTANT NOTES
 --------------------------------------------
 */
 
-// Configuration settings
-const ROUND_DIMENSIONS_ENABLED = true;  // Whether to round measurements to intervals
-const ROUNDING_INTERVAL = 5;            // Round to the nearest X mm (e.g., 5mm)
-const BASE_LINE_WIDTH = 2;              // Base line width for drawing measurements
-const MARKER_RADIUS = 4;                // Size of measurement points
+// Configuration settings - Check if variables already exist before declaring
+// This prevents "already been declared" errors when the script is loaded multiple times
+if (typeof ROUND_DIMENSIONS_ENABLED === 'undefined') {
+    var ROUND_DIMENSIONS_ENABLED = true;  // Whether to round measurements to intervals
+}
+if (typeof ROUNDING_INTERVAL === 'undefined') {
+    var ROUNDING_INTERVAL = 5;            // Round to the nearest X mm (e.g., 5mm)
+}
+if (typeof BASE_LINE_WIDTH === 'undefined') {
+    var BASE_LINE_WIDTH = 2;              // Base line width for drawing measurements
+}
+if (typeof MARKER_RADIUS === 'undefined') {
+    var MARKER_RADIUS = 4;                // Size of measurement points
+}
 
 /*
 --------------------------------------------
@@ -34,25 +43,61 @@ DESCRIPTION
 --------------------------------------------
 */
 
-// State variables
-let currentTool = null;                // Current active measurement tool (linear, area, rectangle)
-let measurements = [];                 // Array of saved measurements
-let measuringPoints = [];              // Points collected for current measurement
-let isLinearMeasuring = false;         // Whether linear measurement is in progress
-let linearMeasurementLocked = false;   // Whether linear measurement is locked (prevent accidental changes)
-let isRectMeasuring = false;           // Whether rectangle measurement is in progress
-let isRectDragging = false;            // Whether user is dragging rectangle corner
-let isAreaMeasuring = false;           // Whether area measurement is in progress
-let isAreaComplete = false;            // Whether area measurement is complete
-let finishBtn = null;                  // Reference to the finish measurement button
-let cancelToolBtn = null;              // Reference to the cancel tool button
-let instructionsOverlay = null;        // Reference to the instructions overlay
-let instructionsText = null;           // Reference to the instructions text element
-let mainCanvas = null;                 // Reference to the main canvas
-let canvasContext = null;              // Canvas context (renamed to avoid redeclaration)
-let measurementOffsetX = 0;            // Canvas pan X offset for measurements
-let measurementOffsetY = 0;            // Canvas pan Y offset for measurements
-let measurementZoomFactor = 1.0;       // Canvas zoom factor for measurements
+// State variables - Check if they exist before declaring
+if (typeof currentTool === 'undefined') {
+    var currentTool = null;                // Current active measurement tool (linear, area, rectangle)
+}
+if (typeof measurements === 'undefined') {
+    var measurements = [];                 // Array of saved measurements
+}
+if (typeof measuringPoints === 'undefined') {
+    var measuringPoints = [];              // Points collected for current measurement
+}
+if (typeof isLinearMeasuring === 'undefined') {
+    var isLinearMeasuring = false;         // Whether linear measurement is in progress
+}
+if (typeof linearMeasurementLocked === 'undefined') {
+    var linearMeasurementLocked = false;   // Whether linear measurement is locked (prevent accidental changes)
+}
+if (typeof isRectMeasuring === 'undefined') {
+    var isRectMeasuring = false;           // Whether rectangle measurement is in progress
+}
+if (typeof isRectDragging === 'undefined') {
+    var isRectDragging = false;            // Whether user is dragging rectangle corner
+}
+if (typeof isAreaMeasuring === 'undefined') {
+    var isAreaMeasuring = false;           // Whether area measurement is in progress
+}
+if (typeof isAreaComplete === 'undefined') {
+    var isAreaComplete = false;            // Whether area measurement is complete
+}
+if (typeof finishBtn === 'undefined') {
+    var finishBtn = null;                  // Reference to the finish measurement button
+}
+if (typeof cancelToolBtn === 'undefined') {
+    var cancelToolBtn = null;              // Reference to the cancel tool button
+}
+if (typeof instructionsOverlay === 'undefined') {
+    var instructionsOverlay = null;        // Reference to the instructions overlay
+}
+if (typeof instructionsText === 'undefined') {
+    var instructionsText = null;           // Reference to the instructions text element
+}
+if (typeof mainCanvas === 'undefined') {
+    var mainCanvas = null;                 // Reference to the main canvas
+}
+if (typeof canvasContext === 'undefined') {
+    var canvasContext = null;              // Canvas context (renamed to avoid redeclaration)
+}
+if (typeof measurementOffsetX === 'undefined') {
+    var measurementOffsetX = 0;            // Canvas pan X offset for measurements
+}
+if (typeof measurementOffsetY === 'undefined') {
+    var measurementOffsetY = 0;            // Canvas pan Y offset for measurements
+}
+if (typeof measurementZoomFactor === 'undefined') {
+    var measurementZoomFactor = 1.0;       // Canvas zoom factor for measurements
+}
 
 // Marker display configuration
 const DISTANCE_OFFSET = 20;

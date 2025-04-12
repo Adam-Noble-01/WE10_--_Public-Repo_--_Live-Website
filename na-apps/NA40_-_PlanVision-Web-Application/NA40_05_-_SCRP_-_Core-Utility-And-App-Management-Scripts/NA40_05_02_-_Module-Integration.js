@@ -29,7 +29,8 @@ window.moduleStatus = {
     measurementScaling: false,
     measurementTools: false,
     uiNavigation: false,
-    applicationScheduler: false
+    applicationScheduler: false,
+    eventListenerManager: false
 };
 
 // FUNCTION |  Register a module as loaded and ready for use
@@ -43,9 +44,14 @@ function registerModuleReady(moduleName) {
     window.moduleStatus[moduleName] = true;
     
     // Dispatch an event to notify other components
-    document.dispatchEvent(new CustomEvent('moduleLoaded', {
-        detail: { moduleName: moduleName }
-    }));
+    // Use Event Listener Manager if available
+    if (window.eventListenerManager && typeof window.eventListenerManager.dispatchEvent === 'function') {
+        window.eventListenerManager.dispatchEvent('moduleLoaded', { moduleName: moduleName });
+    } else {
+        document.dispatchEvent(new CustomEvent('moduleLoaded', {
+            detail: { moduleName: moduleName }
+        }));
+    }
     
     // Check if all critical modules are loaded
     checkAllModulesReady();
@@ -65,7 +71,12 @@ function checkAllModulesReady() {
     
     if (allCriticalReady) {
         console.log("✅ All critical modules are ready!");
-        document.dispatchEvent(new CustomEvent('applicationReady'));
+        // Use Event Listener Manager if available
+        if (window.eventListenerManager && typeof window.eventListenerManager.dispatchEvent === 'function') {
+            window.eventListenerManager.dispatchEvent('applicationReady');
+        } else {
+            document.dispatchEvent(new CustomEvent('applicationReady'));
+        }
     }
 }
 
@@ -364,21 +375,33 @@ DESCRIPTION
 // --------------------------------------------------------- //
 function notifyRendererReady() {
     console.log("Notifying that renderer is ready");
-    document.dispatchEvent(new CustomEvent('rendererReady'));
+    if (window.eventListenerManager && typeof window.eventListenerManager.dispatchEvent === 'function') {
+        window.eventListenerManager.dispatchEvent('rendererReady');
+    } else {
+        document.dispatchEvent(new CustomEvent('rendererReady'));
+    }
 }
 
 // FUNCTION |  Notify all modules to refresh their rendering
 // --------------------------------------------------------- //
 function notifyRefreshRendering() {
     console.log("Requesting render refresh");
-    document.dispatchEvent(new CustomEvent('refreshRendering'));
+    if (window.eventListenerManager && typeof window.eventListenerManager.dispatchEvent === 'function') {
+        window.eventListenerManager.dispatchEvent('refreshRendering');
+    } else {
+        document.dispatchEvent(new CustomEvent('refreshRendering'));
+    }
 }
 
 // FUNCTION |  Notify all modules that fonts are ready
 // --------------------------------------------------------- //
 function notifyFontsReady() {
     console.log("Notifying that fonts are ready");
-    document.dispatchEvent(new CustomEvent('fontsReady'));
+    if (window.eventListenerManager && typeof window.eventListenerManager.dispatchEvent === 'function') {
+        window.eventListenerManager.dispatchEvent('fontsReady');
+    } else {
+        document.dispatchEvent(new CustomEvent('fontsReady'));
+    }
 }
 
 /*

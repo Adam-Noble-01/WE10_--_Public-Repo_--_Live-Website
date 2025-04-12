@@ -117,6 +117,19 @@ if (window._drawingManagerLoaded) {
             if (!toolbar) {
                 throw new Error("Toolbar element not found with either 'toolbar' or 'TOOL__Container' ID");
             }
+            
+            // Check if drawing buttons already exist
+            const existingButtonContainer = document.querySelector(".drawing-button-container");
+            if (existingButtonContainer) {
+                console.log("DRAWING_MANAGER: Drawing buttons already exist, removing old ones");
+                existingButtonContainer.remove();
+                
+                // Also remove any existing header
+                const existingHeader = document.querySelector(".MENU__Drawing-Header-Text");
+                if (existingHeader && existingHeader.textContent === "Select Drawing") {
+                    existingHeader.remove();
+                }
+            }
 
             // Create header element for drawing section
             const header = document.createElement("div");
@@ -200,23 +213,45 @@ if (window._drawingManagerLoaded) {
             // Notify that drawing is loaded
             console.log("DRAWING_MANAGER: Drawing loaded, dispatching events");
             
+            // Use the event manager if available, fall back to direct dispatch if not
+            const eventDetail = {
+                name: documentName,
+                scale: documentScale,
+                size: documentSize
+            };
+            
             // First dispatch drawingLoaded event
-            document.dispatchEvent(new CustomEvent('drawingLoaded', {
-                detail: {
-                    name: documentName,
-                    scale: documentScale,
-                    size: documentSize
-                }
-            }));
+            if (window.eventListenerManager && typeof window.eventListenerManager.dispatchEvent === 'function') {
+                window.eventListenerManager.dispatchEvent('drawingLoaded', eventDetail);
+            } else {
+                document.dispatchEvent(new CustomEvent('drawingLoaded', {
+                    detail: eventDetail
+                }));
+            }
             
             // Then dispatch imageLoaded event directly for the canvas renderer
-            document.dispatchEvent(new CustomEvent('imageLoaded', {
-                detail: { 
-                    image: planImage,
-                    width: naturalImageWidth,
-                    height: naturalImageHeight
-                }
-            }));
+            const imageDetail = { 
+                image: planImage,
+                width: naturalImageWidth,
+                height: naturalImageHeight
+            };
+            
+            if (window.eventListenerManager && typeof window.eventListenerManager.dispatchEvent === 'function') {
+                window.eventListenerManager.dispatchEvent('imageLoaded', imageDetail);
+            } else {
+                document.dispatchEvent(new CustomEvent('imageLoaded', {
+                    detail: imageDetail
+                }));
+            }
+            
+            // Also dispatch assetsLoaded event for compatibility with Drawing-Management.js
+            if (window.eventListenerManager && typeof window.eventListenerManager.dispatchEvent === 'function') {
+                window.eventListenerManager.dispatchEvent('assetsLoaded', imageDetail);
+            } else {
+                document.dispatchEvent(new CustomEvent('assetsLoaded', {
+                    detail: imageDetail
+                }));
+            }
             
             console.log("DRAWING_MANAGER: Events dispatched");
         } catch (error) {
@@ -339,6 +374,40 @@ if (window._drawingManagerLoaded) {
         }
     }
 
+    /**
+     * Initialize drawing management - added from Drawing-Management.js
+     * This function maintains compatibility with code expecting Drawing-Management.js
+     */
+    function initializeDrawingManagement() {
+        console.log("DRAWING_MANAGEMENT: Initializing drawing management (compatibility layer)");
+        
+        if (window.drawingManager && window.drawingManager.isImageLoaded && window.drawingManager.isImageLoaded()) {
+            console.log("DRAWING_MANAGEMENT: Image is loaded, proceeding with initialization");
+            setupDrawingManagement();
+        } else {
+            console.warn("DRAWING_MANAGEMENT: Image not loaded yet");
+            // Wait for image to be loaded
+            document.addEventListener('drawingLoaded', setupDrawingManagement);
+            document.addEventListener('assetsLoaded', setupDrawingManagement);
+        }
+    }
+
+    /**
+     * Setup drawing management - added from Drawing-Management.js
+     * This function maintains compatibility with code expecting Drawing-Management.js
+     */
+    function setupDrawingManagement() {
+        console.log("DRAWING_MANAGEMENT: Setting up drawing management (compatibility layer)");
+        
+        if (!window.drawingManager || !window.drawingManager.isImageLoaded()) {
+            console.warn("DRAWING_MANAGEMENT: Cannot setup drawing management - image not loaded");
+            return;
+        }
+        
+        // Additional setup from Drawing-Management.js would go here
+        console.log("DRAWING_MANAGEMENT: Setup complete");
+    }
+
     // Expose necessary functions and variables
     window.drawingManager.loadDrawing = loadDrawing;
     window.drawingManager.getPlanImage = () => planImage;
@@ -348,6 +417,7 @@ if (window._drawingManagerLoaded) {
     window.drawingManager.getCurrentDrawingScale = () => currentDrawingScale;
     window.drawingManager.getCurrentDrawingSize = () => currentDrawingSize;
     window.drawingManager.getCurrentDrawing = () => currentDrawing;
+    window.drawingManager.getImageDimensions = () => ({width: naturalImageWidth, height: naturalImageHeight});
 
     // Register with module integration system
     if (window.moduleIntegration && typeof window.moduleIntegration.registerModuleReady === 'function') {
@@ -363,17 +433,66 @@ if (window._drawingManagerLoaded) {
         getNaturalImageHeight: () => window.drawingManager.getNaturalImageHeight()
     };
 
-    // Notify that the image is loaded when drawing manager loads an image
+    // Create compatibility layer for code expecting Drawing-Management.js functions
+    window.masterAssetLoader = {
+        isImageLoaded: () => window.drawingManager.isImageLoaded(),
+        loadDrawing: (drawingId) => {
+            // This is a simplified implementation that assumes drawingId is the same as in our data
+            // In a real scenario, you might need to fetch drawings and find the right one
+            console.log("COMPATIBILITY: Calling loadDrawing via masterAssetLoader compatibility layer", drawingId);
+            return fetchDrawings().then(drawings => {
+                const drawing = drawings[drawingId] || Object.values(drawings)[0];
+                if (drawing) {
+                    return loadDrawing(drawing);
+                } else {
+                    throw new Error("Drawing not found");
+                }
+            });
+        },
+        getImageDimensions: () => ({width: naturalImageWidth, height: naturalImageHeight})
+    };
+
+    // Expose the formerly separate Drawing-Management.js functions globally
+    window.initializeDrawingManagement = initializeDrawingManagement;
+    window.setupDrawingManagement = setupDrawingManagement;
+
+    // Notify that drawing is loaded when drawing manager loads an image
     document.addEventListener('drawingLoaded', () => {
         // Dispatch an imageLoaded event for components that listen for it
         const planImage = window.drawingManager.getPlanImage();
         if (planImage) {
             console.log("DRAWING_MANAGER: Dispatching imageLoaded event");
-            document.dispatchEvent(new CustomEvent('imageLoaded', {
-                detail: { image: planImage }
-            }));
+            
+            // Use event manager if available
+            if (window.eventListenerManager && typeof window.eventListenerManager.dispatchEvent === 'function') {
+                window.eventListenerManager.dispatchEvent('imageLoaded', { image: planImage });
+            } else {
+                document.dispatchEvent(new CustomEvent('imageLoaded', {
+                    detail: { image: planImage }
+                }));
+            }
         }
     });
+
+    // Only initialize on DOMContentLoaded once
+    let initialized = false;
+    const initOnDOMContentLoaded = () => {
+        if (!initialized) {
+            initialized = true;
+            window.drawingManager.init().catch(error => {
+                console.error("DRAWING_MANAGER: Error during initialization:", error);
+            });
+        }
+    };
+    
+    // Check if DOM is already loaded
+    if (document.readyState === 'loading') {
+        // If not, add event listener
+        document.addEventListener('DOMContentLoaded', initOnDOMContentLoaded);
+    } else {
+        // If it's already loaded, initialize immediately
+        setTimeout(initOnDOMContentLoaded, 0);
+    }
 
     // Log that this module has loaded
     console.log("DRAWING_MANAGER: Module loaded");

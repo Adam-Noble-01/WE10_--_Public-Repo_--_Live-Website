@@ -17,18 +17,35 @@ DESCRIPTION
 --------------------------------------------
 */
 
-// Canvas and view state variables
-let canvas = null;
-let ctx = null;
-let offsetX = 0;
-let offsetY = 0;
-let zoomFactor = 1.0;
-let isDragging = false;
-let lastX = 0;
-let lastY = 0;
+// Canvas and view state variables - Check if variables already exist before declaring
+// This prevents "already been declared" errors when the script is loaded multiple times
+if (typeof canvas === 'undefined') {
+    var canvas = null;
+}
+if (typeof ctx === 'undefined') {
+    var ctx = null;
+}
+if (typeof offsetX === 'undefined') {
+    var offsetX = 0;
+}
+if (typeof offsetY === 'undefined') {
+    var offsetY = 0;
+}
+if (typeof zoomFactor === 'undefined') {
+    var zoomFactor = 1.0;
+}
+if (typeof isDragging === 'undefined') {
+    var isDragging = false;
+}
+if (typeof lastX === 'undefined') {
+    var lastX = 0;
+}
+if (typeof lastY === 'undefined') {
+    var lastY = 0;
+}
 
 // Create namespace for this module
-window.canvasRenderer = {};
+window.canvasRenderer = window.canvasRenderer || {};
 
 // FUNCTION |  Initialize the canvas renderer
 // --------------------------------------------------------- //

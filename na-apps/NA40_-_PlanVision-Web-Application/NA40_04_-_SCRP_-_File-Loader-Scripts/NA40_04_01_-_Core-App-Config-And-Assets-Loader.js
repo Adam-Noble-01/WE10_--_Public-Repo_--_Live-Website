@@ -49,6 +49,21 @@ let fontData = null;
 // Create namespace for this module
 window.masterAssetLoader = {};
 
+// Add the missing areAssetsLoaded function
+window.masterAssetLoader.areAssetsLoaded = function() {
+    // This function should return true if all assets are loaded
+    // Since this function was missing, we'll implement a basic version
+    // that checks if appConfig and assetLibrary are set
+    return appConfig !== null && assetLibrary !== null;
+};
+
+// Add alias for isImageLoaded if it doesn't exist
+if (!window.masterAssetLoader.isImageLoaded) {
+    window.masterAssetLoader.isImageLoaded = function() {
+        return imageLoadedFlag;
+    };
+}
+
 // CLASS | Font Asset Loader
 // --------------------------------------------------------- //
 class FontAssetLoader {
@@ -491,12 +506,6 @@ window.masterAssetLoader.showErrorMessage = function(message) {
 // --------------------------------------------------------- //
 window.masterAssetLoader.getPlanImage = function() {
     return planImage;
-};
-
-// METHOD | Check if an image is loaded
-// --------------------------------------------------------- //
-window.masterAssetLoader.isImageLoaded = function() {
-    return imageLoadedFlag;
 };
 
 // METHOD | Get the natural width of the loaded image

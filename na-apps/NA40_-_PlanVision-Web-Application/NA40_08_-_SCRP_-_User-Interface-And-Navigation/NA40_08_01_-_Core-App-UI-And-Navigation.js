@@ -17,12 +17,16 @@ DESCRIPTION
 -------------------------------------------------------------------------------
 */
 
-// Module-level variables
-let isToolbarOpen = false;
-let hasShownTutorial = false;
+// Module-level variables - Check if they exist before declaring
+if (typeof isToolbarOpen === 'undefined') {
+    var isToolbarOpen = false;
+}
+if (typeof hasShownTutorial === 'undefined') {
+    var hasShownTutorial = false;
+}
 
 // Create namespace for this module
-window.uiNavigation = {};
+window.uiNavigation = window.uiNavigation || {};
 
 /*
 -------------------------------------------------------------------------------
