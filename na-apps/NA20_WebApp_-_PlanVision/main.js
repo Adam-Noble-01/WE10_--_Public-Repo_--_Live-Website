@@ -1,1079 +1,179 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>PlanVision |  Wollaton Vale</title>
-    <!--  - - - - - - - - - - - - - - - - - -  FAVICON CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
-    <!-- Primary SVG Favicon (Best for modern browsers) -->
-    <link rel="icon" type="image/svg+xml" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
-    <!-- PNG Fallbacks for various resolutions -->
-    <link rel="icon" type="image/png" sizes="512x512" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png">
-    <!-- ICO Fallback for legacy browsers -->
-    <link rel="icon" type="image/x-icon" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
-    <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+// JAVASCRIPT |  PLANVISION APP
+// ----------------------------------------------------------------------------
+// - This script is the main entry point for the PlanVision application
+// - It initialises the application and loads the necessary assets and drawings
+// - It also contains the core functionality for the application
+//   - !!!CURRENT TASK IS BREAKING DOWN THE LOADING OF DRAWINGS INTO A SEPARATE MODULES!!!
+//   - // OFFLOADED   =  <-- The date the script was offloaded to a separate module
+// ----------------------------------------------------------------------------
 
-    <!-- Polyfill Conditional Loader
-        -----------------------------------------------------------------------------------------------------
-        - This script checks if the browser supports modern JavaScript features (e.g. Promise).
-            - If native support is missing (common in older iOS devices), it dynamically loads the
-            - core-js-bundle polyfill from a CDN to supply the missing functionality. On newer devices
-            - that already support these features, the polyfill is not loaded, ensuring optimal performance.
-    ----------------------------------------------------------------------------------------------------- -->
-        <script>
-            (function() {
-            // Feature detection: Check if 'Promise' is supported by the browser
-            if (typeof Promise === "undefined") {
-                // If not supported, dynamically load the core-js polyfill
-                var polyfillScript = document.createElement("script");
-                polyfillScript.src = "https://cdn.jsdelivr.net/npm/core-js-bundle/minified.js";
-                polyfillScript.onload = function() {
-                console.log("Polyfill loaded successfully.");
-                };
-                document.head.appendChild(polyfillScript);
-            } else {
-                console.log("Native support detected; polyfill not needed.");
-            }
-            })();
-        </script>
 
-    <!-- Font Loading from Asset Library
-        -----------------------------------------------------------------------------------------------------
-        - This style block loads fonts via @font-face declarations using URLs from the centralized asset library
-        - Fonts are loaded early in the document to prevent FOUT (Flash of Unstyled Text)
-        - The actual font URLs will be updated dynamically after the asset library JSON is fetched
-    ----------------------------------------------------------------------------------------------------- -->
-    <style id="dynamic-font-styles">
-        /* Dynamic font declarations will be inserted here after asset library is loaded */
-    </style>
+// LOW PRIORITY TASKS
+// - Remove The Cdn Font Backup And Instead Use The Asset Library Fonts
+// - Update Asset loader script to pull from new asset library json file
 
-    <style>
-        /* BASIC RESET & LAYOUT */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: #f5f5f5;
-            font-family: 'Open Sans', sans-serif;
-            overflow: hidden;
-        }
 
-        /* ROOT APP WRAPPER */
-        #app {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
 
-        /* MAIN APPLICATION CONTAINER */
-        #app-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
+// ----------------------------------------------------------------------------------
+// MODULE VARIABLES
+// ----------------------------------------------------------------------------------
 
-        /* BRANDING HEADER */
-        #header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: #fff;
-            border-bottom: 2px solid #555041;
-            display: flex;
-            align-items: center;
-            z-index: 9999;
-            padding-left: 10px;
-        }
+// LOAD & PARSE |  Asset Loader Module
+// ---------------------------------------------------------------------------
+// OFFLOADED | 12-Apr-2025
+// Tested - Confirmed module is working as expected ✔
+// ---------------------------------------------------------------------------
 
-        #header img {
-            height: 40px;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            margin-right: 10px;
-            padding-right: 10px;
-            margin-left: auto;
-            padding-left: auto;
-            align-items: right;
-        }
+import {
+    fetchAssetLibrary,
+    loadFontsFromAssetLibrary,
+    updateImagesFromAssetLibrary,
+    preloadFonts,
+    checkFontAvailability
+} from './asset-loader.js';
 
-        #app-title {
-            margin-left: 15px;
-            font-size: 20px;
-            color: #555041;
-        }
 
-        /* HAMBURGER BUTTON TO TOGGLE TOOLBAR */
-        #toggleToolbarBtn {
-            margin-left: 5px;
-            font-size: 22px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #555041;
-        }
 
-        /* TOOLBAR */
-        #toolbar {
-            position: absolute;
-            top: 50px;
-            left: 0;
-            width: 220px;
-            height: calc(100% - 50px);
-            background: #fff;
-            border-right: 2px solid #555041;
-            padding: 10px;
-            box-sizing: border-box;
-            z-index: 9998;
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-        }
-        #toolbar.collapsed {
-            transform: translateX(-220px); /* slide offscreen */
-        }
+// LOAD |  Drawing Loader Module
+// ----------------------------------------------------------------------------
+// OFFLOADED | 12-Apr-2025
+// Tested - Confirmed module is working as expected ✔
+// ----------------------------------------------------------------------------
 
-        /* TOOL BUTTONS */
-        .tool-button {
-            display: block;
-            width: 100%;
-            margin-bottom: 8px;
-            padding: 10px;
-            background: #555041;
-            color: #fff;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 3px;
-            transition: all 0.2s ease; /* Changed from 'opacity' to 'all' to cover both color and opacity */
-        }
-        .tool-button:hover {
-            opacity: 0.8;
-            background-color: #555041; /* Ensure hover doesn't change the background */
-        }
+import {
+    fetchDrawings,
+    loadDrawing,
+    loadPlanImage,
+    createDrawingButtons,
+    updateDownloadLink
+} from './drawing-loader.js';
 
-        /* Ensure all tool buttons, including markup tools, use the same styling */
-        #markup-toolset .tool-button {
-            background: #555041;
-            color: #fff;
-        }
-        #markup-toolset .tool-button:hover {
-            opacity: 0.8;
-            background-color: #555041; /* Ensure hover doesn't change the background */
-        }
 
-        .menu_-_drawing-button-container {
-            margin-top          :            20px;
-            margin-bottom       :            10px;
-        }
 
-        .menu_-_drawing-button-header-text {
-            font-family         : 'Open Sans', sans-serif;
-            font-size           :            12pt;
-            color               :       #555041;
-            padding-top      :               20px;
-            padding-bottom      :            10px;
-        }
+// LOAD |  Loading Screen Module
+// ----------------------------------------------------------------------------
+// OFFLOADED | 12-Apr-2025
+// Tested - Confirmed module is working as expected ✔
+// ----------------------------------------------------------------------------
+
+import {
+    initLoadingScreen,
+    showLoadingScreen,
+    hideLoadingScreen,
+    showErrorMessage,
+    hideErrorMessage
+} from './loading-screen.js';
+
+
+
+// =============================================================================================
+// JAVASCRIPT |  GLOBAL VARIABLES & CONSTANTS
+// - This section introduced in v1.8.1
+// Contains all global variables and constant definitions for the application
+// =============================================================================================
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 2;
+const ROUND_DIMENSIONS_ENABLED = true;
+const ROUNDING_INTERVAL = 5;
+const CONFIRM_BUTTON_OFFSET_X_PC = 10;
+const CONFIRM_BUTTON_OFFSET_Y_PC = -10;
+const CONFIRM_BUTTON_OFFSET_X_TOUCH = 10;
+const CONFIRM_BUTTON_OFFSET_Y_TOUCH = -25;
+
+const planCanvas = document.getElementById("planCanvas");
+const ctx = planCanvas.getContext("2d");
+const measureInfo = document.getElementById("measureInfo");
+const cancelToolBtn = document.getElementById("cancelToolBtn");
+const toolInstructionsOverlay = document.getElementById("tool-instructions-overlay");
+const toolInstructionsText = document.getElementById("tool-instructions-text");
+const finishBtn = document.getElementById("finishMeasurementBtn");
+const menuTutorialOverlay = document.getElementById("menu-tutorial-overlay");
+const toolbar = document.getElementById("toolbar");
+
+let isToolbarOpen = true;
+const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
+const markerRadius = isTouchDevice ? 36 : 24;
+const baseLineWidth = isTouchDevice ? 3 : 2;
+
+let offsetX = 0, offsetY = 0, zoomFactor = 1;
+let isDragging = false, lastX = 0, lastY = 0;
+let isPinching = false, pinchStartDist = 0, pinchStartZoom = 1, pinchMidpoint = { x: 0, y: 0 };
+let currentTool = null;
+let measuringPoints = [];
+let measurements = [];
+let isLinearMeasuring = false;
+let linearMeasurementLocked = false;
+let isRectMeasuring = false;
+let isRectDragging = false;
+let rectStartPoint = null;
+
+let planImage = new Image();
+planImage.crossOrigin = "anonymous";
+let isImageLoaded = false;
+let naturalImageWidth = 0;
+let naturalImageHeight = 0;
+let scaleMetresPerPixel = 0;
+let currentDrawingScale = "1:50"; // Default scale if none provided
+let currentDrawingSize = "A1"; // Default size if none provided
+
+let hasShownLinearInstructions = false;
+let hasShownAreaInstructions = false;
+
+// -----------------------------------------
+// ARC - STATE VARIABLES
+// Added |  02-Apr-2025 - 1.8.5.
+let isArcDrawing = false;
+let currentArc = null;
+
+// ========================================================================
+// MARKUP TOOLSET MODULE - GLOBAL VARIABLES
+// ========================================================================
+let isMarkupToolsetActive = false;
+let currentMarkupTool = 'pencil';
+let markupColor = '#960000';  // Changed default color to #960000
+let markupLineWidth = 4;
+let markupPaths = [];
+let currentMarkupPath = null;
+
+// Selection tool specific variables
+let selectedElement = null;
+let isMovingElement = false;
+let moveStartPosition = null;
+let selectionHandles = [];
+let moveOffset = { x: 0, y: 0 };
+
+// Arrow tool specific variables
+let arrowState = 'idle'; // idle, start, end, edit
+let currentArrow = null;
+let activeControlPoint = null;
+let controlPoints = [];
+let handlePoints = [];
+
+// Shape tool variables
+let isShapeDrawing = false;
+let shapeStartPoint = null;
+let currentShape = null;
+
+// Text tool variables
+let isTextPlacing = false;
+let textPlacementPoint = null;
+let editingTextElement = null; // Track the text element being edited
+
+// Straight line tool variables
+// Added in v1.8.5 - 02-Apr-2025
+let isLineDrawing = false;
+let currentLine = null;
+
+// Technical pen properties for sketchy look
+const sketchiness = 0.5; // 0 = clean, 1 = very sketchy
+const pressureVariation = 0.2; // Line width variation
 
 
 
 
-        #cancelToolBtn {
-            display: none;
-            background: #d9534f;
-        }
-        #cancelToolBtn:hover {
-            opacity: 0.8;
-        }
 
-        /* CONFIRM MEASUREMENT BUTTON */
-        #finishMeasurementBtn {
-            position: absolute;
-            z-index: 13000;
-            background: #5cb85c;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 12px;
-            cursor: pointer;
-            display: none;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-            font-size: 14px;
-        }
-        #finishMeasurementBtn:hover {
-            opacity: 0.9;
-        }
-
-
-        /* - - -  - - - -  PLAN CANVAS STYLES - - - - - - -  */
-        /* - Canvas Wrapper                                  */
-        #canvas-container {
-            position: absolute;
-            top: 50px;
-            left: 0;
-            right: 0;
-            bottom: 0px;
-            overflow: hidden;
-            background: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            touch-action: none;
-            z-index: 9996;
-        }
-
-        /* - - - - - - - - - - - - - - - - - - - - - - - - */
-
-        /* LOADING OVERLAY */
-        #loading-overlay {
-            position: absolute;
-            top: 50px;
-            left: 0;
-            right: 0;
-            bottom: 30px;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            z-index: 10000;
-            transition: opacity 0.3s ease;
-        }
-        #loading-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .loading-spinner {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #555041;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        @keyframes spin {
-            0%   { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* ERROR MESSAGE */
-        #error-message {
-            position: absolute;
-            top: 60px;
-            left: 20px;
-            right: 20px;
-            padding: 10px;
-            background: #ffe6e6;
-            border: 1px solid #ff0000;
-            color: #ff0000;
-            display: none;
-            z-index: 10001;
-        }
-
-        /* TOOL INSTRUCTIONS OVERLAY */
-        #tool-instructions-overlay {
-            position: absolute;
-            top: 50px;
-            left: 0;
-            right: 0;
-            bottom: 30px;
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            z-index: 12000;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        #tool-instructions-overlay.fade-out {
-            transition: opacity 1s ease;
-            opacity: 0;
-            pointer-events: none;
-        }
-        #tool-instructions-text {
-            font-size: 16px;
-            max-width: 400px;
-            margin: auto;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            border-radius: 8px;
-            white-space: pre-line;
-        }
-
-        /* MENU TUTORIAL OVERLAY */
-        #menu-tutorial-overlay {
-            position: absolute;
-            top: 60px; /* just below the header */
-            left: 10px;
-            display: none;
-            z-index: 13000;
-            pointer-events: none; /* so it doesn't block clicks if desired */
-        }
-        #menu-pointer-arrow {
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 10px solid #d9534f;
-            margin-left: 15px;
-        }
-        #menu-tutorial-text {
-            background: #d9534f;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 4px;
-            margin-top: 5px;
-            font-size: 14px;
-        }
-
-        /* FOOTER */
-        #footer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: #fff;
-            border-top: 1px solid #555041;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            color: #86847d;
-            z-index: 12000;
-        }
-
-        /* 
-        ====================================================================
-        MARKUP TOOLSET MODULE - CSS STYLES
-        - These styles support the markup drawing toolset introduced in v1.6.0
-        - Includes technical pen sketchy line styles and hand-drawn aesthetics
-        ==================================================================== 
-        */
-        
-        /* Toolset Toggle Button */
-        #toggleMarkupToolsetBtn {
-            display: block;
-            width: 100%;
-            margin-bottom: 8px;
-            padding: 10px;
-            background: #555041;
-            color: #fff;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 3px;
-        }
-        
-        /* Markup Tools Container */
-        #markup-toolset {
-            display: none; /* Initially hidden */
-            margin-top: 10px;
-        }
-        
-        /* Color Picker Styling */
-        #markupColorInput {
-            display: block;
-            width: 100%;
-            margin-bottom: 8px;
-            height: 40px;
-            border: none;
-            cursor: pointer;
-        }
-        
-        /* Arrow Tool Specific Styles */
-        .control-point {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border: 2px solid #555041;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            cursor: move;
-            z-index: 10000;
-        }
-
-        .handle-point {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: #4287f5;
-            border: 1px solid #2c5aa0;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            cursor: pointer;
-            z-index: 9990;
-        }
-
-        .handle-line {
-            position: absolute;
-            height: 1px;
-            background: #a0a0a0;
-            z-index: 9980;
-            pointer-events: none;
-        }
-        
-        /* Canvas cursor styles */
-        #planCanvas.markup-pencil {
-            cursor: crosshair;
-        }
-        
-        #planCanvas.markup-eraser {
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="5" stroke="black" stroke-width="1" fill="white"/></svg>'), auto;
-        }
-        
-        #planCanvas.markup-arrow-start {
-            cursor: cell;
-        }
-        
-        #planCanvas.markup-arrow-end {
-            cursor: crosshair;
-        }
-        
-        #planCanvas.markup-arrow-edit {
-            cursor: default;
-        }
-        
-        #planCanvas.markup-text {
-            cursor: text;
-        }
-        
-        #planCanvas.markup-shape {
-            cursor: crosshair;
-        }
-
-        /* Text Entry Dialog */
-        #markup-text-dialog {
-            position: absolute;
-            z-index: 13000;
-            background: white;
-            border: 1px solid #555041;
-            padding: 15px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            display: none;
-            min-width: 300px; /* Increased from default size */
-        }
-        
-        #markup-text-input {
-            width: 100%;
-            font-family: 'Caveat', 'Comic Sans MS', cursive, sans-serif; /* Handwriting font */
-            font-size: 125%; /* Increased text size by 25% */
-            padding: 8px;
-            margin-bottom: 15px;
-            min-height: 100px; /* Ensure text area is tall enough */
-        }
-        
-        .markup-dialog-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .markup-dialog-button {
-            padding: 8px 15px;
-            background: #555041;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 110%; /* Slightly larger button text */
-        }
-        /* End of Markup Toolset Module CSS */
-
-        /* Color Picker Styling */
-        .color-palette {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 10px;
-            max-width: 200px; /* Limit width to create 4x4 grid */
-        }
-        
-        .color-swatch {
-            width: 45px;
-            height: 45px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        
-        .color-swatch.active {
-            border-color: #555041;
-        }
-
-        /* Selection Tool Styles */
-        .selection-handle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: white;
-            border: 2px solid #555041;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            cursor: move;
-            z-index: 10000;
-        }
-
-        #planCanvas.markup-selection {
-            cursor: default;
-        }
-    </style>
-</head>
-<body>
-<div id="app">
-    <div id="app-container">
-        <!-- HEADER -->
-        <div id="header">
-            <button id="toggleToolbarBtn">☰</button>
-            <span id="app-title" style="padding-left: 10px;">PlanVision
-                <span style="font-size: 12px; color: #656565;">- Testing Version 1.8.6 Beta</span>
-            </span>
-            <img src="https://raw.githubusercontent.com/Adam-Noble-01/RE10_I_GitHub_I_Public_Repo/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_01_-_FILES_-_Noble-Architecture_-_Core-Brand-Image-Assets/RE20_22_01_01_-_PNG_-_NA_Company_Logo.png"
-            alt="Noble Architecture Logo">
-        </div>
-
-        <!-- MENU TUTORIAL OVERLAY (arrow + message) -->
-        <div id="menu-tutorial-overlay">
-            <div id="menu-pointer-arrow"></div>
-            <div id="menu-tutorial-text">Press Here To Open / Hide The Tools Menu</div>
-        </div>
-
-        <!-- TOOLBAR -->
-        <div id="toolbar">
-            <div style="margin-top: -15px;"></div>
-            <!-- Drawing selection section will be inserted here dynamically -->
-            
-            <div class="menu_-_drawing-button-header-text">View & Export</div>
-            <button class="tool-button" id="downloadPDFBtn">Download PDF</button>
-            <button class="tool-button" id="resetViewBtn">Reset View</button>
-
-            <div class="menu_-_drawing-button-header-text">Measuring Tools</div>
-            <button class="tool-button" id="linearMeasureBtn">Linear Measurement</button>
-            <button class="tool-button" id="rectMeasureBtn">Rectangle Measurement</button>
-            <button class="tool-button" id="areaMeasureBtn">Area Measurement</button>
-            <button class="tool-button" id="clearMeasurementsBtn">Clear Measurements</button>
-            <button class="tool-button" id="cancelToolBtn">Cancel Tool</button>
-
-            <div class="menu_-_drawing-button-header-text">Drawing Markup Tools</div>
-            <button class="tool-button" id="toggleMarkupToolsetBtn">Activate Markup Tools</button>
-            
-            <!-- Markup Toolset Container - Initially Hidden -->
-            <div id="markup-toolset">
-                <div class="menu_-_drawing-button-header-text">Markup Tools Menu</div>
-                <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-                    <button class="tool-button" id="markupUndoBtn" style="width:48%;">↩ Undo</button>
-                    <button class="tool-button" id="markupRedoBtn" style="width:48%;">Redo ↪</button>
-                </div>
-                <button class="tool-button" id="markupClearBtn">Clear Drawing Markup</button>
-                <button class="tool-button" id="markupSaveBtn">Download Markup Image</button>
-                <button class="tool-button" id="returnToMeasuringBtn">Return To Main Menu</button>
-
-
-                
-                <div class="menu_-_drawing-button-header-text">Drawing Tools</div>
-                <button class="tool-button" id="markupSelectionBtn">Object - Selection Tool</button>
-                <!-- 
-                // ----------------------------------------------------
-                // REMOVED IN v1.8.3 - PENCIL TOOL
-                // - Replaced with Straight Line and Arc Drawing Tools
-                // - Keep this commented out for reference
-                // ----------------------------------------------------
-                <button class="tool-button" id="markupPencilBtn">Draw - Pencil</button>
-                -->
-                <button class="tool-button" id="markupEraserBtn">Object - Eraser Tool</button>
-                
-                <!-- 
-                ----------------------------------------------------
-                ADDED IN v1.8.3 - NEW DRAWING TOOLS
-                - Straight Line and Arc Drawing Tools added 02-Apr-2025 -->
-                <button class="tool-button" id="markupLineBtn">Draw - Straight Line</button>
-                <button class="tool-button" id="markupArcBtn">Draw - Arc</button>
-                
-                <button class="tool-button" id="markupRectBtn">Draw - Rectangle</button>
-                <button class="tool-button" id="markupFilledRectBtn">Draw - Filled Rectangle</button>
-                <button class="tool-button" id="markupCircleBtn">Draw - Circle Tool</button>
-                <button class="tool-button" id="markupArrowBtn">Draw - Arrow Tool</button>
-                <button class="tool-button" id="markupTextBtn">Add Text Annotation</button>
-                <button class="tool-button" id="cancelMarkupToolBtn" style="display: none; background: #d9534f;">Cancel Current Tool</button>
-                
-                <div class="menu_-_drawing-button-header-text">Line Width</div>
-                <div style="display:flex; align-items:center; margin-bottom: 10px;">
-                    <span style="margin-right:10px; color:#555041;">Size:</span>
-                    <input type="range" id="markupLineWidthSlider" min="2" max="20" value="9" style="flex-grow:1;">
-                </div>
-
-                <div class="menu_-_drawing-button-header-text">Colour Selection</div>
-                <div class="color-palette">
-                    <div class="color-swatch active" data-color="#960000" style="background-color: #960000;"></div>
-                    <div class="color-swatch" data-color="#252596" style="background-color: #252596;"></div>
-                    <div class="color-swatch" data-color="#333333" style="background-color: #333333;"></div>
-                    <div class="color-swatch" data-color="#57965c" style="background-color: #57965c;"></div>
-                    <div class="color-swatch" data-color="#333333" style="background-color: #5b5b5b;"></div>
-                    <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #CCCCCC;"></div>
-                </div>
-            </div>
-            <!-- End of Markup Toolset Module HTML -->
-
-            <div style="margin-top:20px; font-size:12px; color:#555041;">
-                <strong>Measurements:</strong>
-                <div id="measureInfo" style="margin-top:5px;">No measurements yet.</div>
-            </div>
-        </div>
-
-        <!-- FINISH MEASUREMENT BUTTON (floating) -->
-        <button id="finishMeasurementBtn">Confirm</button>
-
-        <!-- CANVAS CONTAINER -->
-        <div id="canvas-container">
-            <canvas id="planCanvas"></canvas>
-        </div>
-
-        <!-- LOADING OVERLAY -->
-        <div id="loading-overlay">
-            <div class="loading-spinner"></div>
-            <p>Loading Your Vision… Please Wait</p>
-        </div>
-
-        <!-- ERROR MESSAGE -->
-        <div id="error-message">
-            Failed to load the plan image. Please try a different image or smaller size.
-        </div>
-
-        <!-- TOOL INSTRUCTIONS OVERLAY -->
-        <div id="tool-instructions-overlay">
-            <div id="tool-instructions-text"></div>
-        </div>
-
-        <!-- 
-        ====================================================================
-        MARKUP TOOLSET MODULE - TEXT ENTRY DIALOG
-        - For creating text annotations with architectural handwriting style
-        ==================================================================== 
-        -->
-        <div id="markup-text-dialog">
-            <select id="markup-text-size" style="width: 100%; margin-bottom: 10px; padding: 5px;">
-                <option value="20">Small Text - 12.00pt</option>
-                <option value="24" selected>Medium Text - 14.00pt</option>
-                <option value="36">Large Text  - 18.00pt</option>
-            </select>
-            <textarea id="markup-text-input" placeholder="Enter text here..." rows="4"></textarea>
-            <div class="markup-dialog-buttons">
-                <button class="markup-dialog-button" id="markup-text-cancel">Cancel</button>
-                <button class="markup-dialog-button" id="markup-text-confirm">Add Text</button>
-            </div>
-        </div>
-        <!-- End of Markup Toolset Module Text Dialog -->
-
-        <!-- FOOTER -->
-        <div id="footer">
-            © 2025 Noble Architecture | All Rights Reserved
-        </div>
-    </div>
-</div>
-
-<script>
 (function() {
-    // =============================================================================================
-    // JAVASCRIPT |  GLOBAL VARIABLES & CONSTANTS
-    // - This section introduced in v1.8.1
-    // Contains all global variables and constant definitions for the application
-    // =============================================================================================
-    const MIN_ZOOM = 0.1;
-    const MAX_ZOOM = 2;
-    const ROUND_DIMENSIONS_ENABLED = true;
-    const ROUNDING_INTERVAL = 5;
-    const CONFIRM_BUTTON_OFFSET_X_PC = 10;
-    const CONFIRM_BUTTON_OFFSET_Y_PC = -10;
-    const CONFIRM_BUTTON_OFFSET_X_TOUCH = 10;
-    const CONFIRM_BUTTON_OFFSET_Y_TOUCH = -25;
 
-    const planCanvas = document.getElementById("planCanvas");
-    const ctx = planCanvas.getContext("2d");
-    const loadingOverlay = document.getElementById("loading-overlay");
-    const errorMessage = document.getElementById("error-message");
-    const measureInfo = document.getElementById("measureInfo");
-    const cancelToolBtn = document.getElementById("cancelToolBtn");
-    const toolInstructionsOverlay = document.getElementById("tool-instructions-overlay");
-    const toolInstructionsText = document.getElementById("tool-instructions-text");
-    const finishBtn = document.getElementById("finishMeasurementBtn");
-    const menuTutorialOverlay = document.getElementById("menu-tutorial-overlay");
-    const toolbar = document.getElementById("toolbar");
-
-    let isToolbarOpen = true;
-    const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
-    const markerRadius = isTouchDevice ? 36 : 24;                                           // <-- This is the size of the marker on the drawing
-    const baseLineWidth = isTouchDevice ? 3 : 2;
-
-    let offsetX = 0, offsetY = 0, zoomFactor = 1;
-    let isDragging = false, lastX = 0, lastY = 0;
-    let isPinching = false, pinchStartDist = 0, pinchStartZoom = 1, pinchMidpoint = { x: 0, y: 0 };
-    let currentTool = null;
-    let measuringPoints = [];
-    let measurements = [];
-    let isLinearMeasuring = false;
-    let linearMeasurementLocked = false;
-    let isRectMeasuring = false;
-    let isRectDragging = false;     // Add this near isRectMeasuring
-    let rectStartPoint = null;
-
-    let planImage = new Image();
-    planImage.crossOrigin = "anonymous";
-    let isImageLoaded = false;
-    let naturalImageWidth = 0;
-    let naturalImageHeight = 0;
-    let scaleMetresPerPixel = 0;
-    let currentDrawingScale = "1:50"; // Default scale if none provided
-    let currentDrawingSize = "A1"; // Default size if none provided
-
-    let hasShownLinearInstructions = false;
-    let hasShownAreaInstructions = false;
-
-    // -----------------------------------------
-    // ARC - STATE VARIABLES
-    // Added |  02-Apr-2025 - 1.8.5.
-    let isArcDrawing = false;
-    let currentArc = null;
-
-    // ========================================================================
-    // ASSET LIBRARY MANAGEMENT FUNCTIONS
-    // ========================================================================
-
-    // Fetch asset library from centralized JSON file //
-    async function fetchAssetLibrary() {
-        const ASSET_LIBRARY_URL = "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/refs/heads/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_31_--_PlanVision_-_Asset-Link-Library.json";
-        try {
-            const response = await fetch(ASSET_LIBRARY_URL);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            console.log("Asset library loaded successfully:", data.file_metadata["file-name"]);
-            return data;
-        } catch (error) {
-            console.error("Error fetching asset library:", error.message);
-            // Continue with app initialization even if asset library fails to load
-            return null;
-        }
-    }
-
-    // Load fonts from asset library using @font-face //
-    function loadFontsFromAssetLibrary(assetLibrary) {
-        const fontStylesElement = document.getElementById("dynamic-font-styles");
-        let fontDeclarations = "";
-        
-        // Load Open Sans fonts
-        const openSansFonts = assetLibrary?.na_assets?.na_fonts?.["fonts-open-sans"] || {};
-        if (openSansFonts) {
-            if (openSansFonts["open-sans-regular"]) {
-                fontDeclarations += `
-                    @font-face {
-                        font-family: 'Open Sans';
-                        font-style: normal;
-                        font-weight: 400;
-                        src: url('${openSansFonts["open-sans-regular"]}') format('truetype');
-                        font-display: swap;
-                    }
-                `;
-            } else {
-                console.warn("Open Sans Regular not found in asset library, using Google Fonts fallback.");
-                fontDeclarations += `
-                    @font-face {
-                        font-family: 'Open Sans';
-                        font-style: normal;
-                        font-weight: 400;
-                        src: url('https://fonts.gstatic.com/s/opensans/v35/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsjZ0B4gaVI.woff2') format('woff2');
-                        font-display: swap;
-                    }
-                `;
-            }
-            
-            // Similar pattern for other Open Sans weights...
-        }
-        
-        // Load Caveat fonts (handwriting style for markup)
-        const caveatFonts = assetLibrary?.na_assets?.na_fonts?.["fonts-caveat"] || {};
-        let hasCaveatFonts = false;
-        
-        if (caveatFonts["caveat-regular"]) {
-            hasCaveatFonts = true;
-            fontDeclarations += `
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 400;
-                    src: url('${caveatFonts["caveat-regular"]}') format('truetype');
-                    font-display: swap;
-                }
-            `;
-        }
-        
-        if (caveatFonts["caveat-semi-bold"]) {
-            hasCaveatFonts = true;
-            fontDeclarations += `
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 600;
-                    src: url('${caveatFonts["caveat-semi-bold"]}') format('truetype');
-                    font-display: swap;
-                }
-            `;
-        }
-        
-        // Add Google Fonts fallback for Caveat if not loaded from asset library
-        if (!hasCaveatFonts) {
-            console.warn("Caveat fonts not found in asset library, using Google Fonts fallback.");
-            fontDeclarations += `
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 400;
-                    src: url('https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYS9AoA.woff2') format('woff2');
-                    font-display: swap;
-                }
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 600;
-                    src: url('https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjSx6eIupYS9AoA.woff2') format('woff2');
-                    font-display: swap;
-                }
-            `;
-        }
-        
-        // Update the style element with font declarations
-        fontStylesElement.innerHTML = fontDeclarations;
-        console.log("Font declarations loaded from asset library");
-    }
-
-    // Update image sources from asset library //
-    function updateImagesFromAssetLibrary(assetLibrary) {
-        if (!assetLibrary || !assetLibrary.na_assets || !assetLibrary.na_assets.images_png) {
-            console.warn("Asset library missing image definitions, using existing sources");
-            return;
-        }
-        
-        const images = assetLibrary.na_assets.images_png;
-        
-        // Update Noble Architecture logo
-        if (images["na-brand-logo"]) {
-            const logoElements = document.querySelectorAll('img[alt="Noble Architecture Logo"]');
-            logoElements.forEach(img => {
-                img.src = images["na-brand-logo"];
-            });
-        }
-        
-        // Can be expanded to update other images as needed
-        console.log("Image sources updated from asset library");
-    }
-
-    // ========================================================================
-    // MARKUP TOOLSET MODULE - GLOBAL VARIABLES
-    // ========================================================================
-    // Added in v1.6.0 to support drawing and markup functionality
-    let isMarkupToolsetActive = false;
-    let currentMarkupTool = 'pencil';
-    let markupColor = '#960000';  // Changed default color to #960000
-    let markupLineWidth = 4;
-    let markupPaths = [];
-    let currentMarkupPath = null;
-    
-    // Selection tool specific variables
-    let selectedElement = null;
-    let isMovingElement = false;
-    let moveStartPosition = null;
-    let selectionHandles = [];
-    let moveOffset = { x: 0, y: 0 };
-    
-    // Arrow tool specific variables
-    let arrowState = 'idle'; // idle, start, end, edit
-    let currentArrow = null;
-    let activeControlPoint = null;
-    let controlPoints = [];
-    let handlePoints = [];
-    
-    // Shape tool variables
-    let isShapeDrawing = false;
-    let shapeStartPoint = null;
-    let currentShape = null;
-    
-    // Text tool variables
-    let isTextPlacing = false;
-    let textPlacementPoint = null;
-    let editingTextElement = null; // Track the text element being edited
-    
-    // Straight line tool variables
-    // Added in v1.8.5 - 02-Apr-2025
-    let isLineDrawing = false;
-    let currentLine = null;
-    
-    // Technical pen properties for sketchy look
-    const sketchiness = 0.5; // 0 = clean, 1 = very sketchy
-    const pressureVariation = 0.2; // Line width variation
-    // End of Markup Toolset Module Variables
-
-    // ========================================================================
-    // JSON AND DRAWING MANAGEMENT FUNCTIONS
-    // ========================================================================
-
-    // Fetch drawings data from JSON configuration file //
-    async function fetchDrawings() {
-        const JSON_URL = "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_-_DATA_-_Document-Library.json";
-        try {
-            const response = await fetch(JSON_URL);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const data = await response.json();
-            console.log("Fetched data:", data); // Log the raw data for debugging
-
-            // Check for the existence of each nested level
-            if (!data["na-project-data-library"]) {
-                throw new Error("Missing 'na-project-data-library' in JSON");
-            }
-            console.log("na-project-data-library:", data["na-project-data-library"]);
-
-            if (!data["na-project-data-library"]["project-documentation"]) {
-                throw new Error("Missing 'project-documentation' in JSON");
-            }
-            console.log("project-documentation:", data["na-project-data-library"]["project-documentation"]);
-
-            if (!data["na-project-data-library"]["project-documentation"]["project-drawings"]) {
-                throw new Error("Missing 'project-drawings' in JSON");
-            }
-            console.log("project-drawings:", data["na-project-data-library"]["project-documentation"]["project-drawings"]);
-
-            const drawings = data["na-project-data-library"]["project-documentation"]["project-drawings"];
-            return drawings;
-        } catch (error) {
-            console.error("Error fetching JSON:", error.message);
-            displayError("Failed to load drawing data: " + error.message);
-            return null;
-        }
-    }
-
-    // FUNCTION |  Create Dynamic buttons for each drawing in the toolbar   //
-    // - Uses Project Specific Json File To Assign Menu Buttons             //
-    // - Buttons used for selecting between & loading different drawings    //
-    function createDrawingButtons(drawings) {
-        // Create header element for drawing section
-        const header = document.createElement("div");
-        header.className = "menu_-_drawing-button-header-text";
-        header.textContent = "Select Drawing";
-
-        // Create a separate container for the drawing buttons
-        const buttonContainer = document.createElement("div");
-        buttonContainer.className = "drawing-button-container";
-
-        // Get the toolbar element
-        const toolbar = document.getElementById("toolbar");
-        
-        // Insert at the beginning of the toolbar
-        if (toolbar.firstChild) {
-            toolbar.insertBefore(buttonContainer, toolbar.firstChild);
-            toolbar.insertBefore(header, buttonContainer);
-        } else {
-            toolbar.appendChild(header);
-            toolbar.appendChild(buttonContainer);
-        }
-
-        // Add a spacer after the drawing buttons
-        const spacer = document.createElement("div");
-        spacer.style.marginBottom = "20px";
-        buttonContainer.after(spacer);
-
-        // Iterate over drawing entries and create buttons
-        for (const key in drawings) {
-            if (key.startsWith("drawing-") && drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
-                const button = document.createElement("button");
-                button.className = "tool-button";
-                button.textContent = drawings[key]["document-name"];
-                button.addEventListener("click", () => loadDrawing(drawings[key]));
-                buttonContainer.appendChild(button);
-            }
-        }
-    }
-
-
-
-    // Load a specific drawing's image and update download link //
-    async function loadDrawing(drawing) {
-        showLoading();
-        try {
-            const pngUrl = drawing["document-links"]["png--github-link-url"];
-            const pdfUrl = drawing["document-links"]["pdf--github-link-url"];
-            const documentName = drawing["document-name"];
-            const documentScale = drawing["document-scale"];
-            const documentSize = drawing["document-size"];
-            
-            // Store drawing metadata for scale calculation
-            currentDrawingScale = documentScale || "1:50"; // Default to 1:50 if not specified
-            currentDrawingSize = documentSize || "A1"; // Default to A1 if not specified
-            
-            await loadPlanImage(pngUrl);
-            isImageLoaded = true;
-            resetView();
-            updateDownloadLink(pdfUrl, documentName);
-        } catch (error) {
-            console.error("Error loading drawing:", error);
-            displayError("Failed to load the selected drawing.");
-        } finally {
-            hideLoading();
-        }
-    }
-
-    // Load the plan image asynchronously //
-    function loadPlanImage(url) {
-        return new Promise((resolve, reject) => {
-            planImage.onload = () => {
-                naturalImageWidth = planImage.naturalWidth;
-                naturalImageHeight = planImage.naturalHeight;
-                resolve();
-            };
-            planImage.onerror = () => {
-                reject(new Error("Failed to load plan image: " + url));
-            };
-            planImage.src = url;
-        });
-    }
-
-    // Update the PDF download button with the current drawing's link //
-    function updateDownloadLink(pdfUrl, documentName) {
-        const downloadBtn = document.getElementById("downloadPDFBtn");
-        downloadBtn.onclick = () => {
-            const link = document.createElement("a");
-            link.href = pdfUrl;
-            link.download = documentName.replace(/ /g, "-") + ".pdf";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        };
-    }
-
-    // Show the loading overlay //
-    function showLoading() {
-        loadingOverlay.classList.remove("hidden");
-    }
-
-    // Hide the loading overlay //
-    function hideLoading() {
-        loadingOverlay.classList.add("hidden");
-    }
-
-    // Display an error message to the user //
-    function displayError(message) {
-        errorMessage.textContent = message;
-        errorMessage.style.display = "block";
-    }
 
     // ========================================================================
     // INITIALISATION
@@ -1085,94 +185,97 @@
             return;
         }
 
-        // Load assets from centralized library
-        const assetLibrary = await fetchAssetLibrary();
-        if (assetLibrary) {
-            loadFontsFromAssetLibrary(assetLibrary);
-            updateImagesFromAssetLibrary(assetLibrary);
-            
-            // Check if Caveat font loaded successfully after a short delay
-            setTimeout(checkFontAvailability, 500);
-        } else {
-            console.warn("Asset library failed to load. Using fallback assets.");
-            // Load fallback Google Fonts for Caveat
-            const fontStylesElement = document.getElementById("dynamic-font-styles");
-            fontStylesElement.innerHTML += `
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 400;
-                    src: url('https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYS9AoA.woff2') format('woff2');
-                    font-display: swap;
-                }
-            `;
-        }
+        // Initialize loading screen
+        initLoadingScreen();
+        showLoadingScreen();
 
-        resizeCanvas();
-        const drawings = await fetchDrawings();
-        if (drawings) {
-            createDrawingButtons(drawings);
-            const firstDrawingKey = Object.keys(drawings).find(
-                key => key.startsWith("drawing-") && drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}"
-            );
-            if (firstDrawingKey) {
-                await loadDrawing(drawings[firstDrawingKey]);
-            }
-        }
-        attachEventListeners();
-        handleInitialTutorialFlow();
-        renderLoop();
-    }
-    
-    // Preload fonts to ensure they're available before drawing
-    async function preloadFonts() {
         try {
-            // Create a FontFace object for Caveat
-            const caveat = new FontFace('Caveat', 'url(https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYS9AoA.woff2)', {
-                style: 'normal',
-                weight: '400',
-                display: 'swap'
-            });
-            
-            // Wait for the font to load
-            const loadedFace = await caveat.load();
-            
-            // Add the loaded font to the document fonts
-            document.fonts.add(loadedFace);
-            console.log("Caveat font preloaded successfully as backup");
-            
-            return true;
+            // Load assets from centralized library
+            const assetLibrary = await fetchAssetLibrary();
+            if (assetLibrary) {
+                loadFontsFromAssetLibrary(assetLibrary);
+                updateImagesFromAssetLibrary(assetLibrary);
+            } else {
+                console.warn("Asset library failed to load. Using fallback assets.");
+            }
+
+            resizeCanvas();
+            const drawings = await fetchDrawings();
+            if (drawings) {
+                // Pass the toolbar element and a callback function to handle drawing selection
+                createDrawingButtons(drawings, toolbar, async (drawing) => {
+                    try {
+                        showLoadingScreen();
+
+                        const drawingData = await loadDrawing(drawing);
+                        const imageData = await loadPlanImage(drawingData.pngUrl);
+                        
+                        // Update the planImage
+                        planImage = imageData.image;
+                        naturalImageWidth = imageData.naturalWidth;
+                        naturalImageHeight = imageData.naturalHeight;
+                        
+                        // Update drawing metadata
+                        currentDrawingScale = drawingData.documentScale;
+                        currentDrawingSize = drawingData.documentSize;
+                        
+                        // Update download link
+                        updateDownloadLink(drawingData.pdfUrl, drawingData.documentName);
+                        
+                        // Set image loaded flag and reset view
+                        isImageLoaded = true;
+                        resetView();
+
+                        hideLoadingScreen();
+                    } catch (error) {
+                        console.error("Error loading drawing:", error);
+                        showErrorMessage("Failed to load drawing. Please try again.");
+                        hideLoadingScreen();
+                    }
+                });
+                
+                const firstDrawingKey = Object.keys(drawings).find(
+                    key => key.startsWith("drawing-") && drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}"
+                );
+                if (firstDrawingKey) {
+                    try {
+                        const drawingData = await loadDrawing(drawings[firstDrawingKey]);
+                        const imageData = await loadPlanImage(drawingData.pngUrl);
+                        
+                        // Update the planImage
+                        planImage = imageData.image;
+                        naturalImageWidth = imageData.naturalWidth;
+                        naturalImageHeight = imageData.naturalHeight;
+                        
+                        // Update drawing metadata
+                        currentDrawingScale = drawingData.documentScale;
+                        currentDrawingSize = drawingData.documentSize;
+                        
+                        // Update download link
+                        updateDownloadLink(drawingData.pdfUrl, drawingData.documentName);
+                        
+                        // Set image loaded flag and reset view
+                        isImageLoaded = true;
+                        resetView();
+                    } catch (error) {
+                        console.error("Error loading initial drawing:", error);
+                        showErrorMessage("Failed to load initial drawing. Please try again.");
+                    }
+                }
+            }
+
+            attachEventListeners();
+            handleInitialTutorialFlow();
+            renderLoop();
+
+            hideLoadingScreen();
         } catch (error) {
-            console.error("Failed to preload Caveat font:", error);
-            return false;
+            console.error("Error during initialization:", error);
+            showErrorMessage("Failed to initialize application. Please refresh the page.");
+            hideLoadingScreen();
         }
     }
     
-    // Check if the Caveat font is available
-    async function checkFontAvailability() {
-        if (!document.fonts.check("16px 'Caveat'")) {
-            console.warn("Caveat font not loaded or available after initialization. Using fallback fonts.");
-            
-            // Try to preload the font as a last resort
-            const preloaded = await preloadFonts();
-            
-            if (!preloaded) {
-                // If preloading fails, use link method as absolute fallback
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = 'https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&display=swap';
-                document.head.appendChild(link);
-                console.log("Using Google Fonts stylesheet as fallback for Caveat font");
-            }
-            
-            // Display warning to user if in development mode
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.error("DEVELOPER WARNING: Sketchy Text Style (Caveat font) failed to load initially.");
-            }
-        } else {
-            console.log("Caveat font loaded successfully. Sketchy text style is available.");
-        }
-    }
 
     // ========================================================================
     // FIRST-LOAD TUTORIAL FLOW
@@ -3071,7 +2174,7 @@
             } else if (path.tool === 'line') {
                 drawSketchyLine(context, path);
             } else if (path.tool === 'arc') {
-                // Here’s where arcs are drawn
+                // Here's where arcs are drawn
                 drawArc(context, path);
             } else if (path.tool === 'text') {
                 drawSketchyText(context, path);
@@ -6219,8 +5322,3 @@
 
 
 })();        // <---- This is where the function is immediately executed
-</script>
-</body>
-</html>
-
-

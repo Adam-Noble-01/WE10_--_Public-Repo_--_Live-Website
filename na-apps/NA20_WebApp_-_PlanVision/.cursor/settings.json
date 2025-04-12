@@ -9,7 +9,6 @@
     "rules"                 :  [
         "./rules/json-standards.rules.json",
         "./rules/javascript-style.rules.json",
-        "./rules/powershell-and-shell-commands.rules.json",
         "./rules/css-style.rules.json"
     ],
     "aiCompletions"         :  {

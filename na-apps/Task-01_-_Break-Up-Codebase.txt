@@ -11,3 +11,14 @@ Analyse the FULL Codebase and give me a outline of the key sections we could car
 
 
 
+---
+
+We are going to go one by one
+
+We pick alement to rip from the main @NA20_WebApp_-_PlanVision_-_Core-Index-File.html 
+
+Then we move it into the relevent .js file in src
+
+Start with the simplest, I will test each time we move a code section to a new script file
+
+You must be careful and methodical

@@ -1,5 +1,6 @@
 
 .--TEMP
+.--BAK
 *.tmp
 *.BAK
 *.--BAK
