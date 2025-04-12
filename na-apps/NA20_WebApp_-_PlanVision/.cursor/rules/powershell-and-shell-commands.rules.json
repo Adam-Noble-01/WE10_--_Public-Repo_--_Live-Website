@@ -1,0 +1,104 @@
+{
+    "description": "PowerShell Command Enforcement Rules for Windows Development",
+    "patterns": ["**/*.{ps1,psm1,psd1}"],
+    "rules": [
+        {
+            "name": "Use New-Item for File Creation",
+            "description": "Always use New-Item -ItemType File instead of Unix touch command",
+            "pattern": "touch\\s+[\"']?[\\w\\/\\.\\-]+[\"']?",
+            "action": "enforce",
+            "replacement": "New-Item -ItemType File -Path \"$1\""
+        },
+        {
+            "name": "Use New-Item for Directory Creation",
+            "description": "Use New-Item -ItemType Directory instead of mkdir -p",
+            "pattern": "mkdir\\s+-p\\s+[\"']?[\\w\\/\\.\\-]+[\"']?",
+            "action": "enforce",
+            "replacement": "New-Item -ItemType Directory -Path \"$1\" -Force"
+        },
+        {
+            "name": "Use Set-Location for Directory Navigation",
+            "description": "Use Set-Location or cd with proper path formatting",
+            "pattern": "cd\\s+[\"']?[\\.\\.\\/]+[\"']?",
+            "action": "enforce",
+            "replacement": "Set-Location -Path \"$1\""
+        },
+        {
+            "name": "Use PowerShell Array Syntax",
+            "description": "Use @() for array declarations instead of []",
+            "pattern": "\\[\\s*\\]",
+            "action": "enforce",
+            "replacement": "@()"
+        },
+        {
+            "name": "Use PowerShell Hashtable Syntax",
+            "description": "Use @{} for hashtable declarations",
+            "pattern": "\\{\\s*\\}",
+            "action": "enforce",
+            "replacement": "@{}"
+        },
+        {
+            "name": "Use Join-Path for Path Concatenation",
+            "description": "Use Join-Path instead of string concatenation for paths",
+            "pattern": "\\$[\\w]+\\s*\\+\\s*[\"']\\\\[\\w\\.\\-]+[\"']",
+            "action": "enforce",
+            "replacement": "Join-Path -Path $1 -ChildPath \"$2\""
+        },
+        {
+            "name": "Use Remove-Item for Deletion",
+            "description": "Use Remove-Item instead of rm or del commands",
+            "pattern": "(rm|del)\\s+[\"']?[\\w\\/\\.\\-]+[\"']?",
+            "action": "enforce",
+            "replacement": "Remove-Item -Path \"$1\""
+        },
+        {
+            "name": "Use Copy-Item for File Copying",
+            "description": "Use Copy-Item instead of cp command",
+            "pattern": "cp\\s+[\"']?[\\w\\/\\.\\-]+[\"']?\\s+[\"']?[\\w\\/\\.\\-]+[\"']?",
+            "action": "enforce",
+            "replacement": "Copy-Item -Path \"$1\" -Destination \"$2\""
+        },
+        {
+            "name": "Use Move-Item for Moving Files",
+            "description": "Use Move-Item instead of mv command",
+            "pattern": "mv\\s+[\"']?[\\w\\/\\.\\-]+[\"']?\\s+[\"']?[\\w\\/\\.\\-]+[\"']?",
+            "action": "enforce",
+            "replacement": "Move-Item -Path \"$1\" -Destination \"$2\""
+        },
+        {
+            "name": "Use PowerShell Error Handling",
+            "description": "Include proper error handling with try/catch blocks",
+            "pattern": "New-Item|Set-Location|Remove-Item|Copy-Item|Move-Item",
+            "action": "prefer",
+            "suggestion": "Consider wrapping in try/catch block with -ErrorAction parameter"
+        },
+        {
+            "name": "Use Force Parameter for Overwriting",
+            "description": "Include -Force parameter when overwriting may be needed",
+            "pattern": "New-Item|Copy-Item|Move-Item",
+            "action": "prefer",
+            "suggestion": "Consider adding -Force parameter for overwrite scenarios"
+        },
+        {
+            "name": "Use PowerShell Foreach Syntax",
+            "description": "Use foreach ($item in $collection) syntax for iterations",
+            "pattern": "for\\s+\\(",
+            "action": "enforce",
+            "replacement": "foreach ($item in $collection)"
+        },
+        {
+            "name": "Use PowerShell If Syntax",
+            "description": "Use if ($condition) syntax for conditionals",
+            "pattern": "if\\s*\\(",
+            "action": "enforce",
+            "replacement": "if ($condition)"
+        },
+        {
+            "name": "Use Get-Location for Current Directory",
+            "description": "Use Get-Location instead of pwd command",
+            "pattern": "pwd",
+            "action": "enforce",
+            "replacement": "Get-Location"
+        }
+    ]
+}

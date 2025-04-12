@@ -1,0 +1,13 @@
+## Task
+
+- You are going to help me modularise the project
+- We need to break up the codebase
+- We need to ensure separation of concerns 
+- The Codebase is  too unwieldy currently
+
+Analyse the FULL Codebase and give me a outline of the key sections we could carve the script into
+
+-   I stress you must READ THE CODEBASE IN ITS ENTIRETY
+
+
+
