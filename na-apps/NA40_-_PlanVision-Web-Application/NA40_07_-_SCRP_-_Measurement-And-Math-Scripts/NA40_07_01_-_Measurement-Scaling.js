@@ -21,8 +21,7 @@ IMPORTANT NOTES
 
 // Measurement scaling variables
 let scaleMetresPerPixel = 0.001;  // Default scale (will be calculated based on drawing info)
-let currentDrawingScale = "1:50"; // Default drawing scale (e.g., "1:50", "1:100")
-let currentDrawingSize = "A1";    // Default drawing size (e.g., "A1", "A0")
+// Using currentDrawingScale and currentDrawingSize from core app config loader
 
 // Standard drawing sizes in mm (width x height)
 const STANDARD_SIZES = {

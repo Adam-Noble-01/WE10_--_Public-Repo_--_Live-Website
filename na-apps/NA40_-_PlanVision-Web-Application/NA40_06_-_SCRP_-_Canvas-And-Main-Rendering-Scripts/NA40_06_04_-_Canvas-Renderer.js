@@ -123,42 +123,96 @@ window.canvasRenderer.renderLoop = function() {
 // FUNCTION |  Draw the canvas
 // --------------------------------------------------------- //
 window.canvasRenderer.drawCanvas = function() {
-    if (!ctx || !canvas) return;
+    if (!ctx || !canvas) {
+        console.error("CANVAS_RENDERER: Missing context or canvas");
+        return;
+    }
     
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Check if an image is loaded
-    if (window.projectAssets && window.projectAssets.isImageLoaded()) {
-        const planImage = window.projectAssets.getPlanImage();
+    // Check sources for the plan image
+    let planImage = null;
+    let imageSource = "";
+    
+    // Try from projectAssets first (compatibility layer)
+    if (window.projectAssets && typeof window.projectAssets.isImageLoaded === 'function' && 
+        window.projectAssets.isImageLoaded() && 
+        typeof window.projectAssets.getPlanImage === 'function') {
         
-        // Save canvas state
-        ctx.save();
+        planImage = window.projectAssets.getPlanImage();
+        imageSource = "projectAssets";
+        console.log("CANVAS_RENDERER: Using image from projectAssets");
+    }
+    // Try from drawingManager directly as fallback
+    else if (window.drawingManager && typeof window.drawingManager.isImageLoaded === 'function' && 
+             window.drawingManager.isImageLoaded() && 
+             typeof window.drawingManager.getPlanImage === 'function') {
         
-        // Apply transformations
-        ctx.translate(offsetX, offsetY);
-        ctx.scale(zoomFactor, zoomFactor);
-        
-        // Apply drop shadow
-        ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetX = 5;
-        ctx.shadowOffsetY = 5;
-        
-        // Draw the image
-        ctx.drawImage(planImage, 0, 0);
-        
-        // Restore canvas state
-        ctx.restore();
-        
-        // Draw measurements if available
-        if (window.measurementTools && typeof window.measurementTools.drawAllMeasurements === "function") {
-            window.measurementTools.drawAllMeasurements(ctx, offsetX, offsetY, zoomFactor);
-        }
-        
-        // Draw markups if available and active
-        if (window.markupTools && typeof window.markupTools.drawAllMarkupPaths === "function") {
-            window.markupTools.drawAllMarkupPaths(ctx, offsetX, offsetY, zoomFactor);
+        planImage = window.drawingManager.getPlanImage();
+        imageSource = "drawingManager";
+        console.log("CANVAS_RENDERER: Using image from drawingManager");
+    }
+    
+    // If we have a valid image, render it
+    if (planImage && planImage.complete) {
+        try {
+            console.log(`CANVAS_RENDERER: Rendering image from ${imageSource}`);
+            console.log(`CANVAS_RENDERER: Image dimensions: ${planImage.naturalWidth}x${planImage.naturalHeight}, Complete: ${planImage.complete}`);
+            
+            // Save canvas state
+            ctx.save();
+            
+            // Apply transformations
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(zoomFactor, zoomFactor);
+            
+            // Apply drop shadow
+            ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 5;
+            ctx.shadowOffsetY = 5;
+            
+            // Draw the image
+            try {
+                ctx.drawImage(planImage, 0, 0);
+                console.log("CANVAS_RENDERER: Successfully rendered image");
+            } catch (error) {
+                console.error("CANVAS_RENDERER: Error rendering image:", error);
+                
+                // Additional diagnostics if drawing fails
+                console.error(`CANVAS_RENDERER: Image state - Width: ${planImage.width}, Height: ${planImage.height}, Complete: ${planImage.complete}, Failed: ${planImage.failedToLoad}`);
+                
+                // Try an alternative approach
+                if (planImage.src) {
+                    console.log("CANVAS_RENDERER: Attempting to draw using alternative method");
+                    const tempImage = new Image();
+                    tempImage.crossOrigin = "anonymous";
+                    tempImage.onload = () => {
+                        ctx.drawImage(tempImage, 0, 0);
+                        console.log("CANVAS_RENDERER: Alternative drawing method succeeded");
+                    };
+                    tempImage.onerror = (err) => {
+                        console.error("CANVAS_RENDERER: Alternative drawing method failed:", err);
+                    };
+                    tempImage.src = planImage.src;
+                }
+            }
+            
+            // Restore canvas state
+            ctx.restore();
+            
+            // Draw measurements if available
+            if (window.measurementTools && typeof window.measurementTools.drawAllMeasurements === "function") {
+                window.measurementTools.drawAllMeasurements(ctx, offsetX, offsetY, zoomFactor);
+            }
+            
+            // Draw markups if available and active
+            if (window.markupTools && typeof window.markupTools.drawAllMarkupPaths === "function") {
+                window.markupTools.drawAllMarkupPaths(ctx, offsetX, offsetY, zoomFactor);
+            }
+        } catch (e) {
+            console.error("CANVAS_RENDERER: Top level rendering error:", e);
         }
     } else {
         // No image loaded, draw message
@@ -169,6 +223,19 @@ window.canvasRenderer.drawCanvas = function() {
         ctx.fillStyle = "#666666";
         ctx.textAlign = "center";
         ctx.fillText("No image loaded. Select a drawing to view.", canvas.width / 2, canvas.height / 2);
+        
+        // Log diagnostic info
+        console.log("CANVAS_RENDERER: No valid image found to render");
+        console.log("CANVAS_RENDERER: projectAssets available:", !!window.projectAssets);
+        console.log("CANVAS_RENDERER: drawingManager available:", !!window.drawingManager);
+        
+        if (window.projectAssets && typeof window.projectAssets.isImageLoaded === 'function') {
+            console.log("CANVAS_RENDERER: projectAssets.isImageLoaded():", window.projectAssets.isImageLoaded());
+        }
+        
+        if (window.drawingManager && typeof window.drawingManager.isImageLoaded === 'function') {
+            console.log("CANVAS_RENDERER: drawingManager.isImageLoaded():", window.drawingManager.isImageLoaded());
+        }
     }
 };
 
@@ -263,11 +330,38 @@ window.canvasRenderer.zoom = function(factor, centerX, centerY) {
 // FUNCTION |  Reset the view to fit the image
 // --------------------------------------------------------- //
 window.canvasRenderer.resetView = function() {
-    if (!canvas || !window.projectAssets || !window.projectAssets.isImageLoaded()) return;
+    if (!canvas) return;
     
-    // Get image dimensions
-    const width = window.projectAssets.getNaturalImageWidth();
-    const height = window.projectAssets.getNaturalImageHeight();
+    console.log("CANVAS_RENDERER: Resetting view");
+    
+    // Get image dimensions - try both potential sources
+    let width = 0;
+    let height = 0;
+    
+    // Try projectAssets first
+    if (window.projectAssets && 
+        typeof window.projectAssets.getNaturalImageWidth === 'function' && 
+        typeof window.projectAssets.getNaturalImageHeight === 'function') {
+        
+        width = window.projectAssets.getNaturalImageWidth();
+        height = window.projectAssets.getNaturalImageHeight();
+        console.log("CANVAS_RENDERER: Got dimensions from projectAssets:", width, "x", height);
+    }
+    // Try drawingManager as fallback
+    else if (window.drawingManager && 
+             typeof window.drawingManager.getNaturalImageWidth === 'function' && 
+             typeof window.drawingManager.getNaturalImageHeight === 'function') {
+        
+        width = window.drawingManager.getNaturalImageWidth();
+        height = window.drawingManager.getNaturalImageHeight();
+        console.log("CANVAS_RENDERER: Got dimensions from drawingManager:", width, "x", height);
+    }
+    
+    // If no dimensions, can't reset view
+    if (!width || !height) {
+        console.warn("CANVAS_RENDERER: Cannot reset view, no image dimensions available");
+        return;
+    }
     
     // Calculate scale to fit image within canvas
     const scaleX = canvas.width / width;
@@ -281,7 +375,7 @@ window.canvasRenderer.resetView = function() {
     offsetX = (canvas.width - width * zoomFactor) / 2;
     offsetY = (canvas.height - height * zoomFactor) / 2;
     
-    console.log("CANVAS_RENDERER: View reset, scale:", zoomFactor);
+    console.log("CANVAS_RENDERER: View reset, scale:", zoomFactor, "offset:", offsetX, offsetY);
     
     // Request redraw
     requestAnimationFrame(window.canvasRenderer.drawCanvas);

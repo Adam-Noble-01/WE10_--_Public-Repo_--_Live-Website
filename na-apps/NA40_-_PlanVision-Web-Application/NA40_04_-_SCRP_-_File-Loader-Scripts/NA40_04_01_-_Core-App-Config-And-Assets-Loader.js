@@ -555,4 +555,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Backwards compatibility with direct module approach
-window.imageLoader = window.masterAssetLoader; 
+window.projectAssets = window.masterAssetLoader; 

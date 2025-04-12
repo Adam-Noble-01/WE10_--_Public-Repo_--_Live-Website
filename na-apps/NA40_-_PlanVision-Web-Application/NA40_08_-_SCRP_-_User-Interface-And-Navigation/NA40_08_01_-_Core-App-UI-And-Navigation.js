@@ -218,17 +218,6 @@ window.uiNavigation.toggleToolbar = function() {
             toolbar.classList.remove('TOOL__Container--collapsed');
             console.log("Toolbar shown");
         }
-        
-        // Force debug menu items to be visible regardless of toolbar state
-        const debugHeader = document.getElementById('TOOL__Debug-Header');
-        const debugLoadButton = document.getElementById('BTTN__Debug-Load-Drawing');
-        const debugStatusButton = document.getElementById('BTTN__Debug-Check-Status');
-        const debugLegacyButton = document.getElementById('BTTN__Debug-Legacy-Load');
-        
-        if (debugHeader) debugHeader.style.display = 'block';
-        if (debugLoadButton) debugLoadButton.style.display = 'block';
-        if (debugStatusButton) debugStatusButton.style.display = 'block';
-        if (debugLegacyButton) debugLegacyButton.style.display = 'block';
     }
 };
 

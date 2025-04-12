@@ -20,12 +20,13 @@ DESCRIPTION
 
 // Application state
 let appInitialized = false;         // Whether the application has been fully initialized
-let isDevMode = false;              // Set to true to enable Dev-Mode logging
 let modulesInitialized = {           // Tracking which modules have been initialized
     masterAssetLoader: false,       // Using the new masterAssetLoader naming
+    drawingManager: false,          // Drawing loading and management
     measurementScaling: false,
     measurementTools: false,
     canvasController: false,
+    projectAssets: false,           // Added project assets module
     uiNavigation: false
 };
 
@@ -48,12 +49,18 @@ DESCRIPTION
 
 // Define all scripts that need to be loaded in the correct sequence
 const scriptsToLoad = [
-    // Module Integration is loaded first 
+    // Core functionality first
     {
         name: 'moduleIntegration',
         path: './NA40_05_-_SCRP_-_Core-Utility-And-App-Management-Scripts/NA40_05_02_-_Module-Integration.js',
         critical: true
-    }, 
+    },
+    // Drawing loading and management
+    {
+        name: 'drawingManager',
+        path: './NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_03_-_Drawing-Manager.js',
+        critical: true
+    },
     // Measurement scaling (needed before canvas rendering)
     {
         name: 'measurementScaling',
@@ -95,13 +102,6 @@ const scriptsToLoad = [
         name: 'backwardCompatibility',
         path: './NA40_10_-_SCRP_-_Backward-Compatibility-Scripts/NA40_10_01_-_Backward-Compatibility.js',
         critical: false
-    },
-    // Dev mode scripts (only loaded in dev mode)
-    {
-        name: 'devMode',
-        path: './NA40_20_-_SCRP_-_Dev-Mode-Scripts/NA40_20_01_-_Dev-Mode.js',
-        critical: false,
-        condition: () => isDevMode
     }
 ];
 
@@ -118,7 +118,25 @@ DESCRIPTION
 // --------------------------------------------------------- //
 function loadScript(scriptConfig) {
     return new Promise((resolve, reject) => {
+        // Skip if script is already loaded
+        if (scriptsLoaded[scriptConfig.name]) {
+            console.log(`Script ${scriptConfig.name} already loaded, skipping`);
+            resolve(scriptConfig);
+            return;
+        }
+        
         console.log(`Loading script: ${scriptConfig.name} (${scriptConfig.path})`);
+        
+        // Check if the script is already in the DOM
+        const existingScript = Array.from(document.getElementsByTagName('script'))
+            .find(script => script.src.includes(scriptConfig.path));
+            
+        if (existingScript) {
+            console.log(`Script ${scriptConfig.name} already in DOM, marking as loaded`);
+            scriptsLoaded[scriptConfig.name] = true;
+            resolve(scriptConfig);
+            return;
+        }
         
         // Create script element
         const script = document.createElement('script');
@@ -206,16 +224,57 @@ async function initializeApplication() {
             throw new Error("Master Asset Loader is not available");
         }
         
-        // Check if Dev-Mode should be enabled
-        setDevModeFromConfig();
-        
         // Dynamically load all other scripts
+        console.log("Loading required scripts...");
         const scriptsLoaded = await loadAllScripts();
         if (!scriptsLoaded) {
             throw new Error("Failed to load required scripts");
         }
         
-        // Initialize UI components
+        // Add a small delay to ensure scripts are fully processed
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Verify drawing manager is available or try reloading it
+        if (!window.drawingManager) {
+            console.warn("Drawing manager not found after script loading, attempting to load it directly");
+            
+            // Try loading the drawing manager directly as a fallback
+            try {
+                await loadScript({
+                    name: 'drawingManager',
+                    path: './NA40_04_-_SCRP_-_File-Loader-Scripts/NA40_04_03_-_Drawing-Manager.js',
+                    critical: true
+                });
+                
+                // Check again after direct load attempt
+                if (!window.drawingManager) {
+                    throw new Error("Drawing manager module failed to load properly");
+                }
+            } catch (error) {
+                console.error("Failed to load drawing manager directly:", error);
+                throw new Error("Drawing manager module failed to load properly");
+            }
+        }
+        
+        // Initialize the drawing manager first
+        if (typeof window.drawingManager.init === "function") {
+            console.log("Initializing drawing manager...");
+            try {
+                const success = await window.drawingManager.init();
+                if (!success) {
+                    throw new Error("Drawing manager initialization returned false");
+                }
+                modulesInitialized.drawingManager = true;
+                console.log("Drawing manager initialized successfully");
+            } catch (error) {
+                console.error("Error during drawing manager initialization:", error);
+                throw error;
+            }
+        } else {
+            throw new Error("Drawing manager init function not available");
+        }
+        
+        // Initialize UI components after drawing manager
         initializeUI();
         
         // Initialize the master asset loader
@@ -235,24 +294,7 @@ async function initializeApplication() {
         console.error("Application initialization failed:", error);
         showErrorMessage("Failed to initialize application. Please refresh the page.");
         hideLoadingOverlay();
-    }
-}
-
-// FUNCTION | Set development mode from config if available
-// --------------------------------------------------------- //
-function setDevModeFromConfig() {
-    // Check URL parameters first for dev mode flag
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('dev-mode')) {
-        isDevMode = true;
-        console.log("Dev-Mode enabled via URL parameter");
-        return;
-    }
-    
-    // Otherwise check local storage for persistent dev mode setting
-    if (localStorage.getItem('planVisionDevMode') === 'true') {
-        isDevMode = true;
-        console.log("Dev-Mode enabled via local storage setting");
+        throw error; // Re-throw to be caught by the caller
     }
 }
 
@@ -279,30 +321,6 @@ async function initApplication() {
     } catch (error) {
         console.error("Error during application initialization:", error);
         showErrorMessage("Failed to initialize the application.");
-    }
-}
-
-// FUNCTION | Log module status to Dev Mode Panel if available
-// --------------------------------------------------------- //
-function logModuleStatusToDevModePanel() {
-    if (!isDevMode) return;
-    
-    // Only proceed if we have the Dev Mode Panel available
-    if (window.devModePanel && typeof window.devModePanel.logModuleStatus === 'function') {
-        // Create a status report
-        const statusReport = {
-            appInitialized: appInitialized,
-            modulesInitialized: { ...modulesInitialized },
-            scriptsLoaded: { ...scriptsLoaded },
-            errors: {
-                moduleErrors: { ...moduleErrors },
-                scriptLoadErrors: { ...scriptLoadErrors }
-            }
-        };
-        
-        // Log the status report
-        window.devModePanel.logModuleStatus("Application Scheduler", statusReport);
-        console.log("Module status logged to Dev Mode Panel:", statusReport);
     }
 }
 
@@ -400,44 +418,30 @@ function onDrawingLoaded(event) {
     
     // Hide loading overlay
     hideLoadingOverlay();
-    
-    // Log the status to the Dev Mode Panel
-    logModuleStatusToDevModePanel();
 }
 
-// FUNCTION | Check if all required modules are initialized
+// FUNCTION | Function that checks if all modules have been initialized correctly
 // --------------------------------------------------------- //
 function checkAllModulesInitialized() {
-    const requiredModules = [
-        'masterAssetLoader',
-        'measurementScaling',
-        'canvasController',
-        'uiNavigation'
-    ];
-    
     // Check if all required modules are initialized
-    const allInitialized = requiredModules.every(module => 
-        modulesInitialized[module] === true
-    );
+    const allRequired = Object.keys(modulesInitialized).every(mod => modulesInitialized[mod]);
     
-    if (allInitialized) {
-        console.log("All required modules initialized successfully");
+    if (allRequired) {
+        console.log("✅ All modules have been initialized successfully");
         
-        // Complete the application initialization
+        // Clean up after ourselves
+        document.removeEventListener('drawingLoaded', onDrawingLoaded);
+        document.removeEventListener('projectAssetsReady', onProjectAssetsReady);
+        document.removeEventListener('imageLoaded', onImageLoaded);
+        
+        // Clean up for the current initialization
         completeApplicationInitialization();
-    } else {
-        // Log which modules are not initialized yet
-        const pendingModules = requiredModules.filter(module => 
-            !modulesInitialized[module]
-        );
-        
-        console.log("Waiting for modules to initialize:", pendingModules);
+        return true;
     }
     
-    // Log module status to Dev Mode Panel
-    logModuleStatusToDevModePanel();
-    
-    return allInitialized;
+    // Log the current initialization status
+    console.log("Current initialization status:", modulesInitialized);
+    return false;
 }
 
 // FUNCTION | Complete application initialization
@@ -545,39 +549,31 @@ function onApplicationError(error) {
     showErrorMessage("An error occurred. Please try refreshing the page.");
 }
 
-// FUNCTION | Extract module name from error
+// FUNCTION | Match a pattern in an error message to identify the problematic module
 // --------------------------------------------------------- //
 function extractModuleFromError(error) {
-    // If the error has a custom property with the module name, use that
-    if (error.moduleName) {
-        return error.moduleName;
-    }
+    if (!error) return null;
     
-    // Otherwise try to extract it from the error message or stack trace
-    const errorString = error.message || String(error);
-    const errorStack = error.stack || '';
+    // Get the error message
+    const message = error.message || error.toString();
     
-    // Define patterns to match module names in error strings
-    const modulePatterns = [
-        { pattern: /masterAssetLoader|Master-Asset-Loader/i, name: 'masterAssetLoader' },
-        { pattern: /measurementScaling|Measurement-Scaling/i, name: 'measurementScaling' },
-        { pattern: /canvasRenderer|Canvas-Renderer/i, name: 'canvasController' },
-        { pattern: /measurementTools|Measurement-Tools/i, name: 'measurementTools' },
-        { pattern: /uiNavigation|UI-And-Navigation/i, name: 'uiNavigation' },
-        { pattern: /moduleIntegration|Module-Integration/i, name: 'moduleIntegration' },
-        { pattern: /fontStyleGenerator|Font-Style-Generator/i, name: 'fontStyleGenerator' },
-        { pattern: /backwardCompatibility|Backward-Compatibility/i, name: 'backwardCompatibility' },
-        { pattern: /devMode|Dev-Mode/i, name: 'devMode' }
+    // Define patterns to match against the error message
+    const patterns = [
+        { pattern: /asset\s*loader|loading\s*assets/i, name: 'masterAssetLoader' },
+        { pattern: /drawing\s*manager|load\s*drawing/i, name: 'drawingManager' },
+        { pattern: /canvas\s*render|rendering/i, name: 'canvasRenderer' },
+        { pattern: /measure|scaling/i, name: 'measurementScaling' },
+        { pattern: /ui|navigation/i, name: 'uiNavigation' }
     ];
     
-    // Try to match the module name in the error message
-    for (const { pattern, name } of modulePatterns) {
-        if (pattern.test(errorString) || pattern.test(errorStack)) {
+    // Try to match against each pattern
+    for (const { pattern, name } of patterns) {
+        if (pattern.test(message)) {
             return name;
         }
     }
     
-    // Return null if we couldn't determine the module
+    // Default to null if no match
     return null;
 }
 
@@ -689,9 +685,9 @@ window.addEventListener('error', (event) => {
 
 // Expose the API for other modules to use
 window.applicationScheduler = {
-    loadDrawing,
-    reloadApplication: initApplication,
-    checkModuleStatus: logModuleStatusToDevModePanel
+    init: initApplication,
+    loadDrawing: loadDrawing,
+    loadAsset: (asset) => window.masterAssetLoader.loadAsset(asset)
 };
 
 // Log that the scheduler has loaded

@@ -50,9 +50,9 @@ let instructionsOverlay = null;        // Reference to the instructions overlay
 let instructionsText = null;           // Reference to the instructions text element
 let mainCanvas = null;                 // Reference to the main canvas
 let canvasContext = null;              // Canvas context (renamed to avoid redeclaration)
-let offsetX = 0;                       // Canvas pan X offset
-let offsetY = 0;                       // Canvas pan Y offset
-let zoomFactor = 1;                    // Canvas zoom level
+let measurementOffsetX = 0;            // Canvas pan X offset for measurements
+let measurementOffsetY = 0;            // Canvas pan Y offset for measurements
+let measurementZoomFactor = 1.0;       // Canvas zoom factor for measurements
 
 // Marker display configuration
 const DISTANCE_OFFSET = 20;
@@ -270,7 +270,7 @@ function handleAreaMeasurementMouseDown(coords) {
         const dist = Math.hypot(coords.x - firstPoint.x, coords.y - firstPoint.y);
         
         // If within a certain distance of the start point, close the polygon
-        if (dist < 15 / zoomFactor) {
+        if (dist < 15 / measurementZoomFactor) {
             // Replace the last point with the first point to ensure a perfect close
             measuringPoints.pop();
             measuringPoints.push({ x: firstPoint.x, y: firstPoint.y });
@@ -367,13 +367,13 @@ function adjustConfirmButtonPosition() {
     
     if (currentTool === "linear" || currentTool === "rectangle") {
         // For linear and rectangle, position near the second point
-        posX = measuringPoints[1].x * zoomFactor + offsetX;
-        posY = measuringPoints[1].y * zoomFactor + offsetY;
+        posX = measuringPoints[1].x * measurementZoomFactor + measurementOffsetX;
+        posY = measuringPoints[1].y * measurementZoomFactor + measurementOffsetY;
     } else if (currentTool === "area") {
         // For area, position near the last point
         const lastPoint = measuringPoints[measuringPoints.length - 1];
-        posX = lastPoint.x * zoomFactor + offsetX;
-        posY = lastPoint.y * zoomFactor + offsetY;
+        posX = lastPoint.x * measurementZoomFactor + measurementOffsetX;
+        posY = lastPoint.y * measurementZoomFactor + measurementOffsetY;
     }
     
     // Adjust to ensure button is fully visible
@@ -426,8 +426,8 @@ function polygonArea(pts) {
 // --------------------------------------------------------- //
 function toPlanCoords(x, y) {
     return {
-        x: (x - offsetX) / zoomFactor,
-        y: (y - offsetY) / zoomFactor
+        x: (x - measurementOffsetX) / measurementZoomFactor,
+        y: (y - measurementOffsetY) / measurementZoomFactor
     };
 }
 
@@ -613,10 +613,10 @@ function drawLine(ctx, points, strokeStyle) {
     if (points.length < 2) return;
     
     ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
+    ctx.translate(measurementOffsetX, measurementOffsetY);
+    ctx.scale(measurementZoomFactor, measurementZoomFactor);
     ctx.strokeStyle = strokeStyle;
-    ctx.lineWidth = (BASE_LINE_WIDTH * 0.50) / zoomFactor;
+    ctx.lineWidth = (BASE_LINE_WIDTH * 0.50) / measurementZoomFactor;
     
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
@@ -630,13 +630,13 @@ function drawLine(ctx, points, strokeStyle) {
 // --------------------------------------------------------- //
 function drawMarkers(ctx, points, color) {
     ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
+    ctx.translate(measurementOffsetX, measurementOffsetY);
+    ctx.scale(measurementZoomFactor, measurementZoomFactor);
     ctx.strokeStyle = color;
     ctx.globalAlpha = 0.75;
-    ctx.lineWidth = 1 / zoomFactor;
+    ctx.lineWidth = 1 / measurementZoomFactor;
     
-    let doubleRadius = MARKER_RADIUS * 2 / zoomFactor;
+    let doubleRadius = MARKER_RADIUS * 2 / measurementZoomFactor;
     points.forEach(pt => {
         ctx.beginPath();
         ctx.moveTo(pt.x - doubleRadius, pt.y);
@@ -655,17 +655,17 @@ function drawLineLabel(ctx, points, distanceMM, color) {
     if (points.length < 2) return;
     
     ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
+    ctx.translate(measurementOffsetX, measurementOffsetY);
+    ctx.scale(measurementZoomFactor, measurementZoomFactor);
     ctx.fillStyle = color;
-    ctx.font = (18 / zoomFactor) + "px sans-serif";
+    ctx.font = (18 / measurementZoomFactor) + "px sans-serif";
     
     const mid = { 
         x: (points[0].x + points[1].x) / 2, 
         y: (points[0].y + points[1].y) / 2 
     };
     
-    const offsetVal = 10 / zoomFactor;
+    const offsetVal = 10 / measurementZoomFactor;
     ctx.fillText(distanceMM + " mm", mid.x + offsetVal, mid.y - offsetVal);
     
     ctx.restore();
@@ -675,10 +675,10 @@ function drawLineLabel(ctx, points, distanceMM, color) {
 // --------------------------------------------------------- //
 function drawRectangle(ctx, start, end, strokeStyle, fillStyle = null) {
     ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
+    ctx.translate(measurementOffsetX, measurementOffsetY);
+    ctx.scale(measurementZoomFactor, measurementZoomFactor);
     ctx.strokeStyle = strokeStyle;
-    ctx.lineWidth = (BASE_LINE_WIDTH * 0.50) / zoomFactor;
+    ctx.lineWidth = (BASE_LINE_WIDTH * 0.50) / measurementZoomFactor;
     
     const width = end.x - start.x;
     const height = end.y - start.y;
@@ -699,10 +699,10 @@ function drawRectangle(ctx, start, end, strokeStyle, fillStyle = null) {
 // --------------------------------------------------------- //
 function drawRectLabel(ctx, start, end, widthMm, heightMm, areaM2) {
     ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
+    ctx.translate(measurementOffsetX, measurementOffsetY);
+    ctx.scale(measurementZoomFactor, measurementZoomFactor);
     ctx.fillStyle = "blue";
-    ctx.font = (18 / zoomFactor) + "px sans-serif";
+    ctx.font = (18 / measurementZoomFactor) + "px sans-serif";
     
     const mid = { 
         x: (start.x + end.x) / 2, 
@@ -715,13 +715,13 @@ function drawRectLabel(ctx, start, end, widthMm, heightMm, areaM2) {
     // Draw width label
     const widthMid = {
         x: (start.x + end.x) / 2,
-        y: Math.min(start.y, end.y) - 10 / zoomFactor
+        y: Math.min(start.y, end.y) - 10 / measurementZoomFactor
     };
     ctx.fillText(widthMm + " mm", widthMid.x, widthMid.y);
     
     // Draw height label
     const heightMid = {
-        x: Math.max(start.x, end.x) + 10 / zoomFactor,
+        x: Math.max(start.x, end.x) + 10 / measurementZoomFactor,
         y: (start.y + end.y) / 2
     };
     ctx.fillText(heightMm + " mm", heightMid.x, heightMid.y);
@@ -735,11 +735,11 @@ function drawPolygon(ctx, points, fillStyle, strokeStyle) {
     if (points.length < 3) return;
     
     ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
+    ctx.translate(measurementOffsetX, measurementOffsetY);
+    ctx.scale(measurementZoomFactor, measurementZoomFactor);
     ctx.fillStyle = fillStyle;
     ctx.strokeStyle = strokeStyle;
-    ctx.lineWidth = (BASE_LINE_WIDTH * 0.50) / zoomFactor;
+    ctx.lineWidth = (BASE_LINE_WIDTH * 0.50) / measurementZoomFactor;
     
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
@@ -761,10 +761,10 @@ function drawOpenPolygon(ctx, points, strokeStyle) {
     if (points.length < 2) return;
     
     ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
+    ctx.translate(measurementOffsetX, measurementOffsetY);
+    ctx.scale(measurementZoomFactor, measurementZoomFactor);
     ctx.strokeStyle = strokeStyle;
-    ctx.lineWidth = (BASE_LINE_WIDTH * 0.50) / zoomFactor;
+    ctx.lineWidth = (BASE_LINE_WIDTH * 0.50) / measurementZoomFactor;
     
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
@@ -775,7 +775,7 @@ function drawOpenPolygon(ctx, points, strokeStyle) {
     
     // If more than 2 points, draw a dashed line back to the first point
     if (points.length > 2) {
-        ctx.setLineDash([5 / zoomFactor, 5 / zoomFactor]);
+        ctx.setLineDash([5 / measurementZoomFactor, 5 / measurementZoomFactor]);
         ctx.lineTo(points[0].x, points[0].y);
         ctx.setLineDash([]);
     }
@@ -788,10 +788,10 @@ function drawOpenPolygon(ctx, points, strokeStyle) {
 // --------------------------------------------------------- //
 function drawAreaLabel(ctx, measurement) {
     ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
+    ctx.translate(measurementOffsetX, measurementOffsetY);
+    ctx.scale(measurementZoomFactor, measurementZoomFactor);
     ctx.fillStyle = "red";
-    ctx.font = (18 / zoomFactor) + "px sans-serif";
+    ctx.font = (18 / measurementZoomFactor) + "px sans-serif";
     
     const centroid = polygonCentroid(measurement.points);
     ctx.fillText(measurement.areaM2 + " m²", centroid.x, centroid.y);
@@ -805,10 +805,10 @@ function drawEdgeLabels(ctx, points, color) {
     if (points.length < 2) return;
     
     ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(zoomFactor, zoomFactor);
+    ctx.translate(measurementOffsetX, measurementOffsetY);
+    ctx.scale(measurementZoomFactor, measurementZoomFactor);
     ctx.fillStyle = color;
-    ctx.font = (14 / zoomFactor) + "px sans-serif";
+    ctx.font = (14 / measurementZoomFactor) + "px sans-serif";
     
     // Get the conversion rate from the measurement scaling module
     const metresPerPixel = window.measurementScaling.getMetresPerPixel();
@@ -826,7 +826,7 @@ function drawEdgeLabels(ctx, points, color) {
         const lengthMm = Math.round(lengthPx * metresPerPixel * 1000);
         
         // Draw length at midpoint slightly offset
-        const offsetVal = 5 / zoomFactor;
+        const offsetVal = 5 / measurementZoomFactor;
         ctx.fillText(lengthMm + " mm", mid.x + offsetVal, mid.y - offsetVal);
     }
     

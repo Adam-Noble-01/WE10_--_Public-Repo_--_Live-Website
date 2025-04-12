@@ -23,11 +23,13 @@ window.moduleStatus = {
     fontLoader: false,
     assetLoader: false,
     projectAssets: false,
+    drawingManager: false,
     canvasRenderer: false,
     canvasController: false,
     measurementScaling: false,
     measurementTools: false,
-    uiNavigation: false
+    uiNavigation: false,
+    applicationScheduler: false
 };
 
 // FUNCTION |  Register a module as loaded and ready for use
@@ -53,7 +55,7 @@ function registerModuleReady(moduleName) {
 // --------------------------------------------------------- //
 function checkAllModulesReady() {
     // Define which modules are critical for the application to function
-    const criticalModules = ['assetLoader', 'projectAssets', 'canvasRenderer'];
+    const criticalModules = ['assetLoader', 'projectAssets', 'canvasRenderer', 'drawingManager'];
     
     // Check if all critical modules are ready
     const allCriticalReady = criticalModules.every(module => window.moduleStatus[module]);
@@ -115,6 +117,19 @@ function connectProjectAssetsToRenderer() {
         registerModuleReady('projectAssets');
     });
     
+    // Listen for drawing manager ready
+    document.addEventListener('moduleLoaded', (event) => {
+        if (event.detail && event.detail.moduleName === 'drawingManager') {
+            console.log("⚡ Drawing Manager ready event received in Module Integration");
+            
+            // Check if projectAssets is also available (created by drawingManager)
+            if (window.projectAssets && 
+                typeof window.projectAssets.isImageLoaded === 'function') {
+                registerModuleReady('projectAssets');
+            }
+        }
+    });
+    
     // Listen for the new imageLoaded event
     document.addEventListener('imageLoaded', (event) => {
         console.log("⚡ Image loaded event received in Module Integration");
@@ -125,7 +140,7 @@ function connectProjectAssetsToRenderer() {
     
     // Listen for drawing loaded events
     document.addEventListener('drawingLoaded', (event) => {
-        console.log("Drawing loaded event received, updating renderer");
+        console.log("⚡ Drawing loaded event received in Module Integration");
         initializeCanvasRenderer(event);
     });
     
@@ -143,8 +158,19 @@ function initializeCanvasRenderer(event) {
             registerModuleReady('canvasRenderer');
         }
         
-        if (typeof window.canvasRenderer.initializeCanvasRenderer === "function") {
-            console.log("🚀 Initializing Canvas Renderer");
+        // First prioritize initialization using the standard API
+        if (typeof window.canvasRenderer.init === "function") {
+            console.log("🚀 Initializing Canvas Renderer using standard init method");
+            window.canvasRenderer.init();
+            
+            // Force a redraw after initialization
+            if (typeof window.canvasRenderer.drawCanvas === "function") {
+                requestAnimationFrame(window.canvasRenderer.drawCanvas);
+            }
+        }
+        // Fall back to legacy initialization method
+        else if (typeof window.canvasRenderer.initializeCanvasRenderer === "function") {
+            console.log("🚀 Initializing Canvas Renderer using legacy method");
             window.canvasRenderer.initializeCanvasRenderer()
                 .then(() => {
                     console.log("✅ Canvas Renderer initialized");
@@ -158,8 +184,9 @@ function initializeCanvasRenderer(event) {
                     }
                 })
                 .catch(error => console.error("❌ Failed to initialize Canvas Renderer:", error));
-        } else if (typeof window.canvasRenderer.setCurrentImage === "function") {
-            // If no initialization method, try to directly set the image
+        } 
+        // If no init methods, try to directly set the image
+        else if (typeof window.canvasRenderer.setCurrentImage === "function") {
             console.log("⚠️ No initialization method for Canvas Renderer, trying direct image set");
             
             if (event && event.detail && event.detail.image) {
@@ -167,6 +194,12 @@ function initializeCanvasRenderer(event) {
             } else {
                 updateRendererWithCurrentImage();
             }
+        }
+        
+        // Always request a new animation frame to force a redraw
+        if (typeof window.canvasRenderer.drawCanvas === "function") {
+            console.log("🎞️ Requesting animation frame for Canvas Renderer");
+            requestAnimationFrame(window.canvasRenderer.drawCanvas);
         }
     } 
     // Fallback to Canvas Controller if Canvas Renderer not available
@@ -248,67 +281,47 @@ function updateRendererWithCurrentImage() {
     console.log("Attempting to update renderer with current image");
     
     // First check if we have project assets with an image
-    if (window.projectAssets) {
-        if (typeof window.projectAssets.isImageLoaded === "function" && 
-            window.projectAssets.isImageLoaded()) {
-            
-            console.log("Loaded image found in project assets, getting image reference");
-            
-            // Try to get the image reference - multiple methods depending on implementation
-            let imageRef = null;
-            
-            // Method 1: Direct image field
-            if (window.projectAssets.planImage) {
-                imageRef = window.projectAssets.planImage;
-                console.log("Got image from projectAssets.planImage");
-            }
-            // Method 2: Getter function
-            else if (typeof window.projectAssets.getLoadedImage === "function") {
-                imageRef = window.projectAssets.getLoadedImage();
-                console.log("Got image from projectAssets.getLoadedImage()");
-            }
-            // Method 3: As a global variable
-            else if (window.planImage) {
-                imageRef = window.planImage;
-                console.log("Got image from window.planImage");
-            }
-            
-            if (imageRef) {
-                console.log("Image reference found, dimensions:", 
-                           imageRef.width, "x", imageRef.height,
-                           ", complete:", imageRef.complete);
-                
-                // First, try direct canvas renderer update
-                if (window.canvasRenderer && typeof window.canvasRenderer.setCurrentImage === "function") {
-                    console.log("Updating canvas renderer directly with image");
-                    setTimeout(() => window.canvasRenderer.setCurrentImage(imageRef), 10);
-                    return true;
-                } 
-                // Second, try canvas controller
-                else if (window.canvasController && typeof window.canvasController.setImage === "function") {
-                    console.log("Updating canvas controller with image");
-                    setTimeout(() => window.canvasController.setImage(imageRef), 10);
-                    return true;
-                }
-                // If we couldn't update immediately, try dispatching an event
-                else {
-                    console.log("No direct renderer functions found, dispatching imageReady event");
-                    document.dispatchEvent(new CustomEvent('imageReady', { 
-                        detail: { image: imageRef }
-                    }));
-                    return true;
-                }
-            } else {
-                console.warn("Image is reported loaded but no reference available");
-            }
-        } else {
-            console.warn("No loaded image found in projectAssets");
-        }
-    } else {
-        console.warn("projectAssets not found");
+    let currentImage = null;
+    
+    // Try to get image from projectAssets first
+    if (window.projectAssets && 
+        typeof window.projectAssets.isImageLoaded === "function" && 
+        window.projectAssets.isImageLoaded() &&
+        typeof window.projectAssets.getPlanImage === "function") {
+        
+        currentImage = window.projectAssets.getPlanImage();
+        console.log("📸 Got image from projectAssets");
+    }
+    // Then try from drawingManager directly
+    else if (window.drawingManager && 
+            typeof window.drawingManager.isImageLoaded === "function" && 
+            window.drawingManager.isImageLoaded() &&
+            typeof window.drawingManager.getPlanImage === "function") {
+        
+        currentImage = window.drawingManager.getPlanImage();
+        console.log("📸 Got image from drawingManager");
     }
     
-    return false;
+    if (!currentImage) {
+        console.warn("⚠️ No image available from either projectAssets or drawingManager");
+        return;
+    }
+    
+    // Next, update the canvas renderer with the image
+    if (window.canvasRenderer) {
+        if (typeof window.canvasRenderer.setCurrentImage === "function") {
+            console.log("🖼️ Updating Canvas Renderer with current image");
+            window.canvasRenderer.setCurrentImage(currentImage);
+        }
+        
+        // Force a redraw
+        if (typeof window.canvasRenderer.drawCanvas === "function") {
+            console.log("🎞️ Forcing Canvas Renderer redraw");
+            window.canvasRenderer.drawCanvas();
+            // Also schedule another redraw in the next frame to be safe
+            requestAnimationFrame(window.canvasRenderer.drawCanvas);
+        }
+    }
 }
 
 // FUNCTION |  Update the Canvas Controller with the current image
