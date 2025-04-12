@@ -1,0 +1,42 @@
+{
+    "description"           :  "Noble Architecture JSON Formatting Rules - Enforced Project-Wide",
+    "patterns"              :  ["**/*.json"],
+    "rules"                 :  [
+        {
+            "name"          :  "Top-Level Keys Must Use Title_Case_With_Underscores",
+            "description"   :  "Top-level keys in JSON must follow the Title_Case_With_Underscores format.",
+            "pattern"       :  "**/*.json",
+            "action"        :  "error"
+        },
+        {
+            "name"          :  "Nested Keys Must Use lowercase-hyphen-format",
+            "description"   :  "All nested keys (Level 2 and beyond) must use lowercase-hyphen-format.",
+            "pattern"       :  "**/*.json",
+            "action"        :  "error"
+        },
+        {
+            "name"          :  "Indent With 4 Spaces Only",
+            "description"   :  "All JSON files must use 4 spaces for each level of indentation. Tabs are not permitted.",
+            "pattern"       :  "**/*.json",
+            "action"        :  "enforce"
+        },
+        {
+            "name"          :  "Align Colons With Consistent Spacing",
+            "description"   :  "Property names must be left-aligned, with exactly 2 spaces before and after the colon.",
+            "pattern"       :  "**/*.json",
+            "action"        :  "warn"
+        },
+        {
+            "name"          :  "Standardised Version History Format",
+            "description"   :  "All version history must follow the specified object/array structure for File_Version_History_Log.",
+            "pattern"       :  "**/*.json",
+            "action"        :  "prefer"
+        },
+        {
+            "name"          :  "Arrays Aligned With Parent Key",
+            "description"   :  "All array elements must be indented consistently and aligned under their parent property.",
+            "pattern"       :  "**/*.json",
+            "action"        :  "warn"
+        }
+    ]
+}

@@ -1,0 +1,90 @@
+{
+    "description": "Noble Architecture JavaScript Coding Style — Enforced Project Rules",
+    "patterns": ["**/*.js"],
+    "rules": [
+        {
+            "name": "Variable Naming — camelCase for variables, UPPERCASE_SNAKE_CASE for constants",
+            "description": "All variables should use camelCase. Constants must use UPPERCASE_SNAKE_CASE.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+        },
+        {
+            "name": "Function Naming — Verb-Object camelCase",
+            "description": "Functions and methods must use descriptive camelCase in verb-object format.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+        },
+        {
+            "name": "Class Naming — PascalCase Only",
+            "description": "All class names must follow PascalCase naming.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+        },
+        {
+            "name": "Header Comments in Every File",
+            "description": "Each JavaScript file must begin with a structured block comment detailing filename, type, description, and version history.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+        },
+        {
+            "name": "Sectioned Comments with Hyphen Rules",
+            "description": "Main sections use 80 hyphens, subsections 60, sub-subsections 40, with clear titles.",
+            "pattern": "**/*.js",
+            "action": "prefer"
+        },
+        {
+            "name": "Inline Comments Alignment",
+            "description": "Align inline comments vertically for scanability and clarity.",
+            "pattern": "**/*.js",
+            "action": "warn"
+        },
+        {
+            "name": "Align Equal Signs in Variable Declarations",
+            "description": "Variables in groups must have equal signs and colons aligned into neat columns.",
+            "pattern": "**/*.js",
+            "action": "prefer"
+        },
+        {
+            "name": "Object Key Alignment",
+            "description": "Object literals must align all keys and colons vertically for readability.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+        },
+        {
+            "name": "Two-Digit Decimal Rem Units",
+            "description": "All CSS rem values used in JS must use format '00.00rem'.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+        },
+        {
+            "name": "Use Async/Await with Full Error Handling",
+            "description": "All asynchronous logic must use async/await syntax and include descriptive error messages.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+        },
+        {
+            "name": "ES Module Syntax Only",
+            "description": "All JS files must use ES6 import/export syntax.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+        },
+        {
+            "name": "Responsive JS — Media Queries Structure",
+            "description": "Use matchMedia and consistent responsive logic structure for viewport-based behaviour.",
+            "pattern": "**/*.js",
+            "action": "prefer"
+        },
+        {
+            "name": "Batch DOM Manipulation",
+            "description": "Batch expensive DOM writes using requestAnimationFrame or similar strategies.",
+            "pattern": "**/*.js",
+            "action": "prefer"
+        },
+        {
+            "name": "Detailed Error Messages in Logs",
+            "description": "All thrown or logged errors must include contextual details such as variables or function names.",
+            "pattern": "**/*.js",
+            "action": "enforce"
+        }
+    ]
+}

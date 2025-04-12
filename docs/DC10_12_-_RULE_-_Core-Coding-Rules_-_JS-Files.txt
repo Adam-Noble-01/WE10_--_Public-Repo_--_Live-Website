@@ -1,0 +1,390 @@
+# NOBLE ARCHITECTURE JS CODING STYLE GUIDE
+
+====================================================================================================
+
+## Document Purpose
+
+-   Defines mandatory JavaScript coding standards across Noble Architecture projects.
+-   Ensures consistency, maintainability, and readability of JavaScript code.
+
+------
+
+## CORE CODE STRUCTURE & FORMATTING RULES
+
+-   It is critical to adhere closely to these rules at all times throughout the project.
+-   Clarity and explicitness in code and comments are essential—comments need not be concise but must fully clarify code intentions.
+
+------
+
+## CODE STRUCTURE & FORMATTING
+
+------
+
+### Column-Like Code Formatting
+
+-   Consistently format code for readability and visual clarity.
+-   Align equal signs, colons, and object properties vertically.
+-   Ensure values are easy to scan quickly.
+
+#### Example
+
+```javascript
+const projectName       = "Noble Architecture";
+const defaultFontSize   = 16;
+const siteOpacity       = 0.75;
+
+const buttonStyles = {
+    padding-top        : "00.75rem",
+    padding-bottom     : "00.75rem",
+    colour             : "#ffffff",
+    opacity            : 0.65,
+};
+```
+
+------
+
+## NAMING CONVENTIONS
+
+------
+
+### Variables & Constants
+
+-   Variables use descriptive camelCase.
+-   Constants use UPPERCASE_SNAKE_CASE.
+
+#### Example
+
+```javascript
+const MAX_IMAGE_WIDTH    = 1920;
+let currentProjectTitle  = "Garden Office Extension";
+let defaultOpacityValue  = 0.85;
+```
+
+------
+
+### Functions & Methods
+
+-   Clearly express actions using verb-object patterns in camelCase.
+-   Descriptive names are essential.
+
+#### Example
+
+```javascript
+// FUNCTION | Calculate area based on provided dimensions
+// ------------------------------------------------------------ //
+function calculateArea(length, width) {
+    return length * width;
+}
+
+// FUNCTION | Retrieve user data from API
+// ------------------------------------------------------------ //
+const fetchUserData = async (userId) => {
+    // Fetch and return user data from server
+};
+```
+
+------
+
+### Classes
+
+-   Class names use PascalCase.
+-   Methods within classes follow standard function naming conventions.
+
+#### Example
+
+```javascript
+// CLASS | AssetLoader handles fetching and caching assets
+// ------------------------------------------------------------ //
+class AssetLoader {
+    constructor(assetUrl) {
+        this.assetUrl = assetUrl;
+    }
+
+    fetchAssetData() {
+        // Implementation for fetching asset data
+    }
+}
+```
+
+------
+
+## COMMENTS & DOCUMENTATION
+
+------
+
+### File Header Comments
+
+-   Every JavaScript file begins with a structured header comment block detailing filename, purpose, and version history.
+
+#### Example
+
+```javascript
+/* ===============================================================================
+// FILE NAME   |  asset-loader.js
+// FILE TYPE   |  JavaScript Utility Module
+// -------------------------------------------------------------------------------
+// FILE DESCRIPTION
+// - This module handles asset fetching, caching, and preloading for all website components.
+// - Critical for optimising asset performance and load times.
+//
+// VERSION HISTORY
+// 01-May-2024 - Version 1.0.0 - Original Version
+// 10-Apr-2025 - Version 1.1.0 - Enhanced caching strategy for performance improvements
+// ============================================================================ */
+```
+
+------
+
+### Section & Subsection Comments
+
+-   Main sections use 80 hyphens.
+-   Subsections use 60 hyphens.
+-   Sub-subsections use 40 hyphens.
+-   Clearly defined titles indicate purpose of each code section.
+-   Never use comment blocks always use `//` comments
+
+#### Example
+
+```javascript
+// FUNCTION | Update asset loading status
+// ------------------------------------------------------------ //
+function updateAssetStatus(assetId, status) {
+    // Update the loading status of an asset in asset store
+}
+
+
+// FORMAT NOTE: Use // single-line comments only (no /* */ blocks)
+
+```
+
+------
+
+### Inline Comments
+
+------
+
+### Inline Comments
+
+-   Align inline comments vertically for clarity.
+-   Comments must clarify functionality, parameters, or unusual implementations explicitly.
+
+#### Example
+
+```javascript
+const baseFontSize     = 16;          //     ← Base font size in pixels for root elements
+let assetLoading       = false;       //     ← Asset loading status; initially false
+```
+
+------
+
+## NUMERICAL VALUES & UNITS
+
+------
+
+### Numerical Formatting
+
+-   Always use two digits before and after decimal points for sizing units (`rem`).
+-   Do not use leading zeros for opacity or other non-size numerical values.
+
+#### Example
+
+```javascript
+const defaultPadding   = "00.75rem";
+const fullWidth        = "100%";
+const defaultOpacity   = 0.85;
+```
+
+------
+
+## JAVASCRIPT OBJECT FORMATTING
+
+------
+
+### Structured JSON-Style Objects
+
+-   Align object keys for clarity.
+-   Clearly structured objects enhance readability and maintainability.
+
+#### Example
+
+```javascript
+const siteConfig = {
+    "Site_Metadata" : {
+        "site-title"           :  "Noble Architecture",
+        "site-default-font"    :  "Open Sans",
+        "site-base-font-size"  :  "16.00px",
+        "site-colour-palette"  :  {
+            "primary-colour"   :  "#555041",
+            "accent-colour"    :  "#3d392e"
+        }
+    }
+};
+```
+
+------
+
+## ASYNCHRONOUS CODE & ERROR HANDLING
+
+------
+
+### Async/Await Structure
+
+-   Use clear async/await syntax for asynchronous operations.
+-   Implement comprehensive and descriptive error handling.
+
+#### Example
+
+```javascript
+// FUNCTION | Retrieve profile data for user from API endpoint
+// ------------------------------------------------------------ //
+async function retrieveUserProfile(userId) {
+    try {
+        const response = await fetch(`/api/users/${userId}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP Error! Status: ${response.status}`);
+        }
+
+        const userProfileData = await response.json();
+        return userProfileData;
+
+    } catch (error) {
+        console.error(`Error retrieving user profile data for userId: ${userId}`, error);
+        throw error;  // Ensure upstream handling of errors
+    }
+}
+```
+
+------
+
+## MODULE EXPORTS & IMPORTS
+
+------
+
+### Consistent ES Module Syntax
+
+-   ES modules for all JavaScript files.
+-   Consistency in imports and exports to maintain clear dependency structures.
+
+#### Example
+
+```javascript
+// Exporting a function
+export function calculateSum(valueA, valueB) {
+    return valueA + valueB;
+}
+
+// Importing a function
+import { calculateSum } from './utils/math-utils.js';
+```
+
+------
+
+## RESPONSIVE JAVASCRIPT IMPLEMENTATION
+
+------
+
+### Handling Responsive Breakpoints
+
+-   Use JavaScript media queries only where CSS alone cannot suffice.
+-   Implement a structured and consistent approach.
+
+#### Example
+
+```javascript
+// FUNCTION | Handle responsive state changes for mobile viewports
+// ------------------------------------------------------------ //
+const viewportQuery = window.matchMedia("(max-width: 768px)");
+
+function updateResponsiveState(event) {
+    if (event.matches) {
+        // Apply mobile-specific classes
+        document.body.classList.add("mobile-layout");
+    } else {
+        // Remove mobile-specific classes
+        document.body.classList.remove("mobile-layout");
+    }
+}
+
+// Initialise event listener
+viewportQuery.addEventListener("change", updateResponsiveState);
+updateResponsiveState(viewportQuery);  // Initial execution for current viewport state
+```
+
+------
+
+## PERFORMANCE GUIDELINES
+
+------
+
+### Performance & Efficiency
+
+-   Minimise expensive operations such as DOM manipulation and frequent layout calculations.
+-   Clearly document complex or expensive performance decisions within code comments.
+
+#### Example
+
+```javascript
+// FUNCTION | Batch DOM writes for improved performance
+// ------------------------------------------------------------ //
+function batchDomWrites(callback) {
+    requestAnimationFrame(() => {
+        callback();
+        // All DOM writes here execute together to minimise layout thrashing
+    });
+}
+```
+
+------
+
+## ERROR HANDLING & LOGGING
+
+------
+
+### Detailed Error Reporting
+
+-   Provide explicit error messages clearly indicating the issue and context.
+-   Logs must provide sufficient detail for debugging without external references.
+
+#### Example
+
+```javascript
+// FUNCTION | Save project details to backend
+// ------------------------------------------------------------ //
+async function saveProjectDetails(projectData) {
+    try {
+        const response = await fetch("/api/saveProject", {
+            method : "POST",
+            body   : JSON.stringify(projectData),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error encountered: ${response.status}`);
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error(`Failed to save project details. Project Title: ${projectData.title}`, error);
+        throw error; // Ensure clear error propagation
+    }
+}
+```
+
+------
+
+## SUMMARY OF JS CODING STANDARDS
+
+------
+
+### Essential Standards & Practices
+
+-   Maintain a clearly structured, aligned, and readable codebase.
+-   Implement explicit, comprehensive comments that prioritise clarity.
+-   Ensure consistent naming conventions and code formatting across all files.
+-   Structure JSON-style objects consistently for predictable parsing and readability.
+-   Adhere strictly to ES module syntax and structured asynchronous patterns.
+
+------
+
+###### END OF FILE
