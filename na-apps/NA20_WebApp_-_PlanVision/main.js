@@ -292,6 +292,37 @@ import {
 
 
 
+// LOAD |  Markup Sketch Drawing Tools
+// ----------------------------------------------------------------------------
+// OFFLOADED | 13-Apr-2025
+// Status: Initial Implementation
+//
+// Description:
+// - This module contains functions for drawing sketchy markup elements
+// - These functions handle rendering of markup with a hand-drawn appearance
+// - Uses the core math library for calculations and randomization
+// ----------------------------------------------------------------------------
+
+import {
+    initDrawingModule,
+    updateDrawingConfig,
+    getDrawingState,
+    drawSketchyPath,
+    drawSketchyRectangle,
+    drawSketchyCircle,
+    drawSketchyLine,
+    drawSketchyPolygon,
+    drawSketchySegment,
+    drawSketchyArrowLine,
+    drawArrow as importedDrawArrow,
+    drawArc as importedDrawArc,
+    drawSketchyText as importedDrawSketchyText,
+    drawAllMarkupPaths as importedDrawAllMarkupPaths,
+    calculateCurveEndDirection
+} from './toolsMarkupSketchDrawingTools.js';
+
+
+
 // .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .
 
 
@@ -382,6 +413,12 @@ let currentArc = null;
 const sketchiness                      = 0.5;       //  ← 0 = clean, 1 = very sketchy
 const pressureVariation                = 0.2;       //  ← Line width variation
 
+// This variable is needed to interface with toolsMarkupSketchDrawingTools.js
+let drawingState                       = {
+    ctx: null,
+    initialized: false
+};
+
 let isMarkupToolsetActive              = false;
 let currentMarkupTool                  = 'pencil';
 let markupColor                        = '#960000';  //  ← Changed default color to #960000
@@ -451,7 +488,26 @@ let currentLine                        = null;
                 console.warn("Asset library failed to load. Using fallback assets.");
             }
 
+            // Resize canvas before initializing drawing module
             resizeCanvas();
+
+            // Initialize the markup drawing module with the canvas context
+            const drawingModuleState = initDrawingModule(ctx, {
+                sketchiness: sketchiness,
+                pressureVariation: pressureVariation,
+                markupColor: markupColor,
+                markupLineWidth: markupLineWidth
+            });
+            
+            if (!drawingModuleState.success) {
+                console.warn("Markup drawing module failed to initialize properly:", drawingModuleState.message);
+            } else {
+                console.log("Markup drawing module initialized successfully");
+                // Store initialized state locally
+                drawingState.initialized = true;
+                drawingState.ctx = ctx;
+            }
+
             const drawings = await fetchDrawings();
             if (drawings) {
                 // Pass the toolbar element and a callback function to handle drawing selection
@@ -568,8 +624,11 @@ let currentLine                        = null;
     // RENDER LOOP
     // ========================================================================
     function renderLoop() {
-        if (!isImageLoaded) return;
+        // Request next frame first to ensure the loop continues
         requestAnimationFrame(renderLoop);
+        
+        // Skip rendering if image isn't loaded yet
+        if (!isImageLoaded) return;
 
         ctx.clearRect(0, 0, planCanvas.width, planCanvas.height);
         ctx.save();
@@ -593,7 +652,7 @@ let currentLine                        = null;
 
         // Draw markup paths if any
         if (isMarkupToolsetActive || markupPaths.length > 0) {
-            drawAllMarkupPaths(ctx);
+            drawAllMarkupPathsInternal(ctx);
         }
 
         // Draw measurement tools and results
@@ -1363,7 +1422,7 @@ let currentLine                        = null;
         }
     }
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // FUNCTION |  Handles Mouse Click Events For Measurement Tools & Dragging
         
     function onMouseDown(e) {
@@ -2389,33 +2448,10 @@ let currentLine                        = null;
     - It ensures arcs are drawn in the same pass as other shapes.
     *************************************************************************/
 
-    function drawAllMarkupPaths(context) {
-        // Go through each item in markupPaths and draw it
-        markupPaths.forEach(path => {
-            if (path.tool === 'pencil') {
-                drawSketchyPath(context, path);
-            } else if (path.tool === 'eraser') {
-                // Eraser is not typically "drawn," so may skip
-            } else if (path.tool === 'arrow') {
-                drawArrow(context, path);
-            } else if (path.tool === 'rectangle') {
-                drawSketchyRectangle(context, path);
-            } else if (path.tool === 'filled-rectangle') {
-                // same as rectangle + fill
-                drawSketchyRectangle(context, path);
-            } else if (path.tool === 'circle') {
-                drawSketchyCircle(context, path);
-            } else if (path.tool === 'line') {
-                drawSketchyLine(context, path);
-            } else if (path.tool === 'arc') {
-                // Here's where arcs are drawn
-                drawArc(context, path);
-            } else if (path.tool === 'text') {
-                drawSketchyText(context, path);
-            }
-        });
+    function drawAllMarkupPathsInternal(context) {
+        // Instead of duplicating all the drawing logic, use the imported function via the wrapper
+        drawAllMarkupPaths(context);
     }
-
 
     /*************************************************************************
      ADDITIONAL: ARC DRAWING EXAMPLE
@@ -2423,30 +2459,21 @@ let currentLine                        = null;
     *************************************************************************/
 
     function drawArc(context, arcPath) {
-        // Make sure we have start/control/end
-        if (!arcPath.startPoint || !arcPath.controlPoint || !arcPath.endPoint) return;
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawArc function is now used instead
         
+        // Save canvas transformations
         context.save();
         context.translate(offsetX, offsetY);
         context.scale(zoomFactor, zoomFactor);
         
-        // Style
-        context.strokeStyle = arcPath.color || 'black';
-        context.lineWidth = arcPath.lineWidth || 2;
-        context.lineCap = 'round';
-        context.lineJoin = 'round';
-
-        // Draw a simple quadratic curve
-        context.beginPath();
-        context.moveTo(arcPath.startPoint.x, arcPath.startPoint.y);
-        context.quadraticCurveTo(
-            arcPath.controlPoint.x, 
-            arcPath.controlPoint.y, 
-            arcPath.endPoint.x, 
-            arcPath.endPoint.y
-        );
-        context.stroke();
-
+        // Update the drawing context 
+        updateDrawingConfig({ ctx: context });
+        
+        // Call the imported function (with different name to prevent recursion)
+        importedDrawArc(arcPath);
+        
+        // Restore canvas state
         context.restore();
     }
 
@@ -2466,36 +2493,25 @@ let currentLine                        = null;
     // PRIMARY FUNCTION | TEXT RENDERING
     // Draws text elements on the canvas with proper styling and positioning
     function drawSketchyText(context, textObj) {
-        if (!textObj.text || !textObj.position) {
-            console.log("Invalid text object:", textObj);
-            return;
-        }
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawSketchyText function is now used instead
         
-        console.log("Drawing standard text:", textObj.text);  // Debug log
-        
-        // Save the current transformation
+        // Save canvas transformations
         context.save();
-        
-        // Apply canvas transformations (critical for correct positioning)
         context.translate(offsetX, offsetY);
         context.scale(zoomFactor, zoomFactor);
         
-        // Set text properties
-        context.fillStyle = textObj.color || markupColor;
-        const fontSize = textObj.fontSize || 24; // Default size if none specified
+        // Update the drawing context and create options
+        updateDrawingConfig({ ctx: context });
+        const options = {
+            color: textObj.color,
+            sketchiness: 0.5
+        };
         
-        // Use more fallbacks like in CSS to ensure sketchy style even if Caveat fails
-        context.font = `${fontSize}px 'Caveat', 'Comic Sans MS', cursive, sans-serif`;
-        context.textBaseline = 'top';
+        // Call the imported function
+        importedDrawSketchyText(textObj, options);
         
-        // Draw the text
-        context.fillText(textObj.text, textObj.position.x, textObj.position.y);
-        
-        // Debug: Check if font actually applied
-        if (!document.fonts.check(`${fontSize}px 'Caveat'`)) {
-            console.warn("Caveat font not loaded or available, using fallback font for text");
-        }
-        
+        // Restore canvas state
         context.restore();
     }
 
@@ -2681,7 +2697,7 @@ let currentLine                        = null;
     }
     
     // Draw all markup paths on the given context
-    function drawAllMarkupPaths(context) {
+    function importedDrawAllMarkupPaths(context) {
         // First draw the non-selected elements
         markupPaths.forEach(path => {
             const isSelected = path === selectedElement;
@@ -2705,12 +2721,10 @@ let currentLine                        = null;
             }
         });
         
-        // Then draw the selected element with highlight
+        // Then draw the selected element to ensure it's on top
         if (selectedElement) {
             // Save context to restore after drawing
             context.save();
-            context.translate(offsetX, offsetY);
-            context.scale(zoomFactor, zoomFactor);
             
             // Draw highlight/outline around the selected element
             if (selectedElement.tool === 'pencil') {
@@ -2774,31 +2788,31 @@ let currentLine                        = null;
                     textWidth + 10,
                     textHeight + 10
                 );
+            } else if (selectedElement.tool === 'line') {
+                // Draw a highlight around the line
+                context.lineWidth = selectedElement.lineWidth + 6;
+                context.strokeStyle = 'rgba(255, 255, 100, 0.5)';
+                context.lineCap = 'round';
+                
+                context.beginPath();
+                context.moveTo(selectedElement.startPoint.x, selectedElement.startPoint.y);
+                context.lineTo(selectedElement.endPoint.x, selectedElement.endPoint.y);
+                context.stroke();
             } else if (selectedElement.tool === 'arrow') {
                 // Draw a highlight around the arrow
                 context.lineWidth = selectedElement.lineWidth + 6;
                 context.strokeStyle = 'rgba(255, 255, 100, 0.5)';
                 context.lineCap = 'round';
-                context.lineJoin = 'round';
                 
                 context.beginPath();
                 context.moveTo(selectedElement.startPoint.x, selectedElement.startPoint.y);
-                context.bezierCurveTo(
-                    selectedElement.control1.x, selectedElement.control1.y,
-                    selectedElement.control2.x, selectedElement.control2.y,
-                    selectedElement.endPoint.x, selectedElement.endPoint.y
+                // Use quadratic curve for simpler arrow highlights
+                context.quadraticCurveTo(
+                    selectedElement.control.x, 
+                    selectedElement.control.y,
+                    selectedElement.endPoint.x, 
+                    selectedElement.endPoint.y
                 );
-                context.stroke();
-            } else if (selectedElement.tool === 'line') {  // Added in v1.8.5 for straight line tool
-                // Draw a highlight around the line
-                context.lineWidth = selectedElement.lineWidth + 6;
-                context.strokeStyle = 'rgba(255, 255, 100, 0.5)';
-                context.lineCap = 'round';
-                context.lineJoin = 'round';
-                
-                context.beginPath();
-                context.moveTo(selectedElement.startPoint.x, selectedElement.startPoint.y);
-                context.lineTo(selectedElement.endPoint.x, selectedElement.endPoint.y);
                 context.stroke();
             }
             
@@ -2813,16 +2827,16 @@ let currentLine                        = null;
                 drawSketchyRectangle(context, selectedElement);
             } else if (selectedElement.tool === 'circle') {
                 drawSketchyCircle(context, selectedElement);
-            } else if (selectedElement.tool === 'line') {  // Added in v1.8.5 for straight line tool
+            } else if (selectedElement.tool === 'line') {
                 drawSketchyLine(context, selectedElement);
-            } else if (selectedElement.tool === 'polygon') {
-                drawSketchyPolygon(context, selectedElement);
+            } else if (selectedElement.tool === 'arc') {
+                drawArc(context, selectedElement);
             } else {
                 drawSketchyPath(context, selectedElement);
             }
         }
         
-        // Draw current path if in progress
+        // Draw current markup path if drawing
         if (currentMarkupPath) {
             if (currentMarkupPath.tool === 'arrow') {
                 drawArrow(context, currentMarkupPath);
@@ -2846,2665 +2860,269 @@ let currentLine                        = null;
         if (isLineDrawing && currentLine) {
             drawSketchyLine(context, currentLine);
         }
+        
+        // Draw current arc if in progress - Added in v1.8.6
+        if (isArcDrawing && currentArc) {
+            drawArc(context, currentArc);
+        }
     }
-    
+
     // Draw a sketchy-looking path (for pencil and eraser)
     function drawSketchyPath(context, path) {
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawSketchyPath function is now used instead
+        
+        // Save canvas transformations 
         context.save();
         context.translate(offsetX, offsetY);
         context.scale(zoomFactor, zoomFactor);
-        context.lineWidth = path.lineWidth;
-        context.strokeStyle = path.color;
-        context.lineCap = 'round';
-        context.lineJoin = 'round';
-
-        // Ensure path has a seed for deterministic randomness
-        if (!path.seed) {
-            path.seed = Math.floor(Math.random() * 10000);
-        }
-
-        // First pass - main line
-        context.beginPath();
-        context.moveTo(path.points[0].x, path.points[0].y);
         
-        // Use a more natural hand-drawn approach with variable pressure
-        let prevX = path.points[0].x;
-        let prevY = path.points[0].y;
+        // Create a compatible parameter object
+        const options = {
+            color: path.color,
+            lineWidth: path.lineWidth,
+            seed: path.seed
+        };
         
-        for (let i = 1; i < path.points.length; i++) {
-            const point = path.points[i];
-            
-            // Add some controlled jitter to mimic hand movement
-            const jitterAmount = path.lineWidth * 0.1;
-            const jitterX = jitterAmount * (coreMathPseudoRandomValueGen(path.seed + i * 7) - 0.5);
-            const jitterY = jitterAmount * (coreMathPseudoRandomValueGen(path.seed + i * 13) - 0.5);
-            
-            // Create control points for a smoother curve
-            if (i < path.points.length - 1) {
-                // Calculate midpoints for quadratic curves
-                const mid1X = (prevX + point.x) / 2 + jitterX;
-                const mid1Y = (prevY + point.y) / 2 + jitterY;
-                
-                // Vary line width slightly for more natural appearance
-                if (i % 5 === 0) {
-                    // Occasionally change line width for pressure variation
-                    const pressureVariation = 0.2;
-                    const pressureFactor = 1 + pressureVariation * (coreMathPseudoRandomValueGen(path.seed + i * 19) - 0.5);
-                    context.lineWidth = path.lineWidth * pressureFactor;
-                }
-                
-                // Draw segment
-                context.quadraticCurveTo(
-                    mid1X, mid1Y,
-                    point.x, point.y
-                );
-            } else {
-                // Last point - simple line to final position
-                context.lineTo(point.x + jitterX, point.y + jitterY);
-            }
-            
-            prevX = point.x;
-            prevY = point.y;
-        }
-        context.stroke();
-
-        // Second pass - add subtle reinforcement lines in some areas
-        if (path.points.length > 5) {
-            context.globalAlpha = 0.3;
-            context.lineWidth = path.lineWidth * 0.6;
-            
-            // Choose a random segment to reinforce
-            const startIndex = Math.floor(coreMathPseudoRandomValueGen(path.seed + 100) * (path.points.length / 3));
-            const endIndex = Math.min(
-                startIndex + Math.floor(coreMathPseudoRandomValueGen(path.seed + 200) * (path.points.length / 2)), 
-                path.points.length - 1
-            );
-            
-            context.beginPath();
-            context.moveTo(
-                path.points[startIndex].x + path.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(path.seed + 300) - 0.5), 
-                path.points[startIndex].y + path.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(path.seed + 400) - 0.5)
-            );
-            
-            for (let i = startIndex + 1; i <= endIndex; i++) {
-                const point = path.points[i];
-                const jitterX = path.lineWidth * 0.15 * (coreMathPseudoRandomValueGen(path.seed + i * 23) - 0.5);
-                const jitterY = path.lineWidth * 0.15 * (coreMathPseudoRandomValueGen(path.seed + i * 29) - 0.5);
-                context.lineTo(point.x + jitterX, point.y + jitterY);
-            }
-            context.stroke();
-        }
+        // Call the imported function with correct context
+        // The drawSketchyPath function from the imported module will use its internal context
+        updateDrawingConfig({ ctx: context });
+        drawSketchyPath(path, options);
         
+        // Restore canvas state
         context.restore();
     }
-    
+
+    // Draw an arrow on the context
+    function importedDrawArrow(context, arrow) {
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawArrow function is now used instead
+        
+        // Save canvas transformations
+        context.save();
+        context.translate(offsetX, offsetY);
+        context.scale(zoomFactor, zoomFactor);
+        
+        // Convert the arrow format to match the imported function's expectations
+        // (startPoint, control1, control2, endPoint) -> (start, control, end)
+        const arrowObj = {
+            start: arrow.startPoint,
+            control: arrow.control1,
+            end: arrow.endPoint
+        };
+        
+        // Create compatible options object
+        const options = {
+            color: arrow.color,
+            lineWidth: arrow.lineWidth,
+            sketchiness: 0.5 // Default sketchiness value
+        };
+        
+        // Update the drawing context and call the imported function
+        updateDrawingConfig({ ctx: context });
+        importedDrawArrow(arrowObj, options);
+        
+        // Restore canvas state
+        context.restore();
+    }
+
+    // Wrapper for imported drawAllMarkupPaths 
+    function drawAllMarkupPaths(context) {
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported importedDrawAllMarkupPaths function is now used
+        
+        // Save the canvas transformation state
+        context.save();
+        
+        // Apply transformations to make the imported function work with our coordinate system  
+        context.translate(offsetX, offsetY);
+        context.scale(zoomFactor, zoomFactor);
+        
+        // Update the drawing context in the drawing module
+        updateDrawingConfig({ ctx: context });
+        
+        // Call the imported function with the markup paths array
+        importedDrawAllMarkupPaths(markupPaths);
+        
+        // Restore the canvas state
+        context.restore();
+    }
+
     // Draw an arrow on the context
     function drawArrow(context, arrow) {
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawArrow function is now used instead
+        
+        // Save canvas transformations
         context.save();
         context.translate(offsetX, offsetY);
         context.scale(zoomFactor, zoomFactor);
-        context.strokeStyle = arrow.color;
-        context.lineWidth = arrow.lineWidth;
-        context.lineCap = 'round';
-        context.lineJoin = 'round';
         
-        // Add deterministic seed for consistent randomness
-        if (!arrow.seed) {
-            arrow.seed = {
-                shaft: Math.floor(Math.random() * 10000),
-                head1: Math.floor(Math.random() * 10000),
-                head2: Math.floor(Math.random() * 10000)
-            };
-        }
+        // Update the drawing context
+        updateDrawingConfig({ ctx: context });
         
-        // Sample points along the bezier curve for a sketchy line
-        const steps = 40;  // More steps for smoother curve with better details
-        
-        // Create segments with varied line thickness - main shaft of arrow
-        const points = [];
-        for (let t = 0; t <= 1; t += 1/steps) {
-            const point = coreMathGeomBezierPoint(
-                arrow.startPoint, 
-                arrow.control1, 
-                arrow.control2, 
-                arrow.endPoint, 
-                t
-            );
-            
-            // Apply deterministic jitter to create sketchy look
-            const jitter = arrow.lineWidth * 0.18 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + Math.floor(t * 100)) - 0.5);
-            point.x += jitter;
-            point.y += jitter;
-            
-            points.push(point);
-        }
-        
-        // Draw the sketchy main curve with multiple segments
-        for (let i = 0; i < points.length - 1; i++) {
-            // Vary line width slightly for more natural appearance
-            const pressureFactor = 0.9 + (coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 25) * 0.2);
-            context.lineWidth = arrow.lineWidth * pressureFactor;
-            
-            context.beginPath();
-            
-            // Start point with slight jitter
-            const p1 = points[i];
-            const p2 = points[i+1];
-            
-            context.moveTo(p1.x, p1.y);
-            
-            // Calculate control point for curved segment
-            const midX = (p1.x + p2.x) / 2;
-            const midY = (p1.y + p2.y) / 2;
-            
-            // Add small random deviation to control point
-            const cpVariation = arrow.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 33) - 0.5);
-            midX += cpVariation;
-            midY += cpVariation;
-            
-            // Draw with slight curve for each segment
-            context.quadraticCurveTo(midX, midY, p2.x, p2.y);
-            context.stroke();
-        }
-        
-        // Draw the reinforcements with second stroke for technical pen effect
-        context.globalAlpha = 0.6; // More visible than before (was 0.3)
-        context.lineWidth = arrow.lineWidth * 0.7;
-        
-        for (let i = 0; i < 2; i++) { // Draw 2 reinforcement lines
-            const startIdx = Math.floor(coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 100) * (points.length / 3));
-            const endIdx = Math.min(
-                startIdx + Math.floor(coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 150) * (points.length / 2)), 
-                points.length - 1
-            );
-            
-            context.beginPath();
-            context.moveTo(
-                points[startIdx].x, 
-                points[startIdx].y
-            );
-            
-            for (let j = startIdx + 1; j <= endIdx; j++) {
-                const offsetX = arrow.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 200 + j) - 0.4);
-                const offsetY = arrow.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 250 + j) - 0.4);
-                context.lineTo(
-                    points[j].x + offsetX, 
-                    points[j].y + offsetY
-                );
-            }
-            context.stroke();
-        }
-        
-        // Reset opacity for arrowhead - no transparency
-        context.globalAlpha = 1.0;
-        context.lineWidth = arrow.lineWidth;
-        
-        // Calculate vector at arrow end for correct arrowhead direction
-        const endDir = calculateCurveEndDirection(
-            arrow.control2,
-            arrow.endPoint
-        );
-        
-        // Draw the arrow head with sketchy technical pen style
-        const endX = arrow.endPoint.x;
-        const endY = arrow.endPoint.y;
-        const angle = Math.atan2(endDir.y, endDir.x);
-        
-        // Arrow head size based on line width
-        const arrowSize = arrow.lineWidth * 9; // Slightly larger than before
-        
-        // Add consistent variation to arrowhead angles
-        const angleVar1 = (coreMathPseudoRandomValueGen(arrow.seed.head1) * 0.25) - 0.125; // More variation
-        const angleVar2 = (coreMathPseudoRandomValueGen(arrow.seed.head2) * 0.25) - 0.125; // More variation
-        
-        // Draw first arrowhead line
-        drawSketchyArrowLine(
-            context, 
-            endX, endY,
-            endX - arrowSize * Math.cos(angle - Math.PI/6 + angleVar1), 
-            endY - arrowSize * Math.sin(angle - Math.PI/6 + angleVar1),
-            arrow.lineWidth * 1.1, // Slightly thicker arrowhead
-            arrow.color,
-            arrow.seed.head1
-        );
-        
-        // Draw second arrowhead line
-        drawSketchyArrowLine(
-            context, 
-            endX, endY,
-            endX - arrowSize * Math.cos(angle + Math.PI/6 + angleVar2), 
-            endY - arrowSize * Math.sin(angle + Math.PI/6 + angleVar2),
-            arrow.lineWidth * 1.1, // Slightly thicker arrowhead
-            arrow.color,
-            arrow.seed.head2
-        );
-        
-        context.restore();
-    }
-    
-    // Helper function to draw sketchy arrowhead lines
-    function drawSketchyArrowLine(context, x1, y1, x2, y2, lineWidth, color) {
-        context.beginPath();
-        context.strokeStyle = color;
-        context.lineWidth = lineWidth;
-        
-        // Start point with slight jitter
-        const jitter = lineWidth * 0.1;
-        const startX = x1 + jitter * (Math.random() - 0.5);
-        const startY = y1 + jitter * (Math.random() - 0.5);
-        
-        context.moveTo(startX, startY);
-        
-        // Add a control point for slight curve
-        const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2;
-        const ctrlJitter = lineWidth * 0.3;
-        
-        // Normal vector to the line
-        const dx = x2 - x1;
-        const dy = y2 - y1;
-        const len = Math.sqrt(dx*dx + dy*dy);
-        const nx = -dy / len;
-        const ny = dx / len;
-        
-        // Control point with perpendicular offset
-        const ctrlX = midX + nx * ctrlJitter * (Math.random() - 0.3); // Bias for natural curve
-        const ctrlY = midY + ny * ctrlJitter * (Math.random() - 0.3);
-        
-        // Draw a quadratic curve for the arrowhead line
-        context.quadraticCurveTo(ctrlX, ctrlY, x2, y2);
-        context.stroke();
-        
-        // Sometimes add a reinforcement stroke
-        if (Math.random() > 0.5) {
-            context.beginPath();
-            context.globalAlpha = 0.2;
-            context.lineWidth = lineWidth * 0.7;
-            context.moveTo(startX + jitter * 0.5, startY + jitter * 0.5);
-            context.lineTo(x2 + jitter * 0.5, y2 + jitter * 0.5);
-            context.stroke();
-        }
-    }
-    
-    // Helper function to calculate direction at the end of curve
-    function calculateCurveEndDirection(controlPoint, endPoint) {
-        // Vector from control point to end point gives us tangent direction
-        return {
-            x: endPoint.x - controlPoint.x,
-            y: endPoint.y - controlPoint.y
+        // Create options
+        const options = {
+            color: arrow.color,
+            lineWidth: arrow.lineWidth,
+            sketchiness: 0.5
         };
-    }
-    
-    // Draw text
-    function drawSketchyText(context, textObj) {
-        if (!textObj.text || !textObj.position) {
-            console.log("Invalid text object:", textObj);
-            return;
-        }
         
-        console.log("Drawing sketchy text:", textObj.text);  // Debug log
+        // Call the imported function from the drawing module
+        importedDrawArrow(arrow, options);
         
-        // Save the current transformation
-        context.save();
-        
-        // Apply canvas transformations (critical for correct positioning)
-        context.translate(offsetX, offsetY);
-        context.scale(zoomFactor, zoomFactor);
-        
-        // Set text properties
-        context.fillStyle = textObj.color || markupColor;
-        const fontSize = textObj.fontSize || 24; // Default size if none specified
-        
-        // Use more fallbacks like in CSS to ensure sketchy style even if Caveat fails
-        context.font = `${fontSize}px 'Caveat', 'Comic Sans MS', cursive, sans-serif`;
-        context.textBaseline = 'top';
-        
-        // Draw the text
-        context.fillText(textObj.text, textObj.position.x, textObj.position.y);
-        
-        // Debug: Check if font actually applied
-        if (!document.fonts.check(`${fontSize}px 'Caveat'`)) {
-            console.warn("Caveat font not loaded or available, using fallback font for text");
-        }
-        
+        // Restore canvas state
         context.restore();
     }
-    
-    // Draw a sketchy rectangle
+
+    // ========================================================================
+    // WRAPPER FUNCTIONS FOR DRAWING MODULE 
+    // ========================================================================
+
+    // Wrapper function for drawing sketchy rectangle
     function drawSketchyRectangle(context, rect) {
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawSketchyRectangle function is now used
+        
+        // Save canvas transformations
         context.save();
         context.translate(offsetX, offsetY);
         context.scale(zoomFactor, zoomFactor);
-        context.strokeStyle = rect.color;
-        context.lineWidth = rect.lineWidth;
         
-        const x = rect.startPoint.x;
-        const y = rect.startPoint.y;
-        const width = rect.endPoint.x - rect.startPoint.x;
-        const height = rect.endPoint.y - rect.startPoint.y;
+        // Update the drawing context
+        updateDrawingConfig({ ctx: context });
         
-        // Draw fill if filled property is true
-        if (rect.filled) {
-            context.fillStyle = rect.color + '33'; // Add 20% opacity (33 in hex)
-            context.fillRect(x, y, width, height);
-        }
+        // Create options
+        const options = {
+            color: rect.color,
+            lineWidth: rect.lineWidth,
+            sketchiness: 0.5,
+            fillStyle: rect.fill ? rect.fillColor : null
+        };
         
-        // Use a deterministic seed for randomness based on the rectangle's properties
-        // This prevents flickering by ensuring we get the same "random" values each render
-        if (!rect.seed) {
-            rect.seed = {
-                top: Math.floor(Math.random() * 10000),
-                right: Math.floor(Math.random() * 10000),
-                bottom: Math.floor(Math.random() * 10000),
-                left: Math.floor(Math.random() * 10000)
-            };
-        }
+        // Call the imported function
+        drawSketchyRectangle(rect, options);
         
-        const jitterAmount = rect.lineWidth * 0.9;
-        const overshootAmount = rect.lineWidth * 1.2;
-        
-        // Draw each edge with more sketchy segments
-        
-        // Top edge
-        drawSketchySegment(context, 
-            x - overshootAmount * 0.2, y,
-            x + width + overshootAmount * 0.2, y,
-            rect.lineWidth, rect.color, rect.seed.top);
-        
-        // Right edge
-        drawSketchySegment(context, 
-            x + width, y - overshootAmount * 0.2, 
-            x + width, y + height + overshootAmount * 0.2,
-            rect.lineWidth, rect.color, rect.seed.right);
-        
-        // Bottom edge
-        drawSketchySegment(context, 
-            x + width + overshootAmount * 0.2, y + height,
-            x - overshootAmount * 0.2, y + height,
-            rect.lineWidth, rect.color, rect.seed.bottom);
-        
-        // Left edge
-        drawSketchySegment(context, 
-            x, y + height + overshootAmount * 0.2,
-            x, y - overshootAmount * 0.2,
-            rect.lineWidth, rect.color, rect.seed.left);
-        
-        // Add reinforcement marks at corners for technical pen effect
-        context.globalAlpha = 0.9; // Increased from 0.8 to 0.9 to further reduce transparency
-        const cornerLength = rect.lineWidth * 2.5;
-        
-        // Top-left corner reinforcement
-        context.beginPath();
-        context.lineWidth = rect.lineWidth * 0.7;
-        context.moveTo(x, y);
-        context.lineTo(x + cornerLength * coreMathPseudoRandomValueGen(rect.seed.top + 1), y);
-        context.stroke();
-        
-        context.beginPath();
-        context.moveTo(x, y);
-        context.lineTo(x, y + cornerLength * coreMathPseudoRandomValueGen(rect.seed.left + 1));
-        context.stroke();
-        
-        // Top-right corner reinforcement
-        context.beginPath();
-        context.moveTo(x + width, y);
-        context.lineTo(x + width - cornerLength * coreMathPseudoRandomValueGen(rect.seed.top + 2), y);
-        context.stroke();
-        
-        context.beginPath();
-        context.moveTo(x + width, y);
-        context.lineTo(x + width, y + cornerLength * coreMathPseudoRandomValueGen(rect.seed.right + 2));
-        context.stroke();
-        
-        // Bottom-right corner reinforcement
-        context.beginPath();
-        context.moveTo(x + width, y + height);
-        context.lineTo(x + width - cornerLength * coreMathPseudoRandomValueGen(rect.seed.bottom + 3), y + height);
-        context.stroke();
-        
-        context.beginPath();
-        context.moveTo(x + width, y + height);
-        context.lineTo(x + width, y + height - cornerLength * coreMathPseudoRandomValueGen(rect.seed.right + 3));
-        context.stroke();
-        
-        // Bottom-left corner reinforcement
-        context.beginPath();
-        context.moveTo(x, y + height);
-        context.lineTo(x + cornerLength * coreMathPseudoRandomValueGen(rect.seed.bottom + 4), y + height);
-        context.stroke();
-        
-        
-        context.beginPath();
-        context.moveTo(x, y + height);
-        context.lineTo(x, y + height - cornerLength * coreMathPseudoRandomValueGen(rect.seed.left + 4));
-        context.stroke();
-        
+        // Restore canvas state
         context.restore();
     }
-    
-    // Draw a sketchy circle
+
+    // Wrapper function for drawing sketchy circle
     function drawSketchyCircle(context, circle) {
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawSketchyCircle function is now used
+        
+        // Save canvas transformations
         context.save();
         context.translate(offsetX, offsetY);
         context.scale(zoomFactor, zoomFactor);
-        context.strokeStyle = circle.color;
-        context.lineWidth = circle.lineWidth;
         
-        // Handle both old and new circle format
-        let centerX, centerY, radius;
+        // Update the drawing context
+        updateDrawingConfig({ ctx: context });
         
-        if (circle.centerPoint && circle.radius !== undefined) {
-            // New format with centerPoint and radius
-            centerX = circle.centerPoint.x;
-            centerY = circle.centerPoint.y;
-            radius = circle.radius;
-        } else {
-            // Old format with startPoint and endPoint
-            centerX = (circle.startPoint.x + circle.endPoint.x) / 2;
-            centerY = (circle.startPoint.y + circle.endPoint.y) / 2;
-            
-            // Calculate radius from width and height
-            const dx = circle.endPoint.x - circle.startPoint.x;
-            const dy = circle.endPoint.y - circle.startPoint.y;
-            radius = Math.sqrt(dx*dx + dy*dy) / 2;
-        }
+        // Create options
+        const options = {
+            color: circle.color,
+            lineWidth: circle.lineWidth,
+            sketchiness: 0.5,
+            fillStyle: circle.fill ? circle.fillColor : null
+        };
         
-        // Add deterministic seed for consistent randomness
-        if (!circle.seed) {
-            circle.seed = Math.floor(Math.random() * 10000);
-        }
+        // Call the imported function
+        drawSketchyCircle(circle, options);
         
-        // Draw a more imperfect circle with variable segments
-        const segments = Math.max(24, Math.min(48, Math.floor(radius * 2)));
-        
-        // First path - main outline
-        context.beginPath();
-        
-        for (let i = 0; i <= segments; i++) {
-            const angle = (Math.PI * 2 * i) / segments;
-            
-            // Use deterministic noise based on segment and seed
-            const noise = coreMathPseudoRandomValueGen(circle.seed + i) * 0.3 - 0.15; // Reduced from 0.4-0.2 to 0.3-0.15 for less variation
-            const radiusNoise = 1 + (noise * 0.08);
-            
-            const x = centerX + radius * radiusNoise * Math.cos(angle);
-            const y = centerY + radius * radiusNoise * Math.sin(angle);
-            
-            if (i === 0) {
-                context.moveTo(x, y);
-            } else {
-                // Use quadratic curves for smoother irregularity
-                const prevAngle = (Math.PI * 2 * (i-1)) / segments;
-                const midAngle = (prevAngle + angle) / 2;
-                
-                const controlNoise = coreMathPseudoRandomValueGen(circle.seed + i + 100) * 0.15 - 0.075; // Reduced from 0.2-0.1 to 0.15-0.075
-                const ctrlDistance = radius * 0.4 * (1 + controlNoise);
-                
-                const ctrlX = centerX + (radius + circle.lineWidth * (controlNoise + 0.2)) * Math.cos(midAngle);
-                const ctrlY = centerY + (radius + circle.lineWidth * (controlNoise + 0.2)) * Math.sin(midAngle);
-                
-                context.quadraticCurveTo(ctrlX, ctrlY, x, y);
-            }
-        }
-        context.stroke();
-        
-        // Add some reinforcement arcs with lower opacity
-        context.globalAlpha = 0.8; // Increased from 0.5 to 0.8 for better visibility and less transparency
-        context.lineWidth = circle.lineWidth * 0.6;
-        
-        for (let i = 0; i < 3; i++) {
-            const startSegment = Math.floor(coreMathPseudoRandomValueGen(circle.seed + i * 50) * segments);
-            const arcLength = Math.floor(segments * (0.25 + coreMathPseudoRandomValueGen(circle.seed + i * 100) * 0.25));
-            
-            context.beginPath();
-            
-            for (let j = 0; j <= arcLength; j++) {
-                const segmentIndex = (startSegment + j) % segments;
-                const angle = (Math.PI * 2 * segmentIndex) / segments;
-                
-                // Different noise pattern for the reinforcement
-                const noise = coreMathPseudoRandomValueGen(circle.seed + segmentIndex + i * 200) * 0.2 - 0.1; // Reduced from 0.3-0.15 to 0.2-0.1
-                const reinforceRadius = 0.98 + (noise * 0.04);
-                
-                const x = centerX + radius * reinforceRadius * Math.cos(angle);
-                const y = centerY + radius * reinforceRadius * Math.sin(angle);
-                
-                if (j === 0) {
-                    context.moveTo(x, y);
-                } else {
-                    context.lineTo(x, y);
-                }
-            }
-            context.stroke();
-        }
-        
+        // Restore canvas state
         context.restore();
     }
-    
-    // Draw an arrow on the context
-    function drawArrow(context, arrow) {
+
+    // Wrapper function for drawing sketchy line
+    function drawSketchyLine(context, line) {
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawSketchyLine function is now used
+        
+        // Save canvas transformations
         context.save();
         context.translate(offsetX, offsetY);
         context.scale(zoomFactor, zoomFactor);
-        context.strokeStyle = arrow.color;
-        context.lineWidth = arrow.lineWidth;
-        context.lineCap = 'round';
-        context.lineJoin = 'round';
         
-        // Add deterministic seed for consistent randomness
-        if (!arrow.seed) {
-            arrow.seed = {
-                shaft: Math.floor(Math.random() * 10000),
-                head1: Math.floor(Math.random() * 10000),
-                head2: Math.floor(Math.random() * 10000)
-            };
-        }
+        // Update the drawing context
+        updateDrawingConfig({ ctx: context });
         
-        // Sample points along the bezier curve for a more sketchy line
-        const steps = 30;  // More steps for smoother curve
+        // Create options
+        const options = {
+            color: line.color,
+            lineWidth: line.lineWidth,
+            sketchiness: 0.5
+        };
         
-        // Main arrow shaft with dual-stroke technique
-        context.beginPath();
+        // Prepare line data in the format expected by the imported function
+        const lineData = {
+            x1: line.startPoint.x,
+            y1: line.startPoint.y,
+            x2: line.endPoint.x,
+            y2: line.endPoint.y
+        };
         
-        // First main stroke with consistent jitter
-        const points = [];
-        for (let t = 0; t <= 1; t += 1/steps) {
-            const point = coreMathGeomBezierPoint(
-                arrow.startPoint, 
-                arrow.control1, 
-                arrow.control2, 
-                arrow.endPoint, 
-                t
-            );
-            
-            // Apply deterministic jitter
-            const jitter = arrow.lineWidth * 0.15 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + Math.floor(t * 100)) - 0.5);
-            point.x += jitter;
-            point.y += jitter;
-            
-            points.push(point);
-        }
+        // Call the imported function
+        drawSketchyLine(lineData, options);
         
-        // Draw the main curve through all points
-        context.beginPath();
-        context.moveTo(points[0].x, points[0].y);
-        
-        // Draw with smoother segments for natural hand appearance
-        for (let i = 1; i < points.length; i++) {
-            context.lineTo(points[i].x, points[i].y);
-        }
-        context.stroke();
-        
-        // Add second stroke with slight offset for technical pen appearance
-        context.globalAlpha = 0.7; // Increased from 0.3 to 0.7 to reduce transparency
-        context.lineWidth = arrow.lineWidth * 0.7;
-        context.beginPath();
-        context.moveTo(points[0].x + arrow.lineWidth * 0.1, points[0].y + arrow.lineWidth * 0.1);
-        
-        for (let i = 1; i < points.length; i++) {
-            const offset = arrow.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + i) - 0.3);
-            context.lineTo(points[i].x + offset, points[i].y + offset);
-        }
-        context.stroke();
-        
-        // Reset alpha for arrowhead
-        context.globalAlpha = 1.0;
-        context.lineWidth = arrow.lineWidth;
-        
-        // Calculate vector at arrow end for correct arrowhead direction
-        const endDir = calculateCurveEndDirection(
-            arrow.control2,
-            arrow.endPoint
-        );
-        
-        // Draw the arrow head with hand-drawn technical pen style
-        const endX = arrow.endPoint.x;
-        const endY = arrow.endPoint.y;
-        const angle = Math.atan2(endDir.y, endDir.x);
-        
-        // Arrow head size based on line width
-        const arrowSize = arrow.lineWidth * 8;
-        
-        // Add consistent variation to arrowhead angles
-        const angleVar1 = (coreMathPseudoRandomValueGen(arrow.seed.head1) * 0.2) - 0.1;
-        const angleVar2 = (coreMathPseudoRandomValueGen(arrow.seed.head2) * 0.2) - 0.1;
-        
-        // Draw first arrowhead line
-        drawSketchyArrowLine(
-            context, 
-            endX, endY,
-            endX - arrowSize * Math.cos(angle - Math.PI/6 + angleVar1), 
-            endY - arrowSize * Math.sin(angle - Math.PI/6 + angleVar1),
-            arrow.lineWidth,
-            arrow.color,
-            arrow.seed.head1
-        );
-        
-        // Draw second arrowhead line
-        drawSketchyArrowLine(
-            context, 
-            endX, endY,
-            endX - arrowSize * Math.cos(angle + Math.PI/6 + angleVar2), 
-            endY - arrowSize * Math.sin(angle + Math.PI/6 + angleVar2),
-            arrow.lineWidth,
-            arrow.color,
-            arrow.seed.head2
-        );
-        
+        // Restore canvas state
         context.restore();
     }
-    
-    // Helper function to draw sketchy arrowhead lines with deterministic randomness
-    function drawSketchyArrowLine(context, x1, y1, x2, y2, lineWidth, color, seed) {
-        // Ensure we're at full opacity for arrowheads
-        context.globalAlpha = 1.0;
-        context.beginPath();
-        context.strokeStyle = color;
-        context.lineWidth = lineWidth;
-        
-        // Start point with slight jitter based on seed
-        const jitter = lineWidth * 0.2;
-        const startX = x1 + jitter * (coreMathPseudoRandomValueGen(seed) - 0.5);
-        const startY = y1 + jitter * (coreMathPseudoRandomValueGen(seed + 1) - 0.5);
-        
-        // End point with slight jitter
-        const endX = x2 + jitter * (coreMathPseudoRandomValueGen(seed + 2) - 0.5);
-        const endY = y2 + jitter * (coreMathPseudoRandomValueGen(seed + 3) - 0.5);
-        
-        context.moveTo(startX, startY);
-        
-        // Add a control point for slight curve
-        const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2;
-        const ctrlJitter = lineWidth * 0.7; // Increased from 0.5 for more curve
-        
-        // Normal vector to the line
-        const dx = x2 - x1;
-        const dy = y2 - y1;
-        const len = Math.sqrt(dx*dx + dy*dy);
-        const nx = -dy / len;
-        const ny = dx / len;
-        
-        // Control point with perpendicular offset
-        const ctrlX = midX + nx * ctrlJitter * (coreMathPseudoRandomValueGen(seed + 4) - 0.4); // Biased for natural curve
-        const ctrlY = midY + ny * ctrlJitter * (coreMathPseudoRandomValueGen(seed + 5) - 0.4);
-        
-        // Draw a quadratic curve for the arrowhead line
-        context.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
-        context.stroke();
-        
-        // Add a second reinforcement stroke with slight offset but no transparency
-        context.beginPath();
-        context.lineWidth = lineWidth * 0.6;
-        
-        // Slight offset for the reinforcement
-        const offsetX = jitter * 0.5 * (coreMathPseudoRandomValueGen(seed + 7) - 0.5);
-        const offsetY = jitter * 0.5 * (coreMathPseudoRandomValueGen(seed + 8) - 0.5);
-        
-        // Draw a slightly offset path for technical pen effect
-        context.moveTo(startX + offsetX, startY + offsetY);
-        
-        // Add some wobble to the reinforcement line
-        const wobblePts = 8;
-        for (let i = 1; i <= wobblePts; i++) {
-            const t = i / (wobblePts + 1);
-            const wobbleX = startX + dx * t + offsetX + jitter * (coreMathPseudoRandomValueGen(seed + 10 + i) - 0.5);
-            const wobbleY = startY + dy * t + offsetY + jitter * (coreMathPseudoRandomValueGen(seed + 20 + i) - 0.5);
-            context.lineTo(wobbleX, wobbleY);
-        }
-        
-        context.lineTo(endX + offsetX, endY + offsetY);
-        context.stroke();
-    }
-    
-    // Helper function for drawing sketchy line segments with deterministic randomness
-    function drawSketchySegment(context, x1, y1, x2, y2, lineWidth, color, seed) {
-        // Calculate length and direction
-        const dx = x2 - x1;
-        const dy = y2 - y1;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        const unitX = dx / length;
-        const unitY = dy / length;
-        
-        // Number of segments increases with line length
-        const segmentCount = Math.max(3, Math.min(12, Math.ceil(length / (lineWidth * 4))));
-        const segmentLength = length / segmentCount;
-        
-        // Normal vector for perpendicular deviations
-        const perpX = -unitY;
-        const perpY = unitX;
-        
-        // Draw main line with multiple segments and deliberate imperfections
-        context.beginPath();
-        context.strokeStyle = color;
-        context.lineWidth = lineWidth;
-        
-        // Start slightly off from exact corner for natural look
-        let currentX = x1 + lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed) - 0.5);
-        let currentY = y1 + lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 1) - 0.5);
-        context.moveTo(currentX, currentY);
-        
-        // Create segments with controlled randomness
-        for (let i = 1; i <= segmentCount; i++) {
-            // Target point along the line
-            const t = i / segmentCount;
-            let targetX = x1 + dx * t;
-            let targetY = y1 + dy * t;
-            
-            // Add perpendicular deviations for hand-drawn effect
-            const jitterScale = lineWidth * 0.8;
-            const perpOffset = jitterScale * (coreMathPseudoRandomValueGen(seed + i * 10) - 0.5);
-            targetX += perpX * perpOffset;
-            targetY += perpY * perpOffset;
-            
-            // For longer lines, use curves for more natural look
-            if (segmentCount > 3) {
-                // Control point between current and target
-                const controlT = (i - 0.5) / segmentCount;
-                const controlX = x1 + dx * controlT + perpX * jitterScale * (coreMathPseudoRandomValueGen(seed + i * 20) - 0.5);
-                const controlY = y1 + dy * controlT + perpY * jitterScale * (coreMathPseudoRandomValueGen(seed + i * 30) - 0.5);
-                
-                context.quadraticCurveTo(controlX, controlY, targetX, targetY);
-            } else {
-                // For shorter lines, simple lines with jitter work better
-                context.lineTo(targetX, targetY);
-            }
-            
-            currentX = targetX;
-            currentY = targetY;
-        }
-        
-        context.stroke();
-        
-        // Secondary reinforcement strokes for technical pen effect
-        if (length > lineWidth * 8) {
-            // Add a lighter reinforcement stroke along the line
-            context.beginPath();
-            context.globalAlpha = 0.5; // Increased from 0.3 to 0.5 for less transparency
-            context.lineWidth = lineWidth * 0.6;
-            
-            // Pick random section of the line to reinforce
-            const startPct = coreMathPseudoRandomValueGen(seed + 100) * 0.3; // Start in first 30%
-            const endPct = 0.7 + coreMathPseudoRandomValueGen(seed + 200) * 0.3; // End in last 30%
-            
-            const startX = x1 + dx * startPct + perpX * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 300) - 0.5);
-            const startY = y1 + dy * startPct + perpY * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 400) - 0.5);
-            const endX = x1 + dx * endPct + perpX * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 500) - 0.5);
-            const endY = y1 + dy * endPct + perpY * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 600) - 0.5);
-            
-            context.moveTo(startX, startY);
-            context.lineTo(endX, endY);
-            context.stroke();
-        }
-    }
-    
 
-
-    // ========================================================================
-    // MARKUP TOOLSET MODULE - GLOBAL VARIABLES
-    // ========================================================================
-    // Undo/Redo history management
-    let markupHistory = [];
-    let markupRedoStack = [];
-    let maxHistoryLength = 20; // Limit history size
-
-    // ========================================================================
-    // MARKUP TOOLSET MODULE - FUNCTIONS
-    // ========================================================================
-    // Save current state to history
-    function saveMarkupState() {
-        // Deep clone the markup paths array
-        const currentState = JSON.parse(JSON.stringify(markupPaths));
+    // Wrapper function for drawing sketchy path
+    function drawSketchyPath(context, path) {
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawSketchyPath function is now used
         
-        // Add to history, keep history at manageable size
-        markupHistory.push(currentState);
-        if (markupHistory.length > maxHistoryLength) {
-            markupHistory.shift(); // Remove oldest item
-        }
+        // Save canvas transformations
+        context.save();
+        context.translate(offsetX, offsetY);
+        context.scale(zoomFactor, zoomFactor);
         
-        // Clear redo stack when a new action is performed
-        markupRedoStack = [];
+        // Update the drawing context
+        updateDrawingConfig({ ctx: context });
         
-        // Update button states
-        updateUndoRedoButtons();
-    }
-    
-    // Undo the last markup action
-    function undoMarkupAction() {
-        if (markupHistory.length > 0) {
-            // Save current state to redo stack
-            const currentState = JSON.parse(JSON.stringify(markupPaths));
-            markupRedoStack.push(currentState);
-            
-            // Get previous state
-            const previousState = markupHistory.pop();
-            
-            // Apply previous state
-            markupPaths = previousState;
-            
-            // Update button states
-            updateUndoRedoButtons();
-            
-            // Redraw
-            clearArrowControls();
-            renderLoop();
-        }
-    }
-    
-    // Redo a previously undone action
-    function redoMarkupAction() {
-        if (markupRedoStack.length > 0) {
-            // Save current state to history
-            const currentState = JSON.parse(JSON.stringify(markupPaths));
-            markupHistory.push(currentState);
-            
-            // Get redo state
-            const redoState = markupRedoStack.pop();
-            
-            // Apply redo state
-            markupPaths = redoState;
-            
-            // Update button states
-            updateUndoRedoButtons();
-            
-            // Redraw
-            clearArrowControls();
-            renderLoop();
-        }
-    }
-    
-    // Update undo/redo button states (enable/disable)
-    function updateUndoRedoButtons() {
-        const undoBtn = document.getElementById("markupUndoBtn");
-        const redoBtn = document.getElementById("markupRedoBtn");
-        
-        // Set opacity to indicate if button is usable
-        undoBtn.style.opacity = markupHistory.length > 0 ? 1 : 0.5;
-        redoBtn.style.opacity = markupRedoStack.length > 0 ? 1 : 0.5;
-    }
-
-    // Start the app
-    initPlanVisionApp();
-
-    // ----------------------------------------------------
-    // FUNCTION |  KEYBOARD EVENT HANDLER
-    // - This section introduced in v1.6.6
-    // Handles keyboard shortcuts for markup tools including Escape, Enter, Delete, and Copy/Paste
-    // ----------------------------------------------------
-    function onKeyDown(e) {
-        // Only handle keys when markup tools are active
-        if (!isMarkupToolsetActive) return;
-        
-        if (e.key === 'Escape') {
-            // Cancel current operation
-            if (currentMarkupPath) {
-                currentMarkupPath = null;
-            }
-            else if (currentMarkupTool === 'arrow' && arrowState !== 'idle') {
-                clearArrowControls();
-                arrowState = 'idle';
-                planCanvas.className = '';
-                planCanvas.classList.add('markup-arrow-start');
-            }
-            else if (isShapeDrawing) {
-                isShapeDrawing = false;
-                currentShape = null;
-            }
-            else if (isTextPlacing) {
-                cancelTextEntry();
-            }
-            else {
-                // No specific operation in progress, cancel the whole tool
-                cancelMarkupTool();
-            }
-        }
-        else if (e.key === 'Enter') {
-            // Complete polygon if drawing one
-            if (currentMarkupTool === 'polygon' && isShapeDrawing && currentShape && currentShape.points.length >= 3) {
-                markupPaths.push(currentShape);
-                isShapeDrawing = false;
-                currentShape = null;
-            }
-            else if (isTextPlacing) {
-                confirmTextEntry();
-            }
-        }
-        else if (e.key === 'Delete' || e.key === 'Backspace') {
-            // Delete the selected element if selection tool is active
-            if (currentMarkupTool === 'selection' && selectedElement) {
-                deleteSelectedElement();
-                e.preventDefault(); // Prevent browser back navigation on backspace
-                return;
-            }
-        }
-        // Copy functionality - Ctrl+C
-        else if (e.key === 'c' && e.ctrlKey && selectedElement) {
-            copySelectedElement();
-            e.preventDefault(); // Prevent default browser copy
-        }
-        // Paste functionality - Ctrl+V
-        else if (e.key === 'v' && e.ctrlKey && clipboardElement) {
-            pasteElement(e);
-            e.preventDefault(); // Prevent default browser paste
-        }
-    }
-
-    // Show instructions for markup tools
-    function showMarkupInstructions(tool) {
-        const instructionsDiv = document.getElementById('markup-instructions');
-        if (!instructionsDiv) {
-            // Create the instructions div if it doesn't exist
-            const newInstructionsDiv = document.createElement('div');
-            newInstructionsDiv.id = 'markup-instructions';
-            newInstructionsDiv.style.position = 'absolute';
-            newInstructionsDiv.style.top = '60px';
-            newInstructionsDiv.style.left = '50%';
-            newInstructionsDiv.style.transform = 'translateX(-50%)';
-            newInstructionsDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            newInstructionsDiv.style.color = 'white';
-            newInstructionsDiv.style.padding = '8px 12px';
-            newInstructionsDiv.style.borderRadius = '4px';
-            newInstructionsDiv.style.zIndex = '10000';
-            newInstructionsDiv.style.display = 'none';
-            document.body.appendChild(newInstructionsDiv);
-            
-            // Use the newly created div
-            showMarkupInstructions(tool);
-            return;
-        }
-        
-        let instructions = '';
-        
-        switch (tool) {
-            case 'selection':
-                instructions = 'Click to select objects. Click and drag to move selected objects.';
-                break;
-            case 'pencil':
-                instructions = 'Click and drag to draw freehand.';
-                break;
-            case 'eraser':
-                instructions = 'Click and drag over elements to erase them.';
-                break;
-            case 'arrow':
-                instructions = 'Click to set arrow start point, then click or drag to set end point.';
-                break;
-            case 'text':
-                instructions = 'Click to place text. Type your text in the dialog that appears.';
-                break;
-            case 'line':  // Added in v1.8.5 for straight line tool
-                instructions = 'Click and drag to draw a straight line.';
-                break;
-            case 'rectangle':
-                instructions = 'Click and drag to draw a rectangle.';
-                break;
-            case 'filled-rectangle':
-                instructions = 'Click and drag to draw a filled rectangle.';
-                break;
-            case 'circle':
-                instructions = 'Click to set center, then drag to set radius.';
-                break;
-            case 'arc': // <<< Added Arc Tool Logic
-                instructions = 'Click to set start point, then click to set control point, then click to set end point.'; // <<< Added Arc Tool Logic
-                break; // <<< Added Arc Tool Logic
-            default:
-                instructions = '';
-        }
-        
-        if (instructions) {
-            instructionsDiv.innerHTML = instructions;
-            instructionsDiv.style.display = 'block';
-            
-            // Add click-to-dismiss functionality
-            function dismissInstructions() {
-                clearTimeout(timeoutId);
-                instructionsDiv.style.display = 'none';
-                instructionsDiv.removeEventListener('click', dismissInstructions);
-            }
-            
-            instructionsDiv.addEventListener('click', dismissInstructions);
-            
-            // Auto-dismiss after 2 seconds
-            var timeoutId = setTimeout(dismissInstructions, 2000);
-        } else {
-            instructionsDiv.style.display = 'none';
-        }
-    }
-
-    // Add this new function for detecting and erasing elements
-    function detectAndEraseElements(position, radius) {
-        // ----------------------------------------------------
-        // HANDLER SECTION |  ERASER INITIALIZATION
-        // - Sets up eraser parameters and tracking variables
-        // ----------------------------------------------------
-        const eraserRadiusSquared = radius * radius;
-        let erasedAny = false;
-        const originalLength = markupPaths.length;
-        
-        // ----------------------------------------------------
-        // HANDLER SECTION |  MARKUP ELEMENT DETECTION
-        // - Filters markup paths to remove those that intersect with eraser
-        // ----------------------------------------------------
-        markupPaths = markupPaths.filter(path => {
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  PENCIL PATH DETECTION
-            // - Checks if any point in a freehand path is within eraser radius
-            // ----------------------------------------------------
-            if (path.tool === 'pencil') {
-                // For freehand paths, check if any point is within eraser radius
-                for (let i = 0; i < path.points.length; i++) {
-                    const dx = path.points[i].x - position.x;
-                    const dy = path.points[i].y - position.y;
-                    const distanceSquared = dx * dx + dy * dy;
-                    
-                    if (distanceSquared <= eraserRadiusSquared) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-            } 
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  ARROW DETECTION
-            // - Checks if any control point of an arrow is within eraser radius
-            // ----------------------------------------------------
-            else if (path.tool === 'arrow') {
-                // For arrows, check start and end points and control points
-                const pointsToCheck = [
-                    path.startPoint,
-                    path.endPoint,
-                    path.control1,
-                    path.control2
-                ];
-                
-                for (const point of pointsToCheck) {
-                    const dx = point.x - position.x;
-                    const dy = point.y - position.y;
-                    const distanceSquared = dx * dx + dy * dy;
-                    
-                    if (distanceSquared <= eraserRadiusSquared) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  RECTANGLE DETECTION
-            // - Checks if any corner or edge of a rectangle is within eraser radius
-            // ----------------------------------------------------
-            else if (path.tool === 'rectangle') {
-                // Check if eraser is near any corner or edge
-                const corners = [
-                    { x: path.startPoint.x, y: path.startPoint.y },
-                    { x: path.endPoint.x, y: path.startPoint.y },
-                    { x: path.startPoint.x, y: path.endPoint.y },
-                    { x: path.endPoint.x, y: path.endPoint.y }
-                ];
-                
-                for (const corner of corners) {
-                    const dx = corner.x - position.x;
-                    const dy = corner.y - position.y;
-                    const distanceSquared = dx * dx + dy * dy;
-                    
-                    if (distanceSquared <= eraserRadiusSquared) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-                
-                // Check if eraser is on edges
-                const edges = [
-                    {p1: {x: path.startPoint.x, y: path.startPoint.y}, p2: {x: path.endPoint.x, y: path.startPoint.y}},
-                    {p1: {x: path.endPoint.x, y: path.startPoint.y}, p2: {x: path.endPoint.x, y: path.endPoint.y}},
-                    {p1: {x: path.endPoint.x, y: path.endPoint.y}, p2: {x: path.startPoint.x, y: path.endPoint.y}},
-                    {p1: {x: path.startPoint.x, y: path.endPoint.y}, p2: {x: path.startPoint.x, y: path.startPoint.y}}
-                ];
-                
-                for (const edge of edges) {
-                    if (distToSegment(position, edge.p1, edge.p2) <= radius) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  CIRCLE DETECTION
-            // - Checks if eraser intersects with circle boundary or interior
-            // ----------------------------------------------------
-            else if (path.tool === 'circle') {
-                // Check if eraser is near circle boundary or inside
-                const centerX = (path.startPoint.x + path.endPoint.x) / 2;
-                const centerY = (path.startPoint.y + path.endPoint.y) / 2;
-                const radiusX = Math.abs(path.endPoint.x - path.startPoint.x) / 2;
-                const radiusY = Math.abs(path.endPoint.y - path.startPoint.y) / 2;
-                
-                // Simple approximation for ellipse - use average radius
-                const avgRadius = (radiusX + radiusY) / 2;
-                const dx = centerX - position.x;
-                const dy = centerY - position.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (Math.abs(distance - avgRadius) <= radius || distance <= avgRadius) {
-                    erasedAny = true;
-                    return false;
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  POLYGON DETECTION
-            // - Checks if any vertex or edge of a polygon is within eraser radius
-            // ----------------------------------------------------
-            else if (path.tool === 'polygon' && path.points) {
-                // Check if eraser is near any vertex or edge of polygon
-                for (let i = 0; i < path.points.length; i++) {
-                    const p1 = path.points[i];
-                    const p2 = path.points[(i + 1) % path.points.length];
-                    
-                    // Check vertices
-                    const dx = p1.x - position.x;
-                    const dy = p1.y - position.y;
-                    const distanceSquared = dx * dx + dy * dy;
-                    
-                    if (distanceSquared <= eraserRadiusSquared) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                    
-                    // Check edges
-                    if (distToSegment(position, p1, p2) <= radius) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  TEXT DETECTION
-            // - Checks if eraser is near text element with larger hit area
-            // ----------------------------------------------------
-            else if (path.tool === 'text') {
-                // Check if eraser is near text position
-                const dx = path.position.x - position.x;
-                const dy = path.position.y - position.y;
-                
-                // Use a larger hit area for text to make selection easier
-                // Estimate width based on text length
-                const textWidth = path.text.length * (path.lineWidth * 5);
-                const textHeight = path.lineWidth * 20;
-                
-                // Check if position is within text bounding box
-                // Note: Text is positioned at bottom-left, so mostly extends upward from the position point
-                if (position.x >= path.position.x - 5 && 
-                    position.x <= path.position.x + textWidth + 5 &&
-                    position.y >= path.position.y - textHeight - 5 && 
-                    position.y <= path.position.y + 5) {
-                    erasedAny = true;
-                    return false; // Remove this path
-                }
-                
-                // Also include a radius check for clicking near the text position point
-                const hitRadius = Math.max(30, path.lineWidth * 10);
-                if (dx*dx + dy*dy <= hitRadius*hitRadius) {
-                    erasedAny = true;
-                    return false; // Remove this path
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  LINE DETECTION
-            // - Checks if eraser is near a straight line
-            // ----------------------------------------------------
-            else if (path.tool === 'line') {
-                // Check if eraser is near the line
-                const distance = coreMathDistanceToLineSegment(
-                    path.startPoint.x, path.startPoint.y,
-                    path.endPoint.x, path.endPoint.y,
-                    position.x, position.y
-                );
-                
-                if (distance < radius) {
-                    erasedAny = true;
-                    return false; // Remove this path
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  ARC DETECTION
-            // - Checks if eraser is near a quadratic Bezier arc
-            // ----------------------------------------------------
-            else if (path.tool === 'arc') {
-                // Check if eraser is near the arc
-                const distance = drawGeomMathDistanceToQuadraticCurve(
-                    path.startPoint.x, path.startPoint.y,
-                    path.controlPoint.x, path.controlPoint.y,
-                    path.endPoint.x, path.endPoint.y,
-                    position.x, position.y
-                );
-                
-                if (distance < radius) {
-                    erasedAny = true;
-                    return false; // Remove this path
-                }
-            }
-            
-            return true; // Keep this path
-        });
-        
-        // ----------------------------------------------------
-        // HANDLER SECTION |  RESULT PROCESSING
-        // - Handles UI updates and returns erasure status
-        // ----------------------------------------------------
-        if (erasedAny) {
-            // Redraw if we erased anything
-            renderLoop();
-        }
-        
-        return erasedAny && originalLength > markupPaths.length;
-    }
-
-    // ----------------------------------------------------
-    // FUNCTION |  POINT-TO-LINE DISTANCE CALCULATION
-    // - Calculates the shortest distance from a point to a line segment
-    // - Offloaded to coreMathLibrary.js
-    // function coreMathDistanceToLineSegment
-    // ----------------------------------------------------
-
-
-    // Add function to find text element at a specific position
-    function findTextElementAt(position) {
-        // Search through markup paths for text elements near the position
-        for (let i = markupPaths.length - 1; i >= 0; i--) {  // Start from newest elements
-            const path = markupPaths[i];
-            if (path.tool === 'text') {
-                // Calculate distance from click to text position
-                const dx = path.position.x - position.x;
-                const dy = path.position.y - position.y;
-                
-                // Use a larger hit area for text to make selection easier
-                // Estimate width based on text length
-                const textWidth = path.text.length * (path.lineWidth * 5);
-                const textHeight = path.lineWidth * 20;
-                
-                // Check if position is within text bounding box
-                // Note: Text is positioned at bottom-left, so mostly extends upward from the position point
-                if (position.x >= path.position.x - 5 && 
-                    position.x <= path.position.x + textWidth + 5 &&
-                    position.y >= path.position.y - textHeight - 5 && 
-                    position.y <= path.position.y + 5) {
-                    return path;
-                }
-                
-                // Also include a radius check for clicking near the text position point
-                const hitRadius = Math.max(30, path.lineWidth * 10);
-                if (dx*dx + dy*dy <= hitRadius*hitRadius) {
-                    return path;
-                }
-            }
-        }
-        return null;
-    }
-
-    // Find any element at the given position
-    function findElementAt(pos) {
-        const hitRadius = 10 / zoomFactor; // Hit radius in plan coordinates
-        
-        // Search through paths in reverse order (most recently added first)
-        for (let i = markupPaths.length - 1; i >= 0; i--) {
-            const path = markupPaths[i];
-            
-            if (path.tool === 'pencil') {
-                // For pencil paths, check distance to each line segment
-                for (let j = 1; j < path.points.length; j++) {
-                    const p1 = path.points[j-1];
-                    const p2 = path.points[j];
-                    
-                    if (coreMathDistanceToLineSegment(p1.x, p1.y, p2.x, p2.y, pos.x, pos.y) < hitRadius) {
-                        return path;
-                    }
-                }
-            } else if (path.tool === 'rectangle') {
-                // Check if point is near rectangle outline
-                const x = path.startPoint.x;
-                const y = path.startPoint.y;
-                const width = path.endPoint.x - path.startPoint.x;
-                const height = path.endPoint.y - path.startPoint.y;
-                
-                // Check each edge of the rectangle
-                if (coreMathDistanceToLineSegment(x, y, x + width, y, pos.x, pos.y) < hitRadius ||
-                    coreMathDistanceToLineSegment(x + width, y, x + width, y + height, pos.x, pos.y) < hitRadius ||
-                    coreMathDistanceToLineSegment(x + width, y + height, x, y + height, pos.x, pos.y) < hitRadius ||
-                    coreMathDistanceToLineSegment(x, y + height, x, y, pos.x, pos.y) < hitRadius) {
-                    return path;
-                }
-            } else if (path.tool === 'circle') {
-                // Get circle parameters based on format
-                let centerX, centerY, radius;
-                
-                if (path.centerPoint && path.radius !== undefined) {
-                    // New format
-                    centerX = path.centerPoint.x;
-                    centerY = path.centerPoint.y;
-                    radius = path.radius;
-                } else {
-                    // Old format
-                    centerX = (path.startPoint.x + path.endPoint.x) / 2;
-                    centerY = (path.startPoint.y + path.endPoint.y) / 2;
-                    const dx = path.endPoint.x - path.startPoint.x;
-                    const dy = path.endPoint.y - path.startPoint.y;
-                    radius = Math.sqrt(dx*dx + dy*dy) / 2;
-                }
-                
-                // Calculate distance from point to center
-                const dx = pos.x - centerX;
-                const dy = pos.y - centerY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                // Check if point is near circle outline
-                if (Math.abs(distance - radius) < hitRadius) {
-                    return path;
-                }
-            } else if (path.tool === 'polygon') {
-                // Check if point is near any edge of the polygon
-                for (let j = 0; j < path.points.length; j++) {
-                    const p1 = path.points[j];
-                    const p2 = path.points[(j + 1) % path.points.length];
-                    
-                    if (coreMathDistanceToLineSegment(p1.x, p1.y, p2.x, p2.y, pos.x, pos.y) < hitRadius) {
-                        return path;
-                    }
-                }
-            } else if (path.tool === 'arrow') {
-                // For arrow, check distance to the bezier curve
-                const points = sampleBezierCurve(
-                    path.startPoint, 
-                    path.control1, 
-                    path.control2, 
-                    path.endPoint, 
-                    20
-                );
-                
-                // Check each segment of sampled curve
-                for (let j = 1; j < points.length; j++) {
-                    const p1 = points[j-1];
-                    const p2 = points[j];
-                    
-                    if (coreMathDistanceToLineSegment(p1.x, p1.y, p2.x, p2.y, pos.x, pos.y) < hitRadius) {
-                        return path;
-                    }
-                }
-                
-                // Also check arrow head
-                // Get direction at end point
-                const endDir = calculateCurveEndDirection(path.control2, path.endPoint);
-                const angle = Math.atan2(endDir.y, endDir.x);
-                
-                // Arrow head size
-                const arrowSize = path.lineWidth * 8;
-                
-                // Check arrow head lines
-                const endX = path.endPoint.x;
-                const endY = path.endPoint.y;
-                
-                // First arrow head line
-                const head1X = endX - arrowSize * Math.cos(angle - Math.PI/6);
-                const head1Y = endY - arrowSize * Math.sin(angle - Math.PI/6);
-                
-                if (coreMathDistanceToLineSegment(endX, endY, head1X, head1Y, pos.x, pos.y) < hitRadius) {
-                    return path;
-                }
-                
-                // Second arrow head line
-                const head2X = endX - arrowSize * Math.cos(angle + Math.PI/6);
-                const head2Y = endY - arrowSize * Math.sin(angle + Math.PI/6);
-                
-                if (coreMathDistanceToLineSegment(endX, endY, head2X, head2Y, pos.x, pos.y) < hitRadius) {
-                    return path;
-                }
-            } else if (path.tool === 'text') {
-                // For text, use a rectangular hit area
-                const textWidth = path.text.length * (path.lineWidth * 10);
-                const textHeight = path.lineWidth * 20;
-                
-                if (pos.x >= path.position.x - 5 && 
-                    pos.x <= path.position.x + textWidth + 5 &&
-                    pos.y >= path.position.y - textHeight - 5 &&
-                    pos.y <= path.position.y + 5) {
-                    return path;
-                }
-            } else if (path.tool === 'line') {  // Added in v1.8.5 for straight line tool
-                // Check if point is near the line
-                const distance = coreMathDistanceToLineSegment(
-                    path.startPoint.x, path.startPoint.y,
-                    path.endPoint.x, path.endPoint.y,
-                    pos.x, pos.y
-                );
-                
-                if (distance < hitRadius) {
-                    return path;
-                }
-            } else if (path.tool === 'arc') { // <<< Added Arc Tool Logic
-                // Check if point is near the arc
-                const distance = drawGeomMathDistanceToQuadraticCurve(
-                    path.startPoint.x, path.startPoint.y,
-                    path.controlPoint.x, path.controlPoint.y,
-                    path.endPoint.x, path.endPoint.y,
-                    pos.x, pos.y
-                );
-                
-                if (distance < hitRadius) {
-                    return path;
-                }
-            }
-        }
-        
-        return null; // No element found at the position
-    }
-
-    // ----------------------------------------------------
-    // FUNCTION |  ELEMENT SELECTION
-    // - This section introduced in v1.6.6
-    // Handles selection of markup elements and shows appropriate handles
-    // ----------------------------------------------------
-    function selectElement(element) {
-        selectedElement = element;
-        
-        // If it's a text element and we're in selection mode, open the text editor
-        if (element.tool === 'text' && currentMarkupTool === 'selection') {
-            editingTextElement = element;
-            textPlacementPoint = element.position;
-            isTextPlacing = true;
-            
-            // Calculate screen position for the dialog - position it above and to the right 
-            // to avoid covering the text when editing
-            const screenX = Math.max(20, element.position.x * zoomFactor + offsetX + 30); // Offset to the right
-            const screenY = Math.max(20, element.position.y * zoomFactor + offsetY - 180); // Position well above the text
-            
-            // Make sure the dialog is visible and correctly positioned
-            showTextDialog(screenX, screenY, element.text || '');
-            
-            // Ensure the dialog button says "Update Text" instead of "Add Text"
-            document.getElementById('markup-text-confirm').textContent = 'Update Text';
-        }
-        
-        // Create selection handles based on the element type
-        createSelectionHandles(element);
-    }
-
-    // ----------------------------------------------------
-    // FUNCTION |  SELECTION CLEARING
-    // - This section introduced in v1.6.6
-    // Clears the current selection and removes any handles
-    // ----------------------------------------------------
-    function clearSelection() {
-        selectedElement = null;
-        clearSelectionHandles();
-        
-        // Remove any selection handles container
-        const handleContainer = document.getElementById('selection-handles');
-        if (handleContainer) {
-            handleContainer.remove();
-        }
-    }
-
-    // ----------------------------------------------------
-    // FUNCTION |  SELECTION HANDLE CREATION
-    // - This section introduced in v1.6.6
-    // Creates visual handles for manipulating selected elements
-    // ----------------------------------------------------
-    function createSelectionHandles(element) {
-        if (!element) return;
-        
-        // Clear previous selection handles
-        const handleContainer = document.getElementById('selection-handles');
-        if (handleContainer) {
-            handleContainer.remove();
-        }
-        
-        // Create a container for handles
-        const container = document.createElement('div');
-        container.id = 'selection-handles';
-        container.style.position = 'absolute';
-        container.style.left = '0';
-        container.style.top = '0';
-        container.style.pointerEvents = 'none';
-        document.getElementById('app').appendChild(container);
-        
-        if (element.tool === 'pencil') {
-            // Create handles for each point in the path
-            for (let i = 0; i < element.points.length; i += Math.max(1, Math.floor(element.points.length / 8))) {
-                createHandle(element.points[i], 'point-' + i, container);
-            }
-        } else if (element.tool === 'rectangle') {
-            // Create handles for the corners of the rectangle
-            createHandle(element.startPoint, 'start', container);
-            createHandle({x: element.endPoint.x, y: element.startPoint.y}, 'top-right', container);
-            createHandle(element.endPoint, 'end', container);
-            createHandle({x: element.startPoint.x, y: element.endPoint.y}, 'bottom-left', container);
-        } else if (element.tool === 'circle') {
-            // Get circle parameters
-            let centerX, centerY, radius;
-            
-            if (element.centerPoint && element.radius !== undefined) {
-                // New format
-                centerX = element.centerPoint.x;
-                centerY = element.centerPoint.y;
-                radius = element.radius;
-                
-                // Create handle for center
-                createHandle({x: centerX, y: centerY}, 'center', container);
-                
-                // Create handles for cardinal points
-                createHandle({x: centerX + radius, y: centerY}, 'right', container);
-                createHandle({x: centerX, y: centerY - radius}, 'top', container);
-                createHandle({x: centerX - radius, y: centerY}, 'left', container);
-                createHandle({x: centerX, y: centerY + radius}, 'bottom', container);
-            } else {
-                // Old format
-                const centerX = (element.startPoint.x + element.endPoint.x) / 2;
-                const centerY = (element.startPoint.y + element.endPoint.y) / 2;
-                const radiusX = Math.abs(element.endPoint.x - element.startPoint.x) / 2;
-                const radiusY = Math.abs(element.endPoint.y - element.startPoint.y) / 2;
-                
-                // Create handles for corners and center
-                createHandle(element.startPoint, 'start', container);
-                createHandle(element.endPoint, 'end', container);
-                createHandle({x: element.startPoint.x, y: element.endPoint.y}, 'bottom-left', container);
-                createHandle({x: element.endPoint.x, y: element.startPoint.y}, 'top-right', container);
-                createHandle({x: centerX, y: centerY}, 'center', container);
-            }
-        } else if (element.tool === 'text') {
-            // For text, create a handle at the position
-            createHandle(element.position, 'start', container);
-        } else if (element.tool === 'arrow') {
-            // For arrows, create handles for each control point
-            createHandle(element.startPoint, 'start', container);
-            createHandle(element.endPoint, 'end', container);
-            createHandle(element.control1, 'control1', container);
-            createHandle(element.control2, 'control2', container);
-        } else if (element.tool === 'polygon') {
-            // Create handles for each point of the polygon
-            for (let i = 0; i < element.points.length; i++) {
-                createHandle(element.points[i], 'point-' + i, container);
-            }
-        }
-    }
-
-    // ----------------------------------------------------
-    // FUNCTION |  SELECTION HANDLE REMOVAL
-    // - This section introduced in v1.7.3
-    // Removes all selection handles from the DOM
-    // ----------------------------------------------------
-    function clearSelectionHandles() {
-        // Remove any existing selection handles from DOM
-        document.querySelectorAll('.selection-handle').forEach(handle => {
-            if (handle && handle.parentNode) {
-                handle.parentNode.removeChild(handle);
-            }
-        });
-        selectionHandles = [];
-        
-        // Clear arrow controls if they're visible
-        clearArrowControls();
-    }
-
-    // ----------------------------------------------------
-    // FUNCTION |  ELEMENT MOVEMENT
-    // - This section introduced in v1.6.6
-    // Handles moving selected elements to new positions
-    // ----------------------------------------------------
-    function moveElement(element, newPosition) {
-        if (!element) return;
-        
-        // Apply the movement offset to the new position
-        newPosition = {
-            x: newPosition.x + moveOffset.x,
-            y: newPosition.y + moveOffset.y
+        // Create options
+        const options = {
+            color: path.color || markupColor,
+            lineWidth: path.lineWidth || markupLineWidth,
+            sketchiness: 0.5
         };
         
-        if (element.tool === 'pencil') {
-            // For pencil paths, move all points
-            const dx = newPosition.x - element.points[0].x;
-            const dy = newPosition.y - element.points[0].y;
-            
-            for (let i = 0; i < element.points.length; i++) {
-                element.points[i].x += dx;
-                element.points[i].y += dy;
-            }
-        } else if (element.tool === 'text') {
-            // For text, move the position
-            element.position.x = newPosition.x;
-            element.position.y = newPosition.y;
-        } else if (element.tool === 'arrow') {
-            // For arrows, move all points
-            const dx = newPosition.x - element.startPoint.x;
-            const dy = newPosition.y - element.startPoint.y;
-            
-            element.startPoint.x += dx;
-            element.startPoint.y += dy;
-            element.endPoint.x += dx;
-            element.endPoint.y += dy;
-            element.control1.x += dx;
-            element.control1.y += dy;
-            element.control2.x += dx;
-            element.control2.y += dy;
-        } else if (element.tool === 'rectangle') {
-            // For rectangles, move both corners
-            const dx = newPosition.x - element.startPoint.x;
-            const dy = newPosition.y - element.startPoint.y;
-            
-            element.startPoint.x += dx;
-            element.startPoint.y += dy;
-            element.endPoint.x += dx;
-            element.endPoint.y += dy;
-        } else if (element.tool === 'circle') {
-            if (element.centerPoint && element.radius !== undefined) {
-                // New format - move the center point
-                element.centerPoint.x = newPosition.x;
-                element.centerPoint.y = newPosition.y;
-            } else {
-                // Old format - move both points
-                const dx = newPosition.x - ((element.startPoint.x + element.endPoint.x) / 2);
-                const dy = newPosition.y - ((element.startPoint.y + element.endPoint.y) / 2);
-                
-                element.startPoint.x += dx;
-                element.startPoint.y += dy;
-                element.endPoint.x += dx;
-                element.endPoint.y += dy;
-            }
-        } else if (element.tool === 'polygon') {
-            // For polygons, move all points
-            const dx = newPosition.x - element.points[0].x;
-            const dy = newPosition.y - element.points[0].y;
-            
-            for (let i = 0; i < element.points.length; i++) {
-                element.points[i].x += dx;
-                element.points[i].y += dy;
-            }
-        }
+        // Call the imported function
+        drawSketchyPath(path, options);
         
-        // Update selection handles
-        updateAllHandlePositions();
+        // Restore canvas state
+        context.restore();
     }
 
-    // Delete the currently selected element
-    function deleteSelectedElement() {
-        if (!selectedElement) return;
-        
-        // Save state before deletion
-        saveMarkupState();
-        
-        // Find and remove the selected element from markupPaths
-        const index = markupPaths.indexOf(selectedElement);
-        if (index !== -1) {
-            markupPaths.splice(index, 1);
-        }
-        
-        // Clear selection
-        clearSelection();
-    }
-
-
-
-    // First, let's add a new function to update handle positions whenever the canvas transform changes
-    function updateAllHandlePositions() {
-        // Update selection handles
-        if (selectedElement) {
-            createSelectionHandles(selectedElement);
-        }
-        
-        // Update arrow control points
-        if (currentMarkupTool === 'arrow' && arrowState === 'edit' && currentArrow) {
-            updateControlPointPositions();
-        }
-    }
-
-    // Add clipboard variables to the existing markup toolset variables section
-    let clipboardElement = null; // Stores the copied element
-    let pasteOffset = { x: 20, y: 20 }; // Default offset for pasted elements
-    let consecutivePastes = 0; // Counter for consecutive pastes to offset multiple pastes
-
-    // Function to copy the selected element
-    function copySelectedElement() {
-        if (!selectedElement) return;
-        
-        // Deep clone the selected element
-        clipboardElement = JSON.parse(JSON.stringify(selectedElement));
-        
-        // Reset consecutive pastes counter
-        consecutivePastes = 0;
-        
-        // Visual feedback (optional)
-        showCopyFeedback();
-    }
-
-    // Function to paste the copied element
-    function pasteElement(e) {
-        if (!clipboardElement) return;
-        
-        // Save state before pasting
-        saveMarkupState();
-        
-        // Create a deep clone of the clipboard element
-        const newElement = JSON.parse(JSON.stringify(clipboardElement));
-        
-        // Get mouse position if available, otherwise use view center
-        let targetPos;
-        if (e.clientX !== undefined && e.clientY !== undefined) {
-            const rect = planCanvas.getBoundingClientRect();
-            targetPos = canvasToPlanCoords(e.clientX - rect.left, e.clientY - rect.top);
-        } else {
-            // Default to center of visible area if no mouse position
-            targetPos = {
-                x: (planCanvas.width / 2 - offsetX) / zoomFactor,
-                y: (planCanvas.height / 2 - offsetY) / zoomFactor
-            };
-        }
-        
-        // Calculate incremental offset for consecutive pastes
-        const currentOffset = {
-            x: pasteOffset.x + (consecutivePastes * 10),
-            y: pasteOffset.y + (consecutivePastes * 10)
-        };
-        
-        // Increment counter for next paste
-        consecutivePastes++;
-        
-        // Depending on the type of element, adjust position
-        if (newElement.tool === 'pencil' && newElement.points) {
-            // Calculate original bounding box
-            let minX = Infinity, minY = Infinity;
-            for (const point of clipboardElement.points) {
-                minX = Math.min(minX, point.x);
-                minY = Math.min(minY, point.y);
-            }
-            
-            // Offset all points
-            for (let i = 0; i < newElement.points.length; i++) {
-                // Move to target position + offset
-                newElement.points[i].x = newElement.points[i].x - minX + targetPos.x + currentOffset.x / zoomFactor;
-                newElement.points[i].y = newElement.points[i].y - minY + targetPos.y + currentOffset.y / zoomFactor;
-            }
-        } 
-        else if (newElement.tool === 'text') {
-            // Move text to new position
-            newElement.position = {
-                x: targetPos.x + currentOffset.x / zoomFactor,
-                y: targetPos.y + currentOffset.y / zoomFactor
-            };
-        }
-        else if (newElement.tool === 'arrow') {
-            // Calculate the original arrow's bounding box center
-            const originalCenterX = (clipboardElement.startPoint.x + clipboardElement.endPoint.x) / 2;
-            const originalCenterY = (clipboardElement.startPoint.y + clipboardElement.endPoint.y) / 2;
-            
-            // Calculate vector from original center to each point
-            const vectors = {
-                startPoint: {
-                    x: clipboardElement.startPoint.x - originalCenterX,
-                    y: clipboardElement.startPoint.y - originalCenterY
-                },
-                endPoint: {
-                    x: clipboardElement.endPoint.x - originalCenterX,
-                    y: clipboardElement.endPoint.y - originalCenterY
-                },
-                control1: {
-                    x: clipboardElement.control1.x - originalCenterX,
-                    y: clipboardElement.control1.y - originalCenterY
-                },
-                control2: {
-                    x: clipboardElement.control2.x - originalCenterX,
-                    y: clipboardElement.control2.y - originalCenterY
-                }
-            };
-            
-            // Apply vectors to new position
-            newElement.startPoint = {
-                x: targetPos.x + vectors.startPoint.x + currentOffset.x / zoomFactor,
-                y: targetPos.y + vectors.startPoint.y + currentOffset.y / zoomFactor
-            };
-            newElement.endPoint = {
-                x: targetPos.x + vectors.endPoint.x + currentOffset.x / zoomFactor,
-                y: targetPos.y + vectors.endPoint.y + currentOffset.y / zoomFactor
-            };
-            newElement.control1 = {
-                x: targetPos.x + vectors.control1.x + currentOffset.x / zoomFactor,
-                y: targetPos.y + vectors.control1.y + currentOffset.y / zoomFactor
-            };
-            newElement.control2 = {
-                x: targetPos.x + vectors.control2.x + currentOffset.x / zoomFactor,
-                y: targetPos.y + vectors.control2.y + currentOffset.y / zoomFactor
-            };
-        }
-        else if (newElement.tool === 'rectangle' || newElement.tool === 'circle') {
-            // Calculate width and height of the original shape
-            const width = clipboardElement.endPoint.x - clipboardElement.startPoint.x;
-            const height = clipboardElement.endPoint.y - clipboardElement.startPoint.y;
-            
-            // Position the new shape at the target position
-            newElement.startPoint = {
-                x: targetPos.x + currentOffset.x / zoomFactor,
-                y: targetPos.y + currentOffset.y / zoomFactor
-            };
-            newElement.endPoint = {
-                x: targetPos.x + width + currentOffset.x / zoomFactor,
-                y: targetPos.y + height + currentOffset.y / zoomFactor
-            };
-        }
-        else if (newElement.tool === 'polygon' && newElement.points) {
-            // Calculate original bounding box
-            let minX = Infinity, minY = Infinity;
-            for (const point of clipboardElement.points) {
-                minX = Math.min(minX, point.x);
-                minY = Math.min(minY, point.y);
-            }
-            
-            // Offset all points
-            for (let i = 0; i < newElement.points.length; i++) {
-                // Move to target position + offset
-                newElement.points[i].x = newElement.points[i].x - minX + targetPos.x + currentOffset.x / zoomFactor;
-                newElement.points[i].y = newElement.points[i].y - minY + targetPos.y + currentOffset.y / zoomFactor;
-            }
-        }
-        
-        // Add the new element to the markup paths
-        markupPaths.push(newElement);
-        
-        // Select the newly pasted element
-        selectedElement = newElement;
-        createSelectionHandles(newElement);
-        
-        // Update the canvas
-        renderLoop();
-    }
-    
-    // Function to show visual feedback when copying
-    function showCopyFeedback() {
-        // Create a temporary message element
-        const feedback = document.createElement('div');
-        feedback.textContent = 'Element copied';
-        feedback.style.position = 'absolute';
-        feedback.style.top = '60px';
-        feedback.style.left = '50%';
-        feedback.style.transform = 'translateX(-50%)';
-        feedback.style.background = 'rgba(0, 0, 0, 0.7)';
-        feedback.style.color = 'white';
-        feedback.style.padding = '10px 20px';
-        feedback.style.borderRadius = '5px';
-        feedback.style.zIndex = '10000';
-        feedback.style.pointerEvents = 'none';
-        
-        // Add to DOM
-        document.body.appendChild(feedback);
-        
-        // Remove after a short delay
-        setTimeout(() => {
-            feedback.style.opacity = '0';
-            feedback.style.transition = 'opacity 0.5s';
-            setTimeout(() => document.body.removeChild(feedback), 500);
-        }, 1500);
-    }
-
-    // Draw a sketchy polygon
+    // Wrapper function for drawing sketchy polygon
     function drawSketchyPolygon(context, polygon) {
-        if (polygon.points.length < 2) return;
+        // OFFLOADED: This function has been moved to toolsMarkupSketchDrawingTools.js
+        // The imported drawSketchyPolygon function is now used
         
+        // Save canvas transformations
         context.save();
         context.translate(offsetX, offsetY);
         context.scale(zoomFactor, zoomFactor);
-        context.strokeStyle = polygon.color;
-        context.lineWidth = polygon.lineWidth;
         
-        // Add deterministic seed for consistent randomness
-        if (!polygon.seed) {
-            polygon.seed = Math.floor(Math.random() * 10000);
-        }
+        // Update the drawing context
+        updateDrawingConfig({ ctx: context });
         
-        // Draw each line segment with enhanced sketchiness
-        for (let i = 0; i < polygon.points.length; i++) {
-            const p1 = polygon.points[i];
-            const p2 = polygon.points[(i + 1) % polygon.points.length];
-            
-            // Use our new sketchy segment function with deterministic randomness
-            drawSketchySegment(context, p1.x, p1.y, p2.x, p2.y, 
-                polygon.lineWidth, polygon.color, polygon.seed + i * 100);
-        }
+        // Create options
+        const options = {
+            color: polygon.color,
+            lineWidth: polygon.lineWidth,
+            sketchiness: 0.5,
+            fillStyle: polygon.fill ? polygon.fillColor : null
+        };
         
-        // Add some reinforcement marks at vertices for technical pen effect
-        context.globalAlpha = 0.3;
-        for (let i = 0; i < polygon.points.length; i++) {
-            const p = polygon.points[i];
-            // Small mark at vertex
-            const jitter = polygon.lineWidth * 0.2;
-            
-            context.beginPath();
-            context.lineWidth = polygon.lineWidth * 0.7;
-            
-            // Use deterministic random offsets
-            const jitterX = jitter * (coreMathPseudoRandomValueGen(polygon.seed + i * 200) - 0.5);
-            const jitterY = jitter * (coreMathPseudoRandomValueGen(polygon.seed + i * 200 + 10) - 0.5);
-            context.moveTo(p.x + jitterX, p.y + jitterY);
-            
-            // Draw a short line in a consistent random direction
-            const angle = coreMathPseudoRandomValueGen(polygon.seed + i * 300) * Math.PI * 2;
-            const length = polygon.lineWidth * (1 + coreMathPseudoRandomValueGen(polygon.seed + i * 400));
-            context.lineTo(
-                p.x + Math.cos(angle) * length,
-                p.y + Math.sin(angle) * length
-            );
-            context.stroke();
-        }
+        // Call the imported function
+        drawSketchyPolygon(polygon.points, options);
         
+        // Restore canvas state
         context.restore();
     }
-
-    // ----------------------------------------------------
-    // FUNCTION |  DRAW SKETCHY LINE
-    // - Added in v1.8.5 (02-Apr-2025)
-    // - Draws a sketchy straight line with handdrawn appearance
-    // ----------------------------------------------------
-    function drawSketchyLine(context, line) {
-        if (!line.startPoint || !line.endPoint) return;
-        
-        context.save();
-        context.translate(offsetX, offsetY);
-        context.scale(zoomFactor, zoomFactor);
-        context.strokeStyle = line.color;
-        context.lineWidth = line.lineWidth;
-        context.lineCap = 'round';
-        context.lineJoin = 'round';
-        
-        // Ensure line has a seed for deterministic randomness
-        if (!line.seed) {
-            line.seed = Math.floor(Math.random() * 10000);
-        }
-        
-        // Calculate line properties
-        const x1 = line.startPoint.x;
-        const y1 = line.startPoint.y;
-        const x2 = line.endPoint.x;
-        const y2 = line.endPoint.y;
-        
-        // Use the sketchy segment function for consistent style with rectangle edges
-        drawSketchySegment(context, x1, y1, x2, y2, line.lineWidth, line.color, line.seed);
-        
-        context.restore();
-    }
-
-    // Show the control points for editing an arrow
-    function showArrowControls(arrow) {
-        // Set current arrow and state
-        currentArrow = arrow;
-        arrowState = 'edit';
-        
-        // Update UI
-        planCanvas.classList.remove('markup-arrow-end');
-        planCanvas.classList.add('markup-arrow-edit');
-        
-        // Create control points if they don't exist
-        if (!controlPoints.length) {
-            // Create control points for arrow
-            const startPoint = document.createElement('div');
-            startPoint.className = 'control-point start-point';
-            startPoint.type = 'start';
-            document.getElementById('canvas-container').appendChild(startPoint);
-            
-            const endPoint = document.createElement('div');
-            endPoint.className = 'control-point end-point';
-            endPoint.type = 'end';
-            document.getElementById('canvas-container').appendChild(endPoint);
-            
-            const control1 = document.createElement('div');
-            control1.className = 'control-point control1';
-            control1.type = 'control1';
-            document.getElementById('canvas-container').appendChild(control1);
-            
-            const control2 = document.createElement('div');
-            control2.className = 'control-point control2';
-            control2.type = 'control2';
-            document.getElementById('canvas-container').appendChild(control2);
-            
-            // Add to control points array
-            controlPoints = [startPoint, endPoint, control1, control2];
-        }
-        
-        // Update positions
-        updateControlPointPositions();
-    }
-
-    // Create a handle element for selection
-    function createHandle(position, type, container) {
-        const handle = document.createElement('div');
-        handle.className = 'selection-handle';
-        handle.dataset.type = type;
-        handle.style.position = 'absolute';
-        handle.style.width = '10px';
-        handle.style.height = '10px';
-        handle.style.borderRadius = '50%';
-        handle.style.backgroundColor = 'yellow';
-        handle.style.border = '1px solid #333';
-        handle.style.transform = 'translate(-50%, -50%)';
-        handle.style.pointerEvents = 'none'; // Don't interfere with canvas events
-        
-        // Calculate the position in screen coordinates
-        const screenX = position.x * zoomFactor + offsetX;
-        const screenY = position.y * zoomFactor + offsetY;
-        
-        handle.style.left = screenX + 'px';
-        handle.style.top = screenY + 'px';
-        
-        container.appendChild(handle);
-        return handle;
-    }
-    
-    // Update positions of all selection handles
-    function updateAllHandlePositions() {
-        // If there's no selected element, there's nothing to update
-        if (!selectedElement) return;
-        
-        // Update the handles by recreating them
-        createSelectionHandles(selectedElement);
-        
-        // Also update arrow control points if we're editing an arrow
-        if (currentArrow && arrowState === 'edit') {
-            updateControlPointPositions();
-        }
-    }
-
-
-    // ============================================================
-    // PRIMARY FUNCTION |  MOUSE RELEASE HANDLER
-    // - This section introduced in v1.5.0
-    // Processes mouse up events for measurements and markup elements
-    // ============================================================
-
-    // ----------------------------------------------------
-    // HANDLER SECTION |  MARKUP TOOLS RELEASE HANDLING
-    // - Processes release events for markup tool interactions
-    // ----------------------------------------------------
-    function onMouseUp(e) {
-        // Handle markup tools if active
-        if (isMarkupToolsetActive && currentMarkupTool) {
-            const pos = canvasToPlanCoords(e.offsetX, e.offsetY);
-            
-            // ----------------------------------------------------
-            // EVENT HANDLER |  SELECTION TOOL FINALIZATION
-            // - Completes element movement and saves state
-            // ----------------------------------------------------
-            if (currentMarkupTool === 'selection' && isMovingElement) {
-                // Finalize the move
-                isMovingElement = false;
-                moveStartPosition = null;
-                
-                // Save state after moving an element
-                if (selectedElement) {
-                    saveMarkupState();
-                }
-                return;
-            }
-
-            // ----------------------------------------------------
-            // EVENT HANDLER |  DRAWING TOOLS FINALISATION
-            // - Completes pencil strokes and eraser actions
-            // ----------------------------------------------------
-            else if ((currentMarkupTool === 'pencil' || currentMarkupTool === 'eraser') && currentMarkupPath) {
-                // Finalize the current path
-                if (currentMarkupPath.points.length > 1) {
-                    markupPaths.push(currentMarkupPath);
-                    saveMarkupState();
-                }
-                currentMarkupPath = null;
-                return;
-            }
-            
-            // ----------------------------------------------------
-            // EVENT HANDLER |  STRAIGHT LINE TOOL FINALISATION
-            // - Added in v1.8.5 (02-Apr-2025)
-            // - Completes straight line drawing operations
-            // ----------------------------------------------------
-            else if (currentMarkupTool === 'line' && isLineDrawing && currentLine) {
-                // Update final end point
-                currentLine.endPoint = pos;
-                
-                // Finalize the current line if it has a valid length
-                const dx = currentLine.endPoint.x - currentLine.startPoint.x;
-                const dy = currentLine.endPoint.y - currentLine.startPoint.y;
-                const length = Math.sqrt(dx * dx + dy * dy);
-                
-                if (length > 5) { // Only save if line has a meaningful length
-                    markupPaths.push(currentLine);
-                    saveMarkupState();
-                }
-                
-                // Reset line drawing state
-                isLineDrawing = false;
-                currentLine = null;
-                return;
-            }
-            
-            // ----------------------------------------------------
-            // EVENT HANDLER |  ARROW TOOL FINALISATION
-            // - Handles arrow creation and control point editing
-            // ----------------------------------------------------
-            else if (currentMarkupTool === 'arrow' && arrowState === 'end' && currentArrow) {
-                // Add arrow to paths when released
-                markupPaths.push(currentArrow);
-                
-                // Set up for editing the arrow control points
-                showArrowControls(currentArrow);
-                
-                // Save state after creating an arrow
-                saveMarkupState();
-                
-                return;
-            }
-            else if (currentMarkupTool === 'arrow' && arrowState === 'edit' && activeControlPoint) {
-                // Calculate the position in plan coordinates
-                const planPos = {
-                    x: (activeControlPoint.x - offsetX) / zoomFactor,
-                    y: (activeControlPoint.y - offsetY) / zoomFactor
-                };
-                
-                // Update arrow accordingly
-                if (activeControlPoint.type === 'start') {
-                    currentArrow.startPoint = planPos;
-                } else if (activeControlPoint.type === 'end') {
-                    currentArrow.endPoint = planPos;
-                } else if (activeControlPoint.type === 'control1') {
-                    currentArrow.control1 = planPos;
-                } else if (activeControlPoint.type === 'control2') {
-                    currentArrow.control2 = planPos;
-                }
-                
-                activeControlPoint = null;
-                
-                // Save state after editing an arrow
-                saveMarkupState();
-                return;
-            }
-
-            // ----------------------------------------------------
-            // EVENT HANDLER |  SHAPE TOOL FINALISATION
-            // - Completes rectangle and circle creation
-            // ----------------------------------------------------
-            else if ((currentMarkupTool === 'rectangle' || currentMarkupTool === 'filled-rectangle') && isShapeDrawing && currentShape) {
-                // Finalize rectangle
-                if (Math.abs(currentShape.endPoint.x - currentShape.startPoint.x) > 5 && 
-                    Math.abs(currentShape.endPoint.y - currentShape.startPoint.y) > 5) {
-                    // Only add if rectangle has meaningful size
-                    markupPaths.push(currentShape);
-                    
-                    // Save state after creating a shape
-                    saveMarkupState();
-                }
-                
-                currentShape = null;
-                isShapeDrawing = false;
-                return;
-            }
-            else if (currentMarkupTool === 'circle' && isShapeDrawing && currentShape) {
-                // Finalize circle - add it if the radius is meaningful
-                if (currentShape.radius > 5) {
-                    markupPaths.push(currentShape);
-                    
-                    // Save state after creating a shape
-                    saveMarkupState();
-                }
-                
-                currentShape = null;
-                isShapeDrawing = false;
-                return;
-            }
-            
-            return;
-        }
-        
-        // ----------------------------------------------------
-        // HANDLER SECTION |  MEASUREMENT TOOLS RELEASE
-        // - Processes release events for measurement tools
-        // ----------------------------------------------------
-        
-        // ----------------------------------------------------
-        // EVENT HANDLER |  LINEAR MEASUREMENT COMPLETION
-        // - Finalizes linear measurements and shows confirm button
-        // ----------------------------------------------------
-        if (currentTool === "linear" && isLinearMeasuring) {
-            if (measuringPoints.length === 2 && !linearMeasurementLocked) {
-                // Lock the second point in place when mouse is released
-                linearMeasurementLocked = true;
-                
-                // Position the confirm button correctly
-                adjustConfirmButtonPosition();
-                finishBtn.style.display = "block";
-            }
-            return;
-        }
-        
-        // ----------------------------------------------------
-        // EVENT HANDLER |  AREA MEASUREMENT COMPLETION
-        // - Handles polygon area tool completion on double-click
-        // ----------------------------------------------------
-        if (currentTool === "area" && e.detail === 2) {
-            // Double-click completes the polygon area tool
-            isAreaComplete = true;
-            renderLoop();
-            return;
-        }
-        
-        // ----------------------------------------------------
-        // EVENT HANDLER |  RECTANGLE MEASUREMENT COMPLETION
-        // - Finalizes rectangle measurements and shows confirm button
-        // ----------------------------------------------------
-        if (currentTool === "rectangle" && isRectMeasuring) {
-            if (isRectDragging) {
-                isRectDragging = false; // Stop dragging on mouse up
-                
-                // Show the confirm button
-                adjustConfirmButtonPosition();
-                finishBtn.style.display = "block";
-            }
-            return;
-        }
-        
-        isDragging = false;
-    }
-
-    // ========================================================================
-    // PRIMARY FUNCTION |  DISTANCE CALCULATION UTILITIES
-    // - This section introduced in v1.6.0
-    // Contains utility functions for calculating distances and curves
-    // ======================================================================== 
-
-    // ----------------------------------------------------
-    // HELPER FUNCTION |  POINT TO LINE DISTANCE
-    // - Calculates shortest distance from point to line segment
-    // ----------------------------------------------------
-    function coreMathDistanceToLineSegment(x1, y1, x2, y2, px, py) {
-        // Calculate squared length of line segment
-        const lengthSq = (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1);
-        
-        // If segment is a point, return distance to that point
-        if (lengthSq === 0) return Math.sqrt((px-x1)*(px-x1) + (py-y1)*(py-y1));
-        
-        // Calculate projection of point onto line, parametrized from 0 to 1
-        const t = ((px-x1)*(x2-x1) + (py-y1)*(y2-y1)) / lengthSq;
-        
-        // If projection is outside segment, return distance to closest endpoint
-        if (t < 0) return Math.sqrt((px-x1)*(px-x1) + (py-y1)*(py-y1));
-        if (t > 1) return Math.sqrt((px-x2)*(px-x2) + (py-y2)*(py-y2));
-        
-        // Calculate closest point on line
-        const closestX = x1 + t * (x2-x1);
-        const closestY = y1 + t * (y2-y1);
-        
-        // Return distance from point to closest point on line
-        return Math.sqrt((px-closestX)*(px-closestX) + (py-closestY)*(py-closestY));
-    }
-    
-
-
-    // ========================================================================
-    // PRIMARY FUNCTION |  MARKUP TOOL CANCELLATION
-    // - This section introduced in v1.7.3
-    // Handles cancellation and reset of markup tool states
-    // ======================================================================== 
-    function cancelMarkupTool() {
-        currentMarkupTool = null;
-        
-        // Reset cursor
-        planCanvas.className = "";
-        
-        // Hide cancel button
-        document.getElementById('cancelMarkupToolBtn').style.display = 'none';
-        
-        // Reset all state variables
-        currentMarkupPath = null;
-        clearSelection();
-        clearArrowControls();
-        arrowState = 'idle';
-        isShapeDrawing = false;
-        shapeStartPoint = null;
-        currentShape = null;
-        
-        // Reset line drawing state - Added in v1.8.5
-        isLineDrawing = false;
-        currentLine = null;
-
-        // Hide any instruction text
-        const instructionsDiv = document.getElementById('markup-instructions');
-        if (instructionsDiv) {
-            instructionsDiv.innerHTML = '';
-            instructionsDiv.style.display = 'none';
-        }
-    }
-
-    // ======================================================================== 
-    // FUNCTION |  MARKUP INSTRUCTIONS DISPLAY
-    // - This section introduced in v1.6.0
-    // Shows tool-specific instructions to guide users on using markup tools
-    // ========================================================================
-
-    function showMarkupInstructions(tool) {
-        const instructionsDiv = document.getElementById('markup-instructions');
-        if (!instructionsDiv) {
-            // Create the instructions div if it doesn't exist
-            const newInstructionsDiv = document.createElement('div');
-            newInstructionsDiv.id = 'markup-instructions';
-            newInstructionsDiv.style.position = 'absolute';
-            newInstructionsDiv.style.top = '60px';
-            newInstructionsDiv.style.left = '50%';
-            newInstructionsDiv.style.transform = 'translateX(-50%)';
-            newInstructionsDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            newInstructionsDiv.style.color = 'white';
-            newInstructionsDiv.style.padding = '8px 12px';
-            newInstructionsDiv.style.borderRadius = '4px';
-            newInstructionsDiv.style.zIndex = '10000';
-            newInstructionsDiv.style.display = 'none';
-            document.body.appendChild(newInstructionsDiv);
-            
-            // Use the newly created div
-            showMarkupInstructions(tool);
-            return;
-        }
-        
-        let instructions = '';
-        
-        switch (tool) {
-            case 'selection':
-                instructions = 'Click to select objects. Click and drag to move selected objects.';
-                break;
-            case 'pencil':
-                instructions = 'Click and drag to draw freehand.';
-                break;
-            case 'eraser':
-                instructions = 'Click and drag over elements to erase them.';
-                break;
-            case 'arrow':
-                instructions = 'Click to set arrow start point, then click or drag to set end point.';
-                break;
-            case 'text':
-                instructions = 'Click to place text. Type your text in the dialog that appears.';
-                break;
-            case 'line':  // Added in v1.8.5 for straight line tool
-                instructions = 'Click and drag to draw a straight line.';
-                break;
-            case 'rectangle':
-                instructions = 'Click and drag to draw a rectangle.';
-                break;
-            case 'filled-rectangle':
-                instructions = 'Click and drag to draw a filled rectangle.';
-                break;
-            case 'circle':
-                instructions = 'Click to set center, then drag to set radius.';
-                break;
-            case 'arc': // <<< Added Arc Tool Logic
-                instructions = 'Click to set start point, then click to set control point, then click to set end point.'; // <<< Added Arc Tool Logic
-                break; // <<< Added Arc Tool Logic
-            default:
-                instructions = '';
-        }
-        
-        if (instructions) {
-            instructionsDiv.innerHTML = instructions;
-            instructionsDiv.style.display = 'block';
-            
-            // Add click-to-dismiss functionality
-            function dismissInstructions() {
-                clearTimeout(timeoutId);
-                instructionsDiv.style.display = 'none';
-                instructionsDiv.removeEventListener('click', dismissInstructions);
-            }
-            
-            instructionsDiv.addEventListener('click', dismissInstructions);
-            
-            // Auto-dismiss after 2 seconds
-            var timeoutId = setTimeout(dismissInstructions, 2000);
-        } else {
-            instructionsDiv.style.display = 'none';
-        }
-    }
-
-    // ----------------------------------------------------
-    // FUNCTION |  DRAW SKETCHY LINE
-    // - Added in v1.8.5 (02-Apr-2025)
-    // - Draws a sketchy straight line with handdrawn appearance
-    // ----------------------------------------------------
-    function drawSketchyLine(context, line) {
-        if (!line.startPoint || !line.endPoint) return;
-        
-        context.save();
-        context.translate(offsetX, offsetY);
-        context.scale(zoomFactor, zoomFactor);
-        context.strokeStyle = line.color;
-        context.lineWidth = line.lineWidth;
-        context.lineCap = 'round';
-        context.lineJoin = 'round';
-        
-        // Ensure line has a seed for deterministic randomness
-        if (!line.seed) {
-            line.seed = Math.floor(Math.random() * 10000);
-        }
-        
-        // Calculate line properties
-        const x1 = line.startPoint.x;
-        const y1 = line.startPoint.y;
-        const x2 = line.endPoint.x;
-        const y2 = line.endPoint.y;
-        
-        // Use the sketchy segment function for consistent style with rectangle edges
-        drawSketchySegment(context, x1, y1, x2, y2, line.lineWidth, line.color, line.seed);
-        
-        context.restore();
-    }
-
-    // ----------------------------------------------------
-    // FUNCTION |  ERASER TOOL IMPLEMENTATION
-    // - This section introduced in v1.6.0
-    // Detects and removes markup elements that intersect with the eraser tool
-    // ========================================================================
-    function detectAndEraseElements(position, radius) {
-        // ----------------------------------------------------
-        // HANDLER SECTION |  ERASER INITIALIZATION
-        // - Sets up eraser parameters and tracking variables
-        // ----------------------------------------------------
-        const eraserRadiusSquared = radius * radius;
-        let erasedAny = false;
-        const originalLength = markupPaths.length;
-        
-        // ----------------------------------------------------
-        // HANDLER SECTION |  MARKUP ELEMENT DETECTION
-        // - Filters markup paths to remove those that intersect with eraser
-        // ----------------------------------------------------
-        markupPaths = markupPaths.filter(path => {
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  PENCIL PATH DETECTION
-            // - Checks if any point in a freehand path is within eraser radius
-            // ----------------------------------------------------
-            if (path.tool === 'pencil') {
-                // For freehand paths, check if any point is within eraser radius
-                for (let i = 0; i < path.points.length; i++) {
-                    const dx = path.points[i].x - position.x;
-                    const dy = path.points[i].y - position.y;
-                    const distanceSquared = dx * dx + dy * dy;
-                    
-                    if (distanceSquared <= eraserRadiusSquared) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-            } 
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  ARROW DETECTION
-            // - Checks if any control point of an arrow is within eraser radius
-            // ----------------------------------------------------
-            else if (path.tool === 'arrow') {
-                // For arrows, check start and end points and control points
-                const pointsToCheck = [
-                    path.startPoint,
-                    path.endPoint,
-                    path.control1,
-                    path.control2
-                ];
-                
-                for (const point of pointsToCheck) {
-                    const dx = point.x - position.x;
-                    const dy = point.y - position.y;
-                    const distanceSquared = dx * dx + dy * dy;
-                    
-                    if (distanceSquared <= eraserRadiusSquared) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  RECTANGLE DETECTION
-            // - Checks if any corner or edge of a rectangle is within eraser radius
-            // ----------------------------------------------------
-            else if (path.tool === 'rectangle') {
-                // Check if eraser is near any corner or edge
-                const corners = [
-                    { x: path.startPoint.x, y: path.startPoint.y },
-                    { x: path.endPoint.x, y: path.startPoint.y },
-                    { x: path.startPoint.x, y: path.endPoint.y },
-                    { x: path.endPoint.x, y: path.endPoint.y }
-                ];
-                
-                for (const corner of corners) {
-                    const dx = corner.x - position.x;
-                    const dy = corner.y - position.y;
-                    const distanceSquared = dx * dx + dy * dy;
-                    
-                    if (distanceSquared <= eraserRadiusSquared) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-                
-                // Check if eraser is on edges
-                const edges = [
-                    {p1: {x: path.startPoint.x, y: path.startPoint.y}, p2: {x: path.endPoint.x, y: path.startPoint.y}},
-                    {p1: {x: path.endPoint.x, y: path.startPoint.y}, p2: {x: path.endPoint.x, y: path.endPoint.y}},
-                    {p1: {x: path.endPoint.x, y: path.endPoint.y}, p2: {x: path.startPoint.x, y: path.endPoint.y}},
-                    {p1: {x: path.startPoint.x, y: path.endPoint.y}, p2: {x: path.startPoint.x, y: path.startPoint.y}}
-                ];
-                
-                for (const edge of edges) {
-                    if (distToSegment(position, edge.p1, edge.p2) <= radius) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  CIRCLE DETECTION
-            // - Checks if eraser intersects with circle boundary or interior
-            // ----------------------------------------------------
-            else if (path.tool === 'circle') {
-                // Check if eraser is near circle boundary or inside
-                const centerX = (path.startPoint.x + path.endPoint.x) / 2;
-                const centerY = (path.startPoint.y + path.endPoint.y) / 2;
-                const radiusX = Math.abs(path.endPoint.x - path.startPoint.x) / 2;
-                const radiusY = Math.abs(path.endPoint.y - path.startPoint.y) / 2;
-                
-                // Simple approximation for ellipse - use average radius
-                const avgRadius = (radiusX + radiusY) / 2;
-                const dx = centerX - position.x;
-                const dy = centerY - position.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (Math.abs(distance - avgRadius) <= radius || distance <= avgRadius) {
-                    erasedAny = true;
-                    return false;
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  POLYGON DETECTION
-            // - Checks if any vertex or edge of a polygon is within eraser radius
-            // ----------------------------------------------------
-            else if (path.tool === 'polygon' && path.points) {
-                // Check if eraser is near any vertex or edge of polygon
-                for (let i = 0; i < path.points.length; i++) {
-                    const p1 = path.points[i];
-                    const p2 = path.points[(i + 1) % path.points.length];
-                    
-                    // Check vertices
-                    const dx = p1.x - position.x;
-                    const dy = p1.y - position.y;
-                    const distanceSquared = dx * dx + dy * dy;
-                    
-                    if (distanceSquared <= eraserRadiusSquared) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                    
-                    // Check edges
-                    if (distToSegment(position, p1, p2) <= radius) {
-                        erasedAny = true;
-                        return false; // Remove this path
-                    }
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  TEXT DETECTION
-            // - Checks if eraser is near text element with larger hit area
-            // ----------------------------------------------------
-            else if (path.tool === 'text') {
-                // Check if eraser is near text position
-                const dx = path.position.x - position.x;
-                const dy = path.position.y - position.y;
-                const distanceSquared = dx * dx + dy * dy;
-                
-                // Make text easier to select by using a larger hit area
-                if (distanceSquared <= eraserRadiusSquared * 4) {
-                    erasedAny = true;
-                    return false; // Remove this path
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  LINE DETECTION
-            // - Checks if eraser is near a straight line
-            // ----------------------------------------------------
-            else if (path.tool === 'line') {
-                // Check if eraser is near the line
-                const distance = coreMathDistanceToLineSegment(
-                    path.startPoint.x, path.startPoint.y,
-                    path.endPoint.x, path.endPoint.y,
-                    position.x, position.y
-                );
-                
-                if (distance < radius) {
-                    erasedAny = true;
-                    return false; // Remove this path
-                }
-            }
-            // ----------------------------------------------------
-            // DETECTION HANDLER |  ARC DETECTION
-            // - Checks if eraser is near a quadratic Bezier arc
-            // ----------------------------------------------------
-            else if (path.tool === 'arc') {
-                // Check if eraser is near the arc
-                const distance = drawGeomMathDistanceToQuadraticCurve(
-                    path.startPoint.x, path.startPoint.y,
-                    path.controlPoint.x, path.controlPoint.y,
-                    path.endPoint.x, path.endPoint.y,
-                    position.x, position.y
-                );
-                
-                if (distance < radius) {
-                    erasedAny = true;
-                    return false; // Remove this path
-                }
-            }
-            
-            return true; // Keep this path
-        });
-        
-        // ----------------------------------------------------
-        // HANDLER SECTION |  RESULT PROCESSING
-        // - Handles UI updates and returns erasure status
-        // ----------------------------------------------------
-        if (erasedAny) {
-            // Redraw if we erased anything
-            renderLoop();
-        }
-        
-        return erasedAny && originalLength > markupPaths.length;
-    }
-
-
 
 })();        // <---- This is where the function is immediately executed
