@@ -8,6 +8,7 @@
         }
     ],
     "settings": {
-        "editor.tabSize"	:	4
+        "editor.tabSize": 4,
+        "liveServer.settings.multiRootWorkspaceName": "NA20_WebApp_-_PlanVision"
     }
 }

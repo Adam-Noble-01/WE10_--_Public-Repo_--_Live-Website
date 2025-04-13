@@ -85,6 +85,21 @@ function onResize() {
 
 //   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .  .
 
+// FUNCTION | Panning Control
+// ----------------------------------------------------------------------------------
+// - Handles view panning by adjusting offsets
+
+function panView(dx, dy) {
+    offsetX += dx;
+    offsetY += dy;
+}
+
+// END OF FUNCTION | Panning Control
+
+
+
+//   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .  .
+
 
 
 // FUNCTION |  Zoom Controls
@@ -202,6 +217,7 @@ export {
     resetView,
     applyZoom,
     setZoom,
+    panView,
     updateDrawingMetadata,
     getCanvasState,
     onResize
