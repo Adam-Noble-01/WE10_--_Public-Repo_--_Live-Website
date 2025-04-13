@@ -15,41 +15,39 @@
     <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
 
+    
+    <!--    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   -->
 
 
-    <!-- Polyfill Conditional Loader
-        -----------------------------------------------------------------------------------------------------
-        - This script checks if the browser supports modern JavaScript features (e.g. Promise).
-            - If native support is missing (common in older iOS devices), it dynamically loads the
-            - core-js-bundle polyfill from a CDN to supply the missing functionality. On newer devices
-            - that already support these features, the polyfill is not loaded, ensuring optimal performance.
-    ----------------------------------------------------------------------------------------------------- -->
-        <script>
-            (function() {
-            // Feature detection: Check if 'Promise' is supported by the browser
-            if (typeof Promise === "undefined") {
-                // If not supported, dynamically load the core-js polyfill
-                var polyfillScript = document.createElement("script");
-                polyfillScript.src = "https://cdn.jsdelivr.net/npm/core-js-bundle/minified.js";
-                polyfillScript.onload = function() {
-                console.log("Polyfill loaded successfully.");
-                };
-                document.head.appendChild(polyfillScript);
-            } else {
-                console.log("Native support detected; polyfill not needed.");
-            }
-            })();
-        </script>
 
-    <!-- Font Loading from Asset Library
-        -----------------------------------------------------------------------------------------------------
+    <!-- JAVASCRIPT | POLYFILL CONDITIONAL LOADER
+         OFFLOADED | 12-Apr-2025
+         Tested - Confirmed module is working as expected ✔
+         Usage |  This script checks if the browser supports modern JavaScript features (e.g. Promise).
+    --------------------------------------------------------------------------------------------------------------  -->
+        <script src="./src/70-browser-compatibility-javascript-library/feature-detect-polyfill-loader.js"></script>
+
+
+
+    <!--    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   -->
+
+
+
+    <!-- STYLESHEET | DYNAMIC FONT LOADING
+         Usage |  This style block loads fonts via @font-face declarations using URLs from the centralized asset library
         - This style block loads fonts via @font-face declarations using URLs from the centralized asset library
         - Fonts are loaded early in the document to prevent FOUT (Flash of Unstyled Text)
         - The actual font URLs will be updated dynamically after the asset library JSON is fetched
-    ----------------------------------------------------------------------------------------------------- -->
+    --------------------------------------------------------------------------------------------------------------  -->
     <style id="dynamic-font-styles">
         /* Dynamic font declarations will be inserted here after asset library is loaded */
     </style>
+
+
+
+    <!--    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   -->
+
+
 
     <style>
         /* BASIC RESET & LAYOUT */

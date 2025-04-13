@@ -1,0 +1,25 @@
+## Task
+
+I'm in the process of offloading This giant @main.js into smaller more manigible scripts
+
+I've partially built a @canvas-utilities.js  script but it needs completing and all functions correctly linking back to the new script
+
+TASK ONE 
+\- You must go through the ENTIRE @main.js script (dont search for sections etc) read it line for line
+\- Mark each section with a comment if its related to canvas utilites 
+
+TASK TWO 
+\- Double check all methods and functions are accounted for
+
+TASK THREE
+\- Offload them into @canvas-utilities.js from @main.js 
+
+TASK FOUR 
+\- Validate call statements
+\- Double check everything carefully
+
+\----
+
+KEY CONSIDERATIONS
+\- Speed is no issue, accuracy is key
+\- Check everything logically, donty make assumptions 

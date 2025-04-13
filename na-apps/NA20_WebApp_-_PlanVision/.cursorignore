@@ -1,15 +1,5 @@
-# Build output directories
-dist/
-build/
-out/
-
-# Dependencies
-node_modules/
-vendor/
-
-# Temporary files
-.--TEMP/
-.--BAK/
+.--TEMP
+.--BAK
 *.tmp
 *.BAK
 *.--BAK
@@ -17,24 +7,11 @@ vendor/
 .DS_Store
 Thumbs.db
 
-# IDE specific
-.idea/
-.vscode/
-*.swp
-*.swo
+# Build directories
+/dist
+/build
+/out
 
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# Cache directories
-.cache/
-.npm/
-.eslintcache 
+# Dependency directories
+/node_modules
+/vendor
