@@ -17,35 +17,106 @@
 // ----------------------------------------------------------------------------------
 // MODULE VARIABLES
 // ----------------------------------------------------------------------------------
-// None for this module - all functions are stateless
 
+
+// ===================================================================================
+// CORE LINK |  URL of the asset library JSON file
+// ---------------------------------------------------
+const   ASSET_LIBRARY_URL = 
+"https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json";
+// ===================================================================================
+
+
+
+// END OF VARIABLES |  End of Module Variables
 
 
 //   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .  .
 
 
 
+
+
 // FUNCTION |  Fetch Asset Library
 // ----------------------------------------------------------------------------------
 // - Fetches the asset library from the centralised JSON file
+// - Corrects case mismatch for File_Metadata
+// - Logs all asset entries from all nested sections
 
 async function fetchAssetLibrary() {
-    const ASSET_LIBRARY_URL = "https://www.noble-architecture.com/assets/AD01_-_DATA_-_Common_-_Global-Data-Library/AD01_10_-_DATA_-_Common_-_Core-Web-Asset-Library.json";
     
     try {
+
+        // Fetch the asset library from the centralised JSON file
         const response = await fetch(ASSET_LIBRARY_URL);
+
+        // Check if the response is successful
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        
+
+        // Parse the JSON response
         const data = await response.json();
-        console.log("Asset library loaded successfully:", data.file_metadata["file-name"]);
+
+        // Correct casing mismatch for File_Metadata
+        const fileMeta = data["File_Metadata"];
+        const fileName = fileMeta?.["file-name"] ?? "Unnamed Asset Library";
+
+        // Log file name from metadata
+        console.log("Asset library loaded successfully:", fileName);
+
+        // Traverse and log all assets across nested structures
+        for (const sectionKey in data) {
+
+            const section = data[sectionKey];
+
+            // Check for top-level asset group
+            if (section && typeof section === "object" && section.assets) {
+
+                const sectionTitle = section["library-file-name"] ?? sectionKey;
+                console.log(`\nSECTION: ${sectionTitle}`);
+
+                for (const assetKey in section.assets) {
+                    const asset = section.assets[assetKey];
+                    const label = asset["asset-name"] ?? assetKey;
+                    const filename = asset["asset-file-name"] ?? "Unnamed File";
+
+                    console.log(`   - ${label} [ ${filename} ]`);
+                }
+            }
+
+            // Check for nested asset groups (e.g. within Common_Web_Assets_Libraries)
+            else if (section && typeof section === "object") {
+
+                for (const innerKey in section) {
+                    const subsection = section[innerKey];
+
+                    if (subsection?.assets) {
+
+                        const sectionTitle = subsection["library-file-name"] ?? innerKey;
+                        console.log(`\nSECTION: ${sectionTitle}`);
+
+                        for (const assetKey in subsection.assets) {
+                            const asset = subsection.assets[assetKey];
+                            const label = asset["asset-name"] ?? assetKey;
+                            const filename = asset["asset-file-name"] ?? "Unnamed File";
+
+                            console.log(`   - ${label} [ ${filename} ]`);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // Return the parsed data
         return data;
+        
     } catch (error) {
         console.error("Error fetching asset library:", error.message);
-        // Continue with app initialization even if asset library fails to load
         return null;
     }
+
 }
 
 // END OF FUNCTION |  Fetch Asset Library
