@@ -35,8 +35,6 @@ const   ASSET_LIBRARY_URL =
 
 
 
-
-
 // FUNCTION |  Fetch Asset Library
 // ----------------------------------------------------------------------------------
 // - Fetches the asset library from the centralised JSON file
@@ -62,8 +60,9 @@ async function fetchAssetLibrary() {
         const fileMeta = data["File_Metadata"];
         const fileName = fileMeta?.["file-name"] ?? "Unnamed Asset Library";
 
-        // Log file name from metadata
-        console.log("Asset library loaded successfully:", fileName);
+        // CONFIRMATION |  Json Found & Loaded Confirmation Statement
+        // ---------------------------------------------------------------
+        console.log("LOAD SUCCESS |  ✔  Asset library loaded successfully:", fileName);
 
         // Traverse and log all assets across nested structures
         for (const sectionKey in data) {
@@ -74,14 +73,20 @@ async function fetchAssetLibrary() {
             if (section && typeof section === "object" && section.assets) {
 
                 const sectionTitle = section["library-file-name"] ?? sectionKey;
-                console.log(`\nSECTION: ${sectionTitle}`);
+
+                // DEBUG TOOL |  Log section title
+                // ---------------------------------
+                // console.log(`\nSECTION: ${sectionTitle}`);
+                
 
                 for (const assetKey in section.assets) {
                     const asset = section.assets[assetKey];
                     const label = asset["asset-name"] ?? assetKey;
                     const filename = asset["asset-file-name"] ?? "Unnamed File";
 
-                    console.log(`   - ${label} [ ${filename} ]`);
+                    // DEBUG TOOL |  Log asset details
+                    // ---------------------------------
+                    // console.log(`   - ${label} [ ${filename} ]`);
                 }
             }
 
@@ -91,6 +96,7 @@ async function fetchAssetLibrary() {
                 for (const innerKey in section) {
                     const subsection = section[innerKey];
 
+                    // Check if the subsection has an assets property
                     if (subsection?.assets) {
 
                         const sectionTitle = subsection["library-file-name"] ?? innerKey;
@@ -101,7 +107,9 @@ async function fetchAssetLibrary() {
                             const label = asset["asset-name"] ?? assetKey;
                             const filename = asset["asset-file-name"] ?? "Unnamed File";
 
-                            console.log(`   - ${label} [ ${filename} ]`);
+                            // DEBUG TOOL |  Log asset details
+                            // ---------------------------------
+                            // console.log(`   - ${label} [ ${filename} ]`);
                         }
                     }
                 }
