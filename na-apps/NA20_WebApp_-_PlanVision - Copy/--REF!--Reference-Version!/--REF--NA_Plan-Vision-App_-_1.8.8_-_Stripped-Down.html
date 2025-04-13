@@ -1,533 +1,1178 @@
-// JAVASCRIPT |  PLANVISION APP
-// ----------------------------------------------------------------------------
-// - This script is the main entry point for the PlanVision application
-// - It initialises the application and loads the necessary assets and drawings
-// - It also contains the core functionality for the application
-//   - !!!CURRENT TASK IS BREAKING DOWN THE LOADING OF DRAWINGS INTO A SEPARATE MODULES!!!
-//   - // OFFLOADED   =  ← The date the script was offloaded to a separate module
-// ----------------------------------------------------------------------------
-
-// MINOR RELEASE - Math Functions Offloaded into new Script `coreMathLibrary.js` file
-// Version | 2.0.3.
-// Date    | 13-Apr-2025
-// Summary | Core mathematical functions have been offloaded from main.js to coreMathLibrary.js to improve code organisation and maintainability.
-// 
-// Key Changes:
-//  - Offloaded functions include:
-//      coreMathDistanceCalc
-//      coreMathDistanceToLineSegment
-//      coreMathGeomPolygonArea
-//      coreMathGeomPolygonCentroid
-//      coreMathGeomGenerateQuadraticCurvePoints
-//      coreMathGeomBezierPoint
-//      coreMathPseudoRandomValueGen
-// This change enhances modularity, making updates and testing easier.
-//
-// Benefits:
-// - Improved code organization and maintainability.
-// - Easier updates to mathematical logic without affecting main application logic.
-
-
-// ============================================================================
-// INDEX / CONTENTS
-// ============================================================================
-// Note : WARNING! This list may not be up to date!
-// Note : The following functions are currently being worked on and offloaded to new separate modules
-// Note : The functions are listed in the order they appear in the main.js file
-// ----------------------------------------------------------------------------
-    //
-    // ----------------------------------------------------------------------------
-    // FUNCTIONS IMPORTED FROM OTHER MODULES
-    // ----------------------------------------------------------------------------
-    // From './app-asset-loader.js':
-    // - fetchAssetLibrary
-    // - loadFontsFromAssetLibrary
-    // - updateImagesFromAssetLibrary
-    // - preloadFonts
-    // - checkFontAvailability
-    //
-    // From './drawing-loader.js':
-    // - fetchDrawings
-    // - loadDrawing
-    // - loadPlanImage
-    // - createDrawingButtons
-    // - updateDownloadLink
-    //
-    // From './loading-screen.js':
-    // - initLoadingScreen
-    // - showLoadingScreen
-    // - hideLoadingScreen
-    // - showErrorMessage
-    // - hideErrorMessage
-    //
-    // From './coreMathLibrary.js':
-    // - coreMathDistanceCalc
-    // - coreMathDistanceToLineSegment
-    // - coreMathGeomPolygonArea
-    // - coreMathGeomPolygonCentroid
-    // - coreMathGeomGenerateQuadraticCurvePoints
-    // - coreMathGeomBezierPoint
-    // - coreMathPseudoRandomValueGen
-    // ----------------------------------------------------------------------------
-    // LOCAL FUNCTIONS
-    // ----------------------------------------------------------------------------
-    // 238: initPlanVisionApp()
-    // 340: handleInitialTutorialFlow()
-    // 360: isMobileOrTabletPortrait()
-    // 365: isPortrait()
-    // 375: renderLoop()
-    // 454: drawLine()
-    // 485: drawMarkers()
-    // 509: drawRectangle()
-    // 535: drawRectLabel()
-    // 569: drawPolygon()
-    // 593: drawOpenPolygon()
-    // 614: drawLineLabel()
-    // 621: drawAreaLabel()
-    // 626: drawEdgeLabels()
-    // 650: drawTextLabel()
-    // 689: canvasToPlanCoords()
-    // 701: finalizeMeasurement()
-    // 787: attachEventListeners()
-    // 967: toggleToolbar()
-    // 983: onMouseMove()
-    // 1182: onMouseDown()
-    // 1453: onWheel()
-    // 1477: drawSketchyArc()
-    // 1487: handlePointerDownArc()
-    // 1526: drawArc()
-    // 1551: drawGeomMathDistanceToQuadraticCurve()
-    // 1570: onTouchStart()
-    // 1593: onTouchMove()
-    // 1623: onTouchEnd()
-    // 1650: applyZoom()
-    // 1655: setZoom()
-    // 1670: resizeCanvas()
-    // 1680: resetView()
-    // 1750: setTool()
-    // 1780: cancelTool()
-    // 1798: clearMeasurements()
-    // 1805: showCancelTool()
-    // 1809: hideCancelTool()
-    // 1813: updateMeasureInfo()
-    // 1831: adjustConfirmButtonPosition()
-    // 1862: showToolInstructions()
-    // 1899: displayInstructionsOverlay()
-    // 1901: dismissOverlay()
-    // 1917: touchDistance()
-    // 1921: touchMidpoint()
-    // 1931: onResize()
-    // 1943: toggleMarkupToolset()
-    // 2027: returnToMeasuringTools()
-    // 2071: setMarkupTool()
-    // 2144: clearMarkup()
-    // 2154: saveMarkupImage()
-    // 2182: showTextDialog()
-    // 2198: cancelTextEntry()
-    // 2215: drawAllMarkupPaths()
-    // 2248: drawArc()
-    // 2291: drawSketchyText()
-    // 2328: showTextDialog()
-    // 2355: cancelTextEntry()
-    // 2368: confirmTextEntry()
-    // 2412: editTextElement()
-    // 2428: clearArrowControls()
-    // 2440: createControlPoint()
-    // 2459: createHandleLine()
-    // 2479: updateControlPointPositions()
-    // 2507: drawAllMarkupPaths()
-    // 2675: drawSketchyPath()
-    // 2765: drawArrow()
-    // 2909: drawSketchyArrowLine()
-    // 2953: calculateCurveEndDirection()
-    // 2962: drawSketchyText()
-    // 2997: drawSketchyRectangle()
-    // 3109: drawSketchyCircle()
-    // 3208: drawArrow()
-    // 3321: drawSketchyArrowLine()
-    // 3384: drawSketchySegment()
-    // 3483: saveMarkupState()
-    // 3501: undoMarkupAction()
-    // 3523: redoMarkupAction()
-    // 3545: updateUndoRedoButtons()
-    // 3562: onKeyDown()
-    // 3621: showMarkupInstructions()
-    // 3686: dismissInstructions()
-    // 3702: detectAndEraseElements()
-    // 3946: findTextElementAt()
-    // 3980: findElementAt()
-    // 4140: selectElement()
-    // 4170: clearSelection()
-    // 4186: createSelectionHandles()
-    // 4269: clearSelectionHandles()
-    // 4287: moveElement()
-    // 4362: deleteSelectedElement()
-    // 4393: updateAllHandlePositions()
-    // 4411: copySelectedElement()
-    // 4425: pasteElement()
-    // 4565: showCopyFeedback()
-    // 4592: drawSketchyPolygon()
-    // 4649: drawSketchyLine()
-    // 4678: showArrowControls()
-    // 4719: createHandle()
-    // 4744: updateAllHandlePositions()
-    // 4768: onMouseUp()
-    // 4991: sampleBezierCurve()
-    // 5005: cancelMarkupTool()
-    // 5041: showMarkupInstructions()
-    // 5106: dismissInstructions()
-    // 5126: drawSketchyLine()
-    // 5159: detectAndEraseElements()
-// ----------------------------------------------------------------------------
-
-
-
-// .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .
-
-// LOW PRIORITY TASKS
-// ----------------------------------------------------------------------------
-// - Remove The Cdn Font Backup And Instead Use The Asset Library Fonts
-// - Update Asset loader script to pull from new asset library json file
-// - Remove CSS From the main HTML file and Instead Use The Asset Library CSS
-//  - Refactor CSS to be in line with my CSS  conventions 
-// ----------------------------------------------------------------------------
-
-
-
-// .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .
-
-
-
-// ITEMS SUCCESSFULLY OFFLOADED
-// ----------------------------------------------------------------------------
-// - Asset Loader Module        =   `./app-asset-loader.js`
-// - Drawing Loader Module      =   `./drawing-loader.js`
-// - Loading Screen Module      =   `./loading-screen.js`
-// ----------------------------------------------------------------------------
-
-// ITEMS CURRENTLY BEING WORKED ON & OFFLOADED / TESTED 
-// ----------------------------------------------------------------------------
-// - Canvas Utilities Module    =   `./canvas-utilities.js`
-// - Canvas Utilities Module    =   `./canvas-utilities.js`
-// - 
-// ----------------------------------------------------------------------------
-
-
-// .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .
-
-
-
-// ============================================================================
-// MODULE IMPORT STATEMENTS
-// ============================================================================
-
-
-// LOAD & PARSE |  Asset Loader Module
-// ---------------------------------------------------------------------------
-// OFFLOADED | 12-Apr-2025
-// Tested - Confirmed module is working as expected ✔
-// ---------------------------------------------------------------------------
-
-import {
-    fetchAssetLibrary,
-    loadFontsFromAssetLibrary,
-    updateImagesFromAssetLibrary,
-    preloadFonts,
-    checkFontAvailability
-} from './app-asset-loader.js';
-
-
-
-// LOAD & PARSE |  Drawing Loader Module
-// ----------------------------------------------------------------------------
-// OFFLOADED | 12-Apr-2025
-// Tested - Confirmed module is working as expected ✔
-// ----------------------------------------------------------------------------
-
-import {
-    fetchDrawings,
-    loadDrawing,
-    loadPlanImage,
-    createDrawingButtons,
-    updateDownloadLink
-} from './drawing-loader.js';
-
-
-
-// LOAD |  Loading Screen Module
-// ----------------------------------------------------------------------------
-// OFFLOADED | 12-Apr-2025
-// Tested - Confirmed module is working as expected ✔
-// ----------------------------------------------------------------------------
-
-import {
-    initLoadingScreen,
-    showLoadingScreen,
-    hideLoadingScreen,
-    showErrorMessage,
-    hideErrorMessage
-} from './loading-screen.js';
-
-
-
-// LOAD |  Core Math Functions Library
-// ----------------------------------------------------------------------------
-// OFFLOADED | 13-Apr-2025
-// Tested - Confirmed module is working as expected ✔
-//
-// Description:
-// - This module contains core mathematical functions that serve as a library for the whole app.
-// - These functions are used throughout the app and are essential for the app to function.
-// ----------------------------------------------------------------------------
-
-import {
-    coreMathDistanceCalc,
-    coreMathDistanceToLineSegment,
-    coreMathGeomPolygonArea,
-    coreMathGeomPolygonCentroid,
-    coreMathGeomGenerateQuadraticCurvePoints,
-    coreMathGeomBezierPoint,
-    coreMathPseudoRandomValueGen
-} from './coreMathLibrary.js';
-
-
-
-// .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .
-
-
-
-// =============================================================================================
-// JAVASCRIPT |  GLOBAL CONSTANTS
-// Contains all global immutable CONSTANTS definitions for the application
-// =============================================================================================
-const MIN_ZOOM                         =     0.1;
-const MAX_ZOOM                         =       2;
-const ROUND_DIMENSIONS_ENABLED         =    true;
-const ROUNDING_INTERVAL                =       5;
-const CONFIRM_BUTTON_OFFSET_X_PC       =      10;
-const CONFIRM_BUTTON_OFFSET_Y_PC       =     -10;
-const CONFIRM_BUTTON_OFFSET_X_TOUCH    =      10;
-const CONFIRM_BUTTON_OFFSET_Y_TOUCH    =     -25;
-
-
-// =============================================================================================
-// JAVASCRIPT |  GLOBAL VARIABLES 
-// Contains all global variables definitions for the application
-// =============================================================================================
-
-const planCanvas                       = document.getElementById("planCanvas");
-const ctx                              = planCanvas.getContext("2d");
-const measureInfo                      = document.getElementById("measureInfo");
-const cancelToolBtn                    = document.getElementById("cancelToolBtn");
-const toolInstructionsOverlay          = document.getElementById("tool-instructions-overlay");
-const toolInstructionsText             = document.getElementById("tool-instructions-text");
-const finishBtn                        = document.getElementById("finishMeasurementBtn");
-const menuTutorialOverlay              = document.getElementById("menu-tutorial-overlay");
-const toolbar                          = document.getElementById("toolbar");
-
-let isToolbarOpen                      = true;
-const isTouchDevice                    = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
-const markerRadius                     = isTouchDevice ? 36 : 24;
-const baseLineWidth                    = isTouchDevice ? 3 : 2;
-
-// GLOBAL VARIABLES |  Drawing Variables
-// ----------------------------------------------------------------------------
-let offsetX                            =     0, 
-    offsetY                            =     0, 
-    zoomFactor                         =     1;
-let isDragging                         = false, 
-    lastX                              =     0, 
-    lastY                              =     0;
-let isPinching                         = false, 
-    pinchStartDist                     =     0, 
-    pinchStartZoom                     =     1, 
-    pinchMidpoint                      = { x: 0, y: 0 };
-
-// GLOBAL VARIABLES |  Measuring Variables
-// ----------------------------------------------------------------------------
-let currentTool                        =  null;
-let measuringPoints                    =    [];
-let measurements                       =    [];
-let isLinearMeasuring                  = false;
-let linearMeasurementLocked            = false;
-let isRectMeasuring                    = false;
-let isRectDragging                     = false;
-let rectStartPoint                     =  null;
-
-// GLOBAL VARIABLES |  Plan Image Variables
-// ----------------------------------------------------------------------------
-let planImage                          = new Image();
-planImage.crossOrigin                  = "anonymous";
-let isImageLoaded                      =  false;
-let naturalImageWidth                  =      0;
-let naturalImageHeight                 =      0;
-let scaleMetresPerPixel                =      0;
-let currentDrawingScale                = "1:50";      //  ← Default scale if none provided
-let currentDrawingSize                 =   "A1";      //  ← Default size if none provided
-
-let hasShownLinearInstructions         = false;
-let hasShownAreaInstructions           = false;
-
-// -----------------------------------------
-// ARC - STATE VARIABLES
-// Added |  02-Apr-2025 - 1.8.5.
-let isArcDrawing = false;
-let currentArc = null;
-
-
-// ============================================================================
-// MARKUP TOOLSET MODULE - GLOBAL VARIABLES
-// ============================================================================
-// Technical pen properties for sketchy look
-const sketchiness                      = 0.5;       //  ← 0 = clean, 1 = very sketchy
-const pressureVariation                = 0.2;       //  ← Line width variation
-
-let isMarkupToolsetActive              = false;
-let currentMarkupTool                  = 'pencil';
-let markupColor                        = '#960000';  //  ← Changed default color to #960000
-let markupLineWidth                    = 4;
-let markupPaths                        = [];
-let currentMarkupPath                  = null;
-
-// Selection tool specific variables
-let selectedElement                    = null;
-let isMovingElement                    = false;
-let moveStartPosition                  = null;
-let selectionHandles                   = [];
-let moveOffset                         = { x: 0, y: 0 };
-
-// Arrow tool specific variables
-let arrowState                         = 'idle';    //  ← idle, start, end, edit
-let currentArrow                       = null;
-let activeControlPoint                 = null;
-let controlPoints                      = [];
-let handlePoints                       = [];
-
-// Shape tool variables
-let isShapeDrawing                     = false;
-let shapeStartPoint                    = null;
-let currentShape                       = null;
-
-// Text tool variables
-let isTextPlacing                      = false;
-let textPlacementPoint                 = null;
-let editingTextElement                 = null;      //  ← Track the text element being edited
-
-// Straight line tool variables
-// Added in v1.8.5 - 02-Apr-2025
-let isLineDrawing                      = false;
-let currentLine                        = null;
-
-
-
-
-
-
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>PlanVision |  Wollaton Vale</title>
+    <!--  - - - - - - - - - - - - - - - - - -  FAVICON CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
+    <!-- Primary SVG Favicon (Best for modern browsers) -->
+    <link rel="icon" type="image/svg+xml" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+    <!-- PNG Fallbacks for various resolutions -->
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png">
+    <!-- ICO Fallback for legacy browsers -->
+    <link rel="icon" type="image/x-icon" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
+    <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Polyfill Conditional Loader
+        -----------------------------------------------------------------------------------------------------
+        - This script checks if the browser supports modern JavaScript features (e.g. Promise).
+            - If native support is missing (common in older iOS devices), it dynamically loads the
+            - core-js-bundle polyfill from a CDN to supply the missing functionality. On newer devices
+            - that already support these features, the polyfill is not loaded, ensuring optimal performance.
+    ----------------------------------------------------------------------------------------------------- -->
+        <script>
+            (function() {
+            // Feature detection: Check if 'Promise' is supported by the browser
+            if (typeof Promise === "undefined") {
+                // If not supported, dynamically load the core-js polyfill
+                var polyfillScript = document.createElement("script");
+                polyfillScript.src = "https://cdn.jsdelivr.net/npm/core-js-bundle/minified.js";
+                polyfillScript.onload = function() {
+                console.log("Polyfill loaded successfully.");
+                };
+                document.head.appendChild(polyfillScript);
+            } else {
+                console.log("Native support detected; polyfill not needed.");
+            }
+            })();
+        </script>
+
+    <!-- Font Loading from Asset Library
+        -----------------------------------------------------------------------------------------------------
+        - This style block loads fonts via @font-face declarations using URLs from the centralized asset library
+        - Fonts are loaded early in the document to prevent FOUT (Flash of Unstyled Text)
+        - The actual font URLs will be updated dynamically after the asset library JSON is fetched
+    ----------------------------------------------------------------------------------------------------- -->
+    <style id="dynamic-font-styles">
+        /* Dynamic font declarations will be inserted here after asset library is loaded */
+    </style>
+
+    <style>
+        /* BASIC RESET & LAYOUT */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            font-family: 'Open Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        /* ROOT APP WRAPPER */
+        #app {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* MAIN APPLICATION CONTAINER */
+        #app-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        /* BRANDING HEADER */
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: #fff;
+            border-bottom: 2px solid #555041;
+            display: flex;
+            align-items: center;
+            z-index: 9999;
+            padding-left: 10px;
+        }
+
+        #header img {
+            height: 40px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            margin-right: 10px;
+            padding-right: 10px;
+            margin-left: auto;
+            padding-left: auto;
+            align-items: right;
+        }
+
+        #app-title {
+            margin-left: 15px;
+            font-size: 20px;
+            color: #555041;
+        }
+
+        /* HAMBURGER BUTTON TO TOGGLE TOOLBAR */
+        #toggleToolbarBtn {
+            margin-left: 5px;
+            font-size: 22px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #555041;
+        }
+
+        /* TOOLBAR */
+        #toolbar {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 220px;
+            height: calc(100% - 50px);
+            background: #fff;
+            border-right: 2px solid #555041;
+            padding: 10px;
+            box-sizing: border-box;
+            z-index: 9998;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        #toolbar.collapsed {
+            transform: translateX(-220px); /* slide offscreen */
+        }
+
+        /* TOOL BUTTONS */
+        .tool-button {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 10px;
+            background: #555041;
+            color: #fff;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 3px;
+            transition: all 0.2s ease; /* Changed from 'opacity' to 'all' to cover both color and opacity */
+        }
+        .tool-button:hover {
+            opacity: 0.8;
+            background-color: #555041; /* Ensure hover doesn't change the background */
+        }
+
+        /* Ensure all tool buttons, including markup tools, use the same styling */
+        #markup-toolset .tool-button {
+            background: #555041;
+            color: #fff;
+        }
+        #markup-toolset .tool-button:hover {
+            opacity: 0.8;
+            background-color: #555041; /* Ensure hover doesn't change the background */
+        }
+
+        .menu_-_drawing-button-container {
+            margin-top          :            20px;
+            margin-bottom       :            10px;
+        }
+
+        .menu_-_drawing-button-header-text {
+            font-family         : 'Open Sans', sans-serif;
+            font-size           :            12pt;
+            color               :       #555041;
+            padding-top      :               20px;
+            padding-bottom      :            10px;
+        }
+
+
+
+
+        #cancelToolBtn {
+            display: none;
+            background: #d9534f;
+        }
+        #cancelToolBtn:hover {
+            opacity: 0.8;
+        }
+
+        /* CONFIRM MEASUREMENT BUTTON */
+        #finishMeasurementBtn {
+            position: absolute;
+            z-index: 13000;
+            background: #5cb85c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            font-size: 14px;
+        }
+        #finishMeasurementBtn:hover {
+            opacity: 0.9;
+        }
+
+
+        /* - - -  - - - -  PLAN CANVAS STYLES - - - - - - -  */
+        /* - Canvas Wrapper                                  */
+        #canvas-container {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            bottom: 0px;
+            overflow: hidden;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+            z-index: 9996;
+        }
+
+        /* - - - - - - - - - - - - - - - - - - - - - - - - */
+
+        /* LOADING OVERLAY */
+        #loading-overlay {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            bottom: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            z-index: 10000;
+            transition: opacity 0.3s ease;
+        }
+        #loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #555041;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ERROR MESSAGE */
+        #error-message {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            right: 20px;
+            padding: 10px;
+            background: #ffe6e6;
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            display: none;
+            z-index: 10001;
+        }
+
+        /* TOOL INSTRUCTIONS OVERLAY */
+        #tool-instructions-overlay {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            bottom: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 12000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #tool-instructions-overlay.fade-out {
+            transition: opacity 1s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #tool-instructions-text {
+            font-size: 16px;
+            max-width: 400px;
+            margin: auto;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-line;
+        }
+
+        /* MENU TUTORIAL OVERLAY */
+        #menu-tutorial-overlay {
+            position: absolute;
+            top: 60px; /* just below the header */
+            left: 10px;
+            display: none;
+            z-index: 13000;
+            pointer-events: none; /* so it doesn't block clicks if desired */
+        }
+        #menu-pointer-arrow {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid #d9534f;
+            margin-left: 15px;
+        }
+        #menu-tutorial-text {
+            background: #d9534f;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        /* FOOTER */
+        #footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #fff;
+            border-top: 1px solid #555041;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #86847d;
+            z-index: 12000;
+        }
+
+        /* 
+        ====================================================================
+        MARKUP TOOLSET MODULE - CSS STYLES
+        - These styles support the markup drawing toolset introduced in v1.6.0
+        - Includes technical pen sketchy line styles and hand-drawn aesthetics
+        ==================================================================== 
+        */
+        
+        /* Toolset Toggle Button */
+        #toggleMarkupToolsetBtn {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 10px;
+            background: #555041;
+            color: #fff;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 3px;
+        }
+        
+        /* Markup Tools Container */
+        #markup-toolset {
+            display: none; /* Initially hidden */
+            margin-top: 10px;
+        }
+        
+        /* Color Picker Styling */
+        #markupColorInput {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Arrow Tool Specific Styles */
+        .control-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border: 2px solid #555041;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: move;
+            z-index: 10000;
+        }
+
+        .handle-point {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #4287f5;
+            border: 1px solid #2c5aa0;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 9990;
+        }
+
+        .handle-line {
+            position: absolute;
+            height: 1px;
+            background: #a0a0a0;
+            z-index: 9980;
+            pointer-events: none;
+        }
+        
+        /* Canvas cursor styles */
+        #planCanvas.markup-pencil {
+            cursor: crosshair;
+        }
+        
+        #planCanvas.markup-eraser {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="5" stroke="black" stroke-width="1" fill="white"/></svg>'), auto;
+        }
+        
+        #planCanvas.markup-arrow-start {
+            cursor: cell;
+        }
+        
+        #planCanvas.markup-arrow-end {
+            cursor: crosshair;
+        }
+        
+        #planCanvas.markup-arrow-edit {
+            cursor: default;
+        }
+        
+        #planCanvas.markup-text {
+            cursor: text;
+        }
+        
+        #planCanvas.markup-shape {
+            cursor: crosshair;
+        }
+
+        /* Text Entry Dialog */
+        #markup-text-dialog {
+            position: absolute;
+            z-index: 13000;
+            background: white;
+            border: 1px solid #555041;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            display: none;
+            min-width: 300px; /* Increased from default size */
+        }
+        
+        #markup-text-input {
+            width: 100%;
+            font-family: 'Caveat', 'Comic Sans MS', cursive, sans-serif; /* Handwriting font */
+            font-size: 125%; /* Increased text size by 25% */
+            padding: 8px;
+            margin-bottom: 15px;
+            min-height: 100px; /* Ensure text area is tall enough */
+        }
+        
+        .markup-dialog-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .markup-dialog-button {
+            padding: 8px 15px;
+            background: #555041;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 110%; /* Slightly larger button text */
+        }
+        /* End of Markup Toolset Module CSS */
+
+        /* Color Picker Styling */
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+            max-width: 200px; /* Limit width to create 4x4 grid */
+        }
+        
+        .color-swatch {
+            width: 45px;
+            height: 45px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .color-swatch.active {
+            border-color: #555041;
+        }
+
+        /* Selection Tool Styles */
+        .selection-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border: 2px solid #555041;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: move;
+            z-index: 10000;
+        }
+
+        #planCanvas.markup-selection {
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div id="app-container">
+        <!-- HEADER -->
+        <div id="header">
+            <button id="toggleToolbarBtn">☰</button>
+            <span id="app-title" style="padding-left: 10px;">PlanVision
+                <span style="font-size: 12px; color: #656565;">- Testing Version 1.8.6 Beta</span>
+            </span>
+            <img src="https://raw.githubusercontent.com/Adam-Noble-01/RE10_I_GitHub_I_Public_Repo/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_01_-_FILES_-_Noble-Architecture_-_Core-Brand-Image-Assets/RE20_22_01_01_-_PNG_-_NA_Company_Logo.png"
+            alt="Noble Architecture Logo">
+        </div>
+
+        <!-- MENU TUTORIAL OVERLAY (arrow + message) -->
+        <div id="menu-tutorial-overlay">
+            <div id="menu-pointer-arrow"></div>
+            <div id="menu-tutorial-text">Press Here To Open / Hide The Tools Menu</div>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div id="toolbar">
+            <div style="margin-top: -15px;"></div>
+            <!-- Drawing selection section will be inserted here dynamically -->
+            
+            <div class="menu_-_drawing-button-header-text">View & Export</div>
+            <button class="tool-button" id="downloadPDFBtn">Download PDF</button>
+            <button class="tool-button" id="resetViewBtn">Reset View</button>
+
+            <div class="menu_-_drawing-button-header-text">Measuring Tools</div>
+            <button class="tool-button" id="linearMeasureBtn">Linear Measurement</button>
+            <button class="tool-button" id="rectMeasureBtn">Rectangle Measurement</button>
+            <button class="tool-button" id="areaMeasureBtn">Area Measurement</button>
+            <button class="tool-button" id="clearMeasurementsBtn">Clear Measurements</button>
+            <button class="tool-button" id="cancelToolBtn">Cancel Tool</button>
+
+            <div class="menu_-_drawing-button-header-text">Drawing Markup Tools</div>
+            <button class="tool-button" id="toggleMarkupToolsetBtn">Activate Markup Tools</button>
+            
+            <!-- Markup Toolset Container - Initially Hidden -->
+            <div id="markup-toolset">
+                <div class="menu_-_drawing-button-header-text">Markup Tools Menu</div>
+                <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                    <button class="tool-button" id="markupUndoBtn" style="width:48%;">↩ Undo</button>
+                    <button class="tool-button" id="markupRedoBtn" style="width:48%;">Redo ↪</button>
+                </div>
+                <button class="tool-button" id="markupClearBtn">Clear Drawing Markup</button>
+                <button class="tool-button" id="markupSaveBtn">Download Markup Image</button>
+                <button class="tool-button" id="returnToMeasuringBtn">Return To Main Menu</button>
+
+
+                
+                <div class="menu_-_drawing-button-header-text">Drawing Tools</div>
+                <button class="tool-button" id="markupSelectionBtn">Object - Selection Tool</button>
+                <!-- 
+                // ----------------------------------------------------
+                // REMOVED IN v1.8.3 - PENCIL TOOL
+                // - Replaced with Straight Line and Arc Drawing Tools
+                // - Keep this commented out for reference
+                // ----------------------------------------------------
+                <button class="tool-button" id="markupPencilBtn">Draw - Pencil</button>
+                -->
+                <button class="tool-button" id="markupEraserBtn">Object - Eraser Tool</button>
+                
+                <!-- 
+                ----------------------------------------------------
+                ADDED IN v1.8.3 - NEW DRAWING TOOLS
+                - Straight Line and Arc Drawing Tools added 02-Apr-2025 -->
+                <button class="tool-button" id="markupLineBtn">Draw - Straight Line</button>
+                <button class="tool-button" id="markupArcBtn">Draw - Arc</button>
+                
+                <button class="tool-button" id="markupRectBtn">Draw - Rectangle</button>
+                <button class="tool-button" id="markupFilledRectBtn">Draw - Filled Rectangle</button>
+                <button class="tool-button" id="markupCircleBtn">Draw - Circle Tool</button>
+                <button class="tool-button" id="markupArrowBtn">Draw - Arrow Tool</button>
+                <button class="tool-button" id="markupTextBtn">Add Text Annotation</button>
+                <button class="tool-button" id="cancelMarkupToolBtn" style="display: none; background: #d9534f;">Cancel Current Tool</button>
+                
+                <div class="menu_-_drawing-button-header-text">Line Width</div>
+                <div style="display:flex; align-items:center; margin-bottom: 10px;">
+                    <span style="margin-right:10px; color:#555041;">Size:</span>
+                    <input type="range" id="markupLineWidthSlider" min="2" max="20" value="9" style="flex-grow:1;">
+                </div>
+
+                <div class="menu_-_drawing-button-header-text">Colour Selection</div>
+                <div class="color-palette">
+                    <div class="color-swatch active" data-color="#960000" style="background-color: #960000;"></div>
+                    <div class="color-swatch" data-color="#252596" style="background-color: #252596;"></div>
+                    <div class="color-swatch" data-color="#333333" style="background-color: #333333;"></div>
+                    <div class="color-swatch" data-color="#57965c" style="background-color: #57965c;"></div>
+                    <div class="color-swatch" data-color="#333333" style="background-color: #5b5b5b;"></div>
+                    <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #CCCCCC;"></div>
+                </div>
+            </div>
+            <!-- End of Markup Toolset Module HTML -->
+
+            <div style="margin-top:20px; font-size:12px; color:#555041;">
+                <strong>Measurements:</strong>
+                <div id="measureInfo" style="margin-top:5px;">No measurements yet.</div>
+            </div>
+        </div>
+
+        <!-- FINISH MEASUREMENT BUTTON (floating) -->
+        <button id="finishMeasurementBtn">Confirm</button>
+
+        <!-- CANVAS CONTAINER -->
+        <div id="canvas-container">
+            <canvas id="planCanvas"></canvas>
+        </div>
+
+        <!-- LOADING OVERLAY -->
+        <div id="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p>Loading Your Vision… Please Wait</p>
+        </div>
+
+        <!-- ERROR MESSAGE -->
+        <div id="error-message">
+            Failed to load the plan image. Please try a different image or smaller size.
+        </div>
+
+        <!-- TOOL INSTRUCTIONS OVERLAY -->
+        <div id="tool-instructions-overlay">
+            <div id="tool-instructions-text"></div>
+        </div>
+
+        <!-- 
+        ====================================================================
+        MARKUP TOOLSET MODULE - TEXT ENTRY DIALOG
+        - For creating text annotations with architectural handwriting style
+        ==================================================================== 
+        -->
+        <div id="markup-text-dialog">
+            <select id="markup-text-size" style="width: 100%; margin-bottom: 10px; padding: 5px;">
+                <option value="20">Small Text - 12.00pt</option>
+                <option value="24" selected>Medium Text - 14.00pt</option>
+                <option value="36">Large Text  - 18.00pt</option>
+            </select>
+            <textarea id="markup-text-input" placeholder="Enter text here..." rows="4"></textarea>
+            <div class="markup-dialog-buttons">
+                <button class="markup-dialog-button" id="markup-text-cancel">Cancel</button>
+                <button class="markup-dialog-button" id="markup-text-confirm">Add Text</button>
+            </div>
+        </div>
+        <!-- End of Markup Toolset Module Text Dialog -->
+
+        <!-- FOOTER -->
+        <div id="footer">
+            © 2025 Noble Architecture | All Rights Reserved
+        </div>
+    </div>
+</div>
+
+<script>
 (function() {
+    // =============================================================================================
+    // JAVASCRIPT |  GLOBAL VARIABLES & CONSTANTS
+    // - This section introduced in v1.8.1
+    // Contains all global variables and constant definitions for the application
+    // =============================================================================================
+    const MIN_ZOOM = 0.1;
+    const MAX_ZOOM = 2;
+    const ROUND_DIMENSIONS_ENABLED = true;
+    const ROUNDING_INTERVAL = 5;
+    const CONFIRM_BUTTON_OFFSET_X_PC = 10;
+    const CONFIRM_BUTTON_OFFSET_Y_PC = -10;
+    const CONFIRM_BUTTON_OFFSET_X_TOUCH = 10;
+    const CONFIRM_BUTTON_OFFSET_Y_TOUCH = -25;
 
+    const planCanvas = document.getElementById("planCanvas");
+    const ctx = planCanvas.getContext("2d");
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const errorMessage = document.getElementById("error-message");
+    const measureInfo = document.getElementById("measureInfo");
+    const cancelToolBtn = document.getElementById("cancelToolBtn");
+    const toolInstructionsOverlay = document.getElementById("tool-instructions-overlay");
+    const toolInstructionsText = document.getElementById("tool-instructions-text");
+    const finishBtn = document.getElementById("finishMeasurementBtn");
+    const menuTutorialOverlay = document.getElementById("menu-tutorial-overlay");
+    const toolbar = document.getElementById("toolbar");
+
+    let isToolbarOpen = true;
+    const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
+    const markerRadius = isTouchDevice ? 36 : 24;                                           // <-- This is the size of the marker on the drawing
+    const baseLineWidth = isTouchDevice ? 3 : 2;
+
+    let offsetX = 0, offsetY = 0, zoomFactor = 1;
+    let isDragging = false, lastX = 0, lastY = 0;
+    let isPinching = false, pinchStartDist = 0, pinchStartZoom = 1, pinchMidpoint = { x: 0, y: 0 };
+    let currentTool = null;
+    let measuringPoints = [];
+    let measurements = [];
+    let isLinearMeasuring = false;
+    let linearMeasurementLocked = false;
+    let isRectMeasuring = false;
+    let isRectDragging = false;     // Add this near isRectMeasuring
+    let rectStartPoint = null;
+
+    let planImage = new Image();
+    planImage.crossOrigin = "anonymous";
+    let isImageLoaded = false;
+    let naturalImageWidth = 0;
+    let naturalImageHeight = 0;
+    let scaleMetresPerPixel = 0;
+    let currentDrawingScale = "1:50"; // Default scale if none provided
+    let currentDrawingSize = "A1"; // Default size if none provided
+
+    let hasShownLinearInstructions = false;
+    let hasShownAreaInstructions = false;
+
+    // -----------------------------------------
+    // ARC - STATE VARIABLES
+    // Added |  02-Apr-2025 - 1.8.5.
+    let isArcDrawing = false;
+    let currentArc = null;
 
     // ========================================================================
-    // STAGE 01 |  INITIALISATION SEQUENCE
+    // ASSET LIBRARY MANAGEMENT FUNCTIONS
     // ========================================================================
-    async function initPlanVisionApp() {
+
+    // Fetch asset library from centralized JSON file //
+    async function fetchAssetLibrary() {
+        const ASSET_LIBRARY_URL = "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/refs/heads/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_31_--_PlanVision_-_Asset-Link-Library.json";
+        try {
+            const response = await fetch(ASSET_LIBRARY_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log("Asset library loaded successfully:", data.file_metadata["file-name"]);
+            return data;
+        } catch (error) {
+            console.error("Error fetching asset library:", error.message);
+            // Continue with app initialization even if asset library fails to load
+            return null;
+        }
+    }
+
+    // Load fonts from asset library using @font-face //
+    function loadFontsFromAssetLibrary(assetLibrary) {
+        const fontStylesElement = document.getElementById("dynamic-font-styles");
+        let fontDeclarations = "";
+        
+        // Load Open Sans fonts
+        const openSansFonts = assetLibrary?.na_assets?.na_fonts?.["fonts-open-sans"] || {};
+        if (openSansFonts) {
+            if (openSansFonts["open-sans-regular"]) {
+                fontDeclarations += `
+                    @font-face {
+                        font-family: 'Open Sans';
+                        font-style: normal;
+                        font-weight: 400;
+                        src: url('${openSansFonts["open-sans-regular"]}') format('truetype');
+                        font-display: swap;
+                    }
+                `;
+            } else {
+                console.warn("Open Sans Regular not found in asset library, using Google Fonts fallback.");
+                fontDeclarations += `
+                    @font-face {
+                        font-family: 'Open Sans';
+                        font-style: normal;
+                        font-weight: 400;
+                        src: url('https://fonts.gstatic.com/s/opensans/v35/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsjZ0B4gaVI.woff2') format('woff2');
+                        font-display: swap;
+                    }
+                `;
+            }
+            
+            // Similar pattern for other Open Sans weights...
+        }
+        
+        // Load Caveat fonts (handwriting style for markup)
+        const caveatFonts = assetLibrary?.na_assets?.na_fonts?.["fonts-caveat"] || {};
+        let hasCaveatFonts = false;
+        
+        if (caveatFonts["caveat-regular"]) {
+            hasCaveatFonts = true;
+            fontDeclarations += `
+                @font-face {
+                    font-family: 'Caveat';
+                    font-style: normal;
+                    font-weight: 400;
+                    src: url('${caveatFonts["caveat-regular"]}') format('truetype');
+                    font-display: swap;
+                }
+            `;
+        }
+        
+        if (caveatFonts["caveat-semi-bold"]) {
+            hasCaveatFonts = true;
+            fontDeclarations += `
+                @font-face {
+                    font-family: 'Caveat';
+                    font-style: normal;
+                    font-weight: 600;
+                    src: url('${caveatFonts["caveat-semi-bold"]}') format('truetype');
+                    font-display: swap;
+                }
+            `;
+        }
+        
+        // Add Google Fonts fallback for Caveat if not loaded from asset library
+        if (!hasCaveatFonts) {
+            console.warn("Caveat fonts not found in asset library, using Google Fonts fallback.");
+            fontDeclarations += `
+                @font-face {
+                    font-family: 'Caveat';
+                    font-style: normal;
+                    font-weight: 400;
+                    src: url('https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYS9AoA.woff2') format('woff2');
+                    font-display: swap;
+                }
+                @font-face {
+                    font-family: 'Caveat';
+                    font-style: normal;
+                    font-weight: 600;
+                    src: url('https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjSx6eIupYS9AoA.woff2') format('woff2');
+                    font-display: swap;
+                }
+            `;
+        }
+        
+        // Update the style element with font declarations
+        fontStylesElement.innerHTML = fontDeclarations;
+        console.log("Font declarations loaded from asset library");
+    }
+
+    // Update image sources from asset library //
+    function updateImagesFromAssetLibrary(assetLibrary) {
+        if (!assetLibrary || !assetLibrary.na_assets || !assetLibrary.na_assets.images_png) {
+            console.warn("Asset library missing image definitions, using existing sources");
+            return;
+        }
+        
+        const images = assetLibrary.na_assets.images_png;
+        
+        // Update Noble Architecture logo
+        if (images["na-brand-logo"]) {
+            const logoElements = document.querySelectorAll('img[alt="Noble Architecture Logo"]');
+            logoElements.forEach(img => {
+                img.src = images["na-brand-logo"];
+            });
+        }
+        
+        // Can be expanded to update other images as needed
+        console.log("Image sources updated from asset library");
+    }
+
+    // ========================================================================
+    // MARKUP TOOLSET MODULE - GLOBAL VARIABLES
+    // ========================================================================
+    // Added in v1.6.0 to support drawing and markup functionality
+    let isMarkupToolsetActive = false;
+    let currentMarkupTool = 'pencil';
+    let markupColor = '#960000';  // Changed default color to #960000
+    let markupLineWidth = 4;
+    let markupPaths = [];
+    let currentMarkupPath = null;
+    
+    // Selection tool specific variables
+    let selectedElement = null;
+    let isMovingElement = false;
+    let moveStartPosition = null;
+    let selectionHandles = [];
+    let moveOffset = { x: 0, y: 0 };
+    
+    // Arrow tool specific variables
+    let arrowState = 'idle'; // idle, start, end, edit
+    let currentArrow = null;
+    let activeControlPoint = null;
+    let controlPoints = [];
+    let handlePoints = [];
+    
+    // Shape tool variables
+    let isShapeDrawing = false;
+    let shapeStartPoint = null;
+    let currentShape = null;
+    
+    // Text tool variables
+    let isTextPlacing = false;
+    let textPlacementPoint = null;
+    let editingTextElement = null; // Track the text element being edited
+    
+    // Straight line tool variables
+    // Added in v1.8.5 - 02-Apr-2025
+    let isLineDrawing = false;
+    let currentLine = null;
+    
+    // Technical pen properties for sketchy look
+    const sketchiness = 0.5; // 0 = clean, 1 = very sketchy
+    const pressureVariation = 0.2; // Line width variation
+    // End of Markup Toolset Module Variables
+
+    // ========================================================================
+    // JSON AND DRAWING MANAGEMENT FUNCTIONS
+    // ========================================================================
+
+    // Fetch drawings data from JSON configuration file //
+    async function fetchDrawings() {
+        const JSON_URL = "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_-_DATA_-_Document-Library.json";
+        try {
+            const response = await fetch(JSON_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log("Fetched data:", data); // Log the raw data for debugging
+
+            // Check for the existence of each nested level
+            if (!data["na-project-data-library"]) {
+                throw new Error("Missing 'na-project-data-library' in JSON");
+            }
+            console.log("na-project-data-library:", data["na-project-data-library"]);
+
+            if (!data["na-project-data-library"]["project-documentation"]) {
+                throw new Error("Missing 'project-documentation' in JSON");
+            }
+            console.log("project-documentation:", data["na-project-data-library"]["project-documentation"]);
+
+            if (!data["na-project-data-library"]["project-documentation"]["project-drawings"]) {
+                throw new Error("Missing 'project-drawings' in JSON");
+            }
+            console.log("project-drawings:", data["na-project-data-library"]["project-documentation"]["project-drawings"]);
+
+            const drawings = data["na-project-data-library"]["project-documentation"]["project-drawings"];
+            return drawings;
+        } catch (error) {
+            console.error("Error fetching JSON:", error.message);
+            displayError("Failed to load drawing data: " + error.message);
+            return null;
+        }
+    }
+
+    // FUNCTION |  Create Dynamic buttons for each drawing in the toolbar   //
+    // - Uses Project Specific Json File To Assign Menu Buttons             //
+    // - Buttons used for selecting between & loading different drawings    //
+    function createDrawingButtons(drawings) {
+        // Create header element for drawing section
+        const header = document.createElement("div");
+        header.className = "menu_-_drawing-button-header-text";
+        header.textContent = "Select Drawing";
+
+        // Create a separate container for the drawing buttons
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className = "drawing-button-container";
+
+        // Get the toolbar element
+        const toolbar = document.getElementById("toolbar");
+        
+        // Insert at the beginning of the toolbar
+        if (toolbar.firstChild) {
+            toolbar.insertBefore(buttonContainer, toolbar.firstChild);
+            toolbar.insertBefore(header, buttonContainer);
+        } else {
+            toolbar.appendChild(header);
+            toolbar.appendChild(buttonContainer);
+        }
+
+        // Add a spacer after the drawing buttons
+        const spacer = document.createElement("div");
+        spacer.style.marginBottom = "20px";
+        buttonContainer.after(spacer);
+
+        // Iterate over drawing entries and create buttons
+        for (const key in drawings) {
+            if (key.startsWith("drawing-") && drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
+                const button = document.createElement("button");
+                button.className = "tool-button";
+                button.textContent = drawings[key]["document-name"];
+                button.addEventListener("click", () => loadDrawing(drawings[key]));
+                buttonContainer.appendChild(button);
+            }
+        }
+    }
+
+
+
+    // Load a specific drawing's image and update download link //
+    async function loadDrawing(drawing) {
+        showLoading();
+        try {
+            const pngUrl = drawing["document-links"]["png--github-link-url"];
+            const pdfUrl = drawing["document-links"]["pdf--github-link-url"];
+            const documentName = drawing["document-name"];
+            const documentScale = drawing["document-scale"];
+            const documentSize = drawing["document-size"];
+            
+            // Store drawing metadata for scale calculation
+            currentDrawingScale = documentScale || "1:50"; // Default to 1:50 if not specified
+            currentDrawingSize = documentSize || "A1"; // Default to A1 if not specified
+            
+            await loadPlanImage(pngUrl);
+            isImageLoaded = true;
+            resetView();
+            updateDownloadLink(pdfUrl, documentName);
+        } catch (error) {
+            console.error("Error loading drawing:", error);
+            displayError("Failed to load the selected drawing.");
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Load the plan image asynchronously //
+    function loadPlanImage(url) {
+        return new Promise((resolve, reject) => {
+            planImage.onload = () => {
+                naturalImageWidth = planImage.naturalWidth;
+                naturalImageHeight = planImage.naturalHeight;
+                resolve();
+            };
+            planImage.onerror = () => {
+                reject(new Error("Failed to load plan image: " + url));
+            };
+            planImage.src = url;
+        });
+    }
+
+    // Update the PDF download button with the current drawing's link //
+    function updateDownloadLink(pdfUrl, documentName) {
+        const downloadBtn = document.getElementById("downloadPDFBtn");
+        downloadBtn.onclick = () => {
+            const link = document.createElement("a");
+            link.href = pdfUrl;
+            link.download = documentName.replace(/ /g, "-") + ".pdf";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    }
+
+    // Show the loading overlay //
+    function showLoading() {
+        loadingOverlay.classList.remove("hidden");
+    }
+
+    // Hide the loading overlay //
+    function hideLoading() {
+        loadingOverlay.classList.add("hidden");
+    }
+
+    // Display an error message to the user //
+    function displayError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
+    }
+
+    // ========================================================================
+    // INITIALISATION
+    // ========================================================================
+    async function init() {
         const appRoot = document.getElementById("app");
         if (!appRoot) {
             console.error("Root element #app is missing from the DOM. App cannot initialise.");
             return;
         }
 
-        // Initialize loading screen
-        initLoadingScreen();
-        showLoadingScreen();
-
-        try {
-            // Load assets from centralized library
-            const assetLibrary = await fetchAssetLibrary();
-            if (assetLibrary) {
-                loadFontsFromAssetLibrary(assetLibrary);
-                updateImagesFromAssetLibrary(assetLibrary);
-            } else {
-                console.warn("Asset library failed to load. Using fallback assets.");
-            }
-
-            resizeCanvas();
-            const drawings = await fetchDrawings();
-            if (drawings) {
-                // Pass the toolbar element and a callback function to handle drawing selection
-                createDrawingButtons(drawings, toolbar, async (drawing) => {
-                    try {
-                        showLoadingScreen();
-
-                        const drawingData = await loadDrawing(drawing);
-                        const imageData = await loadPlanImage(drawingData.pngUrl);
-                        
-                        // Update the planImage
-                        planImage = imageData.image;
-                        naturalImageWidth = imageData.naturalWidth;
-                        naturalImageHeight = imageData.naturalHeight;
-                        
-                        // Update drawing metadata
-                        currentDrawingScale = drawingData.documentScale;
-                        currentDrawingSize = drawingData.documentSize;
-                        
-                        // Update download link
-                        updateDownloadLink(drawingData.pdfUrl, drawingData.documentName);
-                        
-                        // Set image loaded flag and reset view
-                        isImageLoaded = true;
-                        resetView();
-
-                        hideLoadingScreen();
-                    } catch (error) {
-                        console.error("Error loading drawing:", error);
-                        showErrorMessage("Failed to load drawing. Please try again.");
-                        hideLoadingScreen();
-                    }
-                });
-                
-                const firstDrawingKey = Object.keys(drawings).find(
-                    key => key.startsWith("drawing-") && drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}"
-                );
-                if (firstDrawingKey) {
-                    try {
-                        const drawingData = await loadDrawing(drawings[firstDrawingKey]);
-                        const imageData = await loadPlanImage(drawingData.pngUrl);
-                        
-                        // Update the planImage
-                        planImage = imageData.image;
-                        naturalImageWidth = imageData.naturalWidth;
-                        naturalImageHeight = imageData.naturalHeight;
-                        
-                        // Update drawing metadata
-                        currentDrawingScale = drawingData.documentScale;
-                        currentDrawingSize = drawingData.documentSize;
-                        
-                        // Update download link
-                        updateDownloadLink(drawingData.pdfUrl, drawingData.documentName);
-                        
-                        // Set image loaded flag and reset view
-                        isImageLoaded = true;
-                        resetView();
-                    } catch (error) {
-                        console.error("Error loading initial drawing:", error);
-                        showErrorMessage("Failed to load initial drawing. Please try again.");
-                    }
+        // Load assets from centralized library
+        const assetLibrary = await fetchAssetLibrary();
+        if (assetLibrary) {
+            loadFontsFromAssetLibrary(assetLibrary);
+            updateImagesFromAssetLibrary(assetLibrary);
+            
+            // Check if Caveat font loaded successfully after a short delay
+            setTimeout(checkFontAvailability, 500);
+        } else {
+            console.warn("Asset library failed to load. Using fallback assets.");
+            // Load fallback Google Fonts for Caveat
+            const fontStylesElement = document.getElementById("dynamic-font-styles");
+            fontStylesElement.innerHTML += `
+                @font-face {
+                    font-family: 'Caveat';
+                    font-style: normal;
+                    font-weight: 400;
+                    src: url('https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYS9AoA.woff2') format('woff2');
+                    font-display: swap;
                 }
+            `;
+        }
+
+        resizeCanvas();
+        const drawings = await fetchDrawings();
+        if (drawings) {
+            createDrawingButtons(drawings);
+            const firstDrawingKey = Object.keys(drawings).find(
+                key => key.startsWith("drawing-") && drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}"
+            );
+            if (firstDrawingKey) {
+                await loadDrawing(drawings[firstDrawingKey]);
             }
-
-            attachEventListeners();
-            handleInitialTutorialFlow();
-            renderLoop();
-
-            hideLoadingScreen();
+        }
+        attachEventListeners();
+        handleInitialTutorialFlow();
+        renderLoop();
+    }
+    
+    // Preload fonts to ensure they're available before drawing
+    async function preloadFonts() {
+        try {
+            // Create a FontFace object for Caveat
+            const caveat = new FontFace('Caveat', 'url(https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYS9AoA.woff2)', {
+                style: 'normal',
+                weight: '400',
+                display: 'swap'
+            });
+            
+            // Wait for the font to load
+            const loadedFace = await caveat.load();
+            
+            // Add the loaded font to the document fonts
+            document.fonts.add(loadedFace);
+            console.log("Caveat font preloaded successfully as backup");
+            
+            return true;
         } catch (error) {
-            console.error("Error during initialization:", error);
-            showErrorMessage("Failed to initialize application. Please refresh the page.");
-            hideLoadingScreen();
+            console.error("Failed to preload Caveat font:", error);
+            return false;
         }
     }
     
+    // Check if the Caveat font is available
+    async function checkFontAvailability() {
+        if (!document.fonts.check("16px 'Caveat'")) {
+            console.warn("Caveat font not loaded or available after initialization. Using fallback fonts.");
+            
+            // Try to preload the font as a last resort
+            const preloaded = await preloadFonts();
+            
+            if (!preloaded) {
+                // If preloading fails, use link method as absolute fallback
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&display=swap';
+                document.head.appendChild(link);
+                console.log("Using Google Fonts stylesheet as fallback for Caveat font");
+            }
+            
+            // Display warning to user if in development mode
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.error("DEVELOPER WARNING: Sketchy Text Style (Caveat font) failed to load initially.");
+            }
+        } else {
+            console.log("Caveat font loaded successfully. Sketchy text style is available.");
+        }
+    }
 
     // ========================================================================
     // FIRST-LOAD TUTORIAL FLOW
@@ -814,7 +1459,7 @@ let currentLine                        = null;
     }
 
     function drawAreaLabel(areaObj) {
-        const c = coreMathGeomPolygonCentroid(areaObj.points);
+        const c = polygonCentroid(areaObj.points);
         drawTextLabel(c, areaObj.areaM2 + " m²", "red");
     }
 
@@ -830,7 +1475,7 @@ let currentLine                        = null;
             const p1 = points[i];
             const p2 = points[(i + 1) % points.length];
             const mid = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
-            let lengthPx = coreMathDistanceCalc(p1, p2);
+            let lengthPx = dist(p1, p2);
             let lengthMm = lengthPx * scaleMetresPerPixel * 1000;
             if (ROUND_DIMENSIONS_ENABLED) {
                 lengthMm = Math.round(lengthMm / ROUNDING_INTERVAL) * ROUNDING_INTERVAL;
@@ -856,30 +1501,38 @@ let currentLine                        = null;
     // ========================================================================
     // MEASUREMENT CALCULATIONS
     // ========================================================================
-    // This section contains functions related to measurement calculations
-    // used in the application. These functions help in converting canvas
-    // coordinates to plan coordinates and finalizing measurements.
-
-
-    // DEV NOTICE BASIC GEOMETRY CALCULATIONS
-    // ------------------------------------------------------------------------
-    // - All primary basic Math Functions moved to coreMathLibrary.js in v2.0.4
-
 
     // ----------------------------------------------------
-    // FUNCTION |  CANVAS TO PLAN COORDINATES
+    // FUNCTION |  BASIC GEOMETRY CALCULATIONS
     // - This section introduced in v1.1.0
-    // - Converts canvas coordinates to plan coordinates
-    // - Takes into account the current zoom factor and offsets
+    // Contains utility functions for basic geometric calculations
     // ----------------------------------------------------
-    function canvasToPlanCoords(x, y) {
+    function dist(a, b) {
+        return Math.hypot(b.x - a.x, b.y - a.y);
+    }
+
+    function polygonCentroid(pts) {
+        let xSum = 0, ySum = 0;
+        pts.forEach(p => { xSum += p.x; ySum += p.y; });
+        return { x: xSum / pts.length, y: ySum / pts.length };
+    }
+
+    function polygonArea(pts) {
+        let area = 0;
+        for (let i = 0; i < pts.length; i++) {
+            const j = (i + 1) % pts.length;
+            area += (pts[i].x * pts[j].y) - (pts[j].x * pts[i].y);
+        }
+        return Math.abs(area / 2);
+    }
+
+    function toPlanCoords(x, y) {
         return {
             x: (x - offsetX) / zoomFactor,
             y: (y - offsetY) / zoomFactor
         };
     }
 
-    
     // ----------------------------------------------------
     // FUNCTION |  MEASUREMENT FINALIZATION
     // - This section introduced in v1.2.0
@@ -888,7 +1541,7 @@ let currentLine                        = null;
     function finalizeMeasurement(type) {
         if (type === "linear" && measuringPoints.length === 2) {
             const [start, end] = measuringPoints;
-            const pxDist = coreMathDistanceCalc(start, end);
+            const pxDist = dist(start, end);
             const rawMm = pxDist * scaleMetresPerPixel * 1000;
             let mmDist = ROUND_DIMENSIONS_ENABLED
                 ? Math.round(rawMm / ROUNDING_INTERVAL) * ROUNDING_INTERVAL
@@ -912,7 +1565,7 @@ let currentLine                        = null;
             // Hide confirm button after finalizing
             finishBtn.style.display = "none";
         } else if (type === "area" && measuringPoints.length > 2) {
-            const areaPx2 = coreMathGeomPolygonArea(measuringPoints);
+            const areaPx2 = polygonArea(measuringPoints);
             const areaM2 = (areaPx2 * scaleMetresPerPixel * scaleMetresPerPixel).toFixed(2);
 
             measurements.push({
@@ -1170,7 +1823,7 @@ let currentLine                        = null;
     function onMouseMove(e) {
         // Handle markup tools if active
         if (isMarkupToolsetActive) {
-            const pos = canvasToPlanCoords(e.offsetX, e.offsetY);
+            const pos = toPlanCoords(e.offsetX, e.offsetY);
 
             // ----------------------------------------------------
             // EVENT HANDLER |  SELECTION TOOL MOVEMENT
@@ -1316,7 +1969,7 @@ let currentLine                        = null;
         // ----------------------------------------------------
         if (currentTool === "linear" && isLinearMeasuring && measuringPoints.length > 0 && !linearMeasurementLocked) {
             const start = measuringPoints[0];
-            const pos = canvasToPlanCoords(e.offsetX, e.offsetY);
+            const pos = toPlanCoords(e.offsetX, e.offsetY);
             
             // Create a new object for the snapped position to avoid reference issues
             const snappedPos = {
@@ -1353,7 +2006,7 @@ let currentLine                        = null;
         // - Manages corner placement and dimension updates
         // ----------------------------------------------------
         if (isRectMeasuring && isRectDragging) {
-            const pos = canvasToPlanCoords(e.offsetX, e.offsetY);
+            const pos = toPlanCoords(e.offsetX, e.offsetY);
             if (measuringPoints.length === 1) {
                 measuringPoints.push(pos); // Add second corner
             } else {
@@ -1369,7 +2022,7 @@ let currentLine                        = null;
     function onMouseDown(e) {
         // Handle markup tools if active
         if (isMarkupToolsetActive) {
-            const pos = canvasToPlanCoords(e.offsetX, e.offsetY);
+            const pos = toPlanCoords(e.offsetX, e.offsetY);
 
             if (currentMarkupTool === 'selection') {
                 // Clear any previous selection
@@ -1575,7 +2228,7 @@ let currentLine                        = null;
         
         // Standard measurement tools handling
         if (currentTool === "linear") {
-            const pos = canvasToPlanCoords(e.offsetX, e.offsetY);
+            const pos = toPlanCoords(e.offsetX, e.offsetY);
             
             if (!measuringPoints.length) {
                 // Starting a new measurement - set the first point
@@ -1617,12 +2270,12 @@ let currentLine                        = null;
         }
         
         if (currentTool === "area") {
-            measuringPoints.push(canvasToPlanCoords(e.offsetX, e.offsetY));
+            measuringPoints.push(toPlanCoords(e.offsetX, e.offsetY));
             return;
         }
         
         if (currentTool === "rectangle") {
-            const pos = canvasToPlanCoords(e.offsetX, e.offsetY);
+            const pos = toPlanCoords(e.offsetX, e.offsetY);
             if (!isRectMeasuring) {
                 measuringPoints = [pos];
                 isRectMeasuring = true;
@@ -1650,9 +2303,19 @@ let currentLine                        = null;
     // FUNCTION |  DRAW SKETCHY ARC
     // Added in v1.8.7 - 02-Apr-2025
     // ========================================================================
+    function getQuadraticCurvePoints(start, control, end, numPoints = 100) {
+        const points = [];
+        for (let i = 0; i <= numPoints; i++) {
+            const t = i / numPoints;
+            const x = Math.pow(1 - t, 2) * start.x + 2 * (1 - t) * t * control.x + Math.pow(t, 2) * end.x;
+            const y = Math.pow(1 - t, 2) * start.y + 2 * (1 - t) * t * control.y + Math.pow(t, 2) * end.y;
+            points.push({ x, y });
+        }
+        return points;
+    }
 
     function drawSketchyArc(start, control, end) {
-        const points = coreMathGeomGenerateQuadraticCurvePoints(start, control, end);
+        const points = getQuadraticCurvePoints(start, control, end);
         for (let i = 0; i < points.length - 1; i++) {
             drawSketchyLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
         }
@@ -1725,7 +2388,7 @@ let currentLine                        = null;
     //-------------------------------------------
     // Finds approximate min distance between a point and a quadratic curve
     // so your eraser and selection can detect arcs
-    function drawGeomMathDistanceToQuadraticCurve(x1, y1, cx, cy, x2, y2, px, py, steps = 50) {
+    function distanceToQuadraticCurve(x1, y1, cx, cy, x2, y2, px, py, steps = 50) {
         let minDist = Infinity;
         for (let i = 0; i <= steps; i++) {
             let t = i / steps;
@@ -1734,8 +2397,8 @@ let currentLine                        = null;
             let qy = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy + t * t * y2;
             let dx = px - qx;
             let dy = py - qy;
-            let coreMathDistanceCalc = Math.sqrt(dx * dx + dy * dy);
-            if (coreMathDistanceCalc < minDist) minDist = coreMathDistanceCalc;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < minDist) minDist = dist;
         }
         return minDist;
     }
@@ -2408,7 +3071,7 @@ let currentLine                        = null;
             } else if (path.tool === 'line') {
                 drawSketchyLine(context, path);
             } else if (path.tool === 'arc') {
-                // Here's where arcs are drawn
+                // Here’s where arcs are drawn
                 drawArc(context, path);
             } else if (path.tool === 'text') {
                 drawSketchyText(context, path);
@@ -2876,8 +3539,8 @@ let currentLine                        = null;
             
             // Add some controlled jitter to mimic hand movement
             const jitterAmount = path.lineWidth * 0.1;
-            const jitterX = jitterAmount * (coreMathPseudoRandomValueGen(path.seed + i * 7) - 0.5);
-            const jitterY = jitterAmount * (coreMathPseudoRandomValueGen(path.seed + i * 13) - 0.5);
+            const jitterX = jitterAmount * (pseudoRandom(path.seed + i * 7) - 0.5);
+            const jitterY = jitterAmount * (pseudoRandom(path.seed + i * 13) - 0.5);
             
             // Create control points for a smoother curve
             if (i < path.points.length - 1) {
@@ -2889,7 +3552,7 @@ let currentLine                        = null;
                 if (i % 5 === 0) {
                     // Occasionally change line width for pressure variation
                     const pressureVariation = 0.2;
-                    const pressureFactor = 1 + pressureVariation * (coreMathPseudoRandomValueGen(path.seed + i * 19) - 0.5);
+                    const pressureFactor = 1 + pressureVariation * (pseudoRandom(path.seed + i * 19) - 0.5);
                     context.lineWidth = path.lineWidth * pressureFactor;
                 }
                 
@@ -2914,22 +3577,22 @@ let currentLine                        = null;
             context.lineWidth = path.lineWidth * 0.6;
             
             // Choose a random segment to reinforce
-            const startIndex = Math.floor(coreMathPseudoRandomValueGen(path.seed + 100) * (path.points.length / 3));
+            const startIndex = Math.floor(pseudoRandom(path.seed + 100) * (path.points.length / 3));
             const endIndex = Math.min(
-                startIndex + Math.floor(coreMathPseudoRandomValueGen(path.seed + 200) * (path.points.length / 2)), 
+                startIndex + Math.floor(pseudoRandom(path.seed + 200) * (path.points.length / 2)), 
                 path.points.length - 1
             );
             
             context.beginPath();
             context.moveTo(
-                path.points[startIndex].x + path.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(path.seed + 300) - 0.5), 
-                path.points[startIndex].y + path.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(path.seed + 400) - 0.5)
+                path.points[startIndex].x + path.lineWidth * 0.1 * (pseudoRandom(path.seed + 300) - 0.5), 
+                path.points[startIndex].y + path.lineWidth * 0.1 * (pseudoRandom(path.seed + 400) - 0.5)
             );
             
             for (let i = startIndex + 1; i <= endIndex; i++) {
                 const point = path.points[i];
-                const jitterX = path.lineWidth * 0.15 * (coreMathPseudoRandomValueGen(path.seed + i * 23) - 0.5);
-                const jitterY = path.lineWidth * 0.15 * (coreMathPseudoRandomValueGen(path.seed + i * 29) - 0.5);
+                const jitterX = path.lineWidth * 0.15 * (pseudoRandom(path.seed + i * 23) - 0.5);
+                const jitterY = path.lineWidth * 0.15 * (pseudoRandom(path.seed + i * 29) - 0.5);
                 context.lineTo(point.x + jitterX, point.y + jitterY);
             }
             context.stroke();
@@ -2963,7 +3626,7 @@ let currentLine                        = null;
         // Create segments with varied line thickness - main shaft of arrow
         const points = [];
         for (let t = 0; t <= 1; t += 1/steps) {
-            const point = coreMathGeomBezierPoint(
+            const point = sampleBezierPoint(
                 arrow.startPoint, 
                 arrow.control1, 
                 arrow.control2, 
@@ -2972,7 +3635,7 @@ let currentLine                        = null;
             );
             
             // Apply deterministic jitter to create sketchy look
-            const jitter = arrow.lineWidth * 0.18 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + Math.floor(t * 100)) - 0.5);
+            const jitter = arrow.lineWidth * 0.18 * (pseudoRandom(arrow.seed.shaft + Math.floor(t * 100)) - 0.5);
             point.x += jitter;
             point.y += jitter;
             
@@ -2982,7 +3645,7 @@ let currentLine                        = null;
         // Draw the sketchy main curve with multiple segments
         for (let i = 0; i < points.length - 1; i++) {
             // Vary line width slightly for more natural appearance
-            const pressureFactor = 0.9 + (coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 25) * 0.2);
+            const pressureFactor = 0.9 + (pseudoRandom(arrow.seed.shaft + i * 25) * 0.2);
             context.lineWidth = arrow.lineWidth * pressureFactor;
             
             context.beginPath();
@@ -2998,7 +3661,7 @@ let currentLine                        = null;
             const midY = (p1.y + p2.y) / 2;
             
             // Add small random deviation to control point
-            const cpVariation = arrow.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 33) - 0.5);
+            const cpVariation = arrow.lineWidth * 0.1 * (pseudoRandom(arrow.seed.shaft + i * 33) - 0.5);
             midX += cpVariation;
             midY += cpVariation;
             
@@ -3012,9 +3675,9 @@ let currentLine                        = null;
         context.lineWidth = arrow.lineWidth * 0.7;
         
         for (let i = 0; i < 2; i++) { // Draw 2 reinforcement lines
-            const startIdx = Math.floor(coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 100) * (points.length / 3));
+            const startIdx = Math.floor(pseudoRandom(arrow.seed.shaft + i * 100) * (points.length / 3));
             const endIdx = Math.min(
-                startIdx + Math.floor(coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 150) * (points.length / 2)), 
+                startIdx + Math.floor(pseudoRandom(arrow.seed.shaft + i * 150) * (points.length / 2)), 
                 points.length - 1
             );
             
@@ -3025,8 +3688,8 @@ let currentLine                        = null;
             );
             
             for (let j = startIdx + 1; j <= endIdx; j++) {
-                const offsetX = arrow.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 200 + j) - 0.4);
-                const offsetY = arrow.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + i * 250 + j) - 0.4);
+                const offsetX = arrow.lineWidth * 0.1 * (pseudoRandom(arrow.seed.shaft + i * 200 + j) - 0.4);
+                const offsetY = arrow.lineWidth * 0.1 * (pseudoRandom(arrow.seed.shaft + i * 250 + j) - 0.4);
                 context.lineTo(
                     points[j].x + offsetX, 
                     points[j].y + offsetY
@@ -3054,8 +3717,8 @@ let currentLine                        = null;
         const arrowSize = arrow.lineWidth * 9; // Slightly larger than before
         
         // Add consistent variation to arrowhead angles
-        const angleVar1 = (coreMathPseudoRandomValueGen(arrow.seed.head1) * 0.25) - 0.125; // More variation
-        const angleVar2 = (coreMathPseudoRandomValueGen(arrow.seed.head2) * 0.25) - 0.125; // More variation
+        const angleVar1 = (pseudoRandom(arrow.seed.head1) * 0.25) - 0.125; // More variation
+        const angleVar2 = (pseudoRandom(arrow.seed.head2) * 0.25) - 0.125; // More variation
         
         // Draw first arrowhead line
         drawSketchyArrowLine(
@@ -3237,46 +3900,46 @@ let currentLine                        = null;
         context.beginPath();
         context.lineWidth = rect.lineWidth * 0.7;
         context.moveTo(x, y);
-        context.lineTo(x + cornerLength * coreMathPseudoRandomValueGen(rect.seed.top + 1), y);
+        context.lineTo(x + cornerLength * pseudoRandom(rect.seed.top + 1), y);
         context.stroke();
         
         context.beginPath();
         context.moveTo(x, y);
-        context.lineTo(x, y + cornerLength * coreMathPseudoRandomValueGen(rect.seed.left + 1));
+        context.lineTo(x, y + cornerLength * pseudoRandom(rect.seed.left + 1));
         context.stroke();
         
         // Top-right corner reinforcement
         context.beginPath();
         context.moveTo(x + width, y);
-        context.lineTo(x + width - cornerLength * coreMathPseudoRandomValueGen(rect.seed.top + 2), y);
+        context.lineTo(x + width - cornerLength * pseudoRandom(rect.seed.top + 2), y);
         context.stroke();
         
         context.beginPath();
         context.moveTo(x + width, y);
-        context.lineTo(x + width, y + cornerLength * coreMathPseudoRandomValueGen(rect.seed.right + 2));
+        context.lineTo(x + width, y + cornerLength * pseudoRandom(rect.seed.right + 2));
         context.stroke();
         
         // Bottom-right corner reinforcement
         context.beginPath();
         context.moveTo(x + width, y + height);
-        context.lineTo(x + width - cornerLength * coreMathPseudoRandomValueGen(rect.seed.bottom + 3), y + height);
+        context.lineTo(x + width - cornerLength * pseudoRandom(rect.seed.bottom + 3), y + height);
         context.stroke();
         
         context.beginPath();
         context.moveTo(x + width, y + height);
-        context.lineTo(x + width, y + height - cornerLength * coreMathPseudoRandomValueGen(rect.seed.right + 3));
+        context.lineTo(x + width, y + height - cornerLength * pseudoRandom(rect.seed.right + 3));
         context.stroke();
         
         // Bottom-left corner reinforcement
         context.beginPath();
         context.moveTo(x, y + height);
-        context.lineTo(x + cornerLength * coreMathPseudoRandomValueGen(rect.seed.bottom + 4), y + height);
+        context.lineTo(x + cornerLength * pseudoRandom(rect.seed.bottom + 4), y + height);
         context.stroke();
         
         
         context.beginPath();
         context.moveTo(x, y + height);
-        context.lineTo(x, y + height - cornerLength * coreMathPseudoRandomValueGen(rect.seed.left + 4));
+        context.lineTo(x, y + height - cornerLength * pseudoRandom(rect.seed.left + 4));
         context.stroke();
         
         context.restore();
@@ -3324,7 +3987,7 @@ let currentLine                        = null;
             const angle = (Math.PI * 2 * i) / segments;
             
             // Use deterministic noise based on segment and seed
-            const noise = coreMathPseudoRandomValueGen(circle.seed + i) * 0.3 - 0.15; // Reduced from 0.4-0.2 to 0.3-0.15 for less variation
+            const noise = pseudoRandom(circle.seed + i) * 0.3 - 0.15; // Reduced from 0.4-0.2 to 0.3-0.15 for less variation
             const radiusNoise = 1 + (noise * 0.08);
             
             const x = centerX + radius * radiusNoise * Math.cos(angle);
@@ -3337,7 +4000,7 @@ let currentLine                        = null;
                 const prevAngle = (Math.PI * 2 * (i-1)) / segments;
                 const midAngle = (prevAngle + angle) / 2;
                 
-                const controlNoise = coreMathPseudoRandomValueGen(circle.seed + i + 100) * 0.15 - 0.075; // Reduced from 0.2-0.1 to 0.15-0.075
+                const controlNoise = pseudoRandom(circle.seed + i + 100) * 0.15 - 0.075; // Reduced from 0.2-0.1 to 0.15-0.075
                 const ctrlDistance = radius * 0.4 * (1 + controlNoise);
                 
                 const ctrlX = centerX + (radius + circle.lineWidth * (controlNoise + 0.2)) * Math.cos(midAngle);
@@ -3353,8 +4016,8 @@ let currentLine                        = null;
         context.lineWidth = circle.lineWidth * 0.6;
         
         for (let i = 0; i < 3; i++) {
-            const startSegment = Math.floor(coreMathPseudoRandomValueGen(circle.seed + i * 50) * segments);
-            const arcLength = Math.floor(segments * (0.25 + coreMathPseudoRandomValueGen(circle.seed + i * 100) * 0.25));
+            const startSegment = Math.floor(pseudoRandom(circle.seed + i * 50) * segments);
+            const arcLength = Math.floor(segments * (0.25 + pseudoRandom(circle.seed + i * 100) * 0.25));
             
             context.beginPath();
             
@@ -3363,7 +4026,7 @@ let currentLine                        = null;
                 const angle = (Math.PI * 2 * segmentIndex) / segments;
                 
                 // Different noise pattern for the reinforcement
-                const noise = coreMathPseudoRandomValueGen(circle.seed + segmentIndex + i * 200) * 0.2 - 0.1; // Reduced from 0.3-0.15 to 0.2-0.1
+                const noise = pseudoRandom(circle.seed + segmentIndex + i * 200) * 0.2 - 0.1; // Reduced from 0.3-0.15 to 0.2-0.1
                 const reinforceRadius = 0.98 + (noise * 0.04);
                 
                 const x = centerX + radius * reinforceRadius * Math.cos(angle);
@@ -3409,7 +4072,7 @@ let currentLine                        = null;
         // First main stroke with consistent jitter
         const points = [];
         for (let t = 0; t <= 1; t += 1/steps) {
-            const point = coreMathGeomBezierPoint(
+            const point = sampleBezierPoint(
                 arrow.startPoint, 
                 arrow.control1, 
                 arrow.control2, 
@@ -3418,7 +4081,7 @@ let currentLine                        = null;
             );
             
             // Apply deterministic jitter
-            const jitter = arrow.lineWidth * 0.15 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + Math.floor(t * 100)) - 0.5);
+            const jitter = arrow.lineWidth * 0.15 * (pseudoRandom(arrow.seed.shaft + Math.floor(t * 100)) - 0.5);
             point.x += jitter;
             point.y += jitter;
             
@@ -3442,7 +4105,7 @@ let currentLine                        = null;
         context.moveTo(points[0].x + arrow.lineWidth * 0.1, points[0].y + arrow.lineWidth * 0.1);
         
         for (let i = 1; i < points.length; i++) {
-            const offset = arrow.lineWidth * 0.1 * (coreMathPseudoRandomValueGen(arrow.seed.shaft + i) - 0.3);
+            const offset = arrow.lineWidth * 0.1 * (pseudoRandom(arrow.seed.shaft + i) - 0.3);
             context.lineTo(points[i].x + offset, points[i].y + offset);
         }
         context.stroke();
@@ -3466,8 +4129,8 @@ let currentLine                        = null;
         const arrowSize = arrow.lineWidth * 8;
         
         // Add consistent variation to arrowhead angles
-        const angleVar1 = (coreMathPseudoRandomValueGen(arrow.seed.head1) * 0.2) - 0.1;
-        const angleVar2 = (coreMathPseudoRandomValueGen(arrow.seed.head2) * 0.2) - 0.1;
+        const angleVar1 = (pseudoRandom(arrow.seed.head1) * 0.2) - 0.1;
+        const angleVar2 = (pseudoRandom(arrow.seed.head2) * 0.2) - 0.1;
         
         // Draw first arrowhead line
         drawSketchyArrowLine(
@@ -3504,12 +4167,12 @@ let currentLine                        = null;
         
         // Start point with slight jitter based on seed
         const jitter = lineWidth * 0.2;
-        const startX = x1 + jitter * (coreMathPseudoRandomValueGen(seed) - 0.5);
-        const startY = y1 + jitter * (coreMathPseudoRandomValueGen(seed + 1) - 0.5);
+        const startX = x1 + jitter * (pseudoRandom(seed) - 0.5);
+        const startY = y1 + jitter * (pseudoRandom(seed + 1) - 0.5);
         
         // End point with slight jitter
-        const endX = x2 + jitter * (coreMathPseudoRandomValueGen(seed + 2) - 0.5);
-        const endY = y2 + jitter * (coreMathPseudoRandomValueGen(seed + 3) - 0.5);
+        const endX = x2 + jitter * (pseudoRandom(seed + 2) - 0.5);
+        const endY = y2 + jitter * (pseudoRandom(seed + 3) - 0.5);
         
         context.moveTo(startX, startY);
         
@@ -3526,8 +4189,8 @@ let currentLine                        = null;
         const ny = dx / len;
         
         // Control point with perpendicular offset
-        const ctrlX = midX + nx * ctrlJitter * (coreMathPseudoRandomValueGen(seed + 4) - 0.4); // Biased for natural curve
-        const ctrlY = midY + ny * ctrlJitter * (coreMathPseudoRandomValueGen(seed + 5) - 0.4);
+        const ctrlX = midX + nx * ctrlJitter * (pseudoRandom(seed + 4) - 0.4); // Biased for natural curve
+        const ctrlY = midY + ny * ctrlJitter * (pseudoRandom(seed + 5) - 0.4);
         
         // Draw a quadratic curve for the arrowhead line
         context.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
@@ -3538,8 +4201,8 @@ let currentLine                        = null;
         context.lineWidth = lineWidth * 0.6;
         
         // Slight offset for the reinforcement
-        const offsetX = jitter * 0.5 * (coreMathPseudoRandomValueGen(seed + 7) - 0.5);
-        const offsetY = jitter * 0.5 * (coreMathPseudoRandomValueGen(seed + 8) - 0.5);
+        const offsetX = jitter * 0.5 * (pseudoRandom(seed + 7) - 0.5);
+        const offsetY = jitter * 0.5 * (pseudoRandom(seed + 8) - 0.5);
         
         // Draw a slightly offset path for technical pen effect
         context.moveTo(startX + offsetX, startY + offsetY);
@@ -3548,8 +4211,8 @@ let currentLine                        = null;
         const wobblePts = 8;
         for (let i = 1; i <= wobblePts; i++) {
             const t = i / (wobblePts + 1);
-            const wobbleX = startX + dx * t + offsetX + jitter * (coreMathPseudoRandomValueGen(seed + 10 + i) - 0.5);
-            const wobbleY = startY + dy * t + offsetY + jitter * (coreMathPseudoRandomValueGen(seed + 20 + i) - 0.5);
+            const wobbleX = startX + dx * t + offsetX + jitter * (pseudoRandom(seed + 10 + i) - 0.5);
+            const wobbleY = startY + dy * t + offsetY + jitter * (pseudoRandom(seed + 20 + i) - 0.5);
             context.lineTo(wobbleX, wobbleY);
         }
         
@@ -3580,8 +4243,8 @@ let currentLine                        = null;
         context.lineWidth = lineWidth;
         
         // Start slightly off from exact corner for natural look
-        let currentX = x1 + lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed) - 0.5);
-        let currentY = y1 + lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 1) - 0.5);
+        let currentX = x1 + lineWidth * 0.1 * (pseudoRandom(seed) - 0.5);
+        let currentY = y1 + lineWidth * 0.1 * (pseudoRandom(seed + 1) - 0.5);
         context.moveTo(currentX, currentY);
         
         // Create segments with controlled randomness
@@ -3593,7 +4256,7 @@ let currentLine                        = null;
             
             // Add perpendicular deviations for hand-drawn effect
             const jitterScale = lineWidth * 0.8;
-            const perpOffset = jitterScale * (coreMathPseudoRandomValueGen(seed + i * 10) - 0.5);
+            const perpOffset = jitterScale * (pseudoRandom(seed + i * 10) - 0.5);
             targetX += perpX * perpOffset;
             targetY += perpY * perpOffset;
             
@@ -3601,8 +4264,8 @@ let currentLine                        = null;
             if (segmentCount > 3) {
                 // Control point between current and target
                 const controlT = (i - 0.5) / segmentCount;
-                const controlX = x1 + dx * controlT + perpX * jitterScale * (coreMathPseudoRandomValueGen(seed + i * 20) - 0.5);
-                const controlY = y1 + dy * controlT + perpY * jitterScale * (coreMathPseudoRandomValueGen(seed + i * 30) - 0.5);
+                const controlX = x1 + dx * controlT + perpX * jitterScale * (pseudoRandom(seed + i * 20) - 0.5);
+                const controlY = y1 + dy * controlT + perpY * jitterScale * (pseudoRandom(seed + i * 30) - 0.5);
                 
                 context.quadraticCurveTo(controlX, controlY, targetX, targetY);
             } else {
@@ -3624,13 +4287,13 @@ let currentLine                        = null;
             context.lineWidth = lineWidth * 0.6;
             
             // Pick random section of the line to reinforce
-            const startPct = coreMathPseudoRandomValueGen(seed + 100) * 0.3; // Start in first 30%
-            const endPct = 0.7 + coreMathPseudoRandomValueGen(seed + 200) * 0.3; // End in last 30%
+            const startPct = pseudoRandom(seed + 100) * 0.3; // Start in first 30%
+            const endPct = 0.7 + pseudoRandom(seed + 200) * 0.3; // End in last 30%
             
-            const startX = x1 + dx * startPct + perpX * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 300) - 0.5);
-            const startY = y1 + dy * startPct + perpY * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 400) - 0.5);
-            const endX = x1 + dx * endPct + perpX * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 500) - 0.5);
-            const endY = y1 + dy * endPct + perpY * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 600) - 0.5);
+            const startX = x1 + dx * startPct + perpX * lineWidth * 0.1 * (pseudoRandom(seed + 300) - 0.5);
+            const startY = y1 + dy * startPct + perpY * lineWidth * 0.1 * (pseudoRandom(seed + 400) - 0.5);
+            const endX = x1 + dx * endPct + perpX * lineWidth * 0.1 * (pseudoRandom(seed + 500) - 0.5);
+            const endY = y1 + dy * endPct + perpY * lineWidth * 0.1 * (pseudoRandom(seed + 600) - 0.5);
             
             context.moveTo(startX, startY);
             context.lineTo(endX, endY);
@@ -3638,7 +4301,12 @@ let currentLine                        = null;
         }
     }
     
-
+    // Deterministic pseudo-random function - returns a value between 0 and 1
+    function pseudoRandom(seed) {
+        // Simple but effective deterministic random number generator
+        const x = Math.sin(seed) * 10000;
+        return x - Math.floor(x);
+    }
 
     // ========================================================================
     // MARKUP TOOLSET MODULE - GLOBAL VARIABLES
@@ -3724,7 +4392,7 @@ let currentLine                        = null;
     }
 
     // Start the app
-    initPlanVisionApp();
+    init();
 
     // ----------------------------------------------------
     // FUNCTION |  KEYBOARD EVENT HANDLER
@@ -4051,7 +4719,7 @@ let currentLine                        = null;
             // ----------------------------------------------------
             else if (path.tool === 'line') {
                 // Check if eraser is near the line
-                const distance = coreMathDistanceToLineSegment(
+                const distance = distanceToLineSegment(
                     path.startPoint.x, path.startPoint.y,
                     path.endPoint.x, path.endPoint.y,
                     position.x, position.y
@@ -4068,7 +4736,7 @@ let currentLine                        = null;
             // ----------------------------------------------------
             else if (path.tool === 'arc') {
                 // Check if eraser is near the arc
-                const distance = drawGeomMathDistanceToQuadraticCurve(
+                const distance = distanceToQuadraticCurve(
                     path.startPoint.x, path.startPoint.y,
                     path.controlPoint.x, path.controlPoint.y,
                     path.endPoint.x, path.endPoint.y,
@@ -4098,11 +4766,21 @@ let currentLine                        = null;
 
     // ----------------------------------------------------
     // FUNCTION |  POINT-TO-LINE DISTANCE CALCULATION
-    // - Calculates the shortest distance from a point to a line segment
-    // - Offloaded to coreMathLibrary.js
-    // function coreMathDistanceToLineSegment
+    // - This section introduced in v1.6.0
+    // Calculates the shortest distance from a point to a line segment
     // ----------------------------------------------------
-
+    function distanceToLineSegment(x1, y1, x2, y2, px, py) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len === 0) return Math.sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1));
+        const t = ((px - x1) * dx + (py - y1) * dy) / (len * len);
+        if (t < 0) return Math.sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1));
+        if (t > 1) return Math.sqrt((px - x2) * (px - x2) + (py - y2) * (py - y2));
+        const closestX = x1 + t * dx;
+        const closestY = y1 + t * dy;
+        return Math.sqrt((px - closestX) * (px - closestX) + (py - closestY) * (py - closestY));
+    }
 
     // Add function to find text element at a specific position
     function findTextElementAt(position) {
@@ -4152,7 +4830,7 @@ let currentLine                        = null;
                     const p1 = path.points[j-1];
                     const p2 = path.points[j];
                     
-                    if (coreMathDistanceToLineSegment(p1.x, p1.y, p2.x, p2.y, pos.x, pos.y) < hitRadius) {
+                    if (distanceToLineSegment(p1.x, p1.y, p2.x, p2.y, pos.x, pos.y) < hitRadius) {
                         return path;
                     }
                 }
@@ -4164,10 +4842,10 @@ let currentLine                        = null;
                 const height = path.endPoint.y - path.startPoint.y;
                 
                 // Check each edge of the rectangle
-                if (coreMathDistanceToLineSegment(x, y, x + width, y, pos.x, pos.y) < hitRadius ||
-                    coreMathDistanceToLineSegment(x + width, y, x + width, y + height, pos.x, pos.y) < hitRadius ||
-                    coreMathDistanceToLineSegment(x + width, y + height, x, y + height, pos.x, pos.y) < hitRadius ||
-                    coreMathDistanceToLineSegment(x, y + height, x, y, pos.x, pos.y) < hitRadius) {
+                if (distanceToLineSegment(x, y, x + width, y, pos.x, pos.y) < hitRadius ||
+                    distanceToLineSegment(x + width, y, x + width, y + height, pos.x, pos.y) < hitRadius ||
+                    distanceToLineSegment(x + width, y + height, x, y + height, pos.x, pos.y) < hitRadius ||
+                    distanceToLineSegment(x, y + height, x, y, pos.x, pos.y) < hitRadius) {
                     return path;
                 }
             } else if (path.tool === 'circle') {
@@ -4203,7 +4881,7 @@ let currentLine                        = null;
                     const p1 = path.points[j];
                     const p2 = path.points[(j + 1) % path.points.length];
                     
-                    if (coreMathDistanceToLineSegment(p1.x, p1.y, p2.x, p2.y, pos.x, pos.y) < hitRadius) {
+                    if (distanceToLineSegment(p1.x, p1.y, p2.x, p2.y, pos.x, pos.y) < hitRadius) {
                         return path;
                     }
                 }
@@ -4222,7 +4900,7 @@ let currentLine                        = null;
                     const p1 = points[j-1];
                     const p2 = points[j];
                     
-                    if (coreMathDistanceToLineSegment(p1.x, p1.y, p2.x, p2.y, pos.x, pos.y) < hitRadius) {
+                    if (distanceToLineSegment(p1.x, p1.y, p2.x, p2.y, pos.x, pos.y) < hitRadius) {
                         return path;
                     }
                 }
@@ -4243,7 +4921,7 @@ let currentLine                        = null;
                 const head1X = endX - arrowSize * Math.cos(angle - Math.PI/6);
                 const head1Y = endY - arrowSize * Math.sin(angle - Math.PI/6);
                 
-                if (coreMathDistanceToLineSegment(endX, endY, head1X, head1Y, pos.x, pos.y) < hitRadius) {
+                if (distanceToLineSegment(endX, endY, head1X, head1Y, pos.x, pos.y) < hitRadius) {
                     return path;
                 }
                 
@@ -4251,7 +4929,7 @@ let currentLine                        = null;
                 const head2X = endX - arrowSize * Math.cos(angle + Math.PI/6);
                 const head2Y = endY - arrowSize * Math.sin(angle + Math.PI/6);
                 
-                if (coreMathDistanceToLineSegment(endX, endY, head2X, head2Y, pos.x, pos.y) < hitRadius) {
+                if (distanceToLineSegment(endX, endY, head2X, head2Y, pos.x, pos.y) < hitRadius) {
                     return path;
                 }
             } else if (path.tool === 'text') {
@@ -4267,7 +4945,7 @@ let currentLine                        = null;
                 }
             } else if (path.tool === 'line') {  // Added in v1.8.5 for straight line tool
                 // Check if point is near the line
-                const distance = coreMathDistanceToLineSegment(
+                const distance = distanceToLineSegment(
                     path.startPoint.x, path.startPoint.y,
                     path.endPoint.x, path.endPoint.y,
                     pos.x, pos.y
@@ -4278,7 +4956,7 @@ let currentLine                        = null;
                 }
             } else if (path.tool === 'arc') { // <<< Added Arc Tool Logic
                 // Check if point is near the arc
-                const distance = drawGeomMathDistanceToQuadraticCurve(
+                const distance = distanceToQuadraticCurve(
                     path.startPoint.x, path.startPoint.y,
                     path.controlPoint.x, path.controlPoint.y,
                     path.endPoint.x, path.endPoint.y,
@@ -4537,7 +5215,19 @@ let currentLine                        = null;
         clearSelection();
     }
 
-
+    // Sample a point on a Bezier curve at parameter t
+    function sampleBezierPoint(p0, p1, p2, p3, t) {
+        const oneMinusT = 1 - t;
+        const oneMinusTSquared = oneMinusT * oneMinusT;
+        const oneMinusTCubed = oneMinusTSquared * oneMinusT;
+        const tSquared = t * t;
+        const tCubed = tSquared * t;
+        
+        return {
+            x: oneMinusTCubed * p0.x + 3 * oneMinusTSquared * t * p1.x + 3 * oneMinusT * tSquared * p2.x + tCubed * p3.x,
+            y: oneMinusTCubed * p0.y + 3 * oneMinusTSquared * t * p1.y + 3 * oneMinusT * tSquared * p2.y + tCubed * p3.y
+        };
+    }
 
     // First, let's add a new function to update handle positions whenever the canvas transform changes
     function updateAllHandlePositions() {
@@ -4585,7 +5275,7 @@ let currentLine                        = null;
         let targetPos;
         if (e.clientX !== undefined && e.clientY !== undefined) {
             const rect = planCanvas.getBoundingClientRect();
-            targetPos = canvasToPlanCoords(e.clientX - rect.left, e.clientY - rect.top);
+            targetPos = toPlanCoords(e.clientX - rect.left, e.clientY - rect.top);
         } else {
             // Default to center of visible area if no mouse position
             targetPos = {
@@ -4774,13 +5464,13 @@ let currentLine                        = null;
             context.lineWidth = polygon.lineWidth * 0.7;
             
             // Use deterministic random offsets
-            const jitterX = jitter * (coreMathPseudoRandomValueGen(polygon.seed + i * 200) - 0.5);
-            const jitterY = jitter * (coreMathPseudoRandomValueGen(polygon.seed + i * 200 + 10) - 0.5);
+            const jitterX = jitter * (pseudoRandom(polygon.seed + i * 200) - 0.5);
+            const jitterY = jitter * (pseudoRandom(polygon.seed + i * 200 + 10) - 0.5);
             context.moveTo(p.x + jitterX, p.y + jitterY);
             
             // Draw a short line in a consistent random direction
-            const angle = coreMathPseudoRandomValueGen(polygon.seed + i * 300) * Math.PI * 2;
-            const length = polygon.lineWidth * (1 + coreMathPseudoRandomValueGen(polygon.seed + i * 400));
+            const angle = pseudoRandom(polygon.seed + i * 300) * Math.PI * 2;
+            const length = polygon.lineWidth * (1 + pseudoRandom(polygon.seed + i * 400));
             context.lineTo(
                 p.x + Math.cos(angle) * length,
                 p.y + Math.sin(angle) * length
@@ -4918,7 +5608,7 @@ let currentLine                        = null;
     function onMouseUp(e) {
         // Handle markup tools if active
         if (isMarkupToolsetActive && currentMarkupTool) {
-            const pos = canvasToPlanCoords(e.offsetX, e.offsetY);
+            const pos = toPlanCoords(e.offsetX, e.offsetY);
             
             // ----------------------------------------------------
             // EVENT HANDLER |  SELECTION TOOL FINALIZATION
@@ -5112,7 +5802,7 @@ let currentLine                        = null;
     // HELPER FUNCTION |  POINT TO LINE DISTANCE
     // - Calculates shortest distance from point to line segment
     // ----------------------------------------------------
-    function coreMathDistanceToLineSegment(x1, y1, x2, y2, px, py) {
+    function distanceToLineSegment(x1, y1, x2, y2, px, py) {
         // Calculate squared length of line segment
         const lengthSq = (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1);
         
@@ -5134,7 +5824,18 @@ let currentLine                        = null;
         return Math.sqrt((px-closestX)*(px-closestX) + (py-closestY)*(py-closestY));
     }
     
-
+    // ----------------------------------------------------
+    // HELPER FUNCTION |  BEZIER CURVE SAMPLING
+    // - Generates points along a bezier curve for selection and rendering
+    // ----------------------------------------------------
+    function sampleBezierCurve(p0, p1, p2, p3, samples) {
+        const points = [];
+        for (let i = 0; i <= samples; i++) {
+            const t = i / samples;
+            points.push(sampleBezierPoint(p0, p1, p2, p3, t));
+        }
+        return points;
+    }
 
     // ========================================================================
     // PRIMARY FUNCTION |  MARKUP TOOL CANCELLATION
@@ -5460,7 +6161,7 @@ let currentLine                        = null;
             // ----------------------------------------------------
             else if (path.tool === 'line') {
                 // Check if eraser is near the line
-                const distance = coreMathDistanceToLineSegment(
+                const distance = distanceToLineSegment(
                     path.startPoint.x, path.startPoint.y,
                     path.endPoint.x, path.endPoint.y,
                     position.x, position.y
@@ -5477,7 +6178,7 @@ let currentLine                        = null;
             // ----------------------------------------------------
             else if (path.tool === 'arc') {
                 // Check if eraser is near the arc
-                const distance = drawGeomMathDistanceToQuadraticCurve(
+                const distance = distanceToQuadraticCurve(
                     path.startPoint.x, path.startPoint.y,
                     path.controlPoint.x, path.controlPoint.y,
                     path.endPoint.x, path.endPoint.y,
@@ -5488,6 +6189,16 @@ let currentLine                        = null;
                     erasedAny = true;
                     return false; // Remove this path
                 }
+            }
+
+            else if (path.tool === 'arc') {
+                // ...
+                const distance = distanceToQuadraticCurve(
+                    path.startPoint.x, path.startPoint.y,
+                    path.controlPoint.x, path.controlPoint.y,
+                    path.endPoint.x, path.endPoint.y,
+                    position.x, position.y
+                );
             }
             
             return true; // Keep this path
@@ -5508,3 +6219,8 @@ let currentLine                        = null;
 
 
 })();        // <---- This is where the function is immediately executed
+</script>
+</body>
+</html>
+
+

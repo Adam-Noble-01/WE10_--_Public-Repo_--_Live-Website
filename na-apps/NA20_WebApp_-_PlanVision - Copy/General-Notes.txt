@@ -1,0 +1,241 @@
+### General Math Functions
+
+```
+`coreMathDistance`
+`coreMathDistanceToLineSegment`
+```
+
+
+
+#### Geometric Math Functions
+
+```
+`coreMathGeomPolygonArea`
+`coreMathGeomPolygonCentroid`
+`coreMathGeomBezierPoint`
+```
+
+
+
+#### Drawing Math Functions
+
+```
+`drawGeomMathDistanceToQuadraticCurve`
+```
+
+
+
+#### Canvas Functions
+
+```
+CANVAS MATH
+`canvasToPlanCoords`
+```
+
+New Scripts
+`coreMathUtilsLibrary.js`
+
+
+
+
+============================================================================
+        ⚠ ⚠ ⚠ ⚠ ⚠  IGNORE   THIS   SECTION   ⚠ ⚠ ⚠ ⚠ ⚠  
+============================================================================
+
+TASKS
+--------------------------------------------------------
+
+Is my name a good file /  module name?
+
+I want to expres s they are math functions used by many scripts, like a core library of functions for fundemental math operations
+
+`coreMathUtilsLibrary.js`
+
+
+
+
+
+---
+
+##### STUDY CODE SECIONS
+
+###### Note This Worked Well
+
+
+
+**OBJECTIVE |**  Assist me identifying common basic math functions to offload to trim down my giant main.js file
+
+#### TASK 01
+
+-   Study my main file @main.js file
+-   ⚠ Study up to only 1000 lines at a time
+    -   This allows for a more detailed check and less errors
+-   What are you checking for?
+    -   Look and list all mathematical functions used 
+        -   THEN
+    -   Report back to me
+
+-   Wait for instructions to continue 
+    -   Continue to new 1000 lines
+    -   Rinse and repeat . . . 
+
+---
+
+
+
+#### Context
+
+-   My core goal is to find all common math functions
+-   Identify occurrences of Math functions
+-   Identify whether they are typical none specialised operations.
+-   offload the common calculations to a new core library to cut the size of the main.js file down.
+-   and relink them to my new @coreMathLibrary.js library.
+-   This first exercise is to accurately map out all common Math and to earmark functions for removal from main.js and addition to the new coreMathLibrary script 
+
+---
+
+
+
+To identify functions that can be offloaded to a new script without causing major disruptions, we should look for groups of related functions that are self-contained and have minimal dependencies on other parts of the code. Here are some candidates from your `main.js` file:
+
+### Candidates for Offloading
+
+**Drawing Tools Functions**: These functions are related to drawing and rendering on the canvas. They seem to be self-contained and could be moved to a separate module focused on drawing utilities.
+
+- `drawLine()`
+- `drawMarkers()`
+- `drawRectangle()`
+- `drawRectLabel()`
+- `drawPolygon()`
+- `drawOpenPolygon()`
+- `drawLineLabel()`
+- `drawAreaLabel()`
+- `drawEdgeLabels()`
+- `drawTextLabel()`
+
+
+
+**Markup Toolset Functions**: Functions related to the markup toolset could be grouped into a separate module. This would include functions for drawing, managing, and interacting with markup elements.
+
+- `drawAllMarkupPaths()`
+- `drawSketchyPath()`
+- `drawArrow()`
+- `drawSketchyArrowLine()`
+- `calculateCurveEndDirection()`
+- `drawSketchyText()`
+- `drawSketchyRectangle()`
+- `drawSketchyCircle()`
+- `drawSketchySegment()`
+- `pseudoRandom()`
+- `saveMarkupState()`
+- `undoMarkupAction()`
+- `redoMarkupAction()`
+- `updateUndoRedoButtons()`
+
+### Considerations
+
+- **Dependencies**: Ensure that the functions you offload do not have complex dependencies on other parts of the code. If they do, you might need to offload those dependencies as well or refactor the code to reduce coupling.
+
+    
+
+-   By offloading these functions, you can keep the main script cleaner and more focused on the core application logic,
+-    While the offloaded modules handle specific tasks like drawing and mark-up management.
+
+
+
+---
+
+## Adam Task
+
+### TASK |   Carefully Rename All instances of these functions
+
+-   Carefully work through renaming these functions throughout the entire main.js file
+-   Aim is to create more verbose naming and also use naming to group math functions like so
+-   Key Consideration - The script is very large 
+
+```
+CURRENT NAME 								|   NEW IMPROVD VERBOSE NAMED
+---------------------------------------------------------------------
+`dist` 										 -> `coreMathDistance`
+`distanceToLineSegment`			->  `coreMathDistanceToLineSegment`
+`polygonArea` 						  ->  `coreMathGeomPolygonArea`
+`polygonCentroid` 				  ->  `coreMathGeomPolygonCentroid`
+`GetQuadraticCurvePoints` 	 ->  `coreMathGeomGetQuadraticCurvePoints`
+`sampleBezierPoint` 				->  `coreMathGeomBezierPoint`
+
+`pseudoRandom` 							->  `coreMathPseudoRandomValueGen`
+
+
+
+```
+
+
+
+Task | 02 - Validate no errors were made
+
+---
+
+
+
+
+
+---
+
+These are the functions identified for offloading to the `coreMathLibrary.js` and should be renamed to reflect their association with the core math library.
+
+Here's a simple plaintext list of all the functions you need to rename with the suggested prefix:
+
+1. `dist` -> `coreMathDist`
+2. `distanceToLineSegment` -> `coreMathDistanceToLineSegment`
+3. `polygonCentroid` -> `coreMathPolygonCentroid`
+4. `polygonArea` -> `coreMathPolygonArea`
+5. `toPlanCoords` -> `coreMathToPlanCoords`
+6. `coreMathGeomGetQuadraticCurvePoints` -> `coreMathGetQuadraticCurvePoints`
+7. `sampleBezierPoint` -> `coreMathSampleBezierPoint`
+8. `distanceToQuadraticCurve` -> `coreMathDistanceToQuadraticCurve`
+9. `pseudoRandom` -> `coreMathPseudoRandom`
+
+These are the functions identified for offloading to the `coreMathLibrary.js` and should be renamed to reflect their association with the core math library.
+
+
+
+----
+
+### Notes On Size vs Version
+
+```
+Version 2.0.3		=		5525   Lines Of Code
+Version 2.0.4		=		5590   Lines Of Code
+Version 2.0.5		=		????   Lines Of Code
+```
+
+
+
+----
+
+### Major Task |  Markup Tools Logic Ofload
+
+-   All the markup-related functionality (drawing sketchy shapes, editing sketchy shapes, erasing, selection, text, and arrow tool interactions) is already self-contained within a large section of code. 
+
+-   Offloading these features to a dedicated `markup-toolset.js` would keep `main.js` cleaner. 
+
+-   The new markup-toolset.js should contain . . .
+
+    -   Markup tool state management (e.g., current tool, line width, colour).
+
+    -   Markup-specific event handlers (pencil, eraser, shape drawing, arrow editing).
+
+    -   Functions for drawing each mark-up element (sketchy rectangles, circles, arcs, and so on).
+
+    -   Undo/redo for mark-up.
+
+-   This task should be easier than other sections as these tools were added in 1.8.8 as a cohesive block.
+
+    
+
+-   Dependencies
+
+    -   Will depend on some functions from the new `coreMathUtilsLibrary.js` functions
+
+        
+

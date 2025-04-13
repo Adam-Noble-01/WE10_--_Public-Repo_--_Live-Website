@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bézier Curves Visualization</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: 'Open Sans', sans-serif;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+        // Get canvas and context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let scale = 1;
+        let originX = 0;
+        let originY = 0;
+
+        // Quadratic Bézier Curve Points Generation
+        function coreMathGeomGenerateQuadraticCurvePoints(start, control, end, numPoints = 100) {
+            const points = [];
+            for (let i = 0; i <= numPoints; i++) {
+                const t = i / numPoints;
+                const x = Math.pow(1 - t, 2) * start.x + 2 * (1 - t) * t * control.x + Math.pow(t, 2) * end.x;
+                const y = Math.pow(1 - t, 2) * start.y + 2 * (1 - t) * t * control.y + Math.pow(t, 2) * end.y;
+                points.push({ x, y });
+            }
+            return points;
+        }
+
+        // Cubic Bézier Point Calculation
+        function coreMathGeomBezierPoint(p0, p1, p2, p3, t) {
+            const oneMinusT = 1 - t;
+            const oneMinusTSquared = oneMinusT * oneMinusT;
+            const oneMinusTCubed = oneMinusTSquared * oneMinusT;
+            const tSquared = t * t;
+            const tCubed = tSquared * t;
+            return {
+                x: oneMinusTCubed * p0.x + 3 * oneMinusTSquared * t * p1.x + 3 * oneMinusT * tSquared * p2.x + tCubed * p3.x,
+                y: oneMinusTCubed * p0.y + 3 * oneMinusTSquared * t * p1.y + 3 * oneMinusT * tSquared * p2.y + tCubed * p3.y
+            };
+        }
+
+        // Cubic Bézier Curve Points Generation
+        function coreMathGeomGenerateCubicCurvePoints(p0, p1, p2, p3, numPoints = 100) {
+            const points = [];
+            for (let i = 0; i <= numPoints; i++) {
+                const t = i / numPoints;
+                const point = coreMathGeomBezierPoint(p0, p1, p2, p3, t);
+                points.push(point);
+            }
+            return points;
+        }
+
+        // Define initial control points
+        const quadStart = { x: 100, y: 200 };
+        const quadControl = { x: 200, y: 50 };
+        const quadEnd = { x: 300, y: 200 };
+        const cubicP0 = { x: 400, y: 200 };
+        const cubicP1 = { x: 450, y: 50 };
+        const cubicP2 = { x: 550, y: 350 };
+        const cubicP3 = { x: 600, y: 200 };
+
+        // Array of all draggable points
+        const allPoints = [quadStart, quadControl, quadEnd, cubicP0, cubicP1, cubicP2, cubicP3];
+
+        // Draw a single point
+        function drawPoint(point, color = 'black', size = 7) {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, size, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        // Draw a Bézier curve with control points and labels
+        function drawBezierCurve(curvePoints, controlPoints, labels, color = 'black') {
+            // Draw the curve
+            ctx.beginPath();
+            ctx.moveTo(curvePoints[0].x, curvePoints[0].y);
+            for (let i = 1; i < curvePoints.length; i++) {
+                ctx.lineTo(curvePoints[i].x, curvePoints[i].y);
+            }
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw control lines
+            ctx.beginPath();
+            ctx.moveTo(controlPoints[0].x, controlPoints[0].y);
+            for (let i = 1; i < controlPoints.length; i++) {
+                ctx.lineTo(controlPoints[i].x, controlPoints[i].y);
+            }
+            ctx.strokeStyle = 'gray';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Draw points with labels
+            controlPoints.forEach((point, index) => {
+                drawPoint(point, index === 0 || index === controlPoints.length - 1 ? 'blue' : 'red');
+                ctx.fillStyle = 'black';
+                ctx.font = '12px Open Sans';
+                ctx.fillText(labels[index], point.x + 10, point.y + 10);
+            });
+        }
+
+        // Redraw everything
+        function drawAll() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(originX, originY);
+            ctx.scale(scale, scale);
+
+            // Generate curve points
+            const quadPoints = coreMathGeomGenerateQuadraticCurvePoints(quadStart, quadControl, quadEnd);
+            const cubicPoints = coreMathGeomGenerateCubicCurvePoints(cubicP0, cubicP1, cubicP2, cubicP3);
+
+            // Add titles
+            ctx.fillStyle = 'black';
+            ctx.font = '16px Open Sans';
+            ctx.fillText('Quadratic Bézier Curve', 100, 30);
+            ctx.fillText('Cubic Bézier Curve', 400, 30);
+
+            // Draw curves
+            drawBezierCurve(quadPoints, [quadStart, quadControl, quadEnd], ['Start', 'Control', 'End'], 'green');
+            drawBezierCurve(cubicPoints, [cubicP0, cubicP1, cubicP2, cubicP3], ['P0', 'P1', 'P2', 'P3'], 'purple');
+
+            ctx.restore();
+        }
+
+        // Get mouse position relative to canvas
+        function getMousePos(canvas, event) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            };
+        }
+
+        // Find point under mouse
+        function getDraggedPoint(mousePos, points) {
+            const threshold = 10; // Click radius in pixels
+            for (const point of points) {
+                const dx = point.x - mousePos.x;
+                const dy = point.y - mousePos.y;
+                if (dx * dx + dy * dy < threshold * threshold) {
+                    return point;
+                }
+            }
+            return null;
+        }
+
+        // Handle dragging
+        let draggedPoint = null;
+
+        canvas.addEventListener('mousedown', (event) => {
+            const mousePos = getMousePos(canvas, event);
+            draggedPoint = getDraggedPoint(mousePos, allPoints);
+        });
+
+        canvas.addEventListener('mousemove', (event) => {
+            if (draggedPoint) {
+                const mousePos = getMousePos(canvas, event);
+                draggedPoint.x = mousePos.x;
+                draggedPoint.y = mousePos.y;
+                drawAll();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            draggedPoint = null;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            draggedPoint = null;
+        });
+
+
+
+        // Initial draw
+        drawAll();
+    </script>
+</body>
+</html>

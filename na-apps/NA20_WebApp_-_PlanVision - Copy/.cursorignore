@@ -1,0 +1,17 @@
+.--TEMP
+.--BAK
+*.tmp
+*.BAK
+*.--BAK
+*~
+.DS_Store
+Thumbs.db
+
+# Build directories
+/dist
+/build
+/out
+
+# Dependency directories
+/node_modules
+/vendor

@@ -1,6 +1,10 @@
 // ===================================================================================
 // ASSET LIBRARY MANAGEMENT MODULE
 // ===================================================================================
+//
+// FILE NAME
+// `app-asset-loader.js`
+//
 // OFFLOADED | 12-Apr-2025
 // Tested - Confirmed module is working as expected ✔
 //
