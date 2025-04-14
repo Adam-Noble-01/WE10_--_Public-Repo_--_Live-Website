@@ -1,0 +1,901 @@
+### General Math Functions
+
+```
+`coreMathDistance`
+`coreMathDistanceToLineSegment`
+```
+
+
+
+#### Geometric Math Functions
+
+```
+`coreMathGeomPolygonArea`
+`coreMathGeomPolygonCentroid`
+`coreMathGeomBezierPoint`
+```
+
+
+
+#### Drawing Math Functions
+
+```
+`drawGeomMathDistanceToQuadraticCurve`
+```
+
+
+
+#### Canvas Functions
+
+```
+CANVAS MATH
+`canvasToPlanCoords`
+```
+
+New Scripts
+`coreMathUtilsLibrary.js`
+
+---
+
+### KEY NOTES |   Mark-up Sketch Feature Toolset 
+
+```markdown
+MARKUP SKETCH OBJECT NAMING NOTES
+- Each Sketch Element Rendered on screen uses a layered naming approach.
+- 'Arc' Used as a basic example element, this may be interchanged with other sketch elements.
+
+   drawPenSketchArcMath  =  The core immutable underlying logic.
+   drawPenSketchArc      =  The geometric math with some variables applied adjusting its properties.
+   renderPenSketchArc	=  A container wrapping the underlying logic for the rendering pipeline.
+   calcDistanceToArc     =  A additional  layer over the top as a further helper for other elements.
+
+ PIPELINE OUTLINE
+ Math (drawPenSketchArcMath)	→		Stylised Output (drawPenSketchArc)  → 
+ → Canvas-Render Container (renderPenSketchArc)		→		Interactive Logic (calcDistanceToArc)
+```
+
+
+
+---
+
+
+
+#### Transformation Of Tool ID's
+
+```
+arc		     ->    tooldefMarkupSketchArc
+rectangle  ->    tooldefMarkupSketchRectangle
+```
+
+
+
+
+
+
+
+
+
+
+============================================================================
+        ⚠ ⚠ ⚠ ⚠ ⚠  IGNORE   THIS   SECTION   ⚠ ⚠ ⚠ ⚠ ⚠  
+============================================================================
+
+TASKS
+--------------------------------------------------------
+
+Is my name a good file /  module name?
+
+I want to expres s they are math functions used by many scripts, like a core library of functions for fundemental math operations
+
+`coreMathUtilsLibrary.js`
+
+
+
+
+
+---
+
+##### STUDY CODE SECIONS
+
+###### Note This Worked Well
+
+
+
+**OBJECTIVE |**  Assist me identifying common basic math functions to offload to trim down my giant main.js file
+
+#### TASK 01
+
+-   Study my main file @main.js file
+-   ⚠ Study up to only 1000 lines at a time
+    -   This allows for a more detailed check and less errors
+-   What are you checking for?
+    -   Look and list all mathematical functions used 
+        -   THEN
+    -   Report back to me
+
+-   Wait for instructions to continue 
+    -   Continue to new 1000 lines
+    -   Rinse and repeat . . . 
+
+---
+
+
+
+#### Context
+
+-   My core goal is to find all common math functions
+-   Identify occurrences of Math functions
+-   Identify whether they are typical none specialised operations.
+-   offload the common calculations to a new core library to cut the size of the main.js file down.
+-   and relink them to my new @coreMathLibrary.js library.
+-   This first exercise is to accurately map out all common Math and to earmark functions for removal from main.js and addition to the new coreMathLibrary script 
+
+---
+
+
+
+To identify functions that can be offloaded to a new script without causing major disruptions, we should look for groups of related functions that are self-contained and have minimal dependencies on other parts of the code. Here are some candidates from your `main.js` file:
+
+### Candidates for Offloading
+
+**Drawing Tools Functions**: These functions are related to drawing and rendering on the canvas. They seem to be self-contained and could be moved to a separate module focused on drawing utilities.
+
+- `drawLine()`
+- `drawMarkers()`
+- `drawRectangle()`
+- `drawRectLabel()`
+- `drawPolygon()`
+- `drawOpenPolygon()`
+- `drawLineLabel()`
+- `drawAreaLabel()`
+- `drawEdgeLabels()`
+- `drawTextLabel()`
+
+
+
+**Markup Toolset Functions**: Functions related to the markup toolset could be grouped into a separate module. This would include functions for drawing, managing, and interacting with markup elements.
+
+- `drawAllMarkupPaths()`
+- `drawSketchyPath()`
+- `drawArrow()`
+- `drawSketchyArrowLine()`
+- `calculateCurveEndDirection()`
+- `drawSketchyText()`
+- `drawSketchyRectangle()`
+- `drawSketchyCircle()`
+- `drawSketchySegment()`
+- `pseudoRandom()`
+- `saveMarkupState()`
+- `undoMarkupAction()`
+- `redoMarkupAction()`
+- `updateUndoRedoButtons()`
+
+### Considerations
+
+- **Dependencies**: Ensure that the functions you offload do not have complex dependencies on other parts of the code. If they do, you might need to offload those dependencies as well or refactor the code to reduce coupling.
+
+    
+
+-   By offloading these functions, you can keep the main script cleaner and more focused on the core application logic,
+-    While the offloaded modules handle specific tasks like drawing and mark-up management.
+
+
+
+---
+
+## Adam Task
+
+### TASK |   Carefully Rename All instances of these functions
+
+-   Carefully work through renaming these functions throughout the entire main.js file
+-   Aim is to create more verbose naming and also use naming to group math functions like so
+-   Key Consideration - The script is very large 
+
+```
+CURRENT NAME 								|   NEW IMPROVD VERBOSE NAMED
+---------------------------------------------------------------------
+`dist` 										 -> `coreMathDistance`
+`distanceToLineSegment`			->  `coreMathDistanceToLineSegment`
+`polygonArea` 						  ->  `coreMathGeomPolygonArea`
+`polygonCentroid` 				  ->  `coreMathGeomPolygonCentroid`
+`GetQuadraticCurvePoints` 	 ->  `coreMathGeomGetQuadraticCurvePoints`
+`sampleBezierPoint` 				->  `coreMathGeomBezierPoint`
+
+`pseudoRandom` 							->  `coreMathPseudoRandomValueGen`
+
+
+
+```
+
+
+
+Task | 02 - Validate no errors were made
+
+---
+
+
+
+
+
+---
+
+These are the functions identified for offloading to the `coreMathLibrary.js` and should be renamed to reflect their association with the core math library.
+
+Here's a simple plaintext list of all the functions you need to rename with the suggested prefix:
+
+1. `dist` -> `coreMathDist`
+2. `distanceToLineSegment` -> `coreMathDistanceToLineSegment`
+3. `polygonCentroid` -> `coreMathPolygonCentroid`
+4. `polygonArea` -> `coreMathPolygonArea`
+5. `toPlanCoords` -> `coreMathToPlanCoords`
+6. `coreMathGeomGetQuadraticCurvePoints` -> `coreMathGetQuadraticCurvePoints`
+7. `sampleBezierPoint` -> `coreMathSampleBezierPoint`
+8. `distanceToQuadraticCurve` -> `coreMathDistanceToQuadraticCurve`
+9. `pseudoRandom` -> `coreMathPseudoRandom`
+
+These are the functions identified for offloading to the `coreMathLibrary.js` and should be renamed to reflect their association with the core math library.
+
+
+
+----
+
+### Notes On Size vs Version
+
+```
+Version 2.0.3		=		5525   Lines Of Code
+Version 2.0.4		=		5590   Lines Of Code
+Version 2.0.5		=		????   Lines Of Code
+```
+
+
+
+----
+
+### Major Task |  Markup Tools Logic Ofload
+
+-   All the markup-related functionality (drawing sketchy shapes, editing sketchy shapes, erasing, selection, text, and arrow tool interactions) is already self-contained within a large section of code. 
+
+-   Offloading these features to a dedicated `markup-toolset.js` would keep `main.js` cleaner. 
+
+-   The new markup-toolset.js should contain . . .
+
+    -   Markup tool state management (e.g., current tool, line width, colour).
+
+    -   Markup-specific event handlers (pencil, eraser, shape drawing, arrow editing).
+
+    -   Functions for drawing each mark-up element (sketchy rectangles, circles, arcs, and so on).
+
+    -   Undo/redo for mark-up.
+
+-   This task should be easier than other sections as these tools were added in 1.8.8 as a cohesive block.
+
+    
+
+-   Dependencies
+
+    -   Will depend on some functions from the new `coreMathUtilsLibrary.js` functions
+
+        
+
+
+
+----
+
+# Implementation Plan: Markup Tools Offload
+
+Based on your requirements, here's a comprehensive implementation plan for offloading markup-related functionality to a dedicated `markup-toolset.js` module:
+
+## 1. Module Structure
+
+```javascript
+// markup-toolset.js
+// ===================================================================================
+// JAVASCRIPT | MARKUP TOOLS AND FUNCTIONALITY
+// ===================================================================================
+//
+// FILE NAME | markup-toolset.js
+// FILE PATH | ./markup-toolset.js
+//
+// OFFLOADED | [Date]
+//
+// Description:
+// - This module contains all functionality related to the markup tools
+// - Handles drawing and interaction with sketchy elements (shapes, lines, text)
+// - Manages selection, editing, undo/redo, and tool state
+// - Provides interfaces for the main application to control markup features
+// ----------------------------------------------------------------------------------
+
+// Imports from coreMathLibrary.js
+import {
+    coreMathDistanceCalc,
+    coreMathDistanceToLineSegment,
+    coreMathGeomPolygonArea,
+    coreMathGeomPolygonCentroid,
+    coreMathGeomGenerateQuadraticCurvePoints,
+    coreMathGeomBezierPoint,
+    coreMathPseudoRandomValueGen
+} from './coreMathLibrary.js';
+
+// Module State
+const markupState = {
+    // Tool settings and state variables
+    // Current selections, etc.
+};
+
+// Export functions for main.js to use
+export {
+    // Tool state management
+    toggleMarkupToolset,
+    returnToMeasuringTools,
+    setMarkupTool,
+    clearMarkup,
+    saveMarkupImage,
+    cancelMarkupTool,
+    
+    // Drawing functions
+    drawAllMarkupPaths,
+    drawSketchyPath,
+    drawSketchyRectangle,
+    drawSketchyCircle,
+    drawSketchyLine,
+    drawSketchyText,
+    drawSketchyPolygon,
+    drawSketchyArrowLine,
+    drawSketchySegment,
+    drawArrow,
+    
+    // Event handlers and interactivity
+    detectAndEraseElements,
+    findElementAt,
+    findTextElementAt,
+    selectElement,
+    clearSelection,
+    createSelectionHandles,
+    clearSelectionHandles,
+    moveElement,
+    deleteSelectedElement,
+    copySelectedElement,
+    pasteElement,
+    
+    // Text tools
+    showTextDialog,
+    cancelTextEntry,
+    confirmTextEntry,
+    editTextElement,
+    
+    // Arrow tools
+    clearArrowControls,
+    createControlPoint,
+    createHandleLine,
+    updateControlPointPositions,
+    showArrowControls,
+    createHandle,
+    updateAllHandlePositions,
+    
+    // Undo/Redo
+    saveMarkupState,
+    undoMarkupAction,
+    redoMarkupAction,
+    updateUndoRedoButtons,
+    
+    // UI and instructions
+    showMarkupInstructions,
+    dismissInstructions,
+    showCopyFeedback
+};
+```
+
+## 2. Functions to Move
+
+Based on the outline of `main.js`, here are the key functions to move to `markup-toolset.js`:
+
+### Markup Tool State Management:
+- `toggleMarkupToolset` (line 2120)
+- `returnToMeasuringTools` (line 2204)
+- `setMarkupTool` (line 2248)
+- `clearMarkup` (line 2321)
+- `saveMarkupImage` (line 2331)
+- `cancelMarkupTool` (line 5144)
+
+### Drawing Functions:
+- `drawAllMarkupPaths` (lines 2392 and 2684)
+- `drawArc` (line 2425)
+- `drawSketchyText` (lines 2468 and 3139)
+- `drawSketchyPath` (line 2852)
+- `drawArrow` (lines 2942 and 3385)
+- `drawSketchyArrowLine` (lines 3086 and 3498)
+- `calculateCurveEndDirection` (line 3130)
+- `drawSketchyRectangle` (line 3174)
+- `drawSketchyCircle` (line 3286)
+- `drawSketchySegment` (line 3561)
+- `drawSketchyPolygon` (line 4742)
+- `drawSketchyLine` (lines 4799 and 5265)
+
+### Element Interaction:
+- `detectAndEraseElements` (lines 3874 and 5298)
+- `findTextElementAt` (line 4108)
+- `findElementAt` (line 4142)
+- `selectElement` (line 4302)
+- `clearSelection` (line 4332)
+- `moveElement` (line 4449)
+- `deleteSelectedElement` (line 4524)
+
+### UI/Controls:
+- `showTextDialog` (lines 2359 and 2505)
+- `cancelTextEntry` (lines 2375 and 2532)
+- `confirmTextEntry` (line 2545)
+- `editTextElement` (line 2589)
+- `clearArrowControls` (line 2605)
+- `createControlPoint` (line 2617)
+- `createHandleLine` (line 2636)
+- `updateControlPointPositions` (line 2656)
+- `createSelectionHandles` (line 4348)
+- `clearSelectionHandles` (line 4431)
+- `updateAllHandlePositions` (lines 4543 and 4894)
+- `showArrowControls` (line 4828)
+- `createHandle` (line 4869)
+- `showCopyFeedback` (line 4715)
+
+### Undo/Redo Functionality:
+- `saveMarkupState` (line 3655)
+- `undoMarkupAction` (line 3673)
+- `redoMarkupAction` (line 3695)
+- `updateUndoRedoButtons` (line 3717)
+
+### Instructions:
+- `showMarkupInstructions` (lines 3793 and 5180)
+- `dismissInstructions` (lines 3858 and 5245)
+
+## 3. Implementation Strategy
+
+1. **Create Module with State Variables**: Initialize the module with state variables needed for markup functionality.
+
+2. **Move Functions Systematically**:
+   - Start with core drawing functions
+   - Then implement tool state management
+   - Finally add interaction and event handlers
+   
+3. **Handle Duplicates**: For duplicated functions (like multiple `drawSketchyLine` implementations), merge them with appropriate conditional logic.
+
+4. **Update Main.js**:
+   - Replace functions with imports
+   - Update references to these functions
+   - Pass necessary context/state between modules
+
+5. **Testing Strategy**:
+   - Test each function category independently
+   - Verify that markup behavior is unchanged after the refactor
+
+## 4. Dependencies
+
+The new module will have dependencies on:
+- `coreMathLibrary.js` for mathematical functions
+- DOM elements from the main HTML document
+- Canvas context for drawing operations
+- Application state that affects markup behavior
+
+## 5. Implementation Notes
+
+- Some functions may need to be adapted to work with state that's passed from the main application
+- You may need to expose additional API methods for the main application to interact with markup state
+- The module should handle its own event binding for markup-specific interactions
+- Document any global state or context that needs to be shared between modules
+
+This plan provides a comprehensive approach to offloading all markup functionality to a dedicated module, which will significantly reduce the size and complexity of `main.js`.
+
+
+
+
+
+
+
+
+
+---
+
+1.  Sketchy Drawing Functions:
+
+-   drawSketchyArc(start, control, end) at line 1653
+
+-   drawSketchyText(context, textObj) at line 2467 and 3138
+
+-   drawSketchyPath(context, path) at line 2851
+
+-   drawSketchyArrowLine(context, x1, y1, x2, y2, lineWidth, color) at line 3085
+
+-   drawSketchyRectangle(context, rect) at line 3173
+
+-   drawSketchyCircle(context, circle) at line 3285
+
+-   drawSketchyArrowLine(context, x1, y1, x2, y2, lineWidth, color, seed) at line 3497
+
+-   drawSketchySegment(context, x1, y1, x2, y2, lineWidth, color, seed) at line 3560
+
+-   drawSketchyPolygon(context, polygon) at line 4741
+
+-   drawSketchyLine(context, line) at lines 4798 and 5264
+
+
+
+---
+
+To identify possible duplicate functions, we can look for functions with the same name or similar functionality. Based on the list of drawing functions, here are some potential duplicates:
+
+1.  drawArc Function:
+
+-   drawArc(context, arcPath) appears twice, at lines 1702 and 2424. These might be duplicates or serve different purposes in different contexts.
+
+1.  drawSketchyText Function:
+
+-   drawSketchyText(context, textObj) appears twice, at lines 2467 and 3138. These could be duplicates or variations for different use cases.
+
+1.  drawAllMarkupPaths Function:
+
+-   drawAllMarkupPaths(context) appears twice, at lines 2391 and 2683. These might be duplicates or intended for different scenarios.
+
+1.  drawArrow Function:
+
+-   drawArrow(context, arrow) appears twice, at lines 2941 and 3384. These could be duplicates or different implementations.
+
+1.  drawSketchyLine Function:
+
+-   drawSketchyLine(context, line) appears twice, at lines 4798 and 5264. These might be duplicates or serve different purposes.
+
+To confirm if these are indeed duplicates, we would need to examine the implementation details of each function. If you want to proceed with checking the content of these functions, let me know, and I can help with that!
+
+
+
+
+
+
+
+```javascript
+    // =====================================================================================
+    // Move this to markupSketchDrawingToolsLogicLibrary.js
+    // - Does Any of this affect the render loop?
+    // - I was to offload the main mathematical stuff
+    // =====================================================================================
+
+    // Helper function for drawing sketchy line segments with deterministic randomness
+    function drawPenSketchStrokeSegment(context, x1, y1, x2, y2, lineWidth, color, seed) {
+        // Calculate length and direction
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const unitX = dx / length;
+        const unitY = dy / length;
+        
+        // Number of segments increases with line length
+        const segmentCount = Math.max(3, Math.min(12, Math.ceil(length / (lineWidth * 4))));
+        const segmentLength = length / segmentCount;
+        
+        // Normal vector for perpendicular deviations
+        const perpX = -unitY;
+        const perpY = unitX;
+        
+        // Draw main line with multiple segments and deliberate imperfections
+        context.beginPath();
+        context.strokeStyle = color;
+        context.lineWidth = lineWidth;
+        
+        // Start slightly off from exact corner for natural look
+        let currentX = x1 + lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed) - 0.5);
+        let currentY = y1 + lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 1) - 0.5);
+        context.moveTo(currentX, currentY);
+        
+        // Create segments with controlled randomness
+        for (let i = 1; i <= segmentCount; i++) {
+            // Target point along the line
+            const t = i / segmentCount;
+            let targetX = x1 + dx * t;
+            let targetY = y1 + dy * t;
+            
+            // Add perpendicular deviations for hand-drawn effect
+            const jitterScale = lineWidth * 0.8;
+            const perpOffset = jitterScale * (coreMathPseudoRandomValueGen(seed + i * 10) - 0.5);
+            targetX += perpX * perpOffset;
+            targetY += perpY * perpOffset;
+            
+            // For longer lines, use curves for more natural look
+            if (segmentCount > 3) {
+                // Control point between current and target
+                const controlT = (i - 0.5) / segmentCount;
+                const controlX = x1 + dx * controlT + perpX * jitterScale * (coreMathPseudoRandomValueGen(seed + i * 20) - 0.5);
+                const controlY = y1 + dy * controlT + perpY * jitterScale * (coreMathPseudoRandomValueGen(seed + i * 30) - 0.5);
+                
+                context.quadraticCurveTo(controlX, controlY, targetX, targetY);
+            } else {
+                // For shorter lines, simple lines with jitter work better
+                context.lineTo(targetX, targetY);
+            }
+            
+            currentX = targetX;
+            currentY = targetY;
+        }
+        
+        context.stroke();
+        
+        // Secondary reinforcement strokes for technical pen effect
+        if (length > lineWidth * 8) {
+            // Add a lighter reinforcement stroke along the line
+            context.beginPath();
+            context.globalAlpha = 0.5; // Increased from 0.3 to 0.5 for less transparency
+            context.lineWidth = lineWidth * 0.6;
+            
+            // Pick random section of the line to reinforce
+            const startPct = coreMathPseudoRandomValueGen(seed + 100) * 0.3; // Start in first 30%
+            const endPct = 0.7 + coreMathPseudoRandomValueGen(seed + 200) * 0.3; // End in last 30%
+            
+            const startX = x1 + dx * startPct + perpX * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 300) - 0.5);
+            const startY = y1 + dy * startPct + perpY * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 400) - 0.5);
+            const endX = x1 + dx * endPct + perpX * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 500) - 0.5);
+            const endY = y1 + dy * endPct + perpY * lineWidth * 0.1 * (coreMathPseudoRandomValueGen(seed + 600) - 0.5);
+            
+            context.moveTo(startX, startY);
+            context.lineTo(endX, endY);
+            context.stroke();
+        }
+    }
+```
+
+
+
+
+
+
+
+
+
+## DELETED FUNCTIONS 
+
+---
+
+## Draw Sketchy Line 
+
+``` javascript
+// ----------------------------------------------------
+// FUNCTION |  DRAW SKETCHY LINE
+// - Added in v1.8.5 (02-Apr-2025)
+// - Draws a sketchy straight line with handdrawn appearance
+// ----------------------------------------------------
+function drawSketchyLine(context, line) {
+if (!line.startPoint || !line.endPoint) return;
+
+context.save();
+context.translate(offsetX, offsetY);
+context.scale(zoomFactor, zoomFactor);
+context.strokeStyle = line.color;
+context.lineWidth = line.lineWidth;
+context.lineCap = 'round';
+context.lineJoin = 'round';
+
+// Ensure line has a seed for deterministic randomness
+if (!line.seed) {
+line.seed = Math.floor(Math.random() * 10000);
+}
+
+// Calculate line properties
+const x1 = line.startPoint.x;
+const y1 = line.startPoint.y;
+const x2 = line.endPoint.x;
+const y2 = line.endPoint.y;
+
+// Use the sketchy segment function for consistent style with rectangle edges
+drawPenSketchStrokeSegment(context, x1, y1, x2, y2, line.lineWidth, line.color, line.seed);
+
+context.restore();
+}
+```
+
+
+
+*MARKUP SKETCH FEATURE TOOLSET* 
+
+```Naming-Convention
+// ========================================================================
+// KEY NOTES |  Markup Sketch Feature Toolset 
+// ========================================================================
+//
+// MARKUP SKETCH OBJECT NAMING NOTES
+// - Each Sketch Element Rendered on screen uses a layered naming approach.
+// - 'Arc' Used as a basic example element, this may be interchanged with other sketch elements.
+// 
+//    drawPenSketchArcMath  =  The core immutable underlying logic.
+//    drawPenSketchArc      =  The geometric math with some variables applied adjusting its properties.
+//    renderPenSketchArc	=  A container wrapping the underlying logic for the rendering pipeline.
+//    calcDistanceToArc     =  A additional  layer over the top as a further helper for other elements.
+//
+//  e.g. Math (drawPenSketchArcMath) → Stylised Output (drawPenSketchArc) 
+//      → Canvas-Render Container (renderPenSketchArc) → Interactive Logic (calcDistanceToArc)
+//
+```
+
+
+
+
+
+
+
+
+
+```
+
+    // ## !!!!!!! THIS COULD BE USELESS CODE ##!! DOUBLE CHECK !!
+    //WHAT DOES IT DO??
+    /*************************************************************************
+     ADDITIONAL: DRAWING ALL MARKUP PATHS (INCL. ARC)
+    - Place this function wherever you keep your rendering code. 
+    - It ensures arcs are drawn in the same pass as other shapes.
+    *************************************************************************/
+
+    function drawAllMarkupPaths(context) {
+        // Go through each item in markupPaths and draw it
+        markupPaths.forEach(path => {
+            if (path.tool === 'pencil') {
+                drawSketchyPath(context, path);
+            } else if (path.tool === 'eraser') {
+                // Eraser is not typically "drawn," so may skip
+            } else if (path.tool === 'arrow') {
+                drawArrow(context, path);
+            } else if (path.tool === 'rectangle') {
+                drawSketchyRectangle(context, path);
+            } else if (path.tool === 'filled-rectangle') {
+                // same as rectangle + fill
+                drawSketchyRectangle(context, path);
+            } else if (path.tool === 'circle') {
+                drawSketchyCircle(context, path);
+            } else if (path.tool === 'line') {
+                drawSketchyLine(context, path);
+            } else if (path.tool === 'arc') {
+                renderPenSketchArc(context, path);
+            } else if (path.tool === 'text') {
+                drawSketchyText(context, path);
+            }
+        });
+    }
+
+    // ## !!!!!!! THIS COULD BE USELESS CODE ##!! DOUBLE CHECK !!
+```
+
+
+
+DRAW ARC
+
+```
+
+    /*************************************************************************
+     ADDITIONAL: ARC DRAWING EXAMPLE
+    - If you haven't defined drawArc yet, here's a simple version.
+    *************************************************************************/
+
+    function drawArc(context, arcPath) {
+        // Make sure we have start/control/end
+        if (!arcPath.startPoint || !arcPath.controlPoint || !arcPath.endPoint) return;
+        
+        context.save();
+        context.translate(offsetX, offsetY);
+        context.scale(zoomFactor, zoomFactor);
+        
+        // Style
+        context.lineWidth = arcPath.lineWidth || 2;
+        context.strokeStyle = arcPath.color || 'black';
+        context.lineCap = 'round';
+        context.lineJoin = 'round';
+
+        // Call drawPenSketchArc to create a sketchy arc
+        drawPenSketchArc(
+            context, 
+            arcPath.startPoint, 
+            arcPath.controlPoint, 
+            arcPath.endPoint,
+            arcPath.lineWidth,
+            arcPath.color,
+            arcPath.seed || Math.floor(Math.random() * 10000)
+        );
+
+        context.restore();
+    }
+```
+
+
+
+
+
+```
+    //-------------------------------------------
+    // 3) ARC TOOL - Eraser/Hit-Testing Function
+    //-------------------------------------------
+    // Finds approximate min distance between a point and a quadratic curve
+    // so your eraser and selection can detect arcs
+    function drawGeomMathDistanceToQuadraticCurve(x1, y1, cx, cy, x2, y2, px, py, steps = 50) {
+        let minDist = Infinity;
+        for (let i = 0; i <= steps; i++) {
+            let t = i / steps;
+            // Quadratic bezier param
+            let qx = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx + t * t * x2;
+            let qy = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy + t * t * y2;
+            let dx = px - qx;
+            let dy = py - qy;
+            let coreMathDistanceCalc = Math.sqrt(dx * dx + dy * dy);
+            if (coreMathDistanceCalc < minDist) minDist = coreMathDistanceCalc;
+        }
+        return minDist;
+    }
+
+```
+
+
+
+---
+
+
+
+After analyzing both files, here are the functions that could be offloaded from main.js to markupSketchDrawingToolsLogicLibrary.js following the established naming convention:
+
+1. **Rectangle Drawing Functions**:
+```javascript
+// Core Math
+function drawPenSketchRectangleMath() { /* ... */ }
+// Styled Output
+function drawPenSketchRectangle() { /* from drawSketchyRectangle */ }
+// Helper
+function calcDistanceToRectangle() { /* from hit detection logic */ }
+```
+
+2. **Circle Drawing Functions**:
+```javascript
+// Core Math
+function drawPenSketchCircleMath() { /* ... */ }
+// Styled Output
+function drawPenSketchCircle() { /* from drawSketchyCircle */ }
+// Helper
+function calcDistanceToCircle() { /* from hit detection logic */ }
+```
+
+3. **Line Drawing Functions**:
+```javascript
+// Core Math
+function drawPenSketchLineMath() { /* ... */ }
+// Styled Output
+function drawPenSketchLine() { /* from drawSketchyLine */ }
+// Helper
+function calcDistanceToLine() { /* from coreMathDistanceToLineSegment */ }
+```
+
+4. **Arrow Drawing Functions**:
+```javascript
+// Core Math
+function drawPenSketchArrowMath() { /* ... */ }
+// Styled Output
+function drawPenSketchArrow() { /* from drawArrow */ }
+// Helper
+function calcDistanceToArrow() { /* from hit detection logic */ }
+```
+
+5. **Text Drawing Functions**:
+```javascript
+// Core Math
+function drawPenSketchTextMath() { /* ... */ }
+// Styled Output
+function drawPenSketchText() { /* from drawSketchyText */ }
+// Helper
+function calcDistanceToText() { /* from hit detection logic */ }
+```
+
+These functions can be found in main.js around:
+- `drawSketchyRectangle` (lines ~2997)
+- `drawSketchyCircle` (lines ~3109)
+- `drawSketchyLine` (lines ~4649)
+- `drawArrow` (lines ~3208)
+- `drawSketchyText` (lines ~2962)
+
+The benefits of moving these to markupSketchDrawingToolsLogicLibrary.js would be:
+1. Consistent naming convention
+2. Better code organization
+3. Separation of drawing logic from main application logic
+4. Easier maintenance and testing
+5. Reduced main.js file size
+
+The rendering wrapper functions (`render*`) would stay in main.js since they handle canvas context and state management, while the core drawing logic would move to the library.
+
+Would you like me to show how to restructure any specific function following this pattern?

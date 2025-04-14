@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PNG Silhouette Tracing & DXF Export (Debug + Fallback)</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      padding: 0;
+    }
+    h1, h2, h3 {
+      margin: 10px 0 5px;
+    }
+    #canvasContainer {
+      border: 1px solid #AAA;
+      max-height: 800px; /* Limit container height */
+      overflow: auto;    /* Scroll if bigger than 800px */
+      margin-bottom: 15px;
+    }
+    canvas {
+      display: block;
+      margin: 10px auto;
+      border: 1px solid #CCC;
+    }
+    #controls {
+      margin: 15px 0;
+    }
+    #outputDXF {
+      white-space: pre;
+      background: #f9f9f9;
+      border: 1px solid #AAA;
+      padding: 10px;
+      display: none; /* Hidden by default; for debugging if needed */
+      width: 100%;
+      height: 200px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1>PNG Silhouette Tracing & DXF Export</h1>
+
+<h2>1) Upload Your PNG (With Transparency)</h2>
+<input type="file" id="fileInput" accept="image/png">
+
+<div id="canvasContainer">
+  <canvas id="previewCanvas"></canvas>
+  <canvas id="traceCanvas"></canvas>
+</div>
+
+<div id="controls">
+  <h3>Complexity (RDP Tolerance)</h3>
+  <input type="range" id="toleranceSlider" min="0" max="10" value="2" step="0.5">
+  <span id="toleranceLabel">2</span>
+  <br><br>
+  <button id="exportDXFBtn">Export DXF</button>
+</div>
+
+<pre id="outputDXF"></pre>
+
+<script>
+/*
+  Debug-friendly version:
+   - Logs key steps to the console.
+   - Fallback if entire image is fully opaque (marching squares => 0 segments).
+*/
+
+// ====== DOM ELEMENTS ======
+const fileInput = document.getElementById("fileInput");
+const previewCanvas = document.getElementById("previewCanvas");
+const traceCanvas = document.getElementById("traceCanvas");
+const toleranceSlider = document.getElementById("toleranceSlider");
+const toleranceLabel = document.getElementById("toleranceLabel");
+const exportDXFBtn = document.getElementById("exportDXFBtn");
+const outputDXF = document.getElementById("outputDXF");
+
+// Store final polygon path here
+let silhouettePath = [];
+
+// Margin around the image, so edges don't get clipped
+const MARGIN = 20;
+
+// ====== EVENT LISTENERS ======
+fileInput.addEventListener("change", handleFileUpload);
+toleranceSlider.addEventListener("input", () => {
+  toleranceLabel.textContent = toleranceSlider.value;
+  redrawTrace();
+});
+exportDXFBtn.addEventListener("click", onExportDXF);
+
+// ====== FILE HANDLING & IMAGE DRAWING ======
+function handleFileUpload() {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const img = new Image();
+    img.onload = function() {
+      console.log("DEBUG LOG: Image loaded.");
+      console.log(`Image size: ${img.width} x ${img.height}`);
+
+      // Create an offscreen canvas with margin
+      const offCanvas = document.createElement("canvas");
+      offCanvas.width = img.width + MARGIN * 2;
+      offCanvas.height = img.height + MARGIN * 2;
+      const offCtx = offCanvas.getContext("2d");
+
+      // Clear and draw image at (MARGIN, MARGIN)
+      offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+      offCtx.drawImage(img, MARGIN, MARGIN);
+
+      // Build alpha map
+      const alphaMap = buildAlphaMap(offCanvas);
+
+      // Count how many opaque pixels we have for debugging
+      let opaqueCount = 0;
+      for (let row of alphaMap) {
+        for (let val of row) {
+          if (val) opaqueCount++;
+        }
+      }
+      console.log(`DEBUG LOG: Opaque pixels: ${opaqueCount}`);
+
+      // Marching squares
+      const segments = marchingSquares(alphaMap);
+      console.log(`DEBUG LOG: Segments: ${segments.length}`);
+
+      // If segments=0, fallback to bounding box (for a fully opaque or fully empty image)
+      if (segments.length === 0 && opaqueCount > 0) {
+        silhouettePath = boundingBoxOf(alphaMap);
+        console.log("DEBUG LOG: Using fallback bounding box silhouette.");
+      } else {
+        // Otherwise, chain into a single polygon
+        silhouettePath = chainSegments(segments);
+      }
+
+      console.log(`DEBUG LOG: silhouettePath points: ${silhouettePath.length}`);
+
+      // Shift silhouette so bounding box starts at (0,0)
+      silhouettePath = shiftPathToOrigin(silhouettePath);
+
+      // Set up the preview/trace canvases
+      previewCanvas.width = offCanvas.width;
+      previewCanvas.height = offCanvas.height;
+      traceCanvas.width = offCanvas.width;
+      traceCanvas.height = offCanvas.height;
+
+      // Draw the padded image in the preview canvas
+      const previewCtx = previewCanvas.getContext("2d");
+      previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+      previewCtx.drawImage(img, MARGIN, MARGIN);
+
+      // Show the initial trace
+      redrawTrace();
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Build alpha map: 2D array [y][x], true if alpha>0
+function buildAlphaMap(canvas) {
+  const ctx = canvas.getContext("2d");
+  const { width, height } = canvas;
+  const imgData = ctx.getImageData(0, 0, width, height).data;
+  const alphaMap = [];
+  for (let y = 0; y < height; y++) {
+    alphaMap[y] = [];
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      const alpha = imgData[idx + 3];
+      alphaMap[y][x] = (alpha > 0); // true if pixel is opaque
+    }
+  }
+  return alphaMap;
+}
+
+/*
+  MARCHING SQUARES
+  ----------------
+  Each cell:
+    top-left: alphaMap[y][x]
+    top-right: alphaMap[y][x+1]
+    bottom-left: alphaMap[y+1][x]
+    bottom-right: alphaMap[y+1][x+1]
+  => 4-bit index => 0..15 => edges.
+*/
+function marchingSquares(alphaMap) {
+  const segments = [];
+  const height = alphaMap.length;
+  const width = (height > 0) ? alphaMap[0].length : 0;
+
+  for (let y = 0; y < height - 1; y++) {
+    for (let x = 0; x < width - 1; x++) {
+      const tl = alphaMap[y][x]     ? 1 : 0;
+      const tr = alphaMap[y][x+1]   ? 1 : 0;
+      const bl = alphaMap[y+1][x]   ? 1 : 0;
+      const br = alphaMap[y+1][x+1] ? 1 : 0;
+      const index = (tl << 3) | (tr << 2) | (br << 1) | bl;
+
+      // If index==0 (all corners outside) or 15 (all corners inside), no boundary
+      if (index === 0 || index === 15) continue;
+
+      // Gather edges for this cell
+      const edges = getEdges(index, x, y);
+      segments.push(...edges);
+    }
+  }
+  return segments;
+}
+
+// Return up to two line segments for the given cell
+function getEdges(index, cx, cy) {
+  // midpoints on each edge:
+  const ptTop    = [cx + 0.5, cy];
+  const ptRight  = [cx + 1, cy + 0.5];
+  const ptBottom = [cx + 0.5, cy + 1];
+  const ptLeft   = [cx, cy + 0.5];
+
+  switch (index) {
+    case 1:  return [ [ptBottom, ptLeft] ];
+    case 2:  return [ [ptRight, ptBottom] ];
+    case 3:  return [ [ptRight, ptLeft] ];
+    case 4:  return [ [ptTop, ptRight] ];
+    case 5:  return [ [ptTop, ptRight], [ptBottom, ptLeft] ];
+    case 6:  return [ [ptTop, ptBottom] ];
+    case 7:  return [ [ptTop, ptLeft] ];
+    case 8:  return [ [ptLeft, ptTop] ];
+    case 9:  return [ [ptTop, ptBottom] ];
+    case 10: return [ [ptTop, ptLeft], [ptRight, ptBottom] ];
+    case 11: return [ [ptTop, ptRight] ];
+    case 12: return [ [ptLeft, ptRight] ];
+    case 13: return [ [ptBottom, ptRight] ];
+    case 14: return [ [ptBottom, ptLeft] ];
+    default: return [];
+  }
+}
+
+/*
+  Fallback: boundingBoxOf(alphaMap)
+  ---------------------------------
+  If marching squares yields no segments, but the image has
+  opaque pixels, we'll produce a simple rectangle around the
+  opaque region as a fallback (so something is traced).
+*/
+function boundingBoxOf(alphaMap) {
+  const h = alphaMap.length;
+  if (!h) return [];
+  const w = alphaMap[0].length;
+
+  let minX = w, maxX = 0;
+  let minY = h, maxY = 0;
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (alphaMap[y][x]) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (minX > maxX || minY > maxY) {
+    // No opaque region found
+    return [];
+  }
+
+  // Rectangle path (closed)
+  return [
+    [minX, minY],
+    [maxX+1, minY],
+    [maxX+1, maxY+1],
+    [minX, maxY+1],
+    [minX, minY] // close
+  ];
+}
+
+/*
+  chainSegments: Link line segments into a single polygon.
+  If multiple polygons exist, pick the largest by perimeter.
+*/
+function chainSegments(segments) {
+  if (!segments.length) return [];
+
+  const adjacency = new Map(); // "x,y" -> array of [x2,y2]
+
+  function addEdge(a, b) {
+    const k = pointKey(a);
+    if (!adjacency.has(k)) adjacency.set(k, []);
+    adjacency.get(k).push(b);
+  }
+
+  for (let seg of segments) {
+    const [p1, p2] = seg;
+    addEdge(p1, p2);
+    addEdge(p2, p1);
+  }
+
+  const visitedEdges = new Set();
+  const polygons = [];
+
+  for (let seg of segments) {
+    const [p1, p2] = seg;
+    const eStr = edgeString(p1, p2);
+    if (visitedEdges.has(eStr)) continue;
+
+    const chain = walkPolygon(p1, adjacency, visitedEdges);
+    if (chain.length > 2) {
+      polygons.push(chain);
+    }
+  }
+
+  if (!polygons.length) return [];
+
+  // Return largest by perimeter
+  let maxLen = 0;
+  let best = [];
+  for (let poly of polygons) {
+    const perimeter = polygonPerimeter(poly);
+    if (perimeter > maxLen) {
+      maxLen = perimeter;
+      best = poly;
+    }
+  }
+  return best;
+}
+
+function walkPolygon(start, adjacency, visitedEdges) {
+  let current = start;
+  const chain = [current];
+  let prev = null;
+
+  while (true) {
+    const cKey = pointKey(current);
+    const neighbors = adjacency.get(cKey) || [];
+    let next = null;
+    for (let candidate of neighbors) {
+      if (!samePoint(candidate, prev) && !visitedEdges.has(edgeString(current, candidate))) {
+        next = candidate;
+        break;
+      }
+    }
+    if (!next) break;
+
+    visitedEdges.add(edgeString(current, next));
+    visitedEdges.add(edgeString(next, current));
+
+    chain.push(next);
+    prev = current;
+    current = next;
+    if (samePoint(current, start)) break;
+  }
+  return chain;
+}
+
+function shiftPathToOrigin(path) {
+  if (!path.length) return path;
+  let minX = Infinity, minY = Infinity;
+  for (let p of path) {
+    if (p[0] < minX) minX = p[0];
+    if (p[1] < minY) minY = p[1];
+  }
+  return path.map(pt => [pt[0] - minX, pt[1] - minY]);
+}
+
+function redrawTrace() {
+  const ctx = traceCanvas.getContext("2d");
+  ctx.clearRect(0, 0, traceCanvas.width, traceCanvas.height);
+
+  if (!silhouettePath.length) {
+    console.log("DEBUG LOG: No silhouettePath to draw.");
+    return;
+  }
+
+  const tolerance = parseFloat(toleranceSlider.value);
+  const simplified = rdpSimplify(silhouettePath, tolerance);
+  console.log(`DEBUG LOG: Simplified path length: ${simplified.length}`);
+
+  ctx.beginPath();
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 1;
+  ctx.moveTo(simplified[0][0], simplified[0][1]);
+  for (let i = 1; i < simplified.length; i++) {
+    ctx.lineTo(simplified[i][0], simplified[i][1]);
+  }
+  ctx.closePath();
+  ctx.stroke();
+
+  // Update global silhouette
+  silhouettePath = simplified;
+}
+
+function onExportDXF() {
+  if (!silhouettePath.length) {
+    alert("No silhouette traced. Please upload a PNG with transparency first.");
+    return;
+  }
+  const dxfContent = generateDXF(silhouettePath);
+  const blob = new Blob([dxfContent], { type: "application/dxf" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "silhouette.dxf";
+  link.click();
+  URL.revokeObjectURL(url);
+
+  // If you want to see raw output in the page:
+  // outputDXF.textContent = dxfContent;
+  // outputDXF.style.display = "block";
+}
+
+// === Minimal DXF generator for a single closed polyline
+function generateDXF(points) {
+  if (points.length < 2) return "";
+
+  let dxf = [];
+  dxf.push("0");
+  dxf.push("SECTION");
+  dxf.push("2");
+  dxf.push("ENTITIES");
+  dxf.push("0");
+  dxf.push("POLYLINE");
+  dxf.push("8");
+  dxf.push("0"); // layer name
+  dxf.push("66");
+  dxf.push("1"); // indicates vertex data follows
+  dxf.push("70");
+  dxf.push("1"); // 1 = closed polyline
+
+  for (let i = 0; i < points.length; i++) {
+    const [x, y] = points[i];
+    dxf.push("0");
+    dxf.push("VERTEX");
+    dxf.push("8");
+    dxf.push("0");
+    dxf.push("10");
+    dxf.push(x.toFixed(4));
+    dxf.push("20");
+    dxf.push(y.toFixed(4));
+  }
+
+  dxf.push("0");
+  dxf.push("SEQEND");
+  dxf.push("0");
+  dxf.push("ENDSEC");
+  dxf.push("0");
+  dxf.push("EOF");
+
+  return dxf.join("\n");
+}
+
+// === RDP Polygon Simplification ===
+function rdpSimplify(points, epsilon) {
+  if (points.length < 3 || epsilon <= 0) return points.slice();
+  return rdp(points, epsilon);
+}
+
+function rdp(pts, epsilon) {
+  let dmax = 0;
+  let index = 0;
+  const end = pts.length - 1;
+  for (let i = 1; i < end; i++) {
+    const d = perpendicularDist(pts[i], pts[0], pts[end]);
+    if (d > dmax) {
+      index = i;
+      dmax = d;
+    }
+  }
+  if (dmax > epsilon) {
+    const left = rdp(pts.slice(0, index+1), epsilon);
+    const right = rdp(pts.slice(index), epsilon);
+    return left.slice(0, -1).concat(right);
+  } else {
+    return [pts[0], pts[end]];
+  }
+}
+
+function perpendicularDist(c, a, b) {
+  const pa = [c[0] - a[0], c[1] - a[1]];
+  const ba = [b[0] - a[0], b[1] - a[1]];
+  const dotBA = dot(ba, ba);
+  if (dotBA < 1e-12) return dist(c, a);
+
+  const t = Math.max(0, Math.min(1, dot(pa, ba) / dotBA));
+  const proj = [a[0] + t * ba[0], a[1] + t * ba[1]];
+  return dist(c, proj);
+}
+
+function dist(a, b) {
+  const dx = a[0] - b[0];
+  const dy = a[1] - b[1];
+  return Math.sqrt(dx*dx + dy*dy);
+}
+
+function dot(a, b) {
+  return a[0]*b[0] + a[1]*b[1];
+}
+
+// === Utility ===
+function pointKey(pt) {
+  return pt.join(",");
+}
+function edgeString(a, b) {
+  return pointKey(a) + "|" + pointKey(b);
+}
+function samePoint(a, b) {
+  if (!a || !b) return false;
+  return (Math.abs(a[0] - b[0]) < 1e-9 && Math.abs(a[1] - b[1]) < 1e-9);
+}
+function polygonPerimeter(poly) {
+  let peri = 0;
+  for (let i = 0; i < poly.length - 1; i++) {
+    peri += dist(poly[i], poly[i+1]);
+  }
+  return peri;
+}
+</script>
+
+</body>
+</html>
