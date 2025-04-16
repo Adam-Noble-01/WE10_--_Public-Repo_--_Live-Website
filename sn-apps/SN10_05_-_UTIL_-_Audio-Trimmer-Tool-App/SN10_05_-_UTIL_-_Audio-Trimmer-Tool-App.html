@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Audio Trimmer V2</title>
+    <meta name="application-version" content="1.0.0">
+    <title>Audio Trimmer Utility</title>
 
     <!-- Audio Trimmer Tool
     SN10_05_-_UTIL_-_Audio-Trimmer-Tool-App
@@ -158,11 +159,28 @@
     </style>
 </head>
 <body>
+    <!-- 
+    =============================================================================================
+    HTML | APP CONTAINER & HEADER
+    - Introduced in v1.0.0
+    =============================================================================================
+    -->
     <div class="PAGE__container">
-        <div class="FULL__page-app-container">
-            <div class="MAIN__container">
-                <h1 class="HEAD__title">Simple Audio Trimmer</h1>
+        <header class="HEAD__container">
+            <nav class="HEAD__nav">
+                <span class="HEAD__title">Simple Audio Trimmer</span>
+                <span class="HEAD__version-note">v1.0.0</span>
+            </nav>
+        </header>
 
+        <div class="FULL__page-app-container">
+            <!-- 
+            =============================================================================================
+            HTML | MAIN CONTENT: Input, Buttons, Output
+            - Introduced in v1.0.0
+            =============================================================================================
+            -->
+            <div class="MAIN__container">
                 <div class="FORM__block">
                     <div class="AUDIO__dropzone">
                         <label for="file-input" class="AUDIO__file-input-label">
@@ -183,8 +201,12 @@
                         <button class="BTTN__export" id="downloadBtn" disabled>Download Trimmed MP3 (320kbps)</button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div> <!-- End MAIN__container -->
+        </div> <!-- End FULL__page-app-container -->
+
+        <footer class="FOOT__container">
+            © 2025 Noble Architecture | All Rights Reserved
+        </footer>
     </div>
 
     <script>
@@ -196,13 +218,13 @@
         let isAudioReady = false;
 
         // --- DOM Elements ---
-        const dropzone = document.getElementById('dropzone');
+        const dropzone = document.querySelector('.AUDIO__dropzone');
         const fileInput = document.getElementById('file-input');
-        const fileInputLabel = document.getElementById('file-input-label'); // Get the label
-        const waveformContainer = document.getElementById('waveform-container'); // Container div
-        const waveformDiv = document.getElementById('waveform');
-        const statusDiv = document.getElementById('status');
-        const loaderDiv = document.getElementById('loader');
+        const fileInputLabel = document.querySelector('.AUDIO__file-input-label');
+        const waveformContainer = document.querySelector('.AUDIO__waveform-container');
+        const waveformDiv = document.querySelector('.AUDIO__waveform');
+        const statusDiv = document.querySelector('.AUDIO__status');
+        const loaderDiv = document.querySelector('.AUDIO__loader');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const downloadBtn = document.getElementById('downloadBtn');
 
@@ -433,7 +455,7 @@
             if (duration <= 0) {
                  statusDiv.textContent = 'Error: Selected region has no duration.';
                  console.error("Download aborted: Invalid region duration", { start, end });
-                 return;
+                return;
             }
 
             console.log(`Starting trim process: Start=${start.toFixed(3)}s, End=${end.toFixed(3)}s, Duration=${duration.toFixed(3)}s`);
