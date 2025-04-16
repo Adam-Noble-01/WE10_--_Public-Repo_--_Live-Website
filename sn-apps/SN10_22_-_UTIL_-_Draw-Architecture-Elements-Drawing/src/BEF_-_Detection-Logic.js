@@ -33,7 +33,7 @@ const CLEANUP_TOLERANCE =            0.5;   // <- Tolerance for point deduplicat
 
 // RUNTIME VARIABLES
 let orthoBiasActive     =           false;  // <- Tracks if orthogonal bias is active
-let verboseLogging      =           false;  // <- Controls detailed console logging
+let verboseLogging      =            true;  // <- Controls detailed console logging
 
 
 // PREPROCESSING FUNCTIONS
@@ -586,8 +586,31 @@ function isPointInPolygon(point, polygon) {
 // - This EXPLICITLY iterates over what Stage 1 produced and stored in `SharedState.detectionResults`
 // - So to clarify and confirm . . . .
 //     - **The script does not revert to some raw, unfiltered data from before detection.**
-// - It works directly with the same set of contours the user sees on the “Detection Layer” preview.
+// - It works directly with the same set of contours the user sees on the "Detection Layer" preview.
+//
+// SHAPE SIMPLIFICATION MODIFIER 
+// ----------------------------------------------------------------------------------
+// - Reduces the number of vertices in detected shapes to create cleaner, more efficient geometry
+// - Preserves key corner vertices while eliminating redundant points along linear paths
+// - Values represent maximum deviation tolerance in mm from original shape
+// - Higher values (10-20mm) produce more aggressive simplification for schematic/concept drawings
+// - Lower values (1-5mm) maintain higher fidelity for detailed architectural elements
+// - Intelligently identifies and preserves architectural corners even during simplification
+// - Improves CAD software compatibility by reducing unnecessary points and file size
+// - Enhances visual clarity by producing smoother, more regular shapes
+// - Acts as the second-to-last modifier before final grid snapping
+// - Particularly useful for faceted curves which often contain unnecessary vertex density
 
+// GRID SNAPPING MODIFIER
+// ----------------------------------------------------------------------------------
+// - The final step in the pipeline is a final process that forces the vertexes of the final object to coordinates
+// - The application initially asks the user for a size input, this dictates the global units and build a grid
+// - These mm's are the grid-space referenced, when the user moves the slider this dictates the grid snapped to
+// - This feature is designed to ensure that all corner vertexes are snapped to whole numbers like would be the case
+//   in CAD Software where architecture dimensions are normally rounded to 5mm / 10mm / 20mm as dictated by the 
+//   accuracy required on the users project.
+// - CRITICAL NOTE |  This modifier should be the final pass applied to the geometry and serves as a correction.
+// - For clarity; its not designed to brute force Orthagonal alignment, instead to round vertex x / y positions.
 
 //   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 
 
@@ -609,7 +632,11 @@ function generatePolygons() {
                 const startTime = performance.now();
 
                 // 1. Get Parameters for POLYGON stage from imported elements
-                const epsilonFactor = parseFloat(SharedState.sliders.epsilon.value) / 1000.0;
+                // Update to ensure we get a small value suitable for mm
+                // Use slider value directly as mm for better user understanding 
+                const epsilonSliderValue = parseInt(SharedState.sliders.epsilon.value);
+                // The display value should be in mm for clarity
+                const epsilonMm = epsilonSliderValue / 10; // Scale to reasonable mm range (0.1mm to 10mm)
                 const snapGridSizeMm = parseInt(SharedState.sliders.snapGridSize.value);
                 const snapGridSizePixels = snapGridSizeMm > 0 ? snapGridSizeMm * SharedState.pixelsPerMm : 0; // Handle 0 grid size
                 const straightnessThreshold = parseFloat(SharedState.valueDisplays.straightnessThreshold.textContent); // Get scaled value from display
@@ -625,7 +652,14 @@ function generatePolygons() {
                 const bridgeVerticesThresholdPixels = bridgeVerticesThresholdMm * SharedState.pixelsPerMm;
                 const closeCornersThresholdMm = parseInt(SharedState.sliders.closeCornersThreshold.value);
                 const closeCornersThresholdPixels = closeCornersThresholdMm * SharedState.pixelsPerMm;
-                // No orthogonal bias parameter needed here
+                // Convert epsilon from mm to pixels for shape simplification
+                const epsilonPixels = epsilonMm * SharedState.pixelsPerMm;
+
+                if (verboseLogging) {
+                    console.log(`[Polygons] Parameters - snapGridSize: ${snapGridSizeMm}mm (${snapGridSizePixels.toFixed(2)}px), ` +
+                               `simplification: ${epsilonMm.toFixed(1)}mm (${epsilonPixels.toFixed(2)}px), straightness: ${straightnessThreshold}`);
+                    console.log(`[Polygons] Scale factor: ${SharedState.pixelsPerMm.toFixed(3)} pixels/mm`);
+                }
 
                 SharedState.polygons.length = 0; // Clear shared polygon results array
 
@@ -637,6 +671,8 @@ function generatePolygons() {
                 let confirmedElements = 0;
                 let bridgedVerticesCount = 0; // Track how many contours bridging was applied to
                 let closedCornersCount = 0; // Track how many contours corner closing was applied to
+                let snappedContourCount = 0; // Track how many contours were grid-snapped
+                let simplifiedContourCount = 0; // Track how many contours were simplified
 
                 for (const rawPoints of SharedState.detectionResults) { // Input here is potentially orthogonalized
                     if (rawPoints.length < 3) continue;
@@ -644,7 +680,6 @@ function generatePolygons() {
 
                     let contourMat = null;
                     let approx = null;
-                    let snappedMat = null;
                     let currentMat = null; // Define here for broader scope in finally
 
                     try {
@@ -684,69 +719,121 @@ function generatePolygons() {
 
                         currentMat = contourMat; // Start with the mat from points
 
-                        // --- Refinement Steps ---
-                        // 3. Snapping
-                        if (snapGridSizePixels > 0) {
-                            let snappedPoints = [];
-                            for (let j = 0; j < currentMat.rows; ++j) {
-                                const x = snapToGrid(currentMat.data32S[j * 2], snapGridSizePixels);
-                                const y = snapToGrid(currentMat.data32S[j * 2 + 1], snapGridSizePixels);
-                                // Avoid consecutive duplicates after snapping
-                                if (snappedPoints.length === 0 || Math.abs(snappedPoints[snappedPoints.length - 1].x - x) > 0.5 || Math.abs(snappedPoints[snappedPoints.length - 1].y - y) > 0.5) {
-                                    snappedPoints.push({ x: x, y: y });
-                                }
-                            }
-                             // Check if last point duplicates first after snapping and remove
-                            if (snappedPoints.length > 1 && Math.abs(snappedPoints[0].x - snappedPoints[snappedPoints.length - 1].x) < 0.5 && Math.abs(snappedPoints[0].y - snappedPoints[snappedPoints.length - 1].y) < 0.5) {
-                                snappedPoints.pop();
-                            }
-                            if (snappedPoints.length >= 3) {
-                                // Create new Mat only if snapping produced a valid shape
-                                snappedMat = new cv.Mat(snappedPoints.length, 1, cv.CV_32SC2);
-                                for (let j = 0; j < snappedPoints.length; j++) {
-                                    snappedMat.data32S[j * 2] = snappedPoints[j].x;
-                                    snappedMat.data32S[j * 2 + 1] = snappedPoints[j].y;
-                                }
-                                // Clean up the previous mat if it's different
-                                if (contourMat !== currentMat) currentMat.delete();
-                                currentMat = snappedMat; // Use the snapped Mat for simplification
-                            } else {
-                                rejectedByVertices++; continue; // Not enough points after snapping
-                            }
-                        }
-
-                        // 4. Simplification (ApproxPolyDP)
-                        const perimeter = cv.arcLength(currentMat, true);
-                        if (perimeter === 0) { rejectedByVertices++; continue; }
-
-                        approx = new cv.Mat();
-                        // Use the potentially snapped and cleaned 'currentMat'
-                        cv.approxPolyDP(currentMat, approx, epsilonFactor * perimeter, true);
-
-                        if (!approx || approx.rows < 3) {
-                            rejectedByVertices++; continue;
-                        }
-
-                        // 5. Final Filtering (Size, Straightness/Solidity)
-                        const rect = cv.boundingRect(approx);
-                        const areaPixels = cv.contourArea(approx);
-
+                        // 3. Size filtering (done directly on the contour)
+                        const rect = cv.boundingRect(currentMat);
                         if (rect.width < minWidthPixels || rect.height < minHeightPixels ||
                             rect.width > maxWidthPixels || rect.height > maxHeightPixels) {
                             rejectedBySize++; continue;
                         }
 
+                        // 4. Straightness/solidity filtering
+                        const areaPixels = cv.contourArea(currentMat);
                         const boundingBoxArea = rect.width * rect.height;
                         const solidity = boundingBoxArea > 0 ? Math.abs(areaPixels) / boundingBoxArea : 0;
                         if (solidity < straightnessThreshold) {
                             rejectedByStraightness++; continue;
                         }
 
-                        // --- Store Final Polygon (in imported polygons array) ---
-                        let finalPoints = [];
-                        for (let j = 0; j < approx.rows; ++j) {
-                            finalPoints.push({ x: approx.data32S[j * 2], y: approx.data32S[j * 2 + 1] });
+                        // Extract points after filtering for shape simplification
+                        let filteredPoints = [];
+                        for (let j = 0; j < currentMat.rows; ++j) {
+                            filteredPoints.push({ 
+                                x: currentMat.data32S[j * 2], 
+                                y: currentMat.data32S[j * 2 + 1] 
+                            });
                         }
+
+                        // 5. Shape Simplification (NEW APPROACH - right before grid snapping)
+                        // Only apply if epsilon is greater than 0 and we have enough points
+                        let finalPoints = [...filteredPoints]; // Default to filtered points
+                        
+                        if (epsilonPixels > 0 && filteredPoints.length > 3) {
+                            // Store original points for logging
+                            const preSimplifyPoints = [...filteredPoints];
+                            
+                            // NEW IMPLEMENTATION: Use a more conservative approach to simplification
+                            // that preserves important corner vertices while removing redundant points
+                            if (epsilonPixels >= 1.0) { // Only apply if epsilon is meaningful
+                                let simplifiedPoints = simplifyPolyline(filteredPoints, epsilonPixels);
+                                
+                                // Only use the simplified points if we still have enough vertices
+                                if (simplifiedPoints.length >= 3) {
+                                    finalPoints = simplifiedPoints;
+                                    simplifiedContourCount++;
+                                    
+                                    if (verboseLogging) {
+                                        // Log simplification results for monitoring
+                                        if (processedCount % 10 === 0) {
+                                            const reductionPercent = ((preSimplifyPoints.length - simplifiedPoints.length) / preSimplifyPoints.length * 100).toFixed(1);
+                                            console.log(`[Polygons] Shape simplification (element #${processedCount}): ` +
+                                                `Reduced from ${preSimplifyPoints.length} to ${simplifiedPoints.length} points (${reductionPercent}% reduction)`);
+                                            console.log(`  Epsilon: ${epsilonMm.toFixed(1)}mm (${epsilonPixels.toFixed(1)}px)`);
+                                        }
+                                    }
+                                } else {
+                                    // If simplification created too few points, revert to original points
+                                    if (verboseLogging) {
+                                        console.log(`[Polygons] Simplification rejected - would create too few points (${simplifiedPoints.length})`);
+                                    }
+                                }
+                            }
+                        }
+
+                        // 6. GRID SNAPPING AS FINAL STEP
+                        // Apply grid snapping as the very last step (after all other processing)
+                        if (snapGridSizePixels > 0 && finalPoints.length >= 3) {
+                            const preSnapPoints = [...finalPoints]; // Copy for comparison
+                            
+                            // Apply snapping to each point
+                            for (let j = 0; j < finalPoints.length; j++) {
+                                finalPoints[j].x = snapToGrid(finalPoints[j].x, snapGridSizePixels);
+                                finalPoints[j].y = snapToGrid(finalPoints[j].y, snapGridSizePixels);
+                            }
+                            
+                            // Remove duplicates that might have been created by snapping
+                            let uniquePoints = [];
+                            for (let j = 0; j < finalPoints.length; j++) {
+                                const pt = finalPoints[j];
+                                // Check if this point duplicates the previous one after snapping
+                                if (uniquePoints.length === 0 || 
+                                    Math.abs(uniquePoints[uniquePoints.length-1].x - pt.x) > 0.5 || 
+                                    Math.abs(uniquePoints[uniquePoints.length-1].y - pt.y) > 0.5) {
+                                    uniquePoints.push(pt);
+                                }
+                            }
+                            
+                            // Check if last point duplicates first after snapping and remove if needed
+                            if (uniquePoints.length > 1 && 
+                                Math.abs(uniquePoints[0].x - uniquePoints[uniquePoints.length-1].x) < 0.5 && 
+                                Math.abs(uniquePoints[0].y - uniquePoints[uniquePoints.length-1].y) < 0.5) {
+                                uniquePoints.pop();
+                            }
+                            
+                            // Only use the snapped points if we still have enough vertices
+                            if (uniquePoints.length >= 3) {
+                                finalPoints = uniquePoints;
+                                snappedContourCount++;
+                                
+                                if (verboseLogging) {
+                                    // Log a sample of how points changed
+                                    if (processedCount % 10 === 0) {
+                                        console.log(`[Polygons] Grid snapping example (element #${processedCount}):`);
+                                        const samplePoint = Math.min(2, finalPoints.length-1);
+                                        console.log(`  Before: (${preSnapPoints[samplePoint].x.toFixed(1)}, ${preSnapPoints[samplePoint].y.toFixed(1)})`);
+                                        console.log(`  After:  (${finalPoints[samplePoint].x.toFixed(1)}, ${finalPoints[samplePoint].y.toFixed(1)})`);
+                                        console.log(`  Grid size: ${snapGridSizePixels.toFixed(1)}px`);
+                                    }
+                                }
+                            } else {
+                                // If snapping created too few points (e.g., all points snapped to same location)
+                                // revert to pre-snap points
+                                finalPoints = preSnapPoints;
+                                if (verboseLogging) {
+                                    console.log(`[Polygons] Grid snapping rejected - would create too few points (${uniquePoints.length})`);
+                                }
+                            }
+                        }
+
                         // Final check on vertex count after all processing
                         if (finalPoints.length >= 3) {
                             SharedState.polygons.push(finalPoints); // Modify imported array
@@ -757,12 +844,11 @@ function generatePolygons() {
 
                     } finally {
                         // Clean up Mats created inside the loop for this contour
-                        currentMat?.delete(); // Deletes whichever Mat currentMat points to (contourMat or snappedMat)
+                        currentMat?.delete(); // Deletes whichever Mat currentMat points to
                         approx?.delete();
 
-                        // Nullify to prevent accidental reuse (optional but good practice)
+                        // Nullify to prevent accidental reuse
                         contourMat = null;
-                        snappedMat = null;
                         approx = null;
                         currentMat = null;
                     }
@@ -777,12 +863,16 @@ function generatePolygons() {
                     statusMessage = `Stage 2 Refinement complete in ${duration}s. Generated ${confirmedElements} CAD Polygons.`;
                     if (bridgedVerticesCount > 0) statusMessage += ` Applied bridging to ${bridgedVerticesCount} contours.`;
                     if (closedCornersCount > 0) statusMessage += ` Applied corner closing to ${closedCornersCount} contours.`;
+                    if (simplifiedContourCount > 0) statusMessage += ` Applied shape simplification (${epsilonMm.toFixed(1)}mm) to ${simplifiedContourCount} elements.`;
+                    if (snappedContourCount > 0) statusMessage += ` Applied grid snapping (${snapGridSizeMm}mm) to ${snappedContourCount} elements.`;
                     statusMessage += ` Rejected - Size: ${rejectedBySize}, Straightness: ${rejectedByStraightness}, Vertices: ${rejectedByVertices}.`;
                     SharedState.showStatus(statusMessage);
                 } else {
                     statusMessage = `Stage 2 Refinement complete in ${duration}s. No polygons met the final criteria. Try adjusting Polygon Manipulator settings.`;
                      if (bridgedVerticesCount > 0) statusMessage += ` Applied bridging to ${bridgedVerticesCount} contours.`;
                     if (closedCornersCount > 0) statusMessage += ` Applied corner closing to ${closedCornersCount} contours.`;
+                    if (simplifiedContourCount > 0) statusMessage += ` Shape simplification (${epsilonMm.toFixed(1)}mm) was applied to ${simplifiedContourCount} elements.`;
+                    if (snappedContourCount > 0) statusMessage += ` Grid snapping (${snapGridSizeMm}mm) was active but no final elements passed filters.`;
                     statusMessage += ` Rejected - Size: ${rejectedBySize}, Straightness: ${rejectedByStraightness}, Vertices: ${rejectedByVertices}.`;
                     SharedState.showStatus(statusMessage, false, true);
                 }
@@ -996,7 +1086,13 @@ function closeCorners(points, thresholdPixels) {
 // - Used for polygon refinement during snapping operations
 function snapToGrid(value, gridSize) {
     if (gridSize <= 0) return value;
-    return Math.round(value / gridSize) * gridSize;
+    
+    // Improved snapping function with additional validation
+    // Round to nearest grid line position
+    const snapped = Math.round(value / gridSize) * gridSize;
+    
+    // Add a small epsilon to prevent floating point errors
+    return parseFloat(snapped.toFixed(1));
 }
 // End of function
 
@@ -1014,4 +1110,164 @@ export {
 // End of module exports
 
 //   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 
+
+// NEW FUNCTION: Improved shape simplification that preserves important corners
+// ----------------------------------------------------------------------------------
+// - Uses the Douglas-Peucker algorithm approach but with better corner preservation
+// - Maintains key geometry vertices while removing redundant points along linear paths
+// - epsilon is the maximum distance (in pixels) between the original line and the simplified one
+function simplifyPolyline(points, epsilonPixels) {
+    if (points.length <= 3 || epsilonPixels <= 0) return points;
+    
+    // Limit epsilon to prevent excessive simplification
+    const maxEpsilon = 50 * SharedState.pixelsPerMm; // Max 50mm
+    epsilonPixels = Math.min(epsilonPixels, maxEpsilon);
+    
+    if (verboseLogging) {
+        console.log(`[Simplify] Starting with ${points.length} points, epsilon: ${epsilonPixels.toFixed(1)}px`);
+    }
+    
+    // Helper function to calculate squared distance from point to line segment
+    function sqDistToSegment(p, p1, p2) {
+        let x = p1.x;
+        let y = p1.y;
+        let dx = p2.x - x;
+        let dy = p2.y - y;
+        
+        if (dx !== 0 || dy !== 0) {
+            const t = ((p.x - x) * dx + (p.y - y) * dy) / (dx * dx + dy * dy);
+            
+            if (t > 1) {
+                x = p2.x;
+                y = p2.y;
+            } else if (t > 0) {
+                x += dx * t;
+                y += dy * t;
+            }
+        }
+        
+        dx = p.x - x;
+        dy = p.y - y;
+        
+        return dx * dx + dy * dy;
+    }
+    
+    // Helper function to check if a point forms a significant corner
+    function isCornerPoint(prev, curr, next) {
+        // Calculate vectors from current point to neighbors
+        const v1 = {
+            x: prev.x - curr.x,
+            y: prev.y - curr.y
+        };
+        const v2 = {
+            x: next.x - curr.x,
+            y: next.y - curr.y
+        };
+        
+        // Calculate dot product and normalize
+        const len1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+        const len2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+        
+        if (len1 > 0 && len2 > 0) {
+            const dot = (v1.x * v2.x + v1.y * v2.y) / (len1 * len2);
+            // If angle is greater than ~30 degrees, consider it a corner
+            return dot < 0.866; // cos(30°) ≈ 0.866
+        }
+        return false;
+    }
+    
+    // NON-RECURSIVE implementation of Douglas-Peucker with corner preservation
+    function simplifyDP(pointList, epsilon) {
+        const sqEpsilon = epsilon * epsilon;
+        const n = pointList.length;
+        if (n <= 2) return [...pointList]; // Need at least 3 points to simplify
+        
+        // Mark points to keep (always keep first and last)
+        const marked = new Array(n).fill(false);
+        marked[0] = marked[n-1] = true;
+        
+        // Also pre-mark corner points to preserve them
+        for (let i = 1; i < n-1; i++) {
+            if (isCornerPoint(pointList[i-1], pointList[i], pointList[i+1])) {
+                marked[i] = true;
+            }
+        }
+        
+        // Use a stack instead of recursion
+        const stack = [[0, n-1]]; // Push start and end indices
+        
+        while (stack.length > 0) {
+            const [start, end] = stack.pop();
+            
+            // Find point with max distance in this segment
+            let maxDist = 0;
+            let maxIdx = 0;
+            
+            for (let i = start + 1; i < end; i++) {
+                if (!marked[i]) { // Only consider unmarked points
+                    const dist = sqDistToSegment(pointList[i], pointList[start], pointList[end]);
+                    if (dist > maxDist) {
+                        maxDist = dist;
+                        maxIdx = i;
+                    }
+                }
+            }
+            
+            // If max distance > epsilon, mark the point and recurse
+            if (maxDist > sqEpsilon) {
+                marked[maxIdx] = true;
+                
+                // Push both segments onto stack
+                stack.push([start, maxIdx]);
+                stack.push([maxIdx, end]);
+            }
+            
+            // If stack gets too big, break to prevent issues
+            if (stack.length > 1000) {
+                console.warn("Simplification stack too large, breaking early");
+                break;
+            }
+        }
+        
+        // Create result with only marked points
+        const result = [];
+        for (let i = 0; i < n; i++) {
+            if (marked[i]) {
+                result.push(pointList[i]);
+            }
+        }
+        
+        return result;
+    }
+    
+    // Handle closed polygons (first and last points are the same)
+    const isClosed = points.length > 1 && 
+                     Math.abs(points[0].x - points[points.length-1].x) < 0.5 && 
+                     Math.abs(points[0].y - points[points.length-1].y) < 0.5;
+    
+    let result;
+    
+    if (isClosed) {
+        // For closed polygons, ensure we close the result
+        const simplified = simplifyDP(points, epsilonPixels);
+        
+        // Ensure first and last point are identical to close the polygon
+        if (simplified.length > 1 && 
+            (Math.abs(simplified[0].x - simplified[simplified.length-1].x) > 0.5 || 
+             Math.abs(simplified[0].y - simplified[simplified.length-1].y) > 0.5)) {
+            simplified.push({x: simplified[0].x, y: simplified[0].y});
+        }
+        
+        result = simplified;
+    } else {
+        // For open polylines, just apply the algorithm
+        result = simplifyDP(points, epsilonPixels);
+    }
+    
+    if (verboseLogging) {
+        console.log(`[Simplify] Finished with ${result.length} points, reduction: ${((points.length - result.length) / points.length * 100).toFixed(1)}%`);
+    }
+    
+    return result;
+}
 

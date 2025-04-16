@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Audio Trimmer V2</title>
+
+    <!-- Audio Trimmer Tool
+    SN10_05_-_UTIL_-_Audio-Trimmer-Tool-App
+    SN10_05_-_UTIL_-_Audio-Trimmer-Tool-App.html
+    Created |  l16-Apr-2025
+    -->
+
+    <!-- 1. Include WaveSurfer.js and Regions Plugin -->
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js"></script>
+
+    <!-- 2. Include LAMEjs for MP3 Encoding -->
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+
+    <style>
+        /* Basic Reset & Box Sizing */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px; /* Base font size */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f0f2f5; /* Slightly softer background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem; /* Add padding around the body */
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 1.5rem; /* Use rem for scalable padding */
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%; /* Take available width */
+            max-width: 800px; /* Max width for larger screens */
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        /* --- Dropzone / File Input --- */
+        #dropzone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 2rem 1rem; /* Adjust padding */
+            text-align: center;
+            cursor: pointer;
+            background-color: #fafafa;
+            color: #777;
+            margin-bottom: 1.5rem;
+            transition: background-color 0.2s, border-color 0.2s;
+            display: flex; /* Use flex to center content */
+            justify-content: center;
+            align-items: center;
+            min-height: 100px; /* Ensure it has some height */
+        }
+
+        #dropzone.dragover {
+            background-color: #e8f0fe; /* Subtle blue highlight */
+            border-color: #a0c4ff;
+        }
+
+        /* The label *is* the clickable area now */
+        #file-input-label {
+            display: block; /* Make label take full width */
+            cursor: pointer;
+        }
+
+        #file-input {
+            display: none; /* Keep actual input hidden */
+        }
+
+        /* --- Waveform Area --- */
+        #waveform-container {
+             width: 100%;
+             min-height: 150px; /* Minimum height before loading */
+             background-color: #eee;
+             border-radius: 4px;
+             margin-bottom: 1.5rem;
+             position: relative; /* Essential for WaveSurfer overlays */
+             overflow: hidden; /* Hide potential overflow during render */
+        }
+
+        #waveform {
+            width: 100%;
+            height: 150px; /* Explicit height for WaveSurfer */
+        }
+
+
+        /* Styling for WaveSurfer regions */
+        .wavesurfer-region {
+            background-color: rgba(0, 123, 255, 0.2) !important; /* Light blue selection */
+            z-index: 3 !important; /* Ensure region is above waveform */
+            border-left: 2px solid rgba(0, 86, 179, 0.7) !important;
+            border-right: 2px solid rgba(0, 86, 179, 0.7) !important;
+            transition: background-color 0.15s ease-in-out;
+        }
+        .wavesurfer-region:hover {
+             background-color: rgba(0, 123, 255, 0.3) !important;
+        }
+
+        .wavesurfer-handle {
+            background-color: rgba(0, 86, 179, 0.9) !important; /* Darker blue handles */
+            width: 10px !important; /* Make handles easier to grab */
+            height: 100% !important; /* Make handle full height */
+            top: 0 !important; /* Align handle to top */
+            cursor: ew-resize !important;
+            z-index: 4 !important; /* Ensure handles are above region */
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+         /* Position handles correctly (adjust based on width) */
+        .wavesurfer-handle-start::before, .wavesurfer-handle-end::before {
+            content: ''; /* Needed for positioning if using pseudo */
+        }
+        /* Simplified positioning relies on WaveSurfer defaults + width */
+
+
+        /* --- Controls --- */
+        .controls {
+            display: flex;
+            flex-direction: column; /* Stack buttons on small screens */
+            gap: 0.8rem; /* Space between buttons */
+            margin-bottom: 1rem;
+        }
+
+        /* Media query for wider screens */
+        @media (min-width: 500px) {
+            .controls {
+                flex-direction: row; /* Side-by-side on wider screens */
+                justify-content: center;
+                gap: 1rem;
+            }
+        }
+
+        button {
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.2s, opacity 0.2s;
+            opacity: 0.6; /* Start disabled visually */
+            pointer-events: none; /* Start disabled functionally */
+            text-align: center; /* Ensure text is centered */
+        }
+
+        button:not(:disabled) {
+             opacity: 1;
+             pointer-events: auto;
+        }
+
+        button:not(:disabled):hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #cccccc; /* Keep grey background when disabled */
+            cursor: not-allowed;
+        }
+
+        /* --- Status & Loader --- */
+        #status {
+            text-align: center;
+            margin-top: 0.5rem; /* Reduced top margin */
+            margin-bottom: 0.5rem;
+            color: #555;
+            min-height: 1.2em; /* Reserve space */
+            font-size: 0.9rem;
+        }
+
+        .loader {
+          border: 4px solid #f3f3f3; /* Light grey */
+          border-top: 4px solid #3498db; /* Blue */
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          animation: spin 1s linear infinite;
+          display: none; /* Hidden by default */
+          margin: 5px auto 0 auto; /* Center below status text */
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Simple Audio Trimmer</h1>
+
+        <!-- Updated Dropzone structure -->
+        <div id="dropzone">
+            <label for="file-input" id="file-input-label">
+                Drag & Drop MP3/WAV file here<br>or Click to Upload
+            </label>
+            <input type="file" id="file-input" accept=".mp3, .wav, audio/mpeg, audio/wav">
+        </div>
+
+        <!-- Container for Waveform to manage height -->
+        <div id="waveform-container">
+             <div id="waveform"></div>
+        </div>
+
+        <!-- Status and Loader -->
+        <div id="status">Please upload an audio file.</div>
+        <div class="loader" id="loader"></div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button id="playPauseBtn" disabled>Play/Pause</button>
+            <button id="downloadBtn" disabled>Download Trimmed MP3 (320kbps)</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Global Variables ---
+        let wavesurfer = null;
+        let selectedRegion = null;
+        let originalAudioBuffer = null;
+        let originalFileName = 'trimmed_audio';
+        let isAudioReady = false;
+
+        // --- DOM Elements ---
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+        const fileInputLabel = document.getElementById('file-input-label'); // Get the label
+        const waveformContainer = document.getElementById('waveform-container'); // Container div
+        const waveformDiv = document.getElementById('waveform');
+        const statusDiv = document.getElementById('status');
+        const loaderDiv = document.getElementById('loader');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // --- Initialization ---
+        function initWaveSurfer() {
+            console.log("Initializing WaveSurfer...");
+            isAudioReady = false; // Reset flag
+            updateButtonStates(); // Ensure buttons are disabled
+
+            if (wavesurfer) {
+                console.log("Destroying previous WaveSurfer instance.");
+                wavesurfer.destroy();
+                wavesurfer = null;
+                selectedRegion = null;
+                originalAudioBuffer = null;
+            }
+
+            try {
+                wavesurfer = WaveSurfer.create({
+                    container: waveformDiv,
+                    waveColor: 'rgb(200, 200, 200)',
+                    progressColor: 'rgb(100, 100, 100)',
+                    height: 150,
+                    cursorWidth: 1,
+                    cursorColor: '#333',
+                    barWidth: 3, // Slightly wider bars
+                    barGap: 2,   // Slightly wider gap
+                    responsive: true,
+                    plugins: [
+                        RegionsPlugin.create()
+                    ]
+                });
+                 console.log("WaveSurfer instance created.");
+                 setupWaveSurferEvents(); // Attach events after creation
+            } catch (error) {
+                 console.error("Error creating WaveSurfer instance:", error);
+                 statusDiv.textContent = `Error initializing audio engine: ${error.message}`;
+                 loaderDiv.style.display = 'none';
+                 updateButtonStates(); // Keep buttons disabled
+            }
+        }
+
+        // --- WaveSurfer Event Listeners ---
+        function setupWaveSurferEvents() {
+             if (!wavesurfer) return;
+
+            console.log("Setting up WaveSurfer event listeners.");
+
+            wavesurfer.on('loading', (percent) => {
+                statusDiv.textContent = `Decoding audio: ${percent}%`;
+                loaderDiv.style.display = 'block';
+                 waveformContainer.style.backgroundColor = '#eee'; // Show background while loading
+            });
+
+            wavesurfer.on('ready', () => {
+                console.log("WaveSurfer ready event fired.");
+                try {
+                    originalAudioBuffer = wavesurfer.getDecodedData();
+                    if (!originalAudioBuffer) {
+                         throw new Error("Could not get decoded audio data.");
+                    }
+                    console.log("Audio decoded. Sample rate:", originalAudioBuffer.sampleRate, "Channels:", originalAudioBuffer.numberOfChannels);
+
+                    statusDiv.textContent = 'Ready. Drag handles to select region.';
+                    loaderDiv.style.display = 'none';
+                    isAudioReady = true;
+                    waveformContainer.style.backgroundColor = 'transparent'; // Hide background
+
+                    // Clear previous regions and add a default one
+                    wavesurfer.plugins[0].clearRegions();
+                    selectedRegion = wavesurfer.plugins[0].addRegion({
+                        start: 0,
+                        end: wavesurfer.getDuration(),
+                        color: 'rgba(0, 123, 255, 0.1)',
+                        drag: true,
+                        resize: true
+                    });
+                    console.log("Default region added:", selectedRegion);
+
+                    // Event listeners for region updates
+                    wavesurfer.plugins[0].on('region-updated', handleRegionUpdate);
+                    wavesurfer.plugins[0].on('region-created', handleRegionUpdate); // Handle creation too
+
+                    updateButtonStates(); // Enable buttons now
+
+                } catch (error) {
+                     console.error("Error in WaveSurfer 'ready' handler:", error);
+                     statusDiv.textContent = `Error processing audio data: ${error.message}`;
+                     loaderDiv.style.display = 'none';
+                     isAudioReady = false;
+                     updateButtonStates();
+                }
+            });
+
+            wavesurfer.on('error', (err) => {
+                console.error('WaveSurfer error event:', err);
+                statusDiv.textContent = `Error loading audio: ${err}`;
+                loaderDiv.style.display = 'none';
+                isAudioReady = false;
+                updateButtonStates();
+                waveformContainer.style.backgroundColor = '#eee'; // Show background on error
+            });
+
+            // Playback related events
+             wavesurfer.on('play', () => playPauseBtn.textContent = 'Pause');
+             wavesurfer.on('pause', () => playPauseBtn.textContent = 'Play');
+             wavesurfer.on('finish', () => playPauseBtn.textContent = 'Play');
+
+        }
+
+        function handleRegionUpdate(region) {
+            console.log("Region updated:", region.id, "Start:", region.start, "End:", region.end);
+             selectedRegion = region;
+             // No need to call updateButtonStates here unless the region validity changes dramatically
+             // The download button state depends on isAudioReady and if selectedRegion exists and is valid (start < end)
+             // These are checked within the download handler itself for simplicity.
+        }
+
+        // --- File Handling ---
+        function handleFileSelect(file) {
+             console.log("File selected:", file.name, "Type:", file.type, "Size:", file.size);
+            if (!file) return;
+
+            // Stricter type checking
+            const fileType = file.type.toLowerCase();
+            if (fileType !== 'audio/mpeg' && fileType !== 'audio/mp3' && fileType !== 'audio/wav' && fileType !== 'audio/x-wav') {
+                statusDiv.textContent = 'Error: Please upload an MP3 or WAV file.';
+                 console.warn("Invalid file type selected:", file.type);
+                 // Clear the file input value in case the user tries the same invalid file again
+                 fileInput.value = null;
+                return;
+            }
+
+            originalFileName = file.name.replace(/\.[^/.]+$/, ""); // Store filename without extension
+            statusDiv.textContent = 'Preparing audio...';
+            loaderDiv.style.display = 'block';
+            isAudioReady = false;
+            updateButtonStates(); // Disable buttons during load
+
+            initWaveSurfer(); // Initialize or re-initialize WaveSurfer
+
+            if (wavesurfer) {
+                 console.log("Loading file into WaveSurfer...");
+                 // Use FileReader for potentially more robust loading, especially on mobile?
+                 // Though createObjectURL is standard for WaveSurfer. Let's stick with it first.
+                 const objectURL = URL.createObjectURL(file);
+                 wavesurfer.load(objectURL);
+                 // Revoke object URL later? WaveSurfer might handle it, but good practice:
+                 // wavesurfer.on('destroy', () => URL.revokeObjectURL(objectURL)); // Add this if needed
+            } else {
+                console.error("WaveSurfer instance not available for loading.");
+                 statusDiv.textContent = 'Error: Audio engine failed to initialize.';
+                 loaderDiv.style.display = 'none';
+            }
+        }
+
+        // --- Drag and Drop Events ---
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Necessary to allow drop
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault(); // Prevent browser's default file handling
+            dropzone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                handleFileSelect(files[0]);
+                 // Clear the file input value if needed (though drop doesn't use it directly)
+                 fileInput.value = null;
+            } else {
+                 console.log("Drop event occurred but no files found.");
+            }
+        });
+
+        // --- Click to Upload Event ---
+        // The <label> element itself handles triggering the input click.
+        // We only need the 'change' event listener on the input itself.
+        fileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+            // IMPORTANT: Reset the input value. This allows selecting the
+            // same file again to trigger the 'change' event.
+            e.target.value = null;
+        });
+        // REMOVED the manual JS click listener on the label to fix the double prompt issue.
+
+        // --- Control Button Actions ---
+        playPauseBtn.addEventListener('click', () => {
+            if (!wavesurfer || !isAudioReady) return;
+
+            if (selectedRegion && wavesurfer.isPlaying()) {
+                 // Check if currently playing *within* the selected region
+                 const currentTime = wavesurfer.getCurrentTime();
+                 if (currentTime >= selectedRegion.start && currentTime < selectedRegion.end) {
+                     wavesurfer.pause();
+                 } else {
+                     // If playing outside, or just want to restart region play on click
+                     wavesurfer.play(selectedRegion.start, selectedRegion.end);
+                 }
+            } else if (selectedRegion) {
+                 // Play the selected region if paused or stopped
+                  wavesurfer.play(selectedRegion.start, selectedRegion.end);
+                  // playPauseBtn.textContent = 'Pause'; // Let the 'play' event handle this
+            } else {
+                // Fallback: Play/pause the whole track if somehow no region exists (shouldn't happen)
+                wavesurfer.playPause();
+            }
+        });
+
+        downloadBtn.addEventListener('click', async () => {
+            if (!isAudioReady || !selectedRegion || !originalAudioBuffer) {
+                statusDiv.textContent = 'Error: Audio not ready or no region selected.';
+                 console.error("Download button clicked but conditions not met:", { isAudioReady, selectedRegion, originalAudioBuffer });
+                return;
+            }
+
+            const start = selectedRegion.start;
+            const end = selectedRegion.end;
+            const duration = end - start;
+
+            if (duration <= 0) {
+                 statusDiv.textContent = 'Error: Selected region has no duration.';
+                 console.error("Download aborted: Invalid region duration", { start, end });
+                 return;
+            }
+
+            console.log(`Starting trim process: Start=${start.toFixed(3)}s, End=${end.toFixed(3)}s, Duration=${duration.toFixed(3)}s`);
+            statusDiv.textContent = 'Processing: Trimming audio...';
+            loaderDiv.style.display = 'block';
+            updateButtonStates(true); // Disable buttons during processing
+
+
+            // Use a timeout to allow the UI to update before heavy processing
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            try {
+                // 1. Get the segment using OfflineAudioContext for accuracy
+                const sampleRate = originalAudioBuffer.sampleRate;
+                const channels = originalAudioBuffer.numberOfChannels;
+                const segmentLengthSamples = Math.round(duration * sampleRate);
+
+                if (segmentLengthSamples <= 0) {
+                    throw new Error("Calculated segment sample length is zero or negative.");
+                }
+                 console.log(`Using OfflineAudioContext: ${channels} channels, ${segmentLengthSamples} samples, ${sampleRate} Hz`);
+
+                 const offlineCtx = new OfflineAudioContext(channels, segmentLengthSamples, sampleRate);
+                 const source = offlineCtx.createBufferSource();
+                 source.buffer = originalAudioBuffer;
+                 source.connect(offlineCtx.destination);
+                 // Start playing the source at the 'start' time within the original buffer
+                 source.start(0, start, duration);
+
+                console.log("Rendering trimmed audio segment...");
+                const trimmedBuffer = await offlineCtx.startRendering();
+                console.log("Trimming complete. Trimmed buffer length:", trimmedBuffer.length);
+
+                // 2. Encode the trimmed buffer to MP3 using LAMEjs
+                statusDiv.textContent = 'Processing: Encoding MP3 (320kbps)...';
+                 await new Promise(resolve => setTimeout(resolve, 50)); // UI update pause
+
+                const mp3Encoder = new lamejs.Mp3Encoder(channels, sampleRate, 320); // Stereo/Mono, SR, Bitrate
+                const mp3Data = [];
+
+                // Prepare data for LAME: Convert Float32 [-1.0, 1.0] to Int16 [-32767, 32767]
+                let samplesLeft, samplesRight = null;
+                let int16SamplesLeft, int16SamplesRight = null;
+
+                samplesLeft = trimmedBuffer.getChannelData(0);
+                int16SamplesLeft = new Int16Array(samplesLeft.length);
+                for (let i = 0; i < samplesLeft.length; i++) {
+                    int16SamplesLeft[i] = Math.max(-32768, Math.min(32767, samplesLeft[i] * 32768));
+                }
+
+                if (channels > 1) {
+                    samplesRight = trimmedBuffer.getChannelData(1);
+                    int16SamplesRight = new Int16Array(samplesRight.length);
+                     for (let i = 0; i < samplesRight.length; i++) {
+                         int16SamplesRight[i] = Math.max(-32768, Math.min(32767, samplesRight[i] * 32768));
+                     }
+                }
+                 console.log(`Encoding ${int16SamplesLeft.length} samples...`);
+
+                // Encode in chunks
+                const bufferSize = 1152 * channels; // Input buffer size recommended by lamejs
+                let encodedBytes = 0;
+                for (let i = 0; i < segmentLengthSamples; i += bufferSize) {
+                    const leftChunk = int16SamplesLeft.subarray(i, Math.min(i + bufferSize, segmentLengthSamples));
+                    let rightChunk = null;
+                     if (channels > 1) {
+                         rightChunk = int16SamplesRight.subarray(i, Math.min(i + bufferSize, segmentLengthSamples));
+                     }
+
+                    // Check if chunks have data before encoding
+                    if (leftChunk.length > 0) {
+                        const mp3buf = mp3Encoder.encodeBuffer(leftChunk, rightChunk);
+                        if (mp3buf.length > 0) {
+                            mp3Data.push(mp3buf);
+                            encodedBytes += mp3buf.length;
+                        }
+                    }
+                     // Optional: Update status periodically for very long encodes
+                     // if (i % (bufferSize * 100) === 0) { // Every 100 chunks approx
+                     //     statusDiv.textContent = `Processing: Encoding MP3 (${Math.round((i / segmentLengthSamples) * 100)}%)...`;
+                     //     await new Promise(resolve => setTimeout(resolve, 10)); // Tiny pause
+                     // }
+                }
+                console.log("Flushing encoder...");
+                // Finalize encoding
+                const mp3buf = mp3Encoder.flush();
+                if (mp3buf.length > 0) {
+                    mp3Data.push(mp3buf);
+                     encodedBytes += mp3buf.length;
+                }
+                 console.log(`Encoding finished. Total MP3 bytes: ${encodedBytes}`);
+
+                // 3. Create Blob and trigger download
+                const blob = new Blob(mp3Data, { type: 'audio/mp3' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                // Construct a meaningful filename
+                 const startSeconds = Math.floor(start);
+                 const endSeconds = Math.ceil(end);
+                 a.download = `${originalFileName}_trimmed_${startSeconds}s-${endSeconds}s.mp3`;
+                document.body.appendChild(a);
+                 console.log("Triggering download for:", a.download);
+                a.click();
+
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                statusDiv.textContent = 'Trimmed MP3 downloaded!';
+
+            } catch (error) {
+                console.error('Error during trimming/encoding process:', error);
+                statusDiv.textContent = `Error during export: ${error.message}`;
+            } finally {
+                loaderDiv.style.display = 'none';
+                updateButtonStates(false); // Re-enable buttons after processing finishes or fails
+                 console.log("Trim/encode process finished.");
+            }
+        });
+
+        // --- Utility Functions ---
+        function updateButtonStates(processing = false) {
+            const enablePlay = isAudioReady && !processing;
+            const enableDownload = isAudioReady && !processing && selectedRegion && selectedRegion.end > selectedRegion.start;
+
+            playPauseBtn.disabled = !enablePlay;
+            downloadBtn.disabled = !enableDownload;
+
+            // Update opacity based on disabled state for visual feedback
+            playPauseBtn.style.opacity = enablePlay ? 1 : 0.6;
+            downloadBtn.style.opacity = enableDownload ? 1 : 0.6;
+
+             console.log("Button states updated:", { enablePlay, enableDownload, processing });
+        }
+
+        // --- Initial Page Load Setup ---
+         console.log("Page loaded. Initializing UI state.");
+         statusDiv.textContent = 'Please upload or drop an MP3 or WAV file.';
+         updateButtonStates(); // Set initial disabled state correctly
+
+    </script>
+
+</body>
+</html>

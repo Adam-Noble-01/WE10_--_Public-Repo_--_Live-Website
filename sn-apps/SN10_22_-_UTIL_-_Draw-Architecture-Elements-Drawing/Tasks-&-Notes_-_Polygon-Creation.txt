@@ -124,9 +124,7 @@ Below is a careful review of the "Stage 2: Polygon Refinement" section (the `gen
 
 
 
-#### Snapping Routine
 
--   The grid snapping uses `snapGridSizeMm` and simply `rounds()` each vertex to the nearest grid coordinate. This does not forcibly straighten lines, maintain uniform edge spacing, or unify angles. If the user expected that snapping would produce perfect rectangles or tidy geometry, that is not guaranteed.
 
 
 
@@ -228,5 +226,10 @@ Hence, the second stage is **definitely** using the updated, post-filtered detec
 -   In Stage 1 (`detectElements`), the code runs `orthogonalizeContour()`. This is presumably a big part of “structure and normalise” for architectural elements.
 -   In Stage 2, the user might assume it will further refine or “snap” shapes to orthogonal geometry. However, there is no code that systematically re-checks or re-applies a near-vertical/horizontal snap once the contour is approximated or bridged.
 -   As a result, if the user is expecting further orthogonal alignment in Stage 2, that is missing.
+
+
+#### Snapping Routine
+
+-   The grid snapping uses `snapGridSizeMm` and simply `rounds()` each vertex to the nearest grid coordinate. This does not forcibly straighten lines, maintain uniform edge spacing, or unify angles. If the user expected that snapping would produce perfect rectangles or tidy geometry, that is not guaranteed.
 ```
 

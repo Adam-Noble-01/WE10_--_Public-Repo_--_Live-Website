@@ -728,3 +728,24 @@ h3 {
     background           :    linear-gradient(to right, transparent, #ccc, transparent);
     margin               :    1rem auto 0.5rem;
 }
+
+.CTRL__Value-Display {
+    min-width: 35px;
+    text-align: right;
+    display: inline-block;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* Ensure all sliders have consistent display for values and units */
+.CTRL__Input-Row {
+    display: flex;
+    align-items: center;
+    margin: 0.5rem 0;
+}
+
+.CTRL__Input-Row span:not(.CTRL__Value-Display) {
+    margin-left: 4px;
+    min-width: 25px;
+    text-align: left;
+}

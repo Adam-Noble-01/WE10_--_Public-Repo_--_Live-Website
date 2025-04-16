@@ -183,31 +183,38 @@
                         <input type="range" id="bridgeVerticesThreshold" min="0" max="100" value="10" disabled class="CTRL__Range-Input">
                         <span id="bridgeVerticesThresholdValue" class="CTRL__Value-Display">10</span><span> mm</span>
                     </div>
-                    <div class="CTRL__Input-Row">
-                        <label for="epsilon" class="CTRL__Label" title="Controls how much detected shapes are simplified. Higher value = more simplification.">Shape Simplification:</label>
-                        <input type="range" id="epsilon" min="1" max="100" value="1" disabled class="CTRL__Range-Input">
-                        <span id="epsilonValue" class="CTRL__Value-Display">0.001</span>
-                    </div>
-                    <div class="CTRL__Input-Row">
-                        <label for="snapGridSize" class="CTRL__Label" title="Size of grid for snapping vertices (in mm). Larger values create more regular shapes.">Grid Snap Size (mm):</label>
-                        <input type="range" id="snapGridSize" min="1" max="50" value="7" disabled class="CTRL__Range-Input">
-                        <span id="snapGridSizeValue" class="CTRL__Value-Display">7</span><span> mm</span>
-                    </div>
+
+
                     <div class="CTRL__Input-Row">
                         <label for="closeCornersThreshold" class="CTRL__Label" title="Connect nearby perpendicular lines to form corners (0=off).">Close Corners (mm):</label>
                         <input type="range" id="closeCornersThreshold" min="0" max="100" value="0" disabled class="CTRL__Range-Input">
                         <span id="closeCornersThresholdValue" class="CTRL__Value-Display">0</span><span> mm</span>
                     </div>
+
+                    <div class="CTRL__Input-Row">
+                        <label for="epsilon" class="CTRL__Label" title="Controls maximum deviation allowed when simplifying shapes. Lower = more vertices, higher = fewer vertices.">Shape Simplification:</label>
+                        <input type="range" id="epsilon" min="1" max="100" value="0" disabled class="CTRL__Range-Input">
+                        <span id="epsilonValue" class="CTRL__Value-Display">0</span><span> mm</span>
+                    </div>
+
+
+                    <div class="CTRL__Input-Row">
+                        <label for="snapGridSize" class="CTRL__Label" title="Size of grid for snapping vertices (in mm). Larger values create more regular shapes.">Grid Snap Size (mm):</label>
+                        <input type="range" id="snapGridSize" min="1" max="50" value="0" disabled class="CTRL__Range-Input">
+                        <span id="snapGridSizeValue" class="CTRL__Value-Display">0</span><span> mm</span>
+                    </div>
+
                     <div class="CTRL__Input-Row">
                         <label for="minWidth" class="CTRL__Label" title="Minimum width for final polygon (in mm).">Final Min Width (mm):</label>
                         <input type="range" id="minWidth" min="0" max="1000" value="54" disabled class="CTRL__Range-Input">
-                        <span id="minWidthValue" class="CTRL__Value-Display">54</span><span> mm</span>
+                        <span id="minWidthValue" class="CTRL__Value-Display">100</span><span> mm</span>
                     </div>
                     <div class="CTRL__Input-Row">
                         <label for="minHeight" class="CTRL__Label" title="Minimum height for final polygon (in mm).">Final Min Height (mm):</label>
                         <input type="range" id="minHeight" min="0" max="1000" value="63" disabled class="CTRL__Range-Input">
                         <span id="minHeightValue" class="CTRL__Value-Display">63</span><span> mm</span>
                     </div>
+
                     <div class="CTRL__Input-Row">
                         <label for="maxWidth" class="CTRL__Label" title="Maximum width for final polygon (in mm).">Final Max Width (mm):</label>
                         <input type="range" id="maxWidth" min="100" value="544" disabled class="CTRL__Range-Input">

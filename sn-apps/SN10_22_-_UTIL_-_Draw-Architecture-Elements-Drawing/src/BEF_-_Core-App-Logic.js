@@ -542,7 +542,7 @@ function setupEventListeners() {
     // STAGE 2: Polygon Refinement Sliders (isPolygonSlider = true)
     setupSlider('straightnessThreshold', 'straightnessThresholdValue', 0.01, true);
     setupSlider('bridgeVerticesThreshold', 'bridgeVerticesThresholdValue', 1, true);
-    setupSlider('epsilon', 'epsilonValue', 0.001, true);
+    setupSlider('epsilon', 'epsilonValue', 0.1, true);
     setupSlider('snapGridSize', 'snapGridSizeValue', 1, true);
     setupSlider('closeCornersThreshold', 'closeCornersThresholdValue', 1, true);
     setupSlider('minWidth', 'minWidthValue', 1, true);
@@ -934,7 +934,8 @@ export {
 };
 
 // ===================================================================================
-// UPDATE LOG | v2.1.0 -> v3.0.0 - Module Split
+// UPDATE LOG | v1.1.0 -> v1.2.0 - Module Split
+// Updated - 15 Apr 2025
 // ===================================================================================
 //
 // - FILE SPLIT | Monolithic script split into `BEF_-_Core-App-Logic.js` (this file) and 
