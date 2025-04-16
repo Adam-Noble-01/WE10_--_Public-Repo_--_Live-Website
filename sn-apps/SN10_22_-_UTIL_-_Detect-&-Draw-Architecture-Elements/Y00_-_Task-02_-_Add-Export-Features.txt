@@ -137,7 +137,8 @@ Below is a careful review of the "Stage 2: Polygon Refinement" section (the `gen
 
 #### Overzealous Rejection Criteria
 
--   The final bounding rectangle test, area-based “straightness,” and min/max dimension checks all come together in a single pass. It is easy for a contour to fail one of these criteria and silently vanish. That can give the impression that Stage 2 does “nothing” (all shapes are thrown away).
+-   The final bounding rectangle test, area-based “straightness,” and min/max dimension checks all come together in a single pass. It is easy for a contour to fail one of these criteria and silently vanish. 
+-   This can give the impression that Stage 2 does “nothing” (all shapes are thrown away).
 
 
 
