@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DOM Viewer – PlanVision v2.0</title>
+
+  <!--
+    CSS REGION
+  -->
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 1rem;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+    }
+
+    #controls {
+      margin-bottom: 1rem;
+    }
+
+    #nestingSlider {
+      vertical-align: middle;
+      margin-left: 0.5rem;
+    }
+
+    #d3-container {
+      border: 1px solid #ccc;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      height: 80vh;
+    }
+
+    .node {
+      cursor: pointer;
+      pointer-events: all;
+    }
+
+    .node text {
+      font-size: 12px;
+      fill: #333;
+    }
+
+    .link {
+      fill: none;
+      stroke: #999;
+      stroke-opacity: 0.5;
+      stroke-width: 1.5px;
+    }
+  </style>
+
+  <!-- D3 (version 7) -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+  <!--
+    HTML REGION
+  -->
+  <h1>PlanVision DOM Viewer (v2.0)</h1>
+  <div id="controls">
+    <label for="nestingSlider">Nesting Depth:</label>
+    <input type="range" id="nestingSlider" min="1" max="20" value="20">
+  </div>
+  <div id="d3-container"></div>
+
+  <!--
+    JS REGION
+  -->
+  <script>
+    // -----------------------------
+    // Step 01: File Handling
+    // -----------------------------
+    const primaryFile = "Index_-_PlanVision-App_-_2.0.0.html";
+    const fallbackFile = "Index.html";
+    let currentFile = null;
+    let currentFileContents = null;
+
+    // -----------------------------
+    // Step 02: Fetch & Parse
+    // -----------------------------
+    function fetchFileContents(fileName) {
+      return fetch(fileName)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch: " + fileName);
+          }
+          return response.text();
+        });
+    }
+
+    function parseHTMLStringToDocument(htmlString) {
+      const parser = new DOMParser();
+      return parser.parseFromString(htmlString, "text/html");
+    }
+
+    // -----------------------------
+    // Step 03: Build Hierarchy Data
+    // -----------------------------
+    function buildHierarchyFromDOM(node) {
+      if (node.nodeType === 3) {
+        const textContent = node.textContent.trim();
+        if (!textContent) {
+          return null;
+        }
+        return {
+          name: "Text: " + textContent.substring(0, 20) + (textContent.length > 20 ? "..." : ""),
+          children: []
+        };
+      }
+
+      const childrenArray = [];
+      node.childNodes.forEach(child => {
+        const childObj = buildHierarchyFromDOM(child);
+        if (childObj) {
+          childrenArray.push(childObj);
+        }
+      });
+
+      let nodeLabel = node.tagName ? node.tagName.toLowerCase() : "unknown";
+      if (node.id) {
+        nodeLabel += "#" + node.id;
+      } else if (node.classList && node.classList.length > 0) {
+        nodeLabel += "." + Array.from(node.classList).join(".");
+      }
+
+      return {
+        name: nodeLabel,
+        children: childrenArray
+      };
+    }
+
+    function generateHierarchy(domDoc) {
+      const rootElement = domDoc.documentElement;
+      return buildHierarchyFromDOM(rootElement);
+    }
+
+    // -----------------------------
+    // Step 04: D3 Setup & Zoom
+    // -----------------------------
+    const container = d3.select("#d3-container");
+    const width = container.node().clientWidth;
+    const height = container.node().clientHeight;
+
+    const svg = container
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // Create a group that we can zoom and pan
+    const g = svg.append("g");
+
+    // Apply D3 zoom behaviour
+    const zoom = d3.zoom()
+      .scaleExtent([0.5, 5])
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform);
+      });
+
+    svg.call(zoom);
+
+    // A D3 tree layout
+    const treeLayout = d3.tree().size([height, width - 160]);
+    let root;
+
+    // -----------------------------
+    // Step 05: Colour Determination
+    // -----------------------------
+    /**
+     * Returns a colour string based on the node name or type.
+     *
+     * - Red     = HTML nodes
+     * - Blue    = CSS nodes
+     * - Yellow  = JS nodes
+     * - Green   = Image assets
+     * - Magenta = Front assets
+     */
+    function getNodeColour(d) {
+      const name = d.data.name.toLowerCase();
+
+      // Basic logic: check tags or partial match
+      if (name.includes("script")) {
+        return "#FFFF00"; // Yellow
+      } else if (name.includes("link") && name.includes("stylesheet")) {
+        return "#0000FF"; // Blue
+      } else if (name.includes("img")) {
+        return "#00FF00"; // Green
+      } else if (name.includes("link") || name.includes("meta") || name.includes("icon")) {
+        return "#FF00FF"; // Magenta
+      }
+      // Default to HTML node (red)
+      return "#FF0000";
+    }
+
+    // Collapsing function
+    function toggle(d) {
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+    }
+
+    function update(source) {
+      const treeData = treeLayout(root);
+      const nodes = treeData.descendants();
+      const links = treeData.links();
+
+      // Normalise for fixed-depth horizontally
+      nodes.forEach(d => d.y = d.depth * 180);
+
+      const node = g.selectAll("g.node")
+        .data(nodes, d => d.id || (d.id = Math.random()));
+
+      // Enter any new nodes
+      const nodeEnter = node.enter().append("g")
+        .attr("class", "node")
+        .attr("transform", () => "translate(" + source.y0 + "," + source.x0 + ")")
+        .on("click", (event, d) => {
+          toggle(d);
+          update(d);
+        });
+
+      nodeEnter.append("circle")
+        .attr("r", 4)
+        .style("fill", d => d._children ? getNodeColour(d) : getNodeColour(d));
+
+      nodeEnter.append("text")
+        .attr("dy", ".35em")
+        .attr("x", d => d.children || d._children ? -10 : 10)
+        .style("text-anchor", d => d.children || d._children ? "end" : "start")
+        .text(d => d.data.name);
+
+      // UPDATE
+      const nodeUpdate = nodeEnter.merge(node);
+      nodeUpdate.transition()
+        .duration(500)
+        .attr("transform", d => "translate(" + d.y + "," + d.x + ")");
+
+      nodeUpdate.select("circle")
+        .attr("r", 4)
+        .style("fill", d => d._children ? getNodeColour(d) : getNodeColour(d))
+        .attr("cursor", "pointer");
+
+      // Remove exiting
+      node.exit().transition()
+        .duration(500)
+        .attr("transform", () => "translate(" + source.y + "," + source.x + ")")
+        .remove()
+        .select("circle")
+        .attr("r", 0);
+
+      // LINKS
+      const link = g.selectAll("path.link")
+        .data(links, d => d.target.id);
+
+      const linkEnter = link.enter().insert("path", "g")
+        .attr("class", "link")
+        .attr("d", () => {
+          const o = {x: source.x0, y: source.y0};
+          return diagonal(o, o);
+        });
+
+      const linkUpdate = linkEnter.merge(link);
+      linkUpdate.transition()
+        .duration(500)
+        .attr("d", d => diagonal(d.source, d.target));
+
+      link.exit().transition()
+        .duration(500)
+        .attr("d", () => {
+          const o = {x: source.x, y: source.y};
+          return diagonal(o, o);
+        })
+        .remove();
+
+      // Store old positions
+      nodes.forEach(d => {
+        d.x0 = d.x;
+        d.y0 = d.y;
+      });
+
+      function diagonal(s, t) {
+        return "M" + t.y + "," + t.x
+             + "C" + (t.y + s.y) / 2 + "," + t.x
+             + " " + (t.y + s.y) / 2 + "," + s.x
+             + " " + s.y + "," + s.x;
+      }
+    }
+
+    // -----------------------------
+    // Step 06: Depth (Macro Slider)
+    // -----------------------------
+    const slider = document.getElementById("nestingSlider");
+    slider.addEventListener("input", () => {
+      const maxDepth = parseInt(slider.value, 10);
+      setDepth(root, 0, maxDepth);
+      update(root);
+    });
+
+    function setDepth(node, currentDepth, maxDepth) {
+      if (!node.children && !node._children) return;
+      if (currentDepth >= maxDepth && node.children) {
+        node._children = node.children;
+        node.children = null;
+      } else if (currentDepth < maxDepth && node._children) {
+        node.children = node._children;
+        node._children = null;
+      }
+      if (node.children) {
+        node.children.forEach(child => setDepth(child, currentDepth + 1, maxDepth));
+      }
+    }
+
+    // -----------------------------
+    // Step 07: Dynamic File Refresh
+    // -----------------------------
+    function watchFileChanges() {
+      setInterval(() => {
+        if (!currentFile) return;
+        fetchFileContents(currentFile)
+          .then(newContents => {
+            if (newContents !== currentFileContents) {
+              currentFileContents = newContents;
+              const domDoc = parseHTMLStringToDocument(currentFileContents);
+              const data = generateHierarchy(domDoc);
+              root = d3.hierarchy(data);
+              root.x0 = height / 2;
+              root.y0 = 0;
+              const maxDepth = parseInt(slider.value, 10);
+              setDepth(root, 0, maxDepth);
+              update(root);
+            }
+          })
+          .catch(() => {
+            console.log("Unable to refresh file:", currentFile);
+          });
+      }, 5000);
+    }
+
+    // -----------------------------
+    // Step 08: Initialisation
+    // -----------------------------
+    function initialise() {
+      fetchFileContents(primaryFile)
+        .then(contents => {
+          currentFile = primaryFile;
+          currentFileContents = contents;
+          const domDoc = parseHTMLStringToDocument(contents);
+          const data = generateHierarchy(domDoc);
+
+          root = d3.hierarchy(data);
+          root.x0 = height / 2;
+          root.y0 = 0;
+
+          const maxDepth = parseInt(slider.value, 10);
+          setDepth(root, 0, maxDepth);
+          update(root);
+
+          watchFileChanges();
+        })
+        .catch(() => {
+          // Attempt fallback
+          fetchFileContents(fallbackFile)
+            .then(contents => {
+              currentFile = fallbackFile;
+              currentFileContents = contents;
+              const domDoc = parseHTMLStringToDocument(contents);
+              const data = generateHierarchy(domDoc);
+
+              root = d3.hierarchy(data);
+              root.x0 = height / 2;
+              root.y0 = 0;
+
+              const maxDepth = parseInt(slider.value, 10);
+              setDepth(root, 0, maxDepth);
+              update(root);
+
+              watchFileChanges();
+            })
+            .catch(() => {
+              console.log("No Index file found – cannot load DOM structure.");
+            });
+        });
+    }
+
+    initialise();
+  </script>
+</body>
+</html>

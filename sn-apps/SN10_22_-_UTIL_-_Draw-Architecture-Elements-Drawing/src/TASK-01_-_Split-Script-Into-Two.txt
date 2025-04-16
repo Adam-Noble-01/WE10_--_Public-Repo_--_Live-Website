@@ -1,0 +1,1235 @@
+### OBJECTIVE |  I WANT TO SPLIT THE SCRIPT INTO TWO FILES
+
+- 01 Study the attached combined scrript
+- I want to sepeate the script into two files, in  order to make it easier to manage and update
+- Seperation of concerns is key to this project as it will be a complex application.
+- There is a HTML / CSS file that will be used to run the application but not relevant to this task.
+
+MAKE TWO NEW SCRIPTS
+- One containing the core logic for running the application and the UI / Events and DOM interactions
+- One containing the detection logic (The hardcore functions driving the detection of architectural elements)
+
+
+
+ROUGH OUTLINE - BEF_-_Detection-Logic.js
+
+```javascript
+/* =============================================================================
+   Image Processing and Detection Logic
+   ========================================================================== */
+
+   import {
+    canvas, ctx, pixelsPerMm, detectionResults, polygons,
+    showStatus, updateLayerVisibility, drawLayer
+} from './core.js';
+
+// --- OpenCV-specific Variables ---
+let imgInput;  // OpenCV Mat for source image
+let imgGray;   // OpenCV Mat for grayscale image
+let imgCanny;  // OpenCV Mat for Canny edges
+let contours;  // OpenCV MatVector for found contours
+let hierarchy; // OpenCV Mat for contour hierarchy
+
+// --- Image Preprocessing ---
+function preprocessImage(inputMat) {
+    // ... preprocessing implementation ...
+}
+
+// --- Stage 1: Detect Elements ---
+function detectElements() {
+    // ... detection implementation ...
+}
+
+// --- Stage 2: Generate Polygons ---
+function generatePolygons() {
+    // ... polygon generation implementation ...
+}
+
+// --- Helper Functions ---
+function snapToGrid(value, gridSize) {
+    // ... grid snapping implementation ...
+}
+
+function angleBetweenLines(line1, line2) {
+    // ... angle calculation implementation ...
+}
+
+// --- Resource Management ---
+function cleanupResources() {
+    // ... resource cleanup implementation ...
+}
+
+// Export processing functions
+export {
+    detectElements,
+    generatePolygons,
+    cleanupResources
+};
+
+```
+
+
+ROUGH OUTLINE - BEF_-_Core-App-Logic.js
+
+```javascript
+Give me a new complete script for 
+`BEF_-_Core-App-Logic.js`
+- Strip out the detection logic from the existing script
+- Keep all the UI / Events and DOM interactions
+- Keep all oroginal functionality and features 
+- Move any Variables used by the detection logic script over as module variables
+- Build a bridge fortranferring any global variables to the detection logic script (If any required)
+- Create a update log noting all changes made to the script
+- Main entrypoint for the application, HTML Links to this script will be used to run the application
+
+/* =============================================================================
+   Core Initialization and Utilities
+   ========================================================================== */
+
+// --- Global Variables ---
+let imgElement = new Image();
+let canvas;
+let ctx;
+let cvReady = false;
+let imageLoaded = false;
+let originalImageData;
+let pixelsPerMm = null;
+let showGrid = false;
+let gridSize = 10;
+
+// --- State for Two-Stage Pipeline ---
+let detectionResults = [];
+let polygons = [];
+
+// --- DOM Elements ---
+const detectBtn = document.getElementById('detectBtn');
+const generatePolygonsBtn = document.getElementById('generatePolygonsBtn');
+// ... rest of DOM element declarations ...
+
+// --- Status and Logging ---
+function showStatus(message, isError = false, isWarning = false) {
+    // ... status function implementation ...
+}
+
+function hideStatus() {
+    statusEl.style.display = 'none';
+}
+
+// --- UI Helpers ---
+function updateUISettings() {
+    // ... UI update implementation ...
+}
+
+function setupSlider(sliderId, displayId, scaleFactor = 1, isPolygonSlider = false) {
+    // ... slider setup implementation ...
+}
+
+// --- Canvas and Image Handling ---
+function initializeCanvas() {
+    // ... canvas initialization ...
+}
+
+function displayImage(imgElement) {
+    // ... image display implementation ...
+}
+
+function resetImage(updateStatus = true) {
+    // ... image reset implementation ...
+}
+
+// --- Grid Drawing ---
+function drawGrid() {
+    // ... grid drawing implementation ...
+}
+
+// --- Layer Drawing ---
+function drawLayer(pointArrays, isDetectionLayer) {
+    // ... layer drawing implementation ...
+}
+
+function updateLayerVisibility() {
+    // ... layer visibility implementation ...
+}
+
+// --- Event Listeners ---
+function setupEventListeners() {
+    // ... event listener setup ...
+}
+
+// --- Initialization ---
+function loadOpenCV() {
+    // ... OpenCV loading implementation ...
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', loadOpenCV);
+
+// Export necessary functions and variables for processing.js
+export {
+    canvas, ctx, pixelsPerMm, detectionResults, polygons,
+    showStatus, updateLayerVisibility, drawLayer
+};
+
+
+
+---------------------------------------
+
+MONOLYTHIC SCRIPT
+/* =============================================================================
+   JavaScript | Elevation Polygon Detector Application
+   - Introduced in v1.0.0 | Refactored in v2.1.0 (Two-Stage Pipeline)
+   - Core functionality for detecting architectural elements in images
+   ========================================================================== */
+
+// --- Global Variables ---
+let imgElement = new Image();
+let canvas;
+let ctx;
+let imgInput; // OpenCV Mat for source image (used temporarily in stages)
+let imgGray;  // OpenCV Mat for grayscale image (used temporarily in stages)
+let imgCanny; // OpenCV Mat for Canny edges (used temporarily in stages)
+let contours; // OpenCV MatVector for found contours (used temporarily in stages)
+let hierarchy; // OpenCV Mat for contour hierarchy (used temporarily in stages)
+// let lines;     // OpenCV Mat for Hough lines (potentially used in advanced interpolation)
+// let imgCornersClosed; // OpenCV Mat for image with closed corners drawn (potentially used in advanced interpolation)
+let cvReady = false;
+let imageLoaded = false;
+let originalImageData; // Store original canvas data for reset
+let pixelsPerMm = null; // Scaling factor (pixels per millimeter)
+let showGrid = false; // Grid overlay toggle state
+let gridSize = 10; // Default grid size in mm (adaptive)
+
+// --- State for Two-Stage Pipeline ---
+let detectionResults = []; // Stores arrays of points {x, y} from Stage 1
+let polygons = []; // Stores arrays of points {x, y} from Stage 2 (final)
+
+// --- DOM Elements ---
+const detectBtn = document.getElementById('detectBtn'); // Renamed from processBtn
+const generatePolygonsBtn = document.getElementById('generatePolygonsBtn');
+const resetBtn = document.getElementById('resetBtn');
+const imageInputEl = document.getElementById('imageInput');
+const statusEl = document.getElementById('status');
+const loadingMsgEl = document.getElementById('loadingMessage');
+const imageScaleMmInput = document.getElementById('imageScaleMm');
+const gridToggle = document.getElementById('gridToggle');
+const baseLayerToggle = document.getElementById('baseLayerToggle');
+const detectionLayerToggle = document.getElementById('detectionLayerToggle');
+const polygonLayerToggle = document.getElementById('polygonLayerToggle');
+// const advancedInterpolationToggle = document.getElementById('advancedInterpolationToggle'); // Assuming HTML exists
+
+// Caching slider and value display elements
+const sliders = {
+    // Detection Sliders
+    cannyThreshold1: document.getElementById('cannyThreshold1'),
+    cannyThreshold2: document.getElementById('cannyThreshold2'),
+    bridgeVerticesThreshold: document.getElementById('bridgeVerticesThreshold'), // Used in Stage 2 refine potentially
+    detectMinWidth: document.getElementById('detectMinWidth'),
+    detectMinHeight: document.getElementById('detectMinHeight'),
+    // Polygon Sliders
+    straightnessThreshold: document.getElementById('straightnessThreshold'), // Used in Stage 2 refine
+    epsilon: document.getElementById('epsilon'),
+    snapGridSize: document.getElementById('snapGridSize'),
+    closeCornersThreshold: document.getElementById('closeCornersThreshold'), // Used in Stage 2 refine potentially
+    minWidth: document.getElementById('minWidth'),
+    minHeight: document.getElementById('minHeight'),
+    maxWidth: document.getElementById('maxWidth'),
+    maxHeight: document.getElementById('maxHeight'),
+};
+
+const valueDisplays = {
+    cannyThreshold1: document.getElementById('cannyThreshold1Value'),
+    cannyThreshold2: document.getElementById('cannyThreshold2Value'),
+    bridgeVerticesThreshold: document.getElementById('bridgeVerticesThresholdValue'),
+    detectMinWidth: document.getElementById('detectMinWidthValue'),
+    detectMinHeight: document.getElementById('detectMinHeightValue'),
+    straightnessThreshold: document.getElementById('straightnessThresholdValue'),
+    epsilon: document.getElementById('epsilonValue'),
+    snapGridSize: document.getElementById('snapGridSizeValue'),
+    closeCornersThreshold: document.getElementById('closeCornersThresholdValue'),
+    minWidth: document.getElementById('minWidthValue'),
+    minHeight: document.getElementById('minHeightValue'),
+    maxWidth: document.getElementById('maxWidthValue'),
+    maxHeight: document.getElementById('maxHeightValue'),
+};
+
+// --- Status and Logging ---
+function showStatus(message, isError = false, isWarning = false) {
+    message = message.replace(/window pane/gi, 'architectural element');
+    message = message.replace(/pane/gi, 'element');
+    statusEl.textContent = message;
+    statusEl.className = isError ? 'error' : (isWarning ? 'warning' : '');
+    statusEl.style.display = 'block';
+    if (isError) console.error(message);
+    else if (isWarning) console.warn(message);
+    else console.log(message);
+}
+
+function hideStatus() {
+    statusEl.style.display = 'none';
+}
+
+/* =============================================================================
+   Slider and UI Helpers
+   ========================================================================== */
+function updateUISettings() {
+    Object.keys(sliders).forEach(id => {
+        const slider = sliders[id];
+        const display = valueDisplays[id];
+        if (!slider || !display) return; // Check if elements exist
+        let value = slider.value;
+        let displayValue = value;
+        if (id === 'epsilon') displayValue = (parseFloat(value) / 1000.0).toFixed(3);
+        if (id === 'straightnessThreshold') displayValue = (parseFloat(value) / 100.0).toFixed(2);
+        display.textContent = displayValue;
+    });
+}
+
+function setupSlider(sliderId, displayId, scaleFactor = 1, isPolygonSlider = false) {
+    const slider = document.getElementById(sliderId);
+    const display = document.getElementById(displayId);
+    if (!slider || !display) return; // Element check
+
+    // Initial display update
+    let initialValue = parseFloat(slider.value) * scaleFactor;
+    display.textContent = initialValue.toFixed(scaleFactor === 1 ? 0 : (scaleFactor === 0.001 ? 3 : 2)); // Adjust precision
+
+    // Update on input
+    slider.addEventListener('input', function() {
+        let value = parseFloat(this.value) * scaleFactor;
+        display.textContent = value.toFixed(scaleFactor === 1 ? 0 : (scaleFactor === 0.001 ? 3 : 2)); // Adjust precision
+
+        // Debounce processing only if the relevant stage can be re-run
+        if (imageLoaded && cvReady && pixelsPerMm) {
+            clearTimeout(window.sliderTimeout);
+            // Re-run detection if a detection slider changes
+            if (!isPolygonSlider && detectionResults.length > 0) {
+                 window.sliderTimeout = setTimeout(detectElements, 300); // Debounce detection
+            }
+            // Re-run polygon generation if a polygon slider changes AND detection results exist
+            else if (isPolygonSlider && detectionResults.length > 0 && polygons.length > 0) {
+                 window.sliderTimeout = setTimeout(generatePolygons, 300); // Debounce polygon generation
+            }
+        }
+    });
+}
+
+// --- OpenCV Loading ---
+function onOpenCvReady() {
+    cvReady = true;
+    loadingMsgEl.style.display = 'none';
+    console.log('OpenCV.js is ready');
+    initializeCanvas(); // Initialize canvas after OpenCV is ready
+    setupEventListeners();
+    updateUISettings(); // Update UI based on initial slider values
+    // Buttons remain disabled until image and scale are provided
+}
+
+function onOpenCvError() {
+    const errorMsg = 'Failed to load OpenCV.js. Please check your internet connection and reload the page.';
+    console.error(errorMsg);
+    showStatus(errorMsg, true);
+    loadingMsgEl.textContent = 'Error loading OpenCV.js!';
+    loadingMsgEl.style.color = 'red';
+}
+
+// --- Image Handling ---
+function displayImage(imgElement) {
+    if (!canvas || !ctx) {
+        console.error("Canvas not initialized before displaying image.");
+        showStatus("Error: Canvas not ready.", true);
+        return;
+    }
+    canvas.width = imgElement.naturalWidth;
+    canvas.height = imgElement.naturalHeight;
+    ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+    originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    imageLoaded = true;
+
+    // Reset state when a new image is loaded
+    showGrid = false;
+    gridToggle.checked = false;
+    gridToggle.disabled = true;
+    imageScaleMmInput.disabled = false;
+    imageScaleMmInput.value = '';
+    pixelsPerMm = null;
+    detectionResults = [];
+    polygons = [];
+
+    // Disable controls and buttons until scale is set
+    Object.values(sliders).forEach(slider => slider.disabled = true);
+    detectBtn.disabled = true;
+    generatePolygonsBtn.disabled = true;
+    resetBtn.disabled = false; // Enable reset
+    detectionLayerToggle.disabled = true;
+    detectionLayerToggle.checked = false;
+    polygonLayerToggle.disabled = true;
+    polygonLayerToggle.checked = false;
+    baseLayerToggle.disabled = false; // Base layer always available
+    baseLayerToggle.checked = true;
+
+    hideStatus();
+    showStatus('Please set the image width in mm to enable detection controls.', false, true);
+    updateLayerVisibility(); // Show only base layer
+}
+
+function resetImage(updateStatus = true) {
+    if (originalImageData && ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas first
+        ctx.putImageData(originalImageData, 0, 0);
+
+        // Redraw grid if enabled
+        if (showGrid && pixelsPerMm) {
+            drawGrid();
+        }
+
+        if (updateStatus) {
+            hideStatus();
+        }
+    }
+    // Note: Resetting the image doesn't automatically clear results or disable buttons.
+    // That logic is handled in the resetBtn event listener or when loading a new image.
+}
+
+// --- Grid Drawing ---
+function drawGrid() {
+    if (!pixelsPerMm || !showGrid || !ctx) return;
+
+    // Adaptive grid size based on image width
+    const imageWidthMm = canvas.width / pixelsPerMm;
+    if (imageWidthMm < 1000) gridSize = 10;
+    else if (imageWidthMm < 5000) gridSize = 100;
+    else gridSize = 250;
+
+    const gridSizePixels = gridSize * pixelsPerMm;
+    if (gridSizePixels <= 0) return; // Avoid infinite loops
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(0, 0, 255, 0.15)';
+    ctx.lineWidth = 0.5;
+
+    // Draw vertical lines
+    for (let x = gridSizePixels; x < canvas.width; x += gridSizePixels) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    // Draw horizontal lines
+    for (let y = gridSizePixels; y < canvas.height; y += gridSizePixels) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+    // Add grid size label
+    ctx.fillStyle = 'rgba(0, 0, 150, 0.6)';
+    ctx.font = '10px Arial';
+    const label = `${gridSize}mm grid`;
+    ctx.fillRect(5, 5, ctx.measureText(label).width + 10, 15);
+    ctx.fillStyle = 'white';
+    ctx.fillText(label, 10, 16);
+
+    ctx.restore();
+}
+
+// --- Scaling ---
+function updateScale() {
+    const scaleMm = parseFloat(imageScaleMmInput.value);
+    const minScale = 10;
+    const maxScale = 100000;
+
+    if (!imageLoaded || isNaN(scaleMm) || scaleMm < minScale || scaleMm > maxScale) {
+        showStatus(`Please enter a valid image width between ${minScale}mm and ${maxScale}mm.`, false, true);
+        pixelsPerMm = null;
+        detectBtn.disabled = true;
+        generatePolygonsBtn.disabled = true;
+        gridToggle.disabled = true;
+        Object.values(sliders).forEach(slider => slider.disabled = true);
+        // Clear results if scale becomes invalid
+        detectionResults = [];
+        polygons = [];
+        updateLayerVisibility();
+        return;
+    }
+
+    // Proceed if scale is valid
+    pixelsPerMm = canvas.width / scaleMm;
+    console.log(`Calculated scale: ${pixelsPerMm.toFixed(3)} pixels/mm`);
+
+    // Update max width/height slider limits based on current image dimensions
+    const currentImageWidthMm = canvas.width / pixelsPerMm;
+    const currentImageHeightMm = canvas.height / pixelsPerMm;
+    sliders.maxWidth.max = Math.max(100, currentImageWidthMm.toFixed(0)); // Ensure max is at least 100
+    sliders.maxHeight.max = Math.max(100, currentImageHeightMm.toFixed(0));
+
+    // Set default max values to the full image dimensions if they haven't been manually set lower
+    if (parseFloat(sliders.maxWidth.value) > parseFloat(sliders.maxWidth.max)) {
+       sliders.maxWidth.value = sliders.maxWidth.max;
+    }
+    if (parseFloat(sliders.maxHeight.value) > parseFloat(sliders.maxHeight.max)) {
+        sliders.maxHeight.value = sliders.maxHeight.max;
+    }
+    // If current max values are unset or too low, reset them.
+    if (!valueDisplays.maxWidth.textContent || parseFloat(valueDisplays.maxWidth.textContent) <= 0 || parseFloat(valueDisplays.maxWidth.textContent) > parseFloat(sliders.maxWidth.max)) {
+        sliders.maxWidth.value = sliders.maxWidth.max;
+        valueDisplays.maxWidth.textContent = sliders.maxWidth.max;
+    }
+     if (!valueDisplays.maxHeight.textContent || parseFloat(valueDisplays.maxHeight.textContent) <= 0 || parseFloat(valueDisplays.maxHeight.textContent) > parseFloat(sliders.maxHeight.max)) {
+        sliders.maxHeight.value = sliders.maxHeight.max;
+        valueDisplays.maxHeight.textContent = sliders.maxHeight.max;
+    }
+
+    // Enable controls now that scale is valid
+    detectBtn.disabled = false;
+    gridToggle.disabled = false;
+    Object.values(sliders).forEach(slider => slider.disabled = false);
+    // Keep stage 2 button disabled until stage 1 runs
+    generatePolygonsBtn.disabled = true;
+
+    // Clear previous results as scale changed
+    detectionResults = [];
+    polygons = [];
+    detectionLayerToggle.disabled = true;
+    detectionLayerToggle.checked = false;
+    polygonLayerToggle.disabled = true;
+    polygonLayerToggle.checked = false;
+
+    if (showGrid) resetImage(false); // Redraw grid with new scale if shown
+    hideStatus();
+    showStatus(`Scale set: 1mm = ${pixelsPerMm.toFixed(3)}px. Detection controls enabled.`, false, false);
+    updateLayerVisibility(); // Redraw layers
+}
+
+// --- Image Preprocessing ---
+function preprocessImage(inputMat) {
+    let gray = new cv.Mat();
+    let processed = new cv.Mat();
+    let enhanced = new cv.Mat();
+
+    try {
+        cv.cvtColor(inputMat, gray, cv.COLOR_RGBA2GRAY);
+
+        // 1. Noise Reduction (Subtle Gaussian Blur)
+        cv.GaussianBlur(gray, processed, new cv.Size(3, 3), 0, 0, cv.BORDER_DEFAULT);
+
+        // 2. Contrast Enhancement (Blend original with equalized)
+        cv.equalizeHist(processed, enhanced);
+        // Blend: Adjust weights (e.g., 0.7 original, 0.3 enhanced) for desired effect
+        cv.addWeighted(processed, 0.7, enhanced, 0.3, 0, processed);
+
+        return processed; // Return the preprocessed grayscale image
+
+    } catch (err) {
+        console.error("Error during preprocessing:", err);
+        // Return original grayscale if preprocessing fails
+        gray.copyTo(processed); // Copy gray to processed before returning
+        return processed;
+    } finally {
+        // Ensure intermediate Mats are deleted
+        gray.delete();
+        enhanced.delete();
+        // 'processed' is the return value, so it shouldn't be deleted here
+    }
+}
+
+
+
+/* 
+KEY LOGIC STAGE 01  -  Architecture Element Detector Stage
+==================================================================================================================
+
+v2.1.0 - 15 Apr 2025 |  OVERHAUL - Two-Stage Pipeline
+
+OVERHAUL DESCRIPTION
+This version implements a significant overhaul, moving from a single, complex processing function to a two-stage
+pipeline. This separation aims to improve performance, responsiveness, and user control.
+
+
+STEP 01 |  Raw Feature Detection 
+-----------------------------------------------------------
+
+- `detectElements` function
+
+- Focuses on rapidly identifying potential architectural element candidates from the input image using 
+  robust edge detection and basic filtering. 
+
+- It prioritizes speed over perfect shape definition at this point.
+
+STEP 02 |  Polygon Refinement 
+-----------------------------------------------------------
+
+- `generatePolygons` function
+
+- Takes the potential candidates from Stage 1 and applies more computationally intensive refinement 
+steps like shape simplification, grid snapping, and stricter filtering to produce cleaner, CAD-ready polygons.
+
+
+STAGE 1: DETECTION (`detectElements` function) - PROCESS FLOW:
+------------------------------------------------------------
+1.  INPUT & PARAMETERS: Reads the current image from the canvas and retrieves parameters specific to detection.
+
+2.  IMAGE PREPROCESSING (`preprocessImage` function):
+    - Converts the image to Grayscale.
+    - Applies Gaussian Blur to reduce noise that could interfere with edge detection.
+    - Enhances Contrast using Histogram Equalization blended with the original grayscale image. This helps
+      make faint architectural lines more prominent against their background, improving edge detector results.
+
+3.  CANNY EDGE DETECTION (`cv.Canny`):
+    - Identifies sharp changes in intensity (edges) in the preprocessed image. This is the core step for finding
+      outlines of windows, doors, building sections, etc.
+    - Controlled by:
+      - `cannyThreshold1` (Edge Sensitivity Low): Lower values detect more, potentially weaker or noisier, edges.
+      - `cannyThreshold2` (Edge Sensitivity High): Higher values help connect edge segments and filter initial noise.
+        Edges with intensity gradient above `cannyThreshold2` are strong edges; edges between the two thresholds
+        are kept only if connected to strong edges.
+        
+4.  MORPHOLOGICAL CLOSING (`cv.morphologyEx` - Optional):
+    - A light closing operation is applied to the Canny edges using a small kernel. This helps to close small
+      gaps in detected edge lines, potentially joining broken segments of window frames or outlines without
+      significantly altering the overall shape or adding much processing time.
+
+5.  CONTOUR FINDING (`cv.findContours`):
+    - Traces the outlines of the detected and potentially closed edges. `cv.RETR_EXTERNAL` is typically used here
+      to find only the outermost contours, simplifying the results for elements like windows.
+      
+6.  BASIC FILTERING & STORAGE:
+    - Iterates through the raw contours found.
+    - Applies a *basic* size filter based on the bounding box of each raw contour. Contours smaller than the
+      specified minimum detection size are discarded early.
+    - Controlled by:
+      - `detectMinWidth` (Minimum Width mm): Minimum width (in real-world mm) for a raw contour's bounding box.
+      - `detectMinHeight` (Minimum Height mm): Minimum height (in real-world mm) for a raw contour's bounding box.
+    - Stores the *points* of the contours that pass this basic filter into the `detectionResults` array.
+
+7.  OUTPUT & UI UPDATE:
+    - The `detectionResults` array (containing lists of points for potential elements) is the primary output.
+    - Draws these raw results onto the canvas (Detection Layer - green).
+    - Enables the "Generate CAD Polygons" button and the Detection Layer toggle.
+    - Provides status feedback to the user.
+
+WHAT STAGE 1 *DOES NOT* DO (Compared to previous monolithic approach):
+---------------------------------------------------------------------
+- NO Shape Simplification (`approxPolyDP`): Raw contours are kept. Simplification happens in Stage 2.
+- NO Grid Snapping: Vertex coordinates are not snapped to a grid here. Snapping happens in Stage 2.
+- NO Advanced Filtering (Straightness/Solidity): Only basic size filtering is applied. Stricter shape analysis
+  (like solidity checks using `straightnessThreshold`) happens in Stage 2.
+- NO Complex Interpolation (Bridging/Corner Closing): Computationally heavy steps like bridging distant vertices
+  (`bridgeVerticesThreshold`) or closing corners (`closeCornersThreshold`) are deferred to Stage 2, making Stage 1
+  significantly faster and more responsive.
+
+GOAL:
+-----
+To quickly provide the user with visual feedback on potential elements based on edge detection and minimal size
+constraints, setting the stage for more detailed refinement in the next step.
+
+================================================================================================================== */
+
+
+
+// --- Stage 1: Detect Elements ---
+function detectElements() {
+    if (!cvReady || !imageLoaded || !pixelsPerMm) {
+        showStatus('Image, OpenCV, or scale not ready. Please check setup.', true); return;
+    }
+    // Disable polygon button until this stage is done
+    generatePolygonsBtn.disabled = true;
+    polygonLayerToggle.checked = false; // Hide polygon layer
+    polygonLayerToggle.disabled = true;
+    detectBtn.disabled = true; // Disable button during processing
+    showStatus("Running Stage 1: Detection...", false, true);
+
+    // Use setTimeout to allow UI update before blocking thread
+    setTimeout(() => {
+        let tempInput = null;
+        let tempGray = null;
+        let tempCanny = null;
+        let tempContours = null;
+        let tempHierarchy = null;
+        let kernel = null;
+
+        try {
+            const startTime = performance.now();
+
+            // 1. Get Parameters for DETECTION stage
+            const cannyThreshold1 = parseInt(sliders.cannyThreshold1.value);
+            const cannyThreshold2 = parseInt(sliders.cannyThreshold2.value);
+            const minWidthMm = parseInt(sliders.detectMinWidth.value);
+            const minHeightMm = parseInt(sliders.detectMinHeight.value);
+            const minWidthPixels = minWidthMm * pixelsPerMm;
+            const minHeightPixels = minHeightMm * pixelsPerMm;
+
+            // 2. Reset Canvas and Clear Previous Results
+            // Don't cleanupResources here, do it at the end
+            resetImage(false); // Redraw base image + grid
+            detectionResults = []; // Clear previous detection results
+            polygons = []; // Clear previous polygon results
+
+            // 3. OpenCV Operations
+            tempInput = cv.imread(canvas);
+            if (!tempInput || tempInput.empty()) throw new Error('Failed to read image from canvas');
+
+            // --- PREPROCESSING ---
+            tempGray = preprocessImage(tempInput);
+            if (!tempGray || tempGray.empty()) throw new Error('Preprocessing failed');
+
+            // --- CANNY EDGE DETECTION ---
+            tempCanny = new cv.Mat();
+            cv.Canny(tempGray, tempCanny, cannyThreshold1, cannyThreshold2, 3, false); // Aperture size 3, no L2 gradient
+            if (!tempCanny || tempCanny.empty()) throw new Error('Canny edge detection failed');
+
+            // --- OPTIONAL: Minimal Morphological Closing for edges ---
+            kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(2, 2)); // Slightly smaller kernel
+            cv.morphologyEx(tempCanny, tempCanny, cv.MORPH_CLOSE, kernel, new cv.Point(-1, -1), 1);
+
+            // --- FIND CONTOURS ---
+            tempContours = new cv.MatVector();
+            tempHierarchy = new cv.Mat();
+            // RETR_EXTERNAL finds only outer contours - good for clean building outlines/windows
+            // Use RETR_LIST or RETR_CCOMP if internal details are needed at this stage
+            cv.findContours(tempCanny, tempContours, tempHierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+            let rawContourCount = tempContours.size();
+            let keptRawContours = 0;
+
+            // --- BASIC FILTERING & STORAGE ---
+            for (let i = 0; i < rawContourCount; ++i) {
+                const contour = tempContours.get(i);
+                if (!contour || contour.rows < 3) {
+                    contour?.delete(); // Delete the individual contour Mat
+                    continue;
+                }
+
+                // Basic Size Filter (using Detection Min Width/Height)
+                const rect = cv.boundingRect(contour);
+                if (rect.width < minWidthPixels || rect.height < minHeightPixels) {
+                    contour.delete();
+                    continue;
+                }
+
+                // Store the contour data as an array of points
+                 let points = [];
+                 for (let j = 0; j < contour.rows; ++j) {
+                    // Ensure data access is correct for CHAIN_APPROX_SIMPLE (int32)
+                    points.push({ x: contour.data32S[j * 2], y: contour.data32S[j * 2 + 1] });
+                 }
+                 if (points.length >= 3) {
+                    detectionResults.push(points);
+                    keptRawContours++;
+                 }
+
+                contour.delete(); // Delete the individual contour Mat
+            }
+
+            const endTime = performance.now();
+            const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+            // --- Update UI ---
+            drawDetectionLayer(); // Draw the raw results
+            detectionLayerToggle.disabled = false;
+            detectionLayerToggle.checked = true; // Show detection layer
+            if (keptRawContours > 0) {
+                generatePolygonsBtn.disabled = false; // Enable Stage 2 button
+                showStatus(`Stage 1 Detection complete in ${duration}s. Found ${keptRawContours} potential elements (out of ${rawContourCount} raw). Ready for Stage 2 Refinement.`);
+            } else {
+                showStatus(`Stage 1 Detection complete in ${duration}s. No potential elements found with current detection settings. Try adjusting Edge Sensitivity or Min Detection Size.`, false, true);
+            }
+            updateLayerVisibility(); // Ensure correct layers are visible
+
+        } catch (err) {
+            showStatus(`Error during Stage 1 Detection: ${err.message}`, true);
+            console.error("Detection Error:", err);
+            // Ensure buttons are re-enabled on error if they were disabled
+            detectBtn.disabled = !(imageLoaded && cvReady && pixelsPerMm);
+            generatePolygonsBtn.disabled = true;
+
+        } finally {
+            // --- Cleanup CV Mats used in this stage ---
+            tempInput?.delete();
+            tempGray?.delete();
+            tempCanny?.delete();
+            tempContours?.delete(); // Deletes the vector itself
+            tempHierarchy?.delete();
+            kernel?.delete();
+            // Re-enable the button after processing is complete (success or fail)
+            detectBtn.disabled = !(imageLoaded && cvReady && pixelsPerMm);
+        }
+    }, 10); // 10ms timeout
+}
+
+
+// --- Stage 2: Generate Polygons ---
+function generatePolygons() {
+    if (!cvReady || !imageLoaded || !pixelsPerMm) {
+        showStatus('Image, OpenCV, or scale not ready.', true); return;
+    }
+    if (!detectionResults || detectionResults.length === 0) {
+        showStatus('No detection results available. Run Stage 1 Detection first.', true);
+        return;
+    }
+    // let useAdvancedInterpolation = advancedInterpolationToggle.checked; // Check toggle state if implemented
+
+    generatePolygonsBtn.disabled = true; // Disable button during processing
+    showStatus("Running Stage 2: Polygon Refinement...", false, true);
+
+    // Use setTimeout to allow UI update before blocking thread
+    setTimeout(() => {
+        try {
+            const startTime = performance.now();
+
+            // 1. Get Parameters for POLYGON stage
+            const epsilonFactor = parseFloat(sliders.epsilon.value) / 1000.0; // Already scaled in setupSlider/updateUI
+            const snapGridSizeMm = parseInt(sliders.snapGridSize.value);
+            const snapGridSizePixels = snapGridSizeMm * pixelsPerMm;
+            const straightnessThreshold = parseFloat(valueDisplays.straightnessThreshold.textContent); // Get scaled value
+            const minWidthMm = parseInt(sliders.minWidth.value); // Final Min/Max
+            const minHeightMm = parseInt(sliders.minHeight.value);
+            const maxWidthMm = parseFloat(sliders.maxWidth.value);
+            const maxHeightMm = parseFloat(sliders.maxHeight.value);
+            const minWidthPixels = minWidthMm * pixelsPerMm;
+            const minHeightPixels = minHeightMm * pixelsPerMm;
+            const maxWidthPixels = maxWidthMm * pixelsPerMm;
+            const maxHeightPixels = maxHeightMm * pixelsPerMm;
+            // Parameters for potential advanced interpolation (if used)
+            // const closeCornersThresholdMm = parseInt(sliders.closeCornersThreshold.value);
+            // const closeCornersThresholdPixels = closeCornersThresholdMm * pixelsPerMm;
+            // const bridgeVerticesThresholdMm = parseInt(sliders.bridgeVerticesThreshold.value);
+            // const bridgeVerticesThresholdPixels = bridgeVerticesThresholdMm * pixelsPerMm;
+
+
+            polygons = []; // Clear previous polygon results
+
+            // --- Process Detected Contours ---
+            let processedCount = 0;
+            let rejectedBySize = 0;
+            let rejectedByStraightness = 0;
+            let rejectedByVertices = 0;
+            let confirmedElements = 0;
+
+            for (const rawPoints of detectionResults) {
+                if (rawPoints.length < 3) continue;
+                processedCount++;
+
+                let contourMat = null;
+                let approx = null;
+                let snappedMat = null; // Temporary Mat for snapped points
+
+                try {
+                    // Convert point array back to cv.Mat for processing
+                    contourMat = new cv.Mat(rawPoints.length, 1, cv.CV_32SC2);
+                    for (let j = 0; j < rawPoints.length; j++) {
+                        contourMat.data32S[j * 2] = rawPoints[j].x;
+                        contourMat.data32S[j * 2 + 1] = rawPoints[j].y;
+                    }
+
+                    let currentMat = contourMat; // Start with the original points
+
+                    // --- Refinement Steps ---
+                    // 1. Snapping (if enabled and grid size > 0)
+                    if (snapGridSizePixels > 0) {
+                        let snappedPoints = [];
+                        for (let j = 0; j < currentMat.rows; ++j) {
+                            const x = snapToGrid(currentMat.data32S[j * 2], snapGridSizePixels);
+                            const y = snapToGrid(currentMat.data32S[j * 2 + 1], snapGridSizePixels);
+                            // Avoid adding duplicate consecutive points
+                            if (snappedPoints.length === 0 || snappedPoints[snappedPoints.length - 1].x !== x || snappedPoints[snappedPoints.length - 1].y !== y) {
+                                snappedPoints.push({ x: x, y: y });
+                            }
+                        }
+                        // Remove last point if it's same as first after snapping
+                        if (snappedPoints.length > 1 && snappedPoints[0].x === snappedPoints[snappedPoints.length - 1].x && snappedPoints[0].y === snappedPoints[snappedPoints.length - 1].y) {
+                           snappedPoints.pop();
+                        }
+
+                        if (snappedPoints.length >= 3) {
+                            // Create a new Mat for snapped points
+                            snappedMat = new cv.Mat(snappedPoints.length, 1, cv.CV_32SC2);
+                            for (let j = 0; j < snappedPoints.length; j++) {
+                                snappedMat.data32S[j * 2] = snappedPoints[j].x;
+                                snappedMat.data32S[j * 2 + 1] = snappedPoints[j].y;
+                            }
+                            currentMat = snappedMat; // Use the snapped Mat for further processing
+                        } else {
+                             rejectedByVertices++; // Not enough points after snapping
+                             continue; // Skip this contour
+                        }
+                    } // End snapping
+
+                    // 2. Simplification (ApproxPolyDP)
+                    const perimeter = cv.arcLength(currentMat, true);
+                    if (perimeter === 0) { rejectedByVertices++; continue; } // Skip zero-perimeter contours
+
+                    approx = new cv.Mat();
+                    // Epsilon factor determines simplification amount
+                    cv.approxPolyDP(currentMat, approx, epsilonFactor * perimeter, true);
+
+                    if (!approx || approx.rows < 3) { // Need at least 3 vertices for a polygon
+                        rejectedByVertices++;
+                        continue; // Skip degenerate shapes
+                    }
+
+                    // 3. Final Filtering (Size, Straightness/Solidity)
+                    const rect = cv.boundingRect(approx);
+                    const areaPixels = cv.contourArea(approx);
+
+                    // Filter by FINAL Min/Max Width/Height
+                    if (rect.width < minWidthPixels || rect.height < minHeightPixels ||
+                        rect.width > maxWidthPixels || rect.height > maxHeightPixels) {
+                        rejectedBySize++;
+                        continue; // Skip this contour
+                    }
+
+                    // Filter by Straightness/Solidity
+                    const boundingBoxArea = rect.width * rect.height;
+                    const solidity = boundingBoxArea > 0 ? Math.abs(areaPixels) / boundingBoxArea : 0; // Use abs for area
+                    if (solidity < straightnessThreshold) {
+                        rejectedByStraightness++;
+                        continue; // Skip this contour
+                    }
+
+                    // --- Store Final Polygon ---
+                     let finalPoints = [];
+                     for (let j = 0; j < approx.rows; ++j) {
+                        finalPoints.push({ x: approx.data32S[j * 2], y: approx.data32S[j * 2 + 1] });
+                     }
+                     if (finalPoints.length >= 3) {
+                        polygons.push(finalPoints);
+                        confirmedElements++;
+                     } else {
+                         rejectedByVertices++;
+                     }
+
+                } finally {
+                     // Clean up Mats created inside the loop for this contour
+                     contourMat?.delete();
+                     approx?.delete();
+                     snappedMat?.delete();
+                }
+            } // End loop through detectionResults
+
+            // --- Placeholder for Advanced Interpolation ---
+            // if (useAdvancedInterpolation) {
+            //     console.warn("Advanced Interpolation (global bridging/closing) is toggled ON but not yet implemented in Stage 2.");
+            //     // This would involve:
+            //     // 1. Creating a blank canvas/Mat.
+            //     // 2. Drawing the current `polygons` onto it.
+            //     // 3. Running HoughLinesP or similar to detect lines.
+            //     // 4. Implementing bridging/closing logic (similar to original `processImage` but potentially refined).
+            //     // 5. Drawing the connecting lines onto the Mat.
+            //     // 6. Finding contours *again* on this modified Mat.
+            //     // 7. Replacing `polygons` with the results of this final findContours.
+            //     // This is complex and was likely the source of previous slowdowns.
+            // }
+
+            const endTime = performance.now();
+            const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+            // --- Update UI ---
+            drawPolygonLayer(); // Draw the refined results
+            polygonLayerToggle.disabled = false;
+            polygonLayerToggle.checked = true; // Show polygon layer
+            if (confirmedElements > 0) {
+                 showStatus(`Stage 2 Refinement complete in ${duration}s. Generated ${confirmedElements} CAD Polygons. Rejected - Size: ${rejectedBySize}, Straightness: ${rejectedByStraightness}, Vertices: ${rejectedByVertices}.`);
+            } else {
+                 showStatus(`Stage 2 Refinement complete in ${duration}s. No polygons met the final criteria. Try adjusting Polygon Manipulator settings. Rejected - Size: ${rejectedBySize}, Straightness: ${rejectedByStraightness}, Vertices: ${rejectedByVertices}.`, false, true);
+            }
+            updateLayerVisibility();
+
+        } catch (err) {
+            showStatus(`Error during Stage 2 Polygon Generation: ${err.message}`, true);
+            console.error("Polygon Generation Error:", err);
+        } finally {
+             // Re-enable the button after processing is complete (success or fail)
+             generatePolygonsBtn.disabled = !(detectionResults && detectionResults.length > 0);
+        }
+    }, 10); // 10ms timeout
+}
+
+
+// --- Drawing Helpers ---
+function drawLayer(pointArrays, isDetectionLayer) {
+    if (!pointArrays || pointArrays.length === 0 || !ctx) return;
+
+    const fillColor = isDetectionLayer ? 'rgba(0, 180, 0, 0.15)' : 'rgba(70, 130, 180, 0.2)';
+    const strokeColor = isDetectionLayer ? 'rgba(0, 180, 0, 0.8)' : 'rgba(70, 130, 180, 0.9)';
+    const lineWidth = isDetectionLayer ? 1.5 : 2;
+    const vertexFill = isDetectionLayer ? 'rgba(0, 100, 0, 0.8)' : 'rgba(0, 0, 200, 0.8)';
+    const vertexSize = isDetectionLayer ? 1.5 : 2;
+
+    ctx.save(); // Save context state
+    ctx.lineWidth = lineWidth;
+
+    for (const points of pointArrays) {
+        if (points.length < 2) continue;
+
+        ctx.fillStyle = fillColor;
+        ctx.strokeStyle = strokeColor;
+
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        // Only closePath if it's intended to be a closed polygon
+        if (points.length >= 3) {
+            ctx.closePath();
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        // Draw vertices
+        ctx.fillStyle = vertexFill;
+        for (const p of points) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, vertexSize, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+    }
+    ctx.restore(); // Restore context state
+}
+
+function drawDetectionLayer() {
+    drawLayer(detectionResults, true);
+}
+
+function drawPolygonLayer() {
+    drawLayer(polygons, false);
+    // Optional: Draw simplified labels for final polygons
+    /*
+    if (polygons && polygons.length > 0) {
+        let count = 0;
+        ctx.save();
+        ctx.font = 'bold 10px Arial';
+        ctx.fillStyle = 'rgba(0, 0, 150, 0.7)'; // Label background
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        for (const points of polygons) {
+            count++;
+            if (points.length >= 3) {
+                // Calculate centroid for label position (approx)
+                let cx = 0, cy = 0;
+                points.forEach(p => { cx += p.x; cy += p.y; });
+                cx /= points.length;
+                cy /= points.length;
+
+                const label = `E${count}`;
+                const textWidth = ctx.measureText(label).width;
+                ctx.fillRect(cx - textWidth / 2 - 2, cy - 7, textWidth + 4, 14); // Background rect
+                ctx.fillStyle = 'white';
+                ctx.fillText(label, cx, cy);
+                ctx.fillStyle = 'rgba(0, 0, 150, 0.7)'; // Reset for next background
+            }
+        }
+        ctx.restore();
+    }
+    */
+}
+
+// --- Layer visibility control ---
+function updateLayerVisibility() {
+    if (!ctx || !canvas) return; // Ensure canvas is ready
+
+    const baseVisible = baseLayerToggle.checked;
+    const detectionVisible = detectionLayerToggle.checked;
+    const polygonsVisible = polygonLayerToggle.checked;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw base image if visible
+    if (baseVisible && originalImageData) {
+        ctx.putImageData(originalImageData, 0, 0);
+        if (showGrid && pixelsPerMm) {
+            drawGrid(); // Draw grid on top of base image
+        }
+    }
+
+    // Draw detection layer if visible
+    if (detectionVisible && detectionResults && detectionResults.length > 0) {
+        drawDetectionLayer();
+    }
+
+    // Draw polygon layer if visible
+    if (polygonsVisible && polygons && polygons.length > 0) {
+        drawPolygonLayer();
+    }
+}
+
+// --- Resource Management ---
+function cleanupResources() {
+    // This function is less critical now as Mats are created/deleted within stages,
+    // but good to keep for any potentially lingering global Mats if added later.
+    try {
+        // Delete any Mats that might have been assigned globally and not cleaned up
+        imgInput?.delete(); imgInput = null;
+        imgGray?.delete(); imgGray = null;
+        imgCanny?.delete(); imgCanny = null;
+        contours?.delete(); contours = null;
+        hierarchy?.delete(); hierarchy = null;
+        // lines?.delete(); lines = null;
+        // imgCornersClosed?.delete(); imgCornersClosed = null;
+    } catch (err) {
+        console.error('Error during OpenCV resource cleanup:', err);
+    }
+}
+
+// --- Helper Functions ---
+function snapToGrid(value, gridSize) {
+    if (gridSize <= 0) return value;
+    return Math.round(value / gridSize) * gridSize;
+}
+
+// function getSnapGridSize(canvasWidthPixels, pixelsPerMm) { ... } // Keep if needed, maybe simplify or remove
+
+function angleBetweenLines(line1, line2) {
+    const dx1 = line1.p2.x - line1.p1.x;
+    const dy1 = line1.p2.y - line1.p1.y;
+    const dx2 = line2.p2.x - line2.p1.x;
+    const dy2 = line2.p2.y - line2.p1.y;
+    const mag1 = Math.hypot(dx1, dy1);
+    const mag2 = Math.hypot(dx2, dy2);
+    if (mag1 === 0 || mag2 === 0) return 0;
+    const dot = dx1 * dx2 + dy1 * dy2;
+    const cosTheta = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+    return Math.acos(cosTheta) * 180 / Math.PI;
+}
+
+function extractPointsFromContour(contour) {
+    // Kept for reference, but now using direct point array storage
+    if (!contour || contour.rows === 0) return [];
+    const points = [];
+    for (let i = 0; i < contour.rows; i++) {
+        points.push({
+            x: contour.data32S[i * 2],
+            y: contour.data32S[i * 2 + 1]
+        });
+    }
+    return points;
+}
+
+
+// --- Event Listeners Setup ---
+function setupEventListeners() {
+    // Setup sliders
+    // Detection sliders (isPolygonSlider = false)
+    setupSlider('cannyThreshold1', 'cannyThreshold1Value', 1, false);
+    setupSlider('cannyThreshold2', 'cannyThreshold2Value', 1, false);
+    setupSlider('detectMinWidth', 'detectMinWidthValue', 1, false);
+    setupSlider('detectMinHeight', 'detectMinHeightValue', 1, false);
+
+    // Polygon sliders (isPolygonSlider = true)
+    setupSlider('straightnessThreshold', 'straightnessThresholdValue', 0.01, true);
+    setupSlider('epsilon', 'epsilonValue', 0.001, true);
+    setupSlider('snapGridSize', 'snapGridSizeValue', 1, true);
+    setupSlider('minWidth', 'minWidthValue', 1, true);
+    setupSlider('minHeight', 'minHeightValue', 1, true);
+    setupSlider('maxWidth', 'maxWidthValue', 1, true);
+    setupSlider('maxHeight', 'maxHeightValue', 1, true);
+
+    // Sliders potentially for advanced interpolation (currently treated as polygon sliders)
+    setupSlider('bridgeVerticesThreshold', 'bridgeVerticesThresholdValue', 1, true);
+    setupSlider('closeCornersThreshold', 'closeCornersThresholdValue', 1, true);
+
+    // Layer visibility toggles
+    baseLayerToggle.addEventListener('change', updateLayerVisibility);
+    detectionLayerToggle.addEventListener('change', updateLayerVisibility);
+    polygonLayerToggle.addEventListener('change', updateLayerVisibility);
+    // Ensure initial state is correct
+    baseLayerToggle.disabled = true; // Disabled until image loaded
+    detectionLayerToggle.disabled = true;
+    polygonLayerToggle.disabled = true;
+
+
+    // Image Upload Listener
+    imageInputEl.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) { showStatus('No file selected.', false, true); return; }
+        if (!file.type.match('image.*')) { showStatus('Please upload an image file.', true); return; }
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            imgElement = new Image();
+            imgElement.onload = () => {
+                cleanupResources(); // Clean up any old CV resources
+                displayImage(imgElement); // Handles UI reset and enables scale input
+            };
+            imgElement.onerror = () => { showStatus('Error loading image file.', true); };
+            imgElement.src = event.target.result;
+        }
+        reader.onerror = () => { showStatus('Error reading file.', true); };
+        reader.readAsDataURL(file);
+    });
+
+    // Scale Input Listener
+    imageScaleMmInput.addEventListener('input', () => {
+        updateScale(); // Handles enabling detectBtn and resetting polygon stage if scale changes
+    });
+
+    // Button Listeners
+    detectBtn.addEventListener('click', detectElements);
+    generatePolygonsBtn.addEventListener('click', generatePolygons);
+    resetBtn.addEventListener('click', () => {
+        if (!imageLoaded) return; // Don't reset if no image
+        resetImage(true); // Redraw original image + grid
+        // Clear results and reset UI state
+        detectionResults = [];
+        polygons = [];
+        detectBtn.disabled = !pixelsPerMm; // Re-enable detect only if scale is valid
+        generatePolygonsBtn.disabled = true;
+        detectionLayerToggle.disabled = true;
+        polygonLayerToggle.disabled = true;
+        detectionLayerToggle.checked = false;
+        polygonLayerToggle.checked = false;
+        hideStatus();
+        updateLayerVisibility();
+    });
+
+    // Grid Toggle Listener
+    gridToggle.addEventListener('change', function() {
+        showGrid = this.checked;
+        // Just redraw layers, don't reprocess
+        if (imageLoaded) {
+             updateLayerVisibility();
+        }
+    });
+
+    // Global error listener
+    window.addEventListener('unhandledrejection', event => {
+         console.error('Unhandled Promise Rejection:', event.reason);
+         showStatus(`An unexpected error occurred: ${event.reason?.message || event.reason}`, true);
+    });
+
+    // Clean up OpenCV resources when the user leaves the page
+    window.addEventListener('beforeunload', cleanupResources);
+
+    // Initial UI Update
+    updateUISettings();
+}
+
+
+// --- Initialization ---
+function initializeCanvas() {
+    canvas = document.getElementById('canvasOutput');
+    if (!canvas) {
+        console.error('Canvas element not found');
+        showStatus("Error: Canvas element 'canvasOutput' not found.", true);
+        return false; // Indicate failure
+    }
+    ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Failed to get 2D canvas context');
+        showStatus("Error: Failed to get 2D context from canvas.", true);
+        return false; // Indicate failure
+    }
+    console.log('Canvas initialized successfully');
+    return true; // Indicate success
+}
+
+function loadOpenCV() {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://docs.opencv.org/4.8.0/opencv.js'; // Use a specific version
+    script.onload = onOpenCvReady;
+    script.onerror = onOpenCvError;
+    document.body.appendChild(script);
+    loadingMsgEl.textContent = 'Loading OpenCV.js (approx. 10MB)... Please wait.';
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Don't initialize canvas here, wait for OpenCV ready
+    loadOpenCV();
+});

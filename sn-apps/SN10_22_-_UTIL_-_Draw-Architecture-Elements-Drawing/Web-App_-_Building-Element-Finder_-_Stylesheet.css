@@ -1,0 +1,730 @@
+/* ================================================================================================
+/* STYLE SHEET FOR ARCHITECTURE ELEMENT SHAPE DETECTOR APPLICATION
+    FILE NAME   |  Draw-Architecture-Elements-Over-Architecture-Drawing.html
+    FILE TYPE   |  CSS
+/* ================================================================================================
+/* =============================================================================
+    CSS | Base Styles and Layout
+    - Introduced in v1.0.0 | Updated in v2.0.0
+    - Core styling for the architecture element detector application
+    ========================================================================== */
+
+/* - - - - - - - - - - - - -   Base Styles   - - - - - - - - - - - - - */
+:root {
+    --primary-color         :    #2c3e50;          /*   <-- Main text/heading color */
+    --background-color      :    #f0f0f0;          /*   <-- Page background color */
+    --card-background       :    #ffffff;          /*   <-- Panel background color */
+    --control-background    :    #f9f9f9;          /*   <-- Control elements background */
+    --border-color          :    #e0e0e0;          /*   <-- Border color for containers */
+    --disabled-color        :    #cccccc;          /*   <-- Disabled buttons/controls */
+    
+    --button-standard-bg    :    #4CAF50;          /*   <-- Standard button background */
+    --button-standard-hover :    #45a049;          /*   <-- Standard button hover */
+    --button-query-bg       :    #4a9;             /*   <-- Query button background (detection) */
+    --button-query-hover    :    #3a8;             /*   <-- Query button hover */
+    --button-export-bg      :    #49c;             /*   <-- Export button background (polygons) */
+    --button-export-hover   :    #38b;             /*   <-- Export button hover */
+    --button-cancel-bg      :    #BA5050;          /*   <-- Cancel button background */
+    --button-cancel-hover   :    #9E2D2D;          /*   <-- Cancel button hover */
+    
+    --text-color            :    #333333;          /*   <-- Main text color */
+    --text-light            :    #555555;          /*   <-- Light text for descriptions */
+    --text-muted            :    #666666;          /*   <-- Muted text for secondary info */
+}
+
+body {
+    font-family          :    'Open Sans', Arial, sans-serif;
+    max-width            :    100%;
+    margin-top           :    00.00rem;
+    margin-right         :    00.00rem;
+    margin-bottom        :    00.00rem;
+    margin-left          :    00.00rem;
+    padding-top          :    00.00rem;
+    padding-right        :    00.00rem;
+    padding-bottom       :    00.00rem;
+    padding-left         :    00.00rem;
+    background-color     :    var(--background-color);
+    overflow-x           :    hidden;
+}
+
+h1 {
+    text-align           :    center;
+    margin-top           :    00.94rem;
+    margin-bottom        :    00.94rem;
+    color                :    var(--primary-color);
+}
+
+#loadingMessage, #status {
+    max-width            :    75.00rem;
+    margin-top           :    00.63rem;
+    margin-right         :    auto;
+    margin-bottom        :    00.63rem;
+    margin-left          :    auto;
+    padding-top          :    00.63rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.63rem;
+    padding-left         :    00.94rem;
+    text-align           :    center;
+}
+
+/* - - - - - - - - - - - - -   Layout Structure   - - - - - - - - - - - - - */
+.APPL__Container {
+    display              :    flex;
+    gap                  :    01.25rem;
+    background-color     :    var(--card-background);
+    padding-top          :    00.94rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.94rem;
+    padding-left         :    00.94rem;
+    margin-top           :    00.00rem;
+    margin-right         :    auto;
+    margin-bottom        :    00.00rem;
+    margin-left          :    auto;
+    border-radius        :    00.50rem;
+    box-shadow           :    0 00.13rem 00.63rem rgba(0,0,0,0.1);
+    height               :    calc(100vh - 06.25rem);
+    max-width            :    100%;
+}
+
+.APPL__Left-Panel {
+    flex                 :    1;
+    max-width            :    50%;
+    overflow-y           :    auto;
+    padding-right        :    00.94rem;
+}
+
+.APPL__Right-Panel {
+    flex                 :    1;
+    max-width            :    50%;
+    display              :    flex;
+    flex-direction       :    column;
+    justify-content      :    flex-start;
+    align-items          :    center;
+}
+
+.APPL__Right-Panel-Heading {
+    width                :    100%;
+    text-align           :    center;
+    margin-top           :    00.00rem;
+}
+
+.APPL__Canvas {
+    width                :    100%;
+    height               :    auto;
+    border               :    00.06rem solid #ccc;
+    background-color     :    var(--card-background);
+    display              :    block;
+    box-shadow           :    0 0 00.31rem rgba(0,0,0,0.1);
+    margin-bottom        :    1rem;       /*   <-- Added margin-bottom to canvas */
+}
+
+/* =============================================================================
+    CSS | Control Elements
+    - Introduced in v1.0.0 | Updated in v2.0.0
+    - Styling for input controls and interactive elements
+    ========================================================================== */
+
+/* - - - - - - - - - - - - -   Control Containers   - - - - - - - - - - - - - */
+.CTRL__Panel, .CTRL__Scaling, .CTRL__File-Input, .CTRL__Layer-Panel {
+    background-color     :    var(--control-background);
+    padding-top          :    00.94rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.94rem;
+    padding-left         :    00.94rem;
+    border-radius        :    00.50rem;
+    border               :    00.06rem solid var(--border-color);
+    margin-bottom        :    00.94rem;
+}
+
+.CTRL__Input-Row, .CTRL__Value-Row {
+    margin-bottom        :    00.75rem;
+    display              :    flex;
+    align-items          :    center;
+    gap                  :    00.50rem;
+}
+
+.CTRL__Checkbox-Container {
+    display              :    flex;
+    align-items          :    center;
+    gap                  :    00.31rem;
+    flex-grow            :    1;
+}
+
+.CTRL__Checkbox-Text {
+    font-size            :    00.85rem;
+    color                :    var(--text-color);
+}
+
+.CTRL__Label, .CTRL__Value-Row-Label {
+    flex-basis           :    08.75rem;
+    text-align           :    right;
+    font-weight          :    bold;
+    color                :    var(--text-color);
+    font-size            :    00.90rem;
+}
+
+.CTRL__Range-Input {
+    flex-grow            :    1;
+}
+
+.CTRL__Value-Display, .CTRL__Value-Row-Display {
+    min-width            :    03.13rem;
+    text-align           :    right;
+    font-family          :    monospace;
+    background-color     :    #e9e9e9;
+    padding-top          :    00.13rem;
+    padding-right        :    00.31rem;
+    padding-bottom       :    00.13rem;
+    padding-left         :    00.31rem;
+    border-radius        :    00.19rem;
+    font-size            :    00.90rem;
+}
+
+.CTRL__Number-Input {
+    padding-top          :    00.31rem;
+    padding-right        :    00.31rem;
+    padding-bottom       :    00.31rem;
+    padding-left         :    00.31rem;
+    border               :    00.06rem solid #ccc;
+    border-radius        :    00.25rem;
+    width                :    06.25rem;
+}
+
+/* - - - - - - - - - - - - -   Buttons and Interactive Elements   - - - - - - - - - - - - - */
+.BTTN__Standard {
+    padding-top          :    00.50rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.50rem;
+    padding-left         :    00.94rem;
+    background-color     :    var(--button-standard-bg);
+    color                :    #ffffff;
+    border               :    none;
+    border-radius        :    00.31rem;
+    cursor               :    pointer;
+    margin-right         :    00.50rem;
+    font-size            :    00.95rem;
+    transition           :    background-color 0.2s ease;
+}
+
+.BTTN__Standard:hover {
+    background-color     :    var(--button-standard-hover);
+}
+
+.BTTN__Standard--disabled {
+    background-color     :    var(--disabled-color);
+    cursor               :    not-allowed;
+    opacity              :    0.7;
+}
+
+button[disabled] {
+    background-color     :    var(--disabled-color) !important;
+    cursor               :    not-allowed;
+    opacity              :    0.7;
+}
+
+.CTRL__File-Input {
+    margin-bottom        :    00.94rem;
+    padding-top          :    00.94rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.94rem;
+    padding-left         :    00.94rem;
+    background-color     :    #f0f4fa;
+    border               :    00.06rem dashed #aac;
+    border-radius        :    00.31rem;
+}
+
+.CTRL__File-Input-Text {
+    margin-top           :    00.50rem;
+    margin-right         :    00.00rem;
+    margin-bottom        :    00.00rem;
+    margin-left          :    00.00rem;
+    font-size            :    00.90rem;
+    color                :    var(--text-light);
+}
+
+.CTRL__Layer-Panel {
+    background-color     :    #f0f4fa;
+    padding-top          :    00.94rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.94rem;
+    padding-left         :    00.94rem;
+    border-radius        :    00.50rem;
+    margin-bottom        :    00.94rem;
+}
+
+.CTRL__Toggle-Container {
+    margin-bottom        :    00.31rem;
+}
+
+.CTRL__Checkbox {
+    margin-right         :    00.50rem;
+    width                :    01.00rem;
+    height               :    01.00rem;
+}
+
+.CTRL__Toggle-Label {
+    font-weight          :    bold;
+    font-size            :    00.90rem;
+}
+
+/* - - - - - - - - - - - - -   Status and Messages   - - - - - - - - - - - - - */
+#status {
+    padding-top          :    00.75rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.75rem;
+    padding-left         :    00.94rem;
+    margin-top           :    00.94rem;
+    margin-bottom        :    00.00rem;
+    border-radius        :    00.31rem;
+    font-weight          :    bold;
+    background-color     :    #fafafa;    /*   <-- Changed from green (#e0ffe0) to neutral background */
+    display              :    none;       /*   <-- Hidden by default */
+    width                :    100%;       /*   <-- Full width of parent */
+    box-sizing           :    border-box; /*   <-- Include padding in width calculation */
+}
+
+.APPL__Status-Panel {
+    height               :    35rem;   
+    overflow-y           :    auto;       /*   <-- Add scrollbar if content is too long */
+    margin-top           :    2rem;       /*   <-- Increased margin between canvas and status panel */
+    width                :    100%;
+    box-sizing           :    border-box;
+    border               :    1px solid #d0d0d0;
+    border-radius        :    00.31rem;
+    font-size            :    0.9rem;
+    line-height          :    1.4;
+    position             :    relative;   /*   <-- For absolute positioning of child elements */
+    padding-top          :    3.2rem;     /*   <-- Increased padding to prevent title overlap with content */
+    padding-left         :    0.2rem;     /*   <-- Reduced side padding to give more space to messages */
+    padding-right        :    0.2rem;
+    padding-bottom       :    1rem;
+    background-color     :    #fafafa;    /*   <-- Light background */
+    box-shadow           :    0 2px 5px rgba(0,0,0,0.1); /* Add shadow for visual separation */
+    /* Custom scrollbar for better aesthetics */
+    scrollbar-width      :    thin;
+    scrollbar-color      :    #bbb #f0f0f0;
+}
+
+/* Custom scrollbar for Webkit browsers */
+.APPL__Status-Panel::-webkit-scrollbar {
+    width                :    8px;
+}
+
+.APPL__Status-Panel::-webkit-scrollbar-track {
+    background           :    #f0f0f0;
+    border-radius        :    10px;
+}
+
+.APPL__Status-Panel::-webkit-scrollbar-thumb {
+    background-color     :    #bbb;
+    border-radius        :    10px;
+    border               :    2px solid #f0f0f0;
+}
+
+.APPL__Status-Panel::before {
+    content              :    "Status & Notifications";
+    position             :    absolute;
+    top                  :    0;
+    left                 :    0;
+    right                :    0;
+    height               :    2.5rem;     /*   <-- Increased height of the title bar */
+    background-color     :    #e0e7ef;
+    color                :    #2c3e50;
+    font-weight          :    bold;
+    display              :    flex;
+    align-items          :    center;
+    justify-content      :    center;
+    border-bottom        :    1px solid #d0d0d0;
+    border-top-left-radius: 0.3rem;
+    border-top-right-radius: 0.3rem;
+    box-shadow           :    0 1px 3px rgba(0,0,0,0.05); /* Add subtle shadow to title */
+    font-size            :    1rem;       /*   <-- Explicit font size for title */
+    z-index              :    1;          /*   <-- Ensure title stays on top */
+}
+
+/* Badge to indicate notifications count */
+.APPL__Status-Panel::after {
+    content              :    attr(data-count);
+    position             :    absolute;
+    top                  :    0.5rem;
+    right                :    1rem;
+    min-width            :    1.5rem;
+    height               :    1.5rem;
+    background-color     :    #4a9;
+    color                :    white;
+    font-size            :    0.8rem;
+    font-weight          :    bold;
+    border-radius        :    1rem;
+    display              :    flex;
+    align-items          :    center;
+    justify-content      :    center;
+    opacity              :    0.9;
+    box-shadow           :    0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Style for individual status messages */
+.status-message {
+    padding              :    0.75rem 1rem;    /*   <-- Increased horizontal padding for better readability */
+    margin-bottom        :    0.5rem;     /*   <-- Increased margin between messages */
+    border-radius        :    0.2rem;
+    box-shadow           :    0 1px 2px rgba(0,0,0,0.05); /* Add subtle shadow to messages */
+    word-wrap            :    break-word; /* Ensure long text wraps properly */
+    line-height          :    1.5;        /* Improved line height for better readability */
+    width                :    100%;       /* Ensure full width */
+    box-sizing           :    border-box; /* Include padding in width calculation */
+}
+
+/* Error message styling */
+.status-message.error {
+    background-color     :    rgba(255, 200, 200, 0.3);
+    color                :    #a00;
+    border-left          :    3px solid #e00;
+}
+
+/* Warning message styling */
+.status-message.warning {
+    background-color     :    rgba(255, 240, 200, 0.3);
+    color                :    #850;
+    border-left          :    3px solid #ca0;
+}
+
+/* Regular message styling */
+.status-message:not(.error):not(.warning) {
+    background-color     :    rgba(200, 240, 200, 0.2);
+    border-left          :    3px solid #4a9;
+    color                :    #052;
+}
+
+/* Update status success/error/warning background colors but keep text colors */
+#status.error {
+    background-color     :    #fafafa;    /*   <-- Changed from red to neutral */
+    color                :    #a00;
+}
+
+#status.warning {
+    background-color     :    #fafafa;    /*   <-- Changed from yellow to neutral */
+    color                :    #a80;
+}
+
+#loadingMessage {
+    margin-bottom        :    00.94rem;
+    padding-top          :    00.63rem;
+    padding-right        :    00.63rem;
+    padding-bottom       :    00.63rem;
+    padding-left         :    00.63rem;
+    background-color     :    var(--background-color);
+    border-radius        :    00.25rem;
+    text-align           :    center;
+    font-style           :    italic;
+}
+
+/* - - - - - - - - - - - - -   Typography   - - - - - - - - - - - - - */
+h1, h3 {
+    color                :    var(--primary-color);
+    text-align           :    center;
+    margin-bottom        :    01.25rem;
+}
+
+h3 {
+    margin-top           :    00.31rem;
+    margin-bottom        :    00.63rem;
+    font-size            :    01.10rem;
+}
+
+.CTRL__Section-Description {
+    color                :    var(--text-muted);
+    font-style           :    italic;
+    margin-bottom        :    00.75rem;
+    margin-top           :    -00.31rem;
+    font-size            :    00.85rem;
+}
+
+/* =============================================================================
+    CSS | Pipeline Control Components
+    - Introduced in v2.0.0
+    - Styling for the two-stage pipeline controls
+    ========================================================================== */
+
+/* - - - - - - - - - - - - -   Pipeline Controls   - - - - - - - - - - - - - */
+.PIPE__Controls {
+    display              :    flex;
+    flex-direction       :    column;
+    gap                  :    00.94rem;
+}
+
+.PIPE__Detection, .PIPE__Polygon {
+    border-left          :    00.31rem solid #4a9;
+    padding-left         :    00.94rem;
+    background-color     :    var(--control-background);
+    margin-bottom        :    00.94rem;
+}
+
+.PIPE__Polygon {
+    border-left-color    :    #49c;
+}
+
+/* - - - - - - - - - - - - -   Grid Toggle   - - - - - - - - - - - - - */
+.GRID__Toggle {
+    display              :    flex;
+    align-items          :    center;
+    margin-top           :    00.63rem;
+    margin-bottom        :    00.94rem;
+}
+
+.GRID__Toggle-Label {
+    margin-right         :    00.63rem;
+    font-weight          :    bold;
+}
+
+.GRID__Checkbox {
+    margin-right         :    00.31rem;
+}
+
+/* =============================================================================
+    CSS | Visualization Elements
+    - Introduced in v1.0.0 | Updated in v2.0.0
+    - Styling for the detection visualization and grid
+    ========================================================================== */
+
+/* - - - - - - - - - - - - -   Visualization Layers   - - - - - - - - - - - - - */
+.VIZL__Detection {
+    fill                 :    rgba(75, 192, 75, 0.2);   /*   <-- Green fill for raw detection */
+    stroke               :    rgba(75, 192, 75, 0.8);   /*   <-- Green stroke for raw detection */
+}
+
+.VIZL__Detection-Vertex {
+    fill                 :    rgba(0, 160, 0, 0.8);     /*   <-- Darker green for vertices */
+}
+
+.VIZL__Polygon {
+    fill                 :    rgba(65, 105, 225, 0.3);  /*   <-- Royal blue fill */
+    stroke               :    rgba(65, 105, 225, 0.8);  /*   <-- Royal blue stroke */
+}
+
+.VIZL__Polygon-Vertex {
+    fill                 :    rgba(0, 0, 255, 0.8);     /*   <-- Blue for CAD polygon vertices */
+}
+
+/* - - - - - - - - - - - - -   Button Styling   - - - - - - - - - - - - - */
+.BTTN__Query {
+    padding-top          :    00.50rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.50rem;
+    padding-left         :    00.94rem;
+    background-color     :    var(--button-query-bg);
+    color                :    #ffffff;
+    border               :    none;
+    border-radius        :    00.31rem;
+    cursor               :    pointer;
+    margin-right         :    00.50rem;
+    font-size            :    00.95rem;
+    font-weight          :    bold;
+    transition           :    background-color 0.2s ease;
+}
+
+.BTTN__Query:hover {
+    background-color     :    var(--button-query-hover);
+}
+
+.BTTN__Export {
+    padding-top          :    00.50rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.50rem;
+    padding-left         :    00.94rem;
+    background-color     :    var(--button-export-bg);
+    color                :    #ffffff;
+    border               :    none;
+    border-radius        :    00.31rem;
+    cursor               :    pointer;
+    margin-right         :    00.50rem;
+    font-size            :    00.95rem;
+    font-weight          :    bold;
+    transition           :    background-color 0.2s ease;
+}
+
+.BTTN__Export:hover {
+    background-color     :    var(--button-export-hover);
+}
+
+.BTTN__Cancel {
+    padding-top          :    00.50rem;
+    padding-right        :    00.94rem;
+    padding-bottom       :    00.50rem;
+    padding-left         :    00.94rem;
+    background-color     :    var(--button-cancel-bg);
+    color                :    #ffffff;
+    border               :    none;
+    border-radius        :    00.31rem;
+    cursor               :    pointer;
+    margin-right         :    00.50rem;
+    font-size            :    00.95rem;
+    font-weight          :    bold;
+    transition           :    background-color 0.2s ease;
+}
+
+.BTTN__Cancel:hover {
+    background-color     :    var(--button-cancel-hover);
+}
+
+/* - - - - - - - - - - - - -   Element Styling   - - - - - - - - - - - - - */
+.ELEM__Confirmed {
+    fill                 :    rgba(65, 105, 225, 0.3);  /*   <-- Royal blue fill */
+    stroke               :    rgba(65, 105, 225, 0.8);  /*   <-- Royal blue stroke */
+}
+
+.ELEM__Other {
+    fill                 :    rgba(169, 169, 169, 0.3); /*   <-- Dark gray fill */
+    stroke               :    rgba(105, 105, 105, 0.8); /*   <-- Dim gray stroke */
+}
+
+.GRID__Line {
+    stroke               :    rgba(0, 0, 0, 0.1);      /*   <-- Very subtle grid lines */
+    stroke-width         :    00.03rem;
+}
+
+.LABL__Shape {
+    font-family          :    'Open Sans', Arial, sans-serif;
+    font-size            :    00.75rem;
+    fill                 :    #333;                     /*   <-- Dark gray for readability */
+    background-color     :    rgba(255, 255, 255, 0.7); /*   <-- Semi-transparent white */
+    padding-top          :    00.13rem;
+    padding-right        :    00.31rem;
+    padding-bottom       :    00.13rem;
+    padding-left         :    00.31rem;
+    border-radius        :    00.19rem;
+}
+
+.LABL__Detection {
+    background-color     :    rgba(75, 192, 75, 0.7);   /*   <-- Green background for detection labels */
+}
+
+.LABL__Polygon {
+    background-color     :    rgba(65, 105, 225, 0.7);  /*   <-- Blue background for polygon labels */
+}
+
+/* =============================================================================
+    CSS | Responsive Design 
+    - Introduced in v1.3.0 | Updated in v2.0.0
+    - Media queries for responsive layout
+    ========================================================================== */
+
+@media (max-width: 768px) {
+    html, body {
+        font-size         :    20.00px;    /*   <-- CRITICAL VALUE!! - 125% of base font size */
+    }
+    
+    .APPL__Container {
+        flex-direction    :    column;
+        height            :    auto;
+    }
+    
+    .APPL__Left-Panel,
+    .APPL__Right-Panel {
+        max-width         :    100%;
+        width             :    100%;
+    }
+    
+    .CTRL__Label,
+    .CTRL__Value-Row-Label {
+        flex-basis        :    07.00rem;    /*   <-- Shorter labels on mobile */
+    }
+}
+
+/* - - - - - - - - - - - - -   Button Containers   - - - - - - - - - - - - - */
+.BTTN__Container {
+    text-align           :    center;
+    margin-top           :    01.25rem;
+    margin-bottom        :    00.50rem;
+    display              :    flex;
+    justify-content      :    center;
+    gap                  :    00.50rem;
+}
+
+.BTTN__Container button {
+    min-width            :    10.00rem;
+}
+
+.CTRL__Scale-Status {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    padding: 3px;
+    color: #4a9;
+    background-color: rgba(74, 153, 153, 0.1);
+    border-radius: 3px;
+    display: none;
+}
+
+/* Add styles for navigation help section */
+.CTRL__Navigation-Help {
+    margin-bottom        :    2rem;        /* Increased margin between nav panel and status panel */
+    background-color     :    #f5f7fa;
+    border               :    1px solid #dde6ed;
+    border-radius        :    0.5rem;
+    padding              :    0.94rem;
+    width                :    100%;
+    box-sizing           :    border-box;
+    box-shadow           :    0 2px 5px rgba(0,0,0,0.05);
+}
+
+.CTRL__Navigation-Instructions ul {
+    margin               :    5px 0;
+    padding-left         :    20px;
+}
+
+.CTRL__Navigation-Instructions li {
+    margin-bottom        :    5px;
+    font-size            :    0.9em;
+}
+
+/* When the Navigation Help is in the right panel */
+.APPL__Right-Panel .CTRL__Navigation-Help {
+    margin-top           :    0;           /* Remove top margin when in right panel */
+}
+
+.CTRL__Navigation-Help h3 {
+    margin-top           :    0;
+    margin-bottom        :    0.5rem;
+    text-align           :    center;
+    color                :    #2c3e50;
+}
+
+/* Canvas cursor styles */
+#canvasOutput {
+    cursor: default;
+}
+
+#canvasOutput.grabbing {
+    cursor: grabbing;
+}
+
+#canvasOutput:hover {
+    cursor: crosshair;
+}
+
+.CTRL__Zoom-Indicator {
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #2980b9;
+    background-color: #f8f9fa;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px dashed #bdc3c7;
+}
+
+.status-messages-container {
+    padding-top          :    1.5rem;     /* Increased padding at the top of the container to prevent text cropping */
+    margin-bottom        :    0.5rem;     /* Add margin at the bottom of the container */
+    width                :    100%;       /* Ensure full width */
+    box-sizing           :    border-box; /* Include padding in width calculation */
+}
+
+/* Separate visual indicator for the status panel */
+.APPL__Right-Panel::after {
+    content              :    "";
+    display              :    block;
+    width                :    90%;
+    height               :    1px;
+    background           :    linear-gradient(to right, transparent, #ccc, transparent);
+    margin               :    1rem auto 0.5rem;
+}
