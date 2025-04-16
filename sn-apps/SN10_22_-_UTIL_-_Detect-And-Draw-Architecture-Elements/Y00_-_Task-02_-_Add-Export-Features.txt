@@ -1,0 +1,85 @@
+INITIAL OVERVIEW
+- The main task is to integrate two export features into an existing application project that traces architectural elements and allows dynamic geometry control.
+- These export features will be:
+  - A PNG export that produces a black and white mask.
+  - A DXF CAD file export that uses vector data.
+- The project is modular, and all code is built by the user.
+- The application is currently functional and structured with cross-dependent scripts.
+
+PROJECT UNDERSTANDING REQUIREMENT
+- First, study and understand the *entire* code base.
+- Focus on:
+  - Overall structure of the project.
+  - Relationships and dependencies between existing scripts.
+- No changes are to be made until the full project is understood.
+- A message must be sent to confirm readiness before proceeding with changes.
+- Ask any clarifying questions before beginning implementation.
+
+NEW SCRIPT CREATION
+- Create a **new JavaScript module file** to handle all export functions.
+- This script will be stored in the existing `scripts` directory, alongside other modules.
+- The script must contain:
+  - All logic for PNG black and white mask export.
+  - All logic for DXF export.
+- The script should follow the existing format and structure used in the core logic script:
+  - Use of structured note sections, helper function sections, etc.
+  - Maintain logical code segmentation and comments.
+
+PNG EXPORT LOGIC
+- A new export panel must be created in the UI.
+  - Location: Bottom of the left-hand side, below the second set of geometry tools.
+- Functionality of PNG export:
+  - Outputs a black and white image.
+  - White represents areas with filled geometry.
+  - Black represents areas with no geometry.
+  - No transparency.
+  - Raster output must match input image size exactly — this is critical for mapping consistency.
+- Use cases:
+  - Generating reflection map textures.
+  - Photoshop mask layering (e.g., when tracing buildings).
+- Output format must be PNG with solid black and white pixels only.
+- Style and structure the JavaScript in the same way as the core application script.
+
+DXF EXPORT LOGIC
+- The DXF export must:
+  - Export a vector file (DXF format).
+  - Match the scale defined in the main application script.
+  - Use the same coordinates and polygon data already available in the application.
+- Maintain the same region-based structuring and helper functions as the core script.
+
+UI AND STYLING UPDATES
+- Update the HTML to include:
+  - Buttons for the PNG and DXF export options.
+- Style these buttons using existing styling conventions:
+  - Create new CSS classes for the export buttons.
+  - Follow visual and code style used throughout the application.
+
+INTEGRATION AND EVENTS
+- Methodically integrate new functions into the existing application:
+  - Ensure correct imports/exports in the new module.
+  - Update all relevant scripts with necessary event handlers and listeners.
+  - Confirm correct variable passing to and from the new module.
+  - Systematically check that all components reference the new module robustly.
+
+FINAL CHECK AND APPROACH
+- Treat this as a major update.
+- Approach with caution, organization, and completeness:
+  - Avoid placeholders or incomplete functionality.
+  - Execute tasks one by one.
+    - Create logic.
+    - Add to script.
+    - Check.
+    - Move to next task.
+- Once implemented:
+  - Conduct a full check of all project components in context.
+
+TASK SUMMARY
+- Understand current project and all script relationships.
+- Create a new modular JavaScript file for export logic.
+  - Section 1: PNG export logic.
+  - Section 2: DXF export logic.
+- Update HTML for UI buttons.
+- Update CSS for new button styling.
+- Integrate event handlers and listeners.
+- Confirm variable and module references.
+- Final holistic project review.
