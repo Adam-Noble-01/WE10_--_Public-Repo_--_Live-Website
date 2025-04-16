@@ -12,6 +12,23 @@
     Hosted     |   https://www.noble-architecture.com/
     Asset URL  |   https://www.noble-architecture.com/sn-apps/SN10_05_-_UTIL_-_Audio-Trimmer-Tool-App/SN10_05_-_UTIL_-_Audio-Trimmer-Tool-App.html
     -->
+    <!--  ASSET LINK |  Favicon Configuration   
+    ------------------------------------------------------------------------------------------- -->
+    <link rel="icon" type="image/svg+xml" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png">
+    <link rel="icon" type="image/x-icon" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
+    
+    <!-- Main Noble Architecture Stylesheet -->
+    <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css">
+    
+    <!-- Utility App Stylesheet -->
+    <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/src/js/header-version-injector.js"></script>
 
     <!-- 1. Include WaveSurfer.js and Regions Plugin -->
     <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
@@ -21,226 +38,153 @@
     <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 
     <style>
-        /* Basic Reset & Box Sizing */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            font-size: 16px; /* Base font size */
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: #f0f2f5; /* Slightly softer background */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 1rem; /* Add padding around the body */
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 1.5rem; /* Use rem for scalable padding */
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 100%; /* Take available width */
-            max-width: 800px; /* Max width for larger screens */
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            flex-direction: column; /* Stack elements vertically */
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-        }
-
-        /* --- Dropzone / File Input --- */
-        #dropzone {
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            padding: 2rem 1rem; /* Adjust padding */
+        /* Audio Trimmer Specific Styles */
+        .AUDIO__dropzone {
+            border: 2px dashed var(--color-gray-400);
+            border-radius: 0.5rem;
+            padding: 2rem 1rem;
             text-align: center;
             cursor: pointer;
-            background-color: #fafafa;
-            color: #777;
+            background-color: var(--color-gray-100);
+            color: var(--color-gray-600);
             margin-bottom: 1.5rem;
             transition: background-color 0.2s, border-color 0.2s;
-            display: flex; /* Use flex to center content */
+            display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100px; /* Ensure it has some height */
+            min-height: 100px;
         }
 
-        #dropzone.dragover {
-            background-color: #e8f0fe; /* Subtle blue highlight */
-            border-color: #a0c4ff;
+        .AUDIO__dropzone.dragover {
+            background-color: var(--color-gray-200);
+            border-color: var(--color-action-primary);
         }
 
-        /* The label *is* the clickable area now */
-        #file-input-label {
-            display: block; /* Make label take full width */
+        .AUDIO__file-input-label {
+            display: block;
             cursor: pointer;
+            font-family: var(--font-regular);
         }
 
-        #file-input {
-            display: none; /* Keep actual input hidden */
+        .AUDIO__file-input {
+            display: none;
         }
 
-        /* --- Waveform Area --- */
-        #waveform-container {
-             width: 100%;
-             min-height: 150px; /* Minimum height before loading */
-             background-color: #eee;
-             border-radius: 4px;
-             margin-bottom: 1.5rem;
-             position: relative; /* Essential for WaveSurfer overlays */
-             overflow: hidden; /* Hide potential overflow during render */
-        }
-
-        #waveform {
+        .AUDIO__waveform-container {
             width: 100%;
-            height: 150px; /* Explicit height for WaveSurfer */
+            min-height: 150px;
+            background-color: var(--color-gray-200);
+            border-radius: 0.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
         }
 
+        .AUDIO__waveform {
+            width: 100%;
+            height: 150px;
+        }
 
-        /* Styling for WaveSurfer regions */
+        /* WaveSurfer Region Styling */
         .wavesurfer-region {
-            background-color: rgba(0, 123, 255, 0.2) !important; /* Light blue selection */
-            z-index: 3 !important; /* Ensure region is above waveform */
-            border-left: 2px solid rgba(0, 86, 179, 0.7) !important;
-            border-right: 2px solid rgba(0, 86, 179, 0.7) !important;
+            background-color: rgba(93, 93, 93, 0.2) !important;
+            z-index: 3 !important;
+            border-left: 2px solid var(--color-action-primary) !important;
+            border-right: 2px solid var(--color-action-primary) !important;
             transition: background-color 0.15s ease-in-out;
         }
+
         .wavesurfer-region:hover {
-             background-color: rgba(0, 123, 255, 0.3) !important;
+            background-color: rgba(93, 93, 93, 0.3) !important;
         }
 
         .wavesurfer-handle {
-            background-color: rgba(0, 86, 179, 0.9) !important; /* Darker blue handles */
-            width: 10px !important; /* Make handles easier to grab */
-            height: 100% !important; /* Make handle full height */
-            top: 0 !important; /* Align handle to top */
+            background-color: var(--color-action-primary) !important;
+            width: 10px !important;
+            height: 100% !important;
+            top: 0 !important;
             cursor: ew-resize !important;
-            z-index: 4 !important; /* Ensure handles are above region */
+            z-index: 4 !important;
             border-radius: 2px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
-         /* Position handles correctly (adjust based on width) */
-        .wavesurfer-handle-start::before, .wavesurfer-handle-end::before {
-            content: ''; /* Needed for positioning if using pseudo */
+
+        .wavesurfer-handle-start::before,
+        .wavesurfer-handle-end::before {
+            content: '';
         }
-        /* Simplified positioning relies on WaveSurfer defaults + width */
 
-
-        /* --- Controls --- */
-        .controls {
+        /* Audio Controls */
+        .AUDIO__controls {
             display: flex;
-            flex-direction: column; /* Stack buttons on small screens */
-            gap: 0.8rem; /* Space between buttons */
+            flex-direction: column;
+            gap: 0.8rem;
             margin-bottom: 1rem;
         }
 
-        /* Media query for wider screens */
         @media (min-width: 500px) {
-            .controls {
-                flex-direction: row; /* Side-by-side on wider screens */
+            .AUDIO__controls {
+                flex-direction: row;
                 justify-content: center;
                 gap: 1rem;
             }
         }
 
-        button {
-            padding: 0.8rem 1.2rem;
-            font-size: 1rem;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            transition: background-color 0.2s, opacity 0.2s;
-            opacity: 0.6; /* Start disabled visually */
-            pointer-events: none; /* Start disabled functionally */
-            text-align: center; /* Ensure text is centered */
-        }
-
-        button:not(:disabled) {
-             opacity: 1;
-             pointer-events: auto;
-        }
-
-        button:not(:disabled):hover {
-            background-color: #0056b3;
-        }
-
-        button:disabled {
-            background-color: #cccccc; /* Keep grey background when disabled */
-            cursor: not-allowed;
-        }
-
-        /* --- Status & Loader --- */
-        #status {
+        /* Status and Loader */
+        .AUDIO__status {
             text-align: center;
-            margin-top: 0.5rem; /* Reduced top margin */
-            margin-bottom: 0.5rem;
-            color: #555;
-            min-height: 1.2em; /* Reserve space */
+            margin: 0.5rem 0;
+            color: var(--color-gray-600);
+            min-height: 1.2em;
             font-size: 0.9rem;
+            font-family: var(--font-regular);
         }
 
-        .loader {
-          border: 4px solid #f3f3f3; /* Light grey */
-          border-top: 4px solid #3498db; /* Blue */
-          border-radius: 50%;
-          width: 24px;
-          height: 24px;
-          animation: spin 1s linear infinite;
-          display: none; /* Hidden by default */
-          margin: 5px auto 0 auto; /* Center below status text */
+        .AUDIO__loader {
+            border: 4px solid var(--color-gray-200);
+            border-top: 4px solid var(--color-action-primary);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 5px auto 0 auto;
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
     </style>
 </head>
 <body>
+    <div class="PAGE__container">
+        <div class="FULL__page-app-container">
+            <div class="MAIN__container">
+                <h1 class="HEAD__title">Simple Audio Trimmer</h1>
 
-    <div class="container">
-        <h1>Simple Audio Trimmer</h1>
+                <div class="FORM__block">
+                    <div class="AUDIO__dropzone">
+                        <label for="file-input" class="AUDIO__file-input-label">
+                            Drag & Drop MP3/WAV file here<br>or Click to Upload
+                        </label>
+                        <input type="file" id="file-input" class="AUDIO__file-input" accept=".mp3, .wav, audio/mpeg, audio/wav">
+                    </div>
 
-        <!-- Updated Dropzone structure -->
-        <div id="dropzone">
-            <label for="file-input" id="file-input-label">
-                Drag & Drop MP3/WAV file here<br>or Click to Upload
-            </label>
-            <input type="file" id="file-input" accept=".mp3, .wav, audio/mpeg, audio/wav">
+                    <div class="AUDIO__waveform-container">
+                        <div class="AUDIO__waveform"></div>
+                    </div>
+
+                    <div class="AUDIO__status">Please upload an audio file.</div>
+                    <div class="AUDIO__loader"></div>
+
+                    <div class="AUDIO__controls">
+                        <button class="BTTN__standard" id="playPauseBtn" disabled>Play/Pause</button>
+                        <button class="BTTN__export" id="downloadBtn" disabled>Download Trimmed MP3 (320kbps)</button>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- Container for Waveform to manage height -->
-        <div id="waveform-container">
-             <div id="waveform"></div>
-        </div>
-
-        <!-- Status and Loader -->
-        <div id="status">Please upload an audio file.</div>
-        <div class="loader" id="loader"></div>
-
-        <!-- Controls -->
-        <div class="controls">
-            <button id="playPauseBtn" disabled>Play/Pause</button>
-            <button id="downloadBtn" disabled>Download Trimmed MP3 (320kbps)</button>
-        </div>
-
     </div>
 
     <script>
