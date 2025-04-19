@@ -195,6 +195,21 @@
             "asset-added-by"        :   "Adam Noble",
             "asset-last-updated"    :   "11-Apr-2025",
             "asset-active-status"   :   true
+        },
+        "sketchup-plugins-stylesheet": {
+            "asset-name"            :   "Core Default SketchUp Plugin Stylesheet",
+            "asset-dir-path"        :   "./assets/AD02_-_STYL_-_Common_-_StyleSheets",
+            "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_40_-_STYL_-_Core-Default-SketchUp-Plugin-Stylesheet.css",
+            "asset-file-name"       :   "AD02_40_-_STYL_-_Core-Default-SketchUp-Plugin-Stylesheet.css",
+            "asset-id-code"         :   "AD02_40",
+            "asset-type"            :   "stylesheet",
+            "asset-category"        :   "SketchUp Plugins",
+            "asset-format"          :   "css",
+            "asset-description"     :   "Stylesheet for SketchUp Plugins",
+            "asset-usage"           :   "styling for SketchUp Plugins",
+            "asset-added-by"        :   "Adam Noble",
+            "asset-last-updated"    :   "19-Apr-2025",
+            "asset-active-status"   :   true
         }
     }
 },
