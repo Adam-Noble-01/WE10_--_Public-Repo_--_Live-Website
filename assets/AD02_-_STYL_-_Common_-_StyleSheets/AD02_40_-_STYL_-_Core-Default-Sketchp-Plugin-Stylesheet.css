@@ -1,24 +1,23 @@
 /* ================================================================================================
-/* STYLE SHEET FOR NOBLE ARCHITECTURE UTILITY WEB APPS
-   FILE NAME   |  AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css
+/* STYLE SHEET FOR SKETCHUP PLUGINS
+   FILE NAME   |  AD02_40_-_STYL_-_Core-Default-Sketchp-Plugin-Stylesheet.css
    FILE TYPE   |  CSS
    FILE AUTHOR |  Adam Noble
 /* ================================================================================================
 
 FILE DESCRIPTION
-- This file contains the core default styles for Noble Architecture utility web apps.
+- This file contains the core default styles for Noble Architecture Sketchup Plugins.
 - It serves as a single point of truth for styling simple utility web applications.
-- Applied to apps like the Text-To-Reader and Asset Library Query Tool.
+- Applied to apps like the Text-To-Reader, Asset Library Query Tool and BIM Attribute Editor.
 
 VERSION HISTORY
-1.0.0 - Initial Release - Unified stylesheet for utility web apps
-1.1.0 - Enhanced color variable mapping for consistency and future theming support
-1.2.0 - Simplified colour variable system for easier maintenance
+1.0.0 - 19-Apr-2025 - Initial Release 
+- Unified stylesheet for Sketchup Plugins
 
-1.2.1 - 11-Apr-2025
-- Added font variable system for standardized typography
-- Added custom dropdown styling with visible greyed options
-- Added URL List common styles
+1.2.1 - 19-Apr-2025
+- Added BIM Attribute Editor specific styles
+- Includes STATUS containers, INFO components, and ATTR elements
+
 
 
 /* ==============================================================================================
@@ -679,4 +678,59 @@ Added 11-Apr-2025
 .URL__copy-btn img {
     width                   :    16px;
     height                  :    16px;
+}
+
+/* 
+=====================================================================================
+BIM ATTRIBUTE EDITOR SPECIFIC STYLES
+Added 19-Apr-2025
+- Defines styles specific to the BIM Attribute Editor
+=====================================================================================
+*/
+
+/* Status Containers */
+.STATUS__container {
+    background-color        :    #f8f8f8;
+    border                  :    1px solid #ddd;
+    border-radius           :    4px;
+    padding                 :    10px;
+    margin                  :    10px 0;
+    font-size               :    0.9rem;
+}
+
+.STATUS__error {
+    background-color        :    var(--color-error-bg);
+    border-color            :    #f5c6cb;
+    color                   :    var(--color-error);
+}
+
+.STATUS__success {
+    background-color        :    #d4edda;
+    border-color            :    #c3e6cb;
+    color                   :    var(--color-success);
+}
+
+/* Component Info */
+.INFO__component {
+    font-size               :    0.9rem;
+    color                   :    #555;
+    margin-top              :    8px;
+}
+
+/* Attribute Container and Items */
+.ATTR__container {
+    max-height              :    60vh;
+    overflow-y              :    auto;
+    padding                 :    10px;
+}
+
+.ATTR__item {
+    margin-bottom           :    15px;
+}
+
+/* Attribute Textarea */
+.ATTR__textarea {
+    width                   :    100%;
+    min-height              :    30px;
+    resize                  :    vertical;
 }
