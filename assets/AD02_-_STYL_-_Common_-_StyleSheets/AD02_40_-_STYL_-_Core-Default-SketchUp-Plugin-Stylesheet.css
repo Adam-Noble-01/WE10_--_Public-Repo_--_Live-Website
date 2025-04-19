@@ -260,6 +260,7 @@ VERSION HISTORY
     font-size           :    00.875rem;
     background-color    :    var(--color-white);
     box-sizing          :    border-box;
+    font-family         :    var(--font-light);
 }
 
 .FORM__textarea {
@@ -690,31 +691,34 @@ Added 19-Apr-2025
 
 /* Status Containers */
 .STATUS__container {
-    background-color        :    #f8f8f8;
-    border                  :    1px solid #ddd;
-    border-radius           :    4px;
-    padding                 :    10px;
-    margin                  :    10px 0;
-    font-size               :    0.9rem;
+    background-color    :    #f8f8f8;
+    border              :    1px solid #ddd;
+    border-radius       :    4px;
+    padding             :    12px;
+    margin              :    16px 0;
+    font-size           :    0.9rem;
+    text-align          :    left;
 }
 
 .STATUS__error {
-    background-color        :    var(--color-error-bg);
-    border-color            :    #f5c6cb;
-    color                   :    var(--color-error);
+    background-color    :    var(--color-error-bg);
+    border-color        :    #f5c6cb;
+    color               :    var(--color-error);
 }
 
 .STATUS__success {
-    background-color        :    #d4edda;
-    border-color            :    #c3e6cb;
-    color                   :    var(--color-success);
+    background-color    :    #d4edda;
+    border-color        :    #c3e6cb;
+    color               :    var(--color-success);
 }
 
 /* Component Info */
 .INFO__component {
-    font-size               :    0.9rem;
-    color                   :    #555;
-    margin-top              :    8px;
+    font-size           :    0.9rem;
+    color               :    #555;
+    margin-top          :    6px;
+    border-top          :    1px solid #eee;
+    padding-top         :    6px;
 }
 
 /* Attribute Container and Items */
@@ -730,7 +734,11 @@ Added 19-Apr-2025
 
 /* Attribute Textarea */
 .ATTR__textarea {
-    width                   :    100%;
-    min-height              :    30px;
-    resize                  :    vertical;
+    width               :    100%;
+    min-height          :    30px;
+    resize              :    vertical;
+    font-family         :    var(--font-light);
+    line-height         :    1.4;
+    padding             :    8px;
+    overflow            :    hidden;
 }
