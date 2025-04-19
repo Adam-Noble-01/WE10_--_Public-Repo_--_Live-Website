@@ -1,0 +1,682 @@
+/* ================================================================================================
+/* STYLE SHEET FOR NOBLE ARCHITECTURE UTILITY WEB APPS
+   FILE NAME   |  AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css
+   FILE TYPE   |  CSS
+   FILE AUTHOR |  Adam Noble
+/* ================================================================================================
+
+FILE DESCRIPTION
+- This file contains the core default styles for Noble Architecture utility web apps.
+- It serves as a single point of truth for styling simple utility web applications.
+- Applied to apps like the Text-To-Reader and Asset Library Query Tool.
+
+VERSION HISTORY
+1.0.0 - Initial Release - Unified stylesheet for utility web apps
+1.1.0 - Enhanced color variable mapping for consistency and future theming support
+1.2.0 - Simplified colour variable system for easier maintenance
+
+1.2.1 - 11-Apr-2025
+- Added font variable system for standardized typography
+- Added custom dropdown styling with visible greyed options
+- Added URL List common styles
+
+
+/* ==============================================================================================
+   CSS | ROOT FONT SIZE DEFINITION
+   - Base font size for rem units (1rem = 16px)
+   ============================================================================================== */
+:root {
+    font-size           :    16.00px;    /*  <-- CRITICAL VALUE!! - Base font size */
+}
+
+/* ==============================================================================================
+   CSS | COLOR VARIABLES
+   - Defines all Colours used in the application
+   - All color values should reference these variables
+   ============================================================================================== */
+:root {
+    /* Base Colours */
+    --color-white       :    #ffffff;    /*   <-- Pure white */
+    --color-black       :    #000000;    /*   <-- Pure black */
+    
+    /* Gray Scale */
+    --color-gray-100    :    #f0f0f0;    /*   <-- Lightest gray (background) */
+    --color-gray-200    :    #f5f5f5;    /*   <-- Very light gray */
+    --color-gray-300    :    #e0e0e0;    /*   <-- Light gray */
+    --color-gray-400    :    #ddd;       /*   <-- Medium light gray */
+    --color-gray-500    :    #999;       /*   <-- Medium gray */
+    --color-gray-600    :    #666;       /*   <-- Medium dark gray */
+    --color-gray-700    :    #555;       /*   <-- Dark gray */
+    --color-gray-800    :    #333;       /*   <-- Very dark gray */
+    
+    /* Brand Colours */
+    --color-brand             :    #555041;    /*   <-- Noble Architecture brand colour */
+    --color-brand-light       :    #504c46;    /*   <-- NA Secondary brand colour */
+    --color-brand-mid-tone    :    #5d5d5d;    /*   <-- NA Tertiary brand colour */
+    
+    /* Button & Link Action Colours */
+    --color-action-primary    :    #5d5d5d;    /*   <-- Primary action colour (buttons, links) */
+    --color-action-hover      :    #005580;    /*   <-- Hover state for primary actions */
+    --color-success           :    #3d8b40;    /*   <-- Success/export actions */
+    --color-success-hover     :    #2d6a30;    /*   <-- Hover state for success actions */
+    --color-danger            :    #BA5050;    /*   <-- Danger/cancel actions */
+    --color-danger-hover      :    #9E2D2D;    /*   <-- Hover state for danger actions */
+    
+    /* Status Colours */
+    --color-alert             :    #856404;    /*   <-- Alert text colour */
+    --color-alert-bg          :    #fff3cd;    /*   <-- Alert background colour */
+    --color-error             :    #BA5050;    /*   <-- Error text colour */
+    --color-error-bg          :    #fde8e8;    /*   <-- Error background colour */
+}
+
+/* ==============================================================================================
+   CSS | FONT VARIABLES
+   - Defines standardized font family references for the application
+   - All font family values should reference these variables
+   ============================================================================================== */
+:root {
+    /* Standard Typefaces */
+    --font-regular            :    'Open Sans Regular', sans-serif;
+    --font-semibold           :    'Open Sans SemiBold', sans-serif;
+    --font-light              :    'Open Sans Light', sans-serif;
+    --font-medium             :    'Open Sans Medium', sans-serif;
+    --font-bold               :    'Open Sans Bold', sans-serif;
+    
+    /* Handwritten Typefaces */
+    --font-handwritten-regular:    'Caveat Regular', cursive;
+    --font-handwritten-medium :    'Caveat Medium', cursive;
+    --font-handwritten-semibold:   'Caveat SemiBold', cursive;
+    --font-handwritten-bold   :    'Caveat Bold', cursive;
+}
+
+/* ==============================================================================================
+   CSS | PAGE STRUCTURE
+   - Defines the basic page structure for utility web apps
+   ============================================================================================== */
+.PAGE__container {
+    min-height          :    100vh;
+    display             :    flex;
+    flex-direction      :    column;
+    overflow-x          :    hidden;
+    background-color    :    var(--color-gray-100);
+}
+
+.FULL__page-app-container {
+    width               :    100%;
+    max-width           :    100%;
+    margin              :    0 auto;
+    padding             :    0;
+    box-sizing          :    border-box;
+    flex                :    1;
+    display             :    flex;
+    flex-direction      :    column;
+    overflow-y          :    auto;
+    background-color    :    var(--color-gray-100);
+}
+
+.MAIN__container {
+    width               :    100%;
+    max-width           :    1000px;
+    margin              :    1rem auto;
+    padding             :    0 1rem;
+    display             :    flex;
+    flex-direction      :    column;
+    gap                 :    01.00rem;
+    box-sizing          :    border-box;
+}
+
+/* ==============================================================================================
+   CSS | HEADER COMPONENTS
+   - Defines the header components for utility web apps
+   ============================================================================================== */
+.HEAD__container {
+    background-color    :    var(--color-white);
+    border-bottom       :    01px solid var(--color-gray-400);
+    padding-top         :    00.25rem;
+    padding-bottom      :    00.25rem;
+    width               :    100%;
+}
+
+.HEAD__nav {
+    max-width           :    960px;
+    padding-left        :    01.00rem;
+    padding-right       :    01.00rem;
+    margin              :    0 auto;
+    display             :    flex;
+    align-items         :    center;
+}
+
+.HEAD__title {
+    font-size           :    01.25rem;
+    font-weight         :    600;
+    color               :    var(--color-brand);
+    font-family         :    var(--font-semibold);
+}
+
+.HEAD__version-note {
+    font-size           :    01.00rem;
+    color               :    var(--color-gray-600);
+    font-weight         :    normal;
+    margin-left         :    00.50rem;
+    font-family         :    var(--font-regular);
+}
+
+/* ==============================================================================================
+   CSS | FOOTER COMPONENTS
+   - Defines the footer components for utility web apps
+   ============================================================================================== */
+.FOOT__container {
+    background-color    :    var(--color-white);
+    border-top          :    01px solid var(--color-gray-400);
+    padding-top         :    00.50rem;
+    padding-bottom      :    00.50rem;
+    width               :    100%;
+    text-align          :    center;
+    font-size           :    00.75rem;
+    color               :    var(--color-gray-600);
+    flex-shrink         :    0;
+    font-family         :    var(--font-regular);
+}
+
+.FOOT__content {
+    max-width           :    960px;
+    padding-left        :    01.00rem;
+    padding-right       :    01.00rem;
+    margin              :    0 auto;
+    display             :    flex;
+    align-items         :    center;
+    justify-content     :    center;
+}
+
+/* ==============================================================================================
+   CSS | COMMON CARD BLOCKS
+   - Defines common card blocks used across utility web apps
+   ============================================================================================== */
+.FORM__block, .CTRL__block, .RSLT__block, .QURY__block {
+    background-color    :    var(--color-white);
+    border              :    01px solid var(--color-gray-400);
+    border-radius       :    00.3125rem;
+    padding             :    01.00rem;
+    margin-bottom       :    01.00rem;
+    width               :    100%;
+    box-sizing          :    border-box;
+}
+
+.CTRL__block {
+    position            :    sticky;
+    top                 :    0;
+    z-index             :    10;
+}
+
+.CTRL__heading, .QURY__heading {
+    font-size           :    01.00rem;
+    font-weight         :    600;
+    color               :    var(--color-gray-800);
+    margin-bottom       :    01.00rem;
+    padding-bottom      :    00.50rem;
+    border-bottom       :    01px solid var(--color-gray-400);
+    font-family         :    var(--font-semibold);
+}
+
+.RSLT__heading {
+    font-family         :    var(--font-semibold);
+    font-size           :    01.25rem;
+    font-weight         :    600;
+    color               :    var(--color-gray-800);
+    margin              :    0;
+}
+
+.RSLT__block {
+    flex                :    1;
+    min-height          :    30vh;
+    display             :    flex;
+    flex-direction      :    column;
+    overflow            :    hidden;
+}
+
+/* ==============================================================================================
+   CSS | FORM ELEMENTS
+   - Defines form elements used across utility web apps
+   ============================================================================================== */
+.FORM__group {
+    margin-bottom       :    00.75rem;
+    width               :    100%;
+    box-sizing          :    border-box;
+}
+
+.FORM__label {
+    display             :    block;
+    margin-bottom       :    00.50rem;
+    font-weight         :    600;
+    font-size           :    00.875rem;
+    color               :    var(--color-gray-800);
+    font-family         :    var(--font-semibold);
+}
+
+.FORM__select, .FORM__input, .FORM__textarea {
+    width               :    100%;
+    padding             :    00.625rem 00.75rem;
+    border              :    01px solid var(--color-gray-400);
+    border-radius       :    00.3125rem;
+    font-size           :    00.875rem;
+    background-color    :    var(--color-white);
+    box-sizing          :    border-box;
+}
+
+.FORM__textarea {
+    height              :    20vh;
+    min-height          :    08.00rem;
+    resize              :    vertical;
+    font-family         :    monospace;
+    line-height         :    1.6;
+}
+
+.FORM__select:focus, .FORM__input:focus, .FORM__textarea:focus {
+    outline             :    none;
+    border-color        :    var(--color-action-primary);
+    box-shadow          :    0 0 0 02px rgba(0, 102, 153, 0.2);
+}
+
+/* ==============================================================================================
+   CSS | BUTTON COMPONENTS
+   - Defines button styles used across utility web apps
+   ============================================================================================== */
+.BTTN__container {
+    display             :    flex;
+    flex-direction      :    row;
+    gap                 :    00.50rem;
+    margin-top          :    01.00rem;
+    justify-content     :    space-between;
+}
+
+.BTTN__standard {
+    background-color    :    var(--color-action-primary);
+    color               :    var(--color-white);
+    border              :    none;
+    padding             :    00.625rem 01.25rem;
+    border-radius       :    00.3125rem;
+    cursor              :    pointer;
+    font-size           :    00.875rem;
+    font-weight         :    600;
+    transition          :    background-color 0.2s, transform 0.1s;
+    flex-grow           :    1;
+    font-family         :    var(--font-semibold);
+}
+
+.BTTN__standard:hover {
+    background-color    :    var(--color-action-hover);
+    color               :    var(--color-white);
+}
+
+.BTTN__standard:active {
+    transform           :    translateY(01px);
+}
+
+.BTTN__query {
+    background-color    :    var(--color-action-primary);
+    color               :    var(--color-white);
+    flex-basis          :    60%;
+}
+
+.BTTN__query:hover {
+    background-color    :    var(--color-action-hover);
+    color               :    var(--color-white);
+}
+
+.BTTN__export {
+    background-color    :    var(--color-success);
+    color               :    var(--color-white);
+    flex-basis          :    40%;
+}
+
+.BTTN__export:hover {
+    background-color    :    var(--color-success-hover);
+    color               :    var(--color-white);
+}
+
+.BTTN__cancel {
+    background-color    :    var(--color-danger);
+    color               :    var(--color-white);
+    border              :    none;
+    padding             :    00.625rem 01.25rem;
+    border-radius       :    00.3125rem;
+    cursor              :    pointer;
+    font-size           :    00.875rem;
+    font-weight         :    600;
+    transition          :    background-color 0.2s, transform 0.1s;
+    flex-basis          :    40%;
+    font-family         :    var(--font-semibold);
+}
+
+.BTTN__cancel:hover {
+    background-color    :    var(--color-danger-hover);
+    color               :    var(--color-white);
+}
+
+.BTTN__cancel:active {
+    transform           :    translateY(01px);
+}
+
+/* ==============================================================================================
+   CSS | RESULTS AREA
+   - Defines results area styling used across utility web apps
+   ============================================================================================== */
+.MAIN__output {
+    flex                :    1;
+    overflow-y          :    auto;
+    padding             :    01.00rem;
+    margin              :    0;
+    border              :    01px solid var(--color-gray-400);
+    border-radius       :    00.3125rem;
+    background-color    :    var(--color-white);
+}
+
+/* ==============================================================================================
+   CSS | MARKDOWN OUTPUT STYLING
+   - Defines markdown output styling for the Text-To-Reader app
+   ============================================================================================== */
+.MAIN__output p {
+    margin              :    0 0 00.50rem 0;
+}
+
+.MAIN__output strong, .MAIN__output b {
+    font-weight         :    600;
+}
+
+.MAIN__output em, .MAIN__output i {
+    font-style          :    italic;
+    color               :    var(--color-gray-800);
+}
+
+.MAIN__output pre {
+    background-color    :    var(--color-gray-200);
+    padding             :    00.625rem;
+    border-radius       :    00.25rem;
+    overflow-x          :    auto;
+    color               :    var(--color-gray-800);
+}
+
+.MAIN__output code {
+    font-family         :    monospace;
+    background-color    :    var(--color-gray-200);
+    padding             :    0 00.20rem;
+    border-radius       :    00.1875rem;
+    color               :    var(--color-gray-800);
+}
+
+.MAIN__output pre code {
+    padding             :    0;
+}
+
+/* ==============================================================================================
+   CSS | TABLE STYLING
+   - Defines table styling for the Asset Library Query Tool
+   ============================================================================================== */
+.RSLT__table {
+    width               :    100%;
+    border-collapse     :    collapse;
+    margin-top          :    01.00rem;
+}
+
+.RSLT__table th {
+    background-color    :    var(--color-gray-200);
+    border-bottom       :    01px solid var(--color-gray-400);
+    padding             :    00.50rem;
+    text-align          :    left;
+    font-weight         :    600;
+    font-size           :    00.875rem;
+}
+
+.RSLT__table td {
+    border-bottom       :    01px solid var(--color-gray-300);
+    padding             :    00.50rem;
+    font-size           :    00.875rem;
+}
+
+.RSLT__table tr:hover {
+    background-color    :    var(--color-gray-200);
+}
+
+/* ==============================================================================================
+   CSS | RESPONSIVE ADJUSTMENTS
+   - Responsive design adjustments for mobile devices
+   ============================================================================================== */
+                /* @media (max-width: 768px) {
+                    .MAIN__container {
+                        padding-left    :    00.50rem;
+                        padding-right   :    00.50rem;
+                    }
+                    
+                    .BTTN__container {
+                        flex-direction  :    column;
+                    }
+                    
+                    .BTTN__standard, .BTTN__cancel, .BTTN__query, .BTTN__export {
+                        width           :    100%;
+                        flex-basis      :    auto;
+                        margin-bottom   :    00.50rem;
+                    }
+                }  */
+
+/* 
+
+/* 
+=====================================================================================
+FORM ELEMENT STYLING EXTENSIONS
+=====================================================================================
+*/
+
+.FORM__select option:first-child {
+    color                   :   #757575;
+    font-style              :   normal;
+}
+
+.FORM__input::placeholder {
+    color                   :   #757575;
+    opacity                 :   1;
+}
+
+/* 
+=====================================================================================
+CUSTOM DROPDOWN STYLING
+=====================================================================================
+*/
+
+.DROPDOWN__container {
+    position              :    relative;
+    width                 :    100%;
+    margin-bottom         :    00.75rem;
+}
+
+.DROPDOWN__selected {
+    width                 :    100%;
+    padding               :    00.625rem 00.75rem;
+    border                :    01px solid var(--color-gray-400);
+    border-radius         :    00.3125rem;
+    font-size             :    00.875rem;
+    background-color      :    var(--color-white);
+    box-sizing            :    border-box;
+    display               :    flex;
+    justify-content       :    space-between;
+    align-items           :    center;
+    cursor                :    pointer;
+    font-family           :    var(--font-regular);
+}
+
+.DROPDOWN__selected::after {
+    content               :    '';
+    width                 :    00.625rem;
+    height                :    00.625rem;
+    border                :    01px solid var(--color-gray-600);
+    border-width          :    0 01px 01px 0;
+    transform             :    rotate(45deg);
+    margin-left           :    00.625rem;
+    transition            :    transform 0.2s;
+}
+
+.DROPDOWN__options {
+    position              :    absolute;
+    top                   :    100%;
+    left                  :    0;
+    width                 :    100%;
+    background-color      :    var(--color-white);
+    border                :    01px solid var(--color-gray-400);
+    border-top            :    none;
+    border-radius         :    0 0 00.3125rem 00.3125rem;
+    max-height            :    15rem;
+    overflow-y            :    auto;
+    z-index               :    100;
+    box-shadow            :    0 04px 08px rgba(0, 0, 0, 0.1);
+    display               :    none;
+}
+
+.DROPDOWN__container.open .DROPDOWN__options {
+    display               :    block;
+}
+
+.DROPDOWN__container.open .DROPDOWN__selected::after {
+    transform             :    rotate(-135deg);
+    margin-top            :    00.25rem;
+}
+
+.DROPDOWN__option {
+    padding               :    00.625rem 00.75rem;
+    cursor                :    pointer;
+    font-size             :    00.875rem;
+    font-family           :    var(--font-regular);
+}
+
+.DROPDOWN__option:hover,
+.DROPDOWN__option.selected {
+    background-color      :    var(--color-gray-200);
+}
+
+/* Style for the static dropdown that shows all options */
+.DROPDOWN__static {
+    border                :    01px solid var(--color-gray-400);
+    border-radius         :    00.35rem;
+    background-color      :    var(--color-white);
+    width                 :    100%;
+    overflow              :    hidden;
+    position              :    relative;
+}
+
+.DROPDOWN__static-option {
+    padding               :    00.63rem 00.75rem;
+    font-size             :    00.90rem;
+    font-family           :    var(--font-light);
+    font-weight           :    600;
+    border-bottom         :    01px solid var(--color-gray-200);
+    color                 :    var(--color-gray-800);
+    cursor                :    pointer;
+    transition            :    background-color 0.2s;
+}
+
+.DROPDOWN__static-option:first-child {
+    color                 :    var(--color-gray-800);
+    font-weight           :    400;
+    font-family           :    var(--font-light);
+    border-bottom         :    01px solid var(--color-gray-400);
+    position              :    relative;
+    padding-right         :    01.5rem;
+}
+
+.DROPDOWN__static-option:first-child::after {
+    content               :    '';
+    width                 :    00.625rem;
+    height                :    00.625rem;
+    border                :    01px solid var(--color-gray-600);
+    border-width          :    0 01px 01px 0;
+    transform             :    rotate(45deg);
+    position              :    absolute;
+    right                 :    00.75rem;
+    top                   :    calc(50% - 00.375rem);
+}
+
+.DROPDOWN__static-option:not(:first-child) {
+    display               :    none;
+}
+
+.DROPDOWN__static.active .DROPDOWN__static-option:not(:first-child) {
+    display               :    block;
+}
+
+.DROPDOWN__static.active .DROPDOWN__static-option:first-child::after {
+    transform             :    rotate(-135deg);
+    top                   :    calc(50% - 00.125rem);
+}
+
+.DROPDOWN__static-option:hover {
+    background-color      :    var(--color-gray-200);
+    color                 :    var(--color-gray-800);
+}
+
+.DROPDOWN__static-option.selected {
+    font-weight           :    600;
+    color                 :    var(--color-gray-800);
+}
+
+/* 
+=====================================================================================
+URL LIST COMMON STYLES
+Added 11-Apr-2025
+- Defines common styles for URL lists used across utility web apps
+=====================================================================================
+*/
+
+.URL__list {
+    list-style-type         :    none;
+    padding                 :    0;
+    margin                  :    0;
+}
+
+.URL__item {
+    display                 :    flex;
+    justify-content         :    space-between;
+    align-items             :    center;
+    padding-top             :    00.50rem;
+    padding-bottom          :    00.50rem;
+    padding-left            :    00.50rem;
+    padding-right           :    00.50rem;
+    border-bottom           :    01px solid var(--color-gray-300);
+}
+
+.URL__link {
+    font-family             :    var(--font-light);
+    font-size               :    00.75rem;
+    text-decoration         :    none;
+    color                   :    var(--color-action-primary);
+    flex-grow               :    1;
+    white-space             :    nowrap;
+    overflow                :    hidden;
+    text-overflow           :    ellipsis;
+    margin-right            :    00.50rem;
+}
+
+.URL__link:hover {
+    color                   :    var(--color-action-hover);
+    text-decoration         :    underline;
+}
+
+.URL__copy-btn {
+    width                   :    32px;
+    height                  :    32px;
+    border-radius           :    50%;
+    background-color        :    var(--color-gray-100);
+    border                  :    none;
+    cursor                  :    pointer;
+    display                 :    flex;
+    align-items             :    center;
+    justify-content         :    center;
+    flex-shrink             :    0;
+    transition              :    background-color 0.2s;
+}
+
+.URL__copy-btn:hover {
+    background-color        :    var(--color-gray-300);
+}
+
+.URL__copy-btn img {
+    width                   :    16px;
+    height                  :    16px;
+}
