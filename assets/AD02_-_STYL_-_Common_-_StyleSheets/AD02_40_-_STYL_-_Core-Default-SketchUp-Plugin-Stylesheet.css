@@ -254,10 +254,13 @@ VERSION HISTORY
 
 .FORM__select, .FORM__input, .FORM__textarea {
     width               :    100%;
-    padding             :    00.75rem 00.75rem;  /* Increased vertical padding */
+    padding-top         :    01.00rem;
+    padding-right       :    00.75rem;
+    padding-bottom      :    01.00rem;
+    padding-left        :    00.75rem;
     border              :    01px solid var(--color-gray-400);
-    border-radius       :    00.3125rem;
-    font-size           :    00.875rem;
+    border-radius       :    00.32rem;
+    font-size           :    00.85rem;
     background-color    :    var(--color-white);
     box-sizing          :    border-box;
     font-family         :    var(--font-regular);
@@ -268,12 +271,12 @@ VERSION HISTORY
 
 .FORM__textarea {
     width               :    100%;
-    min-height          :    01.8rem;  /* 20% taller than 1.5rem */
-    height              :    01.8rem;  /* 20% taller than 1.5rem */
+    min-height          :    01.80rem;  /* 20% taller than 1.5rem */
+    height              :    01.80rem;  /* 20% taller than 1.5rem */
     resize              :    vertical;
     font-family         :    var(--font-regular);
     line-height         :    1.2;
-    padding             :    00.75rem;  /* Equal padding all around for vertical centering */
+    padding             :    01.00rem;  /* Equal padding all around for vertical centering */
     overflow            :    hidden;
 }
 
