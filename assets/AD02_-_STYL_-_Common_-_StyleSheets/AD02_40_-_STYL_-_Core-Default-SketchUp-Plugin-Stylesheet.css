@@ -260,7 +260,7 @@ VERSION HISTORY
     padding-left        :    00.75rem;
     border              :    01px solid var(--color-gray-400);
     border-radius       :    00.32rem;
-    font-size           :    00.85rem;
+    font-size           :    00.95rem;
     background-color    :    var(--color-white);
     box-sizing          :    border-box;
     font-family         :    var(--font-regular);
@@ -271,8 +271,8 @@ VERSION HISTORY
 
 .FORM__textarea {
     width               :    100%;
-    min-height          :    01.80rem;  /* 20% taller than 1.5rem */
-    height              :    01.80rem;  /* 20% taller than 1.5rem */
+    min-height          :    02.4rem;  /* Increased from 1.8rem to 2.4rem */
+    height              :    02.4rem;  /* Increased from 1.8rem to 2.4rem */
     resize              :    vertical;
     font-family         :    var(--font-regular);
     line-height         :    1.2;
@@ -754,8 +754,8 @@ Added 19-Apr-2025
 /* Attribute Textarea - Updated to be 20% taller and centered vertically */
 .ATTR__textarea {
     width              :    100%;
-    min-height         :    01.8rem;  /* 20% taller than 1.5rem */
-    height             :    01.8rem;  /* 20% taller than 1.5rem */
+    min-height         :    02.4rem;  /* Increased from 1.8rem to 2.4rem for better visibility */
+    height             :    02.4rem;  /* Increased from 1.8rem to 2.4rem for better visibility */
     resize             :    vertical;
     font-family        :    var(--font-regular);
     line-height        :    1.2;  /* Adjusted for vertical centering */
@@ -764,6 +764,7 @@ Added 19-Apr-2025
     display            :    flex;
     align-items        :    center;
     box-sizing         :    border-box;
+    font-size          :    00.95rem; /* Slightly larger font for better readability */
 }
 
 /* ==============================================================================================
