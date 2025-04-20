@@ -278,6 +278,24 @@ VERSION HISTORY
     line-height         :    1.2;
     padding             :    01.00rem;  /* Equal padding all around for vertical centering */
     overflow            :    hidden;
+    /* Spell check styling */
+    spellcheck          :    true;
+    -webkit-text-fill-color: initial;
+    -webkit-box-shadow: none;
+    text-shadow: none;
+}
+
+/* Style for spell check underlines */
+.FORM__textarea:not([readonly]):not([disabled]) {
+    /* Ensure spell check is visible */
+    -webkit-text-fill-color: initial;
+    -webkit-box-shadow: none;
+    text-shadow: none;
+}
+
+/* Style for spell check suggestions */
+.FORM__textarea::spelling-error {
+    text-decoration-color: var(--color-error);
 }
 
 .FORM__select:focus, .FORM__input:focus, .FORM__textarea:focus {
@@ -765,6 +783,24 @@ Added 19-Apr-2025
     align-items        :    center;
     box-sizing         :    border-box;
     font-size          :    00.95rem; /* Slightly larger font for better readability */
+    /* Spell check styling */
+    spellcheck         :    true;
+    -webkit-text-fill-color: initial;
+    -webkit-box-shadow: none;
+    text-shadow: none;
+}
+
+/* Style for spell check underlines */
+.ATTR__textarea:not([readonly]):not([disabled]) {
+    /* Ensure spell check is visible */
+    -webkit-text-fill-color: initial;
+    -webkit-box-shadow: none;
+    text-shadow: none;
+}
+
+/* Style for spell check suggestions */
+.ATTR__textarea::spelling-error {
+    text-decoration-color: var(--color-error);
 }
 
 /* ==============================================================================================
