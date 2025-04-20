@@ -264,11 +264,17 @@ VERSION HISTORY
 }
 
 .FORM__textarea {
-    height              :    20vh;
-    min-height          :    08.00rem;
+    width               :    100%;
+    min-height          :    01.5rem;
+    height              :    01.5rem;
     resize              :    vertical;
-    font-family         :    monospace;
-    line-height         :    1.6;
+    font-family         :    var(--font-regular);
+    line-height         :    1.4;
+    padding-top         :    00.375rem;
+    padding-bottom      :    00.375rem;
+    padding-left        :    00.50rem;
+    padding-right       :    00.50rem;
+    overflow            :    hidden;
 }
 
 .FORM__select:focus, .FORM__input:focus, .FORM__textarea:focus {
@@ -744,12 +750,13 @@ Added 19-Apr-2025
 /* Attribute Textarea */
 .ATTR__textarea {
     width              :    100%;
-    min-height         :    01.875rem;
+    min-height         :    01.5rem;
+    height             :    01.5rem;
     resize             :    vertical;
     font-family        :    var(--font-regular);
     line-height        :    1.4;
-    padding-top        :    00.50rem;
-    padding-bottom     :    00.50rem;
+    padding-top        :    00.375rem;
+    padding-bottom     :    00.375rem;
     padding-left       :    00.50rem;
     padding-right      :    00.50rem;
     overflow           :    hidden;
@@ -791,4 +798,70 @@ Added 19-Apr-2025
 .ATTR__textarea {
     width               :    100%;
     box-sizing          :    border-box;
+}
+
+/* 
+=====================================================================================
+BIM ATTRIBUTE EDITOR FOLDING SECTIONS
+Added 20-Apr-2025
+- Defines styles for collapsible attribute sections
+=====================================================================================
+*/
+
+.ATTR__section {
+    margin-bottom      :    01.00rem;
+    border             :    01px solid var(--color-gray-400);
+    border-radius      :    00.25rem;
+    overflow           :    hidden;
+}
+
+.ATTR__section-header {
+    background-color   :    var(--color-gray-200);
+    padding            :    00.625rem 00.75rem;
+    cursor             :    pointer;
+    user-select        :    none;
+    display            :    flex;
+    align-items        :    center;
+}
+
+.ATTR__section-header:hover {
+    background-color   :    var(--color-gray-300);
+}
+
+.ATTR__section-title {
+    font-weight        :    600;
+    font-size          :    00.875rem;
+    color              :    var(--color-gray-800);
+    flex-grow          :    1;
+}
+
+.ATTR__section-count {
+    font-size          :    00.75rem;
+    color              :    var(--color-gray-600);
+    margin-right       :    00.625rem;
+}
+
+.ATTR__section-toggle {
+    font-size          :    01.125rem;
+    color              :    var(--color-gray-700);
+    width              :    01.25rem;
+    height             :    01.25rem;
+    display            :    flex;
+    align-items        :    center;
+    justify-content    :    center;
+    border-radius      :    50%;
+    background-color   :    var(--color-gray-300);
+}
+
+.ATTR__section-content {
+    padding            :    00.75rem;
+}
+
+/* Attribute items within sections need slightly different styling */
+.ATTR__section .ATTR__item {
+    margin-bottom      :    00.75rem;
+}
+
+.ATTR__section .ATTR__item:last-child {
+    margin-bottom      :    00.00rem;
 }
