@@ -754,3 +754,41 @@ Added 19-Apr-2025
     padding-right      :    00.50rem;
     overflow           :    hidden;
 }
+
+
+/* ==============================================================================================
+   CSS | ATTRIBUTE LABEL STYLES (v0.1.7)
+   - Defines styles for attribute labels in the BIM Attribute Editor
+   ============================================================================================== */
+.ATTR__label-container {
+    display             :    flex;
+    justify-content     :    space-between;
+    align-items         :    baseline;
+    margin-bottom       :    00.25rem;
+    padding-right       :    00.3125rem;
+}
+
+.ATTR__label--main {
+    font-weight         :    600;
+    text-align          :    left;
+    flex-grow           :    1;
+    padding-right       :    00.625rem;
+}
+
+.ATTR__label--technical {
+    font-family         :    var(--font-regular);
+    font-weight         :    300;
+    font-size           :    00.75rem;
+    color               :    var(--color-gray-600);
+    text-align          :    right;
+    white-space         :    nowrap;
+    overflow            :    hidden;
+    text-overflow       :    ellipsis;
+    flex-shrink         :    0;
+    margin-left         :    auto;
+}
+
+.ATTR__textarea {
+    width               :    100%;
+    box-sizing          :    border-box;
+}
