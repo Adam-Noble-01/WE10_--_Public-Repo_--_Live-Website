@@ -75,11 +75,11 @@ VERSION HISTORY
    ============================================================================================== */
 :root {
     /* Standard Typefaces */
-    --font-regular            :    'Open Sans Regular', sans-serif;
-    --font-semibold           :    'Open Sans SemiBold', sans-serif;
-    --font-light              :    'Open Sans Light', sans-serif;
-    --font-medium             :    'Open Sans Medium', sans-serif;
-    --font-bold               :    'Open Sans Bold', sans-serif;
+    --font-regular            :    'Open Sans', 'Open Sans Regular', sans-serif;
+    --font-semibold           :    'Open Sans SemiBold', 'Open Sans', sans-serif;
+    --font-light              :    'Open Sans Light', 'Open Sans', sans-serif;
+    --font-medium             :    'Open Sans Medium', 'Open Sans', sans-serif;
+    --font-bold               :    'Open Sans Bold', 'Open Sans', sans-serif;
     
     /* Handwritten Typefaces */
     --font-handwritten-regular:    'Caveat Regular', cursive;
@@ -254,26 +254,26 @@ VERSION HISTORY
 
 .FORM__select, .FORM__input, .FORM__textarea {
     width               :    100%;
-    padding             :    00.625rem 00.75rem;
+    padding             :    00.75rem 00.75rem;  /* Increased vertical padding */
     border              :    01px solid var(--color-gray-400);
     border-radius       :    00.3125rem;
     font-size           :    00.875rem;
     background-color    :    var(--color-white);
     box-sizing          :    border-box;
-    font-family         :    var(--font-light);
+    font-family         :    var(--font-regular);
+    line-height         :    1.2;  /* Improved line-height for vertical centering */
+    display             :    flex;
+    align-items         :    center;
 }
 
 .FORM__textarea {
     width               :    100%;
-    min-height          :    01.5rem;
-    height              :    01.5rem;
+    min-height          :    01.8rem;  /* 20% taller than 1.5rem */
+    height              :    01.8rem;  /* 20% taller than 1.5rem */
     resize              :    vertical;
     font-family         :    var(--font-regular);
-    line-height         :    1.4;
-    padding-top         :    00.375rem;
-    padding-bottom      :    00.375rem;
-    padding-left        :    00.50rem;
-    padding-right       :    00.50rem;
+    line-height         :    1.2;
+    padding             :    00.75rem;  /* Equal padding all around for vertical centering */
     overflow            :    hidden;
 }
 
@@ -731,6 +731,7 @@ Added 19-Apr-2025
     margin-top         :    00.375rem;
     border-top         :    01px solid var(--color-gray-300);
     padding-top        :    00.375rem;
+    font-family        :    var(--font-regular);
 }
 
 /* Attribute Container and Items */
@@ -747,21 +748,20 @@ Added 19-Apr-2025
     margin-bottom      :    00.9375rem;
 }
 
-/* Attribute Textarea */
+/* Attribute Textarea - Updated to be 20% taller and centered vertically */
 .ATTR__textarea {
     width              :    100%;
-    min-height         :    01.5rem;
-    height             :    01.5rem;
+    min-height         :    01.8rem;  /* 20% taller than 1.5rem */
+    height             :    01.8rem;  /* 20% taller than 1.5rem */
     resize             :    vertical;
     font-family        :    var(--font-regular);
-    line-height        :    1.4;
-    padding-top        :    00.375rem;
-    padding-bottom     :    00.375rem;
-    padding-left       :    00.50rem;
-    padding-right      :    00.50rem;
+    line-height        :    1.2;  /* Adjusted for vertical centering */
+    padding            :    00.75rem 00.50rem;  /* Equal vertical padding for centering */
     overflow           :    hidden;
+    display            :    flex;
+    align-items        :    center;
+    box-sizing         :    border-box;
 }
-
 
 /* ==============================================================================================
    CSS | ATTRIBUTE LABEL STYLES (v0.1.7)
@@ -780,6 +780,7 @@ Added 19-Apr-2025
     text-align          :    left;
     flex-grow           :    1;
     padding-right       :    00.625rem;
+    font-family         :    var(--font-semibold);
 }
 
 .ATTR__label--technical {
@@ -795,15 +796,10 @@ Added 19-Apr-2025
     margin-left         :    auto;
 }
 
-.ATTR__textarea {
-    width               :    100%;
-    box-sizing          :    border-box;
-}
-
 /* 
 =====================================================================================
 BIM ATTRIBUTE EDITOR FOLDING SECTIONS
-Added 20-Apr-2025
+Added In Version - 0.1.8 - 20-Apr-2025
 - Defines styles for collapsible attribute sections
 =====================================================================================
 */
@@ -822,6 +818,7 @@ Added 20-Apr-2025
     user-select        :    none;
     display            :    flex;
     align-items        :    center;
+    font-family        :    var(--font-regular);
 }
 
 .ATTR__section-header:hover {
@@ -833,12 +830,14 @@ Added 20-Apr-2025
     font-size          :    00.875rem;
     color              :    var(--color-gray-800);
     flex-grow          :    1;
+    font-family        :    var(--font-semibold);
 }
 
 .ATTR__section-count {
     font-size          :    00.75rem;
     color              :    var(--color-gray-600);
     margin-right       :    00.625rem;
+    font-family        :    var(--font-regular);
 }
 
 .ATTR__section-toggle {
