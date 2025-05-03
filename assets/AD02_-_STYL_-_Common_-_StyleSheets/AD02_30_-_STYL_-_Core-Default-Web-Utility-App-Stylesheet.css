@@ -364,6 +364,9 @@ VERSION HISTORY
 .MAIN__output {
     flex                :    1;
     overflow-y          :    auto;
+    overflow-x          :    hidden;
+    word-wrap           :    break-word;
+    word-break          :    break-word;
     padding             :    01.00rem;
     margin              :    0;
     border              :    01px solid var(--color-gray-400);
@@ -437,28 +440,6 @@ VERSION HISTORY
     background-color    :    var(--color-gray-200);
 }
 
-/* ==============================================================================================
-   CSS | RESPONSIVE ADJUSTMENTS
-   - Responsive design adjustments for mobile devices
-   ============================================================================================== */
-                /* @media (max-width: 768px) {
-                    .MAIN__container {
-                        padding-left    :    00.50rem;
-                        padding-right   :    00.50rem;
-                    }
-                    
-                    .BTTN__container {
-                        flex-direction  :    column;
-                    }
-                    
-                    .BTTN__standard, .BTTN__cancel, .BTTN__query, .BTTN__export {
-                        width           :    100%;
-                        flex-basis      :    auto;
-                        margin-bottom   :    00.50rem;
-                    }
-                }  */
-
-/* 
 
 /* 
 =====================================================================================
@@ -679,4 +660,77 @@ Added 11-Apr-2025
 .URL__copy-btn img {
     width                   :    16px;
     height                  :    16px;
+}
+
+
+
+/* ==============================================================================================
+   CSS | RESPONSIVE ADJUSTMENTS
+   - Responsive design adjustments for mobile devices
+   ============================================================================================== */
+   @media screen and (max-width: 768px) {
+    .MAIN__container {
+        padding-left    :    00.00rem;
+        padding-right   :    00.50rem;
+    }
+    
+    .BTTN__container {
+        flex-direction  :    column;
+    }
+    
+    .BTTN__standard, .BTTN__cancel, .BTTN__query, .BTTN__export {
+        width           :    100%;
+        flex-basis      :    auto;
+        margin-bottom   :    00.50rem;
+    }
+
+    /* Reduce all text sizes to 75% of desktop */
+    .HEAD__title {
+        font-size       :    00.90rem;   
+    }
+    
+    .HEAD__version-note {
+        font-size       :    00.75rem;   
+    }
+    
+    .CTRL__heading, .QURY__heading {
+        font-size       :    00.75rem;   
+    }
+    
+    .RSLT__heading {
+        font-size       :    00.90rem;   
+    }
+    
+    .FORM__label {
+        font-size       :    00.75rem;   
+    }
+    
+    .FORM__textarea, .FORM__input, .FORM__select {
+        font-size       :    00.75rem;
+    }
+    
+    .BTTN__standard, .BTTN__query, .BTTN__export, .BTTN__cancel {
+        font-size       :    00.75rem;    
+    }
+    
+    .MAIN__output {
+        font-size       :    00.75rem;  
+    }
+    
+    .MAIN__output h1 { font-size : 01.25rem;  margin-bottom : 00.50rem;  margin-top : 00.50rem; }     
+    .MAIN__output h2 { font-size : 01.15rem;  margin-bottom : 00.50rem;  margin-top : 02.00rem; }   
+    .MAIN__output h3 { font-size : 00.90rem;  margin-bottom : 00.40rem;  margin-top : 02.00rem; }    
+    .MAIN__output h4 { font-size : 00.80rem;  margin-bottom : 00.40rem;  margin-top : 02.00rem; }   
+    .MAIN__output h5 { font-size : 00.75rem;  margin-bottom : 00.40rem;  margin-top : 02.00rem; }     
+    .MAIN__output h6 { font-size : 00.65rem;  margin-bottom : 00.40rem;  margin-top : 02.00rem; }   
+    
+    /* Reduce list indentation */
+    .MAIN__output ul, .MAIN__output ol {
+        margin-left    :    -01.75rem;            /* <-- Reduced vs desktop */
+        margin-right   :    -00.75rem;            /* <-- Reduced vs desktop */
+    }
+    
+    .MAIN__output li {
+        margin-bottom   :    00.35rem;    
+    }
 }
