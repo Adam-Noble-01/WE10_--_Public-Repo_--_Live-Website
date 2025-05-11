@@ -105,28 +105,49 @@
 
 .UCALC__material-layer {
     border-left: 4px solid #2ecc71;
-    display: grid;
-    grid-template-columns: 0.85fr 0.85fr 130px auto; /* Adjusted ratio to make first two columns narrower */
+    display: flex; /* Change to flexbox for more control */
+    flex-wrap: wrap;
     gap: 1rem;
-    align-items: center;
+    align-items: flex-start;
+    padding: 1rem;
+    position: relative;
+    min-height: 62px;
 }
 
-/* Dropdown Container Styles - Adjust widths based on position */
+/* Create a container for the form fields that takes up most of the space */
+.UCALC__form-fields-container {
+    display: flex;
+    width: calc(100% - 60px); /* Leave space for delete button */
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+/* Adjust the dropdown containers to use flex layout */
 .UCALC__dropdown-container {
+    flex: 1; /* Equal flex growth */
+    min-width: 0; /* Allow containers to shrink below content size */
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    width: 100%; /* Use full width of grid column */
+    gap: 0.4rem;
 }
 
-/* Input Container Styles */
+/* Make the thickness container narrower */
 .UCALC__input-container {
+    width: 100px;
+    flex: 0 0 100px; /* Fixed width, don't grow or shrink */
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    width: 130px;
+    gap: 0.4rem;
 }
 
+/* Input label styles for better alignment */
+.UCALC__input-label {
+    font-size: 0.9rem;
+    color: #555;
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+/* Input field styles */
 .UCALC__input {
     width: 100%;
     padding: 0.5rem;
@@ -139,11 +160,38 @@
 .UCALC__icon {
     width: 1.2rem;
     height: 1.2rem;
+    display: block;
+}
+
+/* Fixed delete button container */
+.UCALC__delete-button-container {
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 10px;
+    top: 2rem; /* Position at same height as fields */
+}
+
+/* Fixed positioning for delete button */
+.UCALC__delete-button {
+    background-color: #fff0f0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Fix R-value display */
 .UCALC__r-value-display {
-    grid-column: 1 / -1;
+    width: 100%;
     margin-top: 0.5rem;
     font-size: 0.9rem;
     padding-top: 0.5rem;
@@ -161,24 +209,22 @@
 
 /* Button Styles */
 .UCALC__add-button-container {
-    display             :    flex;
-    justify-content     :    center;
-    margin-top         :    1rem;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
 }
 
 .UCALC__add-button,
 .UCALC__delete-button {
-    display             :    flex;
-    align-items        :    center;
-    justify-content     :    center;
-    width              :    2.5rem;
-    height             :    2.5rem;
-    border             :    none;
-    border-radius       :    50%;
-    cursor             :    pointer;
-    transition         :    all 0.2s ease;
-    margin             :    auto; /* Center vertically */
-    align-self         :    center; /* Help ensure vertical centering */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .UCALC__add-button {
@@ -187,10 +233,6 @@
 
 .UCALC__add-button:hover {
     background-color    :    #d1f0e0;
-}
-
-.UCALC__delete-button {
-    background-color    :    #fff0f0;
 }
 
 .UCALC__delete-button:hover {
@@ -276,19 +318,23 @@
 /* Responsive Styles */
 @media (max-width: 768px) {
     .UCALC__form {
-        max-width      :    100%;
-        padding        :    0 1rem;
+        max-width: 100%;
+        padding: 0 1rem;
     }
     
-    .UCALC__material-layer {
-        grid-template-columns:    1fr;
-        gap                :    1rem;
+    .UCALC__form-fields-container {
+        flex-direction: column;
+        width: calc(100% - 50px);
     }
     
-    .UCALC__delete-button {
-        position           :    absolute;
-        top               :    0.5rem;
-        right             :    0.5rem;
+    .UCALC__delete-button-container {
+        top: 1rem;
+    }
+    
+    .UCALC__dropdown-container,
+    .UCALC__input-container {
+        width: 100%;
+        flex: auto;
     }
     
     .UCALC__formula {

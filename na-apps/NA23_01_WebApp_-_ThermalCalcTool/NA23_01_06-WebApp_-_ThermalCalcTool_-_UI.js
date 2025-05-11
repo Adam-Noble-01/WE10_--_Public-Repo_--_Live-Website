@@ -236,6 +236,10 @@ import {
     const layerContainer = document.createElement('div');
     layerContainer.classList.add('UCALC__layer', 'UCALC__material-layer');
     
+    // Create the form fields container
+    const formFieldsContainer = document.createElement('div');
+    formFieldsContainer.classList.add('UCALC__form-fields-container');
+    
     // Get material categories
     const categories = getMaterialCategories();
     
@@ -270,7 +274,7 @@ import {
     
     categorySelect.addEventListener('change', handleCategoryChange);
     categoryContainer.appendChild(categorySelect);
-    layerContainer.appendChild(categoryContainer);
+    formFieldsContainer.appendChild(categoryContainer);
     
     // Create material selection dropdown (initially empty)
     const materialContainer = document.createElement('div');
@@ -295,7 +299,7 @@ import {
     
     materialSelect.addEventListener('change', handleMaterialChange);
     materialContainer.appendChild(materialSelect);
-    layerContainer.appendChild(materialContainer);
+    formFieldsContainer.appendChild(materialContainer);
     
     // Create thickness input container
     const thicknessContainer = document.createElement('div');
@@ -315,7 +319,10 @@ import {
     thicknessInput.disabled = true;
     thicknessInput.addEventListener('change', handleThicknessChange);
     thicknessContainer.appendChild(thicknessInput);
-    layerContainer.appendChild(thicknessContainer);
+    formFieldsContainer.appendChild(thicknessContainer);
+    
+    // Add form fields container to the layer container
+    layerContainer.appendChild(formFieldsContainer);
     
     // Create r-value display (hidden until needed)
     const rValueDisplay = document.createElement('div');
@@ -324,13 +331,20 @@ import {
     rValueDisplay.style.display = 'none'; // Hide initially, show when material selected
     layerContainer.appendChild(rValueDisplay);
     
+    // Create delete button container
+    const deleteButtonContainer = document.createElement('div');
+    deleteButtonContainer.classList.add('UCALC__delete-button-container');
+    
     // Create delete button
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
     deleteButton.classList.add('UCALC__delete-button', 'BTTN__icon-button');
     deleteButton.innerHTML = `<img src="${UI_CONFIG.ICON_URLS.DELETE}" alt="Delete" class="UCALC__icon">`;
     deleteButton.addEventListener('click', () => removeMaterialLayer(layerContainer));
-    layerContainer.appendChild(deleteButton);
+    deleteButtonContainer.appendChild(deleteButton);
+    
+    // Add delete button container to the layer container
+    layerContainer.appendChild(deleteButtonContainer);
     
     return layerContainer;
   }

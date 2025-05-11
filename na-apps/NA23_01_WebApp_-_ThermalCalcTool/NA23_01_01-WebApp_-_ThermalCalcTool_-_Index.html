@@ -17,11 +17,9 @@
    DEVELOPMENT LOG
    1.0.0 - 2025-04-12 |  Initial Development
    - Basic file structure and HTML layout created
-   
    1.1.0 - 2025-05-11 |  Full Implementation
    - Complete UI integration
    - Added all required DOM elements for the calculator
-   - Added proper font handling and favicons
    
    ================================================================================================ -->
 
@@ -32,39 +30,11 @@
        <meta name="viewport" content="width=device-width, initial-scale=1.0">
        <title>ThermalCalcTool - U-Value Calculator</title>
        
-       <!--  - - - - - - - - - - - - - - - - - -  FAVICON CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
-       <!-- Primary SVG Favicon (Best for modern browsers) -->
-       <link rel="icon" type="image/svg+xml" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
-       <!-- PNG Fallbacks for various resolutions -->
-       <link rel="icon" type="image/png" sizes="512x512" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png">
-       <link rel="icon" type="image/png" sizes="192x192" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png">
-       <link rel="icon" type="image/png" sizes="32x32" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png">
-       <!-- ICO Fallback for legacy browsers -->
-       <link rel="icon" type="image/x-icon" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
-       <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-       
        <!-- Core Stylesheet -->
        <link rel="stylesheet" href="https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css">
        
        <!-- Application Stylesheet -->
        <link rel="stylesheet" href="NA23_01_02-WebApp_-_ThermalCalcTool_-_ApplicationStyleSheet.css">
-       
-       <!-- Load Open Sans Fonts -->
-       <style>
-           @font-face {
-               font-family             :   'Open Sans Light';
-               src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf') format('truetype');
-               font-weight             :   300;
-               font-style              :   normal;
-           }
-           
-           @font-face {
-               font-family             :   'Open Sans SemiBold';
-               src                     :   url('/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf') format('truetype');
-               font-weight             :   600;
-               font-style              :   normal;
-           }
-       </style>
    </head>
    <body>
        <div class="PAGE__container">
@@ -103,6 +73,7 @@
        </div>
        
        <!-- JavaScript Files (in correct loading order) -->
+       <script src="NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json" type="application/json"></script>
        <script src="NA23_01_04-WebApp_-_ThermalCalcTool_-_DataLoader.js" type="module"></script>
        <script src="NA23_01_05-WebApp_-_ThermalCalcTool_-_MathUtils.js" type="module"></script>
        <script src="NA23_01_06-WebApp_-_ThermalCalcTool_-_UI.js" type="module"></script>
