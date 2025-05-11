@@ -263,9 +263,11 @@ https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD0
   - External surface resistance (Rse)  *<--This Emenet is always the last in the list and cannot be removed*
 
   - Calculation section - Here a Latex Style Formula is displayed, showing the calculation that has been performed.
+    - This section is updated in realtime as the user adds and removes elements from the list.
 
   - Results Sections - The results section is displayed after the calculation section.
   - This section clearly states the combined U-Value of the building component.
+      - This section is updated in realtime as the user adds and removes elements from the list.
 
   - Caveats section - A list of Caveats are displayed in a collapsible section. 
     - All calculations are based on the ISO 6946:2017(E) standards.
@@ -281,6 +283,67 @@ https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD0
 - The user can edit the thickness of the material, and the application will update the calculation and results accordingly.
 - The user can delete the item from the list, and the application will update the calculation and results accordingly.
 - The user can press a + Symbol SVG Button to add a new item to the list.
+
+**UI Elements**
+- Load the SVG icons from the Common Icons and Favicons Library.
+- Use URL Paths to load the icons from the Library.
+- Use the icon-delete-bin icon for the delete button.
+- Use the icon-plus-symbol icon for the add button.
+- I've copied the JSON data for the icons from the Common Icons and Favicons Library.
+- This is so as you can see where they are located in the library and how to reference them.
+```json
+"icon-delete-bin": {
+    "asset-name"            :   "Delete Bin Icon SVG",
+    "asset-dir-path"        :   "./assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons",
+    "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_14_-_Icon_-_Delete-Bin.svg",
+    "asset-file-name"       :   "AD05_14_-_Icon_-_Delete-Bin.svg",
+    "asset-id-code"         :   "AD05_14",
+    "asset-type"            :   "icon",
+    "asset-category"        :   "ui element",
+    "asset-format"          :   "svg",
+    "asset-description"     :   "Delete Bin Icon for Removal Functions",
+    "asset-usage"           :   "used for delete/remove functionality in utility tools",
+    "asset-added-by"        :   "Adam Noble",
+    "asset-last-updated"    :   "11-Apr-2025",
+    "asset-active-status"   :   true
+},
+"icon-plus-symbol": {
+    "asset-name"            :   "Plus Symbol Icon SVG",
+    "asset-dir-path"        :   "./assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons",
+    "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_15_-_Icon_-_Plus-Symbol.svg",
+    "asset-file-name"       :   "AD05_15_-_Icon_-_Plus-Symbol.svg",
+    "asset-id-code"         :   "AD05_15",
+    "asset-type"            :   "icon",
+    "asset-category"        :   "ui element",
+    "asset-format"          :   "svg",
+    "asset-description"     :   "Plus Symbol Icon for Addition Functions",
+    "asset-usage"           :   "used for add/create functionality in utility tools",
+    "asset-added-by"        :   "Adam Noble",
+    "asset-last-updated"    :   "11-Apr-2025",
+    "asset-active-status"   :   true
+}
+```
+
+**Core UI Principles**
+- Should be interactive with elements easily added and removed using icon bubbles.
+- When the + is clicked, a new element is added to the list.
+- When the bin is clicked, the element is removed from the list.
+- The elements should be easily editable, and the application should be able to handle the data being changed.
+- A text input field is shown for the elements with configurable thicknesses.
+  - This is because the materials are variable thicknesses and not standard products.
+  - This allows flexibility in the application to handle different thicknesses of materials such as;
+      - Existing solid brick walls with varying brick sizes.
+      - Timber stud walls with varying stud sizes.
+      - Joist floors with varying joist sizes.
+      - Suspended timber floors with varying joist sizes.
+      - Timber framed walls with varying stud sizes.
+      - Timber framed floors with varying joist sizes.
+      - Timber framed roofs with varying joist sizes.
+      - Etc. or general elements like cut timber where a exhaustive dropdown menu would be impractical.
+- The graphical calculation section should update as the user adds and removes elements from the list.
+- This adds to the user experience and makes the application more intuitive.
+- The application should be able to handle the data being changed.
+- The final simplified value should be updated in realtime too as the user adds and removes elements from the list.
 
 
 # --------------------------------------------------------------------------------------

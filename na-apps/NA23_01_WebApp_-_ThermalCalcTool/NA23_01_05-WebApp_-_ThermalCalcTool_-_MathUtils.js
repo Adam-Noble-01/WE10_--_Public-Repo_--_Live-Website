@@ -32,6 +32,9 @@ const SURFACE_RESISTANCE = {
     SLIGHTLY_VENTILATED: 0.08      // m²K/W - Default for slightly ventilated cavity
 };
 
+// Export as a global variable to ensure it's accessible
+window.SURFACE_RESISTANCE = SURFACE_RESISTANCE;
+
 // Air cavity emissivity factors (Table 2 in ISO 6946)
 const EMISSIVITY_FACTORS = {
     HIGH: 1.0,    // High emissivity (ε > 0.8)
@@ -379,5 +382,6 @@ export {
     calculateCombinedRValue,
     applyAirGapCorrection,
     applyRainWaterCoolingCorrection,
-    calculateConstructionUValue
+    calculateConstructionUValue,
+    SURFACE_RESISTANCE
 }; 

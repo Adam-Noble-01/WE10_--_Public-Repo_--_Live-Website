@@ -23,9 +23,15 @@
    - Study the core stylesheet carefully before adding any new classes to this file
    - New classes should follow the UCALC__ prefix pattern established below
    
+   --------------------------------------------------------------------------------------------
+   
    DEVELOPMENT LOG
    1.0.0 - 2025-04-12 |  Initial Development
    - Basic stylesheet structure created
+
+   1.1.0 - 2025-05-11 |  Full Implementation
+   - Added styles for all UI components
+   - Implemented responsive design for calculator elements
    
    ================================================================================================ */
 
@@ -36,76 +42,352 @@
 
 /* UCALC = ThermalCalcTool Block Prefix */
 
-.UCALC__material-row {
+/* Form Container Styles */
+.UCALC__form {
     display             :    flex;
-    flex-wrap           :    wrap;
-    gap                 :    01.00rem;
-    margin-bottom       :    01.00rem;
-    padding-bottom      :    01.00rem;
-    border-bottom       :    01px solid var(--color-gray-300);
+    flex-direction      :    column;
+    gap                :    2rem;
+    width              :    100%;
+    max-width          :    1000px; /* Increased width to use more of the available space */
+    margin             :    0 auto;
+    padding            :    0;
 }
 
-.UCALC__material-selector {
-    flex                :    1;
-    min-width           :    250px;
+/* Materials Section Styles */
+.UCALC__materials-section {
+    display             :    flex;
+    flex-direction      :    column;
+    gap                :    1rem;
+    padding            :    1rem;
+    background-color    :    #f8f8f8;
+    border-radius       :    0.25rem;
+    box-shadow         :    0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom      :    1rem;
+    margin-left        :    0;
+    margin-right       :    0;
 }
 
-.UCALC__thickness-input {
-    width               :    120px;
+.UCALC__section-heading {
+    font-size          :    1.2rem;
+    font-weight        :    600;
+    margin             :    0 0 1rem 0;
+    color              :    #333;
 }
 
-.UCALC__add-layer-btn {
-    margin-top          :    01.00rem;
-    margin-bottom       :    01.00rem;
+/* Layers Container Styles */
+.UCALC__layers-container {
+    display             :    flex;
+    flex-direction      :    column;
+    gap                :    1rem;
 }
 
-.UCALC__remove-layer-btn {
-    background-color    :    transparent;
-    border              :    none;
-    color               :    var(--color-danger);
-    cursor              :    pointer;
-    padding             :    00.25rem;
+/* Layer Styles */
+.UCALC__layer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: #fff;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    margin-bottom: 0.5rem;
 }
 
-.UCALC__remove-layer-btn:hover {
-    color               :    var(--color-danger-hover);
+.UCALC__fixed-layer {
+    background-color: #f0f7ff;
+    border-left: 4px solid #3498db;
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
 }
 
-.UCALC__results-table {
-    width               :    100%;
-    border-collapse     :    collapse;
-    margin-bottom       :    01.00rem;
+.UCALC__material-layer {
+    border-left: 4px solid #2ecc71;
+    display: grid;
+    grid-template-columns: 0.85fr 0.85fr 130px auto; /* Adjusted ratio to make first two columns narrower */
+    gap: 1rem;
+    align-items: center;
 }
 
-.UCALC__results-table th,
-.UCALC__results-table td {
-    padding             :    00.50rem;
-    text-align          :    left;
-    border-bottom       :    01px solid var(--color-gray-300);
+/* Dropdown Container Styles - Adjust widths based on position */
+.UCALC__dropdown-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%; /* Use full width of grid column */
 }
 
-.UCALC__results-table th {
-    background-color    :    var(--color-gray-100);
-    font-weight         :    600;
+/* Input Container Styles */
+.UCALC__input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 130px;
 }
 
-.UCALC__final-result {
-    font-size           :    01.25rem;
-    font-weight         :    600;
-    margin-top          :    01.00rem;
-    padding             :    01.00rem;
-    background-color    :    var(--color-gray-100);
-    border-radius       :    00.3125rem;
+.UCALC__input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    font-size: 1rem;
 }
 
-.UCALC__info-text {
-    font-size           :    00.875rem;
-    color               :    var(--color-gray-600);
-    margin-top          :    00.50rem;
+/* Icon Styles */
+.UCALC__icon {
+    width: 1.2rem;
+    height: 1.2rem;
 }
 
-.UCALC__warning-text {
-    font-size           :    00.875rem;
-    color               :    var(--color-danger);
-    margin-top          :    00.50rem;
-} 
+/* Fix R-value display */
+.UCALC__r-value-display {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #eee;
+}
+
+/* Make selects full width */
+.UCALC__select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+}
+
+/* Button Styles */
+.UCALC__add-button-container {
+    display             :    flex;
+    justify-content     :    center;
+    margin-top         :    1rem;
+}
+
+.UCALC__add-button,
+.UCALC__delete-button {
+    display             :    flex;
+    align-items        :    center;
+    justify-content     :    center;
+    width              :    2.5rem;
+    height             :    2.5rem;
+    border             :    none;
+    border-radius       :    50%;
+    cursor             :    pointer;
+    transition         :    all 0.2s ease;
+    margin             :    auto; /* Center vertically */
+    align-self         :    center; /* Help ensure vertical centering */
+}
+
+.UCALC__add-button {
+    background-color    :    #e6f7ef;
+}
+
+.UCALC__add-button:hover {
+    background-color    :    #d1f0e0;
+}
+
+.UCALC__delete-button {
+    background-color    :    #fff0f0;
+}
+
+.UCALC__delete-button:hover {
+    background-color    :    #ffe0e0;
+}
+
+/* Calculation Display Styles */
+.UCALC__calculation-display {
+    padding            :    1.5rem;
+    background-color    :    #f9f9f9;
+    border-radius       :    0.25rem;
+    box-shadow         :    0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom      :    1rem;
+    margin-left        :    0;
+    margin-right       :    0;
+}
+
+.UCALC__formula {
+    font-family        :    'Courier New', monospace;
+    font-size          :    1.1rem;
+    background-color    :    #fff;
+    padding            :    1rem;
+    border-radius       :    0.25rem;
+    overflow-x         :    auto;
+    white-space        :    nowrap;
+}
+
+/* Results Display Styles */
+.UCALC__results-display {
+    padding            :    1.5rem;
+    background-color    :    #f0f7ff;
+    border-radius       :    0.25rem;
+    box-shadow         :    0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align         :    center;
+    margin-bottom      :    1rem;
+    margin-left        :    0;
+    margin-right       :    0;
+}
+
+.UCALC__result-value {
+    font-size          :    1.8rem;
+    font-weight        :    700;
+    color              :    #2980b9;
+    margin-bottom      :    0.5rem;
+}
+
+.UCALC__result-note {
+    font-size          :    1rem;
+    color              :    #555;
+}
+
+/* Caveats Section Styles */
+.UCALC__caveats-section {
+    margin-top         :    2rem;
+    padding            :    1rem;
+    background-color    :    #fffaf0;
+    border-radius       :    0.25rem;
+    box-shadow         :    0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-left        :    0;
+    margin-right       :    0;
+    margin-bottom      :    1rem;
+}
+
+.UCALC__caveats-summary {
+    font-size          :    1rem;
+    font-weight        :    600;
+    color              :    #555;
+    cursor             :    pointer;
+    padding            :    0.5rem 0;
+}
+
+.UCALC__caveats-list {
+    margin-top         :    1rem;
+    padding-left       :    1.5rem;
+}
+
+.UCALC__caveats-list li {
+    margin-bottom      :    0.5rem;
+    line-height        :    1.4;
+    color              :    #666;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .UCALC__form {
+        max-width      :    100%;
+        padding        :    0 1rem;
+    }
+    
+    .UCALC__material-layer {
+        grid-template-columns:    1fr;
+        gap                :    1rem;
+    }
+    
+    .UCALC__delete-button {
+        position           :    absolute;
+        top               :    0.5rem;
+        right             :    0.5rem;
+    }
+    
+    .UCALC__formula {
+        font-size          :    0.9rem;
+    }
+    
+    .UCALC__result-value {
+        font-size          :    1.5rem;
+    }
+}
+
+/* ==============================================================================================
+   CSS | PAGE AND CONTAINER OVERRIDES - APP SPECIFIC
+   - These styles override the core styles only for the ThermalCalcTool
+   ============================================================================================== */
+
+/* Add back the missing grey background */
+.FULL__page-app-container {
+    background-color: #f1f1f1; /* Slightly lighter grey */
+    padding: 1rem;
+    width: 100%;
+}
+
+.MAIN__container {
+    background-color: #f1f1f1; /* Slightly lighter grey */
+    padding: 0 !important; /* Remove default padding to allow cards to expand */
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Override the container blocks to match our design */
+.CTRL__block, 
+.RSLT__block {
+    background-color: #f1f1f1;
+    padding: 0;
+    margin: 0 0 1rem 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Adjust the main form width to reduce wasted space */
+.UCALC__form {
+    max-width: 1000px; /* Increased width to use more of the available space */
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Adjust all card elements to have less wasted space on sides */
+.UCALC__materials-section,
+.UCALC__calculation-display,
+.UCALC__results-display,
+.UCALC__caveats-section {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Card-like blocks with better spacing */
+.CTRL__block, 
+.RSLT__block {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Make sure all content in calculation display has enough space */
+.UCALC__formula {
+    margin: 0.5rem 0;
+    padding: 1rem;
+    font-size: 1.15rem;
+    line-height: 1.5;
+}
+
+/* ==============================================================================================
+   CSS | FONTS AND TYPOGRAPHY
+   - Custom font styles for the ThermalCalcTool application
+   ============================================================================================== */
+
+body {
+    font-family: 'Open Sans Light', 'Segoe UI', Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6,
+.HEAD__title,
+.CTRL__heading,
+.RSLT__heading,
+.UCALC__section-heading,
+.UCALC__result-value,
+.UCALC__caveats-summary {
+    font-family: 'Open Sans SemiBold', 'Segoe UI Semibold', Arial, sans-serif;
+    font-weight: 600;
+}
+
+.UCALC__input-label,
+.UCALC__r-value-display {
+    font-family: 'Open Sans SemiBold', 'Segoe UI Semibold', Arial, sans-serif;
+}

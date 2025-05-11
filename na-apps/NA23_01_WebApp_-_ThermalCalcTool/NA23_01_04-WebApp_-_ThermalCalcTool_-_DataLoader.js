@@ -336,27 +336,69 @@ function getMaterialsInCategory(categoryId) {
 // ------------------------------------------------------------
 function getMaterialById(categoryId, materialId) {
     try {
-        const category = ThermalData.material_categories[categoryId];
-        return category.materials[materialId] || null;
+        if (!categoryId || !materialId) {
+            console.warn("Missing parameters in getMaterialById", { categoryId, materialId });
+            return null;
+        }
+        
+        const categories = getMaterialCategories();
+        
+        if (!categories || !categories[categoryId]) {
+            console.warn(`Category not found: ${categoryId}`);
+            return null;
+        }
+        
+        const category = categories[categoryId];
+        
+        if (!category.materials || !category.materials[materialId]) {
+            console.warn(`Material not found: ${materialId} in category ${categoryId}`);
+            return null;
+        }
+        
+        return category.materials[materialId];
     } catch (error) {
-        console.error("Error retrieving material:", error);
+        console.error("Error in getMaterialById:", error);
         return null;
     }
 }
 
-// FUNCTION | Get product by ID
+// FUNCTION | Get product by ID with detailed error handling
 // ------------------------------------------------------------
 function getProductById(categoryId, materialId, productId) {
     try {
-        const material = getMaterialById(categoryId, materialId);
-        
-        if (!material || !material.products) {
+        if (!categoryId || !materialId) {
+            console.warn("Missing category or material ID in getProductById", { categoryId, materialId });
             return null;
         }
         
-        return material.products[productId] || null;
+        // For non-product queries, gracefully handle missing productId
+        if (!productId) {
+            console.warn("No product ID provided to getProductById");
+            return null;
+        }
+        
+        const material = getMaterialById(categoryId, materialId);
+        
+        if (!material) {
+            console.warn(`Material not found: ${materialId} in category ${categoryId}`);
+            return null;
+        }
+        
+        if (!material.products) {
+            console.warn(`No products found in material: ${materialId}`);
+            return null;
+        }
+        
+        const product = material.products[productId];
+        
+        if (!product) {
+            console.warn(`Product not found: ${productId} in material ${materialId}`);
+            return null;
+        }
+        
+        return product;
     } catch (error) {
-        console.error("Error retrieving product:", error);
+        console.error("Error in getProductById:", error);
         return null;
     }
 }
@@ -399,14 +441,26 @@ function getMaterialData(categoryId, materialId, productId, variantId = null) {
     }
 }
 
-// FUNCTION | Check if material is a product with fixed thickness
+// FUNCTION | Check if material is a fixed thickness product
 // ------------------------------------------------------------
-function isFixedThicknessProduct(categoryId, materialId, productId) {
+function isFixedThicknessProduct(categoryId, materialId) {
     try {
-        const product = getProductById(categoryId, materialId, productId);
-        return product && product.is_product === true;
+        if (!categoryId || !materialId) {
+            console.warn("Missing parameters in isFixedThicknessProduct", { categoryId, materialId });
+            return false;
+        }
+        
+        const material = getMaterialById(categoryId, materialId);
+        
+        if (!material) {
+            console.warn(`Material not found: ${materialId} in category ${categoryId}`);
+            return false;
+        }
+        
+        // Check if this is a product with fixed thickness options
+        return material.is_product === true;
     } catch (error) {
-        console.error("Error checking product type:", error);
+        console.error("Error in isFixedThicknessProduct:", error);
         return false;
     }
 }
@@ -494,24 +548,123 @@ function calculateMaterialRValue(categoryId, materialId, productId, variantId = 
 // FUNCTION | Debug data structure (for development)
 // ------------------------------------------------------------
 function debugDataStructure() {
-    console.log("Raw Data Keys:", Object.keys(RawData));
-    console.log("Transformed Data Keys:", Object.keys(ThermalData));
-    if (ThermalData.material_categories) {
-        console.log("Categories:", Object.keys(ThermalData.material_categories));
+    console.log("Full Thermal Data:", ThermalData);
+    console.log("Material Categories:", getMaterialCategories());
+    
+    const categories = getMaterialCategories();
+    for (const categoryId in categories) {
+        console.log(`Category: ${categoryId}`);
+        const materials = getMaterialsInCategory(categoryId);
+        console.log(`Materials in ${categoryId}:`, materials);
         
-        // Sample first category
-        const firstCategoryId = Object.keys(ThermalData.material_categories)[0];
-        if (firstCategoryId) {
-            const firstCategory = ThermalData.material_categories[firstCategoryId];
-            console.log(`First Category (${firstCategoryId}) Materials:`, Object.keys(firstCategory.materials));
+        for (const materialId in materials) {
+            console.log(`Material: ${materialId}`);
+            const material = getMaterialById(categoryId, materialId);
+            console.log(`Material details:`, material);
             
-            // Sample first material
-            const firstMaterialId = Object.keys(firstCategory.materials)[0];
-            if (firstMaterialId) {
-                const firstMaterial = firstCategory.materials[firstMaterialId];
-                console.log(`First Material (${firstMaterialId}) Products:`, Object.keys(firstMaterial.products));
+            if (material.products) {
+                console.log(`Products in ${materialId}:`, material.products);
             }
         }
+    }
+}
+
+// Call this function after data is loaded to verify structure
+function verifyDataLoaded() {
+    if (!isDataLoaded) {
+        console.error("Thermal data not loaded yet");
+        return false;
+    }
+    
+    console.log("Thermal data loaded successfully");
+    debugDataStructure();
+    return true;
+}
+
+// FUNCTION | Log detailed JSON structure for debugging
+// ------------------------------------------------------------
+function logJsonStructure() {
+    console.log("=== THERMAL DATA STRUCTURE ===");
+    console.log("Categories:");
+    
+    const categories = ThermalData.material_categories || {};
+    for (const categoryId in categories) {
+        console.log(`- Category: ${categoryId}`);
+        const category = categories[categoryId];
+        const materials = category.materials || {};
+        
+        console.log(`  Materials (${Object.keys(materials).length}):`);
+        for (const materialId in materials) {
+            console.log(`  - Material: ${materialId}`);
+            const material = materials[materialId];
+            
+            if (material.is_product) {
+                console.log(`    [PRODUCT] Lambda: ${material.lambda}`);
+                
+                if (material.products) {
+                    console.log(`    Products (${Object.keys(material.products).length}):`);
+                    for (const productId in material.products) {
+                        const product = material.products[productId];
+                        console.log(`    - Product: ${productId}`);
+                        
+                        if (product.variants) {
+                            console.log(`      Variants (${Object.keys(product.variants).length}):`);
+                            for (const variantId in product.variants) {
+                                const variant = product.variants[variantId];
+                                console.log(`      - ${variantId}: lambda=${variant.lambda}, thickness=${variant.thickness || "N/A"}`);
+                            }
+                        } else {
+                            console.log(`      No variants found. Direct properties: lambda=${product.lambda}, thickness=${product.thickness || "N/A"}`);
+                        }
+                    }
+                } else {
+                    console.log(`    No products found.`);
+                }
+            } else {
+                console.log(`    [VARIABLE] Lambda: ${material.lambda}`);
+            }
+        }
+    }
+    
+    console.log("=== END STRUCTURE LOG ===");
+}
+
+// FUNCTION | Print sample material structure to console
+// ------------------------------------------------------------
+function printSampleMaterial() {
+    try {
+        const categories = getMaterialCategories();
+        if (!categories || Object.keys(categories).length === 0) {
+            console.error("No categories found in thermal data");
+            return;
+        }
+        
+        // Get first category
+        const firstCategoryId = Object.keys(categories)[0];
+        const firstCategory = categories[firstCategoryId];
+        console.log("Sample category:", firstCategoryId, firstCategory);
+        
+        // Get first material
+        if (!firstCategory.materials || Object.keys(firstCategory.materials).length === 0) {
+            console.error("No materials found in first category");
+            return;
+        }
+        
+        const firstMaterialId = Object.keys(firstCategory.materials)[0];
+        const firstMaterial = firstCategory.materials[firstMaterialId];
+        console.log("Sample material:", firstMaterialId, firstMaterial);
+        
+        // Check if it's a product
+        console.log("Is product:", firstMaterial.is_product);
+        
+        // Check for products if it's a product type
+        if (firstMaterial.is_product && firstMaterial.products) {
+            const firstProductId = Object.keys(firstMaterial.products)[0];
+            const firstProduct = firstMaterial.products[firstProductId];
+            console.log("Sample product:", firstProductId, firstProduct);
+        }
+    } catch (error) {
+        console.error("Error printing sample material:", error);
     }
 }
 
@@ -537,5 +690,8 @@ export {
     isFixedThicknessProduct,
     getAllMaterialOptions,
     calculateMaterialRValue,
-    debugDataStructure
-}; 
+    debugDataStructure,
+    verifyDataLoaded,
+    logJsonStructure,
+    printSampleMaterial
+};
