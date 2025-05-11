@@ -711,14 +711,14 @@
             }
         }
     },
-    "Glass-Mineral-Wool": {
-        "Generic-Glass-Mineral-Wool-CIBSE-12kg_m3": {
+    "Fibreglass-Insulation": {
+        "Generic-Fibreglass-CIBSE-12kg_m3": {
             "is_product": false,
             "standard": {
                 "lambda": 0.040,
                 "r_value": 2.50,
-                "notes": "Generic glass mineral wool (fibreglass), 12 kg/m³. R-value for 100mm thickness.",
-                "info": "Typical 'book value' for glass wool at this density.",
+                "notes": "Generic fibreglass insulation, 12 kg/m³. R-value for 100mm thickness.",
+                "info": "Typical 'book value' for fibreglass at this density.",
                 "warnings": "Use manufacturer-specific data for products where available.",
                 "source": "CIBSE Guide A / Research Doc Sec 2.4"
             }
@@ -728,8 +728,8 @@
             "standard": {
                 "lambda"    :  0.032,
                 "r_value"   :  3.13,
-                "notes"     :  "Glass wool cavity wall insulation. R-value for 100mm.",
-                "info"      :  "High performance glass mineral wool.",
+                "notes"     :  "Fibreglass cavity wall insulation. R-value for 100mm.",
+                "info"      :  "High performance fibreglass insulation.",
                 "warnings"  :  "Must be protected from water during installation.",
                 "source"    :  "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
             }
@@ -739,7 +739,7 @@
             "standard": {
                 "lambda"    :  0.034,
                 "r_value"   :  2.94,
-                "notes"     :  "Standard performance glass wool insulation. R-value for 100mm.",
+                "notes"     :  "Standard performance fibreglass insulation. R-value for 100mm.",
                 "info"      :  "For cavity wall applications.",
                 "warnings"  :  "Water exposure reduces thermal performance.",
                 "source"    :  "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
@@ -750,8 +750,8 @@
             "standard": {
                 "lambda"    :  0.036,
                 "r_value"   :  2.78,
-                "notes"     :  "Glass wool cavity wall insulation. R-value for 100mm.",
-                "info"      :  "Cost-effective glass mineral wool for cavity walls.",
+                "notes"     :  "Fibreglass cavity wall insulation. R-value for 100mm.",
+                "info"      :  "Cost-effective fibreglass for cavity walls.",
                 "warnings"  :  "Protect from moisture during installation.",
                 "source"    :  "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
             }
@@ -835,65 +835,6 @@
                 "info"      :  "Suitable for retrofit applications in masonry cavity walls.",
                 "warnings"  :  "Ensure complete fill and use approved installers/systems.",
                 "source"    :  "Stylite Cavity Wall Loose Fill Datasheet / Research Doc"
-            }
-        }
-    },
-    "Wood-Fibre-Insulation": {
-        "Generic-Wood-Fibre-Board": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  0.042,
-                "r_value"   :  2.38,
-                "notes"     :  "Wood fibre insulation board (~240 kg/m³). R-value for 100mm.",
-                "info"      :  "Eco-friendly insulation with good thermal mass and breathability.",
-                "warnings"  :  "Check suitability for moisture-prone areas. Can be heavier than foam boards.",
-                "source"    :  "CIBSE Guide A / BS EN 13171 / Research Doc Sec 2.7"
-            }
-        },
-        "Generic-Wood-Fibre-Board-Malta-BCA-250-800kg_m3": {
-            "is_product": false,
-            "standard": {
-                "lambda": 0.125,
-                "r_value": 0.80,
-                "notes": "Wood fibre board (250-800 kg/m³). Lambda range 0.07-0.18 W/mK. R-value for 100mm thickness using mid-range lambda (0.125 W/mK).",
-                "info": "Eco-friendly insulation. Properties vary significantly with density.",
-                "warnings": "Use specific product data due to wide lambda range. Differs from CIBSE value (0.042 W/mK).",
-                "source": "Malta BCA / Research Doc Sec 2.7"
-            }
-        }
-    },
-    "Other-Insulation-Materials": {
-        "Cellular-Glass-Insulation": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  0.048,
-                "r_value"   :  2.08,
-                "notes"     :  "Cellular glass insulation (140 kg/m³). R-value for 100mm.",
-                "info"      :  "Rigid, non-combustible, high compressive strength, impervious to water.",
-                "warnings"  :  "Higher lambda than foam insulations. BS EN 13167.",
-                "source"    :  "CIBSE Guide A / Research Doc Sec 2.7"
-            }
-        },
-        "Urea-Formaldehyde-Foam-CIBSE-10kg_m3": {
-            "is_product": false,
-            "standard": {
-                "lambda": 0.04,
-                "r_value": 2.50,
-                "notes": "Urea Formaldehyde Foam (10 kg/m³). R-value for 100mm thickness.",
-                "info": "Restricted in new builds.",
-                "warnings": "Check current regulations for use.",
-                "source": "CIBSE Guide A / Research Doc Sec 2.7"
-            }
-        },
-        "Wood-Wool-Slab-500kg_m3": {
-            "is_product": false,
-            "standard": {
-                "lambda": 0.1,
-                "r_value": 1.00,
-                "notes": "Wood wool slab (500 kg/m³). R-value for 100mm thickness.",
-                "info": "Cement-bonded wood fibres. Good for acoustics and thermal mass.",
-                "warnings": "Higher conductivity than dedicated wood fibre insulation boards.",
-                "source": "Research Doc Sec 2.7"
             }
         }
     },
@@ -1219,6 +1160,241 @@
             }
         }
     },
+    "Plasterboard-And-Gypsum-Products": {
+        "British-Gypsum-Gyproc-WallBoard": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.19,
+                "r_value": 0.066,
+                "thickness": 12.5,
+                "notes": "Standard gypsum plasterboard for general internal wall and ceiling applications.",
+                "info": "Complies with EN 520 Type A; suitable for most drylining applications.",
+                "warnings": "Not moisture resistant; avoid use in high humidity areas.",
+                "source": "British Gypsum Product Data Sheet"
+            }
+        },
+        "British-Gypsum-Gyproc-WallBoard-Ten": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.19,
+                "r_value": 0.066,
+                "thickness": 12.5,
+                "notes": "Enhanced density plasterboard designed to meet Part E acoustic requirements.",
+                "info": "Mass of 10 kg/m²; reduces sound transmission in residential buildings.",
+                "warnings": "Heavier than standard boards; ensure structural suitability.",
+                "source": "British Gypsum Product Data Sheet"
+            }
+        },
+        "British-Gypsum-Gyproc-FireLine": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.24,
+                "r_value": 0.052,
+                "thickness": 12.5,
+                "notes": "Fire-resistant plasterboard suitable for areas requiring enhanced fire protection.",
+                "info": "Contains glass fibre and other additives to improve fire performance.",
+                "warnings": "Higher density may affect handling and installation.",
+                "source": "Briary Energy Material Database"
+            }
+        },
+        "British-Gypsum-Gyproc-Moisture-Resistant": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.19,
+                "r_value": 0.066,
+                "thickness": 12.5,
+                "notes": "Moisture-resistant plasterboard for use in areas with intermittent humidity.",
+                "info": "Suitable for kitchens, bathrooms, and utility rooms; complies with EN 520 Type H1.",
+                "warnings": "Not intended for continuous high-humidity environments.",
+                "source": "British Gypsum Product Data Sheet"
+            }
+        },
+        "British-Gypsum-Gyproc-SoundBloc": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.25,
+                "r_value": 0.050,
+                "thickness": 12.5,
+                "notes": "High-density plasterboard designed for enhanced acoustic performance.",
+                "info": "Reduces sound transmission; ideal for partitions and separating walls.",
+                "warnings": "Increased weight requires appropriate structural support.",
+                "source": "British Gypsum Product Page"
+            }
+        },
+        "British-Gypsum-Rigidur-H": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.19,
+                "r_value": 0.066,
+                "thickness": 12.5,
+                "notes": "Impact-resistant gypsum fibreboard for high-traffic areas.",
+                "info": "Offers superior strength and durability; suitable for schools, hospitals, and public buildings.",
+                "warnings": "Requires appropriate fixings due to increased density.",
+                "source": "InsulationBee Product Specification"
+            }
+        },
+        "Knauf-Wallboard": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.16,
+                "r_value": 0.078,
+                "thickness": 12.5,
+                "notes": "Standard gypsum-based plasterboard for partitions, linings, and ceilings.",
+                "info": "Lightweight and easy to install; suitable for direct decoration or plaster finish.",
+                "warnings": "Not suitable for areas with high moisture exposure.",
+                "source": "InsulationGo Product Specification"
+            }
+        },
+        "Gypsum-Plaster": {
+            "is_product": false,
+            "Lightweight-600kg_m3": {
+                "lambda"    :  0.18,
+                "r_value"   :  0.072,
+                "notes"     :  "Lightweight gypsum plaster (600 kg/m³). R-value for 13mm thickness.",
+                "info"      :  "Internal wall finish. Better insulator than dense plaster.",
+                "warnings"  :  "Check suitability for application (e.g. durability).",
+                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.1"
+            },
+            "Medium-Density-900kg_m3": {
+                "lambda"    :  0.30,
+                "r_value"   :  0.043,
+                "notes"     :  "Medium density gypsum plaster (900 kg/m³). R-value for 13mm thickness.",
+                "info"      :  "Internal wall finish.",
+                "warnings"  :  "Properties vary with mix.",
+                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.1"
+            },
+            "Dense-1200kg_m3": {
+                "lambda"    :  0.43,
+                "r_value"   :  0.030,
+                "notes"     :  "Dense gypsum plaster (1200 kg/m³). R-value for 13mm thickness.",
+                "info"      :  "Internal wall finish. More durable, less insulating.",
+                "warnings"  :  "Properties vary with mix.",
+                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.1"
+            },
+            "Gypsum-Perlite-Plaster-950kg_m3": {
+                "lambda": 0.18,
+                "r_value": 0.072,
+                "notes": "Gypsum perlite plaster (950 kg/m³). R-value for 13mm thickness.",
+                "info": "Lightweight plaster with perlite for improved insulation. Same lambda as Malta BCA Lightweight.",
+                "warnings": "Check mix and application.",
+                "source": "Standard U-Values / Research Doc Sec 7.1"
+            },
+            "Generic-Gypsum-Plaster-DesigningBuildingsWiki": {
+                "lambda": 0.46,
+                "r_value": 0.028,
+                "notes": "Generic gypsum plaster. R-value for 13mm thickness.",
+                "info": "Alternative generic value from Designing Buildings Wiki. Higher conductivity than other listed gypsum plasters.",
+                "warnings": "Properties vary with mix.",
+                "source": "Designing Buildings Wiki / Research Doc Sec 7.1"
+            }
+        },
+        "Cement-Render-Plaster": {
+            "is_product": false,
+            "External-Render-1300kg_m3": {
+                "lambda"    :  0.57,
+                "r_value"   :  0.033,
+                "notes"     :  "External cement render (1300 kg/m³). R-value for 19mm thickness.",
+                "info"      :  "External weatherproof finish.",
+                "warnings"  :  "Conductivity affected by moisture and density.",
+                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.2"
+            },
+            "Cement-Plaster-1760kg_m3": {
+                "lambda"    :  0.72,
+                "r_value"   :  0.018,
+                "notes"     :  "Internal cement plaster (1760 kg/m³). R-value for 13mm thickness.",
+                "info"      :  "Durable internal finish, often in wet areas.",
+                "warnings"  :  "Poor insulator.",
+                "source"    :  "CIBSE Guide A / Research Doc Sec 7.2"
+            },
+            "Rendering-1430kg_m3-1pc-Moisture": {
+                "lambda": 1.13,
+                "r_value": 0.017,
+                "notes": "Rendering (1430 kg/m³, 1% moisture). R-value for 19mm thickness.",
+                "info": "Value from CIBSE Guide A.",
+                "warnings": "Conductivity affected by density and moisture.",
+                "source": "CIBSE Guide A / Research Doc Sec 7.2"
+            },
+            "Rendering-1330kg_m3-8pc-Moisture": {
+                "lambda": 0.79,
+                "r_value": 0.024,
+                "notes": "Rendering (1330 kg/m³, 8% moisture). R-value for 19mm thickness.",
+                "info": "Value from CIBSE Guide A.",
+                "warnings": "Higher moisture content increases conductivity compared to very dry mix.",
+                "source": "CIBSE Guide A / Research Doc Sec 7.2"
+            },
+            "Sand-Cement-Render-DesigningBuildingsWiki": {
+                "lambda": 0.50,
+                "r_value": 0.038,
+                "notes": "Sand/cement render. R-value for 19mm thickness.",
+                "info": "Alternative generic value from Designing Buildings Wiki. Close to Malta BCA External Render (0.57 W/mK).",
+                "warnings": "Properties vary with mix.",
+                "source": "Designing Buildings Wiki / Research Doc Sec 7.2"
+            }
+        },
+        "Lime-Render-Plaster": {
+            "is_product": false,
+            "Lime-Plaster-Render-1300kg_m3": {
+                "lambda"    :  0.80,
+                "r_value"   :  0.024,
+                "notes"     :  "Lime plaster/render (Limestone in torba, 1300 kg/m³). R-value for 19mm thickness.",
+                "info"      :  "Breathable finish, used in traditional construction.",
+                "warnings"  :  "Properties vary with mix and application.",
+                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.3"
+            },
+            "Cement-Lime-Plaster-CIBSE-1600kg_m3": {
+                "lambda": 0.8,
+                "r_value": 0.024,
+                "notes": "Cement/lime plaster (1600 kg/m³). R-value for 19mm thickness (if render). Same as Malta BCA Lime Plaster/Render.",
+                "info": "Value from CIBSE Guide A.",
+                "warnings": "Check if for plaster or render thickness.",
+                "source": "CIBSE Guide A / Research Doc Sec 7.3"
+            }
+        },
+        "Gypsum-Fibreboard-Fermacell-Type": {
+            "is_product"   :  false,
+            "standard": {
+                "lambda"    :  0.32,
+                "r_value"   :  0.039,
+                "notes"     :  "Gypsum Fibreboard (e.g., Fermacell). R-value for 12.5mm thickness.",
+                "info"      :  "High-density building board with structural, impact, and acoustic properties. Not primarily an insulator.",
+                "warnings"  :  "Distinct from foam-backed insulated plasterboards.",
+                "source"    :  "Research Doc - Insulated Plasterboard Section (Fermacell)"
+            }
+        },
+        "Skimming-Plaster": {
+            "is_product"   :  true,
+            "2mm-Thickness-Skimming-Plaster-Coat": {
+                "lambda"    :  0.46,
+                "r_value"   :  0.004,
+                "thickness" :  2,
+                "notes"     :  "Dense gypsum skimming plaster (1200 kg/m³). R-value for 2 mm thickness.",
+                "info"      :  "Thin finish coat for internal walls and ceilings.",
+                "warnings"  :  "Very thin layer, minimal thermal resistance. Properties vary with mix and application.",
+                "source"    :  "EN 12524:2000 Table A6",
+                "validated" :  "11-May-2025"
+            },
+            "3mm-Thickness-Skimming-Plaster-Coat": {
+                "lambda"    :  0.46,
+                "r_value"   :  0.0065,
+                "thickness" :  3,
+                "notes"     :  "Dense gypsum skimming plaster (1200 kg/m³). R-value for 3 mm thickness.",
+                "info"      :  "Standard finish coat for internal walls and ceilings.",
+                "warnings"  :  "Very thin layer, minimal thermal resistance. Properties vary with mix and application.",
+                "source"    :  "EN 12524:2000 Table A6",
+                "validated" :  "11-May-2025"
+            },
+            "5mm-Thickness-Skimming-Plaster-Coat": {
+                "lambda"    :  0.46,
+                "r_value"   :  0.011,
+                "thickness" :  5,
+                "notes"     :  "Dense gypsum skimming plaster (1200 kg/m³). R-value for 5 mm thickness.",
+                "info"      :  "Thicker finish coat for internal walls and ceilings where additional smoothing is required.",
+                "warnings"  :  "Thin layer, minimal thermal resistance. Properties vary with mix and application.",
+                "source"    :  "EN 12524:2000 Table A6",
+                "validated" :  "11-May-2025"
+            }
+        }
+    },
     "Timber-Products": {
         "Softwood": {
             "is_product": false,
@@ -1430,267 +1606,6 @@
             }
         }
     },
-    "Roofing-Materials-Outer-Coverings": {
-        "Concrete-Roof-Tiles": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  1.5,
-                "r_value"   :  0.01,
-                "notes"     :  "Concrete roof tiles (2100 kg/m³). R-value for typical 15mm thickness. Negligible in most U-value calcs.",
-                "info"      :  "Outer weatherproof layer for pitched roofs.",
-                "warnings"  :  "Thermal resistance usually ignored if roof void is ventilated.",
-                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 6.1 & Table 6.1"
-            }
-        },
-        "Clay-Roof-Tiles": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  1.0,
-                "r_value"   :  0.012,
-                "notes"     :  "Clay roof tiles (1900-2000 kg/m³). Lambda 0.85-1.0. R-value for typical 12mm thickness at lambda 1.0. Negligible in most U-value calcs.",
-                "info"      :  "Outer weatherproof layer for pitched roofs.",
-                "warnings"  :  "Thermal resistance usually ignored if roof void is ventilated.",
-                "source"    :  "Malta BCA / EN 12524, Greenspec / Research Doc Sec 6.2 & Table 6.1"
-            },
-            "Greenspec-1900kg_m3": {
-                "lambda": 0.85,
-                "r_value": 0.014,
-                "notes": "Clay roof tiles (1900 kg/m³). R-value for typical 12mm thickness. Negligible in most U-value calcs.",
-                "info": "Alternative value from Greenspec. Differs from Malta BCA (1.0 W/mK).",
-                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
-                "source": "Greenspec / Research Doc Sec 6.2 & Table 6.1"
-            }
-        },
-        "Natural-Slates-Roofing": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  2.2,
-                "r_value"   :  0.003,
-                "notes"     :  "Natural slates for roofing (1600-2800 kg/m³). Lambda 1.0-2.5. R-value for typical 7mm thickness at lambda 2.2. Negligible.",
-                "info"      :  "Outer weatherproof layer for pitched roofs. Lambda varies significantly.",
-                "warnings"  :  "Thermal resistance usually ignored if roof void is ventilated.",
-                "source"    :  "Multiple Sources (Malta BCA, Greenspec, Cupa) / Research Doc Sec 6.3 & Table 6.1"
-            },
-            "Malta-BCA-13mm-1602kg_m3": {
-                "lambda": 1.0,
-                "r_value": 0.013,
-                "notes": "Natural slates (13mm thick, 1602 kg/m³). R-value for 13mm thickness. Negligible.",
-                "info": "Specific value from Malta BCA / EN 12524.",
-                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
-                "source": "Malta BCA / EN 12524 / Research Doc Sec 6.3 & Table 6.1"
-            },
-            "Greenspec-2691kg_m3": {
-                "lambda": 2.5,
-                "r_value": 0.003,
-                "notes": "Natural slates (2691 kg/m³). R-value for typical 7mm thickness. Negligible.",
-                "info": "Alternative value from Greenspec. Very high conductivity.",
-                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
-                "source": "Greenspec / Research Doc Sec 6.3 & Table 6.1"
-            },
-            "Cupa-Pizarras-Slate": {
-                "is_product": true,
-                "standard": {
-                    "lambda": 1.49,
-                    "r_value": 0.005,
-                    "notes": "Cupa Pizarras natural slate. R-value for typical 7mm thickness. Negligible.",
-                    "info": "Manufacturer specific value. Higher conductivity parallel to cleavage.",
-                    "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
-                    "source": "Cupa Pizarras / Research Doc Sec 6.3 & Table 6.1"
-                }
-            }
-        },
-        "Bituminous-Roofing-Felt": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  0.23,
-                "r_value"   :  0.013,
-                "notes"     :  "Bituminous roofing felt (1100 kg/m³). Lambda 0.20-0.23. R-value for typical 3mm thickness at lambda 0.23.",
-                "info"      :  "Waterproofing layer, often in flat roofs or as underlay.",
-                "warnings"  :  "Usually part of a built-up system. Negligible thermal resistance alone.",
-                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 6.4 & Table 6.1"
-            },
-            "Felt-On-Flat-Roof-Malta-BCA-1100kg_m3": {
-                "lambda": 0.20,
-                "r_value": 0.015,
-                "notes": "Bitumen felt on flat roof (1100 kg/m³). R-value for typical 3mm thickness.",
-                "info": "Alternative value from Malta BCA / EN 12524. Differs from other Malta BCA felt (0.23 W/mK).",
-                "warnings": "Negligible thermal resistance.",
-                "source": "Malta BCA / EN 12524 / Research Doc Sec 6.4 & Table 6.1"
-            },
-            "Bitumen-Insulation-Felt-CIBSE-1000kg_m3": {
-                "lambda": 0.20,
-                "r_value": 0.015,
-                "notes": "Bitumen insulation/felt, all types (1000 kg/m³). R-value for typical 3mm thickness.",
-                "info": "Value from CIBSE Guide A. May refer to bitumen-bonded boards rather than simple felt.",
-                "warnings": "Source note suggests potential ambiguity.",
-                "source": "CIBSE Guide A / Research Doc Sec 6.4 & Table 6.1"
-            }
-        }
-    },
-    "Surface-Finishes-And-Boards": {
-        "Gypsum-Plaster": {
-            "is_product": false,
-            "Lightweight-600kg_m3": {
-                "lambda"    :  0.18,
-                "r_value"   :  0.072,
-                "notes"     :  "Lightweight gypsum plaster (600 kg/m³). R-value for 13mm thickness.",
-                "info"      :  "Internal wall finish. Better insulator than dense plaster.",
-                "warnings"  :  "Check suitability for application (e.g. durability).",
-                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.1"
-            },
-            "Medium-Density-900kg_m3": {
-                "lambda"    :  0.30,
-                "r_value"   :  0.043,
-                "notes"     :  "Medium density gypsum plaster (900 kg/m³). R-value for 13mm thickness.",
-                "info"      :  "Internal wall finish.",
-                "warnings"  :  "Properties vary with mix.",
-                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.1"
-            },
-            "Dense-1200kg_m3": {
-                "lambda"    :  0.43,
-                "r_value"   :  0.030,
-                "notes"     :  "Dense gypsum plaster (1200 kg/m³). R-value for 13mm thickness.",
-                "info"      :  "Internal wall finish. More durable, less insulating.",
-                "warnings"  :  "Properties vary with mix.",
-                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.1"
-            },
-            "Gypsum-Perlite-Plaster-950kg_m3": {
-                "lambda": 0.18,
-                "r_value": 0.072,
-                "notes": "Gypsum perlite plaster (950 kg/m³). R-value for 13mm thickness.",
-                "info": "Lightweight plaster with perlite for improved insulation. Same lambda as Malta BCA Lightweight.",
-                "warnings": "Check mix and application.",
-                "source": "Standard U-Values / Research Doc Sec 7.1"
-            },
-            "Generic-Gypsum-Plaster-DesigningBuildingsWiki": {
-                "lambda": 0.46,
-                "r_value": 0.028,
-                "notes": "Generic gypsum plaster. R-value for 13mm thickness.",
-                "info": "Alternative generic value from Designing Buildings Wiki. Higher conductivity than other listed gypsum plasters.",
-                "warnings": "Properties vary with mix.",
-                "source": "Designing Buildings Wiki / Research Doc Sec 7.1"
-            }
-        },
-        "Cement-Render-Plaster": {
-            "is_product": false,
-            "External-Render-1300kg_m3": {
-                "lambda"    :  0.57,
-                "r_value"   :  0.033,
-                "notes"     :  "External cement render (1300 kg/m³). R-value for 19mm thickness.",
-                "info"      :  "External weatherproof finish.",
-                "warnings"  :  "Conductivity affected by moisture and density.",
-                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.2"
-            },
-            "Cement-Plaster-1760kg_m3": {
-                "lambda"    :  0.72,
-                "r_value"   :  0.018,
-                "notes"     :  "Internal cement plaster (1760 kg/m³). R-value for 13mm thickness.",
-                "info"      :  "Durable internal finish, often in wet areas.",
-                "warnings"  :  "Poor insulator.",
-                "source"    :  "CIBSE Guide A / Research Doc Sec 7.2"
-            },
-            "Rendering-1430kg_m3-1pc-Moisture": {
-                "lambda": 1.13,
-                "r_value": 0.017,
-                "notes": "Rendering (1430 kg/m³, 1% moisture). R-value for 19mm thickness.",
-                "info": "Value from CIBSE Guide A.",
-                "warnings": "Conductivity affected by density and moisture.",
-                "source": "CIBSE Guide A / Research Doc Sec 7.2"
-            },
-            "Rendering-1330kg_m3-8pc-Moisture": {
-                "lambda": 0.79,
-                "r_value": 0.024,
-                "notes": "Rendering (1330 kg/m³, 8% moisture). R-value for 19mm thickness.",
-                "info": "Value from CIBSE Guide A.",
-                "warnings": "Higher moisture content increases conductivity compared to very dry mix.",
-                "source": "CIBSE Guide A / Research Doc Sec 7.2"
-            },
-            "Sand-Cement-Render-DesigningBuildingsWiki": {
-                "lambda": 0.50,
-                "r_value": 0.038,
-                "notes": "Sand/cement render. R-value for 19mm thickness.",
-                "info": "Alternative generic value from Designing Buildings Wiki. Close to Malta BCA External Render (0.57 W/mK).",
-                "warnings": "Properties vary with mix.",
-                "source": "Designing Buildings Wiki / Research Doc Sec 7.2"
-            }
-        },
-        "Lime-Render-Plaster": {
-            "is_product": false,
-            "Lime-Plaster-Render-1300kg_m3": {
-                "lambda"    :  0.80,
-                "r_value"   :  0.024,
-                "notes"     :  "Lime plaster/render (Limestone in torba, 1300 kg/m³). R-value for 19mm thickness.",
-                "info"      :  "Breathable finish, used in traditional construction.",
-                "warnings"  :  "Properties vary with mix and application.",
-                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.3"
-            },
-            "Cement-Lime-Plaster-CIBSE-1600kg_m3": {
-                "lambda": 0.8,
-                "r_value": 0.024,
-                "notes": "Cement/lime plaster (1600 kg/m³). R-value for 19mm thickness (if render). Same as Malta BCA Lime Plaster/Render.",
-                "info": "Value from CIBSE Guide A.",
-                "warnings": "Check if for plaster or render thickness.",
-                "source": "CIBSE Guide A / Research Doc Sec 7.3"
-            }
-        },
-        "Gypsum-Plasterboard": {
-            "is_product": false,
-            "Standard-upto_700kg_m3": {
-                "lambda"    :  0.21,
-                "r_value"   :  0.060,
-                "notes"     :  "Standard gypsum plasterboard (≤700 kg/m³). R-value for 12.5mm thickness.",
-                "info"      :  "Common internal lining board.",
-                "warnings"  :  "Not a significant thermal insulator on its own.",
-                "source"    :  "BR 443:2019 / Research Doc Sec 7.4"
-            },
-            "Dense-upto_900kg_m3": {
-                "lambda"    :  0.25,
-                "r_value"   :  0.050,
-                "notes"     :  "Higher density gypsum plasterboard (≤900 kg/m³, e.g. acoustic/fire boards). R-value for 12.5mm thickness.",
-                "info"      :  "Used for improved acoustic or fire performance.",
-                "warnings"  :  "Slightly higher conductivity than standard board.",
-                "source"    :  "BR 443:2019 / Research Doc Sec 7.4"
-            },
-            "Ceiling-Wallboard-Malta-BCA-900kg_m3": {
-                "lambda"    :  0.21,
-                "r_value"   :  0.060,
-                "notes"     :  "Plasterboard (ceiling/wallboard, 900 kg/m³). R-value for 12.5mm thickness.",
-                "info"      :  "Value from Malta BCA / EN 12524. Differs from BR443 (0.25 W/mK) for this density range.",
-                "warnings"  :  "BR443 suggests 0.25 W/mK for >700-900 kg/m³.",
-                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.4"
-            },
-            "Standard-Plasterboard-StdUVal-DBW-600kg_m3": {
-                "lambda"    :  0.16,
-                "r_value"   :  0.078,
-                "notes"     :  "Standard plasterboard (600 kg/m³). R-value for 12.5mm thickness.",
-                "info"      :  "Value from Standard U-Values / Designing Buildings Wiki. Lower lambda than BR443 (0.21 W/mK) for ≤700kg/m³.",
-                "warnings"  :  "BR443 suggests 0.21 W/mK for ≤700 kg/m³.",
-                "source"    :  "Standard U-Values, Designing Buildings Wiki / Research Doc Sec 7.4"
-            }
-        },
-        "Gypsum-Fibreboard-Fermacell-Type": {
-            "is_product"   :  false,
-            "standard": {
-                "lambda"    :  0.32,
-                "r_value"   :  0.039,
-                "notes"     :  "Gypsum Fibreboard (e.g., Fermacell). R-value for 12.5mm thickness.",
-                "info"      :  "High-density building board with structural, impact, and acoustic properties. Not primarily an insulator.",
-                "warnings"  :  "Distinct from foam-backed insulated plasterboards.",
-                "source"    :  "Research Doc - Insulated Plasterboard Section (Fermacell)"
-            }
-        },
-        "Skimming-Plaster": {
-            "is_product"   :  false,
-            "3mm-Skim-Coat": {
-                "lambda"    :  0.43,
-                "r_value"   :  0.007,
-                "notes"     :  "Dense gypsum skimming plaster (1200 kg/m³). R-value for 3mm thickness.",
-                "info"      :  "Typical thin finish coat for internal walls and ceilings.",
-                "warnings"  :  "Very thin layer, minimal thermal resistance. Properties vary with mix and application.",
-                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.1"
-            }
-        }
-    },
     "Insulated-Plasterboard": {
         "Kingspan-Kooltherm-K118": {
             "is_product": true,
@@ -1838,6 +1753,160 @@
                 "info"      :  "For ground floors, lambda 0.033 W/mK.",
                 "warnings": "Check fire and application suitability.",
                 "source": "Celotex XPS 300 SL FN Datasheet"
+            }
+        }
+    },
+    "Roofing-Materials-Outer-Coverings": {
+        "Concrete-Roof-Tiles": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  1.5,
+                "r_value"   :  0.01,
+                "notes"     :  "Concrete roof tiles (2100 kg/m³). R-value for typical 15mm thickness. Negligible in most U-value calcs.",
+                "info"      :  "Outer weatherproof layer for pitched roofs.",
+                "warnings"  :  "Thermal resistance usually ignored if roof void is ventilated.",
+                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 6.1 & Table 6.1"
+            }
+        },
+        "Clay-Roof-Tiles": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  1.0,
+                "r_value"   :  0.012,
+                "notes"     :  "Clay roof tiles (1900-2000 kg/m³). Lambda 0.85-1.0. R-value for typical 12mm thickness at lambda 1.0. Negligible in most U-value calcs.",
+                "info"      :  "Outer weatherproof layer for pitched roofs.",
+                "warnings"  :  "Thermal resistance usually ignored if roof void is ventilated.",
+                "source"    :  "Malta BCA / EN 12524, Greenspec / Research Doc Sec 6.2 & Table 6.1"
+            },
+            "Greenspec-1900kg_m3": {
+                "lambda": 0.85,
+                "r_value": 0.014,
+                "notes": "Clay roof tiles (1900 kg/m³). R-value for typical 12mm thickness. Negligible in most U-value calcs.",
+                "info": "Alternative value from Greenspec. Differs from Malta BCA (1.0 W/mK).",
+                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                "source": "Greenspec / Research Doc Sec 6.2 & Table 6.1"
+            }
+        },
+        "Natural-Slates-Roofing": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  2.2,
+                "r_value"   :  0.003,
+                "notes"     :  "Natural slates for roofing (1600-2800 kg/m³). Lambda 1.0-2.5. R-value for typical 7mm thickness at lambda 2.2. Negligible.",
+                "info"      :  "Outer weatherproof layer for pitched roofs. Lambda varies significantly.",
+                "warnings"  :  "Thermal resistance usually ignored if roof void is ventilated.",
+                "source"    :  "Multiple Sources (Malta BCA, Greenspec, Cupa) / Research Doc Sec 6.3 & Table 6.1"
+            },
+            "Malta-BCA-13mm-1602kg_m3": {
+                "lambda": 1.0,
+                "r_value": 0.013,
+                "notes": "Natural slates (13mm thick, 1602 kg/m³). R-value for 13mm thickness. Negligible.",
+                "info": "Specific value from Malta BCA / EN 12524.",
+                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 6.3 & Table 6.1"
+            },
+            "Greenspec-2691kg_m3": {
+                "lambda": 2.5,
+                "r_value": 0.003,
+                "notes": "Natural slates (2691 kg/m³). R-value for typical 7mm thickness. Negligible.",
+                "info": "Alternative value from Greenspec. Very high conductivity.",
+                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                "source": "Greenspec / Research Doc Sec 6.3 & Table 6.1"
+            },
+            "Cupa-Pizarras-Slate": {
+                "is_product": true,
+                "standard": {
+                    "lambda": 1.49,
+                    "r_value": 0.005,
+                    "notes": "Cupa Pizarras natural slate. R-value for typical 7mm thickness. Negligible.",
+                    "info": "Manufacturer specific value. Higher conductivity parallel to cleavage.",
+                    "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                    "source": "Cupa Pizarras / Research Doc Sec 6.3 & Table 6.1"
+                }
+            }
+        },
+        "Bituminous-Roofing-Felt": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  0.23,
+                "r_value"   :  0.013,
+                "notes"     :  "Bituminous roofing felt (1100 kg/m³). Lambda 0.20-0.23. R-value for typical 3mm thickness at lambda 0.23.",
+                "info"      :  "Waterproofing layer, often in flat roofs or as underlay.",
+                "warnings"  :  "Usually part of a built-up system. Negligible thermal resistance alone.",
+                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 6.4 & Table 6.1"
+            },
+            "Felt-On-Flat-Roof-Malta-BCA-1100kg_m3": {
+                "lambda": 0.20,
+                "r_value": 0.015,
+                "notes": "Bitumen felt on flat roof (1100 kg/m³). R-value for typical 3mm thickness.",
+                "info": "Alternative value from Malta BCA / EN 12524. Differs from other Malta BCA felt (0.23 W/mK).",
+                "warnings": "Negligible thermal resistance.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 6.4 & Table 6.1"
+            },
+            "Bitumen-Insulation-Felt-CIBSE-1000kg_m3": {
+                "lambda": 0.20,
+                "r_value": 0.015,
+                "notes": "Bitumen insulation/felt, all types (1000 kg/m³). R-value for typical 3mm thickness.",
+                "info": "Value from CIBSE Guide A. May refer to bitumen-bonded boards rather than simple felt.",
+                "warnings": "Source note suggests potential ambiguity.",
+                "source": "CIBSE Guide A / Research Doc Sec 6.4 & Table 6.1"
+            }
+        }
+    },
+    "Specialist-Insulation-Materials": {
+        "Cellular-Glass-Insulation": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  0.048,
+                "r_value"   :  2.08,
+                "notes"     :  "Cellular glass insulation (140 kg/m³). R-value for 100mm.",
+                "info"      :  "Rigid, non-combustible, high compressive strength, impervious to water.",
+                "warnings"  :  "Higher lambda than foam insulations. BS EN 13167.",
+                "source"    :  "CIBSE Guide A / Research Doc Sec 2.7"
+            }
+        },
+        "Generic-Wood-Fibre-Board": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  0.042,
+                "r_value"   :  2.38,
+                "notes"     :  "Wood fibre insulation board (~240 kg/m³). R-value for 100mm.",
+                "info"      :  "Eco-friendly insulation with good thermal mass and breathability.",
+                "warnings"  :  "Check suitability for moisture-prone areas. Can be heavier than foam boards.",
+                "source"    :  "CIBSE Guide A / BS EN 13171 / Research Doc Sec 2.7"
+            }
+        },
+        "Generic-Wood-Fibre-Board-Malta-BCA-250-800kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.125,
+                "r_value": 0.80,
+                "notes": "Wood fibre board (250-800 kg/m³). Lambda range 0.07-0.18 W/mK. R-value for 100mm thickness using mid-range lambda (0.125 W/mK).",
+                "info": "Eco-friendly insulation. Properties vary significantly with density.",
+                "warnings": "Use specific product data due to wide lambda range. Differs from CIBSE value (0.042 W/mK).",
+                "source": "Malta BCA / Research Doc Sec 2.7"
+            }
+        },
+        "Urea-Formaldehyde-Foam-CIBSE-10kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.04,
+                "r_value": 2.50,
+                "notes": "Urea Formaldehyde Foam (10 kg/m³). R-value for 100mm thickness.",
+                "info": "Restricted in new builds.",
+                "warnings": "Check current regulations for use.",
+                "source": "CIBSE Guide A / Research Doc Sec 2.7"
+            }
+        },
+        "Wood-Wool-Slab-500kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.1,
+                "r_value": 1.00,
+                "notes": "Wood wool slab (500 kg/m³). R-value for 100mm thickness.",
+                "info": "Cement-bonded wood fibres. Good for acoustics and thermal mass.",
+                "warnings": "Higher conductivity than dedicated wood fibre insulation boards.",
+                "source": "Research Doc Sec 2.7"
             }
         }
     }

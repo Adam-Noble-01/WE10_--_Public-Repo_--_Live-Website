@@ -27,6 +27,11 @@
    - Link Here 
      `https://www.noble-architecture.com/na-apps/NA23_01_WebApp_-_ThermalCalcTool/NA23_01_01-WebApp_-_ThermalCalcTool_-_Index`
    
+   1.2.1 - 2025-05-12 |  Version Injector & Font Updates
+   - Added automatic version injector script
+   - Fixed font styling issues to match other Noble Architecture apps
+   - Improved responsive layout and spacing
+   
    ================================================================================================ -->
 
    <!DOCTYPE html>
@@ -34,7 +39,8 @@
    <head>
        <meta charset="UTF-8">
        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-       <title>ThermalCalcTool - U-Value Calculator</title>
+       <meta name="application-version" content="1.2.1">
+       <title>Thermal Calculator Tool - U-Value Calculator</title>
        
        <!-- Core Stylesheet -->
        <link rel="stylesheet" href="https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css">
@@ -47,7 +53,7 @@
            <!-- Header -->
            <header class="HEAD__container">
                <nav class="HEAD__nav">
-                   <h1 class="HEAD__title">ThermalCalcTool <span class="HEAD__version-note">v1.0</span></h1>
+                   <h1 class="HEAD__title">U-Value Calculator <span class="HEAD__version-note">v1.2.1</span></h1>
                </nav>
            </header>
            
@@ -77,5 +83,6 @@
        <script src="NA23_01_04-WebApp_-_ThermalCalcTool_-_DataLoader.js" type="module"></script>
        <script src="NA23_01_05-WebApp_-_ThermalCalcTool_-_MathUtils.js" type="module"></script>
        <script src="NA23_01_06-WebApp_-_ThermalCalcTool_-_UI.js" type="module"></script>
+       <script src="NA23_01_07-WebApp_-_ThermalCalcTool_-_VersionInjector.js"></script>
    </body>
    </html>
