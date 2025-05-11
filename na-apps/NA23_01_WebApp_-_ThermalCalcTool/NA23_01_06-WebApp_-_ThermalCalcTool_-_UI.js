@@ -540,39 +540,17 @@ import {
         thicknessInput.required = true;
         thicknessInput.addEventListener('change', handleThicknessChange);
         
-        // Look for lambda at material level or in the first product
-        let lambdaFound = false;
-        
-        // Check for lambda at material level
+        // Check if material has a lambda value at the material level
+        // This has been pre-processed by the DataLoader
         if (material.lambda) {
+          // Use the lambda value extracted during data processing
           layerContainer.dataset.lambda = material.lambda;
-          console.log(`Set lambda value from material: ${material.lambda}`);
-          lambdaFound = true;
-        } else {
-          // Try to find lambda in the first product or standard variant
-          const products = Object.values(material.products);
-          if (products.length > 0) {
-            const firstProduct = products[0];
-            
-            if (firstProduct.lambda) {
-              layerContainer.dataset.lambda = firstProduct.lambda;
-              console.log(`Set lambda value from product: ${firstProduct.lambda}`);
-              lambdaFound = true;
-            } else if (firstProduct.standard && firstProduct.standard.lambda) {
-              // Some products have a "standard" key with lambda value
-              layerContainer.dataset.lambda = firstProduct.standard.lambda;
-              console.log(`Set lambda value from standard: ${firstProduct.standard.lambda}`);
-              lambdaFound = true;
-            }
-          }
-        }
-        
-        if (lambdaFound) {
-          // Enable thickness input for manual entry
+          console.log(`Using material-level lambda value: ${material.lambda}`);
           thicknessInput.disabled = false;
         } else {
-          thicknessInput.disabled = true;
+          // Still no lambda found - this should be rare after our DataLoader changes
           console.error(`No lambda value found for material: ${materialId}`);
+          thicknessInput.disabled = true;
         }
         
         // Add to container

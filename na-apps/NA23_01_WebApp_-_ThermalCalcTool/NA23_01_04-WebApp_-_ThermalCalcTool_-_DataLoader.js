@@ -13,6 +13,26 @@
 // - Makes data available to other scripts
 // - Handles data validation and preprocessing
 //
+// IMPORTANT NOTE
+// - This is a critical component of the ThermalCalcTool application
+// - The data transformation ensures proper lambda value availability 
+// - Material thickness handling depends on this preprocessing stage
+// - Any changes to JSON structure must be reflected here first
+//
+// THICKNESS HANDLING LOGIC
+// The application handles two types of materials with different thickness behaviors:
+// 1. FIXED THICKNESS PRODUCTS:
+//    - Material has is_product=true in JSON
+//    - UI displays a dropdown of predefined thickness options
+//    - Each option has fixed lambda and r-values
+//
+// 2. VARIABLE THICKNESS MATERIALS:
+//    - Material has is_product=false in JSON
+//    - Processor adds is_variable_thickness=true flag
+//    - Lambda values are "bubbled up" from nested product structures
+//    - UI displays a numeric input field for custom thickness
+//    - R-values are calculated dynamically based on thickness and lambda
+//
 // FILE REFERENCED AND PROCESSED
 // - This script is designed to load
 //   `NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json`
@@ -31,6 +51,11 @@
 // - Modified to work with existing JSON structure
 // - Added transformation logic to adapt to different data hierarchy
 // - Updated validation checks to match actual JSON format
+//
+// 1.3.0 - 2025-05-18 |  Enhanced Variable Thickness Support
+// - Added material-level lambda value extraction
+// - Implemented is_variable_thickness flag for better UI integration
+// - Fixed issues with concrete and other variable thickness materials
 //
 // =========================================================
 
@@ -177,52 +202,89 @@ function processData(data) {
                     });
                 } else {
                     // This is a material with multiple products (no is_product flag or false)
+                    // Add a flag to indicate this is a variable thickness material
+                    transformedData.material_categories[key].materials[materialId].is_variable_thickness = true;
+                    
+                    // Process all products under this material
                     Object.keys(material).forEach(productId => {
-                        const product = material[productId];
-                        
-                        // Check if this product has sub-products (variants)
-                        if (product.is_product === true) {
-                            // This product has variants
-                            transformedData.material_categories[key].materials[materialId].products[productId] = {
-                                name: formatProductName(productId),
-                                is_product: true,
-                                variants: {}
-                            };
+                        if (productId !== 'is_product') { // Skip the is_product flag
+                            const product = material[productId];
                             
-                            // Process each variant
-                            Object.keys(product).forEach(variantId => {
-                                if (variantId !== 'is_product') {
-                                    const variant = product[variantId];
-                                    
-                                    // Pre-calculate R-value if needed
-                                    if (variant.thickness && variant.lambda && !variant.r_value) {
-                                        // Convert thickness from mm to m
-                                        const thicknessInMeters = variant.thickness / 1000;
-                                        variant.r_value = thicknessInMeters / variant.lambda;
+                            // Check if this product has sub-products (variants)
+                            if (product.is_product === true) {
+                                // This product has variants
+                                transformedData.material_categories[key].materials[materialId].products[productId] = {
+                                    name: formatProductName(productId),
+                                    is_product: true,
+                                    variants: {}
+                                };
+                                
+                                // Process each variant
+                                Object.keys(product).forEach(variantId => {
+                                    if (variantId !== 'is_product') {
+                                        const variant = product[variantId];
+                                        
+                                        // Pre-calculate R-value if needed
+                                        if (variant.thickness && variant.lambda && !variant.r_value) {
+                                            // Convert thickness from mm to m
+                                            const thicknessInMeters = variant.thickness / 1000;
+                                            variant.r_value = thicknessInMeters / variant.lambda;
+                                        }
+                                        
+                                        transformedData.material_categories[key].materials[materialId].products[productId].variants[variantId] = {
+                                            name: formatVariantName(variantId),
+                                            ...variant
+                                        };
                                     }
-                                    
-                                    transformedData.material_categories[key].materials[materialId].products[productId].variants[variantId] = {
-                                        name: formatVariantName(variantId),
-                                        ...variant
-                                    };
+                                });
+                            } else {
+                                // This is a simple product
+                                // Pre-calculate R-value if needed
+                                if (product.thickness && product.lambda && !product.r_value) {
+                                    // Convert thickness from mm to m
+                                    const thicknessInMeters = product.thickness / 1000;
+                                    product.r_value = thicknessInMeters / product.lambda;
                                 }
-                            });
-                        } else {
-                            // This is a simple product
-                            // Pre-calculate R-value if needed
-                            if (product.thickness && product.lambda && !product.r_value) {
-                                // Convert thickness from mm to m
-                                const thicknessInMeters = product.thickness / 1000;
-                                product.r_value = thicknessInMeters / product.lambda;
+                                
+                                transformedData.material_categories[key].materials[materialId].products[productId] = {
+                                    name: formatProductName(productId),
+                                    is_product: false,
+                                    ...product
+                                };
+                                
+                                // Bubble up lambda to the material level for variable thickness materials
+                                if (product.lambda && !transformedData.material_categories[key].materials[materialId].lambda) {
+                                    transformedData.material_categories[key].materials[materialId].lambda = product.lambda;
+                                }
                             }
-                            
-                            transformedData.material_categories[key].materials[materialId].products[productId] = {
-                                name: formatProductName(productId),
-                                is_product: false,
-                                ...product
-                            };
                         }
                     });
+                    
+                    // For materials without lambda at material level, try to extract from first product
+                    if (!transformedData.material_categories[key].materials[materialId].lambda) {
+                        const products = Object.values(transformedData.material_categories[key].materials[materialId].products);
+                        if (products.length > 0) {
+                            const firstProduct = products[0];
+                            
+                            // Try to get lambda from the product
+                            if (firstProduct.lambda) {
+                                transformedData.material_categories[key].materials[materialId].lambda = firstProduct.lambda;
+                            } 
+                            // Try to get lambda from standard (if it exists)
+                            else if (firstProduct.standard && firstProduct.standard.lambda) {
+                                transformedData.material_categories[key].materials[materialId].lambda = firstProduct.standard.lambda;
+                            }
+                            // Try to get lambda from the first property that has it
+                            else {
+                                for (const propKey in firstProduct) {
+                                    if (typeof firstProduct[propKey] === 'object' && firstProduct[propKey].lambda) {
+                                        transformedData.material_categories[key].materials[materialId].lambda = firstProduct[propKey].lambda;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
