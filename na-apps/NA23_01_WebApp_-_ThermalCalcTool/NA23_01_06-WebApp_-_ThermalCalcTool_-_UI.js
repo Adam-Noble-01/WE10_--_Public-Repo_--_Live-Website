@@ -15,12 +15,22 @@
 // - Manages material selection and thickness inputs
 //
 // DEVELOPMENT LOG
-// 1.0.0 - 2025-04-12 |  Initial Development
+// 1.0.0 - 11-May-2025 |  Initial Development
 // - Basic UI structure created
-// 1.1.0 - 2025-05-11 |  Full UI Implementation
+//
+// 1.1.0 - 11-May-2025 |  Full UI Implementation
 // - Added material layer management
 // - Implemented calculation flow and display
 // - Added event handlers for all UI elements
+//
+// 1.2.0 - 11-May-2025 |  Material Input and Calculation Fixes
+// - Fixed thickness input validation for concrete and masonry (integer-only)
+// - Added material type detection to apply proper input restrictions
+// - Enhanced results display with detailed calculation breakdown table
+// - Improved logging and validation of layer data
+// - Added comprehensive calculation table showing thickness, lambda, and R-values
+// - Fixed potential missing layer issue in calculations
+// - Added responsive styling for the detailed results table
 //
 // =========================================================
 
@@ -313,8 +323,9 @@ import {
     const thicknessInput = document.createElement('input');
     thicknessInput.type = 'number';
     thicknessInput.classList.add('UCALC__input');
-    thicknessInput.min = '0.1';
-    thicknessInput.step = '0.1';
+    // Default to whole number increments for general materials
+    thicknessInput.min = '1';
+    thicknessInput.step = '1';
     thicknessInput.required = true;
     thicknessInput.disabled = true;
     thicknessInput.addEventListener('change', handleThicknessChange);
@@ -369,6 +380,13 @@ import {
     materialDefault.disabled = true;
     materialSelect.appendChild(materialDefault);
     
+    // Get selected category
+    const categoryId = categorySelect.value;
+    
+    // Check if the category requires whole number thickness values
+    const wholeNumberOnlyCategories = ['Concrete-And-Screeds', 'Masonry-Materials'];
+    const requiresWholeNumberThickness = wholeNumberOnlyCategories.includes(categoryId);
+    
     // Reset thickness container to default input field
     thicknessContainer.innerHTML = '';
     
@@ -380,8 +398,18 @@ import {
     const thicknessInput = document.createElement('input');
     thicknessInput.type = 'number';
     thicknessInput.classList.add('UCALC__input');
-    thicknessInput.min = '0.1';
-    thicknessInput.step = '0.1';
+    
+    // Set appropriate min and step based on category type
+    if (requiresWholeNumberThickness) {
+        // Whole numbers only for construction materials like concrete and masonry
+        thicknessInput.min = '1';
+        thicknessInput.step = '1';
+    } else {
+        // Allow decimal precision for other materials
+        thicknessInput.min = '0.1';
+        thicknessInput.step = '0.1';
+    }
+    
     thicknessInput.required = true;
     thicknessInput.disabled = true;
     thicknessInput.addEventListener('change', handleThicknessChange);
@@ -395,8 +423,6 @@ import {
     delete layerContainer.dataset.rValue;
     delete layerContainer.dataset.thickness;
     
-    // Get selected category
-    const categoryId = categorySelect.value;
     if (!categoryId) {
       return;
     }
@@ -459,6 +485,10 @@ import {
       const isProduct = Object.values(material.products).some(product => 
         product.is_product === true && product.variants && Object.keys(product.variants).length > 0
       );
+      
+      // Check if material is in specific categories that should only use whole numbers
+      const wholeNumberOnlyCategories = ['Concrete-And-Screeds', 'Masonry-Materials'];
+      const requiresWholeNumberThickness = wholeNumberOnlyCategories.includes(categoryId) && !isProduct;
       
       // Reset the thickness container
       thicknessContainer.innerHTML = '';
@@ -549,8 +579,18 @@ import {
         const thicknessInput = document.createElement('input');
         thicknessInput.type = 'number';
         thicknessInput.classList.add('UCALC__input');
-        thicknessInput.min = '0.1';
-        thicknessInput.step = '0.1';
+        
+        // Set appropriate min and step based on material type
+        if (requiresWholeNumberThickness) {
+          // Whole numbers only for construction materials like concrete and masonry
+          thicknessInput.min = '1';
+          thicknessInput.step = '1';
+        } else {
+          // Allow decimal precision for other materials (like insulation products)
+          thicknessInput.min = '0.1';
+          thicknessInput.step = '0.1';
+        }
+        
         thicknessInput.required = true;
         thicknessInput.addEventListener('change', handleThicknessChange);
         
@@ -727,108 +767,131 @@ import {
     
     // Get all material layers
     const layers = [];
+    let layerCount = 0;
+    let validLayerCount = 0;
     
     // Get internal surface resistance
     const internalLayer = document.querySelector('.UCALC__fixed-layer[data-type="internal"]');
     if (internalLayer) {
-      const rValue = parseFloat(internalLayer.dataset.rValue) || SURFACE_RESISTANCE.INTERNAL;
-      layers.push({
-        name: 'Internal Surface Resistance (Rsi)',
-        rValue: rValue
-      });
-      console.log(`Added internal surface resistance: ${rValue}`);
+        const rValue = parseFloat(internalLayer.dataset.rValue) || SURFACE_RESISTANCE.INTERNAL;
+        layers.push({
+            name: 'Internal Surface Resistance (Rsi)',
+            rValue: rValue
+        });
+        console.log(`Layer ${layerCount++}: Internal Surface Resistance, R-value: ${rValue}`);
+        validLayerCount++;
     }
     
     // Get all material layers
     const materialLayers = document.querySelectorAll('.UCALC__material-layer');
     materialLayers.forEach((layer, index) => {
-      const categorySelect = layer.querySelector('.UCALC__dropdown-container:nth-of-type(1) .UCALC__select');
-      const materialSelect = layer.querySelector('.UCALC__dropdown-container:nth-of-type(2) .UCALC__select');
-      
-      // Find the thickness (either from input or select)
-      const thicknessInput = layer.querySelector('.UCALC__input');
-      const thicknessSelect = layer.querySelector('.UCALC__input-container .UCALC__select');
-      
-      // Get thickness from either the input field or select dropdown
-      let hasThickness = false;
-      let thickness = 0;
-      
-      if (thicknessInput && thicknessInput.value) {
-        thickness = parseFloat(thicknessInput.value);
-        hasThickness = true;
-      } else if (thicknessSelect && thicknessSelect.value) {
-        // For dropdown, thickness might be stored in the dataset
-        if (layer.dataset.thickness) {
-          thickness = parseFloat(layer.dataset.thickness);
-          hasThickness = true;
-        } else {
-          // Try to extract from selected option text
-          const selectedOption = thicknessSelect.options[thicknessSelect.selectedIndex];
-          const thicknessMatch = selectedOption.textContent.match(/(\d+(?:\.\d+)?)mm/);
-          if (thicknessMatch && thicknessMatch[1]) {
-            thickness = parseFloat(thicknessMatch[1]);
+        const categorySelect = layer.querySelector('.UCALC__dropdown-container:nth-of-type(1) .UCALC__select');
+        const materialSelect = layer.querySelector('.UCALC__dropdown-container:nth-of-type(2) .UCALC__select');
+        
+        if (!categorySelect || !materialSelect) {
+            console.warn(`Layer ${layerCount} missing select elements`);
+            layerCount++;
+            return;
+        }
+        
+        // Find the thickness (either from input or select)
+        const thicknessInput = layer.querySelector('.UCALC__input');
+        const thicknessSelect = layer.querySelector('.UCALC__input-container .UCALC__select');
+        
+        // Get thickness from either the input field or select dropdown
+        let hasThickness = false;
+        let thickness = 0;
+        
+        if (thicknessInput && thicknessInput.value) {
+            thickness = parseFloat(thicknessInput.value);
             hasThickness = true;
-          }
-        }
-      }
-      
-      // Only include if category and material are selected and thickness has a value
-      if (categorySelect.value && materialSelect.value && hasThickness) {
-        const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
-        const materialName = materialSelect.options[materialSelect.selectedIndex].text;
-        
-        // Get lambda
-        const lambda = parseFloat(layer.dataset.lambda);
-        
-        // Calculate R-value if not already calculated
-        let rValue = parseFloat(layer.dataset.rValue);
-        
-        if (!rValue && thickness && lambda) {
-          const thicknessInMeters = thickness / 1000; // Convert mm to m
-          rValue = thicknessInMeters / lambda;
-          layer.dataset.rValue = rValue.toFixed(4);
+        } else if (thicknessSelect && thicknessSelect.value) {
+            // For dropdown, thickness might be stored in the dataset
+            if (layer.dataset.thickness) {
+                thickness = parseFloat(layer.dataset.thickness);
+                hasThickness = true;
+            } else {
+                // Try to extract from selected option text
+                const selectedOption = thicknessSelect.options[thicknessSelect.selectedIndex];
+                const thicknessMatch = selectedOption.textContent.match(/(\d+(?:\.\d+)?)mm/);
+                if (thicknessMatch && thicknessMatch[1]) {
+                    thickness = parseFloat(thicknessMatch[1]);
+                    hasThickness = true;
+                }
+            }
         }
         
-        if (rValue > 0) {
-          layers.push({
-            name: `${categoryName} - ${materialName}`,
-            rValue: rValue
-          });
-          console.log(`Added layer ${index}: ${categoryName} - ${materialName}, R-value: ${rValue}`);
+        // Only include if category and material are selected and thickness has a value
+        if (categorySelect.value && materialSelect.value && hasThickness) {
+            const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
+            const materialName = materialSelect.options[materialSelect.selectedIndex].text;
+            
+            // Get lambda
+            const lambda = parseFloat(layer.dataset.lambda);
+            
+            // Calculate R-value if not already calculated
+            let rValue = parseFloat(layer.dataset.rValue);
+            
+            if (!rValue && thickness && lambda) {
+                const thicknessInMeters = thickness / 1000; // Convert mm to m
+                rValue = thicknessInMeters / lambda;
+                layer.dataset.rValue = rValue.toFixed(4);
+                console.log(`Calculated R-value for ${categoryName} - ${materialName}: ${rValue.toFixed(4)} (thickness: ${thickness}mm, lambda: ${lambda})`);
+            }
+            
+            if (rValue > 0) {
+                layers.push({
+                    name: `${categoryName} - ${materialName}`,
+                    rValue: rValue,
+                    thickness: thickness,
+                    lambda: lambda
+                });
+                console.log(`Layer ${layerCount}: ${categoryName} - ${materialName}, R-value: ${rValue.toFixed(4)}, thickness: ${thickness}mm, lambda: ${lambda}`);
+                validLayerCount++;
+            } else {
+                console.warn(`Layer ${layerCount} has invalid R-value: ${rValue}`);
+            }
         } else {
-          console.warn(`Layer ${index} has invalid R-value: ${rValue}`);
+            if (categorySelect.value && materialSelect.value) {
+                console.warn(`Layer ${layerCount} (${materialSelect.options[materialSelect.selectedIndex].text}) missing thickness value`);
+            } else {
+                console.warn(`Layer ${layerCount} missing selection or thickness`);
+            }
         }
-      }
+        layerCount++;
     });
     
     // Get external surface resistance
     const externalLayer = document.querySelector('.UCALC__fixed-layer[data-type="external"]');
     if (externalLayer) {
-      const rValue = parseFloat(externalLayer.dataset.rValue) || SURFACE_RESISTANCE.EXTERNAL;
-      layers.push({
-        name: 'External Surface Resistance (Rse)',
-        rValue: rValue
-      });
-      console.log(`Added external surface resistance: ${rValue}`);
+        const rValue = parseFloat(externalLayer.dataset.rValue) || SURFACE_RESISTANCE.EXTERNAL;
+        layers.push({
+            name: 'External Surface Resistance (Rse)',
+            rValue: rValue
+        });
+        console.log(`Layer ${layerCount++}: External Surface Resistance, R-value: ${rValue}`);
+        validLayerCount++;
     }
+    
+    console.log(`Total layers: ${layerCount}, Valid layers: ${validLayerCount}`);
     
     // Only proceed if we have at least the surface resistances
     if (layers.length < 2) {
-      console.warn("Not enough layers to calculate U-value");
-      return;
+        console.warn("Not enough layers to calculate U-value");
+        return;
     }
     
     // Calculate total R-value manually to avoid import issues
     let totalRValue = 0;
     layers.forEach(layer => {
-      totalRValue += layer.rValue;
+        totalRValue += layer.rValue;
     });
     
-    console.log(`Total R-value: ${totalRValue}`);
+    console.log(`Total R-value: ${totalRValue.toFixed(4)}`);
     
     // Calculate U-value manually to avoid import issues
     const uValue = 1 / totalRValue;
-    console.log(`U-value: ${uValue}`);
+    console.log(`U-value: ${uValue.toFixed(4)}`);
     
     // Display results
     displayResults({ totalRValue, uValue, layers });
@@ -844,22 +907,50 @@ import {
                               document.querySelector('.UCALC__calculation-display');
                               
     if (calculationDisplay) {
-      let formulaHTML = '<h3>Calculation:</h3>';
-      formulaHTML += '<div class="UCALC__formula">';
-      formulaHTML += 'U = 1 / (';
-      
-      layers.forEach((layer, index) => {
-        formulaHTML += `${layer.rValue.toFixed(2)}`;
-        if (index < layers.length - 1) {
-          formulaHTML += ' + ';
-        }
-      });
-      
-      formulaHTML += ') = 1 / ';
-      formulaHTML += `${totalRValue.toFixed(2)} = ${uValue.toFixed(2)} W/m²K`;
-      formulaHTML += '</div>';
-      
-      calculationDisplay.innerHTML = formulaHTML;
+        let formulaHTML = '<h3>Calculation:</h3>';
+        formulaHTML += '<div class="UCALC__formula">';
+        formulaHTML += 'U = 1 / (';
+        
+        layers.forEach((layer, index) => {
+            formulaHTML += `${layer.rValue.toFixed(2)}`;
+            if (index < layers.length - 1) {
+                formulaHTML += ' + ';
+            }
+        });
+        
+        formulaHTML += ') = 1 / ';
+        formulaHTML += `${totalRValue.toFixed(2)} = ${uValue.toFixed(2)} W/m²K`;
+        formulaHTML += '</div>';
+        
+        // Add detailed breakdown of layers
+        formulaHTML += '<table class="UCALC__layers-table">';
+        formulaHTML += '<tr><th>Layer</th><th>Thickness (mm)</th><th>λ (W/mK)</th><th>R-value (m²K/W)</th></tr>';
+        
+        layers.forEach((layer, index) => {
+            formulaHTML += '<tr>';
+            formulaHTML += `<td>${layer.name}</td>`;
+            
+            // Only show thickness and lambda for material layers (not surface resistances)
+            if (layer.thickness && layer.lambda) {
+                formulaHTML += `<td>${layer.thickness}</td>`;
+                formulaHTML += `<td>${layer.lambda}</td>`;
+            } else {
+                formulaHTML += '<td>-</td><td>-</td>';
+            }
+            
+            formulaHTML += `<td>${layer.rValue.toFixed(3)}</td>`;
+            formulaHTML += '</tr>';
+        });
+        
+        // Add total row
+        formulaHTML += '<tr class="UCALC__total-row">';
+        formulaHTML += '<td colspan="3">Total R-value</td>';
+        formulaHTML += `<td>${totalRValue.toFixed(3)}</td>`;
+        formulaHTML += '</tr>';
+        
+        formulaHTML += '</table>';
+        
+        calculationDisplay.innerHTML = formulaHTML;
     }
     
     // Display the result
@@ -867,11 +958,11 @@ import {
                              document.querySelector('.UCALC__results-display');
                              
     if (resultsDisplay) {
-      resultsDisplay.innerHTML = `
-        <h3>Results:</h3>
-        <div class="UCALC__result-value">U-Value: ${uValue.toFixed(2)} W/m²K</div>
-        <div class="UCALC__result-note">Total R-Value: ${totalRValue.toFixed(2)} m²K/W</div>
-      `;
+        resultsDisplay.innerHTML = `
+            <h3>Results:</h3>
+            <div class="UCALC__result-value">U-Value: ${uValue.toFixed(2)} W/m²K</div>
+            <div class="UCALC__result-note">Total R-Value: ${totalRValue.toFixed(2)} m²K/W</div>
+        `;
     }
   }
   

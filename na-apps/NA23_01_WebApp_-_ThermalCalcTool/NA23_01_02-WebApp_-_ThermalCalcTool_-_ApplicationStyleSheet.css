@@ -33,6 +33,12 @@
    - Added styles for all UI components
    - Implemented responsive design for calculator elements
    
+   1.2.0 - 2025-05-11 |  Enhanced Results Display
+   - Added detailed calculation table styles (UCALC__layers-table)
+   - Styled table headers, cells, and summary row
+   - Implemented responsive styling for the results table
+   - Added visual hierarchy to calculation results display
+   
    ================================================================================================ */
 
 /* ==============================================================================================
@@ -315,7 +321,46 @@
     color              :    #666;
 }
 
-/* Responsive Styles */
+/* Results Table Styles */
+.UCALC__layers-table {
+    width: 100%;
+    margin-top: 1.5rem;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    background-color: #fff;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.UCALC__layers-table th {
+    background-color: #f0f7ff;
+    padding: 0.7rem 0.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+
+.UCALC__layers-table td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.UCALC__layers-table tr:last-child td {
+    border-bottom: none;
+}
+
+.UCALC__total-row {
+    background-color: #f9f9f9;
+    font-weight: 600;
+}
+
+.UCALC__total-row td {
+    border-top: 2px solid #ddd;
+}
+
+/* Mobile Responsive Table */
 @media (max-width: 768px) {
     .UCALC__form {
         max-width: 100%;
@@ -343,6 +388,15 @@
     
     .UCALC__result-value {
         font-size          :    1.5rem;
+    }
+    
+    .UCALC__layers-table {
+        font-size: 0.8rem;
+    }
+    
+    .UCALC__layers-table th,
+    .UCALC__layers-table td {
+        padding: 0.4rem 0.3rem;
     }
 }
 
