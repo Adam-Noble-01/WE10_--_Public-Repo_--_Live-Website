@@ -1,0 +1,80 @@
+<!-- ================================================================================================
+   THERMAL CALC TOOL - U-VALUE CALCULATOR
+   ================================================================================================
+   
+   FILENAME  |  NA23_01_01-WebApp_-_ThermalCalcTool_-_Index.html
+   DIRECTORY |  na-apps/NA23_01_WebApp_-_ThermalCalcTool/
+   
+   AUTHOR    |  Noble Architecture
+   DATE      |  2025-04-12
+   
+   DESCRIPTION
+   - Web application for calculating U-Values of building components
+   - Compliant with ISO 6946:2017(E) standards
+   - Allows selection of materials from a JSON database
+   - Handles both fixed-thickness products and variable-thickness materials
+   
+   DEVELOPMENT LOG
+   1.0.0 - 2025-04-12 |  Initial Development
+   - Basic file structure and HTML layout created
+   
+   ================================================================================================ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThermalCalcTool - U-Value Calculator</title>
+    
+    <!-- Core Stylesheet -->
+    <link rel="stylesheet" href="https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css">
+    
+    <!-- Application Stylesheet -->
+    <link rel="stylesheet" href="NA23_01_02-WebApp_-_ThermalCalcTool_-_ApplicationStyleSheet.css">
+    
+    <!-- Load JSON Data First -->
+    <script src="NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json"></script>
+</head>
+<body>
+    <div class="PAGE__container">
+        <!-- Header -->
+        <header class="HEAD__container">
+            <nav class="HEAD__nav">
+                <h1 class="HEAD__title">ThermalCalcTool <span class="HEAD__version-note">v1.0</span></h1>
+            </nav>
+        </header>
+        
+        <!-- Main Content -->
+        <div class="FULL__page-app-container">
+            <main class="MAIN__container">
+                <!-- Control Section -->
+                <div class="CTRL__block">
+                    <h2 class="CTRL__heading">U-Value Calculator</h2>
+                    <!-- Form content will be populated by JavaScript -->
+                </div>
+                
+                <!-- Results Section -->
+                <div class="RSLT__block">
+                    <h2 class="RSLT__heading">Calculation Results</h2>
+                    <div class="MAIN__output">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+            </main>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="FOOT__container">
+            <div class="FOOT__content">
+                <p>ThermalCalcTool &copy; Noble Architecture - ISO 6946:2017(E) Compliant</p>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- JavaScript Files (in correct loading order) -->
+    <script src="NA23_01_04-WebApp_-_ThermalCalcTool_-_DataLoader.js"></script>
+    <script src="NA23_01_05-WebApp_-_ThermalCalcTool_-_MathUtils.js"></script>
+    <script src="NA23_01_06-WebApp_-_ThermalCalcTool_-_UI.js"></script>
+</body>
+</html> 

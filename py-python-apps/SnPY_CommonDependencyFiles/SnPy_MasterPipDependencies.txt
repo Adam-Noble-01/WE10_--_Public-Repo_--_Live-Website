@@ -1,0 +1,44 @@
+# SnPy Master PIP Dependencies
+# ------------------------------------------------------------
+- This file contains all pip install dependencies required for the SnPy tools.
+- Reference this file in all scripts for dependency installation instructions.
+- To install all dependencies, copy and paste the following command into PowerShell:
+    `pip install <Command_0> <Command_1> <Command_2>`
+
+
+# ------------------------------------------------------------
+
+
+## - - - - - - - - REQUIREMENTS PLAINTEXT LIST - - - - - - - - 
+
+pillow
+tqdm
+PyPDF2 
+
+## - - - - - - END OF REQUIREMENTS PLAINTEXT LIST - - - - - - - 
+
+
+
+# ------------------------------------------------------------
+
+
+
+## - - - - - PIP COMMAND TO INSTALL ALL DEPENDENCIES - - - - -
+`pip install pymupdf pillow tqdm PyPDF2`
+# ------------------------------------------------------------
+
+
+
+#### lIST Of Dependencies Updated  -  09-May-2025
+
+
+
+## -----------------------------------------------------------
+### LOG OF INSTALLATION  -  09-May-2025
+`pip install pymupdf pillow tqdm PyPDF2`
+Requirement already satisfied: pymupdf in c:\users\adamw\appdata\local\programs\python\python313\lib\site-packages (1.25.5)
+Requirement already satisfied: pillow in c:\users\adamw\appdata\local\programs\python\python313\lib\site-packages (11.2.1)
+Requirement already satisfied: tqdm in c:\users\adamw\appdata\local\programs\python\python313\lib\site-packages (4.67.1)
+Requirement already satisfied: PyPDF2 in c:\users\adamw\appdata\local\programs\python\python313\lib\site-packages (3.0.1)
+Requirement already satisfied: colorama in c:\users\adamw\appdata\local\programs\python\python313\lib\site-packages (from tqdm) (0.4.6)
+## -----------------------------------------------------------

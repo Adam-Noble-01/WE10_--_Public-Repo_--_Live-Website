@@ -1,0 +1,72 @@
+# SnPy Code Header Standards
+# ------------------------------------------------------------
+
+All new Python scripts must include a code header at the very top of the file, following this exact structure and order. This ensures consistency, traceability, and professionalism across the codebase.
+
+## Header Template
+
+# =========================================================
+# SCRIPT TITLE (e.g., PDF TO PNG CONVERTER)
+# =========================================================
+#
+# FILENAME  |  <script_filename.py>
+# DIRECTORY |  <absolute_or_relative_path_to_script>
+#
+# AUTHOR    |  <author_name_or_team>
+# DATE      |  <YYYY-MM-DD>
+#
+# DESCRIPTION
+# - Briefly describe the script's purpose and main features.
+# - Use bullet points for clarity.
+#
+# DEVELOPMENT LOG
+# <version> - <date> |  <summary of change>
+# - List key changes, features, or fixes for each version.
+# - Use bullet points for details.
+#
+# =========================================================
+
+## Field Explanations
+
+- **SCRIPT TITLE**: A short, descriptive title in all caps.
+- **FILENAME**: The exact name of the script file.
+- **DIRECTORY**: The absolute or relative path to the script file.
+- **AUTHOR**: The main author or team responsible for the script.
+- **DATE**: The date the script was first created (YYYY-MM-DD).
+- **DESCRIPTION**: A concise summary of what the script does, its main features, and any important notes. Use bullet points for readability.
+- **DEVELOPMENT LOG**: A chronological log of changes, versions, and key updates. Each entry should include the version, date, and a summary, followed by bullet points for details.
+
+## Example Header
+
+# =========================================================
+# PDF TO PNG CONVERTER
+# =========================================================
+#
+# FILENAME  |  SnPy_PdfToPngConverter.py
+# DIRECTORY |  C:/03_-_Adam-Noble-Tools/02_-_Python/SnPy_PdfToPngConverter/SnPy_PdfToPngConverter.py
+#
+# AUTHOR    |  Adam Noble - Studio NoodlFjord
+# DATE      |  2025-05-09
+#
+# DESCRIPTION
+# - This script converts a PDF file to a PNG image.
+# - Produces high-quality PNGs, preserves document size and aspect ratio.
+# - Integrates with Windows Explorer context menu.
+#
+# DEVELOPMENT LOG
+# 1.0.0 - 10-May-2025 |  Initial Development
+# - Modularized icon handling logic.
+# - Added batch PDF conversion and progress bar.
+#
+# 0.9.0 - 09-May-2025 |  Initial Development
+# - Basic PDF to PNG conversion implemented.
+#
+# =========================================================
+
+## Notes
+- Do not omit or reorder any fields.
+- Use all caps for the script title.
+- Use consistent indentation and spacing as shown.
+- Update the DEVELOPMENT LOG with every significant change.
+
+# ------------------------------------------------------------ 

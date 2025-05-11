@@ -1,0 +1,106 @@
+Use 60 -'s to create an underline for the titles
+
+# SnPy Code Region Tags & Standards
+# ------------------------------------------------------------
+
+To improve code clarity, maintainability, and navigation, all scripts should use clear, descriptive code region tags and section headers. Each section header is followed by a line of exactly 60 dashes ("-") as an underline.
+
+## Region Tag Types & Usage (ordered by most common)
+
+METHOD |  Used for class methods. Briefly explain what the method does.
+------------------------------------------------------------
+
+FUNCTION |  Used for standalone functions. Briefly explain what the function does.
+------------------------------------------------------------
+
+HELPER FUNC |  Used for utility/helper functions that support main logic. Briefly explain their purpose.
+------------------------------------------------------------
+
+LOADER |  Used for setup, configuration, or class definitions that load or initialize resources, settings, or main objects.
+------------------------------------------------------------
+
+CONFIG |  Used for configuration variables, constants, or settings blocks.
+------------------------------------------------------------
+
+IMPORTS |  Used to group and explain import statements, especially in large scripts.
+------------------------------------------------------------
+
+CLASS |  Used for class definitions, especially if there are multiple classes in a file.
+------------------------------------------------------------
+
+BLOCK |  Used for logical code blocks, such as main execution, error handling, or grouped operations.
+------------------------------------------------------------
+
+SECTION |  Used for major logical or thematic sections in a large script or module.
+------------------------------------------------------------
+
+INTERFACE |  Used for user interface code, such as GUI layout, CLI prompts, or API endpoints.
+------------------------------------------------------------
+
+EXCEPTION |  Used for exception handling or custom error classes/blocks.
+------------------------------------------------------------
+
+TEST |  Used for test functions, test cases, or test-related code.
+------------------------------------------------------------
+
+## Example Usage
+
+# IMPORTS | Standard and third-party libraries
+# ------------------------------------------------------------
+import os
+import sys
+
+# CONFIG | Script-wide constants and settings
+# ------------------------------------------------------------
+LOG_FILE = 'pdf_to_png.log'
+
+# LOADER | Logging setup for the script
+# ------------------------------------------------------------
+logging.basicConfig(...)
+
+# CLASS | Main PDF to PNG Converter class
+# ------------------------------------------------------------
+class PdfToPngConverter:
+    ...
+
+# METHOD | Convert a PDF file to a high-quality PNG image using PyMuPDF
+# ------------------------------------------------------------
+    def convert_pdf_to_png(self, pdf_path):
+        ...
+
+# FUNCTION | Main entry point for the script
+# ------------------------------------------------------------
+def main():
+    ...
+
+# HELPER FUNC | Create a batch script for Windows startup
+# ------------------------------------------------------------
+def create_shortcut_script():
+    ...
+
+# BLOCK | Main execution block
+# ------------------------------------------------------------
+if __name__ == "__main__":
+    main()
+
+# INTERFACE | Tkinter GUI layout
+# ------------------------------------------------------------
+# ...
+
+# EXCEPTION | Custom error class
+# ------------------------------------------------------------
+class ConversionError(Exception):
+    ...
+
+# TEST | Unit test for PDF conversion
+# ------------------------------------------------------------
+def test_pdf_conversion():
+    ...
+
+## Rationale
+- **Consistency:** All scripts follow the same structure, making it easy to find and understand code regions.
+- **Readability:** Region tags and underlines visually separate logic blocks.
+- **Maintainability:** Future updates and debugging are easier with clear regions.
+- **Scalability:** As projects grow, this convention keeps codebases organized and professional.
+
+# ------------------------------------------------------------

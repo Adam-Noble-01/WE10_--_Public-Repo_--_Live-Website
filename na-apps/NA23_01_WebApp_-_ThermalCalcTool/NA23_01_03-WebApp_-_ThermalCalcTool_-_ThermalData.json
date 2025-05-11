@@ -1,0 +1,302 @@
+{
+    "File_Metadata": {
+        "file-name"            :  "NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json",
+        "file-dir-path"        :  "/na-apps/NA23_01_WebApp_-_ThermalCalcTool/NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json",
+        "file-web-url"         :  "https://www.noble-architecture.com/na-apps/NA23_01_WebApp_-_ThermalCalcTool/NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json",
+        "file-type"            :  "json",
+        "file-category"        :  "Application Data",
+        "file-purpose"         :  "Thermal Calculation Tool Data",
+        "file-author"          :  "Adam Noble",
+        "file-description"     :  {
+            "file-description-heading"  :  "This file contains thermal insulation and material data for the Thermal Calculator application.",
+            "file-description-text"     :  [
+                "- Contains thermal conductivity values for various insulation materials",
+                "- Lists R-values for different material thicknesses",
+                "- Includes notes and warnings for correct application"
+            ]
+        }
+    },
+    "file-version-history-log": [
+        {
+            "version"         :  "1.0.1",
+            "log-date"        :  "TBD",
+            "log-title"       :  "Placeholder for future update",
+            "log-changes"     :  [
+                "Placeholder for future changes"
+            ]
+        },
+        {
+            "version"         :  "1.0.0",
+            "log-date"        :  "TBD",
+            "log-title"       :  "Initial data compilation",
+            "log-changes"     :  [
+                "- Initial creation of thermal data library",
+                "- Added PIR, phenolic, mineral wool, glass mineral wool, masonry and timber materials"
+            ]
+        }
+    ],
+    "PIR-Insulation": {
+        "Celotex-GA4000": {
+            "is_product": true,
+            "50mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  2.25,
+                "notes"     :  "Standard PIR board for floors, walls and roofs.",
+                "info"      :  "Suitable for warm and cold roof applications.",
+                "warnings"  :  "Ensure VCL is used where required to avoid condensation risks.",
+                "source"    :  "Celotex GA4000 Product Page"
+            },
+            "60mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  2.70,
+                "notes"     :  "Standard PIR board for floors, walls and roofs.",
+                "info"      :  "Ground floor and suspended floor applications.",
+                "warnings"  :  "Board must be tightly butted to avoid thermal bridging.",
+                "source"    :  "Celotex GA4000 Product Page"
+            },
+            "70mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  3.15,
+                "notes"     :  "Standard PIR board for floors, walls and roofs.",
+                "info"      :  "Good balance of thermal performance and thickness.",
+                "warnings"  :  "Ensure correct fixing pattern is used.",
+                "source"    :  "Celotex GA4000 Product Page"
+            },
+            "75mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  3.40,
+                "notes"     :  "Often used in roof rafter applications.",
+                "info"      :  "High thermal performance in minimal thickness.",
+                "warnings"  :  "Compression can reduce effective R-value if not installed flat.",
+                "source"    :  "Celotex GA4000 Product Page"
+            },
+            "80mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  3.60,
+                "notes"     :  "Provides good thermal performance for roofs and floors.",
+                "info"      :  "Suitable for achieving lower U-values in constrained spaces.",
+                "warnings"  :  "Ensure correct fixings are used for the application.",
+                "source"    :  "Celotex GA4000 Product Page"
+            },
+            "90mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  4.05,
+                "notes"     :  "High performance insulation for demanding applications.",
+                "info"      :  "Helps achieve Part L compliance with single layer.",
+                "warnings"  :  "Requires careful handling to avoid damage to board edges.",
+                "source"    :  "Celotex GA4000 Product Page"
+            },
+            "100mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  4.50,
+                "notes"     :  "Maximum thickness in the GA4000 range.",
+                "info"      :  "Provides excellent thermal performance for all applications.",
+                "warnings"  :  "Heavyweight board requires careful handling and installation.",
+                "source"    :  "Celotex GA4000 Product Page"
+            }
+        },
+        "Celotex-Thermaclass-CW21": {
+            "is_product": true,
+            "90mm-Thickness": {
+                "lambda"    :  0.021,
+                "r_value"   :  4.25,
+                "notes"     :  "Specifically designed for cavity wall applications.",
+                "info"      :  "Premium thermal performance for cavity walls.",
+                "warnings"  :  "Must be installed with correct cavity wall ties.",
+                "source"    :  "Celotex Thermaclass Cavity Wall 21"
+            },
+            "115mm-Thickness": {
+                "lambda"    :  0.021,
+                "r_value"   :  5.45,
+                "notes"     :  "High performance cavity wall insulation.",
+                "info"      :  "Suitable for meeting stringent U-value requirements.",
+                "warnings"  :  "Requires minimum 150mm cavity width.",
+                "source"    :  "Celotex Thermaclass Cavity Wall 21"
+            },
+            "140mm-Thickness": {
+                "lambda"    :  0.021,
+                "r_value"   :  6.65,
+                "notes"     :  "Maximum thickness for cavity wall applications.",
+                "info"      :  "Designed for ultra-low U-value specifications.",
+                "warnings"  :  "Requires careful detailing around openings.",
+                "source"    :  "Celotex Thermaclass Cavity Wall 21"
+            }
+        },
+        "Recticel-Eurowall+": {
+            "is_product": true,
+            "75mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  3.40,
+                "notes"     :  "Cavity wall insulation with tongue and groove edges.",
+                "info"      :  "Minimizes thermal bridging at board junctions.",
+                "warnings"  :  "Must maintain 50mm residual cavity width.",
+                "source"    :  "Recticel Eurowall+ Specification Guide"
+            },
+            "90mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  4.05,
+                "notes"     :  "Tongue and groove PIR for cavity wall systems.",
+                "info"      :  "Designed for partial fill with 50mm air gap retained.",
+                "warnings"  :  "Incorrect cavity tie spacing can lead to slumping.",
+                "source"    :  "Recticel Eurowall+ Specification Guide"
+            },
+            "115mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  5.25,
+                "notes"     :  "High-performance cavity wall insulation.",
+                "info"      :  "For use in applications requiring very low U-values.",
+                "warnings"  :  "Requires correct detailing at wall junctions.",
+                "source"    :  "Recticel Eurowall+ Specification Guide"
+            },
+            "140mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  6.35,
+                "notes"     :  "Maximum thickness available for cavity walls.",
+                "info"      :  "Used for Passivhaus and ultra-low energy buildings.",
+                "warnings"  :  "Requires wide cavity construction.",
+                "source"    :  "Recticel Eurowall+ Specification Guide"
+            }
+        }
+    },
+    "Phenolic-Insulation": {
+        "Kingspan-Kooltherm-K108": {
+            "is_product": true,
+            "25mm-Thickness": {
+                "lambda"    :  0.019,
+                "r_value"   :  1.30,
+                "notes"     :  "Premium phenolic insulation for cavity walls.",
+                "info"      :  "Offers better thermal performance than PIR.",
+                "warnings"  :  "Requires careful handling due to rigid board properties.",
+                "source"    :  "Kingspan Kooltherm K108 BBA Cert 16/5299"
+            },
+            "50mm-Thickness": {
+                "lambda"    :  0.019,
+                "r_value"   :  2.60,
+                "notes"     :  "High performance phenolic insulation.",
+                "info"      :  "More efficient than equivalent thickness of PIR.",
+                "warnings"  :  "Maintain minimum 50mm residual cavity.",
+                "source"    :  "Kingspan Kooltherm K108 BBA Cert 16/5299"
+            },
+            "75mm-Thickness": {
+                "lambda"    :  0.019,
+                "r_value"   :  3.90,
+                "notes"     :  "Advanced cavity wall insulation.",
+                "info"      :  "Used where space is at a premium.",
+                "warnings"  :  "Follow manufacturer's handling instructions.",
+                "source"    :  "Kingspan Kooltherm K108 BBA Cert 16/5299"
+            }
+        }
+    },
+    "Mineral-Wool-Insulation": {
+        "Rockwool-Cavity-Slab-32": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  0.032,
+                "r_value"   :  3.13,
+                "notes"     :  "Non-combustible cavity wall insulation.",
+                "info"      :  "Variable thickness material for cavity walls.",
+                "warnings"  :  "Must be kept dry during storage and installation.",
+                "source"    :  "Rockwool Cavity Slab 32 BBA 22/6335 (Apr 2024)"
+            }
+        },
+        "Rockwool-Roll": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  0.044,
+                "r_value"   :  2.27,
+                "notes"     :  "Flexible mineral wool insulation.",
+                "info"      :  "Suitable for lofts and between timber joists.",
+                "warnings"  :  "Compression affects thermal performance.",
+                "source"    :  "Rockwool Roll Datasheet"
+            }
+        }
+    },
+    "Glass-Mineral-Wool": {
+        "Isover-CWS-32": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  0.032,
+                "r_value"   :  3.13,
+                "notes"     :  "Glass wool cavity wall insulation.",
+                "info"      :  "High performance glass mineral wool.",
+                "warnings"  :  "Must be protected from water during installation.",
+                "source"    :  "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
+            }
+        },
+        "Isover-CWS-34": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  0.034,
+                "r_value"   :  2.94,
+                "notes"     :  "Standard performance glass wool insulation.",
+                "info"      :  "For cavity wall applications.",
+                "warnings"  :  "Water exposure reduces thermal performance.",
+                "source"    :  "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
+            }
+        }
+    },
+    "Masonry-Materials": {
+        "Clay-Brick": {
+            "is_product": false,
+            "Outer-Leaf": {
+                "lambda"    :  0.77,
+                "r_value"   :  0.26,
+                "notes"     :  "Typical clay brick for external walls.",
+                "info"      :  "Standard value for U-value calculations per BR 443:2019.",
+                "warnings"  :  "Thermal conductivity affected by moisture content.",
+                "source"    :  "BR 443:2019"
+            },
+            "Inner-Leaf": {
+                "lambda"    :  0.56,
+                "r_value"   :  0.36,
+                "notes"     :  "Typical clay brick for internal walls.",
+                "info"      :  "Protected from external weathering.",
+                "warnings"  :  "Thermal bridges at mortar joints not accounted for.",
+                "source"    :  "BR 443:2019"
+            }
+        },
+        "Concrete-Block": {
+            "is_product": false,
+            "Dense-Aggregate": {
+                "lambda"    :  1.35,
+                "r_value"   :  0.15,
+                "notes"     :  "Medium density (2000 kg/m³) concrete blocks.",
+                "info"      :  "Used for structural applications and inner leaves.",
+                "warnings"  :  "Poor thermal performance requires additional insulation.",
+                "source"    :  "BR 443:2019"
+            },
+            "Lightweight-Aggregate": {
+                "lambda"    :  0.22,
+                "r_value"   :  0.91,
+                "notes"     :  "Lightweight (600 kg/m³) concrete blocks.",
+                "info"      :  "Better thermal performance than dense blocks.",
+                "warnings"  :  "Lower compressive strength than dense blocks.",
+                "source"    :  "BR 443:2019"
+            }
+        }
+    },
+    "Timber-Products": {
+        "Softwood": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  0.13,
+                "r_value"   :  0.77,
+                "notes"     :  "Softwood timber (~500 kg/m³).",
+                "info"      :  "Typically used for structural framing.",
+                "warnings"  :  "Moisture content affects thermal properties.",
+                "source"    :  "BR 443:2019"
+            }
+        },
+        "Hardwood": {
+            "is_product": false,
+            "standard": {
+                "lambda"    :  0.18,
+                "r_value"   :  0.56,
+                "notes"     :  "Hardwood timber (~700 kg/m³).",
+                "info"      :  "Denser wood with higher thermal conductivity.",
+                "warnings"  :  "Less commonly used in thermal elements.",
+                "source"    :  "BR 443:2019"
+            }
+        }
+    }
+}

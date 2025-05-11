@@ -1,0 +1,111 @@
+/* ================================================================================================
+   THERMAL CALC TOOL - APPLICATION STYLESHEET
+   ================================================================================================
+   
+   FILENAME  |  NA23_01_02-WebApp_-_ThermalCalcTool_-_ApplicationStyleSheet.css
+   DIRECTORY |  na-apps/NA23_01_WebApp_-_ThermalCalcTool/
+   
+   AUTHOR    |  Noble Architecture
+   DATE      |  2025-04-12
+   
+   DESCRIPTION
+   - Custom styles for the ThermalCalcTool application
+   - Extends the core Noble Architecture stylesheet
+   - Only contains styles specific to this application
+   
+   IMPORTANT NOTES
+   - Use as many standard styles from the Noble Architecture core CSS file as possible
+   - Common Global Core App Stylesheet located at . . .
+     `https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css`  <-- Validate Link✔
+   - Strictly adhere to the Noble Architecture style naming conventions for any new classes
+   - This stylesheet should ONLY contain CSS required for this application that is not already
+     available in the core stylesheet
+   - Study the core stylesheet carefully before adding any new classes to this file
+   - New classes should follow the UCALC__ prefix pattern established below
+   
+   DEVELOPMENT LOG
+   1.0.0 - 2025-04-12 |  Initial Development
+   - Basic stylesheet structure created
+   
+   ================================================================================================ */
+
+/* ==============================================================================================
+   CSS | THERMAL CALC TOOL SPECIFIC STYLES
+   - Custom styles for the ThermalCalcTool application
+   ============================================================================================== */
+
+/* UCALC = ThermalCalcTool Block Prefix */
+
+.UCALC__material-row {
+    display             :    flex;
+    flex-wrap           :    wrap;
+    gap                 :    01.00rem;
+    margin-bottom       :    01.00rem;
+    padding-bottom      :    01.00rem;
+    border-bottom       :    01px solid var(--color-gray-300);
+}
+
+.UCALC__material-selector {
+    flex                :    1;
+    min-width           :    250px;
+}
+
+.UCALC__thickness-input {
+    width               :    120px;
+}
+
+.UCALC__add-layer-btn {
+    margin-top          :    01.00rem;
+    margin-bottom       :    01.00rem;
+}
+
+.UCALC__remove-layer-btn {
+    background-color    :    transparent;
+    border              :    none;
+    color               :    var(--color-danger);
+    cursor              :    pointer;
+    padding             :    00.25rem;
+}
+
+.UCALC__remove-layer-btn:hover {
+    color               :    var(--color-danger-hover);
+}
+
+.UCALC__results-table {
+    width               :    100%;
+    border-collapse     :    collapse;
+    margin-bottom       :    01.00rem;
+}
+
+.UCALC__results-table th,
+.UCALC__results-table td {
+    padding             :    00.50rem;
+    text-align          :    left;
+    border-bottom       :    01px solid var(--color-gray-300);
+}
+
+.UCALC__results-table th {
+    background-color    :    var(--color-gray-100);
+    font-weight         :    600;
+}
+
+.UCALC__final-result {
+    font-size           :    01.25rem;
+    font-weight         :    600;
+    margin-top          :    01.00rem;
+    padding             :    01.00rem;
+    background-color    :    var(--color-gray-100);
+    border-radius       :    00.3125rem;
+}
+
+.UCALC__info-text {
+    font-size           :    00.875rem;
+    color               :    var(--color-gray-600);
+    margin-top          :    00.50rem;
+}
+
+.UCALC__warning-text {
+    font-size           :    00.875rem;
+    color               :    var(--color-danger);
+    margin-top          :    00.50rem;
+} 
