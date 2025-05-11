@@ -52,185 +52,185 @@
 .UCALC__form {
     display             :    flex;
     flex-direction      :    column;
-    gap                :    2rem;
-    width              :    100%;
-    max-width          :    1000px; /* Increased width to use more of the available space */
-    margin             :    0 auto;
-    padding            :    0;
+    gap                 :    2rem;
+    width               :    100%;
+    max-width           :    1000px; /* Increased width to use more of the available space */
+    margin              :    0 auto;
+    padding             :    0;
 }
 
 /* Materials Section Styles */
 .UCALC__materials-section {
     display             :    flex;
     flex-direction      :    column;
-    gap                :    1rem;
-    padding            :    1rem;
+    gap                 :    1rem;
+    padding             :    1rem;
     background-color    :    #f8f8f8;
     border-radius       :    0.25rem;
-    box-shadow         :    0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom      :    1rem;
-    margin-left        :    0;
-    margin-right       :    0;
+    box-shadow          :    0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom       :    1rem;
+    margin-left         :    0;
+    margin-right        :    0;
 }
 
 .UCALC__section-heading {
-    font-size          :    1.2rem;
-    font-weight        :    600;
-    margin             :    0 0 1rem 0;
-    color              :    #333;
+    font-size           :    1.2rem;
+    font-weight         :    600;
+    margin              :    0 0 1rem 0;
+    color               :    #333;
 }
 
 /* Layers Container Styles */
 .UCALC__layers-container {
     display             :    flex;
     flex-direction      :    column;
-    gap                :    1rem;
+    gap                 :    1rem;
 }
 
 /* Layer Styles */
 .UCALC__layer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background-color: #fff;
-    border-radius: 0.25rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    position: relative;
-    margin-bottom: 0.5rem;
+    display             :    flex;
+    flex-wrap           :    wrap;
+    gap                 :    1rem;
+    align-items         :    center;
+    padding             :    0.75rem 1rem;
+    background-color    :    #fff;
+    border-radius       :    0.25rem;
+    box-shadow          :    0 1px 3px rgba(0, 0, 0, 0.1);
+    position            :    relative;
+    margin-bottom       :    0.5rem;
 }
 
 .UCALC__fixed-layer {
-    background-color: #f0f7ff;
-    border-left: 4px solid #3498db;
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem;
+    background-color    :    #f0f7ff;
+    border-left         :    4px solid #3498db;
+    display             :    flex;
+    justify-content     :    space-between;
+    padding             :    1rem;
 }
 
 .UCALC__material-layer {
-    border-left: 4px solid #2ecc71;
-    display: flex; /* Change to flexbox for more control */
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: flex-start;
-    padding: 1rem;
-    position: relative;
-    min-height: 62px;
+    border-left         :    4px solid #2ecc71;
+    display             :    flex; /* Change to flexbox for more control */
+    flex-wrap           :    wrap;
+    gap                 :    1rem;
+    align-items         :    flex-start;
+    padding             :    1rem;
+    position            :    relative;
+    min-height          :    62px;
 }
 
 /* Create a container for the form fields that takes up most of the space */
 .UCALC__form-fields-container {
-    display: flex;
-    width: calc(100% - 60px); /* Leave space for delete button */
-    gap: 1rem;
-    align-items: flex-start;
+    display             :    flex;
+    width               :    calc(100% - 60px); /* Leave space for delete button */
+    gap                 :    1rem;
+    align-items         :    flex-start;
 }
 
 /* Adjust the dropdown containers to use flex layout */
 .UCALC__dropdown-container {
-    flex: 1; /* Equal flex growth */
-    min-width: 0; /* Allow containers to shrink below content size */
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    flex                :    1; /* Equal flex growth */
+    min-width           :    0; /* Allow containers to shrink below content size */
+    display             :    flex;
+    flex-direction      :    column;
+    gap                 :    0.4rem;
 }
 
 /* Make the thickness container narrower */
 .UCALC__input-container {
-    width: 100px;
-    flex: 0 0 100px; /* Fixed width, don't grow or shrink */
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    width               :    100px;
+    flex                :    0 0 100px; /* Fixed width, don't grow or shrink */
+    display             :    flex;
+    flex-direction      :    column;
+    gap                 :    0.4rem;
 }
 
 /* Input label styles for better alignment */
 .UCALC__input-label {
-    font-size: 0.9rem;
-    color: #555;
-    white-space: nowrap; /* Prevent wrapping */
+    font-size           :    0.9rem;
+    color               :    #555;
+    white-space         :    nowrap; /* Prevent wrapping */
 }
 
 /* Input field styles */
 .UCALC__input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 0.25rem;
-    font-size: 1rem;
+    width               :    100%;
+    padding             :    0.5rem;
+    border              :    1px solid #ddd;
+    border-radius       :    0.25rem;
+    font-size           :    1rem;
 }
 
 /* Icon Styles */
 .UCALC__icon {
-    width: 1.2rem;
-    height: 1.2rem;
-    display: block;
+    width               :    1.2rem;
+    height              :    1.2rem;
+    display             :    block;
 }
 
 /* Fixed delete button container */
 .UCALC__delete-button-container {
-    width: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    right: 10px;
-    top: 2rem; /* Position at same height as fields */
+    width               :    40px;
+    display             :    flex;
+    align-items         :    center;
+    justify-content     :    center;
+    position            :    absolute;
+    right               :    10px;
+    top                 :    2rem; /* Position at same height as fields */
 }
 
 /* Fixed positioning for delete button */
 .UCALC__delete-button {
-    background-color: #fff0f0;
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background-color    :    #fff0f0;
+    width               :    2.5rem;
+    height              :    2.5rem;
+    display             :    flex;
+    align-items         :    center;
+    justify-content     :    center;
+    border              :    none;
+    border-radius       :    50%;
+    cursor              :    pointer;
+    transition          :    all 0.2s ease;
+    box-shadow          :    0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Fix R-value display */
 .UCALC__r-value-display {
-    width: 100%;
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid #eee;
+    width               :    100%;
+    margin-top          :    0.5rem;
+    font-size           :    0.9rem;
+    padding-top         :    0.5rem;
+    border-top          :    1px solid #eee;
 }
 
 /* Make selects full width */
 .UCALC__select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 0.25rem;
-    font-size: 1rem;
+    width               :    100%;
+    padding             :    0.5rem;
+    border              :    1px solid #ddd;
+    border-radius       :    0.25rem;
+    font-size           :    1rem;
 }
 
 /* Button Styles */
 .UCALC__add-button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
+    display             :    flex;
+    justify-content     :    center;
+    margin-top          :    1rem;
 }
 
 .UCALC__add-button,
 .UCALC__delete-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    display             :    flex;
+    align-items         :    center;
+    justify-content     :    center;
+    width               :    2.5rem;
+    height              :    2.5rem;
+    border              :    none;
+    border-radius       :    50%;
+    cursor              :    pointer;
+    transition          :    all 0.2s ease;
 }
 
 .UCALC__add-button {
@@ -247,156 +247,156 @@
 
 /* Calculation Display Styles */
 .UCALC__calculation-display {
-    padding            :    1.5rem;
+    padding             :    1.5rem;
     background-color    :    #f9f9f9;
     border-radius       :    0.25rem;
-    box-shadow         :    0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom      :    1rem;
-    margin-left        :    0;
-    margin-right       :    0;
+    box-shadow          :    0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom       :    1rem;
+    margin-left         :    0;
+    margin-right        :    0;
 }
 
 .UCALC__formula {
-    font-family        :    'Courier New', monospace;
-    font-size          :    1.1rem;
+    font-family         :    'Courier New', monospace;
+    font-size           :    1.1rem;
     background-color    :    #fff;
-    padding            :    1rem;
+    padding             :    1rem;
     border-radius       :    0.25rem;
-    overflow-x         :    auto;
-    white-space        :    nowrap;
+    overflow-x          :    auto;
+    white-space         :    nowrap;
 }
 
 /* Results Display Styles */
 .UCALC__results-display {
-    padding            :    1.5rem;
+    padding             :    1.5rem;
     background-color    :    #f0f7ff;
     border-radius       :    0.25rem;
-    box-shadow         :    0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align         :    center;
-    margin-bottom      :    1rem;
-    margin-left        :    0;
-    margin-right       :    0;
+    box-shadow          :    0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align          :    center;
+    margin-bottom       :    1rem;
+    margin-left         :    0;
+    margin-right        :    0;
 }
 
 .UCALC__result-value {
-    font-size          :    1.8rem;
-    font-weight        :    700;
-    color              :    #2980b9;
-    margin-bottom      :    0.5rem;
+    font-size           :    1.8rem;
+    font-weight         :    700;
+    color               :    #2980b9;
+    margin-bottom       :    0.5rem;
 }
 
 .UCALC__result-note {
-    font-size          :    1rem;
-    color              :    #555;
+    font-size           :    1rem;
+    color               :    #555;
 }
 
 /* Caveats Section Styles */
 .UCALC__caveats-section {
-    margin-top         :    2rem;
-    padding            :    1rem;
+    margin-top          :    2rem;
+    padding             :    1rem;
     background-color    :    #fffaf0;
     border-radius       :    0.25rem;
-    box-shadow         :    0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-left        :    0;
-    margin-right       :    0;
-    margin-bottom      :    1rem;
+    box-shadow          :    0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-left         :    0;
+    margin-right        :    0;
+    margin-bottom       :    1rem;
 }
 
 .UCALC__caveats-summary {
-    font-size          :    1rem;
-    font-weight        :    600;
-    color              :    #555;
-    cursor             :    pointer;
-    padding            :    0.5rem 0;
+    font-size           :    1rem;
+    font-weight         :    600;
+    color               :    #555;
+    cursor              :    pointer;
+    padding             :    0.5rem 0;
 }
 
 .UCALC__caveats-list {
-    margin-top         :    1rem;
-    padding-left       :    1.5rem;
+    margin-top          :    1rem;
+    padding-left        :    1.5rem;
 }
 
 .UCALC__caveats-list li {
-    margin-bottom      :    0.5rem;
-    line-height        :    1.4;
-    color              :    #666;
+    margin-bottom       :    0.5rem;
+    line-height         :    1.4;
+    color               :    #666;
 }
 
 /* Results Table Styles */
 .UCALC__layers-table {
-    width: 100%;
-    margin-top: 1.5rem;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    background-color: #fff;
-    border-radius: 0.25rem;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width               :    100%;
+    margin-top          :    1.5rem;
+    border-collapse     :    collapse;
+    font-size           :    0.9rem;
+    background-color    :    #fff;
+    border-radius       :    0.25rem;
+    overflow            :    hidden;
+    box-shadow          :    0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .UCALC__layers-table th {
-    background-color: #f0f7ff;
-    padding: 0.7rem 0.5rem;
-    text-align: left;
-    font-weight: 600;
-    color: #333;
-    border-bottom: 1px solid #ddd;
+    background-color    :    #f0f7ff;
+    padding             :    0.7rem 0.5rem;
+    text-align          :    left;
+    font-weight         :    600;
+    color               :    #333;
+    border-bottom       :    1px solid #ddd;
 }
 
 .UCALC__layers-table td {
-    padding: 0.5rem;
-    border-bottom: 1px solid #eee;
+    padding             :    0.5rem;
+    border-bottom       :    1px solid #eee;
 }
 
 .UCALC__layers-table tr:last-child td {
-    border-bottom: none;
+    border-bottom       :    none;
 }
 
 .UCALC__total-row {
-    background-color: #f9f9f9;
-    font-weight: 600;
+    background-color    :    #f9f9f9;
+    font-weight         :    600;
 }
 
 .UCALC__total-row td {
-    border-top: 2px solid #ddd;
+    border-top          :    2px solid #ddd;
 }
 
 /* Mobile Responsive Table */
 @media (max-width: 768px) {
     .UCALC__form {
-        max-width: 100%;
-        padding: 0 1rem;
+        max-width           :    100%;
+        padding             :    0 1rem;
     }
     
     .UCALC__form-fields-container {
-        flex-direction: column;
-        width: calc(100% - 50px);
+        flex-direction      :    column;
+        width               :    calc(100% - 50px);
     }
     
     .UCALC__delete-button-container {
-        top: 1rem;
+        top                 :    1rem;
     }
     
     .UCALC__dropdown-container,
     .UCALC__input-container {
-        width: 100%;
-        flex: auto;
+        width               :    100%;
+        flex                :    auto;
     }
     
     .UCALC__formula {
-        font-size          :    0.9rem;
+        font-size           :    0.9rem;
     }
     
     .UCALC__result-value {
-        font-size          :    1.5rem;
+        font-size           :    1.5rem;
     }
     
     .UCALC__layers-table {
-        font-size: 0.8rem;
+        font-size           :    0.8rem;
     }
     
     .UCALC__layers-table th,
     .UCALC__layers-table td {
-        padding: 0.4rem 0.3rem;
+        padding             :    0.4rem 0.3rem;
     }
 }
 
@@ -407,35 +407,35 @@
 
 /* Add back the missing grey background */
 .FULL__page-app-container {
-    background-color: #f1f1f1; /* Slightly lighter grey */
-    padding: 1rem;
-    width: 100%;
+    background-color    :    #f1f1f1; /* Slightly lighter grey */
+    padding             :    1rem;
+    width               :    100%;
 }
 
 .MAIN__container {
-    background-color: #f1f1f1; /* Slightly lighter grey */
-    padding: 0 !important; /* Remove default padding to allow cards to expand */
-    max-width: 1000px;
-    margin: 0 auto;
-    width: 100%;
+    background-color    :    #f1f1f1; /* Slightly lighter grey */
+    padding             :    0 !important; /* Remove default padding to allow cards to expand */
+    max-width           :    1000px;
+    margin              :    0 auto;
+    width               :    100%;
 }
 
 /* Override the container blocks to match our design */
 .CTRL__block, 
 .RSLT__block {
-    background-color: #f1f1f1;
-    padding: 0;
-    margin: 0 0 1rem 0;
-    border-radius: 0;
-    box-shadow: none;
+    background-color    :    #f1f1f1;
+    padding             :    0;
+    margin              :    0 0 1rem 0;
+    border-radius       :    0;
+    box-shadow          :    none;
 }
 
 /* Adjust the main form width to reduce wasted space */
 .UCALC__form {
-    max-width: 1000px; /* Increased width to use more of the available space */
-    padding: 0;
-    margin: 0 auto;
-    width: 100%;
+    max-width           :    1000px; /* Increased width to use more of the available space */
+    padding             :    0;
+    margin              :    0 auto;
+    width               :    100%;
 }
 
 /* Adjust all card elements to have less wasted space on sides */
@@ -443,28 +443,28 @@
 .UCALC__calculation-display,
 .UCALC__results-display,
 .UCALC__caveats-section {
-    margin-left: 0;
-    margin-right: 0;
-    border-radius: 0.25rem;
-    margin-bottom: 1rem;
+    margin-left         :    0;
+    margin-right        :    0;
+    border-radius       :    0.25rem;
+    margin-bottom       :    1rem;
 }
 
 /* Card-like blocks with better spacing */
 .CTRL__block, 
 .RSLT__block {
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background-color: #fff;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom       :    1.5rem;
+    padding             :    1rem;
+    background-color    :    #fff;
+    border-radius       :    0.5rem;
+    box-shadow          :    0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Make sure all content in calculation display has enough space */
 .UCALC__formula {
-    margin: 0.5rem 0;
-    padding: 1rem;
-    font-size: 1.15rem;
-    line-height: 1.5;
+    margin              :    0.5rem 0;
+    padding             :    1rem;
+    font-size           :    1.15rem;
+    line-height         :    1.5;
 }
 
 /* ==============================================================================================
@@ -473,7 +473,7 @@
    ============================================================================================== */
 
 body {
-    font-family: 'Open Sans Light', 'Segoe UI', Arial, sans-serif;
+    font-family         :    'Open Sans Light', 'Segoe UI', Arial, sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6,
@@ -483,11 +483,11 @@ h1, h2, h3, h4, h5, h6,
 .UCALC__section-heading,
 .UCALC__result-value,
 .UCALC__caveats-summary {
-    font-family: 'Open Sans SemiBold', 'Segoe UI Semibold', Arial, sans-serif;
-    font-weight: 600;
+    font-family         :    'Open Sans SemiBold', 'Segoe UI Semibold', Arial, sans-serif;
+    font-weight         :    600;
 }
 
 .UCALC__input-label,
 .UCALC__r-value-display {
-    font-family: 'Open Sans SemiBold', 'Segoe UI Semibold', Arial, sans-serif;
+    font-family         :    'Open Sans SemiBold', 'Segoe UI Semibold', Arial, sans-serif;
 }
