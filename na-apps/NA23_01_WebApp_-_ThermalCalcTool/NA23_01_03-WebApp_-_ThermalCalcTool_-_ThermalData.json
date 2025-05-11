@@ -67,7 +67,7 @@
     ],
     "PIR-Insulation": {
         "Celotex-GA4000": {
-            "is_product": true,
+            "is_product"    :  true,
             "50mm-Thickness": {
                 "lambda"    :  0.022,
                 "r_value"   :  2.25,
@@ -126,29 +126,109 @@
             }
         },
         "Celotex-TB4000": {
-            "is_product": true,
-            "standard": {
-                "lambda": 0.022,
-                "r_value": 4.55,
-                "notes": "PIR insulation board, part of TB4000/GA4000/XR4000 series. Declared lambda 0.022 W/mK. R-value for 100mm thickness.",
-                "info": "General purpose PIR board for floors, walls, roofs.",
-                "warnings": "Refer to BBA certification for specific applications (e.g., Cert 74 for floor insulation).",
-                "source": "Research Doc Sec 2.1 (BBA Cert 74)"
+            "is_product"    :  true,
+            "12mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  0.55,
+                "notes"     :  "Thin PIR board for thermal bridging control.",
+                "info"      :  "Used for localised heat loss reduction.",
+                "warnings"  :  "Not suitable as sole insulation layer.",
+                "source"    :  "Celotex TB4000 Datasheet"
+            },
+            "20mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  0.90,
+                "notes"     :  "Thin PIR board for thermal bridging control.",
+                "info"      :  "Used for localised heat loss reduction.",
+                "warnings"  :  "Not suitable as sole insulation layer.",
+                "source"    :  "Celotex TB4000 Datasheet"
+            },
+            "25mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  1.10,
+                "notes"     :  "Thin PIR board for thermal bridging control.",
+                "info"      :  "Used for localised heat loss reduction.",
+                "warnings"  :  "Not suitable as sole insulation layer.",
+                "source"    :  "Celotex TB4000 Datasheet"
+            },
+            "30mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  1.35,
+                "notes"     :  "Thin PIR board for thermal bridging control.",
+                "info"      :  "Used for localised heat loss reduction.",
+                "warnings"  :  "Not suitable as sole insulation layer.",
+                "source"    :  "Celotex TB4000 Datasheet"
+            },
+            "40mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  1.80,
+                "notes"     :  "Thin PIR board for thermal bridging control.",
+                "info"      :  "Used for localised heat loss reduction.",
+                "warnings"  :  "Not suitable as sole insulation layer.",
+                "source"    :  "Celotex TB4000 Datasheet"
             }
         },
         "Celotex-XR4000": {
-            "is_product": true,
-            "standard": {
-                "lambda": 0.022,
-                "r_value": 4.55,
-                "notes": "PIR insulation board, part of TB4000/GA4000/XR4000 series. Declared lambda 0.022 W/mK. R-value for 100mm thickness.",
-                "info": "General purpose PIR board, may include specific features or facings.",
-                "warnings": "Refer to BBA certification for specific applications (e.g., XR4120 BBA 17/5405).",
-                "source": "Research Doc Sec 2.1 (BBA Cert 17/5405)"
+            "is_product"    :  true,
+            "110mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  5.00,
+                "notes"     :  "High performance PIR insulation board for roofs, walls and floors.",
+                "info"      :  "Part of the XR4000 Extra Resistance range.",
+                "warnings"  :  "Ensure correct VCL and application-specific details.",
+                "source"    :  "Celotex XR4000 Datasheet"
+            },
+            "120mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  5.45,
+                "notes"     :  "High performance PIR insulation board for roofs, walls and floors.",
+                "info"      :  "Part of the XR4000 Extra Resistance range.",
+                "warnings"  :  "Ensure correct VCL and application-specific details.",
+                "source"    :  "Celotex XR4000 Datasheet"
+            },
+            "130mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  5.90,
+                "notes"     :  "High performance PIR insulation board for roofs, walls and floors.",
+                "info"      :  "Part of the XR4000 Extra Resistance range.",
+                "warnings"  :  "Ensure correct VCL and application-specific details.",
+                "source"    :  "Celotex XR4000 Datasheet"
+            },
+            "140mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  6.35,
+                "notes"     :  "High performance PIR insulation board for roofs, walls and floors.",
+                "info"      :  "Part of the XR4000 Extra Resistance range.",
+                "warnings"  :  "Ensure correct VCL and application-specific details.",
+                "source"    :  "Celotex XR4000 Datasheet"
+            },
+            "150mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  6.80,
+                "notes"     :  "High performance PIR insulation board for roofs, walls and floors.",
+                "info"      :  "Part of the XR4000 Extra Resistance range.",
+                "warnings"  :  "Ensure correct VCL and application-specific details.",
+                "source"    :  "Celotex XR4000 Datasheet"
+            },
+            "165mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  7.50,
+                "notes"     :  "High performance PIR insulation board for roofs, walls and floors.",
+                "info"      :  "Part of the XR4000 Extra Resistance range.",
+                "warnings"  :  "Ensure correct VCL and application-specific details.",
+                "source"    :  "Celotex XR4000 Datasheet"
+            },
+            "200mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  9.05,
+                "notes"     :  "High performance PIR insulation board for roofs, walls and floors.",
+                "info"      :  "Part of the XR4000 Extra Resistance range.",
+                "warnings"  :  "Ensure correct VCL and application-specific details.",
+                "source"    :  "Celotex XR4000 Datasheet"
             }
         },
         "Celotex-Thermaclass-CW21": {
-            "is_product": true,
+            "is_product"    :  true,
             "90mm-Thickness": {
                 "lambda"    :  0.021,
                 "r_value"   :  4.25,
@@ -174,144 +254,109 @@
                 "source"    :  "Celotex Thermaclass Cavity Wall 21"
             }
         },
-        "Recticel-Eurowall+": {
-            "is_product": true,
-            "75mm-Thickness": {
+        "Celotex-PL4000": {
+            "is_product"    :  true,
+            "Insulation-25mm_Overall-37.5mm": {
                 "lambda"    :  0.022,
-                "r_value"   :  3.40,
-                "notes"     :  "Cavity wall insulation with tongue and groove edges.",
-                "info"      :  "Minimizes thermal bridging at board junctions.",
-                "warnings"  :  "Must maintain 50mm residual cavity width.",
-                "source"    :  "Recticel Eurowall+ Specification Guide"
+                "r_value"   :  1.20,
+                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info"      :  "PIR insulated plasterboard for dry lining applications.",
+                "warnings"  :  "Integral VCL. Ensure correct installation.",
+                "source"    :  "Celotex PL4000 Datasheet"
             },
-            "90mm-Thickness": {
+            "Insulation-40mm_Overall-52.5mm": {
                 "lambda"    :  0.022,
-                "r_value"   :  4.05,
-                "notes"     :  "Tongue and groove PIR for cavity wall systems.",
-                "info"      :  "Designed for partial fill with 50mm air gap retained.",
-                "warnings"  :  "Incorrect cavity tie spacing can lead to slumping.",
-                "source"    :  "Recticel Eurowall+ Specification Guide"
+                "r_value"   :  1.85,
+                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info"      :  "PIR insulated plasterboard for dry lining applications.",
+                "warnings"  :  "Integral VCL. Ensure correct installation.",
+                "source"    :  "Celotex PL4000 Datasheet"
             },
-            "115mm-Thickness": {
+            "Insulation-50mm_Overall-62.5mm": {
                 "lambda"    :  0.022,
-                "r_value"   :  5.25,
-                "notes"     :  "High-performance cavity wall insulation.",
-                "info"      :  "For use in applications requiring very low U-values.",
-                "warnings"  :  "Requires correct detailing at wall junctions.",
-                "source"    :  "Recticel Eurowall+ Specification Guide"
+                "r_value"   :  2.30,
+                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info"      :  "PIR insulated plasterboard for dry lining applications.",
+                "warnings"  :  "Integral VCL. Ensure correct installation.",
+                "source"    :  "Celotex PL4000 Datasheet"
             },
-            "140mm-Thickness": {
+            "Insulation-65mm_Overall-77.5mm": {
                 "lambda"    :  0.022,
-                "r_value"   :  6.35,
-                "notes"     :  "Maximum thickness available for cavity walls.",
-                "info"      :  "Used for Passivhaus and ultra-low energy buildings.",
-                "warnings"  :  "Requires wide cavity construction.",
-                "source"    :  "Recticel Eurowall+ Specification Guide"
+                "r_value"   :  3.00,
+                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info"      :  "PIR insulated plasterboard for dry lining applications.",
+                "warnings"  :  "Integral VCL. Ensure correct installation.",
+                "source"    :  "Celotex PL4000 Datasheet"
             }
         },
-        "Unilin-Thin-R-XT_PR_UF": {
-            "is_product": true,
-            "25mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  1.10,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
-            },
-            "30mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  1.35,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
-            },
+        "Celotex-CW4000": {
+            "is_product"    :  true,
             "40mm-Thickness": {
                 "lambda"    :  0.022,
                 "r_value"   :  1.80,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source"    :  "Celotex CW4000 Datasheet"
             },
             "50mm-Thickness": {
                 "lambda"    :  0.022,
                 "r_value"   :  2.25,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source"    :  "Celotex CW4000 Datasheet"
             },
             "60mm-Thickness": {
                 "lambda"    :  0.022,
                 "r_value"   :  2.70,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
-            },
-            "70mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  3.15,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source"    :  "Celotex CW4000 Datasheet"
             },
             "75mm-Thickness": {
                 "lambda"    :  0.022,
                 "r_value"   :  3.40,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
-            },
-            "80mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  3.60,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
-            },
-            "90mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  4.05,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source"    :  "Celotex CW4000 Datasheet"
             },
             "100mm-Thickness": {
                 "lambda"    :  0.022,
                 "r_value"   :  4.50,
-                "notes"     :  "PIR insulation board for pitched roof applications.",
-                "info"      :  "Suitable for between and over rafter applications.",
-                "warnings"  :  "Ensure proper VCL and breather membrane detailing.",
-                "source"    :  "Unilin Pitched Roofs Specification Guide"
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source"    :  "Celotex CW4000 Datasheet"
             }
         },
-        "Kingspan-Thermapitch-TP10": {
-            "is_product": true,
-            "standard": {
-                "lambda"    :  0.022,
-                "r_value"   :  4.55,
-                "notes"     :  "PIR insulation for pitched roofs. R-value for 100mm thickness.",
-                "info"      :  "High performance PIR insulation board.",
-                "warnings"  :  "Refer to BBA 14/5133 for specific application details.",
-                "source"    :  "Kingspan Thermapitch TP10 BBA 14/5133 / Research Doc Sec 2.1"
-            }
-        },
-        "Kingspan-TW50-Thermawall": {
-            "is_product": true,
-            "standard": {
-                "lambda"    :  0.022,
-                "r_value"   :  4.55,
-                "notes"     :  "PIR cavity wall insulation board. R-value for 100mm thickness.",
-                "info"      :  "High performance PIR insulation for cavity walls.",
-                "warnings"  :  "Ensure correct installation as per manufacturer guidance.",
-                "source"    :  "Kingspan TW50 Datasheet / Research Doc Sec 2.1"
+        "Celotex-XPS-Floor-Insulation": {
+            "is_product"    :  true,
+            "40mm-Thickness": {
+                "lambda"    :  0.033,
+                "r_value"   :  1.21,
+                "notes"     :  "XPS floor insulation, high compressive strength.",
+                "info"      :  "For ground floors, lambda 0.033 W/mK.",
+                "warnings"  :  "Check fire and application suitability.",
+                "source"    :  "Celotex XPS 300 SL FN Datasheet"
+            },
+            "50mm-Thickness": {
+                "lambda"    :  0.033,
+                "r_value"   :  1.52,
+                "notes"     :  "XPS floor insulation, high compressive strength.",
+                "info"      :  "For ground floors, lambda 0.033 W/mK.",
+                "warnings"  :  "Check fire and application suitability.",
+                "source"    :  "Celotex XPS 300 SL FN Datasheet"
+            },
+            "100mm-Thickness": {
+                "lambda"    :  0.033,
+                "r_value"   :  3.03,
+                "notes"     :  "XPS floor insulation, high compressive strength.",
+                "info"      :  "For ground floors, lambda 0.033 W/mK.",
+                "warnings"  :  "Check fire and application suitability.",
+                "source"    :  "Celotex XPS 300 SL FN Datasheet"
             }
         }
     },
@@ -1607,31 +1652,42 @@
                 "source"    :  "BR 443:2019 / Research Doc Sec 7.4"
             },
             "Ceiling-Wallboard-Malta-BCA-900kg_m3": {
-                "lambda": 0.21,
-                "r_value": 0.060,
-                "notes": "Plasterboard (ceiling/wallboard, 900 kg/m³). R-value for 12.5mm thickness.",
-                "info": "Value from Malta BCA / EN 12524. Differs from BR443 (0.25 W/mK) for this density range.",
-                "warnings": "BR443 suggests 0.25 W/mK for >700-900 kg/m³.",
-                "source": "Malta BCA / EN 12524 / Research Doc Sec 7.4"
+                "lambda"    :  0.21,
+                "r_value"   :  0.060,
+                "notes"     :  "Plasterboard (ceiling/wallboard, 900 kg/m³). R-value for 12.5mm thickness.",
+                "info"      :  "Value from Malta BCA / EN 12524. Differs from BR443 (0.25 W/mK) for this density range.",
+                "warnings"  :  "BR443 suggests 0.25 W/mK for >700-900 kg/m³.",
+                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.4"
             },
             "Standard-Plasterboard-StdUVal-DBW-600kg_m3": {
-                "lambda": 0.16,
-                "r_value": 0.078,
-                "notes": "Standard plasterboard (600 kg/m³). R-value for 12.5mm thickness.",
-                "info": "Value from Standard U-Values / Designing Buildings Wiki. Lower lambda than BR443 (0.21 W/mK) for ≤700kg/m³.",
-                "warnings": "BR443 suggests 0.21 W/mK for ≤700 kg/m³.",
-                "source": "Standard U-Values, Designing Buildings Wiki / Research Doc Sec 7.4"
+                "lambda"    :  0.16,
+                "r_value"   :  0.078,
+                "notes"     :  "Standard plasterboard (600 kg/m³). R-value for 12.5mm thickness.",
+                "info"      :  "Value from Standard U-Values / Designing Buildings Wiki. Lower lambda than BR443 (0.21 W/mK) for ≤700kg/m³.",
+                "warnings"  :  "BR443 suggests 0.21 W/mK for ≤700 kg/m³.",
+                "source"    :  "Standard U-Values, Designing Buildings Wiki / Research Doc Sec 7.4"
             }
         },
         "Gypsum-Fibreboard-Fermacell-Type": {
-            "is_product": false,
+            "is_product"   :  false,
             "standard": {
-                "lambda": 0.32,
-                "r_value": 0.039,
-                "notes": "Gypsum Fibreboard (e.g., Fermacell). R-value for 12.5mm thickness.",
-                "info": "High-density building board with structural, impact, and acoustic properties. Not primarily an insulator.",
-                "warnings": "Distinct from foam-backed insulated plasterboards.",
-                "source": "Research Doc - Insulated Plasterboard Section (Fermacell)"
+                "lambda"    :  0.32,
+                "r_value"   :  0.039,
+                "notes"     :  "Gypsum Fibreboard (e.g., Fermacell). R-value for 12.5mm thickness.",
+                "info"      :  "High-density building board with structural, impact, and acoustic properties. Not primarily an insulator.",
+                "warnings"  :  "Distinct from foam-backed insulated plasterboards.",
+                "source"    :  "Research Doc - Insulated Plasterboard Section (Fermacell)"
+            }
+        },
+        "Skimming-Plaster": {
+            "is_product"   :  false,
+            "3mm-Skim-Coat": {
+                "lambda"    :  0.43,
+                "r_value"   :  0.007,
+                "notes"     :  "Dense gypsum skimming plaster (1200 kg/m³). R-value for 3mm thickness.",
+                "info"      :  "Typical thin finish coat for internal walls and ceilings.",
+                "warnings"  :  "Very thin layer, minimal thermal resistance. Properties vary with mix and application.",
+                "source"    :  "Malta BCA / EN 12524 / Research Doc Sec 7.1"
             }
         }
     },
@@ -1687,7 +1743,7 @@
                 "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
                 "info"      :  "PIR insulated plasterboard for dry lining applications.",
                 "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Celotex PL4000 Datasheet / Research Doc - Insulated Plasterboard Section"
+                "source": "Celotex PL4000 Datasheet"
             },
             "Insulation-40mm_Overall-52.5mm": {
                 "lambda"    :  0.022,
@@ -1695,7 +1751,7 @@
                 "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
                 "info"      :  "PIR insulated plasterboard for dry lining applications.",
                 "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Celotex PL4000 Datasheet / Research Doc - Insulated Plasterboard Section"
+                "source": "Celotex PL4000 Datasheet"
             },
             "Insulation-50mm_Overall-62.5mm": {
                 "lambda"    :  0.022,
@@ -1703,7 +1759,7 @@
                 "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
                 "info"      :  "PIR insulated plasterboard for dry lining applications.",
                 "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Celotex PL4000 Datasheet / Research Doc - Insulated Plasterboard Section"
+                "source": "Celotex PL4000 Datasheet"
             },
             "Insulation-65mm_Overall-77.5mm": {
                 "lambda"    :  0.022,
@@ -1711,351 +1767,77 @@
                 "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
                 "info"      :  "PIR insulated plasterboard for dry lining applications.",
                 "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Celotex PL4000 Datasheet / Research Doc - Insulated Plasterboard Section"
+                "source": "Celotex PL4000 Datasheet"
             }
         },
-        "British-Gypsum-Thermaline-BASIC": {
+        "Celotex-CW4000": {
             "is_product": true,
-            "Insulation-12.5mm_Overall-22mm": {
-                "lambda"    :  0.040,
-                "r_value"   :  0.35,
-                "notes"     :  "EPS core (0.040 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Basic thermal upgrade with EPS core.",
-                "warnings"  :  "Lower thermal performance. Check VCL requirements.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
+            "40mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  1.80,
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source"    : "Celotex CW4000 Datasheet"
             },
-            "Insulation-22.5mm_Overall-32mm": {
-                "lambda"    :  0.040,
-                "r_value"   :  0.60,
-                "notes"     :  "EPS core (0.040 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Basic thermal upgrade with EPS core.",
-                "warnings"  :  "Lower thermal performance. Check VCL requirements.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
+            "50mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  2.25,
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
             },
-            "Insulation-30.5mm_Overall-40mm": {
-                "lambda"    :  0.040,
-                "r_value"   :  0.80,
-                "notes"     :  "EPS core (0.040 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Basic thermal upgrade with EPS core.",
-                "warnings"  :  "Lower thermal performance. Check VCL requirements.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
+            "60mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  2.70,
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "75mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  3.40,
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "100mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  4.50,
+                "notes"     :  "Partial fill cavity wall PIR insulation.",
+                "info"      :  "Foil faced, sized for cavity walls.",
+                "warnings"  :  "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
             }
         },
-        "British-Gypsum-Thermaline-PLUS": {
+        "Celotex-XPS-Floor-Insulation": {
             "is_product": true,
-            "Insulation-14.5mm_Overall-27mm": {
+            "40mm-Thickness": {
                 "lambda"    :  0.033,
-                "r_value"   :  0.54,
-                "notes"     :  "XPS core (0.033 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Enhanced moisture resistance with XPS core.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-22.5mm_Overall-35mm": {
-                "lambda"    :  0.033,
-                "r_value"   :  0.78,
-                "notes"     :  "XPS core (0.033 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Enhanced moisture resistance with XPS core.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-35.5mm_Overall-48mm": {
-                "lambda"    :  0.033,
-                "r_value"   :  1.10,
-                "notes"     :  "XPS core (0.033 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Enhanced moisture resistance with XPS core.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "British-Gypsum-Thermaline-PIR": {
-            "is_product": true,
-            "Insulation-25.5mm_Overall-38mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  1.15,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Good thermal performance with PIR core.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-40.5mm_Overall-53mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  1.85,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Good thermal performance with PIR core.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-50.5mm_Overall-63mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  2.30,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Good thermal performance with PIR core.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-80.5mm_Overall-93mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  3.65,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Good thermal performance with PIR core.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "British-Gypsum-Thermaline-SUPER": {
-            "is_product": true,
-            "Insulation-40.5mm_Overall-50mm": {
-                "lambda"    :  0.021,
-                "r_value"   :  1.97,
-                "notes"     :  "Phenolic core (lambda 0.020-0.021 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "High performance phenolic insulated plasterboard.",
-                "warnings"  :  "Integral VCL (≥100 MNs/g). Ensure correct installation.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-60.5mm_Overall-70mm": {
-                "lambda"    :  0.021,
-                "r_value"   :  2.92,
-                "notes"     :  "Phenolic core (lambda 0.020-0.021 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "High performance phenolic insulated plasterboard.",
-                "warnings"  :  "Integral VCL (≥100 MNs/g). Ensure correct installation.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-80.5mm_Overall-90mm": {
-                "lambda"    :  0.020,
-                "r_value"   :  4.06,
-                "notes"     :  "Phenolic core (lambda 0.020-0.021 W/mK, using 0.020 for R-value) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "High performance phenolic insulated plasterboard.",
-                "warnings"  :  "Integral VCL (≥100 MNs/g). Ensure correct installation.",
-                "source"    :  "British Gypsum Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "Knauf-Thermal-Laminate-EPS": {
-            "is_product": true,
-            "Insulation-12.5mm_Overall-22mm": {
-                "lambda"    :  0.038,
-                "r_value"   :  0.37,
-                "notes"     :  "EPS core (lambda 0.038-0.040 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "EPS insulated plasterboard for thermal upgrades.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "Knauf Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-25.5mm_Overall-35mm": {
-                "lambda"    :  0.038,
-                "r_value"   :  0.71,
-                "notes"     :  "EPS core (lambda 0.038-0.040 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "EPS insulated plasterboard for thermal upgrades.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "Knauf Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-40.5mm_Overall-50mm": {
-                "lambda"    :  0.038,
-                "r_value"   :  1.05,
-                "notes"     :  "EPS core (lambda 0.038-0.040 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "EPS insulated plasterboard for thermal upgrades.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "Knauf Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "Knauf-XPS-Laminate-Plus": {
-            "is_product": true,
-            "Insulation-17.5mm_Overall-27mm": {
-                "lambda"    :  0.033,
-                "r_value"   :  0.58,
-                "notes"     :  "XPS core (0.033 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "XPS insulated plasterboard with good moisture resistance.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "Knauf Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-27.5mm_Overall-37mm": {
-                "lambda"    :  0.033,
-                "r_value"   :  0.89,
-                "notes"     :  "XPS core (0.033 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "XPS insulated plasterboard with good moisture resistance.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "Knauf Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-45.5mm_Overall-55mm": {
-                "lambda"    :  0.033,
-                "r_value"   :  1.43,
-                "notes"     :  "XPS core (0.033 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "XPS insulated plasterboard with good moisture resistance.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "Knauf Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "Siniat-GTEC-Thermal-EPS-Board": {
-            "is_product": true,
-            "Insulation-12.5mm_Overall-22mm": {
-                "lambda"    :  0.037,
-                "r_value"   :  0.37,
-                "notes"     :  "EPS core (0.037 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "EPS insulated plasterboard.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "Siniat Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-40.5mm_Overall-50mm": {
-                "lambda"    :  0.037,
-                "r_value"   :  1.16,
-                "notes"     :  "EPS core (0.037 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "EPS insulated plasterboard.",
-                "warnings"  :  "Check VCL requirements.",
-                "source"    :  "Siniat Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "Siniat-GTEC-Thermal-PIR-Board": {
-            "is_product": true,
-            "Insulation-25mm_Overall-37.5mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  1.20,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Siniat Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-70mm_Overall-82.5mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  3.25,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Siniat Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "Siniat-GTEC-Thermal-K-Board-Phenolic": {
-            "is_product": true,
-            "Insulation-20.5mm_Overall-30mm": {
-                "lambda"    :  0.021,
-                "r_value"   :  0.92,
-                "notes"     :  "Phenolic core (~0.021 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Phenolic insulated plasterboard.",
-                "warnings"  :  "Metallised vapour barrier. Ensure correct installation.",
-                "source"    :  "Siniat Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-60.5mm_Overall-70mm": {
-                "lambda"    :  0.021,
-                "r_value"   :  3.08,
-                "notes"     :  "Phenolic core (~0.021 W/mK) bonded to 9.5mm plasterboard. R-value for composite board.",
-                "info"      :  "Phenolic insulated plasterboard.",
-                "warnings"  :  "Metallised vapour barrier. Ensure correct installation.",
-                "source"    :  "Siniat Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "Siniat-GTEC-Thermal-XP-Plus-Board-XPS": {
-            "is_product": true,
-            "Insulation-27.5mm_Overall-37mm": {
-                "lambda": 0.033,
-                "r_value": 0.89,
-                "notes": "XPS core (0.033 W/mK) bonded to 9.5mm plasterboard. R-value for composite board (overall 37mm). This R-value is indicative, based on similar Knauf product.",
-                "info": "XPS insulated plasterboard by Siniat. Good moisture resistance. Overall thickness range 27-55mm.",
-                "warnings": "Verify specific plasterboard thickness and overall R-value from Siniat datasheet for actual product.",
-                "source": "Research Doc - Insulated Plasterboard Section (Siniat GTEC Thermal XP, Knauf XPS Laminate Plus for R-value example)"
-            }
-        },
-        "Unilin-Thin-R-XT_TL-PIR": {
-            "is_product": true,
-            "Insulation-25mm_Overall-37.5mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  1.19,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard (adhesive fix). R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard for dot & dab applications.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Unilin Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-80mm_Overall-92.5mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  3.70,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard (adhesive fix). R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard for dot & dab applications.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Unilin Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "Unilin-Thin-R-XT_TL-MF-PIR": {
-            "is_product": true,
-            "Insulation-15mm_Overall-27.5mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  0.74,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard (mechanical fix). R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard for mechanical fixing.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Unilin Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-100mm_Overall-112.5mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  4.61,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard (mechanical fix). R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard for mechanical fixing.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Unilin Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "Unilin-Safe-R-SR_TB-Phenolic": {
-            "is_product": true,
-            "Insulation-25mm_Overall-37.5mm": {
-                "lambda"    :  0.020,
-                "r_value"   :  1.31,
-                "notes"     :  "Phenolic core (0.020 W/mK) bonded to 12.5mm plasterboard (adhesive fix). R-value for composite board.",
-                "info"      :  "Phenolic insulated plasterboard for dot & dab.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Unilin Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-70mm_Overall-82.5mm": {
-                "lambda"    :  0.020,
-                "r_value"   :  3.56,
-                "notes"     :  "Phenolic core (0.020 W/mK) bonded to 12.5mm plasterboard (adhesive fix). R-value for composite board.",
-                "info"      :  "Phenolic insulated plasterboard for dot & dab.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Unilin Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "Unilin-Safe-R-SR_TB-MF-Phenolic": {
-            "is_product": true,
-            "Insulation-25mm_Overall-37.5mm": {
-                "lambda": 0.020,
-                "r_value": 1.31,
-                "notes": "Phenolic core (0.020 W/mK) bonded to 12.5mm plasterboard (mechanical fix). R-value for composite board (overall 37.5mm).",
-                "info": "Phenolic insulated plasterboard for mechanical fixing. Similar R-values to SR/TB (adhesive fix) assumed for same insulation thickness.",
-                "warnings": "Integral VCL. Ensure correct installation. Verify R-values specific to SR/TB-MF range from Unilin.",
-                "source": "Research Doc - Insulated Plasterboard Section (Unilin Safe-R SR/TB-MF)"
-            }
-        },
-        "Recticel-Eurothane-PL-PIR": {
-            "is_product": true,
-            "Insulation-25mm_Overall-37.5mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  1.15,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Recticel Datasheet / Research Doc - Insulated Plasterboard Section"
-            },
-            "Insulation-65mm_Overall-77.5mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  3.00,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "Recticel Datasheet / Research Doc - Insulated Plasterboard Section"
-            }
-        },
-        "EcoTherm-Eco-Liner-PIR": {
-            "is_product": true,
-            "Insulation-25mm_Overall-37.5mm": {
-                "lambda"    :  0.022,
                 "r_value"   :  1.21,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "EcoTherm Datasheet / Research Doc - Insulated Plasterboard Section"
+                "notes"     :  "XPS floor insulation, high compressive strength.",
+                "info"      :  "For ground floors, lambda 0.033 W/mK.",
+                "warnings": "Check fire and application suitability.",
+                "source": "Celotex XPS 300 SL FN Datasheet"
             },
-            "Insulation-100mm_Overall-112.5mm": {
-                "lambda"    :  0.022,
-                "r_value"   :  4.62,
-                "notes"     :  "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
-                "info"      :  "PIR insulated plasterboard.",
-                "warnings"  :  "Integral VCL. Ensure correct installation.",
-                "source"    :  "EcoTherm Datasheet / Research Doc - Insulated Plasterboard Section"
+            "50mm-Thickness": {
+                "lambda"    :  0.033,
+                "r_value"   :  1.52,
+                "notes"     :  "XPS floor insulation, high compressive strength.",
+                "info"      :  "For ground floors, lambda 0.033 W/mK.",
+                "warnings": "Check fire and application suitability.",
+                "source": "Celotex XPS 300 SL FN Datasheet"
+            },
+            "100mm-Thickness": {
+                "lambda"    :  0.033,
+                "r_value"   :  3.03,
+                "notes"     :  "XPS floor insulation, high compressive strength.",
+                "info"      :  "For ground floors, lambda 0.033 W/mK.",
+                "warnings": "Check fire and application suitability.",
+                "source": "Celotex XPS 300 SL FN Datasheet"
             }
         }
     }
