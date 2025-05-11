@@ -183,8 +183,8 @@
 /* Fixed positioning for delete button */
 .UCALC__delete-button {
     background-color    :    #fff0f0;
-    width               :    2.5rem;
-    height              :    2.5rem;
+    width               :    2.0rem;
+    height              :    2.0rem;
     display             :    flex;
     align-items         :    center;
     justify-content     :    center;
@@ -225,8 +225,9 @@
     display             :    flex;
     align-items         :    center;
     justify-content     :    center;
-    width               :    2.5rem;
-    height              :    2.5rem;
+    transform          :    translateY(0.5rem);
+    width               :    2.0rem;
+    height              :    2.0rem;
     border              :    none;
     border-radius       :    50%;
     cursor              :    pointer;
