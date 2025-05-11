@@ -512,6 +512,36 @@
                 "asset-added-by"        :   "Adam Noble",
                 "asset-last-updated"    :   "11-Apr-2025",
                 "asset-active-status"   :   true
+            },
+            "icon-delete-bin": {
+                "asset-name"            :   "Delete Bin Icon SVG",
+                "asset-dir-path"        :   "./assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_14_-_Icon_-_Delete-Bin.svg",
+                "asset-file-name"       :   "AD05_14_-_Icon_-_Delete-Bin.svg",
+                "asset-id-code"         :   "AD05_14",
+                "asset-type"            :   "icon",
+                "asset-category"        :   "ui element",
+                "asset-format"          :   "svg",
+                "asset-description"     :   "Delete Bin Icon for Removal Functions",
+                "asset-usage"           :   "used for delete/remove functionality in utility tools",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "11-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "icon-plus-symbol": {
+                "asset-name"            :   "Plus Symbol Icon SVG",
+                "asset-dir-path"        :   "./assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_15_-_Icon_-_Plus-Symbol.svg",
+                "asset-file-name"       :   "AD05_15_-_Icon_-_Plus-Symbol.svg",
+                "asset-id-code"         :   "AD05_15",
+                "asset-type"            :   "icon",
+                "asset-category"        :   "ui element",
+                "asset-format"          :   "svg",
+                "asset-description"     :   "Plus Symbol Icon for Addition Functions",
+                "asset-usage"           :   "used for add/create functionality in utility tools",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "11-Apr-2025",
+                "asset-active-status"   :   true
             }
         }
     },

@@ -106,6 +106,7 @@ https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD0
 
 # --------------------------------------------------------------------------------------
 
+#### TASK 02 - COMPLETED ON 11ᵗʰ May 2025 ✔
 
 ### TASK 02 - BUILD JSON DATA FILE
 - Use Json format to store the data
@@ -149,40 +150,8 @@ https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD0
                 "info"      :  "Good balance of thermal performance and thickness.",
                 "warnings"  :  "Ensure correct fixing pattern is used.",
                 "source"    :  "Celotex GA4000 Product Page"
-            },
-            "75mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  3.40,
-                "notes"     :  "Often used in roof rafter applications.",
-                "info"      :  "High thermal performance in minimal thickness.",
-                "warnings"  :  "Compression can reduce effective R-value if not installed flat.",
-                "source"    :  "Celotex GA4000 Product Page"
-            },
-            "80mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  3.60,
-                "notes"     :  "Provides good thermal performance for roofs and floors.",
-                "info"      :  "Suitable for achieving lower U-values in constrained spaces.",
-                "warnings"  :  "Ensure correct fixings are used for the application.",
-                "source"    :  "Celotex GA4000 Product Page"
-            },
-            "90mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  4.05,
-                "notes"     :  "High performance insulation for demanding applications.",
-                "info"      :  "Helps achieve Part L compliance with single layer.",
-                "warnings"  :  "Requires careful handling to avoid damage to board edges.",
-                "source"    :  "Celotex GA4000 Product Page"
-            },
-            "100mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  4.50,
-                "notes"     :  "Maximum thickness in the GA4000 range.",
-                "info"      :  "Provides excellent thermal performance for all applications.",
-                "warnings"  :  "Heavyweight board requires careful handling and installation.",
-                "source"    :  "Celotex GA4000 Product Page"
             }
-        },
+        },  
         "Celotex-Thermaclass-CW21": {
             "is_product": true,
             "90mm-Thickness": {
@@ -210,182 +179,6 @@ https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD0
                 "source"    :  "Celotex Thermaclass Cavity Wall 21"
             }
         },
-        "Recticel-Eurowall+": {
-            "is_product": true,
-            "75mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  3.40,
-                "notes"     :  "Cavity wall insulation with tongue and groove edges.",
-                "info"      :  "Minimizes thermal bridging at board junctions.",
-                "warnings"  :  "Must maintain 50mm residual cavity width.",
-                "source"    :  "Recticel Eurowall+ Specification Guide"
-            },
-            "90mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  4.05,
-                "notes"     :  "Tongue and groove PIR for cavity wall systems.",
-                "info"      :  "Designed for partial fill with 50mm air gap retained.",
-                "warnings"  :  "Incorrect cavity tie spacing can lead to slumping.",
-                "source"    :  "Recticel Eurowall+ Specification Guide"
-            },
-            "115mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  5.25,
-                "notes"     :  "High-performance cavity wall insulation.",
-                "info"      :  "For use in applications requiring very low U-values.",
-                "warnings"  :  "Requires correct detailing at wall junctions.",
-                "source"    :  "Recticel Eurowall+ Specification Guide"
-            },
-            "140mm-Thickness": {
-                "lambda"    :  0.022,
-                "r_value"   :  6.35,
-                "notes"     :  "Maximum thickness available for cavity walls.",
-                "info"      :  "Used for Passivhaus and ultra-low energy buildings.",
-                "warnings"  :  "Requires wide cavity construction.",
-                "source"    :  "Recticel Eurowall+ Specification Guide"
-            }
-        }
-    },
-    "Phenolic-Insulation": {
-        "Kingspan-Kooltherm-K108": {
-            "is_product": true,
-            "25mm-Thickness": {
-                "lambda"    :  0.019,
-                "r_value"   :  1.30,
-                "notes"     :  "Premium phenolic insulation for cavity walls.",
-                "info"      :  "Offers better thermal performance than PIR.",
-                "warnings"  :  "Requires careful handling due to rigid board properties.",
-                "source"    :  "Kingspan Kooltherm K108 BBA Cert 16/5299"
-            },
-            "50mm-Thickness": {
-                "lambda"    :  0.019,
-                "r_value"   :  2.60,
-                "notes"     :  "High performance phenolic insulation.",
-                "info"      :  "More efficient than equivalent thickness of PIR.",
-                "warnings"  :  "Maintain minimum 50mm residual cavity.",
-                "source"    :  "Kingspan Kooltherm K108 BBA Cert 16/5299"
-            },
-            "75mm-Thickness": {
-                "lambda"    :  0.019,
-                "r_value"   :  3.90,
-                "notes"     :  "Advanced cavity wall insulation.",
-                "info"      :  "Used where space is at a premium.",
-                "warnings"  :  "Follow manufacturer's handling instructions.",
-                "source"    :  "Kingspan Kooltherm K108 BBA Cert 16/5299"
-            }
-        }
-    },
-    "Mineral-Wool-Insulation": {
-        "Rockwool-Cavity-Slab-32": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  0.032,
-                "r_value"   :  3.13,
-                "notes"     :  "Non-combustible cavity wall insulation.",
-                "info"      :  "Variable thickness material for cavity walls.",
-                "warnings"  :  "Must be kept dry during storage and installation.",
-                "source"    :  "Rockwool Cavity Slab 32 BBA 22/6335 (Apr 2024)"
-            }
-        },
-        "Rockwool-Roll": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  0.044,
-                "r_value"   :  2.27,
-                "notes"     :  "Flexible mineral wool insulation.",
-                "info"      :  "Suitable for lofts and between timber joists.",
-                "warnings"  :  "Compression affects thermal performance.",
-                "source"    :  "Rockwool Roll Datasheet"
-            }
-        }
-    },
-    "Glass-Mineral-Wool": {
-        "Isover-CWS-32": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  0.032,
-                "r_value"   :  3.13,
-                "notes"     :  "Glass wool cavity wall insulation.",
-                "info"      :  "High performance glass mineral wool.",
-                "warnings"  :  "Must be protected from water during installation.",
-                "source"    :  "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
-            }
-        },
-        "Isover-CWS-34": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  0.034,
-                "r_value"   :  2.94,
-                "notes"     :  "Standard performance glass wool insulation.",
-                "info"      :  "For cavity wall applications.",
-                "warnings"  :  "Water exposure reduces thermal performance.",
-                "source"    :  "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
-            }
-        }
-    },
-    "Masonry-Materials": {
-        "Clay-Brick": {
-            "is_product": false,
-            "Outer-Leaf": {
-                "lambda"    :  0.77,
-                "r_value"   :  0.26,
-                "notes"     :  "Typical clay brick for external walls.",
-                "info"      :  "Standard value for U-value calculations per BR 443:2019.",
-                "warnings"  :  "Thermal conductivity affected by moisture content.",
-                "source"    :  "BR 443:2019"
-            },
-            "Inner-Leaf": {
-                "lambda"    :  0.56,
-                "r_value"   :  0.36,
-                "notes"     :  "Typical clay brick for internal walls.",
-                "info"      :  "Protected from external weathering.",
-                "warnings"  :  "Thermal bridges at mortar joints not accounted for.",
-                "source"    :  "BR 443:2019"
-            }
-        },
-        "Concrete-Block": {
-            "is_product": false,
-            "Dense-Aggregate": {
-                "lambda"    :  1.35,
-                "r_value"   :  0.15,
-                "notes"     :  "Medium density (2000 kg/m³) concrete blocks.",
-                "info"      :  "Used for structural applications and inner leaves.",
-                "warnings"  :  "Poor thermal performance requires additional insulation.",
-                "source"    :  "BR 443:2019"
-            },
-            "Lightweight-Aggregate": {
-                "lambda"    :  0.22,
-                "r_value"   :  0.91,
-                "notes"     :  "Lightweight (600 kg/m³) concrete blocks.",
-                "info"      :  "Better thermal performance than dense blocks.",
-                "warnings"  :  "Lower compressive strength than dense blocks.",
-                "source"    :  "BR 443:2019"
-            }
-        }
-    },
-    "Timber-Products": {
-        "Softwood": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  0.13,
-                "r_value"   :  0.77,
-                "notes"     :  "Softwood timber (~500 kg/m³).",
-                "info"      :  "Typically used for structural framing.",
-                "warnings"  :  "Moisture content affects thermal properties.",
-                "source"    :  "BR 443:2019"
-            }
-        },
-        "Hardwood": {
-            "is_product": false,
-            "standard": {
-                "lambda"    :  0.18,
-                "r_value"   :  0.56,
-                "notes"     :  "Hardwood timber (~700 kg/m³).",
-                "info"      :  "Denser wood with higher thermal conductivity.",
-                "warnings"  :  "Less commonly used in thermal elements.",
-                "source"    :  "BR 443:2019"
-            }
-        }
     }
 }
 ```
@@ -420,6 +213,92 @@ https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD0
 - I fully expect this task to take a very like time to complete, and that is ok, take your time and get it right.
 - *Research file location*
 `D:\WE10_--_Public-Repo_--_Live-Website\na-apps\NA23_01_WebApp_-_ThermalCalcTool\Research_-_Thermal-Properies-Research.txt`
+
+#### TASK 02 - COMPLETED ON 11ᵗʰ May 2025 ✔
+
+
+# --------------------------------------------------------------------------------------
+
+#### TASK 03 - Create Functions And Key Math Functions
+
+**Research Online**
+  - How to calculate the U-Value of a building component.
+  - Ensure compliance with ISO 6946:2017(E) standards.
+  - Research the standard mathematical method used to calculate U-Values compliant with ISO 6946:2017(E) standards.
+
+**Study JSON Data**
+- Study  `NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json`
+- This may help understand how the values relate to each other in some functions etc.
+- Note, any parsing of the JSON is handled in the `NA23_01_04-WebApp_-_ThermalCalcTool_-_DataLoader.js` file.
+- This Math Utils file simply provides the mathematical methods used to calculate the U-Value of a building component.
+- The Json is referenced to show you example of what data will be operated on.
+
+**Create Functions**
+  - `NA23_01_05-WebApp_-_ThermalCalcTool_-_MathUtils.js` is currently a placeholder file.
+    - It contains the basic structure template of a standard JavaScript file in my system.
+  - Create a series of functions that can be used to calculate the U-Value of a building component.
+  - Build out the simpler functions first, then move on to the more complex functions.
+  - Have the simpler functions as helpers at the top of the JavaScript file, before the main functions.
+  - Ensure helper function, functions, and methods are well named, and documented, note how I use dividers and comments to separate sections.
+
+
+# --------------------------------------------------------------------------------------
+
+#### TASK 04 - Create Application UI / UX
+
+**Basic UI Element Outline and Styles**
+- The user interface should be interactive and user friendly. 
+- The user interface should be designed to be easy to use and understand.
+- It should use as many of the existing classes as possible from the Core Stylesheet.
+**Stylesheet URL**
+https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css
+**Path From Root:**
+.\assets\AD02_-_STYL_-_Common_-_StyleSheets\AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css
+- New elements should be added to the Application Stylesheet if required. 
+ - `NA23_01_02-WebApp_-_ThermalCalcTool_-_ApplicationStyleSheet.css`
+
+**Building Component U-Value Calculation Elements**
+  - Internal surface resistance (Rsi)  *<--This Emenet is always the first in the list and cannot be removed*
+  - User Items are added between these two elements, user creates these items by pressing a + Symbol SVG Button.
+  - External surface resistance (Rse)  *<--This Emenet is always the last in the list and cannot be removed*
+
+  - Calculation section - Here a Latex Style Formula is displayed, showing the calculation that has been performed.
+
+  - Results Sections - The results section is displayed after the calculation section.
+  - This section clearly states the combined U-Value of the building component.
+
+  - Caveats section - A list of Caveats are displayed in a collapsible section. 
+    - All calculations are based on the ISO 6946:2017(E) standards.
+    - All calculations are based on the material properties researched on 11ᵗʰ May 2025
+    - These figures are general and are not specific to any project, building or application.
+    - The figures are intended for guidance only and are not intended to be used as a substitute for professional advice
+      from a qualified thermal engineering professional.
+
+**Workflow**
+- by default when loaded one item is present in the user items section between the internal and external surface resistance elements.
+- This items is a dropdown menu that allows the user to select the material type from the JSON data file.
+- The user can add as many items as they want to the list, and they can be added or removed at any time.
+- The user can edit the thickness of the material, and the application will update the calculation and results accordingly.
+- The user can delete the item from the list, and the application will update the calculation and results accordingly.
+- The user can press a + Symbol SVG Button to add a new item to the list.
+
+
+# --------------------------------------------------------------------------------------
+
+#### TASK 05 - Test First Implementation of the Application
+
+**Observations**
+- 
+- 
+- 
+- 
+- 
+
+
+
+
+
+
 
 
 
