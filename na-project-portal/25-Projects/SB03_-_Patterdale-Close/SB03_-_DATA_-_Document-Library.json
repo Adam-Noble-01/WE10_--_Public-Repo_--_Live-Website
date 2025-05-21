@@ -1,0 +1,153 @@
+{"na-project-data-library":{
+    "file-metadata":{
+        "file-name"                 :    "SB03_-_DATA_-_Document-Library.json",
+        "file-type"                 :    ".json",
+        "file-purpose"              :    "Project Specific Documentation Link Library",
+        "file-description"          :    "This JSON file stores Noble Architecture project file documentation links in a single location and ensures quick retrieval.",
+        "file-created"              :    "21-May-2025",
+        "file-author"               :    "Adam Noble - Noble Architecture",
+        "file-key-required"         :    "FALSE",
+        "file-key-note"             :    "Public Repo File - Sensitive Data Omitted",
+        "file-links":{
+            "windows-dir-path"      :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_-_DATA_-_Document-Library.json",
+            "github-link-url"       :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_-_DATA_-_Document-Library.json"
+        }
+    },
+    "project-details":{
+        "project-name-nickname"        :    "SB03 | Patterdale Close",
+        "project-name-string"          :    "SB03_--_Patterdale-Close",
+        "project-address--house"       :    "Patterdale Close",
+        "project-address--house-no"    :    "10",
+        "project-address-street"       :    "Patterdale Close",
+        "project-address-town"         :    "Gamston",
+        "project-address-city"         :    "Nottingham",
+        "project-address-county"       :    "Nottinghamshire",
+        "project-address-postcode"     :    "NG2 6PW",
+        "project-general-notes-01"     :    "NIL",
+        "project-portal-links":{
+            "portal-url-home"          :    "https://sites.google.com/view/ga06-project-portal/home",
+            "portal-url-planvision"    :    "https://sites.google.com/view/ga06-project-portal/planvision-app/planvision-web-app",
+            "portal-url-truevision"    :    "https://sites.google.com/view/ga06-project-portal/truevision-app/truevision-web-app"
+        }
+    },  
+    "project-documentation":{
+        "project-drawings":{
+            "drawing-01":{
+                "file-name"            :    "SB03_T03_D10_--_Technical-Plan_-_Ground-Floor.pdf",
+                "added-to-register"    :    "22-May-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Technical Plan - Ground Floor",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Technical Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions":{
+                    "revision-a"       :    "22-May-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D10_--_Technical-Plan_-_Ground-Floor.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D10_--_Technical-Plan_-_Ground-Floor.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D10_--_Technical-Plan_-_Ground-Floor.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D10_--_Technical-Plan_-_Ground-Floor.pdf"
+                }
+            },
+            "drawing-02":{
+                "file-name"             :    "SB03_T03_D20_--_Technical-Plan_-_First-Floor.pdf",
+                "added-to-register"     :    "22-May-2025",
+                "document-type"         :    "Drawing",
+                "document-name"         :    "Technical Plan - First Floor",
+                "document-scale"        :    "1:50",
+                "document-size"         :    "A2",
+                "document-status"       :    "Technical Drawing",
+                "document-notes"        :    "NIL",
+                "document-revisions":{
+                    "revision-a"        :    "22-May-2025",
+                    "revision-b"        :    "NIL",
+                    "revision-c"        :    "NIL",
+                    "revision-d"        :    "NIL",
+                    "revision-e"        :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D20_--_Technical-Plan_-_First-Floor.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D20_--_Technical-Plan_-_First-Floor.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D20_--_Technical-Plan_-_First-Floor.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D20_--_Technical-Plan_-_First-Floor.pdf"
+                }
+            },
+            "drawing-03":{
+                "file-name"            :    "SB03_T03_D30_--_Technical-Elevations_-_Sheet-01.pdf",
+                "added-to-register"    :    "22-May-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Technical Elevations - Sheet 01",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A1",
+                "document-status"      :    "Technical Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions":{
+                    "revision-a"       :    "22-May-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D30_--_Technical-Elevations_-_Sheet-01.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D30_--_Technical-Elevations_-_Sheet-01.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D30_--_Technical-Elevations_-_Sheet-01.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D30_--_Technical-Elevations_-_Sheet-01.pdf"
+                }
+            },
+            "drawing-04":{
+                "file-name"            :    "SB03_T03_D30_--_Technical-Elevations_-_Sheet-02.pdf",
+                "added-to-register"    :    "22-May-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Technical Elevations - Sheet 02",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A1",
+                "document-status"      :    "Technical Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions":{
+                    "revision-a"       :    "22-May-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D30_--_Technical-Elevations_-_Sheet-02.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D30_--_Technical-Elevations_-_Sheet-02.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D30_--_Technical-Elevations_-_Sheet-02.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D30_--_Technical-Elevations_-_Sheet-02.pdf"
+                }
+            },
+            "drawing-05":{
+                "file-name"            :    "SB03_T03_D35_--_Technical-3D-Perspectives.pdf",
+                "added-to-register"    :    "22-May-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Technical 3D Perspectives",   
+                "document-scale"       :    "NTS",
+                "document-size"        :    "A1",
+                "document-status"      :    "Technical Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions":{
+                    "revision-a"       :    "22-May-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D35_--_Technical-3D-Perspectives.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\SB03_-_Patterdale-Close\\SB03_T03_D35_--_Technical-3D-Perspectives.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D35_--_Technical-3D-Perspectives.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_T03_D35_--_Technical-3D-Perspectives.pdf"
+                }
+            }
+        }
+    }
+}
+}
