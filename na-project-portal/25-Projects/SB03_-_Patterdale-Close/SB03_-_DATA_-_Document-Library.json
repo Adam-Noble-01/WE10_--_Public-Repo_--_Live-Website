@@ -25,9 +25,9 @@
         "project-address-postcode"     :    "NG2 6PW",
         "project-general-notes-01"     :    "NIL",
         "project-portal-links":{
-            "portal-url-home"          :    "https://sites.google.com/view/ga06-project-portal/home",
-            "portal-url-planvision"    :    "https://sites.google.com/view/ga06-project-portal/planvision-app/planvision-web-app",
-            "portal-url-truevision"    :    "https://sites.google.com/view/ga06-project-portal/truevision-app/truevision-web-app"
+            "portal-url-home"          :    "Nil",
+            "portal-url-planvision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/SB03_-_PlanVision_-_Web-Application.html",
+            "portal-url-truevision"    :    "Nil"
         }
     },  
     "project-documentation":{
