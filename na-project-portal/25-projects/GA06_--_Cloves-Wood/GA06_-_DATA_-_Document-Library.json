@@ -33,6 +33,48 @@
     "project-documentation":{
         "project-drawings":{
             "drawing-01"               :    {
+                "file-name"            :    "GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.pdf",
+                "added-to-register"    :    "02-Jun-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Elevations Drawing",   
+                "document-scale"       :    "1:100",
+                "document-size"        :    "A2",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions":{
+                    "revision-a"       :   "02-06-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_--_Cloves-Wood/GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_--_Cloves-Wood/GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.pdf"
+                }
+            },
+            "drawing-02":{
+                "file-name"             :    "GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.pdf",
+                "added-to-register"     :    "02-Jun-2025",
+                "document-type"         :    "Drawing",
+                "document-name"         :    "Site Plan Drawing",
+                "document-scale"        :    "1:500",
+                "document-size"         :    "A2",  
+                "document-status"       :    "Planning Phase Drawing",
+                "document-notes"        :    "NIL",
+                "document-revisions":{
+                    "revision-a"        :    "24-02-2025"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_--_Cloves-Wood/GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_--_Cloves-Wood/GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.pdf"
+                }
+            },
+            "drawing-03"               :    {
                 "file-name"            :    "GA06_T02_D22_--_PD-Elevations-Drawing.pdf",
                 "added-to-register"    :    "22-Mar-2025",
                 "document-type"        :    "Drawing",
@@ -49,13 +91,13 @@
                     "revision-e"       :    "NIL"
                 },
                 "document-links":{
-                    "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\GA06_--_Cloves-Wood\\GA06_T02_D22_--_PD-Elevations-Drawing.png",
-                    "pdf--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\GA06_--_Cloves-Wood\\GA06_T02_D22_--_PD-Elevations-Drawing.pdf",
-                    "png--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/GA06_--_Cloves-Wood/GA06_T02_D22_--_PD-Elevations-Drawing.png",
-                    "pdf--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/GA06_--_Cloves-Wood/GA06_T02_D22_--_PD-Elevations-Drawing.pdf"
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D22_--_PD-Elevations-Drawing.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D22_--_PD-Elevations-Drawing.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_--_Cloves-Wood/GA06_T02_D22_--_PD-Elevations-Drawing.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_--_Cloves-Wood/GA06_T02_D22_--_PD-Elevations-Drawing.pdf"
                 }
             },
-            "drawing-02":{
+            "drawing-04":{
                 "file-name"             :    "GA06_T02_D11_--_PD-Site-Plans.pdf",
                 "added-to-register"     :    "22-Mar-2025",
                 "document-type"         :    "Drawing",
@@ -68,10 +110,10 @@
                     "revision-a"        :    "24-02-2025"
                 },
                 "document-links":{
-                    "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\GA06_--_Cloves-Wood\\GA06_T02_D11_--_PD-Site-Plans.png",
-                    "pdf--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\GA06_--_Cloves-Wood\\GA06_T02_D11_--_PD-Site-Plans.pdf",
-                    "png--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/GA06_--_Cloves-Wood/GA06_T02_D11_--_PD-Site-Plans.png",
-                    "pdf--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/GA06_--_Cloves-Wood/GA06_T02_D11_--_PD-Site-Plans.pdf"
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D11_--_PD-Site-Plans.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D11_--_PD-Site-Plans.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_--_Cloves-Wood/GA06_T02_D11_--_PD-Site-Plans.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_--_Cloves-Wood/GA06_T02_D11_--_PD-Site-Plans.pdf"
                 }
             },
             "drawing-03"    :    {
@@ -91,10 +133,10 @@
                     "revision-f"       :    "{{ENTER_DATE}}"
                 },
                 "document-links"    :    {
-                    "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
-                    "pdf--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf",
-                    "png--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
-                    "pdf--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf"
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf"
                 }
             }
         }
