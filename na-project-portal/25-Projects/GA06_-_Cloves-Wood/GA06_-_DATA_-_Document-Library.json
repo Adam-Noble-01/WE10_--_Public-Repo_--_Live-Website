@@ -25,9 +25,9 @@
         "project-address-postcode"     :    "DE7 6DG",
         "project-general-notes-01"     :    "NIL",
         "project-portal-links":{
-            "portal-url-home"          :    "https://sites.google.com/view/ga06-project-portal/home",
-            "portal-url-planvision"    :    "https://sites.google.com/view/ga06-project-portal/planvision-app/planvision-web-app",
-            "portal-url-truevision"    :    "https://sites.google.com/view/ga06-project-portal/truevision-app/truevision-web-app"
+            "portal-url-home"          :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_-_Cloves-Wood/GA06_-_Project-Portal",
+            "portal-url-planvision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_-_Cloves-Wood/GA06_-_PlanVision_-_Web-Application",
+            "portal-url-truevision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/GA06_-_Cloves-Wood/GA06_-_TrueVision_-_Web-Application"
         }
     },  
     "project-documentation":{
