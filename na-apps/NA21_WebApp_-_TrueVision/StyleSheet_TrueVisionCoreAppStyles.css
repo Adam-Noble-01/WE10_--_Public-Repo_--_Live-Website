@@ -1,0 +1,218 @@
+/* CSS Variables - TrueVision Design System Standards */
+:root {
+    /* Color Palette Variables */
+    --TrueVision_PrimaryBrand          : #555041;                      /* Noble Architecture brand color */
+    --TrueVision_BackgroundLight       : #f0f0f0;                      /* Light background for main areas */
+    --TrueVision_BackgroundWhite       : #fff;                         /* Pure white for panels */
+    --TrueVision_BackgroundCanvas      : #fafafa;                      /* Canvas background color */
+    --TrueVision_BackgroundGrey        : #ccc;                         /* Container background */
+    --TrueVision_TextPrimary           : #555041;                      /* Primary text color */
+    --TrueVision_BorderPrimary         : #555041;                      /* Primary border color */
+    --TrueVision_ErrorBackground       : #ffe6e6;                      /* Error message background */
+    --TrueVision_ErrorBorder           : #ff0000;                      /* Error border and text */
+    --TrueVision_LoadingOverlay        : rgba(255, 255, 255, 0.9);    /* Semi-transparent loading overlay */
+    
+    /* Layout Dimension Variables */
+    --TrueVision_HeaderHeight          : 50px;                         /* Fixed header height */
+    --TrueVision_FooterHeight          : 30px;                         /* Fixed footer height */
+    --TrueVision_ToolbarWidth          : 220px;                        /* Fixed toolbar width */
+    --TrueVision_ToolbarPadding        : 10px;                         /* Toolbar internal padding */
+    --TrueVision_BorderWidth           : 2px;                          /* Standard border thickness */
+    
+    /* Typography Variables */
+    --TrueVision_FontFamily            : sans-serif;                   /* Primary font family */
+    --TrueVision_FontSize_Title        : 20px;                         /* Application title size */
+    --TrueVision_FontSize_Standard     : 14px;                         /* Standard interface text */
+    --TrueVision_FontSize_Small        : 12px;                         /* Small text and displays */
+    --TrueVision_FontSize_Loading      : 18px;                         /* Loading message text */
+    
+    /* Z-Index Layer Management */
+    --TrueVision_ZIndex_Header         : 9999;                         /* Header layer */
+    --TrueVision_ZIndex_Toolbar        : 9998;                         /* Toolbar layer */
+    --TrueVision_ZIndex_Footer         : 9999;                         /* Footer layer */
+    --TrueVision_ZIndex_Loading        : 10000;                        /* Loading overlay layer */
+    --TrueVision_ZIndex_Error          : 10001;                        /* Error message layer */
+}
+
+/* Base Layout and Reset Styles */
+html, body {
+    margin                             : 0;                            /* Remove default margins */
+    padding                            : 0;                            /* Remove default padding */
+    width                              : 100%;                         /* Full viewport width */
+    height                             : 100%;                         /* Full viewport height */
+    background                         : var(--TrueVision_BackgroundLight);  /* Application background */
+    overflow                           : hidden;                       /* Prevent scrollbars */
+    font-family                        : var(--TrueVision_FontFamily); /* Apply primary font */
+}
+
+/* Main Application Container */
+#app-container {
+    position                           : relative;                     /* Relative positioning for child elements */
+    width                              : 100%;                         /* Full width */
+    height                             : 100%;                         /* Full height */
+    touch-action                       : none;                         /* Disable touch scrolling */
+}
+
+/* Header Section Styles */
+#header {
+    position                           : absolute;                     /* Fixed position at top */
+    top                                : 0;                            /* Align to top edge */
+    left                               : 0;                            /* Align to left edge */
+    width                              : 100%;                         /* Full width */
+    height                             : var(--TrueVision_HeaderHeight); /* Fixed header height */
+    background                         : var(--TrueVision_BackgroundWhite); /* White background */
+    border-bottom                      : var(--TrueVision_BorderWidth) solid var(--TrueVision_BorderPrimary); /* Bottom border */
+    display                            : flex;                         /* Flexbox layout */
+    align-items                        : center;                       /* Vertical center alignment */
+    padding-left                       : var(--TrueVision_ToolbarPadding); /* Left padding */
+    z-index                            : var(--TrueVision_ZIndex_Header); /* Layer management */
+}
+
+#header img {
+    height                             : 40px;                         /* Logo height */
+}
+
+#app-title {
+    margin-left                        : 15px;                         /* Space between logo and title */
+    font-size                          : var(--TrueVision_FontSize_Title); /* Title font size */
+    color                              : var(--TrueVision_TextPrimary); /* Title text color */
+}
+
+/* Toolbar Section Styles */
+#toolbar {
+    position                           : absolute;                     /* Fixed position */
+    top                                : var(--TrueVision_HeaderHeight); /* Below header */
+    left                               : 0;                            /* Left edge alignment */
+    width                              : var(--TrueVision_ToolbarWidth); /* Fixed toolbar width */
+    bottom                             : var(--TrueVision_FooterHeight); /* Above footer */
+    background                         : var(--TrueVision_BackgroundWhite); /* White background */
+    border-right                       : var(--TrueVision_BorderWidth) solid var(--TrueVision_BorderPrimary); /* Right border */
+    padding                            : var(--TrueVision_ToolbarPadding); /* Internal padding */
+    box-sizing                         : border-box;                   /* Include padding in width */
+    z-index                            : var(--TrueVision_ZIndex_Toolbar); /* Layer management */
+    overflow-y                         : auto;                         /* Enable vertical scrolling */
+}
+
+.tool-button {
+    display                            : block;                        /* Block display for full width */
+    width                              : 100%;                         /* Full toolbar width */
+    margin-bottom                      : 8px;                          /* Space between buttons */
+    padding                            : var(--TrueVision_ToolbarPadding); /* Button padding */
+    background                         : var(--TrueVision_PrimaryBrand); /* Brand color background */
+    color                              : var(--TrueVision_BackgroundWhite); /* White text */
+    text-align                         : center;                       /* Center text alignment */
+    border                             : none;                         /* Remove default border */
+    cursor                             : pointer;                      /* Pointer cursor on hover */
+    font-size                          : var(--TrueVision_FontSize_Standard); /* Standard font size */
+    border-radius                      : 3px;                          /* Rounded corners */
+}
+
+.tool-button:hover {
+    opacity                            : 0.8;                          /* Hover effect opacity */
+}
+
+#toolbar label {
+    margin-top                         : var(--TrueVision_ToolbarPadding); /* Top margin */
+    display                            : block;                        /* Block display */
+    color                              : var(--TrueVision_TextPrimary); /* Label text color */
+    font-size                          : var(--TrueVision_FontSize_Standard); /* Standard font size */
+}
+
+#sunTimeDisplay {
+    font-size                          : var(--TrueVision_FontSize_Small); /* Small font size */
+    color                              : var(--TrueVision_TextPrimary); /* Primary text color */
+    text-align                         : center;                       /* Center alignment */
+}
+
+/* Canvas Container Styles */
+#canvas-container {
+    position                           : absolute;                     /* Fixed positioning */
+    top                                : var(--TrueVision_HeaderHeight); /* Below header */
+    left                               : var(--TrueVision_ToolbarWidth); /* Right of toolbar */
+    right                              : 0;                            /* To right edge */
+    bottom                             : var(--TrueVision_FooterHeight); /* Above footer */
+    background                         : var(--TrueVision_BackgroundGrey); /* Grey background */
+    display                            : flex;                         /* Flexbox layout */
+    justify-content                    : center;                       /* Horizontal centering */
+    align-items                        : center;                       /* Vertical centering */
+}
+
+#renderCanvas {
+    width                              : 100%;                         /* Full container width */
+    height                             : 100%;                         /* Full container height */
+    touch-action                       : none;                         /* Disable touch actions */
+    background                         : var(--TrueVision_BackgroundCanvas); /* Canvas background */
+}
+
+/* Loading Overlay Styles */
+#loading-overlay {
+    position                           : absolute;                     /* Fixed positioning */
+    top                                : var(--TrueVision_HeaderHeight); /* Below header */
+    left                               : var(--TrueVision_ToolbarWidth); /* Right of toolbar */
+    right                              : 0;                            /* To right edge */
+    bottom                             : var(--TrueVision_FooterHeight); /* Above footer */
+    background                         : var(--TrueVision_LoadingOverlay); /* Semi-transparent background */
+    display                            : flex;                         /* Flexbox layout */
+    flex-direction                     : column;                       /* Vertical layout */
+    justify-content                    : center;                       /* Vertical centering */
+    align-items                        : center;                       /* Horizontal centering */
+    font-size                          : var(--TrueVision_FontSize_Loading); /* Loading text size */
+    z-index                            : var(--TrueVision_ZIndex_Loading); /* Layer management */
+    transition                         : opacity 0.3s ease;            /* Smooth fade transition */
+}
+
+#loading-overlay.hidden {
+    opacity                            : 0;                            /* Invisible when hidden */
+    pointer-events                     : none;                         /* Disable interactions */
+}
+
+/* Loading Spinner Animation */
+.spinner {
+    border                             : 8px solid #f3f3f3;            /* Light grey border */
+    border-top                         : 8px solid var(--TrueVision_PrimaryBrand); /* Brand color top */
+    border-radius                      : 50%;                          /* Circular shape */
+    width                              : 60px;                         /* Spinner width */
+    height                             : 60px;                         /* Spinner height */
+    animation                          : spin 1s linear infinite;      /* Continuous rotation */
+    margin-bottom                      : 20px;                         /* Space below spinner */
+}
+
+@keyframes spin {
+    0% {
+        transform                      : rotate(0deg);                 /* Start rotation */
+    }
+    100% {
+        transform                      : rotate(360deg);               /* End rotation */
+    }
+}
+
+/* Error Message Styles */
+#error-message {
+    position                           : absolute;                     /* Fixed positioning */
+    top                                : 60px;                         /* Below header with margin */
+    left                               : 240px;                        /* Right of toolbar with margin */
+    right                              : 20px;                         /* Margin from right edge */
+    padding                            : var(--TrueVision_ToolbarPadding); /* Internal padding */
+    background                         : var(--TrueVision_ErrorBackground); /* Error background color */
+    border                             : 1px solid var(--TrueVision_ErrorBorder); /* Error border */
+    color                              : var(--TrueVision_ErrorBorder); /* Error text color */
+    display                            : none;                         /* Hidden by default */
+    z-index                            : var(--TrueVision_ZIndex_Error); /* Layer management */
+}
+
+/* Footer Section Styles */
+#footer {
+    position                           : absolute;                     /* Fixed positioning */
+    bottom                             : 0;                            /* Align to bottom */
+    left                               : var(--TrueVision_ToolbarWidth); /* Right of toolbar */
+    right                              : 0;                            /* To right edge */
+    height                             : var(--TrueVision_FooterHeight); /* Fixed footer height */
+    background                         : var(--TrueVision_BackgroundWhite); /* White background */
+    border-top                         : 1px solid var(--TrueVision_BorderPrimary); /* Top border */
+    display                            : flex;                         /* Flexbox layout */
+    align-items                        : center;                       /* Vertical centering */
+    justify-content                    : center;                       /* Horizontal centering */
+    font-size                          : var(--TrueVision_FontSize_Small); /* Small font size */
+    color                              : var(--TrueVision_TextPrimary); /* Primary text color */
+    z-index                            : var(--TrueVision_ZIndex_Footer); /* Layer management */
+}
