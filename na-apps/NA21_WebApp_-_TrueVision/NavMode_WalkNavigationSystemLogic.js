@@ -16,6 +16,14 @@
 // - Includes configurable walk speed and eye height settings
 // - Realistic navigation mode for experiencing spaces at human scale
 //
+// INTEGRATION WITH UI MENU SYSTEM:
+// - This module provides the camera and navigation logic for walk mode
+// - The UiMenu_NavModeButtonManager.js handles the toolbar button for this mode
+// - When enabled via the UI button, this module takes control of the camera
+// - The UI manager coordinates switching between this and other navigation modes
+// - This module does NOT create its own UI controls (uses keyboard/mouse only)
+// - Button visibility and mode switching is managed externally by ApplicationCore
+//
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
@@ -291,12 +299,6 @@
         
         // UPDATE GROUND LEVEL
         updateGroundLevel();                                                 // <-- Refresh ground reference
-        
-        // UPDATE SSAO IF AVAILABLE
-        const ssaoEffect = window.TrueVision3D?.RenderEffects?.SsaoAmbientOcclusionEffect;
-        if (ssaoEffect && ssaoEffect.isEnabled()) {
-            ssaoEffect.updateCamera(walkCamera);                             // <-- Update SSAO camera
-        }
         
         console.log("Walk navigation enabled");                              // <-- Log activation
     }

@@ -1,6 +1,6 @@
 # TrueVision 3D Development Log
 
-## Version 1.0.6 - January 7, 2025
+## Version 1.0.6 - 07-Jun-2025
 
 ### Major Features Added
 

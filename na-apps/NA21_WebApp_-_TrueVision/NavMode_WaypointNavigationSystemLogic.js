@@ -17,6 +17,14 @@
 // - Designed for users who struggle with traditional 3D navigation
 // - Allows curated architectural tours with fixed viewing positions
 //
+// INTEGRATION WITH UI MENU SYSTEM:
+// - This module provides the camera and navigation logic for waypoint mode
+// - The UiMenu_NavModeButtonManager.js handles the toolbar button for this mode
+// - When enabled via the UI button, this module takes control of the camera
+// - The UI manager coordinates switching between this and other navigation modes
+// - This module creates its own UI controls (prev/next, dropdown) when active
+// - Button visibility and mode switching is managed externally by ApplicationCore
+//
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
@@ -82,6 +90,9 @@
     let currentRotationY               = 0;                                 // <-- Current vertical rotation
     let accelerometerEnabled           = false;                             // <-- Accelerometer control state
     let baseDeviceOrientation          = null;                              // <-- Initial device orientation
+    let inputHandlersInitialized       = false;                             // <-- Track if handlers are attached
+    let contextMenuHandler             = (e) => e.preventDefault();         // <-- Store context menu handler
+    let touchStartHandler              = (e) => e.preventDefault();         // <-- Store touch start handler
     // ---------------------------------------------------------------
 
     // MODULE VARIABLES | UI Element References
@@ -360,12 +371,15 @@
         const targetWaypoint = waypoints[index];                             // <-- Get target waypoint data
         const cameraData = convertCameraDataToBabylon(targetWaypoint);       // <-- Convert to Babylon coordinates
         
+        // RESET ROTATION VALUES BEFORE TRANSITION
+        currentRotationX = 0;                                                // <-- Reset horizontal rotation
+        currentRotationY = 0;                                                // <-- Reset vertical rotation
+        
         if (animate && !isTransitioning) {
             // ANIMATE TRANSITION TO NEW WAYPOINT
             animateCameraTransition(cameraData, () => {
                 currentWaypointIndex = index;                                // <-- Update current index
                 updateWaypointUI();                                          // <-- Update UI display
-                resetRotation();                                             // <-- Reset view rotation
                 
                 // SET CAMERA TARGET BASED ON DIRECTION
                 const lookAtTarget = cameraData.position.add(cameraData.direction.scale(10)); // <-- Calculate target point
@@ -382,7 +396,6 @@
             
             currentWaypointIndex = index;                                    // <-- Update current index
             updateWaypointUI();                                              // <-- Update UI display
-            resetRotation();                                                 // <-- Reset view rotation
         }
     }
     // ---------------------------------------------------------------
@@ -469,7 +482,15 @@
             const yawMatrix = BABYLON.Matrix.RotationY(currentRotationX);    // <-- Yaw rotation matrix
             
             // CREATE ROTATION MATRIX FOR PITCH (X-axis rotation)
-            const pitchAxis = BABYLON.Vector3.Cross(baseDirection, BABYLON.Vector3.Up()); // <-- Right vector
+            let pitchAxis = BABYLON.Vector3.Cross(baseDirection, BABYLON.Vector3.Up()); // <-- Right vector
+            
+            // HANDLE EDGE CASE WHERE BASE DIRECTION IS VERTICAL
+            if (pitchAxis.length() < 0.001) {                               // <-- Check for near-zero vector
+                pitchAxis = BABYLON.Vector3.Right();                        // <-- Use default right vector
+            } else {
+                pitchAxis.normalize();                                       // <-- Normalize pitch axis
+            }
+            
             const pitchMatrix = BABYLON.Matrix.RotationAxis(pitchAxis, currentRotationY); // <-- Pitch rotation matrix
             
             // APPLY ROTATIONS TO BASE DIRECTION
@@ -490,26 +511,48 @@
 // -----------------------------------------------------------------------------
 
     // FUNCTION | Initialize Input Event Handlers
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function initializeInputHandlers() {
-        if (!canvas) return;                                                 // <-- Validate canvas exists
+        if (inputHandlersInitialized) return;                               // <-- Prevent duplicate handlers
         
-        // MOUSE EVENT HANDLERS
-        canvas.addEventListener('mousedown', handlePointerDown);             // <-- Mouse button down
-        canvas.addEventListener('mousemove', handlePointerMove);             // <-- Mouse movement
-        canvas.addEventListener('mouseup', handlePointerUp);                 // <-- Mouse button up
-        canvas.addEventListener('mouseleave', handlePointerUp);              // <-- Mouse leaves canvas
+        // MOUSE INPUT HANDLERS
+        canvas.addEventListener("pointerdown", handlePointerDown, false);    // <-- Mouse/touch down handler
+        canvas.addEventListener("pointermove", handlePointerMove, false);    // <-- Mouse/touch move handler
+        canvas.addEventListener("pointerup", handlePointerUp, false);        // <-- Mouse/touch up handler
+        canvas.addEventListener("wheel", handleWheel, false);                // <-- Mouse wheel handler
         
-        // TOUCH EVENT HANDLERS
-        canvas.addEventListener('touchstart', handleTouchStart);             // <-- Touch begins
-        canvas.addEventListener('touchmove', handleTouchMove);               // <-- Touch movement
-        canvas.addEventListener('touchend', handleTouchEnd);                 // <-- Touch ends
+        // TOUCH INPUT HANDLERS WITH PASSIVE OPTION
+        canvas.addEventListener("touchstart", handleTouchStart, { passive: false }); // <-- Touch start with explicit passive
+        canvas.addEventListener("touchmove", handleTouchMove, { passive: false });   // <-- Touch move with explicit passive
+        canvas.addEventListener("touchend", handleTouchEnd, false);          // <-- Touch end handler
         
-        // WHEEL EVENT FOR ZOOM
-        canvas.addEventListener('wheel', handleWheel);                       // <-- Mouse wheel scroll
+        // PREVENT CONTEXT MENU ON RIGHT CLICK
+        canvas.addEventListener("contextmenu", contextMenuHandler, false);   // <-- Disable context menu
         
-        // PREVENT DEFAULT TOUCH BEHAVIOR
-        canvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false }); // <-- Prevent scrolling
+        inputHandlersInitialized = true;                                     // <-- Mark handlers as initialized
+        console.log("Input event handlers initialized");                     // <-- Log handler setup
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Remove Input Event Handlers
+    // ---------------------------------------------------------------
+    function removeInputHandlers() {
+        if (!canvas || !inputHandlersInitialized) return;                   // <-- Validate prerequisites
+        
+        console.log("Removing waypoint input handlers");                     // <-- Debug log
+        
+        canvas.removeEventListener('mousedown', handlePointerDown, false);    // <-- Remove mouse down (bubble)
+        canvas.removeEventListener('mousemove', handlePointerMove, false);    // <-- Remove mouse move (bubble)
+        canvas.removeEventListener('mouseup', handlePointerUp, false);        // <-- Remove mouse up (bubble)
+        canvas.removeEventListener('mouseleave', handlePointerUp, false);     // <-- Remove mouse leave (bubble)
+        canvas.removeEventListener('touchstart', handleTouchStart, false);    // <-- Remove touch start (bubble)
+        canvas.removeEventListener('touchmove', handleTouchMove, false);      // <-- Remove touch move (bubble)
+        canvas.removeEventListener('touchend', handleTouchEnd, false);        // <-- Remove touch end (bubble)
+        canvas.removeEventListener('wheel', handleWheel, false);              // <-- Remove wheel (bubble)
+        canvas.removeEventListener('contextmenu', contextMenuHandler);       // <-- Remove context menu handler
+        canvas.removeEventListener('touchstart', touchStartHandler, { passive: false }); // <-- Remove touch preventDefault
+        
+        inputHandlersInitialized = false;                                    // <-- Clear initialization flag
     }
     // ---------------------------------------------------------------
 
@@ -518,11 +561,21 @@
     function handlePointerDown(event) {
         if (!isEnabled || isTransitioning) return;                          // <-- Check if interaction allowed
         
-        isDragging = true;                                                   // <-- Set dragging state
-        lastPointerX = event.clientX;                                        // <-- Store initial X position
-        lastPointerY = event.clientY;                                        // <-- Store initial Y position
+        // ONLY HANDLE EVENTS ON THE CANVAS, NOT UI ELEMENTS
+        if (event.target !== canvas) {
+            return;                                                          // <-- Let UI handle the event
+        }
         
-        canvas.style.cursor = 'grabbing';                                    // <-- Change cursor style
+        // CHECK FOR LEFT MOUSE BUTTON (0) OR MIDDLE MOUSE BUTTON (1)
+        if (event.button === 0 || event.button === 1) {                     // <-- Left or middle button
+            event.preventDefault();                                          // <-- Prevent default behavior
+            isDragging = true;                                               // <-- Set dragging state
+            lastPointerX = event.clientX;                                    // <-- Store initial X position
+            lastPointerY = event.clientY;                                    // <-- Store initial Y position
+            
+            canvas.style.cursor = 'grabbing';                                // <-- Change cursor style
+            // console.log("Mouse drag started at waypoint", currentWaypointIndex); // <-- Debug log
+        }
     }
     // ---------------------------------------------------------------
 
@@ -530,6 +583,8 @@
     // ---------------------------------------------------------------
     function handlePointerMove(event) {
         if (!isDragging || !isEnabled || isTransitioning) return;           // <-- Check if dragging active
+        
+        event.preventDefault();                                              // <-- Prevent default behavior
         
         const deltaX = event.clientX - lastPointerX;                         // <-- Calculate X movement
         const deltaY = event.clientY - lastPointerY;                         // <-- Calculate Y movement
@@ -548,6 +603,9 @@
     // SUB FUNCTION | Handle Pointer Up Event (Mouse)
     // ---------------------------------------------------------------
     function handlePointerUp(event) {
+        if (isDragging) {
+            event.preventDefault();                                          // <-- Prevent default behavior
+        }
         isDragging = false;                                                  // <-- Clear dragging state
         canvas.style.cursor = 'grab';                                        // <-- Reset cursor style
     }
@@ -969,7 +1027,7 @@
     // ---------------------------------------------------------------
 
     // FUNCTION | Enable Waypoint Navigation Mode
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function enable() {
         if (!waypointCamera || !scene) return;                              // <-- Validate prerequisites
         
@@ -978,7 +1036,12 @@
         
         // ACTIVATE WAYPOINT CAMERA
         scene.activeCamera = waypointCamera;                                 // <-- Set as active camera
-        waypointCamera.attachControl(canvas, false);                         // <-- Attach controls
+        // DO NOT CALL attachControl - we handle all inputs manually
+        
+        // RE-INITIALIZE INPUT HANDLERS IF NEEDED
+        if (!inputHandlersInitialized) {
+            initializeInputHandlers();                                       // <-- Re-attach event handlers
+        }
         
         // SHOW UI CONTROLS IN SIDEBAR
         if (waypointContainer) {
@@ -1013,10 +1076,8 @@
     function disable() {
         isEnabled = false;                                                   // <-- Clear enabled flag
         
-        // DETACH CAMERA CONTROLS
-        if (waypointCamera) {
-            waypointCamera.detachControl(canvas);                            // <-- Remove controls
-        }
+        // REMOVE INPUT HANDLERS TO PREVENT CONFLICTS
+        removeInputHandlers();                                               // <-- Clean up event handlers
         
         // HIDE UI CONTROLS IN SIDEBAR
         if (waypointContainer) {
@@ -1067,16 +1128,20 @@
     function dispose() {
         disable();                                                           // <-- Ensure disabled first
         
-        // REMOVE EVENT LISTENERS
-        if (canvas) {
-            canvas.removeEventListener('mousedown', handlePointerDown);      // <-- Remove mouse down
-            canvas.removeEventListener('mousemove', handlePointerMove);      // <-- Remove mouse move
-            canvas.removeEventListener('mouseup', handlePointerUp);          // <-- Remove mouse up
-            canvas.removeEventListener('mouseleave', handlePointerUp);       // <-- Remove mouse leave
-            canvas.removeEventListener('touchstart', handleTouchStart);      // <-- Remove touch start
-            canvas.removeEventListener('touchmove', handleTouchMove);        // <-- Remove touch move
-            canvas.removeEventListener('touchend', handleTouchEnd);          // <-- Remove touch end
-            canvas.removeEventListener('wheel', handleWheel);                // <-- Remove wheel
+        // REMOVE EVENT LISTENERS - MUST USE SAME CAPTURE FLAG AS WHEN ADDED
+        if (canvas && inputHandlersInitialized) {
+            canvas.removeEventListener('mousedown', handlePointerDown, false); // <-- Remove mouse down (bubble)
+            canvas.removeEventListener('mousemove', handlePointerMove, false); // <-- Remove mouse move (bubble)
+            canvas.removeEventListener('mouseup', handlePointerUp, false);     // <-- Remove mouse up (bubble)
+            canvas.removeEventListener('mouseleave', handlePointerUp, false); // <-- Remove mouse leave (bubble)
+            canvas.removeEventListener('touchstart', handleTouchStart, false); // <-- Remove touch start (bubble)
+            canvas.removeEventListener('touchmove', handleTouchMove, false);  // <-- Remove touch move (bubble)
+            canvas.removeEventListener('touchend', handleTouchEnd, false);    // <-- Remove touch end (bubble)
+            canvas.removeEventListener('wheel', handleWheel, false);          // <-- Remove wheel (bubble)
+            canvas.removeEventListener('contextmenu', contextMenuHandler);   // <-- Remove context menu handler
+            canvas.removeEventListener('touchstart', touchStartHandler, { passive: false }); // <-- Remove touch preventDefault
+            
+            inputHandlersInitialized = false;                                // <-- Clear initialization flag
         }
         
         // REMOVE UI ELEMENTS

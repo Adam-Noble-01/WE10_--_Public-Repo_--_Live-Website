@@ -214,14 +214,18 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
             combineRatio: preset.combineRatio                               // <-- Final combine resolution
         };
         
-        // CREATE SSAO2 PIPELINE
+        // CREATE SSAO2 PIPELINE (NO CAMERA IN CONSTRUCTOR)
         ssaoPipeline = new BABYLON.SSAO2RenderingPipeline(
             "ssao2",                                                        // <-- Pipeline name
             scene,                                                          // <-- Scene reference
-            ssaoRatio,                                                      // <-- Resolution configuration
-            [camera],                                                       // <-- Camera array
-            false,                                                          // <-- Don't force geometry buffer
-            BABYLON.Texture.BILINEAR_SAMPLINGMODE                          // <-- Texture sampling mode
+            ssaoRatio                                                       // <-- Resolution configuration
+            // NOTE: No camera array parameter for SSAO2 according to research doc
+        );
+        
+        // ATTACH TO CAMERA AFTER CREATION
+        scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(
+            "ssao2",                                                        // <-- Pipeline name
+            camera                                                          // <-- Camera to attach
         );
         
         // CONFIGURE SSAO2 PARAMETERS
@@ -367,6 +371,32 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
     }
     // ---------------------------------------------------------------
 
+    // FUNCTION | Update Camera for SSAO Effect
+    // ------------------------------------------------------------
+    function updateCamera(newCamera) {
+        if (!ssaoPipeline || !scene || !newCamera) return;                 // <-- Validate inputs
+        
+        // DETACH FROM OLD CAMERA IF EXISTS
+        if (camera && ssaoIsEnabled) {
+            scene.postProcessRenderPipelineManager.detachCamerasFromRenderPipeline(
+                ssaoPipeline.name,                                          // <-- Pipeline name
+                camera                                                      // <-- Old camera
+            );
+        }
+        
+        // UPDATE CAMERA REFERENCE
+        camera = newCamera;                                                 // <-- Store new camera
+        
+        // REATTACH TO NEW CAMERA IF ENABLED
+        if (ssaoIsEnabled) {
+            scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(
+                ssaoPipeline.name,                                          // <-- Pipeline name
+                camera                                                      // <-- New camera
+            );
+        }
+    }
+    // ---------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
@@ -402,6 +432,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
         isEnabled: isEnabled,                                               // <-- Check enabled state
         updateQuality: updateQuality,                                       // <-- Change quality preset
         getCurrentSettings: getCurrentSettings,                             // <-- Get current configuration
+        updateCamera: updateCamera,                                         // <-- Update camera reference
         dispose: dispose,                                                   // <-- Cleanup resources
         QUALITY_PRESETS: Object.keys(QUALITY_PRESETS)                       // <-- Available quality options
     };

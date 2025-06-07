@@ -16,6 +16,14 @@
 // - Includes camera position limits to prevent navigation issues
 // - Standard navigation mode for examining architectural models from all angles
 //
+// INTEGRATION WITH UI MENU SYSTEM:
+// - This module provides the camera and navigation logic for orbit mode
+// - The UiMenu_NavModeButtonManager.js handles the toolbar button for this mode
+// - When enabled via the UI button, this module takes control of the camera
+// - The UI manager coordinates switching between this and other navigation modes
+// - This module does NOT create its own UI controls (uses mouse only)
+// - Button visibility and mode switching is managed externally by ApplicationCore
+//
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
@@ -185,12 +193,6 @@
         // ACTIVATE ORBIT CAMERA
         scene.activeCamera = orbitCamera;                                    // <-- Set as active camera
         orbitCamera.attachControl(canvas, true);                             // <-- Attach controls
-        
-        // UPDATE SSAO IF AVAILABLE
-        const ssaoEffect = window.TrueVision3D?.RenderEffects?.SsaoAmbientOcclusionEffect;
-        if (ssaoEffect && ssaoEffect.isEnabled()) {
-            ssaoEffect.updateCamera(orbitCamera);                            // <-- Update SSAO camera
-        }
         
         console.log("Orbit navigation enabled");                             // <-- Log activation
     }
