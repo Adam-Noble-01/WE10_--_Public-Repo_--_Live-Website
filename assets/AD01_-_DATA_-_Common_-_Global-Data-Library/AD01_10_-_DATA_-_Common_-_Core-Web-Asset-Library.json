@@ -590,6 +590,112 @@
                 "asset-active-status"   :   true
             }
         }
+    },
+
+    "NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets": {
+        "library-dir-path"      :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+        "library-web-url"       :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/",
+        "library-file-name"     :   "NA Site Core Brand Image Assets",
+        "library-id-code"       :   "NA03",
+        "library-type"          :   "Asset Library",
+        "library-category"      :   "Brand Image Assets",
+        "library-description"   :   "Noble Architecture Core Brand Image Assets Library",
+        "library-usage"         :   "Single point of access for all Noble Architecture brand image assets including logos and signatures",
+        "library-added-by"      :   "Adam Noble",
+        "library-last-updated"  :   "12-Apr-2025",
+        "library-active-status" :   true,
+        "assets": {
+            "na-company-logo-main": {
+                "asset-name"            :   "Noble Architecture Company Logo - Main",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png",
+                "asset-file-name"       :   "NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png",
+                "asset-id-code"         :   "NA03_01",
+                "asset-type"            :   "image",
+                "asset-category"        :   "company logo",
+                "asset-format"          :   "png",
+                "asset-description"     :   "Noble Architecture Company Logo - Main Brand Logo",
+                "asset-usage"           :   "primary company logo for website and marketing materials",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "12-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "na-company-email-signature": {
+                "asset-name"            :   "Noble Architecture Company Email Signature",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_30_-_PNG_-_NA_Company_Email_signature.png",
+                "asset-file-name"       :   "NA03_30_-_PNG_-_NA_Company_Email_signature.png",
+                "asset-id-code"         :   "NA03_30",
+                "asset-type"            :   "image",
+                "asset-category"        :   "email signature",
+                "asset-format"          :   "png",
+                "asset-description"     :   "Noble Architecture Company Email Signature",
+                "asset-usage"           :   "company email signature for professional communications",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "12-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "adam-noble-handwritten-signature": {
+                "asset-name"            :   "Adam Noble Handwritten Signature",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_31_-_PNG_-_Adam_Noble_Handwritten-Signature.png",
+                "asset-file-name"       :   "NA03_31_-_PNG_-_Adam_Noble_Handwritten-Signature.png",
+                "asset-id-code"         :   "NA03_31",
+                "asset-type"            :   "image",
+                "asset-category"        :   "personal signature",
+                "asset-format"          :   "png",
+                "asset-description"     :   "Adam Noble Handwritten Signature",
+                "asset-usage"           :   "personal signature for documents and professional materials",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "12-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "profile-logo-1000px": {
+                "asset-name"            :   "Noble Architecture Profile Logo - 1000px Height",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_40_-_PNG_-_Profile-Logo_-_h1000px.png",
+                "asset-file-name"       :   "NA03_40_-_PNG_-_Profile-Logo_-_h1000px.png",
+                "asset-id-code"         :   "NA03_40",
+                "asset-type"            :   "image",
+                "asset-category"        :   "profile logo",
+                "asset-format"          :   "png",
+                "asset-description"     :   "Noble Architecture Profile Logo - 1000px Height",
+                "asset-usage"           :   "medium resolution profile logo for online platforms",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "12-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "profile-logo-2000px": {
+                "asset-name"            :   "Noble Architecture Profile Logo - 2000px Height",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_41_-_PNG_-_Profile-Logo_-_h2000px.png",
+                "asset-file-name"       :   "NA03_41_-_PNG_-_Profile-Logo_-_h2000px.png",
+                "asset-id-code"         :   "NA03_41",
+                "asset-type"            :   "image",
+                "asset-category"        :   "profile logo",
+                "asset-format"          :   "png",
+                "asset-description"     :   "Noble Architecture Profile Logo - 2000px Height",
+                "asset-usage"           :   "high resolution profile logo for print and high-quality digital use",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "12-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "profile-logo-512px": {
+                "asset-name"            :   "Noble Architecture Profile Logo - 512px Height",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_42_-_PNG_-_Profile-Logo_-_h512px.png",
+                "asset-file-name"       :   "NA03_42_-_PNG_-_Profile-Logo_-_h512px.png",
+                "asset-id-code"         :   "NA03_42",
+                "asset-type"            :   "image",
+                "asset-category"        :   "profile logo",
+                "asset-format"          :   "png",
+                "asset-description"     :   "Noble Architecture Profile Logo - 512px Height",
+                "asset-usage"           :   "small resolution profile logo for social media and small display areas",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "12-Apr-2025",
+                "asset-active-status"   :   true
+            }
+        }
     }
 },
     
