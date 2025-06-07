@@ -1,0 +1,68 @@
+{
+  "exportInfo": {
+    "exportDate": "2025-06-07 19:25:50",
+    "modelName": "SB03_-_TrueVision-App-Model_-_1.0.0",
+    "exportedBy": "ValeDesignSuite Camera Agent Tool",
+    "version": "1.0.0"
+  },
+  "cameraAgents": [
+    {
+      "agentId": "CAM001",
+      "agentName": "CAM001_-_Exterior-3D_-_Front-Left",
+      "waypointNumber": 1,
+      "position": {
+        "x": -1288.9303688900984,
+        "y": -6499.412433087315,
+        "z": 1841.3047410877127
+      },
+      "direction": {
+        "x": 0.49999998709580584,
+        "y": 0.8660254112346786,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 60.00000085373461,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 19:22:24",
+        "lastModified": "2025-06-07 19:24:54"
+      }
+    },
+    {
+      "agentId": "CAM002",
+      "agentName": "CAM002_-_Exterior-3D_-_Back-Right",
+      "waypointNumber": 2,
+      "position": {
+        "x": 15701.454535889821,
+        "y": 27494.29341303245,
+        "z": 1377.0608381493978
+      },
+      "direction": {
+        "x": -0.41151435860551905,
+        "y": -0.9114032766352601,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -114.30000000002579,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 19:23:57",
+        "lastModified": "2025-06-07 19:25:33"
+      }
+    }
+  ]
+}

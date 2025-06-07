@@ -149,5 +149,25 @@
             }
         }
     }
-}
+    },
+    "project-TrueVision-Content":{
+        "TrueVisionAsset_01":{
+            "file-name"            :    "SB03_-_TrueVision-GlbModel.glb",
+            "added-to-register"    :    "07-Jun-2025",
+            "3dModel_type"         :    "Project Tour",
+            "3dModel_name"         :    "10 Patterdale Close",
+            "3dModel_status"       :    "Design Stage 04",
+            "3dModel_notes"        :    "NIL",
+            "3dModel_revisions":{
+                "revision-a"       :    "07-Jun-2025",
+                "revision-b"       :    "NIL",
+                "revision-c"       :    "NIL",
+                "revision-d"       :    "NIL",
+                "revision-e"       :    "NIL"
+            },
+            "3dModel_links":{
+                "3dModel_URL"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/03_TrueVision_-_App-Content/SB03_-_TrueVision-GlbModel.glb"
+            }
+        }
+    }
 }
