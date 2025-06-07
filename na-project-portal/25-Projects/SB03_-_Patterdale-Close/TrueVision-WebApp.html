@@ -14,6 +14,9 @@ AUTHOR      :  Adam Noble - Noble Architecture
 PURPOSE     :  Professional landing page with loading animation for TrueVision 3D
 CREATED     :  2025
 
+       - - - - - -  ! ! !  CRITICAL NOTE  ! ! !  - - - - - - -
+- THIS IS ONLY A LOADER SCRIPT TO REDIRECT TO THE MAIN APPLICATION PAGE!!
+
 DESCRIPTION:
 - Professional landing page for TrueVision 3D Model Viewer application
 - Features animated loading sequence with Noble Architecture branding
@@ -185,55 +188,161 @@ DESCRIPTION:
     </style>
     <!-- ---------------------------------------------------------------- -->
 </head>
+<!-- endregion ----------------------------------------------------------------- -->
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | User Interface HTML Layout & Elements                   -->
+<!-- ----------------------------------------------------------------- -->
 <body>
+    <!-- ----------------------------------------------------------------- -->
+    <!-- UI MENU | Main Application Container with Loading Interface      -->
+    <!-- ----------------------------------------------------------------- -->
     <div class="container fade-in">
+        
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Company Branding and Logo Display                      -->
+        <!-- ----------------------------------------------------------------- -->
         <img src="https://raw.githubusercontent.com/Adam-Noble-01/RE10_I_GitHub_I_Public_Repo/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_01_-_FILES_-_Noble-Architecture_-_Core-Brand-Image-Assets/RE20_22_01_01_-_PNG_-_NA_Company_Logo.png" 
-             alt="Noble Architecture" class="logo">
+             alt="Noble Architecture" class="logo">                   <!-- Company logo image        -->
+        <!-- ---------------------------------------------------------------- -->
         
-        <h1 class="title">TrueVision 3D</h1>
-        <p class="subtitle">3D Model Viewer for Architectural Presentations</p>
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Application Title and Description                      -->
+        <!-- ----------------------------------------------------------------- -->
+        <h1 class="title">TrueVision 3D</h1>                            <!-- Application title display -->
+        <p class="subtitle">3D Model Viewer for Architectural Presentations</p> <!-- Application description -->
+        <!-- ---------------------------------------------------------------- -->
         
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Loading Animation and Status Messages                  -->
+        <!-- ----------------------------------------------------------------- -->
         <div class="loading-container">
-            <div class="loading-spinner"></div>
-            <div class="status-message">Initializing 3D Engine...</div>
-            <div class="progress-text">Preparing your 3D model viewer</div>
+            <div class="loading-spinner"></div>                         <!-- Animated loading spinner  -->
+            <div class="status-message">Initializing 3D Engine...</div> <!-- Loading status message    -->
+            <div class="progress-text">Preparing your 3D model viewer</div> <!-- Progress description   -->
         </div>
+        <!-- ---------------------------------------------------------------- -->
         
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Application Footer with Copyright Information          -->
+        <!-- ----------------------------------------------------------------- -->
         <div class="footer">
-            © 2025 Noble Architecture | All Rights Reserved
+            © 2025 Noble Architecture | All Rights Reserved              <!-- Copyright notice -->
         </div>
+        <!-- ---------------------------------------------------------------- -->
+        
     </div>
+    <!-- ---------------------------------------------------------------- -->
+<!-- endregion ----------------------------------------------------------------- -->
 
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | JavaScript Application Logic and Redirect Handling      -->
+<!-- ----------------------------------------------------------------- -->
     <script>
-        // Auto-redirect to the main TrueVision application after loading animation
-        setTimeout(function() {
-            // Update the status message
-            document.querySelector('.status-message').textContent = 'Launching TrueVision...';
-            document.querySelector('.progress-text').textContent = 'Redirecting to application';
-            
-            // Redirect after a brief moment
-            setTimeout(function() {
-                // Redirect to the actual TrueVision 3D application
-                window.location.href = '20_TrueVision_-_App-Codebase/Index.html';
-            }, 1500);
-        }, 2000);
+        // -----------------------------------------------------------------------------
+        // REGION | Application Initialization and Auto-Redirect System
+        // -----------------------------------------------------------------------------
 
-        // Handle any loading errors gracefully
-        window.addEventListener('error', function(e) {
-            console.warn('Resource loading error:', e);
-            // Continue with redirect even if some resources fail to load
-        });
+            // MODULE VARIABLES | Redirect Configuration and Timing
+            // ------------------------------------------------------------
+            const REDIRECT_DELAY_MS         = 2000;                          // <-- Initial loading animation duration
+            const REDIRECT_TRANSITION_MS    = 1500;                          // <-- Redirect transition delay
+            const TARGET_APPLICATION_URL    = '20_TrueVision_-_App-Codebase/Index.html'; // <-- TrueVision 3D application path
+            // ------------------------------------------------------------
 
-        // Add some interactivity - click to skip loading
-        document.addEventListener('click', function() {
-            document.querySelector('.status-message').textContent = 'Loading...';
-            window.location.href = '20_TrueVision_-_App-Codebase/Index.html';
-        });
+            // FUNCTION | Initialize Auto-Redirect Sequence with Loading Animation
+            // ------------------------------------------------------------
+            function initializeAutoRedirect() {
+                setTimeout(function() {
+                    updateStatusMessages();                                   // <-- Update loading status messages
+                    
+                    setTimeout(function() {
+                        redirectToApplication();                              // <-- Execute redirect to main application
+                    }, REDIRECT_TRANSITION_MS);                              // <-- Apply transition delay
+                }, REDIRECT_DELAY_MS);                                       // <-- Apply initial loading delay
+            }
+            // ---------------------------------------------------------------
 
-        // Keyboard shortcut - press any key to skip
-        document.addEventListener('keydown', function() {
-            window.location.href = '20_TrueVision_-_App-Codebase/Index.html';
-        });
+            // SUB FUNCTION | Update Status Messages for Redirect Sequence
+            // ---------------------------------------------------------------
+            function updateStatusMessages() {
+                document.querySelector('.status-message').textContent = 'Launching TrueVision...';     // <-- Update primary status
+                document.querySelector('.progress-text').textContent = 'Redirecting to application';   // <-- Update progress text
+            }
+            // ---------------------------------------------------------------
+
+            // SUB FUNCTION | Execute Redirect to TrueVision 3D Application
+            // ---------------------------------------------------------------
+            function redirectToApplication() {
+                window.location.href = TARGET_APPLICATION_URL;               // <-- Navigate to main application
+            }
+            // ---------------------------------------------------------------
+
+        // endregion -------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------------
+        // REGION | User Interaction and Skip Functionality
+        // -----------------------------------------------------------------------------
+
+            // FUNCTION | Initialize Click-to-Skip Loading Functionality
+            // ------------------------------------------------------------
+            function initializeClickToSkip() {
+                document.addEventListener('click', function() {
+                    document.querySelector('.status-message').textContent = 'Loading...'; // <-- Update status for immediate skip
+                    redirectToApplication();                                  // <-- Execute immediate redirect
+                });
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Initialize Keyboard Skip Functionality
+            // ------------------------------------------------------------
+            function initializeKeyboardSkip() {
+                document.addEventListener('keydown', function() {
+                    redirectToApplication();                                  // <-- Execute immediate redirect on any key
+                });
+            }
+            // ---------------------------------------------------------------
+
+        // endregion -------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------------
+        // REGION | Error Handling and Graceful Degradation
+        // -----------------------------------------------------------------------------
+
+            // FUNCTION | Initialize Error Handling for Resource Loading
+            // ------------------------------------------------------------
+            function initializeErrorHandling() {
+                window.addEventListener('error', function(e) {
+                    console.warn('Resource loading error:', e);              // <-- Log loading errors for debugging
+                    // Continue with redirect even if some resources fail to load
+                });
+            }
+            // ---------------------------------------------------------------
+
+        // endregion -------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------------
+        // REGION | Application Startup and Initialization
+        // -----------------------------------------------------------------------------
+
+            // FUNCTION | Application Entry Point - Initialize All Systems
+            // ------------------------------------------------------------
+            function initializeApplication() {
+                initializeAutoRedirect();                                    // <-- Start auto-redirect sequence
+                initializeClickToSkip();                                     // <-- Enable click-to-skip functionality
+                initializeKeyboardSkip();                                    // <-- Enable keyboard skip functionality
+                initializeErrorHandling();                                   // <-- Setup error handling
+            }
+            // ---------------------------------------------------------------
+
+            // Execute application initialization when DOM is ready
+            initializeApplication();                                          // <-- Start application systems
+
+        // endregion -------------------------------------------------------------------
+
     </script>
+<!-- endregion ----------------------------------------------------------------- -->
+
 </body>
+<!-- endregion ----------------------------------------------------------------- -->
 </html> 

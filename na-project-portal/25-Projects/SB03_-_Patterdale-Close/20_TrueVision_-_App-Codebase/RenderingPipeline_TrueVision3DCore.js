@@ -42,7 +42,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
 
     // MODULE CONSTANTS | 3D Model Resource Configuration
     // ------------------------------------------------------------
-    const MODEL_URL                    = "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/03_TrueVision_-_App-Content/SB03_-_TrueVision-GlbModel.glb"; 
+    const MODEL_URL                    = "https://www.noble-architecture.com/na-project-portal/25-Projects/SB03_-_Patterdale-Close/20_TrueVision_-_App-Codebase/SB03_-_TrueVision-GlbModel.glb"; 
     // ---------------------------------------------------------------
 
     // MODULE CONSTANTS | Render Quality and Environment Settings
