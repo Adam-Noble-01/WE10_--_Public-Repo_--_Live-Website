@@ -1,0 +1,45 @@
+{
+    "appName"           :   "TrueVision",
+    "appVersion"        :   "1.0.5",
+    "appDescription"    :   "TrueVision is a web application that allows you to view 3D models in a virtual environment.",
+    "appDeveloper"      :   "Noble Architecture",
+    "appAuthor"         :   "Adam Noble",
+    "appAuthorEmail"    :   "adam@noblearchitecture.co.uk",
+    "appDomain"         :   "https://www.noble-architecture.com/",
+
+    "AppConfig"         :   {
+        "devMode_Enabled"            :   true,
+        "devMode_Description"        :   "Various typical app config options, enables debug tools and analysis tools",
+        
+        "AppConfig_NavMode": {
+            "AppNavMode_Description_01"  :  "These Are Used To Determine The Navigation Mode Of The App",
+            "AppNavMode_Description_02"  :  "If False the UI Buttons Will Not Be Displayed",
+            
+            "AppNavMode_Waypoint": {
+                "NavMode_WaypointState"        :  true,
+                "NavMode_WaypointFile"         :  "NavMode_WaypointNavigationSystemLogic.js",
+                "NavMode_WaypointDescription"  :  "Waypoint navigation allows predefined camera positions and paths",
+                "NavMode_WaypointDataFile"     :  "Data_-_CameraAgentData.json",
+                "NavMode_WaypointDataFileURL"  :  "Note: Use this to override the default data file, if different data is required"
+            },
+            
+            "AppNavMode_Walk": {
+                "NavMode_WalkState"            :  false,
+                "NavMode_WalkFile"             :  "NavMode_WalkNavigationSystemLogic.js",
+                "NavMode_WalkDescription"      :  "Walk mode enables first-person style ground-level navigation"
+            },
+            
+            "AppNavMode_Orbit": {
+                "NavMode_OrbitState"           :  false,
+                "NavMode_OrbitFile"            :  "NavMode_OrbitNavigationSystemLogic.js",
+                "NavMode_OrbitDescription"     :  "Orbit mode allows camera rotation around a fixed point"
+            },
+            
+            "AppNavMode_Fly": {
+                "NavMode_FlyState"             :  false,
+                "NavMode_FlyFile"              :  "NavMode_FlyNavigationSystemLogic.js",
+                "NavMode_FlyDescription"       :  "Fly mode enables free camera movement in 3D space"
+            } 
+        }
+    }
+} 

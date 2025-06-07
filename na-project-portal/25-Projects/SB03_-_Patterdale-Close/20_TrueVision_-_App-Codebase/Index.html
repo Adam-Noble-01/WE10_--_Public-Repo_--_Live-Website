@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!--=========================================================================
+NOBLE ARCHITECTURE  - TRUEVISION 3D MODEL VIEWER
+=============================================================================
+
+FILE        :  Index.html
+DIRECTORY   :  ./
+FILE URL    :  ((TBC_Currently_locally_And_Not_Hosted_On_Web_Yet))
+NAMESPACE   :  TrueVision3D
+MODULE      :  TrueVision3D Core Application
+AUTHOR      :  Adam Noble - Noble Architecture
+PURPOSE     :  3D Model Viewer for Architectural Presentations using Babylon.js
+CREATED     :  2025
+
+DESCRIPTION:
+- Web-based 3D model viewer built with Babylon.js for architectural visualization
+- Supports GLB format models with real-time lighting and shadow calculations
+- Features multiple camera navigation modes configurable per client
+- Includes waypoint navigation system for curated architectural tours
+- Interactive sun positioning based on time of day and geographical coordinates
+- Automatic material detection and enhancement for glass and metal surfaces
+- Responsive interface with toolbar controls and loading states
+- Optimized for Noble Architecture client presentations and design reviews
+
+=============================================================================
+-->
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | HTML Document Head Configuration                         -->
+<!-- ----------------------------------------------------------------- -->
+<head>
+    <meta charset="UTF-8" />
+    <meta name="version" content="1.0.5">                                     <!-- Version tracking for deployment -->
+    <meta name="version_notes" content="Added waypoint navigation system and modular navigation architecture">
+    <title>True Vision 3D by Noble Architecture – Pre Beta Version</title>
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- FAVICON | Application Icon Configuration                          -->
+    <!-- ----------------------------------------------------------------- -->
+    <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- STYLESHEET | Core CSS Stylesheet for TrueVision Core Application  -->
+    <!-- ----------------------------------------------------------------- -->
+    <link rel="stylesheet" href="StyleSheet_TrueVisionCoreAppStyles.css">
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | External JavaScript Library Dependencies                -->
+    <!-- ----------------------------------------------------------------- -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>                              <!-- Core Babylon.js 3D engine      -->
+    <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.js"></script>      <!-- glTF model loader              -->
+    <script src="RenderEffect_SsaoAmbientOcclusionEffect.js"></script>                        <!-- SSAO Ambient Occlusion Effect  -->
+    <script src="UiMenu_NavModeButtonManager.js"></script>                                    <!-- UI Menu Navigation Mode Manager-->
+    <!-- endregion ----------------------------------------------------------------- -->
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | Application Configuration and Core JavaScript Modules   -->
+    <!-- ----------------------------------------------------------------- -->
+    <script>
+        // Create global namespace
+        window.TrueVision3D = window.TrueVision3D || {};
+        
+        // Load application configuration with promise for synchronization
+        window.TrueVision3D.configLoadPromise = (async function() {
+            try {
+                const response = await fetch('Data_-_MainAppConfig.json');
+                if (response.ok) {
+                    window.TrueVision3D.AppConfig = await response.json();
+                    console.log('App configuration loaded successfully:', window.TrueVision3D.AppConfig);
+                    return true;
+                } else {
+                    console.error('Failed to load app configuration:', response.status);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error loading app configuration:', error);
+                return false;
+            }
+        })();
+    </script>
+    
+    <!-- Core Application JavaScript Modules - Loaded in priority order -->
+    <script src="SolarOrientationControls_TrueVision3DLighting.js"></script>                  <!-- Solar positioning and lighting -->
+    <script src="RenderingPipeline_TrueVision3DCore.js"></script>                             <!-- 3D rendering pipeline          -->
+    
+    <!-- Navigation Mode Scripts - Loaded in priority order -->
+    <script src="NavMode_WaypointNavigationSystemLogic.js"></script>                          <!-- Waypoint navigation mode       -->
+    <script src="NavMode_WalkNavigationSystemLogic.js"></script>                              <!-- Walk navigation mode           -->
+    <script src="NavMode_OrbitNavigationSystemLogic.js"></script>                             <!-- Orbit navigation mode          -->
+    <script src="NavMode_FlyNavigationSystemLogic.js"></script>                               <!-- Fly navigation mode            -->
+    
+    <!-- Application Core Manager - Loaded last to coordinate all modules -->
+    <script src="ApplicationCore_TrueVision3DManager.js"></script>                            <!-- Application core manager        -->
+    <!-- endregion ----------------------------------------------------------------- -->
+
+</head>
+<!-- endregion ----------------------------------------------------------------- -->
+
+<body>
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | User Interface HTML Layout & Elements                   -->
+    <!-- ----------------------------------------------------------------- -->
+    <div id="app-container">
+        
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Application Header with Branding                       -->
+        <!-- ----------------------------------------------------------------- -->
+        <div id="header">
+            <img src="https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png"
+                alt="Noble Architecture Logo">                                         <!-- Company logo image        -->
+            <span id="app-title">True Vision 3D –  Pre Beta Version</span>             <!-- Application title display -->
+        </div>
+        <!-- ---------------------------------------------------------------- -->
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Interactive Toolbar with Camera and Lighting Controls  -->
+        <!-- ----------------------------------------------------------------- -->
+        <div id="toolbar">
+            <button class="tool-button" id="resetViewBtn">Reset View</button>           <!-- Reset camera position  -->
+            <button class="tool-button nav-mode-btn" id="waypointModeBtn" style="display:none;">Waypoint Mode</button>  <!-- Waypoint navigation -->
+            <button class="tool-button nav-mode-btn" id="walkModeBtn" style="display:none;">Walk Mode</button>         <!-- Walk navigation     -->
+            <button class="tool-button nav-mode-btn" id="orbitModeBtn" style="display:none;">Orbit Mode</button>       <!-- Orbit navigation    -->
+            <button class="tool-button nav-mode-btn" id="flyModeBtn" style="display:none;">Fly Mode</button>           <!-- Fly navigation      -->
+            <button class="tool-button" id="ssaoToggleBtn">Toggle SSAO</button>         <!-- Toggle SSAO effect     -->
+            <label for="sunTimeSlider">Sun Time (09:00-15:00)</label>                   <!-- Time slider label      -->
+            <input type="range" id="sunTimeSlider" min="9" max="15" step="0.1" value="11"
+                style="width:100%; margin-top:5px;">                                    <!-- Time of day slider     -->
+            <p id="sunTimeDisplay">12:00</p>                                            <!-- Current time display   -->
+        </div>
+        <!-- ---------------------------------------------------------------- -->
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Main 3D Rendering Canvas Container                     -->
+        <!-- ----------------------------------------------------------------- -->
+        <div id="canvas-container">
+            <canvas id="renderCanvas"></canvas>                                         <!-- Babylon.js render target -->
+        </div>
+        <!-- ---------------------------------------------------------------- -->
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Loading State Overlay with Progress Indicator          -->
+        <!-- ----------------------------------------------------------------- -->
+        <div id="loading-overlay">
+            <div class="spinner"></div>                                                 <!-- Animated loading spinner -->
+            <p>Loading Model... Please Wait</p>                                         <!-- Loading status message   -->
+        </div>
+        <!-- ---------------------------------------------------------------- -->
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Error Message Display for Failed Operations            -->
+        <!-- ----------------------------------------------------------------- -->
+        <div id="error-message">
+            Failed to load the 3D model. Please check the file URL or try again later. <!-- Error notification text -->
+        </div>
+        <!-- ---------------------------------------------------------------- -->
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MENU | Application Footer with Copyright Information          -->
+        <!-- ----------------------------------------------------------------- -->
+        <div id="footer">
+            © Noble Architecture. All rights reserved.                                  <!-- Copyright notice -->
+        </div>
+        <!-- ---------------------------------------------------------------- -->
+
+    </div>
+    <!-- endregion ----------------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | Application Ready - All Core Modules Loaded                -->
+    <!-- ----------------------------------------------------------------- -->
+    <!-- 
+    All TrueVision3D application logic has been modularized into separate files:
+    - SolarOrientationControls_TrueVision3DLighting.js: Solar positioning and lighting calculations
+    - RenderingPipeline_TrueVision3DCore.js: 3D scene creation and rendering management  
+    - ApplicationCore_TrueVision3DManager.js: Application initialization and coordination
+    
+    The ApplicationCore_TrueVision3DManager.js automatically initializes when DOM is ready.
+    -->
+    <!-- endregion ----------------------------------------------------------------- -->
+
+</body>
+</html>
