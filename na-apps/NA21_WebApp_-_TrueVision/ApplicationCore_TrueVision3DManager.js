@@ -246,7 +246,8 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         if (navConfig.AppNavMode_Waypoint?.NavMode_WaypointState && 
             window.TrueVision3D?.NavigationModes?.WaypointNavigation) {
             const waypointNav = window.TrueVision3D.NavigationModes.WaypointNavigation;
-            if (waypointNav.initialize(scene, canvas)) {
+            const initialized = await waypointNav.initialize(scene, canvas); // <-- AWAIT the async initialization
+            if (initialized) {
                 navigationModes.waypoint = waypointNav;                      // <-- Store navigation mode
                 waypointModeBtn.style.display = "inline-block";              // <-- Show button
                 console.log("Waypoint navigation initialized");              // <-- Log success
@@ -257,7 +258,8 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         if (navConfig.AppNavMode_Walk?.NavMode_WalkState && 
             window.TrueVision3D?.NavigationModes?.WalkNavigation) {
             const walkNav = window.TrueVision3D.NavigationModes.WalkNavigation;
-            if (walkNav.initialize(scene, canvas)) {
+            const initialized = await walkNav.initialize(scene, canvas);     // <-- AWAIT even if synchronous
+            if (initialized) {
                 navigationModes.walk = walkNav;                              // <-- Store navigation mode
                 walkModeBtn.style.display = "inline-block";                  // <-- Show button
                 console.log("Walk navigation initialized");                  // <-- Log success
@@ -268,7 +270,8 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         if (navConfig.AppNavMode_Orbit?.NavMode_OrbitState && 
             window.TrueVision3D?.NavigationModes?.OrbitNavigation) {
             const orbitNav = window.TrueVision3D.NavigationModes.OrbitNavigation;
-            if (orbitNav.initialize(scene, canvas)) {
+            const initialized = await orbitNav.initialize(scene, canvas);    // <-- AWAIT even if synchronous
+            if (initialized) {
                 navigationModes.orbit = orbitNav;                            // <-- Store navigation mode
                 orbitModeBtn.style.display = "inline-block";                 // <-- Show button
                 console.log("Orbit navigation initialized");                 // <-- Log success
@@ -279,7 +282,8 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         if (navConfig.AppNavMode_Fly?.NavMode_FlyState && 
             window.TrueVision3D?.NavigationModes?.FlyNavigation) {
             const flyNav = window.TrueVision3D.NavigationModes.FlyNavigation;
-            if (flyNav.initialize(scene, canvas)) {
+            const initialized = await flyNav.initialize(scene, canvas);      // <-- AWAIT even if synchronous
+            if (initialized) {
                 navigationModes.fly = flyNav;                                // <-- Store navigation mode
                 flyModeBtn.style.display = "inline-block";                   // <-- Show button
                 console.log("Fly navigation initialized");                   // <-- Log success
@@ -367,10 +371,19 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // FUNCTION | Start Application Systems and Register Event Handlers
     // ------------------------------------------------------------
     function startApplicationSystems() {
-        // START RENDERING SYSTEM
+        // START RENDERING SYSTEM - Check activeCamera first
+        if (!activeCamera && navigationModes.waypoint) {
+            // If no active camera but waypoint mode exists, enable it first
+            navigationModes.waypoint.enable();                               // <-- Enable waypoint mode
+            activeCamera = navigationModes.waypoint.getCamera();             // <-- Get waypoint camera
+            activeNavigationMode = 'waypoint';                               // <-- Set active mode
+        }
+        
         if (renderingPipeline && activeCamera) {
             ssaoEnabled = renderingPipeline.startRendering(activeCamera);    // <-- Start rendering with SSAO
             updateSSAOButtonState();                                         // <-- Update SSAO button
+        } else {
+            console.error("Cannot start rendering - no active camera available"); // <-- Log error
         }
         
         // REGISTER EVENT HANDLERS

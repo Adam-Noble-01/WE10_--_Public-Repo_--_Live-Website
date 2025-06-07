@@ -466,6 +466,16 @@
     function updateCameraRotation() {
         if (!waypointCamera) return;                                         // <-- Validate camera exists
         
+        // PRESERVE ORIGINAL FOV FROM WAYPOINT DATA
+        if (cameraAgentData && currentWaypointIndex >= 0) {
+            const currentWaypoint = cameraAgentData.cameraAgents[currentWaypointIndex];
+            const cameraData = convertCameraDataToBabylon(currentWaypoint);
+            const correctFov = cameraData.fov * (Math.PI / 180);            // <-- Get correct FOV
+            if (Math.abs(waypointCamera.fov - correctFov) > 0.001) {
+                waypointCamera.fov = correctFov;                             // <-- Restore correct FOV
+            }
+        }
+        
         // CLAMP VERTICAL ROTATION TO PREVENT GIMBAL LOCK
         currentRotationY = Math.max(-VERTICAL_ROTATION_LIMIT, 
                                    Math.min(VERTICAL_ROTATION_LIMIT, currentRotationY)); // <-- Apply limits
@@ -654,24 +664,16 @@
     }
     // ---------------------------------------------------------------
 
-    // SUB FUNCTION | Handle Mouse Wheel for Zoom
+    // SUB FUNCTION | Handle Mouse Wheel - Disabled for Fixed FOV
     // ---------------------------------------------------------------
     function handleWheel(event) {
-        if (!isEnabled || isTransitioning || !waypointCamera) return;       // <-- Check if zoom allowed
-        // 
+        if (!isEnabled || isTransitioning || !waypointCamera) return;       // <-- Check if active
+        
         event.preventDefault();                                              // <-- Prevent page scroll
         
-        // CALCULATE NEW FIELD OF VIEW
-        const zoomSpeed = 0.1;                                               // <-- Zoom sensitivity
-        const delta = event.deltaY > 0 ? 1 + zoomSpeed : 1 - zoomSpeed;     // <-- Zoom direction
-        let newFov = waypointCamera.fov * delta;                            // <-- Calculate new FOV
-        
-        // CLAMP FIELD OF VIEW TO LIMITS
-        const minFovRad = MIN_FIELD_OF_VIEW * (Math.PI / 180);              // <-- Convert min to radians
-        const maxFovRad = MAX_FIELD_OF_VIEW * (Math.PI / 180);              // <-- Convert max to radians
-        newFov = Math.max(minFovRad, Math.min(maxFovRad, newFov));          // <-- Apply limits
-        
-        waypointCamera.fov = newFov;                                         // <-- Update camera FOV
+        // FOV ZOOM DISABLED - Field of view is fixed based on JSON configuration
+        // The FOV should remain as set by the waypoint data from SketchUp
+        // No user adjustment is allowed
     }
     // ---------------------------------------------------------------
 
