@@ -104,7 +104,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
     // MODULE VARIABLES | Pipeline and Configuration State
     // ------------------------------------------------------------
     let ssaoPipeline           = null;                                       // <-- Active SSAO pipeline instance
-    let isEnabled              = false;                                      // <-- Current enabled state
+    let ssaoIsEnabled          = false;                                      // <-- Current enabled state
     let currentQuality         = "MEDIUM";                                   // <-- Current quality preset
     let scene                  = null;                                       // <-- Babylon scene reference
     let camera                 = null;                                       // <-- Active camera reference
@@ -194,7 +194,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
             }
             
             configureTransparentMaterials();                                // <-- Handle glass materials
-            isEnabled = true;                                               // <-- Mark as enabled
+            ssaoIsEnabled = true;                                            // <-- Mark as enabled
             return true;                                                    // <-- Return success
             
         } catch (error) {
@@ -299,7 +299,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
     function setEnabled(enabled) {
         if (!ssaoPipeline) return;                                          // <-- Exit if not initialized
         
-        isEnabled = enabled;                                                // <-- Update enabled state
+        ssaoIsEnabled = enabled;                                             // <-- Update enabled state
         
         if (enabled) {                                                      // <-- Enable effect
             scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(
@@ -350,13 +350,20 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
         if (!ssaoPipeline) return null;                                     // <-- Return null if not initialized
         
         return {
-            enabled: isEnabled,                                             // <-- Current enabled state
+            enabled: ssaoIsEnabled,                                          // <-- Current enabled state
             quality: currentQuality,                                        // <-- Current quality preset
             isLegacy: isLegacyMode,                                        // <-- Pipeline type
             radius: ssaoPipeline.radius,                                    // <-- Current radius
             strength: ssaoPipeline.totalStrength,                           // <-- Current strength
             samples: ssaoPipeline.samples                                   // <-- Current sample count
         };
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Check if SSAO Effect is Enabled
+    // ------------------------------------------------------------
+    function isEnabled() {
+        return ssaoIsEnabled;                                                // <-- Return current enabled state
     }
     // ---------------------------------------------------------------
 
@@ -376,7 +383,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
         
         scene = null;                                                       // <-- Clear scene reference
         camera = null;                                                      // <-- Clear camera reference
-        isEnabled = false;                                                  // <-- Reset enabled state
+        ssaoIsEnabled = false;                                               // <-- Reset enabled state
         isLegacyMode = false;                                              // <-- Reset legacy flag
     }
     // ---------------------------------------------------------------
@@ -392,6 +399,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
     return {
         initialize: initialize,                                             // <-- Initialize SSAO effect
         setEnabled: setEnabled,                                             // <-- Enable/disable effect
+        isEnabled: isEnabled,                                               // <-- Check enabled state
         updateQuality: updateQuality,                                       // <-- Change quality preset
         getCurrentSettings: getCurrentSettings,                             // <-- Get current configuration
         dispose: dispose,                                                   // <-- Cleanup resources

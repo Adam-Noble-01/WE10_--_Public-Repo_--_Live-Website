@@ -111,6 +111,15 @@ html, body {
     opacity                            : 0.8;                          /* Hover effect opacity */
 }
 
+.tool-button.active {
+    background                         : #4CAF50;                      /* Active button green background */
+    font-weight                        : bold;                         /* Bold text for active state */
+}
+
+.nav-mode-btn {
+    display                            : none;                         /* Hidden by default, shown via JS */
+}
+
 #toolbar label {
     margin-top                         : var(--TrueVision_ToolbarPadding); /* Top margin */
     display                            : block;                        /* Block display */

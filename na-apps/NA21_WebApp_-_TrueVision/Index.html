@@ -18,8 +18,9 @@ CREATED     :  2025
 DESCRIPTION:
 - Web-based 3D model viewer built with Babylon.js for architectural visualization
 - Supports GLB format models with real-time lighting and shadow calculations
-- Features dual camera modes (Orbit and Fly-Through) for different viewing experiences
-- Includes interactive sun positioning based on time of day and geographical coordinates
+- Features multiple camera navigation modes configurable per client
+- Includes waypoint navigation system for curated architectural tours
+- Interactive sun positioning based on time of day and geographical coordinates
 - Automatic material detection and enhancement for glass and metal surfaces
 - Responsive interface with toolbar controls and loading states
 - Optimized for Noble Architecture client presentations and design reviews
@@ -34,7 +35,7 @@ DESCRIPTION:
 <head>
     <meta charset="UTF-8" />
     <meta name="version" content="1.0.5">                                     <!-- Version tracking for deployment -->
-    <meta name="version_notes" content="Added SSAO ambient occlusion effect with WebGL2/WebGL1 fallback support">
+    <meta name="version_notes" content="Added waypoint navigation system and modular navigation architecture">
     <title>True Vision 3D by Noble Architecture – Pre Beta Version</title>
     
     <!-- ----------------------------------------------------------------- -->
@@ -48,6 +49,40 @@ DESCRIPTION:
     <script src="https://cdn.babylonjs.com/babylon.js"></script>                              <!-- Core Babylon.js 3D engine      -->
     <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.js"></script>      <!-- glTF model loader              -->
     <script src="RenderEffect_SsaoAmbientOcclusionEffect.js"></script>                        <!-- SSAO Ambient Occlusion Effect  -->
+    <script src="NavigationButtonUIManager.js"></script>                                       <!-- Navigation Button UI Manager   -->
+    <!-- endregion ----------------------------------------------------------------- -->
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | Application Configuration and Navigation Modules        -->
+    <!-- ----------------------------------------------------------------- -->
+    <script>
+        // Create global namespace
+        window.TrueVision3D = window.TrueVision3D || {};
+        
+        // Load application configuration with promise for synchronization
+        window.TrueVision3D.configLoadPromise = (async function() {
+            try {
+                const response = await fetch('Data_-_MainAppConfig.json');
+                if (response.ok) {
+                    window.TrueVision3D.AppConfig = await response.json();
+                    console.log('App configuration loaded successfully:', window.TrueVision3D.AppConfig);
+                    return true;
+                } else {
+                    console.error('Failed to load app configuration:', response.status);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error loading app configuration:', error);
+                return false;
+            }
+        })();
+    </script>
+    
+    <!-- Navigation Mode Scripts - Loaded in priority order -->
+    <script src="NavMode_WaypointNavigationSystemLogic.js"></script>                          <!-- Waypoint navigation mode       -->
+    <script src="NavMode_WalkNavigationSystemLogic.js"></script>                              <!-- Walk navigation mode           -->
+    <script src="NavMode_OrbitNavigationSystemLogic.js"></script>                             <!-- Orbit navigation mode          -->
+    <script src="NavMode_FlyNavigationSystemLogic.js"></script>                               <!-- Fly navigation mode            -->
     <!-- endregion ----------------------------------------------------------------- -->
 
 </head>
@@ -74,8 +109,10 @@ DESCRIPTION:
         <!-- ----------------------------------------------------------------- -->
         <div id="toolbar">
             <button class="tool-button" id="resetViewBtn">Reset View</button>           <!-- Reset camera position  -->
-            <button class="tool-button" id="orbitModeBtn">Orbit Mode</button>           <!-- Switch to orbit camera -->
-            <button class="tool-button" id="flyModeBtn">Fly-Through Mode</button>       <!-- Switch to free camera  -->
+            <button class="tool-button nav-mode-btn" id="waypointModeBtn" style="display:none;">Waypoint Mode</button>  <!-- Waypoint navigation -->
+            <button class="tool-button nav-mode-btn" id="walkModeBtn" style="display:none;">Walk Mode</button>         <!-- Walk navigation     -->
+            <button class="tool-button nav-mode-btn" id="orbitModeBtn" style="display:none;">Orbit Mode</button>       <!-- Orbit navigation    -->
+            <button class="tool-button nav-mode-btn" id="flyModeBtn" style="display:none;">Fly Mode</button>           <!-- Fly navigation      -->
             <button class="tool-button" id="ssaoToggleBtn">Toggle SSAO</button>         <!-- Toggle SSAO effect     -->
             <label for="sunTimeSlider">Sun Time (09:00-15:00)</label>                   <!-- Time slider label      -->
             <input type="range" id="sunTimeSlider" min="9" max="15" step="0.1" value="11"
@@ -230,7 +267,14 @@ DESCRIPTION:
         hideLoadingUI: function () { }                                       // <-- Empty hide function
     };
     
-    let scene, arcCamera, freeCamera, activeCamera, sunLight;               // <-- Core scene object references
+    let scene, sunLight;                                                     // <-- Core scene object references
+    // ---------------------------------------------------------------
+
+    // MODULE VARIABLES | Navigation System Management
+    // ------------------------------------------------------------
+    let navigationModes            = {};                                     // <-- Available navigation modes
+    let activeNavigationMode       = null;                                  // <-- Currently active navigation mode
+    let activeCamera               = null;                                  // <-- Currently active camera reference
     // ---------------------------------------------------------------
 
     // MODULE VARIABLES | DOM Element References for User Interface
@@ -238,6 +282,8 @@ DESCRIPTION:
     const loadingOverlay = document.getElementById("loading-overlay");       // <-- Loading overlay element
     const errorMessage = document.getElementById("error-message");           // <-- Error message display element
     const resetViewBtn = document.getElementById("resetViewBtn");            // <-- Reset view button reference
+    const waypointModeBtn = document.getElementById("waypointModeBtn");      // <-- Waypoint mode button reference
+    const walkModeBtn = document.getElementById("walkModeBtn");              // <-- Walk mode button reference
     const orbitModeBtn = document.getElementById("orbitModeBtn");            // <-- Orbit mode button reference
     const flyModeBtn = document.getElementById("flyModeBtn");                // <-- Fly mode button reference
     const sunTimeSlider = document.getElementById("sunTimeSlider");          // <-- Time slider control reference
@@ -258,7 +304,7 @@ DESCRIPTION:
 
     // FUNCTION | Create and Configure Complete 3D Scene Environment
     // ------------------------------------------------------------
-    function createScene() {
+    async function createScene() {
         scene = new BABYLON.Scene(engine);                                   // <-- Initialize new Babylon.js scene
         
         // ENHANCE SCENE VISUAL QUALITY AND BRIGHTNESS
@@ -268,10 +314,10 @@ DESCRIPTION:
         scene.clearColor = new BABYLON.Color4(0.94, 0.94, 0.94, 1);         // <-- Set light grey background
         
         createSceneLighting();                                               // <-- Configure sun and ambient lighting
-        createSceneCameras();                                                // <-- Setup orbit and free cameras
         createSceneEnvironment();                                            // <-- Generate skybox and ground plane
         loadThreeDModel();                                                   // <-- Load and process 3D model
         initializeSunPosition();                                             // <-- Set initial sun position
+        await initializeNavigationSystem();                                  // <-- Initialize navigation modes
         initializeRenderEffects();                                           // <-- Setup SSAO and other effects
         
         return scene;                                                        // <-- Return configured scene
@@ -294,31 +340,99 @@ DESCRIPTION:
     }
     // ---------------------------------------------------------------
 
-    // SUB FUNCTION | Initialize Camera Systems for Different View Modes
+    // SUB FUNCTION | Initialize Navigation System and Available Modes
     // ---------------------------------------------------------------
-    function createSceneCameras() {
-        // CREATE ARC ROTATE CAMERA FOR ORBIT MODE
-        arcCamera = new BABYLON.ArcRotateCamera("arcCamera", 
-            BABYLON.Tools.ToRadians(45),                                     // <-- Initial alpha angle
-            BABYLON.Tools.ToRadians(60),                                     // <-- Initial beta angle
-            30,                                                              // <-- Initial radius distance
-            BABYLON.Vector3.Zero(),                                          // <-- Target at origin
-            scene);                                                          // <-- Scene reference
-        arcCamera.attachControl(canvas, true);                               // <-- Enable user input controls
-        arcCamera.lowerRadiusLimit = 3;                                      // <-- Minimum zoom distance
-        arcCamera.upperRadiusLimit = 50;                                     // <-- Maximum zoom distance
+    async function initializeNavigationSystem() {
+        // WAIT FOR CONFIGURATION TO LOAD
+        const configLoaded = await window.TrueVision3D.configLoadPromise;   // <-- Wait for config
+        if (!configLoaded) {
+            console.error("Failed to load application configuration");       // <-- Log error
+            return;
+        }
         
-        // CREATE FREE CAMERA FOR FLY-THROUGH MODE
-        freeCamera = new BABYLON.FreeCamera("freeCamera", 
-            new BABYLON.Vector3(10, 25, 90), scene);                        // <-- Initial camera position
-        freeCamera.attachControl(canvas, true);                              // <-- Enable user input controls
-        freeCamera.speed = 0.7;                                              // <-- Movement speed setting
-        freeCamera.inertia = 0.1;                                            // <-- Inertia for smooth movement
-        freeCamera.angularSensibility = 5000;                                // <-- Mouse sensitivity setting
+        const appConfig = window.TrueVision3D?.AppConfig;                   // <-- Get app configuration
+        if (!appConfig) {
+            console.error("App configuration not loaded");                   // <-- Log error
+            return;
+        }
         
-        // SET DEFAULT ACTIVE CAMERA
-        activeCamera = arcCamera;                                            // <-- Start with orbit camera
-        scene.activeCamera = activeCamera;                                   // <-- Assign to scene
+        const navConfig = appConfig.AppConfig?.AppConfig_NavMode;            // <-- Get navigation config
+        if (!navConfig) {
+            console.error("Navigation configuration not found");             // <-- Log error
+            return;
+        }
+        
+        // INITIALIZE WAYPOINT NAVIGATION
+        if (navConfig.AppNavMode_Waypoint?.NavMode_WaypointState && 
+            window.TrueVision3D?.NavigationModes?.WaypointNavigation) {
+            const waypointNav = window.TrueVision3D.NavigationModes.WaypointNavigation;
+            if (waypointNav.initialize(scene, canvas)) {
+                navigationModes.waypoint = waypointNav;                      // <-- Store navigation mode
+                waypointModeBtn.style.display = "inline-block";              // <-- Show button
+                console.log("Waypoint navigation initialized");              // <-- Log success
+            }
+        }
+        
+        // INITIALIZE WALK NAVIGATION
+        if (navConfig.AppNavMode_Walk?.NavMode_WalkState && 
+            window.TrueVision3D?.NavigationModes?.WalkNavigation) {
+            const walkNav = window.TrueVision3D.NavigationModes.WalkNavigation;
+            if (walkNav.initialize(scene, canvas)) {
+                navigationModes.walk = walkNav;                              // <-- Store navigation mode
+                walkModeBtn.style.display = "inline-block";                  // <-- Show button
+                console.log("Walk navigation initialized");                  // <-- Log success
+            }
+        }
+        
+        // INITIALIZE ORBIT NAVIGATION
+        if (navConfig.AppNavMode_Orbit?.NavMode_OrbitState && 
+            window.TrueVision3D?.NavigationModes?.OrbitNavigation) {
+            const orbitNav = window.TrueVision3D.NavigationModes.OrbitNavigation;
+            if (orbitNav.initialize(scene, canvas)) {
+                navigationModes.orbit = orbitNav;                            // <-- Store navigation mode
+                orbitModeBtn.style.display = "inline-block";                 // <-- Show button
+                console.log("Orbit navigation initialized");                 // <-- Log success
+            }
+        }
+        
+        // INITIALIZE FLY NAVIGATION
+        if (navConfig.AppNavMode_Fly?.NavMode_FlyState && 
+            window.TrueVision3D?.NavigationModes?.FlyNavigation) {
+            const flyNav = window.TrueVision3D.NavigationModes.FlyNavigation;
+            if (flyNav.initialize(scene, canvas)) {
+                navigationModes.fly = flyNav;                                // <-- Store navigation mode
+                flyModeBtn.style.display = "inline-block";                   // <-- Show button
+                console.log("Fly navigation initialized");                   // <-- Log success
+            }
+        }
+        
+        // INITIALIZE NAVIGATION BUTTON UI MANAGER
+        const navButtons = {
+            waypoint: waypointModeBtn,
+            walk: walkModeBtn,
+            orbit: orbitModeBtn,
+            fly: flyModeBtn
+        };
+        
+        window.TrueVision3D.NavigationButtonUIManager.initialize(
+            scene, 
+            canvas, 
+            navigationModes, 
+            navButtons
+        );
+        
+        // SET MODE CHANGE HANDLER
+        window.TrueVision3D.NavigationButtonUIManager.onModeChange((modeName, mode) => {
+            activeNavigationMode = modeName;                                 // <-- Update active mode
+            activeCamera = mode.getCamera();                                 // <-- Update active camera
+            updateSSAOCamera();                                              // <-- Update SSAO camera
+        });
+        
+        // ACTIVATE FIRST AVAILABLE MODE
+        const availableModes = Object.keys(navigationModes);                // <-- Get available modes
+        if (availableModes.length > 0) {
+            window.TrueVision3D.NavigationButtonUIManager.switchMode(availableModes[0]); // <-- Use button UI manager
+        }
     }
     // ---------------------------------------------------------------
 
@@ -509,46 +623,14 @@ DESCRIPTION:
 // endregion -------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-// REGION | Camera Control and View Management Functions
+// REGION | Navigation Control and Mode Management Functions
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Reset Camera to Default Position Based on Active Mode
+    // FUNCTION | Reset Current Navigation View
     // ------------------------------------------------------------
     function resetView() {
-        if (activeCamera === arcCamera) {                                    // <-- Check if orbit camera active
-            arcCamera.setPosition(new BABYLON.Vector3(0, 10, -30 - CAMERA_OFFSET)); // <-- Set orbit position
-            arcCamera.setTarget(BABYLON.Vector3.Zero());                     // <-- Target scene center
-        } else if (activeCamera === freeCamera) {                           // <-- Check if free camera active
-            freeCamera.position = new BABYLON.Vector3(5, 2, 18 - CAMERA_OFFSET); // <-- Set free camera position
-            freeCamera.setTarget(BABYLON.Vector3.Zero());                    // <-- Target scene center
-        }
-    }
-    // ---------------------------------------------------------------
-
-    // SUB FUNCTION | Switch to Orbit Camera Mode
-    // ---------------------------------------------------------------
-    function switchToOrbitMode() {
-        if (activeCamera !== arcCamera) {                                    // <-- Check if not already orbit mode
-            activeCamera.detachControl(canvas);                              // <-- Detach current camera controls
-            activeCamera = arcCamera;                                        // <-- Set orbit camera as active
-            scene.activeCamera = activeCamera;                               // <-- Update scene active camera
-            activeCamera.attachControl(canvas, true);                        // <-- Attach orbit camera controls
-            resetView();                                                     // <-- Reset to default view
-            updateSSAOCamera();                                              // <-- Update SSAO for new camera
-        }
-    }
-    // ---------------------------------------------------------------
-
-    // SUB FUNCTION | Switch to Fly-Through Camera Mode
-    // ---------------------------------------------------------------
-    function switchToFlyMode() {
-        if (activeCamera !== freeCamera) {                                   // <-- Check if not already fly mode
-            activeCamera.detachControl(canvas);                              // <-- Detach current camera controls
-            activeCamera = freeCamera;                                       // <-- Set free camera as active
-            scene.activeCamera = activeCamera;                               // <-- Update scene active camera
-            activeCamera.attachControl(canvas, true);                        // <-- Attach free camera controls
-            resetView();                                                     // <-- Reset to default view
-            updateSSAOCamera();                                              // <-- Update SSAO for new camera
+        if (activeNavigationMode && navigationModes[activeNavigationMode]) {
+            navigationModes[activeNavigationMode].reset();                   // <-- Call mode's reset function
         }
     }
     // ---------------------------------------------------------------
@@ -583,12 +665,12 @@ DESCRIPTION:
 
     // FUNCTION | Initialize Complete 3D Application
     // ------------------------------------------------------------
-    function initializeApplication() {
-        scene = createScene();                                               // <-- Create and configure scene
+    async function initializeApplication() {
+        scene = await createScene();                                         // <-- Create and configure scene
         
         // START CONTINUOUS RENDER LOOP
         engine.runRenderLoop(function () {
-            if (scene) {                                                     // <-- Check scene exists
+            if (scene && scene.activeCamera) {                              // <-- Check scene and camera exist
                 scene.render();                                              // <-- Render frame
             }
         });
@@ -605,10 +687,8 @@ DESCRIPTION:
     // SUB FUNCTION | Register All User Interface Event Handlers
     // ---------------------------------------------------------------
     function registerEventHandlers() {
-        // CAMERA CONTROL BUTTON EVENTS
+        // NAVIGATION MODE BUTTON EVENTS - Now handled by NavigationButtonUIManager
         resetViewBtn.addEventListener("click", resetView);                   // <-- Reset view button handler
-        orbitModeBtn.addEventListener("click", switchToOrbitMode);           // <-- Orbit mode button handler  
-        flyModeBtn.addEventListener("click", switchToFlyMode);               // <-- Fly mode button handler
         
         // RENDER EFFECT BUTTON EVENTS
         ssaoToggleBtn.addEventListener("click", toggleSSAO);                 // <-- SSAO toggle button handler
@@ -621,11 +701,20 @@ DESCRIPTION:
     // SUB FUNCTION | Cleanup Resources on Page Unload
     // ---------------------------------------------------------------
     function cleanupResources() {
+        // CLEANUP NAVIGATION MODES
+        Object.values(navigationModes).forEach(mode => {
+            if (mode && mode.dispose) {
+                mode.dispose();                                              // <-- Dispose navigation mode
+            }
+        });
+        
+        // CLEANUP SSAO EFFECT
         const ssaoEffect = window.TrueVision3D?.RenderEffects?.SsaoAmbientOcclusionEffect;
         if (ssaoEffect) {
             ssaoEffect.dispose();                                            // <-- Clean up SSAO resources
         }
         
+        // CLEANUP BABYLON ENGINE
         if (engine) {
             engine.dispose();                                                // <-- Clean up Babylon engine
         }
