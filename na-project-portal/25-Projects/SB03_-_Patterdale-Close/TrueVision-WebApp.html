@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!--=========================================================================
+NOBLE ARCHITECTURE - TRUEVISION 3D LANDING PAGE
+=============================================================================
+
+FILE        :  TrueVision-WebApp.html
+DIRECTORY   :  ./
+NAMESPACE   :  TrueVision3D
+MODULE      :  TrueVision3D Landing Page
+AUTHOR      :  Adam Noble - Noble Architecture
+PURPOSE     :  Professional landing page with loading animation for TrueVision 3D
+CREATED     :  2025
+
+DESCRIPTION:
+- Professional landing page for TrueVision 3D Model Viewer application
+- Features animated loading sequence with Noble Architecture branding
+- Auto-redirects to main TrueVision 3D application after loading animation
+- Maintains consistent visual identity with favicon configuration
+- Responsive design with professional styling and smooth animations
+- Includes skip functionality via click or keyboard interaction
+
+=============================================================================
+-->
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | HTML Document Head Configuration                        -->
+<!-- ----------------------------------------------------------------- -->
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TrueVision 3D | Architectural 3D Model Viewer</title>
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- FAVICON | Application Icon Configuration                          -->
+    <!-- ----------------------------------------------------------------- -->
+    <link rel="icon" type="image/svg+xml" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png">
+    <link rel="icon" type="image/x-icon" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
+    <!-- ---------------------------------------------------------------- -->
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | CSS Styling and Visual Design Configuration             -->
+    <!-- ----------------------------------------------------------------- -->
+    <style>
+        /* CSS Variables - TrueVision Design System Standards */
+        :root {
+            --Color_Primary               : #555041;
+            --Color_Secondary             : #86847d;
+            --Color_Background            : #f5f5f5;
+            --Color_BackgroundGradient    : linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            --Color_White                 : #ffffff;
+            --Color_Border                : #f3f3f3;
+            --Font_Primary                : 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --FontSize_Title              : 32px;
+            --FontSize_Subtitle           : 16px;
+            --FontSize_Status             : 18px;
+            --FontSize_Progress           : 14px;
+            --FontSize_Footer             : 12px;
+            --FontWeight_Light            : 300;
+            --FontWeight_Normal           : 400;
+            --FontWeight_Medium           : 500;
+        }
+
+        /* Base Layout Styles */
+        html, body {
+            margin                        : 0;
+            padding                       : 0;
+            width                         : 100%;
+            height                        : 100%;
+            background                    : var(--Color_BackgroundGradient);
+            font-family                   : var(--Font_Primary);
+            overflow                      : hidden;
+        }
+
+        /* Main Container Layout */
+        .container {
+            position                      : relative;
+            width                         : 100%;
+            height                        : 100%;
+            display                       : flex;
+            flex-direction                : column;
+            justify-content               : center;
+            align-items                   : center;
+            text-align                    : center;
+        }
+
+        /* Loading Animation Elements */
+        .loading-container {
+            position                      : relative;
+            margin-bottom                 : 30px;
+        }
+
+        .loading-spinner {
+            border                        : 6px solid var(--Color_Border);
+            border-top                    : 6px solid var(--Color_Primary);
+            border-radius                 : 50%;
+            width                         : 60px;
+            height                        : 60px;
+            animation                     : spin 1s linear infinite;
+            margin                        : 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0%                            { transform: rotate(0deg); }
+            100%                          { transform: rotate(360deg); }
+        }
+
+        /* Branding Elements */
+        .logo {
+            width                         : 120px;
+            height                        : auto;
+            margin-bottom                 : 25px;
+            opacity                       : 0.9;
+        }
+
+        .title {
+            font-size                     : var(--FontSize_Title);
+            font-weight                   : var(--FontWeight_Light);
+            color                         : var(--Color_Primary);
+            margin-bottom                 : 10px;
+            letter-spacing                : 1px;
+        }
+
+        .subtitle {
+            font-size                     : var(--FontSize_Subtitle);
+            color                         : var(--Color_Secondary);
+            margin-bottom                 : 30px;
+            font-weight                   : var(--FontWeight_Normal);
+        }
+
+        /* Status Message Display */
+        .status-message {
+            font-size                     : var(--FontSize_Status);
+            color                         : var(--Color_Primary);
+            margin-bottom                 : 15px;
+            font-weight                   : var(--FontWeight_Medium);
+        }
+
+        .progress-text {
+            font-size                     : var(--FontSize_Progress);
+            color                         : var(--Color_Secondary);
+            margin-bottom                 : 40px;
+        }
+
+        /* Footer Positioning */
+        .footer {
+            position                      : absolute;
+            bottom                        : 20px;
+            left                          : 50%;
+            transform                     : translateX(-50%);
+            font-size                     : var(--FontSize_Footer);
+            color                         : var(--Color_Secondary);
+        }
+
+        /* Responsive Design Adjustments */
+        @media (max-width: 768px) {
+            .title {
+                font-size                 : 24px;
+            }
+            
+            .status-message {
+                font-size                 : 16px;
+            }
+            
+            .logo {
+                width                     : 80px;
+            }
+        }
+
+        /* Animation Effects */
+        .fade-in {
+            animation                     : fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from                          { opacity: 0; transform: translateY(20px); }
+            to                            { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <!-- ---------------------------------------------------------------- -->
+</head>
+<body>
+    <div class="container fade-in">
+        <img src="https://raw.githubusercontent.com/Adam-Noble-01/RE10_I_GitHub_I_Public_Repo/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_01_-_FILES_-_Noble-Architecture_-_Core-Brand-Image-Assets/RE20_22_01_01_-_PNG_-_NA_Company_Logo.png" 
+             alt="Noble Architecture" class="logo">
+        
+        <h1 class="title">TrueVision 3D</h1>
+        <p class="subtitle">3D Model Viewer for Architectural Presentations</p>
+        
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="status-message">Initializing 3D Engine...</div>
+            <div class="progress-text">Preparing your 3D model viewer</div>
+        </div>
+        
+        <div class="footer">
+            © 2025 Noble Architecture | All Rights Reserved
+        </div>
+    </div>
+
+    <script>
+        // Auto-redirect to the main TrueVision application after loading animation
+        setTimeout(function() {
+            // Update the status message
+            document.querySelector('.status-message').textContent = 'Launching TrueVision...';
+            document.querySelector('.progress-text').textContent = 'Redirecting to application';
+            
+            // Redirect after a brief moment
+            setTimeout(function() {
+                // Redirect to the actual TrueVision 3D application
+                window.location.href = '20_TrueVision_-_App-Codebase/Index.html';
+            }, 1500);
+        }, 2000);
+
+        // Handle any loading errors gracefully
+        window.addEventListener('error', function(e) {
+            console.warn('Resource loading error:', e);
+            // Continue with redirect even if some resources fail to load
+        });
+
+        // Add some interactivity - click to skip loading
+        document.addEventListener('click', function() {
+            document.querySelector('.status-message').textContent = 'Loading...';
+            window.location.href = '20_TrueVision_-_App-Codebase/Index.html';
+        });
+
+        // Keyboard shortcut - press any key to skip
+        document.addEventListener('keydown', function() {
+            window.location.href = '20_TrueVision_-_App-Codebase/Index.html';
+        });
+    </script>
+</body>
+</html> 
