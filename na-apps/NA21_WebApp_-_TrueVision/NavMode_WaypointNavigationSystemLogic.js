@@ -159,17 +159,17 @@
     // SUB FUNCTION | Convert Camera Data to Babylon.js Coordinates
     // ---------------------------------------------------------------
     function convertCameraDataToBabylon(agentData) {
-        // CONVERT POSITION (Y and Z are swapped in Babylon.js)
+        // CONVERT POSITION (Y and Z are swapped in Babylon.js, X is inverted)
         // Also convert from millimeters to meters (divide by 1000)
         const position = new BABYLON.Vector3(
-            agentData.position.x / 1000,                                     // <-- X in meters (from mm)
+            -agentData.position.x / 1000,                                    // <-- X inverted and in meters (from mm)
             agentData.position.z / 1000,                                     // <-- Z becomes Y in meters
             -agentData.position.y / 1000                                     // <-- Y becomes -Z in meters
         );
         
-        // CALCULATE ROTATION FROM DIRECTION VECTOR
+        // CALCULATE ROTATION FROM DIRECTION VECTOR (X direction also inverted)
         const direction = new BABYLON.Vector3(
-            agentData.direction.x,                                           // <-- X direction component
+            -agentData.direction.x,                                          // <-- X direction component inverted
             agentData.direction.z,                                           // <-- Z becomes Y
             -agentData.direction.y                                           // <-- Y becomes -Z
         );

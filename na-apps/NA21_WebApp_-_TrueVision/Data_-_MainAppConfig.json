@@ -1,6 +1,6 @@
 {
     "appName"           :   "TrueVision",
-    "appVersion"        :   "1.0.5",
+    "appVersion"        :   "1.1.1",
     "appDescription"    :   "TrueVision is a web application that allows you to view 3D models in a virtual environment.",
     "appDeveloper"      :   "Noble Architecture",
     "appAuthor"         :   "Adam Noble",
@@ -38,8 +38,32 @@
             "AppNavMode_Fly": {
                 "NavMode_FlyState"             :  true,
                 "NavMode_FlyFile"              :  "NavMode_FlyNavigationSystemLogic.js",
-                "NavMode_FlyDescription"       :  "Fly mode enables free camera movement in 3D space"
-            } 
+                "NavMode_FlyDescription"       :  "Fly mode enables free camera movement in 3D space",
+                    "NavMode_FlyDefaultInitCoords": { 
+                        "DefaultInitCoordInfo"     :  "Default Initial Camera Position - X, Y, Z In Millimeters",
+                        "DefaultInitCoordX"        :  "0000",
+                        "DefaultInitCoordEyeHeight":  "2000",
+                        "DefaultInitCoordZ"        :  "2000",
+                        "DefaultInitRotation"      :  "Default Initial Camera Rotation - X, Y, Z In Degrees",
+                        "DefaultInitRotationX"     :  "0",
+                        "DefaultInitRotationY"     :  "0",
+                        "DefaultInitRotationZ"     :  "225"
+                }
+            }
+        }
+    },
+
+    "SceneConfig" :  {
+        "SceneConfig_Description"  :  "This section contains all the configuration options for the scene",
+        "LightingConfig" : {
+            "LightingCfg_HdriLighting_Description"   :  "This section contains all the configuration options for the lighting",
+            "LightingCfg_HdriLighting"               :  false,
+            "LightingCfg_HdrirBrightnessFactor"      :  0.5,
+            "LightingCfg_HdrirRotationAngleDeg"      :  180,
+            "LightingCfg_HdriLightingRelativePath"   :  "./Assets_PluginAssets/LightAssets_HdriSkydomes/True-Vision-3D_-_Test-HDRI_-_Pure_Sky_2k.hdr",
+            "LightingCfg_HdriLightingURL"            :  "https://www.noble-architecture.com/na-apps/NA21_WebApp_-_TrueVision/Assets_PluginAssets/LightAssets_HdriSkydomes/True-Vision-3D_-_Test-HDRI_-_Pure_Sky_2k.hdr",
+            "LightingCfg_HdriLightingLogicFile"      :  "./SceneConfig_HdriLightingLogic.js"
         }
     }
-} 
+}   
+

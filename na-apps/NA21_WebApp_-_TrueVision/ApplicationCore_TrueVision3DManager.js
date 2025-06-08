@@ -75,12 +75,14 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     let sunTimeSlider                  = null;                               // <-- Time slider control reference
     let sunTimeDisplay                 = null;                               // <-- Time display text reference
     let ssaoToggleBtn                  = null;                               // <-- SSAO toggle button reference
+    let furnishingsToggleBtn           = null;                               // <-- Furnishings toggle button reference
     // ---------------------------------------------------------------
 
     // MODULE VARIABLES | Application Configuration and Settings
     // ------------------------------------------------------------
     let appConfig                      = null;                               // <-- Application configuration data
     let ssaoEnabled                    = true;                               // <-- SSAO enabled state
+    let furnishingsVisible             = true;                               // <-- Furnishings visibility state
     // ---------------------------------------------------------------
 
     // MODULE VARIABLES | Render Loop State
@@ -176,6 +178,7 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         sunTimeSlider = document.getElementById("sunTimeSlider");            // <-- Time slider control reference
         sunTimeDisplay = document.getElementById("sunTimeDisplay");          // <-- Time display text reference
         ssaoToggleBtn = document.getElementById("ssaoToggleBtn");            // <-- SSAO toggle button reference
+        furnishingsToggleBtn = document.getElementById("furnishingsToggleBtn"); // <-- Furnishings toggle button reference
         
         console.log("UI element references initialized");                    // <-- Log UI initialization
     }
@@ -409,6 +412,12 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
             ssaoToggleBtn.addEventListener("click", toggleSSAO);             // <-- SSAO toggle button handler
         }
         
+        // FURNISHINGS VISIBILITY BUTTON EVENT
+        if (furnishingsToggleBtn) {
+            furnishingsToggleBtn.addEventListener("click", toggleFurnishings); // <-- Furnishings toggle button handler
+            updateFurnishingsButtonState();                                  // <-- Set initial button state
+        }
+        
         console.log("Application event handlers registered");                // <-- Log event registration
     }
     // ---------------------------------------------------------------
@@ -439,12 +448,32 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     }
     // ---------------------------------------------------------------
 
+    // FUNCTION | Toggle Furnishings Visibility
+    // ------------------------------------------------------------
+    function toggleFurnishings() {
+        if (renderingPipeline) {
+            furnishingsVisible = renderingPipeline.toggleFurnishings();       // <-- Toggle furnishings state
+            updateFurnishingsButtonState();                                   // <-- Update button appearance
+        }
+    }
+    // ---------------------------------------------------------------
+
     // SUB FUNCTION | Update SSAO Button Visual State
     // ---------------------------------------------------------------
     function updateSSAOButtonState() {
         if (ssaoToggleBtn) {
             ssaoToggleBtn.textContent = ssaoEnabled ? "SSAO: ON" : "SSAO: OFF"; // <-- Update button text
             ssaoToggleBtn.style.backgroundColor = ssaoEnabled ? "#4CAF50" : "#666"; // <-- Update button color
+        }
+    }
+    // ---------------------------------------------------------------
+
+    // SUB FUNCTION | Update Furnishings Button Visual State
+    // ---------------------------------------------------------------
+    function updateFurnishingsButtonState() {
+        if (furnishingsToggleBtn) {
+            furnishingsToggleBtn.textContent = furnishingsVisible ? "Furnishings: ON" : "Furnishings: OFF"; // <-- Update button text
+            furnishingsToggleBtn.style.backgroundColor = furnishingsVisible ? "#4CAF50" : "#666";           // <-- Update button color
         }
     }
     // ---------------------------------------------------------------

@@ -1,155 +1,126 @@
 {
-    "exportInfo": {
-      "exportDate": "2025-06-07 13:34:39",
-      "modelName": "",
-      "exportedBy": "ValeDesignSuite Camera Agent Tool",
-      "version": "1.0.0"
-    },
-    "cameraAgents": [
-      {
-        "agentId": "CAM001",
-        "agentName": "Camera Agent CAM001",
-        "waypointNumber": 1,
-        "position": {
-          "x": 4510.154775106053,
-          "y": 905.1690146031042,
-          "z": 1700.0
-        },
-        "direction": {
-          "x": -0.2347206063679991,
-          "y": 0.9720628770538657,
-          "z": 0.0
-        },
-        "rotation": {
-          "heading": 103.57515405358153,
-          "pitch": 0.0,
-          "roll": 0.0
-        },
-        "camera": {
-          "aspectRatio": "4:3",
-          "lensMm": 28,
-          "fovDegrees": 60
-        },
-        "metadata": {
-          "createdDate": "2025-06-07 13:29:26",
-          "lastModified": "2025-06-07 13:30:01"
-        }
+  "exportInfo": {
+    "exportDate": "2025-06-07 20:33:12",
+    "modelName": "SB03_-_TrueVision-App-Model_-_1.0.1",
+    "exportedBy": "ValeDesignSuite Camera Agent Tool",
+    "version": "1.0.0"
+  },
+  "cameraAgents": [
+    {
+      "agentId": "CAM001",
+      "agentName": "CAM001_-_Exterior-3D_-_Front-Left",
+      "waypointNumber": 1,
+      "position": {
+        "x": -1288.9303688900984,
+        "y": -6499.412433087315,
+        "z": 1841.3047410877127
       },
-      {
-        "agentId": "CAM002",
-        "agentName": "Camera Agent CAM002 - Kitchen",
-        "waypointNumber": 2,
-        "position": {
-          "x": 370.9927908283072,
-          "y": 6483.459570482234,
-          "z": 1700.0
-        },
-        "direction": {
-          "x": 0.9858860150829266,
-          "y": 0.1674179359086339,
-          "z": 0.0
-        },
-        "rotation": {
-          "heading": 9.637726191029621,
-          "pitch": 0.0,
-          "roll": 0.0
-        },
-        "camera": {
-          "aspectRatio": "16:9",
-          "lensMm": 35,
-          "fovDegrees": 20
-        },
-        "metadata": {
-          "createdDate": "2025-06-07 13:30:05",
-          "lastModified": "2025-06-07 13:30:55"
-        }
+      "direction": {
+        "x": 0.49999998709580584,
+        "y": 0.8660254112346786,
+        "z": 0.0
       },
-      {
-        "agentId": "CAM003",
-        "agentName": "Camera Agent CAM003 - Bathroom",
-        "waypointNumber": 3,
-        "position": {
-          "x": 15128.03240894712,
-          "y": 24442.65635056681,
-          "z": -1809.3332640381182
-        },
-        "direction": {
-          "x": -0.2934033413973277,
-          "y": -0.9227212316334868,
-          "z": 0.25000001589932885
-        },
-        "rotation": {
-          "heading": -107.63942280044455,
-          "pitch": 0.0,
-          "roll": 0.0
-        },
-        "camera": {
-          "aspectRatio": "4:3",
-          "lensMm": 85,
-          "fovDegrees": 100
-        },
-        "metadata": {
-          "createdDate": "2025-06-07 13:31:06",
-          "lastModified": "2025-06-07 13:33:56"
-        }
+      "rotation": {
+        "heading": 60.00000085373461,
+        "pitch": 0.0,
+        "roll": 0.0
       },
-      {
-        "agentId": "CAM004",
-        "agentName": "Camera Agent CAM004",
-        "waypointNumber": 4,
-        "position": {
-          "x": 11197.661566786184,
-          "y": 8807.563769573142,
-          "z": 1700.0
-        },
-        "direction": {
-          "x": -0.32945863649856677,
-          "y": -0.944170009498557,
-          "z": 0.0
-        },
-        "rotation": {
-          "heading": -109.23592023369406,
-          "pitch": 0.0,
-          "roll": 0.0
-        },
-        "camera": {
-          "aspectRatio": "16:9",
-          "lensMm": 35,
-          "fovDegrees": 60
-        },
-        "metadata": {
-          "createdDate": "2025-06-07 13:32:02",
-          "lastModified": "2025-06-07 13:32:02"
-        }
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
       },
-      {
-        "agentId": "CAM005",
-        "agentName": "Camera Agent CAM005",
-        "waypointNumber": 5,
-        "position": {
-          "x": 16545.239827162462,
-          "y": 3092.2535559423695,
-          "z": 1700.0
-        },
-        "direction": {
-          "x": 0.725697997756009,
-          "y": -0.6880133836292137,
-          "z": 0.0
-        },
-        "rotation": {
-          "heading": -43.47305597520565,
-          "pitch": 0.0,
-          "roll": 0.0
-        },
-        "camera": {
-          "aspectRatio": "16:9",
-          "lensMm": 35,
-          "fovDegrees": 60
-        },
-        "metadata": {
-          "createdDate": "2025-06-07 13:33:00",
-          "lastModified": "2025-06-07 13:33:00"
-        }
+      "metadata": {
+        "createdDate": "2025-06-07 19:22:24",
+        "lastModified": "2025-06-07 19:24:54"
       }
-    ]
-  }
+    },
+    {
+      "agentId": "CAM002",
+      "agentName": "CAM002_-_Exterior-3D_-_Back-Right",
+      "waypointNumber": 3,
+      "position": {
+        "x": 15701.454535889821,
+        "y": 27494.29341303245,
+        "z": 1377.0608381493978
+      },
+      "direction": {
+        "x": -0.41151435860551905,
+        "y": -0.9114032766352601,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -114.30000000002579,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 19:23:57",
+        "lastModified": "2025-06-07 20:31:13"
+      }
+    },
+    {
+      "agentId": "CAM003",
+      "agentName": "CAM003_-_Exterior-3D_-_Front-Right",
+      "waypointNumber": 3,
+      "position": {
+        "x": 28422.943435665587,
+        "y": -12703.888256954751,
+        "z": 1700.0
+      },
+      "direction": {
+        "x": -0.7071067706498291,
+        "y": 0.7071067917232657,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 134.99999914622583,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 20:30:46",
+        "lastModified": "2025-06-07 20:31:57"
+      }
+    },
+    {
+      "agentId": "CAM004",
+      "agentName": "CAM004_-_Exterior-3D_-_Back-Left",
+      "waypointNumber": 4,
+      "position": {
+        "x": -12479.892862175195,
+        "y": 35983.96926884656,
+        "z": 1700.0
+      },
+      "direction": {
+        "x": 0.5000000129041219,
+        "y": -0.8660253963342404,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -59.99999914627016,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 20:32:06",
+        "lastModified": "2025-06-07 20:32:40"
+      }
+    }
+  ]
+}

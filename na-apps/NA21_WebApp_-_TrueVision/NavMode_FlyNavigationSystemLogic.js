@@ -52,14 +52,23 @@
 // REGION | Module Constants and Configuration
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Camera Configuration Defaults
+    // MODULE CONSTANTS | Camera Configuration Defaults (Fallback Values)
     // ------------------------------------------------------------
-    const DEFAULT_POSITION             = new BABYLON.Vector3(10, 25, 90);    // <-- Initial camera position
-    const DEFAULT_TARGET               = BABYLON.Vector3.Zero();             // <-- Initial look target
+    const FALLBACK_POSITION            = new BABYLON.Vector3(0, 3, 3);       // <-- 3m eye height, 3m back from origin
+    const FALLBACK_TARGET              = BABYLON.Vector3.Zero();             // <-- Fallback look target
     const MOVEMENT_SPEED               = 0.7;                                // <-- Movement speed multiplier
     const MOVEMENT_INERTIA             = 0.1;                                // <-- Movement inertia factor
-    const ANGULAR_SENSIBILITY          = 5000;                               // <-- Mouse look sensitivity
-    const CAMERA_OFFSET                = 10;                                 // <-- Additional positioning offset
+    const ANGULAR_SENSIBILITY          = 2500;                               // <-- Mouse look sensitivity (2x more aggressive)
+    const MM_TO_METERS                 = 0.001;                              // <-- Millimeter to meter conversion
+    const DEGREES_TO_RADIANS           = Math.PI / 180;                      // <-- Degree to radian conversion
+    const FALLBACK_EYE_HEIGHT_MM       = 3000;                               // <-- Fallback eye height in millimeters
+    // ---------------------------------------------------------------
+
+    // MODULE VARIABLES | Configuration Loaded from MainAppConfig.json
+    // ------------------------------------------------------------
+    let configPosition                 = null;                              // <-- Position loaded from config
+    let configRotation                 = null;                              // <-- Rotation loaded from config
+    let configurationLoaded            = false;                             // <-- Config loading state
     // ---------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -81,6 +90,113 @@
 // endregion -------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
+// REGION | Configuration Loading and Processing System
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Load Fly Navigation Configuration from MainAppConfig
+    // ------------------------------------------------------------
+    function loadFlyNavigationConfiguration() {
+        try {
+            console.log("=== FLY NAVIGATION CONFIG LOADING ===");           // <-- Debug header
+            
+            const appConfig = window.TrueVision3D?.AppConfig;                // <-- Get app configuration
+            const flyConfig = appConfig?.AppConfig?.AppConfig_NavMode?.AppNavMode_Fly?.NavMode_FlyDefaultInitCoords;
+            
+            if (!flyConfig) {
+                console.warn("JSON config not found - using fallback values (3000mm eye height)"); 
+                configPosition = new BABYLON.Vector3(
+                    0, 
+                    FALLBACK_EYE_HEIGHT_MM * MM_TO_METERS, 
+                    3
+                );                                                           // <-- Fallback: 0, 3000mm=3m, 3m
+                configRotation = new BABYLON.Vector3(0, Math.PI, 0);         // <-- Y rotation for 180° turn
+                console.log("Using fallback - Position:", configPosition, "Rotation:", configRotation);
+                return false;                                                
+            }
+            
+            // EXTRACT AND CONVERT POSITION VALUES FROM MILLIMETERS TO METERS
+            const posX = parseFloat(flyConfig.DefaultInitCoordX || "0") * MM_TO_METERS;                          // <-- X coordinate
+            const posEyeHeight = parseFloat(flyConfig.DefaultInitCoordEyeHeight || "3000") * MM_TO_METERS;       // <-- Eye height (explicit)
+            const posZ = parseFloat(flyConfig.DefaultInitCoordZ || "3000") * MM_TO_METERS;                       // <-- Z coordinate
+            configPosition = new BABYLON.Vector3(posX, posEyeHeight, posZ);  // <-- Create position vector with explicit eye height
+            
+            // EXTRACT AND CONVERT ROTATION VALUES
+            const rotX = parseFloat(flyConfig.DefaultInitRotationX || "0") * DEGREES_TO_RADIANS;   // <-- Pitch
+            const rotY = parseFloat(flyConfig.DefaultInitRotationY || "0") * DEGREES_TO_RADIANS;   // <-- Yaw  
+            const rotZ = parseFloat(flyConfig.DefaultInitRotationZ || "180") * DEGREES_TO_RADIANS; // <-- Roll from JSON
+            
+            // REMAP Z ROTATION TO Y ROTATION FOR PROPER 180° TURN
+            const correctedRotY = rotY + rotZ;                               // <-- Add Z rotation to Y rotation
+            configRotation = new BABYLON.Vector3(rotX, correctedRotY, 0);    // <-- Use Y for 180° turn, zero roll
+            
+            configurationLoaded = true;                                      
+            console.log("JSON CONFIG LOADED with explicit eye height:");
+            console.log("  Eye Height (mm):", flyConfig.DefaultInitCoordEyeHeight);
+            console.log("  Eye Height (m):", posEyeHeight);
+            console.log("  Final Position:", configPosition, "Rotation:", configRotation);
+            
+            return true;                                                     
+            
+        } catch (error) {
+            console.error("Error loading fly navigation configuration:", error); 
+            configPosition = new BABYLON.Vector3(
+                0, 
+                FALLBACK_EYE_HEIGHT_MM * MM_TO_METERS, 
+                3
+            );                                                               // <-- Fallback with 3000mm eye height
+            configRotation = new BABYLON.Vector3(0, Math.PI, 0);             // <-- Y rotation for 180° turn
+            console.log("Error fallback (3000mm eye height) - Position:", configPosition, "Rotation:", configRotation);
+            return false;                                                    
+        }
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Apply Configuration to Camera Position and Rotation
+    // ------------------------------------------------------------
+    function applyCameraConfiguration() {
+        if (!flyCamera || !configPosition || !configRotation) {
+            console.error("Cannot apply config - missing camera, position, or rotation");
+            return;                                                          
+        }
+        
+        console.log("=== APPLYING FLY CAMERA CONFIGURATION ===");           
+        console.log("Applying position:", configPosition);                  
+        console.log("Applying rotation:", configRotation);                  
+        
+        // SET CAMERA POSITION FROM CONFIGURATION
+        flyCamera.position = configPosition.clone();                         // <-- Apply position
+        
+        // APPLY ROTATION FROM CONFIGURATION (USE JSON VALUES, NOT setTarget)
+        flyCamera.rotation = configRotation.clone();                         // <-- Use JSON rotation values
+        
+        // UPDATE DEFAULT POSITION AND ROTATION FOR RESET FUNCTIONALITY
+        defaultPosition = configPosition.clone();                           
+        
+        // CALCULATE TARGET BASED ON POSITION AND ROTATION FOR RESET
+        const forward = new BABYLON.Vector3(0, 0, 1);                        // <-- Default forward vector
+        const rotationMatrix = BABYLON.Matrix.RotationYawPitchRoll(
+            configRotation.y, 
+            configRotation.x, 
+            configRotation.z
+        );                                                                   // <-- Create rotation matrix
+        const transformedForward = BABYLON.Vector3.TransformCoordinates(forward, rotationMatrix); // <-- Transform forward vector
+        defaultTarget = configPosition.add(transformedForward);              // <-- Calculate target for reset
+        
+        console.log("Final camera state:");
+        console.log("  Position:", flyCamera.position);
+        console.log("  Rotation (radians):", flyCamera.rotation);
+        console.log("  Rotation (degrees):", {
+            x: flyCamera.rotation.x * (180/Math.PI),
+            y: flyCamera.rotation.y * (180/Math.PI), 
+            z: flyCamera.rotation.z * (180/Math.PI)
+        });
+        console.log("=== CONFIGURATION APPLIED SUCCESSFULLY ===");          
+    }
+    // ---------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
 // REGION | Camera Creation and Management
 // -----------------------------------------------------------------------------
 
@@ -89,9 +205,22 @@
     function createFlyCamera() {
         if (!scene) return null;                                            // <-- Validate scene exists
         
+        console.log("=== CREATING FLY CAMERA ===");                        // <-- Debug header
+        
+        // LOAD CONFIGURATION FIRST (SETS configPosition AND configRotation)
+        const configFromJson = loadFlyNavigationConfiguration();            // <-- Load config from JSON
+        console.log("Config loaded from JSON:", configFromJson);            // <-- Debug log
+        
+        // ENSURE WE HAVE VALID CONFIGURATION (JSON OR FALLBACK)
+        if (!configPosition || !configRotation) {
+            console.error("No valid configuration available - using emergency fallback");
+            configPosition = new BABYLON.Vector3(0, 0, 3);                   // <-- Emergency fallback
+            configRotation = new BABYLON.Vector3(0, 0, Math.PI);             // <-- Emergency fallback
+        }
+        
         // CREATE FREE CAMERA FOR FLY-THROUGH MODE
         flyCamera = new BABYLON.FreeCamera("flyCamera", 
-            DEFAULT_POSITION.clone(), scene);                               // <-- Create at default position
+            configPosition.clone(), scene);                                 // <-- Create at configured position
             
         // CONFIGURE CAMERA MOVEMENT PROPERTIES
         flyCamera.speed = MOVEMENT_SPEED;                                    // <-- Set movement speed
@@ -105,10 +234,12 @@
         // CONFIGURE CAMERA COLLISION DETECTION
         flyCamera.checkCollisions = false;                                   // <-- Disable collisions for free movement
         
-        // STORE DEFAULT POSITION AND TARGET
-        defaultPosition = new BABYLON.Vector3(5, 2, 18 - CAMERA_OFFSET);     // <-- Alternative default position
-        defaultTarget = DEFAULT_TARGET.clone();                              // <-- Default target position
+        console.log("Camera created, now applying full configuration...");   // <-- Debug log
         
+        // APPLY FULL CONFIGURATION TO CAMERA (ALWAYS RUNS)
+        applyCameraConfiguration();                                          // <-- Apply config position and rotation
+        
+        console.log("=== FLY CAMERA CREATION COMPLETE ===");                // <-- Debug footer
         return flyCamera;                                                    // <-- Return configured camera
     }
     // ---------------------------------------------------------------
@@ -118,8 +249,12 @@
     function resetCameraView() {
         if (!flyCamera) return;                                              // <-- Validate camera exists
         
-        flyCamera.position = defaultPosition.clone();                        // <-- Reset to default position
-        flyCamera.setTarget(defaultTarget.clone());                          // <-- Reset to default target
+        flyCamera.position = defaultPosition.clone();                        // <-- Reset to configured position
+        if (configRotation && configurationLoaded) {
+            flyCamera.rotation = configRotation.clone();                     // <-- Reset to configured rotation
+        } else {
+            flyCamera.setTarget(defaultTarget.clone());                      // <-- Reset to calculated target
+        }
     }
     // ---------------------------------------------------------------
 
@@ -137,6 +272,8 @@
             inputs.attached.keyboard.keysDown = [83];                        // <-- S key for backward
             inputs.attached.keyboard.keysLeft = [65];                        // <-- A key for left
             inputs.attached.keyboard.keysRight = [68];                       // <-- D key for right
+            inputs.attached.keyboard.keysUpward = [69];                      // <-- E key for ascend vertically
+            inputs.attached.keyboard.keysDownward = [81];                    // <-- Q key for descend vertically
         }
         
         // CONFIGURE MOUSE INPUT
