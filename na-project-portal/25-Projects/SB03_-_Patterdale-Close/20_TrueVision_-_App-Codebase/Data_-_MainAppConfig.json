@@ -42,19 +42,19 @@
             },
             
             "AppNavMode_Walk": {
-                "NavMode_WalkState"            :  false,
+                "NavMode_WalkState"            :  true,
                 "NavMode_WalkFile"             :  "NavMode_WalkNavigationSystemLogic.js",
                 "NavMode_WalkDescription"      :  "Walk mode enables first-person style ground-level navigation"
             },
             
             "AppNavMode_Orbit": {
-                "NavMode_OrbitState"           :  false,
+                "NavMode_OrbitState"           :  true,
                 "NavMode_OrbitFile"            :  "NavMode_OrbitNavigationSystemLogic.js",
                 "NavMode_OrbitDescription"     :  "Orbit mode allows camera rotation around a fixed point"
             },
             
             "AppNavMode_Fly": {
-                "NavMode_FlyState"             :  false,
+                "NavMode_FlyState"             :  true,
                 "NavMode_FlyFile"              :  "NavMode_FlyNavigationSystemLogic.js",
                 "NavMode_FlyDescription"       :  "Fly mode enables free camera movement in 3D space",
                     "NavMode_FlyDefaultInitCoords": { 
