@@ -1,6 +1,6 @@
 {
   "exportInfo": {
-    "exportDate": "2025-06-08 09:18:01",
+    "exportDate": "2025-06-08 09:45:27",
     "modelName": "SB03_-_TrueVision-App-Model_-_1.2.1",
     "exportedBy": "ValeDesignSuite Camera Agent Tool",
     "version": "1.0.0"
@@ -34,7 +34,7 @@
         "createdDate": "2025-06-07 19:22:24",
         "lastModified": "2025-06-08 07:45:21"
       }
-    }, 
+    },
     {
       "agentId": "CAM002",
       "agentName": "Back Left",
@@ -187,7 +187,7 @@
       "position": {
         "x": 5881.605295399685,
         "y": 9430.133374166993,
-        "z": 1700.000000000003
+        "z": 1400.0
       },
       "direction": {
         "x": 0.3156490369471082,
@@ -206,7 +206,7 @@
       },
       "metadata": {
         "createdDate": "2025-06-08 09:14:43",
-        "lastModified": "2025-06-08 09:15:53"
+        "lastModified": "2025-06-08 09:45:26"
       }
     },
     {
@@ -214,9 +214,9 @@
       "agentName": "Dining Area",
       "waypointNumber": 8,
       "position": {
-        "x": 4582.859687663864,
+        "x": 5382.859687663864,
         "y": 13653.061100813353,
-        "z": 1700.000000000003
+        "z": 1399.9999999999995
       },
       "direction": {
         "x": 1.0,
@@ -235,25 +235,25 @@
       },
       "metadata": {
         "createdDate": "2025-06-08 09:15:57",
-        "lastModified": "2025-06-08 09:17:39"
+        "lastModified": "2025-06-08 09:45:23"
       }
     },
     {
       "agentId": "CAM009",
-      "agentName": "Camera Agent CAM009",
+      "agentName": "Dining Area",
       "waypointNumber": 9,
       "position": {
-        "x": 5716.221352842261,
-        "y": 17657.338155201953,
-        "z": 1700.0000000000057
+        "x": 5384.271432345641,
+        "y": 17943.888739433423,
+        "z": 1399.9999999999986
       },
       "direction": {
-        "x": 0.4769028275086277,
-        "y": 0.8789560245622511,
-        "z": 0.0
+        "x": 0.25881904510289905,
+        "y": -0.965925826288967,
+        "z": 1.2223838690062798e-16
       },
       "rotation": {
-        "heading": 61.5166845949073,
+        "heading": -74.99999999997756,
         "pitch": 0.0,
         "roll": 0.0
       },
@@ -264,7 +264,7 @@
       },
       "metadata": {
         "createdDate": "2025-06-08 09:16:43",
-        "lastModified": "2025-06-08 09:16:43"
+        "lastModified": "2025-06-08 09:45:24"
       }
     }
   ]
