@@ -76,6 +76,9 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     let sunTimeDisplay                 = null;                               // <-- Time display text reference
     let ssaoToggleBtn                  = null;                               // <-- SSAO toggle button reference
     let furnishingsToggleBtn           = null;                               // <-- Furnishings toggle button reference
+    let toggleToolbarBtn               = null;                               // <-- Hamburger menu toggle button
+    let toolbar                        = null;                               // <-- Toolbar container element
+    let menuTutorialOverlay            = null;                               // <-- Menu tutorial overlay element
     // ---------------------------------------------------------------
 
     // MODULE VARIABLES | Application Configuration and Settings
@@ -179,6 +182,9 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         sunTimeDisplay = document.getElementById("sunTimeDisplay");          // <-- Time display text reference
         ssaoToggleBtn = document.getElementById("ssaoToggleBtn");            // <-- SSAO toggle button reference
         furnishingsToggleBtn = document.getElementById("furnishingsToggleBtn"); // <-- Furnishings toggle button reference
+        toggleToolbarBtn = document.getElementById("toggleToolbarBtn");       // <-- Hamburger menu toggle button
+        toolbar = document.getElementById("toolbar");                         // <-- Toolbar container element
+        menuTutorialOverlay = document.getElementById("menu-tutorial-overlay"); // <-- Menu tutorial overlay
         
         console.log("UI element references initialized");                    // <-- Log UI initialization
     }
@@ -201,6 +207,16 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         engine = renderingRefs.engine;                                       // <-- Store engine reference
         scene = renderingRefs.scene;                                         // <-- Store scene reference
         sunLight = renderingRefs.sunLight;                                   // <-- Store sun light reference
+        
+        // INITIALIZE DEV TOOLS MANAGER AFTER SCENE IS CREATED
+        if (window.TrueVision3D?.DevTools?.DebugMarkersManager) {
+            const devToolsInitialized = window.TrueVision3D.DevTools.DebugMarkersManager.initialize(scene);
+            if (devToolsInitialized) {
+                console.log("Dev Tools Manager initialized successfully");   // <-- Log success
+            } else {
+                console.warn("Dev Tools Manager failed to initialize");      // <-- Log warning
+            }
+        }
         
         console.log("Rendering system initialized");                         // <-- Log rendering initialization
         return renderingRefs;                                                // <-- Return references
@@ -402,6 +418,11 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // SUB FUNCTION | Register All User Interface Event Handlers
     // ---------------------------------------------------------------
     function registerApplicationEventHandlers() {
+        // HAMBURGER MENU TOGGLE EVENT
+        if (toggleToolbarBtn && toolbar) {
+            toggleToolbarBtn.addEventListener("click", toggleToolbar);        // <-- Hamburger menu toggle handler
+        }
+        
         // NAVIGATION CONTROL EVENTS
         if (resetViewBtn) {
             resetViewBtn.addEventListener("click", resetView);               // <-- Reset view button handler
@@ -418,6 +439,9 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
             updateFurnishingsButtonState();                                  // <-- Set initial button state
         }
         
+        // SHOW MENU TUTORIAL ON FIRST VISIT
+        showMenuTutorialIfNeeded();                                          // <-- Check and show tutorial
+        
         console.log("Application event handlers registered");                // <-- Log event registration
     }
     // ---------------------------------------------------------------
@@ -427,6 +451,55 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
 // -----------------------------------------------------------------------------
 // REGION | User Interface Control Functions
 // -----------------------------------------------------------------------------
+
+    // FUNCTION | Toggle Toolbar Visibility
+    // ------------------------------------------------------------
+    function toggleToolbar() {
+        if (!toolbar) return;                                                // <-- Exit if no toolbar reference
+        
+        toolbar.classList.toggle("collapsed");                               // <-- Toggle collapsed class
+        
+        // HIDE TUTORIAL WHEN MENU IS TOGGLED
+        if (menuTutorialOverlay) {
+            menuTutorialOverlay.style.display = "none";                      // <-- Hide tutorial overlay
+        }
+        
+        // RESIZE BABYLON ENGINE AFTER TRANSITION
+        if (engine) {
+            setTimeout(() => {
+                engine.resize();                                             // <-- Resize engine after transition
+            }, 300);                                                         // <-- Wait for CSS transition to complete
+        }
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Show Menu Tutorial for First-Time Users
+    // ------------------------------------------------------------
+    function showMenuTutorialIfNeeded() {
+        if (!menuTutorialOverlay) return;                                   // <-- Exit if no tutorial overlay
+        
+        // CHECK IF USER HAS SEEN TUTORIAL
+        const hasSeenTutorial = localStorage.getItem("truevision-menu-tutorial-seen"); // <-- Check local storage
+        
+        if (!hasSeenTutorial) {
+            // SHOW TUTORIAL WITH DELAY
+            setTimeout(() => {
+                menuTutorialOverlay.style.display = "block";                 // <-- Show tutorial overlay
+                
+                // AUTO-HIDE AFTER 5 SECONDS
+                setTimeout(() => {
+                    if (menuTutorialOverlay) {
+                        menuTutorialOverlay.style.display = "none";          // <-- Hide tutorial overlay
+                    }
+                }, 5000);                                                    // <-- Hide after 5 seconds
+                
+            }, 1000);                                                        // <-- Show after 1 second delay
+            
+            // MARK AS SEEN
+            localStorage.setItem("truevision-menu-tutorial-seen", "true");   // <-- Save to local storage
+        }
+    }
+    // ---------------------------------------------------------------
 
     // FUNCTION | Reset Current Navigation View
     // ------------------------------------------------------------

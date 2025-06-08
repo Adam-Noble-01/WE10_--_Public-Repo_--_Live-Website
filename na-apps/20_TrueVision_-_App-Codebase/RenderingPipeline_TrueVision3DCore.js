@@ -60,7 +60,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
 
     // MODULE CONSTANTS | Render Quality and Environment Settings
     // ------------------------------------------------------------
-    const GROUND_OFFSET                = -1.25;                              // <-- Ground plane offset in metres
+    const GROUND_OFFSET                = -0.5;                              // <-- Ground plane offset in metres
     const SHADOW_MAP_SIZE              = 2048;                               // <-- Shadow map resolution
     const SKYBOX_SIZE                  = 1000;                               // <-- Skybox dimensions
     const GROUND_SIZE                  = 1000;                               // <-- Ground plane dimensions
@@ -284,23 +284,48 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // HELPER FUNCTION | Process Loaded Model Meshes
     // ------------------------------------------------------------
     function processLoadedMeshes() {
-                // ADD ALL MESHES TO SHADOW CASTING SYSTEM
-                scene.meshes.forEach(function (mesh) {
-            if (mesh !== sceneEnvironment.ground) {                                                             // <-- Exclude ground from shadows
-                shadowGenerator.addShadowCaster(mesh, true);                                                    // <-- Add mesh to shadow system
-                    }
-                });
-                
-                // CRITICAL FIX: Apply auto materials first
-        applyAutoMaterials();                                                                                    // <-- Process and enhance materials
-                
-                // THEN check if HDRI is active and update materials accordingly
-                const hdriLogic = window.TrueVision3D?.SceneConfig?.HdriLightingLogic;
-                if (hdriLogic && hdriLogic.getHdriState && hdriLogic.getHdriState().enabled) {
-            setTimeout(() => {                                                                                   // <-- Small delay to ensure materials are applied
-                updateMaterialsForHdri();                                                                        // <-- Update materials for HDRI environment
-                    }, 100);
+        // ADD ALL MESHES TO SHADOW CASTING SYSTEM
+        scene.meshes.forEach(function (mesh) {
+            if (mesh !== sceneEnvironment.ground) {                          // <-- Exclude ground from shadows
+                shadowGenerator.addShadowCaster(mesh, true);                 // <-- Add mesh to shadow system
+            }
+        });
+        
+        // APPLY AUTO MATERIALS FIRST
+        applyAutoMaterials();                                                // <-- Process and enhance materials
+        
+        // HANDLE CAMERA AGENT MARKERS BASED ON CONFIGURATION
+        handleCameraAgentMarkers();                                          // <-- Manage camera agent visibility
+        
+        // THEN check if HDRI is active and update materials accordingly
+        const hdriLogic = window.TrueVision3D?.SceneConfig?.HdriLightingLogic;
+        if (hdriLogic && hdriLogic.getHdriState && hdriLogic.getHdriState().enabled) {
+            setTimeout(() => {                                               // <-- Small delay to ensure materials are applied
+                updateMaterialsForHdri();                                    // <-- Update materials for HDRI environment
+            }, 100);
         }
+    }
+    // ---------------------------------------------------------------
+
+    // NEW FUNCTION | Handle Camera Agent Markers Based on Configuration
+    // ---------------------------------------------------------------
+    function handleCameraAgentMarkers() {
+        const appConfig = window.TrueVision3D?.AppConfig?.AppConfig;         // <-- Get app configuration
+        if (!appConfig) return;                                              // <-- Exit if no config
+        
+        const showAgents = appConfig.devMode_CameraAgentMarkers !== false;   // <-- Get visibility setting
+        const searchPattern = appConfig.devMode_CameraAgentMarkersPattern || "Camera_Agent_CAM"; // <-- Get search pattern
+        
+        let agentCount = 0;
+        scene.meshes.forEach(mesh => {
+            if (mesh.name && mesh.name.includes(searchPattern)) {
+                mesh.isVisible = showAgents;                                 // <-- Set visibility based on config
+                agentCount++;
+                console.log(`Camera agent ${showAgents ? 'shown' : 'hidden'}:`, mesh.name);
+            }
+        });
+        
+        console.log(`Processed ${agentCount} camera agent markers`);
     }
     // ---------------------------------------------------------------
 

@@ -10,6 +10,31 @@ CREATED    : Circa. Feb-2025
 =============================================================================
 
 # ----------------------------------------------------------------------------
+## VERSION 1.3.0  - UI Enhancement & PlanVision Alignment
+###  Released     -  08-Jun-2025
+
+#### New Feature  -  UI Enhancement & PlanVision Alignment
+- Implemented complete UI redesign to align with PlanVision design language
+- Added Open Sans font family for improved typography and readability
+- Created collapsible toolbar with animated hamburger menu
+- Refined color palette and spacing for enhanced visual hierarchy
+- Enhanced button and control styling for consistent look and feel
+- Improved responsive design and layout structure
+- Added smooth transitions and animations for better user experience
+- Updated logo positioning and styling for better brand alignment
+- Implemented modern shadow effects and hover states
+- Enhanced overall visual polish and elegance
+
+#### Technical Improvements
+- Refactored CSS structure for better maintainability
+- Implemented modular JavaScript for UI interactions
+- Enhanced responsive breakpoints for better mobile support
+- Optimized animation performance
+- Improved accessibility with proper ARIA attributes
+
+-----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 ## VERSION 1.2.0  - Furnishings Visibility Management
 ###  Released     -  08-Jun-2025
 

@@ -56,7 +56,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
             combineRatio           : 1.0,                                    // <-- Full resolution combine pass
             samples                : 32,                                     // <-- High sample count for smooth AO
             radius                 : 0.3,                                    // <-- Moderate radius for architectural scale
-            totalStrength          : 1.2,                                    // <-- Strong but not overwhelming effect
+            totalStrength          : 1.5,                                    // <-- Strong but not overwhelming effect
             base                   : 0.1,                                    // <-- Slight base to prevent pure black
             expensiveBlur          : true,                                   // <-- High quality bilateral blur
             maxZ                   : 100.0,                                  // <-- Far clipping for interior scenes
@@ -68,7 +68,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
             combineRatio           : 1.0,                                    // <-- Full resolution output
             samples                : 16,                                     // <-- Moderate sample count
             radius                 : 0.25,                                   // <-- Slightly tighter radius
-            totalStrength          : 1.0,                                    // <-- Standard intensity
+            totalStrength          : 1.2,                                    // <-- Standard intensity
             base                   : 0.15,                                   // <-- More base for softer shadows
             expensiveBlur          : true,                                   // <-- Keep quality blur
             maxZ                   : 100.0,                                  // <-- Standard far plane

@@ -8,8 +8,26 @@
     "appDomain"         :   "https://www.noble-architecture.com/",
 
     "AppConfig"         :   {
-        "devMode_Enabled"            :   true,
-        "devMode_Description"        :   "Various typical app config options, enables debug tools and analysis tools",
+        "devMode_Enabled"                   :   true,
+        "devMode_Description"               :   "Various typical app config options, enables debug tools and analysis tools",
+        
+        "devMode_WaypointNotes"             :   "Configures the waypoint marker orbs, the size value represents the diameter of the orb in millimeters",
+        "devMode_WaypointOrbsOn"            :   false,
+        "devMode_WaypointOrbsColor"         :   "#cd0000",
+        "devMode_WaypointOrbsSize"          :   500,
+        "devMode_WaypointOrbsOpacity"       :   0.5,
+        "devMode_WaypointOrbsType"          :   "sphere",
+        
+        "devMode_CameraAgentMarkers"        :   false,
+        "devMode_CameraAgentMarkersNote01"  :   "This switches on the camera agent markers, which are used to display the camera agent positions",
+        "devMode_CameraAgentMarkersNote02"  :   "These are the geometric markers created using the SketchUp Plugin and are named 'Camera_Agent_CAM001' etc",
+        "devMode_CameraAgentMarkersPattern" :   "Camera_Agent_CAM",
+        
+        "devMode_DebugMeshes"               :   false,
+        "devMode_DebugMeshesNote"           :   "Shows debug information for all meshes in the scene including names and positions",
+        
+        "devMode_ShowMeshBounds"            :   false,
+        "devMode_ShowMeshBoundsNote"        :   "Shows bounding boxes around all meshes for debugging layout issues",
         
         "AppConfig_NavMode": {
             "AppNavMode_Description_01"  :  "These Are Used To Determine The Navigation Mode Of The App",
