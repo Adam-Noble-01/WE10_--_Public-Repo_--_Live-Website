@@ -34,7 +34,7 @@
 
     // MODULE NAMESPACE | Define TrueVision3D Render Effects Namespace
     // ------------------------------------------------------------
-    window.TrueVision3D = window.TrueVision3D || {};                        // <-- Create namespace if not exists
+    window.TrueVision3D = window.TrueVision3D || {};                             // <-- Create namespace if not exists
     window.TrueVision3D.RenderEffects = window.TrueVision3D.RenderEffects || {}; // <-- Create effects namespace
     
     // ------------------------------------------------------------
@@ -56,7 +56,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
             combineRatio           : 1.0,                                    // <-- Full resolution combine pass
             samples                : 32,                                     // <-- High sample count for smooth AO
             radius                 : 0.3,                                    // <-- Moderate radius for architectural scale
-            totalStrength          : 1.2,                                    // <-- Strong but not overwhelming effect
+            totalStrength          : 1.5,                                    // <-- Strong but not overwhelming effect
             base                   : 0.1,                                    // <-- Slight base to prevent pure black
             expensiveBlur          : true,                                   // <-- High quality bilateral blur
             maxZ                   : 100.0,                                  // <-- Far clipping for interior scenes
@@ -68,7 +68,7 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
             combineRatio           : 1.0,                                    // <-- Full resolution output
             samples                : 16,                                     // <-- Moderate sample count
             radius                 : 0.25,                                   // <-- Slightly tighter radius
-            totalStrength          : 1.0,                                    // <-- Standard intensity
+            totalStrength          : 1.2,                                    // <-- Standard intensity
             base                   : 0.15,                                   // <-- More base for softer shadows
             expensiveBlur          : true,                                   // <-- Keep quality blur
             maxZ                   : 100.0,                                  // <-- Standard far plane
@@ -193,7 +193,11 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
                 console.log("SSAO Effect: Using legacy SSAO pipeline");     // <-- Log fallback
             }
             
-            configureTransparentMaterials();                                // <-- Handle glass materials
+            // TEMPORARY DEBUG: Comment out this line
+            // if (window.TrueVision3D.MaterialLogic) {
+            //     window.TrueVision3D.MaterialLogic.configureTransparentMaterials(); // <-- Handle glass materials
+            // }
+            
             ssaoIsEnabled = true;                                            // <-- Mark as enabled
             return true;                                                    // <-- Return success
             
@@ -274,21 +278,10 @@ TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect = (function() {
     // SUB FUNCTION | Configure Transparent Material Handling
     // ---------------------------------------------------------------
     function configureTransparentMaterials() {
-        // EXCLUDE TRANSPARENT MESHES FROM SSAO
-        const geometryBufferRenderer = scene.enableGeometryBufferRenderer(); // <-- Get geometry buffer
-        if (geometryBufferRenderer) {                                       // <-- Check if available
-            geometryBufferRenderer.renderTransparentMeshes = false;         // <-- Exclude transparent objects
-        }
-        
-        // ADDITIONAL TRANSPARENT MATERIAL HANDLING
-        scene.meshes.forEach(function(mesh) {                               // <-- Iterate all meshes
-            if (mesh.material && mesh.material.transparencyMode) {          // <-- Check for transparency
-                const isTransparent = mesh.material.transparencyMode > 0;    // <-- Determine if transparent
-                if (isTransparent) {                                        // <-- If transparent material
-                    mesh.material.needDepthPrePass = false;                 // <-- Disable depth prepass
-                }
-            }
-        });
+        // TEMPORARY DEBUG: Comment out this line
+        // if (window.TrueVision3D.MaterialLogic) {
+        //     window.TrueVision3D.MaterialLogic.configureTransparentMaterials();
+        // }
     }
     // ---------------------------------------------------------------
 

@@ -1,24 +1,24 @@
 {
   "exportInfo": {
-    "exportDate": "2025-06-07 20:33:12",
-    "modelName": "SB03_-_TrueVision-App-Model_-_1.0.1",
+    "exportDate": "2025-06-08 09:18:01",
+    "modelName": "SB03_-_TrueVision-App-Model_-_1.2.1",
     "exportedBy": "ValeDesignSuite Camera Agent Tool",
     "version": "1.0.0"
   },
   "cameraAgents": [
     {
       "agentId": "CAM001",
-      "agentName": "CAM001_-_Exterior-3D_-_Front-Left",
+      "agentName": "Street View",
       "waypointNumber": 1,
       "position": {
-        "x": -1288.9303688900984,
-        "y": -6499.412433087315,
-        "z": 1841.3047410877127
+        "x": -293.93036889009875,
+        "y": -4819.412433087316,
+        "z": 1741.3047410877123
       },
       "direction": {
         "x": 0.49999998709580584,
         "y": 0.8660254112346786,
-        "z": 0.0
+        "z": -0.0
       },
       "rotation": {
         "heading": 60.00000085373461,
@@ -26,89 +26,176 @@
         "roll": 0.0
       },
       "camera": {
-        "aspectRatio": "16:9",
-        "lensMm": 35,
+        "aspectRatio": "4:3",
+        "lensMm": 50,
         "fovDegrees": 60
       },
       "metadata": {
         "createdDate": "2025-06-07 19:22:24",
-        "lastModified": "2025-06-07 19:24:54"
+        "lastModified": "2025-06-08 07:45:21"
       }
-    },
+    }, 
     {
       "agentId": "CAM002",
-      "agentName": "CAM002_-_Exterior-3D_-_Back-Right",
+      "agentName": "Back Left",
       "waypointNumber": 3,
       "position": {
-        "x": 15701.454535889821,
-        "y": 27494.29341303245,
-        "z": 1377.0608381493978
+        "x": 14220.904729352234,
+        "y": 24504.939706223427,
+        "z": 1277.0608381493973
       },
       "direction": {
-        "x": -0.41151435860551905,
-        "y": -0.9114032766352601,
+        "x": -0.5000000000000534,
+        "y": -0.866025403784408,
         "z": 0.0
       },
       "rotation": {
-        "heading": -114.30000000002579,
+        "heading": -120.00000000000354,
         "pitch": 0.0,
         "roll": 0.0
       },
       "camera": {
-        "aspectRatio": "16:9",
-        "lensMm": 35,
+        "aspectRatio": "4:3",
+        "lensMm": 50,
         "fovDegrees": 60
       },
       "metadata": {
         "createdDate": "2025-06-07 19:23:57",
-        "lastModified": "2025-06-07 20:31:13"
+        "lastModified": "2025-06-08 07:42:13"
       }
     },
     {
       "agentId": "CAM003",
-      "agentName": "CAM003_-_Exterior-3D_-_Front-Right",
-      "waypointNumber": 3,
+      "agentName": "Porch Exterior",
+      "waypointNumber": 4,
       "position": {
-        "x": 28422.943435665587,
-        "y": -12703.888256954751,
-        "z": 1700.0
+        "x": 11612.283260333827,
+        "y": -3527.266186222276,
+        "z": 1599.9999999999995
       },
       "direction": {
-        "x": -0.7071067706498291,
-        "y": 0.7071067917232657,
+        "x": -0.4999999870953302,
+        "y": 0.866025411234953,
         "z": 0.0
       },
       "rotation": {
-        "heading": 134.99999914622583,
+        "heading": 119.99999914623393,
         "pitch": 0.0,
         "roll": 0.0
       },
       "camera": {
-        "aspectRatio": "16:9",
+        "aspectRatio": "4:3",
         "lensMm": 35,
         "fovDegrees": 60
       },
       "metadata": {
         "createdDate": "2025-06-07 20:30:46",
-        "lastModified": "2025-06-07 20:31:57"
+        "lastModified": "2025-06-08 07:42:17"
       }
     },
     {
       "agentId": "CAM004",
-      "agentName": "CAM004_-_Exterior-3D_-_Back-Left",
-      "waypointNumber": 4,
+      "agentName": "Back Right",
+      "waypointNumber": 2,
       "position": {
-        "x": -12479.892862175195,
-        "y": 35983.96926884656,
-        "z": 1700.0
+        "x": -3811.860640804917,
+        "y": 27070.0977787905,
+        "z": 1599.9999999999995
       },
       "direction": {
-        "x": 0.5000000129041219,
-        "y": -0.8660253963342404,
+        "x": 0.6613118653239319,
+        "y": -0.7501110696302127,
         "z": 0.0
       },
       "rotation": {
-        "heading": -59.99999914627016,
+        "heading": -48.599999999978614,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 20:32:06",
+        "lastModified": "2025-06-08 07:42:10"
+      }
+    },
+    {
+      "agentId": "CAM005",
+      "agentName": "Porch View",
+      "waypointNumber": 5,
+      "position": {
+        "x": 7621.298798196254,
+        "y": 2799.9999999999873,
+        "z": 1400.0000000000055
+      },
+      "direction": {
+        "x": -3.676085879013107e-12,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 90.00000000021063,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 06:57:37",
+        "lastModified": "2025-06-08 07:45:41"
+      }
+    },
+    {
+      "agentId": "CAM006",
+      "agentName": "Lounge View",
+      "waypointNumber": 6,
+      "position": {
+        "x": 8106.876463604269,
+        "y": 8097.059234228156,
+        "z": 1399.9999999999995
+      },
+      "direction": {
+        "x": 5.701324828910613e-12,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 89.99999999967334,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 07:00:30",
+        "lastModified": "2025-06-08 09:15:25"
+      }
+    },
+    {
+      "agentId": "CAM007",
+      "agentName": "Accross Kitchen",
+      "waypointNumber": 7,
+      "position": {
+        "x": 5881.605295399685,
+        "y": 9430.133374166993,
+        "z": 1700.000000000003
+      },
+      "direction": {
+        "x": 0.3156490369471082,
+        "y": 0.9488760116444949,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 71.59999999999965,
         "pitch": 0.0,
         "roll": 0.0
       },
@@ -118,8 +205,66 @@
         "fovDegrees": 60
       },
       "metadata": {
-        "createdDate": "2025-06-07 20:32:06",
-        "lastModified": "2025-06-07 20:32:40"
+        "createdDate": "2025-06-08 09:14:43",
+        "lastModified": "2025-06-08 09:15:53"
+      }
+    },
+    {
+      "agentId": "CAM008",
+      "agentName": "Dining Area",
+      "waypointNumber": 8,
+      "position": {
+        "x": 4582.859687663864,
+        "y": 13653.061100813353,
+        "z": 1700.000000000003
+      },
+      "direction": {
+        "x": 1.0,
+        "y": -2.2305390867671804e-10,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -1.2780047571072436e-08,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 09:15:57",
+        "lastModified": "2025-06-08 09:17:39"
+      }
+    },
+    {
+      "agentId": "CAM009",
+      "agentName": "Camera Agent CAM009",
+      "waypointNumber": 9,
+      "position": {
+        "x": 5716.221352842261,
+        "y": 17657.338155201953,
+        "z": 1700.0000000000057
+      },
+      "direction": {
+        "x": 0.4769028275086277,
+        "y": 0.8789560245622511,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 61.5166845949073,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 09:16:43",
+        "lastModified": "2025-06-08 09:16:43"
       }
     }
   ]

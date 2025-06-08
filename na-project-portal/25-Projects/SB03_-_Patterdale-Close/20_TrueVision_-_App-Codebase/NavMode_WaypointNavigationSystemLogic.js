@@ -1,5 +1,5 @@
 // =============================================================================
-// VALEDESIGNSUITE - WAYPOINT NAVIGATION SYSTEM LOGIC
+// TRUEVISION - WAYPOINT NAVIGATION SYSTEM LOGIC
 // =============================================================================
 //
 // FILE       : NavMode_WaypointNavigationSystemLogic.js
@@ -211,15 +211,15 @@
             return 16 / 9;                                                   // <-- Default to 16:9
         }
         
-        const parts = aspectRatioString.split(':');                         // <-- Split ratio string
+        const parts = aspectRatioString.split(':');                          // <-- Split ratio string
         if (parts.length !== 2) {
             return 16 / 9;                                                   // <-- Default if invalid format
         }
         
         const width = parseFloat(parts[0]);                                  // <-- Parse width value
-        const height = parseFloat(parts[1]);                                // <-- Parse height value
+        const height = parseFloat(parts[1]);                                 // <-- Parse height value
         
-        return (width && height && height > 0) ? width / height : 16 / 9;   // <-- Calculate ratio
+        return (width && height && height > 0) ? width / height : 16 / 9;    // <-- Calculate ratio
     }
     // ---------------------------------------------------------------
 
@@ -232,7 +232,7 @@
     // FUNCTION | Initialize Waypoint Camera System
     // ------------------------------------------------------------
     function initializeWaypointCamera() {
-        if (!scene || !cameraAgentData) return;                             // <-- Validate prerequisites
+        if (!scene || !cameraAgentData) return;                              // <-- Validate prerequisites
         
         // CREATE UNIVERSAL CAMERA FOR 360-DEGREE VIEWING
         waypointCamera = new BABYLON.UniversalCamera("waypointCamera", 
@@ -262,39 +262,70 @@
     function createWaypointMarkers() {
         if (!scene || !cameraAgentData) return;                             // <-- Validate prerequisites
         
+        // GET CONFIGURATION VALUES DIRECTLY FROM LOADED CONFIG
+        const appConfig = window.TrueVision3D?.AppConfig?.AppConfig;         // <-- Get app configuration
+        
+        // LOAD WAYPOINT ORB CONFIGURATION WITH PROPER DEFAULTS
+        const orbsEnabled = appConfig?.devMode_WaypointOrbsOn !== false;     // <-- Check if orbs should be shown
+        const orbSizeMm = appConfig?.devMode_WaypointOrbsSize || 100;        // <-- Size in millimeters
+        const orbColor = appConfig?.devMode_WaypointOrbsColor || "#cd0000";  // <-- Orb color
+        const orbOpacity = appConfig?.devMode_WaypointOrbsOpacity || 0.5;    // <-- Orb opacity
+        
+        // CONVERT SIZE FROM MILLIMETERS TO METERS
+        const orbDiameterM = orbSizeMm / 1000;                               // <-- Convert mm to meters for Babylon.js
+        
+        console.log("Waypoint markers config:", {
+            enabled: orbsEnabled,
+            sizeMm: orbSizeMm,
+            diameterM: orbDiameterM,
+            color: orbColor,
+            opacity: orbOpacity
+        });
+        
         const waypoints = cameraAgentData.cameraAgents;                     // <-- Get waypoint array
         
         waypoints.forEach((waypoint, index) => {
             const markerData = convertCameraDataToBabylon(waypoint);         // <-- Convert coordinates
             
-            // CREATE MARKER SPHERE - BIG RED BALL (2 METER DIAMETER)
+            // CREATE MARKER SPHERE WITH CONFIGURED SIZE
             const marker = BABYLON.MeshBuilder.CreateSphere(
                 `waypointMarker_${index}`,                                   // <-- Unique marker name
-                { diameter: 2, segments: 32 },                               // <-- 2 meter diameter sphere
+                { diameter: orbDiameterM, segments: 32 },                    // <-- Use config size in meters
                 scene
             );
             
             marker.position = markerData.position.clone();                   // <-- Set marker position
             
-            // CREATE BRIGHT RED MATERIAL WITH GLOW
+            // CREATE MATERIAL WITH CONFIGURED COLOR AND OPACITY
             const material = new BABYLON.StandardMaterial(`waypointMat_${index}`, scene);
-            material.diffuseColor = new BABYLON.Color3(1, 0, 0);             // <-- Bright red color
-            material.emissiveColor = new BABYLON.Color3(0.5, 0, 0);          // <-- Red glow effect
-            material.specularColor = new BABYLON.Color3(1, 1, 1);            // <-- White specular highlights
+            
+            // PARSE COLOR FROM HEX STRING WITH ERROR HANDLING
+            let color;
+            try {
+                color = BABYLON.Color3.FromHexString(orbColor);               // <-- Parse hex color
+            } catch (error) {
+                console.warn("Invalid hex color, using default red:", orbColor);
+                color = new BABYLON.Color3(0.8, 0, 0);                       // <-- Fallback red
+            }
+            
+            material.diffuseColor = color;                                    // <-- Apply color
+            material.emissiveColor = color.scale(0.5);                       // <-- Add glow
+            material.alpha = orbOpacity;                                      // <-- Set transparency
+            material.specularColor = new BABYLON.Color3(1, 1, 1);            // <-- White highlights
             material.specularPower = 32;                                      // <-- Shiny surface
             marker.material = material;                                       // <-- Apply material
             
-            // CREATE LARGER LABEL
+            // CREATE LABEL
             const label = BABYLON.MeshBuilder.CreatePlane(
                 `waypointLabel_${index}`,                                    // <-- Label name
-                { width: 3, height: 1.2 },                                   // <-- Larger label size
+                { width: 3, height: 1.2 },                                   // <-- Label size
                 scene
             );
             label.position = marker.position.clone();                        // <-- Position at marker
             label.position.y += 1.5;                                         // <-- Raise above marker
             label.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;           // <-- Always face camera
             
-            // CREATE LABEL TEXTURE WITH BETTER VISIBILITY
+            // CREATE LABEL TEXTURE
             const labelTexture = new BABYLON.DynamicTexture(
                 `waypointLabelTex_${index}`,                                 // <-- Texture name
                 { width: 512, height: 256 },                                 // <-- Higher resolution
@@ -306,11 +337,11 @@
             labelMaterial.backFaceCulling = false;                           // <-- Visible from both sides
             label.material = labelMaterial;                                  // <-- Apply material
             
-            // DRAW TEXT ON TEXTURE WITH BLACK BACKGROUND
+            // DRAW TEXT ON TEXTURE
             const context = labelTexture.getContext();                       // <-- Get 2D context
             context.fillStyle = "black";                                     // <-- Black background
             context.fillRect(0, 0, 512, 256);                               // <-- Fill background
-            context.font = "bold 72px Arial";                                // <-- Larger font
+            context.font = "bold 72px Arial";                                // <-- Large font
             context.fillStyle = "white";                                     // <-- White text
             context.textAlign = "center";                                    // <-- Center text
             context.fillText(`${index + 1}`, 256, 100);                     // <-- Draw waypoint number
@@ -328,13 +359,13 @@
                 )
             );
             
-            // HOVER EFFECTS - MAKE IT BRIGHTER RED
+            // HOVER EFFECTS
             marker.actionManager.registerAction(
                 new BABYLON.ExecuteCodeAction(
                     BABYLON.ActionManager.OnPointerOverTrigger,             // <-- Mouse over
                     () => {
-                        material.diffuseColor = new BABYLON.Color3(1, 0.3, 0.3); // <-- Brighter red on hover
-                        material.emissiveColor = new BABYLON.Color3(0.8, 0, 0);  // <-- Stronger glow
+                        material.diffuseColor = color.scale(1.3);             // <-- Brighter red on hover
+                        material.emissiveColor = color.scale(0.8);            // <-- Stronger glow
                         canvas.style.cursor = 'pointer';                     // <-- Change cursor
                     }
                 )
@@ -344,8 +375,8 @@
                 new BABYLON.ExecuteCodeAction(
                     BABYLON.ActionManager.OnPointerOutTrigger,              // <-- Mouse out
                     () => {
-                        material.diffuseColor = new BABYLON.Color3(1, 0, 0);     // <-- Reset to red
-                        material.emissiveColor = new BABYLON.Color3(0.5, 0, 0);  // <-- Reset glow
+                        material.diffuseColor = color;                        // <-- Reset to configured color
+                        material.emissiveColor = color.scale(0.5);            // <-- Reset glow
                         canvas.style.cursor = 'grab';                        // <-- Reset cursor
                     }
                 )
@@ -354,9 +385,66 @@
             // STORE REFERENCES
             waypoint.marker = marker;                                        // <-- Store marker reference
             waypoint.label = label;                                          // <-- Store label reference
+            
+            // SET INITIAL VISIBILITY BASED ON CONFIGURATION
+            marker.isVisible = orbsEnabled;                                  // <-- Apply config visibility
+            label.isVisible = orbsEnabled;                                   // <-- Apply config visibility
         });
         
-        console.log(`Created ${waypoints.length} waypoint markers`);         // <-- Log creation
+        console.log(`Created ${waypoints.length} waypoint markers - ${orbsEnabled ? 'visible' : 'hidden'}, ${orbSizeMm}mm diameter`);
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Update Orb Visibility and Properties from Configuration
+    // ---------------------------------------------------------------
+    function updateMarkersFromConfig() {
+        if (!cameraAgentData) return;                                        // <-- Validate data exists
+        
+        const appConfig = window.TrueVision3D?.AppConfig?.AppConfig;         // <-- Get fresh config
+        const orbsEnabled = appConfig?.devMode_WaypointOrbsOn !== false;     // <-- Get visibility state
+        const orbSizeMm = appConfig?.devMode_WaypointOrbsSize || 100;        // <-- Get size in mm
+        const orbColor = appConfig?.devMode_WaypointOrbsColor || "#cd0000";  // <-- Get color
+        const orbOpacity = appConfig?.devMode_WaypointOrbsOpacity || 0.5;    // <-- Get opacity
+        
+        console.log("DevTools: Updating waypoint markers from config:", {
+            enabled: orbsEnabled,
+            sizeMm: orbSizeMm,
+            color: orbColor,
+            opacity: orbOpacity
+        });
+        
+        // UPDATE EXISTING MARKERS
+        cameraAgentData.cameraAgents.forEach((waypoint, index) => {
+            if (waypoint.marker) {
+                // UPDATE VISIBILITY
+                waypoint.marker.isVisible = orbsEnabled;                     // <-- Apply visibility
+                if (waypoint.label) waypoint.label.isVisible = orbsEnabled;  // <-- Apply label visibility
+                
+                // UPDATE SIZE IF NEEDED
+                const currentSize = waypoint.marker.getBoundingInfo().boundingBox.maximum.x * 2;
+                const newSizeM = orbSizeMm / 1000;                           // <-- Convert to meters
+                
+                if (Math.abs(currentSize - newSizeM) > 0.001) {              // <-- Check if size changed
+                    waypoint.marker.scaling = new BABYLON.Vector3(
+                        newSizeM / currentSize,
+                        newSizeM / currentSize,
+                        newSizeM / currentSize
+                    );                                                       // <-- Scale marker to new size
+                }
+                
+                // UPDATE MATERIAL COLOR AND OPACITY
+                if (waypoint.marker.material) {
+                    try {
+                        const color = BABYLON.Color3.FromHexString(orbColor); // <-- Parse new color
+                        waypoint.marker.material.diffuseColor = color;       // <-- Apply new color
+                        waypoint.marker.material.emissiveColor = color.scale(orbOpacity * 0.3); // <-- Update glow
+                        waypoint.marker.material.alpha = orbOpacity;         // <-- Update transparency
+                    } catch (error) {
+                        console.warn("Invalid color format:", orbColor);     // <-- Log color error
+                    }
+                }
+            }
+        });
     }
     // ---------------------------------------------------------------
 
@@ -1038,7 +1126,6 @@
         
         // ACTIVATE WAYPOINT CAMERA
         scene.activeCamera = waypointCamera;                                 // <-- Set as active camera
-        // DO NOT CALL attachControl - we handle all inputs manually
         
         // RE-INITIALIZE INPUT HANDLERS IF NEEDED
         if (!inputHandlersInitialized) {
@@ -1058,16 +1145,8 @@
         // SET CANVAS CURSOR
         canvas.style.cursor = 'grab';                                        // <-- Set grab cursor
         
-        // SHOW WAYPOINT MARKERS IN SCENE
-        if (cameraAgentData) {
-            console.log(`Showing ${cameraAgentData.cameraAgents.length} waypoint markers`); // <-- Debug log
-            cameraAgentData.cameraAgents.forEach(waypoint => {
-                if (waypoint.marker) waypoint.marker.isVisible = true;       // <-- Show marker
-                if (waypoint.label) waypoint.label.isVisible = true;         // <-- Show label
-            });
-        } else {
-            console.warn("No camera agent data loaded");                     // <-- Debug warning
-        }
+        // UPDATE MARKERS FROM CURRENT CONFIGURATION
+        updateMarkersFromConfig();                                           // <-- Apply current config settings
         
         console.log("Waypoint navigation enabled");                          // <-- Log activation
     }
@@ -1164,6 +1243,19 @@
     }
     // ---------------------------------------------------------------
 
+    // NEW FUNCTION | Update Orb Visibility (Called from external systems)
+    // ---------------------------------------------------------------
+    function updateOrbVisibility(visible) {
+        if (cameraAgentData) {
+            cameraAgentData.cameraAgents.forEach(waypoint => {
+                if (waypoint.marker) waypoint.marker.isVisible = visible;    // <-- Update marker visibility
+                if (waypoint.label) waypoint.label.isVisible = visible;      // <-- Update label visibility
+            });
+            console.log(`DevTools: Waypoint orbs ${visible ? 'shown' : 'hidden'} via external call`);
+        }
+    }
+    // ---------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
@@ -1178,6 +1270,7 @@
         getCamera: getCamera,                                                // <-- Get camera reference
         reset: reset,                                                        // <-- Reset to first waypoint
         dispose: dispose,                                                    // <-- Cleanup method
+        updateOrbVisibility: updateOrbVisibility,                            // <-- NEW: Update orb visibility
         isEnabled: () => isEnabled                                           // <-- Check enabled state
     };
 

@@ -1,6 +1,6 @@
 {
     "appName"           :   "TrueVision",
-    "appVersion"        :   "1.0.5",
+    "appVersion"        :   "1.1.1",
     "appDescription"    :   "TrueVision is a web application that allows you to view 3D models in a virtual environment.",
     "appDeveloper"      :   "Noble Architecture",
     "appAuthor"         :   "Adam Noble",
@@ -8,8 +8,26 @@
     "appDomain"         :   "https://www.noble-architecture.com/",
 
     "AppConfig"         :   {
-        "devMode_Enabled"            :   true,
-        "devMode_Description"        :   "Various typical app config options, enables debug tools and analysis tools",
+        "devMode_Enabled"                   :   true,
+        "devMode_Description"               :   "Various typical app config options, enables debug tools and analysis tools",
+        
+        "devMode_WaypointNotes"             :   "Configures the waypoint marker orbs, the size value represents the diameter of the orb in millimeters",
+        "devMode_WaypointOrbsOn"            :   false,
+        "devMode_WaypointOrbsColor"         :   "#cd0000",
+        "devMode_WaypointOrbsSize"          :   500,
+        "devMode_WaypointOrbsOpacity"       :   0.5,
+        "devMode_WaypointOrbsType"          :   "sphere",
+        
+        "devMode_CameraAgentMarkers"        :   false,
+        "devMode_CameraAgentMarkersNote01"  :   "This switches on the camera agent markers, which are used to display the camera agent positions",
+        "devMode_CameraAgentMarkersNote02"  :   "These are the geometric markers created using the SketchUp Plugin and are named 'Camera_Agent_CAM001' etc",
+        "devMode_CameraAgentMarkersPattern" :   "Camera_Agent_CAM",
+        
+        "devMode_DebugMeshes"               :   false,
+        "devMode_DebugMeshesNote"           :   "Shows debug information for all meshes in the scene including names and positions",
+        
+        "devMode_ShowMeshBounds"            :   false,
+        "devMode_ShowMeshBoundsNote"        :   "Shows bounding boxes around all meshes for debugging layout issues",
         
         "AppConfig_NavMode": {
             "AppNavMode_Description_01"  :  "These Are Used To Determine The Navigation Mode Of The App",
@@ -24,22 +42,46 @@
             },
             
             "AppNavMode_Walk": {
-                "NavMode_WalkState"            :  false,
+                "NavMode_WalkState"            :  true,
                 "NavMode_WalkFile"             :  "NavMode_WalkNavigationSystemLogic.js",
                 "NavMode_WalkDescription"      :  "Walk mode enables first-person style ground-level navigation"
             },
             
             "AppNavMode_Orbit": {
-                "NavMode_OrbitState"           :  false,
+                "NavMode_OrbitState"           :  true,
                 "NavMode_OrbitFile"            :  "NavMode_OrbitNavigationSystemLogic.js",
                 "NavMode_OrbitDescription"     :  "Orbit mode allows camera rotation around a fixed point"
             },
             
             "AppNavMode_Fly": {
-                "NavMode_FlyState"             :  false,
+                "NavMode_FlyState"             :  true,
                 "NavMode_FlyFile"              :  "NavMode_FlyNavigationSystemLogic.js",
-                "NavMode_FlyDescription"       :  "Fly mode enables free camera movement in 3D space"
-            } 
+                "NavMode_FlyDescription"       :  "Fly mode enables free camera movement in 3D space",
+                    "NavMode_FlyDefaultInitCoords": { 
+                        "DefaultInitCoordInfo"     :  "Default Initial Camera Position - X, Y, Z In Millimeters",
+                        "DefaultInitCoordX"        :  "0000",
+                        "DefaultInitCoordEyeHeight":  "2000",
+                        "DefaultInitCoordZ"        :  "2000",
+                        "DefaultInitRotation"      :  "Default Initial Camera Rotation - X, Y, Z In Degrees",
+                        "DefaultInitRotationX"     :  "0",
+                        "DefaultInitRotationY"     :  "0",
+                        "DefaultInitRotationZ"     :  "225"
+                }
+            }
+        }
+    },
+
+    "SceneConfig" :  {
+        "SceneConfig_Description"  :  "This section contains all the configuration options for the scene",
+        "LightingConfig" : {
+            "LightingCfg_HdriLighting_Description"   :  "This section contains all the configuration options for the lighting",
+            "LightingCfg_HdriLighting"               :  false,
+            "LightingCfg_HdrirBrightnessFactor"      :  0.5,
+            "LightingCfg_HdrirRotationAngleDeg"      :  180,
+            "LightingCfg_HdriLightingRelativePath"   :  "./Assets_PluginAssets/LightAssets_HdriSkydomes/True-Vision-3D_-_Test-HDRI_-_Pure_Sky_2k.hdr",
+            "LightingCfg_HdriLightingURL"            :  "https://www.noble-architecture.com/na-apps/NA21_WebApp_-_TrueVision/Assets_PluginAssets/LightAssets_HdriSkydomes/True-Vision-3D_-_Test-HDRI_-_Pure_Sky_2k.hdr",
+            "LightingCfg_HdriLightingLogicFile"      :  "./SceneConfig_HdriLightingLogic.js"
         }
     }
-} 
+}   
+
