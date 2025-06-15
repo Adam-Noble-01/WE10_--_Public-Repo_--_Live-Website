@@ -93,8 +93,8 @@
                 "document-links":{
                     "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D03_--_Technical-Elevations.png",
                     "pdf--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D03_--_Technical-Elevations.pdf",
-                    "png--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/SM05_--_Wollaton-Vale/SM03_T03_D03_--_Technical-Elevations.png",
-                    "pdf--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/02_--_Projects_2025/SM05_--_Wollaton-Vale/SM03_T03_D03_--_Technical-Elevations.pdf"
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SM05_--_Wollaton-Vale/SM03_T03_D03_--_Technical-Elevations.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SM05_--_Wollaton-Vale/SM03_T03_D03_--_Technical-Elevations.pdf"
                 }
             },
             "drawing-04"    :    {
@@ -116,8 +116,8 @@
                 "document-links"    :    {
                     "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
                     "pdf--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf",
-                    "png--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
-                    "pdf--github-link-url"     :    "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/main/RE20_21_--_NA_FILES_-_Project_Portal_Client_Content/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf"
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SM05_--_Wollaton-Vale/{{PLACEHOLDER_FILE_NAME_HERE}}.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/SM05_--_Wollaton-Vale/{{PLACEHOLDER_FILE_NAME_HERE}}.pdf"
                 }
             }
         }
