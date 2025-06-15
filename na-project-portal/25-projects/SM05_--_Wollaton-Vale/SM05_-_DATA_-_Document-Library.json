@@ -40,11 +40,11 @@
                 "document-status"      :    "Construction Phase Drawing",
                 "document-notes"       :    "NIL",
                 "document-revisions"   :    {
-                    "revision-a"       :    "NIL",
-                    "revision-b"       :    "NIL",
+                    "revision-a"       :    "03-02-2025",
+                    "revision-b"       :    "15-Jun-2025",
                     "revision-c"       :    "NIL",
                     "revision-d"       :    "NIL",
-                    "revision-e"       :    "03-02-2025"
+                    "revision-e"       :    "NIL"
                 },
                 "document-links":{
                     "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D01_--_Technical-Plan_-_Ground-Floor.png",
@@ -62,11 +62,11 @@
                 "document-status"       :    "Construction Phase Drawing",
                 "document-notes"        :    "NIL",
                 "document-revisions"    :    {
-                    "revision-a"        :    "NIL",
-                    "revision-b"        :    "NIL",
+                    "revision-a"        :    "03-02-2025",
+                    "revision-b"        :    "15-Jun-2025",
                     "revision-c"        :    "NIL",
                     "revision-d"        :    "NIL",
-                    "revision-e"        :    "03-02-2025"
+                    "revision-e"        :    "NIL"
                 },
                 "document-links":{
                     "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D02_--_Technical-Plan_-_Frist-Floor.png",
@@ -84,7 +84,11 @@
                 "document-status"       :    "Construction Phase Drawing",
                 "document-notes"        :    "NIL",
                 "document-revisions":{
-                    "revision-a"        :    "03-02-2025"
+                    "revision-a"        :    "03-02-2025",
+                    "revision-b"        :    "15-Jun-2025",
+                    "revision-c"        :    "NIL",
+                    "revision-d"        :    "NIL",
+                    "revision-e"        :    "NIL"
                 },
                 "document-links":{
                     "png--windows-dir-path"    :    "D:\\RE20_--_Core_Repo_--_Public\\RE20_21_--_NA_FILES_-_Project_Portal_Client_Content\\02_--_Projects_2025\\SM05_--_Wollaton-Vale\\SM03_T03_D03_--_Technical-Elevations.png",
