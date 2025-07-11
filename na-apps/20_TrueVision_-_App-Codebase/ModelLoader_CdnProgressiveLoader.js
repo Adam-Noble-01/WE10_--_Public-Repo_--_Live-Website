@@ -226,41 +226,93 @@
         let retryCount = 0;                                                  // <-- Initialize retry counter
         const maxRetries = modelLoadingConfig.ModelLoadingConfig.MaxRetryAttempts || 3;
         
+        // DETECT MOBILE DEVICE
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // MOBILE-SPECIFIC SETTINGS
+        const timeoutMs = isMobile ? 120000 : 30000;                        // <-- 2 minutes for mobile, 30s for desktop
+        const retryDelayMs = isMobile ? 3000 : (modelLoadingConfig.ModelLoadingConfig.RetryDelayMs || 1000);
+        
+        // DECLARE PROGRESS INTERVAL OUTSIDE TRY BLOCK
+        let progressInterval = null;
+        
         while (retryCount <= maxRetries) {
             try {
-                console.log(`Loading ${modelConfig.ModelType} from CDN...`);
+                console.log(`Loading ${modelConfig.ModelType} from CDN (attempt ${retryCount + 1}/${maxRetries + 1})...`);
                 
-                // TEST CDN CONNECTIVITY FIRST
-                const canConnect = await testCdnConnectivity(modelConfig.ModelUrl);
-                if (!canConnect) {
-                    throw new Error("CDN connectivity test failed - URL not accessible");
+                // SKIP CONNECTIVITY TEST ON MOBILE AFTER FIRST ATTEMPT
+                if (!isMobile || retryCount === 0) {
+                    const canConnect = await testCdnConnectivity(modelConfig.ModelUrl);
+                    if (!canConnect) {
+                        throw new Error("CDN connectivity test failed - URL not accessible");
+                    }
                 }
                 
-                // CREATE LOADING PROGRESS TRACKER
+                // CREATE LOADING PROGRESS TRACKER WITH MOBILE ESTIMATION
                 loadingProgress.set(modelConfig.ConfigKey, {
                     loaded: 0,
-                    total: 0,  // <-- Don't assume size, wait for actual progress
+                    total: isMobile ? 100 : 0,                               // <-- Use fake total for mobile
                     percentage: 0,
-                    status: 'loading'
+                    status: 'loading',
+                    isMobile: isMobile
                 });
                 
-                // CREATE TIMEOUT PROMISE FOR MOBILE BROWSERS
-                const timeoutMs = 30000; // 30 second timeout
+                // MOBILE PROGRESS ESTIMATION
+                let estimatedProgress = 0;
+                
+                if (isMobile) {
+                    // ESTIMATE PROGRESS FOR MOBILE BASED ON TIME
+                    const expectedLoadTime = parseInt(modelConfig.ModelFileSize) * 1000; // Rough estimate: 1s per MB
+                    progressInterval = setInterval(() => {
+                        const elapsed = Date.now() - startTime;
+                        estimatedProgress = Math.min(90, Math.round((elapsed / expectedLoadTime) * 90));
+                        
+                        loadingProgress.set(modelConfig.ConfigKey, {
+                            loaded: estimatedProgress,
+                            total: 100,
+                            percentage: estimatedProgress,
+                            status: 'loading',
+                            isMobile: true
+                        });
+                        
+                        // UPDATE UI WITH ESTIMATED PROGRESS
+                        if (!criticalModelsLoaded) {
+                            updateOverallLoadingUI();
+                        }
+                    }, 1000); // Update every second
+                }
+                
+                // CREATE TIMEOUT PROMISE
                 const timeoutPromise = new Promise((_, reject) => {
                     setTimeout(() => reject(new Error(`Loading timeout after ${timeoutMs}ms`)), timeoutMs);
                 });
+                
+                // MOBILE-OPTIMIZED LOADING OPTIONS
+                const loadingOptions = {
+                    importMeshes: true,
+                    createInstances: false
+                };
                 
                 // LOAD MODEL WITH TIMEOUT
                 const loadPromise = BABYLON.SceneLoader.LoadAssetContainerAsync(
                     "",                                                      // <-- Root URL (empty for full URL)
                     modelConfig.ModelUrl,                                    // <-- Full CDN URL
                     scene,                                                   // <-- Target scene
-                    (event) => updateLoadingProgress(modelConfig.ConfigKey, event),  // <-- Progress callback
+                    (event) => {
+                        if (!isMobile) {                                     // <-- Only update progress on desktop
+                            updateLoadingProgress(modelConfig.ConfigKey, event);
+                        }
+                    },
                     ".glb"                                                   // <-- File extension
                 );
                 
                 // RACE BETWEEN LOADING AND TIMEOUT
                 const result = await Promise.race([loadPromise, timeoutPromise]);
+                
+                // CLEAR MOBILE PROGRESS INTERVAL
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                }
                 
                 // VERIFY MODEL ACTUALLY LOADED
                 if (!result || !result.meshes || result.meshes.length === 0) {
@@ -278,15 +330,22 @@
                     meshes: result.meshes
                 });
                 
-                // UPDATE LOADING STATUS
+                // UPDATE LOADING STATUS TO COMPLETE
                 loadingProgress.set(modelConfig.ConfigKey, {
                     loaded: 100,
                     total: 100,
+                    percentage: 100,
                     status: 'complete'
                 });
                 
                 console.log(`✓ ${modelConfig.ModelType} loaded in ${Date.now() - startTime}ms`);
                 console.log(`Model contains ${result.meshes.length} meshes`);
+                
+                // UPDATE UI IMMEDIATELY FOR MOBILE
+                if (isMobile && !criticalModelsLoaded) {
+                    updateOverallLoadingUI();
+                }
+                
                 notifyModelLoaded(modelConfig);                              // <-- Trigger model loaded callback
                 
                 return result;                                               // <-- Return loaded container
@@ -294,30 +353,43 @@
             } catch (error) {
                 console.error(`Failed to load ${modelConfig.ModelType}:`, error);
                 
-                // DETECT MOBILE BROWSERS
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                // CLEAR ANY PROGRESS INTERVALS
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                }
+                
+                // MOBILE-SPECIFIC ERROR HANDLING
                 if (isMobile) {
-                    console.warn("Mobile browser detected - may have loading limitations");
-                    updateLoadingStatus("Mobile loading issue detected - trying fallback...");
+                    console.warn("Mobile browser detected - implementing mobile fallback strategy");
+                    updateLoadingStatus(`Retrying ${modelConfig.ModelType} (${retryCount + 1}/${maxRetries + 1})...`);
+                    
+                    // CHECK IF IT'S A TIMEOUT ERROR
+                    if (error.message.includes('timeout')) {
+                        console.warn("Mobile loading timeout - network may be slow");
+                        // Don't count timeout as a full retry on mobile
+                        if (retryCount < maxRetries) {
+                            retryCount += 0.5; // Half retry for timeout
+                        }
+                    }
                 }
                 
                 retryCount++;                                                // <-- Increment retry counter
                 
                 if (retryCount <= maxRetries) {
                     console.log(`Retrying... (${retryCount}/${maxRetries})`);
-                    await new Promise(resolve => setTimeout(resolve, modelLoadingConfig.ModelLoadingConfig.RetryDelayMs || 1000));
+                    await new Promise(resolve => setTimeout(resolve, retryDelayMs));
                 } else {
                     // ATTEMPT FALLBACK LOADING IF ENABLED
-                    // CHECK PER-MODEL SETTING FIRST, THEN GLOBAL SETTING
                     const modelFallbackEnabled = modelConfig.EnableGitHubFallback !== undefined 
                         ? modelConfig.EnableGitHubFallback 
                         : modelLoadingConfig.ModelLoadingConfig.FallbackToGitHub;
                     
                     if (modelFallbackEnabled) {
-                        console.log(`GitHub fallback enabled for ${modelConfig.ModelType} - attempting fallback load...`);
+                        console.log(`Fallback enabled for ${modelConfig.ModelType} - attempting fallback load...`);
+                        updateLoadingStatus(`Loading ${modelConfig.ModelType} from fallback source...`);
                         return attemptFallbackLoading(modelConfig, scene, loadingManager);
                     } else {
-                        console.log(`GitHub fallback disabled for ${modelConfig.ModelType} - no fallback attempt`);
+                        console.log(`Fallback disabled for ${modelConfig.ModelType} - no fallback attempt`);
                     }
                     
                     loadingProgress.set(modelConfig.ConfigKey, {
@@ -330,6 +402,11 @@
                     console.error(`   CDN URL: ${modelConfig.ModelUrl}`);
                     console.error(`   Fallback disabled: EnableGitHubFallback = ${modelConfig.EnableGitHubFallback}`);
                     console.error(`   Error: ${error.message}`);
+                    
+                    // UPDATE UI WITH FAILURE MESSAGE
+                    if (isMobile) {
+                        updateLoadingStatus(`Failed to load ${modelConfig.ModelType}. Please check your connection.`);
+                    }
                     
                     throw error;                                             // <-- Re-throw if all attempts fail
                 }
@@ -603,4 +680,4 @@
     };
     // ---------------------------------------------------------------
 
-// endregion ------------------------------------------------------------------- 
+// endregion -------------------------------------------------------------------
