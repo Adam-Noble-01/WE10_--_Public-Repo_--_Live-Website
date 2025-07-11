@@ -10,7 +10,36 @@ CREATED    : Circa. Feb-2025
 =============================================================================
 
 # ----------------------------------------------------------------------------
-## VERSION 1.3.
+## VERSION 1.3.2  - Critical Module Loading & Architecture Enforcement
+###  Released     -  11-Jul-2025
+
+#### Critical System Fixes
+- Fixed all 14 core modules to properly mark themselves as loaded using ModuleDependencyManager
+- Resolved rendering pipeline event system failures preventing application startup
+- Established proper dependency loading sequence preventing race conditions
+- Enforced Data_-_MainAppConfig.json as single source of truth for all configuration
+- Implemented strict equality checks (=== true/false) preventing configuration overrides
+- Eliminated hardcoded configuration values that could override JSON settings
+
+#### Model Loading Sequence Fixes
+- Fixed Model-03 (First Floor Furnishings) ModelCritical flag preventing floating furniture
+- Improved loading overlay to wait for all models before hiding (prevents visual pop-in)
+- Established correct loading order: Building → Ground Floor → First Floor furniture
+- Enhanced user experience by eliminating jarring visual artifacts during loading
+
+#### Development Architecture
+- Created comprehensive .cursorrules file for AI-assisted development
+- Defined module system requirements for current namespace and future ES6 modules
+- Established coding style enforcement following ValeDesignSuite conventions
+- Implemented configuration authority rules and validation patterns
+
+#### Technical Impact
+- Eliminated application startup failures and module loading race conditions
+- Improved configuration reliability across all 14 core modules
+- Enhanced debugging capabilities with proper module loading marks and events
+- Future-proofed architecture for ES6 module transition
+
+-----------------------------------------------------------------------------
 
 
 -----------------------------------------------------------------------------
