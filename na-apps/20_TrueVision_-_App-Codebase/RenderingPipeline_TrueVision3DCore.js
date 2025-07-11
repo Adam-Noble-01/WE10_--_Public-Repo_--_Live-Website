@@ -505,7 +505,8 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             console.log("=== SEGMENTED MODEL LOADING COMPLETE ===");
             console.log("Models loaded:", modelsLoaded);
             
-            if (loadingOverlay) loadingOverlay.classList.add("hidden");                                         // <-- Hide loading overlay
+            // DO NOT HIDE LOADING OVERLAY HERE - Let CDN loader handle it
+            // if (loadingOverlay) loadingOverlay.classList.add("hidden");                                         // <-- Hide loading overlay
             
         } catch (error) {
             console.error("Fatal error during model loading:", error);                                          // <-- Log fatal error

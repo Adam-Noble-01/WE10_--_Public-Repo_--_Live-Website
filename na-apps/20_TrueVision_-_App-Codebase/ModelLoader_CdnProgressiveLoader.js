@@ -68,6 +68,47 @@
 // endregion -------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
+// REGION | CDN Connectivity and CORS Testing
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Test CDN URL Accessibility
+    // ---------------------------------------------------------------
+    async function testCdnConnectivity(url) {
+        try {
+            console.log(`Testing CDN connectivity to: ${url}`);
+            
+            // TRY HEAD REQUEST FIRST (LIGHTER)
+            const headResponse = await fetch(url, { 
+                method: 'HEAD',
+                mode: 'cors',
+                cache: 'no-cache'
+            });
+            
+            if (headResponse.ok) {
+                console.log(`✓ CDN URL accessible (HEAD): ${headResponse.status}`);
+                console.log(`Content-Type: ${headResponse.headers.get('Content-Type')}`);
+                console.log(`Content-Length: ${headResponse.headers.get('Content-Length')}`);
+                return true;
+            } else {
+                console.error(`✗ CDN URL not accessible: ${headResponse.status} ${headResponse.statusText}`);
+                return false;
+            }
+        } catch (error) {
+            console.error(`✗ CDN connectivity test failed:`, error);
+            
+            // CHECK IF IT'S A CORS ERROR
+            if (error.message.includes('CORS') || error.message.includes('cors')) {
+                console.error('CORS issue detected - CDN may not be configured for cross-origin requests');
+            }
+            
+            return false;
+        }
+    }
+    // ---------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
 // REGION | Model Loading Logic and Progress Tracking
 // -----------------------------------------------------------------------------
 
@@ -79,6 +120,10 @@
             return;
         }
         
+        // DETECT BROWSER AND PLATFORM
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        console.log(`Platform: ${isMobile ? 'Mobile' : 'Desktop'}, User Agent: ${navigator.userAgent}`);
+        
         // EXTRACT AND SORT MODELS BY LOADING ORDER
         const models = extractModelList();                                   // <-- Get ordered model list
         const criticalModels = models.filter(m => m.ModelCritical);         // <-- Filter critical models
@@ -86,6 +131,9 @@
         
         // LOAD CRITICAL MODELS FIRST
         console.log(`Loading ${criticalModels.length} critical models...`);
+        if (criticalModels.length > 0) {
+            console.log(`Critical model URL: ${criticalModels[0].ModelUrl}`);
+        }
         await loadModelBatch(criticalModels, scene, loadingManager, true);   // <-- Load with progress tracking
         
         criticalModelsLoaded = true;                                         // <-- Mark critical loading complete
@@ -145,21 +193,42 @@
             try {
                 console.log(`Loading ${modelConfig.ModelType} from CDN...`);
                 
+                // TEST CDN CONNECTIVITY FIRST
+                const canConnect = await testCdnConnectivity(modelConfig.ModelUrl);
+                if (!canConnect) {
+                    throw new Error("CDN connectivity test failed - URL not accessible");
+                }
+                
                 // CREATE LOADING PROGRESS TRACKER
                 loadingProgress.set(modelConfig.ConfigKey, {
                     loaded: 0,
-                    total: 100,
+                    total: 0,  // <-- Don't assume size, wait for actual progress
+                    percentage: 0,
                     status: 'loading'
                 });
                 
-                // LOAD MODEL USING BABYLON SCENE LOADER
-                const result = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+                // CREATE TIMEOUT PROMISE FOR MOBILE BROWSERS
+                const timeoutMs = 30000; // 30 second timeout
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error(`Loading timeout after ${timeoutMs}ms`)), timeoutMs);
+                });
+                
+                // LOAD MODEL WITH TIMEOUT
+                const loadPromise = BABYLON.SceneLoader.LoadAssetContainerAsync(
                     "",                                                      // <-- Root URL (empty for full URL)
                     modelConfig.ModelUrl,                                    // <-- Full CDN URL
                     scene,                                                   // <-- Target scene
                     (event) => updateLoadingProgress(modelConfig.ConfigKey, event),  // <-- Progress callback
                     ".glb"                                                   // <-- File extension
                 );
+                
+                // RACE BETWEEN LOADING AND TIMEOUT
+                const result = await Promise.race([loadPromise, timeoutPromise]);
+                
+                // VERIFY MODEL ACTUALLY LOADED
+                if (!result || !result.meshes || result.meshes.length === 0) {
+                    throw new Error("Model loaded but contains no meshes");
+                }
                 
                 // ADD LOADED MESHES TO SCENE
                 result.addAllToScene();                                      // <-- Add all meshes to scene
@@ -180,12 +249,21 @@
                 });
                 
                 console.log(`✓ ${modelConfig.ModelType} loaded in ${Date.now() - startTime}ms`);
+                console.log(`Model contains ${result.meshes.length} meshes`);
                 notifyModelLoaded(modelConfig);                              // <-- Trigger model loaded callback
                 
                 return result;                                               // <-- Return loaded container
                 
             } catch (error) {
                 console.error(`Failed to load ${modelConfig.ModelType}:`, error);
+                
+                // DETECT MOBILE BROWSERS
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                if (isMobile) {
+                    console.warn("Mobile browser detected - may have loading limitations");
+                    updateLoadingStatus("Mobile loading issue detected - trying fallback...");
+                }
+                
                 retryCount++;                                                // <-- Increment retry counter
                 
                 if (retryCount <= maxRetries) {
@@ -213,7 +291,12 @@
     // HELPER FUNCTION | Update Loading Progress for Individual Model
     // ---------------------------------------------------------------
     function updateLoadingProgress(modelKey, progressEvent) {
-        if (!progressEvent.lengthComputable) return;                         // <-- Skip if no progress data
+        // HANDLE MOBILE BROWSERS WITHOUT LENGTH COMPUTABLE
+        if (!progressEvent.lengthComputable) {
+            console.warn(`Progress not computable for ${modelKey} - mobile browser limitation`);
+            // Don't update progress if we can't measure it
+            return;
+        }
         
         const progress = {
             loaded: progressEvent.loaded,
@@ -222,6 +305,7 @@
             status: 'loading'
         };
         
+        console.log(`${modelKey} loading progress: ${progress.percentage}% (${progress.loaded}/${progress.total})`);
         loadingProgress.set(modelKey, progress);                             // <-- Update progress map
         
         // CALCULATE OVERALL PROGRESS FOR CRITICAL MODELS
@@ -245,17 +329,27 @@
         
         let totalProgress = 0;
         let loadedCount = 0;
+        let modelsWithProgress = 0;
         
         // CALCULATE AGGREGATE PROGRESS
         criticalModels.forEach(model => {
             const progress = loadingProgress.get(model.ConfigKey);
             if (progress) {
-                totalProgress += progress.percentage || 0;
+                // ONLY COUNT MODELS WITH ACTUAL PROGRESS DATA
+                if (progress.total > 0 && progress.percentage !== undefined) {
+                    totalProgress += progress.percentage;
+                    modelsWithProgress++;
+                }
                 if (progress.status === 'complete') loadedCount++;
             }
         });
         
-        const overallProgress = Math.round(totalProgress / criticalModels.length);  // <-- Average progress
+        // CALCULATE PROGRESS ONLY IF WE HAVE REAL DATA
+        const overallProgress = modelsWithProgress > 0 
+            ? Math.round(totalProgress / modelsWithProgress)  
+            : 0;  // <-- Don't show fake progress
+        
+        console.log(`Loading progress: ${overallProgress}% (${modelsWithProgress} models with data)`);
         
         // UPDATE LOADING SPINNER/PROGRESS BAR
         updateLoadingSpinner(overallProgress, loadedCount, criticalModels.length);
@@ -278,15 +372,17 @@
             statusElement.textContent = `Loading assets (${loadedCount}/${totalCount})...`;
         }
         
-        // HIDE LOADING SCREEN WHEN CRITICAL MODELS COMPLETE
-        if (percentage >= 100 && loadingElement && criticalModelsLoaded) {
-            setTimeout(() => {
-                loadingElement.style.opacity = '0';                          // <-- Fade out loading screen
-                setTimeout(() => {
-                    loadingElement.style.display = 'none';                   // <-- Hide loading screen
-                    document.body.classList.add('loading-complete');          // <-- Add completion class
-                }, 300);
-            }, 500);                                                         // <-- Brief delay for smooth transition
+        // DO NOT HIDE LOADING SCREEN HERE - LET THE CRITICAL COMPLETE EVENT HANDLE IT
+        // This prevents false progress from hiding the screen prematurely
+    }
+    // ---------------------------------------------------------------
+
+    // HELPER FUNCTION | Update Loading Status Message
+    // ---------------------------------------------------------------
+    function updateLoadingStatus(message) {
+        const statusElement = document.getElementById('loading-status');
+        if (statusElement) {
+            statusElement.textContent = message;
         }
     }
     // ---------------------------------------------------------------
