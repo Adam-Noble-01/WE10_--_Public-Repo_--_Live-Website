@@ -357,6 +357,32 @@
     }
     /* ------------------------------------------------------------ */
 
+    /* LOADING PROGRESS | CDN Model Loading Progress Bar */
+    /* ------------------------------------------------------------ */
+    .loading-progress-container {
+        width                              : 300px;                        /* Fixed progress bar width */
+        height                             : 20px;                         /* Progress bar height */
+        background                         : #f0f0f0;                      /* Light background */
+        border                             : 1px solid #ccc;               /* Border for visibility */
+        border-radius                      : 10px;                         /* Rounded corners */
+        overflow                           : hidden;                       /* Hide overflow */
+        margin-top                         : 20px;                         /* Space above progress bar */
+    }
+    
+    .loading-progress-bar {
+        height                             : 100%;                         /* Full height of container */
+        width                              : 0%;                           /* Start at 0% width */
+        background                         : var(--TrueVision_PrimaryBrand); /* Brand color progress */
+        transition                         : width 0.3s ease;              /* Smooth width animation */
+        display                            : flex;                         /* Flexbox for text */
+        align-items                        : center;                       /* Center text vertically */
+        justify-content                    : center;                       /* Center text horizontally */
+        color                              : var(--TrueVision_BackgroundWhite); /* White text */
+        font-size                          : 12px;                         /* Small font for percentage */
+        font-weight                        : bold;                         /* Bold percentage text */
+    }
+    /* ------------------------------------------------------------ */
+
 /* endregion ------------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------

@@ -91,6 +91,7 @@ DESCRIPTION:
     </script>
 
     <!-- Core Application JavaScript Modules - Loaded in priority order -->
+    <script src="ModelLoader_CdnProgressiveLoader.js"></script> <!-- CDN Progressive Model Loader   -->
     <script src="Materials_TextureSubstitutionAutomationLogic.js"></script> <!-- Material substitution logic    -->
     <script src="SceneConfig_HdriLightingLogic.js"></script> <!-- HDRI environmental lighting    -->
     <script src="SceneConfig_SolarOrientationControlLogic.js"></script> <!-- Solar positioning and lighting -->
@@ -184,8 +185,11 @@ DESCRIPTION:
         <!-- UI MENU | Loading State Overlay with Progress Indicator          -->
         <!-- ----------------------------------------------------------------- -->
         <div id="loading-overlay">
-            <div class="spinner"></div> <!-- Animated loading spinner -->
-            <p>Loading Your Vision… Please Wait</p> <!-- Loading status message   -->
+            <div class="spinner" id="loading-spinner"></div> <!-- Animated loading spinner -->
+            <p id="loading-status">Loading Your Vision… Please Wait</p> <!-- Loading status message   -->
+            <div class="loading-progress-container">
+                <div class="loading-progress-bar" id="loading-progress"></div> <!-- Progress bar -->
+            </div>
         </div>
         <!-- ---------------------------------------------------------------- -->
 

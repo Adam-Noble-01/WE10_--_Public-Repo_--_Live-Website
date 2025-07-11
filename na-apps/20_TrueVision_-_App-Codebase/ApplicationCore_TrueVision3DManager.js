@@ -126,11 +126,14 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
             // INITIALIZE NAVIGATION SYSTEM
             await initializeNavigationSystem();                              // <-- Initialize navigation modes
             
-            // START RENDERING AND REGISTER EVENTS
-            startApplicationSystems();                                       // <-- Start rendering and events
+            // REGISTER EVENT LISTENERS FOR CDN MODEL LOADING
+            registerModelLoadingEventListeners();                            // <-- Setup model loading callbacks
+            
+            // REGISTER BASIC EVENT HANDLERS (NOT NAVIGATION YET)
+            registerBasicEventHandlers();                                    // <-- Setup basic UI events
             
             applicationInitialized = true;                                   // <-- Mark as initialized
-            console.log("TrueVision3D application initialized successfully");
+            console.log("TrueVision3D application initialized - waiting for models...");
             
         } catch (error) {
             console.error("Application initialization failed:", error);      // <-- Log initialization error
@@ -242,6 +245,66 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         );
         
         console.log("Solar orientation system initialized");                  // <-- Log solar initialization
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Register Model Loading Event Listeners
+    // ---------------------------------------------------------------
+    function registerModelLoadingEventListeners() {
+        // LISTEN FOR CRITICAL MODELS LOADED EVENT
+        window.addEventListener('modelsReadyForInteraction', function(event) {
+            console.log("Critical models loaded - enabling user interaction");
+            
+            // START APPLICATION SYSTEMS NOW THAT MODELS ARE READY
+            startApplicationSystems();                                       // <-- Enable navigation and rendering
+            
+            // HIDE LOADING OVERLAY (BACKUP IN CASE CDN LOADER DIDN'T)
+            if (loadingOverlay) {
+                loadingOverlay.classList.add("hidden");                      // <-- Hide loading screen
+            }
+        });
+        
+        // LISTEN FOR CDN LOADER STATUS UPDATES (OPTIONAL)
+        if (window.TrueVisionCdnLoader) {
+            const checkLoadingInterval = setInterval(() => {
+                const status = window.TrueVisionCdnLoader.getStatus();
+                if (status.criticalModelsLoaded) {
+                    clearInterval(checkLoadingInterval);                     // <-- Stop checking
+                    console.log("CDN Loader reports critical models ready");
+                }
+            }, 500);                                                        // <-- Check every 500ms
+        }
+        
+        console.log("Model loading event listeners registered");             // <-- Log registration
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Register Basic Event Handlers (Non-Navigation)
+    // ---------------------------------------------------------------
+    function registerBasicEventHandlers() {
+        // HAMBURGER MENU TOGGLE EVENT
+        if (toggleToolbarBtn && toolbar) {
+            toggleToolbarBtn.addEventListener("click", toggleToolbar);        // <-- Hamburger menu toggle handler
+        }
+        
+        // RENDER EFFECT BUTTON EVENTS
+        if (ssaoToggleBtn) {
+            ssaoToggleBtn.addEventListener("click", toggleSSAO);             // <-- SSAO toggle button handler
+        }
+        
+        // FURNISHINGS VISIBILITY BUTTON EVENT
+        if (furnishingsToggleBtn) {
+            furnishingsToggleBtn.addEventListener("click", toggleFurnishings); // <-- Furnishings toggle button handler
+            updateFurnishingsButtonState();                                  // <-- Set initial button state
+        }
+        
+        // SHOW MENU TUTORIAL ON FIRST VISIT
+        showMenuTutorialIfNeeded();                                          // <-- Check and show tutorial
+        
+        // REGISTER CLEANUP ON PAGE UNLOAD
+        window.addEventListener("beforeunload", cleanupApplicationResources); // <-- Ensure proper cleanup
+        
+        console.log("Basic event handlers registered");                      // <-- Log event registration
     }
     // ---------------------------------------------------------------
 
@@ -415,34 +478,15 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     }
     // ---------------------------------------------------------------
 
-    // SUB FUNCTION | Register All User Interface Event Handlers
+    // SUB FUNCTION | Register Navigation-Related Event Handlers
     // ---------------------------------------------------------------
     function registerApplicationEventHandlers() {
-        // HAMBURGER MENU TOGGLE EVENT
-        if (toggleToolbarBtn && toolbar) {
-            toggleToolbarBtn.addEventListener("click", toggleToolbar);        // <-- Hamburger menu toggle handler
-        }
-        
         // NAVIGATION CONTROL EVENTS
         if (resetViewBtn) {
             resetViewBtn.addEventListener("click", resetView);               // <-- Reset view button handler
         }
         
-        // RENDER EFFECT BUTTON EVENTS
-        if (ssaoToggleBtn) {
-            ssaoToggleBtn.addEventListener("click", toggleSSAO);             // <-- SSAO toggle button handler
-        }
-        
-        // FURNISHINGS VISIBILITY BUTTON EVENT
-        if (furnishingsToggleBtn) {
-            furnishingsToggleBtn.addEventListener("click", toggleFurnishings); // <-- Furnishings toggle button handler
-            updateFurnishingsButtonState();                                  // <-- Set initial button state
-        }
-        
-        // SHOW MENU TUTORIAL ON FIRST VISIT
-        showMenuTutorialIfNeeded();                                          // <-- Check and show tutorial
-        
-        console.log("Application event handlers registered");                // <-- Log event registration
+        console.log("Navigation event handlers registered");                 // <-- Log event registration
     }
     // ---------------------------------------------------------------
 

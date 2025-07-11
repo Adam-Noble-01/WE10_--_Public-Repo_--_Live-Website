@@ -278,7 +278,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
 // endregion -------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-// REGION | 3D Model Loading and Processing System - ENHANCED FOR SEGMENTED MODELS
+// REGION | 3D Model Loading and Processing System - ENHANCED FOR CDN PROGRESSIVE LOADING
 // -----------------------------------------------------------------------------
 
     // HELPER FUNCTION | Process Loaded Model Meshes
@@ -307,7 +307,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     }
     // ---------------------------------------------------------------
 
-    // NEW FUNCTION | Handle Camera Agent Markers Based on Configuration
+    // FUNCTION | Handle Camera Agent Markers Based on Configuration
     // ---------------------------------------------------------------
     function handleCameraAgentMarkers() {
         const appConfig = window.TrueVision3D?.AppConfig?.AppConfig;         // <-- Get app configuration
@@ -326,6 +326,82 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         });
         
         console.log(`Processed ${agentCount} camera agent markers`);
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Initialize CDN-Based Progressive Model Loading
+    // ---------------------------------------------------------------
+    async function initializeCdnModelLoading() {
+        if (!window.TrueVisionCdnLoader) {
+            console.error("CDN Model Loader not available - falling back to legacy loading");
+            loadSegmentedModels();                                           // <-- Fallback to old loading system
+            return;
+        }
+        
+        // INITIALIZE CDN LOADER
+        const cdnInitialized = await window.TrueVisionCdnLoader.initialize();
+        if (!cdnInitialized) {
+            console.error("CDN Loader initialization failed - falling back to legacy loading");
+            loadSegmentedModels();                                           // <-- Fallback to old loading system
+            return;
+        }
+        
+        // REGISTER MODEL LOADING CALLBACKS
+        registerCdnModelCallbacks();                                         // <-- Setup event handlers
+        
+        // START PROGRESSIVE MODEL LOADING
+        window.TrueVisionCdnLoader.startLoading(scene, null);                // <-- Begin CDN loading process
+    }
+    // ---------------------------------------------------------------
+
+    // SUB FUNCTION | Register CDN Model Loading Event Callbacks
+    // ---------------------------------------------------------------
+    function registerCdnModelCallbacks() {
+        // HANDLE INDIVIDUAL MODEL LOADED EVENTS
+        window.TrueVisionCdnLoader.onLoadEvent('model_loaded', (event) => {
+            console.log(`CDN Model loaded: ${event.model.ModelType}`);
+            
+            // TRACK FURNITURE MESHES FOR VISIBILITY MANAGEMENT
+            if (event.model.ModelType.includes("Furnishings")) {
+                const meshCountBefore = furnitureMeshes.length;             // <-- Count before processing
+                
+                // FIND NEW MESHES ADDED BY THIS MODEL
+                scene.meshes.forEach(mesh => {
+                    if (!furnitureMeshes.includes(mesh) && 
+                        mesh !== sceneEnvironment?.ground &&
+                        !mesh.name?.includes("Camera_Agent")) {
+                        furnitureMeshes.push(mesh);                          // <-- Add to furniture array
+                        mesh.isVisible = furnishingsVisible;                 // <-- Apply visibility setting
+                    }
+                });
+                
+                const newMeshCount = furnitureMeshes.length - meshCountBefore;
+                console.log(`Added ${newMeshCount} furniture meshes from ${event.model.ModelType}`);
+            }
+        });
+        
+        // HANDLE CRITICAL MODELS LOADED EVENT
+        window.TrueVisionCdnLoader.onLoadEvent('critical_complete', (event) => {
+            console.log("✅ Critical models loaded - enabling user interaction");
+            processLoadedMeshes();                                           // <-- Process all loaded meshes
+            
+            // HIDE LOADING OVERLAY
+            if (loadingOverlay) {
+                loadingOverlay.classList.add("hidden");                      // <-- Hide loading screen
+            }
+            
+            // NOTIFY APPLICATION THAT INTERACTION CAN BE ENABLED
+            window.dispatchEvent(new CustomEvent('modelsReadyForInteraction'));
+        });
+        
+        // HANDLE ALL MODELS LOADED EVENT
+        window.TrueVisionCdnLoader.onLoadEvent('all_complete', (event) => {
+            console.log("✅ All models loaded successfully");
+            console.log(`Total loading time: ${event.loadingTime}ms`);
+            
+            // FINAL PROCESSING PASS
+            processLoadedMeshes();                                           // <-- Ensure all meshes processed
+        });
     }
     // ---------------------------------------------------------------
 
@@ -626,8 +702,8 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         // CREATE AND CONFIGURE SCENE
         createScene();                                                                                           // <-- Create complete 3D scene
         
-        // LOAD SEGMENTED 3D MODELS
-        loadSegmentedModels();                                                                                   // <-- Load segmented models
+        // INITIALIZE CDN PROGRESSIVE MODEL LOADING
+        initializeCdnModelLoading();                                                                             // <-- Use CDN loader instead of old system
         
         console.log("Rendering pipeline initialized successfully");                                              // <-- Log initialization success
         return { engine: engine, scene: scene, sunLight: sunLight };                                            // <-- Return core references
