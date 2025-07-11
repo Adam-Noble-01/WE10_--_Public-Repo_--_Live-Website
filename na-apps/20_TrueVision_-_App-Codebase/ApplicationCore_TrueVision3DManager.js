@@ -173,23 +173,58 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // SUB FUNCTION | Initialize DOM Element References
     // ---------------------------------------------------------------
     function initializeUIReferences() {
-        canvas = document.getElementById("renderCanvas");                     // <-- HTML5 canvas element reference
-        loadingOverlay = document.getElementById("loading-overlay");          // <-- Loading overlay element
-        errorMessage = document.getElementById("error-message");             // <-- Error message display element
-        resetViewBtn = document.getElementById("resetViewBtn");              // <-- Reset view button reference
-        waypointModeBtn = document.getElementById("waypointModeBtn");        // <-- Waypoint mode button reference
-        walkModeBtn = document.getElementById("walkModeBtn");                // <-- Walk mode button reference
-        orbitModeBtn = document.getElementById("orbitModeBtn");              // <-- Orbit mode button reference
-        flyModeBtn = document.getElementById("flyModeBtn");                  // <-- Fly mode button reference
-        sunTimeSlider = document.getElementById("sunTimeSlider");            // <-- Time slider control reference
-        sunTimeDisplay = document.getElementById("sunTimeDisplay");          // <-- Time display text reference
-        ssaoToggleBtn = document.getElementById("ssaoToggleBtn");            // <-- SSAO toggle button reference
-        furnishingsToggleBtn = document.getElementById("furnishingsToggleBtn"); // <-- Furnishings toggle button reference
-        toggleToolbarBtn = document.getElementById("toggleToolbarBtn");       // <-- Hamburger menu toggle button
-        toolbar = document.getElementById("toolbar");                         // <-- Toolbar container element
-        menuTutorialOverlay = document.getElementById("menu-tutorial-overlay"); // <-- Menu tutorial overlay
+        // WAIT FOR DOM TO BE READY AND RETRY CANVAS INITIALIZATION
+        const initCanvas = () => {
+            canvas = document.getElementById("renderCanvas");
+            if (!canvas) {
+                console.error("❌ CRITICAL: Canvas element 'renderCanvas' not found in DOM!");
+                console.error("❌ Available elements:", [...document.querySelectorAll('*')].map(el => el.id).filter(id => id));
+                
+                // Try to find any canvas elements
+                const allCanvases = document.querySelectorAll('canvas');
+                console.error("❌ Available canvas elements:", allCanvases);
+                
+                if (allCanvases.length > 0) {
+                    console.warn("⚠️  Using first available canvas as fallback");
+                    canvas = allCanvases[0];
+                    canvas.id = "renderCanvas"; // Ensure it has the expected ID
+                } else {
+                    console.error("❌ No canvas elements found at all!");
+                    return false;
+                }
+            }
+            
+            console.log("✅ Canvas element initialized:", canvas);
+            return true;
+        };
         
-        console.log("UI element references initialized");                    // <-- Log UI initialization
+        // Try to initialize canvas
+        if (!initCanvas()) {
+            // If failed, wait a bit and try again
+            setTimeout(() => {
+                if (!initCanvas()) {
+                    throw new Error("Failed to initialize canvas element after retry");
+                }
+            }, 100);
+        }
+        
+        // Initialize other UI references
+        loadingOverlay = document.getElementById("loading-overlay");
+        errorMessage = document.getElementById("error-message");
+        resetViewBtn = document.getElementById("resetViewBtn");
+        waypointModeBtn = document.getElementById("waypointModeBtn");
+        walkModeBtn = document.getElementById("walkModeBtn");
+        orbitModeBtn = document.getElementById("orbitModeBtn");
+        flyModeBtn = document.getElementById("flyModeBtn");
+        sunTimeSlider = document.getElementById("sunTimeSlider");
+        sunTimeDisplay = document.getElementById("sunTimeDisplay");
+        ssaoToggleBtn = document.getElementById("ssaoToggleBtn");
+        furnishingsToggleBtn = document.getElementById("furnishingsToggleBtn");
+        toggleToolbarBtn = document.getElementById("toggleToolbarBtn");
+        toolbar = document.getElementById("toolbar");
+        menuTutorialOverlay = document.getElementById("menu-tutorial-overlay");
+        
+        console.log("UI element references initialized");
     }
     // ---------------------------------------------------------------
 
@@ -555,7 +590,7 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // ---------------------------------------------------------------
 
     // FUNCTION | Show Menu Tutorial for First-Time Users
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function showMenuTutorialIfNeeded() {
         if (!menuTutorialOverlay) return;                                   // <-- Exit if no tutorial overlay
         

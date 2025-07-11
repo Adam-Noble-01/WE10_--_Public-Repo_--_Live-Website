@@ -258,7 +258,7 @@
     // ---------------------------------------------------------------
 
     // FUNCTION | Create Visual Waypoint Markers in Scene
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function createWaypointMarkers() {
         if (!scene || !cameraAgentData) return;                             // <-- Validate prerequisites
         
@@ -613,11 +613,18 @@
     function initializeInputHandlers() {
         if (inputHandlersInitialized) return;                               // <-- Prevent duplicate handlers
         
+        console.log("🔍 DEBUG: Canvas state in initializeInputHandlers:", canvas);
+        console.log("🔍 DEBUG: Canvas type:", typeof canvas);
+        console.log("🔍 DEBUG: Canvas truthy:", !!canvas);
+        
         // CHECK IF CANVAS IS AVAILABLE
         if (!canvas) {
-            console.error("Canvas not available for input handlers");        // <-- Log error
+            console.error("❌ CRITICAL: Canvas not available for input handlers");
+            console.error("❌ Available canvas elements:", document.querySelectorAll('canvas'));
             return;
         }
+        
+        console.log("✅ Canvas validation passed, adding event listeners...");
         
         // MOUSE INPUT HANDLERS
         canvas.addEventListener("pointerdown", handlePointerDown, false);    // <-- Mouse/touch down handler
