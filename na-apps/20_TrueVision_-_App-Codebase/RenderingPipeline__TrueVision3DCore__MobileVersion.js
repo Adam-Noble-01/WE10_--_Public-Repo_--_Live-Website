@@ -278,18 +278,28 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         scene.preventCacheWipeBetweenFrames = true;                         // <-- Keep cache between frames
         scene.performancePriority = BABYLON.ScenePerformancePriority.BackwardCompatible; // <-- Compatibility mode
         
-        // LIMIT ACTIVE MESHES FOR MOBILE
-        scene.setActiveMeshCandidateProvider(function() {
-            const cameraPosition = scene.activeCamera ? scene.activeCamera.position : BABYLON.Vector3.Zero();
-            return scene.meshes.filter(mesh => {
-                if (!mesh.isVisible || !mesh.isEnabled()) return false;
+        // REMOVE THE PROBLEMATIC CODE - REPLACE WITH PROPER MOBILE OPTIMIZATIONS
+        // Mobile mesh culling optimization using proper Babylon.js methods
+        scene.onBeforeRenderObservable.add(() => {
+            if (scene.activeCamera && MAX_MESHES_PER_FRAME > 0) {
+                const cameraPosition = scene.activeCamera.position;
+                let activeMeshCount = 0;
                 
-                // Calculate distance from camera
-                const distance = mesh.getBoundingInfo().boundingSphere.centerWorld.subtract(cameraPosition).length();
-                
-                // Only include nearby meshes (within 100 units)
-                return distance < 100;
-            }).slice(0, MAX_MESHES_PER_FRAME);                             // <-- Limit mesh count
+                // Simple distance-based culling for mobile performance
+                scene.meshes.forEach(mesh => {
+                    if (mesh === sceneEnvironment?.ground || mesh.name?.includes("Camera_Agent")) {
+                        return; // Skip ground and camera agents
+                    }
+                    
+                    if (activeMeshCount < MAX_MESHES_PER_FRAME) {
+                        const distance = BABYLON.Vector3.Distance(mesh.position, cameraPosition);
+                        mesh.isVisible = distance < 100; // Only show meshes within 100 units
+                        if (mesh.isVisible) activeMeshCount++;
+                    } else {
+                        mesh.isVisible = false; // Hide excess meshes
+                    }
+                });
+            }
         });
         
         // DISABLE EXPENSIVE FEATURES ON MOBILE
@@ -301,25 +311,18 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         
         console.log("Mobile-optimized 3D scene created");                    // <-- Log scene creation
         
-        // Initialize Material Logic Module with mobile settings
+        // SIMPLIFIED MATERIAL LOGIC INITIALIZATION
         if (window.TrueVision3D?.MaterialLogic?.initialize) {
-            window.TrueVision3D.MaterialLogic.initialize(scene, { 
-                isMobile: true,
-                maxTextureSize: MAX_TEXTURE_SIZE,
-                optimizeTextures: TEXTURE_OPTIMIZATION
-            })
-            .then(initialized => {
-                if (initialized) {
-                    console.log("✅ Material Logic module initialized with mobile settings");
-                } else {
-                    console.error("❌ Material Logic module failed to initialize");
-                }
-            })
-            .catch(error => {
-                console.error("❌ Material Logic initialization error:", error);
-            });
-        } else {
-            console.error("❌ Material Logic module not available");
+            try {
+                window.TrueVision3D.MaterialLogic.initialize(scene, { 
+                    isMobile: true,
+                    maxTextureSize: MAX_TEXTURE_SIZE,
+                    optimizeTextures: TEXTURE_OPTIMIZATION
+                });
+                console.log("✅ Material Logic module initialized with mobile settings");
+            } catch (error) {
+                console.warn("⚠️ Material Logic initialization failed:", error);
+            }
         }
         
         return scene;                                                        // <-- Return configured scene

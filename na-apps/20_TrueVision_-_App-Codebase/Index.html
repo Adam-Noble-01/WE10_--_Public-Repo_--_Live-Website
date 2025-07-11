@@ -131,82 +131,202 @@ DESCRIPTION:
 
                 const isMobile = detectMobileDevice();
                 let scriptToLoad = null;
-                let fallbackScript = null;
+
+                // ROBUST CONFIGURATION CHECKING WITH FALLBACKS
+                // Handle both old and new property name formats
+                const pcEnabled = renderConfig.RenderPipeline_PcEnabled !== undefined
+                    ? renderConfig.RenderPipeline_PcEnabled
+                    : renderConfig.PC;
+
+                const mobileEnabled = renderConfig.RenderPipeline_MobileEnabled !== undefined
+                    ? renderConfig.RenderPipeline_MobileEnabled
+                    : renderConfig.Mobile;
+
+                const fallbackToPcOnMobileFail = renderConfig.RenderPipeline_FallbackToPcOnMobileFail !== undefined
+                    ? renderConfig.RenderPipeline_FallbackToPcOnMobileFail
+                    : true; // Default to true for robustness
+
+                const pcFile = renderConfig.RenderPipeline_PcFile || 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
+                const mobileFile = renderConfig.RenderPipeline_MobileFile || 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
 
                 // DETERMINE PRIMARY AND FALLBACK SCRIPTS
                 if (isMobile) {
-                    if (renderConfig.RenderPipeline_MobileEnabled) {
-                        scriptToLoad = renderConfig.RenderPipeline_MobileFile || 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
-                        console.log('Device detected as mobile - loading mobile pipeline');
-                    } else if (renderConfig.RenderPipeline_PcEnabled && renderConfig.RenderPipeline_FallbackToPcOnMobileFail) {
+                    if (mobileEnabled) {
+                        scriptToLoad = mobileFile;
+                        console.log('Device detected as mobile - loading mobile pipeline:', scriptToLoad);
+                    } else if (pcEnabled && fallbackToPcOnMobileFail) {
                         // Mobile device but mobile disabled - try PC version as fallback
-                        scriptToLoad = renderConfig.RenderPipeline_PcFile || 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
-                        console.warn('Mobile device detected but mobile pipeline disabled - attempting PC pipeline');
+                        scriptToLoad = pcFile;
+                        console.warn('Mobile device detected but mobile pipeline disabled - attempting PC pipeline fallback');
                     }
                 } else {
-                    if (renderConfig.RenderPipeline_PcEnabled) {
-                        scriptToLoad = renderConfig.RenderPipeline_PcFile || 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
-                        console.log('Device detected as PC - loading PC pipeline');
-                    } else if (renderConfig.RenderPipeline_MobileEnabled) {
+                    if (pcEnabled) {
+                        scriptToLoad = pcFile;
+                        console.log('Device detected as PC - loading PC pipeline:', scriptToLoad);
+                    } else if (mobileEnabled) {
                         // PC but PC disabled - try mobile version as fallback
-                        scriptToLoad = renderConfig.RenderPipeline_MobileFile || 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
-                        console.warn('PC detected but PC pipeline disabled - attempting mobile pipeline');
+                        scriptToLoad = mobileFile;
+                        console.warn('PC detected but PC pipeline disabled - attempting mobile pipeline fallback');
                     }
                 }
 
                 // CHECK IF ANY PIPELINE IS AVAILABLE
                 if (!scriptToLoad) {
                     console.error('No rendering pipeline enabled in configuration');
+                    console.error('Configuration state:', {
+                        pcEnabled,
+                        mobileEnabled,
+                        isMobile,
+                        fallbackToPcOnMobileFail
+                    });
+
                     document.body.innerHTML = `
-                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0;">
-                            <h1 style="color: #172b3a; font-family: Arial, sans-serif;">Configuration Error</h1>
-                            <p style="color: #1e1e1e; font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0; font-family: Arial, sans-serif;">
+                            <h1 style="color: #172b3a; margin-bottom: 20px;">Configuration Error</h1>
+                            <p style="color: #1e1e1e; max-width: 600px; line-height: 1.6; margin-bottom: 20px;">
                                 No rendering pipeline is enabled in the configuration. Please contact support.
                             </p>
-                            <p style="color: #666; font-size: 12px; margin-top: 20px;">
-                                Detected device type: ${isMobile ? 'Mobile' : 'Desktop'}<br>
-                                User Agent: ${navigator.userAgent}
-                            </p>
+                            <div style="background: #fff; padding: 15px; border-radius: 5px; border-left: 4px solid #cd0000; margin-bottom: 20px;">
+                                <h3 style="color: #cd0000; margin: 0 0 10px 0;">Debug Information</h3>
+                                <p style="margin: 0; font-size: 12px; color: #666;">
+                                    Device: ${isMobile ? 'Mobile' : 'Desktop'}<br>
+                                    PC Pipeline: ${pcEnabled ? 'Enabled' : 'Disabled'}<br>
+                                    Mobile Pipeline: ${mobileEnabled ? 'Enabled' : 'Disabled'}<br>
+                                    Fallback Allowed: ${fallbackToPcOnMobileFail ? 'Yes' : 'No'}<br>
+                                    User Agent: ${navigator.userAgent}
+                                </p>
+                            </div>
+                            <button onclick="location.reload()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                Reload Page
+                            </button>
                         </div>
                     `;
                     return;
                 }
 
-                // LOAD THE SELECTED PIPELINE
+                // LOAD THE SELECTED PIPELINE WITH ENHANCED ERROR HANDLING
                 const script = document.createElement('script');
                 script.src = scriptToLoad;
+                script.async = false; // Ensure synchronous loading
 
                 script.onload = () => {
-                    console.log('Rendering pipeline loaded successfully:', scriptToLoad);
-                    // Add device info to TrueVision3D namespace for debugging
+                    console.log('✅ Rendering pipeline loaded successfully:', scriptToLoad);
+
+                    // Add comprehensive device info to TrueVision3D namespace for debugging
                     window.TrueVision3D.deviceInfo = {
                         detectedAsMobile: isMobile,
                         loadedPipeline: scriptToLoad,
                         userAgent: navigator.userAgent,
                         touchSupport: ('ontouchstart' in window) || (navigator.maxTouchPoints > 0),
-                        screenSize: `${window.innerWidth}x${window.innerHeight}`
+                        screenSize: `${window.innerWidth}x${window.innerHeight}`,
+                        devicePixelRatio: window.devicePixelRatio,
+                        platform: navigator.platform,
+                        configState: {
+                            pcEnabled,
+                            mobileEnabled,
+                            fallbackToPcOnMobileFail
+                        }
                     };
+
                     // Notify that the rendering pipeline is ready
                     window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));
+                    console.log('🔔 Rendering pipeline loaded event dispatched');
                 };
 
-                script.onerror = () => {
-                    console.error('Failed to load rendering pipeline script:', scriptToLoad);
+                script.onerror = (error) => {
+                    console.error('❌ Failed to load rendering pipeline script:', scriptToLoad);
+                    console.error('Error details:', error);
+
+                    // ATTEMPT FALLBACK IF MOBILE PIPELINE FAILS
+                    if (isMobile && scriptToLoad === mobileFile && pcEnabled && fallbackToPcOnMobileFail) {
+                        console.warn('🔄 Attempting PC pipeline fallback after mobile pipeline failure');
+
+                        const fallbackScript = document.createElement('script');
+                        fallbackScript.src = pcFile;
+                        fallbackScript.async = false;
+
+                        fallbackScript.onload = () => {
+                            console.log('✅ PC pipeline fallback loaded successfully');
+                            window.TrueVision3D.deviceInfo = {
+                                detectedAsMobile: isMobile,
+                                loadedPipeline: pcFile,
+                                fallbackUsed: true,
+                                originalAttempt: mobileFile,
+                                userAgent: navigator.userAgent,
+                                touchSupport: ('ontouchstart' in window) || (navigator.maxTouchPoints > 0),
+                                screenSize: `${window.innerWidth}x${window.innerHeight}`
+                            };
+                            window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));
+                        };
+
+                        fallbackScript.onerror = () => {
+                            console.error('❌ PC pipeline fallback also failed');
+                            showLoadingError(pcFile, 'Both mobile and PC pipelines failed to load');
+                        };
+
+                        document.head.appendChild(fallbackScript);
+                    } else {
+                        showLoadingError(scriptToLoad, 'Failed to load rendering pipeline');
+                    }
+                };
+
+                // HELPER FUNCTION | Show Loading Error Page
+                function showLoadingError(failedScript, message) {
                     document.body.innerHTML = `
-                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0;">
-                            <h1 style="color: #172b3a; font-family: Arial, sans-serif;">Loading Error</h1>
-                            <p style="color: #1e1e1e; font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
-                                Failed to load the 3D rendering system. Please refresh the page or contact support if the problem persists.
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0; font-family: Arial, sans-serif;">
+                            <h1 style="color: #172b3a; margin-bottom: 20px;">Loading Error</h1>
+                            <p style="color: #1e1e1e; max-width: 600px; line-height: 1.6; margin-bottom: 20px;">
+                                ${message}. Please refresh the page or contact support if the problem persists.
                             </p>
-                            <p style="color: #666; font-size: 12px; margin-top: 20px;">
-                                Failed to load: ${scriptToLoad}
-                            </p>
+                            <div style="background: #fff; padding: 15px; border-radius: 5px; border-left: 4px solid #cd0000; margin-bottom: 20px;">
+                                <h3 style="color: #cd0000; margin: 0 0 10px 0;">Technical Details</h3>
+                                <p style="margin: 0; font-size: 12px; color: #666;">
+                                    Failed to load: ${failedScript}<br>
+                                    Device: ${isMobile ? 'Mobile' : 'Desktop'}<br>
+                                    Browser: ${navigator.userAgent}
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="location.reload()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                    Reload Page
+                                </button>
+                                <button onclick="localStorage.clear(); location.reload()" style="padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                    Clear Cache & Reload
+                                </button>
+                            </div>
                         </div>
                     `;
-                };
+                }
 
+                console.log('🚀 Attempting to load rendering pipeline:', scriptToLoad);
                 document.head.appendChild(script);
+            } else {
+                console.error('❌ Configuration failed to load or is invalid');
+                document.body.innerHTML = `
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0; font-family: Arial, sans-serif;">
+                        <h1 style="color: #172b3a;">Configuration Error</h1>
+                        <p style="color: #1e1e1e; max-width: 600px; line-height: 1.6;">
+                            Unable to load application configuration. Please check your internet connection and try again.
+                        </p>
+                        <button onclick="location.reload()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Reload Page
+                        </button>
+                    </div>
+                `;
             }
+        }).catch(error => {
+            console.error('❌ Critical error in configuration loading:', error);
+            document.body.innerHTML = `
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0; font-family: Arial, sans-serif;">
+                    <h1 style="color: #172b3a;">Critical Error</h1>
+                    <p style="color: #1e1e1e; max-width: 600px; line-height: 1.6;">
+                        A critical error occurred while loading the application. Please contact support.
+                    </p>
+                    <p style="color: #666; font-size: 12px; margin-top: 20px;">
+                        Error: ${error.message}
+                    </p>
+                </div>
+            `;
         });
     </script>
 
