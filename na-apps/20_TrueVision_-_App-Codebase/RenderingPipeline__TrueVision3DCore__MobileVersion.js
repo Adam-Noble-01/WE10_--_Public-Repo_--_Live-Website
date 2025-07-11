@@ -539,16 +539,22 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         
         // HANDLE CRITICAL MODELS LOADED EVENT
         window.TrueVisionCdnLoader.onLoadEvent('critical_complete', (event) => {
-            console.log("✅ Critical models loaded - enabling user interaction");
-            processLoadedMeshes();
+            console.log("✅ Critical models loaded - preparing for user interaction");
             
-            // HIDE LOADING OVERLAY
-            if (loadingOverlay) {
-                loadingOverlay.classList.add("hidden");
-            }
+            // PROCESS MESHES FIRST
+            processLoadedMeshes();                                           // <-- Process all loaded meshes
             
-            // NOTIFY APPLICATION THAT INTERACTION CAN BE ENABLED
-            window.dispatchEvent(new CustomEvent('modelsReadyForInteraction'));
+            // SMALL DELAY TO ENSURE PROCESSING COMPLETES
+            setTimeout(() => {
+                // HIDE LOADING OVERLAY
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add("hidden");                  // <-- Hide loading screen
+                }
+                
+                // NOTIFY APPLICATION THAT INTERACTION CAN BE ENABLED
+                window.dispatchEvent(new CustomEvent('modelsReadyForInteraction'));
+                console.log("🔔 Models ready for interaction event dispatched");
+            }, 100);                                                         // <-- 100ms delay
         });
         
         // HANDLE ALL MODELS LOADED EVENT

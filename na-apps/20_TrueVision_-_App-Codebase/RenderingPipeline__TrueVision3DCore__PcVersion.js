@@ -321,6 +321,11 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         // HANDLE CAMERA AGENT MARKERS BASED ON CONFIGURATION
         handleCameraAgentMarkers();                                          // <-- Manage camera agent visibility
         
+        // REFRESH DEV TOOLS DETECTION AFTER MODELS LOADED
+        if (window.TrueVision3D?.DevTools?.DebugMarkersManager) {
+            window.TrueVision3D.DevTools.DebugMarkersManager.refreshCameraAgentDetection();
+        }
+        
         // THEN check if HDRI is active and update materials accordingly
         const hdriLogic = window.TrueVision3D?.SceneConfig?.HdriLightingLogic;
         if (hdriLogic && hdriLogic.getHdriState && hdriLogic.getHdriState().enabled) {
@@ -408,16 +413,22 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         
         // HANDLE CRITICAL MODELS LOADED EVENT
         window.TrueVisionCdnLoader.onLoadEvent('critical_complete', (event) => {
-            console.log("✅ Critical models loaded - enabling user interaction");
+            console.log("✅ Critical models loaded - preparing for user interaction");
+            
+            // PROCESS MESHES FIRST
             processLoadedMeshes();                                           // <-- Process all loaded meshes
             
-            // HIDE LOADING OVERLAY
-            if (loadingOverlay) {
-                loadingOverlay.classList.add("hidden");                      // <-- Hide loading screen
-            }
-            
-            // NOTIFY APPLICATION THAT INTERACTION CAN BE ENABLED
-            window.dispatchEvent(new CustomEvent('modelsReadyForInteraction'));
+            // SMALL DELAY TO ENSURE PROCESSING COMPLETES
+            setTimeout(() => {
+                // HIDE LOADING OVERLAY
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add("hidden");                  // <-- Hide loading screen
+                }
+                
+                // NOTIFY APPLICATION THAT INTERACTION CAN BE ENABLED
+                window.dispatchEvent(new CustomEvent('modelsReadyForInteraction'));
+                console.log("🔔 Models ready for interaction event dispatched");
+            }, 100);                                                         // <-- 100ms delay
         });
         
         // HANDLE ALL MODELS LOADED EVENT
