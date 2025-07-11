@@ -440,6 +440,11 @@
         isEnabled: () => isEnabled                                           // <-- Check enabled state
     };
 
+    // MARK MODULE AS LOADED
+    if (window.TrueVision3D.ModuleDependencyManager) {
+        window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('FlyNavigation');
+    }
+
 // endregion -------------------------------------------------------------------
 
 })(); 
