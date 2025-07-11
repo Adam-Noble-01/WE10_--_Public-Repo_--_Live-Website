@@ -266,7 +266,7 @@
         const appConfig = window.TrueVision3D?.AppConfig?.AppConfig;         // <-- Get app configuration
         
         // LOAD WAYPOINT ORB CONFIGURATION WITH PROPER DEFAULTS
-        const orbsEnabled = appConfig?.devMode_WaypointOrbsOn !== false;     // <-- Check if orbs should be shown
+        const orbsEnabled = appConfig?.devMode_WaypointOrbsOn === true;      // <-- Respect JSON config: only show if explicitly enabled
         const orbSizeMm = appConfig?.devMode_WaypointOrbsSize || 100;        // <-- Size in millimeters
         const orbColor = appConfig?.devMode_WaypointOrbsColor || "#cd0000";  // <-- Orb color
         const orbOpacity = appConfig?.devMode_WaypointOrbsOpacity || 0.5;    // <-- Orb opacity
@@ -401,7 +401,7 @@
         if (!cameraAgentData) return;                                        // <-- Validate data exists
         
         const appConfig = window.TrueVision3D?.AppConfig?.AppConfig;         // <-- Get fresh config
-        const orbsEnabled = appConfig?.devMode_WaypointOrbsOn !== false;     // <-- Get visibility state
+        const orbsEnabled = appConfig?.devMode_WaypointOrbsOn === true;      // <-- Respect JSON config: only show if explicitly enabled
         const orbSizeMm = appConfig?.devMode_WaypointOrbsSize || 100;        // <-- Get size in mm
         const orbColor = appConfig?.devMode_WaypointOrbsColor || "#cd0000";  // <-- Get color
         const orbOpacity = appConfig?.devMode_WaypointOrbsOpacity || 0.5;    // <-- Get opacity

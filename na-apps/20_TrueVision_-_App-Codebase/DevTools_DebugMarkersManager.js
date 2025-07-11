@@ -109,7 +109,7 @@ window.TrueVision3D.DevTools = window.TrueVision3D.DevTools || {};
         if (!devConfig) return;                                              // <-- Exit if no config
         
         // LOAD WAYPOINT ORB SETTINGS
-        waypointOrbsEnabled = devConfig.devMode_WaypointOrbsOn !== false;    // <-- Default to true if not specified
+        waypointOrbsEnabled = devConfig.devMode_WaypointOrbsOn === true;     // <-- Respect JSON config: default to false, only true if explicitly set
         
         // LOAD CAMERA AGENT MARKER SETTINGS
         cameraAgentMarkersVisible = devConfig.devMode_CameraAgentMarkers !== false; // <-- Default to true
