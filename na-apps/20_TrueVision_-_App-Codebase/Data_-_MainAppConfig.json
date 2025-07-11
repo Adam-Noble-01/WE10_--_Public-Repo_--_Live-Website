@@ -107,7 +107,7 @@
             "EnableGitHubFallback": false
         },
         "Model-03": {
-            "ModelLoadingOrder": 3,
+            "ModelLoadingOrder": 2,
             "ModelType": "First Floor Furnishings",
             "ModelUrl": "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_FF_FurnishingsModel.glb",
             "ModelVersion": "1.0.0",

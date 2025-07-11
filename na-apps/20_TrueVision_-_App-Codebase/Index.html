@@ -101,63 +101,105 @@ DESCRIPTION:
         window.TrueVision3D.configLoadPromise.then(success => {
             if (success && window.TrueVision3D.AppConfig) {
                 const renderConfig = window.TrueVision3D.AppConfig.AppConfig.RenderPipelineConfig;
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-                // Check if the platform is enabled
-                if (isMobile && !renderConfig.Mobile) {
-                    // Show mobile unavailable message
-                    document.body.innerHTML = `
-                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0;">
-                            <h1 style="color: #172b3a; font-family: Arial, sans-serif;">${renderConfig.MobileUnavailableTitle}</h1>
-                            <p style="color: #1e1e1e; font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
-                                ${renderConfig.MobileUnavailableMessage}
-                            </p>
-                            <p style="color: #336699; font-family: Arial, sans-serif; margin-top: 20px;">
-                                Current URL: <br>
-                                <code style="background: #fff; padding: 10px; border-radius: 5px; display: inline-block; margin-top: 10px;">
-                                    ${window.location.href}
-                                </code>
-                            </p>
-                        </div>
-                    `;
-                    return;
+                // HELPER FUNCTION | Enhanced Mobile Detection
+                // ---------------------------------------------------------------
+                function detectMobileDevice() {
+                    // Check user agent (primary method)
+                    const userAgentCheck = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                    // Check for touch support (secondary method)
+                    const touchCheck = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+                    // Check screen size (tertiary method)
+                    const screenCheck = window.innerWidth <= 768 || window.innerHeight <= 768;
+
+                    // Check for mobile-specific features
+                    const mobileFeatures = window.orientation !== undefined;
+
+                    // iPad Pro and tablets in desktop mode detection
+                    const isIpadOS = (navigator.platform === 'MacIntel' && touchCheck && navigator.maxTouchPoints > 1);
+
+                    // Combine checks with weighted decision
+                    if (userAgentCheck || isIpadOS) return true;
+                    if (touchCheck && screenCheck) return true;
+                    if (mobileFeatures && touchCheck) return true;
+
+                    return false;
+                }
+                // ---------------------------------------------------------------
+
+                const isMobile = detectMobileDevice();
+                let scriptToLoad = null;
+                let fallbackScript = null;
+
+                // DETERMINE PRIMARY AND FALLBACK SCRIPTS
+                if (isMobile) {
+                    if (renderConfig.Mobile) {
+                        scriptToLoad = 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
+                        console.log('Device detected as mobile - loading mobile pipeline');
+                    } else if (renderConfig.PC) {
+                        // Mobile device but mobile disabled - try PC version as fallback
+                        scriptToLoad = 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
+                        console.warn('Mobile device detected but mobile pipeline disabled - attempting PC pipeline');
+                    }
+                } else {
+                    if (renderConfig.PC) {
+                        scriptToLoad = 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
+                        console.log('Device detected as PC - loading PC pipeline');
+                    } else if (renderConfig.Mobile) {
+                        // PC but PC disabled - try mobile version as fallback
+                        scriptToLoad = 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
+                        console.warn('PC detected but PC pipeline disabled - attempting mobile pipeline');
+                    }
                 }
 
-                // Load appropriate rendering pipeline
-                const script = document.createElement('script');
-                if (isMobile && renderConfig.Mobile) {
-                    script.src = 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
-                    console.log('Loading mobile rendering pipeline');
-                } else if (!isMobile && renderConfig.PC) {
-                    script.src = 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
-                    console.log('Loading PC rendering pipeline');
-                } else {
-                    // Neither platform is enabled
-                    console.error('No rendering pipeline available for this platform');
+                // CHECK IF ANY PIPELINE IS AVAILABLE
+                if (!scriptToLoad) {
+                    console.error('No rendering pipeline enabled in configuration');
                     document.body.innerHTML = `
                         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0;">
                             <h1 style="color: #172b3a; font-family: Arial, sans-serif;">Configuration Error</h1>
                             <p style="color: #1e1e1e; font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
-                                No rendering pipeline is enabled for your platform. Please contact support.
+                                No rendering pipeline is enabled in the configuration. Please contact support.
+                            </p>
+                            <p style="color: #666; font-size: 12px; margin-top: 20px;">
+                                Detected device type: ${isMobile ? 'Mobile' : 'Desktop'}<br>
+                                User Agent: ${navigator.userAgent}
                             </p>
                         </div>
                     `;
                     return;
                 }
 
+                // LOAD THE SELECTED PIPELINE
+                const script = document.createElement('script');
+                script.src = scriptToLoad;
+
                 script.onload = () => {
-                    console.log('Rendering pipeline loaded successfully');
+                    console.log('Rendering pipeline loaded successfully:', scriptToLoad);
+                    // Add device info to TrueVision3D namespace for debugging
+                    window.TrueVision3D.deviceInfo = {
+                        detectedAsMobile: isMobile,
+                        loadedPipeline: scriptToLoad,
+                        userAgent: navigator.userAgent,
+                        touchSupport: ('ontouchstart' in window) || (navigator.maxTouchPoints > 0),
+                        screenSize: `${window.innerWidth}x${window.innerHeight}`
+                    };
                     // Notify that the rendering pipeline is ready
                     window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));
                 };
 
                 script.onerror = () => {
-                    console.error('Failed to load rendering pipeline script');
+                    console.error('Failed to load rendering pipeline script:', scriptToLoad);
                     document.body.innerHTML = `
                         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0;">
                             <h1 style="color: #172b3a; font-family: Arial, sans-serif;">Loading Error</h1>
                             <p style="color: #1e1e1e; font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
                                 Failed to load the 3D rendering system. Please refresh the page or contact support if the problem persists.
+                            </p>
+                            <p style="color: #666; font-size: 12px; margin-top: 20px;">
+                                Failed to load: ${scriptToLoad}
                             </p>
                         </div>
                     `;
