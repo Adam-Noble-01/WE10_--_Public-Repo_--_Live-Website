@@ -166,24 +166,57 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             alpha: false,                                                    // <-- No alpha for better performance
             depth: true,                                                     // <-- Enable depth buffer
             premultipliedAlpha: false,                                       // <-- Better color accuracy
-            failIfMajorPerformanceCaveat: true,                            // <-- Fail if major performance issues
+            failIfMajorPerformanceCaveat: false,                            // <-- FIXED: Allow mobile to work with performance caveats
             doNotHandleContextLost: false,                                   // <-- Handle context lost
             audioEngine: false,                                              // <-- Disable audio to save resources
             disableWebGL2Support: false,                                     // <-- Try to use WebGL2 if available
-            deterministicLockstep: true,                                     // <-- Ensure consistent frame timing
+            deterministicLockstep: false,                                    // <-- FIXED: Disable for better mobile compatibility
             timeStep: 1/TARGET_FPS                                           // <-- Target 30 FPS on mobile
         };
         
-        engine = new BABYLON.Engine(canvas, true, engineOptions);           // <-- Create engine with mobile options
+        // MOBILE ENGINE CREATION WITH ERROR HANDLING
+        try {
+            engine = new BABYLON.Engine(canvas, true, engineOptions);       // <-- Create engine with mobile options
+            console.log("✅ Mobile Babylon.js engine created successfully");
+        } catch (error) {
+            console.error("❌ Failed to create mobile engine:", error);
+            
+            // FALLBACK TO MINIMAL ENGINE OPTIONS
+            const fallbackOptions = {
+                preserveDrawingBuffer: false,
+                stencil: false,
+                powerPreference: "default",
+                antialias: false,
+                alpha: false,
+                depth: true,
+                premultipliedAlpha: false,
+                failIfMajorPerformanceCaveat: false,
+                doNotHandleContextLost: false,
+                audioEngine: false,
+                disableWebGL2Support: true,                                  // <-- Force WebGL1 as fallback
+                deterministicLockstep: false
+            };
+            
+            try {
+                engine = new BABYLON.Engine(canvas, true, fallbackOptions);
+                console.log("✅ Mobile engine created with fallback options (WebGL1)");
+            } catch (fallbackError) {
+                console.error("❌ Mobile engine creation failed completely:", fallbackError);
+                throw new Error("Mobile WebGL initialization failed - device may not support required features");
+            }
+        }
         
-        // IOS-SPECIFIC WEBGL2 WORKAROUNDS
+        // MOBILE DEVICE DETECTION AND CONFIGURATION
         if (isIOSDevice) {
             engine.disableUniformBuffers = true;                            // <-- Disable uniform buffers on iOS
-            console.log("iOS detected - uniform buffers disabled for compatibility");
-            
-            // Additional iOS-specific settings
             engine.disableVertexArrayObjects = false;                       // <-- Keep VAO enabled
             engine.forcePOTTextures = true;                                 // <-- Force power-of-two textures
+            console.log("iOS detected - applied iOS-specific optimizations");
+        } else if (isAndroidDevice) {
+            engine.disableUniformBuffers = false;                           // <-- Try uniform buffers on Android
+            engine.disableVertexArrayObjects = false;                       // <-- Keep VAO enabled
+            engine.forcePOTTextures = false;                                // <-- Allow NPOT textures on Android
+            console.log("Android detected - applied Android-specific optimizations");
         }
         
         // MOBILE-SPECIFIC ENGINE SETTINGS
@@ -229,7 +262,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // ---------------------------------------------------------------
 
     // FUNCTION | Create Mobile-Optimized Scene
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function createScene() {
         scene = new BABYLON.Scene(engine);                                   // <-- Initialize new Babylon.js scene
         

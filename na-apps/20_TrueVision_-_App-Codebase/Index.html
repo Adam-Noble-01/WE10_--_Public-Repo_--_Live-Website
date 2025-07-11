@@ -135,21 +135,21 @@ DESCRIPTION:
 
                 // DETERMINE PRIMARY AND FALLBACK SCRIPTS
                 if (isMobile) {
-                    if (renderConfig.Mobile) {
-                        scriptToLoad = 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
+                    if (renderConfig.RenderPipeline_MobileEnabled) {
+                        scriptToLoad = renderConfig.RenderPipeline_MobileFile || 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
                         console.log('Device detected as mobile - loading mobile pipeline');
-                    } else if (renderConfig.PC) {
+                    } else if (renderConfig.RenderPipeline_PcEnabled && renderConfig.RenderPipeline_FallbackToPcOnMobileFail) {
                         // Mobile device but mobile disabled - try PC version as fallback
-                        scriptToLoad = 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
+                        scriptToLoad = renderConfig.RenderPipeline_PcFile || 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
                         console.warn('Mobile device detected but mobile pipeline disabled - attempting PC pipeline');
                     }
                 } else {
-                    if (renderConfig.PC) {
-                        scriptToLoad = 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
+                    if (renderConfig.RenderPipeline_PcEnabled) {
+                        scriptToLoad = renderConfig.RenderPipeline_PcFile || 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
                         console.log('Device detected as PC - loading PC pipeline');
-                    } else if (renderConfig.Mobile) {
+                    } else if (renderConfig.RenderPipeline_MobileEnabled) {
                         // PC but PC disabled - try mobile version as fallback
-                        scriptToLoad = 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
+                        scriptToLoad = renderConfig.RenderPipeline_MobileFile || 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
                         console.warn('PC detected but PC pipeline disabled - attempting mobile pipeline');
                     }
                 }

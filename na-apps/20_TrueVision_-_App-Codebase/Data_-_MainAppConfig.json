@@ -62,10 +62,14 @@
         },
         "RenderPipelineConfig": {
             "RenderPipelineConfig_Description": "Controls which rendering pipelines are available based on device type",
-            "PC": true,
-            "Mobile": true,
-            "MobileUnavailableMessage"  : "TrueVision 3D is not yet available for mobile devices. Please open this link on a desktop or laptop computer for the best experience.",
-            "MobileUnavailableTitle"    : "Mobile Version Coming Soon"
+            "RenderPipeline_PcEnabled": true,
+            "RenderPipeline_MobileEnabled": true,
+            "RenderPipeline_MobileUnavailableMessage": "TrueVision 3D is not yet available for mobile devices. Please open this link on a desktop or laptop computer for the best experience.",
+            "RenderPipeline_MobileUnavailableTitle": "Mobile Version Coming Soon",
+            "RenderPipeline_AutoDetectDevice": true,
+            "RenderPipeline_FallbackToPcOnMobileFail": true,
+            "RenderPipeline_PcFile": "RenderingPipeline__TrueVision3DCore__PcVersion.js",
+            "RenderPipeline_MobileFile": "RenderingPipeline__TrueVision3DCore__MobileVersion.js"
         }
     },
     "SceneConfig": {
