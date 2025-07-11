@@ -1,48 +1,48 @@
 {
-    "appName": "TrueVision",
-    "appVersion": "1.1.1",
-    "appDescription": "TrueVision is a web application that allows you to view 3D models in a virtual environment.",
-    "appDeveloper": "Noble Architecture",
-    "appAuthor": "Adam Noble",
-    "appAuthorEmail": "adam@noblearchitecture.co.uk",
-    "appDomain": "https://www.noble-architecture.com/",
-    "appCDN": "https://cdn.noble-architecture.com/",
+    "appName"           :  "TrueVision",
+    "appVersion"        :  "1.3.0",
+    "appDescription"    :  "TrueVision is a web application that allows you to view 3D models in a virtual environment.",
+    "appDeveloper"      :  "Noble Architecture",
+    "appAuthor"         :  "Adam Noble",
+    "appAuthorEmail"    :  "adam@noblearchitecture.co.uk",
+    "appDomain"         :  "https://www.noble-architecture.com/",
+    "appCDN"            :  "https://cdn.noble-architecture.com/",
     "AppConfig": {
-        "devMode_Enabled": false,
-        "devMode_Description": "Various typical app config options, enables debug tools and analysis tools",
-        "devMode_WaypointNotes": "Configures the waypoint marker orbs, the size value represents the diameter of the orb in millimeters",
-        "devMode_WaypointOrbsOn": false,
-        "devMode_WaypointOrbsColor": "#cd0000",
-        "devMode_WaypointOrbsSize": 500,
-        "devMode_WaypointOrbsOpacity": 0.5,
-        "devMode_WaypointOrbsType": "sphere",
-        "devMode_CameraAgentMarkers": false,
-        "devMode_CameraAgentMarkersNote01": "This switches on the camera agent markers, which are used to display the camera agent positions",
-        "devMode_CameraAgentMarkersNote02": "These are the geometric markers created using the SketchUp Plugin and are named 'Camera_Agent_CAM001' etc",
-        "devMode_CameraAgentMarkersPattern": "Camera_Agent_CAM",
-        "devMode_DebugMeshes": false,
-        "devMode_DebugMeshesNote": "Shows debug information for all meshes in the scene including names and positions",
-        "devMode_ShowMeshBounds": false,
-        "devMode_ShowMeshBoundsNote": "Shows bounding boxes around all meshes for debugging layout issues",
+        "devMode_Enabled"                   :  true,
+        "devMode_Description"               :  "Various typical app config options, enables debug tools and analysis tools",
+        "devMode_WaypointNotes"             :  "Configures the waypoint marker orbs, the size value represents the diameter of the orb in millimeters",
+        "devMode_WaypointOrbsOn"            :  true,
+        "devMode_WaypointOrbsColor"         :  "#cd0000",
+        "devMode_WaypointOrbsSize"          :  500,
+        "devMode_WaypointOrbsOpacity"       :  0.5,
+        "devMode_WaypointOrbsType"          :  "sphere",
+        "devMode_CameraAgentMarkers"        :  true,
+        "devMode_CameraAgentMarkersNote01"  :  "This switches on the camera agent markers, which are used to display the camera agent positions",
+        "devMode_CameraAgentMarkersNote02"  :  "These are the geometric markers created using the SketchUp Plugin and are named 'Camera_Agent_CAM001' etc",
+        "devMode_CameraAgentMarkersPattern" :  "Camera_Agent_CAM",
+        "devMode_DebugMeshes"               :  true,
+        "devMode_DebugMeshesNote"           :  "Shows debug information for all meshes in the scene including names and positions",
+        "devMode_ShowMeshBounds"            :  true,
+        "devMode_ShowMeshBoundsNote"        :  "Shows bounding boxes around all meshes for debugging layout issues",
         "AppConfig_NavMode": {
-            "AppNavMode_Description_01": "These Are Used To Determine The Navigation Mode Of The App",
-            "AppNavMode_Description_02": "If False the UI Buttons Will Not Be Displayed",
+            "AppNavMode_Description_01"     :  "These Are Used To Determine The Navigation Mode Of The App",
+            "AppNavMode_Description_02"     :  "If False the UI Buttons Will Not Be Displayed",
             "AppNavMode_Waypoint": {
-                "NavMode_WaypointState": true,
-                "NavMode_WaypointFile": "NavMode_WaypointNavigationSystemLogic.js",
-                "NavMode_WaypointDescription": "Waypoint navigation allows predefined camera positions and paths",
-                "NavMode_WaypointDataFile": "Data_-_CameraAgentData.json",
-                "NavMode_WaypointDataFileURL": "Note: Use this to override the default data file, if different data is required"
+                "NavMode_WaypointState"        : true,
+                "NavMode_WaypointFile"         : "NavMode_WaypointNavigationSystemLogic.js",
+                "NavMode_WaypointDescription"  : "Waypoint navigation allows predefined camera positions and paths",
+                "NavMode_WaypointDataFile"     : "Data_-_CameraAgentData.json",
+                "NavMode_WaypointDataFileURL"  : "Note: Use this to override the default data file, if different data is required"
             },
             "AppNavMode_Walk": {
-                "NavMode_WalkState": true,
-                "NavMode_WalkFile": "NavMode_WalkNavigationSystemLogic.js",
-                "NavMode_WalkDescription": "Walk mode enables first-person style ground-level navigation"
+                "NavMode_WalkState"        :  true,
+                "NavMode_WalkFile"         :  "NavMode_WalkNavigationSystemLogic.js",
+                "NavMode_WalkDescription"  :  "Walk mode enables first-person style ground-level navigation"
             },
             "AppNavMode_Orbit": {
-                "NavMode_OrbitState": true,
-                "NavMode_OrbitFile": "NavMode_OrbitNavigationSystemLogic.js",
-                "NavMode_OrbitDescription": "Orbit mode allows camera rotation around a fixed point"
+                "NavMode_OrbitState"       :  true,
+                "NavMode_OrbitFile"        :  "NavMode_OrbitNavigationSystemLogic.js",
+                "NavMode_OrbitDescription" : "Orbit mode allows camera rotation around a fixed point"
             },
             "AppNavMode_Fly": {
                 "NavMode_FlyState": true,
@@ -64,8 +64,8 @@
             "RenderPipelineConfig_Description": "Controls which rendering pipelines are available based on device type",
             "PC": true,
             "Mobile": true,
-            "MobileUnavailableMessage": "TrueVision 3D is not yet available for mobile devices. Please open this link on a desktop or laptop computer for the best experience.",
-            "MobileUnavailableTitle": "Mobile Version Coming Soon"
+            "MobileUnavailableMessage"  : "TrueVision 3D is not yet available for mobile devices. Please open this link on a desktop or laptop computer for the best experience.",
+            "MobileUnavailableTitle"    : "Mobile Version Coming Soon"
         }
     },
     "SceneConfig": {
@@ -82,49 +82,49 @@
     },
     "CdnModelConfig__ModelLoadingLinkMapper": {
         "CdnModelConfig_Description": "CDN-based model loading configuration with priority ordering",
-        "CdnModelConfig_Enabled": true,
-        "CdnModelConfig_BaseUrl": "https://cdn.noble-architecture.com",
+        "CdnModelConfig_Enabled"    : true,
+        "CdnModelConfig_BaseUrl"    : "https://cdn.noble-architecture.com",
         "Model-01": {
-            "ModelLoadingOrder": 1,
-            "ModelType": "Main Building Model",
-            "ModelUrl": "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_BuildingModel.glb",
-            "ModelVersion": "1.0.0",
-            "ModelAdded": "2025-01-14",
-            "ModelNotes": "Primary building structure - must load before user interaction",
-            "ModelCritical": true,
-            "ModelFileSize": "37MB",
-            "EnableGitHubFallback": false
+            "ModelLoadingOrder"     : 1,
+            "ModelType"             : "Main Building Model",
+            "ModelUrl"              : "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_BuildingModel.glb",
+            "ModelVersion"          : "1.0.0",
+            "ModelAdded"            : "2025-01-14",
+            "ModelNotes"            : "Primary building structure - must load before user interaction",
+            "ModelCritical"         : true,
+            "ModelFileSize"         : "37MB",
+            "EnableGitHubFallback"  : true
         },
         "Model-02": {
-            "ModelLoadingOrder": 2,
-            "ModelType": "Ground Floor Furnishings",
-            "ModelUrl": "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_GF_FurnishingsModel.glb",
-            "ModelVersion": "1.0.0",
-            "ModelAdded": "2025-01-14",
-            "ModelNotes": "Ground floor furniture and fixtures - loads after building",
-            "ModelCritical": false,
-            "ModelFileSize": "49MB",
-            "EnableGitHubFallback": false
+            "ModelLoadingOrder"     :  2,
+            "ModelType"             :  "Ground Floor Furnishings",
+            "ModelUrl"              :  "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_GF_FurnishingsModel.glb",
+            "ModelVersion"          :  "1.0.0",
+            "ModelAdded"            :  "2025-01-14",
+            "ModelNotes"            :  "Ground floor furniture and fixtures - loads after building",
+            "ModelCritical"         :  false,
+            "ModelFileSize"         :  "49MB",
+            "EnableGitHubFallback"  :  false
         },
         "Model-03": {
-            "ModelLoadingOrder": 3,
-            "ModelType": "First Floor Furnishings",
-            "ModelUrl": "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_FF_FurnishingsModel.glb",
-            "ModelVersion": "1.0.0",
-            "ModelAdded": "2025-01-14",
-            "ModelNotes": "First floor furniture and fixtures - loads after ground floor",
-            "ModelCritical": false,
-            "ModelFileSize": "16MB",
-            "EnableGitHubFallback": false
+            "ModelLoadingOrder"     :  3,
+            "ModelType"             :  "First Floor Furnishings",
+            "ModelUrl"              :  "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_FF_FurnishingsModel.glb",
+            "ModelVersion"          :  "1.0.0",
+            "ModelAdded"            :  "2025-01-14",
+            "ModelNotes"            :  "First floor furniture and fixtures - loads after ground floor",
+            "ModelCritical"         :  true,
+            "ModelFileSize"         :  "16MB",
+            "EnableGitHubFallback"  :  false
         },
         "ModelLoadingConfig": {
-            "EnableProgressiveLoading": true,
-            "EnableFallbackLoading": true,
-            "FallbackToGitHub": true,
-            "ShowLoadingProgress": true,
-            "MaxRetryAttempts": 3,
-            "RetryDelayMs": 1000,
-            "_Comment": "FallbackToGitHub is the global default. Per-model EnableGitHubFallback overrides this setting."
+            "EnableProgressiveLoading"  :  true,
+            "EnableFallbackLoading"     :  false,
+            "FallbackToGitHub"          :  false,
+            "ShowLoadingProgress"       :  true,
+            "MaxRetryAttempts"          :  3,
+            "RetryDelayMs"              :  1000,
+            "_Comment"                  :  "FallbackToGitHub is the global default. Per-model EnableGitHubFallback overrides this setting."
         }
     }
 }
