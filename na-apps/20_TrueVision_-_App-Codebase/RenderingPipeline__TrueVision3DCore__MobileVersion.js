@@ -271,7 +271,242 @@ try {  // Wrap entire module in try-catch for error detection
         }, false);
         
         console.log("Babylon.js mobile engine initialized with battery-safe mode");
+        
+        // INITIALIZE ADVANCED MOBILE POWER MANAGEMENT
+        setupMobilePowerManagement();
+        
         return engine;                                                       // <-- Return engine reference
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Setup Advanced Mobile Power Management
+    // ------------------------------------------------------------
+    function setupMobilePowerManagement() {
+        // DETECT BATTERY STATUS (if available)
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                // MONITOR BATTERY LEVEL
+                function updateBatteryStatus() {
+                    const batteryLevel = battery.level * 100;                // <-- Percentage
+                    const isCharging = battery.charging;
+                    
+                    if (batteryLevel < 20 && !isCharging) {
+                        // CRITICAL BATTERY MODE
+                        enableCriticalPowerSaving();
+                    } else if (batteryLevel < 40 && !isCharging) {
+                        // LOW BATTERY MODE
+                        enableLowPowerMode();
+                    } else {
+                        // NORMAL MODE
+                        disablePowerSaving();
+                    }
+                }
+                
+                // LISTEN FOR BATTERY CHANGES
+                battery.addEventListener('levelchange', updateBatteryStatus);
+                battery.addEventListener('chargingchange', updateBatteryStatus);
+                updateBatteryStatus();                                        // <-- Initial check
+            }).catch(err => {
+                console.log("Battery API not available:", err);
+            });
+        }
+        
+        // VISIBILITY-BASED OPTIMIZATIONS
+        document.addEventListener('visibilitychange', () => {
+            if (!engine || !scene) return;
+            
+            if (document.hidden) {
+                // PAGE IS HIDDEN - AGGRESSIVE POWER SAVING
+                engine.stopRenderLoop();                                      // <-- Stop rendering
+                scene.audioEnabled = false;                                  // <-- Disable audio
+                
+                // PAUSE ANIMATIONS
+                scene.animationPropertiesOverride = scene.animationPropertiesOverride || new BABYLON.AnimationPropertiesOverride();
+                scene.animationPropertiesOverride.enableBlending = false;
+                scene.stopAllAnimations();
+            } else {
+                // PAGE IS VISIBLE - RESUME
+                engine.runRenderLoop(() => {
+                    if (scene && scene.activeCamera) {
+                        scene.render();
+                    }
+                });
+                
+                // RESUME ANIMATIONS IF ENABLED
+                if (scene.animationPropertiesOverride) {
+                    scene.animationPropertiesOverride.enableBlending = true;
+                }
+            }
+        });
+        
+        // MONITOR FOCUS STATE
+        window.addEventListener('focus', () => {
+            if (engine && scene) {
+                // WINDOW HAS FOCUS - NORMAL RENDERING
+                engine.setHardwareScalingLevel(1.0);                         // <-- Full resolution
+            }
+        });
+        
+        window.addEventListener('blur', () => {
+            if (engine && scene) {
+                // WINDOW LOST FOCUS - REDUCE QUALITY
+                engine.setHardwareScalingLevel(1.5);                         // <-- Lower resolution
+            }
+        });
+        
+        // MONITOR THERMAL STATE (if available)
+        if ('thermalState' in navigator) {
+            // Future API for thermal monitoring
+            console.log("Thermal state monitoring available");
+        }
+        
+        // WAKE LOCK API - Prevent screen dimming during active 3D viewing
+        if ('wakeLock' in navigator && document.visibilityState === 'visible') {
+            navigator.wakeLock.request('screen').then(wakeLock => {
+                console.log("Wake lock acquired - screen won't dim");
+                
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible' && !wakeLock.released) {
+                        // Re-acquire wake lock when page becomes visible
+                        navigator.wakeLock.request('screen');
+                    }
+                });
+            }).catch(err => {
+                console.log("Wake lock not available:", err);
+            });
+        }
+        
+        // NETWORK INFORMATION API - Adjust quality based on connection
+        if ('connection' in navigator) {
+            const connection = navigator.connection;
+            
+            function adjustForNetworkQuality() {
+                const effectiveType = connection.effectiveType;
+                console.log("Network quality:", effectiveType);
+                
+                if (effectiveType === 'slow-2g' || effectiveType === '2g') {
+                    // Very poor connection - minimize texture loading
+                    console.log("Poor network detected - reducing texture quality");
+                    MAX_TEXTURE_SIZE = 512;
+                } else if (effectiveType === '3g') {
+                    // Moderate connection
+                    MAX_TEXTURE_SIZE = 1024;
+                }
+            }
+            
+            connection.addEventListener('change', adjustForNetworkQuality);
+            adjustForNetworkQuality();
+        }
+        
+        // MEMORY PRESSURE HANDLING
+        if ('memory' in performance) {
+            setInterval(() => {
+                const memInfo = performance.memory;
+                const usageRatio = memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit;
+                
+                if (usageRatio > 0.9) {
+                    console.warn("High memory usage detected:", (usageRatio * 100).toFixed(1) + "%");
+                    // Trigger texture cleanup
+                    if (scene) {
+                        scene.cleanCachedTextureBuffer();
+                    }
+                }
+            }, 30000); // Check every 30 seconds
+        }
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Enable Critical Power Saving Mode
+    // ------------------------------------------------------------
+    function enableCriticalPowerSaving() {
+        if (!engine || !scene) return;
+        
+        console.log("🔋 CRITICAL BATTERY: Enabling aggressive power saving");
+        
+        // REDUCE RENDER RESOLUTION
+        engine.setHardwareScalingLevel(2.0);                                 // <-- 50% resolution
+        
+        // REDUCE FPS TARGET (Babylon.js doesn't have direct FPS control, but we can throttle)
+        if (engine._fps) {
+            engine._fps = 30;                                                // <-- Internal FPS target
+        }
+        
+        // DISABLE EXPENSIVE EFFECTS
+        if (scene.postProcessManager) {
+            scene.postProcessManager.dispose();                              // <-- Remove post-processing
+        }
+        
+        // DISABLE SSAO IF ACTIVE
+        if (ssaoEnabled && window.TrueVision3D?.RenderEffects?.SsaoAmbientOcclusionEffect) {
+            window.TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect.disable();
+            ssaoEnabled = false;
+        }
+        
+        // REDUCE TEXTURE QUALITY
+        scene.textures.forEach(texture => {
+            if (texture.updateSamplingMode) {
+                texture.updateSamplingMode(BABYLON.Texture.NEAREST_SAMPLINGMODE);
+            }
+        });
+        
+        // DISABLE SHADOWS
+        if (shadowGenerator) {
+            shadowGenerator.dispose();
+            shadowGenerator = null;
+        }
+        
+        // REDUCE MESH CULLING DISTANCE
+        MAX_MESHES_PER_FRAME = 10;                                          // <-- Show fewer meshes
+        
+        // SET GLOBAL FLAG
+        window.TrueVision3D._powerMode = 'critical';
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Enable Low Power Mode
+    // ------------------------------------------------------------
+    function enableLowPowerMode() {
+        if (!engine || !scene) return;
+        
+        console.log("🔋 LOW BATTERY: Enabling power saving mode");
+        
+        // MODERATE RESOLUTION REDUCTION
+        engine.setHardwareScalingLevel(1.5);                                 // <-- 75% resolution
+        
+        // REDUCE SHADOW QUALITY
+        if (shadowGenerator) {
+            shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_LOW;
+            shadowGenerator.useBlurExponentialShadowMap = false;
+        }
+        
+        // REDUCE MESH CULLING DISTANCE
+        MAX_MESHES_PER_FRAME = 20;                                          // <-- Show fewer meshes
+        
+        // SET GLOBAL FLAG
+        window.TrueVision3D._powerMode = 'low';
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Disable Power Saving Mode
+    // ------------------------------------------------------------
+    function disablePowerSaving() {
+        if (!engine || !scene) return;
+        
+        console.log("🔋 NORMAL BATTERY: Disabling power saving");
+        
+        // RESTORE FULL QUALITY
+        engine.setHardwareScalingLevel(1.0);                                 // <-- Full resolution
+        
+        // RESTORE SHADOW QUALITY IF AVAILABLE
+        if (shadowGenerator) {
+            shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_LOW; // Still low on mobile
+        }
+        
+        // RESTORE MESH CULLING
+        MAX_MESHES_PER_FRAME = 50;                                          // <-- Normal mobile limit
+        
+        // SET GLOBAL FLAG
+        window.TrueVision3D._powerMode = 'normal';
     }
     // ---------------------------------------------------------------
 
@@ -861,7 +1096,20 @@ try {  // Wrap entire module in try-catch for error detection
         toggleFurnishings: toggleFurnishings,
         getFurnishingsVisibility: getFurnishingsVisibility,
         setFurnishingsVisibility: setFurnishingsVisibility,
-        dispose: dispose
+        dispose: dispose,
+        // POWER MANAGEMENT API
+        setPowerMode: function(mode) {
+            if (mode === 'critical') {
+                enableCriticalPowerSaving();
+            } else if (mode === 'low') {
+                enableLowPowerMode();
+            } else if (mode === 'normal') {
+                disablePowerSaving();
+            }
+        },
+        getPowerMode: function() {
+            return window.TrueVision3D._powerMode || 'normal';
+        }
     };
 
     // MARK MODULE AS LOADED
