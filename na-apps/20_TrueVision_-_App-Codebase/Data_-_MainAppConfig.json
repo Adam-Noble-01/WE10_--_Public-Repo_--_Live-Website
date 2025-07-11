@@ -117,7 +117,7 @@
             "ModelVersion"          :  "1.0.0",
             "ModelAdded"            :  "2025-01-14",
             "ModelNotes"            :  "First floor furniture and fixtures - loads after ground floor",
-            "ModelCritical"         :  true,
+            "ModelCritical"         :  false,
             "ModelFileSize"         :  "16MB",
             "EnableGitHubFallback"  :  false
         },

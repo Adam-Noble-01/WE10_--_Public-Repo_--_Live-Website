@@ -340,11 +340,21 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
             // START APPLICATION SYSTEMS NOW THAT MODELS ARE READY
             startApplicationSystems();                                       // <-- Enable navigation and rendering
             
-            // HIDE LOADING OVERLAY (BACKUP IN CASE CDN LOADER DIDN'T)
-            if (loadingOverlay) {
-                loadingOverlay.classList.add("hidden");                      // <-- Hide loading screen
-            }
+            // DON'T HIDE LOADING OVERLAY YET - Wait for all models
+            console.log("Critical models loaded, waiting for all models to complete...");
         });
+
+        // LISTEN FOR ALL MODELS LOADED EVENT
+        if (window.TrueVisionCdnLoader) {
+            window.TrueVisionCdnLoader.onLoadEvent('all_complete', function(event) {
+                console.log("All models loaded successfully - hiding loading overlay");
+                
+                // HIDE LOADING OVERLAY AFTER ALL MODELS ARE LOADED
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add("hidden");                  // <-- Hide loading screen
+                }
+            });
+        }
         
         // LISTEN FOR CDN LOADER STATUS UPDATES (OPTIONAL)
         if (window.TrueVisionCdnLoader) {
