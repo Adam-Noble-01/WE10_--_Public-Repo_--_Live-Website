@@ -131,11 +131,36 @@ DESCRIPTION:
                 } else if (!isMobile && renderConfig.PC) {
                     script.src = 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
                     console.log('Loading PC rendering pipeline');
+                } else {
+                    // Neither platform is enabled
+                    console.error('No rendering pipeline available for this platform');
+                    document.body.innerHTML = `
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0;">
+                            <h1 style="color: #172b3a; font-family: Arial, sans-serif;">Configuration Error</h1>
+                            <p style="color: #1e1e1e; font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
+                                No rendering pipeline is enabled for your platform. Please contact support.
+                            </p>
+                        </div>
+                    `;
+                    return;
                 }
 
                 script.onload = () => {
                     console.log('Rendering pipeline loaded successfully');
-                    // Continue with other initializations
+                    // Notify that the rendering pipeline is ready
+                    window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));
+                };
+
+                script.onerror = () => {
+                    console.error('Failed to load rendering pipeline script');
+                    document.body.innerHTML = `
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0;">
+                            <h1 style="color: #172b3a; font-family: Arial, sans-serif;">Loading Error</h1>
+                            <p style="color: #1e1e1e; font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
+                                Failed to load the 3D rendering system. Please refresh the page or contact support if the problem persists.
+                            </p>
+                        </div>
+                    `;
                 };
 
                 document.head.appendChild(script);

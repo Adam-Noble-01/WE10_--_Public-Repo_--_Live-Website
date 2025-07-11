@@ -114,11 +114,11 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
             // INITIALIZE USER INTERFACE REFERENCES
             initializeUIReferences();                                        // <-- Get DOM element references
             
-            // INITIALIZE RENDERING PIPELINE
-            const renderingRefs = initializeRenderingSystem();               // <-- Initialize 3D rendering
-            if (!renderingRefs) {
-                throw new Error("Failed to initialize rendering system");
-            }
+                    // INITIALIZE RENDERING PIPELINE
+        const renderingRefs = await initializeRenderingSystem();         // <-- Initialize 3D rendering (now async)
+        if (!renderingRefs) {
+            throw new Error("Failed to initialize rendering system");
+        }
             
             // INITIALIZE SOLAR ORIENTATION CONTROLS
             initializeSolarSystem(renderingRefs);                            // <-- Initialize solar controls
@@ -195,9 +195,19 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
 
     // SUB FUNCTION | Initialize Rendering Pipeline System
     // ---------------------------------------------------------------
-    function initializeRenderingSystem() {
+    async function initializeRenderingSystem() {
+        // WAIT FOR RENDERING PIPELINE TO BE AVAILABLE
+        let attempts = 0;
+        const maxAttempts = 50;                                              // <-- Max 5 seconds wait
+        
+        while (!window.TrueVision3D.RenderingPipeline && attempts < maxAttempts) {
+            console.log(`Waiting for rendering pipeline to load... (attempt ${attempts + 1})`);
+            await new Promise(resolve => setTimeout(resolve, 100));          // <-- Wait 100ms
+            attempts++;
+        }
+        
         if (!window.TrueVision3D.RenderingPipeline) {
-            console.error("Rendering pipeline module not available");        // <-- Log error
+            console.error("Rendering pipeline module not available after timeout");
             return null;
         }
         
