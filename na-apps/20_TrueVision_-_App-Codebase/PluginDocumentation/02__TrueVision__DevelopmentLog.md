@@ -10,36 +10,7 @@ CREATED    : Circa. Feb-2025
 =============================================================================
 
 # ----------------------------------------------------------------------------
-## VERSION 1.3.2  - Mobile Device Bug Fixed
-###  Released     -  11-Jul-2025
-
-#### Critical Issue Identified
-- Model silently failed to load on mobile devices 
-  - Tested on Google Pixel 6 Pro on Edge and Chrome browsers
-  - Tested on Samsung Galaxy S8 on Edge and Chrome browsers
-- Loading screen resolves but the canvas fails to load the environment.
-- The canvas is blank (light grey) with no environment.
-- This is different to the PC version which loads the environment correctly even if a model is not loaded.
-- The loading screen is suspiciously quick, clocking in at 1 second, whilst pc takes around 20 seconds if no cache.
-- Tried clearing cache and reloading the page.
-- All links validated and working.
-
-- I think the issue to check for first is legacy code related to mobile devices.
-- Once we validate there is no legacy code overiding the version loaded on PC then we can investigate what may
-  be a requirement in the Babylon JS library and research the best practices for mobile device loading.
-
-- RECAP
-  - First check for legacy code and redundant scripts and files.
-  - Check the render pipeline and see if models are handled differently on mobile devices.
-ONLY THEN ONCE VALIDATE !ALL! SCRIPTS
-  - Research best practices to ensure stable loading on mobile devices.
-  - Perhaps some of the features and rendering features are just not supported on mobile devices.
-
-
-
-
-
-
+## VERSION 1.3.
 
 
 -----------------------------------------------------------------------------
