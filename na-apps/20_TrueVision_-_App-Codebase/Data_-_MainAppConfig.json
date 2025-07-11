@@ -8,7 +8,7 @@
     "appDomain"         :  "https://www.noble-architecture.com/",
     "appCDN"            :  "https://cdn.noble-architecture.com/",
     "AppConfig": {
-        "devMode_Enabled"                   :  true,
+        "devMode_Enabled"                   :  false,
         "devMode_Description"               :  "Various typical app config options, enables debug tools and analysis tools",
         "devMode_WaypointNotes"             :  "Configures the waypoint marker orbs, the size value represents the diameter of the orb in millimeters",
         "devMode_WaypointOrbsOn"            :  false,
