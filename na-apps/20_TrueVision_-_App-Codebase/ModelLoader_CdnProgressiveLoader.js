@@ -330,21 +330,37 @@
             status: 'loading'
         };
         
+        // RATE LIMITING AND SPAM PREVENTION
+        if (!window.modelLoadingStats) window.modelLoadingStats = {};
+        if (!window.modelLoadingStats[modelKey]) {
+            window.modelLoadingStats[modelKey] = {
+                logCount: 0,
+                lastLogTime: 0,
+                lastLoggedPercentage: -1,
+                lastMilestone: -1
+            };
+        }
+        
+        const stats = window.modelLoadingStats[modelKey];
+        const now = Date.now();
+        const timeSinceLastLog = now - stats.lastLogTime;
+        const MIN_LOG_INTERVAL_MS = 1000;  // Minimum 1 second between logs
+        const MAX_LOGS_PER_MODEL = 12;     // Maximum 12 logs per model
+        
         // ONLY LOG AT 10% INTERVALS TO REDUCE CONSOLE CLUTTER
-        const previousProgress = loadingProgress.get(modelKey);
-        
-        // Track last logged milestone for this model
-        if (!window.lastLoggedMilestone) window.lastLoggedMilestone = {};
-        if (!window.lastLoggedMilestone[modelKey]) window.lastLoggedMilestone[modelKey] = -1;
-        
         const currentMilestone = Math.floor(progress.percentage / 10) * 10;
-        const shouldLog = !previousProgress ||  // First time
-                         currentMilestone > window.lastLoggedMilestone[modelKey] ||  // Crossed 10% boundary
-                         progress.percentage === 100;  // Always log completion
+        const shouldLogMilestone = currentMilestone > stats.lastMilestone || progress.percentage === 100;
+        const notSpamming = timeSinceLastLog >= MIN_LOG_INTERVAL_MS && stats.logCount < MAX_LOGS_PER_MODEL;
+        const isDifferentPercentage = progress.percentage !== stats.lastLoggedPercentage;
+        
+        const shouldLog = shouldLogMilestone && notSpamming && isDifferentPercentage;
         
         if (shouldLog) {
             console.log(`${modelKey} loading progress: ${progress.percentage}% (${progress.loaded}/${progress.total})`);
-            window.lastLoggedMilestone[modelKey] = currentMilestone;
+            stats.lastMilestone = currentMilestone;
+            stats.lastLogTime = now;
+            stats.lastLoggedPercentage = progress.percentage;
+            stats.logCount++;
         }
         
         loadingProgress.set(modelKey, progress);                             // <-- Update progress map
@@ -390,17 +406,28 @@
             ? Math.round(totalProgress / modelsWithProgress)  
             : 0;  // <-- Don't show fake progress
         
-        // ONLY LOG OVERALL PROGRESS AT 10% INTERVALS TO REDUCE CONSOLE CLUTTER
-        if (!window.lastLoggedOverallMilestone) window.lastLoggedOverallMilestone = -1;
+        // ONLY LOG OVERALL PROGRESS AT 20% INTERVALS TO REDUCE CONSOLE CLUTTER
+        if (!window.overallProgressStats) {
+            window.overallProgressStats = {
+                lastLogTime: 0,
+                lastMilestone: -1,
+                logCount: 0
+            };
+        }
         
-        const currentOverallMilestone = Math.floor(overallProgress / 10) * 10;
-        const shouldLogOverall = currentOverallMilestone > window.lastLoggedOverallMilestone ||
-                                overallProgress === 100 ||
-                                window.lastLoggedOverallMilestone === -1;
+        const now = Date.now();
+        const timeSinceLastOverallLog = now - window.overallProgressStats.lastLogTime;
+        const currentOverallMilestone = Math.floor(overallProgress / 20) * 20; // 20% intervals
+        const shouldLogOverall = (currentOverallMilestone > window.overallProgressStats.lastMilestone ||
+                                 overallProgress === 100) &&
+                                 timeSinceLastOverallLog >= 2000 && // 2 second minimum
+                                 window.overallProgressStats.logCount < 8; // Max 8 logs total
         
         if (shouldLogOverall) {
             console.log(`Overall loading progress: ${overallProgress}% (${modelsWithProgress} critical models)`);
-            window.lastLoggedOverallMilestone = currentOverallMilestone;
+            window.overallProgressStats.lastMilestone = currentOverallMilestone;
+            window.overallProgressStats.lastLogTime = now;
+            window.overallProgressStats.logCount++;
         }
         
         // UPDATE LOADING SPINNER/PROGRESS BAR
