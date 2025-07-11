@@ -74,6 +74,35 @@
     },
     "SceneConfig": {
         "SceneConfig_Description": "This section contains all the configuration options for the scene",
+        "EnvironmentSettings": {
+            "EnvironmentSettings_Description": "Global environment configuration for ground plane, skybox, and scene setup",
+            "GroundPlane": {
+                "GroundPlane_Enabled": true,
+                "GroundPlane_YOffset": 0.0,
+                "GroundPlane_YOffsetNote": "Ground plane Y position offset in meters - negative values lower the ground",
+                "GroundPlane_Size": 1000,
+                "GroundPlane_SizeMobile": 500,
+                "GroundPlane_Color": "#d6d9d6",
+                "GroundPlane_ReceiveShadows": true,
+                "GroundPlane_EnableMirror": false
+            },
+            "Skybox": {
+                "Skybox_Enabled": true,
+                "Skybox_Size": 1000,
+                "Skybox_SizeMobile": 500,
+                "Skybox_Color": "#c0d6f2",
+                "Skybox_ColorNote": "Light blue sky color in hex format"
+            },
+            "Shadows": {
+                "Shadows_Enabled": true,
+                "Shadows_MapSize": 4096,
+                "Shadows_MapSizeMobile": 1024,
+                "Shadows_Darkness": 0.2,
+                "Shadows_DarknessMobile": 0.3,
+                "Shadows_BlurEnabled": true,
+                "Shadows_BlurEnabledMobile": false
+            }
+        },
         "LightingConfig": {
             "LightingCfg_HdriLighting_Description": "This section contains all the configuration options for the lighting",
             "LightingCfg_HdriLighting": false,

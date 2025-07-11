@@ -247,40 +247,56 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     }
     // ---------------------------------------------------------------
 
-    // SUB FUNCTION | Create PC Environment with High Quality Settings
+    // SUB FUNCTION | Create PC Environment with Configuration-Driven Settings
     // ---------------------------------------------------------------
     function createSceneEnvironment() {
-        // CONFIGURE PC ENVIRONMENT OPTIONS
-        let envOptions = {
-            createSkybox: true,                                              // <-- Enable skybox creation
-            skyboxSize: SKYBOX_SIZE,                                         // <-- Large skybox dimensions
-            skyboxColor: new BABYLON.Color3(0.75, 0.85, 0.95),              // <-- Light blue sky color
-            createGround: true,                                              // <-- Enable ground plane
-            groundSize: GROUND_SIZE,                                         // <-- Large ground dimensions
-            groundColor: new BABYLON.Color3(0.85, 0.87, 0.85),              // <-- Light grey ground color
-            enableGroundMirror: false,                                       // <-- No ground mirror for performance
-            groundYBias: GROUND_OFFSET                                       // <-- Ground offset
-        };
-        
-        sceneEnvironment = scene.createDefaultEnvironment(envOptions);       // <-- Create environment
-        
-        // CONFIGURE GROUND PLANE PROPERTIES
-        if (sceneEnvironment.ground) {
-            sceneEnvironment.ground.receiveShadows = true;                   // <-- Enable shadow reception
-            sceneEnvironment.ground.material.specularColor = new BABYLON.Color3(0, 0, 0); // <-- No specular
+        // GET ENVIRONMENT SETTINGS FROM CONFIG
+        const appConfig = window.TrueVision3D?.AppConfig?.SceneConfig?.EnvironmentSettings;
+        if (!appConfig) {
+            console.error("❌ Environment settings not found in configuration");
+            return;
         }
         
-        // SETUP HIGH QUALITY SHADOW GENERATION SYSTEM
-        shadowGenerator = new BABYLON.ShadowGenerator(SHADOW_MAP_SIZE, sunLight); // <-- Create shadow generator
-        shadowGenerator.useExponentialShadowMap = true;                      // <-- Use exponential shadow mapping
-        shadowGenerator.useBlurExponentialShadowMap = true;                  // <-- Enable blur for soft shadows
-        shadowGenerator.blurScale = 2;                                        // <-- Blur scale for PC
-        shadowGenerator.blurBoxOffset = 1;                                   // <-- Blur box offset
-        shadowGenerator.setDarkness(0.2);                                    // <-- Shadow darkness
+        const groundConfig = appConfig.GroundPlane;
+        const skyboxConfig = appConfig.Skybox;
+        const shadowConfig = appConfig.Shadows;
         
-        // PC SHADOW QUALITY SETTINGS
-        shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH; // <-- High quality filtering
-        shadowGenerator.contactHardeningLightSizeUVRatio = 0.05;             // <-- Contact hardening
+        // CONFIGURE PC ENVIRONMENT OPTIONS FROM CONFIG
+        let envOptions = {
+            createSkybox: skyboxConfig?.Skybox_Enabled === true,
+            skyboxSize: skyboxConfig?.Skybox_Size || 1000,
+            skyboxColor: skyboxConfig?.Skybox_Color ? 
+                BABYLON.Color3.FromHexString(skyboxConfig.Skybox_Color) : 
+                new BABYLON.Color3(0.75, 0.85, 0.95),
+            createGround: groundConfig?.GroundPlane_Enabled === true,
+            groundSize: groundConfig?.GroundPlane_Size || 1000,
+            groundColor: groundConfig?.GroundPlane_Color ? 
+                BABYLON.Color3.FromHexString(groundConfig.GroundPlane_Color) : 
+                new BABYLON.Color3(0.85, 0.87, 0.85),
+            enableGroundMirror: groundConfig?.GroundPlane_EnableMirror === true,
+            groundYBias: groundConfig?.GroundPlane_YOffset || 0.0              // <-- CONFIG-DRIVEN GROUND HEIGHT
+        };
+        
+        sceneEnvironment = scene.createDefaultEnvironment(envOptions);
+        
+        // CONFIGURE GROUND PLANE PROPERTIES FROM CONFIG
+        if (sceneEnvironment.ground && groundConfig) {
+            sceneEnvironment.ground.receiveShadows = groundConfig.GroundPlane_ReceiveShadows !== false;
+            sceneEnvironment.ground.material.specularColor = new BABYLON.Color3(0, 0, 0);
+        }
+        
+        // SETUP SHADOW GENERATION WITH CONFIG VALUES
+        if (shadowConfig?.Shadows_Enabled === true) {
+            const shadowMapSize = shadowConfig.Shadows_MapSize || 4096;
+            shadowGenerator = new BABYLON.ShadowGenerator(shadowMapSize, sunLight);
+            shadowGenerator.useExponentialShadowMap = true;
+            shadowGenerator.useBlurExponentialShadowMap = shadowConfig.Shadows_BlurEnabled === true;
+            shadowGenerator.blurScale = 2;
+            shadowGenerator.blurBoxOffset = 1;
+            shadowGenerator.setDarkness(shadowConfig.Shadows_Darkness || 0.2);
+            shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+            shadowGenerator.contactHardeningLightSizeUVRatio = 0.05;
+        }
         
         // STORE REFERENCES FOR MODEL LOADING
         scene.shadowGenerator = shadowGenerator;                             // <-- Store reference for later use
@@ -295,7 +311,8 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             }
         }
         
-        console.log("PC scene environment and shadow system configured");    // <-- Log environment setup
+        console.log("PC scene environment configured from JSON settings");
+        console.log(`Ground Y offset: ${groundConfig?.GroundPlane_YOffset || 0.0}m`);
     }
     // ---------------------------------------------------------------
 
