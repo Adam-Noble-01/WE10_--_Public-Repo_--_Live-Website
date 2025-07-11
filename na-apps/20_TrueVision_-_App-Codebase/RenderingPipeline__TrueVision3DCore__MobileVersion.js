@@ -166,12 +166,11 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             alpha: false,                                                    // <-- No alpha for better performance
             depth: true,                                                     // <-- Enable depth buffer
             premultipliedAlpha: false,                                       // <-- Better color accuracy
-            failIfMajorPerformanceCaveat: false,                            // <-- FIXED: Allow mobile to work with performance caveats
+            failIfMajorPerformanceCaveat: false,                            // <-- Allow mobile to work with performance caveats
             doNotHandleContextLost: false,                                   // <-- Handle context lost
             audioEngine: false,                                              // <-- Disable audio to save resources
-            disableWebGL2Support: false,                                     // <-- Try to use WebGL2 if available
-            deterministicLockstep: false,                                    // <-- FIXED: Disable for better mobile compatibility
-            timeStep: 1/TARGET_FPS                                           // <-- Target 30 FPS on mobile
+            disableWebGL2Support: false                                      // <-- Try to use WebGL2 if available
+            // REMOVED: deterministicLockstep and timeStep - these can cause issues
         };
         
         // MOBILE ENGINE CREATION WITH ERROR HANDLING
@@ -193,8 +192,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
                 failIfMajorPerformanceCaveat: false,
                 doNotHandleContextLost: false,
                 audioEngine: false,
-                disableWebGL2Support: true,                                  // <-- Force WebGL1 as fallback
-                deterministicLockstep: false
+                disableWebGL2Support: true                                   // <-- Force WebGL1 as fallback
             };
             
             try {
@@ -256,6 +254,18 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             }, 500);
         });
         
+        // ADD WEBGL CONTEXT LOST HANDLING FOR MOBILE
+        canvas.addEventListener("webglcontextlost", function(event) {
+            event.preventDefault();
+            console.warn("WebGL context lost - attempting recovery");
+        }, false);
+        
+        canvas.addEventListener("webglcontextrestored", function() {
+            console.log("WebGL context restored");
+            engine.initializeContextObjects();
+            engine.resize();
+        }, false);
+        
         console.log("Babylon.js mobile engine initialized with battery-safe mode");
         return engine;                                                       // <-- Return engine reference
     }
@@ -276,10 +286,19 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         scene.autoClear = true;                                              // <-- Auto clear for performance
         scene.blockMaterialDirtyMechanism = true;                            // <-- Reduce material updates
         scene.preventCacheWipeBetweenFrames = true;                         // <-- Keep cache between frames
-        scene.performancePriority = BABYLON.ScenePerformancePriority.BackwardCompatible; // <-- Compatibility mode
         
-        // REMOVE THE PROBLEMATIC CODE - REPLACE WITH PROPER MOBILE OPTIMIZATIONS
-        // Mobile mesh culling optimization using proper Babylon.js methods
+        // FIX: Check if ScenePerformancePriority exists before using it
+        if (BABYLON.ScenePerformancePriority) {
+            scene.performancePriority = BABYLON.ScenePerformancePriority.BackwardCompatible;
+        } else {
+            console.warn("ScenePerformancePriority not available in this Babylon.js version");
+            // Set equivalent optimizations manually
+            scene.skipFrustumClipping = false;
+            scene.skipPointerMovePicking = false;
+            scene.autoClearDepthAndStencil = false;
+        }
+        
+        // MOBILE MESH CULLING OPTIMIZATION
         scene.onBeforeRenderObservable.add(() => {
             if (scene.activeCamera && MAX_MESHES_PER_FRAME > 0) {
                 const cameraPosition = scene.activeCamera.position;
