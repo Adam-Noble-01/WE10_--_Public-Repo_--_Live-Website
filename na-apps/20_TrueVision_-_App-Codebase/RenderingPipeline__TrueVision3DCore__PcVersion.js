@@ -182,7 +182,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // ---------------------------------------------------------------
 
     // FUNCTION | Create and Configure PC-Optimized Scene
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function createScene() {
         scene = new BABYLON.Scene(engine);                                   // <-- Initialize new Babylon.js scene
         
@@ -690,6 +690,10 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         setFurnishingsVisibility: setFurnishingsVisibility,
         dispose: dispose
     };
+
+    // DISPATCH EVENT TO NOTIFY THAT RENDERING PIPELINE IS LOADED
+    window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));        // <-- Critical missing event!
+    console.log("🔔 PC Rendering pipeline loaded event dispatched");
 
 // endregion -------------------------------------------------------------------
 

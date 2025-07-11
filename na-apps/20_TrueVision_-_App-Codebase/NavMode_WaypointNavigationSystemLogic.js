@@ -262,8 +262,13 @@
     function createWaypointMarkers() {
         if (!scene || !cameraAgentData) return;                             // <-- Validate prerequisites
         
+        console.log("=== createWaypointMarkers CALLED ===");
+        console.trace("Call stack:");                                        // <-- Show where this was called from
+        
         // GET CONFIGURATION VALUES DIRECTLY FROM LOADED CONFIG
         const appConfig = window.TrueVision3D?.AppConfig?.AppConfig;         // <-- Get app configuration
+        
+        console.log("Full appConfig:", appConfig);                           // <-- Log entire config
         
         // LOAD WAYPOINT ORB CONFIGURATION WITH PROPER DEFAULTS
         const devModeEnabled = appConfig?.devMode_Enabled === true;          // <-- Check if dev mode is enabled
@@ -274,6 +279,18 @@
         
         // DETERMINE FINAL VISIBILITY - Both devMode AND orbsOn must be true
         const finalVisibility = devModeEnabled && orbsEnabled;               // <-- Both must be true to show orbs
+        
+        console.log("=== WAYPOINT ORB VISIBILITY DECISION ===");
+        console.log("devMode_Enabled:", devModeEnabled, "(raw value:", appConfig?.devMode_Enabled, ")");
+        console.log("devMode_WaypointOrbsOn:", orbsEnabled, "(raw value:", appConfig?.devMode_WaypointOrbsOn, ")");
+        console.log("FINAL VISIBILITY:", finalVisibility);
+        console.log("=====================================");
+        
+        // EXIT COMPLETELY IF ORBS SHOULD NOT BE SHOWN
+        if (!finalVisibility) {
+            console.log("Waypoint orbs disabled - skipping marker creation entirely");
+            return;
+        }
         
         // CONVERT SIZE FROM MILLIMETERS TO METERS
         const orbDiameterM = orbSizeMm / 1000;                               // <-- Convert mm to meters for Babylon.js
@@ -389,13 +406,9 @@
             // STORE REFERENCES
             waypoint.marker = marker;                                        // <-- Store marker reference
             waypoint.label = label;                                          // <-- Store label reference
-            
-            // SET INITIAL VISIBILITY BASED ON CONFIGURATION
-            marker.isVisible = finalVisibility;                                  // <-- Apply config visibility
-            label.isVisible = finalVisibility;                                   // <-- Apply label visibility
         });
         
-        console.log(`Created ${waypoints.length} waypoint markers - ${finalVisibility ? 'visible' : 'hidden'}, ${orbSizeMm}mm diameter`);
+        console.log(`Created ${waypoints.length} waypoint markers, ${orbSizeMm}mm diameter`);
     }
     // ---------------------------------------------------------------
 

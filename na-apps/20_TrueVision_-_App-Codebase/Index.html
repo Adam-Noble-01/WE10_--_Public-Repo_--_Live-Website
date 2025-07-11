@@ -66,6 +66,8 @@ DESCRIPTION:
     <!-- REGION | Application Configuration and Core JavaScript Modules    -->
     <!-- ----------------------------------------------------------------- -->
 
+    <!-- Module Dependency Manager - MUST BE FIRST -->
+    <script src="ModuleDependencyManager.js"></script>
 
     <script>
         // Create global namespace
@@ -78,6 +80,12 @@ DESCRIPTION:
                 if (response.ok) {
                     window.TrueVision3D.AppConfig = await response.json();
                     console.log('App configuration loaded successfully:', window.TrueVision3D.AppConfig);
+
+                    // MARK CONFIG AS LOADED
+                    if (window.TrueVision3D.ModuleDependencyManager) {
+                        window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('config');
+                    }
+
                     return true;
                 } else {
                     console.error('Failed to load app configuration:', response.status);
@@ -91,10 +99,11 @@ DESCRIPTION:
     </script>
 
     <!-- Core Application JavaScript Modules - Loaded in priority order -->
-    <script src="ModelLoader_CdnProgressiveLoader.js"></script> <!-- CDN Progressive Model Loader   -->
-    <script src="Materials_TextureSubstitutionAutomationLogic.js"></script> <!-- Material substitution logic    -->
-    <script src="SceneConfig_HdriLightingLogic.js"></script> <!-- HDRI environmental lighting    -->
-    <script src="SceneConfig_SolarOrientationControlLogic.js"></script> <!-- Solar positioning and lighting -->
+    <script src="ModelLoader_CdnProgressiveLoader.js"></script>
+    <script src="Materials_TextureSubstitutionAutomationLogic.js"></script>
+    <script src="SceneConfig_HdriLightingLogic.js"></script>
+    <script src="SceneConfig_SolarOrientationControlLogic.js"></script>
+
     <!-- Replace the single RenderingPipeline script with conditional loading -->
     <script>
         // After config is loaded, determine which rendering pipeline to use
@@ -331,16 +340,16 @@ DESCRIPTION:
     </script>
 
     <!-- Dev Tools Manager - Load before navigation systems -->
-    <script src="DevTools_DebugMarkersManager.js"></script> <!-- Debug markers management       -->
+    <script src="DevTools_DebugMarkersManager.js"></script>
 
     <!-- Navigation Mode Scripts - Loaded in priority order -->
-    <script src="NavMode_WaypointNavigationSystemLogic.js"></script> <!-- Waypoint navigation mode       -->
-    <script src="NavMode_WalkNavigationSystemLogic.js"></script> <!-- Walk navigation mode           -->
-    <script src="NavMode_OrbitNavigationSystemLogic.js"></script> <!-- Orbit navigation mode          -->
-    <script src="NavMode_FlyNavigationSystemLogic.js"></script> <!-- Fly navigation mode            -->
+    <script src="NavMode_WaypointNavigationSystemLogic.js"></script>
+    <script src="NavMode_WalkNavigationSystemLogic.js"></script>
+    <script src="NavMode_OrbitNavigationSystemLogic.js"></script>
+    <script src="NavMode_FlyNavigationSystemLogic.js"></script>
 
     <!-- Application Core Manager - Loaded last to coordinate all modules -->
-    <script src="ApplicationCore_TrueVision3DManager.js"></script> <!-- Application core manager        -->
+    <script src="ApplicationCore_TrueVision3DManager.js"></script>
 
     <!-- endregion ----------------------------------------------------------------- -->
 
