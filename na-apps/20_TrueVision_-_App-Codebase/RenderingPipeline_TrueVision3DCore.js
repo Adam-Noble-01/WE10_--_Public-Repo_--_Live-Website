@@ -157,35 +157,10 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // ------------------------------------------------------------
     function initializeBabylonEngine(canvasElement) {
         canvas = canvasElement;                                              // <-- Store canvas reference
-        
-        // DETECT MOBILE DEVICES
-        const userAgent = navigator.userAgent.toLowerCase();                 // <-- Get lowercase user agent string
-        const isIOS = /iphone|ipad|ipod/.test(userAgent);                    // <-- Check for iOS devices
-        const isAndroid = /android/.test(userAgent);                         // <-- Check for Android devices
-        const isMobile = isIOS || isAndroid;                                 // <-- Any mobile device
-        
-        // CONFIGURE ENGINE OPTIONS FOR MOBILE COMPATIBILITY
-        const engineOptions = { 
+        engine = new BABYLON.Engine(canvas, true, { 
             preserveDrawingBuffer: true, 
-            stencil: true
-        };                                                                   // <-- Base engine options
-        
-        // CRITICAL: Use default power preference on mobile to prevent iOS Safari from killing the app
-        if (isMobile) {
-            engineOptions.powerPreference = "default";                       // <-- Prevent iOS Safari shutdown
-            console.log("📱 Mobile device detected - using default power preference for compatibility");
-        } else {
-            console.log("🖥️ Desktop device detected - using standard engine configuration");
-        }
-        
-        engine = new BABYLON.Engine(canvas, true, engineOptions);            // <-- Babylon.js engine with mobile-optimized options
-        
-        // APPLY MOBILE-SPECIFIC OPTIMIZATIONS
-        if (isMobile) {
-            // REDUCE RENDERING RESOLUTION ON MOBILE TO SAVE MEMORY
-            engine.setHardwareScalingLevel(2);                              // <-- Render at half resolution
-            console.log("📱 Mobile optimization: Hardware scaling set to 2x for performance");
-        }
+            stencil: true 
+        });                                                                  // <-- Babylon.js engine with enhanced options
         
         // DISABLE BABYLON.JS DEFAULT LOADING SCREEN
         engine.loadingScreen = {
@@ -198,7 +173,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             engine.resize();                                                 // <-- Resize engine to match window
         });
         
-        console.log("Babylon.js engine initialized successfully" + (isMobile ? " with mobile optimizations" : "")); // <-- Log initialization success
+        console.log("Babylon.js engine initialized successfully");           // <-- Log initialization success
         return engine;                                                       // <-- Return engine reference
     }
     // ---------------------------------------------------------------
