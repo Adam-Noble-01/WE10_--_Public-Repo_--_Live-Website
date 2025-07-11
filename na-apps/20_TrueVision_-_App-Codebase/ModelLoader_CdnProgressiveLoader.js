@@ -47,13 +47,27 @@
             // CLEAR MODEL LIST CACHE FOR FRESH LOGGING
             window.cachedModelList = null;
             
-            // LOAD CONFIGURATION FILE
-            const response = await fetch(configUrl);                         // <-- Fetch app configuration
-            const config = await response.json();                            // <-- Parse JSON configuration
+            // IF CONFIG ALREADY LOADED FROM WINDOW, USE IT
+            if (window.TrueVision3D?.AppConfig?.CdnModelConfig__ModelLoadingLinkMapper) {
+                console.log('Using pre-loaded configuration from window.TrueVision3D.AppConfig');
+                modelLoadingConfig = window.TrueVision3D.AppConfig.CdnModelConfig__ModelLoadingLinkMapper;
+            } else {
+                // LOAD CONFIGURATION FILE
+                console.log('Loading configuration from:', configUrl);
+                const response = await fetch(configUrl);                         // <-- Fetch app configuration
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch config: ${response.status} ${response.statusText}`);
+                }
+                const config = await response.json();                            // <-- Parse JSON configuration
+                modelLoadingConfig = config.CdnModelConfig__ModelLoadingLinkMapper;  // <-- Extract model config
+            }
             
-            modelLoadingConfig = config.CdnModelConfig__ModelLoadingLinkMapper;  // <-- Extract model config
+            if (!modelLoadingConfig) {
+                console.error('Model loading configuration not found in config file');
+                return false;
+            }
             
-            if (!modelLoadingConfig || !modelLoadingConfig.CdnModelConfig_Enabled) {
+            if (!modelLoadingConfig.CdnModelConfig_Enabled) {
                 console.warn('CDN Model Loading is disabled in configuration');
                 return false;                                                // <-- Exit if CDN loading disabled
             }

@@ -247,12 +247,14 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         // WAIT FOR RENDERING PIPELINE TO BE AVAILABLE
         // Instead of polling, wait for the renderingPipelineLoaded event
         if (!window.TrueVision3D.RenderingPipeline) {
-            console.log("Waiting for rendering pipeline to load...");
+            console.log("Rendering pipeline not immediately available - waiting...");
             
             // Create a promise that resolves when the rendering pipeline loads
             await new Promise((resolve, reject) => {
                 // Set a timeout for safety (30 seconds)
                 const timeout = setTimeout(() => {
+                    console.error("❌ Rendering pipeline loading timeout after 30 seconds");
+                    console.error("Available modules:", Object.keys(window.TrueVision3D || {}));
                     reject(new Error("Rendering pipeline module not available after timeout"));
                 }, 30000);
                 
@@ -260,27 +262,46 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
                 window.addEventListener('renderingPipelineLoaded', function onPipelineLoaded() {
                     clearTimeout(timeout);
                     window.removeEventListener('renderingPipelineLoaded', onPipelineLoaded);
-                    console.log("Rendering pipeline loaded event received");
+                    console.log("✅ Rendering pipeline loaded event received");
                     resolve();
                 }, { once: true });
                 
                 // Check if it's already loaded (race condition protection)
-                if (window.TrueVision3D.RenderingPipeline) {
+                if (window.TrueVision3D && window.TrueVision3D.RenderingPipeline) {
                     clearTimeout(timeout);
+                    console.log("✅ Rendering pipeline became available during wait");
                     resolve();
                 }
             });
         }
         
-        if (!window.TrueVision3D.RenderingPipeline) {
-            console.error("Rendering pipeline module not available");
+        // DOUBLE CHECK RENDERING PIPELINE IS AVAILABLE
+        if (!window.TrueVision3D || !window.TrueVision3D.RenderingPipeline) {
+            console.error("❌ Rendering pipeline module still not available after waiting");
+            console.error("TrueVision3D namespace:", window.TrueVision3D);
+            console.error("Available modules:", window.TrueVision3D ? Object.keys(window.TrueVision3D) : 'namespace not defined');
+            return null;
+        }
+        
+        // CHECK IF INITIALIZE FUNCTION EXISTS
+        if (typeof window.TrueVision3D.RenderingPipeline.initialize !== 'function') {
+            console.error("❌ RenderingPipeline.initialize is not a function");
+            console.error("RenderingPipeline object:", window.TrueVision3D.RenderingPipeline);
+            console.error("Available methods:", Object.keys(window.TrueVision3D.RenderingPipeline));
             return null;
         }
         
         renderingPipeline = window.TrueVision3D.RenderingPipeline;           // <-- Get rendering pipeline reference
         
+        console.log("✅ About to initialize rendering pipeline with canvas:", canvas);
+        
         // INITIALIZE RENDERING PIPELINE
         const renderingRefs = renderingPipeline.initialize(canvas, loadingOverlay, errorMessage);
+        
+        if (!renderingRefs) {
+            console.error("❌ Rendering pipeline initialization returned null/undefined");
+            return null;
+        }
         
         // STORE CORE REFERENCES
         engine = renderingRefs.engine;                                       // <-- Store engine reference
@@ -799,8 +820,27 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
 // -----------------------------------------------------------------------------
 
     // INITIALIZE APPLICATION ON SCRIPT LOAD
+    // Fix: Wait for both DOM and rendering pipeline to be ready
     document.addEventListener('DOMContentLoaded', function() {
-        initializeApplication();                                             // <-- Start application when DOM ready
+        console.log("DOM ready - waiting for rendering pipeline...");
+        
+        // Check if rendering pipeline is already loaded
+        if (window.TrueVision3D && window.TrueVision3D.RenderingPipeline) {
+            console.log("Rendering pipeline already available - initializing application");
+            initializeApplication();
+        } else {
+            // Wait for rendering pipeline to load
+            console.log("Rendering pipeline not yet available - waiting for load event");
+            window.addEventListener('renderingPipelineLoaded', function onPipelineReady() {
+                console.log("Rendering pipeline loaded event received - initializing application");
+                window.removeEventListener('renderingPipelineLoaded', onPipelineReady);
+                
+                // Small delay to ensure all module initialization is complete
+                setTimeout(() => {
+                    initializeApplication();
+                }, 100);
+            }, { once: true });
+        }
     });
 
 // endregion -------------------------------------------------------------------

@@ -33,8 +33,12 @@
 window.TrueVision3D = window.TrueVision3D || {};
 window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline || {};
 
+console.log("🚀 Mobile Rendering Pipeline script loading...");
+
 (function() {
 'use strict';
+
+try {  // Wrap entire module in try-catch for error detection
 
 // -----------------------------------------------------------------------------
 // REGION | MOBILE-SPECIFIC CONFIGURATION CONSTANTS
@@ -508,12 +512,14 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             throw new Error("CDN Model Loader is required but not available");
         }
         
-        // INITIALIZE CDN LOADER WITH MOBILE SETTINGS
-        const cdnInitialized = await window.TrueVisionCdnLoader.initialize({
-            isMobile: true,
-            maxRetryAttempts: 2,                                             // <-- Fewer retries on mobile
-            retryDelayMs: 2000                                               // <-- Longer delay between retries
-        });
+        // WAIT FOR CONFIGURATION TO BE LOADED
+        if (!window.TrueVision3D?.AppConfig) {
+            console.log("Waiting for app configuration before initializing CDN loader...");
+            await window.TrueVision3D.configLoadPromise;
+        }
+        
+        // INITIALIZE CDN LOADER - it will use the pre-loaded config
+        const cdnInitialized = await window.TrueVisionCdnLoader.initialize();
         
         if (!cdnInitialized) {
             console.error("❌ CRITICAL ERROR: CDN Loader initialization failed - APPLICATION CANNOT CONTINUE");
@@ -866,7 +872,16 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // DISPATCH EVENT TO NOTIFY THAT RENDERING PIPELINE IS LOADED
     window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));        // <-- Critical event dispatch!
     console.log("🔔 Mobile Rendering pipeline loaded event dispatched");
+    console.log("✅ Mobile Rendering Pipeline module fully loaded and initialized");
+    console.log("Available methods:", Object.keys(window.TrueVision3D.RenderingPipeline));
 
 // endregion -------------------------------------------------------------------
+
+} catch (error) {
+    console.error("❌ CRITICAL ERROR in Mobile Rendering Pipeline module:", error);
+    console.error("Stack trace:", error.stack);
+    // Still dispatch the event so ApplicationCore doesn't hang waiting
+    window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));
+}
 
 })(); 

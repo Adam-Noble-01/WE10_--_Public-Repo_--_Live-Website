@@ -108,8 +108,12 @@ DESCRIPTION:
     <script>
         // After config is loaded, determine which rendering pipeline to use
         window.TrueVision3D.configLoadPromise.then(success => {
+            console.log("🔍 Config promise resolved, success:", success);
+            console.log("🔍 TrueVision3D.AppConfig available:", !!window.TrueVision3D.AppConfig);
+
             if (success && window.TrueVision3D.AppConfig) {
                 const renderConfig = window.TrueVision3D.AppConfig.AppConfig.RenderPipelineConfig;
+                console.log("🔍 RenderPipelineConfig:", renderConfig);
 
                 // HELPER FUNCTION | Enhanced Mobile Detection
                 // ---------------------------------------------------------------
@@ -220,6 +224,10 @@ DESCRIPTION:
 
                 script.onload = () => {
                     console.log('✅ Rendering pipeline loaded successfully:', scriptToLoad);
+                    console.log('🔍 window.TrueVision3D.RenderingPipeline available:', !!window.TrueVision3D.RenderingPipeline);
+                    if (window.TrueVision3D.RenderingPipeline) {
+                        console.log('🔍 RenderingPipeline methods:', Object.keys(window.TrueVision3D.RenderingPipeline));
+                    }
 
                     // Add comprehensive device info to TrueVision3D namespace for debugging
                     window.TrueVision3D.deviceInfo = {
