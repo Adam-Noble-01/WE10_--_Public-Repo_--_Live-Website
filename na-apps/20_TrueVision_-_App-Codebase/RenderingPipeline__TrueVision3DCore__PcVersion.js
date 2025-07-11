@@ -294,17 +294,42 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         console.log("🔍 Ground Y bias being applied:", envOptions.groundYBias);
         
         sceneEnvironment = scene.createDefaultEnvironment(envOptions);
-        
-        // VERIFY GROUND PLANE CREATION
-        if (sceneEnvironment.ground) {
+
+        // ADD COMPREHENSIVE DEBUGGING
+        console.log("🔍 sceneEnvironment created:", sceneEnvironment);
+        console.log("🔍 sceneEnvironment.ground exists:", !!sceneEnvironment?.ground);
+
+        // VERIFY GROUND PLANE CREATION AND APPLY OFFSET
+        if (sceneEnvironment && sceneEnvironment.ground) {
             console.log("✅ Ground plane created successfully");
-            console.log("🔍 Ground plane position:", sceneEnvironment.ground.position);
+            console.log("🔍 Ground plane position BEFORE:", sceneEnvironment.ground.position);
+            console.log("🔍 Ground plane type:", sceneEnvironment.ground.constructor.name);
+            console.log("🔍 Ground plane name:", sceneEnvironment.ground.name);
+            
+            // MANUALLY APPLY THE GROUND OFFSET
+            sceneEnvironment.ground.position.y = finalGroundOffset;
+            
+            console.log("🔍 Ground plane position AFTER manual adjustment:", sceneEnvironment.ground.position);
+            console.log(`✅ Manually set ground Y position to: ${finalGroundOffset}m`);
+            
+            // DOUBLE-CHECK IT STUCK
+            setTimeout(() => {
+                console.log("🔍 Ground position after 1 second:", sceneEnvironment.ground.position);
+                
+                // ALSO CHECK ALL MESHES NAMED "GROUND"
+                scene.meshes.forEach(mesh => {
+                    if (mesh.name.toLowerCase().includes("ground")) {
+                        console.log(`🔍 Found mesh "${mesh.name}" at position:`, mesh.position);
+                    }
+                });
+            }, 1000);
             
             // CONFIGURE GROUND PLANE PROPERTIES
             sceneEnvironment.ground.receiveShadows = groundConfig?.GroundPlane_ReceiveShadows !== false;
             sceneEnvironment.ground.material.specularColor = new BABYLON.Color3(0, 0, 0);
         } else {
             console.error("❌ Ground plane creation failed");
+            console.error("❌ sceneEnvironment structure:", sceneEnvironment);
         }
         
         // SETUP SHADOW GENERATION (with fallback values)

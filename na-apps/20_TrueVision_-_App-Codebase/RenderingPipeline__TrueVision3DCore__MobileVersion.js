@@ -464,7 +464,7 @@ try {  // Wrap entire module in try-catch for error detection
     // ---------------------------------------------------------------
 
     // FUNCTION | Enable Low Power Mode
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function enableLowPowerMode() {
         if (!engine || !scene) return;
         
@@ -488,7 +488,7 @@ try {  // Wrap entire module in try-catch for error detection
     // ---------------------------------------------------------------
 
     // FUNCTION | Disable Power Saving Mode
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function disablePowerSaving() {
         if (!engine || !scene) return;
         
@@ -660,10 +660,17 @@ try {  // Wrap entire module in try-catch for error detection
         
         sceneEnvironment = scene.createDefaultEnvironment(envOptions);
         
-        // VERIFY GROUND PLANE CREATION
+        // VERIFY GROUND PLANE CREATION AND APPLY OFFSET
         if (sceneEnvironment.ground) {
             console.log("✅ Mobile ground plane created successfully");
-            console.log("🔍 Mobile ground plane position:", sceneEnvironment.ground.position);
+            console.log("🔍 Mobile ground plane position BEFORE:", sceneEnvironment.ground.position);
+            
+            // MANUALLY APPLY THE GROUND OFFSET
+            // groundYBias doesn't always work as expected, so set position directly
+            sceneEnvironment.ground.position.y = finalGroundOffset;
+            
+            console.log("🔍 Mobile ground plane position AFTER manual adjustment:", sceneEnvironment.ground.position);
+            console.log(`✅ Manually set mobile ground Y position to: ${finalGroundOffset}m`);
             
             // CONFIGURE GROUND PLANE PROPERTIES
             sceneEnvironment.ground.receiveShadows = groundConfig?.GroundPlane_ReceiveShadows !== false;
