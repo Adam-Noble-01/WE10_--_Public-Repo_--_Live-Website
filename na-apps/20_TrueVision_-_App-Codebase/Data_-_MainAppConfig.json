@@ -11,7 +11,7 @@
         "devMode_Enabled"                   :  true,
         "devMode_Description"               :  "Various typical app config options, enables debug tools and analysis tools",
         "devMode_WaypointNotes"             :  "Configures the waypoint marker orbs, the size value represents the diameter of the orb in millimeters",
-        "devMode_WaypointOrbsOn"            :  true,
+        "devMode_WaypointOrbsOn"            :  false,
         "devMode_WaypointOrbsColor"         :  "#cd0000",
         "devMode_WaypointOrbsSize"          :  500,
         "devMode_WaypointOrbsOpacity"       :  0.5,
