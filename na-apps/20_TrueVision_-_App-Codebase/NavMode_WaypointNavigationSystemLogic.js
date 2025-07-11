@@ -1122,7 +1122,14 @@
         initializeWaypointCamera();                                          // <-- Create waypoint camera
         createWaypointMarkers();                                             // <-- Create visual markers
         updateWaypointDropdown();                                            // <-- Populate dropdown with loaded data
-        initializeInputHandlers();                                           // <-- Setup input handling
+        
+        // DEFER INPUT HANDLER INITIALIZATION IF CANVAS NOT READY
+        if (options.deferOrbCreation && !canvas) {
+            console.log("Deferring input handler initialization - canvas not ready");
+        } else {
+            initializeInputHandlers();                                       // <-- Setup input handling
+        }
+        
         initializeAccelerometer();                                           // <-- Setup accelerometer
         
         // CHECK IF WE SHOULD DEFER ORB CREATION
@@ -1146,8 +1153,14 @@
         // ACTIVATE WAYPOINT CAMERA
         scene.activeCamera = waypointCamera;                                 // <-- Set as active camera
         
+        // ENSURE CANVAS IS SET IF NOT ALREADY
+        if (!canvas) {
+            canvas = scene.getEngine().getRenderingCanvas();                // <-- Get canvas from scene engine
+            console.log("Canvas retrieved from scene engine");               // <-- Debug log
+        }
+        
         // RE-INITIALIZE INPUT HANDLERS IF NEEDED
-        if (!inputHandlersInitialized) {
+        if (!inputHandlersInitialized && canvas) {
             initializeInputHandlers();                                       // <-- Re-attach event handlers
         }
         
@@ -1162,7 +1175,9 @@
         }
         
         // SET CANVAS CURSOR
-        canvas.style.cursor = 'grab';                                        // <-- Set grab cursor
+        if (canvas) {
+            canvas.style.cursor = 'grab';                                    // <-- Set grab cursor
+        }
         
         // UPDATE MARKERS FROM CURRENT CONFIGURATION
         updateMarkersFromConfig();                                           // <-- Apply current config settings

@@ -112,13 +112,18 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
             }
             
             // INITIALIZE USER INTERFACE REFERENCES
-            initializeUIReferences();                                        // <-- Get DOM element references
+            await initializeUIReferences();                                        // <-- Get DOM element references
             
-                    // INITIALIZE RENDERING PIPELINE
-        const renderingRefs = await initializeRenderingSystem();         // <-- Initialize 3D rendering (now async)
-        if (!renderingRefs) {
-            throw new Error("Failed to initialize rendering system");
-        }
+            // INITIALIZE RENDERING PIPELINE
+            const renderingRefs = await initializeRenderingSystem();         // <-- Initialize 3D rendering (now async)
+            if (!renderingRefs) {
+                throw new Error("Failed to initialize rendering system");
+            }
+            
+            // STORE CORE REFERENCES FROM RENDERING SYSTEM
+            engine = renderingRefs.engine;                                   // <-- Store engine reference
+            scene = renderingRefs.scene;                                     // <-- Store scene reference
+            sunLight = renderingRefs.sunLight;                               // <-- Store sun light reference
             
             // INITIALIZE SOLAR ORIENTATION CONTROLS
             initializeSolarSystem(renderingRefs);                            // <-- Initialize solar controls
@@ -172,7 +177,14 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
 
     // SUB FUNCTION | Initialize DOM Element References
     // ---------------------------------------------------------------
-    function initializeUIReferences() {
+    async function initializeUIReferences() {
+        // ENSURE DOM IS READY
+        if (document.readyState !== 'complete' && document.readyState !== 'interactive') {
+            await new Promise(resolve => {
+                document.addEventListener('DOMContentLoaded', resolve, { once: true });
+            });
+        }
+        
         // WAIT FOR DOM TO BE READY AND RETRY CANVAS INITIALIZATION
         const initCanvas = () => {
             canvas = document.getElementById("renderCanvas");
@@ -198,14 +210,15 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
             return true;
         };
         
-        // Try to initialize canvas
-        if (!initCanvas()) {
+        // Try to initialize canvas with retries
+        let canvasInitialized = initCanvas();
+        if (!canvasInitialized) {
             // If failed, wait a bit and try again
-            setTimeout(() => {
-                if (!initCanvas()) {
-                    throw new Error("Failed to initialize canvas element after retry");
-                }
-            }, 100);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            canvasInitialized = initCanvas();
+            if (!canvasInitialized) {
+                throw new Error("Failed to initialize canvas element after retry");
+            }
         }
         
         // Initialize other UI references
