@@ -613,71 +613,96 @@ try {  // Wrap entire module in try-catch for error detection
     // SUB FUNCTION | Create Mobile Environment with Configuration-Driven Settings
     // ---------------------------------------------------------------
     function createSceneEnvironment() {
+        // DEBUG: Check configuration availability
+        console.log("🔍 DEBUG: Checking mobile configuration...");
+        console.log("window.TrueVision3D?.AppConfig:", window.TrueVision3D?.AppConfig);
+        
         // GET ENVIRONMENT SETTINGS FROM CONFIG
-        const appConfig = window.TrueVision3D?.AppConfig?.SceneConfig?.EnvironmentSettings;
-        if (!appConfig) {
-            console.error("❌ Environment settings not found in configuration");
-            return;
-        }
+        const envConfig = window.TrueVision3D?.AppConfig?.SceneConfig?.EnvironmentSettings;
         
-        const groundConfig = appConfig.GroundPlane;
-        const skyboxConfig = appConfig.Skybox;
-        const shadowConfig = appConfig.Shadows;
+        console.log("🔍 DEBUG: Mobile environment config:", envConfig);
         
-        // CONFIGURE MOBILE ENVIRONMENT OPTIONS FROM CONFIG
+        // GET INDIVIDUAL SECTIONS (with fallbacks for missing sections)
+        const groundConfig = envConfig?.GroundPlane || {};
+        const skyboxConfig = envConfig?.Skybox || {};              // <-- Empty object if missing
+        const shadowConfig = envConfig?.Shadows || {};             // <-- Empty object if missing
+        
+        console.log("🔍 DEBUG: Mobile ground config:", groundConfig);
+        console.log("🔍 DEBUG: Mobile ground Y offset:", groundConfig?.GroundPlane_YOffset);
+        
+        // CALCULATE FINAL VALUES WITH PROPER FALLBACKS
+        const finalGroundOffset = groundConfig?.GroundPlane_YOffset !== undefined ? 
+            groundConfig.GroundPlane_YOffset : GROUND_OFFSET;
+            
+        const finalGroundSize = envConfig?.GroundPlane_SizeMobile || 
+                               envConfig?.GroundPlane_Size || GROUND_SIZE;
+        const finalSkyboxSize = envConfig?.Skybox_SizeMobile || 
+                               envConfig?.Skybox_Size || SKYBOX_SIZE;
+        
+        // CONFIGURE MOBILE ENVIRONMENT OPTIONS
         let envOptions = {
-            createSkybox: skyboxConfig?.Skybox_Enabled === true,
-            skyboxSize: skyboxConfig?.Skybox_SizeMobile || skyboxConfig?.Skybox_Size || 500,
+            createSkybox: skyboxConfig?.Skybox_Enabled !== false,               // <-- Default to true
+            skyboxSize: finalSkyboxSize,
             skyboxColor: skyboxConfig?.Skybox_Color ? 
                 BABYLON.Color3.FromHexString(skyboxConfig.Skybox_Color) : 
                 new BABYLON.Color3(0.75, 0.85, 0.95),
-            createGround: groundConfig?.GroundPlane_Enabled === true,
-            groundSize: groundConfig?.GroundPlane_SizeMobile || groundConfig?.GroundPlane_Size || 500,
+            createGround: groundConfig?.GroundPlane_Enabled !== false,          // <-- Default to true
+            groundSize: finalGroundSize,
             groundColor: groundConfig?.GroundPlane_Color ? 
                 BABYLON.Color3.FromHexString(groundConfig.GroundPlane_Color) : 
                 new BABYLON.Color3(0.85, 0.87, 0.85),
-            enableGroundMirror: false,                                           // <-- Always false on mobile
-            groundYBias: groundConfig?.GroundPlane_YOffset || 0.0              // <-- CONFIG-DRIVEN GROUND HEIGHT
+            enableGroundMirror: false,                                          // <-- Always false on mobile
+            groundYBias: finalGroundOffset                                      // <-- YOUR -10.0 VALUE
         };
+        
+        console.log("🔍 Final mobile environment options:", envOptions);
+        console.log("🔍 Mobile ground Y bias being applied:", envOptions.groundYBias);
         
         sceneEnvironment = scene.createDefaultEnvironment(envOptions);
         
-        // CONFIGURE GROUND PLANE PROPERTIES FROM CONFIG
-        if (sceneEnvironment.ground && groundConfig) {
-            sceneEnvironment.ground.receiveShadows = groundConfig.GroundPlane_ReceiveShadows !== false;
+        // VERIFY GROUND PLANE CREATION
+        if (sceneEnvironment.ground) {
+            console.log("✅ Mobile ground plane created successfully");
+            console.log("🔍 Mobile ground plane position:", sceneEnvironment.ground.position);
+            
+            // CONFIGURE GROUND PLANE PROPERTIES
+            sceneEnvironment.ground.receiveShadows = groundConfig?.GroundPlane_ReceiveShadows !== false;
             sceneEnvironment.ground.material.specularColor = new BABYLON.Color3(0, 0, 0);
             sceneEnvironment.ground.material.roughness = 1;
+        } else {
+            console.error("❌ Mobile ground plane creation failed");
         }
         
-        // SETUP MOBILE SHADOW GENERATION WITH CONFIG VALUES
-        if (shadowConfig?.Shadows_Enabled === true) {
-            const shadowMapSize = shadowConfig.Shadows_MapSizeMobile || shadowConfig.Shadows_MapSize || 1024;
+        // SETUP MOBILE SHADOW GENERATION (with fallback values)
+        if (shadowConfig?.Shadows_Enabled !== false) {                         // <-- Default to enabled
+            const shadowMapSize = envConfig?.Shadows_MapSizeMobile || 
+                                 envConfig?.Shadows_MapSize || SHADOW_MAP_SIZE;
             shadowGenerator = new BABYLON.ShadowGenerator(shadowMapSize, sunLight);
             shadowGenerator.useExponentialShadowMap = true;
-            shadowGenerator.useBlurExponentialShadowMap = shadowConfig.Shadows_BlurEnabledMobile === true;
-            shadowGenerator.setDarkness(shadowConfig.Shadows_DarknessMobile || shadowConfig.Shadows_Darkness || 0.3);
+            shadowGenerator.useBlurExponentialShadowMap = shadowConfig?.Shadows_BlurEnabledMobile === true;
+            shadowGenerator.setDarkness(shadowConfig?.Shadows_DarknessMobile || 
+                                       shadowConfig?.Shadows_Darkness || 0.3);
             shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_LOW;
             shadowGenerator.frustumEdgeFalloff = 0;
         }
         
-        // STORE REFERENCES FOR MODEL LOADING
-        scene.shadowGenerator = shadowGenerator;                             // <-- Store reference for later use
-        scene.environment = sceneEnvironment;                                // <-- Store environment reference
+        // STORE REFERENCES
+        scene.shadowGenerator = shadowGenerator;
+        scene.environment = sceneEnvironment;
         
         // INITIALIZE HDRI LIGHTING IF AVAILABLE (WITH MOBILE SETTINGS)
         if (window.TrueVision3D.SceneConfig && window.TrueVision3D.SceneConfig.HdriLightingLogic) {
             const hdriLogic = window.TrueVision3D.SceneConfig.HdriLightingLogic;
-            const appConfig = window.TrueVision3D.AppConfig;                // <-- Get app configuration
-            if (appConfig) {
-                // Override HDRI settings for mobile
+            const fullAppConfig = window.TrueVision3D.AppConfig;
+            if (fullAppConfig) {
                 const mobileHdriConfig = {
-                    ...appConfig,
+                    ...fullAppConfig,
                     SceneConfig: {
-                        ...appConfig.SceneConfig,
+                        ...fullAppConfig.SceneConfig,
                         LightingConfig: {
-                            ...appConfig.SceneConfig.LightingConfig,
-                            LightingCfg_HdrirBrightnessFactor: 0.3,         // <-- Reduced brightness on mobile
-                            LightingCfg_HdriLighting: false                  // <-- Consider disabling HDRI on mobile
+                            ...fullAppConfig.SceneConfig.LightingConfig,
+                            LightingCfg_HdrirBrightnessFactor: 0.3,
+                            LightingCfg_HdriLighting: false
                         }
                     }
                 };
@@ -685,8 +710,8 @@ try {  // Wrap entire module in try-catch for error detection
             }
         }
         
-        console.log("Mobile scene environment configured from JSON settings");
-        console.log(`Ground Y offset: ${groundConfig?.GroundPlane_YOffset || 0.0}m`);
+        console.log("✅ Mobile scene environment configured");
+        console.log(`Mobile ground Y offset applied: ${finalGroundOffset}m`);
     }
     // ---------------------------------------------------------------
 

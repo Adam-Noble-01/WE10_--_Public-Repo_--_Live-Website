@@ -250,69 +250,91 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // SUB FUNCTION | Create PC Environment with Configuration-Driven Settings
     // ---------------------------------------------------------------
     function createSceneEnvironment() {
+        // DEBUG: Check configuration availability
+        console.log("🔍 DEBUG: Checking configuration...");
+        console.log("window.TrueVision3D?.AppConfig:", window.TrueVision3D?.AppConfig);
+        
         // GET ENVIRONMENT SETTINGS FROM CONFIG
-        const appConfig = window.TrueVision3D?.AppConfig?.SceneConfig?.EnvironmentSettings;
-        if (!appConfig) {
-            console.error("❌ Environment settings not found in configuration");
-            return;
-        }
+        const envConfig = window.TrueVision3D?.AppConfig?.SceneConfig?.EnvironmentSettings;
         
-        const groundConfig = appConfig.GroundPlane;
-        const skyboxConfig = appConfig.Skybox;
-        const shadowConfig = appConfig.Shadows;
+        console.log("🔍 DEBUG: Environment config:", envConfig);
         
-        // CONFIGURE PC ENVIRONMENT OPTIONS FROM CONFIG
+        // GET INDIVIDUAL SECTIONS (with fallbacks for missing sections)
+        const groundConfig = envConfig?.GroundPlane || {};
+        const skyboxConfig = envConfig?.Skybox || {};              // <-- Empty object if missing
+        const shadowConfig = envConfig?.Shadows || {};             // <-- Empty object if missing
+        
+        console.log("🔍 DEBUG: Ground config:", groundConfig);
+        console.log("🔍 DEBUG: Ground Y offset:", groundConfig?.GroundPlane_YOffset);
+        
+        // CALCULATE FINAL VALUES WITH PROPER FALLBACKS
+        const finalGroundOffset = groundConfig?.GroundPlane_YOffset !== undefined ? 
+            groundConfig.GroundPlane_YOffset : GROUND_OFFSET;
+            
+        const finalGroundSize = groundConfig?.GroundPlane_Size || GROUND_SIZE;
+        const finalSkyboxSize = skyboxConfig?.Skybox_Size || SKYBOX_SIZE;
+        
+        // CONFIGURE PC ENVIRONMENT OPTIONS
         let envOptions = {
-            createSkybox: skyboxConfig?.Skybox_Enabled === true,
-            skyboxSize: skyboxConfig?.Skybox_Size || 1000,
+            createSkybox: skyboxConfig?.Skybox_Enabled !== false,               // <-- Default to true
+            skyboxSize: finalSkyboxSize,
             skyboxColor: skyboxConfig?.Skybox_Color ? 
                 BABYLON.Color3.FromHexString(skyboxConfig.Skybox_Color) : 
                 new BABYLON.Color3(0.75, 0.85, 0.95),
-            createGround: groundConfig?.GroundPlane_Enabled === true,
-            groundSize: groundConfig?.GroundPlane_Size || 1000,
+            createGround: groundConfig?.GroundPlane_Enabled !== false,          // <-- Default to true
+            groundSize: finalGroundSize,
             groundColor: groundConfig?.GroundPlane_Color ? 
                 BABYLON.Color3.FromHexString(groundConfig.GroundPlane_Color) : 
                 new BABYLON.Color3(0.85, 0.87, 0.85),
             enableGroundMirror: groundConfig?.GroundPlane_EnableMirror === true,
-            groundYBias: groundConfig?.GroundPlane_YOffset || 0.0              // <-- CONFIG-DRIVEN GROUND HEIGHT
+            groundYBias: finalGroundOffset                                      // <-- YOUR -10.0 VALUE
         };
+        
+        console.log("🔍 Final environment options:", envOptions);
+        console.log("🔍 Ground Y bias being applied:", envOptions.groundYBias);
         
         sceneEnvironment = scene.createDefaultEnvironment(envOptions);
         
-        // CONFIGURE GROUND PLANE PROPERTIES FROM CONFIG
-        if (sceneEnvironment.ground && groundConfig) {
-            sceneEnvironment.ground.receiveShadows = groundConfig.GroundPlane_ReceiveShadows !== false;
+        // VERIFY GROUND PLANE CREATION
+        if (sceneEnvironment.ground) {
+            console.log("✅ Ground plane created successfully");
+            console.log("🔍 Ground plane position:", sceneEnvironment.ground.position);
+            
+            // CONFIGURE GROUND PLANE PROPERTIES
+            sceneEnvironment.ground.receiveShadows = groundConfig?.GroundPlane_ReceiveShadows !== false;
             sceneEnvironment.ground.material.specularColor = new BABYLON.Color3(0, 0, 0);
+        } else {
+            console.error("❌ Ground plane creation failed");
         }
         
-        // SETUP SHADOW GENERATION WITH CONFIG VALUES
-        if (shadowConfig?.Shadows_Enabled === true) {
-            const shadowMapSize = shadowConfig.Shadows_MapSize || 4096;
+        // SETUP SHADOW GENERATION (with fallback values)
+        if (shadowConfig?.Shadows_Enabled !== false) {                         // <-- Default to enabled
+            const shadowMapSize = shadowConfig?.Shadows_MapSize || SHADOW_MAP_SIZE;
             shadowGenerator = new BABYLON.ShadowGenerator(shadowMapSize, sunLight);
             shadowGenerator.useExponentialShadowMap = true;
-            shadowGenerator.useBlurExponentialShadowMap = shadowConfig.Shadows_BlurEnabled === true;
+            shadowGenerator.useBlurExponentialShadowMap = shadowConfig?.Shadows_BlurEnabled !== false;
             shadowGenerator.blurScale = 2;
             shadowGenerator.blurBoxOffset = 1;
-            shadowGenerator.setDarkness(shadowConfig.Shadows_Darkness || 0.2);
+            shadowGenerator.setDarkness(shadowConfig?.Shadows_Darkness || 0.2);
             shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
             shadowGenerator.contactHardeningLightSizeUVRatio = 0.05;
         }
         
-        // STORE REFERENCES FOR MODEL LOADING
-        scene.shadowGenerator = shadowGenerator;                             // <-- Store reference for later use
-        scene.environment = sceneEnvironment;                                // <-- Store environment reference
+        // STORE REFERENCES
+        scene.shadowGenerator = shadowGenerator;
+        scene.environment = sceneEnvironment;
         
         // INITIALIZE HDRI LIGHTING IF AVAILABLE
         if (window.TrueVision3D.SceneConfig && window.TrueVision3D.SceneConfig.HdriLightingLogic) {
             const hdriLogic = window.TrueVision3D.SceneConfig.HdriLightingLogic;
-            const appConfig = window.TrueVision3D.AppConfig;                // <-- Get app configuration
-            if (appConfig) {
-                hdriLogic.initialize(scene, appConfig, sceneEnvironment);   // <-- Initialize with environment reference
+            const fullAppConfig = window.TrueVision3D.AppConfig;
+            if (fullAppConfig) {
+                hdriLogic.initialize(scene, fullAppConfig, sceneEnvironment);
             }
         }
         
-        console.log("PC scene environment configured from JSON settings");
-        console.log(`Ground Y offset: ${groundConfig?.GroundPlane_YOffset || 0.0}m`);
+        console.log("✅ PC scene environment configured");
+        console.log(`Ground Y offset applied: ${finalGroundOffset}m`);
     }
     // ---------------------------------------------------------------
 
