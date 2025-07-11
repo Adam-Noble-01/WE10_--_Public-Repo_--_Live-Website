@@ -266,17 +266,14 @@
         const appConfig = window.TrueVision3D?.AppConfig?.AppConfig;         // <-- Get app configuration
         
         // LOAD WAYPOINT ORB CONFIGURATION WITH PROPER DEFAULTS
+        const devModeEnabled = appConfig?.devMode_Enabled === true;          // <-- Check if dev mode is enabled
         const orbsEnabled = appConfig?.devMode_WaypointOrbsOn === true;      // <-- Respect JSON config: only show if explicitly enabled
-        
-        // EXIT EARLY IF ORBS ARE DISABLED
-        if (!orbsEnabled) {
-            console.log("Waypoint orbs disabled in configuration, skipping marker creation");
-            return;
-        }
-        
         const orbSizeMm = appConfig?.devMode_WaypointOrbsSize || 100;        // <-- Size in millimeters
         const orbColor = appConfig?.devMode_WaypointOrbsColor || "#cd0000";  // <-- Orb color
         const orbOpacity = appConfig?.devMode_WaypointOrbsOpacity || 0.5;    // <-- Orb opacity
+        
+        // DETERMINE FINAL VISIBILITY - Both devMode AND orbsOn must be true
+        const finalVisibility = devModeEnabled && orbsEnabled;               // <-- Both must be true to show orbs
         
         // CONVERT SIZE FROM MILLIMETERS TO METERS
         const orbDiameterM = orbSizeMm / 1000;                               // <-- Convert mm to meters for Babylon.js
@@ -394,11 +391,11 @@
             waypoint.label = label;                                          // <-- Store label reference
             
             // SET INITIAL VISIBILITY BASED ON CONFIGURATION
-            marker.isVisible = orbsEnabled;                                  // <-- Apply config visibility
-            label.isVisible = orbsEnabled;                                   // <-- Apply config visibility
+            marker.isVisible = finalVisibility;                                  // <-- Apply config visibility
+            label.isVisible = finalVisibility;                                   // <-- Apply label visibility
         });
         
-        console.log(`Created ${waypoints.length} waypoint markers - ${orbsEnabled ? 'visible' : 'hidden'}, ${orbSizeMm}mm diameter`);
+        console.log(`Created ${waypoints.length} waypoint markers - ${finalVisibility ? 'visible' : 'hidden'}, ${orbSizeMm}mm diameter`);
     }
     // ---------------------------------------------------------------
 
@@ -408,13 +405,19 @@
         if (!cameraAgentData) return;                                        // <-- Validate data exists
         
         const appConfig = window.TrueVision3D?.AppConfig?.AppConfig;         // <-- Get fresh config
+        const devModeEnabled = appConfig?.devMode_Enabled === true;          // <-- Check if dev mode is enabled
         const orbsEnabled = appConfig?.devMode_WaypointOrbsOn === true;      // <-- Respect JSON config: only show if explicitly enabled
         const orbSizeMm = appConfig?.devMode_WaypointOrbsSize || 100;        // <-- Get size in mm
         const orbColor = appConfig?.devMode_WaypointOrbsColor || "#cd0000";  // <-- Get color
         const orbOpacity = appConfig?.devMode_WaypointOrbsOpacity || 0.5;    // <-- Get opacity
         
+        // DETERMINE FINAL VISIBILITY - Both devMode AND orbsOn must be true
+        const finalVisibility = devModeEnabled && orbsEnabled;               // <-- Both must be true to show orbs
+        
         console.log("DevTools: Updating waypoint markers from config:", {
-            enabled: orbsEnabled,
+            devModeEnabled: devModeEnabled,
+            orbsEnabled: orbsEnabled,
+            finalVisibility: finalVisibility,
             sizeMm: orbSizeMm,
             color: orbColor,
             opacity: orbOpacity
@@ -424,8 +427,8 @@
         cameraAgentData.cameraAgents.forEach((waypoint, index) => {
             if (waypoint.marker) {
                 // UPDATE VISIBILITY
-                waypoint.marker.isVisible = orbsEnabled;                     // <-- Apply visibility
-                if (waypoint.label) waypoint.label.isVisible = orbsEnabled;  // <-- Apply label visibility
+                waypoint.marker.isVisible = finalVisibility;                 // <-- Apply visibility
+                if (waypoint.label) waypoint.label.isVisible = finalVisibility;  // <-- Apply label visibility
                 
                 // UPDATE SIZE IF NEEDED
                 const currentSize = waypoint.marker.getBoundingInfo().boundingBox.maximum.x * 2;
