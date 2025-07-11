@@ -205,3 +205,8 @@ window.TrueVision3D.UiMenu.NavModeButtonManager = (function() {
 // endregion -------------------------------------------------------------------
 
 })(); 
+
+// MARK MODULE AS LOADED
+if (window.TrueVision3D.ModuleDependencyManager) {
+    window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('UiMenu');
+} 

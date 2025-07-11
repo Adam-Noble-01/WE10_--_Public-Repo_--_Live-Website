@@ -442,6 +442,11 @@ window.TrueVision3D.DevTools = window.TrueVision3D.DevTools || {};
         updateConfiguration: updateConfiguration                             // <-- Update configuration
     };
 
+    // MARK MODULE AS LOADED
+    if (window.TrueVision3D.ModuleDependencyManager) {
+        window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('DevTools');
+    }
+
 // endregion -------------------------------------------------------------------
 
 })(); 

@@ -319,6 +319,11 @@ window.TrueVision3D.SolarOrientationControls = window.TrueVision3D.SolarOrientat
         handleSunTimeChange: handleSunTimeChange                             // <-- Time change handler
     };
 
+    // MARK MODULE AS LOADED
+    if (window.TrueVision3D.ModuleDependencyManager) {
+        window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('SolarOrientationControls');
+    }
+
 // endregion -------------------------------------------------------------------
 
 })(); 
