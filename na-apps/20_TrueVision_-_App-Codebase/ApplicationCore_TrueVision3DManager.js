@@ -197,17 +197,35 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // ---------------------------------------------------------------
     async function initializeRenderingSystem() {
         // WAIT FOR RENDERING PIPELINE TO BE AVAILABLE
-        let attempts = 0;
-        const maxAttempts = 50;                                              // <-- Max 5 seconds wait
-        
-        while (!window.TrueVision3D.RenderingPipeline && attempts < maxAttempts) {
-            console.log(`Waiting for rendering pipeline to load... (attempt ${attempts + 1})`);
-            await new Promise(resolve => setTimeout(resolve, 100));          // <-- Wait 100ms
-            attempts++;
+        // Instead of polling, wait for the renderingPipelineLoaded event
+        if (!window.TrueVision3D.RenderingPipeline) {
+            console.log("Waiting for rendering pipeline to load...");
+            
+            // Create a promise that resolves when the rendering pipeline loads
+            await new Promise((resolve, reject) => {
+                // Set a timeout for safety (30 seconds)
+                const timeout = setTimeout(() => {
+                    reject(new Error("Rendering pipeline module not available after timeout"));
+                }, 30000);
+                
+                // Listen for the rendering pipeline loaded event
+                window.addEventListener('renderingPipelineLoaded', function onPipelineLoaded() {
+                    clearTimeout(timeout);
+                    window.removeEventListener('renderingPipelineLoaded', onPipelineLoaded);
+                    console.log("Rendering pipeline loaded event received");
+                    resolve();
+                }, { once: true });
+                
+                // Check if it's already loaded (race condition protection)
+                if (window.TrueVision3D.RenderingPipeline) {
+                    clearTimeout(timeout);
+                    resolve();
+                }
+            });
         }
         
         if (!window.TrueVision3D.RenderingPipeline) {
-            console.error("Rendering pipeline module not available after timeout");
+            console.error("Rendering pipeline module not available");
             return null;
         }
         
@@ -576,7 +594,7 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // ---------------------------------------------------------------
 
     // FUNCTION | Toggle Furnishings Visibility
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function toggleFurnishings() {
         if (renderingPipeline) {
             furnishingsVisible = renderingPipeline.toggleFurnishings();       // <-- Toggle furnishings state
