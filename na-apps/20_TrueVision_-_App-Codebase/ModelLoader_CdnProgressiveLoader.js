@@ -332,12 +332,19 @@
         
         // ONLY LOG AT 10% INTERVALS TO REDUCE CONSOLE CLUTTER
         const previousProgress = loadingProgress.get(modelKey);
-        const shouldLog = !previousProgress || 
-                         (progress.percentage % 10 === 0 && progress.percentage !== previousProgress.percentage) ||
-                         progress.percentage === 100;
+        
+        // Track last logged milestone for this model
+        if (!window.lastLoggedMilestone) window.lastLoggedMilestone = {};
+        if (!window.lastLoggedMilestone[modelKey]) window.lastLoggedMilestone[modelKey] = -1;
+        
+        const currentMilestone = Math.floor(progress.percentage / 10) * 10;
+        const shouldLog = !previousProgress ||  // First time
+                         currentMilestone > window.lastLoggedMilestone[modelKey] ||  // Crossed 10% boundary
+                         progress.percentage === 100;  // Always log completion
         
         if (shouldLog) {
             console.log(`${modelKey} loading progress: ${progress.percentage}% (${progress.loaded}/${progress.total})`);
+            window.lastLoggedMilestone[modelKey] = currentMilestone;
         }
         
         loadingProgress.set(modelKey, progress);                             // <-- Update progress map
@@ -384,14 +391,16 @@
             : 0;  // <-- Don't show fake progress
         
         // ONLY LOG OVERALL PROGRESS AT 10% INTERVALS TO REDUCE CONSOLE CLUTTER
-        if (!window.lastLoggedOverallProgress) window.lastLoggedOverallProgress = -1;
-        const shouldLogOverall = overallProgress % 10 === 0 && overallProgress !== window.lastLoggedOverallProgress ||
+        if (!window.lastLoggedOverallMilestone) window.lastLoggedOverallMilestone = -1;
+        
+        const currentOverallMilestone = Math.floor(overallProgress / 10) * 10;
+        const shouldLogOverall = currentOverallMilestone > window.lastLoggedOverallMilestone ||
                                 overallProgress === 100 ||
-                                window.lastLoggedOverallProgress === -1;
+                                window.lastLoggedOverallMilestone === -1;
         
         if (shouldLogOverall) {
             console.log(`Overall loading progress: ${overallProgress}% (${modelsWithProgress} critical models)`);
-            window.lastLoggedOverallProgress = overallProgress;
+            window.lastLoggedOverallMilestone = currentOverallMilestone;
         }
         
         // UPDATE LOADING SPINNER/PROGRESS BAR
