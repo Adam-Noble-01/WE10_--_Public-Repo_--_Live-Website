@@ -1088,10 +1088,11 @@
 // -----------------------------------------------------------------------------
 
     // FUNCTION | Initialize Waypoint Navigation System
-    // ------------------------------------------------------------
-    async function initialize(babylonScene, targetCanvas) {
-        scene = babylonScene;                                                // <-- Store scene reference
-        canvas = targetCanvas;                                               // <-- Store canvas reference
+    // ---------------------------------------------------------------
+    async function initialize(scene, canvas, options = {}) {
+        // Store scene and canvas references
+        this.scene = scene;
+        this.canvas = canvas;
         
         console.log("Initializing Waypoint Navigation System");              // <-- Log initialization start
         
@@ -1110,6 +1111,11 @@
         updateWaypointDropdown();                                            // <-- Populate dropdown with loaded data
         initializeInputHandlers();                                           // <-- Setup input handling
         initializeAccelerometer();                                           // <-- Setup accelerometer
+        
+        // CHECK IF WE SHOULD DEFER ORB CREATION
+        if (!options.deferOrbCreation) {
+            createWaypointOrbs();                                            // <-- Only create if not deferred
+        }
         
         console.log("Waypoint Navigation System initialized successfully");  // <-- Log success
         return true;                                                         // <-- Return success
@@ -1253,6 +1259,21 @@
             });
             console.log(`DevTools: Waypoint orbs ${visible ? 'shown' : 'hidden'} via external call`);
         }
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Create Waypoint Orbs (Public method for deferred creation)
+    // ---------------------------------------------------------------
+    function createWaypointOrbs() {
+        // CHECK WITH DEV TOOLS MANAGER
+        if (!window.TrueVision3D?.DevTools?.DebugMarkersManager?.shouldShowWaypointOrbs()) {
+            console.log("Waypoint orbs disabled by configuration");
+            return;
+        }
+        
+        createWaypointMarkers();                                             // <-- Create visual markers
+        updateMarkersFromConfig();                                           // <-- Apply current config settings
+        console.log(`Created ${cameraAgentData.cameraAgents.length} waypoint markers - visible, ${cameraAgentData.cameraAgents[0].marker.getBoundingInfo().boundingBox.maximum.x * 2}mm diameter`);
     }
     // ---------------------------------------------------------------
 

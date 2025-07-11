@@ -283,6 +283,12 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         window.addEventListener('modelsReadyForInteraction', function(event) {
             console.log("Critical models loaded - enabling user interaction");
             
+            // CREATE WAYPOINT ORBS NOW THAT MODELS ARE LOADED
+            if (navigationModes.waypoint && window.TrueVision3D?.DevTools?.DebugMarkersManager?.shouldShowWaypointOrbs()) {
+                console.log("Creating waypoint orbs after model load");
+                navigationModes.waypoint.createWaypointOrbs();              // <-- Create orbs now
+            }
+            
             // START APPLICATION SYSTEMS NOW THAT MODELS ARE READY
             startApplicationSystems();                                       // <-- Enable navigation and rendering
             
@@ -352,15 +358,18 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
             return;
         }
         
-        // INITIALIZE WAYPOINT NAVIGATION
+        // INITIALIZE WAYPOINT NAVIGATION (BUT DON'T CREATE ORBS YET)
         if (navConfig.AppNavMode_Waypoint?.NavMode_WaypointState && 
             window.TrueVision3D?.NavigationModes?.WaypointNavigation) {
             const waypointNav = window.TrueVision3D.NavigationModes.WaypointNavigation;
-            const initialized = await waypointNav.initialize(scene, canvas); // <-- AWAIT the async initialization
+            
+            // Pass a flag to prevent orb creation during initialization
+            const initialized = await waypointNav.initialize(scene, canvas, { deferOrbCreation: true });
+            
             if (initialized) {
                 navigationModes.waypoint = waypointNav;                      // <-- Store navigation mode
                 waypointModeBtn.style.display = "inline-block";              // <-- Show button
-                console.log("Waypoint navigation initialized");              // <-- Log success
+                console.log("Waypoint navigation initialized (orbs deferred)"); // <-- Log success
             }
         }
         
@@ -574,7 +583,7 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // ---------------------------------------------------------------
 
     // FUNCTION | Reset Current Navigation View
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function resetView() {
         if (activeNavigationMode && navigationModes[activeNavigationMode]) {
             navigationModes[activeNavigationMode].reset();                   // <-- Call mode's reset function
@@ -584,7 +593,7 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // ---------------------------------------------------------------
 
     // FUNCTION | Toggle SSAO Render Effect
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function toggleSSAO() {
         if (renderingPipeline) {
             ssaoEnabled = renderingPipeline.toggleSSAO();                    // <-- Toggle SSAO state

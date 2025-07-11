@@ -443,6 +443,11 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         // HANDLE CAMERA AGENT MARKERS BASED ON CONFIGURATION
         handleCameraAgentMarkers();                                          // <-- Manage camera agent visibility
         
+        // REFRESH DEV TOOLS DETECTION AFTER MODELS LOADED
+        if (window.TrueVision3D?.DevTools?.DebugMarkersManager) {
+            window.TrueVision3D.DevTools.DebugMarkersManager.refreshCameraAgentDetection();
+        }
+        
         // CHECK IF HDRI IS ACTIVE (USUALLY DISABLED ON MOBILE)
         const hdriLogic = window.TrueVision3D?.SceneConfig?.HdriLightingLogic;
         if (hdriLogic && hdriLogic.getHdriState && hdriLogic.getHdriState().enabled) {
@@ -806,27 +811,6 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         console.log("Mobile rendering pipeline disposed");
     }
     // ---------------------------------------------------------------
-
-// endregion -------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
-// REGION | Module Export and Public Interface
-// -----------------------------------------------------------------------------
-
-    // EXPOSE PUBLIC API
-    window.TrueVision3D.RenderingPipeline = {
-        initialize: initialize,
-        getCoreReferences: getCoreReferences,
-        startRendering: startRendering,
-        toggleSSAO: toggleSSAO,
-        updateSSAOCamera: updateSSAOCamera,
-        updateMaterialsForHdri: updateMaterialsForHdri,
-        restoreMaterialsFromHdri: restoreMaterialsFromHdri,
-        toggleFurnishings: toggleFurnishings,
-        getFurnishingsVisibility: getFurnishingsVisibility,
-        setFurnishingsVisibility: setFurnishingsVisibility,
-        dispose: dispose
-    };
 
 // endregion -------------------------------------------------------------------
 
