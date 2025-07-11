@@ -691,6 +691,11 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         dispose: dispose
     };
 
+    // MARK MODULE AS LOADED
+    if (window.TrueVision3D.ModuleDependencyManager) {
+        window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('RenderingPipeline');
+    }
+
     // DISPATCH EVENT TO NOTIFY THAT RENDERING PIPELINE IS LOADED
     window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));        // <-- Critical missing event!
     console.log("🔔 PC Rendering pipeline loaded event dispatched");

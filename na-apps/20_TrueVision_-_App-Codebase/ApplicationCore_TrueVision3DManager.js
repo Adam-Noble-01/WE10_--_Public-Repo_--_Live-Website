@@ -777,6 +777,11 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         cleanup: cleanupApplicationResources                                 // <-- Cleanup function
     };
 
+    // MARK MODULE AS LOADED
+    if (window.TrueVision3D.ModuleDependencyManager) {
+        window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('ApplicationCore');
+    }
+
 // endregion -------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------

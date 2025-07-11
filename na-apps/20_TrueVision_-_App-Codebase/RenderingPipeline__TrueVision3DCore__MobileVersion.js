@@ -820,4 +820,34 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
 
 // endregion -------------------------------------------------------------------
 
+// -----------------------------------------------------------------------------
+// REGION | Module Export and Public Interface
+// -----------------------------------------------------------------------------
+
+    // EXPOSE PUBLIC API
+    window.TrueVision3D.RenderingPipeline = {
+        initialize: initialize,
+        getCoreReferences: getCoreReferences,
+        startRendering: startRendering,
+        toggleSSAO: toggleSSAO,
+        updateSSAOCamera: updateSSAOCamera,
+        updateMaterialsForHdri: updateMaterialsForHdri,
+        restoreMaterialsFromHdri: restoreMaterialsFromHdri,
+        toggleFurnishings: toggleFurnishings,
+        getFurnishingsVisibility: getFurnishingsVisibility,
+        setFurnishingsVisibility: setFurnishingsVisibility,
+        dispose: dispose
+    };
+
+    // MARK MODULE AS LOADED
+    if (window.TrueVision3D.ModuleDependencyManager) {
+        window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('RenderingPipeline');
+    }
+
+    // DISPATCH EVENT TO NOTIFY THAT RENDERING PIPELINE IS LOADED
+    window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));        // <-- Critical event dispatch!
+    console.log("🔔 Mobile Rendering pipeline loaded event dispatched");
+
+// endregion -------------------------------------------------------------------
+
 })(); 
