@@ -40,18 +40,6 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
 // REGION | Rendering Pipeline Configuration Constants
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | 3D Model Resource Configuration
-    // ------------------------------------------------------------
-    const MODEL_BASE_PATH              = "./Assets_PluginAssets/3DModels_GlbFormatModels/";                     // <-- Base path for all models
-    const MODEL_NAME_PREFIX            = "TrueVision_-_Testing3D_-_PatterdaleCloseModel";                       // <-- Model name prefix
-    
-    // MODULE CONSTANTS | Segmented Model File Suffixes
-    // ------------------------------------------------------------
-    const MODEL_BUILDING_SUFFIX        = "_-_BuildingModel.glb";                                                // <-- Building model suffix
-    const MODEL_GF_FURNITURE_SUFFIX    = "_-_GF_FurnishingsModel.glb";                                         // <-- Ground floor furniture suffix
-    const MODEL_FF_FURNITURE_SUFFIX    = "_-_FF_FurnishingsModel.glb";                                         // <-- First floor furniture suffix
-    // ---------------------------------------------------------------
-
     // MODULE CONSTANTS | Model Loading Configuration
     // ------------------------------------------------------------
     const VALIDATE_BUILDING_MODEL      = true;                                                                   // <-- Building model requires validation
@@ -333,18 +321,20 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // ---------------------------------------------------------------
     async function initializeCdnModelLoading() {
         if (!window.TrueVisionCdnLoader) {
-            console.error("CDN Model Loader not available - falling back to legacy loading");
-            loadSegmentedModels();                                           // <-- Fallback to old loading system
-            return;
+            console.error("❌ CRITICAL ERROR: CDN Model Loader not available - APPLICATION CANNOT CONTINUE");
+            console.error("CDN loading is REQUIRED. Models must be loaded from CDN URLs defined in config JSON.");
+            throw new Error("CDN Model Loader is required but not available");
         }
         
         // INITIALIZE CDN LOADER
         const cdnInitialized = await window.TrueVisionCdnLoader.initialize();
         if (!cdnInitialized) {
-            console.error("CDN Loader initialization failed - falling back to legacy loading");
-            loadSegmentedModels();                                           // <-- Fallback to old loading system
-            return;
+            console.error("❌ CRITICAL ERROR: CDN Loader initialization failed - APPLICATION CANNOT CONTINUE");
+            console.error("CDN URLs from Data_-_MainAppConfig.json must be accessible.");
+            throw new Error("CDN Loader initialization failed - check network/CORS configuration");
         }
+        
+        console.log("✅ CDN Model Loader initialized successfully - loading from config JSON URLs");
         
         // REGISTER MODEL LOADING CALLBACKS
         registerCdnModelCallbacks();                                         // <-- Setup event handlers
@@ -402,128 +392,6 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             // FINAL PROCESSING PASS
             processLoadedMeshes();                                           // <-- Ensure all meshes processed
         });
-    }
-    // ---------------------------------------------------------------
-
-    // SUB FUNCTION | Load Single Model Segment
-    // ------------------------------------------------------------
-    function loadModelSegment(modelPath, modelType, isRequired) {
-        return new Promise((resolve, reject) => {
-            console.log(`Loading ${modelType} model: ${modelPath}`);                                            // <-- Log model loading attempt
-            
-            // STORE INITIAL MESH COUNT
-            const meshCountBefore = scene.meshes.length;                                                        // <-- Count meshes before loading
-            
-            BABYLON.SceneLoader.Append("", modelPath, scene, 
-                function () {                                                                                    // <-- Success callback function
-                    modelsLoadedCount++;                                                                         // <-- Increment loaded count
-                    modelsLoaded[modelType] = true;                                                             // <-- Mark model as loaded
-                    
-                    // TRACK FURNITURE MESHES
-                    if (modelType === "groundFloorFurniture" || modelType === "firstFloorFurniture") {
-                        const meshCountAfter = scene.meshes.length;                                             // <-- Count meshes after loading
-                        const newMeshes = scene.meshes.slice(meshCountBefore, meshCountAfter);                  // <-- Get newly added meshes
-                        
-                        // ADD NEW MESHES TO FURNITURE ARRAY
-                        newMeshes.forEach(mesh => {
-                            furnitureMeshes.push(mesh);                                                         // <-- Store furniture mesh reference
-                            mesh.isVisible = furnishingsVisible;                                                // <-- Set initial visibility
-                        });
-                        
-                        console.log(`✅ Added ${newMeshes.length} furniture meshes from ${modelType}`);
-                    }
-                    
-                    console.log(`✅ ${modelType} model loaded successfully (${modelsLoadedCount}/${totalModelsToLoad})`);
-                    
-                    // UPDATE LOADING PROGRESS
-                    if (loadingOverlay) {
-                        const progressPercent = (modelsLoadedCount / totalModelsToLoad) * 100;
-                        console.log(`Overall loading progress: ${progressPercent.toFixed(0)}%`);
-                    }
-                    
-                    resolve(true);                                                                               // <-- Resolve promise
-                }, 
-                function (event) {                                                                               // <-- Progress callback function
-                    if (event.lengthComputable) {
-                        const progress = (event.loaded / event.total) * 100;
-                        console.log(`${modelType} loading progress: ${progress.toFixed(1)}%`);                   // <-- Log progress
-                    }
-                },
-                function (scene, message, exception) {                                                           // <-- Error callback function
-                    console.error(`Error loading ${modelType} model:`, message, exception);                     // <-- Log error details
-                    
-                    if (isRequired) {
-                        reject(new Error(`Failed to load required ${modelType} model: ${message}`));            // <-- Reject if required
-                    } else {
-                        console.warn(`⚠️ Optional ${modelType} model not found, continuing...`);                // <-- Warn if optional
-                        modelsLoadedCount++;                                                                     // <-- Still increment count
-                        resolve(false);                                                                          // <-- Resolve with false
-                    }
-                }
-            );
-        });
-    }
-    // ---------------------------------------------------------------
-
-    // FUNCTION | Load All Segmented Models in Sequence
-    // ------------------------------------------------------------
-    async function loadSegmentedModels() {
-        if (loadingOverlay) loadingOverlay.classList.remove("hidden");                                          // <-- Show loading overlay
-        if (errorMessage) errorMessage.style.display = "none";                                                  // <-- Hide error message
-        
-        try {
-            // RESET LOADING STATE
-            modelsLoadedCount = 0;                                                                               // <-- Reset counter
-            totalModelsToLoad = 3;                                                                               // <-- We have 3 models to attempt loading
-            
-            // CONSTRUCT MODEL PATHS
-            const buildingModelPath = MODEL_BASE_PATH + MODEL_NAME_PREFIX + MODEL_BUILDING_SUFFIX;               // <-- Building model path
-            const gfFurnitureModelPath = MODEL_BASE_PATH + MODEL_NAME_PREFIX + MODEL_GF_FURNITURE_SUFFIX;        // <-- Ground floor furniture path
-            const ffFurnitureModelPath = MODEL_BASE_PATH + MODEL_NAME_PREFIX + MODEL_FF_FURNITURE_SUFFIX;        // <-- First floor furniture path
-            
-            console.log("=== STARTING SEGMENTED MODEL LOADING ===");
-            console.log("Building Model:", buildingModelPath);
-            console.log("GF Furniture Model:", gfFurnitureModelPath);
-            console.log("FF Furniture Model:", ffFurnitureModelPath);
-            
-            // LOAD BUILDING MODEL FIRST (REQUIRED)
-            const buildingLoaded = await loadModelSegment(buildingModelPath, "building", VALIDATE_BUILDING_MODEL);
-            
-            if (!buildingLoaded && VALIDATE_BUILDING_MODEL) {
-                throw new Error("Building model is required but failed to load");                               // <-- Throw error if required model fails
-            }
-            
-            // LOAD GROUND FLOOR FURNITURE (OPTIONAL)
-            await loadModelSegment(gfFurnitureModelPath, "groundFloorFurniture", !FURNITURE_MODELS_OPTIONAL);
-            
-            // LOAD FIRST FLOOR FURNITURE (OPTIONAL)
-            await loadModelSegment(ffFurnitureModelPath, "firstFloorFurniture", !FURNITURE_MODELS_OPTIONAL);
-            
-            // PROCESS ALL LOADED MESHES
-            processLoadedMeshes();                                                                               // <-- Apply materials and shadows
-            
-            console.log("=== SEGMENTED MODEL LOADING COMPLETE ===");
-            console.log("Models loaded:", modelsLoaded);
-            
-            // DO NOT HIDE LOADING OVERLAY HERE - Let CDN loader handle it
-            // if (loadingOverlay) loadingOverlay.classList.add("hidden");                                         // <-- Hide loading overlay
-            
-        } catch (error) {
-            console.error("Fatal error during model loading:", error);                                          // <-- Log fatal error
-            if (loadingOverlay) loadingOverlay.classList.add("hidden");                                         // <-- Hide loading overlay
-            if (errorMessage) {
-                errorMessage.style.display = "block";                                                           // <-- Show error message
-                errorMessage.textContent = error.message || "Failed to load 3D models";                         // <-- Set error text
-            }
-        }
-    }
-    // ---------------------------------------------------------------
-
-    // DEPRECATED FUNCTION | Load Single Model (Kept for backward compatibility)
-    // ------------------------------------------------------------
-    function loadThreeDModel() {
-        console.warn("loadThreeDModel is deprecated. Using loadSegmentedModels instead.");                      // <-- Deprecation warning
-        loadSegmentedModels();                                                                                  // <-- Call new function
     }
     // ---------------------------------------------------------------
 
@@ -661,14 +529,14 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // ---------------------------------------------------------------
 
     // FUNCTION | Get Current Furnishings Visibility State
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function getFurnishingsVisibility() {
         return furnishingsVisible;                                                                               // <-- Return current state
     }
     // ---------------------------------------------------------------
 
     // FUNCTION | Set Furnishings Visibility
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function setFurnishingsVisibility(visible) {
         furnishingsVisible = visible;                                                                            // <-- Set visibility state
         
@@ -735,7 +603,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // ---------------------------------------------------------------
 
     // FUNCTION | Cleanup Rendering Pipeline Resources
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function dispose() {
         // STOP RENDER LOOP
         stopRenderLoop();                                                    // <-- Stop rendering

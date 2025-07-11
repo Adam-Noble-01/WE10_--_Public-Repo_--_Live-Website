@@ -44,6 +44,9 @@
         try {
             loadingStartTime = Date.now();                                   // <-- Start timing the load process
             
+            // CLEAR MODEL LIST CACHE FOR FRESH LOGGING
+            window.cachedModelList = null;
+            
             // LOAD CONFIGURATION FILE
             const response = await fetch(configUrl);                         // <-- Fetch app configuration
             const config = await response.json();                            // <-- Parse JSON configuration
@@ -154,6 +157,11 @@
     // SUB FUNCTION | Extract and Sort Model List from Configuration
     // ---------------------------------------------------------------
     function extractModelList() {
+        // CACHE MODEL LIST TO PREVENT REPEATED EXTRACTION
+        if (window.cachedModelList) {
+            return window.cachedModelList;                                   // <-- Return cached list
+        }
+        
         const models = [];                                                   // <-- Initialize model array
         
         // ITERATE THROUGH CONFIG TO FIND MODEL ENTRIES
@@ -168,11 +176,14 @@
         // SORT BY LOADING ORDER
         models.sort((a, b) => a.ModelLoadingOrder - b.ModelLoadingOrder);   // <-- Sort by priority order
         
-        // LOG MODEL CONFIGURATIONS
+        // LOG MODEL CONFIGURATIONS ONLY ONCE
         console.log(`Found ${models.length} models to load:`);
         models.forEach(model => {
             console.log(`  - ${model.ModelType} (Order: ${model.ModelLoadingOrder}, Critical: ${model.ModelCritical}, Fallback: ${model.EnableGitHubFallback})`);
         });
+        
+        // CACHE THE RESULT
+        window.cachedModelList = models;
         
         return models;                                                       // <-- Return sorted model list
     }
