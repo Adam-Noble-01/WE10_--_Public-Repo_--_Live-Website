@@ -26,38 +26,38 @@ window.TrueVision3D = window.TrueVision3D || {};
     // ------------------------------------------------------------
     const moduleStatus = {
         config: false,
-        renderingPipeline: false,
-        materialLogic: false,
-        ssaoEffect: false,
-        navModeManager: false,
-        solarControls: false,
-        hdriLighting: false,
-        cdnLoader: false,
-        devTools: false,
-        waypointNav: false,
-        walkNav: false,
-        orbitNav: false,
-        flyNav: false,
-        applicationCore: false
+        RenderingPipeline: false,
+        MaterialLogic: false,
+        SsaoAmbientOcclusionEffect: false,
+        UiMenu: false,
+        SolarOrientationControls: false,
+        SceneConfig_HdriLighting: false,
+        CdnProgressiveLoader: false,
+        DevTools: false,
+        WaypointNavigation: false,
+        WalkNavigation: false,
+        OrbitNavigation: false,
+        FlyNavigation: false,
+        ApplicationCore: false
     };
     // ---------------------------------------------------------------
 
     // MODULE VARIABLES | Module Dependencies Map
     // ------------------------------------------------------------
     const moduleDependencies = {
-        renderingPipeline: ['config'],
-        materialLogic: ['config'],
-        ssaoEffect: [],
-        navModeManager: [],
-        solarControls: [],
-        hdriLighting: ['config'],
-        cdnLoader: ['config'],
-        devTools: ['config'],
-        waypointNav: ['config', 'devTools'],
-        walkNav: ['config'],
-        orbitNav: ['config'],
-        flyNav: ['config'],
-        applicationCore: ['config', 'renderingPipeline', 'devTools']
+        RenderingPipeline: ['config'],
+        MaterialLogic: ['config'],
+        SsaoAmbientOcclusionEffect: [],
+        UiMenu: [],
+        SolarOrientationControls: [],
+        SceneConfig_HdriLighting: ['config'],
+        CdnProgressiveLoader: ['config'],
+        DevTools: ['config'],
+        WaypointNavigation: ['config', 'DevTools'],
+        WalkNavigation: ['config'],
+        OrbitNavigation: ['config'],
+        FlyNavigation: ['config'],
+        ApplicationCore: ['config', 'RenderingPipeline', 'DevTools']
     };
     // ---------------------------------------------------------------
 
