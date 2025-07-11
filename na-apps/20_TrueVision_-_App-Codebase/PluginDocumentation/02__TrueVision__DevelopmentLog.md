@@ -10,6 +10,62 @@ CREATED    : Circa. Feb-2025
 =============================================================================
 
 # ----------------------------------------------------------------------------
+## VERSION 1.3.2  - Mobile Device Bug Fixed
+###  Released     -  11-Jul-2025
+
+#### Critical Issue Identified
+- Model silently failed to load on mobile devices 
+  - Tested on Google Pixel 6 Pro on Edge and Chrome browsers
+  - Tested on Samsung Galaxy S8 on Edge and Chrome browsers
+- Loading screen resolves but the canvas fails to load the environment.
+- The canvas is blank (light grey) with no environment.
+- This is different to the PC version which loads the environment correctly even if a model is not loaded.
+- The loading screen is suspiciously quick, clocking in at 1 second, whilst pc takes around 20 seconds if no cache.
+- Tried clearing cache and reloading the page.
+- All links validated and working.
+
+- I think the issue to check for first is legacy code related to mobile devices.
+- Once we validate there is no legacy code overiding the version loaded on PC then we can investigate what may
+  be a requirement in the Babylon JS library and research the best practices for mobile device loading.
+
+- RECAP
+  - First check for legacy code and redundant scripts and files.
+  - Check the render pipeline and see if models are handled differently on mobile devices.
+ONLY THEN ONCE VALIDATE !ALL! SCRIPTS
+  - Research best practices to ensure stable loading on mobile devices.
+  - Perhaps some of the features and rendering features are just not supported on mobile devices.
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+## VERSION 1.3.1  - CDN Infrastructure Enforcement & Configuration Architecture
+###  Released     -  11-Jul-2025
+
+#### Critical System Refactor - CDN-Only Asset Loading Architecture
+- Eliminated all legacy local/relative path fallbacks from 3D model loading pipeline
+- Enforced exclusive use of CDN URLs defined in `Data_-_MainAppConfig.json` for all GLB model assets  
+- Application now gracefully fails with detailed error messaging when CDN resources are unavailable
+- Centralized all model URL management through JSON configuration with strict validation
+- Removed redundant local path checking and fallback logic for faster loading
+- Enhanced error handling, logging, and diagnostic capabilities for CDN loading operations
+- Validated and cleaned all scripts to eliminate hardcoded asset paths and ensure architectural consistency
+
+#### Technical Impact
+- Improved reliability and consistency of asset loading across deployment environments
+- Simplified debugging and troubleshooting of model loading issues
+- Enhanced scalability for multi-environment deployments (dev, staging, production)
+- Reduced maintenance overhead by centralizing asset URL management
+
+-----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 ## VERSION 1.3.0  - UI Enhancement & PlanVision Alignment
 ###  Released     -  08-Jun-2025
 

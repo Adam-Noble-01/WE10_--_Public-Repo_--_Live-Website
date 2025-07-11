@@ -42,6 +42,78 @@
 // endregion -------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
+// REGION | PC-SPECIFIC SSAO CONFIGURATION
+// -----------------------------------------------------------------------------
+
+    // PC QUALITY PRESETS | High-End Desktop Settings
+    // ------------------------------------------------------------
+    const PC_QUALITY_PRESETS = {
+        ULTRA: {
+            ssaoRatio              : 1.0,                                    // <-- Full resolution SSAO
+            blurRatio              : 1.0,                                    // <-- Full resolution blur
+            combineRatio           : 1.0,                                    // <-- Full resolution output
+            samples                : 32,                                     // <-- Maximum sample count
+            radius                 : 0.5,                                    // <-- Large sampling radius
+            totalStrength          : 1.5,                                    // <-- Strong effect
+            base                   : 0.0,                                    // <-- Full occlusion possible
+            expensiveBlur          : true,                                   // <-- High quality blur
+            maxZ                   : 100.0,                                  // <-- Extended far plane
+            minZAspect             : 0.2                                     // <-- Standard depth scaling
+        },
+        HIGH: {
+            ssaoRatio              : 1.0,                                    // <-- Full resolution SSAO
+            blurRatio              : 1.0,                                    // <-- Full resolution blur
+            combineRatio           : 1.0,                                    // <-- Full resolution output
+            samples                : 16,                                     // <-- High sample count
+            radius                 : 0.4,                                    // <-- Standard radius
+            totalStrength          : 1.2,                                    // <-- Strong effect
+            base                   : 0.1,                                    // <-- Nearly full occlusion
+            expensiveBlur          : true,                                   // <-- High quality blur
+            maxZ                   : 100.0,                                  // <-- Standard far plane
+            minZAspect             : 0.2                                     // <-- Standard depth scaling
+        }
+    };
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+// REGION | MOBILE-SPECIFIC SSAO CONFIGURATION
+// -----------------------------------------------------------------------------
+
+    // MOBILE QUALITY PRESETS | Battery-Optimized Settings
+    // ------------------------------------------------------------
+    const MOBILE_QUALITY_PRESETS = {
+        MOBILE_HIGH: {
+            ssaoRatio              : 0.75,                                   // <-- Reduced resolution
+            blurRatio              : 0.75,                                   // <-- Matching blur resolution
+            combineRatio           : 1.0,                                    // <-- Full resolution output
+            samples                : 8,                                      // <-- Limited samples
+            radius                 : 0.25,                                   // <-- Smaller radius
+            totalStrength          : 0.8,                                    // <-- Moderate effect
+            base                   : 0.2,                                    // <-- Lighter shadows
+            expensiveBlur          : false,                                  // <-- Fast blur only
+            maxZ                   : 75.0,                                   // <-- Reduced far plane
+            minZAspect             : 0.2                                     // <-- Standard depth scaling
+        },
+        MOBILE_LOW: {
+            ssaoRatio              : 0.5,                                    // <-- Half resolution
+            blurRatio              : 0.5,                                    // <-- Half resolution blur
+            combineRatio           : 1.0,                                    // <-- Full resolution output
+            samples                : 4,                                      // <-- Minimal samples
+            radius                 : 0.15,                                   // <-- Very tight radius
+            totalStrength          : 0.6,                                    // <-- Subtle effect
+            base                   : 0.3,                                    // <-- Light shadows only
+            expensiveBlur          : false,                                  // <-- Fast blur required
+            maxZ                   : 50.0,                                   // <-- Limited far plane
+            minZAspect             : 0.2                                     // <-- Standard depth scaling
+        }
+    };
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
 // REGION | SSAO Ambient Occlusion Effect Module Implementation
 // -----------------------------------------------------------------------------
 

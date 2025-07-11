@@ -95,7 +95,53 @@ DESCRIPTION:
     <script src="Materials_TextureSubstitutionAutomationLogic.js"></script> <!-- Material substitution logic    -->
     <script src="SceneConfig_HdriLightingLogic.js"></script> <!-- HDRI environmental lighting    -->
     <script src="SceneConfig_SolarOrientationControlLogic.js"></script> <!-- Solar positioning and lighting -->
-    <script src="RenderingPipeline_TrueVision3DCore.js"></script> <!-- 3D rendering pipeline          -->
+    <!-- Replace the single RenderingPipeline script with conditional loading -->
+    <script>
+        // After config is loaded, determine which rendering pipeline to use
+        window.TrueVision3D.configLoadPromise.then(success => {
+            if (success && window.TrueVision3D.AppConfig) {
+                const renderConfig = window.TrueVision3D.AppConfig.AppConfig.RenderPipelineConfig;
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                // Check if the platform is enabled
+                if (isMobile && !renderConfig.Mobile) {
+                    // Show mobile unavailable message
+                    document.body.innerHTML = `
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0;">
+                            <h1 style="color: #172b3a; font-family: Arial, sans-serif;">${renderConfig.MobileUnavailableTitle}</h1>
+                            <p style="color: #1e1e1e; font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
+                                ${renderConfig.MobileUnavailableMessage}
+                            </p>
+                            <p style="color: #336699; font-family: Arial, sans-serif; margin-top: 20px;">
+                                Current URL: <br>
+                                <code style="background: #fff; padding: 10px; border-radius: 5px; display: inline-block; margin-top: 10px;">
+                                    ${window.location.href}
+                                </code>
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Load appropriate rendering pipeline
+                const script = document.createElement('script');
+                if (isMobile && renderConfig.Mobile) {
+                    script.src = 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
+                    console.log('Loading mobile rendering pipeline');
+                } else if (!isMobile && renderConfig.PC) {
+                    script.src = 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
+                    console.log('Loading PC rendering pipeline');
+                }
+
+                script.onload = () => {
+                    console.log('Rendering pipeline loaded successfully');
+                    // Continue with other initializations
+                };
+
+                document.head.appendChild(script);
+            }
+        });
+    </script>
 
     <!-- Dev Tools Manager - Load before navigation systems -->
     <script src="DevTools_DebugMarkersManager.js"></script> <!-- Debug markers management       -->

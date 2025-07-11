@@ -6,8 +6,9 @@
     "appAuthor": "Adam Noble",
     "appAuthorEmail": "adam@noblearchitecture.co.uk",
     "appDomain": "https://www.noble-architecture.com/",
+    "appCDN": "https://cdn.noble-architecture.com/",
     "AppConfig": {
-        "devMode_Enabled": true,
+        "devMode_Enabled": false,
         "devMode_Description": "Various typical app config options, enables debug tools and analysis tools",
         "devMode_WaypointNotes": "Configures the waypoint marker orbs, the size value represents the diameter of the orb in millimeters",
         "devMode_WaypointOrbsOn": false,
@@ -58,6 +59,13 @@
                     "DefaultInitRotationZ": "225"
                 }
             }
+        },
+        "RenderPipelineConfig": {
+            "RenderPipelineConfig_Description": "Controls which rendering pipelines are available based on device type",
+            "PC": true,
+            "Mobile": true,
+            "MobileUnavailableMessage": "TrueVision 3D is not yet available for mobile devices. Please open this link on a desktop or laptop computer for the best experience.",
+            "MobileUnavailableTitle": "Mobile Version Coming Soon"
         }
     },
     "SceneConfig": {
