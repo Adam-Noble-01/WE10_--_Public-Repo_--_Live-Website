@@ -330,7 +330,16 @@
             status: 'loading'
         };
         
-        console.log(`${modelKey} loading progress: ${progress.percentage}% (${progress.loaded}/${progress.total})`);
+        // ONLY LOG AT 10% INTERVALS TO REDUCE CONSOLE CLUTTER
+        const previousProgress = loadingProgress.get(modelKey);
+        const shouldLog = !previousProgress || 
+                         (progress.percentage % 10 === 0 && progress.percentage !== previousProgress.percentage) ||
+                         progress.percentage === 100;
+        
+        if (shouldLog) {
+            console.log(`${modelKey} loading progress: ${progress.percentage}% (${progress.loaded}/${progress.total})`);
+        }
+        
         loadingProgress.set(modelKey, progress);                             // <-- Update progress map
         
         // CALCULATE OVERALL PROGRESS FOR CRITICAL MODELS
@@ -374,7 +383,16 @@
             ? Math.round(totalProgress / modelsWithProgress)  
             : 0;  // <-- Don't show fake progress
         
-        console.log(`Loading progress: ${overallProgress}% (${modelsWithProgress} models with data)`);
+        // ONLY LOG OVERALL PROGRESS AT 10% INTERVALS TO REDUCE CONSOLE CLUTTER
+        if (!window.lastLoggedOverallProgress) window.lastLoggedOverallProgress = -1;
+        const shouldLogOverall = overallProgress % 10 === 0 && overallProgress !== window.lastLoggedOverallProgress ||
+                                overallProgress === 100 ||
+                                window.lastLoggedOverallProgress === -1;
+        
+        if (shouldLogOverall) {
+            console.log(`Overall loading progress: ${overallProgress}% (${modelsWithProgress} critical models)`);
+            window.lastLoggedOverallProgress = overallProgress;
+        }
         
         // UPDATE LOADING SPINNER/PROGRESS BAR
         updateLoadingSpinner(overallProgress, loadedCount, criticalModels.length);
