@@ -613,6 +613,12 @@
     function initializeInputHandlers() {
         if (inputHandlersInitialized) return;                               // <-- Prevent duplicate handlers
         
+        // CHECK IF CANVAS IS AVAILABLE
+        if (!canvas) {
+            console.error("Canvas not available for input handlers");        // <-- Log error
+            return;
+        }
+        
         // MOUSE INPUT HANDLERS
         canvas.addEventListener("pointerdown", handlePointerDown, false);    // <-- Mouse/touch down handler
         canvas.addEventListener("pointermove", handlePointerMove, false);    // <-- Mouse/touch move handler
@@ -1089,10 +1095,10 @@
 
     // FUNCTION | Initialize Waypoint Navigation System
     // ---------------------------------------------------------------
-    async function initialize(scene, canvas, options = {}) {
-        // Store scene and canvas references
-        this.scene = scene;
-        this.canvas = canvas;
+    async function initialize(sceneParam, canvasParam, options = {}) {
+        // Store scene and canvas references - USE MODULE-LEVEL VARIABLES
+        scene = sceneParam;
+        canvas = canvasParam;
         
         console.log("Initializing Waypoint Navigation System");              // <-- Log initialization start
         
