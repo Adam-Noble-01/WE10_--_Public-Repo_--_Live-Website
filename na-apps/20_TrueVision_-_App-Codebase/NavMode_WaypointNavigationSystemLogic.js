@@ -267,6 +267,13 @@
         
         // LOAD WAYPOINT ORB CONFIGURATION WITH PROPER DEFAULTS
         const orbsEnabled = appConfig?.devMode_WaypointOrbsOn === true;      // <-- Respect JSON config: only show if explicitly enabled
+        
+        // EXIT EARLY IF ORBS ARE DISABLED
+        if (!orbsEnabled) {
+            console.log("Waypoint orbs disabled in configuration, skipping marker creation");
+            return;
+        }
+        
         const orbSizeMm = appConfig?.devMode_WaypointOrbsSize || 100;        // <-- Size in millimeters
         const orbColor = appConfig?.devMode_WaypointOrbsColor || "#cd0000";  // <-- Orb color
         const orbOpacity = appConfig?.devMode_WaypointOrbsOpacity || 0.5;    // <-- Orb opacity
@@ -1299,9 +1306,16 @@
             return;
         }
         
+        // CHECK IF ORBS ALREADY EXIST TO PREVENT DUPLICATES
+        if (cameraAgentData && cameraAgentData.cameraAgents.length > 0 && cameraAgentData.cameraAgents[0].marker) {
+            console.log("Waypoint orbs already exist, skipping duplicate creation");
+            updateMarkersFromConfig();                                       // <-- Just update visibility from config
+            return;
+        }
+        
         createWaypointMarkers();                                             // <-- Create visual markers
         updateMarkersFromConfig();                                           // <-- Apply current config settings
-        console.log(`Created ${cameraAgentData.cameraAgents.length} waypoint markers - visible, ${cameraAgentData.cameraAgents[0].marker.getBoundingInfo().boundingBox.maximum.x * 2}mm diameter`);
+        console.log(`Created ${cameraAgentData.cameraAgents.length} waypoint markers`);
     }
     // ---------------------------------------------------------------
 
