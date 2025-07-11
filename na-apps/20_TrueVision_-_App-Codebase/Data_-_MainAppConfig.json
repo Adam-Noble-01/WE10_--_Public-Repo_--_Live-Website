@@ -77,9 +77,9 @@
         "EnvironmentSettings": {
             "EnvironmentSettings_Description": "Global environment configuration for ground plane, skybox, and scene setup",
             "GroundPlane": {
-                "GroundPlane_Enabled": true,
-                "GroundPlane_YOffset": 0.0,
-                "GroundPlane_YOffsetNote": "Ground plane Y position offset in meters - negative values lower the ground",
+                "GroundPlane_Enabled"      :   true,
+                "GroundPlane_YOffset"      :   -0.5,
+                "GroundPlane_YOffsetNote"  :   "Ground plane Y position offset in meters - negative values lower the ground",
                 "GroundPlane_Size": 1000,
                 "GroundPlane_SizeMobile": 500,
                 "GroundPlane_Color": "#d6d9d6",
