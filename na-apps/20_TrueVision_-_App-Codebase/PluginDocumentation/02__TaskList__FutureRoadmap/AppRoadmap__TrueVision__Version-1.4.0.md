@@ -280,5 +280,36 @@ Continues
 - Ensure robust loading spinner gaphic handling ensuring it is infact tied to the prgress of config model item order 01 object being loaded.
 
 
+## Added To Cloudflare R2 Bucket Settings CORS Policy
 
+[
+  {
+    "AllowedOrigins": [
+      "*"
+    ],
+    "AllowedMethods": [
+      "GET",
+      "HEAD"
+    ],
+    "AllowedHeaders": [
+      "*"
+    ],
+    "ExposeHeaders": [
+      "Content-Length",
+      "Content-Type",
+      "Content-Range",
+      "Accept-Ranges",
+      "Last-Modified",
+      "ETag"
+    ],
+    "MaxAgeSeconds": 3600
+  }
+]
 
+Key Addition:
+ExposeHeaders - This is crucial for mobile browsers to access response headers needed for progress tracking
+Content-Length - Required for progress calculation
+Content-Type - Validates file type
+Content-Range & Accept-Ranges - Support for range requests (partial loading)
+Last-Modified & ETag - Caching headers
+This should resolve the mobile loading issues by ensuring all necessary headers are accessible to the browser's JavaScript.

@@ -84,7 +84,8 @@
             "ModelAdded": "2025-01-14",
             "ModelNotes": "Primary building structure - must load before user interaction",
             "ModelCritical": true,
-            "ModelFileSize": "37MB"
+            "ModelFileSize": "37MB",
+            "EnableGitHubFallback": false
         },
         "Model-02": {
             "ModelLoadingOrder": 2,
@@ -94,7 +95,8 @@
             "ModelAdded": "2025-01-14",
             "ModelNotes": "Ground floor furniture and fixtures - loads after building",
             "ModelCritical": false,
-            "ModelFileSize": "49MB"
+            "ModelFileSize": "49MB",
+            "EnableGitHubFallback": false
         },
         "Model-03": {
             "ModelLoadingOrder": 3,
@@ -104,7 +106,8 @@
             "ModelAdded": "2025-01-14",
             "ModelNotes": "First floor furniture and fixtures - loads after ground floor",
             "ModelCritical": false,
-            "ModelFileSize": "16MB"
+            "ModelFileSize": "16MB",
+            "EnableGitHubFallback": false
         },
         "ModelLoadingConfig": {
             "EnableProgressiveLoading": true,
@@ -112,7 +115,8 @@
             "FallbackToGitHub": true,
             "ShowLoadingProgress": true,
             "MaxRetryAttempts": 3,
-            "RetryDelayMs": 1000
+            "RetryDelayMs": 1000,
+            "_Comment": "FallbackToGitHub is the global default. Per-model EnableGitHubFallback overrides this setting."
         }
     }
 }

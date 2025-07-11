@@ -120,6 +120,12 @@
             return;
         }
         
+        // LOG CONFIGURATION STATE
+        console.log("=== CDN MODEL LOADING CONFIGURATION ===");
+        console.log(`CDN Enabled: ${modelLoadingConfig.CdnModelConfig_Enabled}`);
+        console.log(`Global Fallback Setting: ${modelLoadingConfig.ModelLoadingConfig.FallbackToGitHub}`);
+        console.log(`Max Retry Attempts: ${modelLoadingConfig.ModelLoadingConfig.MaxRetryAttempts}`);
+        
         // DETECT BROWSER AND PLATFORM
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         console.log(`Platform: ${isMobile ? 'Mobile' : 'Desktop'}, User Agent: ${navigator.userAgent}`);
@@ -161,6 +167,12 @@
         
         // SORT BY LOADING ORDER
         models.sort((a, b) => a.ModelLoadingOrder - b.ModelLoadingOrder);   // <-- Sort by priority order
+        
+        // LOG MODEL CONFIGURATIONS
+        console.log(`Found ${models.length} models to load:`);
+        models.forEach(model => {
+            console.log(`  - ${model.ModelType} (Order: ${model.ModelLoadingOrder}, Critical: ${model.ModelCritical}, Fallback: ${model.EnableGitHubFallback})`);
+        });
         
         return models;                                                       // <-- Return sorted model list
     }
@@ -271,8 +283,16 @@
                     await new Promise(resolve => setTimeout(resolve, modelLoadingConfig.ModelLoadingConfig.RetryDelayMs || 1000));
                 } else {
                     // ATTEMPT FALLBACK LOADING IF ENABLED
-                    if (modelLoadingConfig.ModelLoadingConfig.FallbackToGitHub) {
+                    // CHECK PER-MODEL SETTING FIRST, THEN GLOBAL SETTING
+                    const modelFallbackEnabled = modelConfig.EnableGitHubFallback !== undefined 
+                        ? modelConfig.EnableGitHubFallback 
+                        : modelLoadingConfig.ModelLoadingConfig.FallbackToGitHub;
+                    
+                    if (modelFallbackEnabled) {
+                        console.log(`GitHub fallback enabled for ${modelConfig.ModelType} - attempting fallback load...`);
                         return attemptFallbackLoading(modelConfig, scene, loadingManager);
+                    } else {
+                        console.log(`GitHub fallback disabled for ${modelConfig.ModelType} - no fallback attempt`);
                     }
                     
                     loadingProgress.set(modelConfig.ConfigKey, {
@@ -280,6 +300,11 @@
                         total: 100,
                         status: 'failed'
                     });
+                    
+                    console.error(`❌ FAILED TO LOAD: ${modelConfig.ModelType}`);
+                    console.error(`   CDN URL: ${modelConfig.ModelUrl}`);
+                    console.error(`   Fallback disabled: EnableGitHubFallback = ${modelConfig.EnableGitHubFallback}`);
+                    console.error(`   Error: ${error.message}`);
                     
                     throw error;                                             // <-- Re-throw if all attempts fail
                 }
