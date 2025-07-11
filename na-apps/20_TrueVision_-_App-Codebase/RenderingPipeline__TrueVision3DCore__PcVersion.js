@@ -295,6 +295,67 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         
         sceneEnvironment = scene.createDefaultEnvironment(envOptions);
 
+        // DEBUG ALL GROUND MESHES IN SCENE
+        console.log("🔍 === GROUND MESH INVESTIGATION ===");
+        let groundMeshCount = 0;
+        scene.meshes.forEach((mesh, index) => {
+            if (mesh.name.toLowerCase().includes("ground") || 
+                mesh.name.toLowerCase().includes("plane") ||
+                mesh.id.toLowerCase().includes("ground")) {
+                groundMeshCount++;
+                console.log(`🔍 Ground-like mesh #${groundMeshCount}:`);
+                console.log(`   - Name: "${mesh.name}"`);
+                console.log(`   - ID: "${mesh.id}"`);
+                console.log(`   - Position:`, mesh.position);
+                console.log(`   - Visible:`, mesh.isVisible);
+                console.log(`   - Material:`, mesh.material ? mesh.material.name : "No material");
+                
+                if (mesh.material) {
+                    console.log(`   - Diffuse Color:`, mesh.material.diffuseColor);
+                    console.log(`   - Alpha:`, mesh.material.alpha);
+                    console.log(`   - Transparency Mode:`, mesh.material.transparencyMode);
+                    
+                    // Check if this is the green transparent ground
+                    if (mesh.material.diffuseColor) {
+                        const color = mesh.material.diffuseColor;
+                        const isGreenish = color.g > color.r && color.g > color.b;
+                        console.log(`   - Is Greenish:`, isGreenish);
+                    }
+                }
+                console.log("   ---");
+            }
+        });
+        console.log(`🔍 Total ground-like meshes found: ${groundMeshCount}`);
+        console.log("🔍 ===========================");
+
+        // ALSO CHECK THE SPECIFIC ENVIRONMENT GROUND
+        if (sceneEnvironment && sceneEnvironment.ground) {
+            console.log("🔍 Environment ground details:");
+            console.log("   - Name:", sceneEnvironment.ground.name);
+            console.log("   - Position:", sceneEnvironment.ground.position);
+            console.log("   - Material:", sceneEnvironment.ground.material);
+            
+            // TRY TO MAKE IT MORE VISIBLE FOR DEBUGGING
+            if (sceneEnvironment.ground.material) {
+                // Store original values
+                const originalAlpha = sceneEnvironment.ground.material.alpha;
+                const originalColor = sceneEnvironment.ground.material.diffuseColor.clone();
+                
+                // Make it bright red and opaque temporarily
+                sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+                sceneEnvironment.ground.material.alpha = 1.0;
+                
+                console.log("⚠️  TEMPORARILY made ground RED and OPAQUE for visibility");
+                
+                // Restore after 5 seconds
+                setTimeout(() => {
+                    sceneEnvironment.ground.material.diffuseColor = originalColor;
+                    sceneEnvironment.ground.material.alpha = originalAlpha;
+                    console.log("✅ Restored ground to original appearance");
+                }, 5000);
+            }
+        }
+
         // ADD COMPREHENSIVE DEBUGGING
         console.log("🔍 sceneEnvironment created:", sceneEnvironment);
         console.log("🔍 sceneEnvironment.ground exists:", !!sceneEnvironment?.ground);
