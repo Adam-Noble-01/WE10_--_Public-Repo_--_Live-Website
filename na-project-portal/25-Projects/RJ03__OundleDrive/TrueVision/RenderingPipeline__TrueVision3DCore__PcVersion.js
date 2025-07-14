@@ -335,28 +335,51 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             console.log("   - Position:", sceneEnvironment.ground.position);
             console.log("   - Material:", sceneEnvironment.ground.material);
             
-            // TRY TO MAKE IT MORE VISIBLE FOR DEBUGGING
-            if (sceneEnvironment.ground.material && sceneEnvironment.ground.material.diffuseColor) {
-                // Store original values
-                const originalAlpha = sceneEnvironment.ground.material.alpha;
-                const originalColor = sceneEnvironment.ground.material.diffuseColor.clone();
-                
-                // Make it bright red and opaque temporarily
-                sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
-                sceneEnvironment.ground.material.alpha = 1.0;
-                
-                console.log("⚠️  TEMPORARILY made ground RED and OPAQUE for visibility");
-                
-                // Restore after 5 seconds
-                setTimeout(() => {
-                    if (sceneEnvironment.ground && sceneEnvironment.ground.material) {
-                        sceneEnvironment.ground.material.diffuseColor = originalColor;
-                        sceneEnvironment.ground.material.alpha = originalAlpha;
-                        console.log("✅ Restored ground to original appearance");
+            // TRY TO MAKE IT MORE VISIBLE FOR DEBUGGING (WITH COMPREHENSIVE SAFETY CHECKS)
+            try {
+                if (sceneEnvironment.ground.material) {
+                    console.log("🔍 Ground material type:", sceneEnvironment.ground.material.constructor.name);
+                    console.log("🔍 Ground material properties:", Object.keys(sceneEnvironment.ground.material));
+                    console.log("🔍 diffuseColor exists:", !!sceneEnvironment.ground.material.diffuseColor);
+                    console.log("🔍 diffuseColor value:", sceneEnvironment.ground.material.diffuseColor);
+                    
+                    // CHECK IF DIFFUSE COLOR EXISTS AND HAS CLONE METHOD
+                    if (sceneEnvironment.ground.material.diffuseColor && 
+                        typeof sceneEnvironment.ground.material.diffuseColor.clone === 'function') {
+                        
+                        // Store original values safely
+                        const originalAlpha = sceneEnvironment.ground.material.alpha || 1.0;
+                        const originalColor = sceneEnvironment.ground.material.diffuseColor.clone();
+                        
+                        // Make it bright red and opaque temporarily
+                        sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+                        sceneEnvironment.ground.material.alpha = 1.0;
+                        
+                        console.log("⚠️  TEMPORARILY made ground RED and OPAQUE for visibility");
+                        
+                        // Restore after 5 seconds
+                        setTimeout(() => {
+                            try {
+                                if (sceneEnvironment.ground && sceneEnvironment.ground.material) {
+                                    sceneEnvironment.ground.material.diffuseColor = originalColor;
+                                    sceneEnvironment.ground.material.alpha = originalAlpha;
+                                    console.log("✅ Restored ground to original appearance");
+                                }
+                            } catch (restoreError) {
+                                console.warn("Could not restore ground appearance:", restoreError);
+                            }
+                        }, 5000);
+                        
+                    } else {
+                        console.warn("⚠️  Ground material diffuseColor not available or doesn't have clone method");
+                        console.warn("⚠️  Skipping visual debugging enhancement");
                     }
-                }, 5000);
-            } else {
-                console.warn("⚠️  Ground material or diffuseColor not available for debugging visualization");
+                } else {
+                    console.warn("⚠️  Ground material not available for debugging visualization");
+                }
+            } catch (debugError) {
+                console.warn("⚠️  Error during ground visualization debugging:", debugError);
+                console.warn("⚠️  Continuing without visual debugging enhancement");
             }
         }
 
