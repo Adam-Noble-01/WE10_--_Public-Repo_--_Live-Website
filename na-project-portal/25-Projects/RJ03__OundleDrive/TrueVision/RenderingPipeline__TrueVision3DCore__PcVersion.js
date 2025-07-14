@@ -339,9 +339,16 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             if (sceneEnvironment.ground.material) {
                 // Store original values - safely check for diffuseColor existence
                 const originalAlpha = sceneEnvironment.ground.material.alpha;
-                const originalColor = sceneEnvironment.ground.material.diffuseColor ? 
-                    sceneEnvironment.ground.material.diffuseColor.clone() : 
-                    null;
+                // Check if diffuseColor exists AND has a clone method
+                let originalColor = null;
+                if (sceneEnvironment.ground.material.diffuseColor && 
+                    typeof sceneEnvironment.ground.material.diffuseColor.clone === 'function') {
+                    originalColor = sceneEnvironment.ground.material.diffuseColor.clone();
+                } else {
+                    console.log("⚠️  Material diffuseColor is not a valid Color3 object or doesn't exist");
+                    console.log("   - diffuseColor value:", sceneEnvironment.ground.material.diffuseColor);
+                    console.log("   - diffuseColor type:", typeof sceneEnvironment.ground.material.diffuseColor);
+                }
                 
                 // Make it bright red and opaque temporarily - only if diffuseColor exists
                 if (sceneEnvironment.ground.material.diffuseColor) {
