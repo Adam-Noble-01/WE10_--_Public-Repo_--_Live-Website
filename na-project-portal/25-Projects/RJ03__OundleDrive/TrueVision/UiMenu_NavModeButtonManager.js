@@ -84,6 +84,10 @@ window.TrueVision3D.UiMenu.NavModeButtonManager = (function() {
         navigationModes = modes;                                             // <-- Store available navigation modes
         modeButtons = buttons;                                               // <-- Store button DOM references
         
+        // DEBUG: Log available navigation modes
+        console.log("Available navigation modes:", Object.keys(navigationModes));
+        console.log("Available buttons:", Object.keys(buttons));
+        
         setupButtonEventListeners();                                         // <-- Configure button click handlers
         console.log("UI Menu - Navigation Mode Button Manager initialized"); // <-- Log initialization success
     }
@@ -120,10 +124,20 @@ window.TrueVision3D.UiMenu.NavModeButtonManager = (function() {
         
         // ENABLE NEW MODE
         const newMode = navigationModes[modeName];                           // <-- Get new mode module reference
+        console.log(`Attempting to enable ${modeName} navigation mode...`);  // <-- Debug log
         newMode.enable();                                                    // <-- Activate the new navigation mode
-        currentMode = modeName;                                              // <-- Update current mode tracking
         
-        updateButtonStates();                                                // <-- Update all button visual states
+        // VERIFY MODE WAS ENABLED SUCCESSFULLY
+        const isNowEnabled = newMode.isEnabled();
+        console.log(`${modeName} navigation mode enabled: ${isNowEnabled}`); // <-- Debug verification
+        
+        if (isNowEnabled) {
+            currentMode = modeName;                                          // <-- Update current mode tracking
+            updateButtonStates();                                            // <-- Update all button visual states
+        } else {
+            console.error(`Failed to enable ${modeName} navigation mode`);   // <-- Error log
+            return;                                                          // <-- Exit if enable failed
+        }
         
         // TRIGGER MODE CHANGE CALLBACK
         if (onModeChangeCallback) {
