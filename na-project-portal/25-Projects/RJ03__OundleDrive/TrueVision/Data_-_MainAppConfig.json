@@ -8,6 +8,50 @@
     "appDomain"         :  "https://www.noble-architecture.com/",
     "appCDN"            :  "https://cdn.noble-architecture.com/",
     "appMainUrl"        :  "https://www.noble-architecture.com/na-project-portal/25-Projects/RJ03__OundleDrive/TrueVision-WebApp.html",
+    "ModelIdType_Documentation": {
+        "ModelIdType_Description": "This section documents the ModelIdType field values used to bind 3D models to specific UI controls and behaviors in the TrueVision application",
+        "ModelIdType_Usage": "Add a 'ModelIdType' field to any model in the CdnModelConfig section to enable specific functionality for that model",
+        "Available_ModelIdTypes": {
+            "Furnishings": {
+                "ModelIdType_Value": "Furnishings",
+                "ModelIdType_Purpose": "Binds models to the Furniture ON/OFF toggle button in the UI",
+                "ModelIdType_Behavior": "Models with this tag can be shown/hidden using the furniture visibility control",
+                "ModelIdType_Example": "Ground floor furniture, first floor furniture, decorative items",
+                "ModelIdType_UiControl": "furnishingsToggleBtn (Furnishings: ON/OFF button)",
+                "ModelIdType_Notes": "When toggled OFF, all meshes from models with this tag become invisible. When toggled ON, they become visible again."
+            },
+            "MainBuilding": {
+                "ModelIdType_Value": "MainBuilding", 
+                "ModelIdType_Purpose": "Identifies primary building structure models",
+                "ModelIdType_Behavior": "These models are always visible and cannot be toggled off",
+                "ModelIdType_Example": "Walls, floors, roof, structural elements",
+                "ModelIdType_UiControl": "No UI control (always visible)",
+                "ModelIdType_Notes": "Critical models that form the basic structure - should have ModelCritical: true"
+            },
+            "Landscape": {
+                "ModelIdType_Value": "Landscape",
+                "ModelIdType_Purpose": "Future use - for landscape and environment elements",
+                "ModelIdType_Behavior": "Reserved for future landscape toggle functionality",
+                "ModelIdType_Example": "Trees, plants, outdoor furniture, terrain features",
+                "ModelIdType_UiControl": "Future landscape toggle button",
+                "ModelIdType_Notes": "Not yet implemented - reserved for future development"
+            },
+            "Lighting": {
+                "ModelIdType_Value": "Lighting",
+                "ModelIdType_Purpose": "Future use - for lighting fixture models",
+                "ModelIdType_Behavior": "Reserved for future lighting toggle functionality", 
+                "ModelIdType_Example": "Light fixtures, lamps, chandeliers",
+                "ModelIdType_UiControl": "Future lighting toggle button",
+                "ModelIdType_Notes": "Not yet implemented - reserved for future development"
+            }
+        },
+        "ModelIdType_Implementation_Notes": {
+            "Adding_New_Tags": "To add a new ModelIdType, update both this documentation and the corresponding code in the rendering pipelines",
+            "Code_Location": "Rendering pipeline files: RenderingPipeline__TrueVision3DCore__PcVersion.js and RenderingPipeline__TrueVision3DCore__MobileVersion.js",
+            "Required_Code_Changes": "Add conditional logic in registerCdnModelCallbacks() function to handle the new ModelIdType",
+            "UI_Integration": "Create corresponding UI button and event handler in ApplicationCore_TrueVision3DManager.js"
+        }
+    },
     "AppConfig": {
         "devMode_Enabled"                   :  false,
         "devMode_Description"               :  "Various typical app config options, enables debug tools and analysis tools",
@@ -123,7 +167,7 @@
             "ModelType"             : "Main Building Model",
             "ModelUrl"              : "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/RJ03__OundleDrive/TrueVisionApp__AppAssets/TrueVision_-_RJ03__OundleDrive_-_BuildingModel.glb",
             "ModelVersion"          : "1.0.0",
-            "ModelAdded"            : "2025-01-14",
+            "ModelAdded"            : "2025-07-14",
             "ModelNotes"            : "Primary building structure - must load before user interaction",
             "ModelCritical"         : true,
             "ModelFileSize"         : "37MB",
@@ -132,23 +176,13 @@
         "Model-02": {
             "ModelLoadingOrder"     :  2,
             "ModelType"             :  "Ground Floor Furnishings",
-            "ModelUrl"              :  "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_GF_FurnishingsModel.glb",
+            "ModelUrl"              :  "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/RJ03__OundleDrive/TrueVisionApp__AppAssets/TrueVision_-_RJ03__OundleDrive_-_GF_FurnishingsModel.glb",
             "ModelVersion"          :  "1.0.0",
-            "ModelAdded"            :  "2025-01-14",
+            "ModelAdded"            :  "2025-07-14",
             "ModelNotes"            :  "Ground floor furniture and fixtures - loads after building",
             "ModelCritical"         :  false,
             "ModelFileSize"         :  "49MB",
-            "EnableGitHubFallback"  :  false
-        },
-        "Model-03": {
-            "ModelLoadingOrder"     :  3,
-            "ModelType"             :  "First Floor Furnishings",
-            "ModelUrl"              :  "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_FF_FurnishingsModel.glb",
-            "ModelVersion"          :  "1.0.0",
-            "ModelAdded"            :  "2025-01-14",
-            "ModelNotes"            :  "First floor furniture and fixtures - loads after ground floor",
-            "ModelCritical"         :  false,
-            "ModelFileSize"         :  "16MB",
+            "ModelIdType"           :  "Furnishings",
             "EnableGitHubFallback"  :  false
         },
         "ModelLoadingConfig": {

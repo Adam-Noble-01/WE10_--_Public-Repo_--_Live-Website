@@ -93,6 +93,7 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     let modelsLoadedCount              = 0;                                 // <-- Current number of loaded models
     let furnitureMeshes                = [];                                // <-- Array to store furniture mesh references
     let furnishingsVisible             = true;                              // <-- Default furnishings visibility state
+    let furnitureModelsDetected        = [];                                // <-- Track which models were detected as furniture
     // ---------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -513,6 +514,13 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // FUNCTION | Initialize CDN-Based Progressive Model Loading
     // ---------------------------------------------------------------
     async function initializeCdnModelLoading() {
+        console.log(`🔍 DEBUG: Initializing CDN model loading...`);
+        console.log(`🔍 DEBUG: Current furniture meshes array length: ${furnitureMeshes.length}`);
+        console.log(`🔍 DEBUG: Furniture models detected so far: ${furnitureModelsDetected.length}`);
+        
+        // DO NOT CLEAR FURNITURE TRACKING DATA - models may already be loaded
+        console.log(`🔍 DEBUG: Keeping existing furniture tracking data`);
+        
         if (!window.TrueVisionCdnLoader) {
             console.error("❌ CRITICAL ERROR: CDN Model Loader not available - APPLICATION CANNOT CONTINUE");
             console.error("CDN loading is REQUIRED. Models must be loaded from CDN URLs defined in config JSON.");
@@ -520,7 +528,10 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         }
         
         // INITIALIZE CDN LOADER
+        console.log(`🔍 DEBUG: About to initialize CDN loader...`);
         const cdnInitialized = await window.TrueVisionCdnLoader.initialize();
+        console.log(`🔍 DEBUG: CDN loader initialized: ${cdnInitialized}`);
+        
         if (!cdnInitialized) {
             console.error("❌ CRITICAL ERROR: CDN Loader initialization failed - APPLICATION CANNOT CONTINUE");
             console.error("CDN URLs from Data_-_MainAppConfig.json must be accessible.");
@@ -533,33 +544,75 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         registerCdnModelCallbacks();                                         // <-- Setup event handlers
         
         // START PROGRESSIVE MODEL LOADING
+        console.log(`🔍 DEBUG: About to start progressive model loading...`);
         window.TrueVisionCdnLoader.startLoading(scene, null);                // <-- Begin CDN loading process
+        console.log(`🔍 DEBUG: Progressive model loading started`);
     }
     // ---------------------------------------------------------------
 
     // SUB FUNCTION | Register CDN Model Loading Event Callbacks
     // ---------------------------------------------------------------
     function registerCdnModelCallbacks() {
+        console.log(`🔍 DEBUG: Registering CDN model callbacks...`);
+        console.log(`🔍 DEBUG: TrueVisionCdnLoader available:`, !!window.TrueVisionCdnLoader);
+        console.log(`🔍 DEBUG: TrueVisionCdnLoader methods:`, window.TrueVisionCdnLoader ? Object.keys(window.TrueVisionCdnLoader) : 'None');
+        
         // HANDLE INDIVIDUAL MODEL LOADED EVENTS
         window.TrueVisionCdnLoader.onLoadEvent('model_loaded', (event) => {
-            console.log(`CDN Model loaded: ${event.model.ModelType}`);
+            console.log(`🔥 MODEL LOADED EVENT FIRED:`);
+            console.log(`   ModelType: ${event.model.ModelType}`);
+            console.log(`   ModelIdType: ${event.model.ModelIdType}`);
+            console.log(`   Is ModelIdType "Furnishings"? ${event.model.ModelIdType === "Furnishings"}`);
+            console.log(`   Full Model Object:`, event.model);
             
-            // TRACK FURNITURE MESHES FOR VISIBILITY MANAGEMENT
-            if (event.model.ModelType.includes("Furnishings")) {
-                const meshCountBefore = furnitureMeshes.length;             // <-- Count before processing
+            // ONLY CHECK ModelIdType FIELD FROM JSON CONFIG
+            if (event.model.ModelIdType === "Furnishings") {
+                console.log(`🪑 FURNITURE MODEL DETECTED: ${event.model.ModelType}`);
+                furnitureModelsDetected.push(event.model.ModelType);
                 
-                // FIND NEW MESHES ADDED BY THIS MODEL
-                scene.meshes.forEach(mesh => {
-                    if (!furnitureMeshes.includes(mesh) && 
-                        mesh !== sceneEnvironment?.ground &&
-                        !mesh.name?.includes("Camera_Agent")) {
-                        furnitureMeshes.push(mesh);                          // <-- Add to furniture array
-                        mesh.isVisible = furnishingsVisible;                 // <-- Apply visibility setting
+                // GET MESHES FROM THE LOADED MODEL
+                let meshesToAdd = [];
+                
+                // Try different ways to access meshes
+                if (event.meshes && Array.isArray(event.meshes)) {
+                    meshesToAdd = event.meshes;
+                    console.log(`🪑 Using event.meshes array (${meshesToAdd.length} meshes)`);
+                } else if (event.loadedMeshData && event.loadedMeshData.meshes) {
+                    meshesToAdd = event.loadedMeshData.meshes;
+                    console.log(`🪑 Using event.loadedMeshData.meshes array (${meshesToAdd.length} meshes)`);
+                } else {
+                    console.error(`❌ No meshes found in furniture model event!`);
+                    console.error(`❌ Event structure:`, {
+                        hasMeshes: !!event.meshes,
+                        hasLoadedMeshData: !!event.loadedMeshData,
+                        loadedMeshDataType: typeof event.loadedMeshData,
+                        eventKeys: Object.keys(event)
+                    });
+                    return; // Can't proceed without meshes
+                }
+                
+                console.log(`🪑 Found ${meshesToAdd.length} meshes to process for furniture`);
+                console.log(`🪑 Sample mesh names:`, meshesToAdd.slice(0, 5).map(m => m.name));
+                
+                // ADD ALL MESHES FROM FURNITURE MODELS - THE JSON ALREADY TOLD US IT'S FURNITURE!
+                console.log(`🪑 Adding ALL ${meshesToAdd.length} meshes from furniture model`);
+                
+                meshesToAdd.forEach((mesh) => {
+                    if (mesh && mesh.name) {
+                        // MARK MESH WITH SOURCE INFORMATION FOR DEBUGGING
+                        mesh._furnitureModel = event.model.ModelType;
+                        mesh._furnitureModelIdType = event.model.ModelIdType;
+                        
+                        furnitureMeshes.push(mesh);
+                        mesh.isVisible = furnishingsVisible; // Apply current state
+                        console.log(`🪑 Added: "${mesh.name}" from furniture model`);
                     }
                 });
                 
-                const newMeshCount = furnitureMeshes.length - meshCountBefore;
-                console.log(`Added ${newMeshCount} furniture meshes from ${event.model.ModelType}`);
+                console.log(`🪑 Successfully added ${meshesToAdd.length} meshes from "${event.model.ModelType}"`);
+                console.log(`🪑 Total furniture meshes tracked: ${furnitureMeshes.length}`);
+            } else {
+                console.log(`📦 Non-furniture model: ${event.model.ModelType} (ModelIdType: ${event.model.ModelIdType || 'undefined'})`);
             }
         });
         
@@ -712,15 +765,68 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     // FUNCTION | Toggle Furnishings Visibility
     // ------------------------------------------------------------
     function toggleFurnishings() {
-        furnishingsVisible = !furnishingsVisible;
+        console.log(`🔄 PC Pipeline: Toggle furniture called (current state: ${furnishingsVisible})`);
+        console.log(`🔍 PC Pipeline: Furniture meshes available: ${furnitureMeshes.length}`);
         
-        furnitureMeshes.forEach(mesh => {
-            if (mesh && !mesh.isDisposed()) {
-                mesh.isVisible = furnishingsVisible;
+        // DETAILED DEBUGGING OF CURRENT FURNITURE MESHES
+        console.log(`🔍 DEBUG: Current furniture meshes in array:`);
+        furnitureMeshes.forEach((mesh, index) => {
+            if (index < 10) { // Show first 10
+                console.log(`   ${index + 1}. "${mesh.name}" (visible: ${mesh.isVisible}, disposed: ${mesh.isDisposed()})`);
+            }
+        });
+        if (furnitureMeshes.length > 10) {
+            console.log(`   ... and ${furnitureMeshes.length - 10} more meshes`);
+        }
+        
+        // CHECK IF THESE ARE ACTUALLY FURNITURE MODELS BY LOOKING AT PARENT CONTAINERS
+        console.log(`🔍 DEBUG: Checking mesh parent information:`);
+        furnitureMeshes.forEach((mesh, index) => {
+            if (index < 5) { // Check first 5
+                console.log(`   Mesh "${mesh.name}":`, {
+                    parent: mesh.parent ? mesh.parent.name : 'No parent',
+                    metadata: mesh.metadata,
+                    tags: mesh.getTags ? mesh.getTags() : 'No tags',
+                    isFromFurnitureModel: mesh._furnitureModel || 'Unknown'
+                });
             }
         });
         
-        console.log(`Furnishings ${furnishingsVisible ? 'shown' : 'hidden'} (${furnitureMeshes.length} meshes)`);
+        furnishingsVisible = !furnishingsVisible;
+        
+        let toggledCount = 0;
+        let disposedCount = 0;
+        
+        furnitureMeshes.forEach((mesh, index) => {
+            if (mesh && !mesh.isDisposed()) {
+                mesh.isVisible = furnishingsVisible;
+                toggledCount++;
+                
+                // LOG FIRST FEW MESH DETAILS
+                if (index < 3) {
+                    console.log(`🪑 ${furnishingsVisible ? 'Showing' : 'Hiding'} mesh: "${mesh.name}"`);
+                }
+            } else {
+                disposedCount++;
+            }
+        });
+        
+        console.log(`✅ PC Pipeline: Furnishings ${furnishingsVisible ? 'shown' : 'hidden'}`);
+        console.log(`   - Total meshes in array: ${furnitureMeshes.length}`);
+        console.log(`   - Successfully toggled: ${toggledCount}`);
+        console.log(`   - Disposed/invalid: ${disposedCount}`);
+        
+        if (furnitureMeshes.length === 0) {
+            console.warn(`⚠️  PC Pipeline: No furniture meshes to toggle!`);
+            console.warn(`⚠️  This means either:`);
+            console.warn(`⚠️  1. Furniture models haven't loaded yet`);
+            console.warn(`⚠️  2. Furniture models failed to load`);
+            console.warn(`⚠️  3. Furniture tracking logic failed`);
+        } else {
+            console.warn(`⚠️  DEBUG: You have ${furnitureMeshes.length} tracked meshes but they appear to be generic containers, not actual furniture!`);
+            console.warn(`⚠️  This suggests furniture models with ModelIdType="Furnishings" are NOT being detected correctly!`);
+        }
+        
         return furnishingsVisible;
     }
     // ---------------------------------------------------------------
@@ -855,6 +961,44 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
         toggleFurnishings: toggleFurnishings,
         getFurnishingsVisibility: getFurnishingsVisibility,
         setFurnishingsVisibility: setFurnishingsVisibility,
+        getFurnitureStatus: function() {
+            console.log(`🪑 Furniture tracking status:`);
+            console.log(`   - Furniture visible: ${furnishingsVisible}`);
+            console.log(`   - Total meshes tracked: ${furnitureMeshes.length}`);
+            console.log(`   - Furniture models detected: ${furnitureModelsDetected.length}`, furnitureModelsDetected);
+            console.log(`   - Mesh names:`);
+            furnitureMeshes.forEach((mesh, i) => {
+                if (i < 20) { // Show first 20
+                    console.log(`     ${i + 1}. "${mesh.name}" (visible: ${mesh.isVisible}, from: ${mesh._furnitureModel || 'Unknown'})`);
+                }
+            });
+            if (furnitureMeshes.length > 20) {
+                console.log(`     ... and ${furnitureMeshes.length - 20} more meshes`);
+            }
+            
+            // ANALYSIS
+            if (furnitureModelsDetected.length === 0) {
+                console.error(`❌ PROBLEM: No furniture models were detected via ModelIdType="Furnishings"`);
+                console.error(`❌ This means furniture models aren't loading or ModelIdType field is missing`);
+            } else if (furnitureMeshes.length === 0) {
+                console.error(`❌ PROBLEM: Furniture models detected but no meshes tracked`);
+                console.error(`❌ This means the mesh extraction is failing`);
+            } else {
+                console.log(`✅ SUCCESS: ${furnitureModelsDetected.length} furniture models detected with ${furnitureMeshes.length} meshes`);
+            }
+            
+            return {
+                visible: furnishingsVisible,
+                count: furnitureMeshes.length,
+                modelsDetected: furnitureModelsDetected,
+                meshes: furnitureMeshes.map(m => ({ 
+                    name: m.name, 
+                    visible: m.isVisible,
+                    sourceModel: m._furnitureModel,
+                    modelIdType: m._furnitureModelIdType
+                }))
+            };
+        },
         dispose: dispose
     };
 

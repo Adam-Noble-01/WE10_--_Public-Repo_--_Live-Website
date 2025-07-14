@@ -280,7 +280,7 @@ try {  // Wrap entire module in try-catch for error detection
     // ---------------------------------------------------------------
 
     // FUNCTION | Setup Advanced Mobile Power Management
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function setupMobilePowerManagement() {
         // DETECT BATTERY STATUS (if available)
         if ('getBattery' in navigator) {
@@ -417,7 +417,7 @@ try {  // Wrap entire module in try-catch for error detection
     // ---------------------------------------------------------------
 
     // FUNCTION | Enable Critical Power Saving Mode
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function enableCriticalPowerSaving() {
         if (!engine || !scene) return;
         
@@ -827,22 +827,42 @@ try {  // Wrap entire module in try-catch for error detection
         // HANDLE INDIVIDUAL MODEL LOADED EVENTS
         window.TrueVisionCdnLoader.onLoadEvent('model_loaded', (event) => {
             console.log(`CDN Model loaded: ${event.model.ModelType}`);
+            console.log(`🔍 ModelIdType from JSON: ${event.model.ModelIdType}`);
             
-            // TRACK FURNITURE MESHES FOR VISIBILITY MANAGEMENT
-            if (event.model.ModelType.includes("Furnishings")) {
-                const meshCountBefore = furnitureMeshes.length;
+            // ONLY CHECK ModelIdType FIELD FROM JSON CONFIG
+            if (event.model.ModelIdType === "Furnishings") {
+                console.log(`🪑 FURNITURE MODEL DETECTED: ${event.model.ModelType}`);
                 
-                scene.meshes.forEach(mesh => {
-                    if (!furnitureMeshes.includes(mesh) && 
-                        mesh !== sceneEnvironment?.ground &&
-                        !mesh.name?.includes("Camera_Agent")) {
+                // GET MESHES FROM THE LOADED MODEL
+                let meshesToAdd = [];
+                
+                // Try different ways to access meshes
+                if (event.meshes && Array.isArray(event.meshes)) {
+                    meshesToAdd = event.meshes;
+                } else if (event.loadedMeshData && event.loadedMeshData.meshes) {
+                    meshesToAdd = event.loadedMeshData.meshes;
+                } else {
+                    // Fallback: Find meshes added to scene
+                    console.warn(`⚠️ No meshes in event, searching scene...`);
+                    return; // Can't proceed without meshes
+                }
+                
+                console.log(`🪑 Found ${meshesToAdd.length} meshes from furniture model`);
+                
+                // ADD ALL MESHES FROM FURNITURE MODELS - THE JSON ALREADY TOLD US IT'S FURNITURE!
+                meshesToAdd.forEach((mesh) => {
+                    if (mesh && mesh.name) {
+                        // MARK MESH WITH SOURCE INFORMATION
+                        mesh._furnitureModel = event.model.ModelType;
+                        mesh._furnitureModelIdType = event.model.ModelIdType;
+                        
                         furnitureMeshes.push(mesh);
-                        mesh.isVisible = furnishingsVisible;
+                        mesh.isVisible = furnishingsVisible; // Apply current state
+                        console.log(`🪑 Added: "${mesh.name}" from furniture model`);
                     }
                 });
                 
-                const newMeshCount = furnitureMeshes.length - meshCountBefore;
-                console.log(`Added ${newMeshCount} furniture meshes from ${event.model.ModelType}`);
+                console.log(`🪑 Total furniture meshes tracked: ${furnitureMeshes.length}`);
             }
         });
         
@@ -1015,15 +1035,41 @@ try {  // Wrap entire module in try-catch for error detection
     // FUNCTION | Toggle Furnishings Visibility
     // ------------------------------------------------------------
     function toggleFurnishings() {
+        console.log(`🔄 Mobile Pipeline: Toggle furniture called (current state: ${furnishingsVisible})`);
+        console.log(`🔍 Mobile Pipeline: Furniture meshes available: ${furnitureMeshes.length}`);
+        
         furnishingsVisible = !furnishingsVisible;
         
-        furnitureMeshes.forEach(mesh => {
+        let toggledCount = 0;
+        let disposedCount = 0;
+        
+        furnitureMeshes.forEach((mesh, index) => {
             if (mesh && !mesh.isDisposed()) {
                 mesh.isVisible = furnishingsVisible;
+                toggledCount++;
+                
+                // LOG FIRST FEW MESH DETAILS
+                if (index < 3) {
+                    console.log(`🪑 ${furnishingsVisible ? 'Showing' : 'Hiding'} mesh: "${mesh.name}"`);
+                }
+            } else {
+                disposedCount++;
             }
         });
         
-        console.log(`Furnishings ${furnishingsVisible ? 'shown' : 'hidden'} (${furnitureMeshes.length} meshes)`);
+        console.log(`✅ Mobile Pipeline: Furnishings ${furnishingsVisible ? 'shown' : 'hidden'}`);
+        console.log(`   - Total meshes in array: ${furnitureMeshes.length}`);
+        console.log(`   - Successfully toggled: ${toggledCount}`);
+        console.log(`   - Disposed/invalid: ${disposedCount}`);
+        
+        if (furnitureMeshes.length === 0) {
+            console.warn(`⚠️  Mobile Pipeline: No furniture meshes to toggle!`);
+            console.warn(`⚠️  This means either:`);
+            console.warn(`⚠️  1. Furniture models haven't loaded yet`);
+            console.warn(`⚠️  2. Furniture models failed to load`);
+            console.warn(`⚠️  3. Furniture tracking logic failed`);
+        }
+        
         return furnishingsVisible;
     }
     // ---------------------------------------------------------------
@@ -1145,6 +1191,20 @@ try {  // Wrap entire module in try-catch for error detection
         toggleFurnishings: toggleFurnishings,
         getFurnishingsVisibility: getFurnishingsVisibility,
         setFurnishingsVisibility: setFurnishingsVisibility,
+        getFurnitureStatus: function() {
+            console.log(`🪑 Furniture tracking status:`);
+            console.log(`   - Furniture visible: ${furnishingsVisible}`);
+            console.log(`   - Total meshes tracked: ${furnitureMeshes.length}`);
+            console.log(`   - Mesh names:`);
+            furnitureMeshes.forEach((mesh, i) => {
+                console.log(`     ${i + 1}. "${mesh.name}" (visible: ${mesh.isVisible})`);
+            });
+            return {
+                visible: furnishingsVisible,
+                count: furnitureMeshes.length,
+                meshes: furnitureMeshes.map(m => ({ name: m.name, visible: m.isVisible }))
+            };
+        },
         dispose: dispose,
         // POWER MANAGEMENT API
         setPowerMode: function(mode) {

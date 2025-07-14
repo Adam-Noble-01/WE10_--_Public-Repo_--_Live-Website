@@ -85,7 +85,6 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // ------------------------------------------------------------
     let appConfig                      = null;                               // <-- Application configuration data
     let ssaoEnabled                    = true;                               // <-- SSAO enabled state
-    let furnishingsVisible             = true;                               // <-- Furnishings visibility state
     // ---------------------------------------------------------------
 
     // MODULE VARIABLES | Render Loop State
@@ -407,8 +406,29 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         
         // FURNISHINGS VISIBILITY BUTTON EVENT
         if (furnishingsToggleBtn) {
+            console.log("✅ furnishingsToggleBtn found - registering click event listener");
+            console.log("🔍 Button element:", furnishingsToggleBtn);
+            console.log("🔍 Button current text:", furnishingsToggleBtn.textContent);
+            
             furnishingsToggleBtn.addEventListener("click", toggleFurnishings); // <-- Furnishings toggle button handler
+            console.log("✅ Furniture toggle event listener registered successfully");
+            
             updateFurnishingsButtonState();                                  // <-- Set initial button state
+        } else {
+            console.error("❌ furnishingsToggleBtn element not found during event registration!");
+            console.error("❌ This means the button is missing from the HTML or getElementById failed");
+            
+            // TRY TO FIND THE BUTTON BY ALTERNATIVE METHODS
+            const buttonByQuery = document.querySelector("#furnishingsToggleBtn");
+            console.log("🔍 Alternative query result:", buttonByQuery);
+            
+            const allButtons = document.querySelectorAll("button");
+            console.log(`🔍 Total buttons found: ${allButtons.length}`);
+            allButtons.forEach((btn, index) => {
+                if (index < 5) { // Log first 5 buttons
+                    console.log(`   Button ${index + 1}: id="${btn.id}", text="${btn.textContent}"`);
+                }
+            });
         }
         
         // SHOW MENU TUTORIAL ON FIRST VISIT
@@ -684,9 +704,48 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // FUNCTION | Toggle Furnishings Visibility
     // ---------------------------------------------------------------
     function toggleFurnishings() {
-        if (renderingPipeline) {
-            furnishingsVisible = renderingPipeline.toggleFurnishings();       // <-- Toggle furnishings state
-            updateFurnishingsButtonState();                                   // <-- Update button appearance
+        console.log("🔄 Furniture toggle button clicked!");
+        console.log("🔍 renderingPipeline available:", !!renderingPipeline);
+        console.log("🔍 renderingPipeline methods:", renderingPipeline ? Object.keys(renderingPipeline) : "None");
+        
+        if (renderingPipeline && renderingPipeline.toggleFurnishings) {
+            try {
+                console.log("🔄 Calling renderingPipeline.toggleFurnishings()...");
+                const newState = renderingPipeline.toggleFurnishings();       // <-- Toggle furnishings state
+                console.log("✅ Toggle successful, new state:", newState);
+                updateFurnishingsButtonState();                               // <-- Update button appearance
+            } catch (error) {
+                console.error("❌ Error during furniture toggle:", error);
+                showErrorMessage("Failed to toggle furniture visibility");
+            }
+        } else if (renderingPipeline && !renderingPipeline.toggleFurnishings) {
+            console.error("❌ renderingPipeline.toggleFurnishings method not available");
+            console.error("Available methods:", Object.keys(renderingPipeline));
+            showErrorMessage("Furniture toggle feature not available");
+        } else {
+            console.error("❌ Rendering pipeline not available - button clicked too early?");
+            console.log("🔍 Application initialized:", applicationInitialized);
+            console.log("🔍 Current initialization state:", getApplicationStatus());
+            
+            // TRY TO ACCESS PIPELINE DIRECTLY FROM NAMESPACE
+            if (window.TrueVision3D?.RenderingPipeline?.toggleFurnishings) {
+                console.log("🔄 Attempting direct access to RenderingPipeline...");
+                try {
+                    const newState = window.TrueVision3D.RenderingPipeline.toggleFurnishings();
+                    console.log("✅ Direct toggle successful, new state:", newState);
+                    updateFurnishingsButtonState();
+                    
+                    // UPDATE LOCAL REFERENCE FOR FUTURE CALLS
+                    renderingPipeline = window.TrueVision3D.RenderingPipeline;
+                    console.log("✅ Updated local renderingPipeline reference");
+                } catch (error) {
+                    console.error("❌ Direct toggle also failed:", error);
+                    showErrorMessage("Furniture toggle temporarily unavailable");
+                }
+            } else {
+                console.error("❌ No rendering pipeline available anywhere");
+                showErrorMessage("3D system not ready - please wait and try again");
+            }
         }
     }
     // ---------------------------------------------------------------
@@ -704,15 +763,36 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // SUB FUNCTION | Update Furnishings Button Visual State
     // ---------------------------------------------------------------
     function updateFurnishingsButtonState() {
+        // Get current state from rendering pipeline
+        let currentState = true;
+        if (window.TrueVision3D?.RenderingPipeline?.getFurnishingsVisibility) {
+            currentState = window.TrueVision3D.RenderingPipeline.getFurnishingsVisibility();
+        } else if (renderingPipeline?.getFurnishingsVisibility) {
+            currentState = renderingPipeline.getFurnishingsVisibility();
+        }
+        
+        console.log(`🔄 Updating furniture button state (furnishingsVisible: ${currentState})`);
+        console.log(`🔍 furnishingsToggleBtn available:`, !!furnishingsToggleBtn);
+        
         if (furnishingsToggleBtn) {
-            furnishingsToggleBtn.textContent = furnishingsVisible ? "Furnishings: ON" : "Furnishings: OFF"; // <-- Update button text
-            furnishingsToggleBtn.style.backgroundColor = furnishingsVisible ? "#4CAF50" : "#666";           // <-- Update button color
+            const newText = currentState ? "Furnishings: ON" : "Furnishings: OFF";
+            const newColor = currentState ? "#4CAF50" : "#666";
+            
+            console.log(`🔄 Setting button text to: "${newText}"`);
+            console.log(`🔄 Setting button color to: ${newColor}`);
+            
+            furnishingsToggleBtn.textContent = newText;                      // <-- Update button text
+            furnishingsToggleBtn.style.backgroundColor = newColor;           // <-- Update button color
+            
+            console.log(`✅ Button state updated successfully`);
+        } else {
+            console.error(`❌ furnishingsToggleBtn element not found - button state not updated`);
         }
     }
     // ---------------------------------------------------------------
 
     // FUNCTION | Show Error Message to User
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function showErrorMessage(message) {
         if (errorMessage) {
             errorMessage.textContent = message;                              // <-- Set error message text
@@ -763,7 +843,7 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
     // ---------------------------------------------------------------
 
     // FUNCTION | Get Application Status and State
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function getApplicationStatus() {
         return {
             initialized: applicationInitialized,                             // <-- Initialization state

@@ -178,11 +178,21 @@
         
         const models = [];                                                   // <-- Initialize model array
         
+        console.log(`🔍 DEBUG: ModelLoadingConfig structure:`, modelLoadingConfig);
+        console.log(`🔍 DEBUG: Config keys:`, Object.keys(modelLoadingConfig));
+        
         // ITERATE THROUGH CONFIG TO FIND MODEL ENTRIES
         Object.keys(modelLoadingConfig).forEach(key => {
             if (key.startsWith('Model-')) {                                  // <-- Check for model entry
                 const model = modelLoadingConfig[key];
                 model.ConfigKey = key;                                       // <-- Store config key reference
+                
+                console.log(`🔍 DEBUG: Found model ${key}:`);
+                console.log(`   ModelType: ${model.ModelType}`);
+                console.log(`   ModelIdType: ${model.ModelIdType}`);
+                console.log(`   ModelCritical: ${model.ModelCritical}`);
+                console.log(`   Full model object:`, model);
+                
                 models.push(model);                                          // <-- Add to model list
             }
         });
@@ -191,9 +201,9 @@
         models.sort((a, b) => a.ModelLoadingOrder - b.ModelLoadingOrder);   // <-- Sort by priority order
         
         // LOG MODEL CONFIGURATIONS ONLY ONCE
-        console.log(`Found ${models.length} models to load:`);
+        console.log(`🔍 DEBUG: Found ${models.length} models to load:`);
         models.forEach(model => {
-            console.log(`  - ${model.ModelType} (Order: ${model.ModelLoadingOrder}, Critical: ${model.ModelCritical}, Fallback: ${model.EnableGitHubFallback})`);
+            console.log(`  - ${model.ModelType} (Order: ${model.ModelLoadingOrder}, Critical: ${model.ModelCritical}, ModelIdType: ${model.ModelIdType}, Fallback: ${model.EnableGitHubFallback})`);
         });
         
         // CACHE THE RESULT
@@ -346,7 +356,7 @@
                     updateOverallLoadingUI();
                 }
                 
-                notifyModelLoaded(modelConfig);                              // <-- Trigger model loaded callback
+                notifyModelLoaded(modelConfig, result);                      // <-- Trigger model loaded callback with mesh data
                 
                 return result;                                               // <-- Return loaded container
                 
@@ -633,10 +643,17 @@
 
     // SUB FUNCTION | Notify Individual Model Loaded
     // ---------------------------------------------------------------
-    function notifyModelLoaded(modelConfig) {
+    function notifyModelLoaded(modelConfig, loadedMeshData) {
+        console.log(`🔥 ModelLoader: About to notify model loaded`);
+        console.log(`   ModelConfig:`, modelConfig);
+        console.log(`   ModelIdType in config: ${modelConfig.ModelIdType}`);
+        console.log(`   ModelType in config: ${modelConfig.ModelType}`);
+        
         const callbacks = modelLoadCallbacks.filter(c => c.eventType === 'model_loaded');
         callbacks.forEach(c => c.callback({
             model: modelConfig,
+            meshes: loadedMeshData ? loadedMeshData.meshes : [],            // <-- Include meshes array
+            loadedMeshData: loadedMeshData,                                 // <-- Full loaded data
             loadingTime: Date.now() - loadingStartTime
         }));
     }

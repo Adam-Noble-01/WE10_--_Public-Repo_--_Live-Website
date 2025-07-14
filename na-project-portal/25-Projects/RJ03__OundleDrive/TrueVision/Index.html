@@ -552,6 +552,153 @@ DESCRIPTION:
         window.addEventListener('unhandledrejection', function (event) {
             console.error("🚨 DEBUG: Unhandled promise rejection:", event.reason);
         });
+
+        // FURNITURE TOGGLE DEBUG UTILITIES
+        // Add these functions to the global scope for easy console testing
+        window.debugFurnitureToggle = function () {
+            console.log("=== FURNITURE TOGGLE DEBUG UTILITIES ===");
+            console.log("Available debug functions:");
+            console.log("- window.testFurnitureToggle() - Test the furniture toggle");
+            console.log("- window.inspectFurnitureState() - Inspect current furniture state");
+            console.log("- window.forceFurnitureToggle() - Force toggle via direct pipeline access");
+        };
+
+        window.testFurnitureToggle = function () {
+            console.log("=== TESTING FURNITURE TOGGLE ===");
+
+            // 1. CHECK BUTTON
+            const button = document.getElementById("furnishingsToggleBtn");
+            console.log("1. Button found:", !!button);
+            if (button) {
+                console.log("   Button text:", button.textContent);
+                console.log("   Button onclick:", !!button.onclick);
+                console.log("   Button listeners:", getEventListeners ? getEventListeners(button) : "getEventListeners not available");
+            }
+
+            // 2. CHECK APPLICATION CORE
+            console.log("2. ApplicationCore available:", !!window.TrueVision3D?.ApplicationCore);
+
+            // 3. CHECK RENDERING PIPELINE
+            console.log("3. RenderingPipeline available:", !!window.TrueVision3D?.RenderingPipeline);
+            if (window.TrueVision3D?.RenderingPipeline) {
+                console.log("   Toggle method available:", !!window.TrueVision3D.RenderingPipeline.toggleFurnishings);
+                console.log("   Get visibility method available:", !!window.TrueVision3D.RenderingPipeline.getFurnishingsVisibility);
+            }
+
+            // 4. TEST BUTTON CLICK
+            if (button) {
+                console.log("4. Testing button click...");
+                button.click();
+                console.log("   Button click completed");
+            } else {
+                console.log("4. Cannot test button click - button not found");
+            }
+        };
+
+        window.inspectFurnitureState = function () {
+            console.log("=== FURNITURE STATE INSPECTION ===");
+
+            if (window.TrueVision3D?.RenderingPipeline?.getFurnishingsVisibility) {
+                const isVisible = window.TrueVision3D.RenderingPipeline.getFurnishingsVisibility();
+                console.log("Current furniture visibility:", isVisible);
+            }
+
+            // Check core references
+            if (window.TrueVision3D?.ApplicationCore?.getCoreReferences) {
+                const refs = window.TrueVision3D.ApplicationCore.getCoreReferences();
+                if (refs?.scene) {
+                    const totalMeshes = refs.scene.meshes.length;
+                    console.log("Total scene meshes:", totalMeshes);
+
+                    // Look for furniture-like meshes
+                    const potentialFurniture = refs.scene.meshes.filter(m =>
+                        m.name && (
+                            m.name.toLowerCase().includes('furniture') ||
+                            m.name.toLowerCase().includes('furnishing') ||
+                            m.name.toLowerCase().includes('chair') ||
+                            m.name.toLowerCase().includes('table') ||
+                            m.name.toLowerCase().includes('bed') ||
+                            m.name.toLowerCase().includes('sofa') ||
+                            m.name.toLowerCase().includes('cabinet')
+                        )
+                    );
+                    console.log("Potential furniture meshes found:", potentialFurniture.length);
+                    if (potentialFurniture.length > 0) {
+                        console.log("Sample furniture mesh names:", potentialFurniture.slice(0, 5).map(m => m.name));
+                    }
+                }
+            }
+        };
+
+        window.forceFurnitureToggle = function () {
+            console.log("=== FORCE FURNITURE TOGGLE ===");
+
+            if (window.TrueVision3D?.RenderingPipeline?.toggleFurnishings) {
+                try {
+                    const result = window.TrueVision3D.RenderingPipeline.toggleFurnishings();
+                    console.log("✅ Force toggle successful, new state:", result);
+
+                    // Update button manually
+                    const button = document.getElementById("furnishingsToggleBtn");
+                    if (button) {
+                        button.textContent = result ? "Furnishings: ON" : "Furnishings: OFF";
+                        button.style.backgroundColor = result ? "#4CAF50" : "#666";
+                        console.log("✅ Button updated manually");
+                    }
+                } catch (error) {
+                    console.error("❌ Force toggle failed:", error);
+                }
+            } else {
+                console.error("❌ RenderingPipeline.toggleFurnishings not available");
+            }
+        };
+
+        // AUTO-REGISTER DEBUG UTILITIES AFTER DOM LOAD
+        setTimeout(() => {
+            if (window.debugFurnitureToggle) {
+                console.log("🔧 Furniture debug utilities ready! Type 'debugFurnitureToggle()' in console for help.");
+            }
+        }, 2000);
+
+        // FINAL DEBUG: Test furniture toggle functionality
+        window.testFurnitureSystem = function () {
+            console.log("=== FURNITURE SYSTEM TEST ===");
+
+            // 1. Check rendering pipeline
+            if (!window.TrueVision3D?.RenderingPipeline) {
+                console.error("❌ Rendering pipeline not available");
+                return;
+            }
+
+            // 2. Get furniture status
+            if (window.TrueVision3D.RenderingPipeline.getFurnitureStatus) {
+                console.log("\n📊 Current Status:");
+                window.TrueVision3D.RenderingPipeline.getFurnitureStatus();
+            }
+
+            // 3. Test toggle
+            console.log("\n🔄 Testing toggle...");
+            const before = window.TrueVision3D.RenderingPipeline.getFurnishingsVisibility();
+            const after = window.TrueVision3D.RenderingPipeline.toggleFurnishings();
+            console.log(`Toggle result: ${before} → ${after}`);
+
+            // 4. Check button state
+            const button = document.getElementById("furnishingsToggleBtn");
+            if (button) {
+                console.log(`\n🔘 Button state:`);
+                console.log(`  Text: "${button.textContent}"`);
+                console.log(`  Color: ${button.style.backgroundColor}`);
+            }
+
+            // 5. Manual visibility check
+            const refs = window.TrueVision3D.RenderingPipeline.getCoreReferences();
+            if (refs?.scene) {
+                const visibleCount = refs.scene.meshes.filter(m => m.isVisible).length;
+                console.log(`\n👁️ Total visible meshes in scene: ${visibleCount}`);
+            }
+
+            return { before, after, success: before !== after };
+        };
     </script>
     <!-- endregion ----------------------------------------------------------------- -->
 

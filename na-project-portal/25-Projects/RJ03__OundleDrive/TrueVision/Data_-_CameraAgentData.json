@@ -1,27 +1,27 @@
 {
   "exportInfo": {
-    "exportDate": "2025-07-14 16:51:51",
-    "modelName": "RJ03__OundleDrive__ModelExporterUtil__1.0.0",
+    "exportDate": "2025-07-14 21:35:39",
+    "modelName": "RJ03__OundleDrive__MainModel__Scheme__1.6.1",
     "exportedBy": "ValeDesignSuite Camera Agent Tool",
     "version": "1.0.0"
   },
   "cameraAgents": [
     {
       "agentId": "CAM001",
-      "agentName": "Camera Agent CAM001",
+      "agentName": "Exterior View 01",
       "waypointNumber": 1,
       "position": {
-        "x": 3890.4446352420814,
-        "y": -748.018552704029,
+        "x": 1071.788386298908,
+        "y": -4705.898352537515,
         "z": 2134.999999999999
       },
       "direction": {
-        "x": 0.635531304989639,
-        "y": 0.772075100218992,
+        "x": 0.6390979900448097,
+        "y": 0.7691253208162403,
         "z": 0.0
       },
       "rotation": {
-        "heading": 50.540598487882605,
+        "heading": 50.27540827263651,
         "pitch": 0.0,
         "roll": 0.0
       },
@@ -31,8 +31,95 @@
         "fovDegrees": 60
       },
       "metadata": {
-        "createdDate": "2025-07-14 16:50:14",
-        "lastModified": "2025-07-14 16:51:51"
+        "createdDate": "2025-07-14 21:33:14",
+        "lastModified": "2025-07-14 21:34:13"
+      }
+    },
+    {
+      "agentId": "CAM002",
+      "agentName": "Exterior View 02",
+      "waypointNumber": 2,
+      "position": {
+        "x": 13697.574758841023,
+        "y": -5157.4683899644415,
+        "z": 2134.9999999999977
+      },
+      "direction": {
+        "x": -0.258819045101862,
+        "y": 0.9659258262892448,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 104.99999999996092,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 21:33:59",
+        "lastModified": "2025-07-14 21:34:55"
+      }
+    },
+    {
+      "agentId": "CAM003",
+      "agentName": "Camera Agent CAM003",
+      "waypointNumber": 3,
+      "position": {
+        "x": 14142.146362994172,
+        "y": -4477.00145094167,
+        "z": 2134.999999999999
+      },
+      "direction": {
+        "x": 0.4630213035233966,
+        "y": 0.8863471512243355,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 62.417760801515975,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 21:34:19",
+        "lastModified": "2025-07-14 21:34:19"
+      }
+    },
+    {
+      "agentId": "CAM004",
+      "agentName": "Rear Elevation",
+      "waypointNumber": 3,
+      "position": {
+        "x": 10264.218570578167,
+        "y": -1095.5072965250276,
+        "z": 899.9999999999989
+      },
+      "direction": {
+        "x": 1.5791461279079502e-13,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 89.99999999999096,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 21:35:01",
+        "lastModified": "2025-07-14 21:35:30"
       }
     }
   ]
