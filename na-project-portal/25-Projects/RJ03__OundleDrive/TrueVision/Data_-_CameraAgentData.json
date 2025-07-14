@@ -9,35 +9,6 @@
     {
       "agentId": "CAM001",
       "agentName": "Exterior View 01",
-      "waypointNumber": 1,
-      "position": {
-        "x": 1071.788386298908,
-        "y": -4705.898352537515,
-        "z": 2134.999999999999
-      },
-      "direction": {
-        "x": 0.6390979900448097,
-        "y": 0.7691253208162403,
-        "z": 0.0
-      },
-      "rotation": {
-        "heading": 50.27540827263651,
-        "pitch": 0.0,
-        "roll": 0.0
-      },
-      "camera": {
-        "aspectRatio": "16:9",
-        "lensMm": 35,
-        "fovDegrees": 60
-      },
-      "metadata": {
-        "createdDate": "2025-07-14 21:33:14",
-        "lastModified": "2025-07-14 21:34:13"
-      }
-    },
-    {
-      "agentId": "CAM002",
-      "agentName": "Exterior View 02",
       "waypointNumber": 2,
       "position": {
         "x": 13697.574758841023,
@@ -62,6 +33,35 @@
       "metadata": {
         "createdDate": "2025-07-14 21:33:59",
         "lastModified": "2025-07-14 21:34:55"
+      }
+    },
+    {
+      "agentId": "CAM002",
+      "agentName": "Exterior View 02",
+      "waypointNumber": 1,
+      "position": {
+        "x": 1071.788386298908,
+        "y": -4705.898352537515,
+        "z": 2134.999999999999
+      },
+      "direction": {
+        "x": 0.6390979900448097,
+        "y": 0.7691253208162403,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 50.27540827263651,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 21:33:14",
+        "lastModified": "2025-07-14 21:34:13"
       }
     },
     {
