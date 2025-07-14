@@ -1,0 +1,590 @@
+{
+  "exportInfo": {
+    "exportDate": "2025-06-08 12:24:42",
+    "modelName": "SB03_-_TrueVision-App-Model_-_1.2.1",
+    "exportedBy": "ValeDesignSuite Camera Agent Tool",
+    "version": "1.0.0"
+  },
+  "cameraAgents": [
+    {
+      "agentId": "CAM001",
+      "agentName": "Street View",
+      "waypointNumber": 1,
+      "position": {
+        "x": -293.93036889009875,
+        "y": -4819.412433087316,
+        "z": 1741.3047410877123
+      },
+      "direction": {
+        "x": 0.49999998709580584,
+        "y": 0.8660254112346786,
+        "z": -0.0
+      },
+      "rotation": {
+        "heading": 60.00000085373461,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 19:22:24",
+        "lastModified": "2025-06-08 07:45:21"
+      }
+    },
+    {
+      "agentId": "CAM002",
+      "agentName": "Back Left",
+      "waypointNumber": 3,
+      "position": {
+        "x": 14220.904729352234,
+        "y": 24504.939706223427,
+        "z": 1277.0608381493973
+      },
+      "direction": {
+        "x": -0.5000000000000534,
+        "y": -0.866025403784408,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -120.00000000000354,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 19:23:57",
+        "lastModified": "2025-06-08 07:42:13"
+      }
+    },
+    {
+      "agentId": "CAM003",
+      "agentName": "Porch Exterior",
+      "waypointNumber": 4,
+      "position": {
+        "x": 11612.283260333827,
+        "y": -3527.266186222276,
+        "z": 1599.9999999999995
+      },
+      "direction": {
+        "x": -0.4999999870953302,
+        "y": 0.866025411234953,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 119.99999914623393,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 20:30:46",
+        "lastModified": "2025-06-08 07:42:17"
+      }
+    },
+    {
+      "agentId": "CAM004",
+      "agentName": "Back Right",
+      "waypointNumber": 2,
+      "position": {
+        "x": -3811.860640804917,
+        "y": 27070.0977787905,
+        "z": 1599.9999999999995
+      },
+      "direction": {
+        "x": 0.6613118653239319,
+        "y": -0.7501110696302127,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -48.599999999978614,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-07 20:32:06",
+        "lastModified": "2025-06-08 07:42:10"
+      }
+    },
+    {
+      "agentId": "CAM005",
+      "agentName": "Porch View",
+      "waypointNumber": 5,
+      "position": {
+        "x": 7621.298798196254,
+        "y": 2799.9999999999873,
+        "z": 1400.0000000000055
+      },
+      "direction": {
+        "x": -3.676085879013107e-12,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 90.00000000021063,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 06:57:37",
+        "lastModified": "2025-06-08 07:45:41"
+      }
+    },
+    {
+      "agentId": "CAM006",
+      "agentName": "Lounge View",
+      "waypointNumber": 6,
+      "position": {
+        "x": 8106.876463604269,
+        "y": 8097.059234228156,
+        "z": 1399.9999999999995
+      },
+      "direction": {
+        "x": 5.701324828910613e-12,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 89.99999999967334,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 07:00:30",
+        "lastModified": "2025-06-08 09:15:25"
+      }
+    },
+    {
+      "agentId": "CAM007",
+      "agentName": "Accross Kitchen",
+      "waypointNumber": 7,
+      "position": {
+        "x": 5881.605295399685,
+        "y": 9430.133374166993,
+        "z": 1400.0
+      },
+      "direction": {
+        "x": 0.3156490369471082,
+        "y": 0.9488760116444949,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 71.59999999999965,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 09:14:43",
+        "lastModified": "2025-06-08 10:50:09"
+      }
+    },
+    {
+      "agentId": "CAM008",
+      "agentName": "Dining Area",
+      "waypointNumber": 8,
+      "position": {
+        "x": 5382.859687663864,
+        "y": 13653.061100813353,
+        "z": 1399.9999999999995
+      },
+      "direction": {
+        "x": 1.0,
+        "y": -2.2305390867671804e-10,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -1.2780047571072436e-08,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 50,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 09:15:57",
+        "lastModified": "2025-06-08 09:45:23"
+      }
+    },
+    {
+      "agentId": "CAM009",
+      "agentName": "Dining Area",
+      "waypointNumber": 9,
+      "position": {
+        "x": 5384.271432345641,
+        "y": 17943.888739433423,
+        "z": 1399.9999999999986
+      },
+      "direction": {
+        "x": 0.25881904510289905,
+        "y": -0.965925826288967,
+        "z": 1.2223838690062798e-16
+      },
+      "rotation": {
+        "heading": -74.99999999997756,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 09:16:43",
+        "lastModified": "2025-06-08 10:50:02"
+      }
+    },
+    {
+      "agentId": "CAM010",
+      "agentName": "Camera Agent CAM010",
+      "waypointNumber": 10,
+      "position": {
+        "x": 11195.000000000004,
+        "y": 8290.0,
+        "z": 1300.0000000000007
+      },
+      "direction": {
+        "x": -0.7245923753243723,
+        "y": 0.6891776908909517,
+        "z": -3.6493622692876877e-16
+      },
+      "rotation": {
+        "heading": 136.43494882292214,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 10:49:08",
+        "lastModified": "2025-06-08 10:49:55"
+      }
+    },
+    {
+      "agentId": "CAM011",
+      "agentName": "Master Bedroom Door",
+      "waypointNumber": 11,
+      "position": {
+        "x": 8848.904618559198,
+        "y": 7246.391746330344,
+        "z": 3945.0000000000073
+      },
+      "direction": {
+        "x": 3.275914262079737e-12,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 89.99999999981232,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 28,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 10:51:53",
+        "lastModified": "2025-06-08 11:04:15"
+      }
+    },
+    {
+      "agentId": "CAM012",
+      "agentName": "Master Bed Window View",
+      "waypointNumber": 12,
+      "position": {
+        "x": 9044.733905757328,
+        "y": 10691.951623004903,
+        "z": 3946.6666459796816
+      },
+      "direction": {
+        "x": -5.718585327496585e-13,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 90.00000000003277,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 10:53:27",
+        "lastModified": "2025-06-08 11:04:19"
+      }
+    },
+    {
+      "agentId": "CAM013",
+      "agentName": "Master Dressing Area",
+      "waypointNumber": 13,
+      "position": {
+        "x": 8285.0574237235,
+        "y": 14361.632122382827,
+        "z": 3946.6666459796816
+      },
+      "direction": {
+        "x": 0.397147890632945,
+        "y": -0.9177546256847757,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -66.6000000001146,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 10:53:43",
+        "lastModified": "2025-06-08 11:04:21"
+      }
+    },
+    {
+      "agentId": "CAM014",
+      "agentName": "Ensuite",
+      "waypointNumber": 14,
+      "position": {
+        "x": 9098.60320230911,
+        "y": 8462.940469032925,
+        "z": 3945.0000000000073
+      },
+      "direction": {
+        "x": 0.8471219213820786,
+        "y": 0.5313985795181764,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 32.10000000000632,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 10:54:07",
+        "lastModified": "2025-06-08 11:04:17"
+      }
+    },
+    {
+      "agentId": "CAM015",
+      "agentName": "Study View",
+      "waypointNumber": 15,
+      "position": {
+        "x": 7976.642091115868,
+        "y": 7365.160018773427,
+        "z": 3945.0000000000073
+      },
+      "direction": {
+        "x": 1.3800072196090696e-13,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -89.9999999999921,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 28,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 10:57:07",
+        "lastModified": "2025-06-08 11:04:14"
+      }
+    },
+    {
+      "agentId": "CAM016",
+      "agentName": "Bedroom 02",
+      "waypointNumber": 16,
+      "position": {
+        "x": 7356.164918978784,
+        "y": 8349.056192499847,
+        "z": 3945.0000000000073
+      },
+      "direction": {
+        "x": -0.4999999999997919,
+        "y": 0.8660254037845588,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 119.99999999998622,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 10:57:57",
+        "lastModified": "2025-06-08 11:04:08"
+      }
+    },
+    {
+      "agentId": "CAM017",
+      "agentName": "Bed 02 Desk View",
+      "waypointNumber": 17,
+      "position": {
+        "x": 4620.135905210787,
+        "y": 11898.664155818587,
+        "z": 3945.02133322823
+      },
+      "direction": {
+        "x": 0.8269383637358715,
+        "y": -0.5622714994870373,
+        "z": -0.004868618534924917
+      },
+      "rotation": {
+        "heading": -34.21349480180496,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 28,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 10:58:49",
+        "lastModified": "2025-06-08 11:04:10"
+      }
+    },
+    {
+      "agentId": "CAM018",
+      "agentName": "Bedroom 03",
+      "waypointNumber": 18,
+      "position": {
+        "x": 4376.338524224062,
+        "y": 4489.326669325432,
+        "z": 3946.6666459796816
+      },
+      "direction": {
+        "x": 0.5368516280836803,
+        "y": 0.843676673509409,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 57.530428383402004,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 28,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 11:02:26",
+        "lastModified": "2025-06-08 11:04:12"
+      }
+    },
+    {
+      "agentId": "CAM019",
+      "agentName": "Utility Room",
+      "waypointNumber": 19,
+      "position": {
+        "x": 4089.0000023503126,
+        "y": 7925.089585182118,
+        "z": 1400.0000000000043
+      },
+      "direction": {
+        "x": 0.8191145035522919,
+        "y": 0.5728587067294577,
+        "z": -0.029737723425568484
+      },
+      "rotation": {
+        "heading": 34.96753347012649,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 28,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 12:21:32",
+        "lastModified": "2025-06-08 12:24:16"
+      }
+    },
+    {
+      "agentId": "CAM020",
+      "agentName": "Boot Room",
+      "waypointNumber": 20,
+      "position": {
+        "x": 8657.358456999435,
+        "y": 5017.888523210279,
+        "z": 1525.785235925477
+      },
+      "direction": {
+        "x": 0.9807173378996102,
+        "y": 0.1954315817443589,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 11.26993649334512,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "4:3",
+        "lensMm": 28,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-06-08 12:22:34",
+        "lastModified": "2025-06-08 12:24:38"
+      }
+    }
+  ]
+}
