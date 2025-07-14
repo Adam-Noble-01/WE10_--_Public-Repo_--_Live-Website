@@ -129,7 +129,7 @@
       "position": {
         "x": 2662.900451729111,
         "y": 7749.02665146111,
-        "z": 1600.0
+        "z": 1400.0
       },
       "direction": {
         "x": 0.985703469088943,
@@ -149,35 +149,6 @@
       "metadata": {
         "createdDate": "2025-07-14 22:27:05",
         "lastModified": "2025-07-14 22:33:41"
-      }
-    },
-    {
-      "agentId": "CAM008",
-      "agentName": "Interior View 02",
-      "waypointNumber": 6,
-      "position": {
-        "x": -12213.42630632952,
-        "y": 14551.287037155056,
-        "z": 1399.9999999999989
-      },
-      "direction": {
-        "x": -0.9474843102571555,
-        "y": -0.31980225423927616,
-        "z": 0.0
-      },
-      "rotation": {
-        "heading": -161.34903351538097,
-        "pitch": 0.0,
-        "roll": 0.0
-      },
-      "camera": {
-        "aspectRatio": "16:9",
-        "lensMm": 35,
-        "fovDegrees": 60
-      },
-      "metadata": {
-        "createdDate": "2025-07-14 22:28:11",
-        "lastModified": "2025-07-14 22:29:31"
       }
     },
     {
@@ -211,12 +182,12 @@
     },
     {
       "agentId": "CAM010",
-      "agentName": "Camera Agent CAM010",
+      "agentName": "Dining Area",
       "waypointNumber": 7,
       "position": {
         "x": 13623.191432053813,
         "y": 7689.02367286146,
-        "z": 2900.0000000000005
+        "z": 1400.0000000000005
       },
       "direction": {
         "x": -0.9999993764284664,
