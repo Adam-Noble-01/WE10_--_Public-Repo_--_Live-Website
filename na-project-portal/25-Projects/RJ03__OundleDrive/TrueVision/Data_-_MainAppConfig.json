@@ -121,7 +121,7 @@
         "Model-01": {
             "ModelLoadingOrder"     : 1,
             "ModelType"             : "Main Building Model",
-            "ModelUrl"              : "https://cdn.noble-architecture.com/NaApps/Root__TrueVision/Assets_PluginAssets/3DModels_GlbFormatModels/TrueVision_-_Testing3D_-_PatterdaleCloseModel_-_BuildingModel.glb",
+            "ModelUrl"              : "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/RJ03__OundleDrive/TrueVisionApp__AppAssets/TrueVision_-_RJ03__OundleDrive_-_BuildingModel.glb",
             "ModelVersion"          : "1.0.0",
             "ModelAdded"            : "2025-01-14",
             "ModelNotes"            : "Primary building structure - must load before user interaction",
