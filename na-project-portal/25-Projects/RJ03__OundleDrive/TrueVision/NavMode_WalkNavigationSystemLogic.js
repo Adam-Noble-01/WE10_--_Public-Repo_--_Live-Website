@@ -289,7 +289,15 @@
     // FUNCTION | Enable Walk Navigation Mode
     // ------------------------------------------------------------
     function enable() {
-        if (!walkCamera || !scene || !canvas) return;                       // <-- Validate prerequisites
+        if (!walkCamera || !scene) return;                                  // <-- Validate prerequisites
+        
+        // ENSURE CANVAS IS SET IF NOT ALREADY
+        if (!canvas) {
+            canvas = scene.getEngine().getRenderingCanvas();                // <-- Get canvas from scene engine
+            console.log("Walk Navigation: Canvas retrieved from scene engine"); // <-- Debug log
+        }
+        
+        if (!canvas) return;                                                 // <-- Check canvas after retrieval attempt
         
         isEnabled = true;                                                    // <-- Set enabled flag
         
