@@ -110,9 +110,8 @@
         orbitCamera.inertialPanningX = 0;                                   // <-- Pan X inertia
         orbitCamera.inertialPanningY = 0;                                   // <-- Pan Y inertia
         
-        // STORE DEFAULT POSITION AND TARGET
-        defaultPosition = new BABYLON.Vector3(0, 10, -30 - CAMERA_OFFSET);   // <-- Default position
-        defaultTarget = BABYLON.Vector3.Zero();                              // <-- Default target
+        // NOTE: Default position and target are set dynamically during initialization
+        // based on first waypoint position for consistency across navigation modes
         
         return orbitCamera;                                                  // <-- Return configured camera
     }
@@ -162,11 +161,36 @@
 
     // FUNCTION | Initialize Orbit Navigation System
     // ------------------------------------------------------------
-    function initialize(babylonScene, targetCanvas) {
+    async function initialize(babylonScene, targetCanvas) {
         console.log("Initializing Orbit Navigation System");                 // <-- Log initialization
         
         scene = babylonScene;                                                // <-- Store scene reference
         canvas = targetCanvas;                                               // <-- Store canvas reference
+        
+        // GET FIRST WAYPOINT POSITION FOR CONSISTENT STARTING POINT
+        const waypointNav = window.TrueVision3D?.NavigationModes?.WaypointNavigation;
+        if (waypointNav) {
+            try {
+                const firstWaypoint = await waypointNav.getFirstWaypointPosition();
+                if (firstWaypoint) {
+                    // UPDATE DEFAULT POSITION AND TARGET FROM WAYPOINT DATA
+                    defaultPosition = firstWaypoint.position.clone();
+                    defaultTarget = firstWaypoint.target.clone();
+                    console.log("Orbit navigation using first waypoint position:", defaultPosition);
+                } else {
+                    console.warn("Could not get first waypoint position, using fallback");
+                }
+            } catch (error) {
+                console.warn("Error getting first waypoint position:", error);
+            }
+        }
+        
+        // SET FALLBACK VALUES IF WAYPOINT LOADING FAILED
+        if (!defaultPosition) {
+            defaultPosition = new BABYLON.Vector3(0, 10, -30 - CAMERA_OFFSET); // <-- Fallback position
+            defaultTarget = BABYLON.Vector3.Zero();                            // <-- Fallback target
+            console.log("Orbit navigation using fallback position:", defaultPosition);
+        }
         
         // CREATE ORBIT CAMERA
         orbitCamera = createOrbitCamera();                                   // <-- Create camera instance
@@ -184,7 +208,7 @@
     // ---------------------------------------------------------------
 
     // FUNCTION | Enable Orbit Navigation Mode
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function enable() {
         if (!orbitCamera || !scene) return;                                 // <-- Validate prerequisites
         
@@ -207,7 +231,7 @@
     // ---------------------------------------------------------------
 
     // FUNCTION | Disable Orbit Navigation Mode
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function disable() {
         isEnabled = false;                                                   // <-- Clear enabled flag
         

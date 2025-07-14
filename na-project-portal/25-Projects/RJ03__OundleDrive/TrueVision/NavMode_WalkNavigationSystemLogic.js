@@ -117,9 +117,8 @@
         walkCamera.applyGravity = true;                                      // <-- Enable gravity
         walkCamera.ellipsoid = COLLISION_ELLIPSOID.clone();                  // <-- Set collision shape
         
-        // STORE DEFAULT POSITION AND TARGET
-        defaultPosition = new BABYLON.Vector3(5, DEFAULT_EYE_HEIGHT, 10);    // <-- Default spawn position
-        defaultTarget = new BABYLON.Vector3(5, DEFAULT_EYE_HEIGHT, 0);       // <-- Default look target
+        // NOTE: Default position and target are set dynamically during initialization
+        // based on first waypoint position for consistency across navigation modes
         
         return walkCamera;                                                   // <-- Return configured camera
     }
@@ -257,11 +256,36 @@
 
     // FUNCTION | Initialize Walk Navigation System
     // ------------------------------------------------------------
-    function initialize(babylonScene, targetCanvas) {
+    async function initialize(babylonScene, targetCanvas) {
         console.log("Initializing Walk Navigation System");                  // <-- Log initialization
         
         scene = babylonScene;                                                // <-- Store scene reference
         canvas = targetCanvas;                                               // <-- Store canvas reference
+        
+        // GET FIRST WAYPOINT POSITION FOR CONSISTENT STARTING POINT
+        const waypointNav = window.TrueVision3D?.NavigationModes?.WaypointNavigation;
+        if (waypointNav) {
+            try {
+                const firstWaypoint = await waypointNav.getFirstWaypointPosition();
+                if (firstWaypoint) {
+                    // UPDATE DEFAULT POSITION AND TARGET FROM WAYPOINT DATA
+                    defaultPosition = firstWaypoint.position.clone();
+                    defaultTarget = firstWaypoint.target.clone();
+                    console.log("Walk navigation using first waypoint position:", defaultPosition);
+                } else {
+                    console.warn("Could not get first waypoint position, using fallback");
+                }
+            } catch (error) {
+                console.warn("Error getting first waypoint position:", error);
+            }
+        }
+        
+        // SET FALLBACK VALUES IF WAYPOINT LOADING FAILED
+        if (!defaultPosition) {
+            defaultPosition = new BABYLON.Vector3(5, DEFAULT_EYE_HEIGHT, 10);  // <-- Fallback spawn position
+            defaultTarget = new BABYLON.Vector3(5, DEFAULT_EYE_HEIGHT, 0);     // <-- Fallback look target
+            console.log("Walk navigation using fallback position:", defaultPosition);
+        }
         
         // CREATE WALK CAMERA
         walkCamera = createWalkCamera();                                     // <-- Create camera instance
@@ -287,7 +311,7 @@
     // ---------------------------------------------------------------
 
     // FUNCTION | Enable Walk Navigation Mode
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function enable() {
         if (!walkCamera || !scene) return;                                  // <-- Validate prerequisites
         
@@ -313,7 +337,7 @@
     // ---------------------------------------------------------------
 
     // FUNCTION | Disable Walk Navigation Mode
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function disable() {
         isEnabled = false;                                                   // <-- Clear enabled flag
         isRunning = false;                                                   // <-- Reset running state

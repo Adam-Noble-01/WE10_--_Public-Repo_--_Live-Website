@@ -1261,6 +1261,37 @@
     }
     // ---------------------------------------------------------------
 
+    // FUNCTION | Get First Waypoint Position for Other Navigation Modes
+    // ---------------------------------------------------------------
+    async function getFirstWaypointPosition() {
+        // ENSURE CAMERA AGENT DATA IS LOADED
+        if (!cameraAgentData && !await loadCameraAgentData()) {
+            console.warn("Cannot get first waypoint position - no camera data available");
+            return null;
+        }
+        
+        // VALIDATE DATA STRUCTURE
+        if (!cameraAgentData.cameraAgents || cameraAgentData.cameraAgents.length === 0) {
+            console.warn("Cannot get first waypoint position - no waypoints in data");
+            return null;
+        }
+        
+        // GET FIRST WAYPOINT AND CONVERT TO BABYLON COORDINATES
+        const firstWaypoint = cameraAgentData.cameraAgents[0];
+        const cameraData = convertCameraDataToBabylon(firstWaypoint);
+        
+        // CALCULATE TARGET POINT (LOOK DIRECTION)
+        const targetPoint = cameraData.position.add(cameraData.direction.scale(10));
+        
+        return {
+            position: cameraData.position.clone(),                           // <-- Starting camera position
+            direction: cameraData.direction.clone(),                         // <-- Look direction vector
+            target: targetPoint,                                             // <-- Target point to look at
+            metadata: firstWaypoint                                          // <-- Original waypoint data
+        };
+    }
+    // ---------------------------------------------------------------
+
     // FUNCTION | Clean Up Resources
     // ---------------------------------------------------------------
     function dispose() {
@@ -1350,7 +1381,8 @@
         reset: reset,                                                        // <-- Reset to first waypoint
         dispose: dispose,                                                    // <-- Cleanup method
         updateOrbVisibility: updateOrbVisibility,                            // <-- NEW: Update orb visibility
-        isEnabled: () => isEnabled                                           // <-- Check enabled state
+        isEnabled: () => isEnabled,                                           // <-- Check enabled state
+        getFirstWaypointPosition: getFirstWaypointPosition                   // <-- NEW: Get first waypoint position
     };
 
     // MARK MODULE AS LOADED
