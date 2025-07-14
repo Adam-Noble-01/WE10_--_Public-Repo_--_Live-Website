@@ -337,19 +337,32 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             
             // TRY TO MAKE IT MORE VISIBLE FOR DEBUGGING
             if (sceneEnvironment.ground.material) {
-                // Store original values
+                // Store original values - safely check for diffuseColor existence
                 const originalAlpha = sceneEnvironment.ground.material.alpha;
-                const originalColor = sceneEnvironment.ground.material.diffuseColor.clone();
+                const originalColor = sceneEnvironment.ground.material.diffuseColor ? 
+                    sceneEnvironment.ground.material.diffuseColor.clone() : 
+                    null;
                 
-                // Make it bright red and opaque temporarily
-                sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+                // Make it bright red and opaque temporarily - only if diffuseColor exists
+                if (sceneEnvironment.ground.material.diffuseColor) {
+                    sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+                } else {
+                    // If no diffuseColor, try to set it
+                    console.log("⚠️  Material has no diffuseColor property - attempting to create one");
+                    sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+                }
                 sceneEnvironment.ground.material.alpha = 1.0;
                 
                 console.log("⚠️  TEMPORARILY made ground RED and OPAQUE for visibility");
                 
                 // Restore after 5 seconds
                 setTimeout(() => {
-                    sceneEnvironment.ground.material.diffuseColor = originalColor;
+                    if (originalColor) {
+                        sceneEnvironment.ground.material.diffuseColor = originalColor;
+                    } else {
+                        // If there was no original color, set a default
+                        sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(0.85, 0.87, 0.85);
+                    }
                     sceneEnvironment.ground.material.alpha = originalAlpha;
                     console.log("✅ Restored ground to original appearance");
                 }, 5000);
