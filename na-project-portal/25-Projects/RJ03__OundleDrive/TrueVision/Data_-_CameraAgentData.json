@@ -1,7 +1,7 @@
 {
   "exportInfo": {
-    "exportDate": "2025-07-14 21:35:39",
-    "modelName": "RJ03__OundleDrive__MainModel__Scheme__1.6.1",
+    "exportDate": "2025-07-14 22:36:09",
+    "modelName": "RJ03__OundleDrive__MainModel__Scheme__1.6.2",
     "exportedBy": "ValeDesignSuite Camera Agent Tool",
     "version": "1.0.0"
   },
@@ -65,35 +65,6 @@
       }
     },
     {
-      "agentId": "CAM003",
-      "agentName": "Camera Agent CAM003",
-      "waypointNumber": 3,
-      "position": {
-        "x": 14142.146362994172,
-        "y": -4477.00145094167,
-        "z": 2134.999999999999
-      },
-      "direction": {
-        "x": 0.4630213035233966,
-        "y": 0.8863471512243355,
-        "z": 0.0
-      },
-      "rotation": {
-        "heading": 62.417760801515975,
-        "pitch": 0.0,
-        "roll": 0.0
-      },
-      "camera": {
-        "aspectRatio": "16:9",
-        "lensMm": 35,
-        "fovDegrees": 60
-      },
-      "metadata": {
-        "createdDate": "2025-07-14 21:34:19",
-        "lastModified": "2025-07-14 21:34:19"
-      }
-    },
-    {
       "agentId": "CAM004",
       "agentName": "Rear Elevation",
       "waypointNumber": 3,
@@ -120,6 +91,238 @@
       "metadata": {
         "createdDate": "2025-07-14 21:35:01",
         "lastModified": "2025-07-14 21:35:30"
+      }
+    },
+    {
+      "agentId": "CAM006",
+      "agentName": "Exterior Patio 01",
+      "waypointNumber": 4,
+      "position": {
+        "x": 1586.748489644524,
+        "y": 4820.5402755644045,
+        "z": 1399.9999999999989
+      },
+      "direction": {
+        "x": 1.0,
+        "y": 3.552713678800501e-14,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 2.0355549961366507e-12,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 22:26:02",
+        "lastModified": "2025-07-14 22:27:51"
+      }
+    },
+    {
+      "agentId": "CAM007",
+      "agentName": "Interior View 03",
+      "waypointNumber": 8,
+      "position": {
+        "x": 2662.900451729111,
+        "y": 7749.02665146111,
+        "z": 1600.0
+      },
+      "direction": {
+        "x": 0.985703469088943,
+        "y": 0.16848937956448032,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 9.699999999969641,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 22:27:05",
+        "lastModified": "2025-07-14 22:33:41"
+      }
+    },
+    {
+      "agentId": "CAM008",
+      "agentName": "Interior View 02",
+      "waypointNumber": 6,
+      "position": {
+        "x": -12213.42630632952,
+        "y": 14551.287037155056,
+        "z": 1399.9999999999989
+      },
+      "direction": {
+        "x": -0.9474843102571555,
+        "y": -0.31980225423927616,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -161.34903351538097,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 22:28:11",
+        "lastModified": "2025-07-14 22:29:31"
+      }
+    },
+    {
+      "agentId": "CAM009",
+      "agentName": "Seating Nook",
+      "waypointNumber": 7,
+      "position": {
+        "x": 6449.700395006462,
+        "y": 10215.77861901379,
+        "z": 1399.9999999999989
+      },
+      "direction": {
+        "x": -4.620956395307024e-13,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -90.00000000002647,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 22:30:04",
+        "lastModified": "2025-07-14 22:31:01"
+      }
+    },
+    {
+      "agentId": "CAM010",
+      "agentName": "Camera Agent CAM010",
+      "waypointNumber": 7,
+      "position": {
+        "x": 13623.191432053813,
+        "y": 7689.02367286146,
+        "z": 2900.0000000000005
+      },
+      "direction": {
+        "x": -0.9999993764284664,
+        "y": 0.0011167554247957067,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 179.93601461411106,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 22:33:05",
+        "lastModified": "2025-07-14 22:34:06"
+      }
+    },
+    {
+      "agentId": "CAM011",
+      "agentName": "Exterior Fire Pit",
+      "waypointNumber": 8,
+      "position": {
+        "x": 8076.892068065553,
+        "y": 4790.727001078938,
+        "z": 1399.9999999999989
+      },
+      "direction": {
+        "x": 0.8427375009153333,
+        "y": -0.5383247203602848,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -32.569667963149385,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 22:33:44",
+        "lastModified": "2025-07-14 22:34:26"
+      }
+    },
+    {
+      "agentId": "CAM012",
+      "agentName": "Far Elevation",
+      "waypointNumber": 9,
+      "position": {
+        "x": 8635.538733402782,
+        "y": -8888.861098584444,
+        "z": 2134.9999999999995
+      },
+      "direction": {
+        "x": 2.102831797579085e-13,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": 89.99999999998795,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 22:34:36",
+        "lastModified": "2025-07-14 22:35:07"
+      }
+    },
+    {
+      "agentId": "CAM013",
+      "agentName": "High Level View",
+      "waypointNumber": 11,
+      "position": {
+        "x": 2631.491129559559,
+        "y": -8274.982287136236,
+        "z": 10938.34543403019
+      },
+      "direction": {
+        "x": 0.3586519429591759,
+        "y": 0.8605791387921025,
+        "z": -0.3616245700826361
+      },
+      "rotation": {
+        "heading": 67.37574991322097,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 22:35:19",
+        "lastModified": "2025-07-14 22:36:07"
       }
     }
   ]
