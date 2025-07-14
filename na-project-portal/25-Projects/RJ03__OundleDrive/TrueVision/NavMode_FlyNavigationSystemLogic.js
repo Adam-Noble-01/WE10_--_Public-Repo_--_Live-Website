@@ -292,14 +292,37 @@
 
     // FUNCTION | Initialize Fly Navigation System
     // ------------------------------------------------------------
-    function initialize(babylonScene, targetCanvas) {
+    async function initialize(babylonScene, targetCanvas) {
         console.log("Initializing Fly Navigation System");                   // <-- Log initialization
         
         scene = babylonScene;                                                // <-- Store scene reference
         canvas = targetCanvas;                                               // <-- Store canvas reference
         
-        // CREATE FLY CAMERA
+        // TRY TO USE WAYPOINT DATA AS FALLBACK IF JSON CONFIG FAILS
+        let waypointFallback = null;
+        const waypointNav = window.TrueVision3D?.NavigationModes?.WaypointNavigation;
+        if (waypointNav) {
+            try {
+                waypointFallback = await waypointNav.getFirstWaypointPosition();
+                if (waypointFallback) {
+                    console.log("Fly navigation has waypoint fallback available:", waypointFallback.position);
+                }
+            } catch (error) {
+                console.warn("Could not get waypoint fallback for fly navigation:", error);
+            }
+        }
+        
+        // CREATE FLY CAMERA (will load JSON config or use fallback)
         flyCamera = createFlyCamera();                                       // <-- Create camera instance
+        
+        // IF CAMERA CREATION FAILED AND WE HAVE WAYPOINT DATA, TRY WAYPOINT FALLBACK
+        if (!flyCamera && waypointFallback) {
+            console.log("Using waypoint data for fly navigation initialization");
+            configPosition = waypointFallback.position.clone();
+            configRotation = new BABYLON.Vector3(0, 0, 0); // Let user control rotation
+            flyCamera = createFlyCamera(); // Try again with waypoint data
+        }
+        
         if (!flyCamera) {
             console.error("Failed to create fly camera");                    // <-- Log failure
             return false;                                                    // <-- Return failure status
@@ -337,7 +360,7 @@
     // ---------------------------------------------------------------
 
     // FUNCTION | Disable Fly Navigation Mode
-    // ------------------------------------------------------------
+    // ---------------------------------------------------------------
     function disable() {
         isEnabled = false;                                                   // <-- Clear enabled flag
         
