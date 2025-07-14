@@ -295,8 +295,8 @@ window.TrueVision3D.ApplicationCore = window.TrueVision3D.ApplicationCore || {};
         
         console.log("✅ About to initialize rendering pipeline with canvas:", canvas);
         
-        // INITIALIZE RENDERING PIPELINE
-        const renderingRefs = renderingPipeline.initialize(canvas, loadingOverlay, errorMessage);
+        // INITIALIZE RENDERING PIPELINE (NOW ASYNC)
+        const renderingRefs = await renderingPipeline.initialize(canvas, loadingOverlay, errorMessage);
         
         if (!renderingRefs) {
             console.error("❌ Rendering pipeline initialization returned null/undefined");

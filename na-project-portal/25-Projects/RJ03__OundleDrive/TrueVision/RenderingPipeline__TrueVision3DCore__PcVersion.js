@@ -336,43 +336,27 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
             console.log("   - Material:", sceneEnvironment.ground.material);
             
             // TRY TO MAKE IT MORE VISIBLE FOR DEBUGGING
-            if (sceneEnvironment.ground.material) {
-                // Store original values - safely check for diffuseColor existence
+            if (sceneEnvironment.ground.material && sceneEnvironment.ground.material.diffuseColor) {
+                // Store original values
                 const originalAlpha = sceneEnvironment.ground.material.alpha;
-                // Check if diffuseColor exists AND has a clone method
-                let originalColor = null;
-                if (sceneEnvironment.ground.material.diffuseColor && 
-                    typeof sceneEnvironment.ground.material.diffuseColor.clone === 'function') {
-                    originalColor = sceneEnvironment.ground.material.diffuseColor.clone();
-                } else {
-                    console.log("⚠️  Material diffuseColor is not a valid Color3 object or doesn't exist");
-                    console.log("   - diffuseColor value:", sceneEnvironment.ground.material.diffuseColor);
-                    console.log("   - diffuseColor type:", typeof sceneEnvironment.ground.material.diffuseColor);
-                }
+                const originalColor = sceneEnvironment.ground.material.diffuseColor.clone();
                 
-                // Make it bright red and opaque temporarily - only if diffuseColor exists
-                if (sceneEnvironment.ground.material.diffuseColor) {
-                    sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
-                } else {
-                    // If no diffuseColor, try to set it
-                    console.log("⚠️  Material has no diffuseColor property - attempting to create one");
-                    sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
-                }
+                // Make it bright red and opaque temporarily
+                sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
                 sceneEnvironment.ground.material.alpha = 1.0;
                 
                 console.log("⚠️  TEMPORARILY made ground RED and OPAQUE for visibility");
                 
                 // Restore after 5 seconds
                 setTimeout(() => {
-                    if (originalColor) {
+                    if (sceneEnvironment.ground && sceneEnvironment.ground.material) {
                         sceneEnvironment.ground.material.diffuseColor = originalColor;
-                    } else {
-                        // If there was no original color, set a default
-                        sceneEnvironment.ground.material.diffuseColor = new BABYLON.Color3(0.85, 0.87, 0.85);
+                        sceneEnvironment.ground.material.alpha = originalAlpha;
+                        console.log("✅ Restored ground to original appearance");
                     }
-                    sceneEnvironment.ground.material.alpha = originalAlpha;
-                    console.log("✅ Restored ground to original appearance");
                 }, 5000);
+            } else {
+                console.warn("⚠️  Ground material or diffuseColor not available for debugging visualization");
             }
         }
 
@@ -749,16 +733,31 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
 
     // FUNCTION | Initialize Complete PC Rendering Pipeline
     // ------------------------------------------------------------
-    function initialize(canvasElement, loadingElement, errorElement) {
-        loadingOverlay = loadingElement;
-        errorMessage = errorElement;
-        
-        initializeBabylonEngine(canvasElement);
-        createScene();
-        initializeCdnModelLoading();
-        
-        console.log("PC rendering pipeline initialized successfully");
-        return { engine: engine, scene: scene, sunLight: sunLight };
+    async function initialize(canvasElement, loadingElement, errorElement) {
+        try {
+            loadingOverlay = loadingElement;
+            errorMessage = errorElement;
+            
+            initializeBabylonEngine(canvasElement);
+            createScene();
+            
+            // AWAIT CDN MODEL LOADING INITIALIZATION
+            await initializeCdnModelLoading();
+            
+            console.log("PC rendering pipeline initialized successfully");
+            return { engine: engine, scene: scene, sunLight: sunLight };
+            
+        } catch (error) {
+            console.error("❌ Rendering pipeline initialization failed:", error);
+            
+            // DISPLAY ERROR TO USER
+            if (errorMessage) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = `Initialization failed: ${error.message}`;
+            }
+            
+            throw error; // Re-throw to let caller handle
+        }
     }
     // ---------------------------------------------------------------
 
@@ -846,7 +845,5 @@ window.TrueVision3D.RenderingPipeline = window.TrueVision3D.RenderingPipeline ||
     console.log("🔔 PC Rendering pipeline loaded event dispatched");
 
 // endregion -------------------------------------------------------------------
-
-//ForceUpdate
 
 })(); 
