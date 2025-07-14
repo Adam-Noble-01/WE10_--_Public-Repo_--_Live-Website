@@ -9,7 +9,7 @@
     {
       "agentId": "CAM001",
       "agentName": "Exterior View 01",
-      "waypointNumber": 2,
+      "waypointNumber": 1,
       "position": {
         "x": 13697.574758841023,
         "y": -5157.4683899644415,
@@ -38,7 +38,7 @@
     {
       "agentId": "CAM002",
       "agentName": "Exterior View 02",
-      "waypointNumber": 1,
+      "waypointNumber": 2,
       "position": {
         "x": 1071.788386298908,
         "y": -4705.898352537515,
