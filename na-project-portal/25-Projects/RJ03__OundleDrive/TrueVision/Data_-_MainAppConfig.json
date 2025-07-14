@@ -5,6 +5,7 @@
     "appDeveloper"      :  "Noble Architecture",
     "appAuthor"         :  "Adam Noble",
     "appAuthorEmail"    :  "adam@noblearchitecture.co.uk",
+    "appMainUrl"        :  "https://www.noble-architecture.com/na-project-portal/25-Projects/RJ03__OundleDrive/TrueVision-WebApp",
     "appDomain"         :  "https://www.noble-architecture.com/",
     "appCDN"            :  "https://cdn.noble-architecture.com/",
     "AppConfig": {
