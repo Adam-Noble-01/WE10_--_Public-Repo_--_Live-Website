@@ -36,7 +36,7 @@
                 "NavMode_WaypointDataFileURL"  : "Note: Use this to override the default data file, if different data is required"
             },
             "AppNavMode_Walk": {
-                "NavMode_WalkState"        :  true,
+                "NavMode_WalkState"        :  false,
                 "NavMode_WalkFile"         :  "NavMode_WalkNavigationSystemLogic.js",
                 "NavMode_WalkDescription"  :  "Walk mode enables first-person style ground-level navigation"
             },
