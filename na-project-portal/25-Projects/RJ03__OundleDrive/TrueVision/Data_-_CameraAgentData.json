@@ -66,7 +66,7 @@
     },
     {
       "agentId": "CAM004",
-      "agentName": "Rear Elevation",
+      "agentName": "Exterior View 03 - Rear Elevation",
       "waypointNumber": 3,
       "position": {
         "x": 10264.218570578167,
@@ -95,7 +95,7 @@
     },
     {
       "agentId": "CAM006",
-      "agentName": "Exterior Patio 01",
+      "agentName": "Exterior View 04 - Patio",
       "waypointNumber": 4,
       "position": {
         "x": 1586.748489644524,
@@ -123,66 +123,8 @@
       }
     },
     {
-      "agentId": "CAM007",
-      "agentName": "Interior View 03",
-      "waypointNumber": 8,
-      "position": {
-        "x": 2662.900451729111,
-        "y": 7749.02665146111,
-        "z": 1400.0
-      },
-      "direction": {
-        "x": 0.985703469088943,
-        "y": 0.16848937956448032,
-        "z": 0.0
-      },
-      "rotation": {
-        "heading": 9.699999999969641,
-        "pitch": 0.0,
-        "roll": 0.0
-      },
-      "camera": {
-        "aspectRatio": "16:9",
-        "lensMm": 35,
-        "fovDegrees": 60
-      },
-      "metadata": {
-        "createdDate": "2025-07-14 22:27:05",
-        "lastModified": "2025-07-14 22:33:41"
-      }
-    },
-    {
-      "agentId": "CAM009",
-      "agentName": "Seating Nook",
-      "waypointNumber": 7,
-      "position": {
-        "x": 6449.700395006462,
-        "y": 10215.77861901379,
-        "z": 1399.9999999999989
-      },
-      "direction": {
-        "x": -4.620956395307024e-13,
-        "y": -1.0,
-        "z": 0.0
-      },
-      "rotation": {
-        "heading": -90.00000000002647,
-        "pitch": 0.0,
-        "roll": 0.0
-      },
-      "camera": {
-        "aspectRatio": "16:9",
-        "lensMm": 35,
-        "fovDegrees": 60
-      },
-      "metadata": {
-        "createdDate": "2025-07-14 22:30:04",
-        "lastModified": "2025-07-14 22:31:01"
-      }
-    },
-    {
       "agentId": "CAM010",
-      "agentName": "Dining Area",
+      "agentName": "Orangery Interior 01",
       "waypointNumber": 7,
       "position": {
         "x": 13623.191432053813,
@@ -210,9 +152,38 @@
       }
     },
     {
-      "agentId": "CAM011",
-      "agentName": "Exterior Fire Pit",
+      "agentId": "CAM009",
+      "agentName": "Orangery Interior 02",
       "waypointNumber": 8,
+      "position": {
+        "x": 6449.700395006462,
+        "y": 10215.77861901379,
+        "z": 1399.9999999999989
+      },
+      "direction": {
+        "x": -4.620956395307024e-13,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "heading": -90.00000000002647,
+        "pitch": 0.0,
+        "roll": 0.0
+      },
+      "camera": {
+        "aspectRatio": "16:9",
+        "lensMm": 35,
+        "fovDegrees": 60
+      },
+      "metadata": {
+        "createdDate": "2025-07-14 22:30:04",
+        "lastModified": "2025-07-14 22:31:01"
+      }
+    },
+    {
+      "agentId": "CAM011",
+      "agentName": "Exterior View 05 - Patio Steps",
+      "waypointNumber": 9,
       "position": {
         "x": 8076.892068065553,
         "y": 4790.727001078938,
@@ -241,7 +212,7 @@
     {
       "agentId": "CAM012",
       "agentName": "Far Elevation",
-      "waypointNumber": 9,
+      "waypointNumber": 10,
       "position": {
         "x": 8635.538733402782,
         "y": -8888.861098584444,
