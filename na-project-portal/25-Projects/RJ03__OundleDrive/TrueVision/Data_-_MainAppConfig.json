@@ -173,18 +173,6 @@
             "ModelFileSize"         : "37MB",
             "EnableGitHubFallback"  : true
         },
-        "Model-02": {
-            "ModelLoadingOrder"     :  2,
-            "ModelType"             :  "Ground Floor Furnishings",
-            "ModelUrl"              :  "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/RJ03__OundleDrive/TrueVisionApp__AppAssets/TrueVision_-_RJ03__OundleDrive_-_GF_FurnishingsModel.glb",
-            "ModelVersion"          :  "1.0.0",
-            "ModelAdded"            :  "2025-07-14",
-            "ModelNotes"            :  "Ground floor furniture and fixtures - loads after building",
-            "ModelCritical"         :  false,
-            "ModelFileSize"         :  "49MB",
-            "ModelIdType"           :  "Furnishings",
-            "EnableGitHubFallback"  :  false
-        },
         "ModelLoadingConfig": {
             "EnableProgressiveLoading"  :  true,
             "EnableFallbackLoading"     :  false,
