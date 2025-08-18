@@ -116,6 +116,25 @@
                     "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T02_D03_-_Elevations__Scheme-01__Rev-D.pdf"
                 }
             },
+            "drawing-05":{
+                "file-name"             :    "JH03_T01_D30_-_FrontageDesignOptions__Rev-A.pdf",
+                "added-to-register"     :    "22-Mar-2025",
+                "document-type"         :    "Drawing",
+                "document-name"         :    "Frontage Design Options",
+                "document-scale"        :    "1:100",
+                "document-size"         :    "A1",
+                "document-status"       :    "Concept Phase Drawing",
+                "document-notes"        :    "NIL",
+                "document-revisions":{
+                    "revision-a"        :    "18-08-2025"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T01_D30_-_FrontageDesignOptions__Rev-A.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T01_D30_-_FrontageDesignOptions__Rev-A.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T01_D30_-_FrontageDesignOptions__Rev-A.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T01_D30_-_FrontageDesignOptions__Rev-A.pdf"
+                }
+            },
             "drawing-template"    :    {
                 "file-name"    :    "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}",
                 "added-to-register"    :    "{{ENTER_DATE}}",
