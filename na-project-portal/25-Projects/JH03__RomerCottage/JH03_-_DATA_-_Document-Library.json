@@ -1,0 +1,145 @@
+{"na-project-data-library":{
+    "file-metadata":{
+        "file-name"                 :    "JH03__DATA_-_Document-Library.json",
+        "file-type"                 :    ".json",
+        "file-purpose"              :    "Project Specific Documentation Link Library",
+        "file-description"          :    "This JSON file stores Noble Architecture project file documentation links in a single location and ensures quick retrieval.",
+        "file-created"              :    "22-Mar-2025",
+        "file-author"               :    "Adam Noble - Noble Architecture",
+        "file-key-required"         :    "FALSE",
+        "file-key-note"             :    "Public Repo File - Sensitive Data Omitted",
+        "file-links":{
+            "windows-dir-path"      :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_-_DATA_-_Document-Library",
+            "github-link-url"       :     "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_-_DATA_-_Document-Library"
+        }
+    },
+    "project-details":{
+        "project-name-nickname"        :    "GA06 | Cloves Wood",
+        "project-name-string"          :    "GA06_--_Cloves-Wood",
+        "project-address--house"       :    "Cloves Wood",
+        "project-address--house-no"    :    "NIL",
+        "project-address-street"       :    "Main Road",
+        "project-address-town"         :    "Morley",
+        "project-address-city"         :    "Derby",
+        "project-address-county"       :    "Derbyshire",
+        "project-address-postcode"     :    "DE7 6DG",
+        "project-general-notes-01"     :    "NIL",
+        "project-portal-links":{
+            "portal-url-home"          :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__Project-Portal",
+            "portal-url-planvision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__PlanVision__Web-Application",
+            "portal-url-truevision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__TrueVision__Web-Application"
+        }
+    },  
+    "project-documentation":{
+        "project-drawings":{
+            "drawing-01"               :    {
+                "file-name"            :    "GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.pdf",
+                "added-to-register"    :    "02-Jun-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Elevations Drawing",   
+                "document-scale"       :    "1:100",
+                "document-size"        :    "A2",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions":{
+                    "revision-a"       :   "02-06-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/GA06_T02_D42_--_PD-Drawing_-_Scheme-02_-_RevB.pdf"
+                }
+            },
+            "drawing-02":{
+                "file-name"             :    "GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.pdf",
+                "added-to-register"     :    "02-Jun-2025",
+                "document-type"         :    "Drawing",
+                "document-name"         :    "Site Plan Drawing",
+                "document-scale"        :    "1:500",
+                "document-size"         :    "A2",  
+                "document-status"       :    "Planning Phase Drawing",
+                "document-notes"        :    "NIL",
+                "document-revisions":{
+                    "revision-a"        :    "24-02-2025"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/GA06_T02_D41_--_PD-Site-Plans_-_Scheme-02_-_RevB.pdf"
+                }
+            },
+            "drawing-03"               :    {
+                "file-name"            :    "GA06_T02_D22_--_PD-Elevations-Drawing.pdf",
+                "added-to-register"    :    "22-Mar-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Old Elevations Drawing",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A1",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions":{
+                    "revision-a"       :   "24-02-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D22_--_PD-Elevations-Drawing.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D22_--_PD-Elevations-Drawing.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/GA06_T02_D22_--_PD-Elevations-Drawing.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/GA06_T02_D22_--_PD-Elevations-Drawing.pdf"
+                }
+            },
+            "drawing-04":{
+                "file-name"             :    "GA06_T02_D11_--_PD-Site-Plans.pdf",
+                "added-to-register"     :    "22-Mar-2025",
+                "document-type"         :    "Drawing",
+                "document-name"         :    "Old Site Plan Drawing",
+                "document-scale"        :    "1:500",
+                "document-size"         :    "A2",
+                "document-status"       :    "Planning Phase Drawing",
+                "document-notes"        :    "NIL",
+                "document-revisions":{
+                    "revision-a"        :    "24-02-2025"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D11_--_PD-Site-Plans.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\GA06_--_Cloves-Wood\\GA06_T02_D11_--_PD-Site-Plans.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/GA06_T02_D11_--_PD-Site-Plans.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/GA06_T02_D11_--_PD-Site-Plans.pdf"
+                }
+            },
+            "drawing-template"    :    {
+                "file-name"    :    "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}",
+                "added-to-register"    :    "{{ENTER_DATE}}",
+                "document-name"        :    "Drawing",
+                "document-type"        :    "Elevations Drawing",
+                "document-scale"       :    "1:50",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions"   :    {
+                    "revision-a"       :    "{{ENTER_DATE}}",
+                    "revision-b"       :    "{{ENTER_DATE}}",
+                    "revision-c"       :    "{{ENTER_DATE}}",
+                    "revision-d"       :    "{{ENTER_DATE}}",
+                    "revision-e"       :    "{{ENTER_DATE}}",
+                    "revision-f"       :    "{{ENTER_DATE}}"
+                },
+                "document-links"    :    {
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf"
+                }
+            }
+        }
+    }
+}
+}
