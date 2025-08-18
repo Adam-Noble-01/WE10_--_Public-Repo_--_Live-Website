@@ -38,7 +38,7 @@
                 "document-type"        :    "Drawing",
                 "document-name"        :    "Floor Plans Scheme 02",   
                 "document-scale"       :    "1:100",
-                "document-size"        :    "A2",
+                "document-size"        :    "A1",
                 "document-status"      :    "Planning Phase Drawing",
                 "document-notes"       :    "NIL",
                 "document-revisions":{
@@ -61,7 +61,7 @@
                 "document-type"         :    "Drawing",
                 "document-name"         :    "Floor Plans Scheme 01",
                 "document-scale"        :    "1:100",
-                "document-size"         :    "A2",  
+                "document-size"         :    "A1",  
                 "document-status"       :    "Planning Phase Drawing",
                 "document-notes"        :    "NIL",
                 "document-revisions":{
@@ -80,7 +80,7 @@
                 "document-type"        :    "Drawing",
                 "document-name"        :    "Elevations Scheme 02",   
                 "document-scale"       :    "1:100",
-                "document-size"        :    "A2",
+                "document-size"        :    "A1",
                 "document-status"      :    "Planning Phase Drawing",
                 "document-notes"       :    "NIL",
                 "document-revisions":{
@@ -103,7 +103,7 @@
                 "document-type"         :    "Drawing",
                 "document-name"         :    "Elevations Scheme 01",
                 "document-scale"        :    "1:100",
-                "document-size"         :    "A2",
+                "document-size"         :    "A1",
                 "document-status"       :    "Planning Phase Drawing",
                 "document-notes"        :    "NIL",
                 "document-revisions":{
