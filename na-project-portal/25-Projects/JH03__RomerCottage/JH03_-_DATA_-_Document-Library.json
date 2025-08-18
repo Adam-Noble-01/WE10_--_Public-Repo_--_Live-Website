@@ -26,8 +26,8 @@
         "project-general-notes-01"     :    "NIL",
         "project-portal-links":{
             "portal-url-home"          :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__Project-Portal",
-            "portal-url-planvision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__PlanVision__Web-Application",
-            "portal-url-truevision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__TrueVision__Web-Application"
+            "portal-url-planvision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__PlanVision__WebApp",
+            "portal-url-truevision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__TrueVision__WebApp"
         }
     },  
     "project-documentation":{
