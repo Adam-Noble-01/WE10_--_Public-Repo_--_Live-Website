@@ -1,0 +1,845 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<script>
+  /* | - - - - - - - - - - - - - - - -->| Navigate to Chapters Script |<-- - - - - - - - - - - - - - - - - | */
+
+  /* DESCRIPTION
+    - This script enables navigation to specific chapters within a document. Chapters are identified by their headers,
+      which correspond to anchor links (e.g., `<a href="#chapter-id">`).
+    - When a user clicks an anchor link, the script locates the target chapter and smoothly scrolls to it.
+
+    REVISION TRACKING
+    - Created   | 17 November 2024
+    - Version   | 1.1.1 - Created
+    - Purpose   | - To improve speed by linking internal sections to hyperlinks.
+    -             - Creates quick adccess links to chapters in a document.
+    */
+
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+  document.addEventListener('DOMContentLoaded', function () {
+  // Select all anchor (`<a>`) tags where the `href` attribute starts with "#".
+  var links = document.querySelectorAll('a[href^="#"]');
+
+  // Iterate through each link to attach a click event listener.
+  links.forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      // Prevent the browser's default "jump-to-target" behaviour.
+      e.preventDefault();
+
+      // Retrieve the `id` of the target chapter from the link's `href` attribute.
+      var destId = this.getAttribute('href').substring(1);
+
+      // Locate the target element using the `id`.
+      var destination = document.getElementById(destId);
+
+      if (destination) {
+        // CONFIG | Adjust Smooth Scroll Behaviour
+        /* NOTES    - The `behavior` parameter can be adjusted to `auto` or `smooth`.
+                    - Use `smooth` for animated scrolling, and `auto` for instant navigation.*/
+        destination.scrollIntoView({
+          behavior: 'smooth'  /* <--- Adjust behaviour as needed*/
+        });
+      }
+    });
+  });
+});
+</script>
+
+<!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+
+<style>
+    body.typora-export {
+        padding-top       : 05.00mm;
+        padding-bottom    : 20.00mm;
+        background-color  : #f3f3f3;
+    }
+</style>
+
+<style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color: #ffffff; --text-color: #333333; --select-text-bg-color: #B5D6FC; --select-text-font-color: auto; --monospace: "Lucida Console",Consolas,"Courier",monospace; --title-bar-height: 20px; }
+.mac-os-11 { --title-bar-height: 28px; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5 { white-space: pre-wrap; }
+body { margin: 0px; padding: 0px; height: auto; inset: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+.typora-export .task-list-item input { pointer-events: none; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; position: relative; }
+#write svg h1, #write svg h2, #write svg h3, #write svg h4, #write svg h5, #write svg h6, #write svg p { position: static; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px; }
+thead, tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-fences-adv-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+svg { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li blockquote { margin: 1rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
+  #write { margin-top: 0px; border-color: transparent !important; padding-top: 0px !important; padding-bottom: 0px !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  .typora-export #write { break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  .is-mac table { break-inside: avoid; }
+  #write > p:nth-child(1) { margin-top: 0px; }
+  .typora-export-show-outline .typora-export-sidebar { display: none; }
+  figure { overflow-x: visible; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+.MathJax_ref { fill: currentcolor; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.reversefootnote { font-family: ui-monospace, sans-serif; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.6; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+.md-expand mark .md-meta { opacity: 0.3 !important; }
+mark .md-meta { color: rgb(0, 0, 0); }
+@media print {
+  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
+}
+.md-diagram-panel .messageText { stroke: none !important; }
+.md-diagram-panel .start-state { fill: var(--node-fill); }
+.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
+.md-fences.md-fences-math { font-size: 1em; }
+.md-fences-advanced:not(.md-focus) { padding: 0px; white-space: nowrap; border: 0px; }
+.md-fences-advanced:not(.md-focus) { background: inherit; }
+.mermaid-svg { margin: auto; }
+.typora-export-show-outline .typora-export-content { max-width: 1440px; margin: auto; display: flex; flex-direction: row; }
+.typora-export-sidebar { width: 300px; font-size: 0.8rem; margin-top: 80px; margin-right: 18px; }
+.typora-export-show-outline #write { --webkit-flex: 2; flex: 2 1 0%; }
+.typora-export-sidebar .outline-content { position: fixed; top: 0px; max-height: 100%; overflow: hidden auto; padding-bottom: 30px; padding-top: 60px; width: 300px; }
+@media screen and (max-width: 1024px) {
+  .typora-export-sidebar, .typora-export-sidebar .outline-content { width: 240px; }
+}
+@media screen and (max-width: 800px) {
+  .typora-export-sidebar { display: none; }
+}
+.outline-content li, .outline-content ul { margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px; list-style: none; overflow-wrap: anywhere; }
+.outline-content ul { margin-top: 0px; margin-bottom: 0px; }
+.outline-content strong { font-weight: 400; }
+.outline-expander { width: 1rem; height: 1.42857rem; position: relative; display: table-cell; vertical-align: middle; cursor: pointer; padding-left: 4px; }
+.outline-expander::before { content: ""; position: relative; font-family: Ionicons; display: inline-block; font-size: 8px; vertical-align: middle; }
+.outline-item { padding-top: 3px; padding-bottom: 3px; cursor: pointer; }
+.outline-expander:hover::before { content: ""; }
+.outline-h1 > .outline-item { padding-left: 0px; }
+.outline-h2 > .outline-item { padding-left: 1em; }
+.outline-h3 > .outline-item { padding-left: 2em; }
+.outline-h4 > .outline-item { padding-left: 3em; }
+.outline-h5 > .outline-item { padding-left: 4em; }
+.outline-h6 > .outline-item { padding-left: 5em; }
+.outline-label { cursor: pointer; display: table-cell; vertical-align: middle; text-decoration: none; color: inherit; }
+.outline-label:hover { text-decoration: underline; }
+.outline-item:hover { border-color: rgb(245, 245, 245); background-color: var(--item-hover-bg-color); }
+.outline-item:hover { margin-left: -28px; margin-right: -28px; border-left: 28px solid transparent; border-right: 28px solid transparent; }
+.outline-item-single .outline-expander::before, .outline-item-single .outline-expander:hover::before { display: none; }
+.outline-item-open > .outline-item > .outline-expander::before { content: ""; }
+.outline-children { display: none; }
+.info-panel-tab-wrapper { display: none; }
+.outline-item-open > .outline-children { display: block; }
+.typora-export .outline-item { padding-top: 1px; padding-bottom: 1px; }
+.typora-export .outline-item:hover { margin-right: -8px; border-right: 8px solid transparent; }
+.typora-export .outline-expander::before { content: "+"; font-family: inherit; top: -1px; }
+.typora-export .outline-expander:hover::before, .typora-export .outline-item-open > .outline-item > .outline-expander::before { content: "−"; }
+.typora-export-collapse-outline .outline-children { display: none; }
+.typora-export-collapse-outline .outline-item-open > .outline-children, .typora-export-no-collapse-outline .outline-children { display: block; }
+.typora-export-no-collapse-outline .outline-expander::before { content: "" !important; }
+.typora-export-show-outline .outline-item-active > .outline-item .outline-label { font-weight: 700; }
+.md-inline-math-container mjx-container { zoom: 0.95; }
+mjx-container { break-inside: avoid; }
+.md-alert.md-alert-note { border-left-color: rgb(9, 105, 218); }
+.md-alert.md-alert-important { border-left-color: rgb(130, 80, 223); }
+.md-alert.md-alert-warning { border-left-color: rgb(154, 103, 0); }
+.md-alert.md-alert-tip { border-left-color: rgb(31, 136, 61); }
+.md-alert.md-alert-caution { border-left-color: rgb(207, 34, 46); }
+.md-alert { padding: 0px 1em; margin-bottom: 16px; color: inherit; border-left: 0.25em solid rgb(0, 0, 0); }
+.md-alert-text-note { color: rgb(9, 105, 218); }
+.md-alert-text-important { color: rgb(130, 80, 223); }
+.md-alert-text-warning { color: rgb(154, 103, 0); }
+.md-alert-text-tip { color: rgb(31, 136, 61); }
+.md-alert-text-caution { color: rgb(207, 34, 46); }
+.md-alert-text { font-size: 0.9rem; font-weight: 700; }
+.md-alert-text svg { fill: currentcolor; position: relative; top: 0.125em; margin-right: 1ch; overflow: visible; }
+.md-alert-text-container::after { content: attr(data-text); text-transform: capitalize; pointer-events: none; margin-right: 1ch; }
+
+
+/* region[col01]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------ |  Noble Architecture Email Theme  | --------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/* DATE CREATED  |  21/09/2024                                                                                       */
+/*                                                                                                                   */
+/* VERSION TRACKER                                                                                                   */
+/* 1.0.0 | 21/09/2024 | File Creation and organized                                                                  */
+/* 1.0.1 | 21/09/2024 | Updated Bold (Global Strong) to ensure no breaking for table headers                         */
+/* 1.0.2 | 21/09/2024 | Rewritten for consistent alignment and unit usage                                            */
+/* 1.2.1 | 22/09/2024 | Adjusted padding and margins to fix text overflow and front matter position                  */
+/* 1.3.1 | 28/09/2024 | Updated headings, added level 5 for above tables                                             */
+/* 2.0.0 | 14/10/2024 | Applied coding conventions, restructured code                                                */
+/* 2.1.0 | 17/11/2024 | Added Section 12 improving consistency with how the code previews render                     */
+/* 2.1.1 | 18/11/2024 | Table Height Marginally increased, rows are now 00.50mm Taller                               */
+/*                                                                                                                   */
+/*                                                                                                                   */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/* region[col01]---------------------------------------------------------------------------------------------------- */
+/* --------------------------- |  Section 01  –  Coding Conventions For This File  | ------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/*                                                                                                                   */
+/* ### Miscellaneous Coding Standards                                                                                */
+/* - Always Use Hex Codes For Colours                                                                                */
+/*                                                                                                                   */
+/* ### Document Specific Sizes & Units                                                                               */
+/* - When the values control properties for print media such as drawings and written documents, these standards      */
+/*   must be followed carefully to ensure consistent printing, presentation, and alignment with company documentation*/
+/* - Use 4-digit decimal default values for relevant units                                                           */
+/*   - Rationale: This keeps columns inline when values are changed                                                  */
+/*   - Example: 1mm would be written as "01.00mm"                                                                    */
+/*   - Result: Changing 1mm to 5.25mm keeps columns in line because the value changes from "01.00mm" to "05.25mm"    */
+/* - Always Use ##.##pt for document-related content text                                                            */
+/* - Always Use ##.##mm for layout elements related to document content                                              */
+/*                                                                                                                   */
+/* ### Section Headers                                                                                               */
+/* - Must be no longer than 119 chars                                                                                */
+/* - Must be sequentially numbered                                                                                   */
+/*   - Why?: This makes it easy to search, isolate, and transplant code block sections                               */
+/* - Center the heading text in the middle of the theoretical 119 character column                                   */
+/*   - Why?: This creates a central justification effect helping differentiate sections easily                       */
+/*                                                                                                                   */
+/* ### Section Colours                                                                                               */
+/* - Use "/* region[col0#]---"    <-- Declares the start and colour of the section block                             */
+/* - Use "/* endregion---"        <-- Declares the end of the section block and reverts to no colour                 */
+/*   - Why?: In VS Code, this assigns a colour to the block for easy identification                                  */
+/* - You can select from 10 colour variations using [col0#], e.g., [col02] or [col05]                                */
+/* - Colours do not need to match section heading title numbers; they are used purely for colour assignment          */
+/*                                                                                                                   */
+/* ### Comments                                                                                                      */
+/* - For configurable items, add a comment after the values like so                                                  */
+/*   - ( "VALUE"<Min_x8_Space>"/* <--- This: Is a comment */                                                 /*      */
+/* - Must be sequentially numbered                                                                                   */
+/*   - Why?: This makes it easy to search, isolate, and transplant code block sections                               */
+/*                                                                                                                   */
+/* ### Typical Code Line Structure                                                                                   */
+/* - Structure Example:                                                                                              */
+/*   ( "Property/class/def/etc": -> <Min_x4_Space> -> ":" -> "x4_Space" --> "Value:" --> <Min_x8_Space> --> "Comment"*/
+/* - Min space indicates minimum whitespace (space bar presses) between the longest line elements in the current     */
+/*   block cluster to ensure lines grouped together have a column effect.                                            */
+/*   - Keep consistent comment closing marker column alignment for sequences of rows of comments etc.                */
+/*                                                                                                                   */
+/* ### Class/Def/Function Etc Naming                                                                                 */
+/* "na_" : This mandatory prefix identifies Noble Architecture items                                                 */
+/* - Rationale: Makes it easy to identify entities that are custom and not standard libraries/framework items etc.   */
+/*                                                                                                                   */
+/* ### Naming Conventions                                                                                            */
+/* - Use BEM (Block Element Modifier) methodology for class names                                                    */
+/* - Structure: .block__element--modifier                                                                            */
+/* - Example: .na_doc_header_info_bold                                                                               */
+/*                                                                                                                   */
+/* ### Indentation and Formatting                                                                                    */
+/* - Use consistent indentation (e.g., 4 spaces) for nested elements                                                 */
+/* - Place each CSS property on a new line                                                                           */
+/*   - Enhances readability and simplifies version control diffs                                                     */
+/* - Order properties logically:                                                                                     */
+/*   1. Display and Positioning (e.g., display, flex-direction, align-items)                                         */
+/*   2. Box Model (e.g., margin, padding, border)                                                                    */
+/*   3. Color and Background (e.g., color, background-color)                                                         */
+/*   4. Typography (e.g., font-size, font-weight)                                                                    */
+/*   5. Miscellaneous (e.g., vertical-align)                                                                         */
+/*                                                                                                                   */
+/* ### Margins & Padding                                                                                             */
+/* - Always add all four parameters if margins or padding are required                                               */
+/* - Rationale: At a glance, it's easy to see all sides' values                                                      */
+/* - Example: Below example showing margins but also applied to padding                                              */
+/*   margin-top        :    01.00mm;        /* <--- This: Is A Comment Example  */                         /*        */
+/*   margin-bottom     :    01.00mm;        /* <--- This: Is A Comment Example  */                         /*        */
+/*   margin-left       :    02.00mm;        /* <--- This: Is A Comment Example  */                         /*        */
+/*   margin-right      :    02.00mm;        /* <--- This: Is A Comment Example  */                         /*        */
+/*                                                                                                                   */
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+
+/* region[col03]---------------------------------------------------------------------------------------------------- */
+/* --------------------------------- |  Section 03  –  Canvas & Page Settings  | ----------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+body {                                      /* <--- Background canvas */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    background-color    :    #fafafa;
+}
+
+#write {                                    /* <--- Paper space object */
+    margin-top          :    10.00mm;
+    margin-bottom       :    10.00mm;
+    margin-left         :    auto;
+    margin-right        :    auto;
+    padding-top         :    10.00mm;       /* <--- Padding: top       */
+    padding-bottom      :    20.00mm;       /* <--- Padding: bottom    */
+    padding-left        :    11.00mm;       /* <--- Padding: left      */
+    padding-right       :    11.00mm;       /* <--- Padding: right     */
+    width               :    100%;
+    max-width           :    210.00mm;      /* <--- Limit the width to A4 size */
+    background-color    :    #ffffff;
+    box-shadow          :    00.00mm 00.00mm 02.00mm rgba(0, 0, 0, 0.495);
+    box-sizing          :    border-box;
+    word-wrap           :    break-word;    /* <--- Ensure text breaks inside the container */
+    overflow-wrap       :    break-word;    /* <--- Compatibility for older browsers        */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col04]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------- |  Section 04  –  Standard Text Styles  | --------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+p {                                         /* <--- Paragraphs */
+    color               :    #3c3c3c;
+    margin-bottom       :    03.50mm;
+    margin-left         :    00.00mm;
+    margin-right        :    00.00mm;
+    line-height         :    1.40;
+    font-size           :    10.00pt;
+    word-wrap           :    break-word;
+    overflow-wrap       :    break-word;    /* <--- Legacy support */
+    word-break          :    break-word;    /* <--- Ensures long words break */
+}
+
+b, strong {                                 /* <--- Global style for bold text */
+    font-weight         :    500;
+    color               :    #555041;
+    font-family         :    "Open Sans", sans-serif;
+}
+
+i, em {                                     /* <--- Global style for italic text */
+    font-style          :    italic;
+    color               :    #646464;
+    font-size           :    08.00pt;
+    font-family         :    "Open Sans", sans-serif;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col05]---------------------------------------------------------------------------------------------------- */
+/* --------------------------------------- |  Section 05  –  Heading Styles  | ------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+    margin-right        :    00.00mm;
+    margin-left         :    00.00mm;
+}
+
+h1 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    20.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.00;
+    margin-bottom       :    03.00mm;
+}
+
+h2 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    16.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.40;
+    margin-bottom       :    02.00mm;
+}
+
+h3 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    12.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.40;
+    margin-bottom       :    02.00mm;
+}
+
+h4 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.00;
+    margin-top          :     07.00mm;
+    margin-bottom       :    -02.00mm;
+}
+
+/* SPECIAL HEADING – Heading Level 5 */
+/* This level is used where zero gap is required between header and next element */
+/* Example: Table Headings */
+
+h5 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    11.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.00;
+    margin-bottom       :    -02.00mm;
+}
+
+/* SPECIAL HEADING – Heading Level 6 */
+/* Used for subheadings or supporting strap-lines to create subtle subtext under main titles */
+
+h6 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    color               :    #787878;
+    font-weight         :    200;           /* <--- Light weight for H6 elements */
+    margin-bottom       :    -02.00mm;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col06]---------------------------------------------------------------------------------------------------- */
+/* -------------------------------- |  Section 06  –  Bullet List (Unordered) Styles  | ---------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+ul {                                        /* <--- Unordered Bullet Lists */
+    padding-left        :    03.00mm;
+    list-style-type     :    none;
+    counter-reset       :    square-counter;
+    line-height         :    1.40;
+}
+
+ul li {
+    padding-left        :    00.50mm;
+    position            :    relative;
+    line-height         :    1.40;
+}
+
+li::before {
+    content             :    counter(square-counter, square) "    ";
+    counter-increment   :    square-counter;
+    color               :    #7d7869;
+    font-size           :    06.00pt;
+    position            :    absolute;
+    left                :    -03.00mm;
+    top                 :    1.10em;
+    transform           :    translateY(-50%);
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col07]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------- |  Section 07  –  Numbered List (Ordered) Styles  | ----------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+ol {
+    list-style-type     :    none;
+    padding-left        :    07.00mm;
+    font-size           :    11.00pt;
+    line-height         :    1.50;
+    margin-bottom       :    05.00mm;
+    counter-reset       :    item;
+}
+
+ol li {
+    padding-left        :    05.00mm;
+    margin-bottom       :    02.00mm;
+    position            :    relative;
+}
+
+ol > li::before {
+    content             :    counter(item) ". ";
+    counter-increment   :    item;
+    position            :    absolute;
+    left                :    -07.00mm;
+    top                 :    00.00mm;
+}
+
+ol ol {
+    padding-left        :    07.00mm;
+    counter-reset       :    subitem;
+}
+
+ol ol > li::before {
+    content             :    counter(item) "." counter(subitem) " ";
+    counter-increment   :    subitem;
+    position            :    absolute;
+    left                :    -07.00mm;
+    top                 :    00.00mm;
+}
+
+ol ol ol {
+    padding-left        :    07.00mm;
+    counter-reset       :    subsubitem;
+}
+
+ol ol ol > li::before {
+    content             :    counter(item) "." counter(subitem) "." counter(subsubitem) " ";
+    counter-increment   :    subsubitem;
+    position            :    absolute;
+    left                :    -07.00mm;
+    top                 :    00.00mm;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col08]---------------------------------------------------------------------------------------------------- */
+/* ----------------------------------------- |  Section 08  –  Table Styles  | ------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+table {
+    width               :    100%;
+    border-collapse     :    collapse;
+    margin-top          :    00.00mm;
+    margin-bottom       :    02.00mm;
+}
+
+th, td {
+    padding-top         :    01.25mm;
+    padding-bottom      :    01.25mm;
+    padding-left        :    01.00mm;
+    padding-right       :    01.00mm;
+    font-size           :    09.00pt;
+    line-height         :    1.20;
+}
+
+th {
+    height              :    08.00mm;
+    background-color    :    #f5f5f5;
+    font-size           :    11.00pt;
+    text-align          :    left;
+    font-weight         :    500;
+    color               :    #555041;
+}
+
+td {
+    background-color    :    inherit;
+}
+
+tr:nth-child(even) {
+    background-color    :    #fafafa;
+}
+
+td:first-child, th:first-child {
+    white-space         :    normal;        /* <--- Ensure natural text wrapping */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col09]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------ |  Section 09  –  Special Elements Styles  | ------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+hr {
+    border-top          :    00.26mm solid #b4b4b4;
+    margin-top          :    07.50mm;
+    margin-bottom       :    07.50mm;
+    opacity             :    0.5;
+}
+
+mark {
+    padding             :    00.85mm;
+    margin-top          :    01.50mm;
+    background          :    url("https://s2.svgbox.net/pen-brushes.svg?ic=brush-9&color=hsl(54,100%,80%)") !important;
+    background-size     :    cover;
+    color               :    #0f1f55;
+    border-radius       :    00.50em;
+    line-height         :    1.25em;
+}
+
+a {
+    color               :    #3c3c3c;
+    text-decoration     :    none;
+    font-size           :    08.00pt;
+}
+
+a:visited {
+    color               :    #3c3c3c;
+}
+
+a:hover {
+    color               :    #6ea8c2;
+    text-decoration     :    underline;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col02]---------------------------------------------------------------------------------------------------- */
+/*-------------------------- |  Section 10  –  Custom Noble Arch Document Classes  | --------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+
+.na_doc_header_info {                         /* <--- Class: Standard Document Header Section For Noble Architecture Docs */
+    display           :    flex;
+    flex-direction    :    column;            /* <--- This: Stacks children div elements vertically        */
+    align-items       :    flex-start;        /* <--- This: Aligns the items to the start of the container */
+    font-size         :    12.00pt;
+    margin-top        :    10.00mm;
+    margin-bottom     :    05.00mm;
+}
+
+
+.na_doc_header_info_bold {
+    font-size         :    2.00pt;
+    font-weight       :       500;
+}
+
+
+.na_doc_header_info_pipe_divider {
+    margin-top        :    01.00mm;
+    margin-bottom     :    01.00mm;
+    margin-left       :    02.00mm;        /* <--- This: Adjusts spacing left of the pipe_divider   */
+    margin-right      :    02.00mm;        /* <--- This: Adjusts spacing right of the pipe_divider  */
+    font-size         :    10.00pt;
+    vertical-align    :    middle;         /* <--- Aligns the ns_pipe_divider vertically            */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+
+
+/* region[col03]---------------------------------------------------------------------------------------------------- */
+/*---------------------------- |  Section 11  –  Code Block Style Configuration  | ----------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.md-fences {                                 /* <--- CLASS STYLE                              */
+    background-color    :      #f4f4f4;        /* <--- This: Sets Code Block Background Colour  */
+    color               :      #202930;        /* <--- THis: Sets Code Block Text Colour        */
+    font-size           :        06.50pt;        /* <--- This: Sets Text Size                     */
+    border              :           none;        /* <--- This: Sets Code Block Style Rendered     */
+    font-family         :  "Courier New",                Courier, monospace;
+    padding-top         :        02.00mm;
+    padding-bottom      :        02.00mm;
+}
+
+.md-fences .code-tooltip {     
+    background-color    :      #465d70;        /* <--- This: Sets Code Block Language Name Background  Colour  */
+    color               :      #f4f4f4;        /* <--- This: Sets Code Block Language Name Text Colour         */
+    font-size           :        08.00pt;        /* <--- This: Sets Text Size                                    */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col02]---------------------------------------------------------------------------------------------------- */
+/* ---------------------------- |  Section 12  –  HTML Preview Element Styles  | ----------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.CodeMirror {                                    /* <--- Main preview editor container */
+    background-color    :    #f4f4f4;         /* <--- This: Matches code fence background */
+    color              :    #202930;          /* <--- This: Matches code fence text color */
+    font-size          :    06.50pt;            /* <--- This: Matches code fence font size */
+    font-family        :    "Courier New", 
+                            Courier, monospace;
+    line-height        :    1.15;               /* <--- This: Maintains consistent line spacing */
+    padding-top        :    02.00mm;            /* <--- This: Matches code fence padding */
+    padding-bottom     :    02.00mm;            /* <--- This: Matches code fence padding */
+    padding-left       :    02.00mm;            /* <--- This: Adds consistent left padding */
+    padding-right      :    02.00mm;            /* <--- This: Adds consistent right padding */
+}
+
+.CodeMirror-selected {                               /* <--- Selected text in preview */
+    background-color    :    #465d70 !important;   /* <--- This: Matches tooltip style */
+    color              :    #f4f4f4 !important;    /* <--- This: Ensures readability */
+}
+
+.CodeMirror-cursor {                                  /* <--- Cursor in preview */
+    border-left        :    01.00pt solid #202930;  /* <--- This: Makes cursor visible */
+    border-right       :    none;
+    width             :    00.00pt;
+}
+
+.cm-s-typora-default {                        /* <--- Default preview theme */
+    background-color   :    #f4f4f4;        /* <--- This: Maintains consistency */
+    color             :    #202930;         /* <--- This: Maintains consistency */
+}
+
+.cm-s-typora-default .cm-header {             /* <--- Headers in preview */
+    color             :    #202930;        /* <--- This: Maintains consistency */
+    font-size         :    06.50pt;          /* <--- This: Matches code fence size */
+}
+
+.cm-s-typora-default .cm-comment {            /* <--- Comments in preview */
+    color             :    #465d70;         /* <--- This: Matches tooltip color */
+    font-style        :    italic;
+}
+
+.cm-s-typora-default .cm-tag {               /* <--- HTML tags in preview */
+    color             :    #465d70;        /* <--- This: Matches tooltip color */
+}
+
+.cm-s-typora-default .cm-attribute {         /* <--- HTML attributes in preview */
+    color             :    #555041;        /* <--- This: Uses theme accent color */
+}
+
+.cm-s-typora-default .cm-string {            /* <--- Strings in preview */
+    color             :    #3c3c3c;        /* <--- This: Uses theme text color */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+
+
+/* region[col10]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------- |  Section 14  –  END OF STYLE SHEET  | ----------------------------------- */
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col02]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------- |  Section 02  –  Front Matter Style Settings  | -------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+pre.md-meta-block {
+    background-color    :    #fafafa;  /* Slight Grey Background */
+    border-left         :    2px solid #dddddd; /* Slight Border Colour Style */
+    padding             :    01.00mm;
+    margin-top          :    01.00mm;
+    max-width           :   135.00mm;
+    margin-left         :    00.00mm;
+    font-family         :    "Courier New", Courier, monospace;
+    font-size           :    06.50pt;
+    line-height         :       1.15;
+    color               :    rgb(70, 70, 70);          /* Change text colour */
+    border-radius       :        5px;
+    display             :      block;                  /* Changed to block for full width */
+}
+
+/* Focused state */
+pre.md-meta-block.md-focus {
+    background-color: #e6ecf8;  /* Darker background when focused */
+    border-left: 2px solid #5e74c6;
+    color: rgb(70, 70, 70);  
+    border-radius: 5px;
+    display: block; /* Changed to block for full width */
+}
+
+/* Optional: Remove box shadow if it's applied during focus */
+pre.md-meta-block:focus {
+    box-shadow: none;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+
+</style><title>JH03_T02_N30__Scheme-02__DesignUpdateNotes__1.0.0__</title>
+</head>
+<body class='typora-export os-windows monocolor-emoji'><div class='typora-export-content'>
+<div id='write'  class=''><h2 id='romer-cottage-updates'><span>Romer Cottage Updates  </span></h2><hr /><h3 id='context'><span>Context</span></h3><ul><li><p><span>Covering Letter to Ed Handley (Prior Case Officer) /  Whomever picks the case up.</span></p></li><li><p><span>Scheme previously rejected due to prominence of the ridge ridge line.</span></p></li></ul><p>&nbsp;</p><h3 id='critical-theme-to-convey'><span>Critical Theme To Convey</span></h3><ul><li><p><span>We carefully listened to Ed &amp; The Third Party Design Advisors comments, we have taken all on board.</span></p></li><li><p><span>At significant expense have completely redesigned the scheme.</span></p></li></ul><hr /><h3 id='critical-design-update-|--biodiverse-green-roof'><span>Critical Design Update |  Biodiverse Green Roof  </span></h3><ul><li><p><span>A key update to the proposal is the introduction of a biodiverse green roof system to the flat roof section of the extension. This living roof will be planted with endemic Staffordshire wildflowers, sedums, and grasses, carefully selected for resilience, minimal maintenance, and habitat creation.  </span></p></li><li><p><span>The system provides significant environmental benefits, particularly in relation to drainage. By retaining rainwater within the planted substrate, the roof dramatically reduces surface water run-off, helping to mitigate localised flooding issues and easing pressure on the existing drainage network.  </span></p></li><li><p><span>Beyond sustainability benefits, the green roof will function as a microhabitat, providing food sources and shelter for insects, pollinators, and small bird species. This ecological enhancement aligns closely with Policy N4 of the Local Plan, directly contributing to biodiversity gain within the site.  </span></p></li><li><p><span>The visual impact is also softened, with the natural planting blending into the wider landscape character, ensuring the extension sits harmoniously within its rural setting. The roof thus addresses multiple objectives - ecological enhancement, flood mitigation, sustainability, and visual integration - while adding long-term environmental value to the scheme.  </span></p></li></ul><hr /><h3 id='improvement-|--covered-veranda-changed-to-freestanding-pergola'><span>Improvement |  Covered Veranda Changed To Freestanding Pergola  </span></h3><ul><li><p><span>The pitched roof previously proposed for the Veranda on the the last has been removed to ensure the structure no longer presents as a dominant architectural element.  </span></p></li><li><p><span>Instead, the pergola is now designed as a lightweight substructure intended for climbing plants such as Wisteria and Honeysuckle. These species are native and pollinator-friendly, ensuring that the structure contributes to biodiversity enhancement across the site.  </span></p></li><li><p><span>By encouraging natural planting growth rather than a formal roof covering, the pergola will soften the external environment, provide shade in summer months, and support the wider ecological ambitions of the proposal.  </span></p></li></ul><hr /><h3 id='improvement-|--chimney-height-reduction'><span>Improvement |  Chimney Height Reduction  </span></h3><ul><li><p><span>The feature chimney has been substantially reduced in scale, lowering its height by approximately 800mm.  </span></p></li><li><p><span>This adjustment decreases the overall massing and visual prominence of the chimney, ensuring it no longer competes with the main cottage ridge line or dominates external views.  </span></p></li><li><p><span>The revised proportions retain the aesthetic presence of a traditional chimney but achieve a more balanced relationship with both the host building and the new extension.  </span></p></li></ul><hr /><h3 id='reinstatement-|--main-cottage-bedroom-window'><span>Reinstatement |  Main Cottage Bedroom Window</span></h3><ul><li><p><span>The large curtain wall window serving the first-floor bedroom of the larger cottage, where the applicant resides, has been reinstated into the proposal.</span></p></li><li><p><span>In the previous design, this opening was blocked up due to the pitched roof intersection, leaving the bedroom reliant solely on rooflights. The revised scheme with the significantly lowered flat roof now allows full retention of the window.</span></p></li><li><p><span>This ensures generous natural light floods the bedroom, maintaining the cottage’s character and delivering a clear improvement over the last scheme.</span></p></li><li><p><span>The glazed doors within the curtain wall will not provide access to the roof. A fixed Juliet glazing panel will be installed in front, preventing use of the roof as a balcony. The doors will serve solely as emergency egress.</span></p></li></ul><hr /><h3 id='driveway-facing-elevation-|--total-redesign'><span>Driveway Facing Elevation |  Total Redesign</span></h3><ul><li><p><span>Following the removal of the large connecting roof between the two cottages, now replaced with significantly lowered flat roofs, the window arrangement has been completely reconsidered.</span></p></li><li><p><span>The extensive glazing around the front entrance has been reduced to a pair of slim side lights, paired with a solid oak panel door to provide a stronger, more traditional entry focal point.</span></p></li><li><p><span>With the redesign of the roof, the former apex windows are no longer feasible. Their removal has also allowed the replacement of the previously proposed composite black cladding with instead oak cladding. This matches the oak batten detail on the rear elevation and creates a more consistent material palette.</span></p></li><li><p><span>The revised approach reduces the number of finishes and establishes a rustic, harmonious character that better complements the cottages and surrounding charming rural contextual setting, moving away from the more contemporary feel of the previous scheme.</span></p></li></ul><hr /><h3 id='reinstatement-|--existing-guest-cottage-window'><span>Reinstatement |  Existing Guest Cottage Window</span></h3><ul><li><p><span>The existing first-floor cottage window serving the staircase and landing within the smaller cottage has been reinstated into the current proposal.  </span></p></li><li><p><span>In the earlier design, the pitched slate roof intersected with this opening, necessitating its removal. The revision, incorporating the biodiverse flat roof system, provides sufficient clearance between the deck and roof line to fully retain the window.  </span></p></li><li><p><span>This change ensures that natural daylight continues to illuminate the circulation core of the cottage, maintaining its character and improving the internal environment without compromise to the extension form.  </span></p></li></ul><hr /><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><hr /><h3 id='gpt-prompts'><span>GPT Prompts </span></h3><p><span>New Finishes Added</span></p><p><span>RF30  =  Biodiverse Green Roof</span></p><p><span>RF40  =  Flat Root, EDPM or GRP</span></p><p>&nbsp;</p><p><span>Give me just the two MD columns as a block and they must be the same length and style as the rest of the document</span></p><p>&nbsp;</p></div></div>
+<style>
+/* Reset custom bullet styling for email clients */
+ul {
+    list-style-type: disc !important;
+    padding-left: 1.2em !important;
+    counter-reset: none !important;
+}
+
+ul li {
+    position: static !important;
+}
+
+li::before {
+    content: none !important;
+}
+</style></body>
+</html>
