@@ -226,15 +226,63 @@
         },
         "project-videos":{
             "video-01":{
-                "file-name"             :    "VID01__UnderPergola__StartScene.mp4",
+                "file-name"             :    "VID01__ViewFromPergola.mp4",
                 "added-to-register"     :    "03-Nov-2025",
                 "video-type"            :    "Project Video",
-                "video-name"            :    "Under Pergola - Start Scene",
+                "video-name"            :    "View From Pergola",
                 "video-duration"        :    "NIL",
                 "video-status"          :    "Active",
                 "video-notes"           :    "NIL",
                 "video-links":{
-                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID01__UnderPergola__StartScene.mp4"
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID01__ViewFromPergola.mp4"
+                }
+            },
+            "video-02":{
+                "file-name"             :    "VID02__InteriorToExteriorTransition.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "Interior To Exterior Transition",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID02__InteriorToExteriorTransition.mp4"
+                }
+            },
+            "video-03":{
+                "file-name"             :    "VID03__ViewFromSouthToNorth.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "View From South To North",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID03__ViewFromSouthToNorth.mp4"
+                }
+            },
+            "video-04":{
+                "file-name"             :    "VID04__SouthSidePath.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "South Side Path",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID04__SouthSidePath.mp4"
+                }
+            },
+            "video-05":{
+                "file-name"             :    "VID05__AerialView.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "Aerial View",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID05__AerialView.mp4"
                 }
             },
             "video-template":{
