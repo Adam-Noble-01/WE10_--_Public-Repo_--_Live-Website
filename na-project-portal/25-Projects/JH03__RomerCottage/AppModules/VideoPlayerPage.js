@@ -368,6 +368,16 @@
             STATE.isFullscreen ? 'none' : 'inline';
         document.querySelector('.na-exit-fullscreen-icon').style.display = 
             STATE.isFullscreen ? 'inline' : 'none';
+        
+        // Update video aspect ratio when entering/exiting fullscreen
+        updateVideoAspectRatio();
+        
+        // Add resize listener for fullscreen adjustments
+        if (STATE.isFullscreen) {
+            window.addEventListener('resize', updateVideoAspectRatio);
+        } else {
+            window.removeEventListener('resize', updateVideoAspectRatio);
+        }
     }
 
     // FUNCTION | Handle Progress Bar Click
@@ -401,6 +411,63 @@
         const durationDisplay = document.getElementById('na-video-duration');
         
         durationDisplay.textContent = formatTime(video.duration);
+        
+        // Also handle aspect ratio detection when metadata loads
+        handleVideoLoadedMetadata();
+    }
+
+    // FUNCTION | Handle Video Loaded Metadata - Aspect Ratio Detection
+    // -------------------------------------------------------------------------
+    function handleVideoLoadedMetadata() {
+        const video = STATE.videoElement;
+        const wrapper = document.getElementById('na-video-wrapper');
+        
+        if (video.videoWidth && video.videoHeight) {
+            // Calculate and store aspect ratio
+            const aspectRatio = video.videoWidth / video.videoHeight;
+            wrapper.setAttribute('data-aspect-ratio', aspectRatio);
+            
+            // Apply aspect ratio maintaining styles
+            updateVideoAspectRatio();
+            
+            console.log(`[VideoPlayer] Video dimensions: ${video.videoWidth}x${video.videoHeight}, AR: ${aspectRatio.toFixed(2)}`);
+        }
+    }
+
+    // FUNCTION | Update Video Aspect Ratio (for responsive sizing)
+    // -------------------------------------------------------------------------
+    function updateVideoAspectRatio() {
+        const wrapper = document.getElementById('na-video-wrapper');
+        const video = STATE.videoElement;
+        const aspectRatio = parseFloat(wrapper.getAttribute('data-aspect-ratio') || '1.778');
+        
+        if (!aspectRatio || aspectRatio <= 0) return;
+        
+        // In fullscreen, center the video while maintaining aspect ratio
+        if (STATE.isFullscreen) {
+            const screenAspectRatio = window.innerWidth / window.innerHeight;
+            
+            if (aspectRatio > screenAspectRatio) {
+                // Video is wider than screen - fit width
+                video.style.width = '100vw';
+                video.style.height = 'auto';
+            } else {
+                // Video is taller than screen - fit height
+                video.style.width = 'auto';
+                video.style.height = '100vh';
+            }
+            
+            // Center the video
+            wrapper.style.display = 'flex';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.justifyContent = 'center';
+        } else {
+            // Normal mode - maintain aspect ratio within container
+            video.style.width = '100%';
+            video.style.height = 'auto';
+            video.style.maxHeight = '80vh';  // Prevent video from being too tall
+            wrapper.style.display = 'block';
+        }
     }
 
     // FUNCTION | Format Time (seconds to MM:SS)
@@ -611,7 +678,11 @@
                 position: relative;
                 width: 90%;
                 max-width: 1400px;
+                max-height: 95vh;
                 z-index: 10001;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
             }
             
             /* Close Button */
@@ -644,6 +715,9 @@
                 background: #000;
                 border-radius: 8px;
                 overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             
             /* Video Element */
@@ -651,6 +725,9 @@
                 width: 100%;
                 height: auto;
                 display: block;
+                max-width: 100%;
+                max-height: 80vh;
+                object-fit: contain;
             }
             
             /* Video Overlay */
@@ -667,6 +744,7 @@
                 transition: opacity ${CONFIG.fadeTransitionTime}ms ease;
                 z-index: 10;
                 backdrop-filter: blur(5px);
+                box-sizing: border-box;
             }
             
             .na-video-play-overlay-btn {
@@ -726,6 +804,7 @@
                 padding: 20px 15px 15px;
                 transition: opacity 0.3s ease;
                 z-index: 20;
+                box-sizing: border-box;
             }
             
             .na-video-progress-bar {
@@ -805,21 +884,73 @@
             .na-video-wrapper:fullscreen {
                 width: 100vw;
                 height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #000;
+                border-radius: 0;
+            }
+            
+            .na-video-wrapper:fullscreen .na-video-element {
+                max-width: 100vw;
+                max-height: 100vh;
+                width: auto;
+                height: auto;
+                object-fit: contain;
             }
             
             .na-video-wrapper:-webkit-full-screen {
                 width: 100vw;
                 height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #000;
+                border-radius: 0;
+            }
+            
+            .na-video-wrapper:-webkit-full-screen .na-video-element {
+                max-width: 100vw;
+                max-height: 100vh;
+                width: auto;
+                height: auto;
+                object-fit: contain;
             }
             
             .na-video-wrapper:-moz-full-screen {
                 width: 100vw;
                 height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #000;
+                border-radius: 0;
+            }
+            
+            .na-video-wrapper:-moz-full-screen .na-video-element {
+                max-width: 100vw;
+                max-height: 100vh;
+                width: auto;
+                height: auto;
+                object-fit: contain;
             }
             
             .na-video-wrapper:-ms-fullscreen {
                 width: 100vw;
                 height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #000;
+                border-radius: 0;
+            }
+            
+            .na-video-wrapper:-ms-fullscreen .na-video-element {
+                max-width: 100vw;
+                max-height: 100vh;
+                width: auto;
+                height: auto;
+                object-fit: contain;
             }
         `;
         
