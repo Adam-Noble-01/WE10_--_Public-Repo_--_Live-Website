@@ -575,7 +575,19 @@ IMPORTANT NOTES
         - Modular video player with standard controls, overlay, and fullscreen support
         - Loads from AppModules/VideoPlayerPage.js
     ----------------------------------------------------------------------------------------------------- -->
-    <script src="./AppModules/VideoPlayerPage.js"></script>
+    <script src="./AppModules/VideoPlayerPage.js"
+        onerror="console.error('[VideoPlayer] Failed to load VideoPlayerPage.js - Check file path and upload status')"></script>
+    <script>
+        // Verify module loaded
+        setTimeout(function () {
+            if (!window.TrueVision3D || !window.TrueVision3D.VideoPlayerPage) {
+                console.warn('[VideoPlayer] VideoPlayerPage module not available. Video features will be disabled.');
+                console.log('[VideoPlayer] Check: 1) AppModules/VideoPlayerPage.js file exists, 2) File uploaded to server, 3) Check browser console for script errors');
+            } else {
+                console.log('[VideoPlayer] Module successfully loaded and available');
+            }
+        }, 100);
+    </script>
 
 
     <!-- Font Loading from Asset Library
@@ -1613,13 +1625,18 @@ IMPORTANT NOTES
 
                     console.log("[FetchVideos] project-documentation keys:", Object.keys(data["na-project-data-library"]["project-documentation"]));
 
-                    if (!data["na-project-data-library"]["project-documentation"]["project-videos"]) {
-                        console.warn("[FetchVideos] No videos section found in JSON. Available keys:",
-                            Object.keys(data["na-project-data-library"]["project-documentation"]));
+                    const projectDoc = data["na-project-data-library"]["project-documentation"];
+
+                    if (!projectDoc["project-videos"]) {
+                        console.warn("[FetchVideos] No 'project-videos' section found in JSON.");
+                        console.warn("[FetchVideos] This means the JSON file on the server needs to be updated.");
+                        console.warn("[FetchVideos] Available keys:", Object.keys(projectDoc));
+                        console.log("[FetchVideos] To fix: Upload the updated JH03_-_DATA_-_Document-Library.json file to the server");
                         return null;
                     }
 
-                    const videos = data["na-project-data-library"]["project-documentation"]["project-videos"];
+                    const videos = projectDoc["project-videos"];
+                    console.log("[FetchVideos] Found videos section:", videos);
                     return videos;
                 } catch (error) {
                     console.error("Error fetching videos JSON:", error.message);
@@ -1627,15 +1644,50 @@ IMPORTANT NOTES
                 }
             }
 
+            // FUNCTION | Preload Videos in Background
+            // -------------------------------------------------------------------------
+            function preloadVideos(videos) {
+                if (!videos) return;
+
+                console.log("[VideoPreload] Starting background preload of videos...");
+
+                // Iterate through videos and create hidden video elements to preload
+                for (const key in videos) {
+                    if (key.startsWith("video-") && videos[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
+                        const video = videos[key];
+                        const cdnUrl = video["video-links"]["cdn-url"];
+
+                        // Create hidden preload element
+                        const preloadVideo = document.createElement('video');
+                        preloadVideo.preload = 'auto';
+                        preloadVideo.src = cdnUrl;
+                        preloadVideo.style.display = 'none';
+                        preloadVideo.muted = true;
+
+                        // Add to body for preloading
+                        document.body.appendChild(preloadVideo);
+
+                        console.log(`[VideoPreload] Preloading: ${video["video-name"]} (${cdnUrl})`);
+
+                        // Load the video
+                        preloadVideo.load();
+                    }
+                }
+
+                console.log("[VideoPreload] All videos queued for preloading");
+            }
+
             // FUNCTION | Create Dynamic buttons for each video in the toolbar
             // -------------------------------------------------------------------------
             function createVideoButtons(videos) {
                 if (!videos) {
-                    console.log("[VideoButtons] No videos data provided");
+                    console.error("[VideoButtons] ❌ No videos data provided - this should not happen!");
                     return;
                 }
 
-                console.log("[VideoButtons] Creating buttons for videos:", videos);
+                console.log("[VideoButtons] Starting button creation...");
+                console.log("[VideoButtons] Videos object:", videos);
+                console.log("[VideoButtons] Videos object keys:", Object.keys(videos));
 
                 // Create header element for video section
                 const header = document.createElement("div");
@@ -1676,17 +1728,34 @@ IMPORTANT NOTES
 
                 // Convert videos object to array and sort by VID number
                 const videoArray = [];
+                console.log("[VideoButtons] Iterating through videos to filter...");
+
                 for (const key in videos) {
+                    console.log(`[VideoButtons] Checking key: ${key}`);
+                    console.log(`[VideoButtons] - Starts with 'video-': ${key.startsWith("video-")}`);
+                    console.log(`[VideoButtons] - File name: ${videos[key]["file-name"]}`);
+                    console.log(`[VideoButtons] - Is template: ${videos[key]["file-name"] === "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}"}`);
+
                     if (key.startsWith("video-") && videos[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
+                        console.log(`[VideoButtons] ✓ Adding video to array: ${key}`);
                         videoArray.push({
                             key: key,
                             data: videos[key],
                             vidNumber: extractVideoNumber(videos[key]["file-name"])
                         });
+                    } else {
+                        console.log(`[VideoButtons] ✗ Skipping: ${key}`);
                     }
                 }
 
+                console.log("[VideoButtons] Filtered video array length:", videoArray.length);
                 console.log("[VideoButtons] Filtered video array:", videoArray);
+
+                if (videoArray.length === 0) {
+                    console.error("[VideoButtons] ❌ No videos passed the filter! Check JSON structure.");
+                    console.error("[VideoButtons] Expected: Keys starting with 'video-' and file-name not being template placeholder");
+                    return;
+                }
 
                 // Sort by VID number (VID01, VID02, etc.)
                 videoArray.sort((a, b) => a.vidNumber - b.vidNumber);
@@ -1835,21 +1904,35 @@ IMPORTANT NOTES
                 }
 
                 // Initialize Video Player Module and load videos
+                console.log("[Init] Checking for VideoPlayerPage module...");
+                console.log("[Init] window.TrueVision3D exists:", !!window.TrueVision3D);
+                console.log("[Init] window.TrueVision3D.VideoPlayerPage exists:", !!(window.TrueVision3D && window.TrueVision3D.VideoPlayerPage));
+
                 if (window.TrueVision3D && window.TrueVision3D.VideoPlayerPage) {
-                    console.log("[Init] VideoPlayerPage module found, initializing...");
-                    window.TrueVision3D.VideoPlayerPage.initialize();
-                    const videos = await fetchVideos();
-                    console.log("[Init] Fetched videos:", videos);
-                    if (videos) {
-                        createVideoButtons(videos);
-                    } else {
-                        console.warn("[Init] No videos found in JSON");
+                    try {
+                        console.log("[Init] ✓ VideoPlayerPage module found - initializing...");
+                        window.TrueVision3D.VideoPlayerPage.initialize();
+
+                        const videos = await fetchVideos();
+                        if (videos) {
+                            console.log("[Init] ✓ Videos loaded successfully:", videos);
+                            console.log("[Init] Creating video buttons...");
+                            createVideoButtons(videos);
+
+                            // Preload videos in background after buttons created
+                            console.log("[Init] Starting background video preload...");
+                            setTimeout(() => preloadVideos(videos), 2000); // Wait 2s then preload
+                        } else {
+                            console.warn("[Init] ⚠ No videos found in JSON - Video buttons will not appear");
+                            console.info("[Init] → Action Required: Upload updated JH03_-_DATA_-_Document-Library.json to server");
+                        }
+                    } catch (error) {
+                        console.error("[Init] Error initializing video player:", error);
                     }
                 } else {
-                    console.warn("VideoPlayerPage module not available. Module status:", {
-                        TrueVision3D: !!window.TrueVision3D,
-                        VideoPlayerPage: !!(window.TrueVision3D && window.TrueVision3D.VideoPlayerPage)
-                    });
+                    console.warn("[Init] ⚠ VideoPlayerPage module not available - Video features disabled");
+                    console.info("[Init] → Action Required: Upload AppModules/VideoPlayerPage.js to server");
+                    console.info("[Init] → Expected path: https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/AppModules/VideoPlayerPage.js");
                 }
                 attachEventListeners();
                 handleInitialTutorialFlow();

@@ -66,9 +66,15 @@
                     </div>
 
                     <!-- Video Element -->
-                    <video id="na-video-element" class="na-video-element" preload="metadata">
+                    <video id="na-video-element" class="na-video-element" preload="auto" poster="">
                         Your browser does not support video playback.
                     </video>
+                    
+                    <!-- Buffering Indicator -->
+                    <div class="na-video-buffering" id="na-video-buffering" style="display: none;">
+                        <div class="na-video-spinner"></div>
+                        <p>Loading video...</p>
+                    </div>
 
                     <!-- Video Controls -->
                     <div class="na-video-controls" id="na-video-controls">
@@ -173,6 +179,10 @@
         video.addEventListener('ended', handleVideoEnded);
         video.addEventListener('timeupdate', updateProgress);
         video.addEventListener('loadedmetadata', updateDuration);
+        video.addEventListener('loadeddata', handleVideoLoaded);
+        video.addEventListener('waiting', handleVideoWaiting);
+        video.addEventListener('playing', handleVideoPlaying);
+        video.addEventListener('canplay', handleVideoCanPlay);
         
         // Mouse movement for controls auto-hide
         wrapper.addEventListener('mousemove', showControls);
@@ -236,6 +246,52 @@
         
         document.querySelector('.na-play-icon').style.display = 'inline';
         document.querySelector('.na-pause-icon').style.display = 'none';
+    }
+
+    // FUNCTION | Handle Video Loaded
+    // -------------------------------------------------------------------------
+    function handleVideoLoaded() {
+        console.log('[VideoPlayer] Video data loaded');
+        hideBuffering();
+    }
+
+    // FUNCTION | Handle Video Waiting (Buffering)
+    // -------------------------------------------------------------------------
+    function handleVideoWaiting() {
+        console.log('[VideoPlayer] Video buffering...');
+        showBuffering();
+    }
+
+    // FUNCTION | Handle Video Playing (After Buffer)
+    // -------------------------------------------------------------------------
+    function handleVideoPlaying() {
+        console.log('[VideoPlayer] Video playing smoothly');
+        hideBuffering();
+    }
+
+    // FUNCTION | Handle Video Can Play
+    // -------------------------------------------------------------------------
+    function handleVideoCanPlay() {
+        console.log('[VideoPlayer] Video ready to play');
+        hideBuffering();
+    }
+
+    // FUNCTION | Show Buffering Indicator
+    // -------------------------------------------------------------------------
+    function showBuffering() {
+        const buffering = document.getElementById('na-video-buffering');
+        if (buffering) {
+            buffering.style.display = 'flex';
+        }
+    }
+
+    // FUNCTION | Hide Buffering Indicator
+    // -------------------------------------------------------------------------
+    function hideBuffering() {
+        const buffering = document.getElementById('na-video-buffering');
+        if (buffering) {
+            buffering.style.display = 'none';
+        }
     }
 
     // FUNCTION | Skip Time Forward/Backward
@@ -427,8 +483,17 @@
         const title = document.getElementById('na-video-title');
         const description = document.getElementById('na-video-description');
         
+        console.log(`[VideoPlayer] Opening video: ${videoData.name}`);
+        console.log(`[VideoPlayer] CDN URL: ${videoData.cdnUrl}`);
+        
+        // Show buffering while loading
+        showBuffering();
+        
         // Set video source
         video.src = videoData.cdnUrl;
+        
+        // Preload video
+        video.load();
         
         // Set video info
         title.textContent = videoData.name || 'Video';
@@ -438,14 +503,22 @@
         container.classList.remove('na-video-player-hidden');
         container.classList.add('na-video-player-visible');
         
-        // Show overlay
-        STATE.overlayElement.style.opacity = CONFIG.overlayFadeOpacity;
-        STATE.overlayElement.style.pointerEvents = 'auto';
+        // Show overlay with first frame when metadata loads
+        video.addEventListener('loadedmetadata', function onMetadata() {
+            // Generate thumbnail from first frame
+            video.currentTime = 0.1; // Seek to 0.1s to get first frame
+            video.removeEventListener('loadedmetadata', onMetadata);
+        }, { once: true });
         
-        // Reset video
-        video.currentTime = 0;
+        // When seeked to first frame, show it
+        video.addEventListener('seeked', function onSeeked() {
+            STATE.overlayElement.style.opacity = CONFIG.overlayFadeOpacity;
+            STATE.overlayElement.style.pointerEvents = 'auto';
+            hideBuffering();
+            video.removeEventListener('seeked', onSeeked);
+        }, { once: true });
         
-        console.log(`[VideoPlayerPage] Opened video: ${videoData.name}`);
+        console.log(`[VideoPlayer] Opened video: ${videoData.name}`);
     }
 
     // FUNCTION | Close Video Player
@@ -593,6 +666,7 @@
                 justify-content: center;
                 transition: opacity ${CONFIG.fadeTransitionTime}ms ease;
                 z-index: 10;
+                backdrop-filter: blur(5px);
             }
             
             .na-video-play-overlay-btn {
@@ -600,10 +674,46 @@
                 border: none;
                 cursor: pointer;
                 transition: transform 0.2s ease;
+                filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
             }
             
             .na-video-play-overlay-btn:hover {
                 transform: scale(1.1);
+            }
+            
+            /* Buffering Indicator */
+            .na-video-buffering {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                z-index: 15;
+            }
+            
+            .na-video-buffering p {
+                color: white;
+                margin-top: 20px;
+                font-size: 16px;
+            }
+            
+            .na-video-spinner {
+                border: 4px solid rgba(255, 255, 255, 0.3);
+                border-top: 4px solid white;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
             }
             
             /* Video Controls */
