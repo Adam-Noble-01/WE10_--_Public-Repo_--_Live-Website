@@ -570,6 +570,13 @@ IMPORTANT NOTES
         })();
     </script>
 
+    <!-- Video Player Module
+        -----------------------------------------------------------------------------------------------------
+        - Modular video player with standard controls, overlay, and fullscreen support
+        - Loads from AppModules/VideoPlayerPage.js
+    ----------------------------------------------------------------------------------------------------- -->
+    <script src="./AppModules/VideoPlayerPage.js"></script>
+
 
     <!-- Font Loading from Asset Library
         -----------------------------------------------------------------------------------------------------
@@ -1572,6 +1579,145 @@ IMPORTANT NOTES
             }
 
 
+            // ========================================================================
+            // VIDEO MANAGEMENT FUNCTIONS
+            // ========================================================================
+
+            // FUNCTION | Extract VID number from filename for sorting
+            // -------------------------------------------------------------------------
+            function extractVideoNumber(fileName) {
+                const match = fileName.match(/VID(\d+)/i);
+                return match ? parseInt(match[1], 10) : 999; // Default to 999 if no VID found
+            }
+
+            // FUNCTION | Fetch videos data from JSON configuration file
+            // -------------------------------------------------------------------------
+            async function fetchVideos() {
+                const JSON_URL = "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_-_DATA_-_Document-Library.json";
+                try {
+                    const response = await fetch(JSON_URL);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    console.log("[FetchVideos] Full JSON data:", data);
+
+                    // Check for the existence of each nested level
+                    if (!data["na-project-data-library"]) {
+                        throw new Error("Missing 'na-project-data-library' in JSON");
+                    }
+
+                    if (!data["na-project-data-library"]["project-documentation"]) {
+                        throw new Error("Missing 'project-documentation' in JSON");
+                    }
+
+                    console.log("[FetchVideos] project-documentation keys:", Object.keys(data["na-project-data-library"]["project-documentation"]));
+
+                    if (!data["na-project-data-library"]["project-documentation"]["project-videos"]) {
+                        console.warn("[FetchVideos] No videos section found in JSON. Available keys:",
+                            Object.keys(data["na-project-data-library"]["project-documentation"]));
+                        return null;
+                    }
+
+                    const videos = data["na-project-data-library"]["project-documentation"]["project-videos"];
+                    return videos;
+                } catch (error) {
+                    console.error("Error fetching videos JSON:", error.message);
+                    return null;
+                }
+            }
+
+            // FUNCTION | Create Dynamic buttons for each video in the toolbar
+            // -------------------------------------------------------------------------
+            function createVideoButtons(videos) {
+                if (!videos) {
+                    console.log("[VideoButtons] No videos data provided");
+                    return;
+                }
+
+                console.log("[VideoButtons] Creating buttons for videos:", videos);
+
+                // Create header element for video section
+                const header = document.createElement("div");
+                header.className = "menu_-_drawing-button-header-text";
+                header.textContent = "Select Video";
+                header.style.marginTop = "20px";
+
+                // Create a separate container for the video buttons
+                const videoButtonContainer = document.createElement("div");
+                videoButtonContainer.className = "video-button-container";
+
+                // Get the toolbar element
+                const toolbar = document.getElementById("toolbar");
+
+                // Find the drawing button container to insert after
+                const drawingButtonContainer = document.querySelector(".drawing-button-container");
+
+                if (drawingButtonContainer) {
+                    // Insert after the drawing buttons spacer
+                    const spacer = drawingButtonContainer.nextElementSibling;
+                    if (spacer) {
+                        spacer.after(header);
+                        header.after(videoButtonContainer);
+                    } else {
+                        drawingButtonContainer.after(header);
+                        header.after(videoButtonContainer);
+                    }
+                } else {
+                    // Fallback: insert at beginning if no drawing container found
+                    if (toolbar.firstChild) {
+                        toolbar.insertBefore(videoButtonContainer, toolbar.firstChild);
+                        toolbar.insertBefore(header, videoButtonContainer);
+                    } else {
+                        toolbar.appendChild(header);
+                        toolbar.appendChild(videoButtonContainer);
+                    }
+                }
+
+                // Convert videos object to array and sort by VID number
+                const videoArray = [];
+                for (const key in videos) {
+                    if (key.startsWith("video-") && videos[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
+                        videoArray.push({
+                            key: key,
+                            data: videos[key],
+                            vidNumber: extractVideoNumber(videos[key]["file-name"])
+                        });
+                    }
+                }
+
+                console.log("[VideoButtons] Filtered video array:", videoArray);
+
+                // Sort by VID number (VID01, VID02, etc.)
+                videoArray.sort((a, b) => a.vidNumber - b.vidNumber);
+
+                // Create buttons in sorted order
+                videoArray.forEach((videoItem) => {
+                    const video = videoItem.data;
+                    const button = document.createElement("button");
+                    button.className = "tool-button";
+                    button.textContent = video["video-name"];
+                    button.addEventListener("click", () => {
+                        if (window.TrueVision3D && window.TrueVision3D.VideoPlayerPage) {
+                            window.TrueVision3D.VideoPlayerPage.openVideoPlayer({
+                                cdnUrl: video["video-links"]["cdn-url"],
+                                name: video["video-name"],
+                                type: video["video-type"]
+                            });
+                        } else {
+                            console.error("VideoPlayerPage module not loaded");
+                        }
+                    });
+                    videoButtonContainer.appendChild(button);
+                    console.log("[VideoButtons] Created button for:", video["video-name"]);
+                });
+
+                // Add a spacer after the video buttons
+                const spacer = document.createElement("div");
+                spacer.style.marginBottom = "20px";
+                videoButtonContainer.after(spacer);
+            }
+
 
             // Load a specific drawing's image and update download link //
             async function loadDrawing(drawing) {
@@ -1686,6 +1832,24 @@ IMPORTANT NOTES
                     if (firstDrawingKey) {
                         await loadDrawing(drawings[firstDrawingKey]);
                     }
+                }
+
+                // Initialize Video Player Module and load videos
+                if (window.TrueVision3D && window.TrueVision3D.VideoPlayerPage) {
+                    console.log("[Init] VideoPlayerPage module found, initializing...");
+                    window.TrueVision3D.VideoPlayerPage.initialize();
+                    const videos = await fetchVideos();
+                    console.log("[Init] Fetched videos:", videos);
+                    if (videos) {
+                        createVideoButtons(videos);
+                    } else {
+                        console.warn("[Init] No videos found in JSON");
+                    }
+                } else {
+                    console.warn("VideoPlayerPage module not available. Module status:", {
+                        TrueVision3D: !!window.TrueVision3D,
+                        VideoPlayerPage: !!(window.TrueVision3D && window.TrueVision3D.VideoPlayerPage)
+                    });
                 }
                 attachEventListeners();
                 handleInitialTutorialFlow();

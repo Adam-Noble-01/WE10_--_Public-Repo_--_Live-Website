@@ -223,6 +223,32 @@
                     "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf"
                 }
             }
+        },
+        "project-videos":{
+            "video-01":{
+                "file-name"             :    "VID01__UnderPergola__StartScene.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "Under Pergola - Start Scene",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID01__UnderPergola__StartScene.mp4"
+                }
+            },
+            "video-template":{
+                "file-name"             :    "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}",
+                "added-to-register"     :    "{{ENTER_DATE}}",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "Video Description",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.example.com/videos/{{PROJECT_CODE}}/{{VIDEO_FILE_NAME}}.mp4"
+                }
+            }
         }
     }
 }
