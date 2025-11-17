@@ -697,33 +697,31 @@ IMPORTANT NOTES
             width: 100%;
             margin-bottom: 8px;
             padding: 10px;
-            background: #555041;
+            background: #888888;
             color: #fff;
             text-align: center;
             border: none;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             border-radius: 3px;
             transition: all 0.2s ease;
             /* Changed from 'opacity' to 'all' to cover both color and opacity */
         }
 
         .tool-button:hover {
-            opacity: 0.8;
-            background-color: #555041;
-            /* Ensure hover doesn't change the background */
+            background-color: #585858;
+            /* Darker grey on hover */
         }
 
         /* Ensure all tool buttons, including markup tools, use the same styling */
         #markup-toolset .tool-button {
-            background: #555041;
+            background: #888888;
             color: #fff;
         }
 
         #markup-toolset .tool-button:hover {
-            opacity: 0.8;
-            background-color: #555041;
-            /* Ensure hover doesn't change the background */
+            background-color: #585858;
+            /* Darker grey on hover */
         }
 
         .menu_-_drawing-button-container {
@@ -731,11 +729,19 @@ IMPORTANT NOTES
             margin-bottom: 10px;
         }
 
+        .video-button-container {
+            margin-bottom: 10px;
+        }
+
+        .video-button-container .tool-button:last-child {
+            margin-bottom: 0;
+        }
+
         .menu_-_drawing-button-header-text {
             font-family: 'Open Sans', sans-serif;
             font-size: 12pt;
             color: #555041;
-            padding-top: 20px;
+            padding-top: 10px;
             padding-bottom: 10px;
         }
 
@@ -941,13 +947,19 @@ IMPORTANT NOTES
             width: 100%;
             margin-bottom: 8px;
             padding: 10px;
-            background: #555041;
+            background: #888888;
             color: #fff;
             text-align: center;
             border: none;
             cursor: pointer;
             font-size: 14px;
             border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+
+        #toggleMarkupToolsetBtn:hover {
+            background-color: #585858;
+            /* Darker grey on hover */
         }
 
         /* Markup Tools Container */
@@ -1061,12 +1073,18 @@ IMPORTANT NOTES
 
         .markup-dialog-button {
             padding: 8px 15px;
-            background: #555041;
+            background: #888888;
             color: white;
             border: none;
             cursor: pointer;
-            font-size: 110%;
+            font-size: 12px;
             /* Slightly larger button text */
+            transition: all 0.2s ease;
+        }
+
+        .markup-dialog-button:hover {
+            background-color: #585858;
+            /* Darker grey on hover */
         }
 
         /* End of Markup Toolset Module CSS */
@@ -1119,7 +1137,7 @@ IMPORTANT NOTES
             <div id="header">
                 <button id="toggleToolbarBtn">☰</button>
                 <span id="app-title" style="padding-left: 10px;">PlanVision
-                    <span style="font-size: 12px; color: #656565;">- Testing Version 1.8.7 Beta</span>
+                    <span style="font-size: 12px; color: #656565;">- Testing Version 1.8.8 Beta</span>
                 </span>
                 <img src="https://raw.githubusercontent.com/Adam-Noble-01/RE10_I_GitHub_I_Public_Repo/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_01_-_FILES_-_Noble-Architecture_-_Core-Brand-Image-Assets/RE20_22_01_01_-_PNG_-_NA_Company_Logo.png"
                     alt="Noble Architecture Logo">
@@ -1146,6 +1164,7 @@ IMPORTANT NOTES
                 <button class="tool-button" id="areaMeasureBtn">Area Measurement</button>
                 <button class="tool-button" id="clearMeasurementsBtn">Clear Measurements</button>
                 <button class="tool-button" id="cancelToolBtn">Cancel Tool</button>
+                <!-- Video selection section will be inserted here dynamically -->
 
                 <div class="menu_-_drawing-button-header-text">Drawing Markup Tools</div>
                 <button class="tool-button" id="toggleMarkupToolsetBtn">Activate Markup Tools</button>
@@ -1693,7 +1712,7 @@ IMPORTANT NOTES
                 const header = document.createElement("div");
                 header.className = "menu_-_drawing-button-header-text";
                 header.textContent = "Select Video";
-                header.style.marginTop = "20px";
+                header.style.marginTop = "10px";
 
                 // Create a separate container for the video buttons
                 const videoButtonContainer = document.createElement("div");
@@ -1702,27 +1721,28 @@ IMPORTANT NOTES
                 // Get the toolbar element
                 const toolbar = document.getElementById("toolbar");
 
-                // Find the drawing button container to insert after
-                const drawingButtonContainer = document.querySelector(".drawing-button-container");
+                // Find the cancelToolBtn to insert after (Measuring Tools section)
+                const cancelToolBtn = document.getElementById("cancelToolBtn");
 
-                if (drawingButtonContainer) {
-                    // Insert after the drawing buttons spacer
-                    const spacer = drawingButtonContainer.nextElementSibling;
-                    if (spacer) {
-                        spacer.after(header);
-                        header.after(videoButtonContainer);
-                    } else {
+                if (cancelToolBtn) {
+                    // Insert after the Cancel Tool button (end of Measuring Tools section)
+                    cancelToolBtn.after(header);
+                    header.after(videoButtonContainer);
+                } else {
+                    // Fallback: find drawing button container
+                    const drawingButtonContainer = document.querySelector(".drawing-button-container");
+                    if (drawingButtonContainer) {
                         drawingButtonContainer.after(header);
                         header.after(videoButtonContainer);
-                    }
-                } else {
-                    // Fallback: insert at beginning if no drawing container found
-                    if (toolbar.firstChild) {
-                        toolbar.insertBefore(videoButtonContainer, toolbar.firstChild);
-                        toolbar.insertBefore(header, videoButtonContainer);
                     } else {
-                        toolbar.appendChild(header);
-                        toolbar.appendChild(videoButtonContainer);
+                        // Fallback: insert at beginning if no drawing container found
+                        if (toolbar.firstChild) {
+                            toolbar.insertBefore(videoButtonContainer, toolbar.firstChild);
+                            toolbar.insertBefore(header, videoButtonContainer);
+                        } else {
+                            toolbar.appendChild(header);
+                            toolbar.appendChild(videoButtonContainer);
+                        }
                     }
                 }
 
