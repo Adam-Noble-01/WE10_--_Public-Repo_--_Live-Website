@@ -246,6 +246,24 @@ import {
     const layerContainer = document.createElement('div');
     layerContainer.classList.add('UCALC__layer', 'UCALC__material-layer');
     
+    // Make the layer draggable
+    layerContainer.draggable = true;
+    
+    // Add drag event listeners
+    layerContainer.addEventListener('dragstart', handleDragStart);
+    layerContainer.addEventListener('dragend', handleDragEnd);
+    layerContainer.addEventListener('dragover', handleDragOver);
+    layerContainer.addEventListener('drop', handleDrop);
+    layerContainer.addEventListener('dragenter', handleDragEnter);
+    layerContainer.addEventListener('dragleave', handleDragLeave);
+    
+    // Create drag handle
+    const dragHandle = document.createElement('div');
+    dragHandle.classList.add('UCALC__drag-handle');
+    dragHandle.innerHTML = '⋮⋮'; // Vertical ellipsis symbol
+    dragHandle.title = 'Drag to reorder';
+    layerContainer.appendChild(dragHandle);
+    
     // Create the form fields container
     const formFieldsContainer = document.createElement('div');
     formFieldsContainer.classList.add('UCALC__form-fields-container');
@@ -1008,4 +1026,136 @@ import {
   function handleFormSubmit(event) {
     event.preventDefault();
     calculateResults();
+  }
+  
+  // =========================================================
+  // DRAG AND DROP FUNCTIONALITY
+  // =========================================================
+  
+  // Global variable to track the element being dragged
+  let draggedElement = null;
+  
+  // FUNCTION | Handle drag start event
+  // ------------------------------------------------------------
+  function handleDragStart(event) {
+    draggedElement = event.currentTarget;
+    draggedElement.classList.add('UCALC__dragging');
+    
+    // Set the drag data
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/html', draggedElement.innerHTML);
+    
+    console.log('Drag started');
+  }
+  
+  // FUNCTION | Handle drag end event
+  // ------------------------------------------------------------
+  function handleDragEnd(event) {
+    if (draggedElement) {
+      draggedElement.classList.remove('UCALC__dragging');
+    }
+    
+    // Remove all drag-over and drag-target classes
+    document.querySelectorAll('.UCALC__drag-over').forEach(el => {
+      el.classList.remove('UCALC__drag-over');
+    });
+    document.querySelectorAll('.UCALC__drag-target').forEach(el => {
+      el.classList.remove('UCALC__drag-target');
+    });
+    
+    draggedElement = null;
+    console.log('Drag ended');
+  }
+  
+  // FUNCTION | Handle drag over event
+  // ------------------------------------------------------------
+  function handleDragOver(event) {
+    if (event.preventDefault) {
+      event.preventDefault(); // Allows us to drop
+    }
+    
+    event.dataTransfer.dropEffect = 'move';
+    
+    return false;
+  }
+  
+  // FUNCTION | Handle drag enter event
+  // ------------------------------------------------------------
+  function handleDragEnter(event) {
+    const targetElement = event.currentTarget;
+    
+    // Only apply styles if this is a material layer and not the dragged element
+    if (targetElement.classList.contains('UCALC__material-layer') && 
+        targetElement !== draggedElement) {
+      targetElement.classList.add('UCALC__drag-over', 'UCALC__drag-target');
+    }
+  }
+  
+  // FUNCTION | Handle drag leave event
+  // ------------------------------------------------------------
+  function handleDragLeave(event) {
+    const targetElement = event.currentTarget;
+    
+    // Only remove classes if we're actually leaving the element
+    if (event.target === targetElement) {
+      targetElement.classList.remove('UCALC__drag-over', 'UCALC__drag-target');
+    }
+  }
+  
+  // FUNCTION | Handle drop event
+  // ------------------------------------------------------------
+  function handleDrop(event) {
+    if (event.stopPropagation) {
+      event.stopPropagation(); // Stops some browsers from redirecting
+    }
+    
+    const targetElement = event.currentTarget;
+    
+    // Don't do anything if dropping on itself or if not a material layer
+    if (draggedElement === targetElement || 
+        !targetElement.classList.contains('UCALC__material-layer')) {
+      return false;
+    }
+    
+    // Perform the reordering
+    reorderLayers(draggedElement, targetElement);
+    
+    // Remove visual feedback
+    targetElement.classList.remove('UCALC__drag-over', 'UCALC__drag-target');
+    
+    console.log('Drop completed');
+    
+    return false;
+  }
+  
+  // FUNCTION | Reorder layers in the DOM
+  // ------------------------------------------------------------
+  function reorderLayers(draggedLayer, targetLayer) {
+    const layersContainer = document.getElementById(UI_CONFIG.ELEMENT_IDS.MATERIAL_LAYERS);
+    
+    if (!layersContainer || !draggedLayer || !targetLayer) {
+      console.error('Cannot reorder: missing elements');
+      return;
+    }
+    
+    // Get all material layers
+    const allLayers = Array.from(layersContainer.querySelectorAll('.UCALC__material-layer'));
+    const draggedIndex = allLayers.indexOf(draggedLayer);
+    const targetIndex = allLayers.indexOf(targetLayer);
+    
+    console.log(`Reordering: moving layer from index ${draggedIndex} to ${targetIndex}`);
+    
+    // Determine if we're moving up or down
+    if (draggedIndex < targetIndex) {
+      // Moving down: insert after target
+      targetLayer.parentNode.insertBefore(draggedLayer, targetLayer.nextSibling);
+    } else {
+      // Moving up: insert before target
+      targetLayer.parentNode.insertBefore(draggedLayer, targetLayer);
+    }
+    
+    // Recalculate results with new order
+    calculateResults();
+    
+    console.log('Layers reordered successfully');
   }

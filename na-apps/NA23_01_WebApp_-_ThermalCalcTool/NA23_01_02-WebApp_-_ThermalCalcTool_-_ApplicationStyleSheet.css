@@ -166,8 +166,8 @@ h1, h2, h3, h4, h5, h6,
     border-left         :    4px solid #2ecc71;
     display             :    flex;
     flex-wrap           :    wrap;
-    gap                 :    1.5rem !important;
-    align-items         :    flex-start;
+    gap                 :    1rem !important;
+    align-items         :    center;
     padding             :    1.5rem !important;
     position            :    relative;
     min-height          :    62px;
@@ -225,12 +225,14 @@ h1, h2, h3, h4, h5, h6,
 /* Fixed delete button container */
 .UCALC__delete-button-container {
     width               :    40px;
+    height              :    40px;
     display             :    flex;
     align-items         :    center;
     justify-content     :    center;
     position            :    absolute;
-    right               :    10px;
-    top                 :    2rem;
+    right               :    1rem;
+    top                 :    50%;
+    transform           :    translateY(-50%);
 }
 
 /* Fixed positioning for delete button */
@@ -419,6 +421,82 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ==============================================================================================
+   CSS | DRAG AND DROP STYLES
+   - Styles for drag-and-drop functionality
+   ============================================================================================== */
+
+/* Drag handle icon */
+.UCALC__drag-handle {
+    width               :    5px;
+    height              :    100%;
+    flex                :    0 0 0px;
+    display             :    flex;
+    align-items         :    center;
+    justify-content     :    center;
+    cursor              :    grab;
+    color               :    #999;
+    font-size           :    1.5rem;
+    user-select         :    none;
+    margin-right        :    1rem;
+    transition          :    color 0.2s ease;
+}
+
+.UCALC__drag-handle:hover {
+    color               :    #666;
+}
+
+.UCALC__drag-handle:active {
+    cursor              :    grabbing;
+}
+
+/* Make material layers draggable */
+.UCALC__material-layer[draggable="true"] {
+    cursor              :    grab;
+    transition          :    opacity 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.UCALC__material-layer[draggable="true"]:active {
+    cursor              :    grabbing;
+}
+
+/* Dragging state - semi-transparent */
+.UCALC__material-layer.UCALC__dragging {
+    opacity             :    0.4;
+    cursor              :    grabbing;
+    transform           :    scale(0.98);
+    box-shadow          :    0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Drop zone indicator - when hovering over valid drop target */
+.UCALC__material-layer.UCALC__drag-over {
+    border-top          :    3px solid #3498db;
+    padding-top         :    calc(1.5rem - 3px) !important;
+    background-color    :    #f0f7ff;
+    transition          :    all 0.2s ease;
+}
+
+/* Highlight the card being dragged over */
+.UCALC__material-layer.UCALC__drag-target {
+    background-color    :    #e6f7ff;
+    box-shadow          :    0 2px 6px rgba(52, 152, 219, 0.3);
+}
+
+/* Smooth transitions for reordering */
+.UCALC__layers-container {
+    transition          :    all 0.2s ease;
+}
+
+/* Prevent fixed layers from being draggable */
+.UCALC__fixed-layer {
+    cursor              :    default !important;
+}
+
+/* Adjust form fields container to account for drag handle */
+.UCALC__material-layer .UCALC__form-fields-container {
+    width               :    calc(100% - 90px) !important;
+}
+
+/* ==============================================================================================
    CSS | RESPONSIVE STYLES
    - Mobile-specific styles for the application
    ============================================================================================== */
@@ -428,6 +506,21 @@ h1, h2, h3, h4, h5, h6,
         flex-direction      :    column;
         width               :    calc(100% - 50px);
         gap                 :    1rem !important;
+    }
+    
+    .UCALC__material-layer .UCALC__form-fields-container {
+        width               :    calc(100% - 75px) !important;
+    }
+    
+    .UCALC__drag-handle {
+        font-size           :    1.2rem;
+        width               :    25px;
+        flex                :    0 0 25px;
+    }
+    
+    .UCALC__delete-button-container {
+        top                 :    1rem;
+        transform           :    none;
     }
     
     .UCALC__delete-button-container {

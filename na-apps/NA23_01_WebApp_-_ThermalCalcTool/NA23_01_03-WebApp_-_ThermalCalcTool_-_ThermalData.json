@@ -358,6 +358,45 @@
                 "warnings"  :  "Check fire and application suitability.",
                 "source"    :  "Celotex XPS 300 SL FN Datasheet"
             }
+        },
+        "Recticel-Eurowall-Plus-Full-Fill": {
+            "is_product"    :  true,
+            "75mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  3.40,
+                "cavity_fit":  "85mm",
+                "notes"     :  "Special order item. Designed for slim 85mm cavities.",
+                "info"      :  "Tongue & Groove edge. Leaves 10mm residual cavity.",
+                "warnings"  :  "Rarely stocked. Long lead time likely.",
+                "source"    :  "Recticel Eurowall+ Technical Datasheet"
+            },
+            "90mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  4.05,
+                "cavity_fit":  "100mm",
+                "notes"     :  "Standard stock item. Designed for 100mm cavities.",
+                "info"      :  "Tongue & Groove edge. Leaves 10mm residual cavity.",
+                "warnings"  :  "Ensure bricklayers keep the 10mm gap clean.",
+                "source"    :  "Recticel Eurowall+ Technical Datasheet"
+            },
+            "115mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  5.20,
+                "cavity_fit":  "125mm",
+                "notes"     :  "Standard stock item. Designed for 125mm cavities.",
+                "info"      :  "Tongue & Groove edge. Leaves 10mm residual cavity.",
+                "warnings"  :  "Requires 125mm wide cavity lintels.",
+                "source"    :  "Recticel Eurowall+ Technical Datasheet"
+            },
+            "140mm-Thickness": {
+                "lambda"    :  0.022,
+                "r_value"   :  6.35,
+                "cavity_fit":  "150mm",
+                "notes"     :  "HERO PRODUCT. Designed for 150mm cavities.",
+                "info"      :  "Tongue & Groove edge. Achieves 0.14 U-value in standard walls.",
+                "warnings"  :  "Must use 275mm or 300mm wall ties.",
+                "source"    :  "Recticel Eurowall+ Technical Datasheet"
+            }
         }
     },
     "Phenolic-Insulation": {
