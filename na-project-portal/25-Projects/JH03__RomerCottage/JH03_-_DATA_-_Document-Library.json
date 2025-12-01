@@ -102,6 +102,52 @@
                 }
             },
             "drawing-04"               :    {
+                "file-name"            :    "JH03_T02_D31__TechnicalPlan__Rev-A__.pdf",
+                "added-to-register"    :    "01-Dec-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Technical Plan",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions":{
+                    "revision-a"       :   "01-Dec-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T02_D31__TechnicalPlan__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T02_D31__TechnicalPlan__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T02_D31__TechnicalPlan__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T02_D31__TechnicalPlan__Rev-A__.pdf"
+                }
+            },
+            "drawing-05"               :    {
+                "file-name"            :    "JH03_T02_D30__FoundationsPlan__Rev-A__.pdf",
+                "added-to-register"    :    "01-Dec-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Foundations Plan",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "document-revisions":{
+                    "revision-a"       :   "01-Dec-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T02_D30__FoundationsPlan__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T02_D30__FoundationsPlan__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T02_D30__FoundationsPlan__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T02_D30__FoundationsPlan__Rev-A__.pdf"
+                }
+            },
+            "drawing-06"               :    {
                 "file-name"            :    "JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevA__.pdf",
                 "added-to-register"    :    "17-Nov-2025",
                 "document-type"        :    "Drawing",
@@ -124,7 +170,7 @@
                     "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevA__.pdf"
                 }
             },
-            "drawing-05"               :    {
+            "drawing-07"               :    {
                 "file-name"            :    "JH03_T01_D31_-_FrontDesignRefinements__Rev-A.pdf",
                 "added-to-register"    :    "20-Aug-2025",
                 "document-type"        :    "Drawing",
@@ -147,7 +193,7 @@
                     "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T01_D31_-_FrontDesignRefinements__Rev-A.pdf"
                 }
             },
-            "drawing-06":{
+            "drawing-08":{
                 "file-name"             :    "JH03_T01_D30_-_FrontageDesignOptions__Rev-A.pdf",
                 "added-to-register"     :    "22-Mar-2025",
                 "document-type"         :    "Drawing",
@@ -166,7 +212,7 @@
                     "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T01_D30_-_FrontageDesignOptions__Rev-A.pdf"
                 }
             },
-            "drawing-07":{
+            "drawing-09":{
                 "file-name"             :    "JH03_T02_N30__PlanningCoveringLetter.pdf",
                 "added-to-register"     :    "20-Aug-2025",
                 "document-type"         :    "Document",
