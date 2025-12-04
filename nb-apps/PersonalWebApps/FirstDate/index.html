@@ -212,8 +212,8 @@
             transition: all 0.3s ease-in-out;
             border: 1px solid #E2E8F0;
             /* Subtle border */
-            margin-top: clamp(3vh, calc(100vh * 0.12), 15vh);
-            /* Min-max: scales with viewport height (12%), pushes up on small screens, maintains 15vh on larger screens */
+            margin-top: clamp(4vh, calc(100vh * 0.10), 15vh);
+            /* Percentage-based: scales with viewport height (10% of height), min 4vh, max 15vh */
         }
 
         /* Increase padding on larger screens */
@@ -221,8 +221,8 @@
             .content-card {
                 padding: 2.5rem;
                 max-height: calc(100vh - 14rem);
-                margin-top: 15vh;
-                /* Restore original margin for larger screens */
+                margin-top: clamp(8vh, calc(100vh * 0.12), 18vh);
+                /* Percentage-based: scales with viewport height (12% of height), min 8vh, max 18vh */
             }
         }
 
