@@ -78,7 +78,6 @@
             align-items: center;
             flex-direction: column;
             padding: 1rem;
-            padding-top: 20vh;
             padding-bottom: 6rem;
             text-align: center;
             position: relative;
@@ -88,7 +87,6 @@
         @media (min-width: 640px) {
             .scroll-section {
                 padding: 2rem;
-                padding-top: 20vh;
                 padding-bottom: 6rem;
             }
         }
@@ -157,6 +155,7 @@
             transition: all 0.3s ease-in-out;
             border: 1px solid #E2E8F0;
             /* Subtle border */
+            margin-top: 15vh;
         }
 
         /* Increase padding on larger screens */
@@ -218,6 +217,7 @@
         /* Welcome screen fade in animation - only starts when fonts-loaded class is added */
         .welcome-fade-in {
             opacity: 0;
+            margin-top: 15vh;
         }
 
         .fonts-loaded .welcome-fade-in {
@@ -256,18 +256,57 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        /* Welcome section specific positioning - nudge up on mobile only */
+        /* Welcome section specific positioning */
         .scroll-section.bg-rose-50 {
-            justify-content: flex-start;
-            padding-top: 20vh;
             padding-bottom: 8rem;
         }
 
         @media (min-width: 640px) {
             .scroll-section.bg-rose-50 {
-                justify-content: center;
-                padding-top: 2rem;
                 padding-bottom: 6rem;
+            }
+        }
+
+        /* RSVP section - center the card vertically */
+        /* Mobile-first: Explicit vertical centering for RSVP section */
+        .scroll-section.rsvp-section {
+            justify-content: center !important;
+            align-items: center !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .scroll-section.rsvp-section .content-card {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Mobile-specific: Ensure perfect vertical centering on phone screens */
+        @media (max-width: 639px) {
+            .scroll-section.rsvp-section {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .scroll-section.rsvp-section .content-card {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+        }
+
+        /* Desktop: Maintain vertical centering with appropriate padding */
+        @media (min-width: 640px) {
+            .scroll-section.rsvp-section {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                padding-left: 2rem !important;
+                padding-right: 2rem !important;
+                justify-content: center !important;
+                align-items: center !important;
             }
         }
 
@@ -372,6 +411,42 @@
             }
         }
 
+        // Load images sequentially and update img elements as they load
+        async function loadImagesSequentially(imageMap) {
+            const imagePaths = Array.from(imageMap.keys());
+
+            for (const path of imagePaths) {
+                if (!path) continue;
+
+                try {
+                    await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            // Update the corresponding img element in the DOM
+                            const imgElement = imageMap.get(path);
+                            if (imgElement) {
+                                imgElement.src = path;
+                                imgElement.style.opacity = '0';
+                                // Fade in the image
+                                requestAnimationFrame(() => {
+                                    imgElement.style.transition = 'opacity 0.3s ease-in';
+                                    imgElement.style.opacity = '1';
+                                });
+                            }
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            console.warn(`Failed to load image: ${path}`);
+                            resolve(); // Continue even if one image fails
+                        };
+                        img.src = path;
+                    });
+                } catch (error) {
+                    console.warn(`Error loading image ${path}:`, error);
+                }
+            }
+        }
+
         // Initialize app when DOM is ready
         function initializeApp() {
 
@@ -412,10 +487,17 @@
             ];
 
             const itineraryContainer = document.getElementById('itinerary');
+            const imageElementMap = new Map(); // Map of image paths to img elements
 
+            // Generate itinerary immediately so scrolling works
             itinerarySteps.forEach((step, index) => {
                 const section = document.createElement('section');
                 section.className = 'scroll-section';
+
+                // Add special class for RSVP section
+                if (step.type === 'rsvp') {
+                    section.classList.add('rsvp-section');
+                }
 
                 const card = document.createElement('div');
                 card.className = 'content-card';
@@ -428,12 +510,18 @@
 
                     card.innerHTML = `
                         <div class="pictogram-placeholder">
-                            <img src="${iconPath}" alt="${step.activity}" />
+                            <img src="" alt="${step.activity}" style="opacity: 0;" />
                         </div>
                         <p class="text-lg sm:text-xl font-semibold text-rose-500 bg-rose-100 rounded-full px-4 py-1 inline-block mb-4">${step.time}</p>
                         <h2 class="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold text-gray-900 mb-3">${step.activity}</h2>
                         <p class="text-sm sm:text-base text-gray-600 leading-relaxed">${step.description}</p>
                     `;
+
+                    // Store reference to img element for sequential loading
+                    const imgElement = card.querySelector('img');
+                    if (imgElement && iconPath) {
+                        imageElementMap.set(iconPath, imgElement);
+                    }
                 }
 
                 section.appendChild(card);
@@ -528,6 +616,13 @@
                     setupRsvpListeners();
                 }
             });
+
+            // Load images sequentially in the background (non-blocking)
+            if (imageElementMap.size > 0) {
+                loadImagesSequentially(imageElementMap).catch(error => {
+                    console.error('Error loading images:', error);
+                });
+            }
 
             // Intersection Observer to trigger animations
             const observer = new IntersectionObserver((entries) => {
