@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adam & Myah's First Date</title>
+    <title>Adam & Caitlin's First Date</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,14 +58,22 @@
         /* Define scroll snap sections */
         .scroll-section {
             scroll-snap-align: start;
+            scroll-snap-stop: always;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            padding: 2rem;
+            padding: 1rem;
             text-align: center;
             position: relative;
+        }
+
+        /* Increase padding on larger screens */
+        @media (min-width: 640px) {
+            .scroll-section {
+                padding: 2rem;
+            }
         }
 
         /* Custom fonts */
@@ -76,10 +84,17 @@
         /* Scroll down arrow animation */
         .scroll-down-arrow {
             position: absolute;
-            bottom: 3rem;
+            bottom: max(2rem, env(safe-area-inset-bottom) + 1rem);
             left: 50%;
             transform: translateX(-50%);
             animation: bounce 2s infinite;
+        }
+
+        /* Increase distance on larger screens */
+        @media (min-width: 640px) {
+            .scroll-down-arrow {
+                bottom: 3rem;
+            }
         }
 
         @keyframes bounce {
@@ -107,7 +122,7 @@
             border-radius: 1.5rem;
             /* More rounded corners */
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-            padding: 2.5rem;
+            padding: 1.5rem;
             max-width: 500px;
             width: 90%;
             transition: all 0.3s ease-in-out;
@@ -115,24 +130,46 @@
             /* Subtle border */
         }
 
+        /* Increase padding on larger screens */
+        @media (min-width: 640px) {
+            .content-card {
+                padding: 2.5rem;
+            }
+        }
+
         .pictogram-placeholder {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border: 3px dashed #CBD5E0;
             /* Dashed border for pictogram */
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 auto 1.5rem auto;
+            margin: 0 auto 1rem auto;
             transition: all 0.3s ease-in-out;
         }
 
-        .pictogram-placeholder svg {
+        .pictogram-placeholder img {
             width: 100%;
             height: 100%;
-            max-width: 48px;
-            max-height: 48px;
+            max-width: 60px;
+            max-height: 60px;
+            object-fit: contain;
+        }
+
+        /* Increase size on larger screens */
+        @media (min-width: 640px) {
+            .pictogram-placeholder {
+                width: 100px;
+                height: 100px;
+                margin: 0 auto 1.5rem auto;
+            }
+
+            .pictogram-placeholder img {
+                max-width: 75px;
+                max-height: 75px;
+            }
         }
 
         .fade-in-up {
@@ -150,11 +187,19 @@
 
         .rsvp-button {
             transition: all 0.2s ease-in-out;
+            min-height: 44px;
+            min-width: 44px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .rsvp-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .rsvp-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         /* Adding different background colors for sections for a subtle effect */
@@ -168,8 +213,15 @@
 
         /* Animation container for RSVP result */
         .result-container {
-            font-size: 5rem;
+            font-size: 3.5rem;
             animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        /* Larger emojis on bigger screens */
+        @media (min-width: 640px) {
+            .result-container {
+                font-size: 5rem;
+            }
         }
 
         @keyframes popIn {
@@ -189,69 +241,18 @@
 
 
     <!-- region -------------------------------------------->
-    <!-- Early SVG Pictogram Loader with Color Conversion -->
+    <!-- PNG Icon Mapping -->
     <script>
-        // Global storage for converted pictograms
-        window.loadedPictograms = {};
-        window.pictogramsLoaded = false;
-
-        // Load and convert SVG colors to #9ca3af
-        async function loadAndConvertPictograms() {
-            const pictograms = [
-                { key: 'cafe', path: './assets/Pictogram01__CafeMeet__.svg' },
-                { key: 'paintbrush', path: './assets/Pictogram02__PaintBrush__.svg' },
-                { key: 'location', path: './assets/Pictogram03__PlaceMarker__.svg' },
-                { key: 'meal', path: './assets/Pictogram04__IndianMeal__.svg' }
-            ];
-
-            const targetColor = '#9ca3af'; // Gray-400 color
-
-            for (const pictogram of pictograms) {
-                try {
-                    const response = await fetch(pictogram.path);
-                    let svgText = await response.text();
-
-                    console.log(`Loaded ${pictogram.key}:`, svgText.substring(0, 100)); // Debug
-
-                    // Convert all black and dark colors to target color
-                    svgText = svgText
-                        .replace(/fill="#000000"/g, `fill="${targetColor}"`)
-                        .replace(/fill="#000"/g, `fill="${targetColor}"`)
-                        .replace(/fill="black"/g, `fill="${targetColor}"`)
-                        .replace(/fill="rgb\(0,\s*0,\s*0\)"/g, `fill="${targetColor}"`)
-                        .replace(/stroke="#000000"/g, `stroke="${targetColor}"`)
-                        .replace(/stroke="#000"/g, `stroke="${targetColor}"`)
-                        .replace(/stroke="black"/g, `stroke="${targetColor}"`);
-
-                    console.log(`Converted ${pictogram.key}:`, svgText.substring(0, 100)); // Debug
-
-                    // Extract SVG and set proper attributes for display
-                    const parser = new DOMParser();
-                    const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-                    const svgElement = svgDoc.querySelector('svg');
-
-                    // Remove explicit width/height to allow CSS control
-                    svgElement.removeAttribute('width');
-                    svgElement.removeAttribute('height');
-
-                    // Store the complete SVG with converted colors
-                    window.loadedPictograms[pictogram.key] = svgElement.outerHTML;
-                } catch (error) {
-                    console.error(`Failed to load pictogram: ${pictogram.path}`, error);
-                }
-            }
-
-            window.pictogramsLoaded = true;
-            console.log('All pictograms loaded:', window.loadedPictograms); // Debug
-
-            // Dispatch event to notify DOM is ready to render
-            window.dispatchEvent(new CustomEvent('pictogramsReady'));
-        }
-        <!-- endregion ----------------------------------------- -->
-
-        // Load pictograms immediately
-        loadAndConvertPictograms();
+        // Icon key to PNG file path mapping
+        const iconPaths = {
+            'kitty': './PersonalWebApps/FirstDateApp/assets/Pictogram01__CatCafe__.png',
+            'bratwurst': './PersonalWebApps/FirstDateApp/assets/Pictogram02__ChristmasMarket__.png',
+            'hipster': './PersonalWebApps/FirstDateApp/assets/Pictogram03__RecordStore__.png',
+            'houseplant': './PersonalWebApps/FirstDateApp/assets/Pictogram04__Houseplant__.png',
+            'beer': './PersonalWebApps/FirstDateApp/assets/Pictogram05__CraftBeer__.png'
+        };
     </script>
+    <!-- endregion ----------------------------------------- -->
 </head>
 
 <body class="text-gray-800">
@@ -261,11 +262,11 @@
         <!-- Welcome Section -->
         <section class="scroll-section bg-rose-50 text-rose-800">
             <div class="fade-in-up">
-                <h1 class="font-playfair text-5xl md:text-7xl font-bold mb-4">Adam & Myah's</h1>
-                <p class="text-3xl md:text-5xl font-playfair mb-6">First Date</p>
+                <h1 class="font-playfair text-4xl sm:text-5xl md:text-7xl font-bold mb-4">Adam & Caitlin's</h1>
+                <p class="text-2xl sm:text-3xl md:text-5xl font-playfair mb-6">First Date</p>
                 <br>
-                <p class="text-xl md:text-2xl bg-rose-200 text-rose-900 px-4 py-2 rounded-full inline-block">
-                    Saturday, 18th October
+                <p class="text-lg sm:text-xl md:text-2xl bg-rose-200 text-rose-900 px-4 py-2 rounded-full inline-block">
+                    Saturday, 6th December
                 </p>
             </div>
             <div class="scroll-down-arrow">
@@ -282,39 +283,39 @@
     </div>
 
     <script>
-        // Wait for both DOM and pictograms to be ready
-        let domReady = false;
-        let pictogramsReady = false;
-
+        // Initialize app when DOM is ready
         function initializeApp() {
-            if (!domReady || !pictogramsReady) return;
-
-            console.log('Initializing app with pictograms:', window.loadedPictograms); // Debug
 
             const itinerarySteps = [
                 {
+                    time: '12:00',
+                    activity: 'Cuddle Cute Cats',
+                    description: 'We\'ll ease into the day with a cosy herbal tea or hot chocolate, find a comfy spot, and have a gentle get-to-know-you chat while we\'re surrounded by ridiculously cute cats. With a bit of luck, a few of them will decide we\'re worthy of head boops, purrs, and maybe even some kitten cuddles on our laps.',
+                    iconKey: 'kitty'
+                },
+                {
+                    time: '13:00',
+                    activity: 'Peruse The Christmas Market',
+                    description: 'Then we\'ll wander over to the Nottingham Winter Wonderland and explore the German-style Christmas market together. We can track down a seriously good bratwurst, soak up the fairy lights and festive music, and maybe point out little gift ideas for each other as we go.',
+                    iconKey: 'bratwurst'
+                },
+                {
                     time: '14:00',
-                    activity: 'Meet At <br> Yorks Café',
-                    description: 'Let\'s start with a nice cup of Coffee / Herbal Tea / Hot Chocolate & Soft & Sweet pastries whilst we enjoy a lovely chat <br> <br> <em> (Yes I will be marvelling at your pretty face</em>)',
-                    iconKey: 'cafe'
+                    activity: 'A Walk Through Hockley',
+                    description: 'Next, we\'ll stroll through Hockley and dip into some of the quirky thrift and indie shops. I\'ll take you to my favourite record store so you can witness me trying very hard to be sensible while also eyeing up vinyl I absolutely don\'t need but will probably fall in love with anyway.',
+                    iconKey: 'hipster'
                 },
                 {
-                    time: '14:30',
-                    activity: 'Explore Ikon <br> Art Gallery',
-                    description: 'Immerse ourselves in contemporary art. We can wander through the fascinating exhibitions at our own pace, will it be good or terribly abstract and weird? Who Knows! But it will be fun with you.',
-                    iconKey: 'paintbrush'
-                },
-                {
-                    time: '15:45',
-                    activity: 'Walk To <br> Our Meal',
-                    description: 'A gentle stroll through the city along the marvellous canals of Birmingham as we travel to our delicious dinner destination.',
-                    iconKey: 'location'
+                    time: '15:00',
+                    activity: 'Arrive At Hipster Heaven',
+                    description: 'After that, we\'ll wander down to Sneinton Avenues, a little pocket of independent cafés and shops that means a lot to me because it\'s my old neighbourhood. I\'d love to show you "The Watered Garden", a gorgeous little houseplant boutique, and then introduce you to my favourite artisan chocolate shop, "Luisa\'s Chocolates", where we can sample some gluten free treats. There are plenty of cosy spots and studios around for us to browse and grab something tasty to share.',
+                    iconKey: 'houseplant'
                 },
                 {
                     time: '16:00',
-                    activity: 'Dinner At <br> Dishoom',
-                    description: 'The perfect end to our date. The meal is all booked and ready for us, we will enjoy an amazing Indian meal at the highly-acclaimed Dishoom Restaurant.',
-                    iconKey: 'meal'
+                    activity: 'A Back-Street Brew',
+                    description: 'To round things off, we\'ll loop back towards the market square via a tucked-away craft beer bar I used to frequent. It\'s relaxed, a bit stylish, and has a great selection of local artisanal beers. We can clink glasses, savour something delicious, and toast to what I hope will be the first of many lovely dates together.',
+                    iconKey: 'beer'
                 },
                 {
                     type: 'rsvp' // Special type for the final section
@@ -333,20 +334,16 @@
                 if (step.type === 'rsvp') {
                     card.innerHTML = `<div id="rsvp-content-${index}"></div>`; // Unique ID for RSVP content
                 } else {
-                    // Get the loaded pictogram SVG
-                    const pictogramSVG = window.loadedPictograms[step.iconKey] || '';
-
-                    console.log(`Rendering ${step.iconKey}:`, pictogramSVG.substring(0, 100)); // Debug
+                    // Get the PNG icon path
+                    const iconPath = iconPaths[step.iconKey] || '';
 
                     card.innerHTML = `
                         <div class="pictogram-placeholder">
-                            <div class="h-12 w-12">
-                                ${pictogramSVG}
-                            </div>
+                            <img src="${iconPath}" alt="${step.activity}" />
                         </div>
-                        <p class="text-xl font-semibold text-rose-500 bg-rose-100 rounded-full px-4 py-1 inline-block mb-4">${step.time}</p>
-                        <h2 class="text-3xl md:text-4xl font-playfair font-bold text-gray-900 mb-3">${step.activity}</h2>
-                        <p class="text-gray-600 leading-relaxed">${step.description}</p>
+                        <p class="text-lg sm:text-xl font-semibold text-rose-500 bg-rose-100 rounded-full px-4 py-1 inline-block mb-4">${step.time}</p>
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold text-gray-900 mb-3">${step.activity}</h2>
+                        <p class="text-sm sm:text-base text-gray-600 leading-relaxed">${step.description}</p>
                     `;
                 }
 
@@ -356,14 +353,14 @@
                 if (step.type === 'rsvp') {
                     const rsvpContainer = document.getElementById(`rsvp-content-${index}`);
                     const originalRsvpHTML = `
-                        <h2 class="text-3xl md:text-4xl font-playfair font-bold text-gray-900 mb-3">So then Myah...</h2>
-                        <p class="text-xs text-gray-400 italic mb-4">(Myah With a Hard Y)</p>
-                        <p class="text-gray-600 leading-relaxed mb-8">Would you like to accept <br> Adam's date offer?</p>
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold text-gray-900 mb-3">So then Caitlin...</h2>
+                        <p class="text-xs text-gray-400 italic mb-4">(My Biggest & Most Admired Weirdo)</p>
+                        <p class="text-sm sm:text-base text-gray-600 leading-relaxed mb-8">Would you like to accept Adam's date offer?</p>
                         <div class="flex justify-center gap-4">
-                            <button id="yesBtn-${index}" class="rsvp-button bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-8 rounded-full">
+                            <button id="yesBtn-${index}" class="rsvp-button bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-6 sm:px-8 rounded-full">
                                 Yes
                             </button>
-                            <button id="noBtn-${index}" class="rsvp-button bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-full">
+                            <button id="noBtn-${index}" class="rsvp-button bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 sm:px-8 rounded-full">
                                 No
                             </button>
                         </div>
@@ -378,7 +375,7 @@
                         yesBtn.addEventListener('click', () => {
                             rsvpContainer.innerHTML = `
                                 <div class="result-container">😊🎉</div>
-                                <p class="text-2xl mt-4 font-playfair font-bold text-green-700">Amazing! He can't wait!</p>
+                                <p class="text-xl sm:text-2xl mt-4 font-playfair font-bold text-green-700">Amazing! He can't wait!</p>
                             `;
                             setTimeout(() => {
                                 rsvpContainer.innerHTML = originalRsvpHTML;
@@ -389,7 +386,7 @@
                         noBtn.addEventListener('click', () => {
                             rsvpContainer.innerHTML = `
                                 <div class="result-container">💔😞</div>
-                                <p class="text-2xl mt-4 font-playfair font-bold text-gray-600">That's a shame.</p>
+                                <p class="text-xl sm:text-2xl mt-4 font-playfair font-bold text-gray-600">That's a shame.</p>
                             `;
                             setTimeout(() => {
                                 rsvpContainer.innerHTML = originalRsvpHTML;
@@ -419,12 +416,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            domReady = true;
-            initializeApp();
-        });
-
-        window.addEventListener('pictogramsReady', function () {
-            pictogramsReady = true;
             initializeApp();
         });
     </script>
