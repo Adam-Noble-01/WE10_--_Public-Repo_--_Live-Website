@@ -96,10 +96,67 @@
             font-family: 'Playfair Display', serif;
         }
 
+        /* Scroll hint text above arrow on welcome page */
+        .scroll-hint {
+            position: absolute;
+            bottom: calc(7.0rem + env(safe-area-inset-bottom, 0px));
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            color: rgba(251, 113, 133, 0.7);
+            font-family: 'Playfair Display', serif;
+            font-size: 0.875rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            opacity: 0;
+        }
+
+        .fonts-loaded .scroll-hint {
+            animation: scrollHintFadeIn 2s cubic-bezier(0.4, 0, 0.2, 1) forwards, scrollHintBounce 2s ease-in-out 2s infinite;
+        }
+
+        @keyframes scrollHintFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Sync with arrow bounceAndPulse animation */
+        @keyframes scrollHintBounce {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            25% {
+                transform: translateX(-50%) translateY(-12px);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            75% {
+                transform: translateX(-50%) translateY(-6px);
+            }
+        }
+
+        @media (min-width: 640px) {
+            .scroll-hint {
+                bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
+                font-size: 1rem;
+            }
+        }
+
         /* Scroll down arrow animation */
         .scroll-down-arrow {
             position: absolute;
-            bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+            bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
             left: 50%;
             transform: translateX(-50%);
             animation: bounceAndPulse 2s ease-in-out infinite;
@@ -113,7 +170,7 @@
         /* Increase distance on larger screens */
         @media (min-width: 640px) {
             .scroll-down-arrow {
-                bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
+                bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
             }
         }
 
@@ -217,11 +274,11 @@
         /* Welcome screen fade in animation - only starts when fonts-loaded class is added */
         .welcome-fade-in {
             opacity: 0;
-            margin-top: 15vh;
+            margin-top: 20vh;
         }
 
         .fonts-loaded .welcome-fade-in {
-            animation: welcomeFadeIn 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: welcomeFadeIn 2s cubic-bezier(0.4, 0, 0.2, 1) forwards, gentleFloat 4s ease-in-out 2s infinite;
         }
 
         @keyframes welcomeFadeIn {
@@ -231,6 +288,19 @@
 
             to {
                 opacity: 1;
+            }
+        }
+
+        /* Gentle up and down animation to illustrate endless scrolling */
+        @keyframes gentleFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
             }
         }
 
@@ -377,6 +447,7 @@
                     Saturday, 6th December
                 </p>
             </div>
+            <p class="scroll-hint">Plz Scroll</p>
             <div class="scroll-down-arrow welcome-fade-in">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 sm:h-8 sm:w-8 text-rose-300" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
