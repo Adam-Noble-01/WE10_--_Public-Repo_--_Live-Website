@@ -212,7 +212,8 @@
             transition: all 0.3s ease-in-out;
             border: 1px solid #E2E8F0;
             /* Subtle border */
-            margin-top: 15vh;
+            margin-top: clamp(3vh, calc(100vh * 0.12), 15vh);
+            /* Min-max: scales with viewport height (12%), pushes up on small screens, maintains 15vh on larger screens */
         }
 
         /* Increase padding on larger screens */
@@ -220,6 +221,20 @@
             .content-card {
                 padding: 2.5rem;
                 max-height: calc(100vh - 14rem);
+                margin-top: 15vh;
+                /* Restore original margin for larger screens */
+            }
+        }
+
+        /* Card body text - 11px size */
+        .content-card .text-gray-600 {
+            font-size: 11px;
+        }
+
+        @media (min-width: 640px) {
+            .content-card .text-gray-600 {
+                font-size: 0.875rem;
+                /* 14px on larger screens */
             }
         }
 
@@ -585,7 +600,7 @@
                         </div>
                         <p class="text-lg sm:text-xl font-semibold text-rose-500 bg-rose-100 rounded-full px-4 py-1 inline-block mb-4">${step.time}</p>
                         <h2 class="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold text-gray-900 mb-3">${step.activity}</h2>
-                        <p class="text-sm sm:text-base text-gray-600 leading-relaxed">${step.description}</p>
+                        <p class="text-gray-600 leading-relaxed">${step.description}</p>
                     `;
 
                     // Store reference to img element for sequential loading
