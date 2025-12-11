@@ -148,7 +148,7 @@
                 }
             },
             "drawing-06"               :    {
-                "file-name"            :    "JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevA__.pdf",
+                "file-name"            :    "JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.pdf",
                 "added-to-register"    :    "17-Nov-2025",
                 "document-type"        :    "Drawing",
                 "document-name"        :    "Prelim Structural Concept",   
@@ -158,16 +158,16 @@
                 "document-notes"       :    "NIL",
                 "document-revisions":{
                     "revision-a"       :   "17-11-2025",
-                    "revision-b"       :    "NIL",
+                    "revision-b"       :    "03-Dec-2025",
                     "revision-c"       :    "NIL",
                     "revision-d"       :    "NIL",
                     "revision-e"       :    "NIL"
                 },
                 "document-links":{
-                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevA__.png",
-                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevA__.pdf",
-                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevA__.png",
-                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevA__.pdf"
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.pdf"
                 }
             },
             "drawing-07"               :    {
