@@ -1,7 +1,8 @@
 <!DOCTYPE html> <!-- MUST BE THE VERY FIRST LINE -->
 <html lang="en">
+
 <head>
-    
+
     <!-- 
     ==============================================================================================
     HTML | HEAD SECTION: META, TITLE, FONTS, CSS
@@ -9,10 +10,18 @@
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="application-version" content="1.2.5">
+    <meta name="application-version" content="1.2.6">
     <title>Text To Reader Utility</title>
-    
+
     <!-- Version Notes 
+    1.2.6 - 24-Dec-2025
+        - Added CSV table rendering capability
+          - Detects ```csv code blocks in input
+          - Parses CSV content with proper quote and comma handling
+          - Renders as semantic HTML tables with accessibility features
+          - Supports mixing CSV tables with regular Markdown content
+          - Screen reader optimized for sequential row-by-row reading
+    
     1.2.5 - 03-May-2025
         - Reduced ul list indentation 
         - Updates to styling on mobile
@@ -21,22 +30,29 @@
             - Lists
             - Body text etc 
     -->
-    
+
 
     <!--  ASSET LINK |  Favicon Configuration   
     ------------------------------------------------------------------------------------------- -->
-    <link rel="icon" type="image/svg+xml" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
-    <link rel="icon" type="image/png" sizes="512x512" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png">
-    <link rel="icon" type="image/x-icon" href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
-    
+    <link rel="icon" type="image/svg+xml"
+        href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+    <link rel="icon" type="image/png" sizes="512x512"
+        href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png">
+    <link rel="icon" type="image/png" sizes="192x192"
+        href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png">
+    <link rel="icon" type="image/png" sizes="32x32"
+        href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png">
+    <link rel="icon" type="image/x-icon"
+        href="/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
+
     <!-- Main Noble Architecture Stylesheet -->
-    <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css">
-    
+    <link rel="stylesheet"
+        href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_10_-_STYL_-_Core-Default-Stylesheet_-_Noble-Architecture.css">
+
     <!-- Utility App Stylesheet -->
-    <link rel="stylesheet" href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css">
-    
+    <link rel="stylesheet"
+        href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css">
+
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/src/js/header-version-injector.js"></script>
@@ -48,6 +64,7 @@
     -->
 
 </head>
+
 <body>
     <!-- 
     =============================================================================================
@@ -59,7 +76,7 @@
         <header class="HEAD__container">
             <nav class="HEAD__nav">
                 <span class="HEAD__title">Text To Reader Utility</span>
-                <span class="HEAD__version-note">v1.2.4</span>
+                <span class="HEAD__version-note">v1.2.6</span>
             </nav>
         </header>
 
@@ -76,12 +93,9 @@
                    - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
                    ----------------------------------------------------------------------------------------- -->
                 <div class="FORM__block">
-                    <label for="inputText" class="FORM__label">Input Text (WhatsApp or Markdown):</label> 
-                    <textarea
-                        id="inputText"
-                        class="FORM__textarea"
-                        placeholder="Paste your text (WhatsApp or Markdown) here..."
-                    ></textarea>
+                    <label for="inputText" class="FORM__label">Input Text (WhatsApp or Markdown):</label>
+                    <textarea id="inputText" class="FORM__textarea"
+                        placeholder="Paste your text (WhatsApp or Markdown) here..."></textarea>
                 </div>
 
                 <!-- -----------------------------------------------------------------------------------------
@@ -101,13 +115,8 @@
                    - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
                    ----------------------------------------------------------------------------------------- -->
                 <div class="RSLT__block">
-                    <h2 class="CTRL__heading">Output</h2> 
-                    <div 
-                        id="output" 
-                        class="MAIN__output"
-                        role="region" 
-                        aria-live="polite"
-                    >
+                    <h2 class="CTRL__heading">Output</h2>
+                    <div id="output" class="MAIN__output" role="region" aria-live="polite">
                         <!-- Rendered content will appear here -->
                     </div>
                 </div>
@@ -131,60 +140,289 @@
             output: null
         };
 
-        // WhatsApp Message Parser
+        // -----------------------------------------------------------------------------------------
+        // REGION | WhatsApp Message Parser
+        // -----------------------------------------------------------------------------------------
+
+        // FUNCTION | Parse WhatsApp Messages
+        // -----------------------------------------------------------------------------------------
+        // Detects and converts WhatsApp chat format to markdown list format
+        // Input:  Raw text with WhatsApp timestamp/sender pattern
+        // Output: Markdown formatted list or original text if not WhatsApp format
+        // -----------------------------------------------------------------------------------------
         function parseWhatsAppMessages(rawText) {
-            const testPattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/;
+            const testPattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/;         // <-- WhatsApp pattern check
 
             if (!testPattern.test(rawText)) {
                 return rawText;
             }
-            
-            const replacePattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/g;
-            
-            let replaced = rawText.replace(replacePattern, "\n");
-            replaced = replaced.replace(/\n{2,}/g, "\n");
-            replaced = replaced.trim();
-            replaced = replaced.split("\n").map(line => line.trim()).filter(line => line).join("\n- ");
-            
+
+            const replacePattern = /\[\d{1,2}\/\d{1,2},\s*\d{1,2}:\d{2}\]\s*[^:]+:\s*/g;         // <-- Global replace pattern
+
+            let replaced = rawText.replace(replacePattern, "\n");                       // <-- Remove timestamps/senders
+            replaced = replaced.replace(/\n{2,}/g, "\n");                           // <-- Clean multiple newlines
+            replaced = replaced.trim();                                             // <-- Trim whitespace
+            replaced = replaced.split("\n").map(line => line.trim()).filter(line => line).join("\n- ");  // <-- Convert to list
+
             if (replaced) {
-                replaced = "- " + replaced;
+                replaced = "- " + replaced;                                                     // <-- Add first bullet
             }
-            
+
             return replaced;
         }
 
-        // Event Handlers
+        // endregion -------------------------------------------------------------------------------
+
+
+        // -----------------------------------------------------------------------------------------
+        // REGION | CSV Table Processing
+        // -----------------------------------------------------------------------------------------
+
+        // FUNCTION | Detect and Extract CSV Code Blocks
+        // -----------------------------------------------------------------------------------------
+        // Finds all ```csv code blocks in text and extracts their content
+        // Input:  Text potentially containing CSV code blocks
+        // Output: Array of objects with CSV content and placeholder tokens
+        // -----------------------------------------------------------------------------------------
+        function extractCsvBlocks(text) {
+            const csvBlockPattern = /```csv\s*\n([\s\S]*?)\n```/g;                              // <-- Match CSV blocks
+            const csvBlocks = [];                                                         // <-- Storage for blocks
+            let match = null;                                                       // <-- Regex match holder
+
+            while ((match = csvBlockPattern.exec(text)) !== null) {
+                const csvContent = match[1].trim();                                            // <-- Extract CSV content
+                const placeholder = `__CSV_TABLE_${csvBlocks.length}__`;                        // <-- Unique placeholder
+
+                csvBlocks.push({
+                    content: csvContent,
+                    placeholder: placeholder,
+                    fullMatch: match[0]
+                });
+            }
+
+            return csvBlocks;
+        }
+
+        // FUNCTION | Parse CSV Text to 2D Array
+        // -----------------------------------------------------------------------------------------
+        // Parses CSV text handling quoted fields and escaped quotes
+        // Input:  Raw CSV text with comma-separated values
+        // Output: 2D array of parsed values [rows][columns]
+        // -----------------------------------------------------------------------------------------
+        function parseCsvToArray(csvText) {
+            const rows = [];                                                         // <-- Parsed rows storage
+            const lines = csvText.split('\n');                                        // <-- Split by newline
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();                                            // <-- Current line
+
+                if (line === '') continue;                                                      // <-- Skip empty lines
+
+                const row = [];                                                         // <-- Current row cells
+                let currentCell = '';                                                         // <-- Cell being built
+                let inQuotes = false;                                                      // <-- Inside quoted field
+
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];                                                    // <-- Current character
+                    const nextChar = line[j + 1];                                               // <-- Next character
+
+                    if (char === '"') {
+                        if (inQuotes && nextChar === '"') {
+                            currentCell += '"';                                                 // <-- Escaped quote
+                            j++;                                                                // <-- Skip next quote
+                        } else {
+                            inQuotes = !inQuotes;                                               // <-- Toggle quote state
+                        }
+                    } else if (char === ',' && !inQuotes) {
+                        row.push(currentCell.trim());                                           // <-- End of cell
+                        currentCell = '';                                                       // <-- Reset for next
+                    } else {
+                        currentCell += char;                                                    // <-- Build cell content
+                    }
+                }
+
+                row.push(currentCell.trim());                                                   // <-- Push final cell
+                rows.push(row);                                                                 // <-- Add row to array
+            }
+
+            return rows;
+        }
+
+        // FUNCTION | Generate HTML Table from CSV Array
+        // -----------------------------------------------------------------------------------------
+        // Converts 2D CSV array to accessible HTML table
+        // Input:  2D array of parsed CSV values
+        // Output: HTML string with semantic table markup
+        // -----------------------------------------------------------------------------------------
+        function generateHtmlTable(csvArray) {
+            if (csvArray.length === 0) {
+                return '<p style="color: red;">Error: Empty CSV data.</p>';                     // <-- Handle empty
+            }
+
+            const headerRow = csvArray[0];                                                // <-- First row = headers
+            const dataRows = csvArray.slice(1);                                          // <-- Remaining rows = data
+
+            let tableHtml = '<table role="table" aria-label="CSV Data Table">';         // <-- Table with ARIA
+
+            // Build table header
+            tableHtml += '<thead><tr>';                                              // <-- Header section
+            for (let i = 0; i < headerRow.length; i++) {
+                const cellContent = escapeHtml(headerRow[i]);                                   // <-- Escape HTML
+                tableHtml += `<th scope="col">${cellContent}</th>`;                      // <-- Header cell with scope
+            }
+            tableHtml += '</tr></thead>';                                            // <-- Close header
+
+            // Build table body
+            tableHtml += '<tbody>';                                                  // <-- Body section
+            for (let i = 0; i < dataRows.length; i++) {
+                tableHtml += '<tr>';                                                     // <-- Start row
+                for (let j = 0; j < dataRows[i].length; j++) {
+                    const cellContent = escapeHtml(dataRows[i][j]);                             // <-- Escape HTML
+                    tableHtml += `<td>${cellContent}</td>`;                                  // <-- Data cell
+                }
+                tableHtml += '</tr>';                                                    // <-- End row
+            }
+            tableHtml += '</tbody></table>';                                         // <-- Close body and table
+
+            return tableHtml;
+        }
+
+        // FUNCTION | Escape HTML Special Characters
+        // -----------------------------------------------------------------------------------------
+        // Prevents XSS by escaping HTML special characters in text
+        // Input:  Raw text string
+        // Output: HTML-safe string with escaped characters
+        // -----------------------------------------------------------------------------------------
+        function escapeHtml(text) {
+            const htmlEscapeMap = {                                                             // <-- Character mappings
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+
+            return String(text).replace(/[&<>"']/g, function (char) {
+                return htmlEscapeMap[char];
+            });
+        }
+
+        // FUNCTION | Process CSV Blocks in Text
+        // -----------------------------------------------------------------------------------------
+        // Main processor: detects CSV blocks, converts to tables, replaces in text
+        // Input:  Text with potential CSV code blocks
+        // Output: Text with CSV blocks replaced by HTML tables
+        // -----------------------------------------------------------------------------------------
+        function processCsvBlocks(text) {
+            const csvBlocks = extractCsvBlocks(text);                                     // <-- Find all CSV blocks
+
+            if (csvBlocks.length === 0) {
+                return text;                                                                    // <-- No CSV blocks found
+            }
+
+            let processedText = text;                                                       // <-- Working copy of text
+
+            // Replace each CSV block with its placeholder
+            csvBlocks.forEach(block => {
+                processedText = processedText.replace(block.fullMatch, block.placeholder);  // <-- Temporary placeholder
+            });
+
+            // After Markdown processing, we'll replace placeholders with tables
+            return {
+                processedText: processedText,
+                csvBlocks: csvBlocks
+            };
+        }
+
+        // FUNCTION | Replace CSV Placeholders with HTML Tables
+        // -----------------------------------------------------------------------------------------
+        // Replaces placeholder tokens with rendered HTML tables
+        // Input:  HTML text with placeholders, array of CSV blocks
+        // Output: Final HTML with rendered tables
+        // -----------------------------------------------------------------------------------------
+        function replaceCsvPlaceholders(html, csvBlocks) {
+            let finalHtml = html;                                                       // <-- Working copy
+
+            csvBlocks.forEach(block => {
+                const csvArray = parseCsvToArray(block.content);                             // <-- Parse CSV to array
+                const tableHtml = generateHtmlTable(csvArray);                                // <-- Generate table HTML
+                finalHtml = finalHtml.replace(block.placeholder, tableHtml);            // <-- Replace placeholder
+            });
+
+            return finalHtml;
+        }
+
+        // endregion -------------------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------------------------
+        // REGION | Event Handlers
+        // -----------------------------------------------------------------------------------------
+
+        // FUNCTION | Handle Render Button Click
+        // -----------------------------------------------------------------------------------------
+        // Main rendering pipeline: WhatsApp parsing → CSV processing → Markdown rendering
+        // Processes input text and displays formatted output with tables and markdown
+        // -----------------------------------------------------------------------------------------
         function handleRenderClick(event) {
             event.preventDefault();
-            
+
             if (!G_DOM_ELEMENTS.inputText || !G_DOM_ELEMENTS.output) return;
             if (typeof marked === 'undefined') {
                 G_DOM_ELEMENTS.output.innerHTML = '<p style="color: red;">Error: Marked.js library failed to load.</p>';
                 return;
             }
 
-            const rawInput = G_DOM_ELEMENTS.inputText.value;
-            const cleanedText = parseWhatsAppMessages(rawInput);
+            const rawInput = G_DOM_ELEMENTS.inputText.value;                             // <-- Get input text
+            const cleanedText = parseWhatsAppMessages(rawInput);                            // <-- Process WhatsApp format
 
             try {
-                const renderedHtml = marked.parse(cleanedText, { sanitize: true });
-                G_DOM_ELEMENTS.output.innerHTML = renderedHtml;
+                // Process CSV blocks before Markdown rendering
+                const csvResult = processCsvBlocks(cleanedText);                              // <-- Extract CSV blocks
+
+                let finalHtml = '';                                                         // <-- Final output HTML
+
+                if (csvResult.csvBlocks && csvResult.csvBlocks.length > 0) {
+                    // CSV blocks detected - render with placeholders
+                    const markdownHtml = marked.parse(csvResult.processedText, { sanitize: true });  // <-- Render markdown
+                    finalHtml = replaceCsvPlaceholders(markdownHtml, csvResult.csvBlocks);  // <-- Insert tables
+                } else {
+                    // No CSV blocks - standard Markdown rendering
+                    finalHtml = marked.parse(cleanedText, { sanitize: true });              // <-- Render markdown only
+                }
+
+                G_DOM_ELEMENTS.output.innerHTML = finalHtml;                                    // <-- Display output
 
                 // Scroll to output on mobile
                 if (window.innerWidth <= 768) {
                     G_DOM_ELEMENTS.output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             } catch (error) {
-                G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering Markdown: ${error.message}</p>`;
+                G_DOM_ELEMENTS.output.innerHTML = `<p style="color: red;">Error rendering content: ${error.message}</p>`;
             }
         }
 
+        // FUNCTION | Handle Clear Button Click
+        // -----------------------------------------------------------------------------------------
+        // Clears both input and output areas
+        // -----------------------------------------------------------------------------------------
+
         function handleClearClick() {
-            if (G_DOM_ELEMENTS.inputText) G_DOM_ELEMENTS.inputText.value = '';
-            if (G_DOM_ELEMENTS.output) G_DOM_ELEMENTS.output.innerHTML = '';
+            if (G_DOM_ELEMENTS.inputText) G_DOM_ELEMENTS.inputText.value = '';               // <-- Clear input
+            if (G_DOM_ELEMENTS.output) G_DOM_ELEMENTS.output.innerHTML = '';                 // <-- Clear output
         }
 
-        // Application Initialization
+        // endregion -------------------------------------------------------------------------------
+
+
+        // -----------------------------------------------------------------------------------------
+        // REGION | Application Initialization
+        // -----------------------------------------------------------------------------------------
+
+        // FUNCTION | Initialize Application
+        // -----------------------------------------------------------------------------------------
+        // Caches DOM elements and attaches event listeners
+        // Runs after DOM content is loaded
+        // -----------------------------------------------------------------------------------------
         function initApp() {
             // Cache DOM elements
             G_DOM_ELEMENTS.inputText = document.getElementById('inputText');
@@ -202,12 +440,18 @@
             }
 
             // Attach event listeners
-            G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);
-            G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);
+            G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);         // <-- Render button
+            G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);           // <-- Clear button
         }
 
-        // Initialize when DOM is ready
+        // endregion -------------------------------------------------------------------------------
+
+
+        // -----------------------------------------------------------------------------------------
+        // DOM READY | Initialize Application
+        // -----------------------------------------------------------------------------------------
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
+
 </html>
