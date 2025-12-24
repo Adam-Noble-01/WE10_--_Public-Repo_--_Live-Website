@@ -53,6 +53,69 @@
     <link rel="stylesheet"
         href="/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css">
 
+    <!-- 
+    ==============================================================================================
+    CSS | CSV TABLE STYLES
+    - Introduced in v1.2.6
+    ==============================================================================================
+    -->
+    <style>
+        /* -----------------------------------------------------------------------------------------
+           REGION | CSV Table Styles
+           ----------------------------------------------------------------------------------------- */
+
+        .CSV__table {
+            width: 100%;
+            /* <-- Full width */
+            border-collapse: collapse;
+            /* <-- Remove spacing */
+            margin: 1em 0;
+            /* <-- Vertical spacing */
+        }
+
+        .CSV__table th {
+            background-color: rgb(240, 240, 240);
+            /* <-- Header background */
+            padding: 0.75em 1em;
+            /* <-- Cell padding */
+            text-align: left;
+            /* <-- Left align text */
+            font-weight: bold;
+            /* <-- Bold headers */
+            border: 1px solid rgb(220, 220, 220);
+            /* <-- Border */
+        }
+
+        .CSV__table td {
+            padding: 0.75em 1em;
+            /* <-- Cell padding */
+            border: 1px solid rgb(220, 220, 220);
+            /* <-- Border */
+        }
+
+        .CSV__table tbody tr:nth-child(odd) {
+            background-color: rgb(255, 255, 255);
+            /* <-- White for odd rows */
+        }
+
+        .CSV__table tbody tr:nth-child(even) {
+            background-color: rgb(250, 250, 250);
+            /* <-- Light gray for even rows */
+        }
+
+        .CSV__table th:first-child,
+        .CSV__table td:first-child {
+            min-width: 150px;
+            /* <-- Min width for first column */
+            max-width: 300px;
+            /* <-- Max width for first column */
+            word-wrap: break-word;
+            /* <-- Break long words */
+        }
+
+        /* endregion ------------------------------------------------------------------------------- */
+    </style>
+
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/src/js/header-version-injector.js"></script>
@@ -192,7 +255,7 @@
 
             while ((match = csvBlockPattern.exec(text)) !== null) {
                 const csvContent = match[1].trim();                                            // <-- Extract CSV content
-                const placeholder = `<!--CSVTABLE${csvBlocks.length}-->`;                       // <-- HTML comment placeholder
+                const placeholder = `CSVTABLEPLACEHOLDER${csvBlocks.length}`;                   // <-- Unique plain text placeholder
 
                 console.log('Found CSV block:', csvContent.substring(0, 100));                 // <-- Debug output
 
@@ -267,7 +330,7 @@
             const headerRow = csvArray[0];                                                // <-- First row = headers
             const dataRows = csvArray.slice(1);                                          // <-- Remaining rows = data
 
-            let tableHtml = '<table role="table" aria-label="CSV Data Table">';         // <-- Table with ARIA
+            let tableHtml = '<table class="CSV__table" role="table" aria-label="CSV Data Table">';  // <-- Table with CSS class and ARIA
 
             // Build table header
             tableHtml += '<thead><tr>';                                              // <-- Header section
@@ -355,8 +418,9 @@
                 const csvArray = parseCsvToArray(block.content);                             // <-- Parse CSV to array
                 const tableHtml = generateHtmlTable(csvArray);                                // <-- Generate table HTML
 
-                // HTML comment placeholders pass through Markdown unchanged
-                finalHtml = finalHtml.replace(block.placeholder, tableHtml);                 // <-- Replace placeholder
+                // Use regex to find placeholder even when wrapped in HTML tags by Marked.js
+                const placeholderRegex = new RegExp(`<p>${block.placeholder}</p>|<strong>${block.placeholder}</strong>|${block.placeholder}`, 'g');  // <-- Handle wrapped placeholder
+                finalHtml = finalHtml.replace(placeholderRegex, tableHtml);                 // <-- Replace placeholder
             });
 
             return finalHtml;
