@@ -185,7 +185,7 @@
         // Output: Array of objects with CSV content and placeholder tokens
         // -----------------------------------------------------------------------------------------
         function extractCsvBlocks(text) {
-            const csvBlockPattern = /```csv\s*\n([\s\S]*?)\n```/g;                              // <-- Match CSV blocks
+            const csvBlockPattern = /```csv\s*[\r\n]+([\s\S]*?)[\r\n]+```/g;                    // <-- Match CSV blocks flexibly
             const csvBlocks = [];                                                         // <-- Storage for blocks
             let match = null;                                                       // <-- Regex match holder
 
@@ -193,12 +193,16 @@
                 const csvContent = match[1].trim();                                            // <-- Extract CSV content
                 const placeholder = `__CSV_TABLE_${csvBlocks.length}__`;                        // <-- Unique placeholder
 
+                console.log('Found CSV block:', csvContent.substring(0, 100));                 // <-- Debug output
+
                 csvBlocks.push({
                     content: csvContent,
                     placeholder: placeholder,
                     fullMatch: match[0]
                 });
             }
+
+            console.log('Total CSV blocks found:', csvBlocks.length);                          // <-- Debug output
 
             return csvBlocks;
         }
@@ -317,7 +321,10 @@
             const csvBlocks = extractCsvBlocks(text);                                     // <-- Find all CSV blocks
 
             if (csvBlocks.length === 0) {
-                return text;                                                                    // <-- No CSV blocks found
+                return {                                                                        // <-- Return consistent object
+                    processedText: text,
+                    csvBlocks: []
+                };
             }
 
             let processedText = text;                                                       // <-- Working copy of text
@@ -382,15 +389,21 @@
                 // Process CSV blocks before Markdown rendering
                 const csvResult = processCsvBlocks(cleanedText);                              // <-- Extract CSV blocks
 
+                console.log('CSV Result:', csvResult);                                         // <-- Debug output
+
                 let finalHtml = '';                                                         // <-- Final output HTML
 
-                if (csvResult.csvBlocks && csvResult.csvBlocks.length > 0) {
+                if (csvResult.csvBlocks.length > 0) {
                     // CSV blocks detected - render with placeholders
+                    console.log('Processing', csvResult.csvBlocks.length, 'CSV blocks');      // <-- Debug output
                     const markdownHtml = marked.parse(csvResult.processedText, { sanitize: true });  // <-- Render markdown
+                    console.log('Markdown HTML:', markdownHtml.substring(0, 200));            // <-- Debug output
                     finalHtml = replaceCsvPlaceholders(markdownHtml, csvResult.csvBlocks);  // <-- Insert tables
+                    console.log('Final HTML:', finalHtml.substring(0, 200));                  // <-- Debug output
                 } else {
                     // No CSV blocks - standard Markdown rendering
-                    finalHtml = marked.parse(cleanedText, { sanitize: true });              // <-- Render markdown only
+                    console.log('No CSV blocks detected, using standard markdown');           // <-- Debug output
+                    finalHtml = marked.parse(csvResult.processedText, { sanitize: true });   // <-- Render markdown only
                 }
 
                 G_DOM_ELEMENTS.output.innerHTML = finalHtml;                                    // <-- Display output
