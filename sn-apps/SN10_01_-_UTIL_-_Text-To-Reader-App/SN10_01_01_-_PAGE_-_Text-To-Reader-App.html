@@ -93,7 +93,8 @@
                    - Introduced in v1.0.0 | Accessibility v1.2.2 | Updated v1.2.3
                    ----------------------------------------------------------------------------------------- -->
                 <div class="FORM__block">
-                    <label for="inputText" class="FORM__label">Input Text (WhatsApp or Markdown):</label>
+                    <label for="inputText" class="FORM__label">Input Text (Markdown , WhatsApp Messages or CSV
+                        Blocks):</label>
                     <textarea id="inputText" class="FORM__textarea"
                         placeholder="Paste your text (WhatsApp or Markdown) here..."></textarea>
                 </div>
@@ -191,7 +192,7 @@
 
             while ((match = csvBlockPattern.exec(text)) !== null) {
                 const csvContent = match[1].trim();                                            // <-- Extract CSV content
-                const placeholder = `__CSV_TABLE_${csvBlocks.length}__`;                        // <-- Unique placeholder
+                const placeholder = `<!--CSVTABLE${csvBlocks.length}-->`;                       // <-- HTML comment placeholder
 
                 console.log('Found CSV block:', csvContent.substring(0, 100));                 // <-- Debug output
 
@@ -354,9 +355,8 @@
                 const csvArray = parseCsvToArray(block.content);                             // <-- Parse CSV to array
                 const tableHtml = generateHtmlTable(csvArray);                                // <-- Generate table HTML
 
-                // Use regex to find placeholder even when wrapped in HTML tags by Marked.js
-                const placeholderRegex = new RegExp(`<p>${block.placeholder}</p>|${block.placeholder}`, 'g');  // <-- Handle wrapped placeholder
-                finalHtml = finalHtml.replace(placeholderRegex, tableHtml);             // <-- Replace placeholder
+                // HTML comment placeholders pass through Markdown unchanged
+                finalHtml = finalHtml.replace(block.placeholder, tableHtml);                 // <-- Replace placeholder
             });
 
             return finalHtml;
