@@ -346,7 +346,10 @@
             csvBlocks.forEach(block => {
                 const csvArray = parseCsvToArray(block.content);                             // <-- Parse CSV to array
                 const tableHtml = generateHtmlTable(csvArray);                                // <-- Generate table HTML
-                finalHtml = finalHtml.replace(block.placeholder, tableHtml);            // <-- Replace placeholder
+
+                // Use regex to find placeholder even when wrapped in HTML tags by Marked.js
+                const placeholderRegex = new RegExp(`<p>${block.placeholder}</p>|${block.placeholder}`, 'g');  // <-- Handle wrapped placeholder
+                finalHtml = finalHtml.replace(placeholderRegex, tableHtml);             // <-- Replace placeholder
             });
 
             return finalHtml;
