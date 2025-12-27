@@ -1709,148 +1709,396 @@
                 "warnings"  :  "Less commonly used in thermal elements due to higher conductivity and cost.",
                 "source"    :  "BR 443:2019"
             }
+        },
+        "OSB-Sheet": {
+            "is_product": true,
+            "6mm-Thickness": {
+                "thickness" : 6,
+                "lambda"    : 0.13,
+                "r_value"   : 0.046,
+                "notes"     : "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 6mm.",
+                "info"      : "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "9mm-Thickness": {
+                "thickness" : 9,
+                "lambda"    : 0.13,
+                "r_value"   : 0.069,
+                "notes"     : "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 9mm.",
+                "info"      : "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "12mm-Thickness": {
+                "thickness" : 12,
+                "lambda"    : 0.13,
+                "r_value"   : 0.092,
+                "notes"     : "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 12mm.",
+                "info"      : "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "15mm-Thickness": {
+                "thickness" : 15,
+                "lambda"    : 0.13,
+                "r_value"   : 0.115,
+                "notes"     : "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 15mm.",
+                "info"      : "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "18mm-Thickness": {
+                "thickness" : 18,
+                "lambda"    : 0.13,
+                "r_value"   : 0.138,
+                "notes"     : "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 18mm.",
+                "info"      : "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "22mm-Thickness": {
+                "thickness" : 22,
+                "lambda"    : 0.13,
+                "r_value"   : 0.169,
+                "notes"     : "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 22mm.",
+                "info"      : "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "25mm-Thickness": {
+                "thickness" : 25,
+                "lambda"    : 0.13,
+                "r_value"   : 0.192,
+                "notes"     : "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 25mm.",
+                "info"      : "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            }
+        },
+        "Standard-Plywood": {
+            "is_product": true,
+            "6mm-Thickness": {
+                "thickness" : 6,
+                "lambda"    : 0.13,
+                "r_value"   : 0.046,
+                "notes"     : "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 6mm.",
+                "info"      : "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "9mm-Thickness": {
+                "thickness" : 9,
+                "lambda"    : 0.13,
+                "r_value"   : 0.069,
+                "notes"     : "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 9mm.",
+                "info"      : "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "12mm-Thickness": {
+                "thickness" : 12,
+                "lambda"    : 0.13,
+                "r_value"   : 0.092,
+                "notes"     : "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 12mm.",
+                "info"      : "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "15mm-Thickness": {
+                "thickness" : 15,
+                "lambda"    : 0.13,
+                "r_value"   : 0.115,
+                "notes"     : "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 15mm.",
+                "info"      : "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "18mm-Thickness": {
+                "thickness" : 18,
+                "lambda"    : 0.13,
+                "r_value"   : 0.138,
+                "notes"     : "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 18mm.",
+                "info"      : "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "22mm-Thickness": {
+                "thickness" : 22,
+                "lambda"    : 0.13,
+                "r_value"   : 0.169,
+                "notes"     : "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 22mm.",
+                "info"      : "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "25mm-Thickness": {
+                "thickness" : 25,
+                "lambda"    : 0.13,
+                "r_value"   : 0.192,
+                "notes"     : "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 25mm.",
+                "info"      : "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings"  : "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source"    : "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            }
+        },
+        "Marine-Plywood": {
+            "is_product": true,
+            "6mm-Thickness": {
+                "thickness" : 6,
+                "lambda"    : 0.16,
+                "r_value"   : 0.038,
+                "notes"     : "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 6mm. Waterproof bonding adhesive.",
+                "info"      : "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings"  : "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source"    : "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "9mm-Thickness": {
+                "thickness" : 9,
+                "lambda"    : 0.16,
+                "r_value"   : 0.056,
+                "notes"     : "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 9mm. Waterproof bonding adhesive.",
+                "info"      : "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings"  : "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source"    : "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "12mm-Thickness": {
+                "thickness" : 12,
+                "lambda"    : 0.16,
+                "r_value"   : 0.075,
+                "notes"     : "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 12mm. Waterproof bonding adhesive.",
+                "info"      : "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings"  : "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source"    : "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "15mm-Thickness": {
+                "thickness" : 15,
+                "lambda"    : 0.16,
+                "r_value"   : 0.094,
+                "notes"     : "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 15mm. Waterproof bonding adhesive.",
+                "info"      : "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings"  : "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source"    : "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "18mm-Thickness": {
+                "thickness" : 18,
+                "lambda"    : 0.16,
+                "r_value"   : 0.113,
+                "notes"     : "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 18mm. Waterproof bonding adhesive.",
+                "info"      : "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings"  : "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source"    : "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "22mm-Thickness": {
+                "thickness" : 22,
+                "lambda"    : 0.16,
+                "r_value"   : 0.138,
+                "notes"     : "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 22mm. Waterproof bonding adhesive.",
+                "info"      : "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings"  : "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source"    : "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "25mm-Thickness": {
+                "thickness" : 25,
+                "lambda"    : 0.16,
+                "r_value"   : 0.156,
+                "notes"     : "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 25mm. Waterproof bonding adhesive.",
+                "info"      : "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings"  : "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source"    : "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            }
         }
     },
-    "Concrete-And-Screeds": {
-        "Concrete": {
+    "Concrete": {
+        "Reinforced-Concrete-1pc-Steel-2300kg_m3": {
             "is_product": false,
-            "Reinforced-Concrete-1pc-Steel-2300kg_m3": {
+            "standard": {
                 "lambda"    :  2.30,
                 "r_value"   :  0.043,
-                "notes"     :  "Reinforced concrete (1% steel, ~2300 kg/m³). R-value for 100mm thickness.",
+                "notes"     :  "Reinforced concrete (1% steel, ~2300 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info"      :  "Common structural concrete. Steel increases conductivity.",
                 "warnings"  :  "Very poor insulator. Requires significant additional insulation.",
                 "source"    :  "BR 443:2019 / Research Doc Sec 4.1"
-            },
-            "Concrete-1800kg_m3-Protected": {
+            }
+        },
+        "Concrete-1800kg_m3-Protected": {
+            "is_product": false,
+            "standard": {
                 "lambda"    :  0.87,
                 "r_value"   :  0.115,
-                "notes"     :  "Concrete (1800 kg/m³, protected/internal). R-value for 100mm thickness.",
+                "notes"     :  "Concrete (1800 kg/m³, protected/internal). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info"      :  "Medium-density concrete, lower moisture content.",
                 "warnings"  :  "Thermal performance varies with aggregate and moisture.",
                 "source"    :  "BR 443:2019 / Research Doc Sec 4.1"
-            },
-            "Concrete-1800kg_m3-Exposed": {
+            }
+        },
+        "Concrete-1800kg_m3-Exposed": {
+            "is_product": false,
+            "standard": {
                 "lambda"    :  0.96,
                 "r_value"   :  0.104,
-                "notes"     :  "Concrete (1800 kg/m³, exposed/external). R-value for 100mm thickness.",
+                "notes"     :  "Concrete (1800 kg/m³, exposed/external). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info"      :  "Medium-density concrete, higher moisture content.",
                 "warnings"  :  "Thermal performance varies with aggregate and moisture.",
                 "source"    :  "BR 443:2019 / Research Doc Sec 4.1"
-            },
-            "Concrete-2200kg_m3-Protected": {
+            }
+        },
+        "Concrete-2200kg_m3-Protected": {
+            "is_product": false,
+            "standard": {
                 "lambda"    :  1.45,
                 "r_value"   :  0.069,
-                "notes"     :  "Concrete (2200 kg/m³, protected/internal). R-value for 100mm thickness.",
+                "notes"     :  "Concrete (2200 kg/m³, protected/internal). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info"      :  "Dense concrete, lower moisture content.",
                 "warnings"  :  "Poor insulator.",
                 "source"    :  "BR 443:2019 / Research Doc Sec 4.1"
-            },
-            "Concrete-2200kg_m3-Exposed": {
+            }
+        },
+        "Concrete-2200kg_m3-Exposed": {
+            "is_product": false,
+            "standard": {
                 "lambda"    :  1.60,
                 "r_value"   :  0.063,
-                "notes"     :  "Concrete (2200 kg/m³, exposed/external). R-value for 100mm thickness.",
+                "notes"     :  "Concrete (2200 kg/m³, exposed/external). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info"      :  "Dense concrete, higher moisture content.",
                 "warnings"  :  "Poor insulator.",
                 "source"    :  "BR 443:2019 / Research Doc Sec 4.1"
-            },
-            "Concrete-2400kg_m3-Protected": {
+            }
+        },
+        "Concrete-2400kg_m3-Protected": {
+            "is_product": false,
+            "standard": {
                 "lambda"    :  1.83,
                 "r_value"   :  0.055,
-                "notes"     :  "Concrete (2400 kg/m³, protected/internal). R-value for 100mm thickness.",
+                "notes"     :  "Concrete (2400 kg/m³, protected/internal). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info"      :  "Very dense concrete, lower moisture content.",
                 "warnings"  :  "Very poor insulator.",
                 "source"    :  "BR 443:2019 / Research Doc Sec 4.1"
-            },
-            "Concrete-2400kg_m3-Exposed": {
+            }
+        },
+        "Concrete-2400kg_m3-Exposed": {
+            "is_product": false,
+            "standard": {
                 "lambda"    :  2.00,
                 "r_value"   :  0.050,
-                "notes"     :  "Concrete (2400 kg/m³, exposed/external). R-value for 100mm thickness.",
+                "notes"     :  "Concrete (2400 kg/m³, exposed/external). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info"      :  "Very dense concrete, higher moisture content.",
                 "warnings"  :  "Very poor insulator.",
                 "source"    :  "BR 443:2019 / Research Doc Sec 4.1"
-            },
-            "Cellular-Concrete-400kg_m3": {
+            }
+        },
+        "Cellular-Concrete-400kg_m3": {
+            "is_product": false,
+            "standard": {
                 "lambda"    :  0.10,
                 "r_value"   :  1.00,
-                "notes"     :  "Lightweight cellular concrete (400 kg/m³). R-value for 100mm thickness.",
+                "notes"     :  "Lightweight cellular concrete (400 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info"      :  "Good thermal performance for concrete due to air voids.",
                 "warnings"  :  "Low compressive strength, not for all structural uses.",
                 "source"    :  "CIBSE Guide A / Research Doc Sec 4.1"
-            },
-            "Cellular-Concrete-1200kg_m3": {
+            }
+        },
+        "Cellular-Concrete-1200kg_m3": {
+            "is_product": false,
+            "standard": {
                 "lambda"    :  0.40,
                 "r_value"   :  0.25,
-                "notes"     :  "Cellular concrete (1200 kg/m³). R-value for 100mm thickness.",
+                "notes"     :  "Cellular concrete (1200 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info"      :  "Moderate thermal performance for concrete.",
                 "warnings"  :  "Check structural suitability.",
                 "source"    :  "CIBSE Guide A / Research Doc Sec 4.1"
-            },
-            "Heavy-Weight-Concrete-2243kg_m3": {
+            }
+        },
+        "Heavy-Weight-Concrete-2243kg_m3": {
+            "is_product": false,
+            "standard": {
                 "lambda": 2.0,
                 "r_value": 0.050,
-                "notes": "Heavy weight concrete (2243 kg/m³). R-value for 100mm thickness.",
+                "notes": "Heavy weight concrete (2243 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info": "Dense concrete.",
                 "warnings": "Very poor insulator.",
                 "source": "Research Doc Sec 4.1"
-            },
-            "Reinforced-Concrete-2pc-Steel-2400kg_m3": {
+            }
+        },
+        "Reinforced-Concrete-2pc-Steel-2400kg_m3": {
+            "is_product": false,
+            "standard": {
                 "lambda": 2.5,
                 "r_value": 0.040,
-                "notes": "Reinforced concrete (2% steel, 2400 kg/m³). R-value for 100mm thickness.",
+                "notes": "Reinforced concrete (2% steel, 2400 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info": "Higher steel content increases conductivity.",
                 "warnings": "Extremely poor insulator.",
                 "source": "Research Doc Sec 4.1"
-            },
-            "Roof-Floor-Slab-Concrete-2000kg_m3": {
+            }
+        },
+        "Roof-Floor-Slab-Concrete-2000kg_m3": {
+            "is_product": false,
+            "standard": {
                 "lambda": 1.35,
                 "r_value": 0.074,
-                "notes": "Concrete for roof/floor slab (2000 kg/m³). R-value for 100mm thickness.",
+                "notes": "Concrete for roof/floor slab (2000 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info": "Typical slab concrete.",
                 "warnings": "Poor insulator.",
                 "source": "Research Doc Sec 4.1"
-            },
-            "No-Fines-Concrete-1800kg_m3": {
+            }
+        },
+        "No-Fines-Concrete-1800kg_m3": {
+            "is_product": false,
+            "standard": {
                 "lambda": 0.96,
                 "r_value": 0.104,
-                "notes": "No-fines concrete (1800 kg/m³). R-value for 100mm thickness.",
+                "notes": "No-fines concrete (1800 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info": "Concrete with voids, slightly better thermal performance than dense concrete of similar overall density.",
                 "warnings": "Specific structural applications.",
                 "source": "Research Doc Sec 4.1"
-            },
-            "Dense-Generic-Concrete-Approx-2300kg_m3": {
+            }
+        },
+        "Dense-Generic-Concrete-Approx-2300kg_m3": {
+            "is_product": false,
+            "standard": {
                 "lambda": 1.575,
                 "r_value": 0.063,
-                "notes": "Dense generic concrete (~2300 kg/m³). Lambda range 1.4-1.75 W/mK. R-value for 100mm using mid-range lambda (1.575 W/mK).",
+                "notes": "Dense generic concrete (~2300 kg/m³). Lambda range 1.4-1.75 W/mK. R-value for 100mm using mid-range lambda (1.575 W/mK). R-value scales with thickness: R = d/λ.",
                 "info": "General value for dense concrete.",
                 "warnings": "Use specific data if available.",
                 "source": "Research Doc Sec 4.1"
-            },
-            "Aerated-Generic-Concrete": {
+            }
+        },
+        "Aerated-Generic-Concrete": {
+            "is_product": false,
+            "standard": {
                 "lambda": 0.16,
                 "r_value": 0.625,
-                "notes": "Aerated generic concrete. R-value for 100mm thickness.",
+                "notes": "Aerated generic concrete. R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
                 "info": "Better thermal performance due to aeration. Not to be confused with AAC/Cellular.",
                 "warnings": "Distinguish from AAC blocks or cellular concrete which have lower lambdas.",
                 "source": "Research Doc Sec 4.1"
-            },
-            "Low-Thermally-Conductive-Concrete-1400kg_m3": {
+            }
+        },
+        "Low-Thermally-Conductive-Concrete-1400kg_m3": {
+            "is_product": false,
+            "standard": {
                 "lambda": 0.625,
                 "r_value": 0.160,
-                "notes": "Low thermally conductive concrete (1400 kg/m³). Lambda range 0.45-0.8 W/mK. R-value for 100mm using mid-range lambda (0.625 W/mK).",
+                "notes": "Low thermally conductive concrete (1400 kg/m³). Lambda range 0.45-0.8 W/mK. R-value for 100mm using mid-range lambda (0.625 W/mK). R-value scales with thickness: R = d/λ.",
                 "info": "Specialized concrete with improved thermal properties.",
                 "warnings": "Product specific data essential.",
                 "source": "Research Doc Sec 4.1"
-            },
-            "Precast-Hollow-Core-Concrete-Material-1290-2105kg_m3": {
+            }
+        },
+        "Precast-Hollow-Core-Concrete-Material-1290-2105kg_m3": {
+            "is_product": false,
+            "standard": {
                 "lambda": 1.319,
                 "r_value": 0.076,
-                "notes": "Precast hollow core concrete (material property, 1290-2105 kg/m³). Lambda range 1.012-1.626 W/mK. R-value for 100mm using mid-range lambda (1.319 W/mK).",
+                "notes": "Precast hollow core concrete (material property, 1290-2105 kg/m³). Lambda range 1.012-1.626 W/mK. R-value for 100mm using mid-range lambda (1.319 W/mK). R-value scales with thickness: R = d/λ.",
                 "info": "Hollow cores improve overall thermal resistance of the element but material lambda is still high.",
                 "warnings": "Lambda is for solid material; element U-value calculation needs to account for cores.",
                 "source": "Research Doc Sec 4.1"
             }
-        },
+        }
+    },
+    "Screeds": {
         "Cement-Sand-Screed-BR443": {
             "is_product": false,
             "standard": {
