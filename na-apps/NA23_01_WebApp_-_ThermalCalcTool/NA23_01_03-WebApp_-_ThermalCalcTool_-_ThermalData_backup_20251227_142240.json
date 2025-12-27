@@ -1334,8 +1334,20 @@
             }
         }
     },
-    "Masonry": {
-        "Facing-Brickwork-Solid-Wall-WallSkin": {
+    "Typical-Masonry-Wall-Skins": {
+        "Facing-Brickwork-Wall-Skin": {
+            "is_product": true,
+            "102.5mm-Thickness": {
+                "lambda": 0.85,
+                "r_value": 0.13,
+                "thickness": 102.5,
+                "notes": "Facing clay bricks (λ 0.77 W/mK) plus 10 % cement mortar (λ 0.88 W/mK).",
+                "info": "External skin of cavity walls built to UK practice.",
+                "warnings": "Moisture raises conductivity; adjust for wet conditions.",
+                "source": "BR 443 / ISO 6946 brick-and-mortar data"
+            }
+        },
+        "Facing-Brickwork-Solid-Wall": {
             "is_product": true,
             "225mm-Thickness": {
                 "lambda": 0.85,
@@ -1347,6 +1359,56 @@
                 "source": "BR 443 / ISO 6946 brick-and-mortar data"
             }
         },
+        "Engineering-Brickwork-Wall-Skin": {
+            "is_product": true,
+            "102.5mm-Thickness": {
+                "lambda": 0.53,
+                "r_value": 0.2,
+                "thickness": 102.5,
+                "notes": "Engineering bricks (λ 0.47 W/mK) with 10 % mortar.",
+                "info": "Durable units for DPC and retaining courses.",
+                "warnings": "Higher λ than facing bricks – check U-value impact.",
+                "source": "Marshalls BTB-15 + ISO 6946 mortar"
+            }
+        },
+        "Celcon-Lightweight-Block-Wall-Skin": {
+            "is_product": true,
+            "100mm-Thickness": {
+                "lambda": 0.223,
+                "r_value": 0.45,
+                "thickness": 100,
+                "notes": "Celcon Standard Grade AAC (λ 0.15 W/mK) + 10 % mortar.",
+                "info": "Typical inner-leaf or partition block.",
+                "warnings": "Thin-joint mortar lowers λ further.",
+                "source": "H+H Celcon Standard Grade datasheet"
+            }
+        },
+        "Celcon-Solar-Block-Wall-Skin": {
+            "is_product": true,
+            "100mm-Thickness": {
+                "lambda": 0.187,
+                "r_value": 0.53,
+                "thickness": 100,
+                "notes": "Celcon Solar Grade AAC (λ 0.11 W/mK) + 10 % mortar.",
+                "info": "Low-λ block enabling sub-0.15 W/m²K walls.",
+                "warnings": "Protect blocks from saturation on site.",
+                "source": "H+H Celcon Solar Grade datasheet"
+            }
+        },
+        "Dense-Concrete-Block-Wall-Skin": {
+            "is_product": true,
+            "100mm-Thickness": {
+                "lambda": 1.56,
+                "r_value": 0.06,
+                "thickness": 100,
+                "notes": "Dense aggregate block (λ 1.63 W/mK) + 10 % mortar.",
+                "info": "Low-cost structural inner leaf where separate insulation is provided.",
+                "warnings": "Significant thermal bridge – use carefully in low-U walls.",
+                "source": "IES Table 6 + ISO 6946 mortar"
+            }
+        }
+    },
+    "Masonry-Materials": {
         "Clay-Brick": {
             "is_product": false,
             "Outer-Leaf": {
@@ -1428,6 +1490,82 @@
                 "info": "Value based on density and moisture content.",
                 "warnings": "Specific conditions apply.",
                 "source": "Standard U-Values / Research Doc Sec 3.1"
+            }
+        },
+        "Concrete-Block": {
+            "is_product": false,
+            "Dense-Aggregate": {
+                "lambda": 1.35,
+                "r_value": 0.074,
+                "notes": "Medium density (2000 kg/m³) concrete blocks (100mm thick). R-value from 0.1m / 1.35 W/mK. BR443 R-value 0.15 includes mortar.",
+                "info": "Used for structural applications and inner leaves.",
+                "warnings": "Poor thermal performance requires additional insulation.",
+                "source": "BR 443:2019"
+            },
+            "Lightweight-Aggregate": {
+                "lambda": 0.22,
+                "r_value": 0.455,
+                "notes": "Lightweight (600 kg/m³) concrete blocks (100mm thick). R-value from 0.1m / 0.22 W/mK. BR443 R-value 0.91 includes mortar.",
+                "info": "Better thermal performance than dense blocks.",
+                "warnings": "Lower compressive strength than dense blocks.",
+                "source": "BR 443:2019"
+            },
+            "Dense-Aggregate-High-Density-2400kg_m3": {
+                "lambda": 1.93,
+                "r_value": 0.052,
+                "notes": "Dense aggregate concrete block (high density, 2400 kg/m³). R-value for 100mm thickness.",
+                "info": "High strength, poor thermal insulation.",
+                "warnings": "Requires significant additional insulation.",
+                "source": "Research Doc Sec 3.2"
+            },
+            "Dense-Aggregate-2200kg_m3": {
+                "lambda": 1.65,
+                "r_value": 0.061,
+                "notes": "Dense aggregate concrete block (2200 kg/m³). R-value for 100mm thickness.",
+                "info": "High strength, poor thermal insulation.",
+                "warnings": "Requires significant additional insulation.",
+                "source": "Research Doc Sec 3.2"
+            },
+            "Forterra-Conbloc-Internal": {
+                "is_product": true,
+                "standard": {
+                    "lambda": 1.32,
+                    "r_value": 0.076,
+                    "notes": "Forterra Conbloc concrete block (internal use). R-value for 100mm thickness.",
+                    "info": "Specific manufacturer product.",
+                    "warnings": "Check manufacturer data for specific block size and application.",
+                    "source": "Research Doc Sec 3.2"
+                }
+            },
+            "Forterra-Conbloc-External": {
+                "is_product": true,
+                "standard": {
+                    "lambda": 1.42,
+                    "r_value": 0.07,
+                    "notes": "Forterra Conbloc concrete block (external use). R-value for 100mm thickness.",
+                    "info": "Specific manufacturer product.",
+                    "warnings": "Check manufacturer data for specific block size and application.",
+                    "source": "Research Doc Sec 3.2"
+                }
+            },
+            "Lightweight-Aggregate-1400kg_m3": {
+                "lambda": 0.57,
+                "r_value": 0.175,
+                "notes": "Lightweight aggregate concrete block (1400 kg/m³). R-value for 100mm thickness.",
+                "info": "Better thermal performance than dense blocks. Value from BR443 / Research Doc.",
+                "warnings": "Lower compressive strength.",
+                "source": "Research Doc Sec 3.2 / BR 443"
+            },
+            "Gryphonn-Block-950-1000kg_m3": {
+                "is_product": true,
+                "standard": {
+                    "lambda": 0.285,
+                    "r_value": 0.351,
+                    "notes": "Gryphonn lightweight concrete block (950/1000 kg/m³). R-value for 100mm thickness.",
+                    "info": "Specific manufacturer product with good thermal properties for a block.",
+                    "warnings": "Check manufacturer data for specific block size and application.",
+                    "source": "Research Doc Sec 3.2"
+                }
             }
         },
         "Aerated-Concrete-Block": {
@@ -1589,154 +1727,6 @@
                 "info": "Alternative value from Designing Buildings Wiki.",
                 "warnings": "Generic value, properties vary with mix.",
                 "source": "Designing Buildings Wiki / Research Doc Sec 3.4"
-            }
-        },
-        "Concrete-Block-Dense-Aggregate": {
-            "is_product": false,
-            "standard": {
-                "lambda": 1.35,
-                "r_value": 0.074,
-                "notes": "Medium density (2000 kg/m³) concrete blocks (100mm thick). R-value from 0.1m / 1.35 W/mK. BR443 R-value 0.15 includes mortar.",
-                "info": "Used for structural applications and inner leaves.",
-                "warnings": "Poor thermal performance requires additional insulation.",
-                "source": "BR 443:2019"
-            }
-        },
-        "Concrete-Block-Lightweight-Aggregate": {
-            "is_product": false,
-            "standard": {
-                "lambda": 0.22,
-                "r_value": 0.455,
-                "notes": "Lightweight (600 kg/m³) concrete blocks (100mm thick). R-value from 0.1m / 0.22 W/mK. BR443 R-value 0.91 includes mortar.",
-                "info": "Better thermal performance than dense blocks.",
-                "warnings": "Lower compressive strength than dense blocks.",
-                "source": "BR 443:2019"
-            }
-        },
-        "Concrete-Block-Dense-Aggregate-High-Density-2400kg_m3": {
-            "is_product": false,
-            "standard": {
-                "lambda": 1.93,
-                "r_value": 0.052,
-                "notes": "Dense aggregate concrete block (high density, 2400 kg/m³). R-value for 100mm thickness.",
-                "info": "High strength, poor thermal insulation.",
-                "warnings": "Requires significant additional insulation.",
-                "source": "Research Doc Sec 3.2"
-            }
-        },
-        "Concrete-Block-Dense-Aggregate-2200kg_m3": {
-            "is_product": false,
-            "standard": {
-                "lambda": 1.65,
-                "r_value": 0.061,
-                "notes": "Dense aggregate concrete block (2200 kg/m³). R-value for 100mm thickness.",
-                "info": "High strength, poor thermal insulation.",
-                "warnings": "Requires significant additional insulation.",
-                "source": "Research Doc Sec 3.2"
-            }
-        },
-        "Concrete-Block-Forterra-Conbloc-Internal": {
-            "is_product": true,
-            "standard": {
-                "lambda": 1.32,
-                "r_value": 0.076,
-                "notes": "Forterra Conbloc concrete block (internal use). R-value for 100mm thickness.",
-                "info": "Specific manufacturer product.",
-                "warnings": "Check manufacturer data for specific block size and application.",
-                "source": "Research Doc Sec 3.2"
-            }
-        },
-        "Concrete-Block-Forterra-Conbloc-External": {
-            "is_product": true,
-            "standard": {
-                "lambda": 1.42,
-                "r_value": 0.07,
-                "notes": "Forterra Conbloc concrete block (external use). R-value for 100mm thickness.",
-                "info": "Specific manufacturer product.",
-                "warnings": "Check manufacturer data for specific block size and application.",
-                "source": "Research Doc Sec 3.2"
-            }
-        },
-        "Concrete-Block-Lightweight-Aggregate-1400kg_m3": {
-            "is_product": false,
-            "standard": {
-                "lambda": 0.57,
-                "r_value": 0.175,
-                "notes": "Lightweight aggregate concrete block (1400 kg/m³). R-value for 100mm thickness.",
-                "info": "Better thermal performance than dense blocks. Value from BR443 / Research Doc.",
-                "warnings": "Lower compressive strength.",
-                "source": "Research Doc Sec 3.2 / BR 443"
-            }
-        },
-        "Concrete-Block-Gryphonn-Block-950-1000kg_m3": {
-            "is_product": true,
-            "standard": {
-                "lambda": 0.285,
-                "r_value": 0.351,
-                "notes": "Gryphonn lightweight concrete block (950/1000 kg/m³). R-value for 100mm thickness.",
-                "info": "Specific manufacturer product with good thermal properties for a block.",
-                "warnings": "Check manufacturer data for specific block size and application.",
-                "source": "Research Doc Sec 3.2"
-            }
-        },
-        "Facing-Brickwork-Wall-Skin": {
-            "is_product": true,
-            "102.5mm-Thickness": {
-                "lambda": 0.85,
-                "r_value": 0.13,
-                "thickness": 102.5,
-                "notes": "Facing clay bricks (λ 0.77 W/mK) plus 10 % cement mortar (λ 0.88 W/mK).",
-                "info": "External skin of cavity walls built to UK practice.",
-                "warnings": "Moisture raises conductivity; adjust for wet conditions.",
-                "source": "BR 443 / ISO 6946 brick-and-mortar data"
-            }
-        },
-        "Engineering-Brickwork-Wall-Skin": {
-            "is_product": true,
-            "102.5mm-Thickness": {
-                "lambda": 0.53,
-                "r_value": 0.2,
-                "thickness": 102.5,
-                "notes": "Engineering bricks (λ 0.47 W/mK) with 10 % mortar.",
-                "info": "Durable units for DPC and retaining courses.",
-                "warnings": "Higher λ than facing bricks – check U-value impact.",
-                "source": "Marshalls BTB-15 + ISO 6946 mortar"
-            }
-        },
-        "Celcon-Lightweight-Block-Wall-Skin": {
-            "is_product": true,
-            "100mm-Thickness": {
-                "lambda": 0.223,
-                "r_value": 0.45,
-                "thickness": 100,
-                "notes": "Celcon Standard Grade AAC (λ 0.15 W/mK) + 10 % mortar.",
-                "info": "Typical inner-leaf or partition block.",
-                "warnings": "Thin-joint mortar lowers λ further.",
-                "source": "H+H Celcon Standard Grade datasheet"
-            }
-        },
-        "Celcon-Solar-Block-Wall-Skin": {
-            "is_product": true,
-            "100mm-Thickness": {
-                "lambda": 0.187,
-                "r_value": 0.53,
-                "thickness": 100,
-                "notes": "Celcon Solar Grade AAC (λ 0.11 W/mK) + 10 % mortar.",
-                "info": "Low-λ block enabling sub-0.15 W/m²K walls.",
-                "warnings": "Protect blocks from saturation on site.",
-                "source": "H+H Celcon Solar Grade datasheet"
-            }
-        },
-        "Dense-Concrete-Block-Wall-Skin": {
-            "is_product": true,
-            "100mm-Thickness": {
-                "lambda": 1.56,
-                "r_value": 0.06,
-                "thickness": 100,
-                "notes": "Dense aggregate block (λ 1.63 W/mK) + 10 % mortar.",
-                "info": "Low-cost structural inner leaf where separate insulation is provided.",
-                "warnings": "Significant thermal bridge – use carefully in low-U walls.",
-                "source": "IES Table 6 + ISO 6946 mortar"
             }
         }
     },
@@ -2238,7 +2228,7 @@
             }
         }
     },
-    "Roofing": {
+    "Roofing-Materials-Outer-Coverings": {
         "Concrete-Roof-Tiles": {
             "is_product": false,
             "standard": {

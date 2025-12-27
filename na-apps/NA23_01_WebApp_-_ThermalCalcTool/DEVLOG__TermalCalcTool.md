@@ -1,8 +1,19 @@
 =================================================
-THERMAL CALC TOOL - U-VALUE CALCULATOR
+THERMAL CALC TOOL - U-value Calculator
 =================================================
 
 DEVELOPMENT LOG
+
+----------------------------------------------------------------
+1.4.2 - 27-Dec-2025 |  Restructured Json Data for better organization
+  - Restructured Json Data for better organization
+  - Added Concrete to Json Data under Concrete Section.
+  - Added Screeds to Json Data under Screeds Section.
+  - Added Timber to Json Data under Timber Section.
+  - Added PIR to Json Data under PIR Section.
+  - Added Cavity Wall to Json Data under Cavity Wall Section.
+  - Added Insulation to Json Data under Insulation Section.
+  - Added Insulation to Json Data under Insulation Section.
 
 ----------------------------------------------------------------
 1.4.1 - 27-Dec-2025 |  Updated Json Data with new materials and calculations
