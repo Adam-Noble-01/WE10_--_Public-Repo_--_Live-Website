@@ -426,7 +426,7 @@ h1, h2, h3, h4, h5, h6,
    ============================================================================================== */
 
 /* Drag handle icon */
-.UCALC__drag-handle {
+.UCALC__drag-handle { 
     width               :    5px;
     height              :    100%;
     flex                :    0 0 0px;
