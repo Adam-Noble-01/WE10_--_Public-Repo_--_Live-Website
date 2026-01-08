@@ -1766,6 +1766,44 @@ IMPORTANT NOTES
             // End of Markup Toolset Module Variables
 
             // ========================================================================
+            // ENVIRONMENT DETECTION - LOCAL VS PRODUCTION
+            // ========================================================================
+            const IS_LOCAL_DEV = window.location.hostname === '127.0.0.1' ||           // <-- Localhost IP
+                window.location.hostname === 'localhost' ||            // <-- Localhost name
+                window.location.protocol === 'file:';                  // <-- File protocol
+
+            const BASE_URL = IS_LOCAL_DEV
+                ? ''                                                                    // <-- Local: relative URLs
+                : 'https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage';
+
+            const JSON_CONFIG_URL = IS_LOCAL_DEV
+                ? 'JH03_-_DATA_-_Document-Library.json'                                 // <-- Local JSON path
+                : `${BASE_URL}/JH03_-_DATA_-_Document-Library.json`;                    // <-- Production JSON URL
+
+            // Log environment on startup
+            console.log(`[Environment] Running in ${IS_LOCAL_DEV ? 'LOCAL DEVELOPMENT' : 'PRODUCTION'} mode`);
+            console.log(`[Environment] Base URL: ${BASE_URL || '(relative)'}`);
+            console.log(`[Environment] JSON URL: ${JSON_CONFIG_URL}`);
+
+            // FUNCTION | Transform production URLs to local paths for dev environment
+            // --------------------------------------------------------------------
+            function transformUrl(url) {
+                if (!IS_LOCAL_DEV || !url) return url;
+
+                // Extract the path after JH03__RomerCottage/
+                const projectPath = 'JH03__RomerCottage/';
+                const pathIndex = url.indexOf(projectPath);
+
+                if (pathIndex !== -1) {
+                    const localPath = url.substring(pathIndex + projectPath.length);
+                    console.log(`[URL Transform] ${url} → ${localPath}`);
+                    return localPath;
+                }
+
+                return url;
+            }
+
+            // ========================================================================
             // DESIGN PHASE MANAGEMENT - GLOBAL VARIABLES
             // ========================================================================
             let allDrawingsData = null;                                              // <-- Stores all drawings from JSON
@@ -1785,9 +1823,8 @@ IMPORTANT NOTES
 
             // Fetch drawings data from JSON configuration file //
             async function fetchDrawings() {
-                const JSON_URL = "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_-_DATA_-_Document-Library.json";
                 try {
-                    const response = await fetch(JSON_URL);
+                    const response = await fetch(JSON_CONFIG_URL);
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
@@ -1990,9 +2027,8 @@ IMPORTANT NOTES
             // FUNCTION | Fetch videos data from JSON configuration file
             // -------------------------------------------------------------------------
             async function fetchVideos() {
-                const JSON_URL = "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_-_DATA_-_Document-Library.json";
                 try {
-                    const response = await fetch(JSON_URL);
+                    const response = await fetch(JSON_CONFIG_URL);
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
@@ -2260,8 +2296,9 @@ IMPORTANT NOTES
             async function loadDrawing(drawing) {
                 showLoading();
                 try {
-                    const pngUrl = drawing["document-links"]["png--github-link-url"];
-                    const pdfUrl = drawing["document-links"]["pdf--github-link-url"];
+                    // Get URLs and transform for local development if needed
+                    const pngUrl = transformUrl(drawing["document-links"]["png--github-link-url"]);
+                    const pdfUrl = transformUrl(drawing["document-links"]["pdf--github-link-url"]);
                     const documentName = drawing["document-name"];
                     const documentScale = drawing["document-scale"];
                     const documentSize = drawing["document-size"];
