@@ -1105,6 +1105,12 @@ IMPORTANT NOTES
             animation: pulseWarning 2s ease-in-out infinite;
         }
 
+        /* Video Gallery Button Styling */
+        .tool-button[style*="6a5acd"]:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
         /* FOOTER */
         #footer {
             position: absolute;
@@ -1744,6 +1750,12 @@ IMPORTANT NOTES
             let projectPhaseConfig = null;                                           // <-- Stores phase config from JSON
 
             // ========================================================================
+            // VIDEO GALLERY MANAGEMENT - GLOBAL VARIABLES
+            // ========================================================================
+            let allVideosData = null;                                                // <-- Stores all videos from JSON
+            let isViewingVideoGallery = false;                                       // <-- Tracks if viewing video gallery
+
+            // ========================================================================
             // JSON AND DRAWING MANAGEMENT FUNCTIONS
             // ========================================================================
 
@@ -2028,89 +2040,126 @@ IMPORTANT NOTES
 
             // FUNCTION | Create Dynamic buttons for each video in the toolbar
             // -------------------------------------------------------------------------
+            // FUNCTION | Create Video Gallery button in the toolbar                //
+            // - Shows a single "Video Gallery" button that opens video list       //
+            // --------------------------------------------------------------------
             function createVideoButtons(videos) {
                 if (!videos) {
                     console.error("[VideoButtons] ❌ No videos data provided - this should not happen!");
                     return;
                 }
 
-                console.log("[VideoButtons] Starting button creation...");
-                console.log("[VideoButtons] Videos object:", videos);
-                console.log("[VideoButtons] Videos object keys:", Object.keys(videos));
+                // Store videos globally for gallery switching
+                allVideosData = videos;
 
-                // Create header element for video section
-                const header = document.createElement("div");
-                header.className = "menu_-_drawing-button-header-text";
-                header.textContent = "Select Video";
-                header.style.marginTop = "10px";
-
-                // Create a separate container for the video buttons
-                const videoButtonContainer = document.createElement("div");
-                videoButtonContainer.className = "video-button-container";
+                console.log("[VideoButtons] Creating Video Gallery button...");
 
                 // Get the toolbar element
                 const toolbar = document.getElementById("toolbar");
 
-                // Find the cancelToolBtn to insert after (Measuring Tools section)
-                const cancelToolBtn = document.getElementById("cancelToolBtn");
+                // Remove existing video elements if they exist
+                const existingHeader = toolbar.querySelector(".video-section-header");
+                const existingContainer = toolbar.querySelector(".video-button-container");
+                const existingSpacer = toolbar.querySelector(".video-section-spacer");
+                if (existingHeader) existingHeader.remove();
+                if (existingContainer) existingContainer.remove();
+                if (existingSpacer) existingSpacer.remove();
 
-                if (cancelToolBtn) {
-                    // Insert after the Cancel Tool button (end of Measuring Tools section)
-                    cancelToolBtn.after(header);
+                // Create header element for video section
+                const header = document.createElement("div");
+                header.className = "menu_-_drawing-button-header-text video-section-header";
+                header.textContent = "Project Videos";
+                header.style.marginTop = "10px";
+
+                // Create a container for the video gallery button
+                const videoButtonContainer = document.createElement("div");
+                videoButtonContainer.className = "video-button-container";
+
+                // Find the drawing section spacer to insert after
+                const drawingSpacer = toolbar.querySelector(".drawing-section-spacer");
+
+                if (drawingSpacer) {
+                    drawingSpacer.after(header);
                     header.after(videoButtonContainer);
                 } else {
-                    // Fallback: find drawing button container
-                    const drawingButtonContainer = document.querySelector(".drawing-button-container");
-                    if (drawingButtonContainer) {
-                        drawingButtonContainer.after(header);
+                    // Fallback: find cancelToolBtn
+                    const cancelToolBtn = document.getElementById("cancelToolBtn");
+                    if (cancelToolBtn) {
+                        cancelToolBtn.after(header);
                         header.after(videoButtonContainer);
-                    } else {
-                        // Fallback: insert at beginning if no drawing container found
-                        if (toolbar.firstChild) {
-                            toolbar.insertBefore(videoButtonContainer, toolbar.firstChild);
-                            toolbar.insertBefore(header, videoButtonContainer);
-                        } else {
-                            toolbar.appendChild(header);
-                            toolbar.appendChild(videoButtonContainer);
-                        }
                     }
+                }
+
+                // Create single "Video Gallery" button
+                const galleryBtn = document.createElement("button");
+                galleryBtn.className = "tool-button";
+                galleryBtn.textContent = "🎬 Video Gallery";
+                galleryBtn.style.background = "linear-gradient(135deg, #6a5acd 0%, #483d8b 100%)";
+                galleryBtn.addEventListener("click", () => {
+                    showVideoGallery();
+                });
+                videoButtonContainer.appendChild(galleryBtn);
+
+                // Add a spacer after the video button
+                const spacer = document.createElement("div");
+                spacer.className = "video-section-spacer";
+                spacer.style.marginBottom = "20px";
+                videoButtonContainer.after(spacer);
+
+                console.log("[VideoButtons] Video Gallery button created");
+            }
+
+            // FUNCTION | Show Video Gallery - Replace menu with video list        //
+            // --------------------------------------------------------------------
+            function showVideoGallery() {
+                if (!allVideosData) {
+                    console.error("[VideoGallery] No videos data available");
+                    return;
+                }
+
+                isViewingVideoGallery = true;
+                console.log("[VideoGallery] Opening video gallery view...");
+
+                // Get the toolbar element
+                const toolbar = document.getElementById("toolbar");
+
+                // Hide the drawing section elements
+                const drawingHeader = toolbar.querySelector(".drawing-section-header");
+                const drawingContainer = toolbar.querySelector(".drawing-button-container");
+                const drawingSpacer = toolbar.querySelector(".drawing-section-spacer");
+                const historicBanner = toolbar.querySelector(".historic-mode-banner");
+
+                if (drawingHeader) drawingHeader.style.display = "none";
+                if (drawingContainer) drawingContainer.style.display = "none";
+                if (drawingSpacer) drawingSpacer.style.display = "none";
+                if (historicBanner) historicBanner.style.display = "none";
+
+                // Update video section header
+                const videoHeader = toolbar.querySelector(".video-section-header");
+                if (videoHeader) videoHeader.textContent = "Select Video";
+
+                // Get or create video container
+                let videoButtonContainer = toolbar.querySelector(".video-button-container");
+                if (videoButtonContainer) {
+                    videoButtonContainer.innerHTML = ""; // Clear existing content
                 }
 
                 // Convert videos object to array and sort by VID number
                 const videoArray = [];
-                console.log("[VideoButtons] Iterating through videos to filter...");
-
-                for (const key in videos) {
-                    console.log(`[VideoButtons] Checking key: ${key}`);
-                    console.log(`[VideoButtons] - Starts with 'video-': ${key.startsWith("video-")}`);
-                    console.log(`[VideoButtons] - File name: ${videos[key]["file-name"]}`);
-                    console.log(`[VideoButtons] - Is template: ${videos[key]["file-name"] === "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}"}`);
-
-                    if (key.startsWith("video-") && videos[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
-                        console.log(`[VideoButtons] ✓ Adding video to array: ${key}`);
+                for (const key in allVideosData) {
+                    if (key.startsWith("video-") && allVideosData[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
                         videoArray.push({
                             key: key,
-                            data: videos[key],
-                            vidNumber: extractVideoNumber(videos[key]["file-name"])
+                            data: allVideosData[key],
+                            vidNumber: extractVideoNumber(allVideosData[key]["file-name"])
                         });
-                    } else {
-                        console.log(`[VideoButtons] ✗ Skipping: ${key}`);
                     }
                 }
 
-                console.log("[VideoButtons] Filtered video array length:", videoArray.length);
-                console.log("[VideoButtons] Filtered video array:", videoArray);
-
-                if (videoArray.length === 0) {
-                    console.error("[VideoButtons] ❌ No videos passed the filter! Check JSON structure.");
-                    console.error("[VideoButtons] Expected: Keys starting with 'video-' and file-name not being template placeholder");
-                    return;
-                }
-
-                // Sort by VID number (VID01, VID02, etc.)
+                // Sort by VID number
                 videoArray.sort((a, b) => a.vidNumber - b.vidNumber);
 
-                // Create buttons in sorted order
+                // Create buttons for each video
                 videoArray.forEach((videoItem) => {
                     const video = videoItem.data;
                     const button = document.createElement("button");
@@ -2128,13 +2177,60 @@ IMPORTANT NOTES
                         }
                     });
                     videoButtonContainer.appendChild(button);
-                    console.log("[VideoButtons] Created button for:", video["video-name"]);
                 });
 
-                // Add a spacer after the video buttons
-                const spacer = document.createElement("div");
-                spacer.style.marginBottom = "20px";
-                videoButtonContainer.after(spacer);
+                // Add "Back to Main Menu" button
+                const backBtn = document.createElement("button");
+                backBtn.className = "tool-button return-current-btn";
+                backBtn.textContent = "Back to Main Menu";
+                backBtn.addEventListener("click", () => {
+                    hideVideoGallery();
+                });
+                videoButtonContainer.appendChild(backBtn);
+
+                console.log("[VideoGallery] Video gallery view displayed with", videoArray.length, "videos");
+            }
+
+            // FUNCTION | Hide Video Gallery - Return to main drawing menu         //
+            // --------------------------------------------------------------------
+            function hideVideoGallery() {
+                isViewingVideoGallery = false;
+                console.log("[VideoGallery] Returning to main menu...");
+
+                // Get the toolbar element
+                const toolbar = document.getElementById("toolbar");
+
+                // Show the drawing section elements
+                const drawingHeader = toolbar.querySelector(".drawing-section-header");
+                const drawingContainer = toolbar.querySelector(".drawing-button-container");
+                const drawingSpacer = toolbar.querySelector(".drawing-section-spacer");
+                const historicBanner = toolbar.querySelector(".historic-mode-banner");
+
+                if (drawingHeader) drawingHeader.style.display = "";
+                if (drawingContainer) drawingContainer.style.display = "";
+                if (drawingSpacer) drawingSpacer.style.display = "";
+                if (historicBanner && isViewingHistoricArchive) historicBanner.style.display = "";
+
+                // Update video section header
+                const videoHeader = toolbar.querySelector(".video-section-header");
+                if (videoHeader) videoHeader.textContent = "Project Videos";
+
+                // Restore video gallery button
+                let videoButtonContainer = toolbar.querySelector(".video-button-container");
+                if (videoButtonContainer) {
+                    videoButtonContainer.innerHTML = "";
+
+                    const galleryBtn = document.createElement("button");
+                    galleryBtn.className = "tool-button";
+                    galleryBtn.textContent = "🎬 Video Gallery";
+                    galleryBtn.style.background = "linear-gradient(135deg, #6a5acd 0%, #483d8b 100%)";
+                    galleryBtn.addEventListener("click", () => {
+                        showVideoGallery();
+                    });
+                    videoButtonContainer.appendChild(galleryBtn);
+                }
+
+                console.log("[VideoGallery] Returned to main menu");
             }
 
 
