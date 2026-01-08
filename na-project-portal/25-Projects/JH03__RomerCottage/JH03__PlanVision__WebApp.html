@@ -691,13 +691,13 @@ IMPORTANT NOTES
             /* slide offscreen */
         }
 
-        /* TOOL BUTTONS */
+        /* TOOL BUTTONS - Base Styling */
         .tool-button {
             display: block;
             width: 100%;
             margin-bottom: 8px;
             padding: 10px;
-            background: #888888;
+            background: #7a7a7a;
             color: #fff;
             text-align: center;
             border: none;
@@ -705,23 +705,48 @@ IMPORTANT NOTES
             font-size: 12px;
             border-radius: 3px;
             transition: all 0.2s ease;
-            /* Changed from 'opacity' to 'all' to cover both color and opacity */
         }
 
         .tool-button:hover {
-            background-color: #585858;
-            /* Darker grey on hover */
+            filter: brightness(0.85);
+            transform: translateY(-1px);
         }
 
-        /* Ensure all tool buttons, including markup tools, use the same styling */
+        /* Drawing Selection Buttons - Subtle Blue Tint */
+        .drawing-button-container .tool-button {
+            background: linear-gradient(135deg, #5a6a7a 0%, #4a5a6a 100%);
+        }
+
+        /* View & Export Buttons - Subtle Green Tint */
+        #downloadPDFBtn,
+        #resetViewBtn {
+            background: linear-gradient(135deg, #5a7a6a 0%, #4a6a5a 100%);
+        }
+
+        /* Measuring Tools - Subtle Teal Tint */
+        #linearMeasureBtn,
+        #rectMeasureBtn,
+        #areaMeasureBtn,
+        #clearMeasurementsBtn {
+            background: linear-gradient(135deg, #5a7a7a 0%, #4a6a6a 100%);
+        }
+
+        #cancelToolBtn {
+            background: #9a6a6a;
+        }
+
+        /* Markup Tools - Subtle Warm Tint */
+        #toggleMarkupToolsetBtn {
+            background: linear-gradient(135deg, #7a6a5a 0%, #6a5a4a 100%);
+        }
+
         #markup-toolset .tool-button {
-            background: #888888;
+            background: linear-gradient(135deg, #7a6a5a 0%, #6a5a4a 100%);
             color: #fff;
         }
 
         #markup-toolset .tool-button:hover {
-            background-color: #585858;
-            /* Darker grey on hover */
+            filter: brightness(0.85);
         }
 
         .menu_-_drawing-button-container {
@@ -1060,15 +1085,15 @@ IMPORTANT NOTES
 
         /* Historic Archive Button Styling */
         .historic-archive-btn {
-            background: linear-gradient(135deg, #5a5a5a 0%, #3d3d3d 100%) !important;
-            border: 2px dashed #888 !important;
-            color: #ccc !important;
+            background: linear-gradient(135deg, #6a6058 0%, #5a5048 100%) !important;
+            border: 1px dashed #8a8078 !important;
+            color: #d8d4d0 !important;
             font-style: italic;
             position: relative;
         }
 
         .historic-archive-btn:hover {
-            background: linear-gradient(135deg, #6a6a6a 0%, #4d4d4d 100%) !important;
+            filter: brightness(1.1) !important;
             border-color: #aaa !important;
         }
 
@@ -1078,16 +1103,21 @@ IMPORTANT NOTES
 
         /* Return to Current Button Styling */
         .return-current-btn {
-            background: linear-gradient(135deg, #5cb85c 0%, #449d44 100%) !important;
+            background: linear-gradient(135deg, #5a7a6a 0%, #4a6a5a 100%) !important;
             font-weight: 600 !important;
         }
 
         .return-current-btn:hover {
-            background: linear-gradient(135deg, #449d44 0%, #398439 100%) !important;
+            filter: brightness(0.9) !important;
         }
 
         .return-current-btn::before {
             content: "← ";
+        }
+
+        /* Video Gallery Button Styling */
+        .video-button-container .tool-button {
+            background: linear-gradient(135deg, #6a5a7a 0%, #5a4a6a 100%);
         }
 
         /* Historic Mode Indicator Banner */
@@ -1103,12 +1133,6 @@ IMPORTANT NOTES
             margin-bottom: 10px;
             border-radius: 3px;
             animation: pulseWarning 2s ease-in-out infinite;
-        }
-
-        /* Video Gallery Button Styling */
-        .tool-button[style*="6a5acd"]:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
         }
 
         /* FOOTER */
@@ -2094,7 +2118,6 @@ IMPORTANT NOTES
                 const galleryBtn = document.createElement("button");
                 galleryBtn.className = "tool-button";
                 galleryBtn.textContent = "🎬 Video Gallery";
-                galleryBtn.style.background = "linear-gradient(135deg, #6a5acd 0%, #483d8b 100%)";
                 galleryBtn.addEventListener("click", () => {
                     showVideoGallery();
                 });
@@ -2223,7 +2246,6 @@ IMPORTANT NOTES
                     const galleryBtn = document.createElement("button");
                     galleryBtn.className = "tool-button";
                     galleryBtn.textContent = "🎬 Video Gallery";
-                    galleryBtn.style.background = "linear-gradient(135deg, #6a5acd 0%, #483d8b 100%)";
                     galleryBtn.addEventListener("click", () => {
                         showVideoGallery();
                     });
