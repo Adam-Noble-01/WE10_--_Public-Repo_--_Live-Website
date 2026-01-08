@@ -79,15 +79,15 @@
                 "document-revisions":{
                     "revision-a"       :    "08-Jan-2026",
                     "revision-b"       :    "NIL",
-                    "revision-c"       :    "08-Jan-2026",
-                    "revision-d"       :    "NIL",
+                    "revision-c"       :    "07-Jan-2026",
+                    "revision-d"       :    "08-Jan-2026",
                     "revision-e"       :    "NIL"
                 },
                 "document-links":{
-                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_D22__FoundationsPlan__RevC__.png",
-                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_D22__FoundationsPlan__RevC__.pdf",
-                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_D22__FoundationsPlan__RevC__.png",
-                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_D22__FoundationsPlan__RevC__.pdf"
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_D22__FoundationsPlan__RevD__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_D22__FoundationsPlan__RevD__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_D22__FoundationsPlan__RevD__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_D22__FoundationsPlan__RevD__.pdf"
                 }
             },
             "drawing-03"               :    {
