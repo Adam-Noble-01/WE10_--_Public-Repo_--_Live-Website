@@ -916,6 +916,195 @@ IMPORTANT NOTES
             font-size: 14px;
         }
 
+        /* HISTORIC ARCHIVE WARNING MODAL */
+        #historic-warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulseWarning {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes hazardStripe {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 40px 0;
+            }
+        }
+
+        .historic-warning-content {
+            background: #1a1a1a;
+            border: 4px solid #d9534f;
+            border-radius: 12px;
+            padding: 0;
+            max-width: 520px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(217, 83, 79, 0.5),
+                0 0 100px rgba(217, 83, 79, 0.3);
+            animation: pulseWarning 2s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        .historic-warning-hazard-bar {
+            height: 20px;
+            background: repeating-linear-gradient(45deg,
+                    #d9534f,
+                    #d9534f 10px,
+                    #1a1a1a 10px,
+                    #1a1a1a 20px);
+            animation: hazardStripe 1s linear infinite;
+        }
+
+        .historic-warning-inner {
+            padding: 30px 40px 40px;
+        }
+
+        .historic-warning-icon {
+            font-size: 72px;
+            margin-bottom: 15px;
+            display: block;
+            filter: drop-shadow(0 0 20px rgba(217, 83, 79, 0.8));
+        }
+
+        .historic-warning-content h2 {
+            color: #d9534f;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(217, 83, 79, 0.6);
+        }
+
+        .historic-warning-content p {
+            color: #ffffff;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 15px;
+            line-height: 1.7;
+            margin: 0 0 15px 0;
+        }
+
+        .historic-warning-content p.warning-emphasis {
+            color: #f0ad4e;
+            font-weight: 600;
+            font-size: 16px;
+            background: rgba(240, 173, 78, 0.15);
+            padding: 12px 15px;
+            border-radius: 6px;
+            border-left: 4px solid #f0ad4e;
+            margin: 20px 0;
+        }
+
+        .historic-warning-content p.warning-critical {
+            color: #d9534f;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+
+        #historic-warning-dismiss {
+            background: linear-gradient(135deg, #5cb85c 0%, #449d44 100%);
+            color: #fff;
+            border: none;
+            padding: 14px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #historic-warning-dismiss:hover {
+            background: linear-gradient(135deg, #449d44 0%, #398439 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(92, 184, 92, 0.4);
+        }
+
+        /* Historic Archive Button Styling */
+        .historic-archive-btn {
+            background: linear-gradient(135deg, #5a5a5a 0%, #3d3d3d 100%) !important;
+            border: 2px dashed #888 !important;
+            color: #ccc !important;
+            font-style: italic;
+            position: relative;
+        }
+
+        .historic-archive-btn:hover {
+            background: linear-gradient(135deg, #6a6a6a 0%, #4d4d4d 100%) !important;
+            border-color: #aaa !important;
+        }
+
+        .historic-archive-btn::before {
+            content: "📁 ";
+        }
+
+        /* Return to Current Button Styling */
+        .return-current-btn {
+            background: linear-gradient(135deg, #5cb85c 0%, #449d44 100%) !important;
+            font-weight: 600 !important;
+        }
+
+        .return-current-btn:hover {
+            background: linear-gradient(135deg, #449d44 0%, #398439 100%) !important;
+        }
+
+        .return-current-btn::before {
+            content: "← ";
+        }
+
+        /* Historic Mode Indicator Banner */
+        .historic-mode-banner {
+            background: linear-gradient(90deg, #d9534f, #c9302c);
+            color: #fff;
+            padding: 8px 15px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 10px;
+            border-radius: 3px;
+            animation: pulseWarning 2s ease-in-out infinite;
+        }
+
         /* FOOTER */
         #footer {
             position: absolute;
@@ -1147,6 +1336,25 @@ IMPORTANT NOTES
             <div id="menu-tutorial-overlay">
                 <div id="menu-pointer-arrow"></div>
                 <div id="menu-tutorial-text">Press Here To Open / Hide The Tools Menu</div>
+            </div>
+
+            <!-- HISTORIC ARCHIVE WARNING MODAL -->
+            <div id="historic-warning-overlay">
+                <div class="historic-warning-content">
+                    <div class="historic-warning-hazard-bar"></div>
+                    <div class="historic-warning-inner">
+                        <span class="historic-warning-icon">⚠️</span>
+                        <h2>Historic Archive</h2>
+                        <p>You are about to view drawings from a <strong>previous design phase</strong>. These documents
+                            are retained solely as a historic record.</p>
+                        <p class="warning-emphasis">These drawings have been superseded and must NOT be used for
+                            construction, planning, or any other purpose.</p>
+                        <p>Please return to the main menu to access the current, approved design phase drawings.</p>
+                        <p class="warning-critical">For reference only - Do not use</p>
+                        <button id="historic-warning-dismiss">I Understand - View Historic Archive</button>
+                    </div>
+                    <div class="historic-warning-hazard-bar"></div>
+                </div>
             </div>
 
             <!-- TOOLBAR -->
@@ -1528,6 +1736,14 @@ IMPORTANT NOTES
             // End of Markup Toolset Module Variables
 
             // ========================================================================
+            // DESIGN PHASE MANAGEMENT - GLOBAL VARIABLES
+            // ========================================================================
+            let allDrawingsData = null;                                              // <-- Stores all drawings from JSON
+            let isViewingHistoricArchive = false;                                    // <-- Tracks if viewing historic docs
+            let CURRENT_DESIGN_PHASE = null;                                         // <-- Set from JSON config
+            let projectPhaseConfig = null;                                           // <-- Stores phase config from JSON
+
+            // ========================================================================
             // JSON AND DRAWING MANAGEMENT FUNCTIONS
             // ========================================================================
 
@@ -1547,6 +1763,20 @@ IMPORTANT NOTES
                         throw new Error("Missing 'na-project-data-library' in JSON");
                     }
                     console.log("na-project-data-library:", data["na-project-data-library"]);
+
+                    // Extract and store project phase configuration from JSON
+                    if (data["na-project-data-library"]["project-phase-config"]) {
+                        projectPhaseConfig = data["na-project-data-library"]["project-phase-config"];
+                        CURRENT_DESIGN_PHASE = projectPhaseConfig["active-design-phase"];
+                        console.log("[DesignPhase] Phase config loaded from JSON:");
+                        console.log("[DesignPhase] → Active phase:", CURRENT_DESIGN_PHASE);
+                        console.log("[DesignPhase] → Available phases:", projectPhaseConfig["available-phases"]);
+                        console.log("[DesignPhase] → Last updated:", projectPhaseConfig["phase-last-updated"]);
+                    } else {
+                        // Fallback if phase config not found in JSON
+                        console.warn("[DesignPhase] No 'project-phase-config' found in JSON - using fallback");
+                        CURRENT_DESIGN_PHASE = "DesignPhase03";
+                    }
 
                     if (!data["na-project-data-library"]["project-documentation"]) {
                         throw new Error("Missing 'project-documentation' in JSON");
@@ -1570,18 +1800,34 @@ IMPORTANT NOTES
             // FUNCTION |  Create Dynamic buttons for each drawing in the toolbar   //
             // - Uses Project Specific Json File To Assign Menu Buttons             //
             // - Buttons used for selecting between & loading different drawings    //
-            function createDrawingButtons(drawings) {
+            // - Updated to support Design Phase filtering and Historic Archive     //
+            // --------------------------------------------------------------------
+            function createDrawingButtons(drawings, showHistoric = false) {
+                // Store drawings globally for phase switching
+                allDrawingsData = drawings;
+                isViewingHistoricArchive = showHistoric;
+
+                // Get the toolbar element
+                const toolbar = document.getElementById("toolbar");
+
+                // Remove existing drawing button elements if they exist
+                const existingHeader = toolbar.querySelector(".drawing-section-header");
+                const existingContainer = toolbar.querySelector(".drawing-button-container");
+                const existingBanner = toolbar.querySelector(".historic-mode-banner");
+                const existingSpacer = toolbar.querySelector(".drawing-section-spacer");
+                if (existingHeader) existingHeader.remove();
+                if (existingContainer) existingContainer.remove();
+                if (existingBanner) existingBanner.remove();
+                if (existingSpacer) existingSpacer.remove();
+
                 // Create header element for drawing section
                 const header = document.createElement("div");
-                header.className = "menu_-_drawing-button-header-text";
-                header.textContent = "Select Drawing";
+                header.className = "menu_-_drawing-button-header-text drawing-section-header";
+                header.textContent = showHistoric ? "Historic Archive" : "Select Drawing";
 
                 // Create a separate container for the drawing buttons
                 const buttonContainer = document.createElement("div");
                 buttonContainer.className = "drawing-button-container";
-
-                // Get the toolbar element
-                const toolbar = document.getElementById("toolbar");
 
                 // Insert at the beginning of the toolbar
                 if (toolbar.firstChild) {
@@ -1592,20 +1838,104 @@ IMPORTANT NOTES
                     toolbar.appendChild(buttonContainer);
                 }
 
+                // Add historic mode warning banner if viewing historic archive
+                if (showHistoric) {
+                    const banner = document.createElement("div");
+                    banner.className = "historic-mode-banner";
+                    banner.textContent = "⚠ HISTORIC DOCUMENTS - DO NOT USE ⚠";
+                    toolbar.insertBefore(banner, header);
+                }
+
                 // Add a spacer after the drawing buttons
                 const spacer = document.createElement("div");
+                spacer.className = "drawing-section-spacer";
                 spacer.style.marginBottom = "20px";
                 buttonContainer.after(spacer);
+
+                // Filter drawings based on design phase
+                const targetPhase = showHistoric ? null : CURRENT_DESIGN_PHASE;
 
                 // Iterate over drawing entries and create buttons
                 for (const key in drawings) {
                     if (key.startsWith("drawing-") && drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
-                        const button = document.createElement("button");
-                        button.className = "tool-button";
-                        button.textContent = drawings[key]["document-name"];
-                        button.addEventListener("click", () => loadDrawing(drawings[key]));
-                        buttonContainer.appendChild(button);
+                        const drawingPhase = drawings[key]["design-phase"] || "DesignPhase02";
+
+                        // Show current phase OR historic phases based on mode
+                        const shouldShow = showHistoric
+                            ? (drawingPhase !== CURRENT_DESIGN_PHASE)    // <-- Show older phases
+                            : (drawingPhase === CURRENT_DESIGN_PHASE);  // <-- Show current phase only
+
+                        if (shouldShow) {
+                            const button = document.createElement("button");
+                            button.className = "tool-button";
+                            button.textContent = drawings[key]["document-name"];
+                            button.addEventListener("click", () => loadDrawing(drawings[key]));
+                            buttonContainer.appendChild(button);
+                        }
                     }
+                }
+
+                // Add navigation button (Historic Archive OR Return to Current)
+                const navButton = document.createElement("button");
+                if (showHistoric) {
+                    // Return to Current Drawings button
+                    navButton.className = "tool-button return-current-btn";
+                    navButton.textContent = "Return to Current Drawings";
+                    navButton.addEventListener("click", () => {
+                        createDrawingButtons(allDrawingsData, false);
+                        console.log("[DesignPhase] Returned to current drawings (DesignPhase03)");
+                    });
+                } else {
+                    // Historic Archive button
+                    navButton.className = "tool-button historic-archive-btn";
+                    navButton.textContent = "View Historic Archive";
+                    navButton.addEventListener("click", () => {
+                        showHistoricWarningModal();
+                    });
+                }
+                buttonContainer.appendChild(navButton);
+            }
+
+            // FUNCTION | Show Historic Archive Warning Modal                       //
+            // - Displays full-screen warning before allowing access to old docs    //
+            // --------------------------------------------------------------------
+            function showHistoricWarningModal() {
+                const overlay = document.getElementById("historic-warning-overlay");
+                overlay.style.display = "flex";
+                console.log("[DesignPhase] Historic archive warning modal displayed");
+            }
+
+            // FUNCTION | Hide Historic Warning Modal and Switch to Historic View   //
+            // --------------------------------------------------------------------
+            function dismissHistoricWarningAndShowArchive() {
+                const overlay = document.getElementById("historic-warning-overlay");
+                overlay.style.display = "none";
+
+                // Switch to historic archive view
+                if (allDrawingsData) {
+                    createDrawingButtons(allDrawingsData, true);
+                    console.log("[DesignPhase] Switched to historic archive view");
+                }
+            }
+
+            // FUNCTION | Initialize Historic Warning Modal Event Listeners         //
+            // --------------------------------------------------------------------
+            function initHistoricWarningModal() {
+                const dismissBtn = document.getElementById("historic-warning-dismiss");
+                const overlay = document.getElementById("historic-warning-overlay");
+
+                if (dismissBtn) {
+                    dismissBtn.addEventListener("click", dismissHistoricWarningAndShowArchive);
+                }
+
+                // Close modal if clicking outside the content (optional)
+                if (overlay) {
+                    overlay.addEventListener("click", (e) => {
+                        if (e.target === overlay) {
+                            overlay.style.display = "none";
+                            console.log("[DesignPhase] Historic warning modal closed without action");
+                        }
+                    });
                 }
             }
 
@@ -1914,12 +2244,20 @@ IMPORTANT NOTES
                 resizeCanvas();
                 const drawings = await fetchDrawings();
                 if (drawings) {
-                    createDrawingButtons(drawings);
+                    createDrawingButtons(drawings, false);  // <-- Show current phase only
+
+                    // Initialize Historic Warning Modal event listeners
+                    initHistoricWarningModal();
+
+                    // Load the first drawing from the CURRENT design phase only
                     const firstDrawingKey = Object.keys(drawings).find(
-                        key => key.startsWith("drawing-") && drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}"
+                        key => key.startsWith("drawing-") &&
+                            drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}" &&
+                            drawings[key]["design-phase"] === CURRENT_DESIGN_PHASE
                     );
                     if (firstDrawingKey) {
                         await loadDrawing(drawings[firstDrawingKey]);
+                        console.log("[DesignPhase] Loaded first DesignPhase03 drawing:", drawings[firstDrawingKey]["document-name"]);
                     }
                 }
 
