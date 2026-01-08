@@ -43,7 +43,7 @@
     "project-documentation":{
         "project-drawings":{
             "drawing-01"               :    {
-                "file-name"            :    "JH03_T03_D21__TechnicalPlan__RevC__.pdf",
+                "file-name"            :    "JH03_T03_D21__TechnicalPlan__RevD__.pdf",
                 "added-to-register"    :    "08-Jan-2026",
                 "document-type"        :    "Drawing",
                 "document-name"        :    "Technical Plan",   
@@ -56,14 +56,14 @@
                     "revision-a"       :    "08-Jan-2026",
                     "revision-b"       :    "NIL",
                     "revision-c"       :    "08-Jan-2026",
-                    "revision-d"       :    "NIL",
+                    "revision-d"       :    "08-Jan-2026",
                     "revision-e"       :    "NIL"
                 },
                 "document-links":{
-                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_D21__TechnicalPlan__RevC__.png",
-                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_D21__TechnicalPlan__RevC__.pdf",
-                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_D21__TechnicalPlan__RevC__.png",
-                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_D21__TechnicalPlan__RevC__.pdf"
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_D21__TechnicalPlan__RevD__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_D21__TechnicalPlan__RevD__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_D21__TechnicalPlan__RevD__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_D21__TechnicalPlan__RevD__.pdf"
                 }
             },
             "drawing-02"               :    {
