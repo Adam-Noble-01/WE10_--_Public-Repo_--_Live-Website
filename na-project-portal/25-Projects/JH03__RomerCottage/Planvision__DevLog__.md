@@ -78,6 +78,29 @@ This document tracks the development history, issues, lessons learned, and versi
 
 ## Version History
 
+**19-Jan-2026 - v1.9.0 | MENU SEPARATION & DOCUMENT CATEGORIZATION**
+
+MENU ARCHITECTURE IMPROVEMENTS
+- Separated drawings from specifications into dedicated category menus
+- Implemented three-tier menu system: Main Menu → Drawings/Specifications → Document Selection
+- Added "Drawings" category button for document-type: "Drawing" (plans, elevations, sections)
+- Added "Details & Specifications" category button for document-type: "Specification" (construction details, U-value calculations)
+
+DYNAMIC FILTERING SYSTEM
+- Menu dynamically filters documents based on "document-type" field from @JH03_-_DATA_-_Document-Library.json
+- Drawing category shows 18 documents (plans, elevations, sections, roof plans)
+- Specifications category shows 11 documents (construction details, calculations)
+- Document type excluded from both menus preserved
+
+USER EXPERIENCE ENHANCEMENTS
+- Both sub-menus include full measuring tools (linear, rectangle, area measurements)
+- Both sub-menus include complete markup tools functionality
+- Added "Back to Main Menu" navigation buttons for seamless category switching
+- Reduced menu clutter by organizing documents into logical categories
+- Maintained Video Gallery and Historic Archive access from main menu
+
+---
+
 **08-Jan-2026 - v1.8.9 | DESIGN PHASE ORGANISATION & DEVELOPMENT WORKFLOW**
 
 DESIGN PHASE ARCHITECTURE

@@ -6,7 +6,7 @@
 - **File Type:** HTML/CSS/JS Web Application
 - **Description:** A web application for viewing and interacting with architectural drawings
 - **Author:** Adam Noble – Noble Architecture
-- **Current Version:** v1.8.6
+- **Current Version:** v1.9.0
 
 ## Application URL
 
