@@ -271,20 +271,24 @@
 
         /* Main Menu Section - Category Selection */
         .main-menu-section {
-            display: block;                                                  /* <-- Visible by default */
+            display: block;
+            /* <-- Visible by default */
         }
 
         .main-menu-section.hidden {
-            display: none;                                                   /* <-- Hidden when in sub-menu */
+            display: none;
+            /* <-- Hidden when in sub-menu */
         }
 
         /* Sub-Menu Section - Document Lists with Tools */
         .sub-menu-section {
-            display: none;                                                   /* <-- Hidden by default */
+            display: none;
+            /* <-- Hidden by default */
         }
 
         .sub-menu-section.visible {
-            display: block;                                                  /* <-- Visible when selected */
+            display: block;
+            /* <-- Visible when selected */
         }
 
         /* Category Button Container */
@@ -299,7 +303,8 @@
             width: 100%;
             margin-bottom: 10px;
             padding: 14px 10px;
-            background: linear-gradient(135deg, #555041 0%, #3d3a30 100%);  /* <-- Brand color gradient */
+            background: linear-gradient(135deg, #555041 0%, #3d3a30 100%);
+            /* <-- Brand color gradient */
             color: #fff;
             text-align: center;
             border: none;
@@ -1078,12 +1083,14 @@
                         <div class="menu_-_drawing-button-header-text">Line Width</div>
                         <div style="display:flex; align-items:center; margin-bottom: 10px;">
                             <span style="margin-right:10px; color:#555041;">Size:</span>
-                            <input type="range" id="markupLineWidthSlider" min="2" max="20" value="9" style="flex-grow:1;">
+                            <input type="range" id="markupLineWidthSlider" min="2" max="20" value="9"
+                                style="flex-grow:1;">
                         </div>
 
                         <div class="menu_-_drawing-button-header-text">Colour Selection</div>
                         <div class="color-palette">
-                            <div class="color-swatch active" data-color="#960000" style="background-color: #960000;"></div>
+                            <div class="color-swatch active" data-color="#960000" style="background-color: #960000;">
+                            </div>
                             <div class="color-swatch" data-color="#252596" style="background-color: #252596;"></div>
                             <div class="color-swatch" data-color="#333333" style="background-color: #333333;"></div>
                             <div class="color-swatch" data-color="#57965c" style="background-color: #57965c;"></div>
@@ -2091,6 +2098,7 @@
             function showMainMenu() {
                 currentMenuView = 'main';
                 currentDocumentTypeFilter = null;
+                isViewingVideoGallery = false;
                 console.log("[MenuNav] Showing main menu...");
 
                 // Show main menu section
@@ -2106,6 +2114,12 @@
                 // Clear document selection area
                 if (documentSelectionArea) {
                     documentSelectionArea.innerHTML = "";
+                }
+
+                // Hide markup toolset if it was open
+                const markupToolset = document.getElementById("markup-toolset");
+                if (markupToolset) {
+                    markupToolset.style.display = "none";
                 }
 
                 console.log("[MenuNav] Main menu displayed");
@@ -2198,8 +2212,8 @@
 
                 // Create button container
                 const buttonContainer = document.createElement("div");
-                buttonContainer.className = documentType === 'Drawing' 
-                    ? "drawing-button-container" 
+                buttonContainer.className = documentType === 'Drawing'
+                    ? "drawing-button-container"
                     : "specification-button-container";
                 documentSelectionArea.appendChild(buttonContainer);
 
@@ -2208,9 +2222,9 @@
                 let buttonCount = 0;
 
                 for (const key in documents) {
-                    if (key.startsWith("drawing-") && 
+                    if (key.startsWith("drawing-") &&
                         documents[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
-                        
+
                         const doc = documents[key];
                         const docType = doc["document-type"] || "Drawing";
                         const docPhase = doc["design-phase"] || "DesignPhase02";
@@ -2261,7 +2275,7 @@
             function showHistoricWarningModalForCategory(documentType) {
                 // Store the document type for after dismissal
                 window._pendingHistoricCategory = documentType;
-                
+
                 const overlay = document.getElementById("historic-warning-overlay");
                 overlay.style.display = "flex";
                 console.log("[MenuNav] Historic warning modal displayed for", documentType);
@@ -2275,12 +2289,12 @@
                 overlay.style.display = "none";
 
                 const documentType = window._pendingHistoricCategory || currentDocumentTypeFilter;
-                
+
                 if (allDocumentsData && documentType) {
                     createFilteredDocumentButtons(allDocumentsData, documentType, true);
                     console.log("[MenuNav] Switched to historic archive for", documentType);
                 }
-                
+
                 window._pendingHistoricCategory = null;
             }
 
