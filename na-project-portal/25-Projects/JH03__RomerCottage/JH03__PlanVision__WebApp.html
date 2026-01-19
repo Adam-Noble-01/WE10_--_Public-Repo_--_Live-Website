@@ -262,7 +262,104 @@
             padding-bottom: 10px;
         }
 
+        /* ====================================================================
+           CATEGORY MENU SYSTEM - CSS STYLES
+           - Supports two-tier menu navigation (Main Menu / Sub-Menus)
+           - Main menu shows category selection (Drawings, Specifications)
+           - Sub-menus show filtered document lists with tools
+        ==================================================================== */
 
+        /* Main Menu Section - Category Selection */
+        .main-menu-section {
+            display: block;                                                  /* <-- Visible by default */
+        }
+
+        .main-menu-section.hidden {
+            display: none;                                                   /* <-- Hidden when in sub-menu */
+        }
+
+        /* Sub-Menu Section - Document Lists with Tools */
+        .sub-menu-section {
+            display: none;                                                   /* <-- Hidden by default */
+        }
+
+        .sub-menu-section.visible {
+            display: block;                                                  /* <-- Visible when selected */
+        }
+
+        /* Category Button Container */
+        .category-button-container {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Category Buttons - Prominent Styling */
+        .category-button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 14px 10px;
+            background: linear-gradient(135deg, #555041 0%, #3d3a30 100%);  /* <-- Brand color gradient */
+            color: #fff;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .category-button:hover {
+            filter: brightness(1.15);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Drawings Category Button - Blue Accent */
+        .category-button.drawings-category {
+            background: linear-gradient(135deg, #4a5a6a 0%, #3a4a5a 100%);
+        }
+
+        /* Specifications Category Button - Amber Accent */
+        .category-button.specifications-category {
+            background: linear-gradient(135deg, #6a5a4a 0%, #5a4a3a 100%);
+        }
+
+        /* Back to Main Menu Button */
+        .back-to-main-btn {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            padding: 10px;
+            background: linear-gradient(135deg, #555041 0%, #3d3a30 100%);
+            color: #fff;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+
+        .back-to-main-btn:hover {
+            filter: brightness(1.15);
+            transform: translateY(-1px);
+        }
+
+        /* Specification Document Buttons - Amber Tint */
+        .specification-button-container .tool-button {
+            background: linear-gradient(135deg, #6a5a4a 0%, #5a4a3a 100%);
+        }
+
+        /* Section Divider */
+        .menu-section-divider {
+            height: 1px;
+            background: #d0d0d0;
+            margin: 15px 0;
+        }
 
 
         #cancelToolBtn {
@@ -881,86 +978,132 @@
 
             <!-- TOOLBAR -->
             <div id="toolbar">
-                <div style="margin-top: -15px;"></div>
-                <!-- Drawing selection section will be inserted here dynamically -->
-
-                <div class="menu_-_drawing-button-header-text">View & Export</div>
-                <button class="tool-button" id="downloadPDFBtn">Download PDF</button>
-                <button class="tool-button" id="resetViewBtn">Reset View</button>
-
-                <div class="menu_-_drawing-button-header-text">Measuring Tools</div>
-                <button class="tool-button" id="linearMeasureBtn">Linear Measurement</button>
-                <button class="tool-button" id="rectMeasureBtn">Rectangle Measurement</button>
-                <button class="tool-button" id="areaMeasureBtn">Area Measurement</button>
-                <button class="tool-button" id="clearMeasurementsBtn">Clear Measurements</button>
-                <button class="tool-button" id="cancelToolBtn">Cancel Tool</button>
-                <!-- Video selection section will be inserted here dynamically -->
-
-                <div class="menu_-_drawing-button-header-text">Drawing Markup Tools</div>
-                <button class="tool-button" id="toggleMarkupToolsetBtn">Activate Markup Tools</button>
-
-                <!-- Markup Toolset Container - Initially Hidden -->
-                <div id="markup-toolset">
-                    <div class="menu_-_drawing-button-header-text">Markup Tools Menu</div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-                        <button class="tool-button" id="markupUndoBtn" style="width:48%;">↩ Undo</button>
-                        <button class="tool-button" id="markupRedoBtn" style="width:48%;">Redo ↪</button>
-                    </div>
-                    <button class="tool-button" id="markupClearBtn">Clear Drawing Markup</button>
-                    <button class="tool-button" id="markupSaveBtn">Download Markup Image</button>
-                    <button class="tool-button" id="returnToMeasuringBtn">Return To Main Menu</button>
-
-
-
-                    <div class="menu_-_drawing-button-header-text">Drawing Tools</div>
-                    <button class="tool-button" id="markupSelectionBtn">Object - Selection Tool</button>
-                    <!-- 
-                // ----------------------------------------------------
-                // REMOVED IN v1.8.3 - PENCIL TOOL
-                // - Replaced with Straight Line and Arc Drawing Tools
-                // - Keep this commented out for reference
-                // ----------------------------------------------------
-                <button class="tool-button" id="markupPencilBtn">Draw - Pencil</button>
-                -->
-                    <button class="tool-button" id="markupEraserBtn">Object - Eraser Tool</button>
-
-                    <!-- 
-                ----------------------------------------------------
-                ADDED IN v1.8.3 - NEW DRAWING TOOLS
-                - Straight Line and Arc Drawing Tools added 02-Apr-2025 -->
-                    <button class="tool-button" id="markupLineBtn">Draw - Straight Line</button>
-                    <button class="tool-button" id="markupArcBtn">Draw - Arc</button>
-
-                    <button class="tool-button" id="markupRectBtn">Draw - Rectangle</button>
-                    <button class="tool-button" id="markupFilledRectBtn">Draw - Filled Rectangle</button>
-                    <button class="tool-button" id="markupCircleBtn">Draw - Circle Tool</button>
-                    <button class="tool-button" id="markupArrowBtn">Draw - Arrow Tool</button>
-                    <button class="tool-button" id="markupTextBtn">Add Text Annotation</button>
-                    <button class="tool-button" id="cancelMarkupToolBtn"
-                        style="display: none; background: #d9534f;">Cancel Current Tool</button>
-
-                    <div class="menu_-_drawing-button-header-text">Line Width</div>
-                    <div style="display:flex; align-items:center; margin-bottom: 10px;">
-                        <span style="margin-right:10px; color:#555041;">Size:</span>
-                        <input type="range" id="markupLineWidthSlider" min="2" max="20" value="9" style="flex-grow:1;">
+                <!-- ================================================================
+                     MAIN MENU SECTION - Category Selection
+                     - Shows category buttons (Drawings, Specifications, Videos)
+                     - Initially visible, hidden when viewing sub-menus
+                ================================================================ -->
+                <div id="main-menu-section" class="main-menu-section">
+                    <div class="menu_-_drawing-button-header-text">Select Category</div>
+                    <div class="category-button-container">
+                        <button class="category-button drawings-category" id="showDrawingsMenuBtn">
+                            📐 Drawings
+                        </button>
+                        <button class="category-button specifications-category" id="showSpecificationsMenuBtn">
+                            🔧 Details & Specifications
+                        </button>
                     </div>
 
-                    <div class="menu_-_drawing-button-header-text">Colour Selection</div>
-                    <div class="color-palette">
-                        <div class="color-swatch active" data-color="#960000" style="background-color: #960000;"></div>
-                        <div class="color-swatch" data-color="#252596" style="background-color: #252596;"></div>
-                        <div class="color-swatch" data-color="#333333" style="background-color: #333333;"></div>
-                        <div class="color-swatch" data-color="#57965c" style="background-color: #57965c;"></div>
-                        <div class="color-swatch" data-color="#333333" style="background-color: #5b5b5b;"></div>
-                        <div class="color-swatch" data-color="#FFFFFF"
-                            style="background-color: #FFFFFF; border: 1px solid #CCCCCC;"></div>
+                    <div class="menu-section-divider"></div>
+
+                    <!-- Video Gallery Button - Inserted dynamically -->
+                    <div id="main-menu-video-section"></div>
+
+                    <!-- Historic Archive Button -->
+                    <div id="main-menu-historic-section">
+                        <button class="tool-button historic-archive-btn" id="mainMenuHistoricBtn">
+                            View Historic Archive
+                        </button>
                     </div>
                 </div>
-                <!-- End of Markup Toolset Module HTML -->
 
-                <div style="margin-top:20px; font-size:12px; color:#555041;">
-                    <strong>Measurements:</strong>
-                    <div id="measureInfo" style="margin-top:5px;">No measurements yet.</div>
+                <!-- ================================================================
+                     SUB-MENU SECTION - Document List with Tools
+                     - Shows filtered documents based on category selection
+                     - Initially hidden, visible when category is selected
+                ================================================================ -->
+                <div id="sub-menu-section" class="sub-menu-section">
+                    <!-- Document selection header and buttons inserted dynamically -->
+                    <div id="document-selection-area">
+                        <!-- Dynamic content: header + document buttons -->
+                    </div>
+
+                    <div class="menu-section-divider"></div>
+
+                    <!-- View & Export Section -->
+                    <div class="menu_-_drawing-button-header-text">View & Export</div>
+                    <button class="tool-button" id="downloadPDFBtn">Download PDF</button>
+                    <button class="tool-button" id="resetViewBtn">Reset View</button>
+
+                    <!-- Measuring Tools Section -->
+                    <div class="menu_-_drawing-button-header-text">Measuring Tools</div>
+                    <button class="tool-button" id="linearMeasureBtn">Linear Measurement</button>
+                    <button class="tool-button" id="rectMeasureBtn">Rectangle Measurement</button>
+                    <button class="tool-button" id="areaMeasureBtn">Area Measurement</button>
+                    <button class="tool-button" id="clearMeasurementsBtn">Clear Measurements</button>
+                    <button class="tool-button" id="cancelToolBtn">Cancel Tool</button>
+
+                    <!-- Drawing Markup Tools Section -->
+                    <div class="menu_-_drawing-button-header-text">Drawing Markup Tools</div>
+                    <button class="tool-button" id="toggleMarkupToolsetBtn">Activate Markup Tools</button>
+
+                    <!-- Markup Toolset Container - Initially Hidden -->
+                    <div id="markup-toolset">
+                        <div class="menu_-_drawing-button-header-text">Markup Tools Menu</div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                            <button class="tool-button" id="markupUndoBtn" style="width:48%;">↩ Undo</button>
+                            <button class="tool-button" id="markupRedoBtn" style="width:48%;">Redo ↪</button>
+                        </div>
+                        <button class="tool-button" id="markupClearBtn">Clear Drawing Markup</button>
+                        <button class="tool-button" id="markupSaveBtn">Download Markup Image</button>
+                        <button class="tool-button" id="returnToMeasuringBtn">Return To Markup Menu</button>
+
+                        <div class="menu_-_drawing-button-header-text">Drawing Tools</div>
+                        <button class="tool-button" id="markupSelectionBtn">Object - Selection Tool</button>
+                        <!-- 
+                    // ----------------------------------------------------
+                    // REMOVED IN v1.8.3 - PENCIL TOOL
+                    // - Replaced with Straight Line and Arc Drawing Tools
+                    // - Keep this commented out for reference
+                    // ----------------------------------------------------
+                    <button class="tool-button" id="markupPencilBtn">Draw - Pencil</button>
+                    -->
+                        <button class="tool-button" id="markupEraserBtn">Object - Eraser Tool</button>
+
+                        <!-- 
+                    ----------------------------------------------------
+                    ADDED IN v1.8.3 - NEW DRAWING TOOLS
+                    - Straight Line and Arc Drawing Tools added 02-Apr-2025 -->
+                        <button class="tool-button" id="markupLineBtn">Draw - Straight Line</button>
+                        <button class="tool-button" id="markupArcBtn">Draw - Arc</button>
+
+                        <button class="tool-button" id="markupRectBtn">Draw - Rectangle</button>
+                        <button class="tool-button" id="markupFilledRectBtn">Draw - Filled Rectangle</button>
+                        <button class="tool-button" id="markupCircleBtn">Draw - Circle Tool</button>
+                        <button class="tool-button" id="markupArrowBtn">Draw - Arrow Tool</button>
+                        <button class="tool-button" id="markupTextBtn">Add Text Annotation</button>
+                        <button class="tool-button" id="cancelMarkupToolBtn"
+                            style="display: none; background: #d9534f;">Cancel Current Tool</button>
+
+                        <div class="menu_-_drawing-button-header-text">Line Width</div>
+                        <div style="display:flex; align-items:center; margin-bottom: 10px;">
+                            <span style="margin-right:10px; color:#555041;">Size:</span>
+                            <input type="range" id="markupLineWidthSlider" min="2" max="20" value="9" style="flex-grow:1;">
+                        </div>
+
+                        <div class="menu_-_drawing-button-header-text">Colour Selection</div>
+                        <div class="color-palette">
+                            <div class="color-swatch active" data-color="#960000" style="background-color: #960000;"></div>
+                            <div class="color-swatch" data-color="#252596" style="background-color: #252596;"></div>
+                            <div class="color-swatch" data-color="#333333" style="background-color: #333333;"></div>
+                            <div class="color-swatch" data-color="#57965c" style="background-color: #57965c;"></div>
+                            <div class="color-swatch" data-color="#333333" style="background-color: #5b5b5b;"></div>
+                            <div class="color-swatch" data-color="#FFFFFF"
+                                style="background-color: #FFFFFF; border: 1px solid #CCCCCC;"></div>
+                        </div>
+                    </div>
+                    <!-- End of Markup Toolset Module HTML -->
+
+                    <!-- Measurements Display -->
+                    <div style="margin-top:20px; font-size:12px; color:#555041;">
+                        <strong>Measurements:</strong>
+                        <div id="measureInfo" style="margin-top:5px;">No measurements yet.</div>
+                    </div>
+
+                    <!-- Back to Main Menu Button -->
+                    <button class="back-to-main-btn" id="backToMainMenuBtn">
+                        ← Back to Main Menu
+                    </button>
                 </div>
             </div>
 
@@ -1071,6 +1214,19 @@
 
             let hasShownLinearInstructions = false;
             let hasShownAreaInstructions = false;
+
+            // -----------------------------------------
+            // MENU STATE MANAGEMENT VARIABLES
+            // - Added for two-tier menu system (Main Menu / Sub-Menus)
+            // -----------------------------------------
+            let currentMenuView = 'main';                                    // <-- 'main', 'drawings', 'specifications'
+            let currentDocumentTypeFilter = null;                            // <-- 'Drawing' or 'Specification'
+            let allDocumentsData = null;                                     // <-- Store all documents for filtering
+
+            // DOM References for Menu Sections
+            const mainMenuSection = document.getElementById("main-menu-section");
+            const subMenuSection = document.getElementById("sub-menu-section");
+            const documentSelectionArea = document.getElementById("document-selection-area");
 
             // -----------------------------------------
             // ARC - STATE VARIABLES
@@ -1476,10 +1632,19 @@
                 const overlay = document.getElementById("historic-warning-overlay");
                 overlay.style.display = "none";
 
-                // Switch to historic archive view
-                if (allDrawingsData) {
-                    createDrawingButtons(allDrawingsData, true);
-                    console.log("[DesignPhase] Switched to historic archive view");
+                // Check if we're in a category sub-menu or main menu
+                if (currentMenuView === 'drawings' || currentMenuView === 'specifications') {
+                    // Use category-based filtering
+                    dismissHistoricWarningAndShowArchiveFiltered();
+                } else if (window._pendingHistoricCategory) {
+                    // Called from main menu with pending category
+                    dismissHistoricWarningAndShowArchiveFiltered();
+                } else {
+                    // Legacy: Show all historic drawings (fallback)
+                    if (allDrawingsData) {
+                        createDrawingButtons(allDrawingsData, true);
+                        console.log("[DesignPhase] Switched to historic archive view (legacy)");
+                    }
                 }
             }
 
@@ -1660,6 +1825,135 @@
                 console.log("[VideoButtons] Video Gallery button created");
             }
 
+            // FUNCTION | Create Video Gallery button in Main Menu                  //
+            // - Places video button in the main-menu-video-section container       //
+            // --------------------------------------------------------------------
+            function createMainMenuVideoButton(videos) {
+                if (!videos) {
+                    console.error("[VideoButtons] ❌ No videos data provided");
+                    return;
+                }
+
+                // Store videos globally for gallery switching
+                allVideosData = videos;
+
+                console.log("[VideoButtons] Creating Video Gallery button in main menu...");
+
+                // Get the main menu video section container
+                const videoSection = document.getElementById("main-menu-video-section");
+                if (!videoSection) {
+                    console.error("[VideoButtons] ❌ Main menu video section not found");
+                    return;
+                }
+
+                // Clear existing content
+                videoSection.innerHTML = "";
+
+                // Create header element for video section
+                const header = document.createElement("div");
+                header.className = "menu_-_drawing-button-header-text";
+                header.textContent = "Project Videos";
+                videoSection.appendChild(header);
+
+                // Create a container for the video gallery button
+                const videoButtonContainer = document.createElement("div");
+                videoButtonContainer.className = "category-button-container";
+                videoSection.appendChild(videoButtonContainer);
+
+                // Create single "Video Gallery" button
+                const galleryBtn = document.createElement("button");
+                galleryBtn.className = "tool-button";
+                galleryBtn.textContent = "🎬 Video Gallery";
+                galleryBtn.addEventListener("click", () => {
+                    showVideoGalleryFromMainMenu();
+                });
+                videoButtonContainer.appendChild(galleryBtn);
+
+                // Add a divider after the video section
+                const divider = document.createElement("div");
+                divider.className = "menu-section-divider";
+                videoSection.appendChild(divider);
+
+                console.log("[VideoButtons] Main menu video button created");
+            }
+
+            // FUNCTION | Show Video Gallery from Main Menu                         //
+            // - Opens video gallery view from the main menu                        //
+            // --------------------------------------------------------------------
+            function showVideoGalleryFromMainMenu() {
+                if (!allVideosData) {
+                    console.error("[VideoGallery] No videos data available");
+                    return;
+                }
+
+                console.log("[VideoGallery] Opening video gallery from main menu...");
+
+                // Hide main menu section
+                if (mainMenuSection) {
+                    mainMenuSection.classList.add("hidden");
+                }
+
+                // Show sub-menu section
+                if (subMenuSection) {
+                    subMenuSection.classList.add("visible");
+                }
+
+                // Clear and populate document selection area with videos
+                if (documentSelectionArea) {
+                    documentSelectionArea.innerHTML = "";
+
+                    // Create header
+                    const header = document.createElement("div");
+                    header.className = "menu_-_drawing-button-header-text";
+                    header.textContent = "Select Video";
+                    documentSelectionArea.appendChild(header);
+
+                    // Create button container
+                    const buttonContainer = document.createElement("div");
+                    buttonContainer.className = "drawing-button-container";
+                    documentSelectionArea.appendChild(buttonContainer);
+
+                    // Convert videos object to array and sort by VID number
+                    const videoArray = [];
+                    for (const key in allVideosData) {
+                        if (key.startsWith("video-") && allVideosData[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
+                            videoArray.push({
+                                key: key,
+                                data: allVideosData[key],
+                                vidNumber: extractVideoNumber(allVideosData[key]["file-name"])
+                            });
+                        }
+                    }
+
+                    // Sort by VID number
+                    videoArray.sort((a, b) => a.vidNumber - b.vidNumber);
+
+                    // Create buttons for each video
+                    videoArray.forEach((videoItem) => {
+                        const video = videoItem.data;
+                        const button = document.createElement("button");
+                        button.className = "tool-button";
+                        button.textContent = video["video-name"];
+                        button.addEventListener("click", () => {
+                            if (window.TrueVision3D && window.TrueVision3D.VideoPlayerPage) {
+                                window.TrueVision3D.VideoPlayerPage.openVideoPlayer({
+                                    cdnUrl: video["video-links"]["cdn-url"],
+                                    name: video["video-name"],
+                                    type: video["video-type"]
+                                });
+                            } else {
+                                console.error("VideoPlayerPage module not loaded");
+                            }
+                        });
+                        buttonContainer.appendChild(button);
+                    });
+
+                    console.log("[VideoGallery] Video gallery displayed with", videoArray.length, "videos");
+                }
+
+                currentMenuView = 'videos';
+            }
+
             // FUNCTION | Show Video Gallery - Replace menu with video list        //
             // --------------------------------------------------------------------
             function showVideoGallery() {
@@ -1784,6 +2078,246 @@
             }
 
 
+            // ========================================================================
+            // MENU NAVIGATION FUNCTIONS
+            // - Controls navigation between Main Menu and Sub-Menus
+            // - Filters documents by document-type (Drawing/Specification)
+            // ========================================================================
+
+            // FUNCTION | Show Main Menu - Category Selection View                  //
+            // - Displays category buttons (Drawings, Specifications, Videos)       //
+            // - Hides sub-menu section with document lists                         //
+            // --------------------------------------------------------------------
+            function showMainMenu() {
+                currentMenuView = 'main';
+                currentDocumentTypeFilter = null;
+                console.log("[MenuNav] Showing main menu...");
+
+                // Show main menu section
+                if (mainMenuSection) {
+                    mainMenuSection.classList.remove("hidden");
+                }
+
+                // Hide sub-menu section
+                if (subMenuSection) {
+                    subMenuSection.classList.remove("visible");
+                }
+
+                // Clear document selection area
+                if (documentSelectionArea) {
+                    documentSelectionArea.innerHTML = "";
+                }
+
+                console.log("[MenuNav] Main menu displayed");
+            }
+
+            // FUNCTION | Show Drawings Menu - Filtered Document List               //
+            // - Displays documents where document-type === "Drawing"               //
+            // - Shows measuring tools and markup tools                             //
+            // --------------------------------------------------------------------
+            function showDrawingsMenu() {
+                currentMenuView = 'drawings';
+                currentDocumentTypeFilter = 'Drawing';
+                console.log("[MenuNav] Showing drawings menu...");
+
+                // Hide main menu section
+                if (mainMenuSection) {
+                    mainMenuSection.classList.add("hidden");
+                }
+
+                // Show sub-menu section
+                if (subMenuSection) {
+                    subMenuSection.classList.add("visible");
+                }
+
+                // Populate document buttons filtered by Drawing type
+                if (allDocumentsData) {
+                    createFilteredDocumentButtons(allDocumentsData, 'Drawing', false);
+                }
+
+                console.log("[MenuNav] Drawings menu displayed");
+            }
+
+            // FUNCTION | Show Specifications Menu - Filtered Document List         //
+            // - Displays documents where document-type === "Specification"         //
+            // - Shows measuring tools and markup tools                             //
+            // --------------------------------------------------------------------
+            function showSpecificationsMenu() {
+                currentMenuView = 'specifications';
+                currentDocumentTypeFilter = 'Specification';
+                console.log("[MenuNav] Showing specifications menu...");
+
+                // Hide main menu section
+                if (mainMenuSection) {
+                    mainMenuSection.classList.add("hidden");
+                }
+
+                // Show sub-menu section
+                if (subMenuSection) {
+                    subMenuSection.classList.add("visible");
+                }
+
+                // Populate document buttons filtered by Specification type
+                if (allDocumentsData) {
+                    createFilteredDocumentButtons(allDocumentsData, 'Specification', false);
+                }
+
+                console.log("[MenuNav] Specifications menu displayed");
+            }
+
+            // FUNCTION | Create Filtered Document Buttons                          //
+            // - Creates buttons for documents matching the specified type          //
+            // - Supports historic archive mode within each category                //
+            // --------------------------------------------------------------------
+            function createFilteredDocumentButtons(documents, documentType, showHistoric = false) {
+                if (!documentSelectionArea) {
+                    console.error("[MenuNav] Document selection area not found");
+                    return;
+                }
+
+                // Clear existing content
+                documentSelectionArea.innerHTML = "";
+
+                // Create header
+                const header = document.createElement("div");
+                header.className = "menu_-_drawing-button-header-text";
+                if (showHistoric) {
+                    header.textContent = "Historic Archive";
+                } else {
+                    header.textContent = documentType === 'Drawing' ? "Select Drawing" : "Select Specification";
+                }
+                documentSelectionArea.appendChild(header);
+
+                // Add historic mode warning banner if viewing historic archive
+                if (showHistoric) {
+                    const banner = document.createElement("div");
+                    banner.className = "historic-mode-banner";
+                    banner.textContent = "⚠ HISTORIC DOCUMENTS - DO NOT USE ⚠";
+                    documentSelectionArea.appendChild(banner);
+                }
+
+                // Create button container
+                const buttonContainer = document.createElement("div");
+                buttonContainer.className = documentType === 'Drawing' 
+                    ? "drawing-button-container" 
+                    : "specification-button-container";
+                documentSelectionArea.appendChild(buttonContainer);
+
+                // Filter and create buttons for matching documents
+                const targetPhase = showHistoric ? null : CURRENT_DESIGN_PHASE;
+                let buttonCount = 0;
+
+                for (const key in documents) {
+                    if (key.startsWith("drawing-") && 
+                        documents[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
+                        
+                        const doc = documents[key];
+                        const docType = doc["document-type"] || "Drawing";
+                        const docPhase = doc["design-phase"] || "DesignPhase02";
+
+                        // Filter by document type
+                        if (docType !== documentType) continue;
+
+                        // Filter by design phase (current or historic)
+                        const shouldShow = showHistoric
+                            ? (docPhase !== CURRENT_DESIGN_PHASE)
+                            : (docPhase === CURRENT_DESIGN_PHASE);
+
+                        if (shouldShow) {
+                            const button = document.createElement("button");
+                            button.className = "tool-button";
+                            button.textContent = doc["document-name"];
+                            button.addEventListener("click", () => loadDrawing(doc));
+                            buttonContainer.appendChild(button);
+                            buttonCount++;
+                        }
+                    }
+                }
+
+                // Add Historic Archive / Return to Current button
+                const navButton = document.createElement("button");
+                if (showHistoric) {
+                    navButton.className = "tool-button return-current-btn";
+                    navButton.textContent = "Return to Current " + (documentType === 'Drawing' ? "Drawings" : "Specifications");
+                    navButton.addEventListener("click", () => {
+                        createFilteredDocumentButtons(documents, documentType, false);
+                    });
+                } else {
+                    navButton.className = "tool-button historic-archive-btn";
+                    navButton.textContent = "View Historic Archive";
+                    navButton.addEventListener("click", () => {
+                        showHistoricWarningModalForCategory(documentType);
+                    });
+                }
+                buttonContainer.appendChild(navButton);
+
+                console.log("[MenuNav] Created", buttonCount, "buttons for", documentType, "documents");
+            }
+
+            // FUNCTION | Show Historic Warning Modal for Category                  //
+            // - Shows warning before accessing historic documents                  //
+            // - Remembers which category to show after dismissal                   //
+            // --------------------------------------------------------------------
+            function showHistoricWarningModalForCategory(documentType) {
+                // Store the document type for after dismissal
+                window._pendingHistoricCategory = documentType;
+                
+                const overlay = document.getElementById("historic-warning-overlay");
+                overlay.style.display = "flex";
+                console.log("[MenuNav] Historic warning modal displayed for", documentType);
+            }
+
+            // FUNCTION | Dismiss Historic Warning and Show Archive                 //
+            // - Modified to work with category-based filtering                     //
+            // --------------------------------------------------------------------
+            function dismissHistoricWarningAndShowArchiveFiltered() {
+                const overlay = document.getElementById("historic-warning-overlay");
+                overlay.style.display = "none";
+
+                const documentType = window._pendingHistoricCategory || currentDocumentTypeFilter;
+                
+                if (allDocumentsData && documentType) {
+                    createFilteredDocumentButtons(allDocumentsData, documentType, true);
+                    console.log("[MenuNav] Switched to historic archive for", documentType);
+                }
+                
+                window._pendingHistoricCategory = null;
+            }
+
+            // FUNCTION | Initialize Menu Navigation Event Listeners                //
+            // - Attaches click handlers to category buttons                        //
+            // --------------------------------------------------------------------
+            function initMenuNavigation() {
+                // Drawings category button
+                const drawingsBtn = document.getElementById("showDrawingsMenuBtn");
+                if (drawingsBtn) {
+                    drawingsBtn.addEventListener("click", showDrawingsMenu);
+                }
+
+                // Specifications category button
+                const specificationsBtn = document.getElementById("showSpecificationsMenuBtn");
+                if (specificationsBtn) {
+                    specificationsBtn.addEventListener("click", showSpecificationsMenu);
+                }
+
+                // Back to main menu button
+                const backBtn = document.getElementById("backToMainMenuBtn");
+                if (backBtn) {
+                    backBtn.addEventListener("click", showMainMenu);
+                }
+
+                // Main menu historic archive button
+                const mainHistoricBtn = document.getElementById("mainMenuHistoricBtn");
+                if (mainHistoricBtn) {
+                    mainHistoricBtn.addEventListener("click", () => {
+                        showHistoricWarningModal();
+                    });
+                }
+
+                console.log("[MenuNav] Menu navigation event listeners initialized");
+            }
+
+
             // Load a specific drawing's image and update download link //
             async function loadDrawing(drawing) {
                 showLoading();
@@ -1891,20 +2425,29 @@
                 resizeCanvas();
                 const drawings = await fetchDrawings();
                 if (drawings) {
-                    createDrawingButtons(drawings, false);  // <-- Show current phase only
+                    // Store documents globally for menu filtering
+                    allDocumentsData = drawings;
+                    allDrawingsData = drawings;  // <-- Keep for backward compatibility
+
+                    // Initialize Menu Navigation (new two-tier system)
+                    initMenuNavigation();
 
                     // Initialize Historic Warning Modal event listeners
                     initHistoricWarningModal();
 
-                    // Load the first drawing from the CURRENT design phase only
+                    // Show main menu by default
+                    showMainMenu();
+
+                    // Load the first Drawing-type document from the CURRENT design phase
                     const firstDrawingKey = Object.keys(drawings).find(
                         key => key.startsWith("drawing-") &&
                             drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}" &&
-                            drawings[key]["design-phase"] === CURRENT_DESIGN_PHASE
+                            drawings[key]["design-phase"] === CURRENT_DESIGN_PHASE &&
+                            drawings[key]["document-type"] === "Drawing"  // <-- Only load Drawing type
                     );
                     if (firstDrawingKey) {
                         await loadDrawing(drawings[firstDrawingKey]);
-                        console.log("[DesignPhase] Loaded first DesignPhase03 drawing:", drawings[firstDrawingKey]["document-name"]);
+                        console.log("[Init] Loaded first Drawing-type document:", drawings[firstDrawingKey]["document-name"]);
                     }
                 }
 
@@ -1921,8 +2464,8 @@
                         const videos = await fetchVideos();
                         if (videos) {
                             console.log("[Init] ✓ Videos loaded successfully:", videos);
-                            console.log("[Init] Creating video buttons...");
-                            createVideoButtons(videos);
+                            console.log("[Init] Creating video buttons in main menu...");
+                            createMainMenuVideoButton(videos);
 
                             // Preload videos in background after buttons created
                             console.log("[Init] Starting background video preload...");
