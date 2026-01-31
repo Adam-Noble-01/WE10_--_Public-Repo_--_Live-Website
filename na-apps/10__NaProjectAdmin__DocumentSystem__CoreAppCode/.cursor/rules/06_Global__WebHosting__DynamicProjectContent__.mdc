@@ -1,0 +1,70 @@
+---
+description: Global rule defining where files live and how Cloudflare R2 (CDN) paths map to local paths for NaProjectPortal.
+alwaysApply: true
+---
+
+# Web Hosting and Storage Boundary for NaProjectPortal
+- This rule defines the hard boundary between static application source code and dynamic, user-action-driven project data. 
+- The Core App source code is hosted as a static site (GitHub Pages). Cloudflare R2 is used only for dynamic project content that must be read and written at runtime.
+
+## Hard Constraints
+- We must not store, write, or persist dynamic project content in the GitHub Pages repository, its deployed output, or any static hosting location. 
+- GitHub Pages is read-only at runtime and cannot be written to and exists to serve the static source code for the Core App.
+- Do not invent alternative storage locations for dynamic content. 
+- Always Use Cloudflare R2 for persistence unless a different persistence service is explicitly specified in the task requirements.
+
+## Cloudflare Structure and Path Mirroring
+- R2 object key prefixes must mirror the local directory structure for predictable uploads, predictable URLs, and simple automation scripts. 
+- When adding new dynamic content locations, the same relative folder structure must exist locally and in the bucket key prefix.
+- Not all local content is automatically uploaded. 
+- Only upload files that are required by the relevant app modules and serverless functions. 
+- If unsure, default to not uploading and add an explicit note in the change describing what module/function requires the file and why.
+
+# CDN - Cloudflare R2 Bucket - Domain Name & URL Structure
+
+## CDN Domain and URL Shape
+The CDN base domain is: `https://cdn.noble-architecture.com/`
+
+### An R2 object at key:
+`NaProjectPortal/26-Projects/AA00__ExampleProjectStructure/10__ProjectAdmin__AppContent/ProjectAdminContent__FilesHere__.txt`
+
+### is served at:
+`https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/AA00__ExampleProjectStructure/10__ProjectAdmin__AppContent/ProjectAdminContent__FilesHere__.txt`
+
+## Local-to-CDN Mapping Expectation
+
+#### Local path example:
+`D:\WE10_--_Public-Repo_--_Live-Website\na-project-portal\26-Projects\AA00__ExampleProjectStructure\10__ProjectAdmin__AppContent\ProjectAdminContent__FilesHere__.txt`
+
+maps to R2 key (relative from the project root’s published content base):
+`NaProjectPortal/26-Projects/AA00__ExampleProjectStructure/10__ProjectAdmin__AppContent/ProjectAdminContent__FilesHere__.txt`
+
+Bucket and Root Prefix
+
+R2 bucket name:
+`noble-architecture-cdn`
+
+All NaProjectPortal content in R2 must live under this prefix:
+`NaProjectPortal/`
+
+Project grouping convention under NaProjectPortal is:
+`NaProjectPortal/<YY>-Projects/<ProjectCode__Name>/`   //<-- YY = Year of the project, projects are grouped in a directory by year.
+
+
+## Treat the following as dynamic and store in R2:
+- user-editable project content
+- Authentication/session-related artifacts if persisted
+- Document signing artifacts and audit outputs
+- Auto-generated emails or their persisted payloads
+- Any other user-persistent data or user-action logs.
+
+
+## Definitions
+*Static source code*
+- Static source code means the repository code that builds and deploys the Core App. 
+- Static source code belongs in the GitHub Pages repo and must not depend on writing to GitHub Pages at runtime.
+
+*Dynamic project content*
+- Dynamic project content means any data created, modified, or persisted as a result of a user action or serverless function execution. 
+- Dynamic project content must be stored in the Cloudflare R2 bucket and accessed via the Cloudflare APIs. 
+- If a user action is involved, treat the output as dynamic unless explicitly stated otherwise.

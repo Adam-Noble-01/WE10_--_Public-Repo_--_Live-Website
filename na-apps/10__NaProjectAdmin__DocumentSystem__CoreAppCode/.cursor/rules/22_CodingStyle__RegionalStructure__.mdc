@@ -1,0 +1,75 @@
+---
+alwaysApply: true
+---
+# Regional Structure
+
+All code must be organized using regional dividers for clear structure and code folding support.
+
+## JavaScript Regions
+
+```javascript
+// #Region[col10] -----
+// REGION_TYPE | Description
+// -----
+
+    // Content here (4-space indent - CRITICAL for code folding)
+
+// endregion -----
+```
+
+**Region Types:** MODULE, FUNCTION, SUB FUNCTION, HELPER FUNCTION, CLASS, METHOD, DATA, CONSTANTS, STATE, API, EVENTS, INITIALIZATION
+
+**Dash Counts:** Opening (60), Section (56 with indent), Closing (50)
+
+---
+
+## CSS Regions
+
+```css
+/* -----
+ * REGION | Description
+ * ----- */
+
+    /* CSS rules (4-space indent) */
+
+/* endregion ---- */
+```
+
+**Dash Counts:** Opening/Closing (77)
+
+---
+
+## HTML Regions
+
+```html
+<!-- ----- -->
+<!-- REGION | Description                                              -->
+<!-- ----- -->
+
+    <!-- UI COMPONENT | Description                                   -->
+    <!-- --- -->
+    <div id="component">
+        <!-- Content -->
+    </div>
+    <!-- --- -->
+
+<!-- endregion ----- -->
+```
+
+**Dash Counts:** Opening (65), Subsection (57 with indent), Closing (60)
+
+---
+
+## Rules
+
+### ALWAYS
+- Use 4-space indent within ALL regions (critical for code folding)
+- Region type in CAPS before pipe separator
+- Close every region with `endregion`
+- Use correct dash counts per file type
+
+### NEVER
+- Skip 4-space indent (breaks code folding)
+- Use inconsistent dash counts
+- Forget to close regions
+- Use tabs instead of spaces

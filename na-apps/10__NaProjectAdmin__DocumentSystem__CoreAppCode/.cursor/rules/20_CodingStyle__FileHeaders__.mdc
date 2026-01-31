@@ -1,0 +1,83 @@
+---
+alwaysApply: true
+---
+# File Headers
+
+All JavaScript files must include a standardized header block following this exact format:
+
+## Required Header Format
+
+```javascript
+// =============================================================================
+// NOBLE ARCHITECTURE - [MODULE NAME]
+// =============================================================================
+//
+// FILE       : [FileName.js]
+// NAMESPACE  : [App.ModuleName]
+// MODULE     : [ModuleName]
+// AUTHOR     : Adam Noble - Noble Architecture
+// PURPOSE    : [Brief purpose statement]
+// CREATED    : 31-Jan-2026
+//
+// DESCRIPTION:
+// - [Bullet point description]
+// - [Additional details]
+//
+// -----
+//
+// DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.0.0
+// - Initial Stable Release
+//   - Blah
+//
+// 19-Jan-2026 - Version 0.1.0
+// - Beta Version
+//   - Blah
+//
+// =============================================================================
+```
+
+## Header Components
+
+### Top Banner
+- Use `=` characters for top-level module banners
+- Format: `NOBLE ARCHITECTURE - [MODULE NAME]`
+- Always uppercase for "NOBLE ARCHITECTURE"
+
+### Metadata Section
+- **FILE:** The actual filename with extension
+- **NAMESPACE:** The global namespace path (e.g., `NaProjectAdmin.ConfigManager`)
+- **MODULE:** The module name without prefixes
+- **AUTHOR:** Always "Adam Noble - Noble Architecture"
+- **PURPOSE:** Single line describing the module's purpose
+- **CREATED:** Date in DD-MMM-YYYY format (e.g., 31-Jan-2026)
+
+### Description Section
+- Use bullet points with `-` character
+- Provide clear, concise module description
+- Include key functionality points
+- Explain integration points if relevant
+
+### Development Log
+- Use `-` divider before log section
+- Format: `DD-MMM-YYYY - Version X.Y.Z`
+- List changes as bullet points with indentation
+- Most recent changes at the top
+- Include version increments (1.0.0 = stable, 0.x.x = beta/development)
+
+## Rules
+
+### ALWAYS:
+- Include file header in every JavaScript module file
+- Keep AUTHOR as "Adam Noble - Noble Architecture"
+- Use DD-MMM-YYYY date format (e.g., 31-Jan-2026)
+- Update development log when making significant changes
+- Use bullet points for descriptions and changes
+- Match the exact spacing and alignment shown in format
+
+### NEVER:
+- Omit the file header from JavaScript files
+- Use different date formats
+- Leave placeholders like [MODULE NAME] unfilled
+- Skip the development log section
+- Use inconsistent divider characters

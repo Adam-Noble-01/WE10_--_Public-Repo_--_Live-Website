@@ -1,0 +1,137 @@
+---
+description: Noble Architecture HTML structure and regional organization conventions.
+alwaysApply: true
+---
+
+# HTML Structure
+
+All HTML files must follow regional organization and 4-space indentation.
+
+## Regional Structure
+
+```html
+<!-- ----- -->
+<!-- REGION | Section Description                                      -->
+<!-- ----- -->
+
+    <!-- Content (4-space indent) -->
+
+<!-- endregion ----- -->
+```
+
+**Common Regions:** Document Head, Document Body, JavaScript Modules
+
+**Component Types:** UI HEADER, UI NAVIGATION, UI MAIN CONTENT, UI SECTION, UI SIDEBAR, UI MODAL, UI FOOTER
+
+**Dash Counts:** Opening (65), Subsection (57 with indent), Closing (60)
+
+---
+
+## Required Head Structure
+
+```html
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Application description">
+    <meta name="author" content="Adam Noble - Noble Architecture">
+    
+    <title>Page Title - Noble Architecture</title>
+    
+    <link rel="icon" href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <link rel="stylesheet" href="StyleSheet__Main__.css">
+</head>
+```
+
+---
+
+## Semantic Elements
+
+Use semantic HTML5 elements: `<header>`, `<nav>`, `<main>`, `<article>`, `<section>`, `<aside>`, `<footer>`
+
+```html
+<header class="app-header">
+    <nav class="main-navigation">
+        <ul class="nav-list">
+            <li><a href="#">Link</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="app-content">
+    <section class="content-section">
+        <h2>Section Title</h2>
+    </section>
+</main>
+```
+
+---
+
+## Accessibility
+
+```html
+<button aria-label="Close dialog" class="close-button">×</button>
+<nav role="navigation" aria-label="Main navigation"></nav>
+<label for="project-code">Project Code:</label>
+<input id="project-code" aria-required="true">
+```
+
+---
+
+## ID & Class Naming
+
+**IDs:** kebab-case, descriptive, unique
+```html
+<div id="project-admin-container">
+    <div id="project-list-section">
+```
+
+**Classes:** kebab-case, BEM-style
+```html
+<div class="project-card project-card--featured">
+    <div class="project-card__header">
+        <h3 class="project-card__title">Title</h3>
+```
+
+---
+
+## Script Loading Order
+
+```html
+<!-- REGION | JavaScript Modules -->
+    <!-- 1. Module Dependency Manager (FIRST) -->
+    <script src="AppCore__ModuleDependencyManager__.js"></script>
+    
+    <!-- 2. Configuration Manager -->
+    <script src="AppCore__ConfigManager__.js"></script>
+    
+    <!-- 3. Core Application -->
+    <script src="AppCore__Main__.js"></script>
+    
+    <!-- 4. Feature Modules -->
+    <script src="ProjectAdmin__DataLoader__.js"></script>
+<!-- endregion -->
+```
+
+---
+
+## Rules
+
+### ALWAYS
+- Use regional organization with proper dividers
+- Use 4-space indentation consistently
+- Use semantic HTML5 elements
+- Include proper meta tags in head
+- Load ModuleDependencyManager first
+- Include ARIA labels for accessibility
+- Close regions with `endregion`
+- Use descriptive IDs (kebab-case) and BEM classes
+
+### NEVER
+- Use tabs instead of spaces
+- Skip regional organization
+- Use generic divs when semantic elements exist
+- Forget accessibility attributes
+- Load scripts in wrong order
+- Use inline styles
+- Omit alt text for images

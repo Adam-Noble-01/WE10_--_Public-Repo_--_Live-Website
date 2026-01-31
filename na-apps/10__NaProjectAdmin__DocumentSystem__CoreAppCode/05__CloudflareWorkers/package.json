@@ -1,0 +1,18 @@
+{
+    "name"                         : "na-projectadmin-workers",
+    "version"                      : "1.0.0",
+    "description"                  : "Cloudflare Workers for Noble Architecture Project Admin System",
+    "author"                       : "Adam Noble - Noble Architecture",
+    "private"                      : true,
+    "main"                         : "src/index.js",
+    "scripts"                      : {
+        "dev"                      : "wrangler dev",
+        "deploy"                   : "wrangler deploy",
+        "deploy:prod"              : "wrangler deploy --env production",
+        "tail"                     : "wrangler tail"
+    },
+    "devDependencies"              : {
+        "wrangler"                 : "^3.0.0"
+    }
+}
+

@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../01__Assets__NaApps__CommonAssets"
+		},
+		{
+			"path": "../../na-project-portal"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "10__NaProjectAdmin__DocumentSystem__CoreAppCode"
+	}
+}

@@ -1,0 +1,34 @@
+---
+alwaysApply: true
+---
+
+## HTML, CSS, JavaScript
+    - This is the core technologies used to build the App.
+    - The App is a static website built with HTML, CSS, and JavaScript.
+    - Projects are loaded using URL Query Parameters.
+    - This prompts the App to:
+        - Load the static project content from GitHub Sites (The Main App Shell)
+         - Load the dynamic project specific files from Github Sites (Different from the static project content, but still part of the project)
+         - Load the dynamic project specific files from Cloudflare R2 (The User-Generated / Client Written Content)
+         - Serve the combined static and dynamic content to the Client.
+
+## GitHub Sites
+  - This is where the static application source code is stored and served from: 
+    - See `05_Global__WebHosting__SourceCode__.mdc` for more details.
+
+## Cloudflare 
+  - This is where the serverless functions are to operate and manage the dynamic project content.
+    - See `06_Global__WebHosting__DynamicProjectContent__.mdc` for more details.
+  - Usage of cloudflare Workers is required to operate and manage the dynamic project content.
+
+## Core App - Main App Configuration
+  - The main app exists and loads each project individually as needed, but the core app itself has its own configuration file.
+  - Master configuration file is located at: `03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json`
+  - This file is the single source of truth for all main app configuration values.
+
+## Core App - Project Data For Loading Projects
+  - A URL Query Parameter is used to load a project.
+  - User authentication is then required to access the project specific data.
+  - This prompts the App to load the static project content from GitHub Sites.
+  - The static project content is then loaded by the main app shell and the project specific content is displayed to the Client.
+  - Client written Project specific data is loaded from Cloudflare R2.

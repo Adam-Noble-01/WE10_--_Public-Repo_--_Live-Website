@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- ----- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----- -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Noble Architecture - Project Admin & Documentation System">
+    <meta name="author" content="Adam Noble - Noble Architecture">
+
+    <title>Project Admin | Noble Architecture</title>
+
+    <!-- Favicon Configuration -->
+    <link rel="icon" type="image/x-icon"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <link rel="icon" type="image/png" sizes="32x32"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h32px.png">
+    <link rel="icon" type="image/png" sizes="192x192"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png">
+    <link rel="icon" type="image/png" sizes="512x512"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h512px.png">
+    <link rel="icon" type="image/svg+xml"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+
+    <!-- Core Stylesheet -->
+    <link rel="stylesheet" href="StyleSheet__Main__.css">
+</head>
+<!-- endregion ----- -->
+
+<!-- ----- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----- -->
+
+<body>
+
+    <!-- UI HEADER | Application Header Bar                           -->
+    <!-- --- -->
+    <header id="app-header" class="app-header">
+        <button id="toggle-sidebar-btn" class="header__menu-btn" aria-label="Toggle navigation menu">
+            <span class="menu-icon">&#9776;</span>
+        </button>
+        <div class="header__title-container">
+            <h1 class="header__title">Project Admin</h1>
+            <span id="header-project-name" class="header__project-name"></span>
+        </div>
+        <img src="../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__NaProfileLogo__h512px__.png"
+            alt="Noble Architecture Logo" class="header__logo">
+    </header>
+    <!-- --- -->
+
+    <!-- UI NAVIGATION | Sidebar Navigation                           -->
+    <!-- --- -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar__header">
+            <span class="sidebar__title">Navigation</span>
+        </div>
+        <ul id="nav-menu" class="nav-menu">
+            <!-- Dynamic menu items will be inserted here -->
+            <li class="nav-menu__item nav-menu__item--loading">
+                <span>Loading project...</span>
+            </li>
+        </ul>
+        <div class="sidebar__footer">
+            <div id="auth-status" class="auth-status">
+                <span class="auth-status__icon">&#128274;</span>
+                <span class="auth-status__text">Not authenticated</span>
+            </div>
+        </div>
+    </nav>
+    <!-- --- -->
+
+    <!-- UI MAIN CONTENT | Primary Content Area                       -->
+    <!-- --- -->
+    <main id="main-content" class="main-content">
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading Project Admin...</p>
+        </div>
+
+        <!-- Login Screen -->
+        <section id="login-screen" class="screen login-screen" style="display: none;">
+            <div class="login-card">
+                <div class="login-card__header">
+                    <img src="../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__NaProfileLogo__h512px__.png"
+                        alt="Noble Architecture" class="login-card__logo">
+                    <h2 class="login-card__title">Project Access</h2>
+                    <p id="login-project-name" class="login-card__subtitle"></p>
+                </div>
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="pin-input" class="form-label">Enter your PIN</label>
+                        <input type="password" id="pin-input" class="form-input form-input--pin" maxlength="6"
+                            pattern="[0-9]*" inputmode="numeric" autocomplete="off" required>
+                    </div>
+                    <p id="login-error" class="form-error" style="display: none;"></p>
+                    <button type="submit" class="btn btn--primary btn--full-width">
+                        Access Project
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Welcome Screen (No Project Selected) -->
+        <section id="welcome-screen" class="screen welcome-screen" style="display: none;">
+            <div class="welcome-card">
+                <img src="../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
+                    alt="Noble Architecture" class="welcome-card__logo">
+                <h2 class="welcome-card__title">Project Admin &amp; Documentation System</h2>
+                <p class="welcome-card__text">
+                    Welcome to the Noble Architecture project administration portal.
+                    To access your project documents, please use the link provided in your project email.
+                </p>
+                <div class="welcome-card__info">
+                    <p><strong>Example URL format:</strong></p>
+                    <code>?project=JH03&amp;year=25</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Document View Screen -->
+        <section id="document-screen" class="screen document-screen" style="display: none;">
+            <div id="document-container" class="document-container">
+                <!-- Document content will be rendered here -->
+            </div>
+        </section>
+
+        <!-- Signature Screen -->
+        <section id="signature-screen" class="screen signature-screen" style="display: none;">
+            <div class="signature-panel">
+                <div class="signature-panel__header">
+                    <h2 id="signature-title" class="signature-panel__title">Sign Document</h2>
+                    <p id="signature-description" class="signature-panel__description"></p>
+                </div>
+                <form id="signature-form" class="signature-form">
+                    <div class="form-group">
+                        <label for="signer-name" class="form-label">Your Full Name</label>
+                        <input type="text" id="signer-name" class="form-input" placeholder="Enter your full legal name"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Your Signature</label>
+                        <div class="signature-canvas-container">
+                            <canvas id="signature-canvas" class="signature-canvas"></canvas>
+                            <button type="button" id="clear-signature-btn" class="btn btn--secondary btn--small">
+                                Clear
+                            </button>
+                        </div>
+                        <p class="form-hint">Sign using your mouse or touch screen</p>
+                    </div>
+                    <div class="form-group form-group--checkbox">
+                        <input type="checkbox" id="signature-agreement" required>
+                        <label for="signature-agreement" class="form-label form-label--inline">
+                            I confirm that I have read and agree to the terms of this document
+                        </label>
+                    </div>
+                    <p id="signature-error" class="form-error" style="display: none;"></p>
+                    <div class="signature-form__actions">
+                        <button type="button" id="cancel-signature-btn" class="btn btn--secondary">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn--primary">
+                            Sign &amp; Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+    <!-- --- -->
+
+    <!-- UI MODAL | Modal Dialog Container                            -->
+    <!-- --- -->
+    <div id="modal-overlay" class="modal-overlay" style="display: none;">
+        <div id="modal-container" class="modal-container">
+            <div class="modal__header">
+                <h3 id="modal-title" class="modal__title"></h3>
+                <button id="modal-close-btn" class="modal__close-btn" aria-label="Close">&times;</button>
+            </div>
+            <div id="modal-content" class="modal__content"></div>
+            <div id="modal-footer" class="modal__footer"></div>
+        </div>
+    </div>
+    <!-- --- -->
+
+</body>
+<!-- endregion ----- -->
+
+<!-- ----- -->
+<!-- REGION | JavaScript Modules                                       -->
+<!-- ----- -->
+
+<!-- 1. Module Dependency Manager (FIRST) -->
+<script src="03__Src__AppModules/01__AppCore/AppCore__ModuleDependencyManager__.js"></script>
+
+<!-- 2. Configuration Manager -->
+<script src="03__Src__AppModules/01__AppCore/AppCore__ConfigManager__.js"></script>
+
+<!-- 3. Common Utilities -->
+<script src="03__Src__AppModules/03__CommonUtils/CommonUtils__ProjectCodeValidator__.js"></script>
+<script src="03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
+
+<!-- 4. User Interface Modules -->
+<script src="03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js"></script>
+<script src="03__Src__AppModules/10__UserInterface/UserInterface__ModalManager__.js"></script>
+<script src="03__Src__AppModules/10__UserInterface/UserInterface__Main__.js"></script>
+
+<!-- 5. Document System Modules -->
+<script src="03__Src__AppModules/20__DocumentSystem/DocumentSystem__QuotationRenderer__.js"></script>
+<script src="03__Src__AppModules/20__DocumentSystem/DocumentSystem__TermsRenderer__.js"></script>
+
+<!-- 6. Authentication Module -->
+<script src="03__Src__AppModules/30__Authentication/Authentication__PinLogin__.js"></script>
+
+<!-- 7. Signature System Modules -->
+<script src="03__Src__AppModules/40__SignatureSystem/SignatureSystem__CaptureCanvas__.js"></script>
+<script src="03__Src__AppModules/40__SignatureSystem/SignatureSystem__AuditRecord__.js"></script>
+
+<!-- 8. Cloudflare Integration -->
+<script src="03__Src__AppModules/50__CloudflareIntegration/CloudflareIntegration__ApiClient__.js"></script>
+
+<!-- 9. Main Application Entry Point (LAST) -->
+<script src="03__Src__AppModules/01__AppCore/AppCore__Main__.js"></script>
+
+<!-- endregion ----- -->
+
+</html>

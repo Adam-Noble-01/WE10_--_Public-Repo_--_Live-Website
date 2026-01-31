@@ -1,0 +1,1305 @@
+/* =============================================================================
+ * NOBLE ARCHITECTURE - PROJECT ADMIN MAIN STYLESHEET
+ * =============================================================================
+ */
+
+/* -----
+ * REGION | Font Face Declarations
+ * ----- */
+
+    @font-face {
+        font-family                : 'Open Sans';
+        font-weight                : 300;
+        font-style                 : normal;
+        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Light__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family                : 'Open Sans';
+        font-weight                : 400;
+        font-style                 : normal;
+        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family                : 'Open Sans';
+        font-weight                : 500;
+        font-style                 : normal;
+        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Medium__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family                : 'Open Sans';
+        font-weight                : 600;
+        font-style                 : normal;
+        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__SemiBold__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family                : 'Open Sans';
+        font-weight                : 700;
+        font-style                 : normal;
+        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Bold__.ttf') format('truetype');
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | CSS Variables
+ * ----- */
+
+    :root {
+        /* Brand Colours */
+        --App_BrandPrimary         : #555041;            /* Noble Architecture brown */
+        --App_BrandSecondary       : #7a7560;            /* Lighter brand variant */
+        --App_BrandAccent          : #8b6914;            /* Gold accent */
+        
+        /* Background Colours */
+        --App_BgPrimary            : #f8f7f5;            /* Warm off-white */
+        --App_BgSecondary          : #ffffff;            /* Pure white */
+        --App_BgTertiary           : #eeecea;            /* Light grey-brown */
+        --App_BgDark               : #2c2a24;            /* Dark background */
+        
+        /* Text Colours */
+        --App_TextPrimary          : #333333;            /* Main text */
+        --App_TextSecondary        : #666666;            /* Secondary text */
+        --App_TextMuted            : #999999;            /* Muted/disabled text */
+        --App_TextLight            : #ffffff;            /* Light text on dark bg */
+        --App_TextLink             : #555041;            /* Link colour */
+        
+        /* UI Colours */
+        --App_BorderLight          : #e0ddd8;            /* Light borders */
+        --App_BorderMedium         : #c4c0b8;            /* Medium borders */
+        --App_BorderDark           : #555041;            /* Dark/accent borders */
+        
+        /* Status Colours */
+        --App_StatusSuccess        : #2d7a4d;            /* Success green */
+        --App_StatusWarning        : #b8860b;            /* Warning amber */
+        --App_StatusError          : #c73e3e;            /* Error red */
+        --App_StatusInfo           : #3a6ea5;            /* Info blue */
+        
+        /* Spacing */
+        --App_SpacingXs            : 0.25rem;            /* 4px */
+        --App_SpacingSm            : 0.5rem;             /* 8px */
+        --App_SpacingMd            : 1rem;               /* 16px */
+        --App_SpacingLg            : 1.5rem;             /* 24px */
+        --App_SpacingXl            : 2rem;               /* 32px */
+        --App_SpacingXxl           : 3rem;               /* 48px */
+        
+        /* Layout */
+        --App_HeaderHeight         : 60px;
+        --App_SidebarWidth         : 260px;
+        --App_BorderRadius         : 4px;
+        --App_BorderRadiusLg       : 8px;
+        
+        /* Shadows */
+        --App_ShadowSm             : 0 1px 3px rgba(0, 0, 0, 0.1);
+        --App_ShadowMd             : 0 4px 6px rgba(0, 0, 0, 0.1);
+        --App_ShadowLg             : 0 10px 25px rgba(0, 0, 0, 0.15);
+        
+        /* Transitions */
+        --App_TransitionFast       : 0.15s ease;
+        --App_TransitionMedium     : 0.25s ease;
+        --App_TransitionSlow       : 0.35s ease;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Reset & Base Styles
+ * ----- */
+
+    *,
+    *::before,
+    *::after {
+        box-sizing                 : border-box;
+        margin                     : 0;
+        padding                    : 0;
+    }
+
+    html {
+        font-size                  : 16px;
+        scroll-behavior            : smooth;
+    }
+
+    body {
+        font-family                : 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size                  : 1rem;
+        font-weight                : 400;
+        line-height                : 1.6;
+        color                      : var(--App_TextPrimary);
+        background-color           : var(--App_BgPrimary);
+        min-height                 : 100vh;
+        overflow-x                 : hidden;
+    }
+
+    a {
+        color                      : var(--App_TextLink);
+        text-decoration            : none;
+        transition                 : color var(--App_TransitionFast);
+    }
+
+    a:hover {
+        color                      : var(--App_BrandAccent);
+        text-decoration            : underline;
+    }
+
+    img {
+        max-width                  : 100%;
+        height                     : auto;
+    }
+
+    button {
+        font-family                : inherit;
+        cursor                     : pointer;
+    }
+
+    input,
+    textarea,
+    select {
+        font-family                : inherit;
+        font-size                  : inherit;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Header Styles
+ * ----- */
+
+    .app-header {
+        position                   : fixed;
+        top                        : 0;
+        left                       : 0;
+        right                      : 0;
+        height                     : var(--App_HeaderHeight);
+        background-color           : var(--App_BgSecondary);
+        border-bottom              : 3px solid var(--App_BrandPrimary);
+        display                    : flex;
+        align-items                : center;
+        padding                    : 0 var(--App_SpacingMd);
+        z-index                    : 1000;
+        box-shadow                 : var(--App_ShadowSm);
+    }
+
+    .header__menu-btn {
+        width                      : 44px;
+        height                     : 44px;
+        background                 : none;
+        border                     : none;
+        font-size                  : 24px;
+        color                      : var(--App_BrandPrimary);
+        display                    : flex;
+        align-items                : center;
+        justify-content            : center;
+        border-radius              : var(--App_BorderRadius);
+        transition                 : background-color var(--App_TransitionFast);
+    }
+
+    .header__menu-btn:hover {
+        background-color           : var(--App_BgTertiary);
+    }
+
+    .header__title-container {
+        display                    : flex;
+        flex-direction             : column;
+        margin-left                : var(--App_SpacingSm);
+        flex                       : 1;
+    }
+
+    .header__title {
+        font-size                  : 1.25rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        line-height                : 1.2;
+    }
+
+    .header__project-name {
+        font-size                  : 0.875rem;
+        color                      : var(--App_TextSecondary);
+        line-height                : 1.2;
+    }
+
+    .header__logo {
+        height                     : 40px;
+        width                      : auto;
+        margin-left                : auto;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Sidebar Navigation
+ * ----- */
+
+    .sidebar {
+        position                   : fixed;
+        top                        : var(--App_HeaderHeight);
+        left                       : 0;
+        width                      : var(--App_SidebarWidth);
+        height                     : calc(100vh - var(--App_HeaderHeight));
+        background-color           : var(--App_BgSecondary);
+        border-right               : 1px solid var(--App_BorderLight);
+        display                    : flex;
+        flex-direction             : column;
+        z-index                    : 900;
+        transition                 : transform var(--App_TransitionMedium);
+        box-shadow                 : var(--App_ShadowSm);
+    }
+
+    .sidebar.collapsed {
+        transform                  : translateX(-100%);
+    }
+
+    .sidebar__header {
+        padding                    : var(--App_SpacingMd);
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .sidebar__title {
+        font-size                  : 0.75rem;
+        font-weight                : 600;
+        text-transform             : uppercase;
+        letter-spacing             : 0.05em;
+        color                      : var(--App_TextMuted);
+    }
+
+    .nav-menu {
+        list-style                 : none;
+        flex                       : 1;
+        overflow-y                 : auto;
+        padding                    : var(--App_SpacingSm) 0;
+    }
+
+    .nav-menu__item {
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .nav-menu__item:last-child {
+        border-bottom              : none;
+    }
+
+    .nav-menu__link {
+        display                    : flex;
+        align-items                : center;
+        padding                    : var(--App_SpacingMd);
+        color                      : var(--App_TextPrimary);
+        text-decoration            : none;
+        transition                 : all var(--App_TransitionFast);
+    }
+
+    .nav-menu__link:hover {
+        background-color           : var(--App_BgTertiary);
+        text-decoration            : none;
+    }
+
+    .nav-menu__link.active {
+        background-color           : var(--App_BrandPrimary);
+        color                      : var(--App_TextLight);
+    }
+
+    .nav-menu__icon {
+        width                      : 24px;
+        margin-right               : var(--App_SpacingSm);
+        text-align                 : center;
+        font-size                  : 1.125rem;
+    }
+
+    .nav-menu__text {
+        flex                       : 1;
+        font-size                  : 0.9375rem;
+    }
+
+    .nav-menu__badge {
+        font-size                  : 0.75rem;
+        padding                    : 2px 8px;
+        border-radius              : 10px;
+        background-color           : var(--App_StatusSuccess);
+        color                      : var(--App_TextLight);
+    }
+
+    .nav-menu__badge--warning {
+        background-color           : var(--App_StatusWarning);
+    }
+
+    .nav-menu__badge--error {
+        background-color           : var(--App_StatusError);
+    }
+
+    .nav-menu__item--loading {
+        padding                    : var(--App_SpacingMd);
+        color                      : var(--App_TextMuted);
+        font-style                 : italic;
+    }
+
+    .sidebar__footer {
+        padding                    : var(--App_SpacingMd);
+        border-top                 : 1px solid var(--App_BorderLight);
+        background-color           : var(--App_BgTertiary);
+    }
+
+    .auth-status {
+        display                    : flex;
+        align-items                : center;
+        font-size                  : 0.875rem;
+        color                      : var(--App_TextSecondary);
+    }
+
+    .auth-status__icon {
+        margin-right               : var(--App_SpacingSm);
+    }
+
+    .auth-status.authenticated {
+        color                      : var(--App_StatusSuccess);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Main Content Area
+ * ----- */
+
+    .main-content {
+        margin-left                : var(--App_SidebarWidth);
+        margin-top                 : var(--App_HeaderHeight);
+        min-height                 : calc(100vh - var(--App_HeaderHeight));
+        padding                    : var(--App_SpacingLg);
+        transition                 : margin-left var(--App_TransitionMedium);
+    }
+
+    .sidebar.collapsed ~ .main-content,
+    .main-content.expanded {
+        margin-left                : 0;
+    }
+
+    .screen {
+        max-width                  : 1200px;
+        margin                     : 0 auto;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Loading Overlay
+ * ----- */
+
+    .loading-overlay {
+        position                   : fixed;
+        top                        : 0;
+        left                       : 0;
+        right                      : 0;
+        bottom                     : 0;
+        background-color           : var(--App_BgPrimary);
+        display                    : flex;
+        flex-direction             : column;
+        align-items                : center;
+        justify-content            : center;
+        z-index                    : 9999;
+    }
+
+    .loading-overlay.hidden {
+        display                    : none;
+    }
+
+    .loading-spinner {
+        width                      : 48px;
+        height                     : 48px;
+        border                     : 4px solid var(--App_BorderLight);
+        border-top-color           : var(--App_BrandPrimary);
+        border-radius              : 50%;
+        animation                  : spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform              : rotate(360deg);
+        }
+    }
+
+    .loading-text {
+        margin-top                 : var(--App_SpacingMd);
+        color                      : var(--App_TextSecondary);
+        font-size                  : 0.9375rem;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Login Screen
+ * ----- */
+
+    .login-screen {
+        display                    : flex;
+        align-items                : center;
+        justify-content            : center;
+        min-height                 : calc(100vh - var(--App_HeaderHeight) - var(--App_SpacingXxl));
+    }
+
+    .login-card {
+        width                      : 100%;
+        max-width                  : 400px;
+        background-color           : var(--App_BgSecondary);
+        border-radius              : var(--App_BorderRadiusLg);
+        box-shadow                 : var(--App_ShadowLg);
+        padding                    : var(--App_SpacingXl);
+    }
+
+    .login-card__header {
+        text-align                 : center;
+        margin-bottom              : var(--App_SpacingLg);
+    }
+
+    .login-card__logo {
+        width                      : 80px;
+        height                     : auto;
+        margin-bottom              : var(--App_SpacingMd);
+    }
+
+    .login-card__title {
+        font-size                  : 1.5rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingXs);
+    }
+
+    .login-card__subtitle {
+        font-size                  : 0.9375rem;
+        color                      : var(--App_TextSecondary);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Welcome Screen
+ * ----- */
+
+    .welcome-screen {
+        display                    : flex;
+        align-items                : center;
+        justify-content            : center;
+        min-height                 : calc(100vh - var(--App_HeaderHeight) - var(--App_SpacingXxl));
+    }
+
+    .welcome-card {
+        text-align                 : center;
+        max-width                  : 600px;
+        padding                    : var(--App_SpacingXl);
+    }
+
+    .welcome-card__logo {
+        max-width                  : 400px;
+        margin-bottom              : var(--App_SpacingXl);
+    }
+
+    .welcome-card__title {
+        font-size                  : 1.75rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingMd);
+    }
+
+    .welcome-card__text {
+        font-size                  : 1rem;
+        color                      : var(--App_TextSecondary);
+        line-height                : 1.7;
+        margin-bottom              : var(--App_SpacingLg);
+    }
+
+    .welcome-card__info {
+        background-color           : var(--App_BgTertiary);
+        padding                    : var(--App_SpacingMd);
+        border-radius              : var(--App_BorderRadius);
+    }
+
+    .welcome-card__info code {
+        font-family                : 'Consolas', 'Monaco', monospace;
+        font-size                  : 0.9375rem;
+        color                      : var(--App_BrandPrimary);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Form Elements
+ * ----- */
+
+    .form-group {
+        margin-bottom              : var(--App_SpacingMd);
+    }
+
+    .form-group--checkbox {
+        display                    : flex;
+        align-items                : flex-start;
+        gap                        : var(--App_SpacingSm);
+    }
+
+    .form-group--checkbox input[type="checkbox"] {
+        margin-top                 : 4px;
+        width                      : 18px;
+        height                     : 18px;
+        accent-color               : var(--App_BrandPrimary);
+    }
+
+    .form-label {
+        display                    : block;
+        font-size                  : 0.875rem;
+        font-weight                : 500;
+        color                      : var(--App_TextPrimary);
+        margin-bottom              : var(--App_SpacingXs);
+    }
+
+    .form-label--inline {
+        display                    : inline;
+        margin-bottom              : 0;
+        font-weight                : 400;
+        line-height                : 1.5;
+    }
+
+    .form-input {
+        width                      : 100%;
+        padding                    : var(--App_SpacingSm) var(--App_SpacingMd);
+        font-size                  : 1rem;
+        border                     : 1px solid var(--App_BorderMedium);
+        border-radius              : var(--App_BorderRadius);
+        background-color           : var(--App_BgSecondary);
+        transition                 : border-color var(--App_TransitionFast), box-shadow var(--App_TransitionFast);
+    }
+
+    .form-input:focus {
+        outline                    : none;
+        border-color               : var(--App_BrandPrimary);
+        box-shadow                 : 0 0 0 3px rgba(85, 80, 65, 0.15);
+    }
+
+    .form-input--pin {
+        text-align                 : center;
+        font-size                  : 1.5rem;
+        font-weight                : 600;
+        letter-spacing             : 0.5em;
+        padding                    : var(--App_SpacingMd);
+    }
+
+    .form-hint {
+        font-size                  : 0.8125rem;
+        color                      : var(--App_TextMuted);
+        margin-top                 : var(--App_SpacingXs);
+    }
+
+    .form-error {
+        font-size                  : 0.875rem;
+        color                      : var(--App_StatusError);
+        margin-top                 : var(--App_SpacingSm);
+        padding                    : var(--App_SpacingSm);
+        background-color           : rgba(199, 62, 62, 0.1);
+        border-radius              : var(--App_BorderRadius);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Buttons
+ * ----- */
+
+    .btn {
+        display                    : inline-flex;
+        align-items                : center;
+        justify-content            : center;
+        padding                    : var(--App_SpacingSm) var(--App_SpacingMd);
+        font-size                  : 0.9375rem;
+        font-weight                : 500;
+        border                     : 2px solid transparent;
+        border-radius              : var(--App_BorderRadius);
+        transition                 : all var(--App_TransitionFast);
+        text-decoration            : none;
+    }
+
+    .btn:hover {
+        text-decoration            : none;
+    }
+
+    .btn--primary {
+        background-color           : var(--App_BrandPrimary);
+        color                      : var(--App_TextLight);
+        border-color               : var(--App_BrandPrimary);
+    }
+
+    .btn--primary:hover {
+        background-color           : var(--App_BgDark);
+        border-color               : var(--App_BgDark);
+    }
+
+    .btn--secondary {
+        background-color           : transparent;
+        color                      : var(--App_BrandPrimary);
+        border-color               : var(--App_BrandPrimary);
+    }
+
+    .btn--secondary:hover {
+        background-color           : var(--App_BrandPrimary);
+        color                      : var(--App_TextLight);
+    }
+
+    .btn--success {
+        background-color           : var(--App_StatusSuccess);
+        color                      : var(--App_TextLight);
+        border-color               : var(--App_StatusSuccess);
+    }
+
+    .btn--full-width {
+        width                      : 100%;
+    }
+
+    .btn--small {
+        padding                    : var(--App_SpacingXs) var(--App_SpacingSm);
+        font-size                  : 0.8125rem;
+    }
+
+    .btn--large {
+        padding                    : var(--App_SpacingMd) var(--App_SpacingLg);
+        font-size                  : 1.0625rem;
+    }
+
+    .btn:disabled {
+        opacity                    : 0.6;
+        cursor                     : not-allowed;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Document Screen
+ * ----- */
+
+    .document-screen {
+        padding-bottom             : var(--App_SpacingXxl);
+    }
+
+    .document-container {
+        background-color           : var(--App_BgSecondary);
+        border-radius              : var(--App_BorderRadiusLg);
+        box-shadow                 : var(--App_ShadowMd);
+        max-width                  : 900px;
+        margin                     : 0 auto;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Signature Screen
+ * ----- */
+
+    .signature-screen {
+        display                    : flex;
+        align-items                : center;
+        justify-content            : center;
+        min-height                 : calc(100vh - var(--App_HeaderHeight) - var(--App_SpacingXxl));
+    }
+
+    .signature-panel {
+        width                      : 100%;
+        max-width                  : 600px;
+        background-color           : var(--App_BgSecondary);
+        border-radius              : var(--App_BorderRadiusLg);
+        box-shadow                 : var(--App_ShadowLg);
+        padding                    : var(--App_SpacingXl);
+    }
+
+    .signature-panel__header {
+        text-align                 : center;
+        margin-bottom              : var(--App_SpacingLg);
+        padding-bottom             : var(--App_SpacingMd);
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .signature-panel__title {
+        font-size                  : 1.5rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingXs);
+    }
+
+    .signature-panel__description {
+        font-size                  : 0.9375rem;
+        color                      : var(--App_TextSecondary);
+    }
+
+    .signature-canvas-container {
+        position                   : relative;
+        border                     : 2px solid var(--App_BorderMedium);
+        border-radius              : var(--App_BorderRadius);
+        background-color           : var(--App_BgSecondary);
+    }
+
+    .signature-canvas {
+        display                    : block;
+        width                      : 100%;
+        height                     : 200px;
+        cursor                     : crosshair;
+        touch-action               : none;
+    }
+
+    .signature-canvas-container .btn {
+        position                   : absolute;
+        bottom                     : var(--App_SpacingSm);
+        right                      : var(--App_SpacingSm);
+    }
+
+    .signature-form__actions {
+        display                    : flex;
+        gap                        : var(--App_SpacingMd);
+        margin-top                 : var(--App_SpacingLg);
+    }
+
+    .signature-form__actions .btn {
+        flex                       : 1;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Modal Styles
+ * ----- */
+
+    .modal-overlay {
+        position                   : fixed;
+        top                        : 0;
+        left                       : 0;
+        right                      : 0;
+        bottom                     : 0;
+        background-color           : rgba(0, 0, 0, 0.5);
+        display                    : flex;
+        align-items                : center;
+        justify-content            : center;
+        z-index                    : 2000;
+        padding                    : var(--App_SpacingMd);
+    }
+
+    .modal-container {
+        width                      : 100%;
+        max-width                  : 500px;
+        max-height                 : 90vh;
+        background-color           : var(--App_BgSecondary);
+        border-radius              : var(--App_BorderRadiusLg);
+        box-shadow                 : var(--App_ShadowLg);
+        display                    : flex;
+        flex-direction             : column;
+        overflow                   : hidden;
+    }
+
+    .modal__header {
+        display                    : flex;
+        align-items                : center;
+        justify-content            : space-between;
+        padding                    : var(--App_SpacingMd) var(--App_SpacingLg);
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .modal__title {
+        font-size                  : 1.25rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin                     : 0;
+    }
+
+    .modal__close-btn {
+        width                      : 32px;
+        height                     : 32px;
+        background                 : none;
+        border                     : none;
+        font-size                  : 24px;
+        color                      : var(--App_TextMuted);
+        display                    : flex;
+        align-items                : center;
+        justify-content            : center;
+        border-radius              : var(--App_BorderRadius);
+        transition                 : all var(--App_TransitionFast);
+    }
+
+    .modal__close-btn:hover {
+        background-color           : var(--App_BgTertiary);
+        color                      : var(--App_TextPrimary);
+    }
+
+    .modal__content {
+        padding                    : var(--App_SpacingLg);
+        overflow-y                 : auto;
+        flex                       : 1;
+    }
+
+    .modal__footer {
+        padding                    : var(--App_SpacingMd) var(--App_SpacingLg);
+        border-top                 : 1px solid var(--App_BorderLight);
+        display                    : flex;
+        justify-content            : flex-end;
+        gap                        : var(--App_SpacingSm);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Document Styles - Quotation
+ * ----- */
+
+    .document {
+        padding                    : var(--App_SpacingXl);
+    }
+
+    .document__header {
+        display                    : flex;
+        justify-content            : space-between;
+        align-items                : flex-start;
+        margin-bottom              : var(--App_SpacingXl);
+        padding-bottom             : var(--App_SpacingLg);
+        border-bottom              : 3px solid var(--App_BrandPrimary);
+    }
+
+    .document__logo {
+        max-width                  : 200px;
+    }
+
+    .document__meta {
+        text-align                 : right;
+    }
+
+    .document__title {
+        font-size                  : 1.75rem;
+        font-weight                : 700;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingXs);
+    }
+
+    .document__ref {
+        font-size                  : 0.9375rem;
+        color                      : var(--App_TextSecondary);
+    }
+
+    .document__section {
+        margin-bottom              : var(--App_SpacingXl);
+    }
+
+    .document__section-title {
+        font-size                  : 1.125rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingMd);
+        padding-bottom             : var(--App_SpacingXs);
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .document__addresses {
+        display                    : grid;
+        grid-template-columns      : 1fr 1fr;
+        gap                        : var(--App_SpacingXl);
+    }
+
+    .address-block__title {
+        font-size                  : 0.75rem;
+        font-weight                : 600;
+        text-transform             : uppercase;
+        letter-spacing             : 0.05em;
+        color                      : var(--App_TextMuted);
+        margin-bottom              : var(--App_SpacingSm);
+    }
+
+    .address-block__content {
+        font-size                  : 0.9375rem;
+        line-height                : 1.7;
+    }
+
+    .address-block__content strong {
+        color                      : var(--App_TextPrimary);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Quotation Table
+ * ----- */
+
+    .quote-table {
+        width                      : 100%;
+        border-collapse            : collapse;
+        margin-bottom              : var(--App_SpacingLg);
+    }
+
+    .quote-table th,
+    .quote-table td {
+        padding                    : var(--App_SpacingSm) var(--App_SpacingMd);
+        text-align                 : left;
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .quote-table th {
+        font-size                  : 0.8125rem;
+        font-weight                : 600;
+        text-transform             : uppercase;
+        letter-spacing             : 0.03em;
+        color                      : var(--App_TextMuted);
+        background-color           : var(--App_BgTertiary);
+    }
+
+    .quote-table td {
+        font-size                  : 0.9375rem;
+    }
+
+    .quote-table__description {
+        width                      : 50%;
+    }
+
+    .quote-table__qty,
+    .quote-table__unit,
+    .quote-table__rate,
+    .quote-table__amount {
+        text-align                 : right;
+        white-space                : nowrap;
+    }
+
+    .quote-table__group-header {
+        background-color           : var(--App_BgTertiary);
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+    }
+
+    .quote-table__group-header td {
+        border-bottom              : 2px solid var(--App_BrandSecondary);
+    }
+
+    .quote-totals {
+        margin-left                : auto;
+        width                      : 300px;
+        border-top                 : 2px solid var(--App_BrandPrimary);
+    }
+
+    .quote-totals__row {
+        display                    : flex;
+        justify-content            : space-between;
+        padding                    : var(--App_SpacingSm) 0;
+        font-size                  : 0.9375rem;
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .quote-totals__row:last-child {
+        border-bottom              : none;
+    }
+
+    .quote-totals__row--grand {
+        font-size                  : 1.125rem;
+        font-weight                : 700;
+        color                      : var(--App_BrandPrimary);
+        padding-top                : var(--App_SpacingMd);
+        border-top                 : 2px solid var(--App_BrandPrimary);
+        margin-top                 : var(--App_SpacingXs);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Terms & Conditions Document
+ * ----- */
+
+    .terms-document {
+        padding                    : var(--App_SpacingXl);
+    }
+
+    .terms-section {
+        margin-bottom              : var(--App_SpacingXl);
+    }
+
+    .terms-section__title {
+        font-size                  : 1.25rem;
+        font-weight                : 700;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingMd);
+        padding-bottom             : var(--App_SpacingSm);
+        border-bottom              : 2px solid var(--App_BrandPrimary);
+    }
+
+    .terms-section--special {
+        background-color           : #fffdf5;
+        border                     : 1px solid var(--App_BrandAccent);
+        border-radius              : var(--App_BorderRadius);
+        padding                    : var(--App_SpacingLg);
+        margin-bottom              : var(--App_SpacingXl);
+    }
+
+    .terms-section--special .terms-section__title {
+        color                      : var(--App_BrandAccent);
+        border-bottom-color        : var(--App_BrandAccent);
+    }
+
+    .terms-item {
+        margin-bottom              : var(--App_SpacingMd);
+        padding-left               : var(--App_SpacingMd);
+        position                   : relative;
+    }
+
+    .terms-item::before {
+        content                    : '';
+        position                   : absolute;
+        left                       : 0;
+        top                        : 0.7em;
+        width                      : 6px;
+        height                     : 6px;
+        background-color           : var(--App_BrandPrimary);
+        border-radius              : 50%;
+    }
+
+    .terms-item__title {
+        font-weight                : 600;
+        color                      : var(--App_TextPrimary);
+        margin-bottom              : var(--App_SpacingXs);
+    }
+
+    .terms-item__content {
+        color                      : var(--App_TextSecondary);
+        line-height                : 1.7;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Signature Record Display
+ * ----- */
+
+    .signature-record {
+        background-color           : var(--App_BgTertiary);
+        border                     : 1px solid var(--App_BorderMedium);
+        border-radius              : var(--App_BorderRadius);
+        padding                    : var(--App_SpacingMd);
+        margin-top                 : var(--App_SpacingLg);
+    }
+
+    .signature-record__header {
+        display                    : flex;
+        align-items                : center;
+        gap                        : var(--App_SpacingSm);
+        margin-bottom              : var(--App_SpacingMd);
+        color                      : var(--App_StatusSuccess);
+        font-weight                : 600;
+    }
+
+    .signature-record__details {
+        display                    : grid;
+        grid-template-columns      : auto 1fr;
+        gap                        : var(--App_SpacingXs) var(--App_SpacingMd);
+        font-size                  : 0.875rem;
+    }
+
+    .signature-record__label {
+        color                      : var(--App_TextMuted);
+    }
+
+    .signature-record__value {
+        color                      : var(--App_TextPrimary);
+    }
+
+    .signature-record__image {
+        margin-top                 : var(--App_SpacingMd);
+        padding-top                : var(--App_SpacingMd);
+        border-top                 : 1px solid var(--App_BorderLight);
+    }
+
+    .signature-record__image img {
+        max-width                  : 300px;
+        border                     : 1px solid var(--App_BorderLight);
+        background-color           : var(--App_BgSecondary);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Sign Document Button
+ * ----- */
+
+    .sign-document-section {
+        margin-top                 : var(--App_SpacingXl);
+        padding-top                : var(--App_SpacingLg);
+        border-top                 : 2px solid var(--App_BorderLight);
+        text-align                 : center;
+    }
+
+    .sign-document-section__title {
+        font-size                  : 1.125rem;
+        font-weight                : 600;
+        color                      : var(--App_TextPrimary);
+        margin-bottom              : var(--App_SpacingSm);
+    }
+
+    .sign-document-section__text {
+        color                      : var(--App_TextSecondary);
+        margin-bottom              : var(--App_SpacingMd);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Utility Classes
+ * ----- */
+
+    .text-center {
+        text-align                 : center;
+    }
+
+    .text-right {
+        text-align                 : right;
+    }
+
+    .text-muted {
+        color                      : var(--App_TextMuted);
+    }
+
+    .text-success {
+        color                      : var(--App_StatusSuccess);
+    }
+
+    .text-warning {
+        color                      : var(--App_StatusWarning);
+    }
+
+    .text-error {
+        color                      : var(--App_StatusError);
+    }
+
+    .mt-sm { margin-top            : var(--App_SpacingSm); }
+    .mt-md { margin-top            : var(--App_SpacingMd); }
+    .mt-lg { margin-top            : var(--App_SpacingLg); }
+    .mb-sm { margin-bottom         : var(--App_SpacingSm); }
+    .mb-md { margin-bottom         : var(--App_SpacingMd); }
+    .mb-lg { margin-bottom         : var(--App_SpacingLg); }
+
+    .hidden {
+        display                    : none !important;
+    }
+
+    .visually-hidden {
+        position                   : absolute;
+        width                      : 1px;
+        height                     : 1px;
+        padding                    : 0;
+        margin                     : -1px;
+        overflow                   : hidden;
+        clip                       : rect(0, 0, 0, 0);
+        white-space                : nowrap;
+        border                     : 0;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Responsive Styles
+ * ----- */
+
+    @media (max-width: 1024px) {
+        .sidebar {
+            transform              : translateX(-100%);
+        }
+        
+        .sidebar.open {
+            transform              : translateX(0);
+        }
+        
+        .main-content {
+            margin-left            : 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        :root {
+            --App_HeaderHeight     : 56px;
+        }
+        
+        .header__title {
+            font-size              : 1.125rem;
+        }
+        
+        .header__logo {
+            height                 : 32px;
+        }
+        
+        .document {
+            padding                : var(--App_SpacingMd);
+        }
+        
+        .document__addresses {
+            grid-template-columns  : 1fr;
+            gap                    : var(--App_SpacingMd);
+        }
+        
+        .document__header {
+            flex-direction         : column;
+            gap                    : var(--App_SpacingMd);
+        }
+        
+        .document__meta {
+            text-align             : left;
+        }
+        
+        .quote-table {
+            font-size              : 0.875rem;
+        }
+        
+        .quote-table th,
+        .quote-table td {
+            padding                : var(--App_SpacingXs) var(--App_SpacingSm);
+        }
+        
+        .quote-totals {
+            width                  : 100%;
+        }
+        
+        .signature-panel {
+            padding                : var(--App_SpacingMd);
+        }
+        
+        .signature-form__actions {
+            flex-direction         : column;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .login-card {
+            padding                : var(--App_SpacingMd);
+        }
+        
+        .quote-table__qty,
+        .quote-table__unit {
+            display                : none;
+        }
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Print Styles
+ * ----- */
+
+    @media print {
+        .app-header,
+        .sidebar,
+        .loading-overlay,
+        .sign-document-section .btn,
+        .nav-menu {
+            display                : none !important;
+        }
+        
+        .main-content {
+            margin                 : 0;
+            padding                : 0;
+        }
+        
+        .document-container {
+            box-shadow             : none;
+            border-radius          : 0;
+        }
+        
+        .document {
+            padding                : 20mm;
+        }
+        
+        body {
+            background             : white;
+        }
+    }
+
+/* endregion ---- */
+

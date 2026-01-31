@@ -1,0 +1,86 @@
+{
+    "quotationRef"                 : "QUO-AA00-2026-001",
+    "quotationDate"                : "2026-01-31",
+    "projectAddress"               : "123 Example Street, Nottingham, NG1 1AA",
+    "projectDescription"           : "This is an example quotation demonstrating the format and structure of project quotations in the Noble Architecture Project Admin system. This includes multiple phases, line items, and calculated totals.",
+    "clientDetails"                : {
+        "name"                     : "Example Client",
+        "address"                  : "456 Client Address\nNottingham\nNG2 2BB",
+        "email"                    : "client@example.com",
+        "phone"                    : "0115 123 4567"
+    },
+    "lineItems"                    : [
+        {
+            "description"          : "Initial Site Survey and Assessment",
+            "quantity"             : 1,
+            "unit"                 : "visit",
+            "rate"                 : 350,
+            "group"                : "Design Phase"
+        },
+        {
+            "description"          : "Concept Design Development",
+            "quantity"             : 1,
+            "unit"                 : "package",
+            "rate"                 : 1500,
+            "group"                : "Design Phase"
+        },
+        {
+            "description"          : "Measured Survey Coordination",
+            "quantity"             : 1,
+            "unit"                 : "item",
+            "rate"                 : 450,
+            "group"                : "Design Phase"
+        },
+        {
+            "description"          : "Planning Application Drawings",
+            "quantity"             : 1,
+            "unit"                 : "set",
+            "rate"                 : 2500,
+            "group"                : "Planning Phase"
+        },
+        {
+            "description"          : "Design & Access Statement",
+            "quantity"             : 1,
+            "unit"                 : "document",
+            "rate"                 : 500,
+            "group"                : "Planning Phase"
+        },
+        {
+            "description"          : "Planning Application Submission Support",
+            "quantity"             : 4,
+            "unit"                 : "hours",
+            "rate"                 : 85,
+            "group"                : "Planning Phase"
+        },
+        {
+            "description"          : "Building Regulations Drawings",
+            "quantity"             : 1,
+            "unit"                 : "set",
+            "rate"                 : 3500,
+            "group"                : "Construction Phase"
+        },
+        {
+            "description"          : "Structural Coordination",
+            "quantity"             : 8,
+            "unit"                 : "hours",
+            "rate"                 : 85,
+            "group"                : "Construction Phase"
+        },
+        {
+            "description"          : "Specification Schedule",
+            "quantity"             : 1,
+            "unit"                 : "document",
+            "rate"                 : 750,
+            "group"                : "Construction Phase"
+        }
+    ],
+    "totals"                       : {
+        "subtotal"                 : 10290,
+        "vatRate"                  : 0,
+        "vat"                      : 0,
+        "grandTotal"               : 10290
+    },
+    "additionalTerms"              : "This quotation is based on a standard domestic project. Complex or listed building projects may require additional fees.",
+    "createdDate"                  : "2026-01-31T12:00:00.000Z"
+}
+

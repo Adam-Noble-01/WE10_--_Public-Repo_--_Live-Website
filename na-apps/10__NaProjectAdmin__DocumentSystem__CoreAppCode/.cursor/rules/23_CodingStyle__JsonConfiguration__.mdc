@@ -1,0 +1,163 @@
+---
+description: Noble Architecture JSON configuration file structure and formatting conventions.
+alwaysApply: true
+---
+
+# JSON Configuration
+All JSON configuration files must follow column-aligned properties and proper structure.
+
+## File Naming
+```
+Data__[ConfigName]__.json              // Standard format
+```
+
+---
+
+# Structure & Formatting
+
+## Column Alignment (CRITICAL)
+
+**Align colons at consistent column position within same nesting level:**
+
+```json
+{
+    "appName"           : "NaProjectAdmin",
+    "appVersion"        : "1.0.0",
+    "appAuthor"         : "Adam Noble",
+    "appDomain"         : "https://www.noble-architecture.com/",
+    
+    "AppConfig": {
+        "devMode"                      : true,
+        "devMode_WaypointOrbsOn"       : false,
+        "devMode_CameraAgentMarkers"   : true,
+        
+        "Features": {
+            "ProjectAdmin": {
+                "enabled"       : true,
+                "autoSave"      : false,
+                "timeout"       : 5000,
+                "description"   : "Project administration features"
+            }
+        },
+        
+        "Network": {
+            "timeoutMs"         : 5000,
+            "retryAttempts"     : 3,
+            "retryDelayMs"      : 1000,
+            "cacheDuration"     : 300000
+        }
+    }
+}
+```
+
+---
+
+# Property Naming Conventions
+
+**Top-Level:** `camelCase` with `app` prefix
+- `appName`, `appVersion`, `appAuthor`, `appDomain`, `appDescription`
+
+**Config Properties:** `category_PropertyName` with underscore separator
+- `feature_Enabled`, `feature_Setting`, `devMode_WaypointOrbsOn`
+
+**Boolean Flags:** `category_SpecificFlag` pattern
+- `devMode`, `devMode_ShowHelpers`, `devMode_VerboseLogging`
+
+---
+
+# Value Types
+
+| Type | Format | Example |
+|------|--------|---------|
+| Boolean | `true`/`false` (lowercase, no quotes) | `"enabled": true` |
+| Number | Plain numbers (no quotes) | `"timeout": 5000` |
+| String | Double quotes | `"name": "ProjectName"` |
+| Array | Square brackets | `["item1", "item2"]` |
+| Object | Nested with 4-space indent | `{"key": "value"}` |
+
+---
+
+# Common Configuration Categories
+
+```json
+{
+    // Application Metadata
+    "appName"           : "NaProjectAdmin",
+    "appVersion"        : "1.0.0",
+    "appAuthor"         : "Adam Noble",
+    
+    "AppConfig": {
+        // Development Mode
+        "devMode"                      : true,
+        "devMode_WaypointOrbsOn"       : false,
+        
+        // Feature Flags
+        "Features": {
+            "FeatureName": {
+                "enabled"       : true,
+                "description"   : "Feature explanation"
+            }
+        },
+        
+        // Network Settings
+        "Network": {
+            "timeoutMs"         : 5000,
+            "retryAttempts"     : 3
+        },
+        
+        // Paths
+        "Paths": {
+            "configFile"        : "Data__MainAppConfig__.json",
+            "assetBase"         : "../../01__Assets__NaApps__CommonAssets"
+        }
+    }
+}
+```
+
+---
+
+# Rules
+
+## ALWAYS
+- Align property colons at consistent column within nesting level
+- Use double quotes for property names and string values
+- Use camelCase for property names
+- Use 4-space indentation per level
+- Include `description` fields for complex features
+- Use lowercase for booleans (`true`, `false`)
+- Use plain numbers without quotes
+- End with newline character
+
+## NEVER
+- Use single quotes for strings
+- Skip column alignment
+- Use uppercase booleans (TRUE, FALSE)
+- Quote number values
+- Use trailing commas
+- Mix tabs and spaces
+- Create deeply nested structures (max 4-5 levels)
+- Use abbreviations in property names
+
+---
+
+# Configuration Loading Pattern
+
+```javascript
+// Load configuration
+window.NaProjectAdmin.configLoadPromise = (async function() {
+    const response = await fetch('Data__MainAppConfig__.json');
+    window.NaProjectAdmin.Config = await response.json();
+    window.dispatchEvent(new CustomEvent('configLoaded'));
+    return true;
+})();
+
+// Access configuration
+await window.NaProjectAdmin.configLoadPromise;
+const appConfig = window.NaProjectAdmin.Config;
+
+// Read with strict equality/nullish coalescing
+const enabled = appConfig?.Features?.ProjectAdmin?.enabled === true;
+const timeout = appConfig?.Network?.timeoutMs ?? 5000;
+```
+
+See `03_Global__ConfigurationAuthority__.mdc` for configuration access patterns.

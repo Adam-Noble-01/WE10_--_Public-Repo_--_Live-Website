@@ -1,0 +1,116 @@
+---
+alwaysApply: true
+---
+# Web Hosting - Static Source Code (GitHub Pages)
+GitHub Pages serves as the static hosting platform for the Noble Architecture Project Admin & Documentation System Core App.
+
+## Core Principle
+GitHub Pages mirrors the local directory structure, providing predictable URLs that correspond directly to local file paths.
+
+## Hard Constraints
+- GitHub Pages is **Read-Only at runtime** - it cannot be written to by the application or users.
+- Hosts only static source code and assets - no dynamic, user-generated content.
+- Local directory structure must mirror the deployed GitHub Pages structure for predictable development and deployment.
+- Dynamic content must never be written to or stored in GitHub Pages (see rule 11 for Cloudflare R2 dynamic storage).
+
+---
+
+# GitHub Pages - Three Key Hosted Locations
+GitHub Pages hosts three primary locations, each with a corresponding local path and GitHub Pages URL:
+
+## 1. Core App Code
+The main application source code for the Project Admin & Documentation System.
+
+**Local Path:**
+`D:\WE10_--_Public-Repo_--_Live-Website\na-apps\10__NaProjectAdmin__DocumentSystem__CoreAppCode\` 
+
+**GitHub Pages URL:**
+`https://www.noble-architecture.com/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/`
+
+**Path Mapping Example:**
+
+**Local file:**
+`D:\WE10_--_Public-Repo_--_Live-Website\na-apps\10__NaProjectAdmin__DocumentSystem__CoreAppCode\index.html`
+
+**GitHub Pages URL:**
+`https://www.noble-architecture.com/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/index.html`
+
+---
+
+## 2. Common Assets (Shared Across Apps)
+
+Shared resources including fonts, graphics, and icons used across multiple Noble Architecture applications.
+
+**Local Path:**
+`D:\WE10_--_Public-Repo_--_Live-Website\na-apps\01__Assets__NaApps__CommonAssets\`
+
+**GitHub Pages URL:**
+`https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/`
+
+**Asset Structure:**
+```
+01__Assets__NaApps__CommonAssets/
+├── NaApps__CommonFonts/
+├── NaApps__CommonGraphics/
+└── NaApps__CommonIcons/
+```
+
+---
+
+## 3. Project Portal (Static Project Files)
+
+Contains project-specific files. **Note:** This location contains both static files (served from GitHub Pages) and dynamic files (served from Cloudflare R2 CDN).
+
+**Local Path:**
+`D:\WE10_--_Public-Repo_--_Live-Website\na-project-portal\`
+
+**GitHub Pages URL:**
+`https://www.noble-architecture.com/na-project-portal/`
+
+**Important:** Dynamic project files created by users are stored in Cloudflare R2 and served from:
+`https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/[ProjectCode]/[path]/[dynamic-file].json`
+
+See rule 11 (Web Hosting and Storage Boundary) for complete details on dynamic content storage.
+
+---
+
+# Domain Structure
+
+**Base Domain:**
+`https://www.noble-architecture.com/`
+
+**GitHub Pages Hosting Root:**
+All static content is served from the base domain with direct path mirroring:
+`https://www.noble-architecture.com/[relative-path-from-repo-root]/`
+
+---
+
+# Local-to-GitHub Pages Path Mapping Rules
+
+1. **Direct Path Mirroring:** The local directory structure after `D:\WE10_--_Public-Repo_--_Live-Website\` directly mirrors the GitHub Pages URL structure after `https://www.noble-architecture.com/`.
+
+2. **Predictable URLs:** Every local file has a corresponding, predictable GitHub Pages URL by replacing the local root with the domain.
+
+3. **Development-Production Consistency:** Local development paths must match production paths to ensure links, imports, and references work identically in both environments.
+
+4. **Static Only:** GitHub Pages serves only static files. Dynamic content must be stored in Cloudflare R2 (see rule 11).
+
+---
+
+# Definitions
+
+**Static Source Code**
+- HTML, CSS, JavaScript, and other code files that comprise the application.
+- Images, fonts, icons, and graphics used in the UI.
+- Template files and configuration files that are part of the codebase.
+- Static source code belongs in the GitHub Pages repository and is served directly to users.
+
+**Local Directory Structure**
+- The organization of files and folders on the development machine.
+- Must mirror the GitHub Pages structure for predictable deployment.
+- Located at: `D:\WE10_--_Public-Repo_--_Live-Website\`
+
+**GitHub Pages Structure**
+- The organization of files and folders as deployed on GitHub Pages.
+- Directly mirrors the local directory structure.
+- Served at: `https://www.noble-architecture.com/`

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Terms Editor | Noble Architecture</title>
+    <link rel="icon" type="image/x-icon"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <style>
+        /* -----
+         * REGION | CSS Variables & Reset
+         * ----- */
+        :root {
+            --brand-primary: #555041;
+            --brand-accent: #8b6914;
+            --bg-primary: #f8f7f5;
+            --bg-secondary: #ffffff;
+            --bg-special: #fffdf5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-light: #e0ddd8;
+            --success: #2d7a4d;
+            --error: #c73e3e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* -----
+         * REGION | Layout
+         * ----- */
+        .app-header {
+            background: var(--bg-secondary);
+            border-bottom: 3px solid var(--brand-primary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-header h1 {
+            color: var(--brand-primary);
+            font-size: 1.5rem;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* -----
+         * REGION | Panels
+         * ----- */
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .panel__header {
+            background: var(--brand-primary);
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .panel__body {
+            padding: 1.5rem;
+        }
+
+        /* -----
+         * REGION | Form Elements
+         * ----- */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 2px rgba(85, 80, 65, 0.15);
+        }
+
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* -----
+         * REGION | Buttons
+         * ----- */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn--primary {
+            background: var(--brand-primary);
+            color: white;
+        }
+
+        .btn--primary:hover {
+            background: #444033;
+        }
+
+        .btn--secondary {
+            background: transparent;
+            border: 1px solid var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .btn--danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn--small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* -----
+         * REGION | Term Items
+         * ----- */
+        .term-item {
+            background: var(--bg-special);
+            border: 1px solid var(--brand-accent);
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .term-item__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .term-item__number {
+            font-weight: 600;
+            color: var(--brand-accent);
+        }
+
+        .term-item__drag {
+            cursor: move;
+            color: var(--text-secondary);
+        }
+
+        /* -----
+         * REGION | Preview
+         * ----- */
+        .preview-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preview-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--brand-accent);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--brand-accent);
+        }
+
+        .preview-term {
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .preview-term::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.6em;
+            width: 6px;
+            height: 6px;
+            background: var(--brand-accent);
+            border-radius: 50%;
+        }
+
+        .preview-term__title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .preview-term__content {
+            color: var(--text-secondary);
+        }
+
+        /* -----
+         * REGION | JSON Output
+         * ----- */
+        .json-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-light);
+            background: var(--bg-primary);
+            cursor: pointer;
+        }
+
+        .tab:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .tab:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tab.active {
+            background: var(--brand-primary);
+            color: white;
+            border-color: var(--brand-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="app-header">
+        <h1>Special Terms Editor</h1>
+        <div>
+            <button class="btn btn--secondary" onclick="loadFromFile()">Load JSON</button>
+            <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Editor Panel -->
+        <div class="panel">
+            <div class="panel__header">Edit Special Terms</div>
+            <div class="panel__body">
+                <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                    Special terms are job-specific conditions that appear at the top of the Terms & Conditions
+                    document. Use these for project-specific requirements, deadlines, or special arrangements.
+                </p>
+
+                <div class="form-group">
+                    <label for="sectionTitle">Section Title</label>
+                    <input type="text" id="sectionTitle" class="form-input" value="Special Terms for This Project"
+                        onchange="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label for="introduction">Introduction (Optional)</label>
+                    <textarea id="introduction" class="form-input" placeholder="Optional introductory text..."
+                        onchange="updatePreview()"></textarea>
+                </div>
+
+                <h3 style="margin: 1.5rem 0 1rem; color: var(--brand-primary);">Terms</h3>
+
+                <div id="termsContainer"></div>
+
+                <button class="btn btn--secondary" onclick="addTerm()">+ Add Term</button>
+            </div>
+        </div>
+
+        <!-- Preview/Output Panel -->
+        <div class="panel">
+            <div class="panel__header">Output</div>
+            <div class="panel__body">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('preview')">Preview</div>
+                    <div class="tab" onclick="switchTab('json')">JSON</div>
+                </div>
+
+                <div id="previewTab" class="tab-content active">
+                    <div class="preview-container" id="previewContainer">
+                        <div class="preview-title" id="previewTitle">Special Terms for This Project</div>
+                        <div id="previewIntro"></div>
+                        <div id="previewTerms"></div>
+                    </div>
+                </div>
+
+                <div id="jsonTab" class="tab-content">
+                    <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                        Copy this JSON and save as <code>ProjectAdmin__SpecialTerms__.json</code> in your project's
+                        <code>10__ProjectAdmin__AppContent</code> folder.
+                    </p>
+                    <div class="actions-bar">
+                        <button class="btn btn--primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+                    </div>
+                    <pre id="jsonOutput" class="json-output">{}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
+
+    <script>
+        // =====================================================================
+        // TERMS EDITOR LOGIC
+        // =====================================================================
+
+        let terms = [];
+        let termId = 0;
+
+        // Initialise
+        document.addEventListener('DOMContentLoaded', function () {
+            addTerm();
+            updatePreview();
+        });
+
+        // Add term
+        function addTerm() {
+            const id = ++termId;
+            terms.push({
+                id: id,
+                title: '',
+                content: ''
+            });
+            renderTerms();
+        }
+
+        // Remove term
+        function removeTerm(id) {
+            terms = terms.filter(term => term.id !== id);
+            renderTerms();
+            updatePreview();
+        }
+
+        // Update term
+        function updateTerm(id, field, value) {
+            const term = terms.find(t => t.id === id);
+            if (term) {
+                term[field] = value;
+                updatePreview();
+            }
+        }
+
+        // Render terms
+        function renderTerms() {
+            const container = document.getElementById('termsContainer');
+
+            container.innerHTML = terms.map((term, index) => `
+                <div class="term-item" data-id="${term.id}">
+                    <div class="term-item__header">
+                        <span class="term-item__number">Term ${index + 1}</span>
+                        <button class="btn btn--danger btn--small" onclick="removeTerm(${term.id})">Remove</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" class="form-input" value="${term.title}" 
+                               placeholder="e.g., Payment Schedule"
+                               onchange="updateTerm(${term.id}, 'title', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Content</label>
+                        <textarea class="form-input" placeholder="Term details..."
+                                  onchange="updateTerm(${term.id}, 'content', this.value)">${term.content}</textarea>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Switch tab
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.querySelector(`.tab:nth-child(${tabName === 'preview' ? 1 : 2})`).classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Generate JSON
+        function generateJson() {
+            return {
+                sectionTitle: document.getElementById('sectionTitle').value,
+                introduction: document.getElementById('introduction').value || undefined,
+                terms: terms.filter(t => t.title || t.content).map(t => ({
+                    title: t.title,
+                    content: t.content
+                })),
+                lastUpdated: new Date().toISOString()
+            };
+        }
+
+        // Update preview
+        function updatePreview() {
+            const data = generateJson();
+
+            // Update preview
+            document.getElementById('previewTitle').textContent = data.sectionTitle || 'Special Terms';
+
+            const introEl = document.getElementById('previewIntro');
+            introEl.innerHTML = data.introduction
+                ? `<p style="margin-bottom: 1rem;">${data.introduction}</p>`
+                : '';
+
+            const termsEl = document.getElementById('previewTerms');
+            termsEl.innerHTML = data.terms.map(term => `
+                <div class="preview-term">
+                    ${term.title ? `<div class="preview-term__title">${term.title}</div>` : ''}
+                    <div class="preview-term__content">${term.content || ''}</div>
+                </div>
+            `).join('');
+
+            // Update JSON
+            document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 4);
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            const json = document.getElementById('jsonOutput').textContent;
+            navigator.clipboard.writeText(json).then(() => {
+                alert('JSON copied to clipboard!');
+            });
+        }
+
+        // Download JSON
+        function downloadJson() {
+            const json = document.getElementById('jsonOutput').textContent;
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ProjectAdmin__SpecialTerms__.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Load from file
+        function loadFromFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Handle file load
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    document.getElementById('sectionTitle').value = data.sectionTitle || 'Special Terms for This Project';
+                    document.getElementById('introduction').value = data.introduction || '';
+
+                    terms = [];
+                    termId = 0;
+
+                    if (data.terms && data.terms.length > 0) {
+                        data.terms.forEach(term => {
+                            terms.push({
+                                id: ++termId,
+                                title: term.title || '',
+                                content: term.content || ''
+                            });
+                        });
+                    }
+
+                    renderTerms();
+                    updatePreview();
+                    alert('Terms loaded successfully!');
+                } catch (error) {
+                    alert('Failed to load file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+
+</html>

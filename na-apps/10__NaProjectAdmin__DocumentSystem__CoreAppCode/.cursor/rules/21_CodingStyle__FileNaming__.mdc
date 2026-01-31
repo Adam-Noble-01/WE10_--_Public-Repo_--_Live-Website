@@ -1,0 +1,95 @@
+---
+alwaysApply: true
+---
+# File Naming Conventions
+
+All files must follow the Noble Architecture naming convention using descriptive prefixes and double underscore separators.
+
+## JavaScript File Naming Patterns
+
+```
+AppCore__[Name]__Main__.js             // Main application orchestrator
+AppCore__ModuleDependencyManager__.js  // Dependency management (always loaded first)
+AppCore__[FeatureName]__.js            // Core application feature modules
+```
+
+**Examples:**
+- `AppCore__Main__.js` - Main application entry point
+- `AppCore__ModuleDependencyManager__.js` - Module loading coordinator
+- `AppCore__ConfigManager__.js` - Configuration management
+
+### Feature Modules
+```
+[Feature]__[Module]__.js               // Feature-specific modules
+```
+
+**Examples:**
+- `ProjectAdmin__DataLoader__.js` - Project data loading module
+- `DocumentSystem__SignatureHandler__.js` - Document signature handling
+- `Navigation__RouteManager__.js` - Navigation and routing
+
+### Data Files
+```
+Data__[ConfigName]__.json              // Configuration and data files
+Data_-_[ConfigName]__.json             // Alternative hyphen separator style
+```
+
+**Examples:**
+- `Data__MainAppConfig__.json` - Main application configuration
+- `Data_-_MainAppConfig.json` - Alternative naming style
+- `Data__ProjectMetadata__.json` - Project metadata storage
+
+## CSS File Naming Patterns
+
+```
+StyleSheet__[Name]__.css               // Stylesheets
+```
+
+**Examples:**
+- `StyleSheet__Main__.css` - Main application styles
+- `StyleSheet__ProjectAdmin__.css` - Project admin specific styles
+- `StyleSheet__Navigation__.css` - Navigation component styles
+
+## HTML File Naming Patterns
+
+```
+index.html                             // Main entry point (standard)
+[Feature]__[Page]__.html               // Feature-specific pages (if used)
+```
+
+## Project-Specific File Naming
+
+When working with project-specific files, incorporate the project code:
+
+```
+[Feature]__NaProjectCode__{Function}__.js
+```
+
+**Example:**
+```javascript
+ProjectAdmin__NaProjectCode__Loader__.js     // Loads project by code
+DocumentSystem__NaProjectCode__Parser__.js   // Parses project code data
+```
+
+**Note:** Project codes follow the format: Two letters (client initials) + two digits (01-99), e.g., `JH03`, `AB01`, `CM31`
+
+## Rules
+
+### Pattern Components
+- **Prefix:** `AppCore__`, `Data__`, `StyleSheet__`, or Feature name (e.g., `ProjectAdmin__`)
+- **Name:** PascalCase, descriptive, specific
+- **Suffix:** `__Main__` for entry points, standard module names otherwise
+
+### ALWAYS:
+- Use double underscores `__` to separate prefix, name, and suffix
+- Use PascalCase for the name portion
+- Include descriptive prefixes that indicate file purpose/category
+- Be consistent with naming patterns across similar file types
+- Make names self-documenting and clear
+
+### NEVER:
+- Use spaces in filenames
+- Use single underscores for separating major components
+- Use camelCase or snake_case for the main name (use PascalCase)
+- Create ambiguous or abbreviated names
+- Omit the prefix for categorized files

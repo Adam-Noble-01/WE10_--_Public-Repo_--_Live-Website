@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Configuration Editor | Noble Architecture</title>
+    <link rel="icon" type="image/x-icon"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <style>
+        :root {
+            --brand-primary: #555041;
+            --brand-accent: #8b6914;
+            --bg-primary: #f8f7f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-light: #e0ddd8;
+            --success: #2d7a4d;
+            --error: #c73e3e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-header {
+            background: var(--bg-secondary);
+            border-bottom: 3px solid var(--brand-primary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-header h1 {
+            color: var(--brand-primary);
+            font-size: 1.5rem;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .panel__header {
+            background: var(--brand-primary);
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .panel__body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 2px rgba(85, 80, 65, 0.15);
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn--primary {
+            background: var(--brand-primary);
+            color: white;
+        }
+
+        .btn--primary:hover {
+            background: #444033;
+        }
+
+        .btn--secondary {
+            background: transparent;
+            border: 1px solid var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .json-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border: 1px solid #3a6ea5;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .warning-box {
+            background: #fff8e6;
+            border: 1px solid var(--brand-accent);
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="app-header">
+        <h1>Project Configuration Editor</h1>
+        <div>
+            <button class="btn btn--secondary" onclick="loadFromFile()">Load JSON</button>
+            <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Editor Panel -->
+        <div class="panel">
+            <div class="panel__header">Project Configuration</div>
+            <div class="panel__body">
+                <div class="info-box">
+                    <strong>Project Config File</strong><br>
+                    This file contains project-specific settings including the access PIN.
+                    Save it as <code>ProjectAdmin__ProjectConfig__.json</code>.
+                </div>
+
+                <h3 style="margin-bottom: 1rem; color: var(--brand-primary);">Project Details</h3>
+
+                <div class="form-group">
+                    <label for="projectCode">Project Code</label>
+                    <input type="text" id="projectCode" class="form-input" placeholder="e.g., JH03" maxlength="4"
+                        onchange="validateProjectCode(); updatePreview()">
+                    <div class="form-hint">Format: 2 letters + 2 digits (e.g., JH03, AB01)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" id="projectName" class="form-input" placeholder="e.g., Romer Cottage Extension"
+                        onchange="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label for="clientName">Client Name</label>
+                    <input type="text" id="clientName" class="form-input" placeholder="e.g., John Smith"
+                        onchange="updatePreview()">
+                </div>
+
+                <h3 style="margin: 1.5rem 0 1rem; color: var(--brand-primary);">Access Control</h3>
+
+                <div class="warning-box">
+                    <strong>Security Note</strong><br>
+                    For production use, consider using a hashed PIN (prefix with <code>sha256:</code>).
+                    Leave blank for open access (no PIN required).
+                </div>
+
+                <div class="form-group">
+                    <label for="projectPin">Access PIN</label>
+                    <input type="text" id="projectPin" class="form-input" placeholder="e.g., 1234 or sha256:..."
+                        onchange="updatePreview()">
+                    <div class="form-hint">4-6 digit PIN, or leave empty for no authentication</div>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn--secondary" onclick="generatePin()">Generate Random PIN</button>
+                    <button class="btn btn--secondary" onclick="hashPin()">Hash Current PIN</button>
+                </div>
+
+                <h3 style="margin: 1.5rem 0 1rem; color: var(--brand-primary);">Document Availability</h3>
+
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="hasQuotation" onchange="updatePreview()">
+                        Quotation available
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="hasSpecialTerms" onchange="updatePreview()">
+                        Special terms available
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="panel">
+            <div class="panel__header">JSON Output</div>
+            <div class="panel__body">
+                <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                    Save this as <code>ProjectAdmin__ProjectConfig__.json</code> in the project's
+                    <code>10__ProjectAdmin__AppContent</code> folder.
+                </p>
+                <div class="actions-bar">
+                    <button class="btn btn--primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+                </div>
+                <pre id="jsonOutput" class="json-output">{}</pre>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
+
+    <script>
+        // Initialise
+        document.addEventListener('DOMContentLoaded', updatePreview);
+
+        // Validate project code
+        function validateProjectCode() {
+            const input = document.getElementById('projectCode');
+            let value = input.value.toUpperCase();
+
+            // Only allow valid characters
+            value = value.replace(/[^A-Z0-9]/g, '');
+
+            // Ensure format: 2 letters + 2 digits
+            if (value.length > 4) {
+                value = value.substring(0, 4);
+            }
+
+            input.value = value;
+        }
+
+        // Generate random PIN
+        function generatePin() {
+            const pin = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('projectPin').value = pin;
+            updatePreview();
+        }
+
+        // Hash PIN
+        async function hashPin() {
+            const pin = document.getElementById('projectPin').value;
+
+            if (!pin || pin.startsWith('sha256:')) {
+                alert('Please enter a plain text PIN first');
+                return;
+            }
+
+            const encoder = new TextEncoder();
+            const data = encoder.encode(pin);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            document.getElementById('projectPin').value = 'sha256:' + hash;
+            updatePreview();
+
+            alert(`PIN "${pin}" has been hashed. Make sure to note the original PIN for client access.`);
+        }
+
+        // Generate JSON
+        function generateJson() {
+            const projectCode = document.getElementById('projectCode').value;
+            const pin = document.getElementById('projectPin').value;
+
+            return {
+                projectCode: projectCode || undefined,
+                projectName: document.getElementById('projectName').value || `Project ${projectCode}`,
+                clientName: document.getElementById('clientName').value || undefined,
+                projectPin: pin || null,
+                documents: {
+                    quotation: document.getElementById('hasQuotation').checked,
+                    specialTerms: document.getElementById('hasSpecialTerms').checked
+                },
+                createdDate: new Date().toISOString().split('T')[0],
+                lastModified: new Date().toISOString()
+            };
+        }
+
+        // Update preview
+        function updatePreview() {
+            const json = generateJson();
+            document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 4);
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            const json = document.getElementById('jsonOutput').textContent;
+            navigator.clipboard.writeText(json).then(() => {
+                alert('JSON copied to clipboard!');
+            });
+        }
+
+        // Download JSON
+        function downloadJson() {
+            const json = document.getElementById('jsonOutput').textContent;
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ProjectAdmin__ProjectConfig__.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Load from file
+        function loadFromFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Handle file load
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    document.getElementById('projectCode').value = data.projectCode || '';
+                    document.getElementById('projectName').value = data.projectName || '';
+                    document.getElementById('clientName').value = data.clientName || '';
+                    document.getElementById('projectPin').value = data.projectPin || '';
+                    document.getElementById('hasQuotation').checked = data.documents?.quotation || false;
+                    document.getElementById('hasSpecialTerms').checked = data.documents?.specialTerms || false;
+
+                    updatePreview();
+                    alert('Configuration loaded successfully!');
+                } catch (error) {
+                    alert('Failed to load file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+
+</html>

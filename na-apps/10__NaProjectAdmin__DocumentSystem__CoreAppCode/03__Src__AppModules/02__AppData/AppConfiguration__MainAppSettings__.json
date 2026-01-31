@@ -1,0 +1,93 @@
+{
+    "appName"                      : "NaProjectAdmin",
+    "appVersion"                   : "1.0.0",
+    "appAuthor"                    : "Adam Noble - Noble Architecture",
+    "appDescription"               : "Project Admin & Documentation System",
+    "appDomain"                    : "https://www.noble-architecture.com/",
+
+    "AppConfig": {
+        "devMode"                              : false,
+        "devMode_ShowDebugLogs"                : false,
+        "devMode_BypassAuth"                   : false,
+
+        "Paths": {
+            "coreAppBase"                      : "/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/",
+            "projectPortalBase"                : "/na-project-portal/",
+            "commonAssetsBase"                 : "/na-apps/01__Assets__NaApps__CommonAssets/",
+            "cdnBase"                          : "https://cdn.noble-architecture.com/"
+        },
+
+        "ProjectLoading": {
+            "defaultYear"                      : "26",
+            "projectFolderPattern"             : "{year}-Projects/{projectCode}",
+            "projectAdminFolder"               : "10__ProjectAdmin__AppContent",
+            "quotationFile"                    : "ProjectAdmin__Quotation__.json",
+            "specialTermsFile"                 : "ProjectAdmin__SpecialTerms__.json",
+            "projectConfigFile"                : "ProjectAdmin__ProjectConfig__.json"
+        },
+
+        "Features": {
+            "QuotationSystem": {
+                "enabled"                      : true,
+                "showVat"                      : true,
+                "vatRate"                      : 0,
+                "currencySymbol"               : "£",
+                "currencyCode"                 : "GBP",
+                "validityDays"                 : 30
+            },
+            "TermsSystem": {
+                "enabled"                      : true,
+                "showSpecialTermsFirst"        : true,
+                "generalTermsFile"             : "DocumentSystem__GeneralTerms__.html"
+            },
+            "SignatureSystem": {
+                "enabled"                      : true,
+                "requireBothSignatures"        : true,
+                "canvasWidth"                  : 600,
+                "canvasHeight"                 : 200,
+                "strokeColour"                 : "#000000",
+                "strokeWidth"                  : 2
+            },
+            "Authentication": {
+                "enabled"                      : true,
+                "pinMinLength"                 : 4,
+                "pinMaxLength"                 : 6,
+                "sessionTimeout"               : 3600000,
+                "maxAttempts"                  : 5,
+                "lockoutDuration"              : 300000
+            }
+        },
+
+        "CloudflareConfig": {
+            "enabled"                          : true,
+            "workerBaseUrl"                    : "https://api.noble-architecture.com/",
+            "authEndpoint"                     : "projectadmin/auth",
+            "signatureEndpoint"                : "projectadmin/signature",
+            "r2BucketPrefix"                   : "NaProjectPortal/"
+        },
+
+        "UI": {
+            "brandColour"                      : "#555041",
+            "sidebarCollapsedByDefault"        : false,
+            "animationsEnabled"                : true,
+            "showLoadingOverlay"               : true
+        },
+
+        "AuditSettings": {
+            "captureIpAddress"                 : true,
+            "captureUserAgent"                 : true,
+            "captureBrowserFingerprint"        : true,
+            "generateDocumentHash"             : true
+        }
+    },
+
+    "CompanyDetails": {
+        "companyName"                          : "Noble Architecture",
+        "companyAddress"                       : "Nottingham, United Kingdom",
+        "companyEmail"                         : "info@noble-architecture.com",
+        "companyPhone"                         : "",
+        "companyWebsite"                       : "https://www.noble-architecture.com",
+        "companyRegistration"                  : ""
+    }
+}
+

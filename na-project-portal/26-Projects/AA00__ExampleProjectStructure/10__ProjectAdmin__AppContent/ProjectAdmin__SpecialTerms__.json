@@ -1,0 +1,28 @@
+{
+    "sectionTitle"                 : "Special Terms for This Project",
+    "introduction"                 : "The following special terms apply specifically to this project and supplement our General Terms & Conditions. Please read these carefully as they contain important information about your project.",
+    "terms"                        : [
+        {
+            "title"                : "Payment Schedule",
+            "content"              : "Payment for this project will be structured as follows: 25% deposit upon acceptance of this quotation, 25% upon completion of design phase, 25% upon planning submission, and 25% upon completion of construction drawings. All invoices are payable within 14 days of issue."
+        },
+        {
+            "title"                : "Project Timeline",
+            "content"              : "The estimated project duration is 12-16 weeks from acceptance to completion of construction drawings. This timeline is dependent on timely provision of information and decisions by the client, planning authority response times, and third-party consultant availability."
+        },
+        {
+            "title"                : "Site Access",
+            "content"              : "The client agrees to provide reasonable access to the site for surveys and inspections. At least 48 hours notice will be given for site visits where possible. The client is responsible for ensuring safe access and should notify us of any hazards."
+        },
+        {
+            "title"                : "Planning Conditions",
+            "content"              : "This quotation assumes a straightforward planning application. If the planning authority requires additional information, specialist reports (such as tree surveys, ecology reports, or heritage assessments), these will be quoted separately."
+        },
+        {
+            "title"                : "Design Changes",
+            "content"              : "The fee quoted covers a reasonable level of design development and refinement. Major changes to the brief or significant redesign after approval of concept designs may incur additional fees, which will be agreed in advance."
+        }
+    ],
+    "lastUpdated"                  : "2026-01-31T12:00:00.000Z"
+}
+

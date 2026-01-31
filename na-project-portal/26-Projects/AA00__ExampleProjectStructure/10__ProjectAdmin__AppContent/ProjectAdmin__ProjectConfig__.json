@@ -1,0 +1,14 @@
+{
+    "projectCode"                  : "AA00",
+    "projectName"                  : "Example Project Structure",
+    "clientName"                   : "Example Client",
+    "projectPin"                   : "1234",
+    "documents"                    : {
+        "quotation"                : true,
+        "specialTerms"             : true
+    },
+    "createdDate"                  : "31-Jan-2026",
+    "lastModified"                 : "2026-01-31T12:00:00.000Z",
+    "notes"                        : "This is an example project structure for testing and demonstration purposes."
+}
+

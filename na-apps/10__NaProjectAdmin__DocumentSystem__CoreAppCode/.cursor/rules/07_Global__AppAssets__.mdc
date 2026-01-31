@@ -1,0 +1,96 @@
+---
+alwaysApply: true
+---
+# Centralised App Assets (Common Assets)
+
+## Core Principle
+All app assets (fonts, graphics, icons) served from single centralized location shared across Noble Architecture applications. Assets are static files on GitHub Pages, referenced via relative paths only.
+
+## Hard Constraints
+- **Read-Only at runtime** - GitHub Pages serves static content only
+- Never duplicate assets into individual app directories
+- Always use relative paths for portability
+- Asset paths must work identically in local and production
+
+---
+
+# Locations & Path Mapping
+
+## Paths
+**Local:** `D:\WE10_--_Public-Repo_--_Live-Website\na-apps\01__Assets__NaApps__CommonAssets\`
+**GitHub:** `https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/`
+**Relative from Core App:** `../../01__Assets__NaApps__CommonAssets/`
+
+Local structure after `D:\WE10_--_Public-Repo_--_Live-Website\` mirrors GitHub structure after `https://www.noble-architecture.com/`.
+
+## Directory Structure
+
+```
+01__Assets__NaApps__CommonAssets/
+├── NaApps__CommonFonts/          (OpenSans: Regular, Bold, Light, Medium, SemiBold)
+├── NaApps__CommonGraphics/       (Logos, Signatures, Brand Graphics)
+└── NaApps__CommonIcons/          (Favicons: ICO, PNG, SVG variants)
+```
+
+---
+
+# Path Calculation from Core App
+
+```
+D:\WE10_--_Public-Repo_--_Live-Website\
+└── na-apps\
+    ├── 01__Assets__NaApps__CommonAssets\          <-- Target
+    └── 10__NaProjectAdmin__DocumentSystem__CoreAppCode\   <-- Core App
+```
+
+**Navigation:** Core App → up 2 levels → down to `na-apps/01__Assets__NaApps__CommonAssets/`
+**Result:** `../../01__Assets__NaApps__CommonAssets/`
+
+---
+
+# Usage Examples
+
+## HTML
+```html
+<link rel="icon" href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+<img src="../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png">
+```
+
+## CSS
+```css
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf') format('truetype');
+}
+.header-logo {
+    background-image: url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__NaProfileLogo__h512px__.png');
+}
+```
+
+## JavaScript
+```javascript
+const fontPath = '../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf';
+const logoPath = '../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png';
+```
+
+---
+
+# Rules
+
+## ALWAYS
+- Use relative paths: `../../01__Assets__NaApps__CommonAssets/[subdirectory]/[filename]`
+- Reference existing centralized assets only
+- Include full filename with extension
+
+## NEVER
+- Use absolute local paths (`D:\WE10_--_Public-Repo_--_Live-Website\...`)
+- Use absolute URLs for local development
+- Duplicate Common Assets into app directories
+- Modify assets at runtime (read-only)
+
+---
+
+# Asset Categories
+- **Fonts:** TTF/WOFF/WOFF2 in `NaApps__CommonFonts/`
+- **Graphics:** PNG/JPG/SVG brand imagery in `NaApps__CommonGraphics/`
+- **Icons:** ICO/PNG/SVG favicons in `NaApps__CommonIcons/`

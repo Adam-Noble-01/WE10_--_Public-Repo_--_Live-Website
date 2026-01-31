@@ -1,0 +1,43 @@
+---
+alwaysApply: true
+---
+# Configuration Authority
+
+**CRITICAL:** `03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json` is the SINGLE SOURCE OF TRUTH for ALL configuration values.
+
+## Core Principle
+- Configuration files (JSON) are the authoritative source for all application settings. 
+- All modules should reference and use configurations from `AppConfiguration__MainAppSettings__.json` to drive their behaviour where relevant. 
+- Code must respect and properly read configuration values without overriding them with defaults.
+
+## Hard Constraints
+
+### MANDATORY:
+- Use strict equality: `appConfig?.setting === true` (never `|| true`)
+- NO configuration defaults that override JSON values
+- When JSON sets `false`, it MUST remain `false`
+- Configuration checks must use explicit boolean comparisons
+- All modules should check for relevant configuration before initializing
+
+### FORBIDDEN:
+- Default overrides: `appConfig?.setting || true` ❌
+- Hardcoded configuration values ❌
+- Loose equality that allows type coercion ❌
+
+## Rules
+
+### ALWAYS:
+- Use strict equality (`===`) for boolean configuration checks
+- Check against `true` explicitly: `appConfig?.setting === true`
+- Use nullish coalescing (`??`) not logical OR (`||`) for non-boolean defaults
+- Wait for configuration to load before accessing values
+- Respect `false` values from JSON - never override with defaults
+- Check `AppConfiguration__MainAppSettings__.json` for relevant module settings
+
+### NEVER:
+- Use default overrides with logical OR: `appConfig?.setting || true`
+- Use loose equality (`==`) for configuration checks
+- Hardcode configuration values that should be in JSON
+- Override JSON `false` values with code defaults
+- Access configuration before it's loaded
+- Use truthy checks without explicit boolean comparison

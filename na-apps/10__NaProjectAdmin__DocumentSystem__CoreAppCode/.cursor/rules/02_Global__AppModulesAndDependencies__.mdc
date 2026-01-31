@@ -1,0 +1,93 @@
+---
+alwaysApply: true
+---
+# Module Dependencies
+- The project uses ES6 modules with highly structured module system. 
+- Proper import/export management is critical.
+
+# Module Directories (Not Exhaustive)
+`ProjectRootDirectory\03__Src__AppModules\`
+  - `01__AppCore`  =  Main Orchestrator, Module Dependency Manager, Configuration Manager, etc.
+  - `02__AppData`  =  Data files such as, AppConfiguration__MainAppSettings__.json.
+  - `03__CommonUtils` =  Utility Modules such as Common Helper Functions, Math Functions, and none feature specific utility functions etc.
+  - `10__UserInterface` =  Groups the UI specific module files.
+- New features will be assigned a new double digit directory number and double underscore feature name.
+
+## Critical Pre-Implementation Checks
+
+### BEFORE writing code, ALWAYS:
+1. **Map Project Directory** - Use `list_dir` or `glob_file_search` to understand module locations
+2. **Verify Module Exists** - Confirm import paths match actual file structure
+3. **Check Import Statements** - Ensure all dependencies are imported
+4. **Verify Export Statements** - Confirm what's being exported matches usage
+5. **Check Global Scope** - Verify if anything is being passed to global scope (e.g., `window.NaProjectAdmin`)
+6. **Validate Key Modules Loaded** - Ensure core modules (Config, Data loaders) are imported where needed
+
+## Module Organisation
+
+### Standard Loading Order
+1. **Configuration** (always first)
+2. **Core utilities** (validation, parsing, helpers)
+3. **Data loaders** (API, storage access)
+4. **Business logic** (features, processing)
+5. **UI/Presentation** (components, views)
+
+## ES6 Module System
+
+### Import/Export Pattern
+
+```javascript
+// Explicit imports only
+import { ConfigManager } from './10__AppCore/AppCore__ConfigManager__.js';
+import { loadProject, validateCode } from './AppUtils/Util__ExampleFeature__.js';
+
+// Clear exports
+export class NavigationManager { }
+export const API_METHODS = { initialize, dispose };
+```
+
+### ModuleDirectory Structure Example
+- All source code files are located in the `03__Src__AppModules` directory off the project root.
+- All source code files are named using the PascalCase convention.
+- All source code files are named using the double underscore convention.
+```
+03__Src__AppModules/
+├── 01__AppCore/
+│   └── AppCore__ModuleDependencyManager__.js
+│   └── AppCore__ConfigManager__.js
+|
+├── 02__AppData/
+│   └── AppData__AppConfiguration__MainAppSettings__.json
+|
+├── 03__CommonUtils/
+│   └── CommonUtils__MathFunctions__.js
+|
+├── 10__UserInterface/
+|    └── UserInterface__Main__.js
+|    └── UserInterface__Navigation__.js
+|
+├── 20__DocumentSystem/
+    └── DocumentSystem__A4Format__.html
+    └── DocumentSystem__A4Format__.css
+    └── DocumentSystem__A4Format__.js
+```
+
+## Import/Export Verification Rules
+
+### ALWAYS:
+- Use explicit named imports: `import { specific, items } from './module.js'`
+- Include `.js` extension in import paths
+- Export only what's needed: `export { publicMethod }`
+- Check project structure BEFORE writing imports
+- Verify file paths match actual directory structure
+- Document module dependencies in file header comments
+- Use relative paths correctly (`./`, `../`)
+
+### NEVER:
+- Use wildcard imports unless necessary: `import * as Everything from './module.js'`
+- Skip file extension in import paths
+- Export internal/private functions
+- Assume module location - always verify
+- Create circular dependencies
+- Mix default and named exports inconsistently
+- Forget to export public API methods

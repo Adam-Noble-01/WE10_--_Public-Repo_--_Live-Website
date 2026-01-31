@@ -1,0 +1,147 @@
+---
+description: Noble Architecture inline commenting style with arrow notation and column alignment.
+alwaysApply: true
+---
+
+# Commenting Style
+
+All code must use inline arrow notation (`// <--`) and column-aligned comments.
+
+## Core Pattern
+
+```javascript
+// Use // <-- for inline comments at column ~60-70
+const value = compute();                                 // <-- What this does
+moduleInitialized = true;                                // <-- Mark as initialized
+
+// Column-align related declarations, operators, and comments
+let sceneRef                 = null;                     // <-- Scene reference
+let cameraRef                = null;                     // <-- Camera reference
+let moduleInitialized        = false;                    // <-- Init state
+
+// Align constants and their comments
+const CONFIG_PATH            = 'Data__MainAppConfig__.json'; // <-- Config file
+const MAX_RETRY_ATTEMPTS     = 3;                            // <-- Max retries
+const TIMEOUT_MS             = 5000;                         // <-- Timeout value
+
+// Align object properties (JSON-style)
+const configuration = {
+    appName              : 'NaProjectAdmin',             // <-- Application name
+    appVersion           : '1.0.0',                      // <-- Current version
+    timeoutMs            : 5000,                         // <-- Request timeout
+    debugMode            : false                         // <-- Debug flag
+};
+```
+
+---
+
+# Comment Types
+
+**Explanatory (WHAT/WHY):** Explain purpose or reason
+```javascript
+if (loadPromise) return loadPromise;                     // <-- Return existing promise
+const timeout = 5000;                                    // <-- 5s prevents long hangs
+```
+
+**Action (DOING):** Describe the action being performed
+```javascript
+window.dispatchEvent(event);                             // <-- Notify listeners
+await waitForModule('ConfigManager');                    // <-- Wait for dependency
+```
+
+**State (STATUS):** Indicate status or condition
+```javascript
+let isLoading            = false;                        // <-- Loading state
+let hasError             = false;                        // <-- Error state
+```
+
+---
+
+# Placement Patterns
+
+## Same-Line Comments
+```javascript
+return configData?.[key];                                // <-- Safe access
+if (!isLoaded) return null;                              // <-- Guard clause
+```
+
+## Block Comments for Complex Logic
+```javascript
+// This function coordinates the loading sequence across multiple
+// dependent modules and ensures proper initialization order
+async function coordinateModuleLoading() {
+    // Implementation
+}
+```
+
+## Common Patterns
+```javascript
+// Conditionals
+if (moduleInitialized) {
+    console.log('Already initialized');                  // <-- Log state
+    return;                                              // <-- Early return
+}
+
+// Loops
+for (const project of projects) {
+    const code = project.projectCode;                    // <-- Extract code
+    await loadProjectData(code);                         // <-- Load data
+}
+
+// Try-Catch
+try {
+    const response = await fetch(url);                   // <-- Fetch data
+    return await response.json();                        // <-- Parse and return
+} catch (error) {
+    console.error('Load failed:', error);                // <-- Log error
+    return null;                                         // <-- Return null on error
+}
+```
+
+---
+
+# Rules
+
+## ALWAYS
+- Use `// <--` for inline explanatory comments
+- Column-align related code, operators (`=`, `:`), and comments
+- Place comments at column 60-70 (max 80)
+- Explain WHAT the code does or WHY it's needed
+- Use block comments above for complex logic
+
+## NEVER
+- Restate code without adding value: `const x = 5; // Set x to 5` ❌
+- Use inconsistent alignment
+- Omit comments for non-obvious logic
+- Forget arrow notation for inline comments
+- Place comments past column 80
+
+---
+
+# Good vs Bad Examples
+
+```javascript
+// ❌ BAD - No value added
+const name = 'John';                                     // <-- Set name to John
+
+// ✅ GOOD - Explains purpose
+const name = 'John';                                     // <-- Default user name
+
+// ❌ BAD - No alignment
+const value = 10; // some value
+const anotherValue = 20; // another value
+
+// ✅ GOOD - Aligned
+const value              = 10;                           // <-- Min value
+const anotherValue       = 20;                           // <-- Max value
+```
+
+---
+
+# Special Markers
+
+```javascript
+// TODO: Implement error recovery mechanism
+// FIXME: Race condition when multiple modules load
+// NOTE: Performance critical - avoid modifications
+```

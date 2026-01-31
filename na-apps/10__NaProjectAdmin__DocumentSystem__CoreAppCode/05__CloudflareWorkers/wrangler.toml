@@ -1,0 +1,52 @@
+# =============================================================================
+# NOBLE ARCHITECTURE - CLOUDFLARE WORKERS CONFIGURATION
+# =============================================================================
+#
+# FILE       : wrangler.toml
+# PURPOSE    : Configuration for Cloudflare Workers deployment
+# AUTHOR     : Adam Noble - Noble Architecture
+# CREATED    : 31-Jan-2026
+#
+# DESCRIPTION:
+# - Configures Cloudflare Workers for the Project Admin system
+# - Sets up R2 bucket bindings
+# - Defines routes and environment variables
+#
+# DEPLOYMENT:
+# 1. Install Wrangler: npm install -g wrangler
+# 2. Login: wrangler login
+# 3. Deploy: wrangler deploy
+#
+# =============================================================================
+
+name                             = "na-projectadmin-api"
+main                             = "src/index.js"
+compatibility_date               = "2024-01-01"
+workers_dev                      = true
+
+# Account settings (update with your account ID)
+# account_id                     = "YOUR_ACCOUNT_ID"
+
+# Routes (uncomment and configure for production)
+# routes = [
+#     { pattern = "api.noble-architecture.com/*", zone_name = "noble-architecture.com" }
+# ]
+
+# R2 Bucket Binding
+[[r2_buckets]]
+binding                          = "R2_BUCKET"
+bucket_name                      = "noble-architecture-cdn"
+
+# Environment variables
+[vars]
+ENVIRONMENT                      = "development"
+CORS_ORIGIN                      = "https://www.noble-architecture.com"
+R2_PREFIX                        = "NaProjectPortal/"
+
+# Production environment overrides
+[env.production]
+workers_dev                      = false
+
+[env.production.vars]
+ENVIRONMENT                      = "production"
+
