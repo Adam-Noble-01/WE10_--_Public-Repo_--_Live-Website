@@ -6,10 +6,19 @@
 ## Version 0.1.2 - 31-Jan-2026
 
 ### Changed
-- **Code Organization** - Refactored `AppCore__Main__.js` with logical regional structure
+- **Code Organization** - Refactored multiple files with logical regional structure
+  
+  **AppCore__Main__.js**
   - Broke down 751-line file into 9 logical sub-regions for better code navigation
   - Added regions: STATE, INITIALIZATION, PROJECT LOADING, SESSION MANAGEMENT, AUTHENTICATION, CONTENT DISPLAY, SIGNATURE WORKFLOW, UTILITY FUNCTIONS, API EXPORT
   - Improved code folding support and maintainability
+  
+  **Editor Tools (04__EditorTools/)**
+  - Refactored all three editor HTML files with consistent regional structure
+  - `Editor__ProjectConfig__.html` - Added HTML and JavaScript regions (INITIALIZATION, VALIDATION, PIN OPERATIONS, JSON GENERATION, UI ACTIONS, FILE OPERATIONS)
+  - `Editor__QuotationBuilder__.html` - Added regions (STATE, INITIALIZATION, LINE ITEM MANAGEMENT, RENDERING, CALCULATIONS, JSON GENERATION, UI ACTIONS, FILE OPERATIONS)
+  - `Editor__TermsEditor__.html` - Added regions (STATE, INITIALIZATION, TERMS MANAGEMENT, RENDERING, UI ACTIONS, JSON GENERATION, FILE OPERATIONS)
+  - Consistent HTML regions: Document Head, Document Body, UI Header, UI Main, UI Panels, UI Hidden inputs
   - All functionality preserved, purely organizational refactoring
 
 ---

@@ -148,8 +148,8 @@
     // INITIALIZATION | DOM Ready
     // -----
 
-        // Initialise preview on load
-        document.addEventListener('DOMContentLoaded', updatePreview);
+    // Initialise preview on load
+    document.addEventListener('DOMContentLoaded', updatePreview);
 
     // endregion -----
 
@@ -157,21 +157,21 @@
     // VALIDATION | Input Validation
     // -----
 
-        // Validate project code format
-        function validateProjectCode() {
-            const input = document.getElementById('projectCode');
-            let value = input.value.toUpperCase();
+    // Validate project code format
+    function validateProjectCode() {
+        const input = document.getElementById('projectCode');
+        let value = input.value.toUpperCase();
 
-            // Only allow valid characters
-            value = value.replace(/[^A-Z0-9]/g, '');
+        // Only allow valid characters
+        value = value.replace(/[^A-Z0-9]/g, '');
 
-            // Ensure format: 2 letters + 2 digits
-            if (value.length > 4) {
-                value = value.substring(0, 4);
-            }
-
-            input.value = value;
+        // Ensure format: 2 letters + 2 digits
+        if (value.length > 4) {
+            value = value.substring(0, 4);
         }
+
+        input.value = value;
+    }
 
     // endregion -----
 
@@ -179,33 +179,33 @@
     // PIN OPERATIONS | PIN Generation and Hashing
     // -----
 
-        // Generate random 4-digit PIN
-        function generatePin() {
-            const pin = Math.floor(1000 + Math.random() * 9000).toString();
-            document.getElementById('projectPin').value = pin;
-            updatePreview();
+    // Generate random 4-digit PIN
+    function generatePin() {
+        const pin = Math.floor(1000 + Math.random() * 9000).toString();
+        document.getElementById('projectPin').value = pin;
+        updatePreview();
+    }
+
+    // Hash PIN
+    async function hashPin() {
+        const pin = document.getElementById('projectPin').value;
+
+        if (!pin || pin.startsWith('sha256:')) {
+            alert('Please enter a plain text PIN first');
+            return;
         }
 
-        // Hash PIN
-        async function hashPin() {
-            const pin = document.getElementById('projectPin').value;
+        const encoder = new TextEncoder();
+        const data = encoder.encode(pin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-            if (!pin || pin.startsWith('sha256:')) {
-                alert('Please enter a plain text PIN first');
-                return;
-            }
+        document.getElementById('projectPin').value = 'sha256:' + hash;
+        updatePreview();
 
-            const encoder = new TextEncoder();
-            const data = encoder.encode(pin);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-            document.getElementById('projectPin').value = 'sha256:' + hash;
-            updatePreview();
-
-            alert(`PIN "${pin}" has been hashed. Make sure to note the original PIN for client access.`);
-        }
+        alert(`PIN "${pin}" has been hashed. Make sure to note the original PIN for client access.`);
+    }
 
     // endregion -----
 
@@ -213,24 +213,24 @@
     // JSON GENERATION | Build Configuration Object
     // -----
 
-        // Generate configuration JSON
-        function generateJson() {
-            const projectCode = document.getElementById('projectCode').value;
-            const pin = document.getElementById('projectPin').value;
+    // Generate configuration JSON
+    function generateJson() {
+        const projectCode = document.getElementById('projectCode').value;
+        const pin = document.getElementById('projectPin').value;
 
-            return {
-                projectCode: projectCode || undefined,
-                projectName: document.getElementById('projectName').value || `Project ${projectCode}`,
-                clientName: document.getElementById('clientName').value || undefined,
-                projectPin: pin || null,
-                documents: {
-                    quotation: document.getElementById('hasQuotation').checked,
-                    specialTerms: document.getElementById('hasSpecialTerms').checked
-                },
-                createdDate: new Date().toISOString().split('T')[0],
-                lastModified: new Date().toISOString()
-            };
-        }
+        return {
+            projectCode: projectCode || undefined,
+            projectName: document.getElementById('projectName').value || `Project ${projectCode}`,
+            clientName: document.getElementById('clientName').value || undefined,
+            projectPin: pin || null,
+            documents: {
+                quotation: document.getElementById('hasQuotation').checked,
+                specialTerms: document.getElementById('hasSpecialTerms').checked
+            },
+            createdDate: new Date().toISOString().split('T')[0],
+            lastModified: new Date().toISOString()
+        };
+    }
 
     // endregion -----
 
@@ -238,19 +238,19 @@
     // UI ACTIONS | User Interface Updates
     // -----
 
-        // Update JSON preview display
-        function updatePreview() {
-            const json = generateJson();
-            document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 4);
-        }
+    // Update JSON preview display
+    function updatePreview() {
+        const json = generateJson();
+        document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 4);
+    }
 
-        // Copy to clipboard
-        function copyToClipboard() {
-            const json = document.getElementById('jsonOutput').textContent;
-            navigator.clipboard.writeText(json).then(() => {
-                alert('JSON copied to clipboard!');
-            });
-        }
+    // Copy to clipboard
+    function copyToClipboard() {
+        const json = document.getElementById('jsonOutput').textContent;
+        navigator.clipboard.writeText(json).then(() => {
+            alert('JSON copied to clipboard!');
+        });
+    }
 
     // endregion -----
 
@@ -258,48 +258,48 @@
     // FILE OPERATIONS | Load and Save Functions
     // -----
 
-        // Download configuration as JSON file
-        function downloadJson() {
-            const json = document.getElementById('jsonOutput').textContent;
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'ProjectAdmin__ProjectConfig__.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
+    // Download configuration as JSON file
+    function downloadJson() {
+        const json = document.getElementById('jsonOutput').textContent;
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ProjectAdmin__ProjectConfig__.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
 
-        // Load from file
-        function loadFromFile() {
-            document.getElementById('fileInput').click();
-        }
+    // Load from file
+    function loadFromFile() {
+        document.getElementById('fileInput').click();
+    }
 
-        // Handle file load
-        function handleFileLoad(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+    // Handle file load
+    function handleFileLoad(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    const data = JSON.parse(e.target.result);
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = JSON.parse(e.target.result);
 
-                    document.getElementById('projectCode').value = data.projectCode || '';
-                    document.getElementById('projectName').value = data.projectName || '';
-                    document.getElementById('clientName').value = data.clientName || '';
-                    document.getElementById('projectPin').value = data.projectPin || '';
-                    document.getElementById('hasQuotation').checked = data.documents?.quotation || false;
-                    document.getElementById('hasSpecialTerms').checked = data.documents?.specialTerms || false;
+                document.getElementById('projectCode').value = data.projectCode || '';
+                document.getElementById('projectName').value = data.projectName || '';
+                document.getElementById('clientName').value = data.clientName || '';
+                document.getElementById('projectPin').value = data.projectPin || '';
+                document.getElementById('hasQuotation').checked = data.documents?.quotation || false;
+                document.getElementById('hasSpecialTerms').checked = data.documents?.specialTerms || false;
 
-                    updatePreview();
-                    alert('Configuration loaded successfully!');
-                } catch (error) {
-                    alert('Failed to load file: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-        }
+                updatePreview();
+                alert('Configuration loaded successfully!');
+            } catch (error) {
+                alert('Failed to load file: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    }
 
     // endregion -----
 

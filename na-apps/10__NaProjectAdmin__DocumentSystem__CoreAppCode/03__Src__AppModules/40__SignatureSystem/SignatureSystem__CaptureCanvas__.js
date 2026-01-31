@@ -61,23 +61,10 @@
                 return false;
             }
 
-            // Get configuration
-            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
-            const sigConfig = config?.AppConfig?.Features?.SignatureSystem;
-
-            // Set canvas size
-            const containerWidth = canvas.parentElement?.clientWidth || 600;
-            canvas.width = Math.min(sigConfig?.canvasWidth || 600, containerWidth - 20);
-            canvas.height = sigConfig?.canvasHeight || 200;
-
-            // Configure drawing style
-            ctx.strokeStyle = sigConfig?.strokeColour || '#000000';
-            ctx.lineWidth = sigConfig?.strokeWidth || 2;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-
-            // Clear canvas to white
-            clearCanvas();
+            // Set canvas size - use requestAnimationFrame to ensure element is visible
+            requestAnimationFrame(() => {
+                setupCanvasSize();
+            });
 
             // Set up event listeners
             setupEventListeners();
@@ -87,6 +74,38 @@
 
             console.log('[SignatureCaptureCanvas] Initialised');
             return true;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Setup Canvas Size
+        // ------------------------------------------------------------
+        function setupCanvasSize() {
+            if (!canvas || !ctx) return;
+
+            // Get configuration
+            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
+            const sigConfig = config?.AppConfig?.Features?.SignatureSystem;
+
+            // Get the actual displayed size of the canvas
+            const rect = canvas.getBoundingClientRect();
+            const displayWidth = rect.width || sigConfig?.canvasWidth || 600;
+            const displayHeight = rect.height || sigConfig?.canvasHeight || 200;
+
+            // Set canvas internal dimensions to match display size
+            // This ensures 1:1 pixel mapping for accurate drawing
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
+
+            // Configure drawing style (must be done after setting dimensions)
+            ctx.strokeStyle = sigConfig?.strokeColour || '#000000';
+            ctx.lineWidth = sigConfig?.strokeWidth || 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Clear canvas to white
+            clearCanvas();
+
+            console.log('[SignatureCaptureCanvas] Canvas size set:', displayWidth, 'x', displayHeight);
         }
         // ---------------------------------------------------------------
 
@@ -112,10 +131,14 @@
         // FUNCTION | Start Drawing
         // ------------------------------------------------------------
         function startDrawing(e) {
+            e.preventDefault();                                          // <-- Prevent default actions
+            
             isDrawing = true;
             const pos = getPosition(e);
             lastX = pos.x;
             lastY = pos.y;
+            
+            console.log('[SignatureCaptureCanvas] Start drawing at:', pos.x, pos.y);
         }
         // ---------------------------------------------------------------
 
@@ -136,6 +159,8 @@
             lastX = pos.x;
             lastY = pos.y;
             hasSignature = true;
+            
+            console.log('[SignatureCaptureCanvas] Drawing to:', pos.x, pos.y);
         }
         // ---------------------------------------------------------------
 
@@ -176,12 +201,14 @@
             if (!canvas) return { x: 0, y: 0 };
 
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
 
             // Handle both mouse and touch events
             const clientX = e.clientX ?? e.pageX;
             const clientY = e.clientY ?? e.pageY;
+
+            // Calculate scale factors in case canvas was resized
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
 
             return {
                 x                    : (clientX - rect.left) * scaleX,

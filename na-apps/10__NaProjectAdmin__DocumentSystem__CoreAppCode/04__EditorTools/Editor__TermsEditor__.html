@@ -171,7 +171,13 @@
             }
         }
 
-        // Render terms
+    // endregion -----
+
+    // #region -----
+    // RENDERING | Display Terms
+    // -----
+
+        // Render terms form
         function renderTerms() {
             const container = document.getElementById('termsContainer');
 
@@ -196,7 +202,13 @@
             `).join('');
         }
 
-        // Switch tab
+    // endregion -----
+
+    // #region -----
+    // UI ACTIONS | User Interface Updates
+    // -----
+
+        // Switch between preview and JSON tabs
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -205,7 +217,13 @@
             document.getElementById(tabName + 'Tab').classList.add('active');
         }
 
-        // Generate JSON
+    // endregion -----
+
+    // #region -----
+    // JSON GENERATION | Build Terms Object
+    // -----
+
+        // Generate terms JSON
         function generateJson() {
             return {
                 sectionTitle: document.getElementById('sectionTitle').value,
@@ -250,7 +268,13 @@
             });
         }
 
-        // Download JSON
+    // endregion -----
+
+    // #region -----
+    // FILE OPERATIONS | Load and Save Functions
+    // -----
+
+        // Download terms as JSON file
         function downloadJson() {
             const json = document.getElementById('jsonOutput').textContent;
             const blob = new Blob([json], { type: 'application/json' });
@@ -302,7 +326,10 @@
             };
             reader.readAsText(file);
         }
-    </script>
-</body>
+
+    // endregion -----
+
+</script>
+<!-- endregion ----- -->
 
 </html>
