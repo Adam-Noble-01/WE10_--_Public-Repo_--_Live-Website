@@ -79,7 +79,7 @@
             const currentDate = dateFormatter?.formatLongWithOrdinal(new Date()) || new Date().toLocaleDateString();
             
             const logoUrl = assetLoader?.getAssetUrl('GRAPHICS', 'NaBrandGraphic__CompanyLogo__w2048xh500px__.png') 
-                || '../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png';
+                || '/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png';
 
             return `
                 <div class="document__header">

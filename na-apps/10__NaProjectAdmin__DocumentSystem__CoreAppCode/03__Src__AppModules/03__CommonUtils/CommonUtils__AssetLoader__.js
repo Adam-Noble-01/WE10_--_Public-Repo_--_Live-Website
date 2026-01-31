@@ -160,16 +160,22 @@
             // FUNCTION | Update Image Sources
             // ------------------------------------------------------------
             function updateImageSources() {
-                const images = document.querySelectorAll('img[src*="01__Assets__NaApps__CommonAssets"]');
+                // Match both relative and absolute paths containing the assets folder
+                const images = document.querySelectorAll('img[src*="01__Assets__NaApps__CommonAssets"], img[src*="NaApps__CommonGraphics"], img[src*="NaApps__CommonIcons"]');
                 
                 images.forEach(img => {
-                    const src = img.getAttribute('src');       // <-- Get relative path
+                    const src = img.getAttribute('src');       // <-- Get path
+                    
+                    // Skip if already an absolute URL with domain
+                    if (src.startsWith('https://') || src.startsWith('http://')) {
+                        return;
+                    }
                     
                     // Extract filename and category
-                    if (src.includes('CommonGraphics')) {
+                    if (src.includes('CommonGraphics') || src.includes('NaApps__CommonGraphics')) {
                         const filename = src.split('/').pop();
                         img.src = AssetLoader.getAssetUrl('GRAPHICS', filename);
-                    } else if (src.includes('CommonIcons')) {
+                    } else if (src.includes('CommonIcons') || src.includes('NaApps__CommonIcons')) {
                         const filename = src.split('/').pop();
                         img.src = AssetLoader.getAssetUrl('ICONS', filename);
                     }
@@ -183,17 +189,24 @@
             // ------------------------------------------------------------
             function updateFaviconLinks() {
                 const links = document.querySelectorAll('link[rel*="icon"]');
+                let updatedCount = 0;
                 
                 links.forEach(link => {
-                    const href = link.getAttribute('href');    // <-- Get relative path
+                    const href = link.getAttribute('href');    // <-- Get path
                     
-                    if (href && href.includes('01__Assets__NaApps__CommonAssets')) {
+                    // Skip if already an absolute URL with domain
+                    if (href && (href.startsWith('https://') || href.startsWith('http://'))) {
+                        return;
+                    }
+                    
+                    if (href && (href.includes('01__Assets__NaApps__CommonAssets') || href.includes('NaApps__CommonIcons'))) {
                         const filename = href.split('/').pop();
                         link.href = AssetLoader.getAssetUrl('ICONS', filename);
+                        updatedCount++;
                     }
                 });
 
-                console.log(`[AssetLoader] Updated ${links.length} favicon links`);
+                console.log(`[AssetLoader] Updated ${updatedCount} favicon links`);
             }
             // ---------------------------------------------------------------
 

@@ -257,13 +257,25 @@
             const patterns = [];
             const code = projectCode.toUpperCase();
             
-            // PRIORITY 1: Try loading from project index
+            // PRIORITY 1: Try loading from project index (ensure it's loaded)
             const configManager = window.NaProjectAdmin.ConfigManager;
-            const projectIndex = configManager?.getProjectIndex();
+            let projectIndex = configManager?.getProjectIndex();
+            
+            // If index not ready, try to wait for it
+            if (!projectIndex && configManager?.waitForProjectIndex) {
+                try {
+                    console.log('[App] Waiting for project index...');
+                    projectIndex = await configManager.waitForProjectIndex();
+                } catch (e) {
+                    console.warn('[App] Project index not available:', e.message);
+                }
+            }
             
             if (projectIndex?.[year]?.[code]) {
                 patterns.unshift(projectIndex[year][code]);          // <-- Index lookup (highest priority)
                 console.log(`[App] Found project in index: ${year}/${code} -> ${projectIndex[year][code]}`);
+            } else {
+                console.log(`[App] Project ${code} not found in index for year ${year}, using fallback patterns`);
             }
             
             // PRIORITY 2: Fallback patterns for new/unlisted projects
