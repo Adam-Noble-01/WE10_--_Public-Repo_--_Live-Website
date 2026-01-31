@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- ----- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----- -->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +13,17 @@
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 </head>
+<!-- endregion ----- -->
+
+<!-- ----- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----- -->
 
 <body>
+
+    <!-- ----- -->
+    <!-- UI HEADER | Application Header                                -->
+    <!-- ----- -->
     <header class="app-header">
         <h1>Project Configuration Editor</h1>
         <div>
@@ -18,9 +31,15 @@
             <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
         </div>
     </header>
+    <!-- ----- -->
 
+    <!-- ----- -->
+    <!-- UI MAIN | Main Content Container                              -->
+    <!-- ----- -->
     <div class="main-container">
-        <!-- Editor Panel -->
+
+        <!-- UI PANEL | Editor Panel                                   -->
+        <!-- --- -->
         <div class="panel">
             <div class="panel__header">Project Configuration</div>
             <div class="panel__body">
@@ -88,8 +107,10 @@
                 </div>
             </div>
         </div>
+        <!-- --- -->
 
-        <!-- Output Panel -->
+        <!-- UI PANEL | Output Panel                                   -->
+        <!-- --- -->
         <div class="panel">
             <div class="panel__header">JSON Output</div>
             <div class="panel__body">
@@ -103,15 +124,40 @@
                 <pre id="jsonOutput" class="json-output">{}</pre>
             </div>
         </div>
+        <!-- --- -->
+
     </div>
+    <!-- ----- -->
 
+    <!-- ----- -->
+    <!-- UI HIDDEN | Hidden File Input                                 -->
+    <!-- ----- -->
     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
+    <!-- ----- -->
 
-    <script>
-        // Initialise
+</body>
+<!-- endregion ----- -->
+
+<!-- ----- -->
+<!-- REGION | JavaScript Logic                                         -->
+<!-- ----- -->
+
+<script>
+
+    // #region -----
+    // INITIALIZATION | DOM Ready
+    // -----
+
+        // Initialise preview on load
         document.addEventListener('DOMContentLoaded', updatePreview);
 
-        // Validate project code
+    // endregion -----
+
+    // #region -----
+    // VALIDATION | Input Validation
+    // -----
+
+        // Validate project code format
         function validateProjectCode() {
             const input = document.getElementById('projectCode');
             let value = input.value.toUpperCase();
@@ -127,7 +173,13 @@
             input.value = value;
         }
 
-        // Generate random PIN
+    // endregion -----
+
+    // #region -----
+    // PIN OPERATIONS | PIN Generation and Hashing
+    // -----
+
+        // Generate random 4-digit PIN
         function generatePin() {
             const pin = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById('projectPin').value = pin;
@@ -155,7 +207,13 @@
             alert(`PIN "${pin}" has been hashed. Make sure to note the original PIN for client access.`);
         }
 
-        // Generate JSON
+    // endregion -----
+
+    // #region -----
+    // JSON GENERATION | Build Configuration Object
+    // -----
+
+        // Generate configuration JSON
         function generateJson() {
             const projectCode = document.getElementById('projectCode').value;
             const pin = document.getElementById('projectPin').value;
@@ -174,7 +232,13 @@
             };
         }
 
-        // Update preview
+    // endregion -----
+
+    // #region -----
+    // UI ACTIONS | User Interface Updates
+    // -----
+
+        // Update JSON preview display
         function updatePreview() {
             const json = generateJson();
             document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 4);
@@ -188,7 +252,13 @@
             });
         }
 
-        // Download JSON
+    // endregion -----
+
+    // #region -----
+    // FILE OPERATIONS | Load and Save Functions
+    // -----
+
+        // Download configuration as JSON file
         function downloadJson() {
             const json = document.getElementById('jsonOutput').textContent;
             const blob = new Blob([json], { type: 'application/json' });
@@ -230,7 +300,10 @@
             };
             reader.readAsText(file);
         }
-    </script>
-</body>
+
+    // endregion -----
+
+</script>
+<!-- endregion ----- -->
 
 </html>

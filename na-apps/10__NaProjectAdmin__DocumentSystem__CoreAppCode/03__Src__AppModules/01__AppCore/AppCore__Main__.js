@@ -18,8 +18,18 @@
 // -----
 //
 // DEVELOPMENT LOG:
-// 31-Jan-2026 - Version 1.0.0
-// - Initial Stable Release
+// 31-Jan-2026 - Version 0.1.2
+// - Code Organization Refactoring
+//   - Broke down file into 9 logical sub-regions
+//   - Improved code navigation and folding support
+//
+// 31-Jan-2026 - Version 0.1.1
+// - Bug Fixes
+//   - Added missing signature form submission handlers
+//   - Fixed URL parameter preservation on logout and after signature
+//
+// 31-Jan-2026 - Version 0.1.0
+// - Initial Beta Release
 //   - URL parameter parsing
 //   - Project loading flow
 //   - Authentication integration
@@ -33,19 +43,27 @@
     (function() {
         'use strict';
 
+        // #region -----
         // STATE | Application Variables
-        // ------------------------------------------------------------
-        let currentProject           = null;                         // <-- Currently loaded project
-        let currentScreen            = 'loading';                    // <-- Active screen
-        let isAuthenticated          = false;                        // <-- Auth state
-        let projectConfig            = null;                         // <-- Project-specific config
-        let projectYear              = null;                         // <-- Project year folder
-        let pendingSignatureType     = null;                         // <-- Type of document being signed
-        let pendingSignatureTitle    = null;                         // <-- Title of document being signed
+        // -----
 
-        // FUNCTION | Initialise Application
-        // ------------------------------------------------------------
-        async function initialise() {
+            let currentProject           = null;                         // <-- Currently loaded project
+            let currentScreen            = 'loading';                    // <-- Active screen
+            let isAuthenticated          = false;                        // <-- Auth state
+            let projectConfig            = null;                         // <-- Project-specific config
+            let projectYear              = null;                         // <-- Project year folder
+            let pendingSignatureType     = null;                         // <-- Type of document being signed
+            let pendingSignatureTitle    = null;                         // <-- Title of document being signed
+
+        // endregion -----
+
+        // #region -----
+        // INITIALIZATION | Application Startup
+        // -----
+
+            // FUNCTION | Initialise Application
+            // ------------------------------------------------------------
+            async function initialise() {
             console.log('[App] Initialising Project Admin...');
 
             try {
@@ -92,9 +110,15 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Load Project
-        // ------------------------------------------------------------
-        async function loadProject(projectCode, year) {
+        // endregion -----
+
+        // #region -----
+        // PROJECT LOADING | Project Discovery and Configuration
+        // -----
+
+            // FUNCTION | Load Project
+            // ------------------------------------------------------------
+            async function loadProject(projectCode, year) {
             console.log(`[App] Loading project: ${projectCode} (Year: ${year})`);
 
             const validator = window.NaProjectAdmin.ProjectCodeValidator;
@@ -261,65 +285,131 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Check Existing Session
-        // ------------------------------------------------------------
-        function checkExistingSession() {
-            if (!currentProject) return false;
-
-            const sessionKey = `naProjectAdmin_session_${currentProject}`;
-            const sessionData = sessionStorage.getItem(sessionKey);
-
-            if (!sessionData) return false;
-
-            try {
-                const session = JSON.parse(sessionData);
-                const config = window.NaProjectAdmin.ConfigManager.getConfig();
-                const timeout = config?.AppConfig?.Features?.Authentication?.sessionTimeout || 3600000;
-
-                // Check if session is still valid
-                if (Date.now() - session.timestamp < timeout) {
-                    console.log('[App] Valid session found');
-                    return true;
+            // FUNCTION | Update Header Project Name
+            // ------------------------------------------------------------
+            function updateHeaderProjectName(projectCode) {
+                const headerProjectName = document.getElementById('header-project-name');
+                
+                if (headerProjectName) {
+                    headerProjectName.textContent = projectConfig?.projectName || `Project ${projectCode}`;
                 }
-            } catch (e) {
-                // Invalid session data
             }
+            // ---------------------------------------------------------------
 
-            sessionStorage.removeItem(sessionKey);
-            return false;
-        }
-        // ---------------------------------------------------------------
+        // endregion -----
 
-        // FUNCTION | Update Header Project Name
-        // ------------------------------------------------------------
-        function updateHeaderProjectName(projectCode) {
-            const headerProjectName = document.getElementById('header-project-name');
-            
-            if (headerProjectName) {
-                headerProjectName.textContent = projectConfig?.projectName || `Project ${projectCode}`;
+        // #region -----
+        // SESSION MANAGEMENT | Authentication State
+        // -----
+
+            // FUNCTION | Check Existing Session
+            // ------------------------------------------------------------
+            function checkExistingSession() {
+                if (!currentProject) return false;
+
+                const sessionKey = `naProjectAdmin_session_${currentProject}`;
+                const sessionData = sessionStorage.getItem(sessionKey);
+
+                if (!sessionData) return false;
+
+                try {
+                    const session = JSON.parse(sessionData);
+                    const config = window.NaProjectAdmin.ConfigManager.getConfig();
+                    const timeout = config?.AppConfig?.Features?.Authentication?.sessionTimeout || 3600000;
+
+                    // Check if session is still valid
+                    if (Date.now() - session.timestamp < timeout) {
+                        console.log('[App] Valid session found');
+                        return true;
+                    }
+                } catch (e) {
+                    // Invalid session data
+                }
+
+                sessionStorage.removeItem(sessionKey);
+                return false;
             }
-        }
-        // ---------------------------------------------------------------
+            // ---------------------------------------------------------------
 
-        // FUNCTION | Show Welcome Screen
-        // ------------------------------------------------------------
-        function showWelcomeScreen() {
-            hideAllScreens();
-            hideLoadingOverlay();
-            
-            const welcomeScreen = document.getElementById('welcome-screen');
-            if (welcomeScreen) {
-                welcomeScreen.style.display = 'flex';
+        // endregion -----
+
+        // #region -----
+        // CONTENT DISPLAY | Screen Management
+        // -----
+
+            // FUNCTION | Show Welcome Screen
+            // ------------------------------------------------------------
+            function showWelcomeScreen() {
+                hideAllScreens();
+                hideLoadingOverlay();
+                
+                const welcomeScreen = document.getElementById('welcome-screen');
+                if (welcomeScreen) {
+                    welcomeScreen.style.display = 'flex';
+                }
+                
+                currentScreen = 'welcome';
+                console.log('[App] Showing welcome screen');
             }
-            
-            currentScreen = 'welcome';
-            console.log('[App] Showing welcome screen');
-        }
-        // ---------------------------------------------------------------
+            // ---------------------------------------------------------------
 
-        // FUNCTION | Show Login Screen
-        // ------------------------------------------------------------
-        function showLoginScreen(config) {
+            // FUNCTION | Show Project Content
+            // ------------------------------------------------------------
+            async function showProjectContent() {
+                console.log('[App] Loading project content...');
+
+                hideAllScreens();
+
+                // Wait for UI modules
+                try {
+                    await window.NaProjectAdmin.ModuleDependencyManager.waitForModules([
+                        'Navigation',
+                        'UserInterfaceMain'
+                    ], 5000);
+                } catch (e) {
+                    console.warn('[App] Some UI modules not loaded:', e.message);
+                }
+
+                // Build navigation menu
+                if (window.NaProjectAdmin.Navigation) {
+                    await window.NaProjectAdmin.Navigation.buildMenu(currentProject, projectConfig);
+                }
+
+                // Show document screen by default
+                showDocumentScreen();
+
+                // Load default view (quotation if available, otherwise terms)
+                if (window.NaProjectAdmin.UserInterfaceMain) {
+                    await window.NaProjectAdmin.UserInterfaceMain.loadDefaultView();
+                }
+
+                hideLoadingOverlay();
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Show Document Screen
+            // ------------------------------------------------------------
+            function showDocumentScreen() {
+                hideAllScreens();
+                
+                const documentScreen = document.getElementById('document-screen');
+                if (documentScreen) {
+                    documentScreen.style.display = 'block';
+                }
+                
+                currentScreen = 'document';
+            }
+            // ---------------------------------------------------------------
+
+        // endregion -----
+
+        // #region -----
+        // AUTHENTICATION | Login Flow
+        // -----
+
+            // FUNCTION | Show Login Screen
+            // ------------------------------------------------------------
+            function showLoginScreen(config) {
             hideAllScreens();
             hideLoadingOverlay();
 
@@ -443,9 +533,15 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Show Project Content
-        // ------------------------------------------------------------
-        async function showProjectContent() {
+        // endregion -----
+
+        // #region -----
+        // CONTENT DISPLAY | Screen Management (continued)
+        // -----
+
+            // FUNCTION | Show Project Content
+            // ------------------------------------------------------------
+            async function showProjectContent() {
             console.log('[App] Loading project content...');
 
             hideAllScreens();
@@ -491,9 +587,15 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Show Signature Screen
-        // ------------------------------------------------------------
-        function showSignatureScreen(documentType, documentTitle) {
+        // endregion -----
+
+        // #region -----
+        // SIGNATURE WORKFLOW | Digital Signature Capture
+        // -----
+
+            // FUNCTION | Show Signature Screen
+            // ------------------------------------------------------------
+            function showSignatureScreen(documentType, documentTitle) {
             hideAllScreens();
             
             // Store pending signature info
@@ -667,9 +769,15 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Hide All Screens
-        // ------------------------------------------------------------
-        function hideAllScreens() {
+        // endregion -----
+
+        // #region -----
+        // UTILITY FUNCTIONS | Helper Methods
+        // -----
+
+            // FUNCTION | Hide All Screens
+            // ------------------------------------------------------------
+            function hideAllScreens() {
             const screens = document.querySelectorAll('.screen');
             screens.forEach(screen => {
                 screen.style.display = 'none';
@@ -713,9 +821,15 @@
         }
         // ---------------------------------------------------------------
 
+        // endregion -----
+
+        // #region -----
         // API EXPORT | Public Interface
-        // ------------------------------------------------------------
-        window.NaProjectAdmin = window.NaProjectAdmin || {};
+        // -----
+
+            // API EXPORT | Public Interface
+            // ------------------------------------------------------------
+            window.NaProjectAdmin = window.NaProjectAdmin || {};
         
         window.NaProjectAdmin.App = {
             initialise               : initialise,
@@ -743,6 +857,8 @@
         } else {
             initialise();
         }
+
+        // endregion -----
 
     })();
 

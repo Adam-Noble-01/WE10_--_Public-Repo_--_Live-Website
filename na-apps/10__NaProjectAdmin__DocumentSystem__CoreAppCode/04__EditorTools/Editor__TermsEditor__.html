@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- ----- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----- -->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +13,17 @@
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 </head>
+<!-- endregion ----- -->
+
+<!-- ----- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----- -->
 
 <body>
+
+    <!-- ----- -->
+    <!-- UI HEADER | Application Header                                -->
+    <!-- ----- -->
     <header class="app-header">
         <h1>Special Terms Editor</h1>
         <div>
@@ -18,9 +31,15 @@
             <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
         </div>
     </header>
+    <!-- ----- -->
 
+    <!-- ----- -->
+    <!-- UI MAIN | Main Content Container                              -->
+    <!-- ----- -->
     <div class="main-container">
-        <!-- Editor Panel -->
+
+        <!-- UI PANEL | Editor Panel                                   -->
+        <!-- --- -->
         <div class="panel">
             <div class="panel__header">Edit Special Terms</div>
             <div class="panel__body">
@@ -48,8 +67,10 @@
                 <button class="btn btn--secondary" onclick="addTerm()">+ Add Term</button>
             </div>
         </div>
+        <!-- --- -->
 
-        <!-- Preview/Output Panel -->
+        <!-- UI PANEL | Output Panel                                   -->
+        <!-- --- -->
         <div class="panel">
             <div class="panel__header">Output</div>
             <div class="panel__body">
@@ -78,25 +99,52 @@
                 </div>
             </div>
         </div>
+        <!-- --- -->
+
     </div>
+    <!-- ----- -->
 
+    <!-- ----- -->
+    <!-- UI HIDDEN | Hidden File Input                                 -->
+    <!-- ----- -->
     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
+    <!-- ----- -->
 
-    <script>
-        // =====================================================================
-        // TERMS EDITOR LOGIC
-        // =====================================================================
+</body>
+<!-- endregion ----- -->
 
-        let terms = [];
-        let termId = 0;
+<!-- ----- -->
+<!-- REGION | JavaScript Logic                                         -->
+<!-- ----- -->
 
-        // Initialise
+<script>
+
+    // #region -----
+    // STATE | Application State
+    // -----
+
+        let terms = [];                                                  // <-- Terms array
+        let termId = 0;                                                  // <-- ID counter
+
+    // endregion -----
+
+    // #region -----
+    // INITIALIZATION | DOM Ready
+    // -----
+
+        // Initialise editor on load
         document.addEventListener('DOMContentLoaded', function () {
             addTerm();
             updatePreview();
         });
 
-        // Add term
+    // endregion -----
+
+    // #region -----
+    // TERMS MANAGEMENT | Add, Remove, Update Terms
+    // -----
+
+        // Add new term
         function addTerm() {
             const id = ++termId;
             terms.push({

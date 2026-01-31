@@ -3,6 +3,17 @@
 
 ---
 
+## Version 0.1.2 - 31-Jan-2026
+
+### Changed
+- **Code Organization** - Refactored `AppCore__Main__.js` with logical regional structure
+  - Broke down 751-line file into 9 logical sub-regions for better code navigation
+  - Added regions: STATE, INITIALIZATION, PROJECT LOADING, SESSION MANAGEMENT, AUTHENTICATION, CONTENT DISPLAY, SIGNATURE WORKFLOW, UTILITY FUNCTIONS, API EXPORT
+  - Improved code folding support and maintainability
+  - All functionality preserved, purely organizational refactoring
+
+---
+
 ## Version 0.1.1 - 31-Jan-2026
 
 ### Fixed

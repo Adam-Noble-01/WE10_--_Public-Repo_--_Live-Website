@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- ----- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----- -->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +13,17 @@
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 </head>
+<!-- endregion ----- -->
+
+<!-- ----- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----- -->
 
 <body>
+
+    <!-- ----- -->
+    <!-- UI HEADER | Application Header                                -->
+    <!-- ----- -->
     <header class="app-header">
         <h1>Quotation Builder</h1>
         <div>
@@ -18,9 +31,15 @@
             <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
         </div>
     </header>
+    <!-- ----- -->
 
+    <!-- ----- -->
+    <!-- UI MAIN | Main Content Container                              -->
+    <!-- ----- -->
     <div class="main-container">
-        <!-- Editor Panel -->
+
+        <!-- UI PANEL | Editor Panel                                   -->
+        <!-- --- -->
         <div class="panel">
             <div class="panel__header">Edit Quotation</div>
             <div class="panel__body">
@@ -114,8 +133,10 @@
                 </div>
             </div>
         </div>
+        <!-- --- -->
 
-        <!-- Preview/Output Panel -->
+        <!-- UI PANEL | Output Panel                                   -->
+        <!-- --- -->
         <div class="panel">
             <div class="panel__header">JSON Output</div>
             <div class="panel__body">
@@ -129,26 +150,53 @@
                 <pre id="jsonOutput" class="json-output">{}</pre>
             </div>
         </div>
+        <!-- --- -->
+
     </div>
+    <!-- ----- -->
 
+    <!-- ----- -->
+    <!-- UI HIDDEN | Hidden File Input                                 -->
+    <!-- ----- -->
     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
+    <!-- ----- -->
 
-    <script>
-        // =====================================================================
-        // QUOTATION BUILDER LOGIC
-        // =====================================================================
+</body>
+<!-- endregion ----- -->
 
-        let lineItems = [];
-        let lineItemId = 0;
+<!-- ----- -->
+<!-- REGION | JavaScript Logic                                         -->
+<!-- ----- -->
 
-        // Initialise
+<script>
+
+    // #region -----
+    // STATE | Application State
+    // -----
+
+        let lineItems = [];                                              // <-- Line items array
+        let lineItemId = 0;                                              // <-- ID counter
+
+    // endregion -----
+
+    // #region -----
+    // INITIALIZATION | DOM Ready
+    // -----
+
+        // Initialise editor on load
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('quotationDate').valueAsDate = new Date();
             addLineItem();
             updatePreview();
         });
 
-        // Add line item
+    // endregion -----
+
+    // #region -----
+    // LINE ITEM MANAGEMENT | Add, Remove, Update Items
+    // -----
+
+        // Add new line item
         function addLineItem(group = '') {
             const id = ++lineItemId;
             lineItems.push({
@@ -184,7 +232,13 @@
             updatePreview();
         }
 
-        // Render line items
+    // endregion -----
+
+    // #region -----
+    // RENDERING | Display Line Items
+    // -----
+
+        // Render line items table
         function renderLineItems() {
             const tbody = document.getElementById('lineItemsBody');
             let currentGroup = '';
@@ -260,7 +314,13 @@
             }
         }
 
-        // Calculate totals
+    // endregion -----
+
+    // #region -----
+    // CALCULATIONS | Totals and VAT
+    // -----
+
+        // Calculate subtotal, VAT, and grand total
         function calculateTotals() {
             let subtotal = 0;
             lineItems.forEach(item => {
@@ -281,7 +341,13 @@
             return { subtotal, vatRate: showVat ? vatRate : 0, vat, total };
         }
 
-        // Generate JSON
+    // endregion -----
+
+    // #region -----
+    // JSON GENERATION | Build Quotation Object
+    // -----
+
+        // Generate quotation JSON
         function generateJson() {
             const totals = calculateTotals();
 
@@ -327,7 +393,13 @@
             return quotation;
         }
 
-        // Update preview
+    // endregion -----
+
+    // #region -----
+    // UI ACTIONS | User Interface Updates
+    // -----
+
+        // Update JSON preview display
         function updatePreview() {
             const json = generateJson();
             document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 4);
@@ -342,7 +414,13 @@
             });
         }
 
-        // Download JSON
+    // endregion -----
+
+    // #region -----
+    // FILE OPERATIONS | Load and Save Functions
+    // -----
+
+        // Download quotation as JSON file
         function downloadJson() {
             const json = document.getElementById('jsonOutput').textContent;
             const blob = new Blob([json], { type: 'application/json' });
@@ -419,7 +497,10 @@
             };
             reader.readAsText(file);
         }
-    </script>
-</body>
+
+    // endregion -----
+
+</script>
+<!-- endregion ----- -->
 
 </html>
