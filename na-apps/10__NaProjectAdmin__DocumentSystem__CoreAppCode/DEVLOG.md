@@ -3,6 +3,23 @@
 
 ---
 
+## Version 0.1.1 - 31-Jan-2026
+
+### Fixed
+- **Signature Form Submission** - Implemented missing signature form handlers
+  - Added `setupSignatureForm()` to handle form submission and cancellation
+  - Added `handleSignatureSubmit()` to process signature, create audit record, and store
+  - Fixed issue where completing signature returned to default screen instead of project content
+  - URL query parameters now preserved after signature completion
+  - Navigation menu badges now refresh after signature to show "Signed" status
+  - Returns user to signed document view after successful submission
+  
+- **Logout Function** - Fixed URL parameter preservation on logout
+  - Changed from `window.location.reload()` to `window.location.href = currentUrl`
+  - Ensures project code and year parameters persist after logout
+
+---
+
 ## Version 0.1.0 - 31-Jan-2026
 
 ### Added

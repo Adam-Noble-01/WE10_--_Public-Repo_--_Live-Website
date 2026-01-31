@@ -396,8 +396,9 @@
                 sessionStorage.removeItem(`naProjectAdmin_sig_terms_${projectCode}`);
             }
 
-            // Reload page to show login
-            window.location.reload();
+            // Reload page to show login (preserving URL params)
+            const currentUrl = window.location.href;
+            window.location.href = currentUrl;
         }
         // ---------------------------------------------------------------
 

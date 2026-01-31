@@ -40,6 +40,8 @@
         let isAuthenticated          = false;                        // <-- Auth state
         let projectConfig            = null;                         // <-- Project-specific config
         let projectYear              = null;                         // <-- Project year folder
+        let pendingSignatureType     = null;                         // <-- Type of document being signed
+        let pendingSignatureTitle    = null;                         // <-- Title of document being signed
 
         // FUNCTION | Initialise Application
         // ------------------------------------------------------------
@@ -494,6 +496,10 @@
         function showSignatureScreen(documentType, documentTitle) {
             hideAllScreens();
             
+            // Store pending signature info
+            pendingSignatureType = documentType;
+            pendingSignatureTitle = documentTitle;
+            
             const signatureScreen = document.getElementById('signature-screen');
             const signatureTitle = document.getElementById('signature-title');
             const signatureDescription = document.getElementById('signature-description');
@@ -515,7 +521,149 @@
                 window.NaProjectAdmin.SignatureCaptureCanvas.initialise('signature-canvas');
             }
 
+            // Set up signature form handlers
+            setupSignatureForm();
+
             currentScreen = 'signature';
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Setup Signature Form
+        // ------------------------------------------------------------
+        function setupSignatureForm() {
+            const signatureForm = document.getElementById('signature-form');
+            const cancelBtn = document.getElementById('cancel-signature-btn');
+            
+            if (!signatureForm) return;
+
+            // Remove existing listeners by cloning and replacing
+            const newForm = signatureForm.cloneNode(true);
+            signatureForm.parentNode.replaceChild(newForm, signatureForm);
+            
+            const newCancelBtn = document.getElementById('cancel-signature-btn');
+
+            // Handle form submission
+            newForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await handleSignatureSubmit();
+            });
+
+            // Handle cancel
+            if (newCancelBtn) {
+                newCancelBtn.addEventListener('click', () => {
+                    showDocumentScreen();
+                });
+            }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Handle Signature Submit
+        // ------------------------------------------------------------
+        async function handleSignatureSubmit() {
+            const signerNameInput = document.getElementById('signer-name');
+            const errorDisplay = document.getElementById('signature-error');
+            
+            // Clear previous error
+            if (errorDisplay) {
+                errorDisplay.style.display = 'none';
+            }
+
+            // Validate signer name
+            const signerName = signerNameInput?.value?.trim();
+            if (!signerName) {
+                if (errorDisplay) {
+                    errorDisplay.textContent = 'Please enter your full name.';
+                    errorDisplay.style.display = 'block';
+                }
+                return;
+            }
+
+            // Validate signature
+            const signatureCanvas = window.NaProjectAdmin.SignatureCaptureCanvas;
+            if (!signatureCanvas) {
+                console.error('[App] SignatureCaptureCanvas not available');
+                return;
+            }
+
+            const validation = signatureCanvas.validateSignature();
+            if (!validation.valid) {
+                if (errorDisplay) {
+                    errorDisplay.textContent = validation.message;
+                    errorDisplay.style.display = 'block';
+                }
+                return;
+            }
+
+            // Get signature image
+            const signatureImage = signatureCanvas.getSignatureDataUrl();
+            if (!signatureImage) {
+                if (errorDisplay) {
+                    errorDisplay.textContent = 'Failed to capture signature. Please try again.';
+                    errorDisplay.style.display = 'block';
+                }
+                return;
+            }
+
+            // Show processing state
+            const submitBtn = document.querySelector('#signature-form button[type="submit"]');
+            const originalBtnText = submitBtn?.textContent;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing...';
+            }
+
+            try {
+                // Create audit record
+                const auditRecord = await window.NaProjectAdmin.SignatureAuditRecord.createAuditRecord({
+                    documentType             : pendingSignatureType,
+                    documentTitle            : pendingSignatureTitle,
+                    signerName               : signerName,
+                    signatureImage           : signatureImage,
+                    documentContent          : null                      // <-- Optional document hash
+                });
+
+                // Store audit record
+                const storeResult = await window.NaProjectAdmin.SignatureAuditRecord.storeAuditRecord(auditRecord);
+
+                console.log('[App] Signature stored:', storeResult);
+
+                // Refresh navigation menu badges
+                if (window.NaProjectAdmin.Navigation) {
+                    await window.NaProjectAdmin.Navigation.refreshMenuBadges();
+                }
+
+                // Return to document screen
+                showDocumentScreen();
+
+                // Show appropriate document based on what was just signed
+                if (pendingSignatureType === 'quotation' && window.NaProjectAdmin.UserInterfaceMain) {
+                    await window.NaProjectAdmin.UserInterfaceMain.showQuotation();
+                } else if (pendingSignatureType === 'terms' && window.NaProjectAdmin.UserInterfaceMain) {
+                    await window.NaProjectAdmin.UserInterfaceMain.showTerms();
+                }
+
+                // Clear form
+                if (signerNameInput) {
+                    signerNameInput.value = '';
+                }
+                if (signatureCanvas) {
+                    signatureCanvas.clearCanvas();
+                }
+
+            } catch (error) {
+                console.error('[App] Signature submission failed:', error);
+                
+                if (errorDisplay) {
+                    errorDisplay.textContent = 'Failed to submit signature. Please try again.';
+                    errorDisplay.style.display = 'block';
+                }
+
+                // Restore button
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalBtnText;
+                }
+            }
         }
         // ---------------------------------------------------------------
 
