@@ -88,6 +88,7 @@
         // ------------------------------------------------------------
         /**
          * Render quotation with client data fetched from Cloudflare R2
+         * Always attempts to fetch full client details from secure storage
          * @param {Object} quotationData - Quotation JSON data
          * @returns {Promise<string>} Rendered HTML
          */
@@ -98,18 +99,22 @@
 
             let clientDetails = quotationData.clientDetails || {};
 
-            // Check if client data is stored in Cloudflare R2
-            if (quotationData.clientDataStorage === 'cloudflare-r2-encrypted') {
-                console.log('[QuotationRenderer] Fetching client data from Cloudflare R2...');
-                
-                const cloudflareClientData = await fetchClientDataFromCloudflare();
-                
-                if (cloudflareClientData) {
-                    clientDetails = formatClientDataForDisplay(cloudflareClientData);
-                    console.log('[QuotationRenderer] Client data loaded from secure storage');
-                } else {
-                    console.warn('[QuotationRenderer] Could not load client data from Cloudflare');
-                }
+            // Always attempt to fetch client data from Cloudflare R2
+            // Client PII (address, email, phone) is stored encrypted in R2 for GDPR compliance
+            console.log('[QuotationRenderer] Fetching client data from Cloudflare R2...');
+            
+            const cloudflareClientData = await fetchClientDataFromCloudflare();
+            
+            if (cloudflareClientData) {
+                // Merge Cloudflare data with any existing client details
+                const formattedData = formatClientDataForDisplay(cloudflareClientData);
+                clientDetails = {
+                    ...clientDetails,                            // <-- Keep any existing data
+                    ...formattedData                             // <-- Override with Cloudflare data
+                };
+                console.log('[QuotationRenderer] Client data loaded from secure storage');
+            } else {
+                console.warn('[QuotationRenderer] Could not load client data from Cloudflare - using inline data only');
             }
 
             // Use synchronous render with fetched client data
@@ -134,18 +139,38 @@
                 }
 
                 const projectCode = App.getCurrentProject();
-                const year = App.getCurrentYear();
-                const sessionToken = App.getSessionToken?.();
-
-                if (!projectCode || !year || !sessionToken) {
-                    console.warn('[QuotationRenderer] Missing project context or session token');
+                
+                if (!projectCode) {
+                    console.warn('[QuotationRenderer] No project code available');
                     return null;
                 }
 
-                const result = await ApiClient.retrieveClientData(projectCode, year, sessionToken);
+                // Get session token from App (generates one if authenticated)
+                let sessionToken = App.getSessionToken?.();
+
+                // Fallback: generate token if App.getSessionToken not available
+                if (!sessionToken && App.isAuthenticated?.()) {
+                    const timestamp = Date.now();
+                    const random = Math.random().toString(36).substring(2);
+                    sessionToken = btoa(`${projectCode}:${timestamp}:${random}`);
+                    console.log('[QuotationRenderer] Generated fallback session token');
+                }
+
+                if (!sessionToken) {
+                    console.warn('[QuotationRenderer] No session token available - user may not be authenticated');
+                    return null;
+                }
+
+                // ApiClient.retrieveClientData takes (projectCode, sessionToken) - year is auto-detected
+                const result = await ApiClient.retrieveClientData(projectCode, sessionToken);
 
                 if (result && result.success === true) {
+                    console.log('[QuotationRenderer] Client data retrieved from Cloudflare');
                     return result.data;
+                }
+
+                if (result?.error) {
+                    console.warn('[QuotationRenderer] Cloudflare returned error:', result.error);
                 }
 
                 return null;

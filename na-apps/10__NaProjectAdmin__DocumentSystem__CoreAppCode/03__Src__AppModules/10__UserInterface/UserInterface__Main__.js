@@ -80,9 +80,9 @@
                 const quotationData = await loadQuotationData();
 
                 if (quotationData) {
-                    // Render quotation
+                    // Render quotation (async to fetch client data from Cloudflare)
                     if (window.NaProjectAdmin.QuotationRenderer) {
-                        const html = window.NaProjectAdmin.QuotationRenderer.render(quotationData);
+                        const html = await window.NaProjectAdmin.QuotationRenderer.renderAsync(quotationData);
                         documentContainer.innerHTML = html;
                     } else {
                         documentContainer.innerHTML = renderBasicQuotation(quotationData);

@@ -3,6 +3,252 @@
 
 # =============================================================================
 
+## Version 0.4.3 - 31-Jan-2026
+
+### Fixed - Client Data Display in Documents
+
+This release fixes the missing client address, email, and phone number in quotation documents. Client PII is now properly fetched from encrypted Cloudflare R2 storage and displayed in rendered documents.
+
+#### Cloudflare Worker Deployment
+- **`deploy.bat`** - Updated deployment script documentation
+  - Added `CloudflareHandler__ClientData__.js` to module structure documentation
+  - Added `/projectadmin/clientdata` endpoint to test endpoints list
+  - Deployed worker with client data handler (Version ID: `d8f81a9e-95a6-4a58-bea3-f4d7d9f68a40`)
+
+- **`CREDENTIALS_BACKUP.txt`** - Added encryption key backup
+  - Stored `CLIENT_DATA_KEY` secret for AES-256-GCM encryption
+  - Critical: Key loss would make all encrypted client data unreadable
+  - Includes restore instructions for disaster recovery
+
+#### Session Token Management
+- **`AppCore__Main__.js`** - Added `getSessionToken()` method
+  - Retrieves or generates session token for Cloudflare API calls
+  - Token format: `btoa(projectCode:timestamp:random)` (matches editor tools)
+  - Stores generated token in sessionStorage for reuse
+  - Required for accessing encrypted client data from R2
+  - Returns `null` if user not authenticated
+
+#### Document Rendering Integration
+- **`UserInterface__Main__.js`** - Updated quotation display
+  - Changed from synchronous `render()` to asynchronous `renderAsync()`
+  - Enables fetching client PII from Cloudflare R2 before rendering
+  - Quotation now displays full client details (address, email, phone)
+
+- **`DocumentSystem__QuotationRenderer__.js`** - Fixed client data fetching
+  - **API Signature Fix**: Changed from `retrieveClientData(projectCode, year, sessionToken)` to `retrieveClientData(projectCode, sessionToken)`
+    - Year parameter removed (auto-detected by Worker)
+    - Matches updated CloudflareApiClient interface
+  - **Always Fetches Client Data**: `renderAsync()` now always attempts to fetch from R2
+    - Previously only fetched when `clientDataStorage === 'cloudflare-r2-encrypted'` flag present
+    - Now fetches whenever session token is available
+  - **Improved Token Handling**: Added fallback token generation
+    - If `App.getSessionToken()` returns null but user is authenticated, generates fallback token
+    - Ensures client data can be retrieved even if session token not yet stored
+  - **Data Merging**: Cloudflare data merged with any existing inline client details
+    - Preserves backward compatibility with legacy quotation files
+    - Cloudflare data takes precedence over inline data
+
+### Changed
+- **Quotation Rendering Flow** - Now asynchronous with Cloudflare integration
+  - **Before**: `render()` → inline `clientDetails` → basic display
+  - **After**: `renderAsync()` → fetch from R2 → decrypt → merge → full display
+  - Documents now show complete client information when available
+
+- **Session Token Access** - Centralised token management
+  - Token generation logic moved to `AppCore__Main__.js`
+  - Consistent token format across editor tools and live app
+  - Token stored in sessionStorage for reuse during session
+
+### Fixed
+- **404 Errors on Client Data Endpoint** - Fixed `/projectadmin/clientdata` not found
+  - Worker had not been deployed with new `CloudflareHandler__ClientData__.js` handler
+  - Deployed worker successfully with all handlers
+  - Endpoint now returns proper validation errors instead of 404
+
+- **Missing Client Details in Documents** - Fixed quotation showing only client name
+  - Root cause: Synchronous renderer called instead of async version
+  - Solution: Updated `showQuotation()` to use `renderAsync()`
+  - Client address, email, and phone now displayed correctly
+
+- **API Signature Mismatch** - Fixed incorrect parameter count
+  - `QuotationRenderer` was calling `retrieveClientData()` with 3 parameters
+  - Updated to match new signature: 2 parameters (year auto-detected)
+  - Prevents "Missing required parameters" errors
+
+### Technical Details
+
+#### Client Data Flow
+```
+User views quotation
+  → UserInterfaceMain.showQuotation()
+    → loadQuotationData() [from GitHub Pages]
+    → QuotationRenderer.renderAsync(quotationData)
+      → fetchClientDataFromCloudflare()
+        → App.getSessionToken() [generates if needed]
+        → CloudflareApiClient.retrieveClientData(projectCode, sessionToken)
+          → Cloudflare Worker `/projectadmin/clientdata`
+            → Decrypts AES-256-GCM encrypted data from R2
+            → Returns decrypted client PII
+      → formatClientDataForDisplay() [structures address, email, phone]
+      → render(quotationData, fullClientDetails)
+        → Displays complete client information
+```
+
+#### Session Token Format
+- **Structure**: Base64-encoded string containing `projectCode:timestamp:random`
+- **Example**: `RFIwMjoxNzY5ODk4MzY1ODU4Onh3dTNpY2FmZGs=`
+- **Decoded**: `DR02:1769898365858:xwu3icafdk`
+- **Validation**: Worker validates project code match and 1-hour expiry
+
+#### Error Handling
+- Graceful fallback if Cloudflare unavailable: Uses inline client data
+- Token generation fallback: Creates token if authenticated but none stored
+- Silent failures: Logs warnings but doesn't break document rendering
+- User experience: Document still displays even if client data fetch fails
+
+### Files Modified
+- `05__CloudflareWorkers/deploy.bat` - Updated documentation
+- `05__CloudflareWorkers/CREDENTIALS_BACKUP.txt` - Added encryption key backup
+- `03__Src__AppModules/01__AppCore/AppCore__Main__.js` - Added `getSessionToken()` method
+- `03__Src__AppModules/10__UserInterface/UserInterface__Main__.js` - Changed to async renderer
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__QuotationRenderer__.js` - Fixed API calls and data fetching
+
+### User Experience
+- Quotation documents now display complete client information
+- No user action required - data automatically fetched from secure storage
+- Seamless integration - works transparently with existing quotation files
+- GDPR compliant - client PII remains encrypted at rest in R2
+
+---
+
+## Version 0.4.2 - 31-Jan-2026
+
+### Fixed - Authentication and Project Path Discovery
+
+This release fixes critical authentication failures and simplifies project URL structure by implementing automatic project folder discovery and year detection across all Cloudflare Workers.
+
+#### Authentication Fix
+- **`Authentication__PinLogin__.js`** - Fixed missing `action` parameter
+  - Added `action: 'validate'` to Cloudflare Worker auth requests
+  - Resolves "Unknown action" errors that prevented PIN validation
+  - Authentication now works correctly with hashed PINs
+
+#### URL Simplification
+- **`AppCore__Main__.js`** - Simplified project URL format
+  - **Before:** `?project=DR02&year=26`
+  - **After:** `?project=DR02` (year auto-detected)
+  - Added `findProjectYearFromIndex()` function
+  - Searches project index across all years to auto-detect project location
+  - Falls back to default year if project not found in index
+
+#### New Cloudflare Worker Helper
+- **`CloudflareHelper__ProjectPath__.js`** (NEW) - Shared project path discovery utility
+  - `findProjectFolder()` - Uses R2 listing to find folders matching `ProjectCode__ProjectName` pattern
+  - `buildProjectFilePath()` - Constructs full R2 paths to project files
+  - `buildProjectSubfolderPath()` - Builds paths to subfolders within project admin content
+  - `getProjectYear()` - Returns detected year for a project
+  - In-memory caching to avoid repeated R2 lookups
+  - Handles folder naming convention: `DR02__SilverAvenue` (not just `DR02`)
+
+#### Updated Cloudflare Handlers
+- **`CloudflareHandler__Auth__.js`** - Uses path helper for project config loading
+  - Replaced hardcoded path patterns with `buildProjectFilePath()` helper
+  - Now correctly finds projects with `ProjectCode__ProjectName` folder structure
+  - Auto-detects year from discovered folder
+
+- **`CloudflareHandler__ClientData__.js`** - Year parameter now optional
+  - `storeClientData()` - Year auto-detected, no longer required in request
+  - `retrieveClientData()` - Year auto-detected from query parameters
+  - `deleteClientData()` - Year auto-detected for GDPR erasure operations
+  - All operations use `buildProjectFilePath()` helper
+
+- **`CloudflareHandler__Signature__.js`** - Updated signature storage paths
+  - Uses `buildProjectSubfolderPath()` for signature record storage
+  - Project folder path now correctly resolves to `ProjectCode__ProjectName` format
+  - Archive paths still use year-based structure (unchanged)
+
+#### Updated Client-Side API
+- **`CloudflareIntegration__ApiClient__.js`** - Removed year requirement
+  - `storeClientData(projectCode, clientData, sessionToken)` - Year parameter removed
+  - `retrieveClientData(projectCode, sessionToken)` - Year parameter removed
+  - `deleteClientData(projectCode, sessionToken)` - Year parameter removed
+  - `loadProjectConfig(projectCode)` - Year parameter removed
+  - All methods now rely on Worker's auto-detection
+
+#### Updated Navigation
+- **`UserInterface__Navigation__.js`** - Simplified editor URLs
+  - Removed `year` parameter from editor iframe URLs
+  - Editor tools now receive only `project` parameter
+  - Year auto-detected by main app before loading editors
+
+### Changed
+- **Project URL Format** - Simplified from `?project=XX00&year=YY` to `?project=XX00`
+  - Year is automatically discovered from project index
+  - Reduces URL complexity and potential for errors
+  - Maintains backward compatibility (year still accepted but ignored)
+
+- **Cloudflare Worker Path Resolution** - Now handles `ProjectCode__ProjectName` folders
+  - Previously only looked for exact `ProjectCode` folders
+  - Now searches R2 using listing API to find matching folders
+  - Supports all folder naming conventions: `XX00__Name`, `XX00_-_Name`, `XX00`
+
+### Fixed
+- **Authentication Failure** - Fixed "Invalid PIN" errors caused by missing `action` parameter
+  - Worker was returning "Unknown action" error for all auth attempts
+  - Now correctly validates PINs against hashed values in project config
+
+- **Project Not Found Errors** - Fixed 404 errors when loading project configs
+  - Workers were looking for `DR02/` but folders are `DR02__SilverAvenue/`
+  - Path helper now correctly discovers actual folder names via R2 listing
+
+- **Year Parameter Dependency** - Removed requirement for year in all API calls
+  - Year is now auto-detected from project folder location
+  - Reduces complexity and potential for mismatched year/project combinations
+
+### Technical Details
+
+#### Project Path Discovery Flow
+1. Client sends request with `projectCode` only
+2. Worker calls `findProjectFolder(projectCode, env)`
+3. Helper searches R2 with prefix: `NaProjectPortal/{year}-Projects/{projectCode}`
+4. Uses R2 `list()` API with delimiter to find matching folders
+5. Returns `{ year, folderName, basePath }` structure
+6. Result cached for subsequent requests
+
+#### Folder Naming Support
+- **Primary:** `ProjectCode__ProjectName` (e.g., `DR02__SilverAvenue`)
+- **Legacy:** `ProjectCode_-_ProjectName` (e.g., `GA06_-_Cloves-Wood`)
+- **Fallback:** `ProjectCode` (exact match, e.g., `AA00`)
+
+#### Caching Strategy
+- In-memory cache per Worker instance
+- Cache key: `{R2_PREFIX}:{ProjectCode}`
+- Cache cleared on Worker restart (Cloudflare Workers are stateless)
+- Reduces R2 API calls for frequently accessed projects
+
+### Files Modified
+- `03__Src__AppModules/30__Authentication/Authentication__PinLogin__.js`
+- `03__Src__AppModules/01__AppCore/AppCore__Main__.js`
+- `03__Src__AppModules/50__CloudflareIntegration/CloudflareIntegration__ApiClient__.js`
+- `03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js`
+- `05__CloudflareWorkers/src/handlers/CloudflareHandler__Auth__.js`
+- `05__CloudflareWorkers/src/handlers/CloudflareHandler__ClientData__.js`
+- `05__CloudflareWorkers/src/handlers/CloudflareHandler__Signature__.js`
+- `05__CloudflareWorkers/src/helpers/CloudflareHelper__ProjectPath__.js` (NEW)
+
+### Deployment
+- Cloudflare Worker deployed successfully
+- Version ID: `a969a118-63de-49ea-b171-22ad4af25d13`
+- Worker URL: `https://na-projectadmin-api.adam-fb3.workers.dev`
+
+### User Experience
+- Simpler URLs: Users only need to provide project code
+- More reliable: Automatic folder discovery prevents "project not found" errors
+- Faster: Caching reduces lookup time for repeated requests
+- Consistent: All handlers use same path resolution logic
+
+---
+
 ## Version 0.4.1 - 31-Jan-2026
 
 ### Added - PDF Download Functionality

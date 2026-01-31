@@ -846,6 +846,55 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Get Session Token
+        // ------------------------------------------------------------
+        /**
+         * Get or generate a session token for Cloudflare API calls
+         * Required for accessing encrypted client data from R2
+         * @returns {string|null} Session token or null if not authenticated
+         */
+        function getSessionToken() {
+            if (!currentProject || !isAuthenticated) {
+                return null;
+            }
+
+            // Check for existing session token in sessionStorage
+            const sessionKey = `naProjectAdmin_session_${currentProject}`;
+            const sessionData = sessionStorage.getItem(sessionKey);
+
+            if (sessionData) {
+                try {
+                    const session = JSON.parse(sessionData);
+                    
+                    // If session has a token, use it
+                    if (session.sessionToken) {
+                        return session.sessionToken;
+                    }
+
+                    // Generate token from session data (same format as editor tools)
+                    // Format: base64(projectCode:timestamp:random)
+                    const timestamp = session.timestamp || Date.now();
+                    const random = Math.random().toString(36).substring(2);
+                    const token = btoa(`${currentProject}:${timestamp}:${random}`);
+
+                    // Store the generated token for future use
+                    session.sessionToken = token;
+                    sessionStorage.setItem(sessionKey, JSON.stringify(session));
+
+                    return token;
+
+                } catch (e) {
+                    console.warn('[App] Could not parse session data');
+                }
+            }
+
+            // Fallback: generate a new token if authenticated
+            const timestamp = Date.now();
+            const random = Math.random().toString(36).substring(2);
+            return btoa(`${currentProject}:${timestamp}:${random}`);
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Show Error
         // ------------------------------------------------------------
         function showError(message) {
@@ -894,6 +943,7 @@
             getCurrentProject        : () => currentProject,
             getProjectConfig         : () => projectConfig,
             getProjectYear           : () => projectYear,
+            getSessionToken          : getSessionToken,             // <-- For Cloudflare API calls
             isAuthenticated          : () => isAuthenticated
         };
 
