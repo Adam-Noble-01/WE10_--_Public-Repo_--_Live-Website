@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- ----- -->
-<!-- REGION | Document Head                                            -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Head                            -->
+<!-- -------------------------------------------------- -->
 
 <head>
     <meta charset="UTF-8">
@@ -13,17 +13,17 @@
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 </head>
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 
-<!-- ----- -->
-<!-- REGION | Document Body                                            -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Body                            -->
+<!-- -------------------------------------------------- -->
 
 <body>
 
-    <!-- ----- -->
-    <!-- UI HEADER | Application Header                                -->
-    <!-- ----- -->
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI HEADER | Application Header                    -->
+    <!-- -------------------------------------------------- -->
     <header class="app-header">
         <h1>Quotation Builder</h1>
         <div>
@@ -31,15 +31,16 @@
             <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
         </div>
     </header>
-    <!-- ----- -->
+    <!-- endregion ---------------------------------------- -->
 
-    <!-- ----- -->
-    <!-- UI MAIN | Main Content Container                              -->
-    <!-- ----- -->
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI MAIN | Main Content Container                  -->
+    <!-- -------------------------------------------------- -->
     <div class="main-container">
 
-        <!-- UI PANEL | Editor Panel                                   -->
-        <!-- --- -->
+        <!-- #Region -------------------------------------- -->
+        <!-- UI PANEL | Editor Panel                       -->
+        <!-- ---------------------------------------------- -->
         <div class="panel">
             <div class="panel__header">Edit Quotation</div>
             <div class="panel__body">
@@ -133,10 +134,11 @@
                 </div>
             </div>
         </div>
-        <!-- --- -->
+        <!-- endregion ------------------------------------ -->
 
-        <!-- UI PANEL | Output Panel                                   -->
-        <!-- --- -->
+        <!-- #Region -------------------------------------- -->
+        <!-- UI PANEL | Output Panel                       -->
+        <!-- ---------------------------------------------- -->
         <div class="panel">
             <div class="panel__header">JSON Output</div>
             <div class="panel__body">
@@ -150,103 +152,103 @@
                 <pre id="jsonOutput" class="json-output">{}</pre>
             </div>
         </div>
-        <!-- --- -->
+        <!-- endregion ------------------------------------ -->
 
     </div>
-    <!-- ----- -->
+    <!-- endregion ---------------------------------------- -->
 
-    <!-- ----- -->
-    <!-- UI HIDDEN | Hidden File Input                                 -->
-    <!-- ----- -->
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI HIDDEN | Hidden File Input                     -->
+    <!-- -------------------------------------------------- -->
     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
-    <!-- ----- -->
+    <!-- endregion ---------------------------------------- -->
 
 </body>
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 
-<!-- ----- -->
-<!-- REGION | JavaScript Logic                                         -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | JavaScript Logic                         -->
+<!-- -------------------------------------------------- -->
 
 <script>
 
-    // #region -----
+    // #Region ------------------------------------------------
     // STATE | Application State
-    // -----
+    // --------------------------------------------------------
 
-        let lineItems = [];                                              // <-- Line items array
-        let lineItemId = 0;                                              // <-- ID counter
+    let lineItems = [];                                              // <-- Line items array
+    let lineItemId = 0;                                              // <-- ID counter
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // INITIALIZATION | DOM Ready
-    // -----
+    // --------------------------------------------------------
 
-        // Initialise editor on load
-        document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('quotationDate').valueAsDate = new Date();
-            addLineItem();
-            updatePreview();
-        });
+    // Initialise editor on load
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('quotationDate').valueAsDate = new Date();
+        addLineItem();
+        updatePreview();
+    });
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // LINE ITEM MANAGEMENT | Add, Remove, Update Items
-    // -----
+    // --------------------------------------------------------
 
-        // Add new line item
-        function addLineItem(group = '') {
-            const id = ++lineItemId;
+    // Add new line item
+    function addLineItem(group = '') {
+        const id = ++lineItemId;
+        lineItems.push({
+            id: id,
+            type: 'item',
+            group: group,
+            description: '',
+            quantity: 1,
+            unit: 'item',
+            rate: 0
+        });
+        renderLineItems();
+    }
+
+    // Add group header
+    function addGroupHeader() {
+        const id = ++lineItemId;
+        const groupName = prompt('Enter group/phase name:', 'Design Phase');
+        if (groupName) {
             lineItems.push({
                 id: id,
-                type: 'item',
-                group: group,
-                description: '',
-                quantity: 1,
-                unit: 'item',
-                rate: 0
+                type: 'group',
+                name: groupName
             });
             renderLineItems();
         }
+    }
 
-        // Add group header
-        function addGroupHeader() {
-            const id = ++lineItemId;
-            const groupName = prompt('Enter group/phase name:', 'Design Phase');
-            if (groupName) {
-                lineItems.push({
-                    id: id,
-                    type: 'group',
-                    name: groupName
-                });
-                renderLineItems();
-            }
-        }
+    // Remove line item
+    function removeLineItem(id) {
+        lineItems = lineItems.filter(item => item.id !== id);
+        renderLineItems();
+        updatePreview();
+    }
 
-        // Remove line item
-        function removeLineItem(id) {
-            lineItems = lineItems.filter(item => item.id !== id);
-            renderLineItems();
-            updatePreview();
-        }
+    // endregion ----------------------------------------------
 
-    // endregion -----
-
-    // #region -----
+    // #Region ------------------------------------------------
     // RENDERING | Display Line Items
-    // -----
+    // --------------------------------------------------------
 
-        // Render line items table
-        function renderLineItems() {
-            const tbody = document.getElementById('lineItemsBody');
-            let currentGroup = '';
+    // Render line items table
+    function renderLineItems() {
+        const tbody = document.getElementById('lineItemsBody');
+        let currentGroup = '';
 
-            tbody.innerHTML = lineItems.map(item => {
-                if (item.type === 'group') {
-                    currentGroup = item.name;
-                    return `
+        tbody.innerHTML = lineItems.map(item => {
+            if (item.type === 'group') {
+                currentGroup = item.name;
+                return `
                         <tr style="background: #f5f5f5;">
                             <td colspan="5">
                                 <input type="text" value="${item.name}" 
@@ -258,9 +260,9 @@
                             </td>
                         </tr>
                     `;
-                } else {
-                    const amount = (item.quantity || 0) * (item.rate || 0);
-                    return `
+            } else {
+                const amount = (item.quantity || 0) * (item.rate || 0);
+                return `
                         <tr>
                             <td class="col-description">
                                 <input type="text" value="${item.description}" 
@@ -284,223 +286,223 @@
                             </td>
                         </tr>
                     `;
+            }
+        }).join('');
+    }
+
+    // Update item property
+    function updateItem(id, property, value) {
+        const item = lineItems.find(i => i.id === id);
+        if (item) {
+            item[property] = value;
+            renderLineItems();
+            updatePreview();
+        }
+    }
+
+    // Update group name
+    function updateGroupName(id, name) {
+        const item = lineItems.find(i => i.id === id);
+        if (item) {
+            const oldName = item.name;
+            item.name = name;
+            // Update all items in this group
+            lineItems.forEach(i => {
+                if (i.type === 'item' && i.group === oldName) {
+                    i.group = name;
                 }
-            }).join('');
+            });
+            updatePreview();
         }
+    }
 
-        // Update item property
-        function updateItem(id, property, value) {
-            const item = lineItems.find(i => i.id === id);
-            if (item) {
-                item[property] = value;
-                renderLineItems();
-                updatePreview();
-            }
-        }
+    // endregion ----------------------------------------------
 
-        // Update group name
-        function updateGroupName(id, name) {
-            const item = lineItems.find(i => i.id === id);
-            if (item) {
-                const oldName = item.name;
-                item.name = name;
-                // Update all items in this group
-                lineItems.forEach(i => {
-                    if (i.type === 'item' && i.group === oldName) {
-                        i.group = name;
-                    }
-                });
-                updatePreview();
-            }
-        }
-
-    // endregion -----
-
-    // #region -----
+    // #Region ------------------------------------------------
     // CALCULATIONS | Totals and VAT
-    // -----
+    // --------------------------------------------------------
 
-        // Calculate subtotal, VAT, and grand total
-        function calculateTotals() {
-            let subtotal = 0;
-            lineItems.forEach(item => {
-                if (item.type === 'item') {
-                    subtotal += (item.quantity || 0) * (item.rate || 0);
-                }
-            });
+    // Calculate subtotal, VAT, and grand total
+    function calculateTotals() {
+        let subtotal = 0;
+        lineItems.forEach(item => {
+            if (item.type === 'item') {
+                subtotal += (item.quantity || 0) * (item.rate || 0);
+            }
+        });
 
-            const showVat = document.getElementById('showVat').checked;
-            const vatRate = parseFloat(document.getElementById('vatRate').value) || 0;
-            const vat = showVat ? subtotal * (vatRate / 100) : 0;
-            const total = subtotal + vat;
+        const showVat = document.getElementById('showVat').checked;
+        const vatRate = parseFloat(document.getElementById('vatRate').value) || 0;
+        const vat = showVat ? subtotal * (vatRate / 100) : 0;
+        const total = subtotal + vat;
 
-            document.getElementById('subtotal').textContent = '£' + subtotal.toFixed(2);
-            document.getElementById('vatAmount').textContent = '£' + vat.toFixed(2);
-            document.getElementById('grandTotal').textContent = '£' + total.toFixed(2);
+        document.getElementById('subtotal').textContent = '£' + subtotal.toFixed(2);
+        document.getElementById('vatAmount').textContent = '£' + vat.toFixed(2);
+        document.getElementById('grandTotal').textContent = '£' + total.toFixed(2);
 
-            return { subtotal, vatRate: showVat ? vatRate : 0, vat, total };
-        }
+        return { subtotal, vatRate: showVat ? vatRate : 0, vat, total };
+    }
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // JSON GENERATION | Build Quotation Object
-    // -----
+    // --------------------------------------------------------
 
-        // Generate quotation JSON
-        function generateJson() {
-            const totals = calculateTotals();
+    // Generate quotation JSON
+    function generateJson() {
+        const totals = calculateTotals();
 
-            // Build line items array with groups
-            let currentGroup = '';
-            const formattedItems = lineItems
-                .filter(item => item.type === 'item')
-                .map(item => {
-                    // Find which group this item belongs to
-                    const groupIndex = lineItems.findIndex(i => i.type === 'group' && i.id < item.id);
-                    const group = groupIndex >= 0 ? lineItems.slice(0, item.id).filter(i => i.type === 'group').pop()?.name : '';
+        // Build line items array with groups
+        let currentGroup = '';
+        const formattedItems = lineItems
+            .filter(item => item.type === 'item')
+            .map(item => {
+                // Find which group this item belongs to
+                const groupIndex = lineItems.findIndex(i => i.type === 'group' && i.id < item.id);
+                const group = groupIndex >= 0 ? lineItems.slice(0, item.id).filter(i => i.type === 'group').pop()?.name : '';
 
-                    return {
-                        description: item.description,
-                        quantity: item.quantity,
-                        unit: item.unit,
-                        rate: item.rate,
-                        group: group || undefined
-                    };
-                });
-
-            const quotation = {
-                quotationRef: document.getElementById('quotationRef').value,
-                quotationDate: document.getElementById('quotationDate').value,
-                projectAddress: document.getElementById('projectAddress').value,
-                projectDescription: document.getElementById('projectDescription').value,
-                clientDetails: {
-                    name: document.getElementById('clientName').value,
-                    address: document.getElementById('clientAddress').value,
-                    email: document.getElementById('clientEmail').value
-                },
-                lineItems: formattedItems,
-                totals: {
-                    subtotal: totals.subtotal,
-                    vatRate: totals.vatRate,
-                    vat: totals.vat,
-                    grandTotal: totals.total
-                },
-                additionalTerms: '',
-                createdDate: new Date().toISOString()
-            };
-
-            return quotation;
-        }
-
-    // endregion -----
-
-    // #region -----
-    // UI ACTIONS | User Interface Updates
-    // -----
-
-        // Update JSON preview display
-        function updatePreview() {
-            const json = generateJson();
-            document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 4);
-            calculateTotals();
-        }
-
-        // Copy to clipboard
-        function copyToClipboard() {
-            const json = document.getElementById('jsonOutput').textContent;
-            navigator.clipboard.writeText(json).then(() => {
-                alert('JSON copied to clipboard!');
+                return {
+                    description: item.description,
+                    quantity: item.quantity,
+                    unit: item.unit,
+                    rate: item.rate,
+                    group: group || undefined
+                };
             });
-        }
 
-    // endregion -----
+        const quotation = {
+            quotationRef: document.getElementById('quotationRef').value,
+            quotationDate: document.getElementById('quotationDate').value,
+            projectAddress: document.getElementById('projectAddress').value,
+            projectDescription: document.getElementById('projectDescription').value,
+            clientDetails: {
+                name: document.getElementById('clientName').value,
+                address: document.getElementById('clientAddress').value,
+                email: document.getElementById('clientEmail').value
+            },
+            lineItems: formattedItems,
+            totals: {
+                subtotal: totals.subtotal,
+                vatRate: totals.vatRate,
+                vat: totals.vat,
+                grandTotal: totals.total
+            },
+            additionalTerms: '',
+            createdDate: new Date().toISOString()
+        };
 
-    // #region -----
+        return quotation;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // UI ACTIONS | User Interface Updates
+    // --------------------------------------------------------
+
+    // Update JSON preview display
+    function updatePreview() {
+        const json = generateJson();
+        document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 4);
+        calculateTotals();
+    }
+
+    // Copy to clipboard
+    function copyToClipboard() {
+        const json = document.getElementById('jsonOutput').textContent;
+        navigator.clipboard.writeText(json).then(() => {
+            alert('JSON copied to clipboard!');
+        });
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
     // FILE OPERATIONS | Load and Save Functions
-    // -----
+    // --------------------------------------------------------
 
-        // Download quotation as JSON file
-        function downloadJson() {
-            const json = document.getElementById('jsonOutput').textContent;
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'ProjectAdmin__Quotation__.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
+    // Download quotation as JSON file
+    function downloadJson() {
+        const json = document.getElementById('jsonOutput').textContent;
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ProjectAdmin__Quotation__.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
 
-        // Load from file
-        function loadFromFile() {
-            document.getElementById('fileInput').click();
-        }
+    // Load from file
+    function loadFromFile() {
+        document.getElementById('fileInput').click();
+    }
 
-        // Handle file load
-        function handleFileLoad(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+    // Handle file load
+    function handleFileLoad(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    const data = JSON.parse(e.target.result);
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = JSON.parse(e.target.result);
 
-                    // Populate form fields
-                    document.getElementById('quotationRef').value = data.quotationRef || '';
-                    document.getElementById('quotationDate').value = data.quotationDate || '';
-                    document.getElementById('projectAddress').value = data.projectAddress || '';
-                    document.getElementById('projectDescription').value = data.projectDescription || '';
-                    document.getElementById('clientName').value = data.clientDetails?.name || '';
-                    document.getElementById('clientAddress').value = data.clientDetails?.address || '';
-                    document.getElementById('clientEmail').value = data.clientDetails?.email || '';
+                // Populate form fields
+                document.getElementById('quotationRef').value = data.quotationRef || '';
+                document.getElementById('quotationDate').value = data.quotationDate || '';
+                document.getElementById('projectAddress').value = data.projectAddress || '';
+                document.getElementById('projectDescription').value = data.projectDescription || '';
+                document.getElementById('clientName').value = data.clientDetails?.name || '';
+                document.getElementById('clientAddress').value = data.clientDetails?.address || '';
+                document.getElementById('clientEmail').value = data.clientDetails?.email || '';
 
-                    if (data.totals?.vatRate > 0) {
-                        document.getElementById('showVat').checked = true;
-                        document.getElementById('vatRate').value = data.totals.vatRate;
-                    }
+                if (data.totals?.vatRate > 0) {
+                    document.getElementById('showVat').checked = true;
+                    document.getElementById('vatRate').value = data.totals.vatRate;
+                }
 
-                    // Load line items
-                    lineItems = [];
-                    lineItemId = 0;
+                // Load line items
+                lineItems = [];
+                lineItemId = 0;
 
-                    if (data.lineItems) {
-                        let currentGroup = '';
-                        data.lineItems.forEach(item => {
-                            if (item.group && item.group !== currentGroup) {
-                                currentGroup = item.group;
-                                lineItems.push({
-                                    id: ++lineItemId,
-                                    type: 'group',
-                                    name: item.group
-                                });
-                            }
+                if (data.lineItems) {
+                    let currentGroup = '';
+                    data.lineItems.forEach(item => {
+                        if (item.group && item.group !== currentGroup) {
+                            currentGroup = item.group;
                             lineItems.push({
                                 id: ++lineItemId,
-                                type: 'item',
-                                group: item.group || '',
-                                description: item.description,
-                                quantity: item.quantity,
-                                unit: item.unit,
-                                rate: item.rate
+                                type: 'group',
+                                name: item.group
                             });
+                        }
+                        lineItems.push({
+                            id: ++lineItemId,
+                            type: 'item',
+                            group: item.group || '',
+                            description: item.description,
+                            quantity: item.quantity,
+                            unit: item.unit,
+                            rate: item.rate
                         });
-                    }
-
-                    renderLineItems();
-                    updatePreview();
-                    alert('Quotation loaded successfully!');
-                } catch (error) {
-                    alert('Failed to load file: ' + error.message);
+                    });
                 }
-            };
-            reader.readAsText(file);
-        }
 
-    // endregion -----
+                renderLineItems();
+                updatePreview();
+                alert('Quotation loaded successfully!');
+            } catch (error) {
+                alert('Failed to load file: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // endregion ----------------------------------------------
 
 </script>
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 
 </html>

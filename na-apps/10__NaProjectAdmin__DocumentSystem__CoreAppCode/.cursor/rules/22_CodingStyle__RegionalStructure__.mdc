@@ -8,16 +8,16 @@ All code must be organized using regional dividers for clear structure and code 
 ## JavaScript Regions
 
 ```javascript
-// #Region[col10] -----
-// REGION_TYPE | Description
-// -----
+// #Region ------------------------------------------------
+// BLOCK TYPE | Description
+// --------------------------------------------------------
 
     // Content here (4-space indent - CRITICAL for code folding)
 
-// endregion -----
+// endregion ----------------------------------------------
 ```
 
-**Region Types:** MODULE, FUNCTION, SUB FUNCTION, HELPER FUNCTION, CLASS, METHOD, DATA, CONSTANTS, STATE, API, EVENTS, INITIALIZATION
+**Block Types:** MODULE, FUNCTION, SUB FUNCTION, HELPER FUNCTION, CLASS, METHOD, DATA, CONSTANTS, STATE, API, EVENTS, INITIALIZATION
 
 **Dash Counts:** Opening (60), Section (56 with indent), Closing (50)
 
@@ -26,37 +26,64 @@ All code must be organized using regional dividers for clear structure and code 
 ## CSS Regions
 
 ```css
-/* -----
- * REGION | Description
- * ----- */
+/*  #Region ------------------------------------------------
+ * BLOCK TYPE | Description
+ * -------------------------------------------------------- */
 
     /* CSS rules (4-space indent) */
 
-/* endregion ---- */
+/* endregion ---------------------------------------------- */
 ```
 
-**Dash Counts:** Opening/Closing (77)
+**Dash Counts:** Opening (60), Section (56 with indent), Closing (50)
 
 ---
 
 ## HTML Regions
 
 ```html
-<!-- ----- -->
-<!-- REGION | Description                                              -->
+<!-- #Region ------------------------------------------ -->
+<!-- BLOCK TYPE | Description                          -->
 <!-- ----- -->
 
-    <!-- UI COMPONENT | Description                                   -->
+    <!-- UI COMPONENT | Description                     -->
     <!-- --- -->
     <div id="component">
         <!-- Content -->
     </div>
     <!-- --- -->
 
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 ```
 
 **Dash Counts:** Opening (65), Subsection (57 with indent), Closing (60)
+
+---
+
+## Regional Structure Components
+
+Each region has three parts:
+
+1. **Opening Tag** - Marks region start (includes `#Region` for code folding)
+   - JavaScript: 60 chars total
+   - CSS: 60 chars total  
+   - HTML: 65 chars total
+
+2. **Section Divider** - Separates header from content
+   - JavaScript: 56 dashes (with 4-space indent)
+   - CSS: 56 dashes (with 4-space indent)
+   - HTML: Uses BLOCK TYPE line instead
+
+3. **Closing Tag** - Marks region end
+   - JavaScript: 50 dashes
+   - CSS: 50 dashes
+   - HTML: 60 dashes
+
+### Block Type Labels
+
+Use specific descriptive labels based on context:
+- **JavaScript/CSS:** MODULE, FUNCTION, HELPER FUNCTION, CLASS, METHOD, DATA, CONSTANTS, STATE, API, EVENTS, INITIALIZATION
+- **HTML:** REGION (for major sections), UI HEADER, UI NAVIGATION, UI MAIN, UI SECTION, UI PANEL, UI MODAL, UI FOOTER
 
 ---
 

@@ -18,6 +18,13 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 0.2.0
+// - Project Index System
+//   - Replaced hardcoded project mappings with dynamic index lookup
+//   - guessProjectFolderName() now uses AppConfiguration__ProjectKeysIndex__.json
+//   - Maintains fallback patterns for unlisted projects
+//   - No code changes needed to add new projects
+//
 // 31-Jan-2026 - Version 0.1.2
 // - Code Organization Refactoring
 //   - Broke down file into 9 logical sub-regions
@@ -239,37 +246,24 @@
         // ------------------------------------------------------------
         async function guessProjectFolderName(projectCode, year, basePath) {
             // Return common naming patterns to try
-            // These are based on existing project structures
             const patterns = [];
-
-            // Try fetching a directory listing (won't work on GitHub Pages)
-            // So we'll use known patterns from the codebase
-            
-            // Pattern 1: JH03__ProjectName
-            patterns.push(`${projectCode}__ExampleProjectStructure`);
-            
-            // Pattern 2: Common real project patterns
-            // We'll generate likely names based on projectCode
             const code = projectCode.toUpperCase();
             
-            // Add generic patterns
-            patterns.push(`${code}`);
-            patterns.push(`${code}__Project`);
+            // PRIORITY 1: Try loading from project index
+            const configManager = window.NaProjectAdmin.ConfigManager;
+            const projectIndex = configManager?.getProjectIndex();
             
-            // Add patterns based on existing projects in the codebase
-            const knownProjects = {
-                'JH03': 'JH03__RomerCottage',
-                'GA06': 'GA06_-_Cloves-Wood',
-                'RJ03': 'RJ03__OundleDrive',
-                'SB03': 'SB03_-_Patterdale-Close',
-                'SM05': 'SM05_-_Wollaton-Vale',
-                'AA00': 'AA00__ExampleProjectStructure'
-            };
-
-            if (knownProjects[code]) {
-                patterns.unshift(knownProjects[code]);               // <-- Add known project first
+            if (projectIndex?.[year]?.[code]) {
+                patterns.unshift(projectIndex[year][code]);          // <-- Index lookup (highest priority)
+                console.log(`[App] Found project in index: ${year}/${code} -> ${projectIndex[year][code]}`);
             }
-
+            
+            // PRIORITY 2: Fallback patterns for new/unlisted projects
+            // These allow the app to discover projects not yet in the index
+            patterns.push(`${code}__Project`);                       // <-- JH03__Project
+            patterns.push(`${code}_-_Project`);                      // <-- JH03_-_Project  
+            patterns.push(`${code}`);                                // <-- JH03 (exact match)
+            
             return patterns;
         }
         // ---------------------------------------------------------------

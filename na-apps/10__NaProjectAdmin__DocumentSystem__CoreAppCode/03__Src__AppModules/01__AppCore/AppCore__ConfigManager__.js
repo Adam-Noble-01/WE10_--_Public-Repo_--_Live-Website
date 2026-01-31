@@ -18,6 +18,12 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.1.0
+// - Project Index Support
+//   - Added project index loading from AppConfiguration__ProjectKeysIndex__.json
+//   - Added getProjectIndex() and getProjectFolderName() methods
+//   - Automatic project index loading after main config loads
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - Configuration loading implementation
@@ -34,13 +40,17 @@
 
         // CONSTANTS | Configuration Paths
         // ------------------------------------------------------------
-        const CONFIG_PATH = '03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json';
+        const CONFIG_PATH        = '03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json';
+        const PROJECT_INDEX_PATH = '03__Src__AppModules/02__AppData/AppConfiguration__ProjectKeysIndex__.json';
 
         // STATE | Module Variables
         // ------------------------------------------------------------
         let appConfig                = null;                         // <-- Loaded configuration
         let configLoadPromise        = null;                         // <-- Loading promise
         let isConfigLoaded           = false;                        // <-- Load state flag
+        let projectIndex             = null;                         // <-- Project keys index
+        let projectIndexLoadPromise  = null;                         // <-- Index loading promise
+        let isProjectIndexLoaded     = false;                        // <-- Index load state
 
         // FUNCTION | Load Configuration
         // ------------------------------------------------------------
@@ -65,6 +75,11 @@
 
                     console.log('[ConfigManager] Configuration loaded successfully');
                     
+                    // Load project index after main config loads
+                    loadProjectIndex().catch(err => {
+                        console.warn('[ConfigManager] Project index not available:', err.message);
+                    });
+                    
                     // Dispatch event to notify other modules
                     window.dispatchEvent(new CustomEvent('configLoaded', {
                         detail: { config: appConfig }
@@ -80,6 +95,47 @@
             })();
 
             return configLoadPromise;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Load Project Index
+        // ------------------------------------------------------------
+        async function loadProjectIndex() {
+            // Return existing promise if loading in progress
+            if (projectIndexLoadPromise) {
+                return projectIndexLoadPromise;
+            }
+
+            projectIndexLoadPromise = (async function() {
+                try {
+                    console.log('[ConfigManager] Loading project index...');
+                    
+                    const response = await fetch(PROJECT_INDEX_PATH);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    projectIndex = await response.json();
+                    isProjectIndexLoaded = true;
+
+                    console.log('[ConfigManager] Project index loaded successfully');
+                    
+                    // Dispatch event to notify other modules
+                    window.dispatchEvent(new CustomEvent('projectIndexLoaded', {
+                        detail: { projectIndex: projectIndex }
+                    }));
+
+                    return projectIndex;
+
+                } catch (error) {
+                    console.error('[ConfigManager] Failed to load project index:', error);
+                    isProjectIndexLoaded = false;
+                    throw error;
+                }
+            })();
+
+            return projectIndexLoadPromise;
         }
         // ---------------------------------------------------------------
 
@@ -160,17 +216,60 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Get Project Index
+        // ------------------------------------------------------------
+        function getProjectIndex() {
+            if (!isProjectIndexLoaded) {
+                console.warn('[ConfigManager] Project index not loaded yet');
+                return null;
+            }
+            return projectIndex;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Get Project Folder Name
+        // ------------------------------------------------------------
+        function getProjectFolderName(projectCode, year) {
+            if (!isProjectIndexLoaded || !projectIndex) {
+                return null;
+            }
+
+            const code = projectCode.toUpperCase();
+            return projectIndex?.[year]?.[code] || null;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Wait for Project Index to Load
+        // ------------------------------------------------------------
+        async function waitForProjectIndex() {
+            if (isProjectIndexLoaded === true) {
+                return projectIndex;
+            }
+            
+            if (projectIndexLoadPromise) {
+                return await projectIndexLoadPromise;
+            }
+
+            // If not loading yet, start loading
+            return await loadProjectIndex();
+        }
+        // ---------------------------------------------------------------
+
         // API EXPORT | Public Interface
         // ------------------------------------------------------------
         window.NaProjectAdmin = window.NaProjectAdmin || {};
         
         window.NaProjectAdmin.ConfigManager = {
             loadConfiguration    : loadConfiguration,
+            loadProjectIndex     : loadProjectIndex,
             getValue             : getValue,
             getBoolean           : getBoolean,
             getConfig            : getConfig,
+            getProjectIndex      : getProjectIndex,
+            getProjectFolderName : getProjectFolderName,
             isLoaded             : isLoaded,
-            waitForConfig        : waitForConfig
+            waitForConfig        : waitForConfig,
+            waitForProjectIndex  : waitForProjectIndex
         };
 
         // Mark module as loaded

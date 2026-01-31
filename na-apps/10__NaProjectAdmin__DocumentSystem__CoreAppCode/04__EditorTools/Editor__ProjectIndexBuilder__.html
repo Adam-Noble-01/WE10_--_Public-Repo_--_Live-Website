@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Head                            -->
+<!-- -------------------------------------------------- -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Index Builder | Noble Architecture</title>
+    <link rel="icon" type="image/x-icon"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
+</head>
+<!-- endregion ---------------------------------------- -->
+
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Body                            -->
+<!-- -------------------------------------------------- -->
+
+<body>
+
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI HEADER | Application Header                    -->
+    <!-- -------------------------------------------------- -->
+    <header class="app-header">
+        <h1>Project Index Builder</h1>
+        <div>
+            <button class="btn btn--secondary" onclick="scanProjects()">Scan Projects</button>
+            <button class="btn btn--secondary" onclick="loadFromFile()">Load Index</button>
+            <button class="btn btn--primary" onclick="downloadJson()">Download Index</button>
+        </div>
+    </header>
+    <!-- endregion ---------------------------------------- -->
+
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI MAIN | Main Content Container                  -->
+    <!-- -------------------------------------------------- -->
+    <div class="main-container">
+
+        <!-- #Region -------------------------------------- -->
+        <!-- UI PANEL | Editor Panel                       -->
+        <!-- ---------------------------------------------- -->
+        <div class="panel" style="grid-column: 1 / -1;">
+            <div class="panel__header">Project Index Configuration</div>
+            <div class="panel__body">
+                <div class="info-box">
+                    <strong>Project Index File</strong><br>
+                    This file maps project codes to their folder names. Save it as
+                    <code>AppConfiguration__ProjectKeysIndex__.json</code> in the
+                    <code>03__Src__AppModules/02__AppData/</code> directory.
+                </div>
+
+                <h3 class="section-heading section-heading--first">Auto-Discovery</h3>
+
+                <div class="info-box">
+                    <strong>How to use:</strong><br>
+                    1. Click "Scan Projects" and select the <code>na-project-portal</code> directory<br>
+                    2. The tool will search for valid projects (those with ProjectAdmin__ProjectConfig__.json)<br>
+                    3. Review discovered projects in the table below<br>
+                    4. Manually add/edit/remove entries as needed<br>
+                    5. Click "Download Index" to save the configuration file
+                </div>
+
+                <div class="warning-box">
+                    <strong>Browser Compatibility Note</strong><br>
+                    Auto-scanning requires the File System Access API (Chrome/Edge 86+, Opera 72+).
+                    If your browser doesn't support it, you can manually add projects using the form below.
+                </div>
+
+                <h3 class="section-heading">Discovered Projects</h3>
+
+                <div id="projectsContainer">
+                    <table class="projects-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Project Code</th>
+                                <th>Folder Name</th>
+                                <th>Client Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: #888; padding: 2rem;">
+                                    No projects loaded. Click "Scan Projects" to discover them automatically.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="section-heading">Manual Entry</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="manualYear">Year</label>
+                        <input type="text" id="manualYear" class="form-input" placeholder="26" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualCode">Project Code</label>
+                        <input type="text" id="manualCode" class="form-input" placeholder="JS01" maxlength="4">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="manualFolder">Folder Name</label>
+                        <input type="text" id="manualFolder" class="form-input" placeholder="JS01__JohnSmith">
+                    </div>
+                    <div class="form-group" style="align-self: flex-end;">
+                        <button class="btn btn--secondary" onclick="addManualProject()">Add Project</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- endregion ------------------------------------ -->
+
+        <!-- #Region -------------------------------------- -->
+        <!-- UI PANEL | Output Panel                       -->
+        <!-- ---------------------------------------------- -->
+        <div class="panel" style="grid-column: 1 / -1;">
+            <div class="panel__header">JSON Output</div>
+            <div class="panel__body">
+                <p class="help-text">
+                    Save this as <code>AppConfiguration__ProjectKeysIndex__.json</code> in
+                    <code>03__Src__AppModules/02__AppData/</code>.
+                </p>
+                <div class="actions-bar">
+                    <button class="btn btn--primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+                </div>
+                <pre id="jsonOutput" class="json-output">{}</pre>
+            </div>
+        </div>
+        <!-- endregion ------------------------------------ -->
+
+    </div>
+    <!-- endregion ---------------------------------------- -->
+
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI HIDDEN | Hidden File Input                     -->
+    <!-- -------------------------------------------------- -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
+    <!-- endregion ---------------------------------------- -->
+
+</body>
+<!-- endregion ---------------------------------------- -->
+
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | JavaScript Logic                         -->
+<!-- -------------------------------------------------- -->
+
+<script>
+
+    // #Region ------------------------------------------------
+    // STATE | Application State
+    // --------------------------------------------------------
+
+    let projectsIndex = {};                                  // <-- Year -> ProjectCode -> FolderName
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // INITIALIZATION | DOM Ready
+    // --------------------------------------------------------
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updatePreview();
+        checkFileSystemAPISupport();
+    });
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // BROWSER COMPATIBILITY | Check API Support
+    // --------------------------------------------------------
+
+    function checkFileSystemAPISupport() {
+        if (!('showDirectoryPicker' in window)) {
+            console.warn('File System Access API not supported');
+            const warningBox = document.querySelector('.warning-box');
+            if (warningBox) {
+                warningBox.style.display = 'block';
+                warningBox.style.borderColor = '#e74c3c';
+            }
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // PROJECT SCANNING | Auto-Discovery
+    // --------------------------------------------------------
+
+    async function scanProjects() {
+        if (!('showDirectoryPicker' in window)) {
+            alert('Your browser does not support the File System Access API.\nPlease use Chrome, Edge, or Opera, or add projects manually.');
+            return;
+        }
+
+        try {
+            const dirHandle = await window.showDirectoryPicker({
+                mode: 'read'
+            });
+
+            console.log('Scanning directory:', dirHandle.name);
+
+            const discovered = {};                           // <-- Temporary storage
+
+            // Iterate through year folders (e.g., 25-Projects, 26-Projects)
+            for await (const yearEntry of dirHandle.values()) {
+                if (yearEntry.kind !== 'directory') continue;
+
+                const yearMatch = yearEntry.name.match(/^(\d{2})-Projects$/);
+                if (!yearMatch) continue;
+
+                const year = yearMatch[1];
+                console.log('Scanning year:', year);
+
+                // Iterate through project folders within year
+                for await (const projectEntry of yearEntry.values()) {
+                    if (projectEntry.kind !== 'directory') continue;
+
+                    const folderName = projectEntry.name;
+
+                    // Try to find project config to validate it's a real project
+                    const projectData = await checkProjectFolder(projectEntry);
+
+                    if (projectData) {
+                        if (!discovered[year]) {
+                            discovered[year] = {};
+                        }
+                        discovered[year][projectData.code] = {
+                            folder: folderName,
+                            clientName: projectData.clientName
+                        };
+                        console.log(`Found project: ${year}/${projectData.code} -> ${folderName}`);
+                    }
+                }
+            }
+
+            // Update global state
+            projectsIndex = {};
+            for (const year in discovered) {
+                projectsIndex[year] = {};
+                for (const code in discovered[year]) {
+                    projectsIndex[year][code] = discovered[year][code].folder;
+                }
+            }
+
+            // Update UI
+            renderProjectsTable(discovered);
+            updatePreview();
+
+            alert(`Scan complete! Found ${Object.keys(discovered).reduce((sum, year) => sum + Object.keys(discovered[year]).length, 0)} projects.`);
+
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                console.log('User cancelled directory selection');
+            } else {
+                console.error('Scan error:', error);
+                alert('Failed to scan projects: ' + error.message);
+            }
+        }
+    }
+
+    // Check if a folder is a valid project
+    async function checkProjectFolder(dirHandle) {
+        try {
+            // Look for 10__ProjectAdmin__AppContent folder
+            const adminHandle = await dirHandle.getDirectoryHandle('10__ProjectAdmin__AppContent');
+
+            // Try to read ProjectAdmin__ProjectConfig__.json
+            const configHandle = await adminHandle.getFileHandle('ProjectAdmin__ProjectConfig__.json');
+            const configFile = await configHandle.getFile();
+            const configText = await configFile.text();
+            const configData = JSON.parse(configText);
+
+            return {
+                code: configData.projectCode,
+                clientName: configData.clientName || 'Unknown'
+            };
+
+        } catch (error) {
+            // Not a valid project folder
+            return null;
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // UI RENDERING | Display Projects Table
+    // --------------------------------------------------------
+
+    function renderProjectsTable(discovered) {
+        const tbody = document.getElementById('projectsTableBody');
+        tbody.innerHTML = '';
+
+        const years = Object.keys(discovered).sort().reverse(); // <-- Newest first
+
+        if (years.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #888; padding: 2rem;">
+                        No projects found. Try scanning again or add manually.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        for (const year of years) {
+            const projects = discovered[year];
+            const codes = Object.keys(projects).sort();
+
+            for (const code of codes) {
+                const project = projects[code];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${year}</td>
+                    <td><strong>${code}</strong></td>
+                    <td><code>${project.folder}</code></td>
+                    <td>${project.clientName || 'Unknown'}</td>
+                    <td>
+                        <button class="btn btn--small btn--danger" onclick="removeProject('${year}', '${code}')">Remove</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // MANUAL OPERATIONS | Add/Remove Projects
+    // --------------------------------------------------------
+
+    function addManualProject() {
+        const year = document.getElementById('manualYear').value.trim();
+        const code = document.getElementById('manualCode').value.trim().toUpperCase();
+        const folder = document.getElementById('manualFolder').value.trim();
+
+        if (!year || !code || !folder) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        // Validate format
+        if (!/^\d{2}$/.test(year)) {
+            alert('Year must be 2 digits (e.g., 26)');
+            return;
+        }
+
+        if (!/^[A-Z]{2}\d{2}$/.test(code)) {
+            alert('Project code must be 2 letters + 2 digits (e.g., JS01)');
+            return;
+        }
+
+        // Add to index
+        if (!projectsIndex[year]) {
+            projectsIndex[year] = {};
+        }
+        projectsIndex[year][code] = folder;
+
+        // Rebuild table
+        const discovered = {};
+        for (const y in projectsIndex) {
+            discovered[y] = {};
+            for (const c in projectsIndex[y]) {
+                discovered[y][c] = {
+                    folder: projectsIndex[y][c],
+                    clientName: 'Manual Entry'
+                };
+            }
+        }
+        renderProjectsTable(discovered);
+        updatePreview();
+
+        // Clear form
+        document.getElementById('manualYear').value = '';
+        document.getElementById('manualCode').value = '';
+        document.getElementById('manualFolder').value = '';
+
+        alert(`Added ${code} (${year}) -> ${folder}`);
+    }
+
+    function removeProject(year, code) {
+        if (!confirm(`Remove ${code} (${year})?`)) {
+            return;
+        }
+
+        delete projectsIndex[year][code];
+
+        // Remove year if empty
+        if (Object.keys(projectsIndex[year]).length === 0) {
+            delete projectsIndex[year];
+        }
+
+        // Rebuild table
+        const discovered = {};
+        for (const y in projectsIndex) {
+            discovered[y] = {};
+            for (const c in projectsIndex[y]) {
+                discovered[y][c] = {
+                    folder: projectsIndex[y][c],
+                    clientName: 'Unknown'
+                };
+            }
+        }
+        renderProjectsTable(discovered);
+        updatePreview();
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // JSON GENERATION | Build Index Object
+    // --------------------------------------------------------
+
+    function generateJson() {
+        // Sort by year
+        const sorted = {};
+        const years = Object.keys(projectsIndex).sort();
+
+        for (const year of years) {
+            sorted[year] = {};
+
+            // Sort by project code
+            const codes = Object.keys(projectsIndex[year]).sort();
+            for (const code of codes) {
+                sorted[year][code] = projectsIndex[year][code];
+            }
+        }
+
+        return sorted;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // UI ACTIONS | User Interface Updates
+    // --------------------------------------------------------
+
+    function updatePreview() {
+        const json = generateJson();
+
+        // Format with proper alignment
+        let jsonStr = JSON.stringify(json, null, 4);
+
+        // Adjust formatting for column alignment (Noble Architecture style)
+        jsonStr = jsonStr.replace(/"([A-Z0-9]{2,4})"\s*:\s*"([^"]+)"/g, (match, key, value) => {
+            const spaces = ' '.repeat(Math.max(1, 23 - key.length));
+            return `"${key}"${spaces}: "${value}"`;
+        });
+
+        document.getElementById('jsonOutput').textContent = jsonStr;
+    }
+
+    function copyToClipboard() {
+        const json = document.getElementById('jsonOutput').textContent;
+        navigator.clipboard.writeText(json).then(() => {
+            alert('JSON copied to clipboard!');
+        });
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // FILE OPERATIONS | Load and Save Functions
+    // --------------------------------------------------------
+
+    function downloadJson() {
+        const json = document.getElementById('jsonOutput').textContent;
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'AppConfiguration__ProjectKeysIndex__.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function loadFromFile() {
+        document.getElementById('fileInput').click();
+    }
+
+    function handleFileLoad(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                projectsIndex = data;
+
+                // Rebuild table
+                const discovered = {};
+                for (const y in projectsIndex) {
+                    discovered[y] = {};
+                    for (const c in projectsIndex[y]) {
+                        discovered[y][c] = {
+                            folder: projectsIndex[y][c],
+                            clientName: 'Loaded from file'
+                        };
+                    }
+                }
+                renderProjectsTable(discovered);
+                updatePreview();
+
+                alert('Index loaded successfully!');
+            } catch (error) {
+                alert('Failed to load file: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // endregion ----------------------------------------------
+
+</script>
+<!-- endregion ---------------------------------------- -->
+
+<style>
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .projects-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .projects-table th,
+    .projects-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .projects-table th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+    }
+
+    .projects-table tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .btn--small {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .btn--danger {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    .btn--danger:hover {
+        background-color: #c0392b;
+    }
+</style>
+
+</html>

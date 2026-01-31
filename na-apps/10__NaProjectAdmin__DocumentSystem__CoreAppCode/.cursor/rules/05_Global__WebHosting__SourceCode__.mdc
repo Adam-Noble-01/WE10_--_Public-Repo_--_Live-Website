@@ -47,12 +47,15 @@ Shared resources including fonts, graphics, and icons used across multiple Noble
 **GitHub Pages URL:**
 `https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/`
 
+**Asset Loading:**
+Assets are loaded dynamically via the `CommonUtils__AssetLoader__.js` module, which resolves absolute GitHub Pages URLs from configuration. This ensures CORS-free asset loading in both development and production.
+
 **Asset Structure:**
 ```
 01__Assets__NaApps__CommonAssets/
-├── NaApps__CommonFonts/
-├── NaApps__CommonGraphics/
-└── NaApps__CommonIcons/
+├── NaApps__CommonFonts/          (Loaded dynamically by AssetLoader)
+├── NaApps__CommonGraphics/       (Referenced via AssetLoader API)
+└── NaApps__CommonIcons/          (Auto-updated by AssetLoader)
 ```
 
 ---

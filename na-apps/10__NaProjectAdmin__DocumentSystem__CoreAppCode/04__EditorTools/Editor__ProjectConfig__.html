@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- ----- -->
-<!-- REGION | Document Head                                            -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Head                            -->
+<!-- -------------------------------------------------- -->
 
 <head>
     <meta charset="UTF-8">
@@ -13,17 +13,17 @@
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 </head>
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 
-<!-- ----- -->
-<!-- REGION | Document Body                                            -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Body                            -->
+<!-- -------------------------------------------------- -->
 
 <body>
 
-    <!-- ----- -->
-    <!-- UI HEADER | Application Header                                -->
-    <!-- ----- -->
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI HEADER | Application Header                    -->
+    <!-- -------------------------------------------------- -->
     <header class="app-header">
         <h1>Project Configuration Editor</h1>
         <div>
@@ -31,15 +31,16 @@
             <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
         </div>
     </header>
-    <!-- ----- -->
+    <!-- endregion ---------------------------------------- -->
 
-    <!-- ----- -->
-    <!-- UI MAIN | Main Content Container                              -->
-    <!-- ----- -->
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI MAIN | Main Content Container                  -->
+    <!-- -------------------------------------------------- -->
     <div class="main-container">
 
-        <!-- UI PANEL | Editor Panel                                   -->
-        <!-- --- -->
+        <!-- #Region -------------------------------------- -->
+        <!-- UI PANEL | Editor Panel                       -->
+        <!-- ---------------------------------------------- -->
         <div class="panel">
             <div class="panel__header">Project Configuration</div>
             <div class="panel__body">
@@ -107,10 +108,11 @@
                 </div>
             </div>
         </div>
-        <!-- --- -->
+        <!-- endregion ------------------------------------ -->
 
-        <!-- UI PANEL | Output Panel                                   -->
-        <!-- --- -->
+        <!-- #Region -------------------------------------- -->
+        <!-- UI PANEL | Output Panel                       -->
+        <!-- ---------------------------------------------- -->
         <div class="panel">
             <div class="panel__header">JSON Output</div>
             <div class="panel__body">
@@ -124,38 +126,38 @@
                 <pre id="jsonOutput" class="json-output">{}</pre>
             </div>
         </div>
-        <!-- --- -->
+        <!-- endregion ------------------------------------ -->
 
     </div>
-    <!-- ----- -->
+    <!-- endregion ---------------------------------------- -->
 
-    <!-- ----- -->
-    <!-- UI HIDDEN | Hidden File Input                                 -->
-    <!-- ----- -->
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI HIDDEN | Hidden File Input                     -->
+    <!-- -------------------------------------------------- -->
     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
-    <!-- ----- -->
+    <!-- endregion ---------------------------------------- -->
 
 </body>
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 
-<!-- ----- -->
-<!-- REGION | JavaScript Logic                                         -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | JavaScript Logic                         -->
+<!-- -------------------------------------------------- -->
 
 <script>
 
-    // #region -----
+    // #Region ------------------------------------------------
     // INITIALIZATION | DOM Ready
-    // -----
+    // --------------------------------------------------------
 
     // Initialise preview on load
     document.addEventListener('DOMContentLoaded', updatePreview);
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // VALIDATION | Input Validation
-    // -----
+    // --------------------------------------------------------
 
     // Validate project code format
     function validateProjectCode() {
@@ -173,11 +175,11 @@
         input.value = value;
     }
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // PIN OPERATIONS | PIN Generation and Hashing
-    // -----
+    // --------------------------------------------------------
 
     // Generate random 4-digit PIN
     function generatePin() {
@@ -207,11 +209,11 @@
         alert(`PIN "${pin}" has been hashed. Make sure to note the original PIN for client access.`);
     }
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // JSON GENERATION | Build Configuration Object
-    // -----
+    // --------------------------------------------------------
 
     // Generate configuration JSON
     function generateJson() {
@@ -232,11 +234,11 @@
         };
     }
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // UI ACTIONS | User Interface Updates
-    // -----
+    // --------------------------------------------------------
 
     // Update JSON preview display
     function updatePreview() {
@@ -252,11 +254,11 @@
         });
     }
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // FILE OPERATIONS | Load and Save Functions
-    // -----
+    // --------------------------------------------------------
 
     // Download configuration as JSON file
     function downloadJson() {
@@ -301,9 +303,9 @@
         reader.readAsText(file);
     }
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
 </script>
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 
 </html>

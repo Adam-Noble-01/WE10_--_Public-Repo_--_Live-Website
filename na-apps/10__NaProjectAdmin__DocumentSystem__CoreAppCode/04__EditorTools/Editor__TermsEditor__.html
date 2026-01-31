@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- ----- -->
-<!-- REGION | Document Head                                            -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Head                            -->
+<!-- -------------------------------------------------- -->
 
 <head>
     <meta charset="UTF-8">
@@ -13,17 +13,17 @@
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 </head>
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 
-<!-- ----- -->
-<!-- REGION | Document Body                                            -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Body                            -->
+<!-- -------------------------------------------------- -->
 
 <body>
 
-    <!-- ----- -->
-    <!-- UI HEADER | Application Header                                -->
-    <!-- ----- -->
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI HEADER | Application Header                    -->
+    <!-- -------------------------------------------------- -->
     <header class="app-header">
         <h1>Special Terms Editor</h1>
         <div>
@@ -31,15 +31,16 @@
             <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
         </div>
     </header>
-    <!-- ----- -->
+    <!-- endregion ---------------------------------------- -->
 
-    <!-- ----- -->
-    <!-- UI MAIN | Main Content Container                              -->
-    <!-- ----- -->
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI MAIN | Main Content Container                  -->
+    <!-- -------------------------------------------------- -->
     <div class="main-container">
 
-        <!-- UI PANEL | Editor Panel                                   -->
-        <!-- --- -->
+        <!-- #Region -------------------------------------- -->
+        <!-- UI PANEL | Editor Panel                       -->
+        <!-- ---------------------------------------------- -->
         <div class="panel">
             <div class="panel__header">Edit Special Terms</div>
             <div class="panel__body">
@@ -67,10 +68,11 @@
                 <button class="btn btn--secondary" onclick="addTerm()">+ Add Term</button>
             </div>
         </div>
-        <!-- --- -->
+        <!-- endregion ------------------------------------ -->
 
-        <!-- UI PANEL | Output Panel                                   -->
-        <!-- --- -->
+        <!-- #Region -------------------------------------- -->
+        <!-- UI PANEL | Output Panel                       -->
+        <!-- ---------------------------------------------- -->
         <div class="panel">
             <div class="panel__header">Output</div>
             <div class="panel__body">
@@ -99,89 +101,89 @@
                 </div>
             </div>
         </div>
-        <!-- --- -->
+        <!-- endregion ------------------------------------ -->
 
     </div>
-    <!-- ----- -->
+    <!-- endregion ---------------------------------------- -->
 
-    <!-- ----- -->
-    <!-- UI HIDDEN | Hidden File Input                                 -->
-    <!-- ----- -->
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI HIDDEN | Hidden File Input                     -->
+    <!-- -------------------------------------------------- -->
     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
-    <!-- ----- -->
+    <!-- endregion ---------------------------------------- -->
 
 </body>
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 
-<!-- ----- -->
-<!-- REGION | JavaScript Logic                                         -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | JavaScript Logic                         -->
+<!-- -------------------------------------------------- -->
 
 <script>
 
-    // #region -----
+    // #Region ------------------------------------------------
     // STATE | Application State
-    // -----
+    // --------------------------------------------------------
 
-        let terms = [];                                                  // <-- Terms array
-        let termId = 0;                                                  // <-- ID counter
+    let terms = [];                                                  // <-- Terms array
+    let termId = 0;                                                  // <-- ID counter
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // INITIALIZATION | DOM Ready
-    // -----
+    // --------------------------------------------------------
 
-        // Initialise editor on load
-        document.addEventListener('DOMContentLoaded', function () {
-            addTerm();
-            updatePreview();
-        });
+    // Initialise editor on load
+    document.addEventListener('DOMContentLoaded', function () {
+        addTerm();
+        updatePreview();
+    });
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // TERMS MANAGEMENT | Add, Remove, Update Terms
-    // -----
+    // --------------------------------------------------------
 
-        // Add new term
-        function addTerm() {
-            const id = ++termId;
-            terms.push({
-                id: id,
-                title: '',
-                content: ''
-            });
-            renderTerms();
-        }
+    // Add new term
+    function addTerm() {
+        const id = ++termId;
+        terms.push({
+            id: id,
+            title: '',
+            content: ''
+        });
+        renderTerms();
+    }
 
-        // Remove term
-        function removeTerm(id) {
-            terms = terms.filter(term => term.id !== id);
-            renderTerms();
+    // Remove term
+    function removeTerm(id) {
+        terms = terms.filter(term => term.id !== id);
+        renderTerms();
+        updatePreview();
+    }
+
+    // Update term
+    function updateTerm(id, field, value) {
+        const term = terms.find(t => t.id === id);
+        if (term) {
+            term[field] = value;
             updatePreview();
         }
+    }
 
-        // Update term
-        function updateTerm(id, field, value) {
-            const term = terms.find(t => t.id === id);
-            if (term) {
-                term[field] = value;
-                updatePreview();
-            }
-        }
+    // endregion ----------------------------------------------
 
-    // endregion -----
-
-    // #region -----
+    // #Region ------------------------------------------------
     // RENDERING | Display Terms
-    // -----
+    // --------------------------------------------------------
 
-        // Render terms form
-        function renderTerms() {
-            const container = document.getElementById('termsContainer');
+    // Render terms form
+    function renderTerms() {
+        const container = document.getElementById('termsContainer');
 
-            container.innerHTML = terms.map((term, index) => `
+        container.innerHTML = terms.map((term, index) => `
                 <div class="term-item" data-id="${term.id}">
                     <div class="term-item__header">
                         <span class="term-item__number">Term ${index + 1}</span>
@@ -200,136 +202,136 @@
                     </div>
                 </div>
             `).join('');
-        }
+    }
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // UI ACTIONS | User Interface Updates
-    // -----
+    // --------------------------------------------------------
 
-        // Switch between preview and JSON tabs
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    // Switch between preview and JSON tabs
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-            document.querySelector(`.tab:nth-child(${tabName === 'preview' ? 1 : 2})`).classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
-        }
+        document.querySelector(`.tab:nth-child(${tabName === 'preview' ? 1 : 2})`).classList.add('active');
+        document.getElementById(tabName + 'Tab').classList.add('active');
+    }
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // JSON GENERATION | Build Terms Object
-    // -----
+    // --------------------------------------------------------
 
-        // Generate terms JSON
-        function generateJson() {
-            return {
-                sectionTitle: document.getElementById('sectionTitle').value,
-                introduction: document.getElementById('introduction').value || undefined,
-                terms: terms.filter(t => t.title || t.content).map(t => ({
-                    title: t.title,
-                    content: t.content
-                })),
-                lastUpdated: new Date().toISOString()
-            };
-        }
+    // Generate terms JSON
+    function generateJson() {
+        return {
+            sectionTitle: document.getElementById('sectionTitle').value,
+            introduction: document.getElementById('introduction').value || undefined,
+            terms: terms.filter(t => t.title || t.content).map(t => ({
+                title: t.title,
+                content: t.content
+            })),
+            lastUpdated: new Date().toISOString()
+        };
+    }
+
+    // Update preview
+    function updatePreview() {
+        const data = generateJson();
 
         // Update preview
-        function updatePreview() {
-            const data = generateJson();
+        document.getElementById('previewTitle').textContent = data.sectionTitle || 'Special Terms';
 
-            // Update preview
-            document.getElementById('previewTitle').textContent = data.sectionTitle || 'Special Terms';
+        const introEl = document.getElementById('previewIntro');
+        introEl.innerHTML = data.introduction
+            ? `<p style="margin-bottom: 1rem;">${data.introduction}</p>`
+            : '';
 
-            const introEl = document.getElementById('previewIntro');
-            introEl.innerHTML = data.introduction
-                ? `<p style="margin-bottom: 1rem;">${data.introduction}</p>`
-                : '';
-
-            const termsEl = document.getElementById('previewTerms');
-            termsEl.innerHTML = data.terms.map(term => `
+        const termsEl = document.getElementById('previewTerms');
+        termsEl.innerHTML = data.terms.map(term => `
                 <div class="preview-term">
                     ${term.title ? `<div class="preview-term__title">${term.title}</div>` : ''}
                     <div class="preview-term__content">${term.content || ''}</div>
                 </div>
             `).join('');
 
-            // Update JSON
-            document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 4);
-        }
+        // Update JSON
+        document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 4);
+    }
 
-        // Copy to clipboard
-        function copyToClipboard() {
-            const json = document.getElementById('jsonOutput').textContent;
-            navigator.clipboard.writeText(json).then(() => {
-                alert('JSON copied to clipboard!');
-            });
-        }
+    // Copy to clipboard
+    function copyToClipboard() {
+        const json = document.getElementById('jsonOutput').textContent;
+        navigator.clipboard.writeText(json).then(() => {
+            alert('JSON copied to clipboard!');
+        });
+    }
 
-    // endregion -----
+    // endregion ----------------------------------------------
 
-    // #region -----
+    // #Region ------------------------------------------------
     // FILE OPERATIONS | Load and Save Functions
-    // -----
+    // --------------------------------------------------------
 
-        // Download terms as JSON file
-        function downloadJson() {
-            const json = document.getElementById('jsonOutput').textContent;
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'ProjectAdmin__SpecialTerms__.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
+    // Download terms as JSON file
+    function downloadJson() {
+        const json = document.getElementById('jsonOutput').textContent;
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ProjectAdmin__SpecialTerms__.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
 
-        // Load from file
-        function loadFromFile() {
-            document.getElementById('fileInput').click();
-        }
+    // Load from file
+    function loadFromFile() {
+        document.getElementById('fileInput').click();
+    }
 
-        // Handle file load
-        function handleFileLoad(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+    // Handle file load
+    function handleFileLoad(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    const data = JSON.parse(e.target.result);
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = JSON.parse(e.target.result);
 
-                    document.getElementById('sectionTitle').value = data.sectionTitle || 'Special Terms for This Project';
-                    document.getElementById('introduction').value = data.introduction || '';
+                document.getElementById('sectionTitle').value = data.sectionTitle || 'Special Terms for This Project';
+                document.getElementById('introduction').value = data.introduction || '';
 
-                    terms = [];
-                    termId = 0;
+                terms = [];
+                termId = 0;
 
-                    if (data.terms && data.terms.length > 0) {
-                        data.terms.forEach(term => {
-                            terms.push({
-                                id: ++termId,
-                                title: term.title || '',
-                                content: term.content || ''
-                            });
+                if (data.terms && data.terms.length > 0) {
+                    data.terms.forEach(term => {
+                        terms.push({
+                            id: ++termId,
+                            title: term.title || '',
+                            content: term.content || ''
                         });
-                    }
-
-                    renderTerms();
-                    updatePreview();
-                    alert('Terms loaded successfully!');
-                } catch (error) {
-                    alert('Failed to load file: ' + error.message);
+                    });
                 }
-            };
-            reader.readAsText(file);
-        }
 
-    // endregion -----
+                renderTerms();
+                updatePreview();
+                alert('Terms loaded successfully!');
+            } catch (error) {
+                alert('Failed to load file: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // endregion ----------------------------------------------
 
 </script>
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 
 </html>

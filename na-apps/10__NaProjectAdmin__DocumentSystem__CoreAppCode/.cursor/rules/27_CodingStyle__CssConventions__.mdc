@@ -21,16 +21,16 @@ All CSS files must follow regional structure, column-aligned properties (at ~col
 ## Structure Example
 
 ```css
-/* -----
+/*  #Region ------------------------------------------------
  * REGION | CSS Variables
- * ----- */
+ * -------------------------------------------------------- */
 
     :root {
         --App_PrimaryColor         : #555041;            /* Brand color */
         --App_BackgroundLight      : #f5f5f5;            /* Light bg */
     }
 
-/* endregion ---- */
+/* endregion ---------------------------------------------- */
 ```
 
 ---
@@ -77,11 +77,34 @@ All CSS files must follow regional structure, column-aligned properties (at ~col
 
 ## Font Loading
 
+**Fonts are dynamically loaded by `CommonUtils__AssetLoader__.js` at runtime.**
+
+Do **NOT** use `@font-face` declarations in CSS files. The AssetLoader module automatically injects font CSS with absolute URLs.
+
 ```css
-@font-face {
-    font-family                : 'Open Sans';
+/*  #Region ------------------------------------------------
+ * REGION | Font Face Declarations
+ * -------------------------------------------------------- */
+
+    /* Fonts are dynamically loaded by CommonUtils__AssetLoader__.js */
+    /* This ensures absolute URLs work correctly on GitHub Pages */
+
+/* endregion ---------------------------------------------- */
+```
+
+**Font families available after AssetLoader initialization:**
+- `'Open Sans'` with weights: 300 (Light), 400 (Regular), 500 (Medium), 600 (SemiBold), 700 (Bold)
+
+**Usage in CSS:**
+```css
+body {
+    font-family                : 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight                : 400;
-    src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf') format('truetype');
+}
+
+.header-title {
+    font-family                : 'Open Sans';
+    font-weight                : 600;                    /* SemiBold */
 }
 ```
 
@@ -91,7 +114,7 @@ All CSS files must follow regional structure, column-aligned properties (at ~col
 
 ### ALWAYS
 - Include file header with `NOBLE ARCHITECTURE - [NAME]`
-- Use regional structure with 77-dash dividers
+- Use regional structure with 60-character opening (matches JavaScript standard)
 - Column-align property colons at ~column 40
 - Use 4-space indent within regions
 - Use CSS variables for colors, spacing, repeated values

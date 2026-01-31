@@ -9,7 +9,7 @@ alwaysApply: true
 `ProjectRootDirectory\03__Src__AppModules\`
   - `01__AppCore`  =  Orchestrator, ModuleDependencyManager, ConfigManager
   - `02__AppData`  =  JSON config files (AppConfiguration__MainAppSettings__.json)
-  - `03__CommonUtils` =  Validators, DateFormatter, helper functions
+  - `03__CommonUtils` =  Validators, DateFormatter, AssetLoader, helper functions
   - `10__UserInterface` =  Navigation, ModalManager, UI components
   - `20__DocumentSystem` =  QuotationRenderer, TermsRenderer, GeneralTerms.html
   - `30__Authentication` =  PinLogin, session management
@@ -38,10 +38,13 @@ alwaysApply: true
 
 ### Standard Loading Order
 1. **Configuration** (always first)
-2. **Core utilities** (validation, parsing, helpers)
+2. **Core utilities** (validation, parsing, helpers, AssetLoader)
 3. **Data loaders** (API, storage access)
 4. **Business logic** (features, processing)
 5. **UI/Presentation** (components, views)
+
+### Key Module: AssetLoader
+The `CommonUtils__AssetLoader__.js` module must be loaded early in the initialization sequence to resolve asset URLs before any content rendering occurs. It depends on ConfigManager being loaded and initialized first.
 
 ## ES6 Module System
 
@@ -71,7 +74,9 @@ export const API_METHODS = { initialize, dispose };
 │   └── AppData__AppConfiguration__MainAppSettings__.json
 |
 ├── 03__CommonUtils/
-│   └── CommonUtils__MathFunctions__.js
+│   └── CommonUtils__ProjectCodeValidator__.js
+│   └── CommonUtils__DateFormatter__.js
+│   └── CommonUtils__AssetLoader__.js
 |
 ├── 10__UserInterface/
 |    └── UserInterface__Main__.js

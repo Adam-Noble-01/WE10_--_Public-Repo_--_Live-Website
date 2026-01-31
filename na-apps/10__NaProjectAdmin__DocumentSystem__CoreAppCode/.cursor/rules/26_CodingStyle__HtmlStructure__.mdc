@@ -10,13 +10,13 @@ All HTML files must follow regional organization and 4-space indentation.
 ## Regional Structure
 
 ```html
-<!-- ----- -->
-<!-- REGION | Section Description                                      -->
-<!-- ----- -->
+<!-- #Region ------------------------------------------ -->
+<!-- BLOCK TYPE | Section Description                  -->
+<!-- -------------------------------------------------- -->
 
     <!-- Content (4-space indent) -->
 
-<!-- endregion ----- -->
+<!-- endregion ---------------------------------------- -->
 ```
 
 **Common Regions:** Document Head, Document Body, JavaScript Modules
@@ -38,10 +38,13 @@ All HTML files must follow regional organization and 4-space indentation.
     
     <title>Page Title - Noble Architecture</title>
     
+    <!-- Favicons: AssetLoader will convert these to absolute URLs -->
     <link rel="icon" href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="StyleSheet__Main__.css">
 </head>
 ```
+
+**Note:** Favicon paths use relative paths initially. The `AssetLoader` module automatically converts them to absolute GitHub Pages URLs on initialization.
 
 ---
 
@@ -98,20 +101,32 @@ Use semantic HTML5 elements: `<header>`, `<nav>`, `<main>`, `<article>`, `<secti
 ## Script Loading Order
 
 ```html
-<!-- REGION | JavaScript Modules -->
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | JavaScript Modules                       -->
+<!-- -------------------------------------------------- -->
     <!-- 1. Module Dependency Manager (FIRST) -->
-    <script src="AppCore__ModuleDependencyManager__.js"></script>
+    <script src="03__Src__AppModules/01__AppCore/AppCore__ModuleDependencyManager__.js"></script>
     
     <!-- 2. Configuration Manager -->
-    <script src="AppCore__ConfigManager__.js"></script>
+    <script src="03__Src__AppModules/01__AppCore/AppCore__ConfigManager__.js"></script>
     
-    <!-- 3. Core Application -->
-    <script src="AppCore__Main__.js"></script>
+    <!-- 3. Common Utilities (including AssetLoader) -->
+    <script src="03__Src__AppModules/03__CommonUtils/CommonUtils__ProjectCodeValidator__.js"></script>
+    <script src="03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
+    <script src="03__Src__AppModules/03__CommonUtils/CommonUtils__AssetLoader__.js"></script>
     
-    <!-- 4. Feature Modules -->
-    <script src="ProjectAdmin__DataLoader__.js"></script>
-<!-- endregion -->
+    <!-- 4. User Interface Modules -->
+    <script src="03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js"></script>
+    
+    <!-- 5. Feature Modules -->
+    <script src="03__Src__AppModules/20__DocumentSystem/DocumentSystem__QuotationRenderer__.js"></script>
+    
+    <!-- 6. Main Application Entry Point (LAST) -->
+    <script src="03__Src__AppModules/01__AppCore/AppCore__Main__.js"></script>
+<!-- endregion ---------------------------------------- -->
 ```
+
+**Critical:** `AssetLoader` must be loaded after `ConfigManager` but before any modules that reference assets.
 
 ---
 
