@@ -61,18 +61,18 @@
                 return false;
             }
 
-            // Set canvas size - use requestAnimationFrame to ensure element is visible
-            requestAnimationFrame(() => {
+            // Use setTimeout to ensure browser has finished rendering
+            // before we measure canvas dimensions
+            setTimeout(() => {
                 setupCanvasSize();
-            });
+                // Set up event listeners AFTER canvas size is set
+                setupEventListeners();
+                // Set up clear button
+                setupClearButton();
+                console.log('[SignatureCaptureCanvas] Initialised and ready');
+            }, 100);
 
-            // Set up event listeners
-            setupEventListeners();
-
-            // Set up clear button
-            setupClearButton();
-
-            console.log('[SignatureCaptureCanvas] Initialised');
+            console.log('[SignatureCaptureCanvas] Initialising...');
             return true;
         }
         // ---------------------------------------------------------------
@@ -88,13 +88,33 @@
 
             // Get the actual displayed size of the canvas
             const rect = canvas.getBoundingClientRect();
-            const displayWidth = rect.width || sigConfig?.canvasWidth || 600;
-            const displayHeight = rect.height || sigConfig?.canvasHeight || 200;
+            
+            // Use actual dimensions if available, otherwise use fallbacks
+            let displayWidth = rect.width;
+            let displayHeight = rect.height;
+
+            // If dimensions are zero, try parent element dimensions
+            if (!displayWidth || !displayHeight) {
+                const parent = canvas.parentElement;
+                if (parent) {
+                    const parentRect = parent.getBoundingClientRect();
+                    displayWidth = displayWidth || parentRect.width || sigConfig?.canvasWidth || 600;
+                    displayHeight = displayHeight || 200;                 // <-- Fixed height
+                }
+            }
+
+            // Final fallbacks
+            displayWidth = displayWidth || sigConfig?.canvasWidth || 600;
+            displayHeight = displayHeight || sigConfig?.canvasHeight || 200;
 
             // Set canvas internal dimensions to match display size
             // This ensures 1:1 pixel mapping for accurate drawing
             canvas.width = displayWidth;
             canvas.height = displayHeight;
+
+            // Also set explicit CSS dimensions to ensure rendering
+            canvas.style.width = displayWidth + 'px';
+            canvas.style.height = displayHeight + 'px';
 
             // Configure drawing style (must be done after setting dimensions)
             ctx.strokeStyle = sigConfig?.strokeColour || '#000000';
@@ -106,6 +126,7 @@
             clearCanvas();
 
             console.log('[SignatureCaptureCanvas] Canvas size set:', displayWidth, 'x', displayHeight);
+            console.log('[SignatureCaptureCanvas] Canvas rect:', rect.width, 'x', rect.height);
         }
         // ---------------------------------------------------------------
 
