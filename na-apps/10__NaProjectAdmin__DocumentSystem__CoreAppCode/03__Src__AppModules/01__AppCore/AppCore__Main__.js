@@ -73,11 +73,16 @@
                 await ModuleDependencyManager.waitForModules([
                     'ConfigManager',
                     'ProjectCodeValidator',
-                    'DateFormatter'
+                    'DateFormatter',
+                    'AssetLoader'
                 ], 5000);
 
                 // Load configuration
                 await window.NaProjectAdmin.ConfigManager.loadConfiguration();
+                
+                // Initialise Asset Loader with configuration
+                const appConfig = window.NaProjectAdmin.ConfigManager.getConfig();
+                await window.NaProjectAdmin.AssetLoader.initialise(appConfig);
 
                 // Parse URL parameters
                 const urlParams = parseUrlParameters();

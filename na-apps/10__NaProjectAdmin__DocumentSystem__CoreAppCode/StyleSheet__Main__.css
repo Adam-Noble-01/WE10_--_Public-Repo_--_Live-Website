@@ -7,40 +7,8 @@
  * REGION | Font Face Declarations
  * ----- */
 
-    @font-face {
-        font-family                : 'Open Sans';
-        font-weight                : 300;
-        font-style                 : normal;
-        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Light__.ttf') format('truetype');
-    }
-
-    @font-face {
-        font-family                : 'Open Sans';
-        font-weight                : 400;
-        font-style                 : normal;
-        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf') format('truetype');
-    }
-
-    @font-face {
-        font-family                : 'Open Sans';
-        font-weight                : 500;
-        font-style                 : normal;
-        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Medium__.ttf') format('truetype');
-    }
-
-    @font-face {
-        font-family                : 'Open Sans';
-        font-weight                : 600;
-        font-style                 : normal;
-        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__SemiBold__.ttf') format('truetype');
-    }
-
-    @font-face {
-        font-family                : 'Open Sans';
-        font-weight                : 700;
-        font-style                 : normal;
-        src                        : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Bold__.ttf') format('truetype');
-    }
+    /* Fonts are dynamically loaded by CommonUtils__AssetLoader__.js */
+    /* This ensures absolute URLs work correctly on GitHub Pages */
 
 /* endregion ---- */
 

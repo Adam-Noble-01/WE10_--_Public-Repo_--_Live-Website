@@ -78,14 +78,18 @@
         // ------------------------------------------------------------
         function renderHeader(data, companyDetails) {
             const dateFormatter = window.NaProjectAdmin.DateFormatter;
+            const assetLoader = window.NaProjectAdmin.AssetLoader;
             const quotationDate = data.quotationDate 
                 ? dateFormatter?.formatLong(data.quotationDate) || data.quotationDate
                 : dateFormatter?.formatLong(new Date()) || new Date().toLocaleDateString();
+            
+            const logoUrl = assetLoader?.getAssetUrl('GRAPHICS', 'NaBrandGraphic__CompanyLogo__w2048xh500px__.png') 
+                || '../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png';
 
             return `
                 <div class="document__header">
                     <div>
-                        <img src="../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png" 
+                        <img src="${logoUrl}" 
                              alt="${companyDetails?.companyName || 'Noble Architecture'}" 
                              class="document__logo">
                     </div>
