@@ -8,6 +8,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
     <title>Project Manager | Noble Architecture</title>
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
@@ -31,9 +33,7 @@
         <h1>Project Manager</h1>
         <div class="header-actions">
             <button class="btn btn--secondary" onclick="scanProjects()" id="btnScan">Scan Projects</button>
-            <button class="btn btn--secondary" onclick="loadFromFile()" id="btnLoadFile">Load Index</button>
             <button class="btn btn--primary" onclick="saveIndex()" id="btnSaveIndex">Save Index</button>
-            <button class="btn btn--primary" onclick="downloadJson()" id="btnDownload">Download Index</button>
         </div>
     </header>
     <!-- endregion ---------------------------------------- -->
@@ -46,7 +46,7 @@
         <!-- #Region -------------------------------------- -->
         <!-- UI PANEL | Create New Project                 -->
         <!-- ---------------------------------------------- -->
-        <div class="panel" style="grid-column: 1 / -1;" id="createProjectPanel">
+        <div class="panel" id="createProjectPanel">
             <div class="panel__header">Create New Project</div>
             <div class="panel__body">
                 <div class="info-box" id="flaskInfoBox"
@@ -95,7 +95,7 @@
         <!-- #Region -------------------------------------- -->
         <!-- UI PANEL | Projects List                      -->
         <!-- ---------------------------------------------- -->
-        <div class="panel" style="grid-column: 1 / -1;">
+        <div class="panel">
             <div class="panel__header">Project Index</div>
             <div class="panel__body">
                 <div class="info-box">
@@ -154,31 +154,7 @@
         </div>
         <!-- endregion ------------------------------------ -->
 
-        <!-- #Region -------------------------------------- -->
-        <!-- UI PANEL | Output Panel                       -->
-        <!-- ---------------------------------------------- -->
-        <div class="panel" style="grid-column: 1 / -1;">
-            <div class="panel__header">JSON Output</div>
-            <div class="panel__body">
-                <p class="help-text">
-                    Save this as <code>AppConfiguration__ProjectKeysIndex__.json</code> in
-                    <code>03__Src__AppModules/02__AppData/</code>.
-                </p>
-                <div class="actions-bar">
-                    <button class="btn btn--primary" onclick="copyToClipboard()">Copy to Clipboard</button>
-                </div>
-                <pre id="jsonOutput" class="json-output">{}</pre>
-            </div>
-        </div>
-        <!-- endregion ------------------------------------ -->
-
     </div>
-    <!-- endregion ---------------------------------------- -->
-
-    <!-- #Region ------------------------------------------ -->
-    <!-- UI HIDDEN | Hidden File Input                     -->
-    <!-- -------------------------------------------------- -->
-    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
     <!-- endregion ---------------------------------------- -->
 
 </body>
@@ -229,10 +205,8 @@
             }
 
             // Create status bar
-            NaEditorTools.createStatusBar();
+            await NaEditorTools.createStatusBar();
         }
-
-        updatePreview();
     });
 
     // Setup Flask mode UI
@@ -419,7 +393,6 @@
 
                 // Update UI
                 renderProjectsTable(result.projects);
-                updatePreview();
 
                 const projectCount = Object.keys(result.projects).reduce(
                     (sum, year) => sum + Object.keys(result.projects[year]).length, 0
@@ -484,7 +457,6 @@
             }
 
             renderProjectsTable(discovered);
-            updatePreview();
 
             const projectCount = Object.keys(discovered).reduce(
                 (sum, year) => sum + Object.keys(discovered[year]).length, 0
@@ -673,7 +645,6 @@
 
         input.style.display = 'none';
         display.style.display = 'inline';
-        updatePreview();
     }
 
     function cancelEdit(cell) {
@@ -740,7 +711,6 @@
         };
 
         renderProjectsTable(discoveredData);
-        updatePreview();
 
         document.getElementById('manualYear').value = '';
         document.getElementById('manualCode').value = '';
@@ -766,7 +736,6 @@
                 }
 
                 renderProjectsTable(discoveredData);
-                updatePreview();
 
                 NaEditorTools.showSuccessMessage(`Removed ${code} from index`);
             },
@@ -845,30 +814,6 @@
 
     // endregion ----------------------------------------------
 
-    // #Region ------------------------------------------------
-    // UI ACTIONS | User Interface Updates
-    // --------------------------------------------------------
-
-    function updatePreview() {
-        const json = generateJson();
-        let jsonStr = JSON.stringify(json, null, 4);
-
-        // Noble Architecture style column alignment
-        jsonStr = jsonStr.replace(/"([A-Z0-9]{2,4})"\s*:\s*"([^"]+)"/g, (match, key, value) => {
-            const spaces = ' '.repeat(Math.max(1, 23 - key.length));
-            return `"${key}"${spaces}: "${value}"`;
-        });
-
-        document.getElementById('jsonOutput').textContent = jsonStr;
-    }
-
-    function copyToClipboard() {
-        const json = document.getElementById('jsonOutput').textContent;
-        navigator.clipboard.writeText(json).then(() => {
-            NaEditorTools?.showSuccessMessage('JSON copied to clipboard!');
-        });
-    }
-
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
@@ -878,7 +823,6 @@
     async function saveIndex() {
         if (!isFlaskMode) {
             NaEditorTools?.showErrorMessage('Flask server required to save index');
-            downloadJson();
             return;
         }
 
@@ -900,57 +844,6 @@
             null,
             { confirmText: 'Save Index', cancelText: 'Cancel' }
         );
-    }
-
-    function downloadJson() {
-        const json = document.getElementById('jsonOutput').textContent;
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = INDEX_FILENAME;
-        a.click();
-        URL.revokeObjectURL(url);
-
-        NaEditorTools?.showSuccessMessage('Index file downloaded');
-    }
-
-    function loadFromFile() {
-        document.getElementById('fileInput').click();
-    }
-
-    function handleFileLoad(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                projectsIndex = data;
-
-                discoveredData = {};
-                for (const y in projectsIndex) {
-                    discoveredData[y] = {};
-                    for (const c in projectsIndex[y]) {
-                        discoveredData[y][c] = {
-                            folder: projectsIndex[y][c],
-                            clientName: 'Loaded from file'
-                        };
-                    }
-                }
-
-                renderProjectsTable(discoveredData);
-                updatePreview();
-
-                NaEditorTools?.showSuccessMessage('Index loaded from file');
-            } catch (error) {
-                NaEditorTools?.showErrorMessage('Failed to load file: ' + error.message);
-            }
-        };
-        reader.readAsText(file);
-
-        event.target.value = '';
     }
 
     // endregion ----------------------------------------------

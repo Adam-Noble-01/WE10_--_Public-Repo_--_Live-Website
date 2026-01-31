@@ -8,6 +8,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
     <title>Project Configuration Editor | Noble Architecture</title>
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
@@ -32,12 +34,10 @@
     <header class="app-header">
         <h1>Project Configuration Editor</h1>
         <div class="header-actions">
-            <button class="btn btn--secondary" onclick="loadFromFile()" id="btnLoadFile">Load JSON</button>
             <button class="btn btn--secondary" onclick="loadFromProject()" id="btnLoadProject"
                 style="display: none;">Load from Project</button>
             <button class="btn btn--primary" onclick="saveToProject()" id="btnSaveProject" style="display: none;">Save
                 to Project</button>
-            <button class="btn btn--primary" onclick="downloadJson()" id="btnDownload">Download JSON</button>
         </div>
     </header>
     <!-- endregion ---------------------------------------- -->
@@ -87,6 +87,50 @@
                         onchange="updatePreview(); markFormDirty()">
                 </div>
 
+                <div class="form-group">
+                    <label for="projectDescription">Project Description</label>
+                    <textarea id="projectDescription" class="form-input"
+                        placeholder="e.g., Two-storey rear extension with open-plan kitchen/dining area"
+                        onchange="updatePreview(); markFormDirty()"></textarea>
+                </div>
+
+                <h3 class="section-heading">Site Address</h3>
+
+                <div class="info-box">
+                    <strong>Privacy Notice</strong><br>
+                    Site address is encrypted when saved to protect client anonymity.
+                </div>
+
+                <div class="form-group">
+                    <label for="siteHouseNameNo">House Name / No.</label>
+                    <input type="text" id="siteHouseNameNo" class="form-input" placeholder="e.g., 42 or The Old Rectory"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="siteStreet">Street</label>
+                    <input type="text" id="siteStreet" class="form-input" placeholder="e.g., Meadow Lane"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="siteDistrict">District / Town / City</label>
+                    <input type="text" id="siteDistrict" class="form-input" placeholder="e.g., Nottingham"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="siteCounty">County</label>
+                    <input type="text" id="siteCounty" class="form-input" placeholder="e.g., Nottinghamshire"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="sitePostcode">Postcode</label>
+                    <input type="text" id="sitePostcode" class="form-input" placeholder="e.g., NG2 3BQ"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
                 <h3 class="section-heading">Access Control</h3>
 
                 <div class="warning-box">
@@ -122,35 +166,21 @@
                         Special terms available
                     </label>
                 </div>
-            </div>
-        </div>
-        <!-- endregion ------------------------------------ -->
 
-        <!-- #Region -------------------------------------- -->
-        <!-- UI PANEL | Output Panel                       -->
-        <!-- ---------------------------------------------- -->
-        <div class="panel">
-            <div class="panel__header">JSON Output</div>
-            <div class="panel__body">
-                <p class="help-text">
-                    Save this as <code>ProjectAdmin__ProjectConfig__.json</code> in the project's
-                    <code>10__ProjectAdmin__AppContent</code> folder.
-                </p>
-                <div class="actions-bar">
-                    <button class="btn btn--primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+                <h3 class="section-heading">Special Notes</h3>
+
+                <div class="form-group">
+                    <label for="specialNotes">Internal Notes</label>
+                    <textarea id="specialNotes" class="form-input"
+                        placeholder="e.g., Client prefers morning site visits, parking available on drive"
+                        onchange="updatePreview(); markFormDirty()"></textarea>
+                    <div class="form-hint">Internal notes - not shown to clients</div>
                 </div>
-                <pre id="jsonOutput" class="json-output">{}</pre>
             </div>
         </div>
         <!-- endregion ------------------------------------ -->
 
     </div>
-    <!-- endregion ---------------------------------------- -->
-
-    <!-- #Region ------------------------------------------ -->
-    <!-- UI HIDDEN | Hidden File Input                     -->
-    <!-- -------------------------------------------------- -->
-    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
     <!-- endregion ---------------------------------------- -->
 
 </body>
@@ -208,7 +238,7 @@
             NaEditorTools.setupUnsavedChangesWarning();
 
             // Create status bar
-            NaEditorTools.createStatusBar();
+            await NaEditorTools.createStatusBar();
         }
 
         updatePreview();
@@ -253,9 +283,23 @@
         document.getElementById('projectCode').value = data.projectCode || '';
         document.getElementById('projectName').value = data.projectName || '';
         document.getElementById('clientName').value = data.clientName || '';
+        document.getElementById('projectDescription').value = data.projectDescription || '';
         document.getElementById('projectPin').value = data.projectPin || '';
         document.getElementById('hasQuotation').checked = data.documents?.quotation || false;
         document.getElementById('hasSpecialTerms').checked = data.documents?.specialTerms || false;
+        document.getElementById('specialNotes').value = data.specialNotes || '';
+
+        // Decrypt and populate site address
+        if (data.siteAddress && window.NaEditorTools) {
+            const address = NaEditorTools.decryptAddress(data.siteAddress);
+            if (address) {
+                document.getElementById('siteHouseNameNo').value = address.houseNameNo || '';
+                document.getElementById('siteStreet').value = address.street || '';
+                document.getElementById('siteDistrict').value = address.district || '';
+                document.getElementById('siteCounty').value = address.county || '';
+                document.getElementById('sitePostcode').value = address.postcode || '';
+            }
+        }
 
         updatePreview();
 
@@ -344,10 +388,30 @@
         const nowUK = window.NaProjectAdmin?.DateFormatter?.nowUK?.() || new Date().toLocaleDateString('en-GB');
         const nowUKTime = window.NaProjectAdmin?.DateFormatter?.nowUKWithTime?.() || new Date().toLocaleString('en-GB');
 
+        // Build address object
+        const addressObj = {
+            houseNameNo: document.getElementById('siteHouseNameNo').value,
+            street: document.getElementById('siteStreet').value,
+            district: document.getElementById('siteDistrict').value,
+            county: document.getElementById('siteCounty').value,
+            postcode: document.getElementById('sitePostcode').value
+        };
+
+        // Check if address has any content
+        const hasAddress = Object.values(addressObj).some(v => v && v.trim());
+
+        // Encrypt address if it has content
+        const encryptedAddress = hasAddress && window.NaEditorTools
+            ? NaEditorTools.encryptAddress(addressObj)
+            : null;
+
         return {
             projectCode: projectCode || undefined,
             projectName: document.getElementById('projectName').value || `Project ${projectCode}`,
             clientName: document.getElementById('clientName').value || undefined,
+            projectDescription: document.getElementById('projectDescription').value || undefined,
+            siteAddress: encryptedAddress,
+            specialNotes: document.getElementById('specialNotes').value || undefined,
             projectPin: pin || null,
             documents: {
                 quotation: document.getElementById('hasQuotation').checked,
@@ -364,22 +428,9 @@
     // UI ACTIONS | User Interface Updates
     // --------------------------------------------------------
 
-    // Update JSON preview display
+    // Update form validation state
     function updatePreview() {
-        const json = generateJson();
-        document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 4);
-    }
-
-    // Copy to clipboard
-    function copyToClipboard() {
-        const json = document.getElementById('jsonOutput').textContent;
-        navigator.clipboard.writeText(json).then(() => {
-            if (window.NaEditorTools) {
-                NaEditorTools.showSuccessMessage('JSON copied to clipboard!');
-            } else {
-                alert('JSON copied to clipboard!');
-            }
-        });
+        // Kept for form validation triggers - no longer renders JSON
     }
 
     // endregion ----------------------------------------------
@@ -453,91 +504,9 @@
         );
     }
 
-    // Download configuration as JSON file
-    function downloadJson() {
-        const json = document.getElementById('jsonOutput').textContent;
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = CONFIG_FILENAME;
-        a.click();
-        URL.revokeObjectURL(url);
-
-        if (window.NaEditorTools) {
-            NaEditorTools.showSuccessMessage('File downloaded');
-        }
-    }
-
-    // Load from file (local file picker)
-    function loadFromFile() {
-        // Check for unsaved changes
-        if (window.NaEditorTools?.hasUnsavedChanges()) {
-            NaEditorTools.showSaveConfirmDialog(
-                CONFIG_FILENAME,
-                async () => {
-                    // Save first (if Flask available)
-                    if (isFlaskMode) {
-                        await saveToProject();
-                    }
-                    document.getElementById('fileInput').click();
-                },
-                () => {
-                    // Discard and load
-                    document.getElementById('fileInput').click();
-                },
-                () => {
-                    // Cancel
-                }
-            );
-            return;
-        }
-
-        document.getElementById('fileInput').click();
-    }
-
-    // Handle file load
-    function handleFileLoad(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                populateFormFromData(data);
-
-                if (window.NaEditorTools) {
-                    NaEditorTools.showSuccessMessage('Configuration loaded from file');
-                    NaEditorTools.markDirty(); // Mark dirty since we loaded from external file
-                } else {
-                    alert('Configuration loaded successfully!');
-                }
-            } catch (error) {
-                if (window.NaEditorTools) {
-                    NaEditorTools.showErrorMessage('Failed to load file: ' + error.message);
-                } else {
-                    alert('Failed to load file: ' + error.message);
-                }
-            }
-        };
-        reader.readAsText(file);
-
-        // Reset file input
-        event.target.value = '';
-    }
-
     // endregion ----------------------------------------------
 
 </script>
 <!-- endregion ---------------------------------------- -->
-
-<style>
-    .header-actions {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-</style>
 
 </html>

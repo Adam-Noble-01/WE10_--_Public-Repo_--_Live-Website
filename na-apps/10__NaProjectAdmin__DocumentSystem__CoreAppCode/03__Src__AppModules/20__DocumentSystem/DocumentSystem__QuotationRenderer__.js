@@ -115,8 +115,7 @@
                         <div class="address-block__content">
                             <strong>${companyDetails?.companyName || 'Noble Architecture'}</strong><br>
                             ${companyDetails?.companyAddress || 'Nottingham, UK'}<br>
-                            ${companyDetails?.companyEmail || ''}<br>
-                            ${companyDetails?.companyWebsite || ''}
+                            ${companyDetails?.companyEmail || ''}
                         </div>
                     </div>
                     <div class="address-block">

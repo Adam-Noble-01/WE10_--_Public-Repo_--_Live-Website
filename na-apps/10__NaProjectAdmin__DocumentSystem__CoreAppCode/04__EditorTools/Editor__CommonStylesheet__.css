@@ -72,11 +72,27 @@
         display                    : flex;
         justify-content            : space-between;
         align-items                : center;
+        flex-wrap                  : wrap;
+        gap                        : 0.5rem;
     }
 
     .app-header h1 {
         color                      : var(--brand-primary);
         font-size                  : 1.5rem;
+        flex                       : 0 0 auto;
+    }
+
+    /* Status bar in header (Flask dev mode) */
+    .app-header .editor-status-bar--header {
+        flex                       : 1 1 100%;
+        order                      : 2;
+        margin                     : 0 -2rem -1rem;
+        padding-left               : 2rem;
+        padding-right              : 2rem;
+    }
+
+    .app-header .header-actions {
+        order                      : 1;
     }
 
 /* endregion ---- */
@@ -86,18 +102,12 @@
  * -------------------------------------------------------- */
 
     .main-container {
-        display                    : grid;
-        grid-template-columns      : 1fr 1fr;
+        display                    : flex;
+        flex-direction             : column;
         gap                        : 2rem;
         padding                    : 2rem;
-        max-width                  : 1600px;
+        max-width                  : 1200px;            /* ~75% of 1600px */
         margin                     : 0 auto;
-    }
-
-    @media (max-width: 1024px) {
-        .main-container {
-            grid-template-columns  : 1fr;
-        }
     }
 
 /* endregion ---- */
@@ -265,23 +275,6 @@
 
 /* endregion ---- */
 
-/*  #Region ------------------------------------------------
- * REGION | JSON Output
- * -------------------------------------------------------- */
-
-    .json-output {
-        background                 : #1e1e1e;
-        color                      : #d4d4d4;
-        padding                    : 1rem;
-        border-radius              : 4px;
-        overflow-x                 : auto;
-        font-family                : 'Consolas', 'Monaco', monospace;
-        font-size                  : 0.875rem;
-        white-space                : pre-wrap;
-        max-height                 : 500px;
-        overflow-y                 : auto;
-    }
-
 /* endregion ---- */
 
 /*  #Region ------------------------------------------------
@@ -436,45 +429,6 @@
     }
 
 /* endregion ---- */
-
-/*  #Region ------------------------------------------------
- * REGION | Terms Editor - Tabs
- * -------------------------------------------------------- */
-
-    .tabs {
-        display                    : flex;
-        gap                        : 0;
-        margin-bottom              : 1rem;
-    }
-
-    .tab {
-        padding                    : 0.5rem 1rem;
-        border                     : 1px solid var(--border-light);
-        background                 : var(--bg-primary);
-        cursor                     : pointer;
-    }
-
-    .tab:first-child {
-        border-radius              : 4px 0 0 4px;
-    }
-
-    .tab:last-child {
-        border-radius              : 0 4px 4px 0;
-    }
-
-    .tab.active {
-        background                 : var(--brand-primary);
-        color                      : white;
-        border-color               : var(--brand-primary);
-    }
-
-    .tab-content {
-        display                    : none;
-    }
-
-    .tab-content.active {
-        display                    : block;
-    }
 
 /* endregion ---- */
 

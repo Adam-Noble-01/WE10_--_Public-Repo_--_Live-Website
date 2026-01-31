@@ -8,6 +8,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
     <title>Quotation Builder | Noble Architecture</title>
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
@@ -32,12 +34,10 @@
     <header class="app-header">
         <h1>Quotation Builder</h1>
         <div class="header-actions">
-            <button class="btn btn--secondary" onclick="loadFromFile()" id="btnLoadFile">Load JSON</button>
             <button class="btn btn--secondary" onclick="loadFromProject()" id="btnLoadProject"
                 style="display: none;">Load from Project</button>
             <button class="btn btn--primary" onclick="saveToProject()" id="btnSaveProject" style="display: none;">Save
                 to Project</button>
-            <button class="btn btn--primary" onclick="downloadJson()" id="btnDownload">Download JSON</button>
         </div>
     </header>
     <!-- endregion ---------------------------------------- -->
@@ -154,31 +154,7 @@
         </div>
         <!-- endregion ------------------------------------ -->
 
-        <!-- #Region -------------------------------------- -->
-        <!-- UI PANEL | Output Panel                       -->
-        <!-- ---------------------------------------------- -->
-        <div class="panel">
-            <div class="panel__header">JSON Output</div>
-            <div class="panel__body">
-                <p class="help-text">
-                    Copy this JSON and save as <code>ProjectAdmin__Quotation__.json</code> in your project's
-                    <code>10__ProjectAdmin__AppContent</code> folder.
-                </p>
-                <div class="actions-bar">
-                    <button class="btn btn--primary" onclick="copyToClipboard()">Copy to Clipboard</button>
-                </div>
-                <pre id="jsonOutput" class="json-output">{}</pre>
-            </div>
-        </div>
-        <!-- endregion ------------------------------------ -->
-
     </div>
-    <!-- endregion ---------------------------------------- -->
-
-    <!-- #Region ------------------------------------------ -->
-    <!-- UI HIDDEN | Hidden File Input                     -->
-    <!-- -------------------------------------------------- -->
-    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
     <!-- endregion ---------------------------------------- -->
 
 </body>
@@ -238,7 +214,7 @@
             NaEditorTools.setupUnsavedChangesWarning();
 
             // Create status bar
-            NaEditorTools.createStatusBar();
+            await NaEditorTools.createStatusBar();
         }
 
         // Set today's date as default
@@ -589,23 +565,9 @@
     // UI ACTIONS | User Interface Updates
     // --------------------------------------------------------
 
-    // Update JSON preview display
+    // Update totals display
     function updatePreview() {
-        const json = generateJson();
-        document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 4);
         calculateTotals();
-    }
-
-    // Copy to clipboard
-    function copyToClipboard() {
-        const json = document.getElementById('jsonOutput').textContent;
-        navigator.clipboard.writeText(json).then(() => {
-            if (window.NaEditorTools) {
-                NaEditorTools.showSuccessMessage('JSON copied to clipboard!');
-            } else {
-                alert('JSON copied to clipboard!');
-            }
-        });
     }
 
     // endregion ----------------------------------------------
@@ -674,83 +636,9 @@
         );
     }
 
-    // Download quotation as JSON file
-    function downloadJson() {
-        const json = document.getElementById('jsonOutput').textContent;
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = QUOTATION_FILENAME;
-        a.click();
-        URL.revokeObjectURL(url);
-
-        if (window.NaEditorTools) {
-            NaEditorTools.showSuccessMessage('File downloaded');
-        }
-    }
-
-    // Load from file
-    function loadFromFile() {
-        if (window.NaEditorTools?.hasUnsavedChanges()) {
-            NaEditorTools.showSaveConfirmDialog(
-                QUOTATION_FILENAME,
-                async () => {
-                    if (isFlaskMode) await saveToProject();
-                    document.getElementById('fileInput').click();
-                },
-                () => {
-                    document.getElementById('fileInput').click();
-                },
-                () => { }
-            );
-            return;
-        }
-
-        document.getElementById('fileInput').click();
-    }
-
-    // Handle file load
-    function handleFileLoad(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                populateFormFromData(data);
-
-                if (window.NaEditorTools) {
-                    NaEditorTools.showSuccessMessage('Quotation loaded from file');
-                    NaEditorTools.markDirty();
-                } else {
-                    alert('Quotation loaded successfully!');
-                }
-            } catch (error) {
-                if (window.NaEditorTools) {
-                    NaEditorTools.showErrorMessage('Failed to load file: ' + error.message);
-                } else {
-                    alert('Failed to load file: ' + error.message);
-                }
-            }
-        };
-        reader.readAsText(file);
-
-        event.target.value = '';
-    }
-
     // endregion ----------------------------------------------
 
 </script>
 <!-- endregion ---------------------------------------- -->
-
-<style>
-    .header-actions {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-</style>
 
 </html>

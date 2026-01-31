@@ -8,6 +8,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
     <title>Special Terms Editor | Noble Architecture</title>
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
@@ -32,12 +34,10 @@
     <header class="app-header">
         <h1>Special Terms Editor</h1>
         <div class="header-actions">
-            <button class="btn btn--secondary" onclick="loadFromFile()" id="btnLoadFile">Load JSON</button>
             <button class="btn btn--secondary" onclick="loadFromProject()" id="btnLoadProject"
                 style="display: none;">Load from Project</button>
             <button class="btn btn--primary" onclick="saveToProject()" id="btnSaveProject" style="display: none;">Save
                 to Project</button>
-            <button class="btn btn--primary" onclick="downloadJson()" id="btnDownload">Download JSON</button>
         </div>
     </header>
     <!-- endregion ---------------------------------------- -->
@@ -87,45 +87,21 @@
         <!-- endregion ------------------------------------ -->
 
         <!-- #Region -------------------------------------- -->
-        <!-- UI PANEL | Output Panel                       -->
+        <!-- UI PANEL | Preview Panel                      -->
         <!-- ---------------------------------------------- -->
         <div class="panel">
-            <div class="panel__header">Output</div>
+            <div class="panel__header">Preview</div>
             <div class="panel__body">
-                <div class="tabs">
-                    <div class="tab active" onclick="switchTab('preview')">Preview</div>
-                    <div class="tab" onclick="switchTab('json')">JSON</div>
-                </div>
-
-                <div id="previewTab" class="tab-content active">
-                    <div class="preview-container" id="previewContainer">
-                        <div class="preview-title" id="previewTitle">Special Terms for This Project</div>
-                        <div id="previewIntro"></div>
-                        <div id="previewTerms"></div>
-                    </div>
-                </div>
-
-                <div id="jsonTab" class="tab-content">
-                    <p class="help-text">
-                        Copy this JSON and save as <code>ProjectAdmin__SpecialTerms__.json</code> in your project's
-                        <code>10__ProjectAdmin__AppContent</code> folder.
-                    </p>
-                    <div class="actions-bar">
-                        <button class="btn btn--primary" onclick="copyToClipboard()">Copy to Clipboard</button>
-                    </div>
-                    <pre id="jsonOutput" class="json-output">{}</pre>
+                <div class="preview-container" id="previewContainer">
+                    <div class="preview-title" id="previewTitle">Special Terms for This Project</div>
+                    <div id="previewIntro"></div>
+                    <div id="previewTerms"></div>
                 </div>
             </div>
         </div>
         <!-- endregion ------------------------------------ -->
 
     </div>
-    <!-- endregion ---------------------------------------- -->
-
-    <!-- #Region ------------------------------------------ -->
-    <!-- UI HIDDEN | Hidden File Input                     -->
-    <!-- -------------------------------------------------- -->
-    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
     <!-- endregion ---------------------------------------- -->
 
 </body>
@@ -185,7 +161,7 @@
             NaEditorTools.setupUnsavedChangesWarning();
 
             // Create status bar
-            NaEditorTools.createStatusBar();
+            await NaEditorTools.createStatusBar();
         }
 
         // Add default term if empty
@@ -343,19 +319,6 @@
 
     // endregion ----------------------------------------------
 
-    // #Region ------------------------------------------------
-    // UI ACTIONS | User Interface Updates
-    // --------------------------------------------------------
-
-    // Switch between preview and JSON tabs
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-        document.querySelector(`.tab:nth-child(${tabName === 'preview' ? 1 : 2})`).classList.add('active');
-        document.getElementById(tabName + 'Tab').classList.add('active');
-    }
-
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
@@ -397,21 +360,6 @@
                     <div class="preview-term__content">${escapeHtml(term.content) || ''}</div>
                 </div>
             `).join('');
-
-        // Update JSON
-        document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 4);
-    }
-
-    // Copy to clipboard
-    function copyToClipboard() {
-        const json = document.getElementById('jsonOutput').textContent;
-        navigator.clipboard.writeText(json).then(() => {
-            if (window.NaEditorTools) {
-                NaEditorTools.showSuccessMessage('JSON copied to clipboard!');
-            } else {
-                alert('JSON copied to clipboard!');
-            }
-        });
     }
 
     // endregion ----------------------------------------------
@@ -480,83 +428,9 @@
         );
     }
 
-    // Download terms as JSON file
-    function downloadJson() {
-        const json = document.getElementById('jsonOutput').textContent;
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = TERMS_FILENAME;
-        a.click();
-        URL.revokeObjectURL(url);
-
-        if (window.NaEditorTools) {
-            NaEditorTools.showSuccessMessage('File downloaded');
-        }
-    }
-
-    // Load from file
-    function loadFromFile() {
-        if (window.NaEditorTools?.hasUnsavedChanges()) {
-            NaEditorTools.showSaveConfirmDialog(
-                TERMS_FILENAME,
-                async () => {
-                    if (isFlaskMode) await saveToProject();
-                    document.getElementById('fileInput').click();
-                },
-                () => {
-                    document.getElementById('fileInput').click();
-                },
-                () => { }
-            );
-            return;
-        }
-
-        document.getElementById('fileInput').click();
-    }
-
-    // Handle file load
-    function handleFileLoad(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                populateFormFromData(data);
-
-                if (window.NaEditorTools) {
-                    NaEditorTools.showSuccessMessage('Terms loaded from file');
-                    NaEditorTools.markDirty();
-                } else {
-                    alert('Terms loaded successfully!');
-                }
-            } catch (error) {
-                if (window.NaEditorTools) {
-                    NaEditorTools.showErrorMessage('Failed to load file: ' + error.message);
-                } else {
-                    alert('Failed to load file: ' + error.message);
-                }
-            }
-        };
-        reader.readAsText(file);
-
-        event.target.value = '';
-    }
-
     // endregion ----------------------------------------------
 
 </script>
 <!-- endregion ---------------------------------------- -->
-
-<style>
-    .header-actions {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-</style>
 
 </html>

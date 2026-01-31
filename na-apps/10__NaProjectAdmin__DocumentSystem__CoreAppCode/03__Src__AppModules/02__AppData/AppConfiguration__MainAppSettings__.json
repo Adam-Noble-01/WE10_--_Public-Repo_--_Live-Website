@@ -85,8 +85,8 @@
 
     "CompanyDetails": {
         "companyName"                          : "Noble Architecture",
-        "companyAddress"                       : "Nottingham, United Kingdom",
-        "companyEmail"                         : "info@noble-architecture.com",
+        "companyAddress"                       : "Concept Design Service Team",
+        "companyEmail"                         : "Billing@noble-architecture.com",
         "companyPhone"                         : "",
         "companyWebsite"                       : "https://www.noble-architecture.com",
         "companyRegistration"                  : ""

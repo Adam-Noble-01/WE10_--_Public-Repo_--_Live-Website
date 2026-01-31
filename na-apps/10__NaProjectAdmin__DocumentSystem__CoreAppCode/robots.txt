@@ -1,0 +1,6 @@
+# Noble Architecture - Project Admin System
+# This application is private and should not be indexed
+
+User-agent: *
+Disallow: /
+

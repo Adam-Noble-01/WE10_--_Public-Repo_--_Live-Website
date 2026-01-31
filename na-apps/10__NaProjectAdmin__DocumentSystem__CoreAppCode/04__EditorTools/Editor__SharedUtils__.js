@@ -19,6 +19,11 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.1.0
+// - Added address encryption/decryption helpers
+//   - encryptAddress() - Base64 + character shift obfuscation
+//   - decryptAddress() - Reverse obfuscation for loading
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial release
 //   - Flask server detection
@@ -364,14 +369,16 @@
      * Create and inject status bar into the page
      * @param {HTMLElement} [container] - Container to append status bar to
      */
-    function createStatusBar(container = null) {
+    async function createStatusBar(container = null) {
         if (statusBarElement) {
             return statusBarElement;
         }
 
+        const isFlask = await isLocalDevServer();
+
         statusBarElement = document.createElement('div');
         statusBarElement.id = 'editor-status-bar';
-        statusBarElement.className = 'editor-status-bar';
+        statusBarElement.className = isFlask ? 'editor-status-bar editor-status-bar--header' : 'editor-status-bar';
         statusBarElement.innerHTML = `
             <div class="status-bar__left">
                 <span class="status-bar__project" id="status-project">No project</span>
@@ -391,10 +398,6 @@
             style.id = 'editor-status-bar-styles';
             style.textContent = `
                 .editor-status-bar {
-                    position: fixed;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
                     height: 28px;
                     background: #2d2d2d;
                     color: #cccccc;
@@ -405,7 +408,18 @@
                     font-size: 0.75rem;
                     font-family: 'Consolas', 'Monaco', monospace;
                     z-index: 9999;
+                }
+                /* Bottom position (default for standalone mode) */
+                .editor-status-bar:not(.editor-status-bar--header) {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
                     border-top: 1px solid #555041;
+                }
+                /* Header position (Flask dev mode) */
+                .editor-status-bar--header {
+                    border-bottom: 1px solid #555041;
                 }
                 .editor-status-bar .status-bar__left,
                 .editor-status-bar .status-bar__right {
@@ -434,22 +448,33 @@
                     background: rgba(206, 147, 216, 0.15);
                     border-radius: 3px;
                 }
-                /* Adjust main container when status bar is present */
-                body.has-status-bar {
-                    padding-bottom: 28px;
-                }
             `;
             document.head.appendChild(style);
         }
 
-        // Append to container or body
-        if (container) {
-            container.appendChild(statusBarElement);
+        // In Flask mode, inject into header after h1
+        if (isFlask) {
+            const header = document.querySelector('.app-header');
+            if (header) {
+                // Insert after header's first child (h1) or at end
+                const h1 = header.querySelector('h1');
+                if (h1 && h1.nextSibling) {
+                    h1.parentNode.insertBefore(statusBarElement, h1.nextSibling);
+                } else {
+                    header.insertBefore(statusBarElement, header.firstChild.nextSibling);
+                }
+            } else {
+                document.body.insertBefore(statusBarElement, document.body.firstChild);
+            }
         } else {
-            document.body.appendChild(statusBarElement);
+            // Standalone mode - keep at bottom
+            if (container) {
+                container.appendChild(statusBarElement);
+            } else {
+                document.body.appendChild(statusBarElement);
+            }
         }
 
-        document.body.classList.add('has-status-bar');
         updateStatusBar();
 
         return statusBarElement;
@@ -890,6 +915,53 @@
     // endregion -----
 
     // #region -----
+    // ENCRYPTION | Address Obfuscation
+    // -----
+
+    /**
+     * Encrypt address object for storage (simple obfuscation)
+     * Uses Base64 encoding with character shifting for basic privacy
+     * @param {Object} address - Address object with fields
+     * @returns {string} Encrypted string
+     */
+    function encryptAddress(address) {
+        if (!address) return null;
+        
+        try {
+            const json = JSON.stringify(address);
+            const shifted = json.split('').map(c => 
+                String.fromCharCode(c.charCodeAt(0) + 7)
+            ).join('');
+            return btoa(shifted);
+        } catch (e) {
+            console.error('[EditorUtils] Address encryption failed:', e);
+            return null;
+        }
+    }
+
+    /**
+     * Decrypt address string back to object
+     * @param {string} encrypted - Encrypted address string
+     * @returns {Object|null} Decrypted address object or null on failure
+     */
+    function decryptAddress(encrypted) {
+        if (!encrypted) return null;
+        
+        try {
+            const shifted = atob(encrypted);
+            const json = shifted.split('').map(c => 
+                String.fromCharCode(c.charCodeAt(0) - 7)
+            ).join('');
+            return JSON.parse(json);
+        } catch (e) {
+            console.error('[EditorUtils] Address decryption failed:', e);
+            return null;
+        }
+    }
+
+    // endregion -----
+
+    // #region -----
     // PROJECT OPERATIONS | Create and Scan
     // -----
 
@@ -1030,6 +1102,10 @@
         // Validation
         isValidProjectCode       : isValidProjectCode,
         normaliseProjectCode     : normaliseProjectCode,
+        
+        // Encryption
+        encryptAddress           : encryptAddress,
+        decryptAddress           : decryptAddress,
         
         // Project operations
         createProject            : createProject,

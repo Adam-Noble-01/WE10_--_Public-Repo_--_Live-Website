@@ -3,6 +3,90 @@
 
 # =============================================================================
 
+## Version 0.3.2 - 31-Jan-2026
+
+### Added
+- **Search Engine Blocking** - Comprehensive no-index protection
+  - Added `<meta name="robots" content="noindex, nofollow">` to all HTML files
+  - Added `<meta name="googlebot" content="noindex, nofollow">` for Google-specific blocking
+  - Created `robots.txt` with universal blocking directive (`User-agent: *, Disallow: /`)
+  - Files updated: `index.html`, all Editor Tools HTML files
+  - Provides defence-in-depth alongside existing PIN-based authentication
+  - Prevents accidental indexing of private client project administration system
+
+---
+
+## Version 0.3.1 - 31-Jan-2026
+
+### Changed
+- **Menu Tutorial Overlay Improvements**
+  - Moved tutorial overlay down from `top: 70px` to `top: 140px` to prevent obscuring hamburger menu button
+  - New attention-grabbing animation sequence:
+    - Appears solid for 3 seconds
+    - Flashes 3 times over 2 seconds to grab attention
+    - Auto-dismisses after 6.5 seconds total
+  - Immediately dismisses when any menu item is clicked
+  - New `@keyframes tutorialAppear` animation with solid display followed by flash cycles
+
+### Fixed
+- Menu tutorial overlay no longer blocks hamburger menu button visibility
+
+---
+
+## Version 0.3.0 - 31-Jan-2026
+
+### Added
+- **Encrypted Client Address Fields** - New site address section in Project Config
+  - Fields: House Name/No., Street, District/Town/City, County, Postcode
+  - Address data encrypted using Base64 + character shifting for client privacy
+  - `encryptAddress()` and `decryptAddress()` helpers in `Editor__SharedUtils__.js`
+
+- **New Project Config Fields**
+  - `projectDescription` - Project description textarea
+  - `specialNotes` - Internal notes field (not shown to clients)
+
+- **Address Decryptor Module** - New `CommonUtils__AddressDecryptor__.js`
+  - `decrypt()` - Reverses address obfuscation
+  - `formatAddress()` - Formats address with separator options
+  - `formatForDocument()` - Multi-line format for quotations/documents
+
+### Changed
+- **Editor Tools Layout** - Simplified single-column design
+  - Removed JSON Output panels from all editors (no longer needed with Flask)
+  - Removed "Download JSON" and "Load JSON" buttons
+  - Changed layout from 2-column grid to single-column flex (~75% width)
+  - Removed tabs from Terms Editor, keeping only preview
+
+- **Editor Files Refactored**
+  - `Editor__ProjectConfig__.html` - Added address/description/notes fields
+  - `Editor__QuotationBuilder__.html` - Removed JSON panel
+  - `Editor__TermsEditor__.html` - Removed tabs, JSON panel
+  - `Editor__ProjectIndexBuilder__.html` - Removed JSON panel
+
+- **Project Config JSON Schema** - New structure:
+  ```json
+  {
+    "projectCode": "JS01",
+    "projectName": "Rear Extension",
+    "clientName": "John Smith",
+    "projectDescription": "Two-storey rear extension...",
+    "siteAddress": "encrypted_base64_string",
+    "specialNotes": "Client prefers morning visits",
+    "projectPin": "1234",
+    "documents": { "quotation": true, "specialTerms": true },
+    "createdDate": "31-Jan-2026",
+    "lastModified": "31/01/2026, 20:30:45"
+  }
+  ```
+
+### Removed
+- JSON Output panels from all editor tools
+- Download JSON / Load JSON buttons (Flask API handles file operations)
+- Preview/JSON tabs from Terms Editor
+- `.json-output` and `.tab` CSS classes from common stylesheet
+
+# =============================================================================
+
 ## Version 0.2.0 - 31-Jan-2026
 
 ### Added

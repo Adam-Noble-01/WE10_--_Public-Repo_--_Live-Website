@@ -435,6 +435,12 @@
 
                 e.preventDefault();
 
+                // Hide tutorial overlay when menu item is clicked
+                const tutorialOverlay = document.getElementById('menu-tutorial-overlay');
+                if (tutorialOverlay) {
+                    tutorialOverlay.style.display = 'none';
+                }
+
                 const action = link.dataset.action;
                 const itemId = link.dataset.itemId;
 
@@ -528,36 +534,21 @@
 
             console.log(`[Navigation] Loading editor: ${editorUrl}`);
 
+            // Add editor mode class for full-width styling
+            documentContainer.classList.add('editor-mode');
+
             // Create iframe container
             documentContainer.innerHTML = `
-                <div class="editor-frame-container" style="
-                    width: 100%;
-                    height: calc(100vh - 60px);
-                    position: relative;
-                    background: #f5f5f5;
-                ">
-                    <div class="editor-frame-loading" style="
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        text-align: center;
-                        color: #666;
-                    ">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚙️</div>
+                <div class="editor-frame-container">
+                    <div class="editor-frame-loading">
+                        <div class="editor-frame-loading__icon">⚙️</div>
                         <div>Loading Editor...</div>
                     </div>
                     <iframe
                         id="editor-iframe"
                         src="${editorUrl}"
-                        style="
-                            width: 100%;
-                            height: 100%;
-                            border: none;
-                            opacity: 0;
-                            transition: opacity 0.3s;
-                        "
-                        onload="this.style.opacity='1'; this.previousElementSibling.style.display='none';"
+                        class="editor-iframe"
+                        onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
                     ></iframe>
                 </div>
             `;
@@ -590,6 +581,12 @@
                 }
 
                 activeEditorFrame = null;
+
+                // Remove editor mode class from document container
+                const documentContainer = document.getElementById('document-container');
+                if (documentContainer) {
+                    documentContainer.classList.remove('editor-mode');
+                }
             }
             return true;
         }
@@ -661,6 +658,12 @@
                     // STEP 3: After closing animation, show tutorial message
                     setTimeout(() => {
                         tutorialOverlay.style.display = 'block';
+                        
+                        // STEP 4: Auto-dismiss after 6.5 seconds
+                        // Timeline: 3s solid, 2s flashing, 1.5s buffer
+                        setTimeout(() => {
+                            tutorialOverlay.style.display = 'none';
+                        }, 6500);                            // <-- Hide after animation completes
                     }, 400);                                 // <-- Wait for close animation
                 }, 1200);                                    // <-- Menu visible duration
             }, 500);                                         // <-- Initial delay
