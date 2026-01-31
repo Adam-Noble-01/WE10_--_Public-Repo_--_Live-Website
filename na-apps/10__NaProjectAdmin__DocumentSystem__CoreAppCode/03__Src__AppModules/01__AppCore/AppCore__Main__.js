@@ -618,13 +618,13 @@
                 signatureScreen.style.display = 'flex';
             }
 
-            // Initialise signature canvas
+            // Set up signature form handlers (clones form, removing old listeners)
+            setupSignatureForm();
+
+            // Initialise signature canvas AFTER form setup (form clone destroys listeners)
             if (window.NaProjectAdmin.SignatureCaptureCanvas) {
                 window.NaProjectAdmin.SignatureCaptureCanvas.initialise('signature-canvas');
             }
-
-            // Set up signature form handlers
-            setupSignatureForm();
 
             currentScreen = 'signature';
         }

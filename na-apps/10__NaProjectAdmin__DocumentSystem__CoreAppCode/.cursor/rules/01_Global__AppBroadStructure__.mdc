@@ -2,6 +2,9 @@
 alwaysApply: true
 ---
 
+## CRITICAL:
+**App is highly structured and modular, with a clear separation of concerns, this means you must always check module dependencies and imports / export before editing or writing code.**
+
 ## HTML, CSS, JavaScript
     - This is the core technologies used to build the App.
     - The App is a static website built with HTML, CSS, and JavaScript.

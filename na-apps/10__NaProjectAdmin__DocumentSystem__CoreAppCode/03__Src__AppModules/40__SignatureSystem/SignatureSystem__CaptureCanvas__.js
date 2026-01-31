@@ -45,8 +45,6 @@
         // FUNCTION | Initialise Canvas
         // ------------------------------------------------------------
         function initialise(canvasId) {
-            console.log('[SignatureCaptureCanvas] Initialising...');
-
             canvas = document.getElementById(canvasId);
             
             if (!canvas) {
@@ -61,18 +59,13 @@
                 return false;
             }
 
-            // Use setTimeout to ensure browser has finished rendering
-            // before we measure canvas dimensions
-            setTimeout(() => {
+            // Setup canvas - use requestAnimationFrame to ensure DOM is ready
+            requestAnimationFrame(() => {
                 setupCanvasSize();
-                // Set up event listeners AFTER canvas size is set
                 setupEventListeners();
-                // Set up clear button
                 setupClearButton();
-                console.log('[SignatureCaptureCanvas] Initialised and ready');
-            }, 100);
+            });
 
-            console.log('[SignatureCaptureCanvas] Initialising...');
             return true;
         }
         // ---------------------------------------------------------------
@@ -89,32 +82,14 @@
             // Get the actual displayed size of the canvas
             const rect = canvas.getBoundingClientRect();
             
-            // Use actual dimensions if available, otherwise use fallbacks
-            let displayWidth = rect.width;
-            let displayHeight = rect.height;
-
-            // If dimensions are zero, try parent element dimensions
-            if (!displayWidth || !displayHeight) {
-                const parent = canvas.parentElement;
-                if (parent) {
-                    const parentRect = parent.getBoundingClientRect();
-                    displayWidth = displayWidth || parentRect.width || sigConfig?.canvasWidth || 600;
-                    displayHeight = displayHeight || 200;                 // <-- Fixed height
-                }
-            }
-
-            // Final fallbacks
-            displayWidth = displayWidth || sigConfig?.canvasWidth || 600;
-            displayHeight = displayHeight || sigConfig?.canvasHeight || 200;
+            // Use actual dimensions or config fallbacks
+            const displayWidth = rect.width || sigConfig?.canvasWidth || 600;
+            const displayHeight = rect.height || sigConfig?.canvasHeight || 200;
 
             // Set canvas internal dimensions to match display size
             // This ensures 1:1 pixel mapping for accurate drawing
             canvas.width = displayWidth;
             canvas.height = displayHeight;
-
-            // Also set explicit CSS dimensions to ensure rendering
-            canvas.style.width = displayWidth + 'px';
-            canvas.style.height = displayHeight + 'px';
 
             // Configure drawing style (must be done after setting dimensions)
             ctx.strokeStyle = sigConfig?.strokeColour || '#000000';
@@ -124,9 +99,6 @@
 
             // Clear canvas to white
             clearCanvas();
-
-            console.log('[SignatureCaptureCanvas] Canvas size set:', displayWidth, 'x', displayHeight);
-            console.log('[SignatureCaptureCanvas] Canvas rect:', rect.width, 'x', rect.height);
         }
         // ---------------------------------------------------------------
 
@@ -158,8 +130,6 @@
             const pos = getPosition(e);
             lastX = pos.x;
             lastY = pos.y;
-            
-            console.log('[SignatureCaptureCanvas] Start drawing at:', pos.x, pos.y);
         }
         // ---------------------------------------------------------------
 
@@ -180,8 +150,6 @@
             lastX = pos.x;
             lastY = pos.y;
             hasSignature = true;
-            
-            console.log('[SignatureCaptureCanvas] Drawing to:', pos.x, pos.y);
         }
         // ---------------------------------------------------------------
 
@@ -227,9 +195,9 @@
             const clientX = e.clientX ?? e.pageX;
             const clientY = e.clientY ?? e.pageY;
 
-            // Calculate scale factors in case canvas was resized
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
+            // Calculate scale factors (canvas internal vs displayed size)
+            const scaleX = rect.width > 0 ? canvas.width / rect.width : 1;
+            const scaleY = rect.height > 0 ? canvas.height / rect.height : 1;
 
             return {
                 x                    : (clientX - rect.left) * scaleX,
@@ -370,8 +338,6 @@
             ctx = null;
             isDrawing = false;
             hasSignature = false;
-
-            console.log('[SignatureCaptureCanvas] Destroyed');
         }
         // ---------------------------------------------------------------
 
