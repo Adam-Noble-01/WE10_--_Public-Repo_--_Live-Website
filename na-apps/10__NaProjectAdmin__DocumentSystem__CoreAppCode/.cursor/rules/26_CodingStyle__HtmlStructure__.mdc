@@ -38,13 +38,13 @@ All HTML files must follow regional organization and 4-space indentation.
     
     <title>Page Title - Noble Architecture</title>
     
-    <!-- Favicons: AssetLoader will convert these to absolute URLs -->
-    <link rel="icon" href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <!-- Favicons: Use data-asset-href attribute for AssetLoader -->
+    <link rel="icon" data-asset-href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="StyleSheet__Main__.css">
 </head>
 ```
 
-**Note:** Favicon paths use relative paths initially. The `AssetLoader` module automatically converts them to absolute GitHub Pages URLs on initialization.
+**Note:** Favicon paths use `data-asset-href` attributes instead of `href`. The `AssetLoader` module parses these data attributes on initialization and injects absolute GitHub Pages URLs, preventing 404 errors before the app fully loads.
 
 ---
 

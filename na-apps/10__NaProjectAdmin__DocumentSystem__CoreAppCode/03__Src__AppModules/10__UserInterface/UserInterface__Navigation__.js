@@ -13,10 +13,17 @@
 // - Builds navigation menu dynamically based on available project files
 // - Manages sidebar toggle functionality
 // - Handles navigation state and active items
+// - Integrates Editor Tools when running on localhost Flask server
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.1.0
+// - Editor Tools Integration
+//   - Added detectLocalDevMode() for Flask server detection
+//   - Added Editor Tools section in menu when on localhost
+//   - Added inline editor loading into main content area
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - Dynamic menu generation
@@ -36,6 +43,8 @@
         let currentActiveItem        = null;                         // <-- Currently active nav item
         let sidebarOpen              = true;                         // <-- Sidebar state (true = open)
         let projectData              = null;                         // <-- Loaded project data
+        let isLocalDevMode           = null;                         // <-- Local Flask server mode
+        let activeEditorFrame        = null;                         // <-- Currently loaded editor iframe
 
         // FUNCTION | Initialise Navigation
         // ------------------------------------------------------------
@@ -122,6 +131,50 @@
             if (mainContent) {
                 mainContent.classList.remove('expanded');
             }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Detect Local Dev Mode
+        // ------------------------------------------------------------
+        async function detectLocalDevMode() {
+            // Return cached result if available
+            if (isLocalDevMode !== null) {
+                return isLocalDevMode;
+            }
+
+            // Check hostname first (quick check)
+            const hostname = window.location.hostname;
+            if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+                isLocalDevMode = false;
+                return false;
+            }
+
+            // Check if file:// protocol
+            if (window.location.protocol === 'file:') {
+                isLocalDevMode = false;
+                return false;
+            }
+
+            // Verify Flask server is responding
+            try {
+                const response = await fetch('/api/health', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    isLocalDevMode = data.status === 'ok' && 
+                                    data.service === 'na-projectadmin-local-dev';
+                    console.log('[Navigation] Local dev mode:', isLocalDevMode);
+                    return isLocalDevMode;
+                }
+            } catch (error) {
+                console.log('[Navigation] Flask server not available');
+            }
+
+            isLocalDevMode = false;
+            return false;
         }
         // ---------------------------------------------------------------
 
@@ -225,6 +278,63 @@
                 action                   : 'logout'
             });
 
+            // Check for local dev mode and add editor tools
+            const isDevMode = await detectLocalDevMode();
+            if (isDevMode) {
+                // Add separator before editor tools
+                items.push({
+                    id                   : 'separator-editor',
+                    type                 : 'separator'
+                });
+
+                // Add section label
+                items.push({
+                    id                   : 'editor-label',
+                    type                 : 'label',
+                    label                : 'Editor Tools'
+                });
+
+                // Edit Project Config
+                items.push({
+                    id                   : 'edit-config',
+                    label                : 'Edit Project Config',
+                    icon                 : '&#9881;',                // <-- Gear icon
+                    action               : 'editProjectConfig',
+                    badge                : 'Dev',
+                    badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
+                });
+
+                // Edit Quotation
+                items.push({
+                    id                   : 'edit-quotation',
+                    label                : 'Edit Quotation',
+                    icon                 : '&#128221;',              // <-- Memo icon
+                    action               : 'editQuotation',
+                    badge                : 'Dev',
+                    badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
+                });
+
+                // Edit Special Terms
+                items.push({
+                    id                   : 'edit-terms',
+                    label                : 'Edit Special Terms',
+                    icon                 : '&#128203;',              // <-- Clipboard icon
+                    action               : 'editTerms',
+                    badge                : 'Dev',
+                    badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
+                });
+
+                // Project Manager
+                items.push({
+                    id                   : 'project-manager',
+                    label                : 'Project Manager',
+                    icon                 : '&#128193;',              // <-- Folder icon
+                    action               : 'openProjectManager',
+                    badge                : 'Dev',
+                    badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
+                });
+            }
+
             return items;
         }
         // ---------------------------------------------------------------
@@ -287,6 +397,13 @@
                 return li;
             }
 
+            if (item.type === 'label') {
+                li.className = 'nav-menu__item nav-menu__item--label';
+                li.innerHTML = `<span class="nav-menu__label">${item.label}</span>`;
+                li.style.cssText = 'font-size: 0.7rem; text-transform: uppercase; color: var(--App_TextMuted); padding: 0.5rem 1rem 0.25rem; letter-spacing: 0.05em; font-weight: 600;';
+                return li;
+            }
+
             const a = document.createElement('a');
             a.href = '#';
             a.className = 'nav-menu__link';
@@ -340,18 +457,21 @@
 
             switch (action) {
                 case 'showQuotation':
+                    closeActiveEditor();
                     if (window.NaProjectAdmin.UserInterfaceMain) {
                         await window.NaProjectAdmin.UserInterfaceMain.showQuotation();
                     }
                     break;
 
                 case 'showTerms':
+                    closeActiveEditor();
                     if (window.NaProjectAdmin.UserInterfaceMain) {
                         await window.NaProjectAdmin.UserInterfaceMain.showTerms();
                     }
                     break;
 
                 case 'showSignatureStatus':
+                    closeActiveEditor();
                     if (window.NaProjectAdmin.UserInterfaceMain) {
                         await window.NaProjectAdmin.UserInterfaceMain.showSignatureStatus();
                     }
@@ -365,9 +485,113 @@
                     handleLogout();
                     break;
 
+                // Editor Tools Actions (Local Dev Mode Only)
+                case 'editProjectConfig':
+                    await loadEditorInline('Editor__ProjectConfig__.html');
+                    break;
+
+                case 'editQuotation':
+                    await loadEditorInline('Editor__QuotationBuilder__.html');
+                    break;
+
+                case 'editTerms':
+                    await loadEditorInline('Editor__TermsEditor__.html');
+                    break;
+
+                case 'openProjectManager':
+                    await loadEditorInline('Editor__ProjectIndexBuilder__.html');
+                    break;
+
                 default:
                     console.warn(`[Navigation] Unknown action: ${action}`);
             }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Load Editor Inline
+        // ------------------------------------------------------------
+        async function loadEditorInline(editorFile) {
+            const documentContainer = document.getElementById('document-container');
+            
+            if (!documentContainer) {
+                console.error('[Navigation] Document container not found');
+                return;
+            }
+
+            // Get current project from URL params
+            const params = new URLSearchParams(window.location.search);
+            const project = params.get('project') || 'JS01';
+            const year = params.get('year') || '26';
+
+            // Build editor URL with project params
+            const editorUrl = `04__EditorTools/${editorFile}?project=${project}&year=${year}&embedded=true`;
+
+            console.log(`[Navigation] Loading editor: ${editorUrl}`);
+
+            // Create iframe container
+            documentContainer.innerHTML = `
+                <div class="editor-frame-container" style="
+                    width: 100%;
+                    height: calc(100vh - 60px);
+                    position: relative;
+                    background: #f5f5f5;
+                ">
+                    <div class="editor-frame-loading" style="
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        text-align: center;
+                        color: #666;
+                    ">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚙️</div>
+                        <div>Loading Editor...</div>
+                    </div>
+                    <iframe
+                        id="editor-iframe"
+                        src="${editorUrl}"
+                        style="
+                            width: 100%;
+                            height: 100%;
+                            border: none;
+                            opacity: 0;
+                            transition: opacity 0.3s;
+                        "
+                        onload="this.style.opacity='1'; this.previousElementSibling.style.display='none';"
+                    ></iframe>
+                </div>
+            `;
+
+            activeEditorFrame = document.getElementById('editor-iframe');
+
+            // Show document screen
+            const documentScreen = document.getElementById('document-screen');
+            if (documentScreen) {
+                documentScreen.style.display = 'block';
+            }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Close Active Editor
+        // ------------------------------------------------------------
+        function closeActiveEditor() {
+            if (activeEditorFrame) {
+                // Check for unsaved changes in iframe if NaEditorTools exists
+                try {
+                    const iframeWindow = activeEditorFrame.contentWindow;
+                    if (iframeWindow?.NaEditorTools?.hasUnsavedChanges?.()) {
+                        const confirmClose = confirm('You have unsaved changes. Are you sure you want to leave?');
+                        if (!confirmClose) {
+                            return false;
+                        }
+                    }
+                } catch (e) {
+                    // Cross-origin or no NaEditorTools - continue
+                }
+
+                activeEditorFrame = null;
+            }
+            return true;
         }
         // ---------------------------------------------------------------
 
@@ -468,7 +692,10 @@
             expandSidebar            : expandSidebar,
             setActiveItem            : setActiveItem,
             refreshMenuBadges        : refreshMenuBadges,
-            isSidebarOpen            : () => sidebarOpen
+            isSidebarOpen            : () => sidebarOpen,
+            detectLocalDevMode       : detectLocalDevMode,
+            loadEditorInline         : loadEditorInline,
+            closeActiveEditor        : closeActiveEditor
         };
 
         // Auto-initialise when DOM ready

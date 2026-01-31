@@ -15,6 +15,8 @@
 
     <!-- Load DateFormatter Module -->
     <script src="../03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
+    <!-- Load Shared Editor Utilities -->
+    <script src="Editor__SharedUtils__.js"></script>
 </head>
 <!-- endregion ---------------------------------------- -->
 
@@ -29,9 +31,13 @@
     <!-- -------------------------------------------------- -->
     <header class="app-header">
         <h1>Special Terms Editor</h1>
-        <div>
-            <button class="btn btn--secondary" onclick="loadFromFile()">Load JSON</button>
-            <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
+        <div class="header-actions">
+            <button class="btn btn--secondary" onclick="loadFromFile()" id="btnLoadFile">Load JSON</button>
+            <button class="btn btn--secondary" onclick="loadFromProject()" id="btnLoadProject"
+                style="display: none;">Load from Project</button>
+            <button class="btn btn--primary" onclick="saveToProject()" id="btnSaveProject" style="display: none;">Save
+                to Project</button>
+            <button class="btn btn--primary" onclick="downloadJson()" id="btnDownload">Download JSON</button>
         </div>
     </header>
     <!-- endregion ---------------------------------------- -->
@@ -52,16 +58,23 @@
                     document. Use these for project-specific requirements, deadlines, or special arrangements.
                 </p>
 
+                <div class="info-box" id="flaskInfoBox"
+                    style="display: none; background: #e8f8e8; border-color: #28a745;">
+                    <strong>✓ Flask Server Connected</strong><br>
+                    Auto-loading and saving to project folder is enabled.
+                    <span id="projectPathDisplay"></span>
+                </div>
+
                 <div class="form-group">
                     <label for="sectionTitle">Section Title</label>
                     <input type="text" id="sectionTitle" class="form-input" value="Special Terms for This Project"
-                        onchange="updatePreview()">
+                        onchange="updatePreview(); markFormDirty()">
                 </div>
 
                 <div class="form-group">
                     <label for="introduction">Introduction (Optional)</label>
                     <textarea id="introduction" class="form-input" placeholder="Optional introductory text..."
-                        onchange="updatePreview()"></textarea>
+                        onchange="updatePreview(); markFormDirty()"></textarea>
                 </div>
 
                 <h3 class="section-heading">Terms</h3>
@@ -125,11 +138,23 @@
 <script>
 
     // #Region ------------------------------------------------
+    // CONSTANTS | Configuration
+    // --------------------------------------------------------
+
+    const TERMS_FILENAME = 'ProjectAdmin__SpecialTerms__.json';
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
     // STATE | Application State
     // --------------------------------------------------------
 
     let terms = [];                                                  // <-- Terms array
     let termId = 0;                                                  // <-- ID counter
+    let isFlaskMode = false;                                         // <-- Flask server available
+    let currentProjectCode = null;                                   // <-- Currently loaded project
+    let currentYear = null;                                          // <-- Current year
+    let isEmbedded = false;                                          // <-- Running in iframe
 
     // endregion ----------------------------------------------
 
@@ -137,11 +162,106 @@
     // INITIALIZATION | DOM Ready
     // --------------------------------------------------------
 
-    // Initialise editor on load
-    document.addEventListener('DOMContentLoaded', function () {
-        addTerm();
+    document.addEventListener('DOMContentLoaded', async function () {
+        // Check if embedded in iframe
+        isEmbedded = window.location.search.includes('embedded=true');
+
+        // Initialise project context
+        if (window.NaEditorTools) {
+            const context = NaEditorTools.initialiseProjectContext();
+            currentProjectCode = context.project;
+            currentYear = context.year;
+
+            // Check for Flask server
+            isFlaskMode = await NaEditorTools.isLocalDevServer();
+
+            if (isFlaskMode) {
+                setupFlaskMode();
+                // Auto-load terms
+                await autoLoadTerms();
+            }
+
+            // Setup unsaved changes warning
+            NaEditorTools.setupUnsavedChangesWarning();
+
+            // Create status bar
+            NaEditorTools.createStatusBar();
+        }
+
+        // Add default term if empty
+        if (terms.length === 0) {
+            addTerm();
+        }
+
         updatePreview();
     });
+
+    // Setup Flask mode UI
+    function setupFlaskMode() {
+        document.getElementById('flaskInfoBox').style.display = 'block';
+        document.getElementById('btnLoadProject').style.display = 'inline-block';
+        document.getElementById('btnSaveProject').style.display = 'inline-block';
+
+        // Update project path display
+        const pathDisplay = document.getElementById('projectPathDisplay');
+        if (pathDisplay && currentProjectCode) {
+            pathDisplay.innerHTML = `<br><code>${currentYear}-Projects/${currentProjectCode}/</code>`;
+        }
+    }
+
+    // Auto-load terms from Flask server
+    async function autoLoadTerms() {
+        if (!isFlaskMode || !currentProjectCode) return;
+
+        NaEditorTools.showInfoMessage(`Loading ${TERMS_FILENAME}...`);
+
+        const data = await NaEditorTools.loadProjectFile(TERMS_FILENAME, currentProjectCode, currentYear);
+
+        if (data) {
+            populateFormFromData(data);
+            NaEditorTools.showSuccessMessage(`Loaded: ${TERMS_FILENAME}`);
+        } else {
+            NaEditorTools.showInfoMessage('No existing terms found - starting fresh');
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // FORM POPULATION | Load Data into Form
+    // --------------------------------------------------------
+
+    function populateFormFromData(data) {
+        document.getElementById('sectionTitle').value = data.sectionTitle || 'Special Terms for This Project';
+        document.getElementById('introduction').value = data.introduction || '';
+
+        terms = [];
+        termId = 0;
+
+        if (data.terms && data.terms.length > 0) {
+            data.terms.forEach(term => {
+                terms.push({
+                    id: ++termId,
+                    title: term.title || '',
+                    content: term.content || ''
+                });
+            });
+        }
+
+        renderTerms();
+        updatePreview();
+
+        if (window.NaEditorTools) {
+            NaEditorTools.markClean();
+        }
+    }
+
+    // Mark form as having unsaved changes
+    function markFormDirty() {
+        if (window.NaEditorTools) {
+            NaEditorTools.markDirty();
+        }
+    }
 
     // endregion ----------------------------------------------
 
@@ -158,6 +278,7 @@
             content: ''
         });
         renderTerms();
+        markFormDirty();
     }
 
     // Remove term
@@ -165,6 +286,7 @@
         terms = terms.filter(term => term.id !== id);
         renderTerms();
         updatePreview();
+        markFormDirty();
     }
 
     // Update term
@@ -173,6 +295,7 @@
         if (term) {
             term[field] = value;
             updatePreview();
+            markFormDirty();
         }
     }
 
@@ -194,17 +317,28 @@
                     </div>
                     <div class="form-group">
                         <label>Title</label>
-                        <input type="text" class="form-input" value="${term.title}" 
+                        <input type="text" class="form-input" value="${escapeHtml(term.title)}" 
                                placeholder="e.g., Payment Schedule"
                                onchange="updateTerm(${term.id}, 'title', this.value)">
                     </div>
                     <div class="form-group">
                         <label>Content</label>
                         <textarea class="form-input" placeholder="Term details..."
-                                  onchange="updateTerm(${term.id}, 'content', this.value)">${term.content}</textarea>
+                                  onchange="updateTerm(${term.id}, 'content', this.value)">${escapeHtml(term.content)}</textarea>
                     </div>
                 </div>
             `).join('');
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
     // endregion ----------------------------------------------
@@ -230,6 +364,9 @@
 
     // Generate terms JSON
     function generateJson() {
+        // Use DateFormatter if available
+        const nowUKTime = window.NaProjectAdmin?.DateFormatter?.nowUKWithTime?.() || new Date().toLocaleString('en-GB');
+
         return {
             sectionTitle: document.getElementById('sectionTitle').value,
             introduction: document.getElementById('introduction').value || undefined,
@@ -237,7 +374,7 @@
                 title: t.title,
                 content: t.content
             })),
-            lastUpdated: window.NaProjectAdmin.DateFormatter.nowUKWithTime()
+            lastUpdated: nowUKTime
         };
     }
 
@@ -250,14 +387,14 @@
 
         const introEl = document.getElementById('previewIntro');
         introEl.innerHTML = data.introduction
-            ? `<p style="margin-bottom: 1rem;">${data.introduction}</p>`
+            ? `<p style="margin-bottom: 1rem;">${escapeHtml(data.introduction)}</p>`
             : '';
 
         const termsEl = document.getElementById('previewTerms');
         termsEl.innerHTML = data.terms.map(term => `
                 <div class="preview-term">
-                    ${term.title ? `<div class="preview-term__title">${term.title}</div>` : ''}
-                    <div class="preview-term__content">${term.content || ''}</div>
+                    ${term.title ? `<div class="preview-term__title">${escapeHtml(term.title)}</div>` : ''}
+                    <div class="preview-term__content">${escapeHtml(term.content) || ''}</div>
                 </div>
             `).join('');
 
@@ -269,7 +406,11 @@
     function copyToClipboard() {
         const json = document.getElementById('jsonOutput').textContent;
         navigator.clipboard.writeText(json).then(() => {
-            alert('JSON copied to clipboard!');
+            if (window.NaEditorTools) {
+                NaEditorTools.showSuccessMessage('JSON copied to clipboard!');
+            } else {
+                alert('JSON copied to clipboard!');
+            }
         });
     }
 
@@ -279,6 +420,66 @@
     // FILE OPERATIONS | Load and Save Functions
     // --------------------------------------------------------
 
+    // Load from project (Flask API)
+    async function loadFromProject() {
+        if (!isFlaskMode) {
+            alert('Flask server not available');
+            return;
+        }
+
+        // Check for unsaved changes
+        if (window.NaEditorTools?.hasUnsavedChanges()) {
+            NaEditorTools.showSaveConfirmDialog(
+                TERMS_FILENAME,
+                async () => {
+                    await saveToProject();
+                    await doLoadFromProject();
+                },
+                async () => {
+                    await doLoadFromProject();
+                },
+                () => { }
+            );
+            return;
+        }
+
+        await doLoadFromProject();
+    }
+
+    async function doLoadFromProject() {
+        const data = await NaEditorTools.loadProjectFile(TERMS_FILENAME, currentProjectCode, currentYear);
+
+        if (data) {
+            populateFormFromData(data);
+            NaEditorTools.showSuccessMessage(`Loaded: ${TERMS_FILENAME}`);
+        } else {
+            NaEditorTools.showErrorMessage('Failed to load special terms');
+        }
+    }
+
+    // Save to project (Flask API)
+    async function saveToProject() {
+        if (!isFlaskMode) {
+            alert('Flask server not available');
+            return;
+        }
+
+        const data = generateJson();
+
+        NaEditorTools.showConfirmDialog(
+            'Save Special Terms',
+            `Save changes to <strong>${TERMS_FILENAME}</strong>?<br><br>This will overwrite the existing file.`,
+            async () => {
+                const success = await NaEditorTools.saveProjectFile(TERMS_FILENAME, data, currentProjectCode, currentYear);
+                if (success) {
+                    NaEditorTools.markClean();
+                }
+            },
+            null,
+            { confirmText: 'Save', cancelText: 'Cancel' }
+        );
+    }
+
     // Download terms as JSON file
     function downloadJson() {
         const json = document.getElementById('jsonOutput').textContent;
@@ -286,13 +487,32 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'ProjectAdmin__SpecialTerms__.json';
+        a.download = TERMS_FILENAME;
         a.click();
         URL.revokeObjectURL(url);
+
+        if (window.NaEditorTools) {
+            NaEditorTools.showSuccessMessage('File downloaded');
+        }
     }
 
     // Load from file
     function loadFromFile() {
+        if (window.NaEditorTools?.hasUnsavedChanges()) {
+            NaEditorTools.showSaveConfirmDialog(
+                TERMS_FILENAME,
+                async () => {
+                    if (isFlaskMode) await saveToProject();
+                    document.getElementById('fileInput').click();
+                },
+                () => {
+                    document.getElementById('fileInput').click();
+                },
+                () => { }
+            );
+            return;
+        }
+
         document.getElementById('fileInput').click();
     }
 
@@ -305,36 +525,38 @@
         reader.onload = function (e) {
             try {
                 const data = JSON.parse(e.target.result);
+                populateFormFromData(data);
 
-                document.getElementById('sectionTitle').value = data.sectionTitle || 'Special Terms for This Project';
-                document.getElementById('introduction').value = data.introduction || '';
-
-                terms = [];
-                termId = 0;
-
-                if (data.terms && data.terms.length > 0) {
-                    data.terms.forEach(term => {
-                        terms.push({
-                            id: ++termId,
-                            title: term.title || '',
-                            content: term.content || ''
-                        });
-                    });
+                if (window.NaEditorTools) {
+                    NaEditorTools.showSuccessMessage('Terms loaded from file');
+                    NaEditorTools.markDirty();
+                } else {
+                    alert('Terms loaded successfully!');
                 }
-
-                renderTerms();
-                updatePreview();
-                alert('Terms loaded successfully!');
             } catch (error) {
-                alert('Failed to load file: ' + error.message);
+                if (window.NaEditorTools) {
+                    NaEditorTools.showErrorMessage('Failed to load file: ' + error.message);
+                } else {
+                    alert('Failed to load file: ' + error.message);
+                }
             }
         };
         reader.readAsText(file);
+
+        event.target.value = '';
     }
 
     // endregion ----------------------------------------------
 
 </script>
 <!-- endregion ---------------------------------------- -->
+
+<style>
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+</style>
 
 </html>

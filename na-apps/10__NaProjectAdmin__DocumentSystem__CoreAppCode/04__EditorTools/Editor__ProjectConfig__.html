@@ -15,6 +15,8 @@
 
     <!-- Load DateFormatter Module -->
     <script src="../03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
+    <!-- Load Shared Editor Utilities -->
+    <script src="Editor__SharedUtils__.js"></script>
 </head>
 <!-- endregion ---------------------------------------- -->
 
@@ -29,9 +31,13 @@
     <!-- -------------------------------------------------- -->
     <header class="app-header">
         <h1>Project Configuration Editor</h1>
-        <div>
-            <button class="btn btn--secondary" onclick="loadFromFile()">Load JSON</button>
-            <button class="btn btn--primary" onclick="downloadJson()">Download JSON</button>
+        <div class="header-actions">
+            <button class="btn btn--secondary" onclick="loadFromFile()" id="btnLoadFile">Load JSON</button>
+            <button class="btn btn--secondary" onclick="loadFromProject()" id="btnLoadProject"
+                style="display: none;">Load from Project</button>
+            <button class="btn btn--primary" onclick="saveToProject()" id="btnSaveProject" style="display: none;">Save
+                to Project</button>
+            <button class="btn btn--primary" onclick="downloadJson()" id="btnDownload">Download JSON</button>
         </div>
     </header>
     <!-- endregion ---------------------------------------- -->
@@ -47,10 +53,17 @@
         <div class="panel">
             <div class="panel__header">Project Configuration</div>
             <div class="panel__body">
-                <div class="info-box">
+                <div class="info-box" id="infoBox">
                     <strong>Project Config File</strong><br>
                     This file contains project-specific settings including the access PIN.
                     Save it as <code>ProjectAdmin__ProjectConfig__.json</code>.
+                </div>
+
+                <div class="info-box" id="flaskInfoBox"
+                    style="display: none; background: #e8f8e8; border-color: #28a745;">
+                    <strong>✓ Flask Server Connected</strong><br>
+                    Auto-loading and saving to project folder is enabled.
+                    <span id="projectPathDisplay"></span>
                 </div>
 
                 <h3 class="section-heading section-heading--first">Project Details</h3>
@@ -58,20 +71,20 @@
                 <div class="form-group">
                     <label for="projectCode">Project Code</label>
                     <input type="text" id="projectCode" class="form-input" placeholder="e.g., JH03" maxlength="4"
-                        onchange="validateProjectCode(); updatePreview()">
+                        onchange="validateProjectCode(); updatePreview(); markFormDirty()">
                     <div class="form-hint">Format: 2 letters + 2 digits (e.g., JH03, AB01)</div>
                 </div>
 
                 <div class="form-group">
                     <label for="projectName">Project Name</label>
                     <input type="text" id="projectName" class="form-input" placeholder="e.g., Romer Cottage Extension"
-                        onchange="updatePreview()">
+                        onchange="updatePreview(); markFormDirty()">
                 </div>
 
                 <div class="form-group">
                     <label for="clientName">Client Name</label>
                     <input type="text" id="clientName" class="form-input" placeholder="e.g., John Smith"
-                        onchange="updatePreview()">
+                        onchange="updatePreview(); markFormDirty()">
                 </div>
 
                 <h3 class="section-heading">Access Control</h3>
@@ -85,7 +98,7 @@
                 <div class="form-group">
                     <label for="projectPin">Access PIN</label>
                     <input type="text" id="projectPin" class="form-input" placeholder="e.g., 1234 or sha256:..."
-                        onchange="updatePreview()">
+                        onchange="updatePreview(); markFormDirty()">
                     <div class="form-hint">4-6 digit PIN, or leave empty for no authentication</div>
                 </div>
 
@@ -98,14 +111,14 @@
 
                 <div class="form-group">
                     <label class="checkbox-group">
-                        <input type="checkbox" id="hasQuotation" onchange="updatePreview()">
+                        <input type="checkbox" id="hasQuotation" onchange="updatePreview(); markFormDirty()">
                         Quotation available
                     </label>
                 </div>
 
                 <div class="form-group">
                     <label class="checkbox-group">
-                        <input type="checkbox" id="hasSpecialTerms" onchange="updatePreview()">
+                        <input type="checkbox" id="hasSpecialTerms" onchange="updatePreview(); markFormDirty()">
                         Special terms available
                     </label>
                 </div>
@@ -150,11 +163,113 @@
 <script>
 
     // #Region ------------------------------------------------
+    // CONSTANTS | Configuration
+    // --------------------------------------------------------
+
+    const CONFIG_FILENAME = 'ProjectAdmin__ProjectConfig__.json';
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // STATE | Application State
+    // --------------------------------------------------------
+
+    let isFlaskMode = false;                                         // <-- Flask server available
+    let currentProjectCode = null;                                   // <-- Currently loaded project
+    let currentYear = null;                                          // <-- Current year
+    let isEmbedded = false;                                          // <-- Running in iframe
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
     // INITIALIZATION | DOM Ready
     // --------------------------------------------------------
 
-    // Initialise preview on load
-    document.addEventListener('DOMContentLoaded', updatePreview);
+    document.addEventListener('DOMContentLoaded', async function () {
+        // Check if embedded in iframe
+        isEmbedded = window.location.search.includes('embedded=true');
+
+        // Initialise project context
+        if (window.NaEditorTools) {
+            const context = NaEditorTools.initialiseProjectContext();
+            currentProjectCode = context.project;
+            currentYear = context.year;
+
+            // Check for Flask server
+            isFlaskMode = await NaEditorTools.isLocalDevServer();
+
+            if (isFlaskMode) {
+                setupFlaskMode();
+                // Auto-load project config
+                await autoLoadProjectConfig();
+            }
+
+            // Setup unsaved changes warning
+            NaEditorTools.setupUnsavedChangesWarning();
+
+            // Create status bar
+            NaEditorTools.createStatusBar();
+        }
+
+        updatePreview();
+    });
+
+    // Setup Flask mode UI
+    function setupFlaskMode() {
+        document.getElementById('flaskInfoBox').style.display = 'block';
+        document.getElementById('btnLoadProject').style.display = 'inline-block';
+        document.getElementById('btnSaveProject').style.display = 'inline-block';
+
+        // Update project path display
+        const pathDisplay = document.getElementById('projectPathDisplay');
+        if (pathDisplay && currentProjectCode) {
+            pathDisplay.innerHTML = `<br><code>${currentYear}-Projects/${currentProjectCode}/</code>`;
+        }
+    }
+
+    // Auto-load project config from Flask server
+    async function autoLoadProjectConfig() {
+        if (!isFlaskMode || !currentProjectCode) return;
+
+        NaEditorTools.showInfoMessage(`Loading ${CONFIG_FILENAME}...`);
+
+        const data = await NaEditorTools.loadProjectFile(CONFIG_FILENAME, currentProjectCode, currentYear);
+
+        if (data) {
+            populateFormFromData(data);
+            NaEditorTools.showSuccessMessage(`Loaded: ${CONFIG_FILENAME}`);
+        } else {
+            NaEditorTools.showInfoMessage('No existing config found - starting fresh');
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // FORM POPULATION | Load Data into Form
+    // --------------------------------------------------------
+
+    function populateFormFromData(data) {
+        document.getElementById('projectCode').value = data.projectCode || '';
+        document.getElementById('projectName').value = data.projectName || '';
+        document.getElementById('clientName').value = data.clientName || '';
+        document.getElementById('projectPin').value = data.projectPin || '';
+        document.getElementById('hasQuotation').checked = data.documents?.quotation || false;
+        document.getElementById('hasSpecialTerms').checked = data.documents?.specialTerms || false;
+
+        updatePreview();
+
+        if (window.NaEditorTools) {
+            NaEditorTools.markClean();
+        }
+    }
+
+    // Mark form as having unsaved changes
+    function markFormDirty() {
+        if (window.NaEditorTools) {
+            NaEditorTools.markDirty();
+        }
+    }
 
     // endregion ----------------------------------------------
 
@@ -189,6 +304,7 @@
         const pin = Math.floor(1000 + Math.random() * 9000).toString();
         document.getElementById('projectPin').value = pin;
         updatePreview();
+        markFormDirty();
     }
 
     // Hash PIN
@@ -208,6 +324,7 @@
 
         document.getElementById('projectPin').value = 'sha256:' + hash;
         updatePreview();
+        markFormDirty();
 
         alert(`PIN "${pin}" has been hashed. Make sure to note the original PIN for client access.`);
     }
@@ -223,6 +340,10 @@
         const projectCode = document.getElementById('projectCode').value;
         const pin = document.getElementById('projectPin').value;
 
+        // Use DateFormatter if available
+        const nowUK = window.NaProjectAdmin?.DateFormatter?.nowUK?.() || new Date().toLocaleDateString('en-GB');
+        const nowUKTime = window.NaProjectAdmin?.DateFormatter?.nowUKWithTime?.() || new Date().toLocaleString('en-GB');
+
         return {
             projectCode: projectCode || undefined,
             projectName: document.getElementById('projectName').value || `Project ${projectCode}`,
@@ -232,8 +353,8 @@
                 quotation: document.getElementById('hasQuotation').checked,
                 specialTerms: document.getElementById('hasSpecialTerms').checked
             },
-            createdDate: window.NaProjectAdmin.DateFormatter.nowUK(),
-            lastModified: window.NaProjectAdmin.DateFormatter.nowUKWithTime()
+            createdDate: nowUK,
+            lastModified: nowUKTime
         };
     }
 
@@ -253,7 +374,11 @@
     function copyToClipboard() {
         const json = document.getElementById('jsonOutput').textContent;
         navigator.clipboard.writeText(json).then(() => {
-            alert('JSON copied to clipboard!');
+            if (window.NaEditorTools) {
+                NaEditorTools.showSuccessMessage('JSON copied to clipboard!');
+            } else {
+                alert('JSON copied to clipboard!');
+            }
         });
     }
 
@@ -263,6 +388,71 @@
     // FILE OPERATIONS | Load and Save Functions
     // --------------------------------------------------------
 
+    // Load from project (Flask API)
+    async function loadFromProject() {
+        if (!isFlaskMode) {
+            alert('Flask server not available');
+            return;
+        }
+
+        // Check for unsaved changes
+        if (window.NaEditorTools?.hasUnsavedChanges()) {
+            NaEditorTools.showSaveConfirmDialog(
+                CONFIG_FILENAME,
+                async () => {
+                    // Save first
+                    await saveToProject();
+                    await doLoadFromProject();
+                },
+                async () => {
+                    // Discard and load
+                    await doLoadFromProject();
+                },
+                () => {
+                    // Cancel - do nothing
+                }
+            );
+            return;
+        }
+
+        await doLoadFromProject();
+    }
+
+    async function doLoadFromProject() {
+        const data = await NaEditorTools.loadProjectFile(CONFIG_FILENAME, currentProjectCode, currentYear);
+
+        if (data) {
+            populateFormFromData(data);
+            NaEditorTools.showSuccessMessage(`Loaded: ${CONFIG_FILENAME}`);
+        } else {
+            NaEditorTools.showErrorMessage('Failed to load project config');
+        }
+    }
+
+    // Save to project (Flask API)
+    async function saveToProject() {
+        if (!isFlaskMode) {
+            alert('Flask server not available');
+            return;
+        }
+
+        const data = generateJson();
+
+        // Confirm save
+        NaEditorTools.showConfirmDialog(
+            'Save Project Config',
+            `Save changes to <strong>${CONFIG_FILENAME}</strong>?<br><br>This will overwrite the existing file.`,
+            async () => {
+                const success = await NaEditorTools.saveProjectFile(CONFIG_FILENAME, data, currentProjectCode, currentYear);
+                if (success) {
+                    NaEditorTools.markClean();
+                }
+            },
+            null,
+            { confirmText: 'Save', cancelText: 'Cancel' }
+        );
+    }
+
     // Download configuration as JSON file
     function downloadJson() {
         const json = document.getElementById('jsonOutput').textContent;
@@ -270,13 +460,39 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'ProjectAdmin__ProjectConfig__.json';
+        a.download = CONFIG_FILENAME;
         a.click();
         URL.revokeObjectURL(url);
+
+        if (window.NaEditorTools) {
+            NaEditorTools.showSuccessMessage('File downloaded');
+        }
     }
 
-    // Load from file
+    // Load from file (local file picker)
     function loadFromFile() {
+        // Check for unsaved changes
+        if (window.NaEditorTools?.hasUnsavedChanges()) {
+            NaEditorTools.showSaveConfirmDialog(
+                CONFIG_FILENAME,
+                async () => {
+                    // Save first (if Flask available)
+                    if (isFlaskMode) {
+                        await saveToProject();
+                    }
+                    document.getElementById('fileInput').click();
+                },
+                () => {
+                    // Discard and load
+                    document.getElementById('fileInput').click();
+                },
+                () => {
+                    // Cancel
+                }
+            );
+            return;
+        }
+
         document.getElementById('fileInput').click();
     }
 
@@ -289,26 +505,39 @@
         reader.onload = function (e) {
             try {
                 const data = JSON.parse(e.target.result);
+                populateFormFromData(data);
 
-                document.getElementById('projectCode').value = data.projectCode || '';
-                document.getElementById('projectName').value = data.projectName || '';
-                document.getElementById('clientName').value = data.clientName || '';
-                document.getElementById('projectPin').value = data.projectPin || '';
-                document.getElementById('hasQuotation').checked = data.documents?.quotation || false;
-                document.getElementById('hasSpecialTerms').checked = data.documents?.specialTerms || false;
-
-                updatePreview();
-                alert('Configuration loaded successfully!');
+                if (window.NaEditorTools) {
+                    NaEditorTools.showSuccessMessage('Configuration loaded from file');
+                    NaEditorTools.markDirty(); // Mark dirty since we loaded from external file
+                } else {
+                    alert('Configuration loaded successfully!');
+                }
             } catch (error) {
-                alert('Failed to load file: ' + error.message);
+                if (window.NaEditorTools) {
+                    NaEditorTools.showErrorMessage('Failed to load file: ' + error.message);
+                } else {
+                    alert('Failed to load file: ' + error.message);
+                }
             }
         };
         reader.readAsText(file);
+
+        // Reset file input
+        event.target.value = '';
     }
 
     // endregion ----------------------------------------------
 
 </script>
 <!-- endregion ---------------------------------------- -->
+
+<style>
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+</style>
 
 </html>

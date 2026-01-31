@@ -22,7 +22,8 @@ The `CommonUtils__AssetLoader__.js` module provides centralized asset URL resolu
 ### Key Features
 - **Automatic URL Resolution** - Converts asset references to absolute GitHub Pages URLs
 - **Dynamic Font Loading** - Injects `@font-face` rules at runtime with absolute paths
-- **Image Source Updates** - Automatically updates `<img>` elements to use absolute URLs
+- **Data Attribute Injection** - Reads `data-asset-src` and `data-asset-href` attributes, injects absolute URLs
+- **Prevents 404 Errors** - Browser doesn't attempt to load assets before AssetLoader initializes
 - **Favicon Management** - Updates all favicon `<link>` elements with absolute URLs
 - **Environment Agnostic** - Works identically in local development and production
 
@@ -94,12 +95,22 @@ const projectAssetUrl = assetLoader.getProjectAssetUrl('JS01', '26', '10__Projec
 
 # Usage in Code
 
-## HTML (Initial Load)
-HTML can use relative paths - AssetLoader will update them automatically:
+## HTML (Initial Load with Data Attributes)
+HTML must use `data-asset-src` and `data-asset-href` attributes instead of direct `src` or `href` attributes. AssetLoader will parse these and inject the absolute URLs on initialization:
+
 ```html
-<img src="../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png">
-<!-- AssetLoader automatically converts to absolute URL on initialization -->
+<!-- Images: Use data-asset-src attribute -->
+<img data-asset-src="../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png" 
+     alt="Company Logo">
+<!-- AssetLoader parses data-asset-src, generates absolute URL, sets src attribute -->
+
+<!-- Favicons: Use data-asset-href attribute -->
+<link rel="icon" 
+      data-asset-href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+<!-- AssetLoader parses data-asset-href, generates absolute URL, sets href attribute -->
 ```
+
+**Critical:** The browser will not attempt to load assets until AssetLoader injects the real URLs, preventing 404 errors on GitHub Pages.
 
 ## CSS (Dynamic Loading)
 Fonts are loaded dynamically by AssetLoader - **do not** use `@font-face` in CSS files:
@@ -115,13 +126,25 @@ Fonts are loaded dynamically by AssetLoader - **do not** use `@font-face` in CSS
 ```
 
 ## JavaScript (Runtime Usage)
-Use AssetLoader API for runtime asset references:
+Use AssetLoader API for runtime asset references in dynamically generated content:
 ```javascript
 const assetLoader = window.NaProjectAdmin.AssetLoader;
 const logoUrl = assetLoader.getAssetUrl('GRAPHICS', 'NaBrandGraphic__CompanyLogo__w2048xh500px__.png');
 
-// Use in dynamic content
+// Use in dynamic content (QuotationRenderer, TermsRenderer, etc.)
 return `<img src="${logoUrl}" alt="Company Logo">`;
+```
+
+**Example from QuotationRenderer:**
+```javascript
+// Get company logo using AssetLoader
+const logoUrl = window.NaProjectAdmin.AssetLoader.getAssetUrl(
+    'GRAPHICS', 
+    'NaBrandGraphic__CompanyLogo__w2048xh500px__.png'
+);
+
+// Use in rendered HTML
+html += `<img src="${logoUrl}" alt="Noble Architecture" class="quotation-logo">`;
 ```
 
 ---
@@ -129,13 +152,16 @@ return `<img src="${logoUrl}" alt="Company Logo">`;
 # Rules
 
 ## ALWAYS
-- Use `AssetLoader.getAssetUrl()` for runtime asset references
+- Use `data-asset-src` attribute in HTML for images (not `src`)
+- Use `data-asset-href` attribute in HTML for links/favicons (not `href`)
+- Use `AssetLoader.getAssetUrl()` for JavaScript runtime asset references
 - Reference existing centralized assets only
 - Include full filename with extension
 - Let AssetLoader handle URL resolution and path calculation
 - Fonts are loaded automatically by AssetLoader at initialization
 
 ## NEVER
+- Use direct `src` or `href` attributes for common assets in HTML
 - Hardcode absolute URLs in code
 - Use relative paths in JavaScript (use AssetLoader API instead)
 - Add `@font-face` rules to CSS files (handled by AssetLoader)

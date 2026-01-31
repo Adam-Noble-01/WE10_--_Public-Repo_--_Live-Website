@@ -478,3 +478,179 @@
 
 /* endregion ---- */
 
+/*  #Region ------------------------------------------------
+ * REGION | Project Index Builder - Header Actions
+ * -------------------------------------------------------- */
+
+    .header-actions {
+        display                    : flex;
+        gap                        : 0.5rem;
+        flex-wrap                  : wrap;
+    }
+
+/* endregion ---- */
+
+/*  #Region ------------------------------------------------
+ * REGION | Project Index Builder - Form Layout
+ * -------------------------------------------------------- */
+
+    .form-row {
+        display                    : flex;
+        gap                        : 1rem;
+        align-items                : flex-start;
+    }
+
+/* endregion ---- */
+
+/*  #Region ------------------------------------------------
+ * REGION | Project Index Builder - Projects Table
+ * -------------------------------------------------------- */
+
+    .projects-table {
+        width                      : 100%;
+        border-collapse            : collapse;
+        margin-top                 : 1rem;
+    }
+
+    .projects-table th,
+    .projects-table td {
+        padding                    : 0.75rem;
+        text-align                 : left;
+        border-bottom              : 1px solid var(--border-light);
+    }
+
+    .projects-table th {
+        background-color           : var(--bg-primary);
+        font-weight                : 600;
+        font-size                  : 0.875rem;
+    }
+
+    .projects-table tr:hover {
+        background-color           : #f9f9f9;
+    }
+
+/* endregion ---- */
+
+/*  #Region ------------------------------------------------
+ * REGION | Button Variants - Additional Styles
+ * -------------------------------------------------------- */
+
+    .btn--warning {
+        background                 : #f39c12;
+        color                      : white;
+    }
+
+    .btn--warning:hover {
+        background                 : #d68910;
+    }
+
+/* endregion ---- */
+
+/*  #Region ------------------------------------------------
+ * REGION | Status Boxes
+ * -------------------------------------------------------- */
+
+    .status-box {
+        padding                    : 0.75rem 1rem;
+        border-radius              : 4px;
+        margin-bottom              : 1rem;
+        font-size                  : 0.875rem;
+    }
+
+    .status-box--success {
+        background                 : #d4edda;
+        border                     : 1px solid #28a745;
+        color                      : #155724;
+    }
+
+    .status-box--warning {
+        background                 : #fff3cd;
+        border                     : 1px solid #ffc107;
+        color                      : #856404;
+    }
+
+    .status-box--info {
+        background                 : #d1ecf1;
+        border                     : 1px solid #17a2b8;
+        color                      : #0c5460;
+    }
+
+/* endregion ---- */
+
+/*  #Region ------------------------------------------------
+ * REGION | Project Index Builder - Editable Cells
+ * -------------------------------------------------------- */
+
+    .editable-cell {
+        cursor                     : pointer;
+        position                   : relative;
+    }
+
+    .editable-cell:hover .cell-display {
+        background-color           : #e8f4f8;
+        border-radius              : 3px;
+        padding                    : 2px 4px;
+        margin                     : -2px -4px;
+    }
+
+    .editable-cell .cell-edit {
+        width                      : 100%;
+        padding                    : 0.25rem 0.5rem;
+        font-size                  : inherit;
+    }
+
+    .editable-cell .cell-display::after {
+        content                    : ' ✎';
+        opacity                    : 0;
+        font-size                  : 0.75rem;
+        color                      : #666;
+        transition                 : opacity 0.2s;
+    }
+
+    .editable-cell:hover .cell-display::after {
+        opacity                    : 0.7;
+    }
+
+/* endregion ---- */
+
+/*  #Region ------------------------------------------------
+ * REGION | Project Index Builder - Actions Cell
+ * -------------------------------------------------------- */
+
+    .actions-cell {
+        white-space                : nowrap;
+    }
+
+    .actions-cell .btn {
+        margin-right               : 0.25rem;
+    }
+
+    .actions-cell .btn:last-child {
+        margin-right               : 0;
+    }
+
+/* endregion ---- */
+
+/*  #Region ------------------------------------------------
+ * REGION | Project Index Builder - Bulk Actions Bar
+ * -------------------------------------------------------- */
+
+    #bulkActions {
+        display                    : flex;
+        align-items                : center;
+        gap                        : 1rem;
+        padding                    : 0.5rem 0.75rem;
+        background                 : #e8f4f8;
+        border                     : 1px solid #3a6ea5;
+        border-radius              : 4px;
+        margin-bottom              : 1rem;
+    }
+
+    .project-count-label {
+        font-size                  : 0.875rem;
+        font-weight                : 500;
+        color                      : #3a6ea5;
+    }
+
+/* endregion ---- */
+

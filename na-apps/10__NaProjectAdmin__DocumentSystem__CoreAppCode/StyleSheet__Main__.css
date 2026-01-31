@@ -294,6 +294,12 @@
         background-color           : var(--App_StatusError);
     }
 
+    .nav-menu__badge--dev {
+        background-color           : #9c27b0;              /* Purple for dev tools */
+        font-size                  : 0.65rem;
+        padding                    : 1px 6px;
+    }
+
     .nav-menu__item--loading {
         padding                    : var(--App_SpacingMd);
         color                      : var(--App_TextMuted);

@@ -8,10 +8,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Index Builder | Noble Architecture</title>
+    <title>Project Manager | Noble Architecture</title>
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
+
+    <!-- Load Shared Editor Utilities -->
+    <script src="Editor__SharedUtils__.js"></script>
 </head>
 <!-- endregion ---------------------------------------- -->
 
@@ -25,14 +28,12 @@
     <!-- UI HEADER | Application Header                    -->
     <!-- -------------------------------------------------- -->
     <header class="app-header">
-        <h1>Project Index Builder</h1>
+        <h1>Project Manager</h1>
         <div class="header-actions">
-            <button class="btn btn--secondary" onclick="scanProjects()">Scan Projects</button>
-            <button class="btn btn--secondary" onclick="forgetDirectory()" id="forgetDirBtn"
-                style="display: none;">Forget Directory</button>
-            <button class="btn btn--secondary" onclick="loadFromFile()">Load Index</button>
-            <button class="btn btn--primary" onclick="saveIndexToFile()">Save Index</button>
-            <button class="btn btn--primary" onclick="downloadJson()">Download Index</button>
+            <button class="btn btn--secondary" onclick="scanProjects()" id="btnScan">Scan Projects</button>
+            <button class="btn btn--secondary" onclick="loadFromFile()" id="btnLoadFile">Load Index</button>
+            <button class="btn btn--primary" onclick="saveIndex()" id="btnSaveIndex">Save Index</button>
+            <button class="btn btn--primary" onclick="downloadJson()" id="btnDownload">Download Index</button>
         </div>
     </header>
     <!-- endregion ---------------------------------------- -->
@@ -43,10 +44,59 @@
     <div class="main-container">
 
         <!-- #Region -------------------------------------- -->
-        <!-- UI PANEL | Editor Panel                       -->
+        <!-- UI PANEL | Create New Project                 -->
+        <!-- ---------------------------------------------- -->
+        <div class="panel" style="grid-column: 1 / -1;" id="createProjectPanel">
+            <div class="panel__header">Create New Project</div>
+            <div class="panel__body">
+                <div class="info-box" id="flaskInfoBox"
+                    style="display: none; background: #e8f8e8; border-color: #28a745;">
+                    <strong>✓ Flask Server Connected</strong><br>
+                    Full project creation and management is enabled. Projects will be created directly on disk.
+                </div>
+
+                <div class="warning-box" id="noFlaskWarning">
+                    <strong>Limited Mode</strong><br>
+                    Flask server not detected. Project creation requires the local development server.
+                    Run <code>start_local_server.bat</code> to enable full functionality.
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="newProjectCode">Project Code</label>
+                        <input type="text" id="newProjectCode" class="form-input" placeholder="JS01" maxlength="4"
+                            onchange="validateNewProjectCode()" onkeyup="validateNewProjectCode()">
+                        <div class="form-hint">Format: 2 letters + 2 digits (e.g., JS01)</div>
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="newProjectName">Project Name</label>
+                        <input type="text" id="newProjectName" class="form-input" placeholder="Rear Extension & Loft">
+                    </div>
+                    <div class="form-group" style="flex: 1.5;">
+                        <label for="newClientName">Client Name</label>
+                        <input type="text" id="newClientName" class="form-input" placeholder="John Smith">
+                    </div>
+                    <div class="form-group">
+                        <label for="newProjectYear">Year</label>
+                        <input type="text" id="newProjectYear" class="form-input" value="26" maxlength="2">
+                    </div>
+                    <div class="form-group" style="align-self: flex-end;">
+                        <button class="btn btn--primary" onclick="createNewProject()" id="btnCreateProject" disabled>
+                            Create Project
+                        </button>
+                    </div>
+                </div>
+
+                <div id="createProjectStatus" style="margin-top: 1rem; display: none;"></div>
+            </div>
+        </div>
+        <!-- endregion ------------------------------------ -->
+
+        <!-- #Region -------------------------------------- -->
+        <!-- UI PANEL | Projects List                      -->
         <!-- ---------------------------------------------- -->
         <div class="panel" style="grid-column: 1 / -1;">
-            <div class="panel__header">Project Index Configuration</div>
+            <div class="panel__header">Project Index</div>
             <div class="panel__body">
                 <div class="info-box">
                     <strong>Project Index File</strong><br>
@@ -54,30 +104,6 @@
                     <code>AppConfiguration__ProjectKeysIndex__.json</code> in the
                     <code>03__Src__AppModules/02__AppData/</code> directory.
                 </div>
-
-                <!-- Directory Status -->
-                <div id="directoryStatus" class="status-box status-box--info" style="display: none;">
-                    <span id="directoryStatusText"></span>
-                </div>
-
-                <h3 class="section-heading section-heading--first">Auto-Discovery</h3>
-
-                <div class="info-box">
-                    <strong>How to use:</strong><br>
-                    1. Click "Scan Projects" and select the <code>na-project-portal</code> directory<br>
-                    2. The tool will remember your selection for future visits<br>
-                    3. Review discovered projects in the table below - click on code or folder to edit<br>
-                    4. Use "Purge" button per-project to clear signed contracts from Cloudflare (for testing)<br>
-                    5. Click "Save Index" to save directly or "Download Index" to download the file
-                </div>
-
-                <div class="warning-box" id="apiWarning">
-                    <strong>Browser Compatibility Note</strong><br>
-                    Auto-scanning requires the File System Access API (Chrome/Edge 86+, Opera 72+).
-                    If your browser doesn't support it, you can manually add projects using the form below.
-                </div>
-
-                <h3 class="section-heading">Discovered Projects</h3>
 
                 <!-- Project Count Indicator -->
                 <div class="actions-bar" id="bulkActions" style="display: none;">
@@ -121,7 +147,7 @@
                         <input type="text" id="manualFolder" class="form-input" placeholder="JS01__JohnSmith">
                     </div>
                     <div class="form-group" style="align-self: flex-end;">
-                        <button class="btn btn--secondary" onclick="addManualProject()">Add Project</button>
+                        <button class="btn btn--secondary" onclick="addManualProject()">Add to Index</button>
                     </div>
                 </div>
             </div>
@@ -168,11 +194,8 @@
     // CONSTANTS | Configuration
     // --------------------------------------------------------
 
-    const DB_NAME = 'NaProjectIndexBuilder';           // <-- IndexedDB name
-    const DB_VERSION = 1;                                 // <-- DB version
-    const STORE_NAME = 'directoryHandles';                // <-- Object store name
-    const HANDLE_KEY = 'projectPortalHandle';             // <-- Key for stored handle
-    const WORKER_BASE_URL = 'https://na-projectadmin-api.adam-fb3.workers.dev'; // <-- Cloudflare Worker
+    const INDEX_FILENAME = 'AppConfiguration__ProjectKeysIndex__.json';
+    const WORKER_BASE_URL = 'https://na-projectadmin-api.adam-fb3.workers.dev';
 
     // endregion ----------------------------------------------
 
@@ -180,10 +203,10 @@
     // STATE | Application State
     // --------------------------------------------------------
 
-    let projectsIndex = {};                                // <-- Year -> ProjectCode -> FolderName
-    let discoveredData = {};                                // <-- Full project data with client names
-    let storedDirHandle = null;                              // <-- Cached directory handle
-    let db = null;                              // <-- IndexedDB reference
+    let projectsIndex = {};                                          // <-- Year -> ProjectCode -> FolderName
+    let discoveredData = {};                                         // <-- Full project data with client names
+    let isFlaskMode = false;                                         // <-- Flask server available
+    let isEmbedded = false;                                          // <-- Running in iframe
 
     // endregion ----------------------------------------------
 
@@ -191,345 +214,294 @@
     // INITIALIZATION | DOM Ready
     // --------------------------------------------------------
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        updatePreview();
-        checkFileSystemAPISupport();
+    document.addEventListener('DOMContentLoaded', async function () {
+        // Check if embedded in iframe
+        isEmbedded = window.location.search.includes('embedded=true');
 
-        // Try to restore saved directory handle
-        await initIndexedDB();
-        await tryAutoLoad();
+        // Check for Flask server
+        if (window.NaEditorTools) {
+            isFlaskMode = await NaEditorTools.isLocalDevServer();
+
+            if (isFlaskMode) {
+                setupFlaskMode();
+                // Auto-scan projects
+                await scanProjects();
+            }
+
+            // Create status bar
+            NaEditorTools.createStatusBar();
+        }
+
+        updatePreview();
     });
 
-    // endregion ----------------------------------------------
-
-    // #Region ------------------------------------------------
-    // INDEXEDDB | Directory Handle Storage
-    // --------------------------------------------------------
-
-    /**
-     * Initialise IndexedDB for storing directory handles
-     */
-    async function initIndexedDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-            request.onerror = () => {
-                console.warn('IndexedDB not available:', request.error);
-                resolve(null);
-            };
-
-            request.onsuccess = () => {
-                db = request.result;
-                console.log('IndexedDB initialised');
-                resolve(db);
-            };
-
-            request.onupgradeneeded = (event) => {
-                const database = event.target.result;
-                if (!database.objectStoreNames.contains(STORE_NAME)) {
-                    database.createObjectStore(STORE_NAME);
-                    console.log('Created object store:', STORE_NAME);
-                }
-            };
-        });
-    }
-
-    /**
-     * Store directory handle in IndexedDB
-     */
-    async function storeDirectoryHandle(handle) {
-        if (!db) return false;
-
-        return new Promise((resolve) => {
-            try {
-                const tx = db.transaction(STORE_NAME, 'readwrite');
-                const store = tx.objectStore(STORE_NAME);
-                store.put(handle, HANDLE_KEY);
-
-                tx.oncomplete = () => {
-                    console.log('Directory handle stored');
-                    storedDirHandle = handle;
-                    updateDirectoryStatus(handle.name, true);
-                    resolve(true);
-                };
-
-                tx.onerror = () => {
-                    console.warn('Failed to store handle:', tx.error);
-                    resolve(false);
-                };
-            } catch (error) {
-                console.warn('Store error:', error);
-                resolve(false);
-            }
-        });
-    }
-
-    /**
-     * Retrieve directory handle from IndexedDB
-     */
-    async function getStoredDirectoryHandle() {
-        if (!db) return null;
-
-        return new Promise((resolve) => {
-            try {
-                const tx = db.transaction(STORE_NAME, 'readonly');
-                const store = tx.objectStore(STORE_NAME);
-                const request = store.get(HANDLE_KEY);
-
-                request.onsuccess = () => {
-                    resolve(request.result || null);
-                };
-
-                request.onerror = () => {
-                    console.warn('Failed to get handle:', request.error);
-                    resolve(null);
-                };
-            } catch (error) {
-                console.warn('Get error:', error);
-                resolve(null);
-            }
-        });
-    }
-
-    /**
-     * Clear stored directory handle from IndexedDB
-     */
-    async function clearStoredDirectoryHandle() {
-        if (!db) return false;
-
-        return new Promise((resolve) => {
-            try {
-                const tx = db.transaction(STORE_NAME, 'readwrite');
-                const store = tx.objectStore(STORE_NAME);
-                store.delete(HANDLE_KEY);
-
-                tx.oncomplete = () => {
-                    console.log('Directory handle cleared');
-                    storedDirHandle = null;
-                    updateDirectoryStatus(null, false);
-                    resolve(true);
-                };
-
-                tx.onerror = () => {
-                    resolve(false);
-                };
-            } catch (error) {
-                resolve(false);
-            }
-        });
+    // Setup Flask mode UI
+    function setupFlaskMode() {
+        document.getElementById('flaskInfoBox').style.display = 'block';
+        document.getElementById('noFlaskWarning').style.display = 'none';
+        document.getElementById('btnCreateProject').disabled = false;
     }
 
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // AUTO-LOAD | Restore Previous Session
+    // NEW PROJECT CREATION | Create Project via Flask API
     // --------------------------------------------------------
 
-    /**
-     * Try to auto-load from stored directory handle
-     */
-    async function tryAutoLoad() {
-        const handle = await getStoredDirectoryHandle();
+    // Validate new project code
+    function validateNewProjectCode() {
+        const input = document.getElementById('newProjectCode');
+        let value = input.value.toUpperCase();
 
-        if (!handle) {
-            console.log('No stored directory handle found');
+        // Only allow valid characters
+        value = value.replace(/[^A-Z0-9]/g, '');
+
+        // Ensure format: 2 letters + 2 digits
+        if (value.length > 4) {
+            value = value.substring(0, 4);
+        }
+
+        input.value = value;
+
+        // Enable/disable create button
+        const isValid = /^[A-Z]{2}\d{2}$/.test(value);
+        const createBtn = document.getElementById('btnCreateProject');
+
+        if (isFlaskMode) {
+            createBtn.disabled = !isValid;
+        }
+
+        // Visual feedback
+        if (value.length === 4) {
+            input.style.borderColor = isValid ? '#28a745' : '#dc3545';
+        } else {
+            input.style.borderColor = '';
+        }
+    }
+
+    // Create new project
+    async function createNewProject() {
+        if (!isFlaskMode) {
+            NaEditorTools.showErrorMessage('Flask server required for project creation');
             return;
         }
 
-        console.log('Found stored handle:', handle.name);
+        const code = document.getElementById('newProjectCode').value.toUpperCase();
+        const projectName = document.getElementById('newProjectName').value.trim();
+        const clientName = document.getElementById('newClientName').value.trim();
+        const year = document.getElementById('newProjectYear').value.trim();
 
-        // Request permission to access the directory
+        // Validate
+        if (!code || !/^[A-Z]{2}\d{2}$/.test(code)) {
+            NaEditorTools.showErrorMessage('Invalid project code format');
+            return;
+        }
+
+        if (!projectName) {
+            NaEditorTools.showErrorMessage('Project name is required');
+            return;
+        }
+
+        if (!year || !/^\d{2}$/.test(year)) {
+            NaEditorTools.showErrorMessage('Year must be 2 digits (e.g., 26)');
+            return;
+        }
+
+        // Check if project already exists
+        if (projectsIndex[year]?.[code]) {
+            NaEditorTools.showErrorMessage(`Project ${code} already exists for year ${year}`);
+            return;
+        }
+
+        // Show confirmation
+        NaEditorTools.showConfirmDialog(
+            'Create New Project',
+            `Create project <strong>${code}</strong> - ${projectName}?<br><br>
+             This will create the following folder structure:<br>
+             <code>${year}-Projects/${code}__${projectName.replace(/\s+/g, '')}/</code><br><br>
+             With all standard project files.`,
+            async () => {
+                await doCreateProject(code, projectName, clientName, year);
+            },
+            null,
+            { confirmText: 'Create Project', cancelText: 'Cancel' }
+        );
+    }
+
+    async function doCreateProject(code, projectName, clientName, year) {
+        const statusEl = document.getElementById('createProjectStatus');
+        statusEl.style.display = 'block';
+        statusEl.innerHTML = '<div style="color: #666;">Creating project...</div>';
+
         try {
-            const permission = await handle.requestPermission({ mode: 'read' });
+            const result = await NaEditorTools.createProject({
+                projectCode: code,
+                projectName: projectName,
+                clientName: clientName || 'Client Name',
+                year: year
+            });
 
-            if (permission === 'granted') {
-                console.log('Permission granted, scanning...');
-                storedDirHandle = handle;
-                updateDirectoryStatus(handle.name, true);
-                await scanDirectoryHandle(handle);
+            if (result.success) {
+                statusEl.innerHTML = `
+                    <div style="color: #28a745; background: #d4edda; padding: 1rem; border-radius: 4px;">
+                        <strong>✓ Project created successfully!</strong><br>
+                        <code>${result.path}</code>
+                    </div>
+                `;
+
+                NaEditorTools.showSuccessMessage(`Project ${code} created`);
+
+                // Clear form
+                document.getElementById('newProjectCode').value = '';
+                document.getElementById('newProjectName').value = '';
+                document.getElementById('newClientName').value = '';
+                document.getElementById('newProjectCode').style.borderColor = '';
+                document.getElementById('btnCreateProject').disabled = true;
+
+                // Refresh project list
+                await scanProjects();
+
+                // Hide status after delay
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 5000);
+
             } else {
-                console.log('Permission denied, handle stored for later');
-                updateDirectoryStatus(handle.name, false);
+                statusEl.innerHTML = `
+                    <div style="color: #721c24; background: #f8d7da; padding: 1rem; border-radius: 4px;">
+                        <strong>✕ Failed to create project</strong><br>
+                        ${result.error}
+                    </div>
+                `;
+                NaEditorTools.showErrorMessage(result.error);
             }
+
         } catch (error) {
-            console.warn('Auto-load failed:', error.message);
-            updateDirectoryStatus(handle.name, false);
-        }
-    }
-
-    /**
-     * Update the directory status display
-     */
-    function updateDirectoryStatus(dirName, hasPermission) {
-        const statusBox = document.getElementById('directoryStatus');
-        const statusText = document.getElementById('directoryStatusText');
-        const forgetBtn = document.getElementById('forgetDirBtn');
-
-        if (dirName) {
-            statusBox.style.display = 'block';
-            forgetBtn.style.display = 'inline-block';
-
-            if (hasPermission) {
-                statusBox.className = 'status-box status-box--success';
-                statusText.innerHTML = `<strong>✓ Connected:</strong> ${dirName} <em>(auto-loading enabled)</em>`;
-            } else {
-                statusBox.className = 'status-box status-box--warning';
-                statusText.innerHTML = `<strong>⚠ Saved:</strong> ${dirName} <em>(click "Scan Projects" to reconnect)</em>`;
-            }
-        } else {
-            statusBox.style.display = 'none';
-            forgetBtn.style.display = 'none';
-        }
-    }
-
-    /**
-     * Forget the stored directory
-     */
-    async function forgetDirectory() {
-        if (confirm('Forget the saved directory? You will need to select it again next time.')) {
-            await clearStoredDirectoryHandle();
-            projectsIndex = {};
-            discoveredData = {};
-            renderProjectsTable({});
-            updatePreview();
+            statusEl.innerHTML = `
+                <div style="color: #721c24; background: #f8d7da; padding: 1rem; border-radius: 4px;">
+                    <strong>✕ Error</strong><br>
+                    ${error.message}
+                </div>
+            `;
+            NaEditorTools.showErrorMessage(error.message);
         }
     }
 
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // BROWSER COMPATIBILITY | Check API Support
-    // --------------------------------------------------------
-
-    function checkFileSystemAPISupport() {
-        if (!('showDirectoryPicker' in window)) {
-            console.warn('File System Access API not supported');
-            const warningBox = document.getElementById('apiWarning');
-            if (warningBox) {
-                warningBox.style.display = 'block';
-                warningBox.style.borderColor = '#e74c3c';
-            }
-        }
-    }
-
-    // endregion ----------------------------------------------
-
-    // #Region ------------------------------------------------
-    // PROJECT SCANNING | Auto-Discovery
+    // PROJECT SCANNING | Discover Projects
     // --------------------------------------------------------
 
     async function scanProjects() {
+        if (!isFlaskMode) {
+            // Fall back to legacy File System Access API method
+            await scanProjectsLegacy();
+            return;
+        }
+
+        NaEditorTools.showInfoMessage('Scanning for projects...');
+
+        try {
+            const result = await NaEditorTools.scanProjects();
+
+            if (result.success) {
+                // Update global state
+                projectsIndex = {};
+                discoveredData = result.projects;
+
+                for (const year in result.projects) {
+                    projectsIndex[year] = {};
+                    for (const code in result.projects[year]) {
+                        projectsIndex[year][code] = result.projects[year][code].folder;
+                    }
+                }
+
+                // Update UI
+                renderProjectsTable(result.projects);
+                updatePreview();
+
+                const projectCount = Object.keys(result.projects).reduce(
+                    (sum, year) => sum + Object.keys(result.projects[year]).length, 0
+                );
+
+                NaEditorTools.showSuccessMessage(`Found ${projectCount} projects`);
+
+            } else {
+                NaEditorTools.showErrorMessage(result.error);
+            }
+
+        } catch (error) {
+            NaEditorTools.showErrorMessage('Scan failed: ' + error.message);
+        }
+    }
+
+    // Legacy scan using File System Access API
+    async function scanProjectsLegacy() {
         if (!('showDirectoryPicker' in window)) {
-            alert('Your browser does not support the File System Access API.\nPlease use Chrome, Edge, or Opera, or add projects manually.');
+            alert('Your browser does not support the File System Access API.\nPlease use Chrome, Edge, or Opera.');
             return;
         }
 
         try {
-            // Use stored handle if available and has permission
-            let dirHandle = storedDirHandle;
+            const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
 
-            if (!dirHandle) {
-                dirHandle = await window.showDirectoryPicker({
-                    mode: 'read'
-                });
+            const discovered = {};
 
-                // Store the handle for future use
-                await storeDirectoryHandle(dirHandle);
-            } else {
-                // Verify permission
-                const permission = await dirHandle.requestPermission({ mode: 'read' });
-                if (permission !== 'granted') {
-                    // Need to pick again
-                    dirHandle = await window.showDirectoryPicker({
-                        mode: 'read'
-                    });
-                    await storeDirectoryHandle(dirHandle);
+            for await (const yearEntry of dirHandle.values()) {
+                if (yearEntry.kind !== 'directory') continue;
+
+                const yearMatch = yearEntry.name.match(/^(\d{2})-Projects$/);
+                if (!yearMatch) continue;
+
+                const year = yearMatch[1];
+
+                for await (const projectEntry of yearEntry.values()) {
+                    if (projectEntry.kind !== 'directory') continue;
+
+                    const projectData = await checkProjectFolderLegacy(projectEntry);
+
+                    if (projectData) {
+                        if (!discovered[year]) {
+                            discovered[year] = {};
+                        }
+                        discovered[year][projectData.code] = {
+                            folder: projectEntry.name,
+                            clientName: projectData.clientName
+                        };
+                    }
                 }
             }
 
-            await scanDirectoryHandle(dirHandle);
+            projectsIndex = {};
+            discoveredData = discovered;
+
+            for (const year in discovered) {
+                projectsIndex[year] = {};
+                for (const code in discovered[year]) {
+                    projectsIndex[year][code] = discovered[year][code].folder;
+                }
+            }
+
+            renderProjectsTable(discovered);
+            updatePreview();
+
+            const projectCount = Object.keys(discovered).reduce(
+                (sum, year) => sum + Object.keys(discovered[year]).length, 0
+            );
+
+            alert(`Scan complete! Found ${projectCount} projects.`);
 
         } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log('User cancelled directory selection');
-            } else {
-                console.error('Scan error:', error);
-                alert('Failed to scan projects: ' + error.message);
+            if (error.name !== 'AbortError') {
+                alert('Scan failed: ' + error.message);
             }
         }
     }
 
-    /**
-     * Scan a directory handle for projects
-     */
-    async function scanDirectoryHandle(dirHandle) {
-        console.log('Scanning directory:', dirHandle.name);
-
-        const discovered = {};                                            // <-- Temporary storage
-
-        // Iterate through year folders (e.g., 25-Projects, 26-Projects)
-        for await (const yearEntry of dirHandle.values()) {
-            if (yearEntry.kind !== 'directory') continue;
-
-            const yearMatch = yearEntry.name.match(/^(\d{2})-Projects$/);
-            if (!yearMatch) continue;
-
-            const year = yearMatch[1];
-            console.log('Scanning year:', year);
-
-            // Iterate through project folders within year
-            for await (const projectEntry of yearEntry.values()) {
-                if (projectEntry.kind !== 'directory') continue;
-
-                const folderName = projectEntry.name;
-
-                // Try to find project config to validate it's a real project
-                const projectData = await checkProjectFolder(projectEntry);
-
-                if (projectData) {
-                    if (!discovered[year]) {
-                        discovered[year] = {};
-                    }
-                    discovered[year][projectData.code] = {
-                        folder: folderName,
-                        clientName: projectData.clientName
-                    };
-                    console.log(`Found project: ${year}/${projectData.code} -> ${folderName}`);
-                }
-            }
-        }
-
-        // Update global state
-        projectsIndex = {};
-        discoveredData = discovered;
-
-        for (const year in discovered) {
-            projectsIndex[year] = {};
-            for (const code in discovered[year]) {
-                projectsIndex[year][code] = discovered[year][code].folder;
-            }
-        }
-
-        // Update UI
-        renderProjectsTable(discovered);
-        updatePreview();
-
-        const projectCount = Object.keys(discovered).reduce((sum, year) => sum + Object.keys(discovered[year]).length, 0);
-
-        if (projectCount > 0) {
-            document.getElementById('bulkActions').style.display = 'flex';
-        }
-
-        alert(`Scan complete! Found ${projectCount} projects.`);
-    }
-
-    // Check if a folder is a valid project
-    async function checkProjectFolder(dirHandle) {
+    async function checkProjectFolderLegacy(dirHandle) {
         try {
-            // Look for 10__ProjectAdmin__AppContent folder
             const adminHandle = await dirHandle.getDirectoryHandle('10__ProjectAdmin__AppContent');
-
-            // Try to read ProjectAdmin__ProjectConfig__.json
             const configHandle = await adminHandle.getFileHandle('ProjectAdmin__ProjectConfig__.json');
             const configFile = await configHandle.getFile();
             const configText = await configFile.text();
@@ -539,9 +511,7 @@
                 code: configData.projectCode,
                 clientName: configData.clientName || 'Unknown'
             };
-
         } catch (error) {
-            // Not a valid project folder
             return null;
         }
     }
@@ -556,16 +526,14 @@
         const tbody = document.getElementById('projectsTableBody');
         tbody.innerHTML = '';
 
-        const years = Object.keys(discovered).sort().reverse();           // <-- Newest first
-
-        // Calculate total project count
+        const years = Object.keys(discovered).sort().reverse();
         const projectCount = years.reduce((sum, year) => sum + Object.keys(discovered[year]).length, 0);
 
         if (years.length === 0) {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="5" style="text-align: center; color: #888; padding: 2rem;">
-                        No projects found. Try scanning again or add manually.
+                        No projects found. Click "Scan Projects" to discover them.
                     </td>
                 </tr>
             `;
@@ -593,9 +561,10 @@
                         <span class="cell-display"><code>${project.folder}</code></span>
                         <input type="text" class="cell-edit form-input" value="${project.folder}" style="display: none;">
                     </td>
-                    <td>${project.clientName || 'Unknown'}</td>
+                    <td>${project.clientName || project.projectName || 'Unknown'}</td>
                     <td class="actions-cell">
-                        <button class="btn btn--small btn--warning" onclick="purgeContracts('${code}', '${year}')" title="Delete signed contracts from Cloudflare">Purge</button>
+                        <button class="btn btn--small btn--secondary" onclick="openProject('${code}', '${year}')" title="Open in app">Open</button>
+                        <button class="btn btn--small btn--warning" onclick="purgeContracts('${code}', '${year}')" title="Delete signed contracts">Purge</button>
                         <button class="btn btn--small btn--danger" onclick="removeProject('${year}', '${code}')">Remove</button>
                     </td>
                 `;
@@ -604,17 +573,12 @@
             }
         }
 
-        // Add click handlers for editable cells
         setupEditableCells();
 
-        // Update project count display
         document.getElementById('bulkActions').style.display = 'flex';
         document.getElementById('projectCountLabel').textContent = `${projectCount} project${projectCount !== 1 ? 's' : ''} loaded`;
     }
 
-    /**
-     * Setup click-to-edit functionality for table cells
-     */
     function setupEditableCells() {
         const editableCells = document.querySelectorAll('.editable-cell');
 
@@ -622,7 +586,6 @@
             const display = cell.querySelector('.cell-display');
             const input = cell.querySelector('.cell-edit');
 
-            // Click to edit
             display.addEventListener('click', () => {
                 display.style.display = 'none';
                 input.style.display = 'block';
@@ -630,12 +593,10 @@
                 input.select();
             });
 
-            // Save on blur
             input.addEventListener('blur', () => {
                 saveEditedCell(cell, input.value);
             });
 
-            // Save on Enter, cancel on Escape
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -648,9 +609,6 @@
         });
     }
 
-    /**
-     * Save an edited cell value
-     */
     function saveEditedCell(cell, newValue) {
         const field = cell.dataset.field;
         const year = cell.dataset.year;
@@ -660,43 +618,37 @@
 
         newValue = newValue.trim();
 
-        // Validate based on field type
         if (field === 'code') {
             newValue = newValue.toUpperCase();
             if (!/^[A-Z]{2}\d{2}$/.test(newValue)) {
-                alert('Project code must be 2 letters + 2 digits (e.g., JS01)');
+                NaEditorTools?.showErrorMessage('Project code must be 2 letters + 2 digits');
                 cancelEdit(cell);
                 return;
             }
 
-            // Update the code
             if (newValue !== oldCode) {
                 const oldFolder = projectsIndex[year][oldCode];
                 const oldClientName = discoveredData[year]?.[oldCode]?.clientName || 'Unknown';
 
-                // Remove old entry
                 delete projectsIndex[year][oldCode];
                 if (discoveredData[year]) delete discoveredData[year][oldCode];
 
-                // Add new entry
                 projectsIndex[year][newValue] = oldFolder;
                 if (!discoveredData[year]) discoveredData[year] = {};
                 discoveredData[year][newValue] = { folder: oldFolder, clientName: oldClientName };
 
-                // Update cell reference
                 cell.dataset.code = newValue;
 
-                // Update sibling cells
                 const row = cell.closest('tr');
                 row.dataset.code = newValue;
                 const siblingCells = row.querySelectorAll('.editable-cell');
                 siblingCells.forEach(sc => sc.dataset.code = newValue);
 
-                // Update actions buttons
                 const actionsCell = row.querySelector('.actions-cell');
                 if (actionsCell) {
                     actionsCell.innerHTML = `
-                        <button class="btn btn--small btn--warning" onclick="purgeContracts('${newValue}', '${year}')" title="Delete signed contracts from Cloudflare">Purge</button>
+                        <button class="btn btn--small btn--secondary" onclick="openProject('${newValue}', '${year}')" title="Open in app">Open</button>
+                        <button class="btn btn--small btn--warning" onclick="purgeContracts('${newValue}', '${year}')" title="Delete signed contracts">Purge</button>
                         <button class="btn btn--small btn--danger" onclick="removeProject('${year}', '${newValue}')">Remove</button>
                     `;
                 }
@@ -705,12 +657,11 @@
             display.innerHTML = `<strong>${newValue}</strong>`;
         } else if (field === 'folder') {
             if (!newValue) {
-                alert('Folder name cannot be empty');
+                NaEditorTools?.showErrorMessage('Folder name cannot be empty');
                 cancelEdit(cell);
                 return;
             }
 
-            // Update the folder
             const code = cell.dataset.code;
             projectsIndex[year][code] = newValue;
             if (discoveredData[year]?.[code]) {
@@ -720,17 +671,11 @@
             display.innerHTML = `<code>${newValue}</code>`;
         }
 
-        // Hide input, show display
         input.style.display = 'none';
         display.style.display = 'inline';
-
-        // Update preview
         updatePreview();
     }
 
-    /**
-     * Cancel editing and restore original value
-     */
     function cancelEdit(cell) {
         const field = cell.dataset.field;
         const year = cell.dataset.year;
@@ -738,7 +683,6 @@
         const display = cell.querySelector('.cell-display');
         const input = cell.querySelector('.cell-edit');
 
-        // Restore original value
         if (field === 'code') {
             input.value = code;
         } else if (field === 'folder') {
@@ -752,8 +696,15 @@
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // MANUAL OPERATIONS | Add/Remove Projects
+    // PROJECT ACTIONS | Open, Remove, Purge
     // --------------------------------------------------------
+
+    function openProject(code, year) {
+        // Construct URL to open project in main app
+        const baseUrl = window.location.origin + '/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/';
+        const projectUrl = `${baseUrl}?project=${code}&year=${year}`;
+        window.open(projectUrl, '_blank');
+    }
 
     function addManualProject() {
         const year = document.getElementById('manualYear').value.trim();
@@ -761,28 +712,25 @@
         const folder = document.getElementById('manualFolder').value.trim();
 
         if (!year || !code || !folder) {
-            alert('Please fill in all fields');
+            NaEditorTools?.showErrorMessage('Please fill in all fields');
             return;
         }
 
-        // Validate format
         if (!/^\d{2}$/.test(year)) {
-            alert('Year must be 2 digits (e.g., 26)');
+            NaEditorTools?.showErrorMessage('Year must be 2 digits (e.g., 26)');
             return;
         }
 
         if (!/^[A-Z]{2}\d{2}$/.test(code)) {
-            alert('Project code must be 2 letters + 2 digits (e.g., JS01)');
+            NaEditorTools?.showErrorMessage('Project code must be 2 letters + 2 digits');
             return;
         }
 
-        // Add to index
         if (!projectsIndex[year]) {
             projectsIndex[year] = {};
         }
         projectsIndex[year][code] = folder;
 
-        // Update discovered data
         if (!discoveredData[year]) {
             discoveredData[year] = {};
         }
@@ -794,72 +742,68 @@
         renderProjectsTable(discoveredData);
         updatePreview();
 
-        // Clear form
         document.getElementById('manualYear').value = '';
         document.getElementById('manualCode').value = '';
         document.getElementById('manualFolder').value = '';
 
-        alert(`Added ${code} (${year}) -> ${folder}`);
+        NaEditorTools?.showSuccessMessage(`Added ${code} (${year}) to index`);
     }
 
     function removeProject(year, code) {
-        if (!confirm(`Remove ${code} (${year})?`)) {
-            return;
-        }
+        NaEditorTools.showConfirmDialog(
+            'Remove from Index',
+            `Remove <strong>${code}</strong> (${year}) from the index?<br><br>
+             <em>Note: This only removes the entry from the index file. The project folder will not be deleted.</em>`,
+            () => {
+                delete projectsIndex[year][code];
+                if (discoveredData[year]) {
+                    delete discoveredData[year][code];
+                }
 
-        delete projectsIndex[year][code];
-        if (discoveredData[year]) {
-            delete discoveredData[year][code];
-        }
+                if (Object.keys(projectsIndex[year]).length === 0) {
+                    delete projectsIndex[year];
+                    delete discoveredData[year];
+                }
 
-        // Remove year if empty
-        if (Object.keys(projectsIndex[year]).length === 0) {
-            delete projectsIndex[year];
-            delete discoveredData[year];
-        }
+                renderProjectsTable(discoveredData);
+                updatePreview();
 
-        renderProjectsTable(discoveredData);
-        updatePreview();
+                NaEditorTools.showSuccessMessage(`Removed ${code} from index`);
+            },
+            null,
+            { confirmText: 'Remove', dangerous: true }
+        );
     }
 
-    // endregion ----------------------------------------------
-
-    // #Region ------------------------------------------------
-    // PURGE CONTRACTS | Cloudflare Signature Deletion
-    // --------------------------------------------------------
-
-    /**
-     * Purge contracts for a specific project
-     * Calls the Cloudflare Worker DELETE endpoint
-     */
     async function purgeContracts(projectCode, year) {
-        if (!confirm(`Purge ALL signed contracts for ${projectCode} (${year})?\n\nThis will permanently delete signature records from Cloudflare.\nThis action cannot be undone.`)) {
-            return;
-        }
+        NaEditorTools.showConfirmDialog(
+            'Purge Signed Contracts',
+            `<strong style="color: #c73e3e;">⚠ Warning: This action cannot be undone!</strong><br><br>
+             Purge ALL signed contracts for <strong>${projectCode}</strong> (${year})?<br><br>
+             This will permanently delete signature records from Cloudflare.`,
+            async () => {
+                await doPurgeContracts(projectCode, year);
+            },
+            null,
+            { confirmText: 'Purge Contracts', dangerous: true }
+        );
+    }
 
-        const btn = event.target;
-        const originalText = btn.textContent;
-        btn.textContent = 'Purging...';
-        btn.disabled = true;
-
+    async function doPurgeContracts(projectCode, year) {
         try {
-            // Check if running from file:// protocol
             if (window.location.protocol === 'file:') {
-                throw new Error('Cannot purge contracts when running from file:// protocol.\n\nPlease run this tool from a local server (e.g., python -m http.server) or deploy to a web server.');
+                throw new Error('Cannot purge contracts when running from file:// protocol.');
             }
 
             const response = await fetch(`${WORKER_BASE_URL}/projectadmin/signature`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     projectCode: projectCode.toUpperCase(),
                     year: year
                 })
             });
 
-            // Check if response is OK
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
@@ -868,29 +812,13 @@
             const result = await response.json();
 
             if (result.success) {
-                alert(`Purge complete!\n\nDeleted ${result.deletedCount} signature record(s) for ${projectCode}.`);
+                NaEditorTools.showSuccessMessage(`Purged ${result.deletedCount} signature record(s)`);
             } else {
-                alert(`Purge failed: ${result.message}`);
+                NaEditorTools.showErrorMessage(`Purge failed: ${result.message}`);
             }
 
         } catch (error) {
-            console.error('Purge error:', error);
-
-            // Provide helpful error messages
-            let errorMessage = error.message;
-
-            if (error.message === 'Failed to fetch') {
-                errorMessage = 'Failed to connect to Cloudflare Worker.\n\nPossible causes:\n' +
-                    '• The worker may not be deployed (run deploy.bat)\n' +
-                    '• CORS error - try running from localhost instead of file://\n' +
-                    '• Network connectivity issue\n\n' +
-                    'Check browser console (F12) for more details.';
-            }
-
-            alert(`Purge failed:\n\n${errorMessage}`);
-        } finally {
-            btn.textContent = originalText;
-            btn.disabled = false;
+            NaEditorTools.showErrorMessage(`Purge failed: ${error.message}`);
         }
     }
 
@@ -901,14 +829,11 @@
     // --------------------------------------------------------
 
     function generateJson() {
-        // Sort by year
         const sorted = {};
         const years = Object.keys(projectsIndex).sort();
 
         for (const year of years) {
             sorted[year] = {};
-
-            // Sort by project code
             const codes = Object.keys(projectsIndex[year]).sort();
             for (const code of codes) {
                 sorted[year][code] = projectsIndex[year][code];
@@ -926,11 +851,9 @@
 
     function updatePreview() {
         const json = generateJson();
-
-        // Format with proper alignment
         let jsonStr = JSON.stringify(json, null, 4);
 
-        // Adjust formatting for column alignment (Noble Architecture style)
+        // Noble Architecture style column alignment
         jsonStr = jsonStr.replace(/"([A-Z0-9]{2,4})"\s*:\s*"([^"]+)"/g, (match, key, value) => {
             const spaces = ' '.repeat(Math.max(1, 23 - key.length));
             return `"${key}"${spaces}: "${value}"`;
@@ -942,7 +865,7 @@
     function copyToClipboard() {
         const json = document.getElementById('jsonOutput').textContent;
         navigator.clipboard.writeText(json).then(() => {
-            alert('JSON copied to clipboard!');
+            NaEditorTools?.showSuccessMessage('JSON copied to clipboard!');
         });
     }
 
@@ -952,41 +875,31 @@
     // FILE OPERATIONS | Load and Save Functions
     // --------------------------------------------------------
 
-    /**
-     * Save index directly to file using File System Access API
-     */
-    async function saveIndexToFile() {
-        if (!('showSaveFilePicker' in window)) {
-            alert('Your browser does not support the File System Access API.\nUse "Download Index" instead.');
+    async function saveIndex() {
+        if (!isFlaskMode) {
+            NaEditorTools?.showErrorMessage('Flask server required to save index');
             downloadJson();
             return;
         }
 
-        try {
-            const json = document.getElementById('jsonOutput').textContent;
+        const data = generateJson();
 
-            const handle = await window.showSaveFilePicker({
-                suggestedName: 'AppConfiguration__ProjectKeysIndex__.json',
-                types: [{
-                    description: 'JSON Files',
-                    accept: { 'application/json': ['.json'] }
-                }]
-            });
+        NaEditorTools.showConfirmDialog(
+            'Save Project Index',
+            `Save changes to <strong>${INDEX_FILENAME}</strong>?<br><br>
+             This will overwrite the existing index file.`,
+            async () => {
+                const result = await NaEditorTools.updateProjectIndex(data);
 
-            const writable = await handle.createWritable();
-            await writable.write(json);
-            await writable.close();
-
-            alert('Index saved successfully!');
-
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log('User cancelled save');
-            } else {
-                console.error('Save error:', error);
-                alert('Failed to save: ' + error.message);
-            }
-        }
+                if (result.success) {
+                    NaEditorTools.showSuccessMessage('Project index saved');
+                } else {
+                    NaEditorTools.showErrorMessage(result.error);
+                }
+            },
+            null,
+            { confirmText: 'Save Index', cancelText: 'Cancel' }
+        );
     }
 
     function downloadJson() {
@@ -995,9 +908,11 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'AppConfiguration__ProjectKeysIndex__.json';
+        a.download = INDEX_FILENAME;
         a.click();
         URL.revokeObjectURL(url);
+
+        NaEditorTools?.showSuccessMessage('Index file downloaded');
     }
 
     function loadFromFile() {
@@ -1014,7 +929,6 @@
                 const data = JSON.parse(e.target.result);
                 projectsIndex = data;
 
-                // Rebuild discovered data
                 discoveredData = {};
                 for (const y in projectsIndex) {
                     discoveredData[y] = {};
@@ -1029,163 +943,19 @@
                 renderProjectsTable(discoveredData);
                 updatePreview();
 
-                alert('Index loaded successfully!');
+                NaEditorTools?.showSuccessMessage('Index loaded from file');
             } catch (error) {
-                alert('Failed to load file: ' + error.message);
+                NaEditorTools?.showErrorMessage('Failed to load file: ' + error.message);
             }
         };
         reader.readAsText(file);
+
+        event.target.value = '';
     }
 
     // endregion ----------------------------------------------
 
 </script>
 <!-- endregion ---------------------------------------- -->
-
-<style>
-    .header-actions {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .form-row {
-        display: flex;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .projects-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-    }
-
-    .projects-table th,
-    .projects-table td {
-        padding: 0.75rem;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .projects-table th {
-        background-color: #f5f5f5;
-        font-weight: 600;
-    }
-
-    .projects-table tr:hover {
-        background-color: #f9f9f9;
-    }
-
-    .btn--small {
-        padding: 0.25rem 0.75rem;
-        font-size: 0.875rem;
-    }
-
-    .btn--danger {
-        background-color: #e74c3c;
-        color: white;
-    }
-
-    .btn--danger:hover {
-        background-color: #c0392b;
-    }
-
-    .btn--warning {
-        background-color: #f39c12;
-        color: white;
-    }
-
-    .btn--warning:hover {
-        background-color: #d68910;
-    }
-
-    /* Status boxes */
-    .status-box {
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-        margin-bottom: 1rem;
-        font-size: 0.875rem;
-    }
-
-    .status-box--success {
-        background-color: #d4edda;
-        border: 1px solid #28a745;
-        color: #155724;
-    }
-
-    .status-box--warning {
-        background-color: #fff3cd;
-        border: 1px solid #ffc107;
-        color: #856404;
-    }
-
-    .status-box--info {
-        background-color: #d1ecf1;
-        border: 1px solid #17a2b8;
-        color: #0c5460;
-    }
-
-    /* Editable cells */
-    .editable-cell {
-        cursor: pointer;
-        position: relative;
-    }
-
-    .editable-cell:hover .cell-display {
-        background-color: #e8f4f8;
-        border-radius: 3px;
-        padding: 2px 4px;
-        margin: -2px -4px;
-    }
-
-    .editable-cell .cell-edit {
-        width: 100%;
-        padding: 0.25rem 0.5rem;
-        font-size: inherit;
-    }
-
-    .editable-cell .cell-display::after {
-        content: ' ✎';
-        opacity: 0;
-        font-size: 0.75rem;
-        color: #666;
-        transition: opacity 0.2s;
-    }
-
-    .editable-cell:hover .cell-display::after {
-        opacity: 0.7;
-    }
-
-    /* Actions cell */
-    .actions-cell {
-        white-space: nowrap;
-    }
-
-    .actions-cell .btn {
-        margin-right: 0.25rem;
-    }
-
-    .actions-cell .btn:last-child {
-        margin-right: 0;
-    }
-
-    /* Project count bar */
-    #bulkActions {
-        align-items: center;
-        gap: 1rem;
-        padding: 0.5rem 0.75rem;
-        background-color: #e8f4f8;
-        border: 1px solid #3a6ea5;
-        border-radius: 4px;
-        margin-bottom: 1rem;
-    }
-
-    .project-count-label {
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #3a6ea5;
-    }
-</style>
 
 </html>
