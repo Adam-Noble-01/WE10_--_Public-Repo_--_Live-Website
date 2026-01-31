@@ -4,7 +4,7 @@
     "description"                  : "Cloudflare Workers for Noble Architecture Project Admin System",
     "author"                       : "Adam Noble - Noble Architecture",
     "private"                      : true,
-    "main"                         : "src/index.js",
+    "main"                         : "src/CloudflareWorker__Main__.js",
     "scripts"                      : {
         "dev"                      : "wrangler dev",
         "deploy"                   : "wrangler deploy",

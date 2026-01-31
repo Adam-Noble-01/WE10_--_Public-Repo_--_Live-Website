@@ -20,7 +20,7 @@
 # =============================================================================
 
 name                             = "na-projectadmin-api"
-main                             = "src/index.js"
+main                             = "src/CloudflareWorker__Main__.js"
 compatibility_date               = "2024-01-01"
 workers_dev                      = true
 

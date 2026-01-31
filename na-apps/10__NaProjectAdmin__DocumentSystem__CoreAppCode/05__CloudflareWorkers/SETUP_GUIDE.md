@@ -46,6 +46,26 @@ Published na-projectadmin-api (X.XX sec)
 
 ---
 
+## File Structure
+
+The Cloudflare Workers code follows Noble Architecture naming conventions:
+
+```
+05__CloudflareWorkers/
+├── src/
+│   ├── CloudflareWorker__Main__.js       # Main entry point & router
+│   └── handlers/
+│       ├── CloudflareHandler__Auth__.js       # PIN authentication
+│       ├── CloudflareHandler__R2__.js         # R2 bucket operations
+│       └── CloudflareHandler__Signature__.js  # Signature storage/retrieval
+├── wrangler.toml                          # Wrangler configuration
+├── package.json                           # Node.js package config
+├── deploy.bat                             # Windows deployment script
+└── SETUP_GUIDE.md                         # This file
+```
+
+---
+
 ## Configuration
 
 ### Update App Config with Worker URL
@@ -73,7 +93,7 @@ curl https://na-projectadmin-api.<your-subdomain>.workers.dev/health
 
 Expected response:
 ```json
-{"status":"healthy","service":"na-projectadmin-api"}
+{"status":"ok","service":"na-projectadmin-api"}
 ```
 
 ### Test IP Endpoint
@@ -98,26 +118,38 @@ The worker expects this structure in R2:
 
 ```
 NaProjectPortal/
-└── 26-Projects/
-    └── AA00__ExampleProject/
-        └── 10__ProjectAdmin__AppContent/
-            ├── ProjectAdmin__ProjectConfig__.json
-            ├── ProjectAdmin__Quotation__.json
-            └── ProjectAdmin__SpecialTerms__.json
+├── 26-Projects/
+│   └── AA00__ExampleProject/
+│       └── 10__ProjectAdmin__AppContent/
+│           ├── ProjectAdmin__ProjectConfig__.json
+│           ├── ProjectAdmin__Quotation__.json
+│           └── ProjectAdmin__SpecialTerms__.json
+├── Signatures/
+│   └── 26/
+│       └── AA00/
+│           └── SIG__31-Jan-2026__QUO__ABC123.json
+└── Logs/
+    └── Auth/
+        └── 2026-01-31/
+            └── AA00_1706745600000.json
 ```
 
 ---
 
 ## API Endpoints
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/health` | GET | Health check |
-| `/ip` | GET | Get client IP |
-| `/projectadmin/auth` | POST | Validate project PIN |
-| `/projectadmin/signature` | POST | Store signature record |
-| `/projectadmin/signature?projectCode=XX00` | GET | Retrieve signatures |
-| `/r2/*` | GET/PUT | Direct R2 access |
+| Endpoint | Method | Handler | Purpose |
+|----------|--------|---------|---------|
+| `/health` | GET | Main | Health check |
+| `/ip` | GET | Main | Get client IP |
+| `/projectadmin/auth` | POST | Auth | Validate project PIN |
+| `/projectadmin/signature` | POST | Signature | Store signature record |
+| `/projectadmin/signature` | GET | Signature | Retrieve signatures |
+| `/projectadmin/signature` | DELETE | Signature | Purge signatures (admin) |
+| `/r2/read` | POST | R2 | Read file from R2 |
+| `/r2/write` | POST | R2 | Write file to R2 |
+| `/r2/list` | POST | R2 | List files in R2 |
+| `/r2/delete` | POST | R2 | Delete file from R2 |
 
 ---
 
@@ -149,14 +181,25 @@ Ensure your R2 bucket `noble-architecture-cdn` exists:
 
 ### CORS Errors
 
-The worker is configured to allow requests from `https://www.noble-architecture.com`.
-For local development, you may need to temporarily modify `CORS_ORIGIN` in `wrangler.toml`.
+The worker is configured to allow requests from:
+- `https://www.noble-architecture.com` (production)
+- `localhost` and `127.0.0.1` (development)
+- `null` origin (file:// protocol)
+
+For other origins, modify `CORS_ORIGIN` in `wrangler.toml`.
 
 ### Authentication Failures
 
 Check that:
 1. Project config JSON exists in R2 at the correct path
 2. PIN is correctly set in `ProjectAdmin__ProjectConfig__.json`
+
+### "Failed to fetch" Error
+
+If the Editor Tools show "Failed to fetch":
+1. Ensure the worker is deployed: `wrangler deploy`
+2. Check the browser console (F12) for detailed errors
+3. Try running from localhost instead of file://
 
 ---
 
@@ -174,15 +217,36 @@ This starts a local server (usually at `http://localhost:8787`).
 
 ---
 
+## Module Dependencies
+
+The Worker modules follow this import structure:
+
+```
+CloudflareWorker__Main__.js
+├── imports CloudflareHandler__Auth__.js
+├── imports CloudflareHandler__R2__.js
+└── imports CloudflareHandler__Signature__.js
+```
+
+The client-side app communicates with the Worker via HTTP:
+
+```
+CloudflareIntegration__ApiClient__.js
+    └── HTTP requests → Worker endpoints
+```
+
+---
+
 ## Files Created
 
 | File | Purpose | Git Status |
 |------|---------|------------|
 | `wrangler.toml` | Worker configuration | ✅ Committed |
+| `package.json` | Node.js dependencies | ✅ Committed |
+| `src/*.js` | Worker source code | ✅ Committed |
 | `.gitignore` | Protects sensitive files | ✅ Committed |
 | `.dev.vars` | Local dev secrets | ❌ Ignored |
 | `CREDENTIALS_BACKUP.txt` | Your credentials backup | ❌ Ignored |
-| `deploy.bat` | Easy deployment script | ❌ Ignored |
 
 ---
 
@@ -192,6 +256,7 @@ This starts a local server (usually at `http://localhost:8787`).
 2. **Store credentials** in a password manager
 3. The `.gitignore` file protects sensitive files from being uploaded
 4. Authentication logs are stored in R2 for audit purposes
+5. The DELETE endpoint for signatures is for admin use only
 
 ---
 
@@ -204,5 +269,5 @@ For issues with Cloudflare Workers:
 ---
 
 *Created: 31-Jan-2026*
+*Updated: 31-Jan-2026*
 *Author: Noble Architecture*
-

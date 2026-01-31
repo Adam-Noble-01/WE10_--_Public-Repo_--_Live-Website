@@ -1,0 +1,14 @@
+# =============================================================================
+# NOBLE ARCHITECTURE - PYTHON DEPENDENCIES
+# =============================================================================
+#
+# Install with: pip install -r requirements.txt
+#
+# =============================================================================
+
+# Flask - Web Framework
+flask>=3.0.0
+
+# Flask-CORS - Cross-Origin Resource Sharing support
+flask-cors>=4.0.0
+

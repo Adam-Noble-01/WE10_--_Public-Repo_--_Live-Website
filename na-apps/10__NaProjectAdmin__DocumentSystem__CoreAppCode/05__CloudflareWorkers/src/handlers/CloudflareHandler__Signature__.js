@@ -1,9 +1,9 @@
 // =============================================================================
-// NOBLE ARCHITECTURE - SIGNATURE HANDLER
+// NOBLE ARCHITECTURE - CLOUDFLARE HANDLER - SIGNATURE
 // =============================================================================
 //
-// FILE       : signature.js
-// NAMESPACE  : CloudflareWorker.SignatureHandler
+// FILE       : CloudflareHandler__Signature__.js
+// NAMESPACE  : CloudflareWorker.Handler.Signature
 // MODULE     : SignatureHandler
 // AUTHOR     : Adam Noble - Noble Architecture
 // PURPOSE    : Handles signature storage and retrieval for digital signatures
@@ -14,6 +14,7 @@
 // - Retrieves signature records for verification and audit
 // - Creates comprehensive audit trail with dual storage (project + archive)
 // - Enhances records with server-side metadata (IP, timestamp, location)
+// - Purges signature records for testing/correction purposes
 //
 // -----
 //
@@ -39,14 +40,14 @@
 // -----
 
     /**
-     * Handle signature requests (POST for storage, GET for retrieval)
+     * Handle signature requests (POST for storage, GET for retrieval, DELETE for purge)
      * 
      * @param {Request} request - Incoming HTTP request
      * @param {Object} env - Environment bindings (R2_BUCKET, R2_PREFIX)
      * @returns {Response} JSON response with result
      */
     export async function handleSignature(request, env) {
-        const url = new URL(request.url);
+        const url                = new URL(request.url);
 
         switch (request.method) {
             case 'POST':
@@ -419,3 +420,4 @@
     }
 
 // endregion ----
+

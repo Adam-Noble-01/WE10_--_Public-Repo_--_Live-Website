@@ -29,6 +29,10 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.2.0
+// - Fixed CORS to properly check request origin for localhost
+// - addCorsHeaders now receives request to check origin
+//
 // 31-Jan-2026 - Version 1.1.0
 // - Renamed from index.js to follow naming conventions
 // - Added support for null origin (file:// protocol)
@@ -41,9 +45,9 @@
 //
 // =============================================================================
 
-import { handleAuth } from './handlers/auth.js';
-import { handleSignature } from './handlers/signature.js';
-import { handleR2 } from './handlers/r2.js';
+import { handleAuth } from './handlers/CloudflareHandler__Auth__.js';
+import { handleSignature } from './handlers/CloudflareHandler__Signature__.js';
+import { handleR2 } from './handlers/CloudflareHandler__R2__.js';
 
 // #Region ---
 // REGION | Main Worker Export
@@ -103,8 +107,8 @@ import { handleR2 } from './handlers/r2.js';
                     }, 404);
                 }
 
-                // Add CORS headers to response
-                return addCorsHeaders(response, env);
+                // Add CORS headers to response (pass request for origin check)
+                return addCorsHeaders(response, request, env);
 
             } catch (error) {
                 console.error('Worker error:', error);
@@ -113,6 +117,7 @@ import { handleR2 } from './handlers/r2.js';
                         error            : 'Internal Server Error',
                         message          : error.message 
                     }, 500),
+                    request,
                     env
                 );
             }
@@ -147,7 +152,7 @@ import { handleR2 } from './handlers/r2.js';
      * @returns {Response} CORS preflight response
      */
     function handleCors(request, env) {
-        const origin             = request.headers.get('Origin') || '*';
+        const origin             = request.headers.get('Origin');
         const allowedOrigin      = getAllowedOrigin(origin, env);
 
         return new Response(null, {
@@ -165,12 +170,14 @@ import { handleR2 } from './handlers/r2.js';
      * Add CORS headers to response
      * 
      * @param {Response} response - Response to add headers to
+     * @param {Request} request - Original request (to check origin)
      * @param {Object} env - Environment bindings
      * @returns {Response} Response with CORS headers
      */
-    function addCorsHeaders(response, env) {
+    function addCorsHeaders(response, request, env) {
+        const origin             = request.headers.get('Origin');
+        const allowedOrigin      = getAllowedOrigin(origin, env);
         const newHeaders         = new Headers(response.headers);
-        const allowedOrigin      = env.CORS_ORIGIN || '*';
 
         newHeaders.set('Access-Control-Allow-Origin', allowedOrigin);
         newHeaders.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -185,6 +192,7 @@ import { handleR2 } from './handlers/r2.js';
 
     /**
      * Get allowed origin based on request
+     * Allows localhost for development, configured origin for production
      * 
      * @param {string} requestOrigin - Origin header from request
      * @param {Object} env - Environment bindings
@@ -193,29 +201,29 @@ import { handleR2 } from './handlers/r2.js';
     function getAllowedOrigin(requestOrigin, env) {
         const configuredOrigin   = env.CORS_ORIGIN;
 
-        // In development, allow all origins
-        if (env.ENVIRONMENT === 'development') {
-            return '*';
-        }
-
-        // Handle null origin (file:// protocol)
+        // Handle null/missing origin (file:// protocol, same-origin, curl, etc.)
         if (!requestOrigin || requestOrigin === 'null') {
             return '*';
         }
 
-        // In production, check against configured origin
+        // Allow localhost for local development (any port)
+        if (requestOrigin.includes('localhost') || 
+            requestOrigin.includes('127.0.0.1')) {
+            return requestOrigin;                                    // <-- Return actual origin
+        }
+
+        // In development environment, allow all
+        if (env.ENVIRONMENT === 'development') {
+            return requestOrigin;
+        }
+
+        // Match configured production origin
         if (configuredOrigin && requestOrigin === configuredOrigin) {
             return configuredOrigin;
         }
 
-        // Allow localhost for local development
-        if (requestOrigin.includes('localhost') || 
-            requestOrigin.includes('127.0.0.1')) {
-            return requestOrigin;
-        }
-
+        // Default: return configured origin or wildcard
         return configuredOrigin || '*';
     }
 
 // endregion ----
-

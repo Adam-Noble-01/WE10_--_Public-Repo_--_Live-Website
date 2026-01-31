@@ -87,6 +87,14 @@
                 // Load configuration
                 await window.NaProjectAdmin.ConfigManager.loadConfiguration();
                 
+                // Wait for project index to load (needed for folder lookup)
+                try {
+                    await window.NaProjectAdmin.ConfigManager.waitForProjectIndex();
+                    console.log('[App] Project index loaded');
+                } catch (indexErr) {
+                    console.warn('[App] Project index not available:', indexErr.message);
+                }
+                
                 // Initialise Asset Loader with configuration
                 const appConfig = window.NaProjectAdmin.ConfigManager.getConfig();
                 await window.NaProjectAdmin.AssetLoader.initialise(appConfig);
