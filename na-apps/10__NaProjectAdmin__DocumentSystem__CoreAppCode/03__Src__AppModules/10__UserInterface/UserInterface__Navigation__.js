@@ -544,13 +544,12 @@
                 return;
             }
 
-            // Get current project from URL params
+            // Get current project from URL params (year is auto-detected)
             const params = new URLSearchParams(window.location.search);
             const project = params.get('project') || 'JS01';
-            const year = params.get('year') || '26';
 
-            // Build editor URL with project params
-            const editorUrl = `04__EditorTools/${editorFile}?project=${project}&year=${year}&embedded=true`;
+            // Build editor URL with project param only (year auto-detected)
+            const editorUrl = `04__EditorTools/${editorFile}?project=${project}&embedded=true`;
 
             console.log(`[Navigation] Loading editor: ${editorUrl}`);
 

@@ -19,6 +19,12 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.2.0
+// - Removed year parameter requirement
+//   - Worker auto-detects year from project folder
+//   - Simplified API: only projectCode needed
+//   - Updated storeClientData, retrieveClientData, deleteClientData
+//
 // 31-Jan-2026 - Version 1.1.0
 // - Added GDPR-compliant client data methods
 //   - storeClientData() - Store encrypted client PII
@@ -237,17 +243,21 @@
 
         // FUNCTION | Load Project Config from R2
         // ------------------------------------------------------------
-        async function loadProjectConfig(projectCode, year) {
-            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
-            const r2Prefix = config?.AppConfig?.CloudflareConfig?.r2BucketPrefix || 'NaProjectPortal/';
-
+        /**
+         * Load project config from R2
+         * Worker auto-discovers project folder and year
+         * @param {string} projectCode - Project code (XX00 format)
+         * @returns {Object|null} Project configuration or null
+         */
+        async function loadProjectConfig(projectCode) {
             try {
-                const path = `${r2Prefix}${year}-Projects/${projectCode}/10__ProjectAdmin__AppContent/ProjectAdmin__ProjectConfig__.json`;
-                
+                // Use auth endpoint to validate and get project info
+                // This leverages the Worker's folder discovery
                 const result = await makeRequest('r2/read', {
                     method           : 'POST',
                     body             : JSON.stringify({
-                        key          : path
+                        projectCode  : projectCode,
+                        filename     : 'ProjectAdmin__ProjectConfig__.json'
                     })
                 });
 
@@ -264,13 +274,13 @@
         // ------------------------------------------------------------
         /**
          * Store encrypted client data to R2
+         * Year is auto-detected by the Worker from project folder
          * @param {string} projectCode - Project code (XX00 format)
-         * @param {string} year - Two-digit year
          * @param {Object} clientData - Client PII to encrypt and store
          * @param {string} sessionToken - Session token from PIN auth
          * @returns {Object} Result with success status
          */
-        async function storeClientData(projectCode, year, clientData, sessionToken) {
+        async function storeClientData(projectCode, clientData, sessionToken) {
             const config = window.NaProjectAdmin.ConfigManager?.getConfig();
             const clientDataEndpoint = config?.AppConfig?.CloudflareConfig?.clientDataEndpoint || 'projectadmin/clientdata';
 
@@ -279,7 +289,6 @@
                     method           : 'POST',
                     body             : JSON.stringify({
                         projectCode  : projectCode,
-                        year         : year,
                         clientData   : clientData,
                         sessionToken : sessionToken
                     })
@@ -306,18 +315,18 @@
         // ------------------------------------------------------------
         /**
          * Retrieve decrypted client data from R2
+         * Year is auto-detected by the Worker from project folder
          * @param {string} projectCode - Project code (XX00 format)
-         * @param {string} year - Two-digit year
          * @param {string} sessionToken - Session token from PIN auth
          * @returns {Object} Decrypted client data or null
          */
-        async function retrieveClientData(projectCode, year, sessionToken) {
+        async function retrieveClientData(projectCode, sessionToken) {
             const config = window.NaProjectAdmin.ConfigManager?.getConfig();
             const clientDataEndpoint = config?.AppConfig?.CloudflareConfig?.clientDataEndpoint || 'projectadmin/clientdata';
 
             try {
                 const result = await makeRequest(
-                    `${clientDataEndpoint}?project=${projectCode}&year=${year}&token=${encodeURIComponent(sessionToken)}`, 
+                    `${clientDataEndpoint}?project=${projectCode}&token=${encodeURIComponent(sessionToken)}`, 
                     {
                         method       : 'GET'
                     }
@@ -353,12 +362,12 @@
         // ------------------------------------------------------------
         /**
          * Delete client data from R2 (GDPR right to erasure)
+         * Year is auto-detected by the Worker from project folder
          * @param {string} projectCode - Project code (XX00 format)
-         * @param {string} year - Two-digit year
          * @param {string} sessionToken - Session token from PIN auth
          * @returns {Object} Result with success status
          */
-        async function deleteClientData(projectCode, year, sessionToken) {
+        async function deleteClientData(projectCode, sessionToken) {
             const config = window.NaProjectAdmin.ConfigManager?.getConfig();
             const clientDataEndpoint = config?.AppConfig?.CloudflareConfig?.clientDataEndpoint || 'projectadmin/clientdata';
 
@@ -367,7 +376,6 @@
                     method           : 'DELETE',
                     body             : JSON.stringify({
                         projectCode      : projectCode,
-                        year             : year,
                         sessionToken     : sessionToken,
                         confirmDelete    : true
                     })

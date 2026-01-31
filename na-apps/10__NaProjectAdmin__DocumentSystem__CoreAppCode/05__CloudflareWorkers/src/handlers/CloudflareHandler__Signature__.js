@@ -15,10 +15,17 @@
 // - Creates comprehensive audit trail with dual storage (project + archive)
 // - Enhances records with server-side metadata (IP, timestamp, location)
 // - Purges signature records for testing/correction purposes
+// - Uses ProjectPath helper for folder discovery
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.2.0
+// - Updated to use ProjectPath helper
+//   - Folder discovery via R2 listing
+//   - Supports ProjectCode__ProjectName folder naming
+//   - Auto-detects project year
+//
 // 31-Jan-2026 - Version 1.1.0
 // - Added DELETE endpoint for purging signature records
 //   - Purges from both project folder and central archive
@@ -34,6 +41,8 @@
 //   - UK date formatting (DD-MMM-YYYY)
 //
 // =============================================================================
+
+import { buildProjectSubfolderPath, getProjectYear, findProjectFolder } from '../helpers/CloudflareHelper__ProjectPath__.js';
 
 // #Region ---
 // REGION | Main Handler
@@ -118,13 +127,27 @@
                 }, 500);
             }
 
-            // Calculate storage paths
+            // Build project path using helper (auto-detects year and folder name)
+            const projectSubfolder   = await buildProjectSubfolderPath(
+                record.projectCode, 
+                `SignatureRecords/${storageKey}.json`, 
+                env
+            );
+
+            if (!projectSubfolder) {
+                return jsonResponse({ 
+                    success          : false, 
+                    message          : 'Project folder not found'
+                }, 404);
+            }
+
+            // Get detected year for archive path
+            const detectedYear       = await getProjectYear(record.projectCode, env);
             const prefix             = env.R2_PREFIX || 'NaProjectPortal/';
-            const year               = new Date().getFullYear().toString().slice(-2); // <-- 2-digit year
             
             // Dual storage locations for redundancy and organisation
-            const projectKey         = `${prefix}${year}-Projects/${record.projectCode}/10__ProjectAdmin__AppContent/SignatureRecords/${storageKey}.json`;
-            const archiveKey         = `${prefix}Signatures/${year}/${record.projectCode}/${storageKey}.json`;
+            const projectKey         = projectSubfolder;
+            const archiveKey         = `${prefix}Signatures/${detectedYear}/${record.projectCode}/${storageKey}.json`;
 
             // Prepare record JSON with metadata
             const recordJson         = JSON.stringify(enhancedRecord, null, 2);
@@ -295,18 +318,43 @@
             const deletedKeys        = [];                            // <-- Track deletions
             const errors             = [];                            // <-- Track errors
 
-            // Determine years to search (specific year or all)
+            // Find project folder using helper (gets correct folder name)
+            const projectInfo        = await findProjectFolder(projectCode, env);
+            const detectedYear       = projectInfo?.year;
+
+            // Determine years to search for archive (specific year or all)
             const yearsToSearch      = year ? [year] : ['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'];
 
             console.log(`Purging signatures for ${upperCode}, years: ${year || 'all'}`);
 
-            // Search and delete from both storage locations
-            for (const yr of yearsToSearch) {
-                // Location 1: Central archive - NaProjectPortal/Signatures/{year}/{code}/
-                const archivePrefix  = `${prefix}Signatures/${yr}/${upperCode}/`;
+            // Delete from project folder if found
+            if (projectInfo) {
+                const projectPrefix  = `${projectInfo.basePath}10__ProjectAdmin__AppContent/SignatureRecords/`;
                 
-                // Location 2: Project folder - NaProjectPortal/{year}-Projects/{code}/.../SignatureRecords/
-                const projectPrefix  = `${prefix}${yr}-Projects/${upperCode}/10__ProjectAdmin__AppContent/SignatureRecords/`;
+                try {
+                    const projectList = await env.R2_BUCKET.list({ 
+                        prefix           : projectPrefix,
+                        limit            : 1000
+                    });
+
+                    for (const obj of projectList.objects) {
+                        try {
+                            await env.R2_BUCKET.delete(obj.key);
+                            deletedKeys.push(obj.key);
+                            console.log('Deleted:', obj.key);
+                        } catch (delErr) {
+                            errors.push({ key: obj.key, error: delErr.message });
+                        }
+                    }
+                } catch (listErr) {
+                    console.warn(`Could not list project ${projectPrefix}:`, listErr.message);
+                }
+            }
+
+            // Search and delete from archive locations (all years)
+            for (const yr of yearsToSearch) {
+                // Central archive - NaProjectPortal/Signatures/{year}/{code}/
+                const archivePrefix  = `${prefix}Signatures/${yr}/${upperCode}/`;
 
                 // List and delete from archive location
                 try {
@@ -326,26 +374,6 @@
                     }
                 } catch (listErr) {
                     console.warn(`Could not list archive ${archivePrefix}:`, listErr.message);
-                }
-
-                // List and delete from project location
-                try {
-                    const projectList = await env.R2_BUCKET.list({ 
-                        prefix           : projectPrefix,
-                        limit            : 1000
-                    });
-
-                    for (const obj of projectList.objects) {
-                        try {
-                            await env.R2_BUCKET.delete(obj.key);
-                            deletedKeys.push(obj.key);
-                            console.log('Deleted:', obj.key);
-                        } catch (delErr) {
-                            errors.push({ key: obj.key, error: delErr.message });
-                        }
-                    }
-                } catch (listErr) {
-                    console.warn(`Could not list project ${projectPrefix}:`, listErr.message);
                 }
             }
 

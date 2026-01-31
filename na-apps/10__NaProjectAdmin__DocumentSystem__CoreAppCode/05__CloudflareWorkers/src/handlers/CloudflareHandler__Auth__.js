@@ -13,10 +13,17 @@
 // - Validates project PINs against stored hashes
 // - Creates session tokens
 // - Logs authentication attempts
+// - Uses ProjectPath helper for folder discovery
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.1.0
+// - Updated to use ProjectPath helper
+//   - Folder discovery via R2 listing
+//   - Supports ProjectCode__ProjectName folder naming
+//   - Auto-detects project year
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - PIN validation with hash comparison
@@ -24,6 +31,8 @@
 //   - Authentication logging
 //
 // =============================================================================
+
+import { buildProjectFilePath } from '../helpers/CloudflareHelper__ProjectPath__.js';
 
 // #Region ---
 // REGION | Main Handler
@@ -150,6 +159,7 @@
 
     /**
      * Load project configuration from R2
+     * Uses ProjectPath helper to find the correct folder
      * 
      * @param {string} projectCode - Project code to load config for
      * @param {Object} env - Environment bindings
@@ -161,35 +171,30 @@
             return null;
         }
 
-        const prefix             = env.R2_PREFIX || 'NaProjectPortal/';
-        
-        // Try current year first, then previous years
-        const currentYear        = new Date().getFullYear().toString().slice(-2);
-        const yearsToTry         = [currentYear, '25', '24', '23'];
+        try {
+            // Use helper to find project folder and build path
+            const configPath     = await buildProjectFilePath(
+                projectCode, 
+                'ProjectAdmin__ProjectConfig__.json', 
+                env
+            );
 
-        for (const year of yearsToTry) {
-            // Try common folder patterns
-            const patterns       = [
-                `${prefix}${year}-Projects/${projectCode}/10__ProjectAdmin__AppContent/ProjectAdmin__ProjectConfig__.json`,
-                `${prefix}${year}-Projects/${projectCode}__*/10__ProjectAdmin__AppContent/ProjectAdmin__ProjectConfig__.json`
-            ];
-
-            for (const key of patterns) {
-                try {
-                    // For patterns with wildcards, we'd need to list objects
-                    // For now, try exact match
-                    if (!key.includes('*')) {
-                        const object = await env.R2_BUCKET.get(key);
-                        
-                        if (object) {
-                            const config = await object.json();
-                            return config;
-                        }
-                    }
-                } catch (error) {
-                    // Continue to next pattern
-                }
+            if (!configPath) {
+                console.warn(`[Auth] Project folder not found for ${projectCode}`);
+                return null;
             }
+
+            console.log(`[Auth] Loading config from: ${configPath}`);
+            
+            const object         = await env.R2_BUCKET.get(configPath);
+            
+            if (object) {
+                const config     = await object.json();
+                return config;
+            }
+
+        } catch (error) {
+            console.error(`[Auth] Error loading project config:`, error);
         }
 
         return null;

@@ -15,6 +15,7 @@
 // - Requires session token authentication
 // - Stores encrypted data in Cloudflare R2 (private bucket)
 // - Full audit logging of all data access
+// - Uses ProjectPath helper for folder discovery
 //
 // SECURITY:
 // - Encryption key stored as Cloudflare Worker secret (CLIENT_DATA_KEY)
@@ -25,6 +26,12 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.1.0
+// - Updated to use ProjectPath helper
+//   - Folder discovery via R2 listing
+//   - Year parameter now optional (auto-detected)
+//   - Supports ProjectCode__ProjectName folder naming
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial release for GDPR compliance
 //   - AES-256-GCM encryption/decryption
@@ -33,6 +40,8 @@
 //   - Audit logging
 //
 // =============================================================================
+
+import { buildProjectFilePath, getProjectYear } from '../helpers/CloudflareHelper__ProjectPath__.js';
 
 // #Region ---
 // REGION | Main Handler
@@ -80,20 +89,20 @@
     async function storeClientData(request, env) {
         try {
             const body               = await request.json();
-            const { projectCode, year, clientData, sessionToken } = body;
+            const { projectCode, clientData, sessionToken } = body;
 
-            // Validate required fields
-            if (!projectCode || !year || !clientData) {
+            // Validate required fields (year is now optional - auto-detected)
+            if (!projectCode || !clientData) {
                 return jsonResponse({ 
                     success          : false,
-                    error            : 'Missing required fields: projectCode, year, clientData' 
+                    error            : 'Missing required fields: projectCode, clientData' 
                 }, 400);
             }
 
             // Validate session token
             const tokenValid         = validateSessionToken(sessionToken, projectCode);
             if (!tokenValid) {
-                await logDataAccess(projectCode, year, 'STORE', false, 'Invalid session token', request, env);
+                await logDataAccess(projectCode, null, 'STORE', false, 'Invalid session token', request, env);
                 return jsonResponse({ 
                     success          : false,
                     error            : 'Invalid or expired session token' 
@@ -134,16 +143,29 @@
                 }, 500);
             }
 
-            // Build storage key
-            const prefix             = env.R2_PREFIX || 'NaProjectPortal/';
-            const storageKey         = `${prefix}${year}-Projects/${projectCode.toUpperCase()}/10__ProjectAdmin__AppContent/ClientData__Private__.json.enc`;
+            // Build storage key using helper (auto-detects year and folder name)
+            const storageKey         = await buildProjectFilePath(
+                projectCode, 
+                'ClientData__Private__.json.enc', 
+                env
+            );
+
+            if (!storageKey) {
+                return jsonResponse({ 
+                    success          : false,
+                    error            : 'Project folder not found' 
+                }, 404);
+            }
+
+            // Get detected year for response
+            const detectedYear       = await getProjectYear(projectCode, env);
 
             // Store in R2
             await env.R2_BUCKET.put(storageKey, JSON.stringify(encryptedPayload), {
                 httpMetadata         : { contentType: 'application/json' },
                 customMetadata       : {
                     projectCode      : projectCode.toUpperCase(),
-                    year             : year,
+                    year             : detectedYear || 'unknown',
                     encrypted        : 'true',
                     algorithm        : 'AES-256-GCM',
                     version          : '1.0'
@@ -151,15 +173,15 @@
             });
 
             // Log successful storage
-            await logDataAccess(projectCode, year, 'STORE', true, 'Data stored successfully', request, env);
+            await logDataAccess(projectCode, detectedYear, 'STORE', true, 'Data stored successfully', request, env);
 
-            console.log(`[ClientData] Stored encrypted data for ${projectCode} (${year})`);
+            console.log(`[ClientData] Stored encrypted data for ${projectCode} (${detectedYear})`);
 
             return jsonResponse({ 
                 success              : true,
                 message              : 'Client data stored securely',
                 projectCode          : projectCode.toUpperCase(),
-                year                 : year
+                year                 : detectedYear
             });
 
         } catch (error) {
@@ -188,22 +210,21 @@
     async function retrieveClientData(request, env, url) {
         try {
             const projectCode        = url.searchParams.get('project');
-            const year               = url.searchParams.get('year');
             const sessionToken       = url.searchParams.get('token') || 
                                        request.headers.get('Authorization')?.replace('Bearer ', '');
 
-            // Validate required parameters
-            if (!projectCode || !year) {
+            // Validate required parameters (year is now optional - auto-detected)
+            if (!projectCode) {
                 return jsonResponse({ 
                     success          : false,
-                    error            : 'Missing required parameters: project, year' 
+                    error            : 'Missing required parameter: project' 
                 }, 400);
             }
 
             // Validate session token
             const tokenValid         = validateSessionToken(sessionToken, projectCode);
             if (!tokenValid) {
-                await logDataAccess(projectCode, year, 'RETRIEVE', false, 'Invalid session token', request, env);
+                await logDataAccess(projectCode, null, 'RETRIEVE', false, 'Invalid session token', request, env);
                 return jsonResponse({ 
                     success          : false,
                     error            : 'Invalid or expired session token' 
@@ -219,20 +240,33 @@
                 }, 500);
             }
 
-            // Build storage key
-            const prefix             = env.R2_PREFIX || 'NaProjectPortal/';
-            const storageKey         = `${prefix}${year}-Projects/${projectCode.toUpperCase()}/10__ProjectAdmin__AppContent/ClientData__Private__.json.enc`;
+            // Build storage key using helper (auto-detects year and folder name)
+            const storageKey         = await buildProjectFilePath(
+                projectCode, 
+                'ClientData__Private__.json.enc', 
+                env
+            );
+
+            if (!storageKey) {
+                return jsonResponse({ 
+                    success          : false,
+                    error            : 'Project folder not found' 
+                }, 404);
+            }
+
+            // Get detected year for response
+            const detectedYear       = await getProjectYear(projectCode, env);
 
             // Retrieve from R2
             const object             = await env.R2_BUCKET.get(storageKey);
 
             if (!object) {
-                await logDataAccess(projectCode, year, 'RETRIEVE', false, 'Data not found', request, env);
+                await logDataAccess(projectCode, detectedYear, 'RETRIEVE', false, 'Data not found', request, env);
                 return jsonResponse({ 
                     success          : false,
                     error            : 'Client data not found',
                     projectCode      : projectCode.toUpperCase(),
-                    year             : year
+                    year             : detectedYear
                 }, 404);
             }
 
@@ -243,7 +277,7 @@
             const decryptedJson      = await decryptData(encryptedPayload, env.CLIENT_DATA_KEY);
 
             if (!decryptedJson) {
-                await logDataAccess(projectCode, year, 'RETRIEVE', false, 'Decryption failed', request, env);
+                await logDataAccess(projectCode, detectedYear, 'RETRIEVE', false, 'Decryption failed', request, env);
                 return jsonResponse({ 
                     success          : false,
                     error            : 'Failed to decrypt client data' 
@@ -254,15 +288,15 @@
             const clientData         = JSON.parse(decryptedJson);
 
             // Log successful retrieval
-            await logDataAccess(projectCode, year, 'RETRIEVE', true, 'Data retrieved successfully', request, env);
+            await logDataAccess(projectCode, detectedYear, 'RETRIEVE', true, 'Data retrieved successfully', request, env);
 
-            console.log(`[ClientData] Retrieved decrypted data for ${projectCode} (${year})`);
+            console.log(`[ClientData] Retrieved decrypted data for ${projectCode} (${detectedYear})`);
 
             return jsonResponse({ 
                 success              : true,
                 data                 : clientData,
                 projectCode          : projectCode.toUpperCase(),
-                year                 : year
+                year                 : detectedYear
             });
 
         } catch (error) {
@@ -290,13 +324,13 @@
     async function deleteClientData(request, env) {
         try {
             const body               = await request.json();
-            const { projectCode, year, sessionToken, confirmDelete } = body;
+            const { projectCode, sessionToken, confirmDelete } = body;
 
-            // Validate required fields
-            if (!projectCode || !year) {
+            // Validate required fields (year is now optional - auto-detected)
+            if (!projectCode) {
                 return jsonResponse({ 
                     success          : false,
-                    error            : 'Missing required fields: projectCode, year' 
+                    error            : 'Missing required field: projectCode' 
                 }, 400);
             }
 
@@ -311,30 +345,43 @@
             // Validate session token
             const tokenValid         = validateSessionToken(sessionToken, projectCode);
             if (!tokenValid) {
-                await logDataAccess(projectCode, year, 'DELETE', false, 'Invalid session token', request, env);
+                await logDataAccess(projectCode, null, 'DELETE', false, 'Invalid session token', request, env);
                 return jsonResponse({ 
                     success          : false,
                     error            : 'Invalid or expired session token' 
                 }, 401);
             }
 
-            // Build storage key
-            const prefix             = env.R2_PREFIX || 'NaProjectPortal/';
-            const storageKey         = `${prefix}${year}-Projects/${projectCode.toUpperCase()}/10__ProjectAdmin__AppContent/ClientData__Private__.json.enc`;
+            // Build storage key using helper (auto-detects year and folder name)
+            const storageKey         = await buildProjectFilePath(
+                projectCode, 
+                'ClientData__Private__.json.enc', 
+                env
+            );
+
+            if (!storageKey) {
+                return jsonResponse({ 
+                    success          : false,
+                    error            : 'Project folder not found' 
+                }, 404);
+            }
+
+            // Get detected year for response
+            const detectedYear       = await getProjectYear(projectCode, env);
 
             // Delete from R2
             await env.R2_BUCKET.delete(storageKey);
 
             // Log deletion
-            await logDataAccess(projectCode, year, 'DELETE', true, 'Data deleted (GDPR erasure)', request, env);
+            await logDataAccess(projectCode, detectedYear, 'DELETE', true, 'Data deleted (GDPR erasure)', request, env);
 
-            console.log(`[ClientData] Deleted data for ${projectCode} (${year}) - GDPR erasure`);
+            console.log(`[ClientData] Deleted data for ${projectCode} (${detectedYear}) - GDPR erasure`);
 
             return jsonResponse({ 
                 success              : true,
                 message              : 'Client data deleted successfully (GDPR right to erasure)',
                 projectCode          : projectCode.toUpperCase(),
-                year                 : year
+                year                 : detectedYear
             });
 
         } catch (error) {

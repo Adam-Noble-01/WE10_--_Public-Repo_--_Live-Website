@@ -1,0 +1,13 @@
+{
+    "projectCode": "DR02",
+    "projectName": "Silver Avenue",
+    "projectDescription": "Single Storey Wrap around extension around a existing two storey 1930's dwelling ",
+    "projectPin": "1234",
+    "documents": {
+        "quotation": true,
+        "specialTerms": true
+    },
+    "createdDate": "31-Jan-2026",
+    "lastModified": "31-Jan-2026 at 22:51",
+    "clientDataStorage": "cloudflare-r2-encrypted"
+}

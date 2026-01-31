@@ -103,7 +103,13 @@
                 const urlParams = parseUrlParameters();
                 
                 if (urlParams.project) {
-                    await loadProject(urlParams.project, urlParams.year);
+                    // Auto-detect year from project index
+                    const detectedYear = findProjectYearFromIndex(urlParams.project);
+                    const config = window.NaProjectAdmin.ConfigManager.getConfig();
+                    const defaultYear = config?.AppConfig?.ProjectLoading?.defaultYear || '26';
+                    const year = detectedYear || defaultYear;
+                    
+                    await loadProject(urlParams.project, year);
                 } else {
                     showWelcomeScreen();
                 }
@@ -119,14 +125,36 @@
         // ------------------------------------------------------------
         function parseUrlParameters() {
             const params = new URLSearchParams(window.location.search);
-            
-            const config = window.NaProjectAdmin.ConfigManager.getConfig();
-            const defaultYear = config?.AppConfig?.ProjectLoading?.defaultYear || '26';
 
             return {
-                project              : params.get('project'),
-                year                 : params.get('year') || defaultYear
+                project              : params.get('project')
             };
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Find Project Year from Index
+        // ------------------------------------------------------------
+        function findProjectYearFromIndex(projectCode) {
+            const configManager = window.NaProjectAdmin.ConfigManager;
+            const projectIndex = configManager?.getProjectIndex();
+            
+            if (!projectIndex) {
+                console.warn('[App] Project index not available for year lookup');
+                return null;
+            }
+
+            const code = projectCode.toUpperCase();
+            
+            // Search all years in the index for this project code
+            for (const year of Object.keys(projectIndex)) {
+                if (projectIndex[year]?.[code]) {
+                    console.log(`[App] Found project ${code} in year ${year}`);
+                    return year;
+                }
+            }
+
+            console.warn(`[App] Project ${code} not found in any year of the index`);
+            return null;
         }
         // ---------------------------------------------------------------
 
