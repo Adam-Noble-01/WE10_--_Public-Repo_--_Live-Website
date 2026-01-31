@@ -14,10 +14,16 @@
 // - Eliminates CORS issues from relative paths
 // - Dynamically loads fonts and updates image sources
 // - Handles both local development and production deployment
+// - HTML uses data-asset-src/href attributes, AssetLoader injects real URLs
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.1.0
+// - Refactored to use data-asset-src and data-asset-href attributes
+// - AssetLoader now injects URLs from data attributes
+// - Prevents browser from trying to load before URLs are generated
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - Absolute URL resolution for assets
@@ -64,15 +70,16 @@
                 config = appConfig;                            // <-- Store config
                 
                 console.log('[AssetLoader] Initialising...');
+                console.log('[AssetLoader] Domain:', config?.appDomain);
                 
                 // Inject font CSS with absolute URLs
                 await injectFontCSS();                         // <-- Load fonts
                 
-                // Update all image sources
-                updateImageSources();                          // <-- Fix images
+                // Inject URLs into elements with data-asset-src attributes
+                injectAssetUrls();                             // <-- Inject image URLs
                 
-                // Update favicon links
-                updateFaviconLinks();                          // <-- Fix favicons
+                // Inject URLs into link elements with data-asset-href attributes
+                injectLinkUrls();                              // <-- Inject favicon URLs
                 
                 isInitialised = true;                          // <-- Mark ready
                 console.log('[AssetLoader] Initialised successfully');
@@ -91,10 +98,10 @@
                 const assetsBase       = config.AppConfig?.Paths?.commonAssetsBase || '/na-apps/01__Assets__NaApps__CommonAssets/';
                 const categoryFolder   = ASSET_CATEGORIES[category] || '';
 
-                // Build absolute URL
-                const url = `${domain}${assetsBase.replace(/^\//, '')}${categoryFolder}/${filename}`;
+                // Build absolute URL with domain
+                const url = `${domain.replace(/\/$/, '')}${assetsBase}${categoryFolder}/${filename}`;
                 
-                return url;                                    // <-- Return absolute URL
+                return url;                                    // <-- Return full URL
             };
             // ---------------------------------------------------------------
 
@@ -109,10 +116,31 @@
                 const domain           = config.appDomain || 'https://www.noble-architecture.com/';
                 const portalBase       = config.AppConfig?.Paths?.projectPortalBase || '/na-project-portal/';
                 
-                // Build project path: /na-project-portal/26-Projects/JS01__JohnSmith/...
-                const url = `${domain}${portalBase.replace(/^\//, '')}${year}-Projects/${projectCode}/${relativePath}`;
+                // Build project path with full domain
+                const url = `${domain.replace(/\/$/, '')}${portalBase}${year}-Projects/${projectCode}/${relativePath}`;
                 
-                return url;                                    // <-- Return absolute URL
+                return url;                                    // <-- Return full URL
+            };
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Parse Asset Path
+            // Extracts category and filename from a relative path
+            // ------------------------------------------------------------
+            AssetLoader.parseAssetPath = function(path) {
+                if (!path) return null;
+                
+                const filename = path.split('/').pop();        // <-- Get filename
+                let category = null;
+                
+                if (path.includes('CommonGraphics') || path.includes('NaApps__CommonGraphics')) {
+                    category = 'GRAPHICS';
+                } else if (path.includes('CommonIcons') || path.includes('NaApps__CommonIcons')) {
+                    category = 'ICONS';
+                } else if (path.includes('CommonFonts') || path.includes('NaApps__CommonFonts')) {
+                    category = 'FONTS';
+                }
+                
+                return { category, filename };
             };
             // ---------------------------------------------------------------
 
@@ -153,60 +181,58 @@
                 style.textContent = cssRules;
                 document.head.appendChild(style);              // <-- Add to DOM
 
-                console.log('[AssetLoader] Fonts loaded');
+                console.log('[AssetLoader] Fonts injected');
             }
             // ---------------------------------------------------------------
 
-            // FUNCTION | Update Image Sources
+            // FUNCTION | Inject Asset URLs into Images
+            // Reads data-asset-src, generates URL, sets src
             // ------------------------------------------------------------
-            function updateImageSources() {
-                // Match both relative and absolute paths containing the assets folder
-                const images = document.querySelectorAll('img[src*="01__Assets__NaApps__CommonAssets"], img[src*="NaApps__CommonGraphics"], img[src*="NaApps__CommonIcons"]');
+            function injectAssetUrls() {
+                // Find all elements with data-asset-src attribute
+                const elements = document.querySelectorAll('[data-asset-src]');
+                let count = 0;
                 
-                images.forEach(img => {
-                    const src = img.getAttribute('src');       // <-- Get path
+                elements.forEach(el => {
+                    const assetPath = el.getAttribute('data-asset-src');
+                    const parsed = AssetLoader.parseAssetPath(assetPath);
                     
-                    // Skip if already an absolute URL with domain
-                    if (src.startsWith('https://') || src.startsWith('http://')) {
-                        return;
-                    }
-                    
-                    // Extract filename and category
-                    if (src.includes('CommonGraphics') || src.includes('NaApps__CommonGraphics')) {
-                        const filename = src.split('/').pop();
-                        img.src = AssetLoader.getAssetUrl('GRAPHICS', filename);
-                    } else if (src.includes('CommonIcons') || src.includes('NaApps__CommonIcons')) {
-                        const filename = src.split('/').pop();
-                        img.src = AssetLoader.getAssetUrl('ICONS', filename);
+                    if (parsed && parsed.category && parsed.filename) {
+                        const url = AssetLoader.getAssetUrl(parsed.category, parsed.filename);
+                        el.src = url;                          // <-- Set actual src
+                        count++;
+                        console.log(`[AssetLoader] Injected: ${parsed.filename} -> ${url}`);
+                    } else {
+                        console.warn(`[AssetLoader] Could not parse asset path: ${assetPath}`);
                     }
                 });
 
-                console.log(`[AssetLoader] Updated ${images.length} image sources`);
+                console.log(`[AssetLoader] Injected ${count} image URLs`);
             }
             // ---------------------------------------------------------------
 
-            // FUNCTION | Update Favicon Links
+            // FUNCTION | Inject Link URLs
+            // Reads data-asset-href, generates URL, sets href
             // ------------------------------------------------------------
-            function updateFaviconLinks() {
-                const links = document.querySelectorAll('link[rel*="icon"]');
-                let updatedCount = 0;
+            function injectLinkUrls() {
+                // Find all link elements with data-asset-href attribute
+                const links = document.querySelectorAll('link[data-asset-href]');
+                let count = 0;
                 
                 links.forEach(link => {
-                    const href = link.getAttribute('href');    // <-- Get path
+                    const assetPath = link.getAttribute('data-asset-href');
+                    const parsed = AssetLoader.parseAssetPath(assetPath);
                     
-                    // Skip if already an absolute URL with domain
-                    if (href && (href.startsWith('https://') || href.startsWith('http://'))) {
-                        return;
-                    }
-                    
-                    if (href && (href.includes('01__Assets__NaApps__CommonAssets') || href.includes('NaApps__CommonIcons'))) {
-                        const filename = href.split('/').pop();
-                        link.href = AssetLoader.getAssetUrl('ICONS', filename);
-                        updatedCount++;
+                    if (parsed && parsed.category && parsed.filename) {
+                        const url = AssetLoader.getAssetUrl(parsed.category, parsed.filename);
+                        link.href = url;                       // <-- Set actual href
+                        count++;
+                    } else {
+                        console.warn(`[AssetLoader] Could not parse link path: ${assetPath}`);
                     }
                 });
 
-                console.log(`[AssetLoader] Updated ${updatedCount} favicon links`);
+                console.log(`[AssetLoader] Injected ${count} link URLs`);
             }
             // ---------------------------------------------------------------
 
@@ -230,4 +256,3 @@
     })();
 
 // endregion ----------------------------------------------
-

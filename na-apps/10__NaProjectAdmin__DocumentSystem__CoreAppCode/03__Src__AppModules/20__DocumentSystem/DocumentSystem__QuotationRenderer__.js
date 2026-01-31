@@ -83,8 +83,8 @@
                 ? dateFormatter?.formatLongWithOrdinal(data.quotationDate) || data.quotationDate
                 : dateFormatter?.formatLongWithOrdinal(new Date()) || new Date().toLocaleDateString();
             
-            const logoUrl = assetLoader?.getAssetUrl('GRAPHICS', 'NaBrandGraphic__CompanyLogo__w2048xh500px__.png') 
-                || '/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png';
+            // Get logo URL from AssetLoader (generates full URL from config)
+            const logoUrl = assetLoader?.getAssetUrl('GRAPHICS', 'NaBrandGraphic__CompanyLogo__w2048xh500px__.png') || '';
 
             return `
                 <div class="document__header">
