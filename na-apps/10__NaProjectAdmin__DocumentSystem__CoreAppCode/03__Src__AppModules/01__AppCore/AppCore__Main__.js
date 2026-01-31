@@ -188,18 +188,21 @@
             const config = window.NaProjectAdmin.ConfigManager.getConfig();
             const projectLoadingConfig = config?.AppConfig?.ProjectLoading;
 
-            // Determine base path
+            // Determine base path from configuration
             const isLocalDev = window.location.hostname === 'localhost' 
                             || window.location.hostname === '127.0.0.1'
                             || window.location.protocol === 'file:';
 
+            // Use configuration for portal base path
+            const portalBase = config?.AppConfig?.Paths?.projectPortalBase || '/na-project-portal/';
+            
             let basePath;
             if (isLocalDev) {
-                // Local development path
-                basePath = `../../na-project-portal/${year}-Projects/`;
+                // Local development - prepend relative path to repo root
+                basePath = `../..${portalBase}${year}-Projects/`;
             } else {
-                // Live GitHub Pages path
-                basePath = `/na-project-portal/${year}-Projects/`;
+                // Live GitHub Pages - use absolute path from config
+                basePath = `${portalBase}${year}-Projects/`;
             }
 
             // Try common folder naming patterns
