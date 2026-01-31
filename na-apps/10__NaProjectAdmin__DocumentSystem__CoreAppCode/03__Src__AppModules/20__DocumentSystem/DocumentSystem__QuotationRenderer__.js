@@ -424,7 +424,7 @@
             return `
                 <div class="document__section">
                     <h2 class="document__section-title">Quotation Terms</h2>
-                    <ul style="color: var(--App_TextSecondary); line-height: 1.8;">
+                    <ul>
                         <li>This quotation is valid for ${validityDays} days from the date of issue${validUntil ? ` (until ${validUntil})` : ''}.</li>
                         <li>Prices are exclusive of VAT unless otherwise stated.</li>
                         <li>Payment terms: As per our Terms & Conditions.</li>

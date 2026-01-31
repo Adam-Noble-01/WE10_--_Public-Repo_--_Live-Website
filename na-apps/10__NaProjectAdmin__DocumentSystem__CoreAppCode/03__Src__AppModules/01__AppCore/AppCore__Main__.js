@@ -152,9 +152,6 @@
             const normalisedCode = validator.normalise(projectCode);
             projectYear = year;
 
-            // Update header
-            updateHeaderProjectName(normalisedCode);
-
             try {
                 // Find and load project configuration
                 projectConfig = await findAndLoadProject(normalisedCode, year);
@@ -165,6 +162,9 @@
                 }
 
                 currentProject = normalisedCode;
+
+                // Update header with loaded project name
+                updateHeaderProjectName(normalisedCode);
 
                 // Check for existing session
                 if (checkExistingSession()) {
@@ -310,10 +310,11 @@
             // FUNCTION | Update Header Project Name
             // ------------------------------------------------------------
             function updateHeaderProjectName(projectCode) {
-                const headerProjectName = document.getElementById('header-project-name');
+                const headerProjectInfo = document.getElementById('header-project-info');
                 
-                if (headerProjectName) {
-                    headerProjectName.textContent = projectConfig?.projectName || `Project ${projectCode}`;
+                if (headerProjectInfo) {
+                    const projectName = projectConfig?.projectName || `Project ${projectCode}`;
+                    headerProjectInfo.textContent = `${projectCode} - ${projectName}`;
                 }
             }
             // ---------------------------------------------------------------

@@ -170,22 +170,25 @@
 
     .header__title-container {
         display                    : flex;
-        flex-direction             : column;
+        flex-direction             : row;
+        align-items                : baseline;
         margin-left                : var(--App_SpacingSm);
         flex                       : 1;
     }
 
     .header__title {
         font-size                  : 1.25rem;
-        font-weight                : 600;
+        font-weight                : 600;                    /* <-- OpenSans SemiBold */
         color                      : var(--App_BrandPrimary);
         line-height                : 1.2;
     }
 
     .header__project-name {
-        font-size                  : 0.875rem;
+        font-size                  : 1.1rem;
+        font-weight                : 400;
         color                      : var(--App_TextSecondary);
         line-height                : 1.2;
+        margin-left                : 0.25rem;
     }
 
     .header__logo {
@@ -990,6 +993,26 @@
         border-bottom              : 1px solid var(--App_BorderLight);
     }
 
+    .document__section ul {
+        padding-left               : 2rem;                   /* <-- Push bullets in from margin */
+        margin                     : var(--App_SpacingSm) 0;
+        list-style-type            : disc;
+    }
+
+    .document__section li {
+        margin-bottom              : var(--App_SpacingSm);
+        line-height                : 1.8;
+        color                      : var(--App_TextSecondary);
+    }
+
+    .document__section p + p {
+        margin-top                 : var(--App_SpacingXs);   /* <-- Add space between paragraphs */
+    }
+
+    .document__section p {
+        line-height                : 1.7;
+    }
+
     .document__addresses {
         display                    : grid;
         grid-template-columns      : 1fr 1fr;
@@ -1313,7 +1336,8 @@
         }
         
         .header__title {
-            font-size              : 1.125rem;
+            font-size              : 1.0rem;
+            font-weight            : 600;                    /* <-- OpenSans SemiBold */
         }
         
         .header__logo {
