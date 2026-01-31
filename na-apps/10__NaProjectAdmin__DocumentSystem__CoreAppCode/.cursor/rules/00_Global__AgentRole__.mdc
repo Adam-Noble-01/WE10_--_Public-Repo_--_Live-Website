@@ -19,3 +19,13 @@ alwaysApply: true
 - Contract management.
 - Documentation hosting.
 - Other project related administration tasks.
+
+## Units and Metrics Standards
+
+### Date and Time Format
+- **Dates in Data/Logic**: DD-MMM-YYYY (e.g., 31-Jan-2026)
+- **Dates in Documents**: DDˢᵗ Month YYYY (e.g., 31ˢᵗ January 2026) with Unicode superscript ordinals
+- **Time**: 24-hour format HH:MM (e.g., 14:30)
+- **DateTime**: DD-MMM-YYYY at HH:MM (e.g., 31-Jan-2026 at 14:30)
+- **Timestamps**: ISO 8601 for internal system use only (e.g., 2026-01-31T14:30:00.000Z)
+

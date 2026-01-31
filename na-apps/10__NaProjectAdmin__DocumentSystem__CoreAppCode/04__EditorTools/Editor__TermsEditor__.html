@@ -12,6 +12,9 @@
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
+
+    <!-- Load DateFormatter Module -->
+    <script src="../03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
 </head>
 <!-- endregion ---------------------------------------- -->
 
@@ -234,7 +237,7 @@
                 title: t.title,
                 content: t.content
             })),
-            lastUpdated: new Date().toISOString()
+            lastUpdated: window.NaProjectAdmin.DateFormatter.nowUKWithTime()
         };
     }
 

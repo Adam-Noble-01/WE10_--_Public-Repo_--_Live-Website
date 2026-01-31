@@ -12,6 +12,9 @@
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
+
+    <!-- Load DateFormatter Module -->
+    <script src="../03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
 </head>
 <!-- endregion ---------------------------------------- -->
 
@@ -373,7 +376,7 @@
 
         const quotation = {
             quotationRef: document.getElementById('quotationRef').value,
-            quotationDate: document.getElementById('quotationDate').value,
+            quotationDate: window.NaProjectAdmin.DateFormatter.formatDateToUK(document.getElementById('quotationDate').value),
             projectAddress: document.getElementById('projectAddress').value,
             projectDescription: document.getElementById('projectDescription').value,
             clientDetails: {
@@ -389,7 +392,7 @@
                 grandTotal: totals.total
             },
             additionalTerms: '',
-            createdDate: new Date().toISOString()
+            createdDate: window.NaProjectAdmin.DateFormatter.nowUKWithTime()
         };
 
         return quotation;

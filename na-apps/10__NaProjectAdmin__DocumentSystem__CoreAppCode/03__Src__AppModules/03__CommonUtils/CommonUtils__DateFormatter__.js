@@ -77,6 +77,42 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Format Date Long with Ordinal (DDˢᵗ Month YYYY)
+        // ------------------------------------------------------------
+        function formatLongWithOrdinal(date) {
+            const d = toDate(date);
+            
+            if (!d) {
+                return 'Invalid Date';
+            }
+
+            const day = d.getDate();
+            const ordinal = getOrdinalSuffix(day);
+            const month = MONTH_NAMES_FULL[d.getMonth()];
+            const year = d.getFullYear();
+
+            return `${day}${ordinal} ${month} ${year}`;
+        }
+        // ---------------------------------------------------------------
+
+        // HELPER FUNCTION | Get Ordinal Suffix (Unicode superscripts)
+        // ------------------------------------------------------------
+        function getOrdinalSuffix(day) {
+            // Special case for 11th, 12th, 13th
+            if (day >= 11 && day <= 13) {
+                return 'ᵗʰ';
+            }
+
+            // Check last digit
+            switch (day % 10) {
+                case 1: return 'ˢᵗ';                         // <-- 1st, 21st, 31st
+                case 2: return 'ⁿᵈ';                         // <-- 2nd, 22nd
+                case 3: return 'ʳᵈ';                         // <-- 3rd, 23rd
+                default: return 'ᵗʰ';                        // <-- All others
+            }
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Format ISO 8601 (for audit records)
         // ------------------------------------------------------------
         function formatISO(date) {
@@ -135,6 +171,21 @@
         // ------------------------------------------------------------
         function nowUK() {
             return formatUK(new Date());
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Get Current DateTime (UK Format with Time)
+        // ------------------------------------------------------------
+        function nowUKWithTime() {
+            return formatDateTime(new Date());
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Format Date to UK (DD-MMM-YYYY) - For Editor Tools
+        // ------------------------------------------------------------
+        function formatDateToUK(dateInput) {
+            const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+            return formatUK(d);
         }
         // ---------------------------------------------------------------
 
@@ -213,18 +264,21 @@
         window.NaProjectAdmin = window.NaProjectAdmin || {};
         
         window.NaProjectAdmin.DateFormatter = {
-            formatUK             : formatUK,
-            formatLong           : formatLong,
-            formatISO            : formatISO,
-            formatDateTime       : formatDateTime,
-            formatForFilename    : formatForFilename,
-            nowISO               : nowISO,
-            nowUK                : nowUK,
-            toDate               : toDate,
-            daysFromNow          : daysFromNow,
-            isPast               : isPast,
-            MONTHS_SHORT         : MONTH_NAMES_SHORT,
-            MONTHS_FULL          : MONTH_NAMES_FULL
+            formatUK                : formatUK,
+            formatLong              : formatLong,
+            formatLongWithOrdinal   : formatLongWithOrdinal,
+            formatISO               : formatISO,
+            formatDateTime          : formatDateTime,
+            formatDateToUK          : formatDateToUK,
+            formatForFilename       : formatForFilename,
+            nowISO                  : nowISO,
+            nowUK                   : nowUK,
+            nowUKWithTime           : nowUKWithTime,
+            toDate                  : toDate,
+            daysFromNow             : daysFromNow,
+            isPast                  : isPast,
+            MONTHS_SHORT            : MONTH_NAMES_SHORT,
+            MONTHS_FULL             : MONTH_NAMES_FULL
         };
 
         // Mark module as loaded

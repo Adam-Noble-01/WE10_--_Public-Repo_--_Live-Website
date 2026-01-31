@@ -80,8 +80,8 @@
             const dateFormatter = window.NaProjectAdmin.DateFormatter;
             const assetLoader = window.NaProjectAdmin.AssetLoader;
             const quotationDate = data.quotationDate 
-                ? dateFormatter?.formatLong(data.quotationDate) || data.quotationDate
-                : dateFormatter?.formatLong(new Date()) || new Date().toLocaleDateString();
+                ? dateFormatter?.formatLongWithOrdinal(data.quotationDate) || data.quotationDate
+                : dateFormatter?.formatLongWithOrdinal(new Date()) || new Date().toLocaleDateString();
             
             const logoUrl = assetLoader?.getAssetUrl('GRAPHICS', 'NaBrandGraphic__CompanyLogo__w2048xh500px__.png') 
                 || '../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png';
@@ -308,7 +308,7 @@
             const validityDays = config?.AppConfig?.Features?.QuotationSystem?.validityDays || 30;
 
             const dateFormatter = window.NaProjectAdmin.DateFormatter;
-            const validUntil = dateFormatter?.formatLong(dateFormatter?.daysFromNow(validityDays));
+            const validUntil = dateFormatter?.formatLongWithOrdinal(dateFormatter?.daysFromNow(validityDays));
 
             return `
                 <div class="document__section">

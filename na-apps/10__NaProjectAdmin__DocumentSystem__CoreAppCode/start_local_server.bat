@@ -24,20 +24,23 @@ echo Starting local server on http://localhost:8080
 echo Your default browser will open automatically...
 echo.
 echo Test URLs:
-echo   - Main app: http://localhost:8080/
-echo   - Example project: http://localhost:8080/?project=AA00^&year=26
+echo   - Main app: http://localhost:8080/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/
+echo   - Example project: http://localhost:8080/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/?project=AA00^&year=26
 echo.
 echo Editor Tools:
-echo   - Project Index Builder: http://localhost:8080/04__EditorTools/Editor__ProjectIndexBuilder__.html
-echo   - Project Config: http://localhost:8080/04__EditorTools/Editor__ProjectConfig__.html
-echo   - Quotation Builder: http://localhost:8080/04__EditorTools/Editor__QuotationBuilder__.html
-echo   - Terms Editor: http://localhost:8080/04__EditorTools/Editor__TermsEditor__.html
+echo   - Project Index Builder: http://localhost:8080/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/04__EditorTools/Editor__ProjectIndexBuilder__.html
+echo   - Project Config: http://localhost:8080/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/04__EditorTools/Editor__ProjectConfig__.html
+echo   - Quotation Builder: http://localhost:8080/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/04__EditorTools/Editor__QuotationBuilder__.html
+echo   - Terms Editor: http://localhost:8080/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/04__EditorTools/Editor__TermsEditor__.html
 echo.
 echo Press Ctrl+C to stop the server
 echo ============================================================
 echo.
 
-REM Start Python HTTP server
+REM Navigate to repository root (3 levels up)
+cd ..\..\..\
+
+REM Start Python HTTP server from repository root
 python -m http.server 8080
 
 pause

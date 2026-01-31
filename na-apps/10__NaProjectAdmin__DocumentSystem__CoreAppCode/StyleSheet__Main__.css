@@ -3,18 +3,18 @@
  * =============================================================================
  */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Font Face Declarations
- * ----- */
+ * -------------------------------------------------------- */
 
     /* Fonts are dynamically loaded by CommonUtils__AssetLoader__.js */
     /* This ensures absolute URLs work correctly on GitHub Pages */
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | CSS Variables
- * ----- */
+ * -------------------------------------------------------- */
 
     :root {
         /* Brand Colours */
@@ -71,11 +71,11 @@
         --App_TransitionSlow       : 0.35s ease;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Reset & Base Styles
- * ----- */
+ * -------------------------------------------------------- */
 
     *,
     *::before,
@@ -129,11 +129,11 @@
         font-size                  : inherit;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Header Styles
- * ----- */
+ * -------------------------------------------------------- */
 
     .app-header {
         position                   : fixed;
@@ -194,11 +194,11 @@
         margin-left                : auto;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Sidebar Navigation
- * ----- */
+ * -------------------------------------------------------- */
 
     .sidebar {
         position                   : fixed;
@@ -215,7 +215,7 @@
         box-shadow                 : var(--App_ShadowSm);
     }
 
-    .sidebar.collapsed {
+    .sidebar:not(.open) {
         transform                  : translateX(-100%);
     }
 
@@ -321,11 +321,67 @@
         color                      : var(--App_StatusSuccess);
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
+ * REGION | Menu Tutorial Overlay
+ * -------------------------------------------------------- */
+
+    .menu-tutorial-overlay {
+        position                   : absolute;
+        top                        : 70px;               /* <-- Below header */
+        left                       : 10px;
+        display                    : none;
+        z-index                    : 10000;
+        pointer-events             : none;               /* <-- Doesn't block clicks */
+        animation                  : tutorialFadeIn 0.3s ease;
+    }
+
+    @keyframes tutorialFadeIn {
+        from {
+            opacity                : 0;
+            transform              : translateY(-10px);
+        }
+        to {
+            opacity                : 1;
+            transform              : translateY(0);
+        }
+    }
+
+    .menu-pointer-arrow {
+        width                      : 0;
+        height                     : 0;
+        border-left                : 12px solid transparent;
+        border-right               : 12px solid transparent;
+        border-bottom              : 12px solid #d9534f;  /* <-- Red arrow */
+        margin-left                : 15px;
+    }
+
+    .menu-tutorial-text {
+        background-color           : #d9534f;            /* <-- Red background */
+        color                      : var(--App_TextLight);
+        padding                    : 10px 14px;
+        border-radius              : var(--App_BorderRadius);
+        margin-top                 : 5px;
+        font-size                  : 0.9375rem;
+        font-weight                : 500;
+        box-shadow                 : var(--App_ShadowMd);
+        max-width                  : 250px;
+        line-height                : 1.4;
+    }
+
+    @media (max-width: 768px) {
+        .menu-tutorial-text {
+            font-size              : 0.875rem;
+            padding                : 8px 12px;
+        }
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
  * REGION | Main Content Area
- * ----- */
+ * -------------------------------------------------------- */
 
     .main-content {
         margin-left                : var(--App_SidebarWidth);
@@ -335,7 +391,7 @@
         transition                 : margin-left var(--App_TransitionMedium);
     }
 
-    .sidebar.collapsed ~ .main-content,
+    .sidebar:not(.open) ~ .main-content,
     .main-content.expanded {
         margin-left                : 0;
     }
@@ -345,11 +401,11 @@
         margin                     : 0 auto;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Loading Overlay
- * ----- */
+ * -------------------------------------------------------- */
 
     .loading-overlay {
         position                   : fixed;
@@ -390,11 +446,11 @@
         font-size                  : 0.9375rem;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Login Screen
- * ----- */
+ * -------------------------------------------------------- */
 
     .login-screen {
         display                    : flex;
@@ -418,7 +474,8 @@
     }
 
     .login-card__logo {
-        width                      : 80px;
+        width                      : 250px;
+        max-width                  : 90%;                        /* <-- Responsive scaling */
         height                     : auto;
         margin-bottom              : var(--App_SpacingMd);
     }
@@ -435,11 +492,11 @@
         color                      : var(--App_TextSecondary);
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Welcome Screen
- * ----- */
+ * -------------------------------------------------------- */
 
     .welcome-screen {
         display                    : flex;
@@ -485,11 +542,11 @@
         color                      : var(--App_BrandPrimary);
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Form Elements
- * ----- */
+ * -------------------------------------------------------- */
 
     .form-group {
         margin-bottom              : var(--App_SpacingMd);
@@ -562,11 +619,11 @@
         border-radius              : var(--App_BorderRadius);
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Buttons
- * ----- */
+ * -------------------------------------------------------- */
 
     .btn {
         display                    : inline-flex;
@@ -632,11 +689,11 @@
         cursor                     : not-allowed;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Document Screen
- * ----- */
+ * -------------------------------------------------------- */
 
     .document-screen {
         padding-bottom             : var(--App_SpacingXxl);
@@ -650,11 +707,11 @@
         margin                     : 0 auto;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Signature Screen
- * ----- */
+ * -------------------------------------------------------- */
 
     .signature-screen {
         display                    : flex;
@@ -722,11 +779,11 @@
         flex                       : 1;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Modal Styles
- * ----- */
+ * -------------------------------------------------------- */
 
     .modal-overlay {
         position                   : fixed;
@@ -802,11 +859,11 @@
         gap                        : var(--App_SpacingSm);
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Document Styles - Quotation
- * ----- */
+ * -------------------------------------------------------- */
 
     .document {
         padding                    : var(--App_SpacingXl);
@@ -878,11 +935,11 @@
         color                      : var(--App_TextPrimary);
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Quotation Table
- * ----- */
+ * -------------------------------------------------------- */
 
     .quote-table {
         width                      : 100%;
@@ -959,11 +1016,11 @@
         margin-top                 : var(--App_SpacingXs);
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Terms & Conditions Document
- * ----- */
+ * -------------------------------------------------------- */
 
     .terms-document {
         padding                    : var(--App_SpacingXl);
@@ -1023,11 +1080,11 @@
         line-height                : 1.7;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Signature Record Display
- * ----- */
+ * -------------------------------------------------------- */
 
     .signature-record {
         background-color           : var(--App_BgTertiary);
@@ -1073,11 +1130,11 @@
         background-color           : var(--App_BgSecondary);
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Sign Document Button
- * ----- */
+ * -------------------------------------------------------- */
 
     .sign-document-section {
         margin-top                 : var(--App_SpacingXl);
@@ -1098,11 +1155,11 @@
         margin-bottom              : var(--App_SpacingMd);
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Utility Classes
- * ----- */
+ * -------------------------------------------------------- */
 
     .text-center {
         text-align                 : center;
@@ -1151,14 +1208,14 @@
         border                     : 0;
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Responsive Styles
- * ----- */
+ * -------------------------------------------------------- */
 
     @media (max-width: 1024px) {
-        .sidebar {
+        .sidebar:not(.open) {
             transform              : translateX(-100%);
         }
         
@@ -1235,11 +1292,11 @@
         }
     }
 
-/* endregion ---- */
+/* endregion -------------------------------------------------- */
 
-/* -----
+/*  #Region --------------------------------------------------------
  * REGION | Print Styles
- * ----- */
+ * -------------------------------------------------------- */
 
     @media print {
         .app-header,
@@ -1269,5 +1326,4 @@
         }
     }
 
-/* endregion ---- */
-
+/* endregion -------------------------------------------------- */

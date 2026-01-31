@@ -14,13 +14,14 @@
  * - Provides authentication, signature storage, and R2 access
  *
  * ENDPOINTS:
- * - GET  /health              - Health check
- * - GET  /ip                  - Get client IP address
- * - POST /projectadmin/auth   - Validate project PIN
- * - POST /projectadmin/signature - Store signature record
- * - GET  /projectadmin/signature - Retrieve signature record
- * - POST /r2/read             - Read file from R2
- * - POST /r2/write            - Write file to R2
+ * - GET    /health              - Health check
+ * - GET    /ip                  - Get client IP address
+ * - POST   /projectadmin/auth   - Validate project PIN
+ * - POST   /projectadmin/signature - Store signature record
+ * - GET    /projectadmin/signature - Retrieve signature record
+ * - DELETE /projectadmin/signature - Purge signature records for a project
+ * - POST   /r2/read             - Read file from R2
+ * - POST   /r2/write            - Write file to R2
  *
  * =============================================================================
  */
@@ -163,7 +164,12 @@ function getAllowedOrigin(requestOrigin, env) {
 
     // In development, allow all origins
     if (env.ENVIRONMENT === 'development') {
-        return requestOrigin || '*';
+        return '*';
+    }
+
+    // Handle null origin (file:// protocol)
+    if (!requestOrigin || requestOrigin === 'null') {
+        return '*';
     }
 
     // In production, check against configured origin
@@ -172,10 +178,8 @@ function getAllowedOrigin(requestOrigin, env) {
     }
 
     // Allow localhost for local development
-    if (requestOrigin && (
-        requestOrigin.includes('localhost') || 
-        requestOrigin.includes('127.0.0.1')
-    )) {
+    if (requestOrigin.includes('localhost') || 
+        requestOrigin.includes('127.0.0.1')) {
         return requestOrigin;
     }
 

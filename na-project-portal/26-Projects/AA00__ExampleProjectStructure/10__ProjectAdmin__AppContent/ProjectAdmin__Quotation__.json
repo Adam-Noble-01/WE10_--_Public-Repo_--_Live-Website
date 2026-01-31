@@ -1,6 +1,6 @@
 {
     "quotationRef"                 : "QUO-AA00-2026-001",
-    "quotationDate"                : "2026-01-31",
+    "quotationDate"                : "31-Jan-2026",
     "projectAddress"               : "123 Example Street, Nottingham, NG1 1AA",
     "projectDescription"           : "This is an example quotation demonstrating the format and structure of project quotations in the Noble Architecture Project Admin system. This includes multiple phases, line items, and calculated totals.",
     "clientDetails"                : {
@@ -81,6 +81,6 @@
         "grandTotal"               : 10290
     },
     "additionalTerms"              : "This quotation is based on a standard domestic project. Complex or listed building projects may require additional fees.",
-    "createdDate"                  : "2026-01-31T12:00:00.000Z"
+    "createdDate"                  : "31-Jan-2026"
 }
 

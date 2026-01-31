@@ -12,6 +12,9 @@
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
+
+    <!-- Load DateFormatter Module -->
+    <script src="../03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
 </head>
 <!-- endregion ---------------------------------------- -->
 
@@ -229,8 +232,8 @@
                 quotation: document.getElementById('hasQuotation').checked,
                 specialTerms: document.getElementById('hasSpecialTerms').checked
             },
-            createdDate: new Date().toISOString().split('T')[0],
-            lastModified: new Date().toISOString()
+            createdDate: window.NaProjectAdmin.DateFormatter.nowUK(),
+            lastModified: window.NaProjectAdmin.DateFormatter.nowUKWithTime()
         };
     }
 

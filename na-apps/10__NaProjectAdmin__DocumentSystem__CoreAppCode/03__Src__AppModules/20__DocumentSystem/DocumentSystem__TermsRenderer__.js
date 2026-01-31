@@ -76,7 +76,7 @@
         function renderHeader(companyDetails) {
             const dateFormatter = window.NaProjectAdmin.DateFormatter;
             const assetLoader = window.NaProjectAdmin.AssetLoader;
-            const currentDate = dateFormatter?.formatLong(new Date()) || new Date().toLocaleDateString();
+            const currentDate = dateFormatter?.formatLongWithOrdinal(new Date()) || new Date().toLocaleDateString();
             
             const logoUrl = assetLoader?.getAssetUrl('GRAPHICS', 'NaBrandGraphic__CompanyLogo__w2048xh500px__.png') 
                 || '../../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png';

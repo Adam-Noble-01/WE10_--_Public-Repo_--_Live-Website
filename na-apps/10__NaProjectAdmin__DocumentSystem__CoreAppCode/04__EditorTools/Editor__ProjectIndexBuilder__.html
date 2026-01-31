@@ -26,9 +26,12 @@
     <!-- -------------------------------------------------- -->
     <header class="app-header">
         <h1>Project Index Builder</h1>
-        <div>
+        <div class="header-actions">
             <button class="btn btn--secondary" onclick="scanProjects()">Scan Projects</button>
+            <button class="btn btn--secondary" onclick="forgetDirectory()" id="forgetDirBtn"
+                style="display: none;">Forget Directory</button>
             <button class="btn btn--secondary" onclick="loadFromFile()">Load Index</button>
+            <button class="btn btn--primary" onclick="saveIndexToFile()">Save Index</button>
             <button class="btn btn--primary" onclick="downloadJson()">Download Index</button>
         </div>
     </header>
@@ -52,24 +55,34 @@
                     <code>03__Src__AppModules/02__AppData/</code> directory.
                 </div>
 
+                <!-- Directory Status -->
+                <div id="directoryStatus" class="status-box status-box--info" style="display: none;">
+                    <span id="directoryStatusText"></span>
+                </div>
+
                 <h3 class="section-heading section-heading--first">Auto-Discovery</h3>
 
                 <div class="info-box">
                     <strong>How to use:</strong><br>
                     1. Click "Scan Projects" and select the <code>na-project-portal</code> directory<br>
-                    2. The tool will search for valid projects (those with ProjectAdmin__ProjectConfig__.json)<br>
-                    3. Review discovered projects in the table below<br>
-                    4. Manually add/edit/remove entries as needed<br>
-                    5. Click "Download Index" to save the configuration file
+                    2. The tool will remember your selection for future visits<br>
+                    3. Review discovered projects in the table below - click on code or folder to edit<br>
+                    4. Use "Purge" button per-project to clear signed contracts from Cloudflare (for testing)<br>
+                    5. Click "Save Index" to save directly or "Download Index" to download the file
                 </div>
 
-                <div class="warning-box">
+                <div class="warning-box" id="apiWarning">
                     <strong>Browser Compatibility Note</strong><br>
                     Auto-scanning requires the File System Access API (Chrome/Edge 86+, Opera 72+).
                     If your browser doesn't support it, you can manually add projects using the form below.
                 </div>
 
                 <h3 class="section-heading">Discovered Projects</h3>
+
+                <!-- Project Count Indicator -->
+                <div class="actions-bar" id="bulkActions" style="display: none;">
+                    <span class="project-count-label" id="projectCountLabel">0 projects loaded</span>
+                </div>
 
                 <div id="projectsContainer">
                     <table class="projects-table">
@@ -152,10 +165,25 @@
 <script>
 
     // #Region ------------------------------------------------
+    // CONSTANTS | Configuration
+    // --------------------------------------------------------
+
+    const DB_NAME = 'NaProjectIndexBuilder';           // <-- IndexedDB name
+    const DB_VERSION = 1;                                 // <-- DB version
+    const STORE_NAME = 'directoryHandles';                // <-- Object store name
+    const HANDLE_KEY = 'projectPortalHandle';             // <-- Key for stored handle
+    const WORKER_BASE_URL = 'https://na-projectadmin-api.adam-fb3.workers.dev'; // <-- Cloudflare Worker
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
     // STATE | Application State
     // --------------------------------------------------------
 
-    let projectsIndex = {};                                  // <-- Year -> ProjectCode -> FolderName
+    let projectsIndex = {};                                // <-- Year -> ProjectCode -> FolderName
+    let discoveredData = {};                                // <-- Full project data with client names
+    let storedDirHandle = null;                              // <-- Cached directory handle
+    let db = null;                              // <-- IndexedDB reference
 
     // endregion ----------------------------------------------
 
@@ -163,10 +191,209 @@
     // INITIALIZATION | DOM Ready
     // --------------------------------------------------------
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         updatePreview();
         checkFileSystemAPISupport();
+
+        // Try to restore saved directory handle
+        await initIndexedDB();
+        await tryAutoLoad();
     });
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // INDEXEDDB | Directory Handle Storage
+    // --------------------------------------------------------
+
+    /**
+     * Initialise IndexedDB for storing directory handles
+     */
+    async function initIndexedDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+            request.onerror = () => {
+                console.warn('IndexedDB not available:', request.error);
+                resolve(null);
+            };
+
+            request.onsuccess = () => {
+                db = request.result;
+                console.log('IndexedDB initialised');
+                resolve(db);
+            };
+
+            request.onupgradeneeded = (event) => {
+                const database = event.target.result;
+                if (!database.objectStoreNames.contains(STORE_NAME)) {
+                    database.createObjectStore(STORE_NAME);
+                    console.log('Created object store:', STORE_NAME);
+                }
+            };
+        });
+    }
+
+    /**
+     * Store directory handle in IndexedDB
+     */
+    async function storeDirectoryHandle(handle) {
+        if (!db) return false;
+
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                store.put(handle, HANDLE_KEY);
+
+                tx.oncomplete = () => {
+                    console.log('Directory handle stored');
+                    storedDirHandle = handle;
+                    updateDirectoryStatus(handle.name, true);
+                    resolve(true);
+                };
+
+                tx.onerror = () => {
+                    console.warn('Failed to store handle:', tx.error);
+                    resolve(false);
+                };
+            } catch (error) {
+                console.warn('Store error:', error);
+                resolve(false);
+            }
+        });
+    }
+
+    /**
+     * Retrieve directory handle from IndexedDB
+     */
+    async function getStoredDirectoryHandle() {
+        if (!db) return null;
+
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.get(HANDLE_KEY);
+
+                request.onsuccess = () => {
+                    resolve(request.result || null);
+                };
+
+                request.onerror = () => {
+                    console.warn('Failed to get handle:', request.error);
+                    resolve(null);
+                };
+            } catch (error) {
+                console.warn('Get error:', error);
+                resolve(null);
+            }
+        });
+    }
+
+    /**
+     * Clear stored directory handle from IndexedDB
+     */
+    async function clearStoredDirectoryHandle() {
+        if (!db) return false;
+
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                store.delete(HANDLE_KEY);
+
+                tx.oncomplete = () => {
+                    console.log('Directory handle cleared');
+                    storedDirHandle = null;
+                    updateDirectoryStatus(null, false);
+                    resolve(true);
+                };
+
+                tx.onerror = () => {
+                    resolve(false);
+                };
+            } catch (error) {
+                resolve(false);
+            }
+        });
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // AUTO-LOAD | Restore Previous Session
+    // --------------------------------------------------------
+
+    /**
+     * Try to auto-load from stored directory handle
+     */
+    async function tryAutoLoad() {
+        const handle = await getStoredDirectoryHandle();
+
+        if (!handle) {
+            console.log('No stored directory handle found');
+            return;
+        }
+
+        console.log('Found stored handle:', handle.name);
+
+        // Request permission to access the directory
+        try {
+            const permission = await handle.requestPermission({ mode: 'read' });
+
+            if (permission === 'granted') {
+                console.log('Permission granted, scanning...');
+                storedDirHandle = handle;
+                updateDirectoryStatus(handle.name, true);
+                await scanDirectoryHandle(handle);
+            } else {
+                console.log('Permission denied, handle stored for later');
+                updateDirectoryStatus(handle.name, false);
+            }
+        } catch (error) {
+            console.warn('Auto-load failed:', error.message);
+            updateDirectoryStatus(handle.name, false);
+        }
+    }
+
+    /**
+     * Update the directory status display
+     */
+    function updateDirectoryStatus(dirName, hasPermission) {
+        const statusBox = document.getElementById('directoryStatus');
+        const statusText = document.getElementById('directoryStatusText');
+        const forgetBtn = document.getElementById('forgetDirBtn');
+
+        if (dirName) {
+            statusBox.style.display = 'block';
+            forgetBtn.style.display = 'inline-block';
+
+            if (hasPermission) {
+                statusBox.className = 'status-box status-box--success';
+                statusText.innerHTML = `<strong>✓ Connected:</strong> ${dirName} <em>(auto-loading enabled)</em>`;
+            } else {
+                statusBox.className = 'status-box status-box--warning';
+                statusText.innerHTML = `<strong>⚠ Saved:</strong> ${dirName} <em>(click "Scan Projects" to reconnect)</em>`;
+            }
+        } else {
+            statusBox.style.display = 'none';
+            forgetBtn.style.display = 'none';
+        }
+    }
+
+    /**
+     * Forget the stored directory
+     */
+    async function forgetDirectory() {
+        if (confirm('Forget the saved directory? You will need to select it again next time.')) {
+            await clearStoredDirectoryHandle();
+            projectsIndex = {};
+            discoveredData = {};
+            renderProjectsTable({});
+            updatePreview();
+        }
+    }
 
     // endregion ----------------------------------------------
 
@@ -177,7 +404,7 @@
     function checkFileSystemAPISupport() {
         if (!('showDirectoryPicker' in window)) {
             console.warn('File System Access API not supported');
-            const warningBox = document.querySelector('.warning-box');
+            const warningBox = document.getElementById('apiWarning');
             if (warningBox) {
                 warningBox.style.display = 'block';
                 warningBox.style.borderColor = '#e74c3c';
@@ -198,60 +425,29 @@
         }
 
         try {
-            const dirHandle = await window.showDirectoryPicker({
-                mode: 'read'
-            });
+            // Use stored handle if available and has permission
+            let dirHandle = storedDirHandle;
 
-            console.log('Scanning directory:', dirHandle.name);
+            if (!dirHandle) {
+                dirHandle = await window.showDirectoryPicker({
+                    mode: 'read'
+                });
 
-            const discovered = {};                           // <-- Temporary storage
-
-            // Iterate through year folders (e.g., 25-Projects, 26-Projects)
-            for await (const yearEntry of dirHandle.values()) {
-                if (yearEntry.kind !== 'directory') continue;
-
-                const yearMatch = yearEntry.name.match(/^(\d{2})-Projects$/);
-                if (!yearMatch) continue;
-
-                const year = yearMatch[1];
-                console.log('Scanning year:', year);
-
-                // Iterate through project folders within year
-                for await (const projectEntry of yearEntry.values()) {
-                    if (projectEntry.kind !== 'directory') continue;
-
-                    const folderName = projectEntry.name;
-
-                    // Try to find project config to validate it's a real project
-                    const projectData = await checkProjectFolder(projectEntry);
-
-                    if (projectData) {
-                        if (!discovered[year]) {
-                            discovered[year] = {};
-                        }
-                        discovered[year][projectData.code] = {
-                            folder: folderName,
-                            clientName: projectData.clientName
-                        };
-                        console.log(`Found project: ${year}/${projectData.code} -> ${folderName}`);
-                    }
+                // Store the handle for future use
+                await storeDirectoryHandle(dirHandle);
+            } else {
+                // Verify permission
+                const permission = await dirHandle.requestPermission({ mode: 'read' });
+                if (permission !== 'granted') {
+                    // Need to pick again
+                    dirHandle = await window.showDirectoryPicker({
+                        mode: 'read'
+                    });
+                    await storeDirectoryHandle(dirHandle);
                 }
             }
 
-            // Update global state
-            projectsIndex = {};
-            for (const year in discovered) {
-                projectsIndex[year] = {};
-                for (const code in discovered[year]) {
-                    projectsIndex[year][code] = discovered[year][code].folder;
-                }
-            }
-
-            // Update UI
-            renderProjectsTable(discovered);
-            updatePreview();
-
-            alert(`Scan complete! Found ${Object.keys(discovered).reduce((sum, year) => sum + Object.keys(discovered[year]).length, 0)} projects.`);
+            await scanDirectoryHandle(dirHandle);
 
         } catch (error) {
             if (error.name === 'AbortError') {
@@ -261,6 +457,70 @@
                 alert('Failed to scan projects: ' + error.message);
             }
         }
+    }
+
+    /**
+     * Scan a directory handle for projects
+     */
+    async function scanDirectoryHandle(dirHandle) {
+        console.log('Scanning directory:', dirHandle.name);
+
+        const discovered = {};                                            // <-- Temporary storage
+
+        // Iterate through year folders (e.g., 25-Projects, 26-Projects)
+        for await (const yearEntry of dirHandle.values()) {
+            if (yearEntry.kind !== 'directory') continue;
+
+            const yearMatch = yearEntry.name.match(/^(\d{2})-Projects$/);
+            if (!yearMatch) continue;
+
+            const year = yearMatch[1];
+            console.log('Scanning year:', year);
+
+            // Iterate through project folders within year
+            for await (const projectEntry of yearEntry.values()) {
+                if (projectEntry.kind !== 'directory') continue;
+
+                const folderName = projectEntry.name;
+
+                // Try to find project config to validate it's a real project
+                const projectData = await checkProjectFolder(projectEntry);
+
+                if (projectData) {
+                    if (!discovered[year]) {
+                        discovered[year] = {};
+                    }
+                    discovered[year][projectData.code] = {
+                        folder: folderName,
+                        clientName: projectData.clientName
+                    };
+                    console.log(`Found project: ${year}/${projectData.code} -> ${folderName}`);
+                }
+            }
+        }
+
+        // Update global state
+        projectsIndex = {};
+        discoveredData = discovered;
+
+        for (const year in discovered) {
+            projectsIndex[year] = {};
+            for (const code in discovered[year]) {
+                projectsIndex[year][code] = discovered[year][code].folder;
+            }
+        }
+
+        // Update UI
+        renderProjectsTable(discovered);
+        updatePreview();
+
+        const projectCount = Object.keys(discovered).reduce((sum, year) => sum + Object.keys(discovered[year]).length, 0);
+
+        if (projectCount > 0) {
+            document.getElementById('bulkActions').style.display = 'flex';
+        }
+
+        alert(`Scan complete! Found ${projectCount} projects.`);
     }
 
     // Check if a folder is a valid project
@@ -296,7 +556,10 @@
         const tbody = document.getElementById('projectsTableBody');
         tbody.innerHTML = '';
 
-        const years = Object.keys(discovered).sort().reverse(); // <-- Newest first
+        const years = Object.keys(discovered).sort().reverse();           // <-- Newest first
+
+        // Calculate total project count
+        const projectCount = years.reduce((sum, year) => sum + Object.keys(discovered[year]).length, 0);
 
         if (years.length === 0) {
             tbody.innerHTML = `
@@ -306,6 +569,7 @@
                     </td>
                 </tr>
             `;
+            document.getElementById('bulkActions').style.display = 'none';
             return;
         }
 
@@ -316,18 +580,173 @@
             for (const code of codes) {
                 const project = projects[code];
                 const row = document.createElement('tr');
+                row.dataset.year = year;
+                row.dataset.code = code;
+
                 row.innerHTML = `
                     <td>${year}</td>
-                    <td><strong>${code}</strong></td>
-                    <td><code>${project.folder}</code></td>
+                    <td class="editable-cell" data-field="code" data-year="${year}" data-code="${code}">
+                        <span class="cell-display"><strong>${code}</strong></span>
+                        <input type="text" class="cell-edit form-input" value="${code}" maxlength="4" style="display: none;">
+                    </td>
+                    <td class="editable-cell" data-field="folder" data-year="${year}" data-code="${code}">
+                        <span class="cell-display"><code>${project.folder}</code></span>
+                        <input type="text" class="cell-edit form-input" value="${project.folder}" style="display: none;">
+                    </td>
                     <td>${project.clientName || 'Unknown'}</td>
-                    <td>
+                    <td class="actions-cell">
+                        <button class="btn btn--small btn--warning" onclick="purgeContracts('${code}', '${year}')" title="Delete signed contracts from Cloudflare">Purge</button>
                         <button class="btn btn--small btn--danger" onclick="removeProject('${year}', '${code}')">Remove</button>
                     </td>
                 `;
+
                 tbody.appendChild(row);
             }
         }
+
+        // Add click handlers for editable cells
+        setupEditableCells();
+
+        // Update project count display
+        document.getElementById('bulkActions').style.display = 'flex';
+        document.getElementById('projectCountLabel').textContent = `${projectCount} project${projectCount !== 1 ? 's' : ''} loaded`;
+    }
+
+    /**
+     * Setup click-to-edit functionality for table cells
+     */
+    function setupEditableCells() {
+        const editableCells = document.querySelectorAll('.editable-cell');
+
+        editableCells.forEach(cell => {
+            const display = cell.querySelector('.cell-display');
+            const input = cell.querySelector('.cell-edit');
+
+            // Click to edit
+            display.addEventListener('click', () => {
+                display.style.display = 'none';
+                input.style.display = 'block';
+                input.focus();
+                input.select();
+            });
+
+            // Save on blur
+            input.addEventListener('blur', () => {
+                saveEditedCell(cell, input.value);
+            });
+
+            // Save on Enter, cancel on Escape
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveEditedCell(cell, input.value);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelEdit(cell);
+                }
+            });
+        });
+    }
+
+    /**
+     * Save an edited cell value
+     */
+    function saveEditedCell(cell, newValue) {
+        const field = cell.dataset.field;
+        const year = cell.dataset.year;
+        const oldCode = cell.dataset.code;
+        const display = cell.querySelector('.cell-display');
+        const input = cell.querySelector('.cell-edit');
+
+        newValue = newValue.trim();
+
+        // Validate based on field type
+        if (field === 'code') {
+            newValue = newValue.toUpperCase();
+            if (!/^[A-Z]{2}\d{2}$/.test(newValue)) {
+                alert('Project code must be 2 letters + 2 digits (e.g., JS01)');
+                cancelEdit(cell);
+                return;
+            }
+
+            // Update the code
+            if (newValue !== oldCode) {
+                const oldFolder = projectsIndex[year][oldCode];
+                const oldClientName = discoveredData[year]?.[oldCode]?.clientName || 'Unknown';
+
+                // Remove old entry
+                delete projectsIndex[year][oldCode];
+                if (discoveredData[year]) delete discoveredData[year][oldCode];
+
+                // Add new entry
+                projectsIndex[year][newValue] = oldFolder;
+                if (!discoveredData[year]) discoveredData[year] = {};
+                discoveredData[year][newValue] = { folder: oldFolder, clientName: oldClientName };
+
+                // Update cell reference
+                cell.dataset.code = newValue;
+
+                // Update sibling cells
+                const row = cell.closest('tr');
+                row.dataset.code = newValue;
+                const siblingCells = row.querySelectorAll('.editable-cell');
+                siblingCells.forEach(sc => sc.dataset.code = newValue);
+
+                // Update actions buttons
+                const actionsCell = row.querySelector('.actions-cell');
+                if (actionsCell) {
+                    actionsCell.innerHTML = `
+                        <button class="btn btn--small btn--warning" onclick="purgeContracts('${newValue}', '${year}')" title="Delete signed contracts from Cloudflare">Purge</button>
+                        <button class="btn btn--small btn--danger" onclick="removeProject('${year}', '${newValue}')">Remove</button>
+                    `;
+                }
+            }
+
+            display.innerHTML = `<strong>${newValue}</strong>`;
+        } else if (field === 'folder') {
+            if (!newValue) {
+                alert('Folder name cannot be empty');
+                cancelEdit(cell);
+                return;
+            }
+
+            // Update the folder
+            const code = cell.dataset.code;
+            projectsIndex[year][code] = newValue;
+            if (discoveredData[year]?.[code]) {
+                discoveredData[year][code].folder = newValue;
+            }
+
+            display.innerHTML = `<code>${newValue}</code>`;
+        }
+
+        // Hide input, show display
+        input.style.display = 'none';
+        display.style.display = 'inline';
+
+        // Update preview
+        updatePreview();
+    }
+
+    /**
+     * Cancel editing and restore original value
+     */
+    function cancelEdit(cell) {
+        const field = cell.dataset.field;
+        const year = cell.dataset.year;
+        const code = cell.dataset.code;
+        const display = cell.querySelector('.cell-display');
+        const input = cell.querySelector('.cell-edit');
+
+        // Restore original value
+        if (field === 'code') {
+            input.value = code;
+        } else if (field === 'folder') {
+            input.value = projectsIndex[year]?.[code] || '';
+        }
+
+        input.style.display = 'none';
+        display.style.display = 'inline';
     }
 
     // endregion ----------------------------------------------
@@ -363,18 +782,16 @@
         }
         projectsIndex[year][code] = folder;
 
-        // Rebuild table
-        const discovered = {};
-        for (const y in projectsIndex) {
-            discovered[y] = {};
-            for (const c in projectsIndex[y]) {
-                discovered[y][c] = {
-                    folder: projectsIndex[y][c],
-                    clientName: 'Manual Entry'
-                };
-            }
+        // Update discovered data
+        if (!discoveredData[year]) {
+            discoveredData[year] = {};
         }
-        renderProjectsTable(discovered);
+        discoveredData[year][code] = {
+            folder: folder,
+            clientName: 'Manual Entry'
+        };
+
+        renderProjectsTable(discoveredData);
         updatePreview();
 
         // Clear form
@@ -391,25 +808,90 @@
         }
 
         delete projectsIndex[year][code];
+        if (discoveredData[year]) {
+            delete discoveredData[year][code];
+        }
 
         // Remove year if empty
         if (Object.keys(projectsIndex[year]).length === 0) {
             delete projectsIndex[year];
+            delete discoveredData[year];
         }
 
-        // Rebuild table
-        const discovered = {};
-        for (const y in projectsIndex) {
-            discovered[y] = {};
-            for (const c in projectsIndex[y]) {
-                discovered[y][c] = {
-                    folder: projectsIndex[y][c],
-                    clientName: 'Unknown'
-                };
-            }
-        }
-        renderProjectsTable(discovered);
+        renderProjectsTable(discoveredData);
         updatePreview();
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // PURGE CONTRACTS | Cloudflare Signature Deletion
+    // --------------------------------------------------------
+
+    /**
+     * Purge contracts for a specific project
+     * Calls the Cloudflare Worker DELETE endpoint
+     */
+    async function purgeContracts(projectCode, year) {
+        if (!confirm(`Purge ALL signed contracts for ${projectCode} (${year})?\n\nThis will permanently delete signature records from Cloudflare.\nThis action cannot be undone.`)) {
+            return;
+        }
+
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Purging...';
+        btn.disabled = true;
+
+        try {
+            // Check if running from file:// protocol
+            if (window.location.protocol === 'file:') {
+                throw new Error('Cannot purge contracts when running from file:// protocol.\n\nPlease run this tool from a local server (e.g., python -m http.server) or deploy to a web server.');
+            }
+
+            const response = await fetch(`${WORKER_BASE_URL}/projectadmin/signature`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    projectCode: projectCode.toUpperCase(),
+                    year: year
+                })
+            });
+
+            // Check if response is OK
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert(`Purge complete!\n\nDeleted ${result.deletedCount} signature record(s) for ${projectCode}.`);
+            } else {
+                alert(`Purge failed: ${result.message}`);
+            }
+
+        } catch (error) {
+            console.error('Purge error:', error);
+
+            // Provide helpful error messages
+            let errorMessage = error.message;
+
+            if (error.message === 'Failed to fetch') {
+                errorMessage = 'Failed to connect to Cloudflare Worker.\n\nPossible causes:\n' +
+                    '• The worker may not be deployed (run deploy.bat)\n' +
+                    '• CORS error - try running from localhost instead of file://\n' +
+                    '• Network connectivity issue\n\n' +
+                    'Check browser console (F12) for more details.';
+            }
+
+            alert(`Purge failed:\n\n${errorMessage}`);
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
     }
 
     // endregion ----------------------------------------------
@@ -470,6 +952,43 @@
     // FILE OPERATIONS | Load and Save Functions
     // --------------------------------------------------------
 
+    /**
+     * Save index directly to file using File System Access API
+     */
+    async function saveIndexToFile() {
+        if (!('showSaveFilePicker' in window)) {
+            alert('Your browser does not support the File System Access API.\nUse "Download Index" instead.');
+            downloadJson();
+            return;
+        }
+
+        try {
+            const json = document.getElementById('jsonOutput').textContent;
+
+            const handle = await window.showSaveFilePicker({
+                suggestedName: 'AppConfiguration__ProjectKeysIndex__.json',
+                types: [{
+                    description: 'JSON Files',
+                    accept: { 'application/json': ['.json'] }
+                }]
+            });
+
+            const writable = await handle.createWritable();
+            await writable.write(json);
+            await writable.close();
+
+            alert('Index saved successfully!');
+
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                console.log('User cancelled save');
+            } else {
+                console.error('Save error:', error);
+                alert('Failed to save: ' + error.message);
+            }
+        }
+    }
+
     function downloadJson() {
         const json = document.getElementById('jsonOutput').textContent;
         const blob = new Blob([json], { type: 'application/json' });
@@ -495,18 +1014,19 @@
                 const data = JSON.parse(e.target.result);
                 projectsIndex = data;
 
-                // Rebuild table
-                const discovered = {};
+                // Rebuild discovered data
+                discoveredData = {};
                 for (const y in projectsIndex) {
-                    discovered[y] = {};
+                    discoveredData[y] = {};
                     for (const c in projectsIndex[y]) {
-                        discovered[y][c] = {
+                        discoveredData[y][c] = {
                             folder: projectsIndex[y][c],
                             clientName: 'Loaded from file'
                         };
                     }
                 }
-                renderProjectsTable(discovered);
+
+                renderProjectsTable(discoveredData);
                 updatePreview();
 
                 alert('Index loaded successfully!');
@@ -523,6 +1043,12 @@
 <!-- endregion ---------------------------------------- -->
 
 <style>
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
     .form-row {
         display: flex;
         gap: 1rem;
@@ -563,6 +1089,102 @@
 
     .btn--danger:hover {
         background-color: #c0392b;
+    }
+
+    .btn--warning {
+        background-color: #f39c12;
+        color: white;
+    }
+
+    .btn--warning:hover {
+        background-color: #d68910;
+    }
+
+    /* Status boxes */
+    .status-box {
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .status-box--success {
+        background-color: #d4edda;
+        border: 1px solid #28a745;
+        color: #155724;
+    }
+
+    .status-box--warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+    }
+
+    .status-box--info {
+        background-color: #d1ecf1;
+        border: 1px solid #17a2b8;
+        color: #0c5460;
+    }
+
+    /* Editable cells */
+    .editable-cell {
+        cursor: pointer;
+        position: relative;
+    }
+
+    .editable-cell:hover .cell-display {
+        background-color: #e8f4f8;
+        border-radius: 3px;
+        padding: 2px 4px;
+        margin: -2px -4px;
+    }
+
+    .editable-cell .cell-edit {
+        width: 100%;
+        padding: 0.25rem 0.5rem;
+        font-size: inherit;
+    }
+
+    .editable-cell .cell-display::after {
+        content: ' ✎';
+        opacity: 0;
+        font-size: 0.75rem;
+        color: #666;
+        transition: opacity 0.2s;
+    }
+
+    .editable-cell:hover .cell-display::after {
+        opacity: 0.7;
+    }
+
+    /* Actions cell */
+    .actions-cell {
+        white-space: nowrap;
+    }
+
+    .actions-cell .btn {
+        margin-right: 0.25rem;
+    }
+
+    .actions-cell .btn:last-child {
+        margin-right: 0;
+    }
+
+    /* Project count bar */
+    #bulkActions {
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 0.75rem;
+        background-color: #e8f4f8;
+        border: 1px solid #3a6ea5;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .project-count-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #3a6ea5;
     }
 </style>
 

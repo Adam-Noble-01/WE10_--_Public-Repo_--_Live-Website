@@ -24,7 +24,8 @@ import time
 import platform
 
 PORT = 8080
-SERVER_URL = f"http://localhost:{PORT}/"
+CORE_APP_PATH = "/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/"
+SERVER_URL = f"http://localhost:{PORT}{CORE_APP_PATH}"
 
 class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
     """HTTP request handler with CORS headers for local development."""
@@ -79,12 +80,15 @@ def open_browser():
         print(f"  Please manually open: {SERVER_URL}")
 
 def main():
-    # Change to the script's directory
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # Change to the repository root (parent of parent of parent directory)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.abspath(os.path.join(script_dir, '..', '..', '..'))
+    os.chdir(repo_root)
     
     print("\n" + "=" * 60)
     print("  Noble Architecture - Project Admin Development Server")
     print("=" * 60)
+    print(f"\n  Serving from: {os.getcwd()}")
     print(f"\n  Server running at: {SERVER_URL}")
     print("\n  Test URLs:")
     print(f"    - Main app: {SERVER_URL}")

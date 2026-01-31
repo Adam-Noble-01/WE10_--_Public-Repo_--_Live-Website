@@ -34,7 +34,7 @@
         // STATE | Navigation Variables
         // ------------------------------------------------------------
         let currentActiveItem        = null;                         // <-- Currently active nav item
-        let sidebarCollapsed         = false;                        // <-- Sidebar state
+        let sidebarOpen              = true;                         // <-- Sidebar state (true = open)
         let projectData              = null;                         // <-- Loaded project data
 
         // FUNCTION | Initialise Navigation
@@ -45,11 +45,8 @@
             setupSidebarToggle();
             setupNavClickHandlers();
 
-            // Check config for default sidebar state
-            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
-            if (config?.AppConfig?.UI?.sidebarCollapsedByDefault === true) {
-                collapseSidebar();
-            }
+            // Show menu demonstration on all platforms
+            demonstrateMenu();
 
             console.log('[Navigation] Initialised');
         }
@@ -71,20 +68,26 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('main-content');
+            const tutorialOverlay = document.getElementById('menu-tutorial-overlay');
 
             if (!sidebar) return;
 
-            sidebarCollapsed = !sidebarCollapsed;
+            // Hide tutorial overlay when user clicks menu button
+            if (tutorialOverlay && tutorialOverlay.style.display === 'block') {
+                tutorialOverlay.style.display = 'none';
+            }
 
-            if (sidebarCollapsed) {
-                sidebar.classList.add('collapsed');
-                if (mainContent) {
-                    mainContent.classList.add('expanded');
-                }
-            } else {
-                sidebar.classList.remove('collapsed');
+            sidebarOpen = !sidebarOpen;
+
+            if (sidebarOpen) {
+                sidebar.classList.add('open');
                 if (mainContent) {
                     mainContent.classList.remove('expanded');
+                }
+            } else {
+                sidebar.classList.remove('open');
+                if (mainContent) {
+                    mainContent.classList.add('expanded');
                 }
             }
         }
@@ -97,8 +100,8 @@
             const mainContent = document.getElementById('main-content');
 
             if (sidebar) {
-                sidebar.classList.add('collapsed');
-                sidebarCollapsed = true;
+                sidebar.classList.remove('open');
+                sidebarOpen = false;
             }
             if (mainContent) {
                 mainContent.classList.add('expanded');
@@ -113,8 +116,8 @@
             const mainContent = document.getElementById('main-content');
 
             if (sidebar) {
-                sidebar.classList.remove('collapsed');
-                sidebarCollapsed = false;
+                sidebar.classList.add('open');
+                sidebarOpen = true;
             }
             if (mainContent) {
                 mainContent.classList.remove('expanded');
@@ -332,6 +335,9 @@
 
             setActiveItem(itemId);
 
+            // Auto-close menu after selection (better UX on all platforms)
+            collapseSidebar();
+
             switch (action) {
                 case 'showQuotation':
                     if (window.NaProjectAdmin.UserInterfaceMain) {
@@ -402,6 +408,41 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Demonstrate Menu (All Platforms)
+        // ------------------------------------------------------------
+        function demonstrateMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const tutorialOverlay = document.getElementById('menu-tutorial-overlay');
+
+            if (!sidebar || !tutorialOverlay) return;
+
+            // Initial delay before starting demonstration
+            setTimeout(() => {
+                // STEP 1: Ensure menu is OPEN (visible to user)
+                sidebar.classList.add('open');
+                sidebarOpen = true;
+                if (mainContent) {
+                    mainContent.classList.remove('expanded');
+                }
+
+                // STEP 2: After 1 second, CLOSE the menu (animate away)
+                setTimeout(() => {
+                    sidebar.classList.remove('open');
+                    sidebarOpen = false;
+                    if (mainContent) {
+                        mainContent.classList.add('expanded');
+                    }
+
+                    // STEP 3: After closing animation, show tutorial message
+                    setTimeout(() => {
+                        tutorialOverlay.style.display = 'block';
+                    }, 400);                                 // <-- Wait for close animation
+                }, 1200);                                    // <-- Menu visible duration
+            }, 500);                                         // <-- Initial delay
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Refresh Menu Badges
         // ------------------------------------------------------------
         async function refreshMenuBadges() {
@@ -427,7 +468,7 @@
             expandSidebar            : expandSidebar,
             setActiveItem            : setActiveItem,
             refreshMenuBadges        : refreshMenuBadges,
-            isSidebarCollapsed       : () => sidebarCollapsed
+            isSidebarOpen            : () => sidebarOpen
         };
 
         // Auto-initialise when DOM ready
