@@ -91,22 +91,35 @@
                 <!-- Client Details -->
                 <h3 class="section-heading">Client Details</h3>
 
+                <div class="info-box" style="background: #e8f4fc; border-color: #0066cc;">
+                    <strong>🔒 Client Data from Secure Storage</strong><br>
+                    Client details are loaded from encrypted Cloudflare R2 storage.
+                    Edit client information in the Project Config Editor.
+                    <button class="btn btn--secondary btn--small" style="margin-top: 0.5rem;"
+                        onclick="loadClientDataFromCloudflare()">Refresh Client Data</button>
+                </div>
+
                 <div class="form-group">
                     <label for="clientName">Client Name</label>
-                    <input type="text" id="clientName" class="form-input" placeholder="Full name"
-                        onchange="updatePreview(); markFormDirty()">
+                    <input type="text" id="clientName" class="form-input" placeholder="(Loaded from secure storage)"
+                        onchange="updatePreview(); markFormDirty()" readonly style="background: #f8f8f8;">
                 </div>
 
                 <div class="form-group">
                     <label for="clientAddress">Client Address</label>
-                    <textarea id="clientAddress" class="form-input" placeholder="Address"
-                        onchange="updatePreview(); markFormDirty()"></textarea>
+                    <textarea id="clientAddress" class="form-input" placeholder="(Loaded from secure storage)"
+                        onchange="updatePreview(); markFormDirty()" readonly style="background: #f8f8f8;"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="clientEmail">Client Email</label>
-                    <input type="email" id="clientEmail" class="form-input" placeholder="email@example.com"
-                        onchange="updatePreview(); markFormDirty()">
+                    <input type="email" id="clientEmail" class="form-input" placeholder="(Loaded from secure storage)"
+                        onchange="updatePreview(); markFormDirty()" readonly style="background: #f8f8f8;">
+                </div>
+
+                <div id="clientDataMissing" class="warning-box" style="display: none;">
+                    <strong>No Client Data Found</strong><br>
+                    Client details have not been set up yet. Please edit them in the Project Config Editor first.
                 </div>
 
                 <!-- Line Items -->
@@ -184,6 +197,8 @@
     let currentProjectCode = null;                                   // <-- Currently loaded project
     let currentYear = null;                                          // <-- Current year
     let isEmbedded = false;                                          // <-- Running in iframe
+    let sessionToken = null;                                         // <-- Auth token for Cloudflare
+    let clientDataLoaded = false;                                    // <-- PII data loaded from R2
 
     // endregion ----------------------------------------------
 
@@ -257,6 +272,93 @@
             // Generate default quotation reference
             document.getElementById('quotationRef').value = `QUO-${currentProjectCode}-${new Date().getFullYear()}-001`;
         }
+
+        // Also load client data from Cloudflare R2
+        await loadClientDataFromCloudflare();
+    }
+
+    /**
+     * Load encrypted client data from Cloudflare R2
+     */
+    async function loadClientDataFromCloudflare() {
+        if (!currentProjectCode || !currentYear) {
+            console.warn('[QuotationBuilder] Cannot load client data - no project context');
+            return;
+        }
+
+        // Generate dev session token
+        if (!sessionToken) {
+            sessionToken = generateDevSessionToken(currentProjectCode);
+        }
+
+        try {
+            NaEditorTools.showInfoMessage('Loading client data from secure storage...');
+
+            const result = await NaEditorTools.loadClientDataFromCloudflare(
+                currentProjectCode,
+                currentYear,
+                sessionToken
+            );
+
+            if (result && result.success === true) {
+                populateClientDataFields(result.data);
+                clientDataLoaded = true;
+                document.getElementById('clientDataMissing').style.display = 'none';
+                NaEditorTools.showSuccessMessage('Client data loaded');
+            } else {
+                console.log('[QuotationBuilder] No client data in Cloudflare');
+                document.getElementById('clientDataMissing').style.display = 'block';
+            }
+        } catch (error) {
+            console.warn('[QuotationBuilder] Could not load client data:', error.message);
+            document.getElementById('clientDataMissing').style.display = 'block';
+        }
+    }
+
+    /**
+     * Populate client fields from Cloudflare data
+     */
+    function populateClientDataFields(clientData) {
+        if (!clientData) return;
+
+        // Set client name
+        document.getElementById('clientName').value = clientData.clientName || '';
+
+        // Format and set client address
+        const addr = clientData.clientAddress || {};
+        const addressParts = [];
+        if (addr.houseNameNo) addressParts.push(addr.houseNameNo);
+        if (addr.street) addressParts.push(addr.street);
+        if (addr.district) addressParts.push(addr.district);
+        if (addr.county) addressParts.push(addr.county);
+        if (addr.postcode) addressParts.push(addr.postcode);
+        document.getElementById('clientAddress').value = addressParts.join('\n');
+
+        // Set client email
+        document.getElementById('clientEmail').value = clientData.clientEmail || '';
+
+        // Also update project address if available
+        const projAddr = clientData.projectAddress || {};
+        const projParts = [];
+        if (projAddr.houseNameNo) projParts.push(projAddr.houseNameNo);
+        if (projAddr.street) projParts.push(projAddr.street);
+        if (projAddr.district) projParts.push(projAddr.district);
+        if (projAddr.postcode) projParts.push(projAddr.postcode);
+
+        if (projParts.length > 0 && !document.getElementById('projectAddress').value) {
+            document.getElementById('projectAddress').value = projParts.join(', ');
+        }
+
+        console.log('[QuotationBuilder] Client data populated from Cloudflare');
+    }
+
+    /**
+     * Generate a dev session token for local testing
+     */
+    function generateDevSessionToken(projectCode) {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2);
+        return btoa(`${projectCode}:${timestamp}:${random}`);
     }
 
     // endregion ----------------------------------------------
@@ -504,7 +606,7 @@
     // JSON GENERATION | Build Quotation Object
     // --------------------------------------------------------
 
-    // Generate quotation JSON
+    // Generate quotation JSON (no PII - client data from Cloudflare R2)
     function generateJson() {
         const totals = calculateTotals();
 
@@ -535,16 +637,14 @@
             quotationDate = formatDate(quotationDate);
         }
 
+        // Note: Client PII (name, address, email) is NOT stored here
+        // It is stored securely in Cloudflare R2 and loaded at render time
         const quotation = {
             quotationRef: document.getElementById('quotationRef').value,
             quotationDate: quotationDate,
             projectAddress: document.getElementById('projectAddress').value,
             projectDescription: document.getElementById('projectDescription').value,
-            clientDetails: {
-                name: document.getElementById('clientName').value,
-                address: document.getElementById('clientAddress').value,
-                email: document.getElementById('clientEmail').value
-            },
+            clientDataStorage: 'cloudflare-r2-encrypted',              // <-- Reference to secure storage
             lineItems: formattedItems,
             totals: {
                 subtotal: totals.subtotal,

@@ -24,6 +24,12 @@ alwaysApply: true
   - Wrangler config and Worker source code
   - See `08_Global__CloudflareWorkers__.mdc`
 
+`ProjectRootDirectory\05__CloudflareWorkers\src\handlers\` (v0.4.0)
+  - `CloudflareHandler__Auth__.js` - PIN validation
+  - `CloudflareHandler__Signature__.js` - Signature storage
+  - `CloudflareHandler__R2__.js` - R2 bucket operations
+  - `CloudflareHandler__ClientData__.js` - Encrypted client data (GDPR)
+
 ## Critical Pre-Implementation Checks
 
 ### BEFORE writing code, ALWAYS:
@@ -97,6 +103,16 @@ export const API_METHODS = { initialize, dispose };
 └── 50__CloudflareIntegration/
     └── CloudflareIntegration__ApiClient__.js
 ```
+
+### Key Module: CloudflareApiClient (v0.4.0)
+The `CloudflareIntegration__ApiClient__.js` module provides:
+- `validateProjectPin()` - PIN authentication
+- `storeSignatureRecord()` / `retrieveSignatureRecord()` - Signature management
+- `storeClientData()` - Save encrypted client PII to R2 (v0.4.0)
+- `retrieveClientData()` - Load decrypted client PII from R2 (v0.4.0)
+- `deleteClientData()` - GDPR right to erasure (v0.4.0)
+- `getClientIp()` - Get client IP for audit
+- `isAvailable()` - Check Worker availability
 
 ## Import/Export Verification Rules
 

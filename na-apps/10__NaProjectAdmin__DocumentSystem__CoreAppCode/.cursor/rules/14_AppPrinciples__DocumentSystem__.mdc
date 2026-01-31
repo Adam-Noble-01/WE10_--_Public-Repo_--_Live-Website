@@ -8,9 +8,54 @@ alwaysApply: true
 - Grouped by phases (Design, Planning, Construction)
 - Auto-calculated totals with optional VAT
 - Validity period and acceptance deadline
+- **Client details fetched from encrypted R2 storage (v0.4.0)**
 
 ### Quotation File
 `ProjectAdmin__Quotation__.json` in project's `10__ProjectAdmin__AppContent/`
+
+**Note (v0.4.0):** Client address, email, and phone are NO LONGER stored in the quotation JSON. Only client name remains. Full client details are fetched at render time from encrypted R2 storage.
+
+### Quotation JSON Structure (v0.4.0)
+```json
+{
+  "quotationRef": "QUO-JS01-2026-001",
+  "quotationDate": "31-Jan-2026",
+  "projectAddress": "",
+  "projectDescription": "Project description",
+  "clientDetails": {
+    "name": "Client Name"
+  },
+  "lineItems": [...],
+  "totals": {...}
+}
+```
+
+## Client Data (GDPR Compliant - v0.4.0)
+Client PII is stored separately in encrypted R2 storage:
+- **File:** `ClientData__Encrypted__.json` (AES-256-GCM encrypted)
+- **Location:** `{year}-Projects/{code}/10__ProjectAdmin__AppContent/`
+- **Access:** Via `CloudflareApiClient.retrieveClientData()`
+
+### Client Data Schema
+```json
+{
+  "clientName": "John Smith",
+  "clientAddress": {
+    "houseNameNo": "42",
+    "street": "Meadow Lane",
+    "district": "Nottingham",
+    "county": "Nottinghamshire",
+    "postcode": "NG2 3BQ"
+  },
+  "clientEmail": "client@example.com",
+  "clientPhone": "0115 123 4567",
+  "secondaryContact": {
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "phone": "0115 987 6543"
+  }
+}
+```
 
 ## Terms & Conditions
 - **General Terms:** Static HTML (`DocumentSystem__GeneralTerms__.html`)
@@ -24,13 +69,26 @@ alwaysApply: true
 - `20__DocumentSystem/DocumentSystem__TermsRenderer__.js`
 - `20__DocumentSystem/DocumentSystem__GeneralTerms__.html`
 
+## Renderer Flow (v0.4.0)
+1. Load `ProjectAdmin__Quotation__.json` from project folder
+2. Check if `clientDataStorage === 'cloudflare-r2-encrypted'`
+3. If yes, fetch client data via `CloudflareApiClient.retrieveClientData()`
+4. Merge decrypted client data into rendered quotation
+5. Display full quotation with client details
+
 ## Editor Tools (Offline)
 `04__EditorTools/`
-- `Editor__QuotationBuilder__.html` - Line item editor
+- `Editor__QuotationBuilder__.html` - Line item editor (client details read-only)
 - `Editor__TermsEditor__.html` - Special terms WYSIWYG
-- `Editor__ProjectConfig__.html` - Project settings/PIN
+- `Editor__ProjectConfig__.html` - Project settings/PIN + client data entry
+
+### Editor Save Flow (v0.4.0)
+1. Non-PII data → Saved to local Flask server → GitHub Pages
+2. Client PII → Saved to Cloudflare R2 via Worker (encrypted)
+3. Both operations triggered by single "Save" button
 
 ## Configuration
 Settings in `AppConfiguration__MainAppSettings__.json`:
 - `Features.QuotationSystem` - VAT, currency, validity
 - `Features.TermsSystem` - General terms file location
+- `CloudflareConfig.clientDataEndpoint` - Client data API path (v0.4.0)

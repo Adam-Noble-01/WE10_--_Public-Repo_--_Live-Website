@@ -1,6 +1,6 @@
 {
     "appName"                      : "NaProjectAdmin",
-    "appVersion"                   : "1.0.0",
+    "appVersion"                   : "0.4.0",
     "appAuthor"                    : "Adam Noble - Noble Architecture",
     "appDescription"               : "Project Admin & Documentation System",
     "appDomain"                    : "https://www.noble-architecture.com/",
@@ -64,6 +64,7 @@
             "workerBaseUrlCustom"              : "https://api.noble-architecture.com/",
             "authEndpoint"                     : "projectadmin/auth",
             "signatureEndpoint"                : "projectadmin/signature",
+            "clientDataEndpoint"               : "projectadmin/clientdata",
             "r2BucketPrefix"                   : "NaProjectPortal/",
             "accountId"                        : "fb32e89aeb7dce82f8391f6496ec8b34"
         },

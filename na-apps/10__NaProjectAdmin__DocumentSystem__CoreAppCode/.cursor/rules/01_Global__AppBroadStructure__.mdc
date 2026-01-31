@@ -36,6 +36,14 @@ alwaysApply: true
   - Project config: `ProjectAdmin__ProjectConfig__.json`
   - Quotation: `ProjectAdmin__Quotation__.json`
   - Special terms: `ProjectAdmin__SpecialTerms__.json`
+  - Client data: `ClientData__Encrypted__.json` (v0.4.0 - encrypted in R2)
+
+## Client Data Privacy (v0.4.0 - UK GDPR)
+  - Client PII (address, email, phone) stored encrypted in Cloudflare R2
+  - AES-256-GCM encryption via Cloudflare Worker
+  - Never stored in GitHub Pages repository
+  - Session token required for access
+  - See `06_Global__WebHosting__DynamicProjectContent__.mdc` for details
 
 ## Key Directories
   - `03__Src__AppModules/` - Application modules

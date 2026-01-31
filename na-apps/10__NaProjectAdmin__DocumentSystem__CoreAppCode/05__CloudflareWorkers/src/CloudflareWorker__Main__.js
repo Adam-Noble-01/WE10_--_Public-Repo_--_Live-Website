@@ -18,6 +18,9 @@
 // - GET    /health                  - Health check
 // - GET    /ip                      - Get client IP address
 // - POST   /projectadmin/auth       - Validate project PIN
+// - POST   /projectadmin/clientdata - Store encrypted client PII (GDPR)
+// - GET    /projectadmin/clientdata - Retrieve decrypted client PII
+// - DELETE /projectadmin/clientdata - Delete client PII (GDPR erasure)
 // - POST   /projectadmin/signature  - Store signature record
 // - GET    /projectadmin/signature  - Retrieve signature record
 // - DELETE /projectadmin/signature  - Purge signature records for a project
@@ -29,6 +32,11 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.3.0
+// - Added /projectadmin/clientdata endpoint for GDPR-compliant PII storage
+// - AES-256-GCM encryption for client personal data
+// - Separate storage from public project files
+//
 // 31-Jan-2026 - Version 1.2.0
 // - Fixed CORS to properly check request origin for localhost
 // - addCorsHeaders now receives request to check origin
@@ -46,6 +54,7 @@
 // =============================================================================
 
 import { handleAuth } from './handlers/CloudflareHandler__Auth__.js';
+import { handleClientData } from './handlers/CloudflareHandler__ClientData__.js';
 import { handleSignature } from './handlers/CloudflareHandler__Signature__.js';
 import { handleR2 } from './handlers/CloudflareHandler__R2__.js';
 
@@ -87,6 +96,11 @@ import { handleR2 } from './handlers/CloudflareHandler__R2__.js';
                 // Authentication endpoint
                 else if (path === '/projectadmin/auth') {
                     response = await handleAuth(request, env);
+                }
+
+                // Client data endpoint (GDPR-compliant encrypted PII storage)
+                else if (path.startsWith('/projectadmin/clientdata')) {
+                    response = await handleClientData(request, env);
                 }
 
                 // Signature endpoint

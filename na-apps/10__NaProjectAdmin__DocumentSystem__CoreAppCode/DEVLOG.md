@@ -3,6 +3,226 @@
 
 # =============================================================================
 
+## Version 0.4.1 - 31-Jan-2026
+
+### Added - PDF Download Functionality
+
+This release adds client-side PDF generation capability, allowing users to download 
+the currently displayed document (quotation or terms) as a pageless PDF document 
+with A4 width and automatic height calculation.
+
+#### New PDF Generator Module
+- **`DocumentSystem__GeneratePdf__.js`** - Client-side PDF generation module
+  - Captures displayed document content from DOM
+  - Generates pageless (endless scrolling) PDFs with A4 width (210mm)
+  - Automatic height calculation based on content
+  - High-quality JPEG rendering (2x scale, 95% quality)
+  - Dynamic filename generation: `NA_Quotation_JH03_31-Jan-2026.pdf`
+  - Loading overlay with spinner during generation
+  - 30-second timeout protection to prevent UI freezing
+  - Comprehensive error handling and user feedback
+
+#### External Dependencies
+- **`html2pdf.bundle.min.js`** (v0.10.1) - Added to `02__VersionLocked__ExternalDependencies/`
+  - Client-side HTML to PDF conversion library
+  - Uses html2canvas and jsPDF under the hood
+  - No server-side processing required
+
+#### Updated Navigation Module
+- **`UserInterface__Navigation__.js`** - Added PDF download menu item
+  - "Download PDF" button added above "Print Documents" option
+  - Icon: Floppy disk/save icon (&#128190;)
+  - Sidebar remains open during PDF generation (prevents layout shifts)
+  - Integrated with PdfGenerator module
+
+#### Updated Main HTML
+- **`index.html`** - Added script references
+  - html2pdf.js library loaded first (Section 0)
+  - PDF generator module loaded with Document System modules (Section 5)
+
+### Changed
+- **Navigation Menu** - PDF download option now available for all document views
+  - Works with Quotation, Terms & Conditions, and Signature Status views
+  - Automatically detects current view type for filename generation
+
+### Fixed
+- **Date Formatter Integration** - Fixed incorrect method call
+  - Changed `formatShort()` to `formatUK()` to match DateFormatter API
+  - Ensures consistent date formatting in PDF filenames
+
+- **Async Promise Handling** - Improved PDF generation flow
+  - Added explicit promise handling with `.then()`/`.catch()`
+  - Added DOM settle delay (100ms) before capture
+  - Added timeout protection (30 seconds) to prevent infinite freezing
+  - Proper error recovery and user feedback
+
+- **Layout Stability** - Fixed sidebar collapse issue
+  - Sidebar no longer collapses during PDF generation
+  - Prevents layout shifts that could affect content capture
+
+### Technical Details
+
+#### PDF Configuration
+- **Page Width**: 210mm (A4 standard)
+- **Page Height**: Dynamic, calculated from content scrollHeight
+- **Margins**: 10mm on all sides
+- **Image Quality**: JPEG at 95% quality
+- **Canvas Scale**: 2x for high-resolution rendering
+- **Page Break Mode**: Avoid-all (pageless output)
+
+#### Filename Format
+- Pattern: `NA_{DocumentType}_{ProjectCode}_{Date}.pdf`
+- Examples:
+  - `NA_Quotation_JH03_31-Jan-2026.pdf`
+  - `NA_Terms_JS01_31-Jan-2026.pdf`
+  - `NA_SignatureStatus_AA00_31-Jan-2026.pdf`
+
+### Files Modified
+- `02__VersionLocked__ExternalDependencies/html2pdf.bundle.min.js` (NEW)
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__GeneratePdf__.js` (NEW)
+- `03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js`
+- `index.html`
+
+### User Experience
+- Users can now download professional PDF versions of quotations and terms
+- PDFs maintain exact visual appearance of on-screen documents
+- Pageless format ensures no awkward page breaks
+- A4 width ensures compatibility with standard document viewers
+- Automatic filename generation reduces user effort
+
+---
+
+## Version 0.4.0 - 31-Jan-2026
+
+### Added - UK GDPR Compliant Client Data Storage
+
+This release implements proper UK GDPR-compliant storage for client personal 
+identifiable information (PII). Client data is now encrypted with AES-256-GCM 
+and stored securely in Cloudflare R2 (private bucket), rather than in the 
+public GitHub Pages repository.
+
+#### New Cloudflare Worker Handler
+- **`CloudflareHandler__ClientData__.js`** - New handler for encrypted PII storage
+  - `POST /projectadmin/clientdata` - Store encrypted client data
+  - `GET /projectadmin/clientdata` - Retrieve decrypted client data
+  - `DELETE /projectadmin/clientdata` - Delete client data (GDPR right to erasure)
+  - AES-256-GCM encryption using Web Crypto API
+  - SHA-256 integrity verification
+  - Full audit logging of all data access
+
+#### New Client Data Fields
+- Client name, email, phone number
+- Client address (structured: house name/no, street, district, county, postcode)
+- Project/site address (can be copied from client address)
+- Secondary contact (name, email, phone) - for internal records only
+
+#### Updated Cloudflare Integration
+- **`CloudflareIntegration__ApiClient__.js`** - Added client data methods
+  - `storeClientData()` - Store encrypted client PII
+  - `retrieveClientData()` - Retrieve decrypted client PII
+  - `deleteClientData()` - GDPR right to erasure
+
+- **`AppConfiguration__MainAppSettings__.json`** - Added `clientDataEndpoint` config
+- **`wrangler.toml`** - Added `CLIENT_DATA_KEY` secret documentation
+
+#### Updated Editor Tools
+- **`Editor__ProjectConfig__.html`**
+  - Added GDPR compliance notice with lock icon
+  - Added client email and phone fields
+  - Added client address section (separate from site address)
+  - Added secondary contact fields (internal use only)
+  - Added "Same as client address" checkbox for site address
+  - Dual save: non-PII to Flask/GitHub, PII to Cloudflare R2
+
+- **`Editor__QuotationBuilder__.html`**
+  - Client details now read-only (loaded from secure storage)
+  - Added "Refresh Client Data" button
+  - Client PII no longer stored in quotation JSON
+
+- **`Editor__SharedUtils__.js`** - Added Cloudflare client data helpers
+  - `saveClientDataToCloudflare()`
+  - `loadClientDataFromCloudflare()`
+  - `deleteClientDataFromCloudflare()`
+
+#### Updated Document System
+- **`DocumentSystem__QuotationRenderer__.js`**
+  - Added `renderAsync()` method for async client data loading
+  - `fetchClientDataFromCloudflare()` - Fetches PII from R2
+  - Backward compatible with legacy inline client data
+
+### Changed
+- **Project Config JSON Schema** - PII no longer stored in local files
+  ```json
+  {
+    "projectCode": "JS01",
+    "projectName": "Rear Extension",
+    "projectDescription": "Two-storey rear extension...",
+    "specialNotes": "Client prefers morning visits",
+    "projectPin": "1234",
+    "documents": { "quotation": true, "specialTerms": true },
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "createdDate": "31-Jan-2026",
+    "lastModified": "31-Jan-2026 at 20:30"
+  }
+  ```
+
+- **Quotation JSON Schema** - Client details removed
+  ```json
+  {
+    "quotationRef": "QUO-JS01-2026-001",
+    "projectAddress": "42 Meadow Lane, Nottingham",
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "lineItems": [...],
+    "totals": {...}
+  }
+  ```
+
+### Security
+- **Encryption**: AES-256-GCM with 96-bit IV
+- **Key Storage**: Cloudflare Worker secrets (not in code/repository)
+- **Access Control**: Session token validation required
+- **Audit Trail**: All PII access logged to R2
+- **Data Minimisation**: PII never stored in public repository
+
+### Deployment Notes
+Before deploying, you must set the encryption key:
+```bash
+cd 05__CloudflareWorkers
+wrangler secret put CLIENT_DATA_KEY
+# Paste a base64-encoded 32-byte (256-bit) key
+```
+
+Generate a key with:
+```javascript
+const key = crypto.getRandomValues(new Uint8Array(32));
+console.log(btoa(String.fromCharCode(...key)));
+```
+
+**CRITICAL**: Backup this key securely. If lost, all encrypted client data 
+becomes permanently unreadable.
+
+### Files Modified
+- `05__CloudflareWorkers/src/handlers/CloudflareHandler__ClientData__.js` (NEW)
+- `05__CloudflareWorkers/src/CloudflareWorker__Main__.js`
+- `05__CloudflareWorkers/wrangler.toml`
+- `03__Src__AppModules/50__CloudflareIntegration/CloudflareIntegration__ApiClient__.js`
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__QuotationRenderer__.js`
+- `03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json`
+- `04__EditorTools/Editor__ProjectConfig__.html`
+- `04__EditorTools/Editor__QuotationBuilder__.html`
+- `04__EditorTools/Editor__SharedUtils__.js`
+- `start_local_server.py` - Updated project templates for GDPR compliance
+
+### Cursor Rules Updated
+- `01_Global__AppBroadStructure__.mdc` - Added client data privacy section
+- `02_Global__AppModulesAndDependencies__.mdc` - Added Worker handlers and ApiClient methods
+- `06_Global__WebHosting__DynamicProjectContent__.mdc` - Added client data storage details
+- `08_Global__CloudflareWorkers__.mdc` - Added client data endpoint and handler docs
+- `12_AppPrinciples__Authentication__.mdc` - Updated project config schema
+- `14_AppPrinciples__DocumentSystem__.mdc` - Added client data fetching flow
+
+---
+
 ## Version 0.3.2 - 31-Jan-2026
 
 ### Added

@@ -14,10 +14,17 @@
 // - Handles authentication requests
 // - Manages signature storage and retrieval
 // - Handles R2 bucket operations via Workers
+// - GDPR-compliant client data storage (encrypted in R2)
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.1.0
+// - Added GDPR-compliant client data methods
+//   - storeClientData() - Store encrypted client PII
+//   - retrieveClientData() - Retrieve decrypted client PII
+//   - deleteClientData() - GDPR right to erasure
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - Worker communication
@@ -253,6 +260,134 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Store Client Data (GDPR Compliant)
+        // ------------------------------------------------------------
+        /**
+         * Store encrypted client data to R2
+         * @param {string} projectCode - Project code (XX00 format)
+         * @param {string} year - Two-digit year
+         * @param {Object} clientData - Client PII to encrypt and store
+         * @param {string} sessionToken - Session token from PIN auth
+         * @returns {Object} Result with success status
+         */
+        async function storeClientData(projectCode, year, clientData, sessionToken) {
+            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
+            const clientDataEndpoint = config?.AppConfig?.CloudflareConfig?.clientDataEndpoint || 'projectadmin/clientdata';
+
+            try {
+                const result = await makeRequest(clientDataEndpoint, {
+                    method           : 'POST',
+                    body             : JSON.stringify({
+                        projectCode  : projectCode,
+                        year         : year,
+                        clientData   : clientData,
+                        sessionToken : sessionToken
+                    })
+                });
+
+                return {
+                    success          : result.success === true,
+                    message          : result.message || 'Client data stored',
+                    projectCode      : result.projectCode,
+                    year             : result.year
+                };
+
+            } catch (error) {
+                console.error('[CloudflareApiClient] Client data storage failed:', error);
+                return {
+                    success          : false,
+                    message          : 'Failed to store client data: ' + error.message
+                };
+            }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Retrieve Client Data (GDPR Compliant)
+        // ------------------------------------------------------------
+        /**
+         * Retrieve decrypted client data from R2
+         * @param {string} projectCode - Project code (XX00 format)
+         * @param {string} year - Two-digit year
+         * @param {string} sessionToken - Session token from PIN auth
+         * @returns {Object} Decrypted client data or null
+         */
+        async function retrieveClientData(projectCode, year, sessionToken) {
+            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
+            const clientDataEndpoint = config?.AppConfig?.CloudflareConfig?.clientDataEndpoint || 'projectadmin/clientdata';
+
+            try {
+                const result = await makeRequest(
+                    `${clientDataEndpoint}?project=${projectCode}&year=${year}&token=${encodeURIComponent(sessionToken)}`, 
+                    {
+                        method       : 'GET'
+                    }
+                );
+
+                if (result.success === true) {
+                    return {
+                        success      : true,
+                        data         : result.data,
+                        projectCode  : result.projectCode,
+                        year         : result.year
+                    };
+                }
+
+                return {
+                    success          : false,
+                    message          : result.error || 'Client data not found',
+                    data             : null
+                };
+
+            } catch (error) {
+                console.error('[CloudflareApiClient] Client data retrieval failed:', error);
+                return {
+                    success          : false,
+                    message          : 'Failed to retrieve client data: ' + error.message,
+                    data             : null
+                };
+            }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Delete Client Data (GDPR Right to Erasure)
+        // ------------------------------------------------------------
+        /**
+         * Delete client data from R2 (GDPR right to erasure)
+         * @param {string} projectCode - Project code (XX00 format)
+         * @param {string} year - Two-digit year
+         * @param {string} sessionToken - Session token from PIN auth
+         * @returns {Object} Result with success status
+         */
+        async function deleteClientData(projectCode, year, sessionToken) {
+            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
+            const clientDataEndpoint = config?.AppConfig?.CloudflareConfig?.clientDataEndpoint || 'projectadmin/clientdata';
+
+            try {
+                const result = await makeRequest(clientDataEndpoint, {
+                    method           : 'DELETE',
+                    body             : JSON.stringify({
+                        projectCode      : projectCode,
+                        year             : year,
+                        sessionToken     : sessionToken,
+                        confirmDelete    : true
+                    })
+                });
+
+                return {
+                    success          : result.success === true,
+                    message          : result.message || 'Client data deleted'
+                };
+
+            } catch (error) {
+                console.error('[CloudflareApiClient] Client data deletion failed:', error);
+                return {
+                    success          : false,
+                    message          : 'Failed to delete client data: ' + error.message
+                };
+            }
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Check if Cloudflare is Available
         // ------------------------------------------------------------
         async function isAvailable() {
@@ -290,6 +425,9 @@
             retrieveSignatureRecord  : retrieveSignatureRecord,
             getClientIp              : getClientIp,
             loadProjectConfig        : loadProjectConfig,
+            storeClientData          : storeClientData,
+            retrieveClientData       : retrieveClientData,
+            deleteClientData         : deleteClientData,
             isAvailable              : isAvailable,
             isInitialised            : () => isInitialised
         };

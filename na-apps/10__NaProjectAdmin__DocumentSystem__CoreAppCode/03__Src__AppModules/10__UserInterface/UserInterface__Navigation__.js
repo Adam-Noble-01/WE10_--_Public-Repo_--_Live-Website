@@ -262,6 +262,14 @@
                 type                     : 'separator'
             });
 
+            // Add download PDF option
+            items.push({
+                id                       : 'download-pdf',
+                label                    : 'Download PDF',
+                icon                     : '&#128190;',              // <-- Floppy disk / save icon
+                action                   : 'downloadPdf'
+            });
+
             // Add print/download option
             items.push({
                 id                       : 'print',
@@ -458,8 +466,11 @@
 
             setActiveItem(itemId);
 
-            // Auto-close menu after selection (better UX on all platforms)
-            collapseSidebar();
+            // Don't collapse sidebar for PDF download (needs stable layout)
+            if (action !== 'downloadPdf') {
+                // Auto-close menu after selection (better UX on all platforms)
+                collapseSidebar();
+            }
 
             switch (action) {
                 case 'showQuotation':
@@ -480,6 +491,15 @@
                     closeActiveEditor();
                     if (window.NaProjectAdmin.UserInterfaceMain) {
                         await window.NaProjectAdmin.UserInterfaceMain.showSignatureStatus();
+                    }
+                    break;
+
+                case 'downloadPdf':
+                    if (window.NaProjectAdmin.PdfGenerator) {
+                        await window.NaProjectAdmin.PdfGenerator.generatePdf();
+                    } else {
+                        console.error('[Navigation] PdfGenerator module not loaded');
+                        alert('PDF generator not available. Please refresh the page.');
                     }
                     break;
 

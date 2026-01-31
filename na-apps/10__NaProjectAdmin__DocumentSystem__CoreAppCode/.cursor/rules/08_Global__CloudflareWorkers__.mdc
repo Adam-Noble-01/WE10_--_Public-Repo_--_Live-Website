@@ -17,14 +17,39 @@ alwaysApply: true
 | `/projectadmin/auth` | POST | Validate project PIN |
 | `/projectadmin/signature` | POST | Store signature record |
 | `/projectadmin/signature` | GET | Retrieve signatures |
+| `/projectadmin/clientdata` | POST | Store encrypted client data (v0.4.0) |
+| `/projectadmin/clientdata` | GET | Retrieve decrypted client data (v0.4.0) |
+| `/projectadmin/clientdata` | DELETE | Delete client data - GDPR erasure (v0.4.0) |
 | `/r2/*` | GET/PUT | Direct R2 access |
 
 ## Worker Source Location
 `05__CloudflareWorkers/src/`
-- `index.js` - Main router, CORS handling
-- `handlers/auth.js` - PIN validation, session tokens
-- `handlers/signature.js` - Signature storage/retrieval
-- `handlers/r2.js` - R2 bucket operations
+- `CloudflareWorker__Main__.js` - Main router, CORS handling
+- `handlers/CloudflareHandler__Auth__.js` - PIN validation, session tokens
+- `handlers/CloudflareHandler__Signature__.js` - Signature storage/retrieval
+- `handlers/CloudflareHandler__R2__.js` - R2 bucket operations
+- `handlers/CloudflareHandler__ClientData__.js` - Encrypted client data (v0.4.0)
+
+## Client Data Handler (v0.4.0 - GDPR Compliant)
+The `CloudflareHandler__ClientData__.js` handles encrypted client PII:
+- **Encryption:** AES-256-GCM using Web Crypto API
+- **Key:** `CLIENT_DATA_KEY` stored as Wrangler secret (not in code)
+- **Storage:** R2 bucket with path mirroring project structure
+- **Operations:** save (POST), load (GET), delete (DELETE)
+
+### Setting the Encryption Key
+```bash
+cd 05__CloudflareWorkers
+wrangler secret put CLIENT_DATA_KEY
+# Paste a 256-bit Base64-encoded key when prompted
+```
+
+### Generating an AES-256 Key (Node.js)
+```javascript
+const crypto = require('crypto');
+const key = crypto.randomBytes(32).toString('base64');
+console.log(key); // Use this as CLIENT_DATA_KEY
+```
 
 ## Configuration
 - `wrangler.toml` - Worker deployment config

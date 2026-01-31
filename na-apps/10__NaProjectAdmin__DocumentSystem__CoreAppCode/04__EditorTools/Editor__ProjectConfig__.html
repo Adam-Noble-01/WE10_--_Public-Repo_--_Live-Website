@@ -82,23 +82,78 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="clientName">Client Name</label>
-                    <input type="text" id="clientName" class="form-input" placeholder="e.g., John Smith"
-                        onchange="updatePreview(); markFormDirty()">
-                </div>
-
-                <div class="form-group">
                     <label for="projectDescription">Project Description</label>
                     <textarea id="projectDescription" class="form-input"
                         placeholder="e.g., Two-storey rear extension with open-plan kitchen/dining area"
                         onchange="updatePreview(); markFormDirty()"></textarea>
                 </div>
 
-                <h3 class="section-heading">Site Address</h3>
+                <h3 class="section-heading">Client Details</h3>
 
-                <div class="info-box">
-                    <strong>Privacy Notice</strong><br>
-                    Site address is encrypted when saved to protect client anonymity.
+                <div class="info-box" style="background: #e8f4fc; border-color: #0066cc;">
+                    <strong>🔒 UK GDPR Compliant Storage</strong><br>
+                    Client personal information is encrypted with AES-256-GCM and stored securely
+                    in Cloudflare R2 (not in the public repository). This data is only accessible
+                    after PIN authentication.
+                </div>
+
+                <div class="form-group">
+                    <label for="clientName">Client Name</label>
+                    <input type="text" id="clientName" class="form-input" placeholder="e.g., John Smith"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="clientEmail">Client Email Address</label>
+                    <input type="email" id="clientEmail" class="form-input" placeholder="e.g., john.smith@email.com"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="clientPhone">Client Phone Number</label>
+                    <input type="tel" id="clientPhone" class="form-input" placeholder="e.g., 0115 123 4567"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <h4 style="margin-top: 1.5rem; margin-bottom: 0.5rem; color: #555041;">Client Address</h4>
+
+                <div class="form-group">
+                    <label for="clientHouseNameNo">House Name / No.</label>
+                    <input type="text" id="clientHouseNameNo" class="form-input" placeholder="e.g., 42 or The Old Rectory"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="clientStreet">Street</label>
+                    <input type="text" id="clientStreet" class="form-input" placeholder="e.g., Meadow Lane"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="clientDistrict">District / Town / City</label>
+                    <input type="text" id="clientDistrict" class="form-input" placeholder="e.g., Nottingham"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="clientCounty">County</label>
+                    <input type="text" id="clientCounty" class="form-input" placeholder="e.g., Nottinghamshire"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="clientPostcode">Postcode</label>
+                    <input type="text" id="clientPostcode" class="form-input" placeholder="e.g., NG2 3BQ"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <h3 class="section-heading">Project / Site Address</h3>
+
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="siteAddressSameAsClient" onchange="copySiteAddressFromClient(); markFormDirty()">
+                        Same as client address
+                    </label>
                 </div>
 
                 <div class="form-group">
@@ -128,6 +183,31 @@
                 <div class="form-group">
                     <label for="sitePostcode">Postcode</label>
                     <input type="text" id="sitePostcode" class="form-input" placeholder="e.g., NG2 3BQ"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <h3 class="section-heading">Secondary Contact (Optional)</h3>
+
+                <div class="info-box">
+                    <strong>Internal Use Only</strong><br>
+                    Secondary contact details are for your records only - not shown on client documents.
+                </div>
+
+                <div class="form-group">
+                    <label for="secondaryName">Name</label>
+                    <input type="text" id="secondaryName" class="form-input" placeholder="e.g., Jane Smith"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="secondaryEmail">Email Address</label>
+                    <input type="email" id="secondaryEmail" class="form-input" placeholder="e.g., jane.smith@email.com"
+                        onchange="updatePreview(); markFormDirty()">
+                </div>
+
+                <div class="form-group">
+                    <label for="secondaryPhone">Phone Number</label>
+                    <input type="tel" id="secondaryPhone" class="form-input" placeholder="e.g., 0115 987 6543"
                         onchange="updatePreview(); markFormDirty()">
                 </div>
 
@@ -208,6 +288,8 @@
     let currentProjectCode = null;                                   // <-- Currently loaded project
     let currentYear = null;                                          // <-- Current year
     let isEmbedded = false;                                          // <-- Running in iframe
+    let sessionToken = null;                                         // <-- Auth token for Cloudflare
+    let clientDataLoaded = false;                                    // <-- PII data loaded from R2
 
     // endregion ----------------------------------------------
 
@@ -268,6 +350,9 @@
         if (data) {
             populateFormFromData(data);
             NaEditorTools.showSuccessMessage(`Loaded: ${CONFIG_FILENAME}`);
+
+            // Also load client PII from Cloudflare R2
+            await loadClientDataFromCloudflare();
         } else {
             NaEditorTools.showInfoMessage('No existing config found - starting fresh');
         }
@@ -280,16 +365,16 @@
     // --------------------------------------------------------
 
     function populateFormFromData(data) {
+        // Populate non-PII fields from local config
         document.getElementById('projectCode').value = data.projectCode || '';
         document.getElementById('projectName').value = data.projectName || '';
-        document.getElementById('clientName').value = data.clientName || '';
         document.getElementById('projectDescription').value = data.projectDescription || '';
         document.getElementById('projectPin').value = data.projectPin || '';
         document.getElementById('hasQuotation').checked = data.documents?.quotation || false;
         document.getElementById('hasSpecialTerms').checked = data.documents?.specialTerms || false;
         document.getElementById('specialNotes').value = data.specialNotes || '';
 
-        // Decrypt and populate site address
+        // Legacy: Decrypt and populate site address from old format
         if (data.siteAddress && window.NaEditorTools) {
             const address = NaEditorTools.decryptAddress(data.siteAddress);
             if (address) {
@@ -301,6 +386,11 @@
             }
         }
 
+        // Legacy: Load clientName from local config if present
+        if (data.clientName) {
+            document.getElementById('clientName').value = data.clientName || '';
+        }
+
         updatePreview();
 
         if (window.NaEditorTools) {
@@ -308,10 +398,67 @@
         }
     }
 
+    /**
+     * Populate form with client PII data from Cloudflare
+     * @param {Object} clientData - Decrypted client data from R2
+     */
+    function populateClientDataFromCloudflare(clientData) {
+        if (!clientData) return;
+
+        clientDataLoaded = true;
+
+        // Client details
+        document.getElementById('clientName').value = clientData.clientName || '';
+        document.getElementById('clientEmail').value = clientData.clientEmail || '';
+        document.getElementById('clientPhone').value = clientData.clientPhone || '';
+
+        // Client address
+        if (clientData.clientAddress) {
+            document.getElementById('clientHouseNameNo').value = clientData.clientAddress.houseNameNo || '';
+            document.getElementById('clientStreet').value = clientData.clientAddress.street || '';
+            document.getElementById('clientDistrict').value = clientData.clientAddress.district || '';
+            document.getElementById('clientCounty').value = clientData.clientAddress.county || '';
+            document.getElementById('clientPostcode').value = clientData.clientAddress.postcode || '';
+        }
+
+        // Project/Site address
+        if (clientData.projectAddress) {
+            document.getElementById('siteHouseNameNo').value = clientData.projectAddress.houseNameNo || '';
+            document.getElementById('siteStreet').value = clientData.projectAddress.street || '';
+            document.getElementById('siteDistrict').value = clientData.projectAddress.district || '';
+            document.getElementById('siteCounty').value = clientData.projectAddress.county || '';
+            document.getElementById('sitePostcode').value = clientData.projectAddress.postcode || '';
+        }
+
+        // Secondary contact
+        if (clientData.secondaryContact) {
+            document.getElementById('secondaryName').value = clientData.secondaryContact.name || '';
+            document.getElementById('secondaryEmail').value = clientData.secondaryContact.email || '';
+            document.getElementById('secondaryPhone').value = clientData.secondaryContact.phone || '';
+        }
+
+        console.log('[ProjectConfig] Client PII data loaded from Cloudflare');
+    }
+
     // Mark form as having unsaved changes
     function markFormDirty() {
         if (window.NaEditorTools) {
             NaEditorTools.markDirty();
+        }
+    }
+
+    /**
+     * Copy client address fields to site address fields
+     */
+    function copySiteAddressFromClient() {
+        const checkbox = document.getElementById('siteAddressSameAsClient');
+        if (checkbox.checked) {
+            document.getElementById('siteHouseNameNo').value = document.getElementById('clientHouseNameNo').value;
+            document.getElementById('siteStreet').value = document.getElementById('clientStreet').value;
+            document.getElementById('siteDistrict').value = document.getElementById('clientDistrict').value;
+            document.getElementById('siteCounty').value = document.getElementById('clientCounty').value;
+            document.getElementById('sitePostcode').value = document.getElementById('clientPostcode').value;
+            updatePreview();
         }
     }
 
@@ -379,7 +526,10 @@
     // JSON GENERATION | Build Configuration Object
     // --------------------------------------------------------
 
-    // Generate configuration JSON
+    /**
+     * Generate non-PII configuration JSON for local storage
+     * PII is stored separately in Cloudflare R2
+     */
     function generateJson() {
         const projectCode = document.getElementById('projectCode').value;
         const pin = document.getElementById('projectPin').value;
@@ -388,29 +538,11 @@
         const nowUK = window.NaProjectAdmin?.DateFormatter?.nowUK?.() || new Date().toLocaleDateString('en-GB');
         const nowUKTime = window.NaProjectAdmin?.DateFormatter?.nowUKWithTime?.() || new Date().toLocaleString('en-GB');
 
-        // Build address object
-        const addressObj = {
-            houseNameNo: document.getElementById('siteHouseNameNo').value,
-            street: document.getElementById('siteStreet').value,
-            district: document.getElementById('siteDistrict').value,
-            county: document.getElementById('siteCounty').value,
-            postcode: document.getElementById('sitePostcode').value
-        };
-
-        // Check if address has any content
-        const hasAddress = Object.values(addressObj).some(v => v && v.trim());
-
-        // Encrypt address if it has content
-        const encryptedAddress = hasAddress && window.NaEditorTools
-            ? NaEditorTools.encryptAddress(addressObj)
-            : null;
-
+        // Non-PII config only - no client addresses, emails, or phone numbers
         return {
             projectCode: projectCode || undefined,
             projectName: document.getElementById('projectName').value || `Project ${projectCode}`,
-            clientName: document.getElementById('clientName').value || undefined,
             projectDescription: document.getElementById('projectDescription').value || undefined,
-            siteAddress: encryptedAddress,
             specialNotes: document.getElementById('specialNotes').value || undefined,
             projectPin: pin || null,
             documents: {
@@ -418,8 +550,73 @@
                 specialTerms: document.getElementById('hasSpecialTerms').checked
             },
             createdDate: nowUK,
-            lastModified: nowUKTime
+            lastModified: nowUKTime,
+            clientDataStorage: 'cloudflare-r2-encrypted'              // <-- Indicates PII is in R2
         };
+    }
+
+    /**
+     * Collect client PII data for encrypted Cloudflare storage
+     * @returns {Object} Client data object for encryption
+     */
+    function collectClientData() {
+        return {
+            clientName: document.getElementById('clientName').value || undefined,
+            clientEmail: document.getElementById('clientEmail').value || undefined,
+            clientPhone: document.getElementById('clientPhone').value || undefined,
+            clientAddress: {
+                houseNameNo: document.getElementById('clientHouseNameNo').value || '',
+                street: document.getElementById('clientStreet').value || '',
+                district: document.getElementById('clientDistrict').value || '',
+                county: document.getElementById('clientCounty').value || '',
+                postcode: document.getElementById('clientPostcode').value || ''
+            },
+            projectAddress: {
+                houseNameNo: document.getElementById('siteHouseNameNo').value || '',
+                street: document.getElementById('siteStreet').value || '',
+                district: document.getElementById('siteDistrict').value || '',
+                county: document.getElementById('siteCounty').value || '',
+                postcode: document.getElementById('sitePostcode').value || ''
+            },
+            secondaryContact: {
+                name: document.getElementById('secondaryName').value || '',
+                email: document.getElementById('secondaryEmail').value || '',
+                phone: document.getElementById('secondaryPhone').value || ''
+            }
+        };
+    }
+
+    /**
+     * Check if client data has any content worth saving
+     * @returns {boolean} True if there is client PII to save
+     */
+    function hasClientData() {
+        const clientData = collectClientData();
+        
+        // Check if any primary fields have content
+        if (clientData.clientName || clientData.clientEmail || clientData.clientPhone) {
+            return true;
+        }
+
+        // Check if client address has content
+        const clientAddr = clientData.clientAddress;
+        if (Object.values(clientAddr).some(v => v && v.trim())) {
+            return true;
+        }
+
+        // Check if project address has content
+        const projAddr = clientData.projectAddress;
+        if (Object.values(projAddr).some(v => v && v.trim())) {
+            return true;
+        }
+
+        // Check if secondary contact has content
+        const secondary = clientData.secondaryContact;
+        if (Object.values(secondary).some(v => v && v.trim())) {
+            return true;
+        }
+
+        return false;
     }
 
     // endregion ----------------------------------------------
@@ -470,38 +667,152 @@
     }
 
     async function doLoadFromProject() {
+        // Load non-PII config from local Flask
         const data = await NaEditorTools.loadProjectFile(CONFIG_FILENAME, currentProjectCode, currentYear);
 
         if (data) {
             populateFormFromData(data);
             NaEditorTools.showSuccessMessage(`Loaded: ${CONFIG_FILENAME}`);
+
+            // Also try to load encrypted client PII from Cloudflare
+            await loadClientDataFromCloudflare();
         } else {
             NaEditorTools.showErrorMessage('Failed to load project config');
         }
     }
 
-    // Save to project (Flask API)
+    /**
+     * Load encrypted client PII from Cloudflare R2
+     */
+    async function loadClientDataFromCloudflare() {
+        if (!currentProjectCode || !currentYear) {
+            console.warn('[ProjectConfig] Cannot load client data - no project context');
+            return;
+        }
+
+        // Need a session token - generate one for dev mode
+        if (!sessionToken) {
+            sessionToken = generateDevSessionToken(currentProjectCode);
+        }
+
+        try {
+            NaEditorTools.showInfoMessage('Loading encrypted client data...');
+
+            const result = await NaEditorTools.loadClientDataFromCloudflare(
+                currentProjectCode, 
+                currentYear, 
+                sessionToken
+            );
+
+            if (result && result.success === true) {
+                populateClientDataFromCloudflare(result.data);
+                NaEditorTools.showSuccessMessage('Client data loaded from secure storage');
+            } else {
+                console.log('[ProjectConfig] No client data in Cloudflare (may be new project)');
+            }
+        } catch (error) {
+            console.warn('[ProjectConfig] Could not load client data from Cloudflare:', error.message);
+        }
+    }
+
+    /**
+     * Generate a dev session token for local testing
+     * (In production, this comes from PIN authentication)
+     */
+    function generateDevSessionToken(projectCode) {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2);
+        return btoa(`${projectCode}:${timestamp}:${random}`);
+    }
+
+    // Save to project (Flask API + Cloudflare R2)
     async function saveToProject() {
         if (!isFlaskMode) {
             alert('Flask server not available');
             return;
         }
 
-        const data = generateJson();
+        const nonPiiData = generateJson();
+        const hasPii = hasClientData();
+
+        // Build confirmation message
+        let confirmMessage = `Save changes to <strong>${CONFIG_FILENAME}</strong>?`;
+        if (hasPii) {
+            confirmMessage += `<br><br>Client personal information will be encrypted and stored securely in Cloudflare R2.`;
+        }
 
         // Confirm save
         NaEditorTools.showConfirmDialog(
             'Save Project Config',
-            `Save changes to <strong>${CONFIG_FILENAME}</strong>?<br><br>This will overwrite the existing file.`,
+            confirmMessage,
             async () => {
-                const success = await NaEditorTools.saveProjectFile(CONFIG_FILENAME, data, currentProjectCode, currentYear);
-                if (success) {
-                    NaEditorTools.markClean();
-                }
+                await performDualSave(nonPiiData, hasPii);
             },
             null,
             { confirmText: 'Save', cancelText: 'Cancel' }
         );
+    }
+
+    /**
+     * Perform dual save: non-PII to local, PII to Cloudflare
+     */
+    async function performDualSave(nonPiiData, hasPii) {
+        let localSaveSuccess = false;
+        let cloudflareSuccess = true;                                    // Default true if no PII
+
+        // 1. Save non-PII config to local Flask
+        try {
+            localSaveSuccess = await NaEditorTools.saveProjectFile(
+                CONFIG_FILENAME, 
+                nonPiiData, 
+                currentProjectCode, 
+                currentYear
+            );
+        } catch (error) {
+            NaEditorTools.showErrorMessage('Failed to save local config: ' + error.message);
+            return;
+        }
+
+        // 2. Save PII to Cloudflare R2 (if there is any)
+        if (hasPii && localSaveSuccess) {
+            const clientData = collectClientData();
+            
+            // Generate session token for dev mode
+            if (!sessionToken) {
+                sessionToken = generateDevSessionToken(currentProjectCode);
+            }
+
+            try {
+                NaEditorTools.showInfoMessage('Encrypting and saving client data...');
+
+                const result = await NaEditorTools.saveClientDataToCloudflare(
+                    currentProjectCode,
+                    currentYear,
+                    clientData,
+                    sessionToken
+                );
+
+                cloudflareSuccess = result && result.success === true;
+
+                if (cloudflareSuccess) {
+                    console.log('[ProjectConfig] Client data saved to Cloudflare R2');
+                } else {
+                    NaEditorTools.showErrorMessage('Failed to save client data to secure storage');
+                }
+            } catch (error) {
+                console.error('[ProjectConfig] Cloudflare save error:', error);
+                NaEditorTools.showErrorMessage('Failed to save client data: ' + error.message);
+                cloudflareSuccess = false;
+            }
+        }
+
+        // Mark clean only if both saves succeeded
+        if (localSaveSuccess && cloudflareSuccess) {
+            NaEditorTools.markClean();
+            NaEditorTools.showSuccessMessage('Project config saved successfully');
+        } else if (localSaveSuccess && !cloudflareSuccess) {
+            NaEditorTools.showErrorMessage('Config saved locally, but client data failed to sync to Cloudflare');
+        }
     }
 
     // endregion ----------------------------------------------

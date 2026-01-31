@@ -444,6 +444,7 @@ def create_project():
         now_uk = datetime.now().strftime('%d-%b-%Y')
         now_uk_time = datetime.now().strftime('%d-%b-%Y at %H:%M')
         
+        # NOTE: PII (address, email, phone) stored in encrypted R2, not here
         project_config = {
             'projectCode'    : code,
             'projectName'    : project_name,
@@ -453,6 +454,7 @@ def create_project():
                 'quotation'      : True,
                 'specialTerms'   : True
             },
+            'clientDataId'   : f'{code}_{year}',                         # <-- Reference to R2 encrypted data
             'createdDate'    : now_uk,
             'lastModified'   : now_uk_time
         }
@@ -464,15 +466,15 @@ def create_project():
             f.write('\n')
         
         # Create quotation template
+        # NOTE: Client address/email/phone stored in encrypted R2, not here
         quotation = {
             'quotationRef'       : f'QUO-{code}-{datetime.now().year}-001',
             'quotationDate'      : now_uk,
-            'projectAddress'     : 'Project Address',
+            'projectAddress'     : '',                                   # <-- Site address from R2
             'projectDescription' : 'Project description goes here',
             'clientDetails'      : {
-                'name'           : client_name or 'Client Name',
-                'address'        : 'Client Address',
-                'email'          : 'client@example.com'
+                'name'           : client_name or 'Client Name'
+                # Address, email, phone fetched from R2 at render time
             },
             'lineItems'          : [
                 {

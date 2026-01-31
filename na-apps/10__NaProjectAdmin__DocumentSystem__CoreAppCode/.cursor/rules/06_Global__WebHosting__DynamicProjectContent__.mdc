@@ -54,11 +54,43 @@ Project grouping convention under NaProjectPortal is:
 ## Treat the following as dynamic and store in R2:
 - User-editable project content (quotations, special terms)
 - Authentication logs and session artifacts
+- **Encrypted client data (GDPR compliant)** - Added in v0.4.0:
+  - Storage: `{year}-Projects/{code}/10__ProjectAdmin__AppContent/ClientData__Encrypted__.json`
+  - Contains: Client name, address, email, phone, secondary contact details
+  - AES-256-GCM encrypted with key stored in Cloudflare Worker secrets
+  - Never stored in GitHub Pages repository
+  - Accessed via authenticated `/projectadmin/clientdata` endpoint
 - **Signature records** (dual storage for redundancy):
   - Project: `{year}-Projects/{code}/10__ProjectAdmin__AppContent/SignatureRecords/`
   - Archive: `Signatures/{year}/{code}/`
 - Auto-generated emails or their persisted payloads
 - Any user-action logs or audit records
+
+## Client Data Storage (v0.4.0 - UK GDPR Compliance)
+
+### What is stored in R2 (encrypted):
+- Client Name
+- Client Address (house, street, district, county, postcode)
+- Client Email Address
+- Client Phone Number
+- Secondary Contact (name, email, phone)
+
+### What remains in GitHub Pages (unencrypted):
+- Project Code
+- Project Name
+- Project PIN (hashed)
+- Document flags (quotation, specialTerms)
+- Created/Modified dates
+- `clientDataId` reference to R2 encrypted data
+
+### R2 Storage Path:
+`NaProjectPortal/{year}-Projects/{projectCode}/10__ProjectAdmin__AppContent/ClientData__Encrypted__.json`
+
+### Access Pattern:
+1. Editor tools → Save client data via `/projectadmin/clientdata` (POST)
+2. Live app → Fetch client data via `/projectadmin/clientdata` (GET)
+3. Worker encrypts/decrypts using AES-256-GCM
+4. Session token required for all client data operations
 
 
 ## Definitions

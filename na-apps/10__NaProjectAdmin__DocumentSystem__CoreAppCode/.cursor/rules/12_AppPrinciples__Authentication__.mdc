@@ -8,24 +8,40 @@ alwaysApply: true
 - PIN hashed client-side (SHA-256) before transmission
 - Session stored in `sessionStorage` (clears on tab close)
 - Validation via Cloudflare Worker `/projectadmin/auth`
+- **Session token required for client data access (v0.4.0)**
 
-## Project Config Structure
+## Project Config Structure (v0.4.0)
 ```json
 {
   "projectCode": "AA00",
+  "projectName": "Project Name",
   "clientName": "Client Name",
-  "authentication": {
-    "pinRequired": true,
-    "pinHash": "sha256-hash-of-pin"
-  }
+  "projectPin": "1234",
+  "documents": {
+    "quotation": true,
+    "specialTerms": true
+  },
+  "clientDataId": "AA00_26",
+  "createdDate": "31-Jan-2026",
+  "lastModified": "31-Jan-2026 at 14:30"
 }
 ```
+
+**Note (v0.4.0):** Client address, email, and phone are NO LONGER stored in `ProjectAdmin__ProjectConfig__.json`. They are stored encrypted in R2 and referenced via `clientDataId`.
 
 ## Security Features
 - Max 5 attempts before lockout (300s duration)
 - All auth attempts logged to R2 for audit
 - Session tokens expire after 1 hour
 - IP and user-agent captured for audit
+- **Client PII access requires valid session token (v0.4.0)**
+
+## Session Token Usage (v0.4.0)
+Session tokens are now used for:
+1. Validating authenticated state
+2. Authorising client data retrieval from R2
+3. Authorising client data storage to R2
+4. GDPR compliance audit trail
 
 ## Module Location
 `30__Authentication/Authentication__PinLogin__.js`

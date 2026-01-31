@@ -11,11 +11,30 @@
 # - Configures Cloudflare Workers for the Project Admin system
 # - Sets up R2 bucket bindings
 # - Defines routes and environment variables
+# - GDPR-compliant client data encryption via secrets
 #
 # DEPLOYMENT:
 # 1. Install Wrangler: npm install -g wrangler
 # 2. Login: wrangler login
-# 3. Deploy: wrangler deploy
+# 3. Set required secrets (see SECRETS section below)
+# 4. Deploy: wrangler deploy
+#
+# SECRETS (Required for GDPR Client Data Encryption):
+# =============================================================================
+# The CLIENT_DATA_KEY secret is required for encrypting/decrypting client PII.
+# This must be a 256-bit (32-byte) key encoded as Base64.
+#
+# To generate a secure key (run in Node.js or browser console):
+#   const key = crypto.getRandomValues(new Uint8Array(32));
+#   const base64Key = btoa(String.fromCharCode(...key));
+#   console.log(base64Key);
+#
+# To set the secret:
+#   wrangler secret put CLIENT_DATA_KEY
+#   (Then paste the base64-encoded key when prompted)
+#
+# CRITICAL: Store a backup of this key securely! If lost, all encrypted
+# client data becomes permanently unreadable.
 #
 # =============================================================================
 

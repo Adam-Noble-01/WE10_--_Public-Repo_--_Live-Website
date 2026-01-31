@@ -19,8 +19,14 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.2.0
+// - Added GDPR-compliant Cloudflare client data helpers
+//   - saveClientDataToCloudflare() - Store encrypted PII in R2
+//   - loadClientDataFromCloudflare() - Retrieve decrypted PII
+//   - Uses AES-256-GCM encryption (handled by Worker)
+//
 // 31-Jan-2026 - Version 1.1.0
-// - Added address encryption/decryption helpers
+// - Added address encryption/decryption helpers (legacy)
 //   - encryptAddress() - Base64 + character shift obfuscation
 //   - decryptAddress() - Reverse obfuscation for loading
 //
@@ -1065,6 +1071,142 @@
     // endregion -----
 
     // #region -----
+    // CLOUDFLARE CLIENT DATA | GDPR-Compliant PII Storage
+    // -----
+
+    // Cloudflare Worker base URL (configured for editors)
+    const CLOUDFLARE_WORKER_URL  = 'https://na-projectadmin-api.adam-fb3.workers.dev/';
+
+    /**
+     * Save client PII data to Cloudflare R2 (encrypted)
+     * @param {string} projectCode - Project code (XX00 format)
+     * @param {string} year - Two-digit year
+     * @param {Object} clientData - Client PII to encrypt and store
+     * @param {string} sessionToken - Session token for authentication
+     * @returns {Object} Result with success status
+     */
+    async function saveClientDataToCloudflare(projectCode, year, clientData, sessionToken) {
+        try {
+            const response = await fetch(`${CLOUDFLARE_WORKER_URL}projectadmin/clientdata`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    projectCode      : projectCode,
+                    year             : year,
+                    clientData       : clientData,
+                    sessionToken     : sessionToken
+                })
+            });
+
+            const result = await response.json();
+            
+            return {
+                success              : result.success === true,
+                message              : result.message || 'Client data saved',
+                projectCode          : result.projectCode,
+                year                 : result.year
+            };
+
+        } catch (error) {
+            console.error('[EditorUtils] Cloudflare client data save failed:', error);
+            return {
+                success              : false,
+                message              : 'Failed to save client data: ' + error.message
+            };
+        }
+    }
+
+    /**
+     * Load client PII data from Cloudflare R2 (decrypted)
+     * @param {string} projectCode - Project code (XX00 format)
+     * @param {string} year - Two-digit year
+     * @param {string} sessionToken - Session token for authentication
+     * @returns {Object} Result with decrypted client data
+     */
+    async function loadClientDataFromCloudflare(projectCode, year, sessionToken) {
+        try {
+            const url = `${CLOUDFLARE_WORKER_URL}projectadmin/clientdata?` +
+                        `project=${encodeURIComponent(projectCode)}&` +
+                        `year=${encodeURIComponent(year)}&` +
+                        `token=${encodeURIComponent(sessionToken)}`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success === true) {
+                return {
+                    success          : true,
+                    data             : result.data,
+                    projectCode      : result.projectCode,
+                    year             : result.year
+                };
+            }
+
+            return {
+                success              : false,
+                message              : result.error || 'Client data not found',
+                data                 : null
+            };
+
+        } catch (error) {
+            console.error('[EditorUtils] Cloudflare client data load failed:', error);
+            return {
+                success              : false,
+                message              : 'Failed to load client data: ' + error.message,
+                data                 : null
+            };
+        }
+    }
+
+    /**
+     * Delete client PII data from Cloudflare R2 (GDPR erasure)
+     * @param {string} projectCode - Project code (XX00 format)
+     * @param {string} year - Two-digit year
+     * @param {string} sessionToken - Session token for authentication
+     * @returns {Object} Result with success status
+     */
+    async function deleteClientDataFromCloudflare(projectCode, year, sessionToken) {
+        try {
+            const response = await fetch(`${CLOUDFLARE_WORKER_URL}projectadmin/clientdata`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    projectCode      : projectCode,
+                    year             : year,
+                    sessionToken     : sessionToken,
+                    confirmDelete    : true
+                })
+            });
+
+            const result = await response.json();
+            
+            return {
+                success              : result.success === true,
+                message              : result.message || 'Client data deleted'
+            };
+
+        } catch (error) {
+            console.error('[EditorUtils] Cloudflare client data delete failed:', error);
+            return {
+                success              : false,
+                message              : 'Failed to delete client data: ' + error.message
+            };
+        }
+    }
+
+    // endregion -----
+
+    // #region -----
     // API EXPORT | Public Interface
     // -----
 
@@ -1103,9 +1245,14 @@
         isValidProjectCode       : isValidProjectCode,
         normaliseProjectCode     : normaliseProjectCode,
         
-        // Encryption
+        // Encryption (legacy - kept for backward compatibility)
         encryptAddress           : encryptAddress,
         decryptAddress           : decryptAddress,
+        
+        // Cloudflare client data (GDPR compliant)
+        saveClientDataToCloudflare    : saveClientDataToCloudflare,
+        loadClientDataFromCloudflare  : loadClientDataFromCloudflare,
+        deleteClientDataFromCloudflare: deleteClientDataFromCloudflare,
         
         // Project operations
         createProject            : createProject,

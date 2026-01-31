@@ -15,10 +15,17 @@
 // - Calculates subtotals, VAT, and grand totals
 // - Supports grouped/phased line items
 // - Includes sign-off button when signatures enabled
+// - Fetches client PII from Cloudflare R2 (GDPR compliant)
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Jan-2026 - Version 1.1.0
+// - Added GDPR-compliant client data fetching from Cloudflare R2
+//   - renderAsync() method for async data loading
+//   - Fetches client PII from secure encrypted storage
+//   - Falls back to legacy inline client data if present
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - Quotation HTML rendering
@@ -34,9 +41,9 @@
     (function() {
         'use strict';
 
-        // FUNCTION | Render Quotation
+        // FUNCTION | Render Quotation (Synchronous - Legacy Support)
         // ------------------------------------------------------------
-        function render(quotationData) {
+        function render(quotationData, clientDataOverride = null) {
             if (!quotationData) {
                 return renderEmptyState();
             }
@@ -58,10 +65,13 @@
             const signatureRecord = sessionStorage.getItem(`naProjectAdmin_sig_quotation_${projectCode}`);
             const isSigned = signatureRecord !== null;
 
+            // Use clientDataOverride if provided, otherwise fallback to inline data
+            const clientDetails = clientDataOverride || quotationData.clientDetails || {};
+
             let html = `
                 <div class="document">
                     ${renderHeader(quotationData, companyDetails)}
-                    ${renderAddresses(quotationData, companyDetails)}
+                    ${renderAddresses(quotationData, companyDetails, clientDetails)}
                     ${renderProjectDetails(quotationData)}
                     ${renderLineItems(quotationData.lineItems || [], currencySymbol)}
                     ${renderTotals(totals, currencySymbol, showVat)}
@@ -71,6 +81,107 @@
             `;
 
             return html;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Render Quotation Async (GDPR Compliant - Fetches from R2)
+        // ------------------------------------------------------------
+        /**
+         * Render quotation with client data fetched from Cloudflare R2
+         * @param {Object} quotationData - Quotation JSON data
+         * @returns {Promise<string>} Rendered HTML
+         */
+        async function renderAsync(quotationData) {
+            if (!quotationData) {
+                return renderEmptyState();
+            }
+
+            let clientDetails = quotationData.clientDetails || {};
+
+            // Check if client data is stored in Cloudflare R2
+            if (quotationData.clientDataStorage === 'cloudflare-r2-encrypted') {
+                console.log('[QuotationRenderer] Fetching client data from Cloudflare R2...');
+                
+                const cloudflareClientData = await fetchClientDataFromCloudflare();
+                
+                if (cloudflareClientData) {
+                    clientDetails = formatClientDataForDisplay(cloudflareClientData);
+                    console.log('[QuotationRenderer] Client data loaded from secure storage');
+                } else {
+                    console.warn('[QuotationRenderer] Could not load client data from Cloudflare');
+                }
+            }
+
+            // Use synchronous render with fetched client data
+            return render(quotationData, clientDetails);
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Fetch Client Data from Cloudflare
+        // ------------------------------------------------------------
+        /**
+         * Fetch encrypted client data from Cloudflare R2
+         * @returns {Object|null} Client data or null if not available
+         */
+        async function fetchClientDataFromCloudflare() {
+            try {
+                const App = window.NaProjectAdmin.App;
+                const ApiClient = window.NaProjectAdmin.CloudflareApiClient;
+
+                if (!App || !ApiClient) {
+                    console.warn('[QuotationRenderer] App or ApiClient not available');
+                    return null;
+                }
+
+                const projectCode = App.getCurrentProject();
+                const year = App.getCurrentYear();
+                const sessionToken = App.getSessionToken?.();
+
+                if (!projectCode || !year || !sessionToken) {
+                    console.warn('[QuotationRenderer] Missing project context or session token');
+                    return null;
+                }
+
+                const result = await ApiClient.retrieveClientData(projectCode, year, sessionToken);
+
+                if (result && result.success === true) {
+                    return result.data;
+                }
+
+                return null;
+
+            } catch (error) {
+                console.error('[QuotationRenderer] Failed to fetch client data:', error);
+                return null;
+            }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Format Client Data for Display
+        // ------------------------------------------------------------
+        /**
+         * Format Cloudflare client data into display format
+         * @param {Object} cloudflareData - Raw client data from R2
+         * @returns {Object} Formatted client details for rendering
+         */
+        function formatClientDataForDisplay(cloudflareData) {
+            if (!cloudflareData) return {};
+
+            // Format client address as string
+            const addr = cloudflareData.clientAddress || {};
+            const addressParts = [];
+            if (addr.houseNameNo) addressParts.push(addr.houseNameNo);
+            if (addr.street) addressParts.push(addr.street);
+            if (addr.district) addressParts.push(addr.district);
+            if (addr.county) addressParts.push(addr.county);
+            if (addr.postcode) addressParts.push(addr.postcode);
+
+            return {
+                name             : cloudflareData.clientName || '',
+                address          : addressParts.join('<br>'),
+                email            : cloudflareData.clientEmail || '',
+                phone            : cloudflareData.clientPhone || ''
+            };
         }
         // ---------------------------------------------------------------
 
@@ -105,8 +216,9 @@
 
         // FUNCTION | Render Addresses
         // ------------------------------------------------------------
-        function renderAddresses(data, companyDetails) {
-            const client = data.clientDetails || {};
+        function renderAddresses(data, companyDetails, clientDetails = null) {
+            // Use provided clientDetails, or fallback to data.clientDetails
+            const client = clientDetails || data.clientDetails || {};
 
             return `
                 <div class="document__section document__addresses">
@@ -402,6 +514,8 @@
         
         window.NaProjectAdmin.QuotationRenderer = {
             render                   : render,
+            renderAsync              : renderAsync,
+            fetchClientData          : fetchClientDataFromCloudflare,
             calculateTotals          : calculateTotals,
             calculateLineAmount      : calculateLineAmount,
             formatNumber             : formatNumber
