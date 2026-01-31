@@ -1,0 +1,36 @@
+---
+alwaysApply: true
+---
+# Document System
+
+## Quotation System
+- Line items with: Description, Quantity, Unit, Rate, Amount
+- Grouped by phases (Design, Planning, Construction)
+- Auto-calculated totals with optional VAT
+- Validity period and acceptance deadline
+
+### Quotation File
+`ProjectAdmin__Quotation__.json` in project's `10__ProjectAdmin__AppContent/`
+
+## Terms & Conditions
+- **General Terms:** Static HTML (`DocumentSystem__GeneralTerms__.html`)
+- **Special Terms:** Dynamic JSON per project, rendered at top
+
+### Terms File
+`ProjectAdmin__SpecialTerms__.json` in project's `10__ProjectAdmin__AppContent/`
+
+## Module Locations
+- `20__DocumentSystem/DocumentSystem__QuotationRenderer__.js`
+- `20__DocumentSystem/DocumentSystem__TermsRenderer__.js`
+- `20__DocumentSystem/DocumentSystem__GeneralTerms__.html`
+
+## Editor Tools (Offline)
+`04__EditorTools/`
+- `Editor__QuotationBuilder__.html` - Line item editor
+- `Editor__TermsEditor__.html` - Special terms WYSIWYG
+- `Editor__ProjectConfig__.html` - Project settings/PIN
+
+## Configuration
+Settings in `AppConfiguration__MainAppSettings__.json`:
+- `Features.QuotationSystem` - VAT, currency, validity
+- `Features.TermsSystem` - General terms file location

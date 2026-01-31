@@ -7,263 +7,7 @@
     <title>Quotation Builder | Noble Architecture</title>
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
-    <style>
-        /* -----
-         * REGION | CSS Variables & Reset
-         * ----- */
-        :root {
-            --brand-primary: #555041;
-            --brand-accent: #8b6914;
-            --bg-primary: #f8f7f5;
-            --bg-secondary: #ffffff;
-            --text-primary: #333333;
-            --text-secondary: #666666;
-            --border-light: #e0ddd8;
-            --success: #2d7a4d;
-            --error: #c73e3e;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-
-        /* -----
-         * REGION | Layout
-         * ----- */
-        .app-header {
-            background: var(--bg-secondary);
-            border-bottom: 3px solid var(--brand-primary);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .app-header h1 {
-            color: var(--brand-primary);
-            font-size: 1.5rem;
-        }
-
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            padding: 2rem;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 1024px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* -----
-         * REGION | Panels
-         * ----- */
-        .panel {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .panel__header {
-            background: var(--brand-primary);
-            color: white;
-            padding: 1rem;
-            font-weight: 600;
-        }
-
-        .panel__body {
-            padding: 1.5rem;
-        }
-
-        /* -----
-         * REGION | Form Elements
-         * ----- */
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            font-size: 0.875rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid var(--border-light);
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--brand-primary);
-            box-shadow: 0 0 0 2px rgba(85, 80, 65, 0.15);
-        }
-
-        textarea.form-input {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        /* -----
-         * REGION | Buttons
-         * ----- */
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn--primary {
-            background: var(--brand-primary);
-            color: white;
-        }
-
-        .btn--primary:hover {
-            background: #444033;
-        }
-
-        .btn--secondary {
-            background: transparent;
-            border: 1px solid var(--brand-primary);
-            color: var(--brand-primary);
-        }
-
-        .btn--danger {
-            background: var(--error);
-            color: white;
-        }
-
-        .btn--small {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-        }
-
-        /* -----
-         * REGION | Line Items Table
-         * ----- */
-        .line-items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
-        }
-
-        .line-items-table th,
-        .line-items-table td {
-            padding: 0.5rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .line-items-table th {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-        }
-
-        .line-items-table input {
-            width: 100%;
-            padding: 0.25rem;
-            border: 1px solid var(--border-light);
-            border-radius: 3px;
-        }
-
-        .line-items-table .col-description {
-            width: 40%;
-        }
-
-        .line-items-table .col-qty {
-            width: 10%;
-        }
-
-        .line-items-table .col-unit {
-            width: 12%;
-        }
-
-        .line-items-table .col-rate {
-            width: 15%;
-        }
-
-        .line-items-table .col-amount {
-            width: 15%;
-            text-align: right;
-        }
-
-        .line-items-table .col-actions {
-            width: 8%;
-            text-align: center;
-        }
-
-        /* -----
-         * REGION | Totals
-         * ----- */
-        .totals {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 2px solid var(--brand-primary);
-        }
-
-        .totals__row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-        }
-
-        .totals__row--grand {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--brand-primary);
-            padding-top: 0.75rem;
-            border-top: 2px solid var(--brand-primary);
-        }
-
-        /* -----
-         * REGION | JSON Output
-         * ----- */
-        .json-output {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 1rem;
-            border-radius: 4px;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.875rem;
-            white-space: pre-wrap;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .actions-bar {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .group-input {
-            margin-bottom: 0.5rem;
-        }
-    </style>
+    <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 </head>
 
 <body>
@@ -281,7 +25,7 @@
             <div class="panel__header">Edit Quotation</div>
             <div class="panel__body">
                 <!-- Project Details -->
-                <h3 style="margin-bottom: 1rem; color: var(--brand-primary);">Project Details</h3>
+                <h3 class="section-heading section-heading--first">Project Details</h3>
 
                 <div class="form-group">
                     <label for="quotationRef">Quotation Reference</label>
@@ -307,7 +51,7 @@
                 </div>
 
                 <!-- Client Details -->
-                <h3 style="margin: 1.5rem 0 1rem; color: var(--brand-primary);">Client Details</h3>
+                <h3 class="section-heading">Client Details</h3>
 
                 <div class="form-group">
                     <label for="clientName">Client Name</label>
@@ -328,7 +72,7 @@
                 </div>
 
                 <!-- Line Items -->
-                <h3 style="margin: 1.5rem 0 1rem; color: var(--brand-primary);">Line Items</h3>
+                <h3 class="section-heading">Line Items</h3>
 
                 <table class="line-items-table">
                     <thead>
@@ -375,7 +119,7 @@
         <div class="panel">
             <div class="panel__header">JSON Output</div>
             <div class="panel__body">
-                <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                <p class="help-text">
                     Copy this JSON and save as <code>ProjectAdmin__Quotation__.json</code> in your project's
                     <code>10__ProjectAdmin__AppContent</code> folder.
                 </p>

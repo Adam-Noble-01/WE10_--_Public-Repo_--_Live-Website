@@ -1,0 +1,85 @@
+{
+    "quotationRef": "QUO-JS01-2026-001",
+    "quotationDate": "2026-01-31",
+    "projectAddress": "42 Meadow Lane, Nottingham, NG2 3BQ",
+    "projectDescription": "Two-storey rear extension with open-plan kitchen/dining area and loft conversion to create master bedroom suite with en-suite bathroom",
+    "clientDetails": {
+        "name": "John Smith",
+        "address": "42 Meadow Lane\nNottingham\nNG2 3BQ",
+        "email": "john.smith@example.com"
+    },
+    "lineItems": [
+        {
+            "description": "Full architectural drawings (plans, elevations, sections)",
+            "quantity": 1,
+            "unit": "set",
+            "rate": 2800,
+            "group": "Design Phase"
+        },
+        {
+            "description": "Structural calculations and engineer's drawings",
+            "quantity": 1,
+            "unit": "set",
+            "rate": 1200,
+            "group": "Design Phase"
+        },
+        {
+            "description": "3D visualisations and renderings",
+            "quantity": 4,
+            "unit": "views",
+            "rate": 350,
+            "group": "Design Phase"
+        },
+        {
+            "description": "Planning application submission and management",
+            "quantity": 1,
+            "unit": "application",
+            "rate": 1800,
+            "group": "Planning Phase"
+        },
+        {
+            "description": "Planning consultant fees (if required)",
+            "quantity": 1,
+            "unit": "item",
+            "rate": 850,
+            "group": "Planning Phase"
+        },
+        {
+            "description": "Building Regulations application and approval",
+            "quantity": 1,
+            "unit": "application",
+            "rate": 1500,
+            "group": "Building Control"
+        },
+        {
+            "description": "Site inspections during construction (8 visits)",
+            "quantity": 8,
+            "unit": "visits",
+            "rate": 180,
+            "group": "Construction Phase"
+        },
+        {
+            "description": "Construction drawings and specifications",
+            "quantity": 1,
+            "unit": "set",
+            "rate": 1850,
+            "group": "Construction Phase"
+        },
+        {
+            "description": "Project coordination and client liaison",
+            "quantity": 1,
+            "unit": "service",
+            "rate": 1200,
+            "group": "Construction Phase"
+        }
+    ],
+    "totals": {
+        "subtotal": 13130,
+        "vatRate": 20,
+        "vat": 2626,
+        "grandTotal": 15756
+    },
+    "additionalTerms": "",
+    "createdDate": "2026-01-31T12:00:00.000Z"
+}
+

@@ -1,0 +1,34 @@
+---
+alwaysApply: true
+---
+# Digital Signature System
+
+## Purpose
+Court-admissible signature capture for quotation and terms acceptance.
+
+## Dual Sign-Off Required
+1. **Quotation Acceptance** - Confirms price and scope
+2. **Terms Acceptance** - Confirms T&C agreement
+
+## Audit Record Contents
+- Full name (typed)
+- Signature image (canvas PNG, base64)
+- Timestamp (ISO 8601 UTC)
+- IP address (via Worker `/ip`)
+- User agent / browser fingerprint
+- Document hash (SHA-256)
+- Unique signing reference ID
+
+## Storage Locations (R2)
+1. Project folder: `NaProjectPortal/{year}-Projects/{code}/10__ProjectAdmin__AppContent/SignatureRecords/`
+2. Central archive: `NaProjectPortal/Signatures/{year}/{code}/`
+
+## Module Locations
+- `40__SignatureSystem/SignatureSystem__CaptureCanvas__.js` - Canvas drawing
+- `40__SignatureSystem/SignatureSystem__AuditRecord__.js` - Audit record generation
+
+## Configuration
+Settings in `AppConfiguration__MainAppSettings__.json` under `Features.SignatureSystem`:
+- `canvasWidth`, `canvasHeight`
+- `strokeColour`, `strokeWidth`
+- `requireBothSignatures`

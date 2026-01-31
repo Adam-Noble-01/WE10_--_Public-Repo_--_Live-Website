@@ -52,11 +52,13 @@ Project grouping convention under NaProjectPortal is:
 
 
 ## Treat the following as dynamic and store in R2:
-- user-editable project content
-- Authentication/session-related artifacts if persisted
-- Document signing artifacts and audit outputs
+- User-editable project content (quotations, special terms)
+- Authentication logs and session artifacts
+- **Signature records** (dual storage for redundancy):
+  - Project: `{year}-Projects/{code}/10__ProjectAdmin__AppContent/SignatureRecords/`
+  - Archive: `Signatures/{year}/{code}/`
 - Auto-generated emails or their persisted payloads
-- Any other user-persistent data or user-action logs.
+- Any user-action logs or audit records
 
 
 ## Definitions

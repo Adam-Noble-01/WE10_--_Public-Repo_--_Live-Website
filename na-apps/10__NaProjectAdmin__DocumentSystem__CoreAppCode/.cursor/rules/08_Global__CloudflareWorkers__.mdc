@@ -1,0 +1,42 @@
+---
+alwaysApply: true
+---
+# Cloudflare Workers API
+
+## Worker Details
+- **Name:** `na-projectadmin-api`
+- **URL:** `https://na-projectadmin-api.adam-fb3.workers.dev/`
+- **Account ID:** `fb32e89aeb7dce82f8391f6496ec8b34`
+- **R2 Bucket:** `noble-architecture-cdn`
+
+## API Endpoints
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/health` | GET | Health check |
+| `/ip` | GET | Client IP address |
+| `/projectadmin/auth` | POST | Validate project PIN |
+| `/projectadmin/signature` | POST | Store signature record |
+| `/projectadmin/signature` | GET | Retrieve signatures |
+| `/r2/*` | GET/PUT | Direct R2 access |
+
+## Worker Source Location
+`05__CloudflareWorkers/src/`
+- `index.js` - Main router, CORS handling
+- `handlers/auth.js` - PIN validation, session tokens
+- `handlers/signature.js` - Signature storage/retrieval
+- `handlers/r2.js` - R2 bucket operations
+
+## Configuration
+- `wrangler.toml` - Worker deployment config
+- `.dev.vars` - Local dev secrets (git-ignored)
+- `CREDENTIALS_BACKUP.txt` - Credentials backup (git-ignored)
+
+## Deployment
+```bash
+cd 05__CloudflareWorkers
+wrangler deploy
+```
+
+## Client Integration
+Access via `CloudflareIntegration__ApiClient__.js` module.
+Worker URL configured in `AppConfiguration__MainAppSettings__.json` under `CloudflareConfig.workerBaseUrl`.

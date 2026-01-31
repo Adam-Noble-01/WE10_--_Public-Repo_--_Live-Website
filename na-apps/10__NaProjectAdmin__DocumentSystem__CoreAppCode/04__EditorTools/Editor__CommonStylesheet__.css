@@ -1,0 +1,480 @@
+/* =============================================================================
+ * NOBLE ARCHITECTURE - EDITOR TOOLS STYLESHEET
+ * =============================================================================
+ *
+ * FILE       : Editor__CommonStylesheet__.css
+ * PURPOSE    : Shared styles for all offline editor tools
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * CREATED    : 31-Jan-2026
+ *
+ * DESCRIPTION:
+ * - Common CSS for QuotationBuilder, TermsEditor, ProjectConfig editors
+ * - Consistent Noble Architecture branding across all tools
+ *
+ * =============================================================================
+ */
+
+/* -----
+ * REGION | CSS Variables
+ * ----- */
+
+    :root {
+        /* Brand Colours */
+        --brand-primary            : #555041;                /* NA brown */
+        --brand-accent             : #8b6914;                /* Gold accent */
+        
+        /* Backgrounds */
+        --bg-primary               : #f8f7f5;                /* Page background */
+        --bg-secondary             : #ffffff;                /* Panel background */
+        --bg-special               : #fffdf5;                /* Highlight bg */
+        
+        /* Text */
+        --text-primary             : #333333;                /* Main text */
+        --text-secondary           : #666666;                /* Muted text */
+        
+        /* Borders */
+        --border-light             : #e0ddd8;                /* Light borders */
+        
+        /* Status */
+        --success                  : #2d7a4d;                /* Success green */
+        --error                    : #c73e3e;                /* Error red */
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Reset & Base
+ * ----- */
+
+    * {
+        box-sizing                 : border-box;
+        margin                     : 0;
+        padding                    : 0;
+    }
+
+    body {
+        font-family                : 'Segoe UI', -apple-system, sans-serif;
+        background                 : var(--bg-primary);
+        color                      : var(--text-primary);
+        line-height                : 1.6;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | App Header
+ * ----- */
+
+    .app-header {
+        background                 : var(--bg-secondary);
+        border-bottom              : 3px solid var(--brand-primary);
+        padding                    : 1rem 2rem;
+        display                    : flex;
+        justify-content            : space-between;
+        align-items                : center;
+    }
+
+    .app-header h1 {
+        color                      : var(--brand-primary);
+        font-size                  : 1.5rem;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Main Layout
+ * ----- */
+
+    .main-container {
+        display                    : grid;
+        grid-template-columns      : 1fr 1fr;
+        gap                        : 2rem;
+        padding                    : 2rem;
+        max-width                  : 1600px;
+        margin                     : 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+        .main-container {
+            grid-template-columns  : 1fr;
+        }
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Panels
+ * ----- */
+
+    .panel {
+        background                 : var(--bg-secondary);
+        border-radius              : 8px;
+        box-shadow                 : 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow                   : hidden;
+    }
+
+    .panel__header {
+        background                 : var(--brand-primary);
+        color                      : white;
+        padding                    : 1rem;
+        font-weight                : 600;
+    }
+
+    .panel__body {
+        padding                    : 1.5rem;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Form Elements
+ * ----- */
+
+    .form-group {
+        margin-bottom              : 1rem;
+    }
+
+    .form-group label {
+        display                    : block;
+        font-weight                : 500;
+        margin-bottom              : 0.25rem;
+        font-size                  : 0.875rem;
+    }
+
+    .form-input {
+        width                      : 100%;
+        padding                    : 0.5rem 0.75rem;
+        border                     : 1px solid var(--border-light);
+        border-radius              : 4px;
+        font-size                  : 1rem;
+    }
+
+    .form-input:focus {
+        outline                    : none;
+        border-color               : var(--brand-primary);
+        box-shadow                 : 0 0 0 2px rgba(85, 80, 65, 0.15);
+    }
+
+    textarea.form-input {
+        min-height                 : 80px;
+        resize                     : vertical;
+    }
+
+    .form-hint {
+        font-size                  : 0.75rem;
+        color                      : var(--text-secondary);
+        margin-top                 : 0.25rem;
+    }
+
+    .checkbox-group {
+        display                    : flex;
+        align-items                : center;
+        gap                        : 0.5rem;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Buttons
+ * ----- */
+
+    .btn {
+        padding                    : 0.5rem 1rem;
+        border                     : none;
+        border-radius              : 4px;
+        cursor                     : pointer;
+        font-size                  : 0.875rem;
+        font-weight                : 500;
+        transition                 : all 0.2s;
+    }
+
+    .btn--primary {
+        background                 : var(--brand-primary);
+        color                      : white;
+    }
+
+    .btn--primary:hover {
+        background                 : #444033;
+    }
+
+    .btn--secondary {
+        background                 : transparent;
+        border                     : 1px solid var(--brand-primary);
+        color                      : var(--brand-primary);
+    }
+
+    .btn--secondary:hover {
+        background                 : var(--bg-primary);
+    }
+
+    .btn--danger {
+        background                 : var(--error);
+        color                      : white;
+    }
+
+    .btn--small {
+        padding                    : 0.25rem 0.5rem;
+        font-size                  : 0.75rem;
+    }
+
+    .actions-bar {
+        display                    : flex;
+        gap                        : 0.5rem;
+        margin-bottom              : 1rem;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Info & Warning Boxes
+ * ----- */
+
+    .info-box {
+        background                 : #e8f4f8;
+        border                     : 1px solid #3a6ea5;
+        border-radius              : 4px;
+        padding                    : 1rem;
+        margin-bottom              : 1rem;
+        font-size                  : 0.875rem;
+    }
+
+    .warning-box {
+        background                 : #fff8e6;
+        border                     : 1px solid var(--brand-accent);
+        border-radius              : 4px;
+        padding                    : 1rem;
+        margin-bottom              : 1rem;
+        font-size                  : 0.875rem;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Section Headings
+ * ----- */
+
+    .section-heading {
+        margin                     : 1.5rem 0 1rem;
+        color                      : var(--brand-primary);
+    }
+
+    .section-heading--first {
+        margin-top                 : 0;
+        margin-bottom              : 1rem;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | JSON Output
+ * ----- */
+
+    .json-output {
+        background                 : #1e1e1e;
+        color                      : #d4d4d4;
+        padding                    : 1rem;
+        border-radius              : 4px;
+        overflow-x                 : auto;
+        font-family                : 'Consolas', 'Monaco', monospace;
+        font-size                  : 0.875rem;
+        white-space                : pre-wrap;
+        max-height                 : 500px;
+        overflow-y                 : auto;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Help Text
+ * ----- */
+
+    .help-text {
+        margin-bottom              : 1rem;
+        color                      : var(--text-secondary);
+        font-size                  : 0.875rem;
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Quotation Builder - Line Items Table
+ * ----- */
+
+    .line-items-table {
+        width                      : 100%;
+        border-collapse            : collapse;
+        margin-bottom              : 1rem;
+    }
+
+    .line-items-table th,
+    .line-items-table td {
+        padding                    : 0.5rem;
+        text-align                 : left;
+        border-bottom              : 1px solid var(--border-light);
+    }
+
+    .line-items-table th {
+        font-size                  : 0.75rem;
+        text-transform             : uppercase;
+        color                      : var(--text-secondary);
+    }
+
+    .line-items-table input {
+        width                      : 100%;
+        padding                    : 0.25rem;
+        border                     : 1px solid var(--border-light);
+        border-radius              : 3px;
+    }
+
+    .line-items-table .col-description { width: 40%; }
+    .line-items-table .col-qty         { width: 10%; }
+    .line-items-table .col-unit        { width: 12%; }
+    .line-items-table .col-rate        { width: 15%; }
+    .line-items-table .col-amount      { width: 15%; text-align: right; }
+    .line-items-table .col-actions     { width: 8%; text-align: center; }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Quotation Builder - Totals
+ * ----- */
+
+    .totals {
+        margin-top                 : 1rem;
+        padding-top                : 1rem;
+        border-top                 : 2px solid var(--brand-primary);
+    }
+
+    .totals__row {
+        display                    : flex;
+        justify-content            : space-between;
+        padding                    : 0.5rem 0;
+    }
+
+    .totals__row--grand {
+        font-size                  : 1.25rem;
+        font-weight                : 700;
+        color                      : var(--brand-primary);
+        padding-top                : 0.75rem;
+        border-top                 : 2px solid var(--brand-primary);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Terms Editor - Term Items
+ * ----- */
+
+    .term-item {
+        background                 : var(--bg-special);
+        border                     : 1px solid var(--brand-accent);
+        border-radius              : 4px;
+        padding                    : 1rem;
+        margin-bottom              : 1rem;
+        position                   : relative;
+    }
+
+    .term-item__header {
+        display                    : flex;
+        justify-content            : space-between;
+        align-items                : center;
+        margin-bottom              : 0.75rem;
+    }
+
+    .term-item__number {
+        font-weight                : 600;
+        color                      : var(--brand-accent);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Terms Editor - Preview
+ * ----- */
+
+    .preview-container {
+        background                 : var(--bg-secondary);
+        border                     : 1px solid var(--border-light);
+        border-radius              : 4px;
+        padding                    : 1.5rem;
+        margin-bottom              : 1rem;
+    }
+
+    .preview-title {
+        font-size                  : 1.25rem;
+        font-weight                : 700;
+        color                      : var(--brand-accent);
+        margin-bottom              : 1rem;
+        padding-bottom             : 0.5rem;
+        border-bottom              : 2px solid var(--brand-accent);
+    }
+
+    .preview-term {
+        margin-bottom              : 1rem;
+        padding-left               : 1rem;
+        position                   : relative;
+    }
+
+    .preview-term::before {
+        content                    : '';
+        position                   : absolute;
+        left                       : 0;
+        top                        : 0.6em;
+        width                      : 6px;
+        height                     : 6px;
+        background                 : var(--brand-accent);
+        border-radius              : 50%;
+    }
+
+    .preview-term__title {
+        font-weight                : 600;
+        margin-bottom              : 0.25rem;
+    }
+
+    .preview-term__content {
+        color                      : var(--text-secondary);
+    }
+
+/* endregion ---- */
+
+/* -----
+ * REGION | Terms Editor - Tabs
+ * ----- */
+
+    .tabs {
+        display                    : flex;
+        gap                        : 0;
+        margin-bottom              : 1rem;
+    }
+
+    .tab {
+        padding                    : 0.5rem 1rem;
+        border                     : 1px solid var(--border-light);
+        background                 : var(--bg-primary);
+        cursor                     : pointer;
+    }
+
+    .tab:first-child {
+        border-radius              : 4px 0 0 4px;
+    }
+
+    .tab:last-child {
+        border-radius              : 0 4px 4px 0;
+    }
+
+    .tab.active {
+        background                 : var(--brand-primary);
+        color                      : white;
+        border-color               : var(--brand-primary);
+    }
+
+    .tab-content {
+        display                    : none;
+    }
+
+    .tab-content.active {
+        display                    : block;
+    }
+
+/* endregion ---- */
+

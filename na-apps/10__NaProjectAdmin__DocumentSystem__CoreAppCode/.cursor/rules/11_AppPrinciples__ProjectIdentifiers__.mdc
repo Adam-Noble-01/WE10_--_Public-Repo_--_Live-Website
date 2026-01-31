@@ -35,3 +35,10 @@ Examples:
 - Use 00 as project number (start at 01)
 - Skip validation of user-provided project codes
 - Hardcode project codes without validation
+
+## URL Query Format
+```
+?project=XX00&year=26
+```
+- `project` - Four-character project code (required)
+- `year` - Two-digit year for project folder (default: current year)

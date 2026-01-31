@@ -60,10 +60,12 @@
 
         "CloudflareConfig": {
             "enabled"                          : true,
-            "workerBaseUrl"                    : "https://api.noble-architecture.com/",
+            "workerBaseUrl"                    : "https://na-projectadmin-api.adam-fb3.workers.dev/",
+            "workerBaseUrlCustom"              : "https://api.noble-architecture.com/",
             "authEndpoint"                     : "projectadmin/auth",
             "signatureEndpoint"                : "projectadmin/signature",
-            "r2BucketPrefix"                   : "NaProjectPortal/"
+            "r2BucketPrefix"                   : "NaProjectPortal/",
+            "accountId"                        : "fb32e89aeb7dce82f8391f6496ec8b34"
         },
 
         "UI": {

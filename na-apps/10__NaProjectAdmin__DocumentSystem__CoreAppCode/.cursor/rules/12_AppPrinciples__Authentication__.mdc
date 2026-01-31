@@ -1,0 +1,36 @@
+---
+alwaysApply: true
+---
+# Authentication System
+
+## PIN-Based Authentication
+- Each project has a PIN in `ProjectAdmin__ProjectConfig__.json`
+- PIN hashed client-side (SHA-256) before transmission
+- Session stored in `sessionStorage` (clears on tab close)
+- Validation via Cloudflare Worker `/projectadmin/auth`
+
+## Project Config Structure
+```json
+{
+  "projectCode": "AA00",
+  "clientName": "Client Name",
+  "authentication": {
+    "pinRequired": true,
+    "pinHash": "sha256-hash-of-pin"
+  }
+}
+```
+
+## Security Features
+- Max 5 attempts before lockout (300s duration)
+- All auth attempts logged to R2 for audit
+- Session tokens expire after 1 hour
+- IP and user-agent captured for audit
+
+## Module Location
+`30__Authentication/Authentication__PinLogin__.js`
+
+## Configuration
+Settings in `AppConfiguration__MainAppSettings__.json` under `Features.Authentication`:
+- `pinMinLength`, `pinMaxLength`
+- `sessionTimeout`, `maxAttempts`, `lockoutDuration`

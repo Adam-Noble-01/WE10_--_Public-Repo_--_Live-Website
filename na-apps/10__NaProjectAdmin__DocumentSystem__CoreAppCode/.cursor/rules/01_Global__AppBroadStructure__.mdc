@@ -26,9 +26,15 @@ alwaysApply: true
   - Master configuration file is located at: `03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json`
   - This file is the single source of truth for all main app configuration values.
 
-## Core App - Project Data For Loading Projects
-  - A URL Query Parameter is used to load a project.
-  - User authentication is then required to access the project specific data.
-  - This prompts the App to load the static project content from GitHub Sites.
-  - The static project content is then loaded by the main app shell and the project specific content is displayed to the Client.
-  - Client written Project specific data is loaded from Cloudflare R2.
+## Core App - Project Loading
+  - URL format: `?project=XX00&year=26`
+  - Authentication (PIN) required before content access
+  - Static files from GitHub Pages, dynamic from Cloudflare R2
+  - Project config: `ProjectAdmin__ProjectConfig__.json`
+  - Quotation: `ProjectAdmin__Quotation__.json`
+  - Special terms: `ProjectAdmin__SpecialTerms__.json`
+
+## Key Directories
+  - `03__Src__AppModules/` - Application modules
+  - `04__EditorTools/` - Offline content editors
+  - `05__CloudflareWorkers/` - Worker source and config

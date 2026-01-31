@@ -24,8 +24,8 @@ main                             = "src/index.js"
 compatibility_date               = "2024-01-01"
 workers_dev                      = true
 
-# Account settings (update with your account ID)
-# account_id                     = "YOUR_ACCOUNT_ID"
+# Account settings
+account_id                       = "fb32e89aeb7dce82f8391f6496ec8b34"
 
 # Routes (uncomment and configure for production)
 # routes = [

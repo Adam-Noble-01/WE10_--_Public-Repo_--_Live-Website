@@ -1,0 +1,13 @@
+{
+    "projectCode": "JS01",
+    "projectName": "Rear Extension & Loft Conversion",
+    "clientName": "John Smith",
+    "projectPin": "1234",
+    "documents": {
+        "quotation": true,
+        "specialTerms": true
+    },
+    "createdDate": "2026-01-31",
+    "lastModified": "2026-01-31T12:00:00.000Z"
+}
+

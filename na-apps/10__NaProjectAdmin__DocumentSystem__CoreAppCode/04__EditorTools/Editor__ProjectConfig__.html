@@ -7,178 +7,7 @@
     <title>Project Configuration Editor | Noble Architecture</title>
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
-    <style>
-        :root {
-            --brand-primary: #555041;
-            --brand-accent: #8b6914;
-            --bg-primary: #f8f7f5;
-            --bg-secondary: #ffffff;
-            --text-primary: #333333;
-            --text-secondary: #666666;
-            --border-light: #e0ddd8;
-            --success: #2d7a4d;
-            --error: #c73e3e;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-
-        .app-header {
-            background: var(--bg-secondary);
-            border-bottom: 3px solid var(--brand-primary);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .app-header h1 {
-            color: var(--brand-primary);
-            font-size: 1.5rem;
-        }
-
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 1024px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .panel__header {
-            background: var(--brand-primary);
-            color: white;
-            padding: 1rem;
-            font-weight: 600;
-        }
-
-        .panel__body {
-            padding: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            font-size: 0.875rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid var(--border-light);
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--brand-primary);
-            box-shadow: 0 0 0 2px rgba(85, 80, 65, 0.15);
-        }
-
-        .form-hint {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-top: 0.25rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn--primary {
-            background: var(--brand-primary);
-            color: white;
-        }
-
-        .btn--primary:hover {
-            background: #444033;
-        }
-
-        .btn--secondary {
-            background: transparent;
-            border: 1px solid var(--brand-primary);
-            color: var(--brand-primary);
-        }
-
-        .json-output {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 1rem;
-            border-radius: 4px;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.875rem;
-            white-space: pre-wrap;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .actions-bar {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .info-box {
-            background: #e8f4f8;
-            border: 1px solid #3a6ea5;
-            border-radius: 4px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-        }
-
-        .warning-box {
-            background: #fff8e6;
-            border: 1px solid var(--brand-accent);
-            border-radius: 4px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-    </style>
+    <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 </head>
 
 <body>
@@ -201,7 +30,7 @@
                     Save it as <code>ProjectAdmin__ProjectConfig__.json</code>.
                 </div>
 
-                <h3 style="margin-bottom: 1rem; color: var(--brand-primary);">Project Details</h3>
+                <h3 class="section-heading section-heading--first">Project Details</h3>
 
                 <div class="form-group">
                     <label for="projectCode">Project Code</label>
@@ -222,7 +51,7 @@
                         onchange="updatePreview()">
                 </div>
 
-                <h3 style="margin: 1.5rem 0 1rem; color: var(--brand-primary);">Access Control</h3>
+                <h3 class="section-heading">Access Control</h3>
 
                 <div class="warning-box">
                     <strong>Security Note</strong><br>
@@ -242,7 +71,7 @@
                     <button class="btn btn--secondary" onclick="hashPin()">Hash Current PIN</button>
                 </div>
 
-                <h3 style="margin: 1.5rem 0 1rem; color: var(--brand-primary);">Document Availability</h3>
+                <h3 class="section-heading">Document Availability</h3>
 
                 <div class="form-group">
                     <label class="checkbox-group">
@@ -264,7 +93,7 @@
         <div class="panel">
             <div class="panel__header">JSON Output</div>
             <div class="panel__body">
-                <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                <p class="help-text">
                     Save this as <code>ProjectAdmin__ProjectConfig__.json</code> in the project's
                     <code>10__ProjectAdmin__AppContent</code> folder.
                 </p>

@@ -5,13 +5,24 @@ alwaysApply: true
 - The project uses ES6 modules with highly structured module system. 
 - Proper import/export management is critical.
 
-# Module Directories (Not Exhaustive)
+# Module Directories
 `ProjectRootDirectory\03__Src__AppModules\`
-  - `01__AppCore`  =  Main Orchestrator, Module Dependency Manager, Configuration Manager, etc.
-  - `02__AppData`  =  Data files such as, AppConfiguration__MainAppSettings__.json.
-  - `03__CommonUtils` =  Utility Modules such as Common Helper Functions, Math Functions, and none feature specific utility functions etc.
-  - `10__UserInterface` =  Groups the UI specific module files.
-- New features will be assigned a new double digit directory number and double underscore feature name.
+  - `01__AppCore`  =  Orchestrator, ModuleDependencyManager, ConfigManager
+  - `02__AppData`  =  JSON config files (AppConfiguration__MainAppSettings__.json)
+  - `03__CommonUtils` =  Validators, DateFormatter, helper functions
+  - `10__UserInterface` =  Navigation, ModalManager, UI components
+  - `20__DocumentSystem` =  QuotationRenderer, TermsRenderer, GeneralTerms.html
+  - `30__Authentication` =  PinLogin, session management
+  - `40__SignatureSystem` =  CaptureCanvas, AuditRecord
+  - `50__CloudflareIntegration` =  ApiClient for Workers/R2
+
+`ProjectRootDirectory\04__EditorTools\`
+  - Standalone HTML tools for offline content creation
+  - QuotationBuilder, TermsEditor, ProjectConfig editors
+
+`ProjectRootDirectory\05__CloudflareWorkers\`
+  - Wrangler config and Worker source code
+  - See `08_Global__CloudflareWorkers__.mdc`
 
 ## Critical Pre-Implementation Checks
 
@@ -67,9 +78,19 @@ export const API_METHODS = { initialize, dispose };
 |    └── UserInterface__Navigation__.js
 |
 ├── 20__DocumentSystem/
-    └── DocumentSystem__A4Format__.html
-    └── DocumentSystem__A4Format__.css
-    └── DocumentSystem__A4Format__.js
+│   └── DocumentSystem__QuotationRenderer__.js
+│   └── DocumentSystem__TermsRenderer__.js
+│   └── DocumentSystem__GeneralTerms__.html
+│
+├── 30__Authentication/
+│   └── Authentication__PinLogin__.js
+│
+├── 40__SignatureSystem/
+│   └── SignatureSystem__CaptureCanvas__.js
+│   └── SignatureSystem__AuditRecord__.js
+│
+└── 50__CloudflareIntegration/
+    └── CloudflareIntegration__ApiClient__.js
 ```
 
 ## Import/Export Verification Rules

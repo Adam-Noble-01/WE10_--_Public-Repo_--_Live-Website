@@ -1,0 +1,41 @@
+---
+alwaysApply: true
+---
+# Development Log & Versioning
+
+## DevLog Location
+`DEVLOG.md` in project root.
+
+## Version Format
+`X.Y.Z` - Semantic versioning
+- **X** - Major (breaking changes)
+- **Y** - Minor (new features)
+- **Z** - Patch (bug fixes)
+
+## Version Milestones
+- `0.x.x` - Beta/Development
+- `1.0.0` - First stable release
+
+## Agent Responsibility
+**ALWAYS** add a version note to `DEVLOG.md` when:
+- Adding new features
+- Fixing significant bugs
+- Changing module structure
+- Modifying configuration schema
+- Updating API endpoints
+
+## Entry Format
+```markdown
+## Version X.Y.Z - DD-MMM-YYYY
+### Added
+- Feature description
+
+### Changed
+- Change description
+
+### Fixed
+- Bug fix description
+```
+
+## Current Version
+See `DEVLOG.md` for current version and changelog.

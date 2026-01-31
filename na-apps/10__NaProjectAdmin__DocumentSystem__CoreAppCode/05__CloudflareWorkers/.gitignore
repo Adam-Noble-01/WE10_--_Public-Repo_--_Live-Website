@@ -1,0 +1,29 @@
+# =============================================================================
+# NOBLE ARCHITECTURE - CLOUDFLARE WORKERS GITIGNORE
+# =============================================================================
+
+# Sensitive files - NEVER commit these
+.dev.vars
+*.secret
+*.key
+CREDENTIALS_BACKUP.txt
+deploy.bat
+
+# Node modules
+node_modules/
+
+# Wrangler
+.wrangler/
+
+# Build output
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
