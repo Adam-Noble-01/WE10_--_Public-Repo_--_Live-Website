@@ -1,57 +1,57 @@
 {
     "clientDataStorage": "cloudflare-r2-encrypted",
-    "createdDate": "01-Feb-2026",
-    "documents": {
-        "quotation": true,
-        "specialTerms": false
-    },
-    "lastModified": "2026-02-01T21:03:38.495Z",
-    "projectCode": "NP03",
-    "projectDescription": "A loft conversion, likely a dormer loft conversion to maximise space, together with associated internal alterations to the existing dwelling, requiring concept design and the preparation and submission of a planning application.",
-    "projectName": "Ashness Close",
-    "projectPin": "2601",
     "contracts": {
-        "general-business": {
+        "building-regulations": {
             "enabled": true,
-            "signed": false,
             "signatureRef": null,
+            "signed": false,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        },
+        "building-surveying": {
+            "enabled": true,
+            "signatureRef": null,
+            "signed": false,
             "signedDate": null,
             "specialTermsEnabled": false
         },
         "concept-design": {
             "enabled": true,
-            "signed": false,
             "signatureRef": null,
+            "signed": false,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "general-business": {
+            "enabled": true,
+            "signatureRef": null,
+            "signed": false,
             "signedDate": null,
             "specialTermsEnabled": false
         },
         "planning-approval": {
             "enabled": true,
-            "signed": false,
             "signatureRef": null,
+            "signed": false,
             "signedDate": null,
             "specialTermsEnabled": true
         },
         "project-vision": {
-            "enabled": true,
-            "signed": false,
+            "enabled": false,
             "signatureRef": null,
+            "signed": false,
             "signedDate": null,
             "specialTermsEnabled": false
-        },
-        "building-surveying": {
-            "enabled": true,
-            "signed": false,
-            "signatureRef": null,
-            "signedDate": null,
-            "specialTermsEnabled": false
-        },
-        "building-regulations": {
-            "enabled": true,
-            "signed": false,
-            "signatureRef": null,
-            "signedDate": null,
-            "specialTermsEnabled": true
         }
-    }
+    },
+    "createdDate": "01-Feb-2026",
+    "documents": {
+        "quotation": true,
+        "specialTerms": false
+    },
+    "lastModified": "2026-02-01T22:30:31.708Z",
+    "projectCode": "NP03",
+    "projectDescription": "A loft conversion, likely a dormer loft conversion to maximise space, together with associated internal alterations to the existing dwelling, requiring concept design and the preparation and submission of a planning application.",
+    "projectName": "Ashness Close",
+    "projectPin": "2601"
 }

@@ -1,39 +1,39 @@
 {
     "contractId": "building-regulations",
     "contractName": "Building Regulations Stage",
-    "sectionTitle": "Special Terms - Building Regs",
     "introduction": "The following special conditions apply to this contract.",
+    "lastUpdated": "2026-02-01T21:02:03.553Z",
+    "sectionTitle": "Special Terms - Building Regs",
     "terms": [
         {
+            "content": "Following ongoing coordination between Noble Architecture and the appointed Contractor, **Sukhi Home Solutions**, it is explicitly agreed that Noble Architecture's scope of services concludes at submission of the Planning Application, unless the quotation and written appointment explicitly include \"Design Phase 03 – Building Regulations Compliance\" (or equivalent wording confirming a Building Regulations technical design stage).",
             "id": 1,
-            "title": "Limitation of Noble Architecture's Appointment",
-            "content": "Following ongoing coordination between Noble Architecture and the appointed Contractor, **Sukhi Home Solutions**, it is explicitly agreed that Noble Architecture's scope of services concludes at submission of the Planning Application, unless the quotation and written appointment explicitly include \"Design Phase 03 – Building Regulations Compliance\" (or equivalent wording confirming a Building Regulations technical design stage)."
+            "title": "Limitation of Noble Architecture's Appointment"
         },
         {
+            "content": "**Sukhi Home Solutions** have confirmed they will assume responsibility for all technical aspects, construction methods, coordination of technical design, and Building Regulations compliance immediately following the Planning Approval Phase. Planning drawings produced by Noble Architecture are illustrative concept documents for planning purposes only and must not be relied upon for fabrication, procurement, setting-out, or construction.",
             "id": 2,
-            "title": "Transfer of Technical Responsibility After Planning",
-            "content": "**Sukhi Home Solutions** have confirmed they will assume responsibility for all technical aspects, construction methods, coordination of technical design, and Building Regulations compliance immediately following the Planning Approval Phase. Planning drawings produced by Noble Architecture are illustrative concept documents for planning purposes only and must not be relied upon for fabrication, procurement, setting-out, or construction."
+            "title": "Transfer of Technical Responsibility After Planning"
         },
         {
+            "content": "In accordance with the Building Safety Act 2022 and the Building Regulations etc. (Amendment) (England) Regulations 2023, the statutory role of \"Principal Designer\" for Building Regulations compliance is phase-specific and attaches only to the party in control of the design work for the relevant phase.\n\nUnless Noble Architecture is specifically retained in writing for the Building Regulations technical phase, Noble Architecture's statutory role as Principal Designer automatically concludes upon submission of the Planning Application.\n\nWhere the Domestic Client does not formally appoint a replacement Principal Designer in writing, the Principal Designer role transfers to the person or organisation in control of the building work (the Principal Contractor), being Sukhi Home Solutions for this project unless otherwise appointed.",
             "id": 3,
-            "title": "Principal Designer (Building Regulations Dutyholder) Transfer",
-            "content": "In accordance with the Building Safety Act 2022 and the Building Regulations etc. (Amendment) (England) Regulations 2023, the statutory role of \"Principal Designer\" for Building Regulations compliance is phase-specific and attaches only to the party in control of the design work for the relevant phase.\n\nUnless Noble Architecture is specifically retained in writing for the Building Regulations technical phase, Noble Architecture's statutory role as Principal Designer automatically concludes upon submission of the Planning Application.\n\nWhere the Domestic Client does not formally appoint a replacement Principal Designer in writing, the Principal Designer role transfers to the person or organisation in control of the building work (the Principal Contractor), being Sukhi Home Solutions for this project unless otherwise appointed."
+            "title": "Principal Designer (Building Regulations Dutyholder) Transfer"
         },
         {
+            "content": "Sukhi Home Solutions has elected to proceed via a Building Notice. The Client acknowledges that a Building Notice route means no detailed technical plans are pre-approved by the Council before works commence, and the Building Control Body approves work retrospectively based on site inspections.\n\nWhilst this route may be faster than a Full Plans application, it carries higher financial risk, and if an Inspector rejects a detail on-site the work may require alteration, removal, or reconstruction at the Client's or Contractor's expense.\n\nNoble Architecture accepts no liability for remedial works, abortive works, or additional costs arising from Building Control decisions made under the Building Notice route, including where the absence of pre-approval contributes to redesign or rework.",
             "id": 4,
-            "title": "Building Notice Route (Elected by Contractor)",
-            "content": "Sukhi Home Solutions has elected to proceed via a Building Notice. The Client acknowledges that a Building Notice route means no detailed technical plans are pre-approved by the Council before works commence, and the Building Control Body approves work retrospectively based on site inspections.\n\nWhilst this route may be faster than a Full Plans application, it carries higher financial risk, and if an Inspector rejects a detail on-site the work may require alteration, removal, or reconstruction at the Client's or Contractor's expense.\n\nNoble Architecture accepts no liability for remedial works, abortive works, or additional costs arising from Building Control decisions made under the Building Notice route, including where the absence of pre-approval contributes to redesign or rework."
+            "title": "Building Notice Route (Elected by Contractor)"
         },
         {
+            "content": "It is anticipated the Contractor will utilise a specialist timber engineering firm (for example Trusstec, Donaldson, or similar) to design and manufacture the roof structure. Such firms typically provide their own structural calculations and layout drawings for their products as part of supply.\n\nIf the Contractor opts for a traditional cut roof (stick build) rather than pre-fabricated trusses, the Client must appoint an independent Structural Engineer to calculate steel beam and rafter sizes.\n\nAll downstream specialists (including staircase manufacturers, window suppliers, and roof truss engineers) must take their own site measurements. Dimensions on Noble Architecture's planning drawings are illustrative and must not be used for fabrication. Any party fabricating from planning drawings without independent site verification does so entirely at its own risk.\n",
             "id": 5,
-            "title": "Loft Conversion Specifics: Trusses, Cut Roofs, and Stairs",
-            "content": "It is anticipated the Contractor will utilise a specialist timber engineering firm (for example Trusstec, Donaldson, or similar) to design and manufacture the roof structure. Such firms typically provide their own structural calculations and layout drawings for their products as part of supply.\n\nIf the Contractor opts for a traditional cut roof (stick build) rather than pre-fabricated trusses, the Client must appoint an independent Structural Engineer to calculate steel beam and rafter sizes.\n\nAll downstream specialists (including staircase manufacturers, window suppliers, and roof truss engineers) must take their own site measurements. Dimensions on Noble Architecture's planning drawings are illustrative and must not be used for fabrication. Any party fabricating from planning drawings without independent site verification does so entirely at its own risk.\n"
+            "title": "Loft Conversion Specifics: Trusses, Cut Roofs, and Stairs"
         },
         {
+            "content": "If the Client or Contractor later requires a Full Plans application or Building Regulations technical design package (including detailed cross-sections, thermal details, and pre-approval submissions), this is a new instruction.\n\nIt will be subject to a fresh quotation, quotations are valid for 30 days, and the Client acknowledges Noble Architecture typically requires a minimum lead time of 6 weeks before commencing new technical drawing work. The Client must factor this into the construction programme to avoid delays.",
             "id": 6,
-            "title": "Re-Engagement of Noble Architecture for Full Plans or Technical Package",
-            "content": "If the Client or Contractor later requires a Full Plans application or Building Regulations technical design package (including detailed cross-sections, thermal details, and pre-approval submissions), this is a new instruction.\n\nIt will be subject to a fresh quotation, quotations are valid for 30 days, and the Client acknowledges Noble Architecture typically requires a minimum lead time of 6 weeks before commencing new technical drawing work. The Client must factor this into the construction programme to avoid delays."
+            "title": "Re-Engagement of Noble Architecture for Full Plans or Technical Package"
         }
-    ],
-    "lastUpdated": "2026-02-01T21:02:03.553Z"
+    ]
 }
