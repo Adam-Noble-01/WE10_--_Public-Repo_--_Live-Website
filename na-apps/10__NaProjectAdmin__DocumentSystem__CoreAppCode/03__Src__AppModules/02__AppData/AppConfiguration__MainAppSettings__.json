@@ -128,7 +128,7 @@
                     "id"                       : "building-surveying",
                     "name"                     : "Building Surveying Service",
                     "shortName"                : "Surveying",
-                    "file"                     : "10_10__ApprovedStandardTerms__BuildingSurveyingServive__.md",
+                    "file"                     : "10_10__ApprovedStandardTerms__BuildingSurveyingSurvey__.md",
                     "description"              : "Terms for Measured Building Survey services",
                     "required"                 : false,
                     "order"                    : 10
