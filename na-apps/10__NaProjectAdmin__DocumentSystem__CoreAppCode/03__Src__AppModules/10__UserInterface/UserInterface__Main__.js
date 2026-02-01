@@ -14,10 +14,17 @@
 // - Manages view switching between quotation, contracts, signatures
 // - Handles document loading and display
 // - Multi-contract system support
+// - Cover letter landing page (v0.6.0)
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 2.1.0
+// - Cover Letter System (v0.6.0)
+//   - Added showCoverLetter() for personalised welcome page
+//   - Updated loadDefaultView() to show cover letter first when enabled
+//   - Integration with CoverLetterRenderer module
+//
 // 01-Feb-2026 - Version 2.0.0
 // - Multi-Contract System
 //   - Added showContract() for individual contract display
@@ -58,9 +65,16 @@
         // FUNCTION | Load Default View
         // ------------------------------------------------------------
         async function loadDefaultView() {
-            // Show quotation first if available
             const config = window.NaProjectAdmin.ConfigManager?.getConfig();
             
+            // Show cover letter first if enabled (v0.6.0)
+            if (config?.AppConfig?.Features?.CoverLetterSystem?.enabled === true &&
+                config?.AppConfig?.Features?.CoverLetterSystem?.showAsDefaultView === true) {
+                await showCoverLetter();
+                return;
+            }
+            
+            // Fallback: Show quotation first if available
             if (config?.AppConfig?.Features?.QuotationSystem?.enabled === true) {
                 await showQuotation();
             } else if (config?.AppConfig?.Features?.TermsSystem?.enabled === true) {
@@ -81,6 +95,84 @@
             }
         }
         // ---------------------------------------------------------------
+
+        // #region -----
+        // COVER LETTER SYSTEM | Welcome Landing Page (v0.6.0)
+        // -----
+
+            // FUNCTION | Show Cover Letter
+            // ------------------------------------------------------------
+            /**
+             * Display the personalised cover letter landing page
+             * Fetches client data from Cloudflare R2 and renders welcome message
+             */
+            async function showCoverLetter() {
+                console.log('[UserInterfaceMain] Showing cover letter...');
+
+                const documentContainer = document.getElementById('document-container');
+                if (!documentContainer) return;
+
+                // Show loading state
+                documentContainer.innerHTML = `
+                    <div class="document" style="text-align: center; padding: 3rem;">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Loading welcome letter...</p>
+                    </div>
+                `;
+
+                try {
+                    const projectConfig = window.NaProjectAdmin.App?.getProjectConfig();
+
+                    // Load quotation data using same method as showQuotation()
+                    let quotationData = loadedQuotation;
+                    if (!quotationData) {
+                        quotationData = await loadQuotationData();
+                        if (quotationData) {
+                            loadedQuotation = quotationData;  // Cache for later use
+                        }
+                    }
+
+                    // Render cover letter with quotation data for date sync
+                    if (window.NaProjectAdmin.CoverLetterRenderer) {
+                        const html = await window.NaProjectAdmin.CoverLetterRenderer.renderAsync(projectConfig, quotationData);
+                        documentContainer.innerHTML = html;
+                    } else {
+                        // Fallback: basic welcome message
+                        documentContainer.innerHTML = renderBasicCoverLetter(projectConfig);
+                    }
+
+                    currentView = 'coverLetter';
+                    currentContractId = null;
+
+                } catch (error) {
+                    console.error('[UserInterfaceMain] Failed to load cover letter:', error);
+                    documentContainer.innerHTML = `
+                        <div class="document" style="text-align: center; padding: 3rem;">
+                            <h2 style="color: var(--App_StatusError);">Error Loading Welcome Letter</h2>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Render Basic Cover Letter (Fallback)
+            // ------------------------------------------------------------
+            function renderBasicCoverLetter(projectConfig) {
+                const projectName = projectConfig?.projectName || 'Your Project';
+                
+                return `
+                    <div class="document cover-letter">
+                        <h1>Welcome</h1>
+                        <p>Thank you for enquiring about our architectural design services.</p>
+                        <p><strong>Project:</strong> ${projectName}</p>
+                        <p>Please use the navigation menu to view your quotation and review the terms and conditions.</p>
+                    </div>
+                `;
+            }
+            // ---------------------------------------------------------------
+
+        // endregion -----
 
         // FUNCTION | Show Quotation
         // ------------------------------------------------------------
@@ -582,6 +674,7 @@
             initialise               : initialise,
             initialize               : initialise,
             loadDefaultView          : loadDefaultView,
+            showCoverLetter          : showCoverLetter,
             showQuotation            : showQuotation,
             showTerms                : showTerms,
             showContract             : showContract,

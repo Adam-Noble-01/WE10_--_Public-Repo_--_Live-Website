@@ -19,6 +19,12 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 2.1.0
+// - Cover Letter System (v0.6.0)
+//   - Added "Welcome" menu item as first item
+//   - Added showCoverLetter action handler
+//   - Cover letter displays as landing page when enabled
+//
 // 01-Feb-2026 - Version 2.0.0
 // - Multi-Contract System
 //   - Dynamic contract menu items based on enabled contracts
@@ -226,6 +232,16 @@
         async function detectAvailableContent(projectCode, config) {
             const items = [];
             const appConfig = window.NaProjectAdmin.ConfigManager?.getConfig();
+
+            // Add Welcome/Cover Letter item if enabled (v0.6.0)
+            if (appConfig?.AppConfig?.Features?.CoverLetterSystem?.enabled === true) {
+                items.push({
+                    id                   : 'welcome',
+                    label                : 'Welcome',
+                    icon                 : '&#127968;',              // <-- Home icon
+                    action               : 'showCoverLetter'
+                });
+            }
 
             // Always add Quotation if enabled
             if (appConfig?.AppConfig?.Features?.QuotationSystem?.enabled === true) {
@@ -554,6 +570,13 @@
             }
 
             switch (action) {
+                case 'showCoverLetter':
+                    closeActiveEditor();
+                    if (window.NaProjectAdmin.UserInterfaceMain) {
+                        await window.NaProjectAdmin.UserInterfaceMain.showCoverLetter();
+                    }
+                    break;
+
                 case 'showQuotation':
                     closeActiveEditor();
                     if (window.NaProjectAdmin.UserInterfaceMain) {

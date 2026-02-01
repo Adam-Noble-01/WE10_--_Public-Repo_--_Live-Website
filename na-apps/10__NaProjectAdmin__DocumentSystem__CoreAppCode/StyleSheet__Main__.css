@@ -1500,6 +1500,187 @@
 /* endregion -------------------------------------------------- */
 
 /*  #Region --------------------------------------------------------
+ * REGION | Cover Letter Styles - Formal Business Letter Format
+ * -------------------------------------------------------- */
+
+    /* Main Letter Container - A4-like proportions */
+    .cover-letter {
+        background-color           : #ffffff;
+        padding                    : var(--App_SpacingXl);
+        max-width                  : 900px;
+        margin                     : 0 auto;
+        box-shadow                 : var(--App_ShadowMd);
+        border-radius              : var(--App_BorderRadiusLg);
+        font-family                : 'Open Sans', Georgia, 'Times New Roman', serif;
+        font-size                  : 1rem;
+        line-height                : 1.75;
+        color                      : var(--App_TextPrimary);
+    }
+
+    /* Cover letter header - reduced padding before border */
+    .cover-letter .document__header {
+        padding-bottom             : var(--App_SpacingXs);
+        margin-bottom              : var(--App_SpacingXs);
+        padding-top                : var(--App_SpacingXs);
+        margin-top                 : var(--App_SpacingXs);
+    }
+    
+    /* Subject Line - Inside header, below logo/meta */
+    .cover-letter__header .cover-letter__subject {
+        margin-top                 : 0;
+        margin-bottom              : 0;
+        padding-bottom             : 0;
+        border-bottom              : none;
+    }
+    
+    /* Subject Line when not in header (fallback) */
+    .cover-letter .cover-letter__subject {
+        margin-top                 : 2rem;
+        margin-bottom              : 1.5rem;
+        padding-bottom             : 0;
+        border-bottom              : none;
+    }
+
+    /* Recipient Address Block */
+    .cover-letter__recipient {
+        margin-top                 : 2.5rem;
+        margin-bottom              : 1.5rem;
+    }
+
+    .cover-letter__address-block {
+        display                    : flex;
+        flex-direction             : column;
+        font-style                 : normal;
+        line-height                : 1.6;
+    }
+
+    .cover-letter__recipient-name {
+        font-weight                : 600;
+        color                      : var(--App_TextPrimary);
+    }
+
+    .cover-letter__recipient-address {
+        color                      : var(--App_TextSecondary);
+        font-size                  : 0.95rem;
+    }
+
+    /* Salutation - "Dear..." line */
+    .cover-letter__salutation {
+        margin-bottom              : 1rem;
+        font-weight                : 400;
+    }
+
+    /* Subject Line (RE:) - Bold with brand colour */
+    .cover-letter__subject strong {
+        color                      : var(--App_BrandPrimary);
+    }
+
+    /* Body Paragraphs */
+    .cover-letter__body {
+        margin-bottom              : 1.5rem;
+    }
+
+    .cover-letter__body p {
+        margin-bottom              : 1rem;
+        text-align                 : justify;
+    }
+
+    .cover-letter__body p:last-child {
+        margin-bottom              : 0;
+    }
+
+    .cover-letter__project-description {
+        font-style                 : italic;
+        color                      : var(--App_TextSecondary);
+        padding-left               : 1rem;
+        border-left                : 3px solid var(--App_BrandPrimary);
+    }
+
+    /* Navigation Section - Inline with letter flow */
+    .cover-letter__section {
+        margin-bottom              : 1.5rem;
+        padding-top                : 1rem;
+    }
+
+    .cover-letter__section-heading {
+        font-size                  : 1.125rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : 0.75rem;
+    }
+
+    .cover-letter__menu-icon {
+        display                    : inline-block;
+        background-color           : var(--App_BgTertiary);
+        padding                    : 0.15em 0.4em;
+        border-radius              : 3px;
+        font-size                  : 0.9em;
+        border                     : 1px solid var(--App_BorderLight);
+    }
+
+    /* Bullet List - Standard letter list format */
+    .cover-letter__bullet-list {
+        margin                     : 0.75rem 0 1rem 1.5rem;
+        padding                    : 0;
+        list-style-type            : disc;
+    }
+
+    .cover-letter__bullet-list li {
+        margin-bottom              : 0.5rem;
+        padding-left               : 0.25rem;
+    }
+
+    .cover-letter__bullet-list li:last-child {
+        margin-bottom              : 0;
+    }
+
+    /* Important Note - Subtle callout */
+    .cover-letter__important-note {
+        background-color           : #fffdf5;
+        border-left                : 3px solid #d4a900;
+        padding                    : 0.75rem 1rem;
+        margin                     : 1rem 0;
+        font-size                  : 0.95rem;
+    }
+
+    .cover-letter__note-marker {
+        color                      : #d4a900;
+        margin-right               : 0.25rem;
+    }
+
+    .cover-letter__yellow-highlight {
+        background-color           : #fff3b0;
+        padding                    : 0.1em 0.35em;
+        border-radius              : 2px;
+    }
+
+    /* Horizontal Divider Lines */
+    .cover-letter__divider {
+        border                     : none;
+        border-top                 : 1px solid var(--App_BorderLight);
+        margin                     : 1.5rem 0;
+    }
+
+    /* Closing Section - "Kind Regards" and signature */
+    .cover-letter__closing-section {
+        margin-top                 : 1.5rem;
+        margin-bottom              : 0;
+    }
+
+    .cover-letter__closing {
+        margin-bottom              : 0.5rem;
+    }
+
+    .cover-letter__signature-image {
+        max-width                  : 450px;
+        height                     : auto;
+        margin-top                 : 1rem;
+        margin-bottom              : 0;
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
  * REGION | Responsive Styles
  * -------------------------------------------------------- */
 
@@ -1569,6 +1750,27 @@
         
         .signature-form__actions {
             flex-direction         : column;
+        }
+        
+        /* Cover Letter Responsive */
+        .cover-letter {
+            padding                : var(--App_SpacingMd);
+        }
+        
+        .cover-letter .document__logo {
+            max-width              : 180px;
+        }
+        
+        .cover-letter__signature-image {
+            max-width              : 300px;
+        }
+        
+        .cover-letter__body p {
+            text-align             : left;
+        }
+        
+        .cover-letter__recipient-address {
+            font-size              : 0.85rem;
         }
     }
 

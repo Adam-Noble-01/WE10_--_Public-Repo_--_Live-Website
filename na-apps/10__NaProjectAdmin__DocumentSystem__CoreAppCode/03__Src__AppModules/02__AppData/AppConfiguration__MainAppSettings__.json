@@ -1,6 +1,6 @@
 {
     "appName"                      : "NaProjectAdmin",
-    "appVersion"                   : "0.5.0",
+    "appVersion"                   : "0.6.0",
     "appAuthor"                    : "Adam Noble - Noble Architecture",
     "appDescription"               : "Project Admin & Documentation System",
     "appDomain"                    : "https://www.noble-architecture.com/",
@@ -56,6 +56,11 @@
                 "sessionTimeout"               : 3600000,
                 "maxAttempts"                  : 5,
                 "lockoutDuration"              : 300000
+            },
+            "CoverLetterSystem": {
+                "enabled"                      : true,
+                "showAsDefaultView"            : true,
+                "signatureGraphic"             : "NaBrandGraphic__EmailSignature__.png"
             }
         },
 

@@ -3,6 +3,171 @@
 
 # =============================================================================
 
+## Version 0.6.1 - 01-Feb-2026
+
+### Improved - Cover Letter Styling & Date Syncing
+
+This minor release improves the cover letter presentation with enhanced styling, better document structure, and fixes a critical date syncing bug to ensure consistency with the quotation.
+
+#### Enhancements
+
+- **Cover Letter Styling Improvements**
+  - Removed excess margins from container to match quotation document
+  - Updated padding from `3rem 3.5rem` to `var(--App_SpacingXl)` (2rem)
+  - Increased max-width from `750px` to `900px` to match quotation
+  - Added rounded corners with `border-radius: var(--App_BorderRadiusLg)`
+  - Applied consistent `box-shadow: var(--App_ShadowMd)` for professional appearance
+  
+- **Document Structure**
+  - Added two horizontal divider lines (`<hr class="cover-letter__divider">`)
+  - First divider separates navigation guide from body text
+  - Second divider introduces new "Moving Forward" section
+  - Dividers styled with brand color: `1.5px solid var(--App_BrandPrimary)`
+  
+- **Moving Forward Section**
+  - New dedicated section after second horizontal line
+  - Moved "Once you have reviewed..." text to this section
+  - Provides clearer visual separation of content
+  - Maintains consistent heading style with platform navigation guide
+
+- **Signature Image Enhancement**
+  - Increased signature image size from `320px` to `450px` (40% larger)
+  - Mobile signature size increased from `240px` to `300px`
+  - More prominent display matching business letter conventions
+  - Removed excess bottom margin for tighter composition
+
+- **Content Updates**
+  - Changed RE: line from "Project Documentation Portal" to "Design Services Enquiry"
+  - Used proper en-dash (`&ndash;`) instead of em-dash for better typography
+  - More accurately reflects the purpose of the communication
+
+#### Bug Fixes
+
+- **Date Syncing Issue** - Fixed critical bug where Welcome letter showed wrong date
+  - Previously: Cover letter used `projectConfig.projectDate` which didn't exist
+  - Now: Uses `quotationData.quotationDate` - same field as quotation
+  - Modified `showCoverLetter()` to use `loadQuotationData()` function
+  - Ensures both documents always display identical dates
+  - Date now properly syncs with quotation JSON data
+
+#### Files Modified
+
+- `StyleSheet__Main__.css`
+  - Updated `.cover-letter` container padding and dimensions
+  - Added `.cover-letter__divider` styling for horizontal lines
+  - Increased `.cover-letter__signature-image` max-width to 450px
+  - Updated responsive mobile styles for signature image
+
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__CoverLetterRenderer__.js` - v1.0.1
+  - Modified `renderAsync()` to accept `quotationData` parameter
+  - Updated `renderHeader()` to use `quotationData.quotationDate` for date sync
+  - Added horizontal dividers in `renderNavigationGuide()`
+  - Created new "Moving Forward" section
+  - Changed RE: line text from "Project Documentation Portal" to "Design Services Enquiry"
+
+- `03__Src__AppModules/10__UserInterface/UserInterface__Main__.js` - v2.1.1
+  - Fixed `showCoverLetter()` to use `loadQuotationData()` function
+  - Ensures quotation data is loaded and cached before rendering
+  - Passes quotation data to CoverLetterRenderer for date consistency
+  - Now uses same data loading method as `showQuotation()`
+
+#### Technical Details
+
+The date syncing fix ensures:
+1. Both Welcome letter and Quotation load data using `loadQuotationData()`
+2. Both access the same `quotationDate` field from quotation JSON
+3. Both use the same `DateFormatter.formatLongWithOrdinal()` method
+4. Date consistency guaranteed across all project documents
+
+#### Visual Improvements
+
+- Professional centered card layout matching quotation document
+- Clear section separation with branded horizontal lines
+- More prominent signature for stronger visual impact
+- Improved readability with better spacing and structure
+
+---
+
+## Version 0.6.0 - 01-Feb-2026
+
+### Added - Cover Letter Landing Page
+
+This release adds a personalised covering letter as the default landing screen after client authentication. The cover letter welcomes the client, displays their project details, and provides platform navigation guidance.
+
+#### New Features
+
+- **Cover Letter System** (`CoverLetterSystem` feature flag)
+  - Personalised welcome letter displayed after authentication
+  - Dynamic population of client name and address from Cloudflare R2
+  - Project description automatically included from project config
+  - Email signature graphic displayed at bottom of letter
+  - Platform navigation instructions with highlighted call-outs
+
+- **Navigation Guide Section**
+  - Step-by-step instructions for using the side menu
+  - Quotation viewing guidance
+  - Terms & conditions approval instructions
+  - Yellow highlighted box drawing attention to Special Terms in contracts
+
+- **"Welcome" Menu Item**
+  - New home icon menu item as first navigation option
+  - Returns user to cover letter from any document view
+
+#### Files Created
+
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__CoverLetterRenderer__.js`
+  - New renderer module following QuotationRenderer pattern
+  - `renderAsync()` method for async client data fetching
+  - Integration with AssetLoader for email signature graphic
+  - GDPR-compliant client data retrieval from Cloudflare R2
+
+#### Files Modified
+
+- `03__Src__AppModules/10__UserInterface/UserInterface__Main__.js` - v2.1.0
+  - Added `showCoverLetter()` method
+  - Updated `loadDefaultView()` to show cover letter first when enabled
+  - Fallback basic rendering when CoverLetterRenderer unavailable
+
+- `03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js` - v2.1.0
+  - Added "Welcome" menu item with home icon (&#127968;)
+  - Added `showCoverLetter` action handler in switch statement
+
+- `StyleSheet__Main__.css`
+  - Added `.cover-letter` component styles
+  - Navigation guide box with list formatting
+  - Yellow highlight box for special terms attention
+  - Email signature image styling
+  - Responsive styles for mobile devices
+
+- `03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json`
+  - Bumped `appVersion` to `0.6.0`
+  - Added `CoverLetterSystem` feature configuration
+    - `enabled`: true
+    - `showAsDefaultView`: true
+    - `signatureGraphic`: "NaBrandGraphic__EmailSignature__.png"
+
+- `index.html`
+  - Added `DocumentSystem__CoverLetterRenderer__.js` script tag
+
+#### Assets Used
+
+- `NaBrandGraphic__EmailSignature__.png` - Email signature with Adam Noble's details
+- `NaBrandGraphic__CompanyLogo__w2048xh500px__.png` - Company letterhead logo
+
+#### Configuration
+
+Enable/disable via `AppConfiguration__MainAppSettings__.json`:
+
+```json
+"CoverLetterSystem": {
+    "enabled"              : true,
+    "showAsDefaultView"    : true,
+    "signatureGraphic"     : "NaBrandGraphic__EmailSignature__.png"
+}
+```
+
+---
+
 ## Version 0.5.5 - 01-Feb-2026
 
 ### Fixed - Quotation Renderer & Editor Bugs + New Features
