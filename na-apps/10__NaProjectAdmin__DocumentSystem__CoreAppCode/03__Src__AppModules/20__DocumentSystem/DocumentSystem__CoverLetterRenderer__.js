@@ -250,7 +250,7 @@
 
             return `
                 <div class="cover-letter__body">
-                    <p>Thank you for enquiring regarding the required design services. </p>
+                    <p>Thank you for your enquiry regarding the design services you require for your project. </p>
                     
                     <p>I am pleased to provide you with a fee proposal for the required design work. Please review the documentation on this platform and approve the terms and conditions for our engagement.</p>
 
