@@ -1,0 +1,25 @@
+{
+    "contractId"         : "general-business",
+    "contractName"       : "General Business Terms",
+    "sectionTitle"       : "Special Terms - Example Project",
+    "introduction"       : "The following special conditions apply specifically to this project and supplement the standard terms.",
+    "terms": [
+        {
+            "id"         : 1,
+            "title"      : "Site Access Requirements",
+            "content"    : "The client agrees to provide clear access to the site during working hours (Monday to Friday, 08:00 - 18:00) for the duration of the project. Any access restrictions must be communicated at least 48 hours in advance."
+        },
+        {
+            "id"         : 2,
+            "title"      : "Project Documentation",
+            "content"    : "All project documentation will be provided in digital format via the Noble Architecture Project Portal. Physical copies of drawings may be requested at an additional cost of £25 per A1 print."
+        },
+        {
+            "id"         : 3,
+            "title"      : "Planning Application Support",
+            "content"    : "This quotation includes liaison with the Local Planning Authority during the application process. Attendance at planning committee meetings, if required, will be charged at the standard hourly rate."
+        }
+    ],
+    "lastUpdated"        : "01-Feb-2026 at 16:30"
+}
+

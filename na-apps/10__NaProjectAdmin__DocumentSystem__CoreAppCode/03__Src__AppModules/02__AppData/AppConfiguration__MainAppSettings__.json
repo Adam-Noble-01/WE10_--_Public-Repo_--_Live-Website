@@ -1,6 +1,6 @@
 {
     "appName"                      : "NaProjectAdmin",
-    "appVersion"                   : "0.4.0",
+    "appVersion"                   : "0.5.0",
     "appAuthor"                    : "Adam Noble - Noble Architecture",
     "appDescription"               : "Project Admin & Documentation System",
     "appDomain"                    : "https://www.noble-architecture.com/",
@@ -42,7 +42,8 @@
             },
             "SignatureSystem": {
                 "enabled"                      : true,
-                "requireBothSignatures"        : true,
+                "requireBothSignatures"        : false,
+                "requirePerContractSignatures" : true,
                 "canvasWidth"                  : 600,
                 "canvasHeight"                 : 200,
                 "strokeColour"                 : "#000000",
@@ -69,6 +70,85 @@
             "accountId"                        : "fb32e89aeb7dce82f8391f6496ec8b34"
         },
 
+        "ContractRegistry": {
+            "markdownSourcePath"               : "10__GeneralTerms__Markdown/",
+            "defaults"                         : ["general-business", "concept-design"],
+            "available": {
+                "general-business": {
+                    "id"                       : "general-business",
+                    "name"                     : "General Business Terms",
+                    "shortName"                : "General Terms",
+                    "file"                     : "10_00__ApprovedStandardTerms__GeneralBuisinesTerms__.md",
+                    "description"              : "Standard terms of engagement with Noble Architecture",
+                    "required"                 : true,
+                    "order"                    : 0
+                },
+                "concept-design": {
+                    "id"                       : "concept-design",
+                    "name"                     : "Concept Design Stage",
+                    "shortName"                : "Concept Design",
+                    "file"                     : "10_01__ApprovedStandardTerms__ConceptStage__DesignPhase-02__.md",
+                    "description"              : "Terms for Design Phase 01 - Concept Design",
+                    "required"                 : false,
+                    "order"                    : 1
+                },
+                "planning-approval": {
+                    "id"                       : "planning-approval",
+                    "name"                     : "Planning Approval Stage",
+                    "shortName"                : "Planning",
+                    "file"                     : "10_02__ApprovedStandardTerms__PlanningApproval__DesignPhase-02__.md",
+                    "description"              : "Terms for Design Phase 02 - Planning Approval",
+                    "required"                 : false,
+                    "order"                    : 2
+                },
+                "building-regulations": {
+                    "id"                       : "building-regulations",
+                    "name"                     : "Building Regulations Stage",
+                    "shortName"                : "Building Regs",
+                    "file"                     : "10_03__ApprovedStandardTerms__BuildingRegulations__DesignPhase-03__.md",
+                    "description"              : "Terms for Design Phase 03 - Building Regulations",
+                    "required"                 : false,
+                    "order"                    : 3
+                },
+                "project-management": {
+                    "id"                       : "project-management",
+                    "name"                     : "Project Management Stage",
+                    "shortName"                : "Project Mgmt",
+                    "file"                     : "10_04__ApprovedStandardTerms__ProjectManagement__DesignPhase-04__.md",
+                    "description"              : "Terms for Design Phase 04 - Project Management",
+                    "required"                 : false,
+                    "order"                    : 4
+                },
+                "building-surveying": {
+                    "id"                       : "building-surveying",
+                    "name"                     : "Building Surveying Service",
+                    "shortName"                : "Surveying",
+                    "file"                     : "10_10__ApprovedStandardTerms__BuildingSurveyingServive__.md",
+                    "description"              : "Terms for Measured Building Survey services",
+                    "required"                 : false,
+                    "order"                    : 10
+                },
+                "planvision-app": {
+                    "id"                       : "planvision-app",
+                    "name"                     : "PlanVision App Terms",
+                    "shortName"                : "PlanVision",
+                    "file"                     : "10_20__ApprovedStandardTerms__PlanVisionApp__.md",
+                    "description"              : "Terms for PlanVision online drawings viewer",
+                    "required"                 : false,
+                    "order"                    : 20
+                },
+                "truevision-app": {
+                    "id"                       : "truevision-app",
+                    "name"                     : "TrueVision App Terms",
+                    "shortName"                : "TrueVision",
+                    "file"                     : "10_30__ApprovedStandardTerms__TrueVisionApp__.md",
+                    "description"              : "Terms for TrueVision 3D model viewer",
+                    "required"                 : false,
+                    "order"                    : 30
+                }
+            }
+        },
+
         "UI": {
             "brandColour"                      : "#555041",
             "sidebarCollapsedByDefault"        : false,
@@ -93,4 +173,3 @@
         "companyRegistration"                  : ""
     }
 }
-

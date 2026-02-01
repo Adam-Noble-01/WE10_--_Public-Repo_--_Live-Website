@@ -1,0 +1,14 @@
+{
+    "contractId": "general-business",
+    "contractName": "General Business Terms",
+    "sectionTitle": "Special Terms - General Terms",
+    "introduction": "The following special conditions apply to this contract.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Additional Requirement",
+            "content": "Enter the special term details here."
+        }
+    ],
+    "lastUpdated": "2026-02-01T13:27:35.561Z"
+}

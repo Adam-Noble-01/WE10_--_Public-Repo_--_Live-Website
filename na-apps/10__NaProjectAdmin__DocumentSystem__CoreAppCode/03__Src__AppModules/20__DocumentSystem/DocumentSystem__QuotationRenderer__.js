@@ -496,6 +496,10 @@
                             <span class="signature-record__value">${record.signerName || 'N/A'}</span>
                             <span class="signature-record__label">Date:</span>
                             <span class="signature-record__value">${record.signedDate || 'N/A'}</span>
+                            ${record.quotationRef ? `
+                                <span class="signature-record__label">Quotation Ref:</span>
+                                <span class="signature-record__value">${record.quotationRef}</span>
+                            ` : ''}
                             <span class="signature-record__label">Reference:</span>
                             <span class="signature-record__value">${record.signatureRef || 'N/A'}</span>
                         </div>

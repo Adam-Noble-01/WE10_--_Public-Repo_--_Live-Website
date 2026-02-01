@@ -14,10 +14,17 @@
 // - Manages sidebar toggle functionality
 // - Handles navigation state and active items
 // - Integrates Editor Tools when running on localhost Flask server
+// - Multi-contract system support with per-contract menu items
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 2.0.0
+// - Multi-Contract System
+//   - Dynamic contract menu items based on enabled contracts
+//   - Per-contract signature status badges
+//   - Contract manager editor integration
+//
 // 31-Jan-2026 - Version 1.1.0
 // - Editor Tools Integration
 //   - Added detectLocalDevMode() for Flask server detection
@@ -54,8 +61,11 @@
             setupSidebarToggle();
             setupNavClickHandlers();
 
-            // Show menu demonstration on all platforms
-            demonstrateMenu();
+            // Listen for project fully loaded event before showing tutorial
+            window.addEventListener('projectFullyLoaded', () => {
+                console.log('[Navigation] Project fully loaded - starting menu demonstration');
+                demonstrateMenu();
+            }, { once: true });
 
             console.log('[Navigation] Initialised');
         }
@@ -215,11 +225,9 @@
         // ------------------------------------------------------------
         async function detectAvailableContent(projectCode, config) {
             const items = [];
-            const projectPath = window.NaProjectAdmin.currentProjectPath;
+            const appConfig = window.NaProjectAdmin.ConfigManager?.getConfig();
 
             // Always add Quotation if enabled
-            const appConfig = window.NaProjectAdmin.ConfigManager?.getConfig();
-            
             if (appConfig?.AppConfig?.Features?.QuotationSystem?.enabled === true) {
                 items.push({
                     id                   : 'quotation',
@@ -231,21 +239,64 @@
                 });
             }
 
-            // Always add Terms & Conditions
+            // Add contracts section
             if (appConfig?.AppConfig?.Features?.TermsSystem?.enabled === true) {
+                // Add contracts label
                 items.push({
-                    id                   : 'terms',
-                    label                : 'Terms & Conditions',
-                    icon                 : '&#128220;',              // <-- Scroll icon
-                    action               : 'showTerms',
-                    badge                : await checkTermsSigned() ? 'Signed' : null,
-                    badgeClass           : 'nav-menu__badge'
+                    id                   : 'contracts-label',
+                    type                 : 'label',
+                    label                : 'Contracts'
                 });
+
+                // Get enabled contracts for this project
+                const contractLoader = window.NaProjectAdmin.ContractLoader;
+                let enabledContracts = [];
+
+                if (contractLoader) {
+                    enabledContracts = contractLoader.getEnabledContracts(config);
+                } else {
+                    // Fallback: show legacy terms item
+                    enabledContracts = ['legacy'];
+                }
+
+                // Add menu item for each enabled contract
+                for (const contractId of enabledContracts) {
+                    if (contractId === 'legacy') {
+                        // Legacy single terms item
+                        items.push({
+                            id               : 'terms',
+                            label            : 'Terms & Conditions',
+                            icon             : '&#128220;',          // <-- Scroll icon
+                            action           : 'showTerms',
+                            badge            : await checkTermsSigned() ? 'Signed' : null,
+                            badgeClass       : 'nav-menu__badge'
+                        });
+                    } else {
+                        // Multi-contract item
+                        const contractDef = contractLoader.getContractDefinition(contractId);
+                        const isSigned = contractLoader.isContractSigned(config, contractId);
+
+                        items.push({
+                            id               : `contract_${contractId}`,
+                            label            : contractDef?.shortName || contractDef?.name || contractId,
+                            icon             : '&#128220;',          // <-- Scroll icon
+                            action           : 'showContract',
+                            actionData       : contractId,
+                            badge            : isSigned ? 'Signed' : 'Pending',
+                            badgeClass       : isSigned ? 'nav-menu__badge' : 'nav-menu__badge nav-menu__badge--warning'
+                        });
+                    }
+                }
             }
 
             // Add signature status item
             if (appConfig?.AppConfig?.Features?.SignatureSystem?.enabled === true) {
-                const signatureStatus = await getSignatureStatus();
+                items.push({
+                    id                   : 'separator-sig',
+                    type                 : 'separator'
+                });
+
+                const signatureStatus = await getSignatureStatus(config);
                 items.push({
                     id                   : 'signatures',
                     label                : 'Signature Status',
@@ -322,12 +373,12 @@
                     badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
                 });
 
-                // Edit Special Terms
+                // Contract Manager
                 items.push({
-                    id                   : 'edit-terms',
-                    label                : 'Edit Special Terms',
+                    id                   : 'edit-contracts',
+                    label                : 'Contract Manager',
                     icon                 : '&#128203;',              // <-- Clipboard icon
-                    action               : 'editTerms',
+                    action               : 'editContracts',
                     badge                : 'Dev',
                     badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
                 });
@@ -358,7 +409,7 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Check Terms Signed
+        // FUNCTION | Check Terms Signed (Legacy)
         // ------------------------------------------------------------
         async function checkTermsSigned() {
             const signatureRecord = sessionStorage.getItem(
@@ -370,16 +421,41 @@
 
         // FUNCTION | Get Signature Status
         // ------------------------------------------------------------
-        async function getSignatureStatus() {
+        async function getSignatureStatus(config) {
             const quotationSigned = await checkQuotationSigned();
-            const termsSigned = await checkTermsSigned();
 
-            if (quotationSigned && termsSigned) {
+            // Check contract signatures
+            const contractLoader = window.NaProjectAdmin.ContractLoader;
+            let allContractsSigned = true;
+            let anyContractsSigned = false;
+            let contractCount = 0;
+
+            if (contractLoader && config?.contracts) {
+                const enabledContracts = contractLoader.getEnabledContracts(config);
+                contractCount = enabledContracts.length;
+
+                for (const contractId of enabledContracts) {
+                    const isSigned = contractLoader.isContractSigned(config, contractId);
+                    if (isSigned) {
+                        anyContractsSigned = true;
+                    } else {
+                        allContractsSigned = false;
+                    }
+                }
+            } else {
+                // Legacy: check single terms signature
+                const termsSigned = await checkTermsSigned();
+                allContractsSigned = termsSigned;
+                anyContractsSigned = termsSigned;
+                contractCount = 1;
+            }
+
+            if (quotationSigned && allContractsSigned) {
                 return {
                     badge                : 'Complete',
                     badgeClass           : 'nav-menu__badge'
                 };
-            } else if (quotationSigned || termsSigned) {
+            } else if (quotationSigned || anyContractsSigned) {
                 return {
                     badge                : 'Partial',
                     badgeClass           : 'nav-menu__badge nav-menu__badge--warning'
@@ -418,6 +494,10 @@
             a.dataset.action = item.action;
             a.dataset.itemId = item.id;
 
+            if (item.actionData) {
+                a.dataset.actionData = item.actionData;
+            }
+
             a.innerHTML = `
                 <span class="nav-menu__icon">${item.icon || ''}</span>
                 <span class="nav-menu__text">${item.label}</span>
@@ -451,9 +531,10 @@
 
                 const action = link.dataset.action;
                 const itemId = link.dataset.itemId;
+                const actionData = link.dataset.actionData;
 
                 if (action) {
-                    await handleNavAction(action, itemId);
+                    await handleNavAction(action, itemId, actionData);
                 }
             });
         }
@@ -461,8 +542,8 @@
 
         // FUNCTION | Handle Nav Action
         // ------------------------------------------------------------
-        async function handleNavAction(action, itemId) {
-            console.log(`[Navigation] Action: ${action}`);
+        async function handleNavAction(action, itemId, actionData) {
+            console.log(`[Navigation] Action: ${action}`, actionData ? `(${actionData})` : '');
 
             setActiveItem(itemId);
 
@@ -484,6 +565,13 @@
                     closeActiveEditor();
                     if (window.NaProjectAdmin.UserInterfaceMain) {
                         await window.NaProjectAdmin.UserInterfaceMain.showTerms();
+                    }
+                    break;
+
+                case 'showContract':
+                    closeActiveEditor();
+                    if (window.NaProjectAdmin.UserInterfaceMain && actionData) {
+                        await window.NaProjectAdmin.UserInterfaceMain.showContract(actionData);
                     }
                     break;
 
@@ -518,6 +606,10 @@
 
                 case 'editQuotation':
                     await loadEditorInline('Editor__QuotationBuilder__.html');
+                    break;
+
+                case 'editContracts':
+                    await loadEditorInline('Editor__ContractManager__.html');
                     break;
 
                 case 'editTerms':
@@ -556,6 +648,18 @@
             // Add editor mode class for full-width styling
             documentContainer.classList.add('editor-mode');
 
+            // Add editor mode to parent document-screen for CSS targeting
+            const documentScreen = document.getElementById('document-screen');
+            if (documentScreen) {
+                documentScreen.classList.add('editor-mode-active');
+            }
+
+            // Add editor mode to main-content to remove padding
+            const mainContent = document.getElementById('main-content');
+            if (mainContent) {
+                mainContent.classList.add('editor-mode-active');
+            }
+
             // Create iframe container
             documentContainer.innerHTML = `
                 <div class="editor-frame-container">
@@ -575,7 +679,6 @@
             activeEditorFrame = document.getElementById('editor-iframe');
 
             // Show document screen
-            const documentScreen = document.getElementById('document-screen');
             if (documentScreen) {
                 documentScreen.style.display = 'block';
             }
@@ -605,6 +708,18 @@
                 const documentContainer = document.getElementById('document-container');
                 if (documentContainer) {
                     documentContainer.classList.remove('editor-mode');
+                }
+
+                // Remove editor mode class from document screen
+                const documentScreen = document.getElementById('document-screen');
+                if (documentScreen) {
+                    documentScreen.classList.remove('editor-mode-active');
+                }
+
+                // Remove editor mode class from main-content
+                const mainContent = document.getElementById('main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('editor-mode-active');
                 }
             }
             return true;
@@ -640,6 +755,15 @@
                 sessionStorage.removeItem(`naProjectAdmin_session_${projectCode}`);
                 sessionStorage.removeItem(`naProjectAdmin_sig_quotation_${projectCode}`);
                 sessionStorage.removeItem(`naProjectAdmin_sig_terms_${projectCode}`);
+                
+                // Clear contract signatures
+                const contractLoader = window.NaProjectAdmin.ContractLoader;
+                if (contractLoader) {
+                    const availableContracts = contractLoader.getAvailableContracts();
+                    availableContracts.forEach(contract => {
+                        sessionStorage.removeItem(`naProjectAdmin_sig_contract_${projectCode}_${contract.id}`);
+                    });
+                }
             }
 
             // Reload page to show login (preserving URL params)
@@ -666,7 +790,7 @@
                     mainContent.classList.remove('expanded');
                 }
 
-                // STEP 2: After 1 second, CLOSE the menu (animate away)
+                // STEP 2: After 1.8 seconds, CLOSE the menu (animate away)
                 setTimeout(() => {
                     sidebar.classList.remove('open');
                     sidebarOpen = false;
@@ -674,18 +798,18 @@
                         mainContent.classList.add('expanded');
                     }
 
-                    // STEP 3: After closing animation, show tutorial message
+                    // STEP 3: After closing animation, wait 1 second, then show tutorial message
                     setTimeout(() => {
                         tutorialOverlay.style.display = 'block';
                         
-                        // STEP 4: Auto-dismiss after 6.5 seconds
-                        // Timeline: 3s solid, 2s flashing, 1.5s buffer
+                        // STEP 4: Auto-dismiss after 4 seconds (faster animation)
+                        // Timeline: 2s solid, 1.5s flashing, 0.5s buffer
                         setTimeout(() => {
                             tutorialOverlay.style.display = 'none';
-                        }, 6500);                            // <-- Hide after animation completes
-                    }, 400);                                 // <-- Wait for close animation
-                }, 1200);                                    // <-- Menu visible duration
-            }, 500);                                         // <-- Initial delay
+                        }, 4500);                            // <-- Hide after animation completes
+                    }, 1400);                                // <-- Wait for close animation (400ms) + 1s delay
+                }, 1800);                                    // <-- Menu visible duration (1.5x slower: 1200ms → 1800ms)
+            }, 750);                                         // <-- Initial delay (1.5x slower: 500ms → 750ms)
         }
         // ---------------------------------------------------------------
 
@@ -735,4 +859,3 @@
     })();
 
 // endregion -----
-

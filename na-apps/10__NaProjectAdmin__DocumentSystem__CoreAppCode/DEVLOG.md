@@ -3,6 +3,403 @@
 
 # =============================================================================
 
+## Version 0.5.3 - 01-Feb-2026
+
+### Fixed - Terms Rendering & Markdown Parser
+
+This release fixes terms document rendering issues including incorrect bullet points on section titles, improper markdown parsing of section dividers, and adds visual section separators with quotation reference footers.
+
+#### Markdown Parser Fixes
+
+- **Section Divider Handling** - `---` dividers now ignored completely
+  - Dividers are purely cosmetic markdown formatting for human readability
+  - Section numbering now driven entirely by `##` headings
+  - `####` headings create subsection numbers (1.1, 1.2, 2.1, etc.)
+  
+- **Visual Section Separators** - Horizontal lines between major sections
+  - Mid-gray `<hr>` element inserted before each new `##` section (except first)
+  - Improves visual separation and readability
+  - CSS class: `.terms-section-divider`
+
+- **Correct Numbering Logic**
+  - Section numbers (1., 2., 3.) assigned when `##` heading encountered
+  - Subsection numbers (1.1, 1.2) assigned when `####` heading encountered
+  - Each new `##` section resets subsection counter to 0
+
+#### CSS Styling Fixes
+
+- **Removed Unwanted Bullet Points** - Section titles no longer show bullets
+  - Removed `.terms-item::before` pseudo-element (was adding bullets to all terms)
+  - Removed `padding-left` and `position: relative` from `.terms-item`
+  - Bullets now only appear from actual markdown list items (`<ul><li>`)
+
+- **Section Divider Styling** - Mid-gray horizontal lines
+  - `.terms-section-divider` - 1px solid #d0d0d0
+  - Proper spacing with `var(--App_SpacingLg)` margins
+
+- **Subsection Heading Styling** - Proper formatting for 1.1, 1.2, etc.
+  - `.terms-subheading` - 1rem font, 600 weight
+  - Consistent spacing and colour
+
+- **List Item Indentation** - Proper bullet point positioning
+  - `.terms-content ul` - 2rem left padding (indents bullets from margin)
+  - `.terms-content li` - Proper line height and colour
+  - List items now visually indented from main content
+
+#### Contract Footer
+
+- **Quotation Reference Display** - Footer shows associated quotation
+  - Added `.terms-footer` to end of standard terms sections
+  - Displays: "End Of Contract Associated With [QUO-CODE-YYYY-###]"
+  - Italicized, centered, with top border
+  - Fetches quotation reference via `UserInterfaceMain.getLoadedQuotation()`
+
+#### Bug Fixes
+
+- **Fixed API Method Call** - Corrected quotation data access
+  - Changed from: `window.NaProjectAdmin.App?.getQuotationData()` (doesn't exist)
+  - Changed to: `window.NaProjectAdmin.UserInterfaceMain?.getLoadedQuotation()`
+  - Resolves "Error Loading Contract" issue
+
+#### Module Updates
+
+- **`GeneralTerms__MarkdownToHtmlParser__.js`** - Fixed parsing logic
+  - `---` dividers now skipped completely (line 126-128)
+  - Section numbering moved to `##` heading handler (lines 149-163)
+  - Horizontal divider insertion on section close (line 107)
+
+- **`DocumentSystem__TermsRenderer__.js`** - Added quotation reference footer
+  - `renderStandardTerms()` - Fetches and displays quotation ref
+  - `renderGeneralTerms()` - Legacy function also updated with footer
+
+- **`StyleSheet__Main__.css`** - Terms display improvements
+  - Removed `.terms-item::before` and `.terms-section--special .terms-item::before`
+  - Added `.terms-section-divider`, `.terms-subheading`, `.terms-footer`
+  - Added `.terms-content ul` and `.terms-content li` for list indentation
+
+#### Expected Output
+
+```
+1. Definitions
+
+1.1 We, Us, Our
+Definition text...
+
+1.2 You, Your, Client
+Definition text...
+
+─────────────────────
+
+2. Scope of Services
+
+2.1 Service Description
+Text about services...
+
+─────────────────────
+
+End Of Contract Associated With QUO-JS01-2026-001
+```
+
+---
+
+## Version 0.5.2 - 01-Feb-2026
+
+### Enhanced - Contract Manager UI Redesign & Full-Width Editor Mode
+
+This release completely redesigns the Contract Manager editor with a vertical stack layout, fixes editor truncation issues, and implements a dynamic numbering scheme for special and standard terms.
+
+#### Contract Manager UI Redesign
+
+- **Vertical Stack Layout** - Replaced horizontal split with vertical stack
+  - Special terms editor (yellow section) at top
+  - Full standard terms preview below (no truncation)
+  - Removed central panel - direct editing of yellow section
+  - Wider panels: left panel 420px, right panel fills remaining space
+
+- **Special Terms Editing** - Streamlined editing experience
+  - Defaults to 1 section (1.01)
+  - "Add Term" button creates sequential terms (1.02, 1.03, etc.)
+  - Direct editing in yellow highlighted section
+  - No nested panels or complex navigation
+
+- **Standard Terms Preview** - Full-length display
+  - No longer constrained to tiny card
+  - Full scrollable preview of parsed markdown
+  - Positioned below special terms editor
+  - Dynamic numbering based on special terms presence
+
+#### Dynamic Numbering Scheme
+
+- **Special Terms** - Always section 1
+  - Numbered as 1.01, 1.02, 1.03, etc.
+  - Displayed in yellow highlighted section
+
+- **Standard Terms** - Adaptive numbering
+  - If special terms enabled: Start at section 2 (2.01, 2.02, etc.)
+  - If no special terms: Start at section 1 (1.01, 1.02, etc.)
+  - Maintains sequential numbering across sections
+
+#### CSS & Layout Fixes
+
+- **Full-Width Editor Mode** - Fixed truncation issues
+  - Added `.editor-mode-active` class to `document-screen` element
+  - Removed `max-width` constraint from `.screen.editor-mode-active`
+  - Added `.editor-active` class to `main-content` element
+  - Removed padding from `.main-content.editor-active`
+  - Updated `.document-container.editor-mode` for absolute positioning
+  - `.editor-frame-container` now fills 100% height with absolute positioning
+
+- **Contract Manager Container** - Improved spacing
+  - Container width set to 80% with auto margins
+  - Added top margin and border radius
+  - Box shadow for depth
+
+#### Code Fixes
+
+- **Function Name Corrections** - Fixed SharedUtils integration
+  - Changed `markFormClean()` to `markClean()`
+  - Changed `markFormDirty()` to `markDirty()`
+  - Ensures proper form state tracking in Contract Manager
+
+#### Module Updates
+
+- **`UserInterface__Navigation__.js`** - Editor mode class management
+  - Adds/removes `editor-mode-active` class on `document-screen`
+  - Adds/removes `editor-active` class on `main-content`
+  - Enables CSS targeting for full-width editor mode
+
+- **`StyleSheet__Main__.css`** - Editor mode overrides
+  - `.screen.editor-mode-active` - Removes max-width and margins
+  - `.main-content.editor-active` - Removes padding
+  - `.document-container.editor-mode` - Full-width absolute positioning
+  - `.editor-frame-container` - Full-height absolute positioning
+
+- **`Editor__ContractManager__.html`** - Complete UI restructure
+  - Vertical stack layout for editor panel
+  - Integrated standard terms preview
+  - Simplified special terms editing
+  - Dynamic numbering helpers: `getSpecialTermNumber()`, `getStandardTermNumber()`
+  - Removed separate preview pane
+
+#### Technical Details
+
+**Numbering Logic:**
+```javascript
+// Special terms always start at 1.01
+getSpecialTermNumber(index) → "1.01", "1.02", "1.03"
+
+// Standard terms adapt based on special terms
+getStandardTermNumber(sectionIndex, topicIndex)
+  → If special terms enabled: "2.01", "2.02", "3.01", etc.
+  → If no special terms: "1.01", "1.02", "2.01", etc.
+```
+
+**CSS Class Flow:**
+```
+Editor loads
+  → Navigation.loadEditorInline()
+    → document-screen.classList.add('editor-mode-active')
+    → main-content.classList.add('editor-active')
+  → CSS applies full-width overrides
+  → Editor fills available space
+```
+
+---
+
+## Version 0.5.1 - 01-Feb-2026
+
+### Enhanced - Contract Manager Two-Panel Editor
+
+This release significantly improves the Contract Manager editor tool with a dedicated two-panel layout for editing project-specific special terms.
+
+#### Contract Manager Redesign
+- **Two-Panel Split Layout** - Wider design with contracts list on left, editor/preview on right
+- **Special Terms Editor** - Full WYSIWYG editing of special terms per contract
+  - Enable/disable special terms toggle per contract
+  - Section title customisation
+  - Introduction text field
+  - Dynamic term adding/removing
+  - Live preview of special terms in yellow highlighted box
+- **Standard Terms Preview** - View parsed markdown terms from source files
+- **Save All Function** - Saves both project config and special terms files
+
+#### Configuration Updates
+- **`ProjectAdmin__ProjectConfig__.json`** - Updated schema
+  - Added `specialTermsEnabled` boolean per contract
+  - Special terms stored in `SpecialTerms__{contractId}__.json` files
+  - Removed deprecated `specialTermsFile` string field
+
+- **Special Terms JSON Format** - New per-contract file structure:
+  ```json
+  {
+    "contractId": "general-business",
+    "contractName": "General Business Terms",
+    "sectionTitle": "Special Terms - Project Name",
+    "introduction": "Introduction text...",
+    "terms": [
+      { "id": 1, "title": "Term Title", "content": "Term content..." }
+    ],
+    "lastUpdated": "01-Feb-2026 at 16:30"
+  }
+  ```
+
+#### TermsRenderer Updates
+- **Special Terms Loading** - Loads from `SpecialTerms__{contractId}__.json`
+- **Enhanced HTML Escaping** - Added `escapeHtml()` function for XSS prevention
+- **Improved Validation** - Checks for valid terms content before rendering
+- **CSS Class Updates** - Uses `.terms-section__intro` for styled introduction
+
+#### Stylesheet Updates
+- **Enhanced Special Terms Styling** - More prominent yellow highlight
+  - Background: `#fffbe6` (warm yellow)
+  - Border: 2px solid with strong left accent
+  - Box shadow for depth
+  - Dark yellow title and bullet colours
+  - Introduction text styling with italic and dashed border
+
+#### Project Config Updates
+- Updated `JS01__JohnSmith` with `specialTermsEnabled` flags
+- Updated `AA00__ExampleProjectStructure` with sample special terms enabled
+- Updated `DR02__SilverAvenue` with new schema
+- Created sample `SpecialTerms__general-business__.json` for AA00 demonstration
+
+---
+
+## Version 0.5.0 - 01-Feb-2026
+
+### Added - Multi-Contract System
+
+This release introduces a comprehensive multi-contract system allowing projects to have multiple independently-signable contracts, with standard terms driven by Markdown files that are parsed to HTML at runtime.
+
+#### New Modules Created
+
+- **`GeneralTerms__MarkdownToHtmlParser__.js`** - Markdown to HTML parser
+  - Parses structured markdown files into numbered HTML sections
+  - Auto-generates section and sub-section numbering
+  - Supports section (`---`) and topic (`___`) dividers
+  - Removes legacy `{{#}}` and `{{#.##}}` placeholders
+  - Located in: `03__Src__AppModules/25__GeneralTerms__ParsingUtils/`
+
+- **`GeneralTerms__ContractLoader__.js`** - Contract loading and caching
+  - Fetches markdown files from `10__GeneralTerms__Markdown/` folder
+  - Caches loaded content to avoid repeated fetches
+  - Manages contract state per project
+  - Integrates with MarkdownParser for HTML conversion
+  - Provides methods: `loadContractHtml()`, `getEnabledContracts()`, `isContractSigned()`
+
+- **`Editor__ContractManager__.html`** - Contract management editor tool
+  - Toggle contracts on/off for each project
+  - Preview parsed standard terms
+  - Shows signature status per contract
+  - Available at: `04__EditorTools/Editor__ContractManager__.html`
+
+#### Configuration Updates
+
+- **`AppConfiguration__MainAppSettings__.json`** - Added ContractRegistry section
+  - Defines 8 available contract types:
+    - `general-business` - General Business Terms (required)
+    - `concept-design` - Concept Design Stage
+    - `planning-approval` - Planning Approval Stage
+    - `building-regulations` - Building Regulations Stage
+    - `project-management` - Project Management Stage
+    - `building-surveying` - Building Surveying Service
+    - `planvision-app` - PlanVision App Terms
+    - `truevision-app` - TrueVision App Terms
+  - Default contracts: `["general-business", "concept-design"]`
+  - Markdown source path: `10__GeneralTerms__Markdown/`
+
+- **`ProjectAdmin__ProjectConfig__.json`** - Updated schema
+  - Added `contracts` object with per-contract settings
+  - Each contract tracks: `enabled`, `signed`, `signatureRef`, `signedDate`, `specialTermsFile`
+  - Replaces legacy `documents.specialTerms` flag
+
+#### Module Updates
+
+- **`DocumentSystem__TermsRenderer__.js`** - Multi-contract rendering
+  - Added `renderContract(contractId)` for individual contract display
+  - Per-contract signature tracking and display
+  - Contract-specific headers and sign buttons
+  - Backwards compatible with legacy `render()` method
+
+- **`UserInterface__Navigation__.js`** - Dynamic contract menu
+  - Builds menu items for each enabled contract
+  - Shows signature status badges per contract
+  - Added Contract Manager to editor tools section
+  - Handles `showContract` action with contract ID
+
+- **`UserInterface__Main__.js`** - Contract display coordination
+  - Added `showContract(contractId)` method
+  - Loads and renders specific contracts
+  - Updated signature status to show per-contract status
+  - Contract state tracking with `currentContractId`
+
+- **`SignatureSystem__AuditRecord__.js`** - Per-contract signatures
+  - Updated storage keys for multi-contract: `naProjectAdmin_sig_contract_{project}_{contractId}`
+  - Document types support `contract_<contractId>` format
+  - Updated verification statements for contract signing
+  - Added `getContractRecord()` helper method
+
+- **`AppCore__Main__.js`** - Contract Loader initialization
+  - Initialises ContractLoader after AssetLoader
+  - Ensures contracts available before project loading
+
+- **`start_local_server.py`** - Flask API updates
+  - Project creation now includes default contracts
+  - Added Contract Manager to editor tools list
+
+#### Markdown Terms Files
+
+- **`10__GeneralTerms__Markdown/`** - New folder for standard terms
+  - `10_00__ApprovedStandardTerms__GeneralBuisinesTerms__.md` - General terms (15 sections)
+  - Structure: `---` section dividers, `## Heading` for sections, `####` for sub-sections
+
+#### HTML Updates
+
+- **`index.html`** - Added contract module script tags
+  - `GeneralTerms__MarkdownToHtmlParser__.js`
+  - `GeneralTerms__ContractLoader__.js`
+  - Loads before document system modules
+
+### Changed
+
+- **App version** bumped from 0.4.0 to 0.5.0
+- **Navigation menu** now shows individual contracts instead of single "Terms & Conditions"
+- **Signature tracking** now per-contract rather than single T&Cs signature
+- **Project config schema** uses `contracts` object instead of `documents.specialTerms`
+
+### Technical Details
+
+#### Multi-Contract Data Flow
+```
+Project loads
+  → ContractLoader.initialise()
+    → Read ContractRegistry from config
+  → Navigation.buildMenu()
+    → ContractLoader.getEnabledContracts(projectConfig)
+    → Create menu item per enabled contract
+  → User clicks contract
+    → UserInterfaceMain.showContract(contractId)
+      → ContractLoader.loadContractHtml(contractId)
+        → fetch markdown from 10__GeneralTerms__Markdown/
+        → MarkdownParser.parse(markdown)
+        → return HTML
+      → TermsRenderer.renderContract(contractId)
+        → Display with sign button
+  → User signs
+    → SignatureAuditRecord.createAuditRecord({documentType: 'contract_<id>'})
+    → Store in sessionStorage with contract-specific key
+```
+
+#### Markdown Parsing Rules
+- `---` = Section break (increments section number)
+- `___` = Topic break within section
+- `## Title` = Section heading (auto-numbered: "1. Definitions")
+- `#### Topic` = Sub-heading (auto-numbered: "1.1 Payment Terms")
+- Content before first `---` is treated as header/ignored
+- `{{#}}` and `{{#.##}}` placeholders removed (legacy support)
+
+# =============================================================================
+
 ## Version 0.4.3 - 31-Jan-2026
 
 ### Fixed - Client Data Display in Documents

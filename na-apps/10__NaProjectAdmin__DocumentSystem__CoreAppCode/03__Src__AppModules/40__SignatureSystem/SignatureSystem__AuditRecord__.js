@@ -15,10 +15,18 @@
 // - Generates document hash for integrity verification
 // - Creates unique signing reference IDs
 // - Stores records locally and via Cloudflare
+// - Multi-contract system support (v0.5.0)
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 2.0.0
+// - Multi-Contract System
+//   - Per-contract signature tracking
+//   - Contract ID in document type (contract_<contractId>)
+//   - Updated storage keys for multi-contract
+//   - Updated verification statements
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - Audit record creation
@@ -38,11 +46,13 @@
         // ------------------------------------------------------------
         async function createAuditRecord(options) {
             const {
-                documentType,                                        // <-- 'quotation' or 'terms'
+                documentType,                                        // <-- 'quotation', 'terms', or 'contract_<contractId>'
                 documentTitle,
                 signerName,
                 signatureImage,
-                documentContent
+                documentContent,
+                quotationRef,                                        // <-- Quotation reference (if signing quotation)
+                contractId                                           // <-- Contract ID (if signing contract)
             } = options;
 
             const config = window.NaProjectAdmin.ConfigManager?.getConfig();
@@ -82,6 +92,16 @@
                 }
             };
 
+            // Add quotation reference if signing a quotation
+            if (quotationRef) {
+                auditRecord.quotationRef = quotationRef;
+            }
+
+            // Add contract ID if signing a contract
+            if (contractId) {
+                auditRecord.contractId = contractId;
+            }
+
             // Add IP address if enabled (requires Cloudflare Worker)
             if (auditConfig?.captureIpAddress === true) {
                 auditRecord.auditTrail.ipAddress = await getIpAddress();
@@ -103,7 +123,7 @@
             }
 
             // Add verification statement
-            auditRecord.verificationStatement = generateVerificationStatement(signerName, documentType, formattedDate);
+            auditRecord.verificationStatement = generateVerificationStatement(signerName, documentType, documentTitle, formattedDate);
 
             console.log('[SignatureAuditRecord] Audit record created:', signatureRef);
 
@@ -117,7 +137,18 @@
             const dateFormatter = window.NaProjectAdmin.DateFormatter;
             const datePart = dateFormatter?.formatForFilename(new Date()) || Date.now().toString();
             const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const typePart = documentType?.substring(0, 3).toUpperCase() || 'DOC';
+            
+            // Extract type abbreviation
+            let typePart = 'DOC';
+            if (documentType === 'quotation') {
+                typePart = 'QUO';
+            } else if (documentType === 'terms') {
+                typePart = 'TRM';
+            } else if (documentType?.startsWith('contract_')) {
+                // For contracts, use first 3 chars of contract ID
+                const contractId = documentType.replace('contract_', '');
+                typePart = 'C' + contractId.substring(0, 2).toUpperCase();
+            }
 
             return `SIG-${projectCode}-${typePart}-${datePart}-${randomPart}`;
         }
@@ -234,10 +265,17 @@
 
         // FUNCTION | Generate Verification Statement
         // ------------------------------------------------------------
-        function generateVerificationStatement(signerName, documentType, signedDate) {
-            const documentTypeText = documentType === 'quotation' 
-                ? 'quotation and fee proposal' 
-                : 'terms and conditions';
+        function generateVerificationStatement(signerName, documentType, documentTitle, signedDate) {
+            let documentTypeText = 'document';
+            
+            if (documentType === 'quotation') {
+                documentTypeText = 'quotation and fee proposal';
+            } else if (documentType === 'terms') {
+                documentTypeText = 'terms and conditions';
+            } else if (documentType?.startsWith('contract_')) {
+                // For multi-contract system, use the document title
+                documentTypeText = documentTitle ? `${documentTitle} terms and conditions` : 'contract terms and conditions';
+            }
 
             return `I, ${signerName}, hereby confirm that I have read, understood, and agree to the ${documentTypeText} presented above. By providing my electronic signature on ${signedDate}, I acknowledge that this constitutes a legally binding agreement.`;
         }
@@ -246,7 +284,17 @@
         // FUNCTION | Store Audit Record Locally
         // ------------------------------------------------------------
         function storeLocally(auditRecord) {
-            const key = `naProjectAdmin_sig_${auditRecord.documentType}_${auditRecord.projectCode}`;
+            let key;
+            
+            // Determine storage key based on document type
+            if (auditRecord.documentType?.startsWith('contract_')) {
+                // Multi-contract system: contract_<contractId>
+                const contractId = auditRecord.documentType.replace('contract_', '');
+                key = `naProjectAdmin_sig_contract_${auditRecord.projectCode}_${contractId}`;
+            } else {
+                // Legacy: quotation or terms
+                key = `naProjectAdmin_sig_${auditRecord.documentType}_${auditRecord.projectCode}`;
+            }
             
             // Create a stored version (without full signature image for storage efficiency)
             const storedRecord = {
@@ -257,6 +305,16 @@
                 documentType         : auditRecord.documentType,
                 signatureImage       : auditRecord.signatureImage   // <-- Keep for display
             };
+
+            // Include quotation reference if present (for quotation signatures)
+            if (auditRecord.quotationRef) {
+                storedRecord.quotationRef = auditRecord.quotationRef;
+            }
+
+            // Include contract ID if present
+            if (auditRecord.contractId) {
+                storedRecord.contractId = auditRecord.contractId;
+            }
 
             sessionStorage.setItem(key, JSON.stringify(storedRecord));
             console.log('[SignatureAuditRecord] Record stored locally:', key);
@@ -326,7 +384,15 @@
         // FUNCTION | Retrieve Local Record
         // ------------------------------------------------------------
         function getLocalRecord(projectCode, documentType) {
-            const key = `naProjectAdmin_sig_${documentType}_${projectCode}`;
+            let key;
+            
+            if (documentType?.startsWith('contract_')) {
+                const contractId = documentType.replace('contract_', '');
+                key = `naProjectAdmin_sig_contract_${projectCode}_${contractId}`;
+            } else {
+                key = `naProjectAdmin_sig_${documentType}_${projectCode}`;
+            }
+            
             const stored = sessionStorage.getItem(key);
 
             if (!stored) return null;
@@ -336,6 +402,13 @@
             } catch (error) {
                 return null;
             }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Get Contract Signature Record
+        // ------------------------------------------------------------
+        function getContractRecord(projectCode, contractId) {
+            return getLocalRecord(projectCode, `contract_${contractId}`);
         }
         // ---------------------------------------------------------------
 
@@ -349,6 +422,7 @@
             storeLocally             : storeLocally,
             storeViaCloudflare       : storeViaCloudflare,
             getLocalRecord           : getLocalRecord,
+            getContractRecord        : getContractRecord,
             generateSignatureRef     : generateSignatureRef,
             generateDocumentHash     : generateDocumentHash,
             hashString               : hashString
@@ -362,4 +436,3 @@
     })();
 
 // endregion -----
-

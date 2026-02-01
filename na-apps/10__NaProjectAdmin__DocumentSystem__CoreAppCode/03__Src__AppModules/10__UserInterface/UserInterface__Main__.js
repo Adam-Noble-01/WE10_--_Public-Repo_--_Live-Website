@@ -11,12 +11,20 @@
 //
 // DESCRIPTION:
 // - Coordinates content rendering in the main content area
-// - Manages view switching between quotation, terms, signatures
+// - Manages view switching between quotation, contracts, signatures
 // - Handles document loading and display
+// - Multi-contract system support
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 2.0.0
+// - Multi-Contract System
+//   - Added showContract() for individual contract display
+//   - Contract state tracking per contract ID
+//   - Integration with ContractLoader and TermsRenderer
+//   - Updated signature status to show per-contract status
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - View switching
@@ -34,8 +42,10 @@
         // STATE | UI Variables
         // ------------------------------------------------------------
         let currentView              = null;                         // <-- Currently displayed view
+        let currentContractId        = null;                         // <-- Currently displayed contract
         let loadedQuotation          = null;                         // <-- Cached quotation data
         let loadedSpecialTerms       = null;                         // <-- Cached special terms
+        let loadedContracts          = new Map();                    // <-- Cached contract data
 
         // FUNCTION | Initialise UI
         // ------------------------------------------------------------
@@ -54,6 +64,19 @@
             if (config?.AppConfig?.Features?.QuotationSystem?.enabled === true) {
                 await showQuotation();
             } else if (config?.AppConfig?.Features?.TermsSystem?.enabled === true) {
+                // Show first enabled contract
+                const projectConfig = window.NaProjectAdmin.App?.getProjectConfig();
+                const contractLoader = window.NaProjectAdmin.ContractLoader;
+                
+                if (contractLoader && projectConfig?.contracts) {
+                    const enabledContracts = contractLoader.getEnabledContracts(projectConfig);
+                    if (enabledContracts.length > 0) {
+                        await showContract(enabledContracts[0]);
+                        return;
+                    }
+                }
+                
+                // Fallback to legacy terms
                 await showTerms();
             }
         }
@@ -101,6 +124,7 @@
                 }
 
                 currentView = 'quotation';
+                currentContractId = null;
 
             } catch (error) {
                 console.error('[UserInterfaceMain] Failed to load quotation:', error);
@@ -157,254 +181,398 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Show Terms
-        // ------------------------------------------------------------
-        async function showTerms() {
-            console.log('[UserInterfaceMain] Showing terms...');
+        // #region -----
+        // MULTI-CONTRACT SYSTEM | Show Individual Contracts
+        // -----
 
-            const documentContainer = document.getElementById('document-container');
-            if (!documentContainer) return;
+            /**
+             * Show a specific contract by ID
+             * @param {string} contractId - Contract identifier
+             */
+            async function showContract(contractId) {
+                console.log(`[UserInterfaceMain] Showing contract: ${contractId}`);
 
-            // Show loading state
-            documentContainer.innerHTML = `
-                <div class="document" style="text-align: center; padding: 3rem;">
-                    <div class="loading-spinner"></div>
-                    <p class="loading-text">Loading terms & conditions...</p>
-                </div>
-            `;
+                const documentContainer = document.getElementById('document-container');
+                if (!documentContainer) return;
 
-            try {
-                // Load special terms and general terms
-                const specialTerms = await loadSpecialTerms();
-                const generalTermsHtml = await loadGeneralTerms();
-
-                // Render terms
-                if (window.NaProjectAdmin.TermsRenderer) {
-                    const html = window.NaProjectAdmin.TermsRenderer.render(specialTerms, generalTermsHtml);
-                    documentContainer.innerHTML = html;
-                } else {
-                    documentContainer.innerHTML = renderBasicTerms(specialTerms, generalTermsHtml);
+                // Get contract definition
+                const contractLoader = window.NaProjectAdmin.ContractLoader;
+                if (!contractLoader) {
+                    console.error('[UserInterfaceMain] ContractLoader not available');
+                    // Fall back to legacy terms
+                    await showTerms();
+                    return;
                 }
 
-                loadedSpecialTerms = specialTerms;
-                currentView = 'terms';
+                const contractDef = contractLoader.getContractDefinition(contractId);
+                if (!contractDef) {
+                    console.error(`[UserInterfaceMain] Unknown contract: ${contractId}`);
+                    documentContainer.innerHTML = `
+                        <div class="document" style="text-align: center; padding: 3rem;">
+                            <h2 style="color: var(--App_StatusError);">Contract Not Found</h2>
+                            <p>The requested contract "${contractId}" could not be found.</p>
+                        </div>
+                    `;
+                    return;
+                }
 
-            } catch (error) {
-                console.error('[UserInterfaceMain] Failed to load terms:', error);
+                // Show loading state
                 documentContainer.innerHTML = `
                     <div class="document" style="text-align: center; padding: 3rem;">
-                        <h2 style="color: var(--App_StatusError);">Error Loading Terms</h2>
-                        <p>${error.message}</p>
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Loading ${contractDef.name}...</p>
+                    </div>
+                `;
+
+                try {
+                    // Render contract using TermsRenderer
+                    const termsRenderer = window.NaProjectAdmin.TermsRenderer;
+                    if (termsRenderer && termsRenderer.renderContract) {
+                        const html = await termsRenderer.renderContract(contractId);
+                        documentContainer.innerHTML = html;
+                    } else {
+                        // Fallback: render basic contract
+                        const html = await renderBasicContract(contractId, contractDef);
+                        documentContainer.innerHTML = html;
+                    }
+
+                    // Cache and update state
+                    loadedContracts.set(contractId, { contractDef, timestamp: Date.now() });
+                    currentView = 'contract';
+                    currentContractId = contractId;
+
+                } catch (error) {
+                    console.error(`[UserInterfaceMain] Failed to load contract ${contractId}:`, error);
+                    documentContainer.innerHTML = `
+                        <div class="document" style="text-align: center; padding: 3rem;">
+                            <h2 style="color: var(--App_StatusError);">Error Loading Contract</h2>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            // ---------------------------------------------------------------
+
+            /**
+             * Render basic contract (fallback when TermsRenderer not available)
+             * @param {string} contractId - Contract identifier
+             * @param {Object} contractDef - Contract definition
+             * @returns {Promise<string>} HTML content
+             */
+            async function renderBasicContract(contractId, contractDef) {
+                const contractLoader = window.NaProjectAdmin.ContractLoader;
+                const contractHtml = await contractLoader.loadContractHtml(contractId);
+
+                return `
+                    <div class="document terms-document">
+                        <div class="document__header">
+                            <h1 class="document__title">${contractDef.name}</h1>
+                            <p class="document__ref">Terms & Conditions</p>
+                        </div>
+                        <div class="terms-section">
+                            ${contractHtml || '<p>Contract content not available.</p>'}
+                        </div>
                     </div>
                 `;
             }
-        }
-        // ---------------------------------------------------------------
+            // ---------------------------------------------------------------
 
-        // FUNCTION | Load Special Terms
-        // ------------------------------------------------------------
-        async function loadSpecialTerms() {
-            const projectPath = window.NaProjectAdmin.currentProjectPath;
-            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
-            const specialTermsFile = config?.AppConfig?.ProjectLoading?.specialTermsFile || 'ProjectAdmin__SpecialTerms__.json';
+        // endregion -----
 
-            if (!projectPath) {
-                return null;
+        // #region -----
+        // LEGACY TERMS | Backwards Compatibility
+        // -----
+
+            /**
+             * Show Terms (Legacy - for backwards compatibility)
+             */
+            async function showTerms() {
+                console.log('[UserInterfaceMain] Showing terms (legacy)...');
+
+                const documentContainer = document.getElementById('document-container');
+                if (!documentContainer) return;
+
+                // Show loading state
+                documentContainer.innerHTML = `
+                    <div class="document" style="text-align: center; padding: 3rem;">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Loading terms & conditions...</p>
+                    </div>
+                `;
+
+                try {
+                    // Load special terms and general terms
+                    const specialTerms = await loadSpecialTerms();
+                    const generalTermsHtml = await loadGeneralTerms();
+
+                    // Render terms
+                    if (window.NaProjectAdmin.TermsRenderer) {
+                        const html = window.NaProjectAdmin.TermsRenderer.render(specialTerms, generalTermsHtml);
+                        documentContainer.innerHTML = html;
+                    } else {
+                        documentContainer.innerHTML = renderBasicTerms(specialTerms, generalTermsHtml);
+                    }
+
+                    loadedSpecialTerms = specialTerms;
+                    currentView = 'terms';
+                    currentContractId = null;
+
+                } catch (error) {
+                    console.error('[UserInterfaceMain] Failed to load terms:', error);
+                    documentContainer.innerHTML = `
+                        <div class="document" style="text-align: center; padding: 3rem;">
+                            <h2 style="color: var(--App_StatusError);">Error Loading Terms</h2>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
             }
+            // ---------------------------------------------------------------
 
-            try {
-                const response = await fetch(`${projectPath}${specialTermsFile}`);
-                
-                if (!response.ok) {
+            /**
+             * Load Special Terms (Legacy)
+             */
+            async function loadSpecialTerms() {
+                const projectPath = window.NaProjectAdmin.currentProjectPath;
+                const config = window.NaProjectAdmin.ConfigManager?.getConfig();
+                const specialTermsFile = config?.AppConfig?.ProjectLoading?.specialTermsFile || 'ProjectAdmin__SpecialTerms__.json';
+
+                if (!projectPath) {
                     return null;
                 }
 
-                return await response.json();
+                try {
+                    const response = await fetch(`${projectPath}${specialTermsFile}`);
+                    
+                    if (!response.ok) {
+                        return null;
+                    }
 
-            } catch (error) {
-                console.warn('[UserInterfaceMain] Special terms file not found');
-                return null;
+                    return await response.json();
+
+                } catch (error) {
+                    console.warn('[UserInterfaceMain] Special terms file not found');
+                    return null;
+                }
             }
-        }
-        // ---------------------------------------------------------------
+            // ---------------------------------------------------------------
 
-        // FUNCTION | Load General Terms
-        // ------------------------------------------------------------
-        async function loadGeneralTerms() {
-            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
-            const generalTermsFile = config?.AppConfig?.Features?.TermsSystem?.generalTermsFile || 'DocumentSystem__GeneralTerms__.html';
-            const basePath = '03__Src__AppModules/20__DocumentSystem/';
+            /**
+             * Load General Terms (Legacy)
+             */
+            async function loadGeneralTerms() {
+                const config = window.NaProjectAdmin.ConfigManager?.getConfig();
+                const generalTermsFile = config?.AppConfig?.Features?.TermsSystem?.generalTermsFile || 'DocumentSystem__GeneralTerms__.html';
+                const basePath = '03__Src__AppModules/20__DocumentSystem/';
 
-            try {
-                const response = await fetch(`${basePath}${generalTermsFile}`);
-                
-                if (!response.ok) {
-                    throw new Error('General terms not found');
+                try {
+                    const response = await fetch(`${basePath}${generalTermsFile}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('General terms not found');
+                    }
+
+                    return await response.text();
+
+                } catch (error) {
+                    console.warn('[UserInterfaceMain] General terms file not found');
+                    return '<p>General terms and conditions not available.</p>';
+                }
+            }
+            // ---------------------------------------------------------------
+
+            /**
+             * Render Basic Terms (Fallback)
+             */
+            function renderBasicTerms(specialTerms, generalTermsHtml) {
+                let html = '<div class="document terms-document">';
+
+                // Special terms section
+                if (specialTerms && specialTerms.terms && specialTerms.terms.length > 0) {
+                    html += `
+                        <div class="terms-section terms-section--special">
+                            <h2 class="terms-section__title">Special Terms for This Project</h2>
+                    `;
+                    
+                    specialTerms.terms.forEach(term => {
+                        html += `
+                            <div class="terms-item">
+                                <div class="terms-item__title">${term.title || ''}</div>
+                                <div class="terms-item__content">${term.content || ''}</div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
                 }
 
-                return await response.text();
-
-            } catch (error) {
-                console.warn('[UserInterfaceMain] General terms file not found');
-                return '<p>General terms and conditions not available.</p>';
-            }
-        }
-        // ---------------------------------------------------------------
-
-        // FUNCTION | Render Basic Terms (Fallback)
-        // ------------------------------------------------------------
-        function renderBasicTerms(specialTerms, generalTermsHtml) {
-            let html = '<div class="document terms-document">';
-
-            // Special terms section
-            if (specialTerms && specialTerms.terms && specialTerms.terms.length > 0) {
+                // General terms section
                 html += `
-                    <div class="terms-section terms-section--special">
-                        <h2 class="terms-section__title">Special Terms for This Project</h2>
+                    <div class="terms-section">
+                        <h2 class="terms-section__title">General Terms & Conditions</h2>
+                        ${generalTermsHtml}
+                    </div>
                 `;
-                
-                specialTerms.terms.forEach(term => {
-                    html += `
-                        <div class="terms-item">
-                            <div class="terms-item__title">${term.title || ''}</div>
-                            <div class="terms-item__content">${term.content || ''}</div>
-                        </div>
-                    `;
-                });
 
                 html += '</div>';
+
+                return html;
             }
+            // ---------------------------------------------------------------
 
-            // General terms section
-            html += `
-                <div class="terms-section">
-                    <h2 class="terms-section__title">General Terms & Conditions</h2>
-                    ${generalTermsHtml}
-                </div>
-            `;
+        // endregion -----
 
-            html += '</div>';
+        // #region -----
+        // SIGNATURE STATUS | Multi-Contract Support
+        // -----
 
-            return html;
-        }
-        // ---------------------------------------------------------------
+            /**
+             * Show Signature Status (Multi-Contract)
+             */
+            async function showSignatureStatus() {
+                console.log('[UserInterfaceMain] Showing signature status...');
 
-        // FUNCTION | Show Signature Status
-        // ------------------------------------------------------------
-        async function showSignatureStatus() {
-            console.log('[UserInterfaceMain] Showing signature status...');
+                const documentContainer = document.getElementById('document-container');
+                if (!documentContainer) return;
 
-            const documentContainer = document.getElementById('document-container');
-            if (!documentContainer) return;
+                const projectCode = window.NaProjectAdmin.App?.getCurrentProject();
+                const projectConfig = window.NaProjectAdmin.App?.getProjectConfig();
+                const contractLoader = window.NaProjectAdmin.ContractLoader;
 
-            const projectCode = window.NaProjectAdmin.App?.getCurrentProject();
+                // Check quotation signature
+                const quotationSigned = sessionStorage.getItem(`naProjectAdmin_sig_quotation_${projectCode}`);
 
-            // Check signature status
-            const quotationSigned = sessionStorage.getItem(`naProjectAdmin_sig_quotation_${projectCode}`);
-            const termsSigned = sessionStorage.getItem(`naProjectAdmin_sig_terms_${projectCode}`);
+                let html = `
+                    <div class="document">
+                        <div class="document__header">
+                            <h1 class="document__title">Signature Status</h1>
+                            <p class="document__ref">Project: ${projectCode}</p>
+                        </div>
 
-            let html = `
-                <div class="document">
-                    <div class="document__header">
-                        <h1 class="document__title">Signature Status</h1>
-                        <p class="document__ref">Project: ${projectCode}</p>
-                    </div>
-
-                    <div class="document__section">
-                        <h2 class="document__section-title">Document Signatures</h2>
-                        
-                        <div style="display: grid; gap: 1rem;">
-            `;
-
-            // Quotation status
-            html += `
-                <div class="signature-record">
-                    <div class="signature-record__header">
-                        ${quotationSigned 
-                            ? '<span style="color: var(--App_StatusSuccess);">&#10004;</span> Quotation Signed'
-                            : '<span style="color: var(--App_StatusError);">&#10060;</span> Quotation Not Signed'
-                        }
-                    </div>
-            `;
-
-            if (quotationSigned) {
-                const sigData = JSON.parse(quotationSigned);
-                html += `
-                    <div class="signature-record__details">
-                        <span class="signature-record__label">Signed by:</span>
-                        <span class="signature-record__value">${sigData.signerName}</span>
-                        <span class="signature-record__label">Date:</span>
-                        <span class="signature-record__value">${sigData.signedDate}</span>
-                    </div>
+                        <div class="document__section">
+                            <h2 class="document__section-title">Document Signatures</h2>
+                            
+                            <div style="display: grid; gap: 1rem;">
                 `;
-            } else {
+
+                // Quotation status
+                html += renderSignatureCard('Quotation', quotationSigned);
+
+                // Contract signatures (multi-contract system)
+                if (contractLoader && projectConfig?.contracts) {
+                    const enabledContracts = contractLoader.getEnabledContracts(projectConfig);
+
+                    for (const contractId of enabledContracts) {
+                        const contractDef = contractLoader.getContractDefinition(contractId);
+                        const signatureKey = `naProjectAdmin_sig_contract_${projectCode}_${contractId}`;
+                        const signatureRecord = sessionStorage.getItem(signatureKey);
+                        const isSigned = signatureRecord !== null || 
+                                        contractLoader.isContractSigned(projectConfig, contractId);
+
+                        html += renderSignatureCard(
+                            contractDef?.name || contractId,
+                            isSigned ? signatureRecord || JSON.stringify({ signed: true }) : null
+                        );
+                    }
+                } else {
+                    // Legacy: single terms signature
+                    const termsSigned = sessionStorage.getItem(`naProjectAdmin_sig_terms_${projectCode}`);
+                    html += renderSignatureCard('Terms & Conditions', termsSigned);
+                }
+
                 html += `
-                    <p style="color: var(--App_TextMuted); margin-top: 0.5rem;">
-                        Please review and sign the quotation to proceed.
-                    </p>
-                `;
-            }
-
-            html += '</div>';
-
-            // Terms status
-            html += `
-                <div class="signature-record">
-                    <div class="signature-record__header">
-                        ${termsSigned 
-                            ? '<span style="color: var(--App_StatusSuccess);">&#10004;</span> Terms & Conditions Signed'
-                            : '<span style="color: var(--App_StatusError);">&#10060;</span> Terms & Conditions Not Signed'
-                        }
-                    </div>
-            `;
-
-            if (termsSigned) {
-                const sigData = JSON.parse(termsSigned);
-                html += `
-                    <div class="signature-record__details">
-                        <span class="signature-record__label">Signed by:</span>
-                        <span class="signature-record__value">${sigData.signerName}</span>
-                        <span class="signature-record__label">Date:</span>
-                        <span class="signature-record__value">${sigData.signedDate}</span>
-                    </div>
-                `;
-            } else {
-                html += `
-                    <p style="color: var(--App_TextMuted); margin-top: 0.5rem;">
-                        Please review and sign the terms & conditions to proceed.
-                    </p>
-                `;
-            }
-
-            html += `
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            `;
+                `;
 
-            documentContainer.innerHTML = html;
-            currentView = 'signatures';
-        }
-        // ---------------------------------------------------------------
+                documentContainer.innerHTML = html;
+                currentView = 'signatures';
+                currentContractId = null;
+            }
+            // ---------------------------------------------------------------
 
-        // FUNCTION | Get Current View
-        // ------------------------------------------------------------
-        function getCurrentView() {
-            return currentView;
-        }
-        // ---------------------------------------------------------------
+            /**
+             * Render signature status card
+             * @param {string} title - Document title
+             * @param {string|null} signatureRecord - Signature record JSON or null
+             * @returns {string} HTML for signature card
+             */
+            function renderSignatureCard(title, signatureRecord) {
+                let html = `
+                    <div class="signature-record">
+                        <div class="signature-record__header">
+                            ${signatureRecord 
+                                ? `<span style="color: var(--App_StatusSuccess);">&#10004;</span> ${title} Signed`
+                                : `<span style="color: var(--App_StatusError);">&#10060;</span> ${title} Not Signed`
+                            }
+                        </div>
+                `;
 
-        // FUNCTION | Get Loaded Data
-        // ------------------------------------------------------------
-        function getLoadedQuotation() {
-            return loadedQuotation;
-        }
+                if (signatureRecord) {
+                    try {
+                        const sigData = JSON.parse(signatureRecord);
+                        if (sigData.signerName) {
+                            html += `
+                                <div class="signature-record__details">
+                                    <span class="signature-record__label">Signed by:</span>
+                                    <span class="signature-record__value">${sigData.signerName}</span>
+                                    <span class="signature-record__label">Date:</span>
+                                    <span class="signature-record__value">${sigData.signedDate || 'Recorded'}</span>
+                                </div>
+                            `;
+                        }
+                    } catch (e) {
+                        // Simple signed status without details
+                    }
+                } else {
+                    html += `
+                        <p style="color: var(--App_TextMuted); margin-top: 0.5rem;">
+                            Please review and sign this document to proceed.
+                        </p>
+                    `;
+                }
 
-        function getLoadedSpecialTerms() {
-            return loadedSpecialTerms;
-        }
-        // ---------------------------------------------------------------
+                html += '</div>';
+                return html;
+            }
+            // ---------------------------------------------------------------
+
+        // endregion -----
+
+        // #region -----
+        // API | State Accessors
+        // -----
+
+            /**
+             * Get Current View
+             */
+            function getCurrentView() {
+                return currentView;
+            }
+
+            /**
+             * Get Current Contract ID
+             */
+            function getCurrentContractId() {
+                return currentContractId;
+            }
+
+            /**
+             * Get Loaded Quotation
+             */
+            function getLoadedQuotation() {
+                return loadedQuotation;
+            }
+
+            /**
+             * Get Loaded Special Terms
+             */
+            function getLoadedSpecialTerms() {
+                return loadedSpecialTerms;
+            }
+
+        // endregion -----
 
         // API EXPORT | Public Interface
         // ------------------------------------------------------------
@@ -416,8 +584,10 @@
             loadDefaultView          : loadDefaultView,
             showQuotation            : showQuotation,
             showTerms                : showTerms,
+            showContract             : showContract,
             showSignatureStatus      : showSignatureStatus,
             getCurrentView           : getCurrentView,
+            getCurrentContractId     : getCurrentContractId,
             getLoadedQuotation       : getLoadedQuotation,
             getLoadedSpecialTerms    : getLoadedSpecialTerms
         };
@@ -437,4 +607,3 @@
     })();
 
 // endregion -----
-

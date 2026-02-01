@@ -450,9 +450,24 @@ def create_project():
             'projectName'    : project_name,
             'clientName'     : client_name or 'Client Name',
             'projectPin'     : '1234',
+            'contracts'      : {                                         # <-- Multi-contract system v0.5.0
+                'general-business': {
+                    'enabled'        : True,
+                    'signed'         : False,
+                    'signatureRef'   : None,
+                    'signedDate'     : None,
+                    'specialTermsFile': None
+                },
+                'concept-design': {
+                    'enabled'        : True,
+                    'signed'         : False,
+                    'signatureRef'   : None,
+                    'signedDate'     : None,
+                    'specialTermsFile': None
+                }
+            },
             'documents'      : {
-                'quotation'      : True,
-                'specialTerms'   : True
+                'quotation'      : True
             },
             'clientDataId'   : f'{code}_{year}',                         # <-- Reference to R2 encrypted data
             'createdDate'    : now_uk,
@@ -798,6 +813,7 @@ def print_banner():
     print(f"    - Project Index: {base_url}04__EditorTools/Editor__ProjectIndexBuilder__.html")
     print(f"    - Project Config: {base_url}04__EditorTools/Editor__ProjectConfig__.html")
     print(f"    - Quotation Builder: {base_url}04__EditorTools/Editor__QuotationBuilder__.html")
+    print(f"    - Contract Manager: {base_url}04__EditorTools/Editor__ContractManager__.html")
     print(f"    - Terms Editor: {base_url}04__EditorTools/Editor__TermsEditor__.html")
     
     print("\n  API Endpoints (Local):")

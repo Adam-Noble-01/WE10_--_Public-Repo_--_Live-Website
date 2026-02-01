@@ -1,0 +1,14 @@
+{
+    "contractId": "building-regulations",
+    "contractName": "Building Regulations Stage",
+    "sectionTitle": "Special Terms - Building Regs",
+    "introduction": "The following special conditions apply to this contract.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Additional Requirement",
+            "content": "Enter the special term details here."
+        }
+    ],
+    "lastUpdated": "2026-02-01T13:28:00.993Z"
+}

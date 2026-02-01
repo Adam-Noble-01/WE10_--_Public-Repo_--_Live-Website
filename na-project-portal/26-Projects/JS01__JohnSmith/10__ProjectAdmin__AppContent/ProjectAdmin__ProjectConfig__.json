@@ -1,13 +1,42 @@
 {
-    "projectCode": "JS01",
-    "projectName": "Meadow Lane",
+    "clientDataId": "JS01_26",
     "clientName": "John Smith",
-    "projectPin": "1234",
-    "documents": {
-        "quotation": true,
-        "specialTerms": true
+    "contracts": {
+        "concept-design": {
+            "enabled": true,
+            "signatureRef": null,
+            "signed": false,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        },
+        "general-business": {
+            "enabled": true,
+            "signatureRef": null,
+            "signed": false,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        },
+        "planning-approval": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        },
+        "building-regulations": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        }
     },
     "createdDate": "31-Jan-2026",
-    "lastModified": "31-Jan-2026 at 12:00"
+    "documents": {
+        "quotation": true
+    },
+    "lastModified": "2026-02-01T13:28:32.321Z",
+    "projectCode": "JS01",
+    "projectName": "Meadow Lane",
+    "projectPin": "1234"
 }
-

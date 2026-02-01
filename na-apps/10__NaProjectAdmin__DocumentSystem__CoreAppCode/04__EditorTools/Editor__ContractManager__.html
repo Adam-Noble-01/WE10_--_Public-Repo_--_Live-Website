@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Head                            -->
+<!-- -------------------------------------------------- -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    <title>Contract Manager | Noble Architecture</title>
+    <link rel="icon" type="image/x-icon"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
+
+    <!-- Load DateFormatter Module -->
+    <script src="../03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
+    <!-- Load Shared Editor Utilities -->
+    <script src="Editor__SharedUtils__.js"></script>
+
+    <style>
+        /* Override default layout for full-width panel design */
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .app-header {
+            flex-shrink: 0;
+        }
+
+        /* Full width split panel layout */
+        .split-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            background: var(--editor-bg, #f5f5f5);
+            width: 80%;
+            max-width: none;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left Panel - Contract List (Wider) */
+        .contracts-panel {
+            width: 420px;
+            min-width: 350px;
+            max-width: 500px;
+            flex-shrink: 0;
+            background: var(--editor-panel-bg, #fff);
+            border-right: 2px solid var(--editor-border-color, #ddd);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .contracts-panel__header {
+            padding: 1rem;
+            background: #555041;
+            color: #fff;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .contracts-panel__summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--editor-border-color, #ddd);
+            flex-shrink: 0;
+        }
+
+        .summary-mini {
+            text-align: center;
+        }
+
+        .summary-mini__value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--editor-accent-color, #555041);
+        }
+
+        .summary-mini__label {
+            font-size: 0.65rem;
+            color: var(--editor-text-muted, #666);
+            text-transform: uppercase;
+        }
+
+        .summary-mini--success .summary-mini__value {
+            color: #28a745;
+        }
+
+        .summary-mini--warning .summary-mini__value {
+            color: #ffc107;
+        }
+
+        .contracts-panel__list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        /* Contract List Items */
+        .contract-item {
+            background: #fff;
+            border: 1px solid var(--editor-border-color, #ddd);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .contract-item:hover {
+            border-color: #555041;
+        }
+
+        .contract-item--selected {
+            border-color: #555041;
+            background: #f8f6f1;
+            box-shadow: 0 0 0 2px rgba(85, 80, 65, 0.2);
+        }
+
+        .contract-item--disabled {
+            opacity: 0.5;
+            background: #f9f9f9;
+        }
+
+        .contract-item__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .contract-item__name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .contract-item__badge {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .contract-item__badge--required {
+            background: #555041;
+            color: #fff;
+        }
+
+        .contract-item__badge--enabled {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .contract-item__badge--disabled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .contract-item__badge--special {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .contract-item__controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .contract-item__toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .contract-item__toggle input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Right Panel - Editor/Preview */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .editor-panel__header {
+            padding: 1rem;
+            background: #555041;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .editor-panel__title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .editor-panel__actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Vertical stack content area */
+        .editor-panel__content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        /* No contract selected state */
+        .editor-panel__empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            color: var(--editor-text-muted, #666);
+        }
+
+        .editor-panel__empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Toolbar */
+        .terms-toolbar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .terms-toolbar__toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .terms-toolbar__toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .terms-toolbar__toggle label {
+            font-weight: 500;
+        }
+
+        /* Special Terms Section (Yellow, Editable) */
+        .special-terms-section {
+            background: #fffbe6;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            flex-shrink: 0;
+            max-height: 40%;
+            overflow-y: auto;
+        }
+
+        .special-terms-section--disabled {
+            background: #f9f9f9;
+            border-color: #ddd;
+            opacity: 0.6;
+        }
+
+        .special-terms-section__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #ffe066;
+        }
+
+        .special-terms-section__title {
+            color: #856404;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .special-terms-section__empty {
+            text-align: center;
+            padding: 1.5rem;
+            color: #856404;
+        }
+
+        /* Term Row (inline editing) */
+        .term-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+            border: 1px solid #ffe066;
+        }
+
+        .term-row__number {
+            min-width: 45px;
+            font-weight: 700;
+            color: #856404;
+            padding-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .term-row__content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .term-row__title-input {
+            width: 100%;
+            padding: 0.4rem 0.6rem;
+            border: 1px solid #ffe066;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: #fff;
+        }
+
+        .term-row__content-input {
+            width: 100%;
+            padding: 0.4rem 0.6rem;
+            border: 1px solid #ffe066;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            resize: vertical;
+            min-height: 60px;
+            background: #fff;
+        }
+
+        .term-row__remove {
+            padding: 0.3rem 0.5rem;
+            background: #fff;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .term-row__remove:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        /* Standard Terms Section (Full Preview) */
+        .standard-terms-section {
+            flex: 1;
+            border: 1px solid var(--editor-border-color, #ddd);
+            border-radius: 8px;
+            background: #fff;
+            overflow-y: auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .standard-terms-section__header {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--editor-border-color, #ddd);
+            flex-shrink: 0;
+        }
+
+        .standard-terms-section__title {
+            color: #333;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .standard-terms-section__content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            line-height: 1.7;
+        }
+
+        .standard-terms-section__content h2 {
+            font-size: 1.1rem;
+            color: #333;
+            margin: 1.5rem 0 0.75rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .standard-terms-section__content h2:first-child {
+            margin-top: 0;
+        }
+
+        .standard-terms-section__content p {
+            margin: 0.5rem 0;
+            color: #555;
+        }
+
+        .standard-terms-section__content ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .standard-terms-section__content li {
+            margin: 0.25rem 0;
+            color: #555;
+        }
+
+        /* Disabled State Message */
+        .special-terms-disabled {
+            text-align: center;
+            padding: 2rem;
+            color: var(--editor-text-muted, #666);
+        }
+
+        .special-terms-disabled__icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Flask info banner */
+        .flask-banner {
+            background: #d4edda;
+            border-bottom: 1px solid #28a745;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: #155724;
+            flex-shrink: 0;
+        }
+
+        /* Button styles */
+        .btn--small {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .btn--icon {
+            padding: 0.35rem 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .contracts-panel {
+                width: 300px;
+                min-width: 260px;
+            }
+
+            .special-terms-section {
+                max-height: 35%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .split-container {
+                flex-direction: column;
+            }
+
+            .contracts-panel {
+                width: 100%;
+                max-width: none;
+                height: 200px;
+                border-right: none;
+                border-bottom: 2px solid var(--editor-border-color, #ddd);
+            }
+
+            .contracts-panel__list {
+                display: flex;
+                gap: 0.5rem;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .contract-item {
+                flex-shrink: 0;
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<!-- endregion ---------------------------------------- -->
+
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Body                             -->
+<!-- -------------------------------------------------- -->
+
+<body>
+
+    <!-- UI HEADER | Application Header -->
+    <header class="app-header">
+        <h1>Contract Manager</h1>
+        <div class="header-actions">
+            <button class="btn btn--secondary" onclick="loadFromProject()" id="btnLoadProject"
+                style="display: none;">Reload</button>
+            <button class="btn btn--primary" onclick="saveAll()" id="btnSaveProject" style="display: none;">Save
+                All</button>
+        </div>
+    </header>
+
+    <!-- Flask Connected Banner -->
+    <div class="flask-banner" id="flaskBanner" style="display: none;">
+        <strong>✓ Flask Server Connected</strong> — Auto-loading and saving to project folder is enabled.
+        <span id="projectPathDisplay"></span>
+    </div>
+
+    <!-- Main Split Container -->
+    <div class="split-container">
+
+        <!-- Left Panel - Contract List -->
+        <div class="contracts-panel">
+            <div class="contracts-panel__header">
+                Project Contracts
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="contracts-panel__summary">
+                <div class="summary-mini">
+                    <div class="summary-mini__value" id="statEnabled">0</div>
+                    <div class="summary-mini__label">Enabled</div>
+                </div>
+                <div class="summary-mini summary-mini--success">
+                    <div class="summary-mini__value" id="statSigned">0</div>
+                    <div class="summary-mini__label">Signed</div>
+                </div>
+                <div class="summary-mini summary-mini--warning">
+                    <div class="summary-mini__value" id="statPending">0</div>
+                    <div class="summary-mini__label">Pending</div>
+                </div>
+                <div class="summary-mini">
+                    <div class="summary-mini__value" id="statWithTerms">0</div>
+                    <div class="summary-mini__label">Special</div>
+                </div>
+            </div>
+
+            <!-- Contract List -->
+            <div class="contracts-panel__list" id="contractsList">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Right Panel - Editor/Preview -->
+        <div class="editor-panel">
+            <div class="editor-panel__header">
+                <span class="editor-panel__title" id="editorTitle">Select a Contract</span>
+                <div class="editor-panel__actions">
+                    <!-- Actions will be shown when contract selected -->
+                </div>
+            </div>
+
+            <div class="editor-panel__content">
+                <!-- Empty State -->
+                <div class="editor-panel__empty" id="emptyState">
+                    <div class="editor-panel__empty-icon">📋</div>
+                    <h3>No Contract Selected</h3>
+                    <p>Select a contract from the list on the left to<br>view and edit its terms.</p>
+                </div>
+
+                <!-- Contract Editor (Vertical Stack) -->
+                <div id="contractEditor"
+                    style="display: none; flex: 1; display: none; flex-direction: column; gap: 1rem; overflow: hidden;">
+
+                    <!-- Toolbar -->
+                    <div class="terms-toolbar">
+                        <div class="terms-toolbar__toggle">
+                            <input type="checkbox" id="enableSpecialTerms" onchange="toggleSpecialTerms()">
+                            <label for="enableSpecialTerms">Enable Special Terms for this Contract</label>
+                        </div>
+                        <button class="btn btn--primary btn--small" onclick="addTerm()" id="btnAddTerm">+ Add
+                            Term</button>
+                    </div>
+
+                    <!-- Special Terms Section (Yellow, Editable) -->
+                    <div class="special-terms-section" id="specialTermsSection">
+                        <div class="special-terms-section__header">
+                            <h3 class="special-terms-section__title">1. Special Terms</h3>
+                        </div>
+                        <div id="specialTermsEditor">
+                            <!-- Term rows: 1.01, 1.02, etc. -->
+                        </div>
+                    </div>
+
+                    <!-- Standard Terms Section (Full Preview) -->
+                    <div class="standard-terms-section" id="standardTermsSection">
+                        <div class="standard-terms-section__header">
+                            <h3 class="standard-terms-section__title" id="standardTermsTitle">2. Standard Terms</h3>
+                        </div>
+                        <div class="standard-terms-section__content" id="standardTermsContent">
+                            <!-- Full markdown rendered here -->
+                            <p style="color: #999; text-align: center;">Loading standard terms...</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+<!-- endregion ---------------------------------------- -->
+
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | JavaScript Logic                         -->
+<!-- -------------------------------------------------- -->
+
+<script>
+
+    // #Region ------------------------------------------------
+    // CONSTANTS | Configuration
+    // --------------------------------------------------------
+
+    const CONFIG_FILENAME = 'ProjectAdmin__ProjectConfig__.json';
+    const MD_BASE_PATH = '../10__GeneralTerms__Markdown/';
+
+    // Available contracts from main app config
+    const AVAILABLE_CONTRACTS = {
+        'general-business': {
+            id: 'general-business',
+            name: 'General Business Terms',
+            shortName: 'General Terms',
+            file: '10_00__ApprovedStandardTerms__GeneralBuisinesTerms__.md',
+            description: 'Standard terms of engagement with Noble Architecture',
+            required: true,
+            order: 0
+        },
+        'concept-design': {
+            id: 'concept-design',
+            name: 'Concept Design Stage',
+            shortName: 'Concept Design',
+            file: '10_01__ApprovedStandardTerms__ConceptStage__DesignPhase-02__.md',
+            description: 'Terms for Design Phase 01 - Concept Design',
+            required: false,
+            order: 1
+        },
+        'planning-approval': {
+            id: 'planning-approval',
+            name: 'Planning Approval Stage',
+            shortName: 'Planning',
+            file: '10_02__ApprovedStandardTerms__PlanningApproval__DesignPhase-02__.md',
+            description: 'Terms for Design Phase 02 - Planning Approval',
+            required: false,
+            order: 2
+        },
+        'building-regulations': {
+            id: 'building-regulations',
+            name: 'Building Regulations Stage',
+            shortName: 'Building Regs',
+            file: '10_03__ApprovedStandardTerms__BuildingRegulations__DesignPhase-03__.md',
+            description: 'Terms for Design Phase 03 - Building Regulations',
+            required: false,
+            order: 3
+        },
+        'project-management': {
+            id: 'project-management',
+            name: 'Project Management Stage',
+            shortName: 'Project Mgmt',
+            file: '10_04__ApprovedStandardTerms__ProjectManagement__DesignPhase-04__.md',
+            description: 'Terms for Design Phase 04 - Project Management',
+            required: false,
+            order: 4
+        },
+        'building-surveying': {
+            id: 'building-surveying',
+            name: 'Building Surveying Service',
+            shortName: 'Surveying',
+            file: '10_10__ApprovedStandardTerms__BuildingSurveyingServive__.md',
+            description: 'Terms for Measured Building Survey services',
+            required: false,
+            order: 10
+        },
+        'planvision-app': {
+            id: 'planvision-app',
+            name: 'PlanVision App Terms',
+            shortName: 'PlanVision',
+            file: '10_20__ApprovedStandardTerms__PlanVisionApp__.md',
+            description: 'Terms for PlanVision online drawings viewer',
+            required: false,
+            order: 20
+        },
+        'truevision-app': {
+            id: 'truevision-app',
+            name: 'TrueVision App Terms',
+            shortName: 'TrueVision',
+            file: '10_30__ApprovedStandardTerms__TrueVisionApp__.md',
+            description: 'Terms for TrueVision 3D model viewer',
+            required: false,
+            order: 30
+        }
+    };
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // STATE | Application State
+    // --------------------------------------------------------
+
+    let projectConfig = null;                                    // <-- Project configuration
+    let specialTermsData = {};                                   // <-- Special terms per contract
+    let isFlaskMode = false;                                     // <-- Flask server available
+    let currentProjectCode = null;                               // <-- Currently loaded project
+    let currentYear = null;                                      // <-- Current year
+    let selectedContractId = null;                               // <-- Currently selected contract
+    let markdownCache = new Map();                               // <-- Cached markdown files
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // INITIALIZATION | DOM Ready
+    // --------------------------------------------------------
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        // Initialise project context
+        if (window.NaEditorTools) {
+            const context = NaEditorTools.initialiseProjectContext();
+            currentProjectCode = context.project;
+            currentYear = context.year;
+
+            // Check for Flask server
+            isFlaskMode = await NaEditorTools.isLocalDevServer();
+
+            if (isFlaskMode) {
+                setupFlaskMode();
+                // Auto-load project config
+                await loadFromProject();
+            }
+
+            // Setup unsaved changes warning
+            NaEditorTools.setupUnsavedChangesWarning();
+
+            // Create status bar
+            await NaEditorTools.createStatusBar();
+        }
+
+        // If no config loaded, create default
+        if (!projectConfig) {
+            createDefaultConfig();
+        }
+
+        renderContractsList();
+        updateSummary();
+    });
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // FLASK MODE | Server Integration
+    // --------------------------------------------------------
+
+    function setupFlaskMode() {
+        document.getElementById('flaskBanner').style.display = 'block';
+        document.getElementById('btnLoadProject').style.display = 'inline-block';
+        document.getElementById('btnSaveProject').style.display = 'inline-block';
+
+        // Update project path display
+        const pathDisplay = document.getElementById('projectPathDisplay');
+        if (pathDisplay && currentProjectCode) {
+            pathDisplay.innerHTML = ` — <code>${currentYear}-Projects/${currentProjectCode}/</code>`;
+        }
+    }
+
+    async function loadFromProject() {
+        if (!isFlaskMode || !currentProjectCode) return;
+
+        NaEditorTools.showInfoMessage(`Loading project data...`);
+
+        // Load project config
+        const data = await NaEditorTools.loadProjectFile(CONFIG_FILENAME, currentProjectCode, currentYear);
+
+        if (data) {
+            projectConfig = data;
+
+            // Ensure contracts object exists
+            if (!projectConfig.contracts) {
+                projectConfig.contracts = createDefaultContracts();
+            }
+
+            NaEditorTools.showSuccessMessage(`Project loaded`);
+        } else {
+            NaEditorTools.showInfoMessage('No existing config found - using defaults');
+            createDefaultConfig();
+        }
+
+        // Load special terms for each enabled contract
+        await loadAllSpecialTerms();
+
+        renderContractsList();
+        updateSummary();
+
+        // Re-select current contract if one was selected
+        if (selectedContractId) {
+            selectContract(selectedContractId);
+        }
+
+        NaEditorTools.markClean();
+    }
+
+    async function loadAllSpecialTerms() {
+        specialTermsData = {};
+
+        for (const contractId of Object.keys(projectConfig.contracts || {})) {
+            const contractConfig = projectConfig.contracts[contractId];
+            if (contractConfig.specialTermsEnabled) {
+                const filename = `SpecialTerms__${contractId}__.json`;
+                const data = await NaEditorTools.loadProjectFile(filename, currentProjectCode, currentYear);
+                if (data) {
+                    specialTermsData[contractId] = data;
+                }
+            }
+        }
+    }
+
+    async function saveAll() {
+        if (!isFlaskMode || !currentProjectCode) {
+            NaEditorTools.showErrorMessage('Cannot save: Flask server not available');
+            return;
+        }
+
+        NaEditorTools.showInfoMessage('Saving...');
+
+        // Update last modified
+        if (window.NaDateFormatter) {
+            projectConfig.lastModified = NaDateFormatter.formatForConfig(new Date());
+        } else {
+            projectConfig.lastModified = new Date().toISOString();
+        }
+
+        // Save project config
+        let success = await NaEditorTools.saveProjectFile(
+            CONFIG_FILENAME,
+            projectConfig,
+            currentProjectCode,
+            currentYear
+        );
+
+        if (!success) {
+            NaEditorTools.showErrorMessage('Failed to save project config');
+            return;
+        }
+
+        // Save special terms files for each contract that has them enabled
+        for (const contractId of Object.keys(projectConfig.contracts || {})) {
+            const contractConfig = projectConfig.contracts[contractId];
+
+            if (contractConfig.specialTermsEnabled && specialTermsData[contractId]) {
+                const filename = `SpecialTerms__${contractId}__.json`;
+                success = await NaEditorTools.saveProjectFile(
+                    filename,
+                    specialTermsData[contractId],
+                    currentProjectCode,
+                    currentYear
+                );
+
+                if (!success) {
+                    NaEditorTools.showErrorMessage(`Failed to save ${filename}`);
+                    return;
+                }
+            }
+        }
+
+        NaEditorTools.showSuccessMessage('All changes saved!');
+        NaEditorTools.markClean();
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // CONFIG MANAGEMENT | Create and Update
+    // --------------------------------------------------------
+
+    function createDefaultConfig() {
+        projectConfig = {
+            projectCode: currentProjectCode || 'XX00',
+            projectName: 'New Project',
+            clientName: 'Client Name',
+            projectPin: '1234',
+            contracts: createDefaultContracts(),
+            documents: {
+                quotation: true
+            },
+            createdDate: window.NaDateFormatter
+                ? NaDateFormatter.formatForConfig(new Date())
+                : new Date().toISOString(),
+            lastModified: window.NaDateFormatter
+                ? NaDateFormatter.formatForConfig(new Date())
+                : new Date().toISOString()
+        };
+    }
+
+    function createDefaultContracts() {
+        return {
+            'general-business': {
+                enabled: true,
+                signed: false,
+                signatureRef: null,
+                signedDate: null,
+                specialTermsEnabled: false
+            },
+            'concept-design': {
+                enabled: true,
+                signed: false,
+                signatureRef: null,
+                signedDate: null,
+                specialTermsEnabled: false
+            }
+        };
+    }
+
+    function createDefaultSpecialTerms(contractId) {
+        const contract = AVAILABLE_CONTRACTS[contractId];
+        return {
+            contractId: contractId,
+            contractName: contract?.name || contractId,
+            sectionTitle: `Special Terms - ${contract?.shortName || contractId}`,
+            introduction: 'The following special conditions apply to this contract.',
+            terms: [
+                {
+                    id: 1,
+                    title: 'Additional Requirement',
+                    content: 'Enter the special term details here.'
+                }
+            ],
+            lastUpdated: window.NaDateFormatter
+                ? NaDateFormatter.formatForConfig(new Date())
+                : new Date().toISOString()
+        };
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // RENDERING | Contract List
+    // --------------------------------------------------------
+
+    function renderContractsList() {
+        const list = document.getElementById('contractsList');
+        list.innerHTML = '';
+
+        // Sort contracts by order
+        const sortedContracts = Object.values(AVAILABLE_CONTRACTS)
+            .sort((a, b) => a.order - b.order);
+
+        for (const contract of sortedContracts) {
+            const contractConfig = projectConfig?.contracts?.[contract.id] || {};
+            const isEnabled = contractConfig.enabled === true || contract.required;
+            const isSigned = contractConfig.signed === true;
+            const hasSpecialTerms = contractConfig.specialTermsEnabled === true;
+
+            const item = createContractListItem(contract, isEnabled, isSigned, hasSpecialTerms);
+            list.appendChild(item);
+        }
+    }
+
+    function createContractListItem(contract, isEnabled, isSigned, hasSpecialTerms) {
+        const item = document.createElement('div');
+        item.className = `contract-item${selectedContractId === contract.id ? ' contract-item--selected' : ''}${!isEnabled ? ' contract-item--disabled' : ''}`;
+        item.onclick = () => selectContract(contract.id);
+
+        // Determine badge
+        let badgeHtml = '';
+        if (contract.required) {
+            badgeHtml = '<span class="contract-item__badge contract-item__badge--required">Required</span>';
+        } else if (isEnabled) {
+            badgeHtml = '<span class="contract-item__badge contract-item__badge--enabled">Enabled</span>';
+        } else {
+            badgeHtml = '<span class="contract-item__badge contract-item__badge--disabled">Disabled</span>';
+        }
+
+        // Special terms indicator
+        if (hasSpecialTerms) {
+            badgeHtml += ' <span class="contract-item__badge contract-item__badge--special">Special</span>';
+        }
+
+        item.innerHTML = `
+            <div class="contract-item__header">
+                <h4 class="contract-item__name">${contract.shortName}</h4>
+                <div>${badgeHtml}</div>
+            </div>
+            <div class="contract-item__controls">
+                <div class="contract-item__toggle" onclick="event.stopPropagation()">
+                    <input type="checkbox" 
+                           id="enable_${contract.id}"
+                           ${isEnabled ? 'checked' : ''}
+                           ${contract.required ? 'disabled' : ''}
+                           onchange="toggleContractEnabled('${contract.id}', this.checked)">
+                    <label for="enable_${contract.id}">
+                        ${contract.required ? 'Always On' : 'Enabled'}
+                    </label>
+                </div>
+            </div>
+        `;
+
+        return item;
+    }
+
+    function selectContract(contractId) {
+        selectedContractId = contractId;
+
+        // Update list selection
+        renderContractsList();
+
+        // Show editor panel
+        const contract = AVAILABLE_CONTRACTS[contractId];
+        const contractConfig = projectConfig?.contracts?.[contractId] || {};
+        const isEnabled = contractConfig.enabled === true || contract?.required;
+
+        document.getElementById('emptyState').style.display = 'none';
+        const contractEditor = document.getElementById('contractEditor');
+        contractEditor.style.display = 'flex';
+        document.getElementById('editorTitle').textContent = contract?.name || contractId;
+
+        // Set special terms enabled state
+        const enableCheckbox = document.getElementById('enableSpecialTerms');
+        enableCheckbox.checked = contractConfig.specialTermsEnabled === true;
+        enableCheckbox.disabled = !isEnabled;
+
+        // Update section titles based on special terms status
+        updateSectionTitles();
+
+        // Load special terms editor
+        renderSpecialTermsEditor();
+
+        // Load standard terms preview
+        loadStandardTermsPreview();
+    }
+
+    function updateSectionTitles() {
+        const contractConfig = projectConfig?.contracts?.[selectedContractId] || {};
+        const hasSpecialTerms = contractConfig.specialTermsEnabled === true;
+        const contract = AVAILABLE_CONTRACTS[selectedContractId];
+
+        // Update standard terms section title with correct numbering
+        const standardTitle = document.getElementById('standardTermsTitle');
+        if (standardTitle) {
+            const sectionNum = hasSpecialTerms ? '2' : '1';
+            standardTitle.textContent = `${sectionNum}. Standard Terms: ${contract?.shortName || 'Terms'}`;
+        }
+
+        // Update special terms section visibility
+        const specialSection = document.getElementById('specialTermsSection');
+        if (specialSection) {
+            specialSection.classList.toggle('special-terms-section--disabled', !hasSpecialTerms);
+        }
+    }
+
+    function toggleContractEnabled(contractId, enabled) {
+        // Ensure contracts object exists
+        if (!projectConfig.contracts) {
+            projectConfig.contracts = {};
+        }
+
+        // Get or create contract entry
+        if (!projectConfig.contracts[contractId]) {
+            projectConfig.contracts[contractId] = {
+                enabled: false,
+                signed: false,
+                signatureRef: null,
+                signedDate: null,
+                specialTermsEnabled: false
+            };
+        }
+
+        projectConfig.contracts[contractId].enabled = enabled;
+
+        // Mark form dirty
+        if (window.NaEditorTools) {
+            NaEditorTools.markDirty();
+        }
+
+        renderContractsList();
+        updateSummary();
+
+        // Update editor if this contract is selected
+        if (selectedContractId === contractId) {
+            selectContract(contractId);
+        }
+    }
+
+    function toggleSpecialTerms() {
+        if (!selectedContractId) return;
+
+        const enabled = document.getElementById('enableSpecialTerms').checked;
+
+        // Ensure contract config exists
+        if (!projectConfig.contracts[selectedContractId]) {
+            projectConfig.contracts[selectedContractId] = {
+                enabled: true,
+                signed: false,
+                signatureRef: null,
+                signedDate: null,
+                specialTermsEnabled: false
+            };
+        }
+
+        projectConfig.contracts[selectedContractId].specialTermsEnabled = enabled;
+
+        // Create default special terms if enabling and none exist
+        if (enabled && !specialTermsData[selectedContractId]) {
+            specialTermsData[selectedContractId] = createDefaultSpecialTerms(selectedContractId);
+        }
+
+        // Mark form dirty
+        if (window.NaEditorTools) {
+            NaEditorTools.markDirty();
+        }
+
+        renderContractsList();
+        renderSpecialTermsEditor();
+        updateSectionTitles();
+        loadStandardTermsPreview();
+        updateSummary();
+    }
+
+    function updateSummary() {
+        let enabled = 0;
+        let signed = 0;
+        let pending = 0;
+        let withTerms = 0;
+
+        for (const [contractId, config] of Object.entries(projectConfig?.contracts || {})) {
+            const contractDef = AVAILABLE_CONTRACTS[contractId];
+            if (config.enabled === true || contractDef?.required) {
+                enabled++;
+                if (config.signed === true) {
+                    signed++;
+                } else {
+                    pending++;
+                }
+                if (config.specialTermsEnabled === true) {
+                    withTerms++;
+                }
+            }
+        }
+
+        document.getElementById('statEnabled').textContent = enabled;
+        document.getElementById('statSigned').textContent = signed;
+        document.getElementById('statPending').textContent = pending;
+        document.getElementById('statWithTerms').textContent = withTerms;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // SPECIAL TERMS EDITOR
+    // --------------------------------------------------------
+
+    function renderSpecialTermsEditor() {
+        const contract = AVAILABLE_CONTRACTS[selectedContractId];
+        const contractConfig = projectConfig?.contracts?.[selectedContractId] || {};
+        const isEnabled = contractConfig.enabled === true || contract?.required;
+        const specialEnabled = contractConfig.specialTermsEnabled === true;
+
+        const editorContainer = document.getElementById('specialTermsEditor');
+        const addBtn = document.getElementById('btnAddTerm');
+        const specialSection = document.getElementById('specialTermsSection');
+
+        if (!isEnabled) {
+            editorContainer.innerHTML = `
+                <div class="special-terms-section__empty">
+                    <p>🚫 This contract is disabled.<br>Enable it first to edit special terms.</p>
+                </div>
+            `;
+            addBtn.style.display = 'none';
+            specialSection.classList.add('special-terms-section--disabled');
+            return;
+        }
+
+        if (!specialEnabled) {
+            editorContainer.innerHTML = `
+                <div class="special-terms-section__empty">
+                    <p>📝 Check "Enable Special Terms" above to add project-specific terms.</p>
+                </div>
+            `;
+            addBtn.style.display = 'none';
+            specialSection.classList.add('special-terms-section--disabled');
+            return;
+        }
+
+        addBtn.style.display = 'inline-block';
+        specialSection.classList.remove('special-terms-section--disabled');
+
+        // Get or create special terms data
+        if (!specialTermsData[selectedContractId]) {
+            specialTermsData[selectedContractId] = createDefaultSpecialTerms(selectedContractId);
+        }
+
+        const data = specialTermsData[selectedContractId];
+
+        // Render inline term rows with 1.01, 1.02 numbering
+        let html = '';
+
+        if (data.terms && data.terms.length > 0) {
+            data.terms.forEach((term, index) => {
+                const termNumber = getTermNumber(index);
+                html += `
+                    <div class="term-row">
+                        <div class="term-row__number">${termNumber}</div>
+                        <div class="term-row__content">
+                            <input type="text" class="term-row__title-input" 
+                                   placeholder="Term title"
+                                   value="${escapeHtml(term.title || '')}"
+                                   onchange="updateTermTitle(${index}, this.value)">
+                            <textarea class="term-row__content-input" 
+                                      placeholder="Enter the special term details..."
+                                      onchange="updateTermContent(${index}, this.value)">${escapeHtml(term.content || '')}</textarea>
+                        </div>
+                        <button class="term-row__remove" onclick="removeTerm(${index})">✕</button>
+                    </div>
+                `;
+            });
+        } else {
+            html = '<div class="special-terms-section__empty"><p>No special terms yet. Click "+ Add Term" to create one.</p></div>';
+        }
+
+        editorContainer.innerHTML = html;
+    }
+
+    // Get term number in format 1.01, 1.02, etc.
+    function getTermNumber(index) {
+        const subsection = (index + 1).toString().padStart(2, '0');
+        return `1.${subsection}`;
+    }
+
+    function updateSectionTitle(value) {
+        if (!selectedContractId || !specialTermsData[selectedContractId]) return;
+        specialTermsData[selectedContractId].sectionTitle = value;
+        markDirty();
+        updatePreview();
+    }
+
+    function updateIntroduction(value) {
+        if (!selectedContractId || !specialTermsData[selectedContractId]) return;
+        specialTermsData[selectedContractId].introduction = value;
+        markDirty();
+        updatePreview();
+    }
+
+    function updateTermTitle(index, value) {
+        if (!selectedContractId || !specialTermsData[selectedContractId]) return;
+        if (specialTermsData[selectedContractId].terms[index]) {
+            specialTermsData[selectedContractId].terms[index].title = value;
+            markDirty();
+            updatePreview();
+        }
+    }
+
+    function updateTermContent(index, value) {
+        if (!selectedContractId || !specialTermsData[selectedContractId]) return;
+        if (specialTermsData[selectedContractId].terms[index]) {
+            specialTermsData[selectedContractId].terms[index].content = value;
+            markDirty();
+            updatePreview();
+        }
+    }
+
+    function addTerm() {
+        if (!selectedContractId) return;
+
+        if (!specialTermsData[selectedContractId]) {
+            specialTermsData[selectedContractId] = createDefaultSpecialTerms(selectedContractId);
+        }
+
+        const terms = specialTermsData[selectedContractId].terms || [];
+        const newId = terms.length > 0 ? Math.max(...terms.map(t => t.id || 0)) + 1 : 1;
+
+        terms.push({
+            id: newId,
+            title: '',
+            content: ''
+        });
+
+        specialTermsData[selectedContractId].terms = terms;
+        markDirty();
+        renderSpecialTermsEditor();
+    }
+
+    function removeTerm(index) {
+        if (!selectedContractId || !specialTermsData[selectedContractId]) return;
+
+        specialTermsData[selectedContractId].terms.splice(index, 1);
+        markDirty();
+        renderSpecialTermsEditor();
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // STANDARD TERMS PREVIEW
+    // --------------------------------------------------------
+
+    async function loadStandardTermsPreview() {
+        if (!selectedContractId) return;
+
+        const contract = AVAILABLE_CONTRACTS[selectedContractId];
+        if (!contract) return;
+
+        const contentEl = document.getElementById('standardTermsContent');
+        const contractConfig = projectConfig?.contracts?.[selectedContractId] || {};
+        const hasSpecialTerms = contractConfig.specialTermsEnabled === true;
+
+        // Show loading state
+        contentEl.innerHTML = '<p style="color: #999; text-align: center;">Loading standard terms...</p>';
+
+        try {
+            let markdown = markdownCache.get(selectedContractId);
+
+            if (!markdown) {
+                const response = await fetch(MD_BASE_PATH + contract.file);
+                if (!response.ok) {
+                    throw new Error(`Failed to load: ${contract.file}`);
+                }
+                markdown = await response.text();
+                markdownCache.set(selectedContractId, markdown);
+            }
+
+            // Parse markdown to HTML with correct section numbering
+            const startSection = hasSpecialTerms ? 2 : 1;
+            const html = parseMarkdownWithNumbering(markdown, startSection);
+            contentEl.innerHTML = html;
+
+        } catch (error) {
+            console.error('Error loading standard terms:', error);
+            contentEl.innerHTML = `
+                <div style="text-align: center; color: #dc3545; padding: 1rem;">
+                    <p>Error loading standard terms: ${error.message}</p>
+                    <p style="color: #666; font-size: 0.85rem;">File: ${contract.file}</p>
+                </div>
+            `;
+        }
+    }
+
+    // Parse markdown with section numbering (2.01, 2.02, etc.)
+    function parseMarkdownWithNumbering(markdown, startSection) {
+        // Remove header content before first ---
+        const parts = markdown.split('---');
+        const content = parts.slice(1).join('---').trim();
+
+        if (!content) {
+            return '<p style="color: #999;">No content found.</p>';
+        }
+
+        let html = '';
+        let sectionNumber = startSection - 1;
+        let subSectionNumber = 0;
+
+        const lines = content.split('\n');
+
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+
+            // Remove legacy placeholders
+            line = line.replace(/\{\{#\}\}\s*-?\s*/g, '');
+            line = line.replace(/\{\{#\.#\}\}\s*-?\s*/g, '');
+
+            if (line === '---') {
+                // Section break
+                sectionNumber++;
+                subSectionNumber = 0;
+            } else if (line === '___') {
+                // Topic break
+                subSectionNumber++;
+            } else if (line.startsWith('## ')) {
+                // Section heading
+                const title = line.substring(3).trim();
+                const num = sectionNumber > 0 ? `${sectionNumber}.` : '';
+                html += `<h2>${num} ${title}</h2>\n`;
+            } else if (line.startsWith('#### ')) {
+                // Sub-heading
+                const title = line.substring(5).trim();
+                const subNum = subSectionNumber > 0 ? subSectionNumber.toString().padStart(2, '0') : '01';
+                const num = sectionNumber > 0 ? `${sectionNumber}.${subNum}` : '';
+                html += `<h4 style="margin: 1rem 0 0.5rem 0; color: #555;">${num} ${title}</h4>\n`;
+            } else if (line.startsWith('- ')) {
+                // List item
+                html += `<li>${line.substring(2).trim()}</li>\n`;
+            } else if (line.startsWith('**') && line.endsWith('**')) {
+                // Bold paragraph
+                html += `<p><strong>${line.slice(2, -2)}</strong></p>\n`;
+            } else {
+                // Regular paragraph
+                html += `<p>${line}</p>\n`;
+            }
+        });
+
+        // Wrap consecutive list items in <ul>
+        html = html.replace(/(<li>.*?<\/li>\n)+/g, '<ul>$&</ul>');
+
+        return html;
+    }
+
+    // Legacy function - redirects to new behavior
+    async function previewStandardTerms() {
+        await loadStandardTermsPreview();
+    }
+
+    // Legacy function - kept for compatibility but does nothing now
+    function updatePreview() {
+        // Preview is now always shown in the standard terms section
+    }
+
+    async function legacyPreviewStandardTerms() {
+        if (!selectedContractId) return;
+
+        const contract = AVAILABLE_CONTRACTS[selectedContractId];
+        if (!contract) return;
+
+        try {
+            let markdown = markdownCache.get(selectedContractId);
+
+            if (!markdown) {
+                const response = await fetch(MD_BASE_PATH + contract.file);
+                if (!response.ok) {
+                    throw new Error(`Failed to load: ${contract.file}`);
+                }
+                markdown = await response.text();
+                markdownCache.set(selectedContractId, markdown);
+            }
+
+            // Show in modal or update preview
+            const previewContent = document.getElementById('previewContent');
+            const renderedHtml = renderMarkdownPreview(markdown);
+
+            previewContent.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <button class="btn btn--secondary btn--small" onclick="updatePreview()">← Back to Special Terms</button>
+                </div>
+                <div class="standard-terms-preview" style="background: #fff;">
+                    <div class="standard-terms-preview__title">
+                        Standard Terms: ${escapeHtml(contract.name)}
+                    </div>
+                    <div style="max-height: none;">
+                        ${renderedHtml}
+                    </div>
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('Preview error:', error);
+            alert(`Error loading standard terms: ${error.message}`);
+        }
+    }
+
+    function renderMarkdownPreview(markdown) {
+        // Simple markdown to HTML conversion for preview
+        let html = markdown
+            .replace(/^###### (.+)$/gm, '<h6>$1</h6>')
+            .replace(/^##### (.+)$/gm, '<h5>$1</h5>')
+            .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2 style="font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #333;">$1</h2>')
+            .replace(/^# (.+)$/gm, '<h1 style="font-size: 1.3rem; margin-bottom: 1rem;">$1</h1>')
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+            .replace(/^---$/gm, '<hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #ddd;">')
+            .replace(/^___$/gm, '<hr style="margin: 1rem 0; border: none; border-top: 1px dashed #ccc;">')
+            .replace(/^- (.+)$/gm, '<li style="margin-left: 1.5rem;">$1</li>')
+            .replace(/^(?!<[a-z]|$)(.+)$/gm, '<p style="margin-bottom: 0.5rem; line-height: 1.6;">$1</p>');
+
+        return `<div style="font-size: 0.9rem;">${html}</div>`;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // UTILITIES
+    // --------------------------------------------------------
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function markDirty() {
+        if (window.NaEditorTools) {
+            NaEditorTools.markDirty();
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+</script>
+<!-- endregion ---------------------------------------- -->
+
+</html>

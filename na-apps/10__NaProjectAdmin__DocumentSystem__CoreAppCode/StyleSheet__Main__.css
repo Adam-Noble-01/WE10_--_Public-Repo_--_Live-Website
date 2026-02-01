@@ -338,12 +338,12 @@
 
     .menu-tutorial-overlay {
         position                   : absolute;
-        top                        : 75px;              /* <-- Below header and hamburger menu */
+        top                        : 70px;              /* <-- Below header and hamburger menu */
         left                       : 10px;
         display                    : none;
         z-index                    : 10000;
         pointer-events             : none;               /* <-- Doesn't block clicks */
-        animation                  : tutorialAppear 6s ease;
+        animation                  : tutorialAppear 4s ease;
     }
 
     @keyframes tutorialFadeIn {
@@ -436,9 +436,22 @@
         margin-left                : 0;
     }
 
+    /* Remove padding when in editor mode for full-width editors */
+    .main-content.editor-mode-active {
+        padding                    : 0;
+        overflow                   : hidden;
+    }
+
     .screen {
         max-width                  : 1200px;
         margin                     : 0 auto;
+    }
+
+    /* Override screen constraints when in editor mode */
+    .screen.editor-mode-active {
+        max-width                  : none;
+        margin                     : 0;
+        padding                    : 0;
     }
 
 /* endregion -------------------------------------------------- */
@@ -739,6 +752,15 @@
         padding-bottom             : var(--App_SpacingXxl);
     }
 
+    /* Remove constraints when document-screen is in editor mode */
+    .document-screen.editor-mode-active {
+        padding-bottom             : 0;
+        max-width                  : none;
+        margin                     : 0;
+        height                     : calc(100vh - var(--App_HeaderHeight));
+        position                   : relative;
+    }
+
     .document-container {
         background-color           : var(--App_BgSecondary);
         border-radius              : var(--App_BorderRadiusLg);
@@ -749,17 +771,29 @@
 
     /* Editor Mode - Full width when editor is loaded */
     .document-container.editor-mode {
-        max-width                  : 100%;
+        max-width                  : none;
         background-color           : transparent;
         box-shadow                 : none;
         border-radius              : 0;
         padding                    : 0;
+        margin                     : 0;
+        position                   : absolute;
+        top                        : 0;
+        left                       : 0;
+        right                      : 0;
+        bottom                     : 0;
+        width                      : 100%;
+        height                     : 100%;
     }
 
     .editor-frame-container {
         width                      : 100%;
-        height                     : calc(100vh - 60px);
-        position                   : relative;
+        height                     : 100%;
+        position                   : absolute;
+        top                        : 0;
+        left                       : 0;
+        right                      : 0;
+        bottom                     : 0;
         background                 : var(--App_BgPrimary);
     }
 
@@ -961,7 +995,7 @@
     }
 
     .document__logo {
-        max-width                  : 200px;
+        max-width                  : 290px;
     }
 
     .document__meta {
@@ -1142,33 +1176,31 @@
     }
 
     .terms-section--special {
-        background-color           : #fffdf5;
-        border                     : 1px solid var(--App_BrandAccent);
-        border-radius              : var(--App_BorderRadius);
+        background-color           : #fffbe6;            /* Prominent yellow background */
+        border                     : 2px solid #ffe066;  /* Yellow border */
+        border-left                : 4px solid #d4a000;  /* Strong left accent */
+        border-radius              : var(--App_BorderRadiusLg);
         padding                    : var(--App_SpacingLg);
         margin-bottom              : var(--App_SpacingXl);
+        box-shadow                 : 0 2px 8px rgba(212, 160, 0, 0.15);
     }
 
     .terms-section--special .terms-section__title {
-        color                      : var(--App_BrandAccent);
-        border-bottom-color        : var(--App_BrandAccent);
+        color                      : #856404;            /* Dark yellow text */
+        border-bottom-color        : #ffe066;
+        font-size                  : 1.15rem;
+    }
+
+    .terms-section--special .terms-section__intro {
+        color                      : #6b5003;
+        font-style                 : italic;
+        margin-bottom              : var(--App_SpacingMd);
+        padding-bottom             : var(--App_SpacingSm);
+        border-bottom              : 1px dashed #ffe066;
     }
 
     .terms-item {
         margin-bottom              : var(--App_SpacingMd);
-        padding-left               : var(--App_SpacingMd);
-        position                   : relative;
-    }
-
-    .terms-item::before {
-        content                    : '';
-        position                   : absolute;
-        left                       : 0;
-        top                        : 0.7em;
-        width                      : 6px;
-        height                     : 6px;
-        background-color           : var(--App_BrandPrimary);
-        border-radius              : 50%;
     }
 
     .terms-item__title {
@@ -1177,9 +1209,51 @@
         margin-bottom              : var(--App_SpacingXs);
     }
 
+    .terms-section--special .terms-item__title {
+        color                      : #6b5003;            /* Dark yellow title */
+    }
+
     .terms-item__content {
         color                      : var(--App_TextSecondary);
         line-height                : 1.7;
+    }
+
+    .terms-section--special .terms-item__content {
+        color                      : #555;               /* Darker content text */
+    }
+
+    .terms-section-divider {
+        border                     : none;
+        border-top                 : 1px solid #d0d0d0;  /* Mid-gray divider */
+        margin                     : var(--App_SpacingLg) 0;
+    }
+
+    .terms-subheading {
+        font-size                  : 1rem;
+        font-weight                : 600;
+        color                      : var(--App_TextPrimary);
+        margin                     : var(--App_SpacingMd) 0 var(--App_SpacingSm);
+    }
+
+    .terms-footer {
+        margin-top                 : var(--App_SpacingLg);
+        padding-top                : var(--App_SpacingMd);
+        border-top                 : 1px solid #e0e0e0;
+        text-align                 : center;
+        color                      : var(--App_TextSecondary);
+        font-style                 : italic;
+    }
+
+    .terms-content ul {
+        margin                     : var(--App_SpacingSm) 0;
+        padding-left               : 2rem;               /* Indent bullets from margin */
+        list-style-type            : disc;
+    }
+
+    .terms-content li {
+        margin                     : var(--App_SpacingXs) 0;
+        line-height                : 1.7;
+        color                      : var(--App_TextSecondary);
     }
 
 /* endregion -------------------------------------------------- */

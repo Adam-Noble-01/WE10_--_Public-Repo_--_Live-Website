@@ -1,14 +1,28 @@
 {
-    "projectCode"                  : "AA00",
-    "projectName"                  : "Example Project Structure",
-    "clientName"                   : "Example Client",
-    "projectPin"                   : "1234",
-    "documents"                    : {
-        "quotation"                : true,
-        "specialTerms"             : true
+    "projectCode"        : "AA00",
+    "projectName"        : "Example Project Structure",
+    "clientName"         : "Example Client",
+    "projectPin"         : "1234",
+    "contracts": {
+        "general-business": {
+            "enabled"               : true,
+            "signed"                : false,
+            "signatureRef"          : null,
+            "signedDate"            : null,
+            "specialTermsEnabled"   : true
+        },
+        "concept-design": {
+            "enabled"               : true,
+            "signed"                : false,
+            "signatureRef"          : null,
+            "signedDate"            : null,
+            "specialTermsEnabled"   : false
+        }
     },
-    "createdDate"                  : "31-Jan-2026",
-    "lastModified"                 : "2026-01-31T12:00:00.000Z",
-    "notes"                        : "This is an example project structure for testing and demonstration purposes."
+    "documents": {
+        "quotation"          : true
+    },
+    "createdDate"        : "31-Jan-2026",
+    "lastModified"       : "01-Feb-2026 at 16:30",
+    "notes"              : "This is an example project structure for testing and demonstration purposes."
 }
-

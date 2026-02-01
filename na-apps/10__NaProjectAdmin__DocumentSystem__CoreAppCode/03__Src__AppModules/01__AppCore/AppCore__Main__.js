@@ -99,6 +99,12 @@
                 const appConfig = window.NaProjectAdmin.ConfigManager.getConfig();
                 await window.NaProjectAdmin.AssetLoader.initialise(appConfig);
 
+                // Initialise Contract Loader (Multi-Contract System v0.5.0)
+                if (window.NaProjectAdmin.ContractLoader) {
+                    await window.NaProjectAdmin.ContractLoader.initialise();
+                    console.log('[App] Contract Loader initialised');
+                }
+
                 // Parse URL parameters
                 const urlParams = parseUrlParameters();
                 
@@ -435,6 +441,9 @@
                 }
 
                 hideLoadingOverlay();
+
+                // Dispatch event that project is fully loaded
+                window.dispatchEvent(new CustomEvent('projectFullyLoaded'));
             }
             // ---------------------------------------------------------------
 
@@ -621,6 +630,9 @@
             }
 
             hideLoadingOverlay();
+
+            // Dispatch event that project is fully loaded
+            window.dispatchEvent(new CustomEvent('projectFullyLoaded'));
         }
         // ---------------------------------------------------------------
 
@@ -766,13 +778,24 @@
             }
 
             try {
+                // Get quotation reference if signing a quotation
+                let quotationRef = null;
+                if (pendingSignatureType === 'quotation' && window.NaProjectAdmin.UserInterfaceMain) {
+                    const quotationData = window.NaProjectAdmin.UserInterfaceMain.getLoadedQuotation();
+                    if (quotationData) {
+                        quotationRef = quotationData.quotationRef;
+                        console.log('[App] Captured quotation reference:', quotationRef);
+                    }
+                }
+
                 // Create audit record
                 const auditRecord = await window.NaProjectAdmin.SignatureAuditRecord.createAuditRecord({
                     documentType             : pendingSignatureType,
                     documentTitle            : pendingSignatureTitle,
                     signerName               : signerName,
                     signatureImage           : signatureImage,
-                    documentContent          : null                      // <-- Optional document hash
+                    documentContent          : null,                     // <-- Optional document hash
+                    quotationRef             : quotationRef              // <-- Quotation reference if signing quote
                 });
 
                 // Store audit record
