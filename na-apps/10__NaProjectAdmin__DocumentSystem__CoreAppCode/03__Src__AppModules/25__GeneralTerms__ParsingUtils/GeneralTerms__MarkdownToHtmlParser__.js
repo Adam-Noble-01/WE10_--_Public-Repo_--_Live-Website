@@ -18,6 +18,25 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 1.1.2
+// - Critical Bug Fix
+//   - Fixed tables not rendering when followed by empty lines
+//   - Empty line handler now properly closes and renders open tables
+//
+// 01-Feb-2026 - Version 1.1.1
+// - Bug Fixes
+//   - Fixed section dividers (---) after tables being treated as content
+//   - Tables now properly recognize and skip trailing dividers
+//
+// 01-Feb-2026 - Version 1.1.0
+// - Enhanced Inline Formatting
+//   - Fixed bold/italic rendering in list items
+//   - List items now process **bold**, *italic*, and `code` correctly
+// - Added Table Support
+//   - Markdown table parsing (pipe-delimited format)
+//   - Auto-detects header, separator, and data rows
+//   - Inline formatting support within table cells
+//
 // 01-Feb-2026 - Version 1.0.0
 // - Initial Release
 //   - Section numbering (## headings)
@@ -105,15 +124,25 @@
                 let subSectionNumber = 0;
                 let currentParagraph = [];
                 let inSection = false;
+                let inTable = false;
+                let tableRows = [];
 
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
                     const trimmed = line.trim();
 
-                    // Skip empty lines but flush paragraph
+                    // Skip empty lines but flush paragraph and close table if needed
                     if (trimmed === '') {
                         html += flushParagraph(currentParagraph);
                         currentParagraph = [];
+                        
+                        // If we're in a table, close it
+                        if (inTable && tableRows.length > 0) {
+                            html += renderTable(tableRows);
+                            inTable = false;
+                            tableRows = [];
+                        }
+                        
                         continue;
                     }
 
@@ -199,8 +228,34 @@
                         currentParagraph = [];
                         
                         const listItem = trimmed.substring(2);
-                        html += `<ul><li>${escapeHtml(listItem)}</li></ul>`;
+                        html += `<ul><li>${processInlineFormatting(listItem)}</li></ul>`;
                         continue;
+                    }
+
+                    // Table rows
+                    if (isTableRow(trimmed)) {
+                        // Flush paragraph before starting table
+                        if (!inTable) {
+                            html += flushParagraph(currentParagraph);
+                            currentParagraph = [];
+                            inTable = true;
+                            tableRows = [];
+                        }
+                        
+                        tableRows.push(trimmed);
+                        continue;
+                    } else if (inTable) {
+                        // End of table - render it
+                        html += renderTable(tableRows);
+                        inTable = false;
+                        tableRows = [];
+                        
+                        // Check if current line is a divider (skip it)
+                        if (trimmed === SECTION_DIVIDER || trimmed === TOPIC_DIVIDER) {
+                            continue;
+                        }
+                        
+                        // Process current line normally (fall through)
                     }
 
                     // Bold text processing for inline **text**
@@ -210,6 +265,11 @@
 
                 // Flush any remaining paragraph
                 html += flushParagraph(currentParagraph);
+
+                // Flush any remaining table
+                if (inTable && tableRows.length > 0) {
+                    html += renderTable(tableRows);
+                }
 
                 // Close final section if open
                 if (inSection) {
@@ -291,6 +351,68 @@
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&#039;');
+            }
+            // ---------------------------------------------------------------
+
+            /**
+             * Check if line is a table row
+             * @param {string} line - Line to check
+             * @returns {boolean} True if line is a table row
+             */
+            function isTableRow(line) {
+                const trimmed = line.trim();
+                return trimmed.startsWith('|') && trimmed.endsWith('|');
+            }
+            // ---------------------------------------------------------------
+
+            /**
+             * Render accumulated table rows as HTML
+             * @param {string[]} rows - Table rows (header, separator, data)
+             * @returns {string} HTML table
+             */
+            function renderTable(rows) {
+                if (rows.length < 2) {
+                    return '';                                       // <-- Need at least header + separator
+                }
+
+                let html = '<table class="terms-table">';
+                
+                // Parse header row
+                const headerCells = rows[0]
+                    .split('|')
+                    .slice(1, -1)                                    // <-- Remove empty first/last
+                    .map(cell => cell.trim());
+                
+                // Check if second row is separator (contains dashes)
+                const isSeparatorRow = rows[1].includes('---') || rows[1].includes('---');
+                const dataStartIndex = isSeparatorRow ? 2 : 1;
+                
+                // Render header
+                html += '<thead><tr>';
+                for (const cell of headerCells) {
+                    html += `<th>${processInlineFormatting(cell)}</th>`;
+                }
+                html += '</tr></thead>';
+                
+                // Render body rows
+                html += '<tbody>';
+                for (let i = dataStartIndex; i < rows.length; i++) {
+                    const cells = rows[i]
+                        .split('|')
+                        .slice(1, -1)                                // <-- Remove empty first/last
+                        .map(cell => cell.trim());
+                    
+                    html += '<tr>';
+                    for (const cell of cells) {
+                        html += `<td>${processInlineFormatting(cell)}</td>`;
+                    }
+                    html += '</tr>';
+                }
+                html += '</tbody>';
+                
+                html += '</table>';
+                
+                return html;
             }
             // ---------------------------------------------------------------
 

@@ -26,6 +26,12 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 1.2.0
+// - Added fallback path construction for new projects
+//   - Accepts year and projectName in request body
+//   - Uses buildProjectFilePathWithFallback() for store operations
+//   - Enables saving client data to projects not yet in R2
+//
 // 31-Jan-2026 - Version 1.1.0
 // - Updated to use ProjectPath helper
 //   - Folder discovery via R2 listing
@@ -41,7 +47,7 @@
 //
 // =============================================================================
 
-import { buildProjectFilePath, getProjectYear } from '../helpers/CloudflareHelper__ProjectPath__.js';
+import { buildProjectFilePath, buildProjectFilePathWithFallback, getProjectYear } from '../helpers/CloudflareHelper__ProjectPath__.js';
 
 // #Region ---
 // REGION | Main Handler
@@ -89,9 +95,9 @@ import { buildProjectFilePath, getProjectYear } from '../helpers/CloudflareHelpe
     async function storeClientData(request, env) {
         try {
             const body               = await request.json();
-            const { projectCode, clientData, sessionToken } = body;
+            const { projectCode, year, projectName, clientData, sessionToken } = body;
 
-            // Validate required fields (year is now optional - auto-detected)
+            // Validate required fields
             if (!projectCode || !clientData) {
                 return jsonResponse({ 
                     success          : false,
@@ -143,22 +149,24 @@ import { buildProjectFilePath, getProjectYear } from '../helpers/CloudflareHelpe
                 }, 500);
             }
 
-            // Build storage key using helper (auto-detects year and folder name)
-            const storageKey         = await buildProjectFilePath(
+            // Build storage key using helper with fallback for new projects
+            // Falls back to constructing path from year + projectName if folder doesn't exist in R2
+            const storageKey         = await buildProjectFilePathWithFallback(
                 projectCode, 
                 'ClientData__Private__.json.enc', 
-                env
+                env,
+                { year, projectName }                                        // <-- Fallback options
             );
 
             if (!storageKey) {
                 return jsonResponse({ 
                     success          : false,
-                    error            : 'Project folder not found' 
+                    error            : 'Project folder not found and no year/projectName provided for fallback' 
                 }, 404);
             }
 
-            // Get detected year for response
-            const detectedYear       = await getProjectYear(projectCode, env);
+            // Get detected year for response (may be from lookup or from provided year)
+            const detectedYear       = await getProjectYear(projectCode, env) || year;
 
             // Store in R2
             await env.R2_BUCKET.put(storageKey, JSON.stringify(encryptedPayload), {

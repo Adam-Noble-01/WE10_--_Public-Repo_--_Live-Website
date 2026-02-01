@@ -5,7 +5,6 @@
 -   This is the master template.
 -   Last updated 01-Feb-2026
 -   Terms start after the dividers and will be loaded in sequence and assigned sequential numbers.
--   "---"   = Markdown logic should remove these, they are for me writing the terms and to keep human readableclear sections before parsing.
 
 ---
 

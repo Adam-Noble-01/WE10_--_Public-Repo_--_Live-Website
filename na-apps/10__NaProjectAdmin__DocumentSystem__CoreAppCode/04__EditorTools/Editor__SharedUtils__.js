@@ -19,6 +19,11 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 1.3.0
+// - Updated saveClientDataToCloudflare() to accept projectName
+//   - Enables fallback path construction for new projects
+//   - Worker constructs path using {code}__{projectName} convention
+//
 // 31-Jan-2026 - Version 1.2.0
 // - Added GDPR-compliant Cloudflare client data helpers
 //   - saveClientDataToCloudflare() - Store encrypted PII in R2
@@ -1083,9 +1088,10 @@
      * @param {string} year - Two-digit year
      * @param {Object} clientData - Client PII to encrypt and store
      * @param {string} sessionToken - Session token for authentication
+     * @param {string} [projectName] - Project name for fallback path construction
      * @returns {Object} Result with success status
      */
-    async function saveClientDataToCloudflare(projectCode, year, clientData, sessionToken) {
+    async function saveClientDataToCloudflare(projectCode, year, clientData, sessionToken, projectName = null) {
         try {
             const response = await fetch(`${CLOUDFLARE_WORKER_URL}projectadmin/clientdata`, {
                 method: 'POST',
@@ -1095,6 +1101,7 @@
                 body: JSON.stringify({
                     projectCode      : projectCode,
                     year             : year,
+                    projectName      : projectName,                          // <-- For fallback path
                     clientData       : clientData,
                     sessionToken     : sessionToken
                 })

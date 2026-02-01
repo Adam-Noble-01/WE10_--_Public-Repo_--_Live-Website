@@ -1,0 +1,157 @@
+{
+    "quotationRef": "QUO-NP03-2026-001",
+    "quotationDate": "29-Jan-2026",
+    "projectAddress": "7, Ashness close, Nottingham, NG2 6QW",
+    "projectDescription": "A loft conversion, likely a dormer loft conversion to maximise space, together with associated internal alterations to the existing dwelling, requiring concept design and the preparation and submission of a planning application.",
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "lineItems": [
+        {
+            "description": "Initial Design Consultation",
+            "quantity": 1,
+            "unit": "Free",
+            "rate": 0,
+            "group": "Design Phase - 01  :  Concept Design "
+        },
+        {
+            "description": "Building Survey & Travel",
+            "quantity": 5,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 01  :  Concept Design "
+        },
+        {
+            "description": "Model Existing Site Conditions",
+            "quantity": 16,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 01  :  Concept Design "
+        },
+        {
+            "description": "Prepare Design Proposal & Design Development",
+            "quantity": 16,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 01  :  Concept Design "
+        },
+        {
+            "description": "Finalisation of TrueVison Experience & Distribution",
+            "quantity": 2,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 01  :  Concept Design "
+        },
+        {
+            "description": "Coordination & Admin",
+            "quantity": 1,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 01  :  Concept Design "
+        },
+        {
+            "description": "Planning Drawing - 1:50 Existing Floor Plans @ A2",
+            "quantity": 4,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 02  :  Planning Approval"
+        },
+        {
+            "description": "Planning Drawing - 1:1250 Site Plan & 1:500 Site Plan @ A2",
+            "quantity": 2,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 02  :  Planning Approval"
+        },
+        {
+            "description": "Planning Drawing - 1:50 Proposed Floor Plans @ A2",
+            "quantity": 4,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 02  :  Planning Approval"
+        },
+        {
+            "description": "Planning Drawing - 1:50 Existing Elevations @ A2",
+            "quantity": 6,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 02  :  Planning Approval"
+        },
+        {
+            "description": "Planning Drawing - 1:50 Proposed Elevations @ A2",
+            "quantity": 6,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 02  :  Planning Approval"
+        },
+        {
+            "description": "Coordination & Admin",
+            "quantity": 1,
+            "unit": "Optional",
+            "rate": 25,
+            "group": "Design Phase - 02  :  Planning Approval"
+        },
+        {
+            "description": "File the Planning Application with Rushcliffe Borough Council",
+            "quantity": 1,
+            "unit": "Hours",
+            "rate": 25,
+            "group": "Design Phase - 02  :  Planning Approval"
+        },
+        {
+            "description": "Managed Planning Application  (See Contract)",
+            "quantity": 0,
+            "unit": "Optional",
+            "rate": 600,
+            "group": "Additional Extras  :  **For Discussion"
+        },
+        {
+            "description": "Design Phase 03 - Building Regulations",
+            "quantity": 0,
+            "unit": "Optional",
+            "rate": 1600,
+            "group": "Additional Extras  :  **For Discussion"
+        },
+        {
+            "description": "Photorealistic CGI",
+            "quantity": 0,
+            "unit": "Optional",
+            "rate": 200,
+            "group": "Additional Extras  :  **For Discussion"
+        },
+        {
+            "description": "Planning Portal Fee ",
+            "quantity": 0,
+            "unit": "item",
+            "rate": 95,
+            "group": "Additional Extras  :  **For Discussion"
+        },
+        {
+            "description": "Design & Access Statement",
+            "quantity": 0,
+            "unit": "Optional",
+            "rate": 200,
+            "group": "Additional Extras  :  **For Discussion"
+        },
+        {
+            "description": "Planning Application Fee - Set by Local Planning Authority.",
+            "quantity": 0,
+            "unit": "Ref Only",
+            "rate": 528,
+            "group": "Third Party Fees  -  **Not Included"
+        },
+        {
+            "description": "OS Mapping Data required for site plan document production.",
+            "quantity": 0,
+            "unit": "Ref Only",
+            "rate": 30,
+            "group": "Third Party Fees  -  **Not Included"
+        }
+    ],
+    "totals": {
+        "subtotal": 1600,
+        "vatRate": 0,
+        "vat": 0,
+        "grandTotal": 1600
+    },
+    "additionalTerms": "",
+    "createdDate": "01-Feb-2026 at 19:50"
+}

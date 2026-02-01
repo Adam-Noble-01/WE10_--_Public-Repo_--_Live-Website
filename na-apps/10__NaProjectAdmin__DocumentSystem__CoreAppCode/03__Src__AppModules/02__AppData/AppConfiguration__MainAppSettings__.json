@@ -145,6 +145,15 @@
                     "description"              : "Terms for TrueVision 3D model viewer",
                     "required"                 : false,
                     "order"                    : 30
+                },
+                "project-vision": {
+                    "id"                       : "project-vision",
+                    "name"                     : "ProjectVision App Terms",
+                    "shortName"                : "ProjectVision",
+                    "file"                     : "10_40__ApprovedStandardTerms__ProjectVision__.md",
+                    "description"              : "Terms for ProjectVision project overview tool",
+                    "required"                 : false,
+                    "order"                    : 40
                 }
             }
         },

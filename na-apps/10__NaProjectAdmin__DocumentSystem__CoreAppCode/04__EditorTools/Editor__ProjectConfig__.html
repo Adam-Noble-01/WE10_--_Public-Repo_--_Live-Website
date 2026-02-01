@@ -119,8 +119,8 @@
 
                 <div class="form-group">
                     <label for="clientHouseNameNo">House Name / No.</label>
-                    <input type="text" id="clientHouseNameNo" class="form-input" placeholder="e.g., 42 or The Old Rectory"
-                        onchange="updatePreview(); markFormDirty()">
+                    <input type="text" id="clientHouseNameNo" class="form-input"
+                        placeholder="e.g., 42 or The Old Rectory" onchange="updatePreview(); markFormDirty()">
                 </div>
 
                 <div class="form-group">
@@ -151,7 +151,8 @@
 
                 <div class="form-group">
                     <label class="checkbox-group">
-                        <input type="checkbox" id="siteAddressSameAsClient" onchange="copySiteAddressFromClient(); markFormDirty()">
+                        <input type="checkbox" id="siteAddressSameAsClient"
+                            onchange="copySiteAddressFromClient(); markFormDirty()">
                         Same as client address
                     </label>
                 </div>
@@ -592,7 +593,7 @@
      */
     function hasClientData() {
         const clientData = collectClientData();
-        
+
         // Check if any primary fields have content
         if (clientData.clientName || clientData.clientEmail || clientData.clientPhone) {
             return true;
@@ -699,8 +700,8 @@
             NaEditorTools.showInfoMessage('Loading encrypted client data...');
 
             const result = await NaEditorTools.loadClientDataFromCloudflare(
-                currentProjectCode, 
-                currentYear, 
+                currentProjectCode,
+                currentYear,
                 sessionToken
             );
 
@@ -763,9 +764,9 @@
         // 1. Save non-PII config to local Flask
         try {
             localSaveSuccess = await NaEditorTools.saveProjectFile(
-                CONFIG_FILENAME, 
-                nonPiiData, 
-                currentProjectCode, 
+                CONFIG_FILENAME,
+                nonPiiData,
+                currentProjectCode,
                 currentYear
             );
         } catch (error) {
@@ -776,7 +777,8 @@
         // 2. Save PII to Cloudflare R2 (if there is any)
         if (hasPii && localSaveSuccess) {
             const clientData = collectClientData();
-            
+            const projectName = document.getElementById('projectName').value;  // <-- For R2 path fallback
+
             // Generate session token for dev mode
             if (!sessionToken) {
                 sessionToken = generateDevSessionToken(currentProjectCode);
@@ -789,7 +791,8 @@
                     currentProjectCode,
                     currentYear,
                     clientData,
-                    sessionToken
+                    sessionToken,
+                    projectName                                              // <-- Pass project name for path
                 );
 
                 cloudflareSuccess = result && result.success === true;

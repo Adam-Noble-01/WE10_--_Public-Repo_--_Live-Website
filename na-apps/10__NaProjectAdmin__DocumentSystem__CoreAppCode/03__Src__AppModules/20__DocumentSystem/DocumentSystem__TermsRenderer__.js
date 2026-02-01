@@ -238,7 +238,7 @@
                             By signing below, you confirm that you have read, understood, 
                             and agree to be bound by these terms.
                         </p>
-                        <button class="btn btn--primary btn--large" 
+                        <button class="btn btn--sign-action btn--large" 
                                 onclick="window.NaProjectAdmin.App.showSignatureScreen('contract_${contractId}', '${contractName}')">
                             Sign &amp; Accept
                         </button>
@@ -501,7 +501,7 @@
                             By signing below, you confirm that you have read, understood, 
                             and agree to be bound by these terms.
                         </p>
-                        <button class="btn btn--primary btn--large" 
+                        <button class="btn btn--sign-action btn--large" 
                                 onclick="window.NaProjectAdmin.App.showSignatureScreen('${documentType}', '${documentTitle}')">
                             Sign &amp; Accept Terms
                         </button>

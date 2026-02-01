@@ -101,6 +101,11 @@
         overflow-x                 : hidden;
     }
 
+    strong,
+    b {
+        font-weight                : 600;                    /* <-- OpenSans SemiBold */
+    }
+
     a {
         color                      : var(--App_TextLink);
         text-decoration            : none;
@@ -991,7 +996,7 @@
         align-items                : flex-start;
         margin-bottom              : var(--App_SpacingXl);
         padding-bottom             : var(--App_SpacingLg);
-        border-bottom              : 3px solid var(--App_BrandPrimary);
+        border-bottom              : 1.5px solid var(--App_BrandPrimary);
     }
 
     .document__logo {
@@ -1004,7 +1009,7 @@
 
     .document__title {
         font-size                  : 1.75rem;
-        font-weight                : 700;
+        font-weight                : 600;
         color                      : var(--App_BrandPrimary);
         margin-bottom              : var(--App_SpacingXs);
     }
@@ -1103,6 +1108,12 @@
         font-size                  : 0.9375rem;
     }
 
+    .quote-table td strong,
+    .quote-table th strong {
+        font-size                  : inherit;           /* Inherit parent font-size */
+        font-weight                : 600;               /* OpenSans SemiBold */
+    }
+
     .quote-table__description {
         width                      : 50%;
     }
@@ -1127,8 +1138,19 @@
 
     .quote-totals {
         margin-left                : auto;
-        width                      : 300px;
+        min-width                  : 300px;
+        max-width                  : 450px;
+        width                      : fit-content;
         border-top                 : 2px solid var(--App_BrandPrimary);
+    }
+
+    .quote-totals__row--phase {
+        color                      : var(--App_TextSecondary);
+        font-size                  : 0.875rem;
+    }
+
+    .quote-totals__row--phase span:first-child {
+        padding-right              : var(--App_SpacingXxl);
     }
 
     .quote-totals__row {
@@ -1168,11 +1190,11 @@
 
     .terms-section__title {
         font-size                  : 1.25rem;
-        font-weight                : 700;
+        font-weight                : 600;
         color                      : var(--App_BrandPrimary);
         margin-bottom              : var(--App_SpacingMd);
         padding-bottom             : var(--App_SpacingSm);
-        border-bottom              : 2px solid var(--App_BrandPrimary);
+        border-bottom              : 1.0px solid var(--App_BrandPrimary);
     }
 
     .terms-section--special {
@@ -1224,7 +1246,7 @@
 
     .terms-section-divider {
         border                     : none;
-        border-top                 : 1px solid #d0d0d0;  /* Mid-gray divider */
+        border-top                 : 0.25px solid #d0d0d0;  /* Mid-gray divider */
         margin                     : var(--App_SpacingLg) 0;
     }
 
@@ -1254,6 +1276,73 @@
         margin                     : var(--App_SpacingXs) 0;
         line-height                : 1.7;
         color                      : var(--App_TextSecondary);
+    }
+
+    .terms-content strong,
+    .terms-content b {
+        font-size                  : inherit;           /* Inherit parent font-size */
+        font-weight                : 600;               /* OpenSans SemiBold */
+    }
+
+    .terms-content .terms-table {
+        width                      : 100%;
+        border-collapse            : collapse;
+        margin                     : var(--App_SpacingMd) 0;
+        background-color           : #ffffff;
+        border                     : 1px solid #d0d0d0;
+        font-size                  : 1rem;              /* Match body text size */
+    }
+
+    .terms-content .terms-table th {
+        background-color           : #f5f5f5;
+        color                      : var(--App_TextPrimary);
+        font-weight                : 600;
+        text-align                 : left;
+        padding                    : 0.75rem 1rem;
+        border-bottom              : 2px solid #d0d0d0;
+        font-size                  : 0.95rem;           /* Slightly smaller for headers */
+    }
+
+    .terms-content .terms-table td {
+        padding                    : 0.75rem 1rem;
+        border-bottom              : 1px solid #e5e5e5;
+        color                      : var(--App_TextSecondary);
+        line-height                : 1.7;               /* Match body line-height */
+        font-size                  : 1rem;              /* Match body text size */
+    }
+
+    .terms-content .terms-table td strong,
+    .terms-content .terms-table th strong {
+        font-size                  : inherit;           /* Inherit parent font-size */
+        font-weight                : 600;               /* OpenSans SemiBold */
+    }
+
+    .terms-content .terms-table tr:last-child td {
+        border-bottom              : none;
+    }
+
+    .terms-content .terms-table tr:hover {
+        background-color           : #fafafa;
+    }
+
+    /* Responsive table behaviour */
+    @media (max-width: 768px) {
+        .terms-content .terms-table {
+            font-size              : 0.9rem;
+        }
+
+        .terms-content .terms-table th {
+            font-size              : 0.875rem;
+        }
+
+        .terms-content .terms-table td {
+            font-size              : 0.9rem;
+            padding                : 0.5rem 0.75rem;
+        }
+
+        .terms-content .terms-table th {
+            padding                : 0.5rem 0.75rem;
+        }
     }
 
 /* endregion -------------------------------------------------- */
@@ -1314,8 +1403,14 @@
 
     .sign-document-section {
         margin-top                 : var(--App_SpacingXl);
-        padding-top                : var(--App_SpacingLg);
-        border-top                 : 2px solid var(--App_BorderLight);
+        margin-bottom              : var(--App_SpacingLg);
+        margin-left                : auto;
+        margin-right               : auto;
+        padding                    : var(--App_SpacingXl);
+        max-width                  : 600px;
+        border                     : 1px solid var(--App_BorderLight);
+        border-radius              : var(--App_BorderRadiusLg);
+        background-color           : var(--App_BgSecondary);
         text-align                 : center;
     }
 
@@ -1326,9 +1421,27 @@
         margin-bottom              : var(--App_SpacingSm);
     }
 
+    .sign-document-section__title::before {
+        content                    : '✓';
+        margin-right               : var(--App_SpacingSm);
+        color                      : var(--App_StatusSuccess);
+        font-weight                : 700;
+    }
+
     .sign-document-section__text {
         color                      : var(--App_TextSecondary);
         margin-bottom              : var(--App_SpacingMd);
+    }
+
+    .btn--sign-action {
+        background-color           : #8b4049;                    /* <-- Muted dusty red */
+        color                      : var(--App_TextLight);
+        border-color               : #8b4049;
+    }
+
+    .btn--sign-action:hover {
+        background-color           : #3d6b4f;                    /* <-- Deep forest green */
+        border-color               : #3d6b4f;
     }
 
 /* endregion -------------------------------------------------- */
@@ -1447,6 +1560,7 @@
         
         .quote-totals {
             width                  : 100%;
+            max-width              : 100%;
         }
         
         .signature-panel {

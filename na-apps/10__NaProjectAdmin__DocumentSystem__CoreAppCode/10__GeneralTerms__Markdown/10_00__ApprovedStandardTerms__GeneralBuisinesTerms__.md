@@ -2,11 +2,14 @@
 
 Noble Architecture - Standard Terms of Engagement
 
-These terms apply to all projects and services provided by Noble Architecture.
+- These terms apply to all projects and services provided by Noble Architecture.
+- Last updated 01-Feb-2026
 
 ---
 
-## Definitions
+## Definitions and Scope
+
+#### Definitions
 
 In these Terms and Conditions:
 
@@ -22,13 +25,13 @@ In these Terms and Conditions:
 
 ---
 
-## Scope of Services
+#### Scope of Services
 
 The scope of services to be provided is as described in the quotation document. Any changes to the scope must be agreed in writing and may result in additional fees. We reserve the right to adjust timescales and fees where the scope of work changes significantly.
 
 ---
 
-## Client Responsibilities
+#### Client Responsibilities
 
 The Client agrees to:
 
@@ -40,7 +43,9 @@ The Client agrees to:
 
 ---
 
-## Fees and Payment
+## Financial Terms
+
+#### Fees and Payment
 
 Fees are as stated in the quotation. Unless otherwise specified:
 
@@ -53,7 +58,9 @@ Additional work outside the original scope will be charged at our standard hourl
 
 ---
 
-## Intellectual Property
+## Intellectual Property and Confidentiality
+
+#### Intellectual Property
 
 All intellectual property rights in the Deliverables remain with Noble Architecture until full payment is received. Upon full payment:
 
@@ -64,15 +71,17 @@ All intellectual property rights in the Deliverables remain with Noble Architect
 
 ---
 
-## Confidentiality
+#### Confidentiality
 
 Both parties agree to keep confidential any commercially sensitive information disclosed during the project. This obligation does not apply to information that is already in the public domain or required to be disclosed by law.
 
 ---
 
-## Programme and Delays
+## Project Delivery and Approvals
 
-While we will endeavour to meet agreed timescales, programmes are indicative and dependent on factors including:
+#### Programme and Delays
+
+Whilst we will endeavour to meet agreed timescales, programmes are indicative and dependent on factors including:
 
 - Timely provision of information and decisions by the Client
 - Third party consultations and statutory approvals
@@ -82,7 +91,7 @@ We shall not be liable for delays caused by factors outside our reasonable contr
 
 ---
 
-## Planning and Building Regulations
+#### Planning and Building Regulations
 
 We will use reasonable skill and care in preparing submissions for planning permission and building regulations approval. However:
 
@@ -92,7 +101,9 @@ We will use reasonable skill and care in preparing submissions for planning perm
 
 ---
 
-## Limitation of Liability
+## Legal Terms and Liability
+
+#### Limitation of Liability
 
 Our liability under this agreement shall be limited to the value of the fees paid for the Services. We shall not be liable for:
 
@@ -105,7 +116,7 @@ We maintain professional indemnity insurance appropriate to the nature and scale
 
 ---
 
-## Termination
+#### Termination
 
 Either party may terminate this agreement:
 
@@ -116,19 +127,21 @@ Upon termination, the Client shall pay for all work completed to date and any co
 
 ---
 
-## Dispute Resolution
+#### Dispute Resolution
 
 In the event of any dispute arising under this agreement, the parties shall first attempt to resolve the matter through direct negotiation. If this fails, the parties agree to consider mediation before pursuing any legal action. This agreement shall be governed by English law and the courts of England shall have jurisdiction.
 
 ---
 
-## Variations
+## Administrative Provisions
+
+#### Variations
 
 Any variations to these terms must be agreed in writing by both parties. No variation shall be effective unless it is in writing and signed by authorised representatives of both parties.
 
 ---
 
-## General
+#### General Provisions
 
 - This agreement constitutes the entire agreement between the parties
 - If any provision is found to be invalid, the remaining provisions shall continue in effect
@@ -137,13 +150,15 @@ Any variations to these terms must be agreed in writing by both parties. No vari
 
 ---
 
-## Data Protection
+#### Data Protection
 
 We will process your personal data in accordance with our Privacy Policy and applicable data protection legislation. Your data will be used only for the purposes of providing our services and communicating with you about the project. We will not share your data with third parties except as necessary to perform our services or as required by law.
 
 ---
 
-## Electronic Signatures
+## Agreement and Signatures
+
+#### Electronic Signatures
 
 By signing this document electronically, you acknowledge and agree that:
 
@@ -154,4 +169,4 @@ By signing this document electronically, you acknowledge and agree that:
 
 ---
 
-###### END OF TERMS
+###### END OF TERMS PAGE

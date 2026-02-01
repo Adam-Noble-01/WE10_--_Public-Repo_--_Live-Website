@@ -14,10 +14,17 @@
 // - Handles folder naming convention: ProjectCode__ProjectName
 // - Caches results to avoid repeated R2 lookups
 // - Shared utility for all Cloudflare handlers
+// - Supports fallback path construction for new projects
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 1.1.0
+// - Added buildProjectFilePathWithFallback()
+//   - Constructs path when folder doesn't exist in R2 yet
+//   - Uses Flask naming convention: {code}__{projectName.replace(/\s+/g, '')}
+//   - Enables saving client data to new projects
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Release
 //   - findProjectFolder() with R2 listing
@@ -195,6 +202,47 @@
     export async function getProjectYear(projectCode, env) {
         const projectInfo        = await findProjectFolder(projectCode, env);
         return projectInfo?.year || null;
+    }
+
+    /**
+     * Build full path to a file with fallback for new projects
+     * First tries existing folder lookup, then constructs path if year + projectName provided
+     * 
+     * @param {string} projectCode - Project code (e.g., "NP03")
+     * @param {string} filename - File name within 10__ProjectAdmin__AppContent/
+     * @param {Object} env - Environment bindings
+     * @param {Object} options - Optional parameters
+     * @param {string} options.year - Two-digit year (e.g., "26")
+     * @param {string} options.projectName - Project name for folder construction
+     * @returns {string|null} Full R2 key path or null if cannot be determined
+     */
+    export async function buildProjectFilePathWithFallback(projectCode, filename, env, options = {}) {
+        const { year, projectName } = options;
+        
+        // First try existing folder lookup
+        const projectInfo        = await findProjectFolder(projectCode, env);
+        
+        if (projectInfo) {
+            console.log(`[ProjectPath] Using existing folder: ${projectInfo.folderName}`);
+            return `${projectInfo.basePath}10__ProjectAdmin__AppContent/${filename}`;
+        }
+        
+        // Fallback: construct path if year AND projectName provided
+        if (year && projectName) {
+            const prefix         = env.R2_PREFIX || 'NaProjectPortal/';
+            const code           = projectCode.toUpperCase();
+            
+            // Match Flask naming convention: {code}__{projectName with spaces removed}
+            // From start_local_server.py line 400: folder_name = f"{code}__{project_name.replace(' ', '')}"
+            const folderName     = `${code}__${projectName.replace(/\s+/g, '')}`;
+            const path           = `${prefix}${year}-Projects/${folderName}/10__ProjectAdmin__AppContent/${filename}`;
+            
+            console.log(`[ProjectPath] Constructing new path: ${path}`);
+            return path;
+        }
+        
+        console.warn(`[ProjectPath] Cannot build path for ${projectCode} - folder not found and no year/projectName provided`);
+        return null;
     }
 
 // endregion ----

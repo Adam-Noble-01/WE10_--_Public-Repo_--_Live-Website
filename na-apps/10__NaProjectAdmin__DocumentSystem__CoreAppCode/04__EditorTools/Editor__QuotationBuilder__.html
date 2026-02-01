@@ -15,6 +15,86 @@
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 
+    <!-- Quotation Builder Custom Styles -->
+    <style>
+        /* Drag Handle Column */
+        .col-drag {
+            width: 30px;
+            text-align: center;
+            padding: 0 !important;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: #999;
+            font-size: 1rem;
+            user-select: none;
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            letter-spacing: -2px;
+        }
+
+        .drag-handle:hover {
+            color: #555;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* Dragging States */
+        .line-item-row {
+            transition: background-color 0.15s ease, opacity 0.15s ease;
+        }
+
+        .line-item-row.dragging {
+            opacity: 0.5;
+            background-color: #e8f4fc !important;
+        }
+
+        .line-item-row.drag-over {
+            background-color: #d4edda !important;
+            border-top: 2px solid #28a745;
+        }
+
+        /* Group Header Row Styling */
+        .line-item-row--group {
+            background: #f5f5f5;
+        }
+
+        .line-item-row--group .drag-handle {
+            color: #777;
+        }
+
+        /* Per-Phase Subtotals */
+        .totals__row--phase {
+            font-size: 0.9rem;
+            color: #666;
+            padding: 0.35rem 0;
+            border-bottom: 1px dotted #ddd;
+        }
+
+        .totals__row--phase span:first-child {
+            font-style: italic;
+        }
+
+        /* Fix table column widths with new drag column */
+        .line-items-table .col-description {
+            width: auto;
+        }
+
+        .line-items-table .col-qty,
+        .line-items-table .col-unit,
+        .line-items-table .col-rate,
+        .line-items-table .col-amount {
+            width: 80px;
+        }
+
+        .line-items-table .col-actions {
+            width: 40px;
+        }
+    </style>
+
     <!-- Load DateFormatter Module -->
     <script src="../03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
     <!-- Load Shared Editor Utilities -->
@@ -125,9 +205,10 @@
                 <!-- Line Items -->
                 <h3 class="section-heading">Line Items</h3>
 
-                <table class="line-items-table">
+                <table class="line-items-table" id="lineItemsTable">
                     <thead>
                         <tr>
+                            <th class="col-drag"></th>
                             <th class="col-description">Description</th>
                             <th class="col-qty">Qty</th>
                             <th class="col-unit">Unit</th>
@@ -146,6 +227,9 @@
                 </div>
 
                 <div class="totals">
+                    <!-- Per-Phase Subtotals -->
+                    <div id="phaseSubtotals"></div>
+
                     <div class="totals__row">
                         <span>Subtotal</span>
                         <span id="subtotal">£0.00</span>
@@ -500,11 +584,18 @@
         const tbody = document.getElementById('lineItemsBody');
         let currentGroup = '';
 
-        tbody.innerHTML = lineItems.map(item => {
+        tbody.innerHTML = lineItems.map((item, index) => {
             if (item.type === 'group') {
                 currentGroup = item.name;
                 return `
-                        <tr style="background: #f5f5f5;">
+                        <tr class="line-item-row line-item-row--group" 
+                            draggable="true" 
+                            data-index="${index}" 
+                            data-type="group"
+                            data-id="${item.id}">
+                            <td class="col-drag">
+                                <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
+                            </td>
                             <td colspan="5">
                                 <input type="text" value="${item.name}" 
                                        style="font-weight: bold; border: none; background: transparent; width: 100%;"
@@ -518,7 +609,14 @@
             } else {
                 const amount = (item.quantity || 0) * (item.rate || 0);
                 return `
-                        <tr>
+                        <tr class="line-item-row line-item-row--item" 
+                            draggable="true" 
+                            data-index="${index}" 
+                            data-type="item"
+                            data-id="${item.id}">
+                            <td class="col-drag">
+                                <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
+                            </td>
                             <td class="col-description">
                                 <input type="text" value="${item.description}" 
                                        onchange="updateItem(${item.id}, 'description', this.value)" placeholder="Description">
@@ -543,6 +641,9 @@
                     `;
             }
         }).join('');
+
+        // Attach drag-and-drop event handlers
+        attachDragHandlers();
     }
 
     // Update item property
@@ -579,12 +680,26 @@
     // CALCULATIONS | Totals and VAT
     // --------------------------------------------------------
 
-    // Calculate subtotal, VAT, and grand total
+    // Calculate subtotal, VAT, and grand total (with per-phase breakdown)
     function calculateTotals() {
         let subtotal = 0;
+        let currentGroup = '';
+        const phaseSubtotals = new Map();                                 // <-- Track per-phase subtotals
+
         lineItems.forEach(item => {
-            if (item.type === 'item') {
-                subtotal += (item.quantity || 0) * (item.rate || 0);
+            if (item.type === 'group') {
+                currentGroup = item.name;
+                if (!phaseSubtotals.has(currentGroup)) {
+                    phaseSubtotals.set(currentGroup, 0);
+                }
+            } else if (item.type === 'item') {
+                const amount = (item.quantity || 0) * (item.rate || 0);
+                subtotal += amount;
+
+                // Add to current phase subtotal
+                if (currentGroup) {
+                    phaseSubtotals.set(currentGroup, (phaseSubtotals.get(currentGroup) || 0) + amount);
+                }
             }
         });
 
@@ -593,11 +708,28 @@
         const vat = showVat ? subtotal * (vatRate / 100) : 0;
         const total = subtotal + vat;
 
+        // Render per-phase subtotals
+        const phaseSubtotalsEl = document.getElementById('phaseSubtotals');
+        if (phaseSubtotalsEl && phaseSubtotals.size > 0) {
+            let phaseHtml = '';
+            phaseSubtotals.forEach((amount, phaseName) => {
+                phaseHtml += `
+                    <div class="totals__row totals__row--phase">
+                        <span>${phaseName}</span>
+                        <span>£${amount.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+            phaseSubtotalsEl.innerHTML = phaseHtml;
+        } else if (phaseSubtotalsEl) {
+            phaseSubtotalsEl.innerHTML = '';
+        }
+
         document.getElementById('subtotal').textContent = '£' + subtotal.toFixed(2);
         document.getElementById('vatAmount').textContent = '£' + vat.toFixed(2);
         document.getElementById('grandTotal').textContent = '£' + total.toFixed(2);
 
-        return { subtotal, vatRate: showVat ? vatRate : 0, vat, total };
+        return { subtotal, vatRate: showVat ? vatRate : 0, vat, total, phaseSubtotals };
     }
 
     // endregion ----------------------------------------------
@@ -610,23 +742,24 @@
     function generateJson() {
         const totals = calculateTotals();
 
-        // Build line items array with groups
+        // Build line items array with groups - preserving order
         let currentGroup = '';
-        const formattedItems = lineItems
-            .filter(item => item.type === 'item')
-            .map(item => {
-                // Find which group this item belongs to
-                const groupIndex = lineItems.findIndex(i => i.type === 'group' && i.id < item.id);
-                const group = groupIndex >= 0 ? lineItems.slice(0, item.id).filter(i => i.type === 'group').pop()?.name : '';
+        const formattedItems = [];
 
-                return {
+        // Process items in array order, tracking current group
+        lineItems.forEach((item, index) => {
+            if (item.type === 'group') {
+                currentGroup = item.name;                                 // <-- Track active group
+            } else if (item.type === 'item') {
+                formattedItems.push({
                     description: item.description,
                     quantity: item.quantity,
                     unit: item.unit,
                     rate: item.rate,
-                    group: group || undefined
-                };
-            });
+                    group: currentGroup || undefined                      // <-- Use current active group
+                });
+            }
+        });
 
         // Use DateFormatter if available
         const formatDate = window.NaProjectAdmin?.DateFormatter?.formatDateToUK;
@@ -668,6 +801,185 @@
     // Update totals display
     function updatePreview() {
         calculateTotals();
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // DRAG AND DROP | Reorder Items and Groups
+    // --------------------------------------------------------
+
+    let draggedIndex = null;                                              // <-- Index being dragged
+    let draggedType = null;                                               // <-- 'group' or 'item'
+
+    /**
+     * Attach drag-and-drop event handlers to all rows
+     */
+    function attachDragHandlers() {
+        const rows = document.querySelectorAll('.line-item-row');
+
+        rows.forEach(row => {
+            row.addEventListener('dragstart', handleDragStart);
+            row.addEventListener('dragend', handleDragEnd);
+            row.addEventListener('dragover', handleDragOver);
+            row.addEventListener('dragenter', handleDragEnter);
+            row.addEventListener('dragleave', handleDragLeave);
+            row.addEventListener('drop', handleDrop);
+        });
+    }
+
+    /**
+     * Handle drag start - store the dragged item info
+     */
+    function handleDragStart(e) {
+        draggedIndex = parseInt(e.currentTarget.dataset.index);
+        draggedType = e.currentTarget.dataset.type;
+
+        e.currentTarget.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', draggedIndex);
+
+        // Add visual feedback after a small delay
+        setTimeout(() => {
+            e.currentTarget.style.opacity = '0.5';
+        }, 0);
+    }
+
+    /**
+     * Handle drag end - cleanup
+     */
+    function handleDragEnd(e) {
+        e.currentTarget.classList.remove('dragging');
+        e.currentTarget.style.opacity = '';
+
+        // Remove all drag-over indicators
+        document.querySelectorAll('.drag-over').forEach(el => {
+            el.classList.remove('drag-over');
+        });
+
+        draggedIndex = null;
+        draggedType = null;
+    }
+
+    /**
+     * Handle drag over - allow dropping
+     */
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    /**
+     * Handle drag enter - add visual indicator
+     */
+    function handleDragEnter(e) {
+        e.preventDefault();
+        const row = e.currentTarget;
+        if (!row.classList.contains('dragging')) {
+            row.classList.add('drag-over');
+        }
+    }
+
+    /**
+     * Handle drag leave - remove visual indicator
+     */
+    function handleDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    /**
+     * Handle drop - reorder the items
+     */
+    function handleDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+
+        const targetIndex = parseInt(e.currentTarget.dataset.index);
+
+        if (draggedIndex === null || draggedIndex === targetIndex) {
+            return;
+        }
+
+        // Get the items to move (group moves with its items)
+        if (draggedType === 'group') {
+            moveGroupWithItems(draggedIndex, targetIndex);
+        } else {
+            moveSingleItem(draggedIndex, targetIndex);
+        }
+
+        renderLineItems();
+        updatePreview();
+        markFormDirty();
+    }
+
+    /**
+     * Move a group header and all its items together
+     */
+    function moveGroupWithItems(fromIndex, toIndex) {
+        const groupItem = lineItems[fromIndex];
+        const groupName = groupItem.name;
+
+        // Find all items that belong to this group (items after this group header until next group)
+        let endIndex = fromIndex + 1;
+        while (endIndex < lineItems.length && lineItems[endIndex].type !== 'group') {
+            endIndex++;
+        }
+
+        // Extract the group and its items
+        const itemsToMove = lineItems.splice(fromIndex, endIndex - fromIndex);
+
+        // Adjust target index if we removed items before it
+        let adjustedTarget = toIndex;
+        if (toIndex > fromIndex) {
+            adjustedTarget -= itemsToMove.length;
+        }
+
+        // If dropping on a group, find its end position
+        if (adjustedTarget < lineItems.length && lineItems[adjustedTarget]?.type === 'group') {
+            // Find end of target group
+            let targetEnd = adjustedTarget + 1;
+            while (targetEnd < lineItems.length && lineItems[targetEnd].type !== 'group') {
+                targetEnd++;
+            }
+            adjustedTarget = targetEnd;
+        }
+
+        // Insert at new position
+        lineItems.splice(adjustedTarget, 0, ...itemsToMove);
+    }
+
+    /**
+     * Move a single item
+     */
+    function moveSingleItem(fromIndex, toIndex) {
+        const item = lineItems[fromIndex];
+        lineItems.splice(fromIndex, 1);
+
+        // Adjust target if moving down
+        const adjustedTarget = toIndex > fromIndex ? toIndex - 1 : toIndex;
+        lineItems.splice(adjustedTarget, 0, item);
+
+        // Update item's group based on new position
+        updateItemGroup(adjustedTarget);
+    }
+
+    /**
+     * Update an item's group based on its position in the array
+     */
+    function updateItemGroup(itemIndex) {
+        const item = lineItems[itemIndex];
+        if (item.type !== 'item') return;
+
+        // Find the most recent group header before this item
+        let newGroup = '';
+        for (let i = itemIndex - 1; i >= 0; i--) {
+            if (lineItems[i].type === 'group') {
+                newGroup = lineItems[i].name;
+                break;
+            }
+        }
+
+        item.group = newGroup;
     }
 
     // endregion ----------------------------------------------

@@ -1,14 +1,14 @@
 {
     "contractId": "concept-design",
     "contractName": "Concept Design Stage",
-    "sectionTitle": "Special Terms - Concept Design",
     "introduction": "The following special conditions apply to this contract.",
+    "lastUpdated": "2026-02-01T13:27:26.733Z",
+    "sectionTitle": "Special Terms - Concept Design",
     "terms": [
         {
+            "content": "Enter the special term details here.",
             "id": 1,
-            "title": "Additional Requirement",
-            "content": "Enter the special term details here."
+            "title": "Additional Requirement"
         }
-    ],
-    "lastUpdated": "2026-02-01T13:27:26.733Z"
+    ]
 }

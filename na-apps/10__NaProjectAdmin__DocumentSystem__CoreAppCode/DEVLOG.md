@@ -3,6 +3,124 @@
 
 # =============================================================================
 
+## Version 0.5.5 - 01-Feb-2026
+
+### Fixed - Quotation Renderer & Editor Bugs + New Features
+
+This release fixes critical bugs in the quotation system where items were rendered out of order, zero quantities were incorrectly calculated, and adds new features for drag-and-drop reordering and per-phase subtotals.
+
+#### Bug Fixes
+
+- **Zero Quantity Bug** - Fixed `calculateLineAmount()` in QuotationRenderer
+  - Previously: `parseFloat(quantity) || 1` defaulted 0 to 1 (0 is falsy)
+  - Now: Uses explicit `Number.isNaN()` check to respect zero values
+  - Items with qty=0 now correctly show £0.00 amount
+
+- **Group Order Not Preserved** - Fixed `groupLineItems()` in QuotationRenderer
+  - Previously: Used plain object which didn't guarantee insertion order
+  - Now: Returns `{ orderedGroups, groupMap }` using Map to preserve order
+  - Groups now appear in the same order as the source JSON array
+
+- **Editor Group Assignment Bug** - Fixed `generateJson()` in QuotationBuilder
+  - Previously: `lineItems.slice(0, item.id)` sliced by ID value, not array index
+  - Now: Iterates through array in order, tracking current active group
+  - Items are correctly assigned to their group based on array position
+
+#### New Features
+
+- **Per-Phase Subtotals** (Renderer + Editor)
+  - In-table: Simple subtotal value displayed after each phase (no label)
+  - Totals section: Phase breakdown with names and values before Subtotal/Total
+  - Clean visual hierarchy with separator line before grand totals
+  - Editor shows per-phase breakdown in the totals section
+
+- **Drag-and-Drop Reordering** (Editor)
+  - Added drag handle column (`⋮⋮`) to line items table
+  - Items can be dragged to reorder within the list
+  - Groups move with all their items when dragged
+  - Visual feedback with highlight states during drag
+
+#### Files Modified
+
+- `DocumentSystem__QuotationRenderer__.js` - Version 1.2.1
+  - Fixed `calculateLineAmount()` zero value handling
+  - Rewrote `groupLineItems()` to preserve order
+  - Added `calculatePhaseSubtotals()` function
+  - Simplified in-table subtotals (value only)
+  - Phase breakdown in totals section at bottom
+
+- `Editor__QuotationBuilder__.html`
+  - Fixed `generateJson()` group assignment logic
+  - Added drag handle column and CSS styles
+  - Implemented HTML5 drag-and-drop handlers
+  - Added per-phase subtotals display
+
+---
+
+## Version 0.5.4 - 01-Feb-2026
+
+### Fixed - Cloudflare R2 Directory Auto-Creation for New Projects
+
+This release fixes the issue where client data could not be saved to Cloudflare R2 for new projects that exist locally but haven't been uploaded to R2 yet.
+
+#### Problem
+
+When saving client data from `Editor__ProjectConfig__.html`, the Cloudflare Worker failed with "Project folder not found" because `findProjectFolder()` only searched for existing R2 folders. New projects that exist locally but haven't been synced to R2 could not save encrypted client PII data.
+
+#### Solution
+
+Added fallback path construction mechanism that builds R2 storage paths directly when folder discovery fails, using the same naming convention as the Flask server.
+
+#### Changes
+
+- **CloudflareHelper__ProjectPath__.js** - Added `buildProjectFilePathWithFallback()` function
+  - First tries existing `findProjectFolder()` lookup
+  - Falls back to constructing path if `year` + `projectName` provided
+  - Uses Flask naming convention: `{code}__{projectName.replace(/\s+/g, '')}`
+  - Example: `NP03` + `"Ashness Close"` = `NP03__AshnessClose`
+
+- **CloudflareHandler__ClientData__.js** - Updated `storeClientData()` function
+  - Accepts `year` and `projectName` from request body
+  - Uses `buildProjectFilePathWithFallback()` with fallback options
+  - Returns clearer error messages when fallback fails
+
+- **Editor__SharedUtils__.js** - Updated `saveClientDataToCloudflare()` function
+  - Added optional `projectName` parameter
+  - Includes `projectName` in request body to Worker
+
+- **Editor__ProjectConfig__.html** - Updated `performDualSave()` function
+  - Gets `projectName` from form field (`projectName`)
+  - Passes it to `saveClientDataToCloudflare()` for R2 path construction
+
+#### R2 Storage Path Format
+
+When folder doesn't exist in R2, path is constructed as:
+```
+NaProjectPortal/{year}-Projects/{projectCode}__{projectNameNoSpaces}/10__ProjectAdmin__AppContent/ClientData__Private__.json.enc
+```
+
+Example for NP03:
+```
+NaProjectPortal/26-Projects/NP03__AshnessClose/10__ProjectAdmin__AppContent/ClientData__Private__.json.enc
+```
+
+#### Deployment
+
+- Cloudflare Worker deployed successfully
+- Version ID: `25d2161d-6003-43b7-9601-e919385165b3`
+- Worker URL: `https://na-projectadmin-api.adam-fb3.workers.dev`
+
+#### Testing
+
+Tested with NP03 project at:
+```
+http://localhost:8080/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/04__EditorTools/Editor__ProjectConfig__.html?project=NP03&year=26
+```
+
+Client data now saves successfully to R2 even when project folder doesn't exist yet.
+
+---
+
 ## Version 0.5.3 - 01-Feb-2026
 
 ### Fixed - Terms Rendering & Markdown Parser

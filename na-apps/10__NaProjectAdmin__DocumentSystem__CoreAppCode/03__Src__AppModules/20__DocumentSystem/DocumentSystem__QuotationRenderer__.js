@@ -20,6 +20,16 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Feb-2026 - Version 1.2.1
+// - Simplified in-table phase subtotals (value only, no label)
+// - Added phase breakdown to totals section at bottom
+// - Phase names and values displayed before Subtotal/Total
+//
+// 01-Feb-2026 - Version 1.2.0
+// - Fixed zero quantity bug - now respects qty=0 instead of defaulting to 1
+// - Fixed group ordering - preserves original array order using Map
+// - Added per-phase subtotal rows after each group in rendered quotation
+//
 // 31-Jan-2026 - Version 1.1.0
 // - Added GDPR-compliant client data fetching from Cloudflare R2
 //   - renderAsync() method for async data loading
@@ -58,8 +68,9 @@
             const showVat = quoteConfig?.showVat === true;
             const vatRate = quoteConfig?.vatRate || 0;
 
-            // Calculate totals
+            // Calculate totals and phase subtotals
             const totals = calculateTotals(quotationData.lineItems || [], vatRate, showVat);
+            const phaseSubtotals = calculatePhaseSubtotals(quotationData.lineItems || []);
 
             // Check if already signed
             const signatureRecord = sessionStorage.getItem(`naProjectAdmin_sig_quotation_${projectCode}`);
@@ -74,7 +85,7 @@
                     ${renderAddresses(quotationData, companyDetails, clientDetails)}
                     ${renderProjectDetails(quotationData)}
                     ${renderLineItems(quotationData.lineItems || [], currencySymbol)}
-                    ${renderTotals(totals, currencySymbol, showVat)}
+                    ${renderTotals(totals, currencySymbol, showVat, phaseSubtotals)}
                     ${renderTerms(quotationData)}
                     ${isSigned ? renderSignatureRecord(signatureRecord) : renderSignButton('quotation', 'Quotation')}
                 </div>
@@ -298,8 +309,8 @@
                 `;
             }
 
-            // Group items by phase/group if specified
-            const grouped = groupLineItems(lineItems);
+            // Group items by phase/group - preserves original order
+            const { orderedGroups, groupMap } = groupLineItems(lineItems);
 
             let html = `
                 <div class="document__section">
@@ -317,9 +328,9 @@
                         <tbody>
             `;
 
-            // Render grouped items
-            Object.keys(grouped).forEach(groupName => {
-                const items = grouped[groupName];
+            // Render grouped items in original order
+            orderedGroups.forEach(groupName => {
+                const items = groupMap.get(groupName);
 
                 // Add group header if not default group
                 if (groupName !== '_default') {
@@ -330,19 +341,39 @@
                     `;
                 }
 
+                // Calculate phase subtotal
+                let phaseSubtotal = 0;
+
                 // Render items in group
                 items.forEach(item => {
                     const amount = calculateLineAmount(item);
+                    phaseSubtotal += amount;
+                    
+                    // Display quantity - show actual value (including 0)
+                    const displayQty = item.quantity !== undefined ? item.quantity : 1;
+                    
                     html += `
                         <tr>
                             <td class="quote-table__description">${item.description || ''}</td>
-                            <td class="quote-table__qty">${item.quantity || 1}</td>
+                            <td class="quote-table__qty">${displayQty}</td>
                             <td class="quote-table__unit">${item.unit || '-'}</td>
                             <td class="quote-table__rate">${currencySymbol}${formatNumber(item.rate || 0)}</td>
                             <td class="quote-table__amount">${currencySymbol}${formatNumber(amount)}</td>
                         </tr>
                     `;
                 });
+
+                // Add simple subtotal row after each group (value only, right-aligned)
+                if (groupName !== '_default' && items.length > 0) {
+                    html += `
+                        <tr class="quote-table__phase-subtotal">
+                            <td colspan="4"></td>
+                            <td class="quote-table__amount" style="font-weight: 600; border-top: 1px solid #ddd;">
+                                ${currencySymbol}${formatNumber(phaseSubtotal)}
+                            </td>
+                        </tr>
+                    `;
+                }
             });
 
             html += `
@@ -355,30 +386,40 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Group Line Items
+        // FUNCTION | Group Line Items (Preserves Original Order)
         // ------------------------------------------------------------
+        /**
+         * Groups line items by phase/group while preserving the original order
+         * @param {Array} lineItems - Array of line items
+         * @returns {Object} Object with orderedGroups array and groupMap Map
+         */
         function groupLineItems(lineItems) {
-            const groups = {};
+            const orderedGroups = [];                                     // <-- Tracks group order
+            const groupMap = new Map();                                   // <-- Map preserves insertion order
 
             lineItems.forEach(item => {
                 const groupName = item.group || item.phase || '_default';
                 
-                if (!groups[groupName]) {
-                    groups[groupName] = [];
+                if (!groupMap.has(groupName)) {
+                    groupMap.set(groupName, []);
+                    orderedGroups.push(groupName);                        // <-- Track order of first appearance
                 }
                 
-                groups[groupName].push(item);
+                groupMap.get(groupName).push(item);
             });
 
-            return groups;
+            return { orderedGroups, groupMap };
         }
         // ---------------------------------------------------------------
 
         // FUNCTION | Calculate Line Amount
         // ------------------------------------------------------------
         function calculateLineAmount(item) {
-            const quantity = parseFloat(item.quantity) || 1;
-            const rate = parseFloat(item.rate) || 0;
+            // Use explicit NaN check to respect zero values
+            const parsedQty = parseFloat(item.quantity);
+            const quantity = Number.isNaN(parsedQty) ? 1 : parsedQty;      // <-- Respects 0
+            const parsedRate = parseFloat(item.rate);
+            const rate = Number.isNaN(parsedRate) ? 0 : parsedRate;       // <-- Respects 0
             return quantity * rate;
         }
         // ---------------------------------------------------------------
@@ -405,11 +446,62 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Calculate Phase Subtotals
+        // ------------------------------------------------------------
+        /**
+         * Calculate subtotals per phase/group, preserving order
+         * @param {Array} lineItems - Array of line items
+         * @returns {Array} Array of { name, subtotal } in order
+         */
+        function calculatePhaseSubtotals(lineItems) {
+            const orderedPhases = [];                                     // <-- Track order
+            const phaseMap = new Map();                                   // <-- Track amounts
+
+            lineItems.forEach(item => {
+                const groupName = item.group || item.phase || '_default';
+                
+                if (!phaseMap.has(groupName)) {
+                    phaseMap.set(groupName, 0);
+                    orderedPhases.push(groupName);
+                }
+                
+                phaseMap.set(groupName, phaseMap.get(groupName) + calculateLineAmount(item));
+            });
+
+            // Return as array of objects in order (excluding _default)
+            return orderedPhases
+                .filter(name => name !== '_default')
+                .map(name => ({
+                    name     : name,
+                    subtotal : phaseMap.get(name)
+                }));
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Render Totals
         // ------------------------------------------------------------
-        function renderTotals(totals, currencySymbol, showVat) {
+        function renderTotals(totals, currencySymbol, showVat, phaseSubtotals = []) {
             let html = `
                 <div class="quote-totals">
+            `;
+
+            // Render per-phase subtotals first (if any)
+            if (phaseSubtotals && phaseSubtotals.length > 0) {
+                phaseSubtotals.forEach(phase => {
+                    html += `
+                    <div class="quote-totals__row quote-totals__row--phase">
+                        <span>${phase.name}</span>
+                        <span>${currencySymbol}${formatNumber(phase.subtotal)}</span>
+                    </div>
+                    `;
+                });
+
+                // Add separator line before subtotal
+                html += `<hr style="border: none; border-top: 1px solid #ccc; margin: 0.5rem 0;">`;
+            }
+
+            // Overall subtotal
+            html += `
                     <div class="quote-totals__row">
                         <span>Subtotal</span>
                         <span>${currencySymbol}${formatNumber(totals.subtotal)}</span>
@@ -470,7 +562,7 @@
                         Please review the quotation above. When you are ready to proceed, 
                         click the button below to sign and accept.
                     </p>
-                    <button class="btn btn--primary btn--large" 
+                    <button class="btn btn--sign-action btn--large" 
                             onclick="window.NaProjectAdmin.App.showSignatureScreen('${documentType}', '${documentTitle}')">
                         Sign &amp; Accept Quotation
                     </button>
