@@ -684,6 +684,8 @@
             // Set up signature form handlers (clones form, removing old listeners)
             setupSignatureForm();
 
+            resetSignatureForm();
+
             // Initialise signature canvas AFTER form setup (form clone destroys listeners)
             if (window.NaProjectAdmin.SignatureCaptureCanvas) {
                 window.NaProjectAdmin.SignatureCaptureCanvas.initialise('signature-canvas');
@@ -716,8 +718,46 @@
             // Handle cancel
             if (newCancelBtn) {
                 newCancelBtn.addEventListener('click', () => {
+                    resetSignatureForm();
                     showDocumentScreen();
                 });
+            }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Reset Signature Form
+        // ------------------------------------------------------------
+        function resetSignatureForm() {
+            const signatureForm = document.getElementById('signature-form');
+            const errorDisplay = document.getElementById('signature-error');
+            const signerNameInput = document.getElementById('signer-name');
+            const agreementCheckbox = document.getElementById('signature-agreement');
+            const submitBtn = document.querySelector('#signature-form button[type="submit"]');
+
+            if (signatureForm) {
+                signatureForm.reset();
+            }
+
+            if (signerNameInput) {
+                signerNameInput.value = '';
+            }
+
+            if (agreementCheckbox) {
+                agreementCheckbox.checked = false;
+            }
+
+            if (errorDisplay) {
+                errorDisplay.textContent = '';
+                errorDisplay.style.display = 'none';
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign & Submit';
+            }
+
+            if (window.NaProjectAdmin.SignatureCaptureCanvas) {
+                window.NaProjectAdmin.SignatureCaptureCanvas.clearCanvas();
             }
         }
         // ---------------------------------------------------------------
@@ -816,15 +856,13 @@
                     await window.NaProjectAdmin.UserInterfaceMain.showQuotation();
                 } else if (pendingSignatureType === 'terms' && window.NaProjectAdmin.UserInterfaceMain) {
                     await window.NaProjectAdmin.UserInterfaceMain.showTerms();
+                } else if (pendingSignatureType?.startsWith('contract_') && window.NaProjectAdmin.UserInterfaceMain) {
+                    const contractId = pendingSignatureType.replace('contract_', '');
+                    await window.NaProjectAdmin.UserInterfaceMain.showContract(contractId);
                 }
 
-                // Clear form
-                if (signerNameInput) {
-                    signerNameInput.value = '';
-                }
-                if (signatureCanvas) {
-                    signatureCanvas.clearCanvas();
-                }
+                // Clear form state after successful signature
+                resetSignatureForm();
 
             } catch (error) {
                 console.error('[App] Signature submission failed:', error);

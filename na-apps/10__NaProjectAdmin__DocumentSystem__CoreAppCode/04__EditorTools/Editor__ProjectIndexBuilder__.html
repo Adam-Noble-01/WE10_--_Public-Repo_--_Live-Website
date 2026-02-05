@@ -782,12 +782,43 @@
 
             if (result.success) {
                 NaEditorTools.showSuccessMessage(`Purged ${result.deletedCount} signature record(s)`);
+                await resetSignatureStateInParent(projectCode);
             } else {
                 NaEditorTools.showErrorMessage(`Purge failed: ${result.message}`);
             }
 
         } catch (error) {
             NaEditorTools.showErrorMessage(`Purge failed: ${error.message}`);
+        }
+    }
+
+    async function resetSignatureStateInParent(projectCode) {
+        const parentApp = window.parent?.NaProjectAdmin;
+        const parentSession = window.parent?.sessionStorage;
+
+        if (!parentApp || !parentSession || !projectCode) {
+            return;
+        }
+
+        const code = projectCode.toUpperCase();
+
+        parentSession.removeItem(`naProjectAdmin_sig_quotation_${code}`);
+        parentSession.removeItem(`naProjectAdmin_sig_terms_${code}`);
+
+        const contractLoader = parentApp.ContractLoader;
+        if (contractLoader) {
+            const availableContracts = contractLoader.getAvailableContracts();
+            availableContracts.forEach(contract => {
+                parentSession.removeItem(`naProjectAdmin_sig_contract_${code}_${contract.id}`);
+            });
+        }
+
+        if (parentApp.Navigation?.refreshMenuBadges) {
+            await parentApp.Navigation.refreshMenuBadges();
+        }
+
+        if (parentApp.UserInterfaceMain?.getCurrentView?.() === 'signatures') {
+            await parentApp.UserInterfaceMain.showSignatureStatus();
         }
     }
 

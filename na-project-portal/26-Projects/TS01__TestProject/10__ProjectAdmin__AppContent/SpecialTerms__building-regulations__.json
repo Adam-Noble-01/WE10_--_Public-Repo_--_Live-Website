@@ -1,0 +1,14 @@
+{
+    "contractId": "building-regulations",
+    "contractName": "Building Regulations Stage",
+    "sectionTitle": "Special Terms - Building Regs",
+    "introduction": "The following special conditions apply to this contract.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Test",
+            "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus in pharetra velit. Cras lacus arcu, feugiat id vehicula ut, placerat eget nisi. Sed vitae fringilla turpis, vel consequat arcu. Donec feugiat vel risus nec pharetra. Praesent hendrerit rhoncus risus, sit amet euismod mauris pretium vel.\n\nCurabitur dignissim tellus lacus, non vulputate neque blandit a. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed a diam diam.Enter the special term details here."
+        }
+    ],
+    "lastUpdated": "2026-02-05T20:21:18.660Z"
+}

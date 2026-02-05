@@ -290,7 +290,7 @@
                     } else {
                         // Multi-contract item
                         const contractDef = contractLoader.getContractDefinition(contractId);
-                        const isSigned = contractLoader.isContractSigned(config, contractId);
+                        const isSigned = await checkContractSigned(contractId);
 
                         items.push({
                             id               : `contract_${contractId}`,
@@ -435,6 +435,28 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Check Contract Signed (Multi-Contract)
+        // ------------------------------------------------------------
+        async function checkContractSigned(contractId) {
+            const projectCode = projectData?.projectCode;
+            const config = projectData?.config;
+
+            if (!projectCode || !contractId) {
+                return false;
+            }
+
+            const signatureKey = `naProjectAdmin_sig_contract_${projectCode}_${contractId}`;
+            const signatureRecord = sessionStorage.getItem(signatureKey);
+
+            if (signatureRecord) {
+                return true;
+            }
+
+            const contractLoader = window.NaProjectAdmin.ContractLoader;
+            return contractLoader?.isContractSigned(config, contractId) === true;
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Get Signature Status
         // ------------------------------------------------------------
         async function getSignatureStatus(config) {
@@ -451,7 +473,7 @@
                 contractCount = enabledContracts.length;
 
                 for (const contractId of enabledContracts) {
-                    const isSigned = contractLoader.isContractSigned(config, contractId);
+                    const isSigned = await checkContractSigned(contractId);
                     if (isSigned) {
                         anyContractsSigned = true;
                     } else {

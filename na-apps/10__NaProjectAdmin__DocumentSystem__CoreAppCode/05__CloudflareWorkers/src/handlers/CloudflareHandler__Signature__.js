@@ -12,7 +12,6 @@
 // DESCRIPTION:
 // - Stores signature audit records in Cloudflare R2 bucket
 // - Retrieves signature records for verification and audit
-// - Creates comprehensive audit trail with dual storage (project + archive)
 // - Enhances records with server-side metadata (IP, timestamp, location)
 // - Purges signature records for testing/correction purposes
 // - Uses ProjectPath helper for folder discovery
@@ -42,7 +41,7 @@
 //
 // =============================================================================
 
-import { buildProjectSubfolderPath, getProjectYear, findProjectFolder } from '../helpers/CloudflareHelper__ProjectPath__.js';
+import { buildProjectSubfolderPath, findProjectFolder } from '../helpers/CloudflareHelper__ProjectPath__.js';
 
 // #Region ---
 // REGION | Main Handler
@@ -141,13 +140,8 @@ import { buildProjectSubfolderPath, getProjectYear, findProjectFolder } from '..
                 }, 404);
             }
 
-            // Get detected year for archive path
-            const detectedYear       = await getProjectYear(record.projectCode, env);
-            const prefix             = env.R2_PREFIX || 'NaProjectPortal/';
-            
-            // Dual storage locations for redundancy and organisation
+            // Project storage location only
             const projectKey         = projectSubfolder;
-            const archiveKey         = `${prefix}Signatures/${detectedYear}/${record.projectCode}/${storageKey}.json`;
 
             // Prepare record JSON with metadata
             const recordJson         = JSON.stringify(enhancedRecord, null, 2);
@@ -161,11 +155,8 @@ import { buildProjectSubfolderPath, getProjectYear, findProjectFolder } from '..
                 }
             };
 
-            // Store to both locations simultaneously
-            await Promise.all([
-                env.R2_BUCKET.put(projectKey, recordJson, metadata),  // <-- Project folder
-                env.R2_BUCKET.put(archiveKey, recordJson, metadata)   // <-- Central archive
-            ]);
+            // Store in project folder
+            await env.R2_BUCKET.put(projectKey, recordJson, metadata);
 
             console.log('Signature stored:', storageKey);             // <-- Log success
 
@@ -218,17 +209,22 @@ import { buildProjectSubfolderPath, getProjectYear, findProjectFolder } from '..
         }
 
         try {
-            const prefix             = env.R2_PREFIX || 'NaProjectPortal/';
-            
             // If specific reference provided, fetch directly
             if (signatureRef) {
-                const key            = `${prefix}Signatures/*/${projectCode}/${signatureRef}.json`;
-                // TODO: Implement direct fetch with year wildcarding
+                // TODO: Implement direct fetch by signature reference
             }
 
-            // List all signatures in archive
-            const listPrefix         = `${prefix}Signatures/`;
-            const listed             = await env.R2_BUCKET.list({ 
+            // Resolve project folder for signature listing
+            const projectInfo        = await findProjectFolder(projectCode, env);
+
+            if (!projectInfo) {
+                return jsonResponse({ 
+                    error                : 'Project folder not found'
+                }, 404);
+            }
+
+            const listPrefix         = `${projectInfo.basePath}10__ProjectAdmin__AppContent/SignatureRecords/`;
+            const listed             = await env.R2_BUCKET.list({
                 prefix               : listPrefix,
                 limit                : 100                            // <-- Max 100 signatures
             });
@@ -278,16 +274,16 @@ import { buildProjectSubfolderPath, getProjectYear, findProjectFolder } from '..
 
     /**
      * Purge signature records from R2 bucket for a specific project
-     * Removes from both project folder and central archive locations
+     * Removes from project folder only
      * 
-     * @param {Request} request - HTTP request with projectCode and optional year
+     * @param {Request} request - HTTP request with projectCode
      * @param {Object} env - Environment bindings
      * @returns {Response} JSON response with deletion results
      */
     async function purgeSignatures(request, env) {
         try {
             const body               = await request.json();          // <-- Parse request body
-            const { projectCode, year } = body;                       // <-- Extract params
+            const { projectCode }    = body;                          // <-- Extract params
 
             // Validate required fields
             if (!projectCode) {
@@ -313,19 +309,14 @@ import { buildProjectSubfolderPath, getProjectYear, findProjectFolder } from '..
                 }, 500);
             }
 
-            const prefix             = env.R2_PREFIX || 'NaProjectPortal/';
             const upperCode          = projectCode.toUpperCase();     // <-- Normalise case
             const deletedKeys        = [];                            // <-- Track deletions
             const errors             = [];                            // <-- Track errors
 
             // Find project folder using helper (gets correct folder name)
             const projectInfo        = await findProjectFolder(projectCode, env);
-            const detectedYear       = projectInfo?.year;
 
-            // Determine years to search for archive (specific year or all)
-            const yearsToSearch      = year ? [year] : ['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'];
-
-            console.log(`Purging signatures for ${upperCode}, years: ${year || 'all'}`);
+            console.log(`Purging signatures for ${upperCode} (project folder only)`);
 
             // Delete from project folder if found
             if (projectInfo) {
@@ -348,32 +339,6 @@ import { buildProjectSubfolderPath, getProjectYear, findProjectFolder } from '..
                     }
                 } catch (listErr) {
                     console.warn(`Could not list project ${projectPrefix}:`, listErr.message);
-                }
-            }
-
-            // Search and delete from archive locations (all years)
-            for (const yr of yearsToSearch) {
-                // Central archive - NaProjectPortal/Signatures/{year}/{code}/
-                const archivePrefix  = `${prefix}Signatures/${yr}/${upperCode}/`;
-
-                // List and delete from archive location
-                try {
-                    const archiveList = await env.R2_BUCKET.list({ 
-                        prefix           : archivePrefix,
-                        limit            : 1000
-                    });
-
-                    for (const obj of archiveList.objects) {
-                        try {
-                            await env.R2_BUCKET.delete(obj.key);
-                            deletedKeys.push(obj.key);
-                            console.log('Deleted:', obj.key);
-                        } catch (delErr) {
-                            errors.push({ key: obj.key, error: delErr.message });
-                        }
-                    }
-                } catch (listErr) {
-                    console.warn(`Could not list archive ${archivePrefix}:`, listErr.message);
                 }
             }
 

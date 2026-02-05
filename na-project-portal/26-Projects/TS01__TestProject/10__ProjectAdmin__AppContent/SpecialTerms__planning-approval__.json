@@ -1,0 +1,19 @@
+{
+    "contractId": "planning-approval",
+    "contractName": "Planning Approval Stage",
+    "sectionTitle": "Special Terms - Planning",
+    "introduction": "The following special conditions apply to this contract.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Are You OK",
+            "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus in pharetra velit. Cras lacus arcu, feugiat id vehicula ut, placerat eget nisi. Sed vitae fringilla turpis, vel consequat arcu. Donec feugiat vel risus nec pharetra. Praesent hendrerit rhoncus risus, sit amet euismod mauris pretium vel.\n\nCurabitur dignissim tellus lacus, non vulputate neque blandit a. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed a diam diam."
+        },
+        {
+            "id": 2,
+            "title": "Note Rlly",
+            "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus in pharetra velit. Cras lacus arcu, feugiat id vehicula ut, placerat eget nisi. Sed vitae fringilla turpis, vel consequat arcu. Donec feugiat vel risus nec pharetra. Praesent hendrerit rhoncus risus, sit amet euismod mauris pretium vel.\n\nCurabitur dignissim tellus lacus, non vulputate neque blandit a. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed a diam diam."
+        }
+    ],
+    "lastUpdated": "2026-02-05T20:20:47.730Z"
+}

@@ -249,13 +249,18 @@ import { buildProjectFilePath, buildProjectFilePathWithFallback, getProjectYear 
             }
 
             // Build storage key using helper (auto-detects year and folder name)
-            const storageKey         = await buildProjectFilePath(
+            const storageKeyPrimary  = await buildProjectFilePath(
                 projectCode, 
                 'ClientData__Private__.json.enc', 
                 env
             );
+            const storageKeyLegacy   = await buildProjectFilePath(
+                projectCode, 
+                'ClientData__Encrypted__.json', 
+                env
+            );
 
-            if (!storageKey) {
+            if (!storageKeyPrimary) {
                 return jsonResponse({ 
                     success          : false,
                     error            : 'Project folder not found' 
@@ -265,8 +270,14 @@ import { buildProjectFilePath, buildProjectFilePathWithFallback, getProjectYear 
             // Get detected year for response
             const detectedYear       = await getProjectYear(projectCode, env);
 
-            // Retrieve from R2
-            const object             = await env.R2_BUCKET.get(storageKey);
+            // Retrieve from R2 (try primary, then legacy filename)
+            let object               = await env.R2_BUCKET.get(storageKeyPrimary);
+            let storageKeyUsed       = storageKeyPrimary;
+
+            if (!object && storageKeyLegacy) {
+                object               = await env.R2_BUCKET.get(storageKeyLegacy);
+                storageKeyUsed       = storageKeyLegacy;
+            }
 
             if (!object) {
                 await logDataAccess(projectCode, detectedYear, 'RETRIEVE', false, 'Data not found', request, env);
@@ -276,6 +287,10 @@ import { buildProjectFilePath, buildProjectFilePathWithFallback, getProjectYear 
                     projectCode      : projectCode.toUpperCase(),
                     year             : detectedYear
                 }, 404);
+            }
+
+            if (storageKeyUsed === storageKeyLegacy) {
+                console.log(`[ClientData] Legacy filename used for ${projectCode}`);
             }
 
             // Parse encrypted payload

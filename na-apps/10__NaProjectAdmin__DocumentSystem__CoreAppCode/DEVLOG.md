@@ -3,6 +3,59 @@
 
 # =============================================================================
 
+## Version 0.6.4 - 05-Feb-2026
+
+### Fixed
+
+- **Signature Purge UI Reset** - Editor purge now clears live signature state
+  - Clears sessionStorage signature keys in the parent app
+  - Refreshes navigation badges after purge
+  - Refreshes Signature Status view if currently active
+
+#### Files Modified
+
+- `04__EditorTools/Editor__ProjectIndexBuilder__.html`
+
+---
+
+## Version 0.6.3 - 05-Feb-2026
+
+### Fixed
+
+- **Signature Storage Location** - Stores signatures only in project folders
+  - Removed central archive writes under `NaProjectPortal/Signatures/`
+  - Retrieval and purge now target `10__ProjectAdmin__AppContent/SignatureRecords/`
+
+#### Files Modified
+
+- `05__CloudflareWorkers/src/handlers/CloudflareHandler__Signature__.js`
+
+---
+
+## Version 0.6.2 - 05-Feb-2026
+
+### Fixed
+
+- **Signature Storage Payload** - Aligns Cloudflare signature requests with Worker API
+  - Uses ApiClient or action wrapper to prevent HTTP 400 errors
+  - Signature records now store correctly in R2
+
+- **Contract Signing Return Flow** - Restores user to the signed contract view
+  - Handles `contract_*` document types after signing
+  - Prevents getting stuck after the first signature
+
+- **Client Data 404 Fallback** - Added legacy filename fallback in Worker
+  - Tries `ClientData__Private__.json.enc` then `ClientData__Encrypted__.json`
+  - Resolves 404s for older project data stored under legacy filename
+
+#### Files Modified
+
+- `03__Src__AppModules/40__SignatureSystem/SignatureSystem__AuditRecord__.js`
+- `03__Src__AppModules/01__AppCore/AppCore__Main__.js`
+- `05__CloudflareWorkers/src/handlers/CloudflareHandler__ClientData__.js`
+
+---
+
 ## Version 0.6.1 - 01-Feb-2026
 
 ### Improved - Cover Letter Styling & Date Syncing

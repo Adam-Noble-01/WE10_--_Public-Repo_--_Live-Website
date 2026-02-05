@@ -334,6 +334,23 @@
                 return false;
             }
 
+            // Prefer ApiClient to ensure correct request shape
+            const apiClient = window.NaProjectAdmin.CloudflareApiClient;
+            if (apiClient?.storeSignatureRecord) {
+                try {
+                    const result = await apiClient.storeSignatureRecord(auditRecord);
+                    if (result?.success === true) {
+                        console.log('[SignatureAuditRecord] Record stored via Cloudflare:', result);
+                        return true;
+                    }
+                    console.warn('[SignatureAuditRecord] Cloudflare store failed:', result?.message);
+                    return false;
+                } catch (error) {
+                    console.error('[SignatureAuditRecord] Failed to store via Cloudflare:', error);
+                    return false;
+                }
+            }
+
             if (!cfConfig?.workerBaseUrl || !cfConfig?.signatureEndpoint) {
                 console.warn('[SignatureAuditRecord] Cloudflare config incomplete');
                 return false;
@@ -345,7 +362,10 @@
                     headers              : {
                         'Content-Type'   : 'application/json'
                     },
-                    body                 : JSON.stringify(auditRecord)
+                    body                 : JSON.stringify({
+                        action           : 'store',                    // <-- Worker expects action wrapper
+                        record           : auditRecord
+                    })
                 });
 
                 if (!response.ok) {

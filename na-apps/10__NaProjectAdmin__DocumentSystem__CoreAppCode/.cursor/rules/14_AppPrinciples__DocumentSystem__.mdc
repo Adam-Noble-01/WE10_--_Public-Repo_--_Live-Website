@@ -32,9 +32,11 @@ alwaysApply: true
 
 ## Client Data (GDPR Compliant - v0.4.0)
 Client PII is stored separately in encrypted R2 storage:
-- **File:** `ClientData__Encrypted__.json` (AES-256-GCM encrypted)
+- **File:** `ClientData__Private__.json.enc` (AES-256-GCM encrypted)
 - **Location:** `{year}-Projects/{code}/10__ProjectAdmin__AppContent/`
 - **Access:** Via `CloudflareApiClient.retrieveClientData()`
+
+**Legacy fallback:** `ClientData__Encrypted__.json` may exist for older projects and is supported for retrieval only.
 
 ### Client Data Schema
 ```json

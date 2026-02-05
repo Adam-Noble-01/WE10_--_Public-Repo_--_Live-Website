@@ -5,10 +5,10 @@
         "quotation": true,
         "specialTerms": false
     },
-    "lastModified": "2026-02-05T19:52:13.891Z",
-    "projectCode": "JS01",
-    "projectName": "Meadow Lane",
-    "projectPin": "1234",
+    "lastModified": "2026-02-05T20:21:22.035Z",
+    "projectCode": "TS01",
+    "projectName": "Test Project",
+    "projectPin": "2601",
     "contracts": {
         "general-business": {
             "enabled": true,
@@ -29,14 +29,14 @@
             "signed": false,
             "signatureRef": null,
             "signedDate": null,
-            "specialTermsEnabled": false
+            "specialTermsEnabled": true
         },
         "building-regulations": {
             "enabled": true,
             "signed": false,
             "signatureRef": null,
             "signedDate": null,
-            "specialTermsEnabled": false
+            "specialTermsEnabled": true
         }
     }
 }
