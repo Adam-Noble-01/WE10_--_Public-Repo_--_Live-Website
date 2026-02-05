@@ -3,6 +3,20 @@
 
 # =============================================================================
 
+## Version 0.6.5 - 05-Feb-2026
+
+### Fixed
+
+- **Signature Touch Input** - Unified pointer events to support touch devices
+  - Prevents touch event crashes on iOS/Android
+  - Ensures drawing works for mouse, touch, and pen
+
+#### Files Modified
+
+- `03__Src__AppModules/40__SignatureSystem/SignatureSystem__CaptureCanvas__.js`
+
+---
+
 ## Version 0.6.4 - 05-Feb-2026
 
 ### Fixed

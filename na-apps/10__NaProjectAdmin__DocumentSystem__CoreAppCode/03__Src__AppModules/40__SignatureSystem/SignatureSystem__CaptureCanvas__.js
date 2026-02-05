@@ -18,6 +18,10 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 05-Feb-2026 - Version 1.0.1
+// - Unified input handling with pointer events
+// - Fixed touch drawing on mobile devices
+//
 // 31-Jan-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - Canvas drawing functionality
@@ -41,6 +45,7 @@
         let hasSignature             = false;                        // <-- Has user drawn anything
         let lastX                    = 0;                            // <-- Last X position
         let lastY                    = 0;                            // <-- Last Y position
+        let activePointerId          = null;                         // <-- Active pointer id
 
         // FUNCTION | Initialise Canvas
         // ------------------------------------------------------------
@@ -107,24 +112,19 @@
         function setupEventListeners() {
             if (!canvas) return;
 
-            // Mouse events
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-
-            // Touch events
-            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-            canvas.addEventListener('touchend', stopDrawing);
-            canvas.addEventListener('touchcancel', stopDrawing);
+            // Pointer events (mouse, touch, pen)
+            canvas.addEventListener('pointerdown', handlePointerDown, { passive: false });
+            canvas.addEventListener('pointermove', handlePointerMove, { passive: false });
+            canvas.addEventListener('pointerup', handlePointerUp, { passive: false });
+            canvas.addEventListener('pointercancel', handlePointerUp, { passive: false });
+            canvas.addEventListener('pointerleave', handlePointerUp, { passive: false });
         }
         // ---------------------------------------------------------------
 
         // FUNCTION | Start Drawing
         // ------------------------------------------------------------
         function startDrawing(e) {
-            e.preventDefault();                                          // <-- Prevent default actions
+            if (e?.preventDefault) e.preventDefault();                   // <-- Prevent default actions
             
             isDrawing = true;
             const pos = getPosition(e);
@@ -138,7 +138,7 @@
         function draw(e) {
             if (!isDrawing || !ctx) return;
 
-            e.preventDefault();
+            if (e?.preventDefault) e.preventDefault();
 
             const pos = getPosition(e);
 
@@ -160,27 +160,42 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Handle Touch Start
+        // FUNCTION | Handle Pointer Down
         // ------------------------------------------------------------
-        function handleTouchStart(e) {
-            e.preventDefault();
+        function handlePointerDown(e) {
+            if (!canvas) return;
+            if (activePointerId !== null) return;
+            if (e.isPrimary === false) return;
+
+            activePointerId = e.pointerId;
             
-            if (e.touches.length === 1) {
-                const touch = e.touches[0];
-                startDrawing(touch);
+            if (canvas.setPointerCapture) {
+                canvas.setPointerCapture(e.pointerId);
             }
+
+            startDrawing(e);
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Handle Touch Move
+        // FUNCTION | Handle Pointer Move
         // ------------------------------------------------------------
-        function handleTouchMove(e) {
-            e.preventDefault();
-            
-            if (e.touches.length === 1) {
-                const touch = e.touches[0];
-                draw(touch);
+        function handlePointerMove(e) {
+            if (e.pointerId !== activePointerId) return;
+            draw(e);
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Handle Pointer Up
+        // ------------------------------------------------------------
+        function handlePointerUp(e) {
+            if (e.pointerId !== activePointerId) return;
+
+            if (canvas?.releasePointerCapture) {
+                canvas.releasePointerCapture(e.pointerId);
             }
+
+            stopDrawing();
+            activePointerId = null;
         }
         // ---------------------------------------------------------------
 
@@ -324,20 +339,18 @@
         // ------------------------------------------------------------
         function destroy() {
             if (canvas) {
-                canvas.removeEventListener('mousedown', startDrawing);
-                canvas.removeEventListener('mousemove', draw);
-                canvas.removeEventListener('mouseup', stopDrawing);
-                canvas.removeEventListener('mouseout', stopDrawing);
-                canvas.removeEventListener('touchstart', handleTouchStart);
-                canvas.removeEventListener('touchmove', handleTouchMove);
-                canvas.removeEventListener('touchend', stopDrawing);
-                canvas.removeEventListener('touchcancel', stopDrawing);
+                canvas.removeEventListener('pointerdown', handlePointerDown);
+                canvas.removeEventListener('pointermove', handlePointerMove);
+                canvas.removeEventListener('pointerup', handlePointerUp);
+                canvas.removeEventListener('pointercancel', handlePointerUp);
+                canvas.removeEventListener('pointerleave', handlePointerUp);
             }
 
             canvas = null;
             ctx = null;
             isDrawing = false;
             hasSignature = false;
+            activePointerId = null;
         }
         // ---------------------------------------------------------------
 
