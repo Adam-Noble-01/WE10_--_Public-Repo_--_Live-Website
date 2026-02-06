@@ -3,17 +3,27 @@
 
 # =============================================================================
 
-## Version 0.6.5 - 05-Feb-2026
+## Version 0.6.5 - 06-Feb-2026
 
-### Fixed
+### Added
 
-- **Signature Touch Input** - Unified pointer events to support touch devices
-  - Prevents touch event crashes on iOS/Android
-  - Ensures drawing works for mouse, touch, and pen
+- **Signature Initial Check** - Session-start signature sync for cross-device status
+  - New Worker endpoint aggregates latest signature records per document type
+  - ApiClient method added for initial signature status retrieval
+
+### Changed
+
+- **Session Login Flow** - Signature status now syncs before menu build
+  - Populates `sessionStorage` keys for quotation and contract signatures
+  - Updates in-memory contract signed state for accurate status views
 
 #### Files Modified
 
-- `03__Src__AppModules/40__SignatureSystem/SignatureSystem__CaptureCanvas__.js`
+- `05__CloudflareWorkers/src/handlers/CloudflareHandler__SignatureFile__InitialCheck__.js`
+- `05__CloudflareWorkers/src/CloudflareWorker__Main__.js`
+- `03__Src__AppModules/50__CloudflareIntegration/CloudflareIntegration__ApiClient__.js`
+- `03__Src__AppModules/01__AppCore/AppCore__Main__.js`
+- `03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json`
 
 ---
 

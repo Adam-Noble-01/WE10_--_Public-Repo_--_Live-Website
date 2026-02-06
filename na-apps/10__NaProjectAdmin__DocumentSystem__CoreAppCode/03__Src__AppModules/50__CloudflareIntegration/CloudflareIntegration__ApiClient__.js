@@ -224,6 +224,31 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Check Signature Status (Initial Session Sync)
+        // ------------------------------------------------------------
+        async function checkSignatureInitialStatus(projectCode) {
+            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
+            const cfConfig = config?.AppConfig?.CloudflareConfig;
+            const initialCheckEndpoint = cfConfig?.signatureInitialCheckEndpoint || 'projectadmin/signature-initial-check';
+
+            if (!projectCode) {
+                return null;
+            }
+
+            try {
+                const result = await makeRequest(`${initialCheckEndpoint}?projectCode=${projectCode}`, {
+                    method           : 'GET'
+                });
+
+                return result;
+
+            } catch (error) {
+                console.error('[CloudflareApiClient] Signature initial check failed:', error);
+                return null;
+            }
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Get Client IP
         // ------------------------------------------------------------
         async function getClientIp() {
@@ -431,6 +456,7 @@
             validateProjectPin       : validateProjectPin,
             storeSignatureRecord     : storeSignatureRecord,
             retrieveSignatureRecord  : retrieveSignatureRecord,
+            checkSignatureInitialStatus : checkSignatureInitialStatus,
             getClientIp              : getClientIp,
             loadProjectConfig        : loadProjectConfig,
             storeClientData          : storeClientData,

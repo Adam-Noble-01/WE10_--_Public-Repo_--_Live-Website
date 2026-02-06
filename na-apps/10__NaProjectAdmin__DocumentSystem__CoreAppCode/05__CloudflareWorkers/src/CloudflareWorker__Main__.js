@@ -21,6 +21,7 @@
 // - POST   /projectadmin/clientdata - Store encrypted client PII (GDPR)
 // - GET    /projectadmin/clientdata - Retrieve decrypted client PII
 // - DELETE /projectadmin/clientdata - Delete client PII (GDPR erasure)
+// - GET    /projectadmin/signature-initial-check - Check signature status (session sync)
 // - POST   /projectadmin/signature  - Store signature record
 // - GET    /projectadmin/signature  - Retrieve signature record
 // - DELETE /projectadmin/signature  - Purge signature records for a project
@@ -56,6 +57,7 @@
 import { handleAuth } from './handlers/CloudflareHandler__Auth__.js';
 import { handleClientData } from './handlers/CloudflareHandler__ClientData__.js';
 import { handleSignature } from './handlers/CloudflareHandler__Signature__.js';
+import { handleSignatureInitialCheck } from './handlers/CloudflareHandler__SignatureFile__InitialCheck__.js';
 import { handleR2 } from './handlers/CloudflareHandler__R2__.js';
 
 // #Region ---
@@ -101,6 +103,11 @@ import { handleR2 } from './handlers/CloudflareHandler__R2__.js';
                 // Client data endpoint (GDPR-compliant encrypted PII storage)
                 else if (path.startsWith('/projectadmin/clientdata')) {
                     response = await handleClientData(request, env);
+                }
+
+                // Signature endpoint
+                else if (path.startsWith('/projectadmin/signature-initial-check')) {
+                    response = await handleSignatureInitialCheck(request, env);
                 }
 
                 // Signature endpoint

@@ -410,12 +410,67 @@
             }
             // ---------------------------------------------------------------
 
+            // FUNCTION | Sync Signature Status (Per Session)
+            // ------------------------------------------------------------
+            async function syncSignatureStatusOnLogin() {
+                const config = window.NaProjectAdmin.ConfigManager?.getConfig();
+                const signatureEnabled = config?.AppConfig?.Features?.SignatureSystem?.enabled === true;
+                const cloudflareEnabled = config?.AppConfig?.CloudflareConfig?.enabled === true;
+
+                if (!signatureEnabled || !cloudflareEnabled) {
+                    return;
+                }
+
+                if (!currentProject || !projectConfig) {
+                    return;
+                }
+
+                const apiClient = window.NaProjectAdmin.CloudflareApiClient;
+                if (!apiClient?.checkSignatureInitialStatus) {
+                    return;
+                }
+
+                const result = await apiClient.checkSignatureInitialStatus(currentProject);
+                if (!result?.success || !result?.records) {
+                    return;
+                }
+
+                for (const [documentType, record] of Object.entries(result.records)) {
+                    if (!documentType || !record) continue;
+
+                    if (documentType.startsWith('contract_')) {
+                        const contractId = documentType.replace('contract_', '');
+                        const signatureKey = `naProjectAdmin_sig_contract_${currentProject}_${contractId}`;
+
+                        if (!sessionStorage.getItem(signatureKey)) {
+                            sessionStorage.setItem(signatureKey, JSON.stringify(record));
+                        }
+
+                        if (projectConfig?.contracts?.[contractId]) {
+                            projectConfig.contracts[contractId].signed = true;
+                            projectConfig.contracts[contractId].signatureRef = record.signatureRef || null;
+                            projectConfig.contracts[contractId].signedDate = record.signedDate || null;
+                        }
+                    } else {
+                        const signatureKey = `naProjectAdmin_sig_${documentType}_${currentProject}`;
+
+                        if (!sessionStorage.getItem(signatureKey)) {
+                            sessionStorage.setItem(signatureKey, JSON.stringify(record));
+                        }
+                    }
+                }
+            }
+            // ---------------------------------------------------------------
+
             // FUNCTION | Show Project Content
             // ------------------------------------------------------------
             async function showProjectContent() {
                 console.log('[App] Loading project content...');
 
                 hideAllScreens();
+
+                // Sync signature status before building menu            // <--
+                await syncSignatureStatusOnLogin();
 
                 // Wait for UI modules
                 try {
