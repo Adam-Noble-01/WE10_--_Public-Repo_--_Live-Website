@@ -61,6 +61,7 @@ import platform
 import argparse
 import json
 import re
+import shutil
 from datetime import datetime
 
 try:
@@ -572,6 +573,43 @@ def create_project():
             'message'        : f'Project {code} created successfully'
         })
         
+    except Exception as e:
+        return jsonify({
+            'success'    : False,
+            'error'      : str(e)
+        }), 500
+
+
+@app.route('/api/project/<year>/<code>', methods=['DELETE'])
+def delete_project(year, code):
+    """Delete a project folder from local disk."""
+    project_path = get_project_path(year, code)
+
+    if not project_path:
+        return jsonify({
+            'success'    : False,
+            'error'      : f'Project {code} not found for year {year}'
+        }), 404
+
+    portal_path = get_project_portal_path()
+    project_path_abs = os.path.abspath(project_path)
+    portal_path_abs = os.path.abspath(portal_path)
+
+    if not project_path_abs.startswith(portal_path_abs):
+        return jsonify({
+            'success'    : False,
+            'error'      : 'Refusing to delete outside project portal'
+        }), 400
+
+    try:
+        shutil.rmtree(project_path_abs)
+        return jsonify({
+            'success'    : True,
+            'projectCode': code.upper(),
+            'year'       : year,
+            'path'       : project_path_abs,
+            'message'    : 'Project folder deleted'
+        })
     except Exception as e:
         return jsonify({
             'success'    : False,

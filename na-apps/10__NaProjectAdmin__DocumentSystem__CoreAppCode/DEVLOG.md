@@ -3,6 +3,43 @@
 
 # =============================================================================
 
+## Admin & Doc System - Version 0.6.7 - 06-Feb-2026
+
+### Added
+
+- **Mega Delete (Project Manager)** - Hard delete for full project removal
+  - Deletes local project folder via Flask API
+  - Purges all Cloudflare R2 files under the project prefix
+
+### Changed
+
+- **Project Purge API** - New Worker endpoint for full project delete
+  - `/projectadmin/project-purge` removes all objects under project prefix
+
+#### Files Modified
+
+- `04__EditorTools/Editor__ProjectIndexBuilder__.html`
+- `05__CloudflareWorkers/src/CloudflareWorker__Main__.js`
+- `05__CloudflareWorkers/src/handlers/CloudflareHandler__ProjectPurge__.js`
+- `start_local_server.py`
+
+---
+
+## Admin & Doc System - Version 0.6.6 - 06-Feb-2026
+
+### Changed
+
+- **Signature Storage Filenames** - Enforced readable filenames in Worker
+  - Quotations: `{ProjectCode}__Quotation__{QuotationRef}__Signed__DD-MMM-YYYY.json`
+  - Contracts: `{ProjectCode}__{ContractName}__Signed__DD-MMM-YYYY.json`
+  - Validates required fields (quotationRef, contract title) before storage
+
+#### Files Modified
+
+- `05__CloudflareWorkers/src/handlers/CloudflareHandler__Signature__.js`
+
+---
+
 ## Admin & Doc System - Version 0.6.5 - 06-Feb-2026
 
 ### Added
@@ -16,6 +53,9 @@
 - **Session Login Flow** - Signature status now syncs before menu build
   - Populates `sessionStorage` keys for quotation and contract signatures
   - Updates in-memory contract signed state for accurate status views
+- **UI Refresh After Sync** - Forces menu badges and signature view refresh
+  - Refreshes navigation badges after initial signature sync
+  - Refreshes Signature Status view if already active
 - **Signature Sync Debug Logs** - Optional logs when `devMode_ShowDebugLogs` is enabled
   - Logs request/response details for initial signature check
 

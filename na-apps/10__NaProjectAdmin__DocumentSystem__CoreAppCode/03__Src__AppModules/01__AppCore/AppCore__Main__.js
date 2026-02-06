@@ -508,6 +508,15 @@
                     await window.NaProjectAdmin.Navigation.buildMenu(currentProject, projectConfig);
                 }
 
+                // Refresh UI badges after sync                        // <--
+                if (window.NaProjectAdmin.Navigation?.refreshMenuBadges) {
+                    await window.NaProjectAdmin.Navigation.refreshMenuBadges();
+                }
+
+                if (window.NaProjectAdmin.UserInterfaceMain?.getCurrentView?.() === 'signatures') {
+                    await window.NaProjectAdmin.UserInterfaceMain.showSignatureStatus();
+                }
+
                 // Show document screen by default
                 showDocumentScreen();
 
@@ -682,6 +691,9 @@
 
             hideAllScreens();
 
+            // Sync signature status before building menu            // <--
+            await syncSignatureStatusOnLogin();
+
             // Wait for UI modules
             try {
                 await window.NaProjectAdmin.ModuleDependencyManager.waitForModules([
@@ -695,6 +707,15 @@
             // Build navigation menu
             if (window.NaProjectAdmin.Navigation) {
                 await window.NaProjectAdmin.Navigation.buildMenu(currentProject, projectConfig);
+            }
+
+            // Refresh UI badges after sync                        // <--
+            if (window.NaProjectAdmin.Navigation?.refreshMenuBadges) {
+                await window.NaProjectAdmin.Navigation.refreshMenuBadges();
+            }
+
+            if (window.NaProjectAdmin.UserInterfaceMain?.getCurrentView?.() === 'signatures') {
+                await window.NaProjectAdmin.UserInterfaceMain.showSignatureStatus();
             }
 
             // Show document screen by default

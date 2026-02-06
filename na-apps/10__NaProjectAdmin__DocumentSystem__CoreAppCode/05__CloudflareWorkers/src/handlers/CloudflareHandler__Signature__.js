@@ -19,6 +19,10 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 06-Feb-2026 - Version 1.3.0
+// - Enforced readable signature filenames for storage
+// - Added validation for quotation refs and contract titles
+//
 // 31-Jan-2026 - Version 1.2.0
 // - Updated to use ProjectPath helper
 //   - Folder discovery via R2 listing
@@ -106,6 +110,18 @@ import { buildProjectSubfolderPath, findProjectFolder } from '../helpers/Cloudfl
                 }, 400);
             }
 
+            // Validate record semantics and filename requirements
+            const validation         = validateSignatureRecord(record);
+            if (!validation.valid) {
+                return jsonResponse({
+                    success          : false,
+                    message          : validation.message
+                }, 400);
+            }
+
+            // Normalise project code for storage
+            record.projectCode       = record.projectCode.toUpperCase();
+
             // Enhance record with server-side metadata for audit trail
             const enhancedRecord = {
                 ...record,
@@ -115,8 +131,8 @@ import { buildProjectSubfolderPath, findProjectFolder } from '../helpers/Cloudfl
                 country              : request.headers.get('CF-IPCountry') || 'Unknown'
             };
 
-            // Generate unique storage key
-            const storageKey         = generateStorageKey(record);    // <-- SIG__DD-MMM-YYYY__DOC__RANDOM
+            // Generate storage key (readable filename)
+            const storageKey         = generateStorageKey(record);    // <-- Code__Doc__Ref__Signed__DD-MMM-YYYY
 
             // Validate R2 bucket is configured
             if (!env.R2_BUCKET) {
@@ -385,17 +401,115 @@ import { buildProjectSubfolderPath, findProjectFolder } from '../helpers/Cloudfl
 
     /**
      * Generate unique storage key for signature record
-     * Format: SIG__DD-MMM-YYYY__DOC__RANDOM
+     * Format: Code__Doc__Ref__Signed__DD-MMM-YYYY
      * 
      * @param {Object} record - Signature record
      * @returns {string} Unique storage key
      */
     function generateStorageKey(record) {
-        const date               = formatDateToUK(new Date());        // <-- Current date UK format
-        const docType            = record.documentType?.substring(0, 3).toUpperCase() || 'DOC';
-        const random             = Math.random().toString(36).substring(2, 8).toUpperCase();
-        
-        return `SIG__${date}__${docType}__${random}`;                 // <-- Unique key
+        return buildSignatureFilename(record);
+    }
+
+    /**
+     * Validate signature record for filename rules
+     * @param {Object} record - Signature record
+     * @returns {Object} Validation result
+     */
+    function validateSignatureRecord(record) {
+        const projectCode        = record?.projectCode?.toUpperCase();
+
+        if (!/^[A-Z]{2}\d{2}$/.test(projectCode)) {
+            return {
+                valid            : false,
+                message          : 'Invalid project code format (expected: AA00)'
+            };
+        }
+
+        if (record.documentType === 'quotation' && !record.quotationRef) {
+            return {
+                valid            : false,
+                message          : 'Missing required field: quotationRef for quotation signatures'
+            };
+        }
+
+        if (record.documentType?.startsWith('contract_')) {
+            const hasTitle       = typeof record.documentTitle === 'string' && record.documentTitle.trim().length > 0;
+            const hasContractId  = typeof record.contractId === 'string' && record.contractId.trim().length > 0;
+
+            if (!hasTitle && !hasContractId) {
+                return {
+                    valid        : false,
+                    message      : 'Missing required field: documentTitle or contractId for contract signatures'
+                };
+            }
+        }
+
+        return { valid: true };
+    }
+
+    /**
+     * Build readable filename from signature record
+     * @param {Object} record - Signature record
+     * @returns {string} Filename without extension
+     */
+    function buildSignatureFilename(record) {
+        const projectCode        = sanitizeFilenameSegment(record.projectCode?.toUpperCase() || 'XX00');
+        const signedDate         = getSignedDateForFilename(record);
+
+        if (record.documentType === 'quotation') {
+            const quotationRef   = sanitizeFilenameSegment(record.quotationRef || 'UNKNOWN');
+            return `${projectCode}__Quotation__${quotationRef}__Signed__${signedDate}`;
+        }
+
+        if (record.documentType === 'terms') {
+            const termsName      = sanitizeFilenameSegment(record.documentTitle || 'Terms');
+            return `${projectCode}__${termsName || 'Terms'}__Signed__${signedDate}`;
+        }
+
+        if (record.documentType?.startsWith('contract_')) {
+            const contractName   = sanitizeFilenameSegment(record.documentTitle || record.contractId || 'Contract');
+            return `${projectCode}__${contractName || 'Contract'}__Signed__${signedDate}`;
+        }
+
+        const fallbackType       = sanitizeFilenameSegment(record.documentType || 'Document');
+        return `${projectCode}__${fallbackType || 'Document'}__Signed__${signedDate}`;
+    }
+
+    /**
+     * Get signed date for filename (DD-MMM-YYYY)
+     * @param {Object} record - Signature record
+     * @returns {string} Date string
+     */
+    function getSignedDateForFilename(record) {
+        if (record?.signedDate) {
+            const datePart       = record.signedDate.split(' at ')[0];
+            if (/^\d{2}-[A-Za-z]{3}-\d{4}$/.test(datePart)) {
+                return datePart;
+            }
+            const parsed         = new Date(record.signedDate);
+            if (!isNaN(parsed)) {
+                return formatDateToUK(parsed);
+            }
+        }
+
+        const fallbackTs        = record?.signedTimestamp || record?.serverTimestamp;
+        if (fallbackTs) {
+            return formatDateToUK(new Date(fallbackTs));
+        }
+
+        return formatDateToUK(new Date());
+    }
+
+    /**
+     * Sanitize filename segment to safe characters
+     * @param {string} value - Raw value
+     * @returns {string} Sanitized segment
+     */
+    function sanitizeFilenameSegment(value) {
+        return String(value || '')
+            .replace(/\s+/g, '')                                      // <-- Remove spaces
+            .replace(/[^A-Za-z0-9_-]/g, '')                           // <-- Keep letters, numbers, _ and -
+            .trim();
     }
 
     /**

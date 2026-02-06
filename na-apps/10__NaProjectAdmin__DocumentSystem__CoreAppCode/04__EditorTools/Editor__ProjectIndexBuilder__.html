@@ -538,6 +538,7 @@
                         <button class="btn btn--small btn--secondary" onclick="openProject('${code}', '${year}')" title="Open in app">Open</button>
                         <button class="btn btn--small btn--warning" onclick="purgeContracts('${code}', '${year}')" title="Delete signed contracts">Purge</button>
                         <button class="btn btn--small btn--danger" onclick="removeProject('${year}', '${code}')">Remove</button>
+                        <button class="btn btn--small btn--danger" onclick="megaDeleteProject('${year}', '${code}')" title="Delete project locally and in Cloudflare">Mega Delete</button>
                     </td>
                 `;
 
@@ -622,6 +623,7 @@
                         <button class="btn btn--small btn--secondary" onclick="openProject('${newValue}', '${year}')" title="Open in app">Open</button>
                         <button class="btn btn--small btn--warning" onclick="purgeContracts('${newValue}', '${year}')" title="Delete signed contracts">Purge</button>
                         <button class="btn btn--small btn--danger" onclick="removeProject('${year}', '${newValue}')">Remove</button>
+                        <button class="btn btn--small btn--danger" onclick="megaDeleteProject('${year}', '${newValue}')" title="Delete project locally and in Cloudflare">Mega Delete</button>
                     `;
                 }
             }
@@ -789,6 +791,87 @@
 
         } catch (error) {
             NaEditorTools.showErrorMessage(`Purge failed: ${error.message}`);
+        }
+    }
+
+    async function megaDeleteProject(year, projectCode) {
+        if (!isFlaskMode) {
+            NaEditorTools?.showErrorMessage('Flask server required for mega delete');
+            return;
+        }
+
+        NaEditorTools.showConfirmDialog(
+            'Mega Delete Project',
+            `<strong style="color: #c73e3e;">⚠ EXTREME WARNING: This action cannot be undone!</strong><br><br>
+             This will permanently delete ALL local files and ALL Cloudflare files for <strong>${projectCode}</strong> (${year}).<br><br>
+             This includes quotations, contracts, special terms, signatures, and client data.`,
+            async () => {
+                await doMegaDeleteProject(projectCode, year);
+            },
+            null,
+            { confirmText: 'Mega Delete', dangerous: true }
+        );
+    }
+
+    async function doMegaDeleteProject(projectCode, year) {
+        try {
+            if (window.location.protocol === 'file:') {
+                throw new Error('Cannot delete projects when running from file:// protocol.');
+            }
+
+            const code = projectCode.toUpperCase();
+            let localSuccess = false;
+            let cloudSuccess = false;
+
+            // Local delete via Flask API
+            const localResponse = await fetch(`/api/project/${year}/${code}`, {
+                method: 'DELETE'
+            });
+
+            if (!localResponse.ok) {
+                const errorText = await localResponse.text();
+                throw new Error(`Local delete failed: HTTP ${localResponse.status} ${errorText || localResponse.statusText}`);
+            }
+
+            const localResult = await localResponse.json();
+            localSuccess = localResult.success === true;
+
+            // Cloudflare delete (R2 prefix purge)
+            const cloudResponse = await fetch(`${WORKER_BASE_URL}/projectadmin/project-purge`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    projectCode: code,
+                    confirmDelete: true
+                })
+            });
+
+            if (!cloudResponse.ok) {
+                const errorText = await cloudResponse.text();
+                throw new Error(`Cloudflare delete failed: HTTP ${cloudResponse.status} ${errorText || cloudResponse.statusText}`);
+            }
+
+            const cloudResult = await cloudResponse.json();
+            cloudSuccess = cloudResult.success === true;
+
+            if (localSuccess && cloudSuccess) {
+                delete projectsIndex[year]?.[code];
+                if (discoveredData[year]) {
+                    delete discoveredData[year][code];
+                }
+                if (Object.keys(projectsIndex[year] || {}).length === 0) {
+                    delete projectsIndex[year];
+                    delete discoveredData[year];
+                }
+
+                renderProjectsTable(discoveredData);
+                NaEditorTools.showSuccessMessage(`Mega delete complete for ${code} (${year})`);
+            } else {
+                NaEditorTools.showErrorMessage(`Mega delete incomplete for ${code} (${year})`);
+            }
+
+        } catch (error) {
+            NaEditorTools.showErrorMessage(`Mega delete failed: ${error.message}`);
         }
     }
 

@@ -1,0 +1,28 @@
+{
+    "projectCode": "TS02",
+    "projectName": "Test02",
+    "clientName": "Dave Test",
+    "projectPin": "1234",
+    "contracts": {
+        "general-business": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsFile": null
+        },
+        "concept-design": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsFile": null
+        }
+    },
+    "documents": {
+        "quotation": true
+    },
+    "clientDataId": "TS02_26",
+    "createdDate": "06-Feb-2026",
+    "lastModified": "06-Feb-2026 at 11:26"
+}

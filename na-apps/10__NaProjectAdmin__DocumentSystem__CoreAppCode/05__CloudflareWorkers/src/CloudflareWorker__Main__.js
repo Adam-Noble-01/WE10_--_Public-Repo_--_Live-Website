@@ -21,6 +21,7 @@
 // - POST   /projectadmin/clientdata - Store encrypted client PII (GDPR)
 // - GET    /projectadmin/clientdata - Retrieve decrypted client PII
 // - DELETE /projectadmin/clientdata - Delete client PII (GDPR erasure)
+// - POST   /projectadmin/project-purge - Purge all project files (R2)
 // - GET    /projectadmin/signature-initial-check - Check signature status (session sync)
 // - POST   /projectadmin/signature  - Store signature record
 // - GET    /projectadmin/signature  - Retrieve signature record
@@ -57,6 +58,7 @@
 import { handleAuth } from './handlers/CloudflareHandler__Auth__.js';
 import { handleClientData } from './handlers/CloudflareHandler__ClientData__.js';
 import { handleSignature } from './handlers/CloudflareHandler__Signature__.js';
+import { handleProjectPurge } from './handlers/CloudflareHandler__ProjectPurge__.js';
 import { handleSignatureInitialCheck } from './handlers/CloudflareHandler__SignatureFile__InitialCheck__.js';
 import { handleR2 } from './handlers/CloudflareHandler__R2__.js';
 
@@ -103,6 +105,11 @@ import { handleR2 } from './handlers/CloudflareHandler__R2__.js';
                 // Client data endpoint (GDPR-compliant encrypted PII storage)
                 else if (path.startsWith('/projectadmin/clientdata')) {
                     response = await handleClientData(request, env);
+                }
+
+                // Project purge endpoint (full R2 delete)
+                else if (path.startsWith('/projectadmin/project-purge')) {
+                    response = await handleProjectPurge(request, env);
                 }
 
                 // Signature endpoint
