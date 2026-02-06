@@ -617,6 +617,50 @@ def delete_project(year, code):
         }), 500
 
 
+@app.route('/api/project-folder/<year>/<folder>', methods=['DELETE'])
+def delete_project_by_folder(year, folder):
+    """Delete a project folder by exact folder name (local disk)."""
+    if '..' in folder or '/' in folder or '\\' in folder:
+        return jsonify({
+            'success'    : False,
+            'error'      : 'Invalid folder name'
+        }), 400
+
+    portal_path = get_project_portal_path()
+    year_folder = f"{year}-Projects"
+    project_path = os.path.join(portal_path, year_folder, folder)
+
+    if not os.path.exists(project_path):
+        return jsonify({
+            'success'    : False,
+            'error'      : f'Project folder not found: {folder}'
+        }), 404
+
+    project_path_abs = os.path.abspath(project_path)
+    portal_path_abs = os.path.abspath(portal_path)
+
+    if not project_path_abs.startswith(portal_path_abs):
+        return jsonify({
+            'success'    : False,
+            'error'      : 'Refusing to delete outside project portal'
+        }), 400
+
+    try:
+        shutil.rmtree(project_path_abs)
+        return jsonify({
+            'success'    : True,
+            'folder'     : folder,
+            'year'       : year,
+            'path'       : project_path_abs,
+            'message'    : 'Project folder deleted'
+        })
+    except Exception as e:
+        return jsonify({
+            'success'    : False,
+            'error'      : str(e)
+        }), 500
+
+
 @app.route('/api/projects/scan')
 def scan_projects():
     """Scan na-project-portal for all projects."""

@@ -10,6 +10,7 @@
 - **Mega Delete (Project Manager)** - Hard delete for full project removal
   - Deletes local project folder via Flask API
   - Purges all Cloudflare R2 files under the project prefix
+  - Uses exact folder delete to avoid index mismatches
 
 ### Changed
 

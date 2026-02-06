@@ -538,7 +538,7 @@
                         <button class="btn btn--small btn--secondary" onclick="openProject('${code}', '${year}')" title="Open in app">Open</button>
                         <button class="btn btn--small btn--warning" onclick="purgeContracts('${code}', '${year}')" title="Delete signed contracts">Purge</button>
                         <button class="btn btn--small btn--danger" onclick="removeProject('${year}', '${code}')">Remove</button>
-                        <button class="btn btn--small btn--danger" onclick="megaDeleteProject('${year}', '${code}')" title="Delete project locally and in Cloudflare">Mega Delete</button>
+                        <button class="btn btn--small btn--danger" onclick="megaDeleteProject('${year}', '${code}', '${project.folder}')" title="Delete project locally and in Cloudflare">Mega Delete</button>
                     </td>
                 `;
 
@@ -623,7 +623,7 @@
                         <button class="btn btn--small btn--secondary" onclick="openProject('${newValue}', '${year}')" title="Open in app">Open</button>
                         <button class="btn btn--small btn--warning" onclick="purgeContracts('${newValue}', '${year}')" title="Delete signed contracts">Purge</button>
                         <button class="btn btn--small btn--danger" onclick="removeProject('${year}', '${newValue}')">Remove</button>
-                        <button class="btn btn--small btn--danger" onclick="megaDeleteProject('${year}', '${newValue}')" title="Delete project locally and in Cloudflare">Mega Delete</button>
+                        <button class="btn btn--small btn--danger" onclick="megaDeleteProject('${year}', '${newValue}', '${projectsIndex[year]?.[newValue] || ''}')" title="Delete project locally and in Cloudflare">Mega Delete</button>
                     `;
                 }
             }
@@ -794,7 +794,7 @@
         }
     }
 
-    async function megaDeleteProject(year, projectCode) {
+    async function megaDeleteProject(year, projectCode, folderName) {
         if (!isFlaskMode) {
             NaEditorTools?.showErrorMessage('Flask server required for mega delete');
             return;
@@ -806,14 +806,14 @@
              This will permanently delete ALL local files and ALL Cloudflare files for <strong>${projectCode}</strong> (${year}).<br><br>
              This includes quotations, contracts, special terms, signatures, and client data.`,
             async () => {
-                await doMegaDeleteProject(projectCode, year);
+                await doMegaDeleteProject(projectCode, year, folderName);
             },
             null,
             { confirmText: 'Mega Delete', dangerous: true }
         );
     }
 
-    async function doMegaDeleteProject(projectCode, year) {
+    async function doMegaDeleteProject(projectCode, year, folderName) {
         try {
             if (window.location.protocol === 'file:') {
                 throw new Error('Cannot delete projects when running from file:// protocol.');
@@ -824,9 +824,12 @@
             let cloudSuccess = false;
 
             // Local delete via Flask API
-            const localResponse = await fetch(`/api/project/${year}/${code}`, {
-                method: 'DELETE'
-            });
+            let localUrl = `/api/project/${year}/${code}`;
+            if (folderName) {
+                localUrl = `/api/project-folder/${year}/${encodeURIComponent(folderName)}`;
+            }
+
+            const localResponse = await fetch(localUrl, { method: 'DELETE' });
 
             if (!localResponse.ok) {
                 const errorText = await localResponse.text();
