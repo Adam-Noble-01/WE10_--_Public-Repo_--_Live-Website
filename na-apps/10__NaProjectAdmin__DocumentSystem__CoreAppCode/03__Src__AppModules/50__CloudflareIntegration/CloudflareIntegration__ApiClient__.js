@@ -230,15 +230,24 @@
             const config = window.NaProjectAdmin.ConfigManager?.getConfig();
             const cfConfig = config?.AppConfig?.CloudflareConfig;
             const initialCheckEndpoint = cfConfig?.signatureInitialCheckEndpoint || 'projectadmin/signature-initial-check';
+            const devLogs = config?.AppConfig?.devMode_ShowDebugLogs === true;
 
             if (!projectCode) {
                 return null;
             }
 
             try {
+                if (devLogs) {
+                    console.log('[CloudflareApiClient] Signature initial check request:', projectCode);
+                }
+
                 const result = await makeRequest(`${initialCheckEndpoint}?projectCode=${projectCode}`, {
                     method           : 'GET'
                 });
+
+                if (devLogs) {
+                    console.log('[CloudflareApiClient] Signature initial check response:', result);
+                }
 
                 return result;
 

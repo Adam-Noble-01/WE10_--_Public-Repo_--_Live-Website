@@ -3,7 +3,7 @@
 
 # =============================================================================
 
-## Version 0.6.5 - 06-Feb-2026
+## Admin & Doc System - Version 0.6.5 - 06-Feb-2026
 
 ### Added
 
@@ -16,6 +16,8 @@
 - **Session Login Flow** - Signature status now syncs before menu build
   - Populates `sessionStorage` keys for quotation and contract signatures
   - Updates in-memory contract signed state for accurate status views
+- **Signature Sync Debug Logs** - Optional logs when `devMode_ShowDebugLogs` is enabled
+  - Logs request/response details for initial signature check
 
 #### Files Modified
 

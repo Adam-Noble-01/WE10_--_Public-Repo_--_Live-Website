@@ -416,22 +416,39 @@
                 const config = window.NaProjectAdmin.ConfigManager?.getConfig();
                 const signatureEnabled = config?.AppConfig?.Features?.SignatureSystem?.enabled === true;
                 const cloudflareEnabled = config?.AppConfig?.CloudflareConfig?.enabled === true;
+                const devLogs = config?.AppConfig?.devMode_ShowDebugLogs === true;
 
                 if (!signatureEnabled || !cloudflareEnabled) {
+                    if (devLogs) {
+                        console.log('[App] Signature sync skipped (disabled)');
+                    }
                     return;
                 }
 
                 if (!currentProject || !projectConfig) {
+                    if (devLogs) {
+                        console.log('[App] Signature sync skipped (missing project)');
+                    }
                     return;
                 }
 
                 const apiClient = window.NaProjectAdmin.CloudflareApiClient;
                 if (!apiClient?.checkSignatureInitialStatus) {
+                    if (devLogs) {
+                        console.log('[App] Signature sync skipped (ApiClient missing)');
+                    }
                     return;
+                }
+
+                if (devLogs) {
+                    console.log(`[App] Syncing signature status for ${currentProject}`);
                 }
 
                 const result = await apiClient.checkSignatureInitialStatus(currentProject);
                 if (!result?.success || !result?.records) {
+                    if (devLogs) {
+                        console.log('[App] Signature sync returned no records');
+                    }
                     return;
                 }
 
@@ -458,6 +475,10 @@
                             sessionStorage.setItem(signatureKey, JSON.stringify(record));
                         }
                     }
+                }
+
+                if (devLogs) {
+                    console.log(`[App] Signature sync complete (${Object.keys(result.records).length} record(s))`);
                 }
             }
             // ---------------------------------------------------------------
