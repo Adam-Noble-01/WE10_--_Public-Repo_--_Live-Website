@@ -173,6 +173,22 @@
                 </div>
             </div>
 
+            <!-- MISSING PROJECT CODE ERROR MODAL -->
+            <div id="missing-project-overlay">
+                <div class="missing-project-content">
+                    <div class="missing-project-hazard-bar"></div>
+                    <div class="missing-project-inner">
+                        <span class="missing-project-icon">🔒</span>
+                        <h2>Project Code Required</h2>
+                        <p>PlanVision requires a valid project code to load project data.</p>
+                        <p class="missing-project-emphasis">You cannot access this application without a valid project code in the URL.</p>
+                        <p>If you received an email invitation, please use the link provided in that email to access your project.</p>
+                        <p class="missing-project-info">Contact Noble Architecture if you need assistance accessing your project.</p>
+                    </div>
+                    <div class="missing-project-hazard-bar"></div>
+                </div>
+            </div>
+
             <!-- endregion ---------------------------------------- -->
 
             <!-- #Region ------------------------------------------ -->
@@ -390,22 +406,26 @@
                 window.location.hostname === 'localhost' ||            // <-- Localhost name
                 window.location.protocol === 'file:';                  // <-- File protocol
 
+            // Check if a project code was provided in the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasProjectCodeInUrl = urlParams.has('project') && urlParams.get('project').trim() !== '';
+
             const NaUrlQueryContext = window.NaPlanVision?.UrlQuerySystem
                 ? window.NaPlanVision.UrlQuerySystem.getProjectContext({
-                    defaultProjectCode: 'JH03',
+                    defaultProjectCode: null,
                     defaultProjectYear: '25',
-                    defaultProjectFolder: 'JH03__RomerCottage',
+                    defaultProjectFolder: null,
                     localProjectPortalBase: '../na-project-portal',
                     liveProjectPortalBase: 'https://www.noble-architecture.com/na-project-portal'
                 })
                 : {
                     isLocalDev: NaIsLocalDev__Fallback,
-                    projectCode: 'JH03',
+                    projectCode: null,
                     projectYear: '25',
-                    projectFolder: 'JH03__RomerCottage',
-                    projectBaseUrl: '../na-project-portal/25-Projects/JH03__RomerCottage',
-                    projectDataFilename: 'JH03__PlanVision__ProjectData__.json',
-                    projectDataUrl: '../na-project-portal/25-Projects/JH03__RomerCottage/JH03__PlanVision__ProjectData__.json'
+                    projectFolder: null,
+                    projectBaseUrl: null,
+                    projectDataFilename: null,
+                    projectDataUrl: null
                 };
 
             const IS_LOCAL_DEV = NaUrlQueryContext.isLocalDev;
@@ -462,6 +482,16 @@
                 if (!appRoot) {
                     console.error("Root element #app is missing from the DOM. App cannot initialise.");
                     return;
+                }
+
+                // Check if a valid project code was provided
+                if (!hasProjectCodeInUrl || !NaUrlQueryContext.projectCode) {
+                    console.error("[Init] No valid project code provided in URL");
+                    const missingProjectOverlay = document.getElementById("missing-project-overlay");
+                    if (missingProjectOverlay) {
+                        missingProjectOverlay.style.display = "flex";
+                    }
+                    return; // Stop initialization
                 }
 
                 // Initialise AppAssetsLoader for fonts, icons, and graphics

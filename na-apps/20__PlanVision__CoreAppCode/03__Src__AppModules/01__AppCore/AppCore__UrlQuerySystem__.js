@@ -88,8 +88,14 @@
                     return normalised;
                 }
 
-                const fallback = Na__NormaliseProjectCode(options.defaultProjectCode);
-                return fallback || NaDefaultProjectCode__Fallback;
+                // Only use fallback if explicitly provided, not the hardcoded default
+                if (options.defaultProjectCode !== null && options.defaultProjectCode !== undefined) {
+                    const fallback = Na__NormaliseProjectCode(options.defaultProjectCode);
+                    return fallback;
+                }
+
+                // Return null if no project code in URL and no fallback provided
+                return null;
             }
 
             function Na__GetProjectYear(queryParams, options) {
@@ -115,17 +121,23 @@
                     return folder;
                 }
 
-                const fallback = typeof options.defaultProjectFolder === 'string'
-                    ? options.defaultProjectFolder.trim()
-                    : NaDefaultProjectFolder__Fallback;
+                // Only use fallback if explicitly provided and not null
+                if (options.defaultProjectFolder !== null && options.defaultProjectFolder !== undefined) {
+                    const fallback = typeof options.defaultProjectFolder === 'string'
+                        ? options.defaultProjectFolder.trim()
+                        : null;
 
-                if (window.NaProjectAdmin?.ProjectCodeValidator &&
-                    projectCode &&
-                    !window.NaProjectAdmin.ProjectCodeValidator.matchesProjectFolder(fallback, projectCode)) {
-                    console.warn('[UrlQuerySystem] Default project folder does not match project code:', fallback, projectCode);
+                    if (fallback && window.NaProjectAdmin?.ProjectCodeValidator &&
+                        projectCode &&
+                        !window.NaProjectAdmin.ProjectCodeValidator.matchesProjectFolder(fallback, projectCode)) {
+                        console.warn('[UrlQuerySystem] Default project folder does not match project code:', fallback, projectCode);
+                    }
+
+                    return fallback;
                 }
 
-                return fallback || NaDefaultProjectFolder__Fallback;
+                // Return null if no project folder in URL and no fallback provided
+                return null;
             }
 
             function Na__TrimTrailingSlash(value) {
@@ -157,9 +169,9 @@
                     projectQueryKey        : options.projectQueryKey || NaProjectQueryKey__Default,
                     projectYearQueryKey    : options.projectYearQueryKey || NaProjectYearQueryKey__Default,
                     projectFolderQueryKey  : options.projectFolderQueryKey || NaProjectFolderQueryKey__Default,
-                    defaultProjectCode     : options.defaultProjectCode || NaDefaultProjectCode__Fallback,
+                    defaultProjectCode     : options.defaultProjectCode !== undefined ? options.defaultProjectCode : NaDefaultProjectCode__Fallback,
                     defaultProjectYear     : options.defaultProjectYear || NaDefaultProjectYear__Fallback,
-                    defaultProjectFolder   : options.defaultProjectFolder || NaDefaultProjectFolder__Fallback,
+                    defaultProjectFolder   : options.defaultProjectFolder !== undefined ? options.defaultProjectFolder : NaDefaultProjectFolder__Fallback,
                     localProjectPortalBase : options.localProjectPortalBase || NaLocalProjectPortalBase__Fallback,
                     liveProjectPortalBase  : options.liveProjectPortalBase || NaLiveProjectPortalBase__Fallback
                 };
@@ -170,15 +182,24 @@
                 const projectYear = Na__GetProjectYear(queryParams, resolvedOptions);
                 const projectFolder = Na__GetProjectFolder(queryParams, resolvedOptions, projectCode);
 
-                const projectPortalBase = isLocalDev
-                    ? resolvedOptions.localProjectPortalBase
-                    : resolvedOptions.liveProjectPortalBase;
+                // Only build URLs if we have valid project code and folder
+                let projectPortalBase = null;
+                let projectBasePath = null;
+                let projectBaseUrl = null;
+                let projectDataFilename = null;
+                let projectDataUrl = null;
 
-                const projectBasePath = `${projectYear}-Projects/${projectFolder}`;
-                const projectBaseUrl = Na__JoinUrlParts(projectPortalBase, projectBasePath);
+                if (projectCode && projectFolder) {
+                    projectPortalBase = isLocalDev
+                        ? resolvedOptions.localProjectPortalBase
+                        : resolvedOptions.liveProjectPortalBase;
 
-                const projectDataFilename = `${projectCode}__PlanVision__ProjectData__.json`;
-                const projectDataUrl = Na__JoinUrlParts(projectBaseUrl, projectDataFilename);
+                    projectBasePath = `${projectYear}-Projects/${projectFolder}`;
+                    projectBaseUrl = Na__JoinUrlParts(projectPortalBase, projectBasePath);
+
+                    projectDataFilename = `${projectCode}__PlanVision__ProjectData__.json`;
+                    projectDataUrl = Na__JoinUrlParts(projectBaseUrl, projectDataFilename);
+                }
 
                 return {
                     isLocalDev           : isLocalDev,
