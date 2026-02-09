@@ -1,16 +1,16 @@
 // =============================================================================
-// NOBLE ARCHITECTURE | PLANVISION | ASSET LIBRARY
+// NOBLE ARCHITECTURE | PLANVISION | PROJECT DATA LOADER
 // =============================================================================
-// FILE       : CommonUtils__AssetLibrary__.js
-// NAMESPACE  : NaPlanVision.AssetLibrary
-// MODULE     : CommonUtils
+// FILE       : Loader__ProjectDataLoader__.js
+// NAMESPACE  : NaPlanVision.ProjectDataLoader
+// MODULE     : ProjectDataLoader
 // AUTHOR     : Adam Noble - Noble Architecture
 // CREATED    : 09-Feb-2026
 //
 // PURPOSE:
-// - Fetch centralized asset library JSON
-// - Inject font-face declarations
-// - Update image sources from asset library
+// - Fetch centralized project data JSON
+// - Inject font-face declarations from project data (if provided)
+// - Update image sources from project data
 // - Provide font availability checks
 // =============================================================================
 
@@ -19,38 +19,38 @@
 
     window.NaPlanVision = window.NaPlanVision || {};
 
-    const ASSET_LIBRARY_URL = 'https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/refs/heads/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_31_--_PlanVision_-_Asset-Link-Library.json';
+    const PROJECT_DATA_URL = 'https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/refs/heads/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_31_--_PlanVision_-_Asset-Link-Library.json';
 
     // -------------------------------------------------------------------------
-    // FUNCTION | Fetch Asset Library
+    // FUNCTION | Fetch Project Data
     // -------------------------------------------------------------------------
-    async function Na__FetchAssetLibrary() {
+    async function Na__FetchProjectData() {
         try {
-            const response = await fetch(ASSET_LIBRARY_URL);
+            const response = await fetch(PROJECT_DATA_URL);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
 
             const data = await response.json();
-            console.log('Asset library loaded successfully:', data.file_metadata['file-name']);
+            console.log('Project data loaded successfully:', data.file_metadata['file-name']);
             return data;
         } catch (error) {
-            console.error('Error fetching asset library:', error.message);
+            console.error('Error fetching project data:', error.message);
             return null;
         }
     }
 
     // -------------------------------------------------------------------------
-    // FUNCTION | Load Fonts from Asset Library
+    // FUNCTION | Load Fonts from Project Data
     // -------------------------------------------------------------------------
-    function Na__LoadFontsFromAssetLibrary(assetLibrary) {
+    function Na__LoadFontsFromProjectData(projectData) {
         const fontStylesElement = document.getElementById('dynamic-font-styles');
         if (!fontStylesElement) return;
 
         let fontDeclarations = '';
 
         // Load Open Sans fonts
-        const openSansFonts = assetLibrary?.na_assets?.na_fonts?.['fonts-open-sans'] || {};
+        const openSansFonts = projectData?.na_assets?.na_fonts?.['fonts-open-sans'] || {};
         if (openSansFonts) {
             if (openSansFonts['open-sans-regular']) {
                 fontDeclarations += `
@@ -63,7 +63,7 @@
                     }
                 `;
             } else {
-                console.warn('Open Sans Regular not found in asset library, using Google Fonts fallback.');
+                console.warn('Open Sans Regular not found in project data, using Google Fonts fallback.');
                 fontDeclarations += `
                     @font-face {
                         font-family: 'Open Sans';
@@ -77,7 +77,7 @@
         }
 
         // Load Caveat fonts (handwriting style for markup)
-        const caveatFonts = assetLibrary?.na_assets?.na_fonts?.['fonts-caveat'] || {};
+        const caveatFonts = projectData?.na_assets?.na_fonts?.['fonts-caveat'] || {};
         let hasCaveatFonts = false;
 
         if (caveatFonts['caveat-regular']) {
@@ -107,7 +107,7 @@
         }
 
         if (!hasCaveatFonts) {
-            console.warn('Caveat fonts not found in asset library, using Google Fonts fallback.');
+            console.warn('Caveat fonts not found in project data, using Google Fonts fallback.');
             fontDeclarations += `
                 @font-face {
                     font-family: 'Caveat';
@@ -127,19 +127,19 @@
         }
 
         fontStylesElement.innerHTML = fontDeclarations;
-        console.log('Font declarations loaded from asset library');
+        console.log('Font declarations loaded from project data');
     }
 
     // -------------------------------------------------------------------------
-    // FUNCTION | Update Images from Asset Library
+    // FUNCTION | Update Images from Project Data
     // -------------------------------------------------------------------------
-    function Na__UpdateImagesFromAssetLibrary(assetLibrary) {
-        if (!assetLibrary || !assetLibrary.na_assets || !assetLibrary.na_assets.images_png) {
-            console.warn('Asset library missing image definitions, using existing sources');
+    function Na__UpdateImagesFromProjectData(projectData) {
+        if (!projectData || !projectData.na_assets || !projectData.na_assets.images_png) {
+            console.warn('Project data missing image definitions, using existing sources');
             return;
         }
 
-        const images = assetLibrary.na_assets.images_png;
+        const images = projectData.na_assets.images_png;
 
         if (images['na-brand-logo']) {
             const logoElements = document.querySelectorAll('img[alt="Noble Architecture Logo"]');
@@ -148,7 +148,7 @@
             });
         }
 
-        console.log('Image sources updated from asset library');
+        console.log('Image sources updated from project data');
     }
 
     // -------------------------------------------------------------------------
@@ -200,10 +200,10 @@
     // -------------------------------------------------------------------------
     // MODULE EXPORT
     // -------------------------------------------------------------------------
-    window.NaPlanVision.AssetLibrary = {
-        fetchAssetLibrary: Na__FetchAssetLibrary,
-        loadFontsFromAssetLibrary: Na__LoadFontsFromAssetLibrary,
-        updateImagesFromAssetLibrary: Na__UpdateImagesFromAssetLibrary,
+    window.NaPlanVision.ProjectDataLoader = {
+        fetchProjectData: Na__FetchProjectData,
+        loadFontsFromProjectData: Na__LoadFontsFromProjectData,
+        updateImagesFromProjectData: Na__UpdateImagesFromProjectData,
         preloadFonts: Na__PreloadFonts,
         checkFontAvailability: Na__CheckFontAvailability
     };

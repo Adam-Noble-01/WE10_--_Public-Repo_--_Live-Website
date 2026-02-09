@@ -15,7 +15,7 @@ alwaysApply: false
 - Use semantic elements: `<header>`, `<nav>`, `<main>`, `<section>`, `<footer>`, etc.
 - ARIA/accessibility required on buttons/nav/inputs
 - IDs/classes: kebab-case, BEM for classes
-- Script order: ModuleDependencyManager, ConfigManager, AssetLoader, others, Main (last)
+- Script order: ModuleDependencyManager, ConfigManager, AppAssetsLoader, others, Main (last)
 - Close all regions
 
 NEVER:

@@ -6,7 +6,94 @@
 
 # -----------------------------------------------------------------------------
 
-## PlanVision - Version 1.9.1 - 09-Feb-2026
+## PlanVision - Version 2.0.7 - 09-Feb-2026
+
+### Changed
+- Refactored video player code into dedicated system modules and cleaned HTML wiring
+
+#### Files Modified
+- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__Core__.js`
+- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__DataLoader__.js`
+- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__GalleryManager__.js`
+- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__Main__.js`
+- `PlanVision__WebApp__Main__.html`
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.6 - 09-Feb-2026
+
+### Changed
+- Offloaded the polyfill conditional loader into a CommonUtils module
+
+#### Files Modified
+- `03__Src__AppModules/03__CommonUtils/CommonUtils__PolyfillConditionalLoader__.js`
+- `PlanVision__WebApp__Main__.html`
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.6 - 09-Feb-2026
+
+### Added
+- Markup tools system modules with injected UI templates
+- App config section to enable/disable markup tools (disabled by default)
+
+### Changed
+- Main app initialises markup system only when enabled in config
+
+#### Files Modified
+- `PlanVision__WebApp__Main__.html`
+- `03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__Main__.js`
+- `03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__UiTemplate__.js`
+- `03__Src__AppModules/02__AppData/AppConfiguration__PlanVision__MainAppSettings__.json`
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.5 - 09-Feb-2026
+
+### Changed
+- Local server now serves project assets only via `/na-project-portal/...`
+
+#### Files Modified
+- `local_server.py`
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.4 - 09-Feb-2026
+
+### Changed
+- Fixed local URL transformation to keep project portal base path for assets
+
+#### Files Modified
+- `PlanVision__WebApp__Main__.html`
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.3 - 09-Feb-2026
+
+### Added
+- Modular URL query system for resolving project context and data paths
+
+### Changed
+- Main app now resolves project data via the URL query system module
+
+#### Files Modified
+- `03__Src__AppModules/01__AppCore/AppCore__UrlQuerySystem__.js`
+- `PlanVision__WebApp__Main__.html`
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.2 - 09-Feb-2026
+
+### Changed
+- Updated project data loading to use `__PlanVision__ProjectData__.json`
+- Set local project portal base path for JH03 Romer Cottage on localhost
+
+#### Files Modified
+- `PlanVision__WebApp__Main__.html`
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.1 - 09-Feb-2026
 
 ### Changed
 - Offloaded inline CSS into dedicated core, markup, and measuring stylesheets

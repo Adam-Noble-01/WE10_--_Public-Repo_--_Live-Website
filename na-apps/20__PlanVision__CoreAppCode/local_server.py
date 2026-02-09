@@ -23,6 +23,9 @@ AUTO_OPEN_BROWSER = True                                                        
 
 # Get the directory where this script is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
+PROJECT_PORTAL_DIR = os.path.join(REPO_ROOT, 'na-project-portal')
+APP_ENTRY_FILENAME = 'PlanVision__WebApp__Main__.html'
 
 # -----------------------------------------------------------------------------
 # FLASK APP SETUP
@@ -35,49 +38,32 @@ CORS(app)  # Enable CORS for all routes (mimics CDN behavior)
 # -----------------------------------------------------------------------------
 
 @app.route('/')
-def index():
-    """Serve the main PlanVision WebApp"""
-    return send_file(os.path.join(BASE_DIR, 'JH03__PlanVision__WebApp.html'))
-
-
+@app.route('/index.html')
+@app.route('/PlanVision__WebApp__Main__.html')
+@app.route('/PlanVision__WebApp__Main__')
 @app.route('/JH03__PlanVision__WebApp.html')
 @app.route('/JH03__PlanVision__WebApp')
-def planvision():
-    """Serve PlanVision WebApp (multiple URL patterns)"""
-    return send_file(os.path.join(BASE_DIR, 'JH03__PlanVision__WebApp.html'))
+def index():
+    """Serve the main PlanVision WebApp"""
+    return send_file(os.path.join(BASE_DIR, APP_ENTRY_FILENAME))
 
 
-@app.route('/JH03_-_DATA_-_Document-Library.json')
-def document_library():
-    """Serve the JSON document library"""
-    return send_file(
-        os.path.join(BASE_DIR, 'JH03_-_DATA_-_Document-Library.json'),
-        mimetype='application/json'
-    )
+@app.route('/na-project-portal/<path:filename>')
+def project_portal_files(filename):
+    """Serve project portal files from a separate local root"""
+    return send_from_directory(PROJECT_PORTAL_DIR, filename)
+
+
+@app.route('/na-apps/20__PlanVision__CoreAppCode/<path:filename>')
+def core_app_files(filename):
+    """Serve core app files using the production-like web root"""
+    return send_from_directory(BASE_DIR, filename)
 
 
 @app.route('/AppModules/<path:filename>')
 def app_modules(filename):
     """Serve files from AppModules directory"""
     return send_from_directory(os.path.join(BASE_DIR, 'AppModules'), filename)
-
-
-@app.route('/DesignPhase01/<path:filename>')
-def design_phase_01(filename):
-    """Serve files from DesignPhase01 directory"""
-    return send_from_directory(os.path.join(BASE_DIR, 'DesignPhase01'), filename)
-
-
-@app.route('/DesignPhase02/<path:filename>')
-def design_phase_02(filename):
-    """Serve files from DesignPhase02 directory"""
-    return send_from_directory(os.path.join(BASE_DIR, 'DesignPhase02'), filename)
-
-
-@app.route('/DesignPhase03/<path:filename>')
-def design_phase_03(filename):
-    """Serve files from DesignPhase03 directory"""
-    return send_from_directory(os.path.join(BASE_DIR, 'DesignPhase03'), filename)
 
 
 @app.route('/<path:filename>')
@@ -106,10 +92,12 @@ def print_startup_banner():
     print("=" * 70)
     print(f"  Server running at: http://{HOST}:{PORT}/")
     print(f"  Base directory:    {BASE_DIR}")
+    print(f"  Project portal:    {PROJECT_PORTAL_DIR}")
     print("")
     print("  Available routes:")
     print(f"    - http://{HOST}:{PORT}/")
-    print(f"    - http://{HOST}:{PORT}/JH03__PlanVision__WebApp.html")
+    print(f"    - http://{HOST}:{PORT}/PlanVision__WebApp__Main__.html")
+    print(f"    - http://{HOST}:{PORT}/na-project-portal/25-Projects/... (project files)")
     print("")
     print("  Press Ctrl+C to stop the server")
     print("=" * 70)

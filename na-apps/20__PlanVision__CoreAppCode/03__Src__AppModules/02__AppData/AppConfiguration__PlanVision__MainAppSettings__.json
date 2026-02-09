@@ -1,0 +1,14 @@
+{
+    "AppConfig" : {
+        "Features" : {
+            "MarkupToolsSystem" : {
+                "enabled"     : false,
+                "description" : "Markup tools system (disabled by default pending refinement).",
+                "defaults"    : {
+                    "lineWidth"    : 9,
+                    "defaultColor" : "#960000"
+                }
+            }
+        }
+    }
+}

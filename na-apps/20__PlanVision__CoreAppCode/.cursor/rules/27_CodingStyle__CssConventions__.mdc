@@ -29,7 +29,7 @@ alwaysApply: false
 
 - **Fonts:**  
   Don't use `@font-face`.  
-  Fonts loaded with `CommonUtils__AssetLoader__.js` (get `'Open Sans'` 300–700).  
+  Fonts loaded with `Loader__AppAssetsLoader__.js` (get `'Open Sans'` 300–700).  
   ```css
   body { font-family: 'Open Sans', ...; font-weight: 400; }
   ```

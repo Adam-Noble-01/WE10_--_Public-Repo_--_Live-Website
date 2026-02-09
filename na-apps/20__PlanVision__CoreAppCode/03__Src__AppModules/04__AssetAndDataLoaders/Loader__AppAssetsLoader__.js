@@ -1,27 +1,27 @@
 // =============================================================================
-// NOBLE ARCHITECTURE - ASSET LOADER
+// NOBLE ARCHITECTURE - APP ASSETS LOADER
 // =============================================================================
 //
-// FILE       : CommonUtils__AssetLoader__.js
-// NAMESPACE  : NaProjectAdmin.AssetLoader
-// MODULE     : AssetLoader
+// FILE       : Loader__AppAssetsLoader__.js
+// NAMESPACE  : NaPlanVision.AppAssetsLoader
+// MODULE     : AppAssetsLoader
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Centralised asset URL calculation for GitHub Pages deployment
+// PURPOSE    : Centralised app asset URL calculation for GitHub Pages deployment
 // CREATED    : 31-Jan-2026
 //
 // DESCRIPTION:
-// - Resolves asset paths to absolute GitHub Pages URLs
+// - Resolves visual asset paths to absolute GitHub Pages URLs
 // - Eliminates CORS issues from relative paths
-// - Dynamically loads fonts and updates image sources
+// - Dynamically loads fonts and updates image/icon sources
 // - Handles both local development and production deployment
-// - HTML uses data-asset-src/href attributes, AssetLoader injects real URLs
+// - HTML uses data-asset-src/href attributes, AppAssetsLoader injects real URLs
 //
 // -----
 //
 // DEVELOPMENT LOG:
 // 31-Jan-2026 - Version 1.1.0
 // - Refactored to use data-asset-src and data-asset-href attributes
-// - AssetLoader now injects URLs from data attributes
+// - AppAssetsLoader now injects URLs from data attributes
 // - Prevents browser from trying to load before URLs are generated
 //
 // 31-Jan-2026 - Version 1.0.0
@@ -33,7 +33,7 @@
 // =============================================================================
 
 // #Region ------------------------------------------------
-// MODULE | Asset Loader
+// MODULE | App Assets Loader
 // --------------------------------------------------------
 
     (function() {
@@ -43,7 +43,7 @@
         // STATE | Application Variables
         // --------------------------------------------------------
 
-            const AssetLoader          = {};                       // <-- Module API
+            const AppAssetsLoader      = {};                       // <-- Module API
             let config                 = null;                     // <-- App configuration
             let isInitialised          = false;                    // <-- Init state
 
@@ -59,18 +59,18 @@
         // INITIALIZATION | Public API Methods
         // --------------------------------------------------------
 
-            // FUNCTION | Initialise Asset Loader
+            // FUNCTION | Initialise App Assets Loader
             // ------------------------------------------------------------
-            AssetLoader.initialise = async function(appConfig) {
+            AppAssetsLoader.initialise = async function(appConfig) {
                 if (isInitialised) {
-                    console.log('[AssetLoader] Already initialised');
+                    console.log('[AppAssetsLoader] Already initialised');
                     return;
                 }
 
                 config = appConfig;                            // <-- Store config
                 
-                console.log('[AssetLoader] Initialising...');
-                console.log('[AssetLoader] Domain:', config?.appDomain);
+                console.log('[AppAssetsLoader] Initialising...');
+                console.log('[AppAssetsLoader] Domain:', config?.appDomain);
                 
                 // Inject font CSS with absolute URLs
                 await injectFontCSS();                         // <-- Load fonts
@@ -82,15 +82,15 @@
                 injectLinkUrls();                              // <-- Inject favicon URLs
                 
                 isInitialised = true;                          // <-- Mark ready
-                console.log('[AssetLoader] Initialised successfully');
+                console.log('[AppAssetsLoader] Initialised successfully');
             };
             // ---------------------------------------------------------------
 
             // FUNCTION | Get Asset URL
             // ------------------------------------------------------------
-            AssetLoader.getAssetUrl = function(category, filename) {
+            AppAssetsLoader.getAssetUrl = function(category, filename) {
                 if (!config) {
-                    console.error('[AssetLoader] Not initialised - call initialise() first');
+                    console.error('[AppAssetsLoader] Not initialised - call initialise() first');
                     return '';
                 }
 
@@ -107,9 +107,9 @@
 
             // FUNCTION | Get Project Asset URL
             // ------------------------------------------------------------
-            AssetLoader.getProjectAssetUrl = function(projectCode, year, relativePath) {
+            AppAssetsLoader.getProjectAssetUrl = function(projectCode, year, relativePath) {
                 if (!config) {
-                    console.error('[AssetLoader] Not initialised');
+                    console.error('[AppAssetsLoader] Not initialised');
                     return '';
                 }
 
@@ -126,7 +126,7 @@
             // FUNCTION | Parse Asset Path
             // Extracts category and filename from a relative path
             // ------------------------------------------------------------
-            AssetLoader.parseAssetPath = function(path) {
+            AppAssetsLoader.parseAssetPath = function(path) {
                 if (!path) return null;
                 
                 const filename = path.split('/').pop();        // <-- Get filename
@@ -154,34 +154,39 @@
             // ------------------------------------------------------------
             async function injectFontCSS() {
                 const fonts = [
-                    { file: 'CommonFont-01__OpenSans__Light__.ttf',     weight: 300 },
-                    { file: 'CommonFont-01__OpenSans__Regular__.ttf',   weight: 400 },
-                    { file: 'CommonFont-01__OpenSans__Medium__.ttf',    weight: 500 },
-                    { file: 'CommonFont-01__OpenSans__SemiBold__.ttf',  weight: 600 },
-                    { file: 'CommonFont-01__OpenSans__Bold__.ttf',      weight: 700 }
+                    { family: 'Open Sans', file: 'CommonFont-01__OpenSans__Light__.ttf',     weight: 300 },
+                    { family: 'Open Sans', file: 'CommonFont-01__OpenSans__Regular__.ttf',   weight: 400 },
+                    { family: 'Open Sans', file: 'CommonFont-01__OpenSans__Medium__.ttf',    weight: 500 },
+                    { family: 'Open Sans', file: 'CommonFont-01__OpenSans__SemiBold__.ttf',  weight: 600 },
+                    { family: 'Open Sans', file: 'CommonFont-01__OpenSans__Bold__.ttf',      weight: 700 },
+                    { family: 'Caveat',    file: 'CommonHandwrittenFont-01__Caveat__Regular.ttf',  weight: 400 },
+                    { family: 'Caveat',    file: 'CommonHandwrittenFont-01__Caveat__Medium.ttf',   weight: 500 },
+                    { family: 'Caveat',    file: 'CommonHandwrittenFont-01__Caveat__SemiBold.ttf', weight: 600 },
+                    { family: 'Caveat',    file: 'CommonHandwrittenFont-01__Caveat__Bold.ttf',     weight: 700 }
                 ];
 
                 let cssRules = '';                             // <-- Build CSS string
 
                 fonts.forEach(font => {
-                    const url = AssetLoader.getAssetUrl('FONTS', font.file);
+                    const url = AppAssetsLoader.getAssetUrl('FONTS', font.file);
                     cssRules += `
                         @font-face {
-                            font-family: 'Open Sans';
+                            font-family: '${font.family}';
                             font-weight: ${font.weight};
                             font-style: normal;
                             src: url('${url}') format('truetype');
+                            font-display: swap;
                         }
                     `;
                 });
 
                 // Inject into page
                 const style = document.createElement('style');
-                style.id = 'asset-loader-fonts';              // <-- Unique ID
+                style.id = 'app-assets-loader-fonts';         // <-- Unique ID
                 style.textContent = cssRules;
                 document.head.appendChild(style);              // <-- Add to DOM
 
-                console.log('[AssetLoader] Fonts injected');
+                console.log('[AppAssetsLoader] Fonts injected');
             }
             // ---------------------------------------------------------------
 
@@ -195,19 +200,19 @@
                 
                 elements.forEach(el => {
                     const assetPath = el.getAttribute('data-asset-src');
-                    const parsed = AssetLoader.parseAssetPath(assetPath);
+                    const parsed = AppAssetsLoader.parseAssetPath(assetPath);
                     
                     if (parsed && parsed.category && parsed.filename) {
-                        const url = AssetLoader.getAssetUrl(parsed.category, parsed.filename);
+                        const url = AppAssetsLoader.getAssetUrl(parsed.category, parsed.filename);
                         el.src = url;                          // <-- Set actual src
                         count++;
-                        console.log(`[AssetLoader] Injected: ${parsed.filename} -> ${url}`);
+                        console.log(`[AppAssetsLoader] Injected: ${parsed.filename} -> ${url}`);
                     } else {
-                        console.warn(`[AssetLoader] Could not parse asset path: ${assetPath}`);
+                        console.warn(`[AppAssetsLoader] Could not parse asset path: ${assetPath}`);
                     }
                 });
 
-                console.log(`[AssetLoader] Injected ${count} image URLs`);
+                console.log(`[AppAssetsLoader] Injected ${count} image URLs`);
             }
             // ---------------------------------------------------------------
 
@@ -221,18 +226,18 @@
                 
                 links.forEach(link => {
                     const assetPath = link.getAttribute('data-asset-href');
-                    const parsed = AssetLoader.parseAssetPath(assetPath);
+                    const parsed = AppAssetsLoader.parseAssetPath(assetPath);
                     
                     if (parsed && parsed.category && parsed.filename) {
-                        const url = AssetLoader.getAssetUrl(parsed.category, parsed.filename);
+                        const url = AppAssetsLoader.getAssetUrl(parsed.category, parsed.filename);
                         link.href = url;                       // <-- Set actual href
                         count++;
                     } else {
-                        console.warn(`[AssetLoader] Could not parse link path: ${assetPath}`);
+                        console.warn(`[AppAssetsLoader] Could not parse link path: ${assetPath}`);
                     }
                 });
 
-                console.log(`[AssetLoader] Injected ${count} link URLs`);
+                console.log(`[AppAssetsLoader] Injected ${count} link URLs`);
             }
             // ---------------------------------------------------------------
 
@@ -243,12 +248,12 @@
         // --------------------------------------------------------
 
             // Attach to global namespace
-            window.NaProjectAdmin = window.NaProjectAdmin || {};
-            window.NaProjectAdmin.AssetLoader = AssetLoader;
+            window.NaPlanVision = window.NaPlanVision || {};
+            window.NaPlanVision.AppAssetsLoader = AppAssetsLoader;
 
             // Mark module as loaded
-            if (window.NaProjectAdmin.ModuleDependencyManager) {
-                window.NaProjectAdmin.ModuleDependencyManager.markModuleLoaded('AssetLoader');
+            if (window.NaPlanVision.ModuleDependencyManager) {
+                window.NaPlanVision.ModuleDependencyManager.markModuleLoaded('AppAssetsLoader');
             }
 
         // endregion ----------------------------------------------

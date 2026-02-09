@@ -1,0 +1,11 @@
+---
+description: Asset and project data loader separation.
+alwaysApply: false
+---
+# Asset and Data Loaders
+
+- App visual assets live in `Loader__AppAssetsLoader__.js` under `03__Src__AppModules/04__AssetAndDataLoaders`.
+- Use `window.NaPlanVision.AppAssetsLoader` to inject fonts/icons/graphics via `data-asset-src` and `data-asset-href`.
+- Project data loading lives in `Loader__ProjectDataLoader__.js` under `03__Src__AppModules/04__AssetAndDataLoaders`.
+- Use `window.NaPlanVision.ProjectDataLoader` for project data JSON and any data-driven font/image updates.
+- Keep responsibilities separate: visual app assets belong in AppAssetsLoader, project data belongs in ProjectDataLoader.

@@ -4,27 +4,23 @@
 <head>
     <meta charset="UTF-8" />
     <title>PlanVision | Romer Cottage</title>
-    <!--  - - - - - - - - - - - - - - - - - -  FAVICON CONFIGURATION  - - - - - - - - - - - - - - - - - - -->
-    <!-- Primary SVG Favicon (Best for modern browsers) -->
-    <link rel="icon" type="image/svg+xml"
-        href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
-    <!-- PNG Fallbacks for various resolutions -->
-    <link rel="icon" type="image/png" sizes="512x512"
-        href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_04_-_NA_Favicon_-_PNG-h512px.png">
-    <link rel="icon" type="image/png" sizes="192x192"
-        href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_05_-_NA_Favicon_-_PNG-h192px.png">
+    <!-- Favicon Configuration (URLs injected by AppAssetsLoader) -->
+    <link rel="icon" type="image/x-icon" data-asset-href="NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="icon" type="image/png" sizes="32x32"
-        href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_06_-_NA_Favicon_-_PNG-h32px.png">
-    <!-- ICO Fallback for legacy browsers -->
-    <link rel="icon" type="image/x-icon"
-        href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
+        data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h32px.png">
+    <link rel="icon" type="image/png" sizes="192x192"
+        data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png">
+    <link rel="icon" type="image/png" sizes="512x512"
+        data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h512px.png">
+    <link rel="icon" type="image/svg+xml"
+        data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
     <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
     <!--
     ================================================================================================================
     FILE DETAILS
-    File Name   | NJH03__PlanVision__WebApp.html
+    File Name   | PlanVision__WebApp__Main__.html
     File Type   | HTML/CSS/JS Web Application
     App Details | A web application for viewing and interacting with architectural drawings.
     Author      | Adam Noble – Noble Architecture
@@ -45,52 +41,25 @@
             - core-js-bundle polyfill from a CDN to supply the missing functionality. On newer devices
             - that already support these features, the polyfill is not loaded, ensuring optimal performance.
     ----------------------------------------------------------------------------------------------------- -->
-    <script>
-        (function () {
-            // Feature detection: Check if 'Promise' is supported by the browser
-            if (typeof Promise === "undefined") {
-                // If not supported, dynamically load the core-js polyfill
-                var polyfillScript = document.createElement("script");
-                polyfillScript.src = "https://cdn.jsdelivr.net/npm/core-js-bundle/minified.js";
-                polyfillScript.onload = function () {
-                    console.log("Polyfill loaded successfully.");
-                };
-                document.head.appendChild(polyfillScript);
-            } else {
-                console.log("Native support detected; polyfill not needed.");
-            }
-        })();
-    </script>
+    <script src="03__Src__AppModules/03__CommonUtils/CommonUtils__PolyfillConditionalLoader__.js"></script>
 
-    <!-- Video Player Module
+    <!-- Core Application Modules Loading -->
+    <script src="03__Src__AppModules/04__AssetAndDataLoaders/Loader__AppAssetsLoader__.js"></script>
+    <script src="03__Src__AppModules/03__CommonUtils/CommonUtils__ProjectCodeValidator__.js"></script>
+    <script src="03__Src__AppModules/01__AppCore/AppCore__UrlQuerySystem__.js"></script>
+    <script src="03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__UiTemplate__.js"></script>
+    <script src="03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__Main__.js"></script>
+
+    <!-- Video Player System Modules
         -----------------------------------------------------------------------------------------------------
         - Modular video player with standard controls, overlay, and fullscreen support
-        - Loads from AppModules/VideoPlayerPage.js
+        - Video gallery management and data loading
     ----------------------------------------------------------------------------------------------------- -->
-    <script src="./AppModules/VideoPlayerPage.js"
-        onerror="console.error('[VideoPlayer] Failed to load VideoPlayerPage.js - Check file path and upload status')"></script>
-    <script>
-        // Verify module loaded
-        setTimeout(function () {
-            if (!window.TrueVision3D || !window.TrueVision3D.VideoPlayerPage) {
-                console.warn('[VideoPlayer] VideoPlayerPage module not available. Video features will be disabled.');
-                console.log('[VideoPlayer] Check: 1) AppModules/VideoPlayerPage.js file exists, 2) File uploaded to server, 3) Check browser console for script errors');
-            } else {
-                console.log('[VideoPlayer] Module successfully loaded and available');
-            }
-        }, 100);
-    </script>
+    <script src="03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__Core__.js"></script>
+    <script src="03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__DataLoader__.js"></script>
+    <script src="03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__GalleryManager__.js"></script>
+    <script src="03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__Main__.js"></script>
 
-
-    <!-- Font Loading from Asset Library
-        -----------------------------------------------------------------------------------------------------
-        - This style block loads fonts via @font-face declarations using URLs from the centralized asset library
-        - Fonts are loaded early in the document to prevent FOUT (Flash of Unstyled Text)
-        - The actual font URLs will be updated dynamically after the asset library JSON is fetched
-    ----------------------------------------------------------------------------------------------------- -->
-    <style id="dynamic-font-styles">
-        /* Dynamic font declarations will be inserted here after asset library is loaded */
-    </style>
 
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__CorePlanVisionApp__.css">
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MarkUpTools__.css">
@@ -106,7 +75,7 @@
                 <span id="app-title" style="padding-left: 10px;">PlanVision
                     <span style="font-size: 12px; color: #656565;">- Version 1.9.0 Beta</span>
                 </span>
-                <img src="https://raw.githubusercontent.com/Adam-Noble-01/RE10_I_GitHub_I_Public_Repo/main/RE20_22_--_NA_FILES_--_Brand-Assets-Web-Library/RE20_22_01_-_FILES_-_Noble-Architecture_-_Core-Brand-Image-Assets/RE20_22_01_01_-_PNG_-_NA_Company_Logo.png"
+                <img data-asset-src="NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
                     alt="Noble Architecture Logo">
             </div>
 
@@ -192,68 +161,8 @@
                     <button class="tool-button" id="clearMeasurementsBtn">Clear Measurements</button>
                     <button class="tool-button" id="cancelToolBtn">Cancel Tool</button>
 
-                    <!-- Drawing Markup Tools Section -->
-                    <div class="menu_-_drawing-button-header-text">Drawing Markup Tools</div>
-                    <button class="tool-button" id="toggleMarkupToolsetBtn">Activate Markup Tools</button>
-
-                    <!-- Markup Toolset Container - Initially Hidden -->
-                    <div id="markup-toolset">
-                        <div class="menu_-_drawing-button-header-text">Markup Tools Menu</div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-                            <button class="tool-button" id="markupUndoBtn" style="width:48%;">↩ Undo</button>
-                            <button class="tool-button" id="markupRedoBtn" style="width:48%;">Redo ↪</button>
-                        </div>
-                        <button class="tool-button" id="markupClearBtn">Clear Drawing Markup</button>
-                        <button class="tool-button" id="markupSaveBtn">Download Markup Image</button>
-                        <button class="tool-button" id="returnToMeasuringBtn">Return To Markup Menu</button>
-
-                        <div class="menu_-_drawing-button-header-text">Drawing Tools</div>
-                        <button class="tool-button" id="markupSelectionBtn">Object - Selection Tool</button>
-                        <!-- 
-                    // ----------------------------------------------------
-                    // REMOVED IN v1.8.3 - PENCIL TOOL
-                    // - Replaced with Straight Line and Arc Drawing Tools
-                    // - Keep this commented out for reference
-                    // ----------------------------------------------------
-                    <button class="tool-button" id="markupPencilBtn">Draw - Pencil</button>
-                    -->
-                        <button class="tool-button" id="markupEraserBtn">Object - Eraser Tool</button>
-
-                        <!-- 
-                    ----------------------------------------------------
-                    ADDED IN v1.8.3 - NEW DRAWING TOOLS
-                    - Straight Line and Arc Drawing Tools added 02-Apr-2025 -->
-                        <button class="tool-button" id="markupLineBtn">Draw - Straight Line</button>
-                        <button class="tool-button" id="markupArcBtn">Draw - Arc</button>
-
-                        <button class="tool-button" id="markupRectBtn">Draw - Rectangle</button>
-                        <button class="tool-button" id="markupFilledRectBtn">Draw - Filled Rectangle</button>
-                        <button class="tool-button" id="markupCircleBtn">Draw - Circle Tool</button>
-                        <button class="tool-button" id="markupArrowBtn">Draw - Arrow Tool</button>
-                        <button class="tool-button" id="markupTextBtn">Add Text Annotation</button>
-                        <button class="tool-button" id="cancelMarkupToolBtn"
-                            style="display: none; background: #d9534f;">Cancel Current Tool</button>
-
-                        <div class="menu_-_drawing-button-header-text">Line Width</div>
-                        <div style="display:flex; align-items:center; margin-bottom: 10px;">
-                            <span style="margin-right:10px; color:#555041;">Size:</span>
-                            <input type="range" id="markupLineWidthSlider" min="2" max="20" value="9"
-                                style="flex-grow:1;">
-                        </div>
-
-                        <div class="menu_-_drawing-button-header-text">Colour Selection</div>
-                        <div class="color-palette">
-                            <div class="color-swatch active" data-color="#960000" style="background-color: #960000;">
-                            </div>
-                            <div class="color-swatch" data-color="#252596" style="background-color: #252596;"></div>
-                            <div class="color-swatch" data-color="#333333" style="background-color: #333333;"></div>
-                            <div class="color-swatch" data-color="#57965c" style="background-color: #57965c;"></div>
-                            <div class="color-swatch" data-color="#333333" style="background-color: #5b5b5b;"></div>
-                            <div class="color-swatch" data-color="#FFFFFF"
-                                style="background-color: #FFFFFF; border: 1px solid #CCCCCC;"></div>
-                        </div>
-                    </div>
-                    <!-- End of Markup Toolset Module HTML -->
+                    <!-- Markup Tools System - Injected when enabled via config -->
+                    <div id="markup-tools-host"></div>
 
                     <!-- Measurements Display -->
                     <div style="margin-top:20px; font-size:12px; color:#555041;">
@@ -292,25 +201,8 @@
                 <div id="tool-instructions-text"></div>
             </div>
 
-            <!-- 
-        ====================================================================
-        MARKUP TOOLSET MODULE - TEXT ENTRY DIALOG
-        - For creating text annotations with architectural handwriting style
-        ==================================================================== 
-        -->
-            <div id="markup-text-dialog">
-                <select id="markup-text-size" style="width: 100%; margin-bottom: 10px; padding: 5px;">
-                    <option value="20">Small Text - 12.00pt</option>
-                    <option value="24" selected>Medium Text - 14.00pt</option>
-                    <option value="36">Large Text - 18.00pt</option>
-                </select>
-                <textarea id="markup-text-input" placeholder="Enter text here..." rows="4"></textarea>
-                <div class="markup-dialog-buttons">
-                    <button class="markup-dialog-button" id="markup-text-cancel">Cancel</button>
-                    <button class="markup-dialog-button" id="markup-text-confirm">Add Text</button>
-                </div>
-            </div>
-            <!-- End of Markup Toolset Module Text Dialog  -->
+            <!-- Markup Tools Dialog - Injected when enabled via config -->
+            <div id="markup-dialog-host"></div>
 
             <!-- FOOTER -->
             <div id="footer">
@@ -396,140 +288,6 @@
             let currentArc = null;
 
             // ========================================================================
-            // ASSET LIBRARY MANAGEMENT FUNCTIONS
-            // ========================================================================
-
-            // Fetch asset library from centralized JSON file //
-            async function fetchAssetLibrary() {
-                const ASSET_LIBRARY_URL = "https://raw.githubusercontent.com/Adam-Noble-01/RE20_--_Core_Repo_--_Public/refs/heads/main/SN40_31_--_Web-App_-_PlanVision_-_Web-Assets-Library/SN40_31_--_PlanVision_-_Asset-Link-Library.json";
-                try {
-                    const response = await fetch(ASSET_LIBRARY_URL);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    console.log("Asset library loaded successfully:", data.file_metadata["file-name"]);
-                    return data;
-                } catch (error) {
-                    console.error("Error fetching asset library:", error.message);
-                    // Continue with app initialization even if asset library fails to load
-                    return null;
-                }
-            }
-
-            // Load fonts from asset library using @font-face //
-            function loadFontsFromAssetLibrary(assetLibrary) {
-                const fontStylesElement = document.getElementById("dynamic-font-styles");
-                let fontDeclarations = "";
-
-                // Load Open Sans fonts
-                const openSansFonts = assetLibrary?.na_assets?.na_fonts?.["fonts-open-sans"] || {};
-                if (openSansFonts) {
-                    if (openSansFonts["open-sans-regular"]) {
-                        fontDeclarations += `
-                    @font-face {
-                        font-family: 'Open Sans';
-                        font-style: normal;
-                        font-weight: 400;
-                        src: url('${openSansFonts["open-sans-regular"]}') format('truetype');
-                        font-display: swap;
-                    }
-                `;
-                    } else {
-                        console.warn("Open Sans Regular not found in asset library, using Google Fonts fallback.");
-                        fontDeclarations += `
-                    @font-face {
-                        font-family: 'Open Sans';
-                        font-style: normal;
-                        font-weight: 400;
-                        src: url('https://fonts.gstatic.com/s/opensans/v35/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsjZ0B4gaVI.woff2') format('woff2');
-                        font-display: swap;
-                    }
-                `;
-                    }
-
-                    // Similar pattern for other Open Sans weights...
-                }
-
-                // Load Caveat fonts (handwriting style for markup)
-                const caveatFonts = assetLibrary?.na_assets?.na_fonts?.["fonts-caveat"] || {};
-                let hasCaveatFonts = false;
-
-                if (caveatFonts["caveat-regular"]) {
-                    hasCaveatFonts = true;
-                    fontDeclarations += `
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 400;
-                    src: url('${caveatFonts["caveat-regular"]}') format('truetype');
-                    font-display: swap;
-                }
-            `;
-                }
-
-                if (caveatFonts["caveat-semi-bold"]) {
-                    hasCaveatFonts = true;
-                    fontDeclarations += `
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 600;
-                    src: url('${caveatFonts["caveat-semi-bold"]}') format('truetype');
-                    font-display: swap;
-                }
-            `;
-                }
-
-                // Add Google Fonts fallback for Caveat if not loaded from asset library
-                if (!hasCaveatFonts) {
-                    console.warn("Caveat fonts not found in asset library, using Google Fonts fallback.");
-                    fontDeclarations += `
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 400;
-                    src: url('https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYS9AoA.woff2') format('woff2');
-                    font-display: swap;
-                }
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 600;
-                    src: url('https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjSx6eIupYS9AoA.woff2') format('woff2');
-                    font-display: swap;
-                }
-            `;
-                }
-
-                // Update the style element with font declarations
-                fontStylesElement.innerHTML = fontDeclarations;
-                console.log("Font declarations loaded from asset library");
-            }
-
-            // Update image sources from asset library //
-            function updateImagesFromAssetLibrary(assetLibrary) {
-                if (!assetLibrary || !assetLibrary.na_assets || !assetLibrary.na_assets.images_png) {
-                    console.warn("Asset library missing image definitions, using existing sources");
-                    return;
-                }
-
-                const images = assetLibrary.na_assets.images_png;
-
-                // Update Noble Architecture logo
-                if (images["na-brand-logo"]) {
-                    const logoElements = document.querySelectorAll('img[alt="Noble Architecture Logo"]');
-                    logoElements.forEach(img => {
-                        img.src = images["na-brand-logo"];
-                    });
-                }
-
-                // Can be expanded to update other images as needed
-                console.log("Image sources updated from asset library");
-            }
-
-            // ========================================================================
             // MARKUP TOOLSET MODULE - GLOBAL VARIABLES
             // ========================================================================
             // Added in v1.6.0 to support drawing and markup functionality
@@ -577,17 +335,37 @@
             // ========================================================================
             // ENVIRONMENT DETECTION - LOCAL VS PRODUCTION
             // ========================================================================
-            const IS_LOCAL_DEV = window.location.hostname === '127.0.0.1' ||           // <-- Localhost IP
+            const NaIsLocalDev__Fallback = window.location.hostname === '127.0.0.1' || // <-- Localhost IP
                 window.location.hostname === 'localhost' ||            // <-- Localhost name
                 window.location.protocol === 'file:';                  // <-- File protocol
 
-            const BASE_URL = IS_LOCAL_DEV
-                ? ''                                                                    // <-- Local: relative URLs
-                : 'https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage';
+            const NaUrlQueryContext = window.NaPlanVision?.UrlQuerySystem
+                ? window.NaPlanVision.UrlQuerySystem.getProjectContext({
+                    defaultProjectCode: 'JH03',
+                    defaultProjectYear: '25',
+                    defaultProjectFolder: 'JH03__RomerCottage',
+                    localProjectPortalBase: '../na-project-portal',
+                    liveProjectPortalBase: 'https://www.noble-architecture.com/na-project-portal'
+                })
+                : {
+                    isLocalDev: NaIsLocalDev__Fallback,
+                    projectCode: 'JH03',
+                    projectYear: '25',
+                    projectFolder: 'JH03__RomerCottage',
+                    projectBaseUrl: '../na-project-portal/25-Projects/JH03__RomerCottage',
+                    projectDataFilename: 'JH03__PlanVision__ProjectData__.json',
+                    projectDataUrl: '../na-project-portal/25-Projects/JH03__RomerCottage/JH03__PlanVision__ProjectData__.json'
+                };
 
-            const JSON_CONFIG_URL = IS_LOCAL_DEV
-                ? 'JH03_-_DATA_-_Document-Library.json'                                 // <-- Local JSON path
-                : `${BASE_URL}/JH03_-_DATA_-_Document-Library.json`;                    // <-- Production JSON URL
+            const IS_LOCAL_DEV = NaUrlQueryContext.isLocalDev;
+            const NaProjectCode__ActiveProject = NaUrlQueryContext.projectCode;
+            const NaProjectFolder__ActiveProject = NaUrlQueryContext.projectFolder;
+            const NaProjectDataFile__ActiveProject = NaUrlQueryContext.projectDataFilename;
+
+            const BASE_URL = NaUrlQueryContext.projectBaseUrl;
+            const JSON_CONFIG_URL = NaUrlQueryContext.projectDataUrl;
+            const APP_CONFIG_URL = '03__Src__AppModules/02__AppData/AppConfiguration__PlanVision__MainAppSettings__.json';
+            let NaAppConfig = null;
 
             // Log environment on startup
             console.log(`[Environment] Running in ${IS_LOCAL_DEV ? 'LOCAL DEVELOPMENT' : 'PRODUCTION'} mode`);
@@ -600,16 +378,33 @@
                 if (!IS_LOCAL_DEV || !url) return url;
 
                 // Extract the path after JH03__RomerCottage/
-                const projectPath = 'JH03__RomerCottage/';
+                const projectPath = `${NaProjectFolder__ActiveProject}/`;
                 const pathIndex = url.indexOf(projectPath);
 
                 if (pathIndex !== -1) {
                     const localPath = url.substring(pathIndex + projectPath.length);
-                    console.log(`[URL Transform] ${url} → ${localPath}`);
-                    return localPath;
+                    const fullLocalUrl = `${BASE_URL}/${localPath}`;
+                    console.log(`[URL Transform] ${url} → ${fullLocalUrl}`);
+                    return fullLocalUrl;
                 }
 
                 return url;
+            }
+
+            async function loadAppConfig() {
+                try {
+                    const response = await fetch(APP_CONFIG_URL);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    const config = await response.json();
+                    window.NaPlanVision = window.NaPlanVision || {};
+                    window.NaPlanVision.AppConfig = config;
+                    return config;
+                } catch (error) {
+                    console.error("[Config] Failed to load app configuration:", error.message);
+                    return null;
+                }
             }
 
             // ========================================================================
@@ -619,12 +414,6 @@
             let isViewingHistoricArchive = false;                                    // <-- Tracks if viewing historic docs
             let CURRENT_DESIGN_PHASE = null;                                         // <-- Set from JSON config
             let projectPhaseConfig = null;                                           // <-- Stores phase config from JSON
-
-            // ========================================================================
-            // VIDEO GALLERY MANAGEMENT - GLOBAL VARIABLES
-            // ========================================================================
-            let allVideosData = null;                                                // <-- Stores all videos from JSON
-            let isViewingVideoGallery = false;                                       // <-- Tracks if viewing video gallery
 
             // ========================================================================
             // JSON AND DRAWING MANAGEMENT FUNCTIONS
@@ -832,414 +621,6 @@
 
 
             // ========================================================================
-            // VIDEO MANAGEMENT FUNCTIONS
-            // ========================================================================
-
-            // FUNCTION | Extract VID number from filename for sorting
-            // -------------------------------------------------------------------------
-            function extractVideoNumber(fileName) {
-                const match = fileName.match(/VID(\d+)/i);
-                return match ? parseInt(match[1], 10) : 999; // Default to 999 if no VID found
-            }
-
-            // FUNCTION | Fetch videos data from JSON configuration file
-            // -------------------------------------------------------------------------
-            async function fetchVideos() {
-                try {
-                    const response = await fetch(JSON_CONFIG_URL);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    const data = await response.json();
-                    console.log("[FetchVideos] Full JSON data:", data);
-
-                    // Check for the existence of each nested level
-                    if (!data["na-project-data-library"]) {
-                        throw new Error("Missing 'na-project-data-library' in JSON");
-                    }
-
-                    if (!data["na-project-data-library"]["project-documentation"]) {
-                        throw new Error("Missing 'project-documentation' in JSON");
-                    }
-
-                    console.log("[FetchVideos] project-documentation keys:", Object.keys(data["na-project-data-library"]["project-documentation"]));
-
-                    const projectDoc = data["na-project-data-library"]["project-documentation"];
-
-                    if (!projectDoc["project-videos"]) {
-                        console.warn("[FetchVideos] No 'project-videos' section found in JSON.");
-                        console.warn("[FetchVideos] This means the JSON file on the server needs to be updated.");
-                        console.warn("[FetchVideos] Available keys:", Object.keys(projectDoc));
-                        console.log("[FetchVideos] To fix: Upload the updated JH03_-_DATA_-_Document-Library.json file to the server");
-                        return null;
-                    }
-
-                    const videos = projectDoc["project-videos"];
-                    console.log("[FetchVideos] Found videos section:", videos);
-                    return videos;
-                } catch (error) {
-                    console.error("Error fetching videos JSON:", error.message);
-                    return null;
-                }
-            }
-
-            // FUNCTION | Preload Videos in Background
-            // -------------------------------------------------------------------------
-            function preloadVideos(videos) {
-                if (!videos) return;
-
-                console.log("[VideoPreload] Starting background preload of videos...");
-
-                // Iterate through videos and create hidden video elements to preload
-                for (const key in videos) {
-                    if (key.startsWith("video-") && videos[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
-                        const video = videos[key];
-                        const cdnUrl = video["video-links"]["cdn-url"];
-
-                        // Create hidden preload element
-                        const preloadVideo = document.createElement('video');
-                        preloadVideo.preload = 'auto';
-                        preloadVideo.src = cdnUrl;
-                        preloadVideo.style.display = 'none';
-                        preloadVideo.muted = true;
-
-                        // Add to body for preloading
-                        document.body.appendChild(preloadVideo);
-
-                        console.log(`[VideoPreload] Preloading: ${video["video-name"]} (${cdnUrl})`);
-
-                        // Load the video
-                        preloadVideo.load();
-                    }
-                }
-
-                console.log("[VideoPreload] All videos queued for preloading");
-            }
-
-            // FUNCTION | Create Dynamic buttons for each video in the toolbar
-            // -------------------------------------------------------------------------
-            // FUNCTION | Create Video Gallery button in the toolbar                //
-            // - Shows a single "Video Gallery" button that opens video list       //
-            // --------------------------------------------------------------------
-            function createVideoButtons(videos) {
-                if (!videos) {
-                    console.error("[VideoButtons] ❌ No videos data provided - this should not happen!");
-                    return;
-                }
-
-                // Store videos globally for gallery switching
-                allVideosData = videos;
-
-                console.log("[VideoButtons] Creating Video Gallery button...");
-
-                // Get the toolbar element
-                const toolbar = document.getElementById("toolbar");
-
-                // Remove existing video elements if they exist
-                const existingHeader = toolbar.querySelector(".video-section-header");
-                const existingContainer = toolbar.querySelector(".video-button-container");
-                const existingSpacer = toolbar.querySelector(".video-section-spacer");
-                if (existingHeader) existingHeader.remove();
-                if (existingContainer) existingContainer.remove();
-                if (existingSpacer) existingSpacer.remove();
-
-                // Create header element for video section
-                const header = document.createElement("div");
-                header.className = "menu_-_drawing-button-header-text video-section-header";
-                header.textContent = "Project Videos";
-                header.style.marginTop = "10px";
-
-                // Create a container for the video gallery button
-                const videoButtonContainer = document.createElement("div");
-                videoButtonContainer.className = "video-button-container";
-
-                // Find the drawing section spacer to insert after
-                const drawingSpacer = toolbar.querySelector(".drawing-section-spacer");
-
-                if (drawingSpacer) {
-                    drawingSpacer.after(header);
-                    header.after(videoButtonContainer);
-                } else {
-                    // Fallback: find cancelToolBtn
-                    const cancelToolBtn = document.getElementById("cancelToolBtn");
-                    if (cancelToolBtn) {
-                        cancelToolBtn.after(header);
-                        header.after(videoButtonContainer);
-                    }
-                }
-
-                // Create single "Video Gallery" button
-                const galleryBtn = document.createElement("button");
-                galleryBtn.className = "tool-button";
-                galleryBtn.textContent = "🎬 Video Gallery";
-                galleryBtn.addEventListener("click", () => {
-                    showVideoGallery();
-                });
-                videoButtonContainer.appendChild(galleryBtn);
-
-                // Add a spacer after the video button
-                const spacer = document.createElement("div");
-                spacer.className = "video-section-spacer";
-                spacer.style.marginBottom = "20px";
-                videoButtonContainer.after(spacer);
-
-                console.log("[VideoButtons] Video Gallery button created");
-            }
-
-            // FUNCTION | Create Video Gallery button in Main Menu                  //
-            // - Places video button in the main-menu-video-section container       //
-            // --------------------------------------------------------------------
-            function createMainMenuVideoButton(videos) {
-                if (!videos) {
-                    console.error("[VideoButtons] ❌ No videos data provided");
-                    return;
-                }
-
-                // Store videos globally for gallery switching
-                allVideosData = videos;
-
-                console.log("[VideoButtons] Creating Video Gallery button in main menu...");
-
-                // Get the main menu video section container
-                const videoSection = document.getElementById("main-menu-video-section");
-                if (!videoSection) {
-                    console.error("[VideoButtons] ❌ Main menu video section not found");
-                    return;
-                }
-
-                // Clear existing content
-                videoSection.innerHTML = "";
-
-                // Create header element for video section
-                const header = document.createElement("div");
-                header.className = "menu_-_drawing-button-header-text";
-                header.textContent = "Project Videos";
-                videoSection.appendChild(header);
-
-                // Create a container for the video gallery button
-                const videoButtonContainer = document.createElement("div");
-                videoButtonContainer.className = "category-button-container";
-                videoSection.appendChild(videoButtonContainer);
-
-                // Create single "Video Gallery" button
-                const galleryBtn = document.createElement("button");
-                galleryBtn.className = "tool-button";
-                galleryBtn.textContent = "🎬 Video Gallery";
-                galleryBtn.addEventListener("click", () => {
-                    showVideoGalleryFromMainMenu();
-                });
-                videoButtonContainer.appendChild(galleryBtn);
-
-                // Add a divider after the video section
-                const divider = document.createElement("div");
-                divider.className = "menu-section-divider";
-                videoSection.appendChild(divider);
-
-                console.log("[VideoButtons] Main menu video button created");
-            }
-
-            // FUNCTION | Show Video Gallery from Main Menu                         //
-            // - Opens video gallery view from the main menu                        //
-            // --------------------------------------------------------------------
-            function showVideoGalleryFromMainMenu() {
-                if (!allVideosData) {
-                    console.error("[VideoGallery] No videos data available");
-                    return;
-                }
-
-                console.log("[VideoGallery] Opening video gallery from main menu...");
-
-                // Hide main menu section
-                if (mainMenuSection) {
-                    mainMenuSection.classList.add("hidden");
-                }
-
-                // Show sub-menu section
-                if (subMenuSection) {
-                    subMenuSection.classList.add("visible");
-                }
-
-                // Clear and populate document selection area with videos
-                if (documentSelectionArea) {
-                    documentSelectionArea.innerHTML = "";
-
-                    // Create header
-                    const header = document.createElement("div");
-                    header.className = "menu_-_drawing-button-header-text";
-                    header.textContent = "Select Video";
-                    documentSelectionArea.appendChild(header);
-
-                    // Create button container
-                    const buttonContainer = document.createElement("div");
-                    buttonContainer.className = "drawing-button-container";
-                    documentSelectionArea.appendChild(buttonContainer);
-
-                    // Convert videos object to array and sort by VID number
-                    const videoArray = [];
-                    for (const key in allVideosData) {
-                        if (key.startsWith("video-") && allVideosData[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
-                            videoArray.push({
-                                key: key,
-                                data: allVideosData[key],
-                                vidNumber: extractVideoNumber(allVideosData[key]["file-name"])
-                            });
-                        }
-                    }
-
-                    // Sort by VID number
-                    videoArray.sort((a, b) => a.vidNumber - b.vidNumber);
-
-                    // Create buttons for each video
-                    videoArray.forEach((videoItem) => {
-                        const video = videoItem.data;
-                        const button = document.createElement("button");
-                        button.className = "tool-button";
-                        button.textContent = video["video-name"];
-                        button.addEventListener("click", () => {
-                            if (window.TrueVision3D && window.TrueVision3D.VideoPlayerPage) {
-                                window.TrueVision3D.VideoPlayerPage.openVideoPlayer({
-                                    cdnUrl: video["video-links"]["cdn-url"],
-                                    name: video["video-name"],
-                                    type: video["video-type"]
-                                });
-                            } else {
-                                console.error("VideoPlayerPage module not loaded");
-                            }
-                        });
-                        buttonContainer.appendChild(button);
-                    });
-
-                    console.log("[VideoGallery] Video gallery displayed with", videoArray.length, "videos");
-                }
-
-                currentMenuView = 'videos';
-            }
-
-            // FUNCTION | Show Video Gallery - Replace menu with video list        //
-            // --------------------------------------------------------------------
-            function showVideoGallery() {
-                if (!allVideosData) {
-                    console.error("[VideoGallery] No videos data available");
-                    return;
-                }
-
-                isViewingVideoGallery = true;
-                console.log("[VideoGallery] Opening video gallery view...");
-
-                // Get the toolbar element
-                const toolbar = document.getElementById("toolbar");
-
-                // Hide the drawing section elements
-                const drawingHeader = toolbar.querySelector(".drawing-section-header");
-                const drawingContainer = toolbar.querySelector(".drawing-button-container");
-                const drawingSpacer = toolbar.querySelector(".drawing-section-spacer");
-                const historicBanner = toolbar.querySelector(".historic-mode-banner");
-
-                if (drawingHeader) drawingHeader.style.display = "none";
-                if (drawingContainer) drawingContainer.style.display = "none";
-                if (drawingSpacer) drawingSpacer.style.display = "none";
-                if (historicBanner) historicBanner.style.display = "none";
-
-                // Update video section header
-                const videoHeader = toolbar.querySelector(".video-section-header");
-                if (videoHeader) videoHeader.textContent = "Select Video";
-
-                // Get or create video container
-                let videoButtonContainer = toolbar.querySelector(".video-button-container");
-                if (videoButtonContainer) {
-                    videoButtonContainer.innerHTML = ""; // Clear existing content
-                }
-
-                // Convert videos object to array and sort by VID number
-                const videoArray = [];
-                for (const key in allVideosData) {
-                    if (key.startsWith("video-") && allVideosData[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}") {
-                        videoArray.push({
-                            key: key,
-                            data: allVideosData[key],
-                            vidNumber: extractVideoNumber(allVideosData[key]["file-name"])
-                        });
-                    }
-                }
-
-                // Sort by VID number
-                videoArray.sort((a, b) => a.vidNumber - b.vidNumber);
-
-                // Create buttons for each video
-                videoArray.forEach((videoItem) => {
-                    const video = videoItem.data;
-                    const button = document.createElement("button");
-                    button.className = "tool-button";
-                    button.textContent = video["video-name"];
-                    button.addEventListener("click", () => {
-                        if (window.TrueVision3D && window.TrueVision3D.VideoPlayerPage) {
-                            window.TrueVision3D.VideoPlayerPage.openVideoPlayer({
-                                cdnUrl: video["video-links"]["cdn-url"],
-                                name: video["video-name"],
-                                type: video["video-type"]
-                            });
-                        } else {
-                            console.error("VideoPlayerPage module not loaded");
-                        }
-                    });
-                    videoButtonContainer.appendChild(button);
-                });
-
-                // Add "Back to Main Menu" button
-                const backBtn = document.createElement("button");
-                backBtn.className = "tool-button return-current-btn";
-                backBtn.textContent = "Back to Main Menu";
-                backBtn.addEventListener("click", () => {
-                    hideVideoGallery();
-                });
-                videoButtonContainer.appendChild(backBtn);
-
-                console.log("[VideoGallery] Video gallery view displayed with", videoArray.length, "videos");
-            }
-
-            // FUNCTION | Hide Video Gallery - Return to main drawing menu         //
-            // --------------------------------------------------------------------
-            function hideVideoGallery() {
-                isViewingVideoGallery = false;
-                console.log("[VideoGallery] Returning to main menu...");
-
-                // Get the toolbar element
-                const toolbar = document.getElementById("toolbar");
-
-                // Show the drawing section elements
-                const drawingHeader = toolbar.querySelector(".drawing-section-header");
-                const drawingContainer = toolbar.querySelector(".drawing-button-container");
-                const drawingSpacer = toolbar.querySelector(".drawing-section-spacer");
-                const historicBanner = toolbar.querySelector(".historic-mode-banner");
-
-                if (drawingHeader) drawingHeader.style.display = "";
-                if (drawingContainer) drawingContainer.style.display = "";
-                if (drawingSpacer) drawingSpacer.style.display = "";
-                if (historicBanner && isViewingHistoricArchive) historicBanner.style.display = "";
-
-                // Update video section header
-                const videoHeader = toolbar.querySelector(".video-section-header");
-                if (videoHeader) videoHeader.textContent = "Project Videos";
-
-                // Restore video gallery button
-                let videoButtonContainer = toolbar.querySelector(".video-button-container");
-                if (videoButtonContainer) {
-                    videoButtonContainer.innerHTML = "";
-
-                    const galleryBtn = document.createElement("button");
-                    galleryBtn.className = "tool-button";
-                    galleryBtn.textContent = "🎬 Video Gallery";
-                    galleryBtn.addEventListener("click", () => {
-                        showVideoGallery();
-                    });
-                    videoButtonContainer.appendChild(galleryBtn);
-                }
-
-                console.log("[VideoGallery] Returned to main menu");
-            }
-
-
-            // ========================================================================
             // MENU NAVIGATION FUNCTIONS
             // - Controls navigation between Main Menu and Sub-Menus
             // - Filters documents by document-type (Drawing/Specification)
@@ -1252,7 +633,9 @@
             function showMainMenu() {
                 currentMenuView = 'main';
                 currentDocumentTypeFilter = null;
-                isViewingVideoGallery = false;
+                if (window.NaPlanVision && window.NaPlanVision.VideoPlayerGalleryManager) {
+                    window.NaPlanVision.VideoPlayerGalleryManager.Na__ResetVideoGalleryState();
+                }
                 console.log("[MenuNav] Showing main menu...");
 
                 // Show main menu section
@@ -1567,27 +950,63 @@
                     return;
                 }
 
-                // Load assets from centralized library
-                const assetLibrary = await fetchAssetLibrary();
-                if (assetLibrary) {
-                    loadFontsFromAssetLibrary(assetLibrary);
-                    updateImagesFromAssetLibrary(assetLibrary);
+                // Initialise AppAssetsLoader for fonts, icons, and graphics
+                if (window.NaPlanVision && window.NaPlanVision.AppAssetsLoader) {
+                    const isLocalAssets = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1' ||
+                        window.location.protocol === 'file:';
 
-                    // Check if Caveat font loaded successfully after a short delay
-                    setTimeout(checkFontAvailability, 500);
+                    const commonAssetsBase = isLocalAssets
+                        ? '../01__Assets__NaApps__CommonAssets/'
+                        : '/na-apps/01__Assets__NaApps__CommonAssets/';
+
+                    const assetLoaderConfig = {
+                        appDomain: isLocalAssets ? '' : 'https://www.noble-architecture.com/',
+                        AppConfig: {
+                            Paths: {
+                                commonAssetsBase: commonAssetsBase
+                            }
+                        }
+                    };
+
+                    await window.NaPlanVision.AppAssetsLoader.initialise(assetLoaderConfig);
                 } else {
-                    console.warn("Asset library failed to load. Using fallback assets.");
-                    // Load fallback Google Fonts for Caveat
-                    const fontStylesElement = document.getElementById("dynamic-font-styles");
-                    fontStylesElement.innerHTML += `
-                @font-face {
-                    font-family: 'Caveat';
-                    font-style: normal;
-                    font-weight: 400;
-                    src: url('https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYS9AoA.woff2') format('woff2');
-                    font-display: swap;
+                    console.warn('[AppAssetsLoader] Module not available - asset URLs may be missing.');
                 }
-            `;
+
+                NaAppConfig = await loadAppConfig();
+
+                const markupConfig = NaAppConfig?.AppConfig?.Features?.MarkupToolsSystem;
+                const markupEnabled = markupConfig?.enabled === true;
+
+                if (markupEnabled && window.NaPlanVision?.MarkupToolsSystem?.Main) {
+                    const markupContext = {
+                        planCanvas: planCanvas,
+                        ctx: ctx,
+                        planImage: planImage,
+                        renderLoop: renderLoop,
+                        cancelTool: cancelTool,
+                        toPlanCoords: toPlanCoords,
+                        getState: () => ({
+                            offsetX: offsetX,
+                            offsetY: offsetY,
+                            zoomFactor: zoomFactor,
+                            currentTool: currentTool,
+                            planImage: planImage
+                        }),
+                        setState: (nextState) => {
+                            if (nextState.currentTool !== undefined) {
+                                currentTool = nextState.currentTool;
+                            }
+                        }
+                    };
+
+                    window.NaPlanVision.MarkupToolsSystem.Main.initialise(markupContext, {
+                        defaultColor: markupConfig?.defaults?.defaultColor,
+                        defaultLineWidth: markupConfig?.defaults?.lineWidth
+                    });
+                } else {
+                    console.info('[MarkupToolsSystem] Disabled via AppConfiguration__PlanVision__MainAppSettings__.json');
                 }
 
                 resizeCanvas();
@@ -1619,36 +1038,17 @@
                     }
                 }
 
-                // Initialize Video Player Module and load videos
-                console.log("[Init] Checking for VideoPlayerPage module...");
-                console.log("[Init] window.TrueVision3D exists:", !!window.TrueVision3D);
-                console.log("[Init] window.TrueVision3D.VideoPlayerPage exists:", !!(window.TrueVision3D && window.TrueVision3D.VideoPlayerPage));
-
-                if (window.TrueVision3D && window.TrueVision3D.VideoPlayerPage) {
+                // Initialize Video Player System and load videos
+                console.log("[Init] Checking for Video Player system modules...");
+                if (window.NaPlanVision && window.NaPlanVision.VideoPlayerMain) {
                     try {
-                        console.log("[Init] ✓ VideoPlayerPage module found - initializing...");
-                        window.TrueVision3D.VideoPlayerPage.initialize();
-
-                        const videos = await fetchVideos();
-                        if (videos) {
-                            console.log("[Init] ✓ Videos loaded successfully:", videos);
-                            console.log("[Init] Creating video buttons in main menu...");
-                            createMainMenuVideoButton(videos);
-
-                            // Preload videos in background after buttons created
-                            console.log("[Init] Starting background video preload...");
-                            setTimeout(() => preloadVideos(videos), 2000); // Wait 2s then preload
-                        } else {
-                            console.warn("[Init] ⚠ No videos found in JSON - Video buttons will not appear");
-                            console.info("[Init] → Action Required: Upload updated JH03_-_DATA_-_Document-Library.json to server");
-                        }
+                        await window.NaPlanVision.VideoPlayerMain.Na__Initialise();
                     } catch (error) {
-                        console.error("[Init] Error initializing video player:", error);
+                        console.error("[Init] Error initializing video player system:", error);
                     }
                 } else {
-                    console.warn("[Init] ⚠ VideoPlayerPage module not available - Video features disabled");
-                    console.info("[Init] → Action Required: Upload AppModules/VideoPlayerPage.js to server");
-                    console.info("[Init] → Expected path: https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/AppModules/VideoPlayerPage.js");
+                    console.warn("[Init] ⚠ Video Player system not available - Video features disabled");
+                    console.info("[Init] → Action Required: Ensure VideoPlayer__*.js modules are loaded");
                 }
                 attachEventListeners();
                 handleInitialTutorialFlow();
@@ -1767,9 +1167,10 @@
                 ctx.drawImage(planImage, 0, 0);
                 ctx.restore();
 
-                // Draw markup paths if any
-                if (isMarkupToolsetActive || markupPaths.length > 0) {
-                    drawAllMarkupPaths(ctx);
+                // Draw markup paths if enabled
+                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
+                if (markupSystem && markupSystem.hasMarkup && markupSystem.hasMarkup()) {
+                    markupSystem.render(ctx);
                 }
 
                 // Draw measurement tools and results
@@ -2198,138 +1599,9 @@
                     if (currentTool === "linear") finalizeMeasurement("linear");
                     else if (currentTool === "area") finalizeMeasurement("area");
                     else if (currentTool === "rectangle") finalizeMeasurement("rectangle");
-                    else if (currentMarkupTool === 'arc') {
-                        handlePointerDownArc(pos);
-                    }
-
                 });
 
-                // ========================================================================
-                // MARKUP TOOLSET MODULE - EVENT LISTENERS
-                // ========================================================================
-                // Toggle between standard and markup toolsets
-                const toggleMarkupBtn = document.getElementById("toggleMarkupToolsetBtn");
-                if (toggleMarkupBtn) {
-                    toggleMarkupBtn.addEventListener("click", toggleMarkupToolset);
-                }
-
-                const returnToMeasuringBtn = document.getElementById("returnToMeasuringBtn");
-                if (returnToMeasuringBtn) {
-                    returnToMeasuringBtn.addEventListener("click", returnToMeasuringTools);
-                }
-
-                // Markup tool buttons - add null checks for each element
-                const selectionBtn = document.getElementById("markupSelectionBtn");
-                if (selectionBtn) {
-                    selectionBtn.addEventListener("click", () => setMarkupTool("selection"));
-                }
-
-                const pencilBtn = document.getElementById("markupPencilBtn");
-                if (pencilBtn) {
-                    pencilBtn.addEventListener("click", () => setMarkupTool("pencil"));
-                }
-
-                const eraserBtn = document.getElementById("markupEraserBtn");
-                if (eraserBtn) {
-                    eraserBtn.addEventListener("click", () => setMarkupTool("eraser"));
-                }
-
-                // Add new straight line tool event listener
-                const lineBtn = document.getElementById("markupLineBtn");
-                if (lineBtn) {
-                    lineBtn.addEventListener("click", () => setMarkupTool("line"));
-                }
-
-                // Add new arc tool event listener
-                const arcBtn = document.getElementById("markupArcBtn");
-                if (arcBtn) {
-                    arcBtn.addEventListener("click", () => setMarkupTool("arc"));
-                }
-
-                const textBtn = document.getElementById("markupTextBtn");
-                if (textBtn) {
-                    textBtn.addEventListener("click", () => setMarkupTool("text"));
-                }
-
-                const rectBtn = document.getElementById("markupRectBtn");
-                if (rectBtn) {
-                    rectBtn.addEventListener("click", () => setMarkupTool("rectangle"));
-                }
-
-                const filledRectBtn = document.getElementById("markupFilledRectBtn");
-                if (filledRectBtn) {
-                    filledRectBtn.addEventListener("click", () => setMarkupTool("filled-rectangle"));
-                }
-
-                const circleBtn = document.getElementById("markupCircleBtn");
-                if (circleBtn) {
-                    circleBtn.addEventListener("click", () => setMarkupTool("circle"));
-                }
-
-                const arrowBtn = document.getElementById("markupArrowBtn");
-                if (arrowBtn) {
-                    arrowBtn.addEventListener("click", () => setMarkupTool("arrow"));
-                }
-
-                const cancelMarkupBtn = document.getElementById("cancelMarkupToolBtn");
-                if (cancelMarkupBtn) {
-                    cancelMarkupBtn.addEventListener("click", cancelMarkupTool);
-                }
-
-                // Color palette selection
-                document.querySelectorAll('.color-swatch').forEach(swatch => {
-                    swatch.addEventListener('click', (e) => {
-                        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-                        e.target.classList.add('active');
-                        markupColor = e.target.dataset.color;
-                    });
-                });
-
-                const lineWidthSlider = document.getElementById("markupLineWidthSlider");
-                if (lineWidthSlider) {
-                    lineWidthSlider.addEventListener("input", (e) => {
-                        markupLineWidth = parseInt(e.target.value);
-                    });
-                }
-
-                // Action buttons
-                const clearBtn = document.getElementById("markupClearBtn");
-                if (clearBtn) {
-                    clearBtn.addEventListener("click", clearMarkup);
-                }
-
-                const saveBtn = document.getElementById("markupSaveBtn");
-                if (saveBtn) {
-                    saveBtn.addEventListener("click", saveMarkupImage);
-                }
-
-                // Text dialog buttons
-                const textCancelBtn = document.getElementById("markup-text-cancel");
-                const textConfirmBtn = document.getElementById("markup-text-confirm");
-
-                if (textCancelBtn) {
-                    textCancelBtn.addEventListener("click", cancelTextEntry);
-                } else {
-                    console.error("Error: markup-text-cancel element not found in DOM");
-                }
-
-                if (textConfirmBtn) {
-                    textConfirmBtn.addEventListener("click", confirmTextEntry);
-                } else {
-                    console.error("Error: markup-text-confirm element not found in DOM");
-                }
-                // End of Markup Toolset Module Event Listeners
-
-                // Undo/Redo buttons
-                const undoBtn = document.getElementById("markupUndoBtn");
-                if (undoBtn) {
-                    undoBtn.addEventListener("click", undoMarkupAction);
-                }
-
-                const redoBtn = document.getElementById("markupRedoBtn");
-                if (redoBtn) {
-                    redoBtn.addEventListener("click", redoMarkupAction);
-                }
+                // Markup tools event listeners are handled by MarkupToolsSystem__Main__.js
             }
 
 
@@ -2353,6 +1625,13 @@
             // Handles mouse movement for measurement tools, panning, and markup tools
             // ----------------------------------------------------
             function onMouseMove(e) {
+                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
+                if (markupSystem && markupSystem.isActive && markupSystem.isActive()) {
+                    if (markupSystem.handleMouseMove && markupSystem.handleMouseMove(e)) {
+                        return;
+                    }
+                }
+
                 // Handle markup tools if active
                 if (isMarkupToolsetActive) {
                     const pos = toPlanCoords(e.offsetX, e.offsetY);
@@ -2552,6 +1831,13 @@
             // FUNCTION |  Handles Mouse Click Events For Measurement Tools & Dragging
 
             function onMouseDown(e) {
+                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
+                if (markupSystem && markupSystem.isActive && markupSystem.isActive()) {
+                    if (markupSystem.handleMouseDown && markupSystem.handleMouseDown(e)) {
+                        return;
+                    }
+                }
+
                 // Handle markup tools if active
                 if (isMarkupToolsetActive) {
                     const pos = toPlanCoords(e.offsetX, e.offsetY);
@@ -2940,6 +2226,22 @@
 
             // Replace the incomplete touch section with this complete version
             function onTouchStart(e) {
+                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
+                if (markupSystem && markupSystem.isActive && markupSystem.isActive()) {
+                    if (e.touches.length === 1 && markupSystem.handleMouseDown) {
+                        const t = e.touches[0];
+                        const rect = planCanvas.getBoundingClientRect();
+                        const touchEvent = {
+                            offsetX: t.clientX - rect.left,
+                            offsetY: t.clientY - rect.top
+                        };
+                        if (markupSystem.handleMouseDown(touchEvent)) {
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                }
+
                 if (e.touches.length === 1) {
                     const t = e.touches[0];
                     const rect = planCanvas.getBoundingClientRect();
@@ -2963,6 +2265,22 @@
             }
 
             function onTouchMove(e) {
+                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
+                if (markupSystem && markupSystem.isActive && markupSystem.isActive()) {
+                    if (e.touches.length === 1 && markupSystem.handleMouseMove) {
+                        const t = e.touches[0];
+                        const rect = planCanvas.getBoundingClientRect();
+                        const touchEvent = {
+                            offsetX: t.clientX - rect.left,
+                            offsetY: t.clientY - rect.top
+                        };
+                        if (markupSystem.handleMouseMove(touchEvent)) {
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                }
+
                 if (isPinching && e.touches.length === 2) {
                     e.preventDefault();
                     const newDist = touchDistance(e.touches[0], e.touches[1]);
@@ -2993,6 +2311,15 @@
             }
 
             function onTouchEnd(e) {
+                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
+                if (markupSystem && markupSystem.isActive && markupSystem.isActive()) {
+                    if (markupSystem.handleMouseUp) {
+                        if (markupSystem.handleMouseUp(e)) {
+                            return;
+                        }
+                    }
+                }
+
                 if (e.touches.length === 0) {
                     // Create a touch end event
                     const touchEvent = {
@@ -4932,60 +4259,9 @@
             // Handles keyboard shortcuts for markup tools including Escape, Enter, Delete, and Copy/Paste
             // ----------------------------------------------------
             function onKeyDown(e) {
-                // Only handle keys when markup tools are active
-                if (!isMarkupToolsetActive) return;
-
-                if (e.key === 'Escape') {
-                    // Cancel current operation
-                    if (currentMarkupPath) {
-                        currentMarkupPath = null;
-                    }
-                    else if (currentMarkupTool === 'arrow' && arrowState !== 'idle') {
-                        clearArrowControls();
-                        arrowState = 'idle';
-                        planCanvas.className = '';
-                        planCanvas.classList.add('markup-arrow-start');
-                    }
-                    else if (isShapeDrawing) {
-                        isShapeDrawing = false;
-                        currentShape = null;
-                    }
-                    else if (isTextPlacing) {
-                        cancelTextEntry();
-                    }
-                    else {
-                        // No specific operation in progress, cancel the whole tool
-                        cancelMarkupTool();
-                    }
-                }
-                else if (e.key === 'Enter') {
-                    // Complete polygon if drawing one
-                    if (currentMarkupTool === 'polygon' && isShapeDrawing && currentShape && currentShape.points.length >= 3) {
-                        markupPaths.push(currentShape);
-                        isShapeDrawing = false;
-                        currentShape = null;
-                    }
-                    else if (isTextPlacing) {
-                        confirmTextEntry();
-                    }
-                }
-                else if (e.key === 'Delete' || e.key === 'Backspace') {
-                    // Delete the selected element if selection tool is active
-                    if (currentMarkupTool === 'selection' && selectedElement) {
-                        deleteSelectedElement();
-                        e.preventDefault(); // Prevent browser back navigation on backspace
-                        return;
-                    }
-                }
-                // Copy functionality - Ctrl+C
-                else if (e.key === 'c' && e.ctrlKey && selectedElement) {
-                    copySelectedElement();
-                    e.preventDefault(); // Prevent default browser copy
-                }
-                // Paste functionality - Ctrl+V
-                else if (e.key === 'v' && e.ctrlKey && clipboardElement) {
-                    pasteElement(e);
-                    e.preventDefault(); // Prevent default browser paste
+                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
+                if (markupSystem && markupSystem.handleKeyDown) {
+                    markupSystem.handleKeyDown(e);
                 }
             }
 
@@ -6138,6 +5414,13 @@
             // - Processes release events for markup tool interactions
             // ----------------------------------------------------
             function onMouseUp(e) {
+                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
+                if (markupSystem && markupSystem.isActive && markupSystem.isActive()) {
+                    if (markupSystem.handleMouseUp && markupSystem.handleMouseUp(e)) {
+                        return;
+                    }
+                }
+
                 // Handle markup tools if active
                 if (isMarkupToolsetActive && currentMarkupTool) {
                     const pos = toPlanCoords(e.offsetX, e.offsetY);
