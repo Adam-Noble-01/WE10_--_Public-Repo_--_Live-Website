@@ -6,13 +6,21 @@
 // NAMESPACE  : NaPlanVision.MarkupToolsSystem
 // MODULE     : MarkupToolsSystem
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Markup tools system logic and UI injection
+// PURPOSE    : Markup tools system orchestrator - state, events, UI injection
 // CREATED    : 09-Feb-2026
 //
 // DESCRIPTION:
+// - Orchestrates the markup tools system
 // - Injects markup tools UI into the toolbar
 // - Manages markup tool state and canvas interaction handlers
+// - Delegates rendering to MarkupToolsSystem__SketchyRenderers__.js
+// - Delegates selection/detection to MarkupToolsSystem__SelectionHandlers__.js
 // - Exposes render and event handling methods to the core app
+//
+// SUB-MODULES:
+// - MarkupToolsSystem__UiTemplate__.js      (UI HTML templates)
+// - MarkupToolsSystem__SketchyRenderers__.js (canvas drawing functions)
+// - MarkupToolsSystem__SelectionHandlers__.js (hit detection, selection, clipboard)
 //
 // =============================================================================
 
@@ -25,9 +33,10 @@
 
         const MarkupToolsSystem = {};
 
-        // ---------------------------------------------------------------------
-        // STATE | App Context (provided by core app)
-        // ---------------------------------------------------------------------
+    // #region ------------------------------------------------
+    // STATE | App Context (provided by core app)
+    // ----------------------------------------------------
+
         let appContext = null;
         let planCanvas = null;
         let ctx = null;
@@ -53,14 +62,15 @@
 
         function pushState() {
             if (!appContext || !appContext.setState) return;
-            appContext.setState({
-                currentTool: currentTool
-            });
+            appContext.setState({ currentTool: currentTool });
         }
 
-        // ========================================================================
-        // MARKUP TOOLSET MODULE - GLOBAL VARIABLES
-        // ========================================================================
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // STATE | Markup Toolset Variables
+    // ----------------------------------------------------
+
         let isMarkupToolsetActive = false;
         let currentMarkupTool = 'pencil';
         let markupColor = '#960000';
@@ -68,50 +78,64 @@
         let markupPaths = [];
         let currentMarkupPath = null;
 
-        // Selection tool specific variables
+        // Selection state
         let selectedElement = null;
         let isMovingElement = false;
         let moveStartPosition = null;
         let selectionHandles = [];
         let moveOffset = { x: 0, y: 0 };
 
-        // Arrow tool specific variables
-        let arrowState = 'idle'; // idle, start, end, edit
+        // Arrow tool state
+        let arrowState = 'idle';
         let currentArrow = null;
         let activeControlPoint = null;
         let controlPoints = [];
         let handlePoints = [];
 
-        // Shape tool variables
+        // Shape tool state
         let isShapeDrawing = false;
         let shapeStartPoint = null;
         let currentShape = null;
 
-        // Text tool variables
+        // Text tool state
         let isTextPlacing = false;
         let textPlacementPoint = null;
         let editingTextElement = null;
 
-        // Straight line tool variables
+        // Straight line tool state
         let isLineDrawing = false;
         let currentLine = null;
 
-        // Arc tool variables
+        // Arc tool state
         let isArcDrawing = false;
         let currentArc = null;
 
-        // Technical pen properties for sketchy look
-        const sketchiness = 0.5;
-        const pressureVariation = 0.2;
-
-        // Undo/Redo
+        // Undo/Redo + Clipboard
         let markupHistory = [];
         let markupRedoStack = [];
         let clipboardElement = null;
+        let consecutivePastes = 0;
 
-        // ---------------------------------------------------------------------
-        // UI | Inject Markup UI
-        // ---------------------------------------------------------------------
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // REFERENCES | Sub-Module Accessors
+    // ----------------------------------------------------
+
+        function R() {
+            return window.NaPlanVision?.MarkupToolsSystem?.Renderers;
+        }
+
+        function S() {
+            return window.NaPlanVision?.MarkupToolsSystem?.Selection;
+        }
+
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // UI | Inject Markup UI
+    // ----------------------------------------------------
+
         function injectMarkupUi() {
             const toolbarHost = document.getElementById('markup-tools-host');
             const dialogHost = document.getElementById('markup-dialog-host');
@@ -126,9 +150,12 @@
             dialogHost.innerHTML = uiTemplate.getTextDialogHtml();
         }
 
-        // ---------------------------------------------------------------------
-        // PUBLIC | Initialise
-        // ---------------------------------------------------------------------
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // PUBLIC | Initialise
+    // ----------------------------------------------------
+
         MarkupToolsSystem.initialise = function(context, options = {}) {
             appContext = context || null;
             if (!appContext) {
@@ -169,9 +196,12 @@
             drawAllMarkupPaths(context);
         };
 
-        // ---------------------------------------------------------------------
-        // MARKUP TOOLSET | Event Listeners
-        // ---------------------------------------------------------------------
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // EVENT LISTENERS | Markup Tools UI Wiring
+    // ----------------------------------------------------
+
         function attachMarkupEventListeners() {
             const toggleMarkupBtn = document.getElementById("toggleMarkupToolsetBtn");
             if (toggleMarkupBtn) {
@@ -279,9 +309,12 @@
             }
         }
 
-        // ---------------------------------------------------------------------
-        // PUBLIC | Pointer Handlers
-        // ---------------------------------------------------------------------
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // PUBLIC | Pointer Handlers
+    // ----------------------------------------------------
+
         MarkupToolsSystem.handleMouseDown = function(e) {
             syncState();
             if (!isMarkupToolsetActive) return false;
@@ -309,9 +342,12 @@
             return true;
         };
 
-        // ---------------------------------------------------------------------
-        // MARKUP TOOLSET | Core UI Logic
-        // ---------------------------------------------------------------------
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // CORE UI | Toolset Toggle and Navigation
+    // ----------------------------------------------------
+
         function toggleMarkupToolset() {
             if (!isMarkupToolsetActive) {
                 isMarkupToolsetActive = true;
@@ -344,7 +380,6 @@
             document.querySelectorAll(".menu_-_drawing-button-header-text").forEach(header => {
                 if (!header.closest("#markup-toolset")) {
                     header.style.display = "none";
-
                     let nextElem = header.nextElementSibling;
                     while (nextElem && !nextElem.classList.contains("menu_-_drawing-button-header-text")) {
                         if (nextElem.id !== "markup-toolset") {
@@ -380,7 +415,6 @@
 
             document.querySelectorAll(".menu_-_drawing-button-header-text").forEach(header => {
                 header.style.display = "block";
-
                 if (!header.closest("#markup-toolset")) {
                     let nextElem = header.nextElementSibling;
                     while (nextElem && !nextElem.classList.contains("menu_-_drawing-button-header-text")) {
@@ -399,9 +433,12 @@
             pushState();
         }
 
-        // ---------------------------------------------------------------------
-        // MARKUP TOOLSET | Tool Selection
-        // ---------------------------------------------------------------------
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // TOOL SELECTION | Set Active Markup Tool
+    // ----------------------------------------------------
+
         function setMarkupTool(tool) {
             if (tool === null) {
                 cancelMarkupTool();
@@ -466,9 +503,85 @@
             updateToolButtonStyles(tool);
         }
 
-        // ---------------------------------------------------------------------
-        // MARKUP TOOLSET | Rendering + Actions
-        // ---------------------------------------------------------------------
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // RENDERING | Draw All Markup Paths
+    // ----------------------------------------------------
+
+        function drawAllMarkupPaths(context) {
+            const r = R();
+            if (!r) return;
+
+            // Draw non-selected elements
+            markupPaths.forEach(path => {
+                const isSelected = path === selectedElement;
+                if (!isSelected) {
+                    if (path.tool === 'arrow') {
+                        r.drawArrow(context, path, offsetX, offsetY, zoomFactor);
+                    } else if (path.tool === 'text') {
+                        r.drawSketchyText(context, path, offsetX, offsetY, zoomFactor, markupColor);
+                    } else if (path.tool === 'rectangle') {
+                        r.drawSketchyRectangle(context, path, offsetX, offsetY, zoomFactor);
+                    } else if (path.tool === 'circle') {
+                        r.drawSketchyCircle(context, path, offsetX, offsetY, zoomFactor);
+                    } else if (path.tool === 'line') {
+                        r.drawSketchyLine(context, path, offsetX, offsetY, zoomFactor);
+                    } else if (path.tool === 'arc') {
+                        r.drawArc(context, path, offsetX, offsetY, zoomFactor);
+                    } else if (path.tool === 'polygon') {
+                        r.drawSketchyPolygon(context, path, offsetX, offsetY, zoomFactor);
+                    } else {
+                        r.drawSketchyPath(context, path, offsetX, offsetY, zoomFactor);
+                    }
+                }
+            });
+
+            // Draw selected element with highlight
+            if (selectedElement) {
+                const s = S();
+                if (s) {
+                    s.drawSelectionHighlight(context, selectedElement, offsetX, offsetY, zoomFactor, markupColor);
+                }
+            }
+
+            // Draw current path in progress
+            if (currentMarkupPath) {
+                if (currentMarkupPath.tool === 'arrow') {
+                    r.drawArrow(context, currentMarkupPath, offsetX, offsetY, zoomFactor);
+                } else {
+                    r.drawSketchyPath(context, currentMarkupPath, offsetX, offsetY, zoomFactor);
+                }
+            }
+
+            // Draw current shape in progress
+            if (isShapeDrawing && currentShape) {
+                if (currentShape.tool === 'rectangle') {
+                    r.drawSketchyRectangle(context, currentShape, offsetX, offsetY, zoomFactor);
+                } else if (currentShape.tool === 'circle') {
+                    r.drawSketchyCircle(context, currentShape, offsetX, offsetY, zoomFactor);
+                } else if (currentShape.tool === 'polygon') {
+                    r.drawSketchyPolygon(context, currentShape, offsetX, offsetY, zoomFactor);
+                }
+            }
+
+            // Draw current line in progress
+            if (isLineDrawing && currentLine) {
+                r.drawSketchyLine(context, currentLine, offsetX, offsetY, zoomFactor);
+            }
+
+            // Draw current arc in progress
+            if (isArcDrawing && currentArc) {
+                r.drawArc(context, currentArc, offsetX, offsetY, zoomFactor);
+            }
+        }
+
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // ACTIONS | Clear, Save, Undo, Redo
+    // ----------------------------------------------------
+
         function clearMarkup() {
             if (confirm('Are you sure you want to clear all markup drawings?')) {
                 saveMarkupState();
@@ -501,53 +614,60 @@
             link.click();
         }
 
-        function drawAllMarkupPaths(context) {
-            markupPaths.forEach(path => {
-                const isSelected = path === selectedElement;
-                if (!isSelected) {
-                    if (path.tool === 'arrow') {
-                        drawArrow(context, path);
-                    } else if (path.tool === 'text') {
-                        drawSketchyText(context, path);
-                    } else if (path.tool === 'rectangle') {
-                        drawSketchyRectangle(context, path);
-                    } else if (path.tool === 'circle') {
-                        drawSketchyCircle(context, path);
-                    } else if (path.tool === 'line') {
-                        drawSketchyLine(context, path);
-                    } else if (path.tool === 'arc') {
-                        drawArc(context, path);
-                    } else {
-                        drawSketchyPath(context, path);
-                    }
-                }
-            });
+        function saveMarkupState() {
+            const currentState = JSON.parse(JSON.stringify(markupPaths));
+            markupHistory.push(currentState);
+            markupRedoStack = [];
+            updateUndoRedoButtons();
+        }
 
-            if (selectedElement) {
-                drawSelectionHighlight(context);
-            }
-
-            if (currentMarkupPath) {
-                if (currentMarkupPath.tool === 'arrow') {
-                    drawArrow(context, currentMarkupPath);
-                } else {
-                    drawSketchyPath(context, currentMarkupPath);
-                }
+        function undoMarkupAction() {
+            if (markupHistory.length > 0) {
+                const lastState = markupHistory.pop();
+                markupRedoStack.push(JSON.parse(JSON.stringify(markupPaths)));
+                markupPaths = lastState;
+                updateUndoRedoButtons();
+                clearArrowControls();
+                if (renderLoop) renderLoop();
             }
         }
 
-        // ---------------------------------------------------------------------
-        // MARKUP TOOLSET | Pointer Handling
-        // ---------------------------------------------------------------------
+        function redoMarkupAction() {
+            if (markupRedoStack.length > 0) {
+                const currentState = JSON.parse(JSON.stringify(markupPaths));
+                markupHistory.push(currentState);
+                const redoState = markupRedoStack.pop();
+                markupPaths = redoState;
+                updateUndoRedoButtons();
+                clearArrowControls();
+                if (renderLoop) renderLoop();
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById("markupUndoBtn");
+            const redoBtn = document.getElementById("markupRedoBtn");
+            if (!undoBtn || !redoBtn) return;
+            undoBtn.style.opacity = markupHistory.length > 0 ? 1 : 0.5;
+            redoBtn.style.opacity = markupRedoStack.length > 0 ? 1 : 0.5;
+        }
+
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // POINTER | Mouse/Touch Event Handling
+    // ----------------------------------------------------
+
         function handlePointerDown(pos, e) {
             syncState();
+            const s = S();
 
             if (currentMarkupTool === 'selection') {
                 if (!e.shiftKey) {
                     clearSelection();
                 }
 
-                const element = findElementAt(pos);
+                const element = s ? s.findElementAt(pos, markupPaths, zoomFactor) : null;
                 if (element) {
                     selectElement(element);
                     isMovingElement = true;
@@ -565,10 +685,8 @@
                     }
                 }
 
-                if (!isMovingElement) {
-                    if (!e.shiftKey) {
-                        clearSelection();
-                    }
+                if (!isMovingElement && !e.shiftKey) {
+                    clearSelection();
                 }
 
                 if (arrowState !== 'idle') {
@@ -643,7 +761,7 @@
             } else if (currentMarkupTool === 'arc') {
                 handlePointerDownArc(pos);
             } else if (currentMarkupTool === 'text') {
-                const existingTextElement = findTextElementAt(pos);
+                const existingTextElement = s ? s.findTextElementAt(pos, markupPaths) : null;
                 if (existingTextElement) {
                     editingTextElement = existingTextElement;
                     textPlacementPoint = existingTextElement.position;
@@ -701,6 +819,16 @@
         function handlePointerMove(pos) {
             syncState();
 
+            if (currentMarkupTool === 'selection' && isMovingElement && selectedElement) {
+                const s = S();
+                if (s) {
+                    s.moveElement(selectedElement, pos, moveOffset);
+                    updateAllHandlePositions();
+                }
+                if (renderLoop) renderLoop();
+                return;
+            }
+
             if (currentMarkupTool === 'pencil' && currentMarkupPath) {
                 currentMarkupPath.points.push(pos);
             }
@@ -739,9 +867,26 @@
                 const dy = pos.y - currentShape.centerPoint.y;
                 currentShape.radius = Math.sqrt(dx * dx + dy * dy);
             }
+
+            if (currentMarkupTool === 'arc' && isArcDrawing && currentArc) {
+                if (currentArc.endPoint) {
+                    currentArc.endPoint = pos;
+                } else if (currentArc.controlPoint) {
+                    currentArc.controlPoint = pos;
+                }
+            }
         }
 
         function handlePointerUp() {
+            if (currentMarkupTool === 'selection' && isMovingElement) {
+                isMovingElement = false;
+                moveStartPosition = null;
+                if (selectedElement) {
+                    saveMarkupState();
+                }
+                return;
+            }
+
             if (currentMarkupTool === 'pencil' && currentMarkupPath) {
                 saveMarkupState();
                 markupPaths.push(currentMarkupPath);
@@ -785,9 +930,12 @@
             }
         }
 
-        // ---------------------------------------------------------------------
-        // MARKUP TOOLSET | Text Handling
-        // ---------------------------------------------------------------------
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // TEXT | Text Dialog Handling
+    // ----------------------------------------------------
+
         function showTextDialog(x, y, initialText = '') {
             const dialog = document.getElementById('markup-text-dialog');
             dialog.style.left = x + 'px';
@@ -839,51 +987,141 @@
                 editingTextElement = null;
                 document.getElementById('markup-text-confirm').textContent = 'Add Text';
 
-                if (renderLoop) {
-                    renderLoop();
-                }
+                if (renderLoop) renderLoop();
             }
         }
 
-        // ---------------------------------------------------------------------
-        // MARKUP TOOLSET | Selection + Helpers (trimmed for brevity)
-        // ---------------------------------------------------------------------
-        function updateToolButtonStyles(activeTool) {
-            document.querySelectorAll("#markup-toolset .tool-button").forEach(btn => {
-                if (btn.id === 'cancelMarkupToolBtn') return;
-                if (btn.id === 'markupSelectionBtn' && activeTool === 'selection') btn.style.opacity = '0.7';
-                if (btn.id === 'markupEraserBtn' && activeTool === 'eraser') btn.style.opacity = '0.7';
-            });
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // ARC | Arc Tool Handling
+    // ----------------------------------------------------
+
+        function handlePointerDownArc(pos) {
+            if (!isArcDrawing) {
+                // First click - set start point
+                isArcDrawing = true;
+                currentArc = {
+                    tool: 'arc',
+                    color: markupColor,
+                    lineWidth: markupLineWidth,
+                    startPoint: pos,
+                    controlPoint: null,
+                    endPoint: null
+                };
+            } else if (currentArc && !currentArc.controlPoint) {
+                // Second click - set control point
+                currentArc.controlPoint = pos;
+            } else if (currentArc && currentArc.controlPoint && !currentArc.endPoint) {
+                // Third click - set end point and finalise
+                currentArc.endPoint = pos;
+                saveMarkupState();
+                markupPaths.push(currentArc);
+                currentArc = null;
+                isArcDrawing = false;
+                updateUndoRedoButtons();
+            }
+        }
+
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // SELECTION | Selection and Element Management (delegates to Selection sub-module)
+    // ----------------------------------------------------
+
+        function selectElement(element) {
+            selectedElement = element;
+
+            // If text element selected via selection tool, open editor
+            if (element.tool === 'text' && currentMarkupTool === 'selection') {
+                editingTextElement = element;
+                textPlacementPoint = element.position;
+                isTextPlacing = true;
+
+                const screenX = Math.max(20, element.position.x * zoomFactor + offsetX + 30);
+                const screenY = Math.max(20, element.position.y * zoomFactor + offsetY - 180);
+
+                showTextDialog(screenX, screenY, element.text || '');
+                document.getElementById('markup-text-confirm').textContent = 'Update Text';
+            }
+
+            updateAllHandlePositions();
         }
 
         function clearSelection() {
             selectedElement = null;
-            selectionHandles.forEach(handle => handle.remove());
+            const s = S();
+            if (s) s.clearSelectionHandles();
             selectionHandles = [];
+            clearArrowControls();
         }
 
-        function selectElement(element) {
-            selectedElement = element;
+        function deleteSelectedElement() {
+            if (!selectedElement) return;
+            saveMarkupState();
+            const index = markupPaths.indexOf(selectedElement);
+            if (index !== -1) {
+                markupPaths.splice(index, 1);
+            }
+            clearSelection();
+            if (renderLoop) renderLoop();
         }
 
-        function findElementAt() {
-            return null;
+        function copySelectedElement() {
+            if (!selectedElement) return;
+            const s = S();
+            if (s) {
+                clipboardElement = s.copyElement(selectedElement);
+                consecutivePastes = 0;
+                s.showCopyFeedback();
+            }
         }
 
-        function findTextElementAt() {
-            return null;
+        function pasteClipboardElement(e) {
+            if (!clipboardElement) return;
+            const s = S();
+            if (!s) return;
+
+            saveMarkupState();
+
+            let targetPos;
+            if (e && e.clientX !== undefined && e.clientY !== undefined) {
+                const rect = planCanvas.getBoundingClientRect();
+                targetPos = toPlanCoords(e.clientX - rect.left, e.clientY - rect.top);
+            } else {
+                targetPos = {
+                    x: (planCanvas.width / 2 - offsetX) / zoomFactor,
+                    y: (planCanvas.height / 2 - offsetY) / zoomFactor
+                };
+            }
+
+            const newElement = s.pasteElement(clipboardElement, targetPos, consecutivePastes, zoomFactor);
+            if (newElement) {
+                consecutivePastes++;
+                markupPaths.push(newElement);
+                selectedElement = newElement;
+                updateAllHandlePositions();
+                if (renderLoop) renderLoop();
+            }
         }
 
-        function detectAndEraseElements() {}
+        function detectAndEraseElements(position, radius) {
+            const s = S();
+            if (!s) return false;
 
-        function drawSketchyPath() {}
-        function drawSketchyRectangle() {}
-        function drawSketchyCircle() {}
-        function drawSketchyLine() {}
-        function drawArrow() {}
-        function drawArc() {}
-        function drawSketchyText() {}
-        function drawSelectionHighlight() {}
+            const result = s.detectAndEraseElements(position, radius, markupPaths);
+            if (result.erasedAny) {
+                markupPaths = result.updatedPaths;
+                if (renderLoop) renderLoop();
+            }
+            return result.erasedAny;
+        }
+
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // ARROW CONTROLS | Control Point Management
+    // ----------------------------------------------------
 
         function clearArrowControls() {
             document.querySelectorAll('.control-point, .handle-point, .handle-line').forEach(element => {
@@ -895,77 +1133,52 @@
             currentArrow = null;
         }
 
-        function updateControlPointPositions() {}
-
-        function handlePointerDownArc() {}
-
-        function saveMarkupState() {
-            const currentState = JSON.parse(JSON.stringify(markupPaths));
-            markupHistory.push(currentState);
-            markupRedoStack = [];
-            updateUndoRedoButtons();
+        function updateControlPointPositions() {
+            // Placeholder for arrow control point update logic
         }
 
-        function undoMarkupAction() {
-            if (markupHistory.length > 0) {
-                const lastState = markupHistory.pop();
-                markupRedoStack.push(JSON.parse(JSON.stringify(markupPaths)));
-                markupPaths = lastState;
-                updateUndoRedoButtons();
-                clearArrowControls();
-                if (renderLoop) renderLoop();
+        function updateAllHandlePositions() {
+            const s = S();
+            if (!s) return;
+
+            if (selectedElement) {
+                const appElement = document.getElementById('app');
+                if (appElement) {
+                    s.createSelectionHandles(selectedElement, offsetX, offsetY, zoomFactor, appElement);
+                }
             }
         }
 
-        function redoMarkupAction() {
-            if (markupRedoStack.length > 0) {
-                const currentState = JSON.parse(JSON.stringify(markupPaths));
-                markupHistory.push(currentState);
-                const redoState = markupRedoStack.pop();
-                markupPaths = redoState;
-                updateUndoRedoButtons();
-                clearArrowControls();
-                if (renderLoop) renderLoop();
-            }
-        }
+    // endregion ----------------------------------------------
 
-        function updateUndoRedoButtons() {
-            const undoBtn = document.getElementById("markupUndoBtn");
-            const redoBtn = document.getElementById("markupRedoBtn");
-            if (!undoBtn || !redoBtn) return;
-            undoBtn.style.opacity = markupHistory.length > 0 ? 1 : 0.5;
-            redoBtn.style.opacity = markupRedoStack.length > 0 ? 1 : 0.5;
-        }
+    // #region ------------------------------------------------
+    // UI HELPERS | Button Styles, Instructions, Tool Cancellation
+    // ----------------------------------------------------
 
-        function onKeyDown(e) {
-            if (!isMarkupToolsetActive) return;
-            if (e.key === 'Escape') {
-                if (currentMarkupPath) {
-                    currentMarkupPath = null;
-                } else if (currentMarkupTool === 'arrow' && arrowState !== 'idle') {
-                    clearArrowControls();
-                    arrowState = 'idle';
-                    planCanvas.className = '';
-                    planCanvas.classList.add('markup-arrow-start');
-                } else if (isShapeDrawing) {
-                    isShapeDrawing = false;
-                    currentShape = null;
-                } else if (isTextPlacing) {
-                    cancelTextEntry();
-                } else {
-                    cancelMarkupTool();
-                }
-            } else if (e.key === 'Enter') {
-                if (isTextPlacing) {
-                    confirmTextEntry();
-                }
-            } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
-                e.preventDefault();
-            } else if (e.key === 'c' && e.ctrlKey && selectedElement) {
-                clipboardElement = JSON.parse(JSON.stringify(selectedElement));
-                e.preventDefault();
-            } else if (e.key === 'v' && e.ctrlKey && clipboardElement) {
-                e.preventDefault();
+        function updateToolButtonStyles(activeTool) {
+            document.querySelectorAll("#markup-toolset .tool-button").forEach(btn => {
+                if (btn.id === 'cancelMarkupToolBtn') return;
+                btn.style.opacity = '';
+                btn.style.backgroundColor = '';
+            });
+
+            const toolMap = {
+                'selection': 'markupSelectionBtn',
+                'eraser': 'markupEraserBtn',
+                'pencil': 'markupPencilBtn',
+                'line': 'markupLineBtn',
+                'arc': 'markupArcBtn',
+                'rectangle': 'markupRectBtn',
+                'filled-rectangle': 'markupFilledRectBtn',
+                'circle': 'markupCircleBtn',
+                'arrow': 'markupArrowBtn',
+                'text': 'markupTextBtn'
+            };
+
+            const activeId = toolMap[activeTool];
+            if (activeId) {
+                const activeBtn = document.getElementById(activeId);
+                if (activeBtn) activeBtn.style.opacity = '0.7';
             }
         }
 
@@ -973,9 +1186,8 @@
             currentMarkupTool = null;
             planCanvas.className = "";
             const cancelBtn = document.getElementById('cancelMarkupToolBtn');
-            if (cancelBtn) {
-                cancelBtn.style.display = 'none';
-            }
+            if (cancelBtn) cancelBtn.style.display = 'none';
+
             currentMarkupPath = null;
             clearSelection();
             clearArrowControls();
@@ -985,24 +1197,32 @@
             currentShape = null;
             isLineDrawing = false;
             currentLine = null;
+            isArcDrawing = false;
+            currentArc = null;
+
+            const instructionsDiv = document.getElementById('markup-instructions');
+            if (instructionsDiv) {
+                instructionsDiv.innerHTML = '';
+                instructionsDiv.style.display = 'none';
+            }
         }
 
         function showMarkupInstructions(tool) {
             const instructionsDiv = document.getElementById('markup-instructions');
             if (!instructionsDiv) {
-                const newInstructionsDiv = document.createElement('div');
-                newInstructionsDiv.id = 'markup-instructions';
-                newInstructionsDiv.style.position = 'absolute';
-                newInstructionsDiv.style.top = '60px';
-                newInstructionsDiv.style.left = '50%';
-                newInstructionsDiv.style.transform = 'translateX(-50%)';
-                newInstructionsDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                newInstructionsDiv.style.color = 'white';
-                newInstructionsDiv.style.padding = '8px 12px';
-                newInstructionsDiv.style.borderRadius = '4px';
-                newInstructionsDiv.style.zIndex = '10000';
-                newInstructionsDiv.style.display = 'none';
-                document.body.appendChild(newInstructionsDiv);
+                const newDiv = document.createElement('div');
+                newDiv.id = 'markup-instructions';
+                newDiv.style.position = 'absolute';
+                newDiv.style.top = '60px';
+                newDiv.style.left = '50%';
+                newDiv.style.transform = 'translateX(-50%)';
+                newDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                newDiv.style.color = 'white';
+                newDiv.style.padding = '8px 12px';
+                newDiv.style.borderRadius = '4px';
+                newDiv.style.zIndex = '10000';
+                newDiv.style.display = 'none';
+                document.body.appendChild(newDiv);
                 showMarkupInstructions(tool);
                 return;
             }
@@ -1034,7 +1254,7 @@
                     instructions = 'Click and drag to draw a filled rectangle.';
                     break;
                 case 'circle':
-                    instructions = 'Click to set center, then drag to set radius.';
+                    instructions = 'Click to set centre, then drag to set radius.';
                     break;
                 case 'arc':
                     instructions = 'Click to set start point, then click to set control point, then click to set end point.';
@@ -1058,12 +1278,61 @@
             }
         }
 
-        // ---------------------------------------------------------------------
-        // EXPORTS | Module API
-        // ---------------------------------------------------------------------
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // KEYBOARD | Key Event Handling
+    // ----------------------------------------------------
+
+        function onKeyDown(e) {
+            if (!isMarkupToolsetActive) return;
+
+            if (e.key === 'Escape') {
+                if (currentMarkupPath) {
+                    currentMarkupPath = null;
+                } else if (currentMarkupTool === 'arrow' && arrowState !== 'idle') {
+                    clearArrowControls();
+                    arrowState = 'idle';
+                    planCanvas.className = '';
+                    planCanvas.classList.add('markup-arrow-start');
+                } else if (isShapeDrawing) {
+                    isShapeDrawing = false;
+                    currentShape = null;
+                } else if (isArcDrawing) {
+                    isArcDrawing = false;
+                    currentArc = null;
+                } else if (isTextPlacing) {
+                    cancelTextEntry();
+                } else {
+                    cancelMarkupTool();
+                }
+            } else if (e.key === 'Enter') {
+                if (isTextPlacing) {
+                    confirmTextEntry();
+                }
+            } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
+                e.preventDefault();
+                deleteSelectedElement();
+            } else if (e.key === 'c' && e.ctrlKey && selectedElement) {
+                e.preventDefault();
+                copySelectedElement();
+            } else if (e.key === 'v' && e.ctrlKey && clipboardElement) {
+                e.preventDefault();
+                pasteClipboardElement(e);
+            }
+        }
+
+    // endregion ----------------------------------------------
+
+    // #region ------------------------------------------------
+    // EXPORTS | Module API
+    // ----------------------------------------------------
+
         window.NaPlanVision = window.NaPlanVision || {};
         window.NaPlanVision.MarkupToolsSystem = window.NaPlanVision.MarkupToolsSystem || {};
         window.NaPlanVision.MarkupToolsSystem.Main = MarkupToolsSystem;
+
+    // endregion ----------------------------------------------
 
     })();
 

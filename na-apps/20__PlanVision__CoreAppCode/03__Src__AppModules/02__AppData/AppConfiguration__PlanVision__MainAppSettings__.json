@@ -1,6 +1,21 @@
 {
     "AppConfig" : {
         "Features" : {
+            "MeasurmentToolsSystem" : {
+                "enabled"              : true,
+                "description"          : "Measurement tools system with per-tool enable flags.",
+                "roundingEnabled"      : true,
+                "roundingInterval"     : 5,
+                "confirmButtonOffsets" : {
+                    "pc"    : { "x" : 10, "y" : -10 },
+                    "touch" : { "x" : 10, "y" : -25 }
+                },
+                "tools" : {
+                    "linear"    : { "enabled" : true },
+                    "area"      : { "enabled" : true },
+                    "rectangle" : { "enabled" : true }
+                }
+            },
             "MarkupToolsSystem" : {
                 "enabled"     : false,
                 "description" : "Markup tools system (disabled by default pending refinement).",

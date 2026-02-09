@@ -6,108 +6,124 @@
 
 # -----------------------------------------------------------------------------
 
-## PlanVision - Version 2.0.7 - 09-Feb-2026
-
-### Changed
-- Refactored video player code into dedicated system modules and cleaned HTML wiring
-
-#### Files Modified
-- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__Core__.js`
-- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__DataLoader__.js`
-- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__GalleryManager__.js`
-- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__Main__.js`
-- `PlanVision__WebApp__Main__.html`
-
-# -----------------------------------------------------------------------------
-
-## PlanVision - Version 2.0.6 - 09-Feb-2026
-
-### Changed
-- Offloaded the polyfill conditional loader into a CommonUtils module
-
-#### Files Modified
-- `03__Src__AppModules/03__CommonUtils/CommonUtils__PolyfillConditionalLoader__.js`
-- `PlanVision__WebApp__Main__.html`
-
-# -----------------------------------------------------------------------------
-
-## PlanVision - Version 2.0.6 - 09-Feb-2026
-
-### Added
-- Markup tools system modules with injected UI templates
-- App config section to enable/disable markup tools (disabled by default)
-
-### Changed
-- Main app initialises markup system only when enabled in config
-
-#### Files Modified
-- `PlanVision__WebApp__Main__.html`
-- `03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__Main__.js`
-- `03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__UiTemplate__.js`
-- `03__Src__AppModules/02__AppData/AppConfiguration__PlanVision__MainAppSettings__.json`
-
-# -----------------------------------------------------------------------------
-
-## PlanVision - Version 2.0.5 - 09-Feb-2026
-
-### Changed
-- Local server now serves project assets only via `/na-project-portal/...`
-
-#### Files Modified
-- `local_server.py`
-
-# -----------------------------------------------------------------------------
-
 ## PlanVision - Version 2.0.4 - 09-Feb-2026
 
-### Changed
-- Fixed local URL transformation to keep project portal base path for assets
+### Changed - Priority 1 Modularization Complete
+- **Extracted Menu System Module** (`UserInterface__MenuSystem__.js`)
+  - Manages two-tier menu navigation (Main Menu / Category Sub-Menus)
+  - Controls visibility transitions between menu states
+  - Filters documents by document-type (Drawing/Specification)
+  - ~250 lines extracted from main HTML
 
-#### Files Modified
-- `PlanVision__WebApp__Main__.html`
+- **Extracted Drawings Data Manager Module** (`Loader__DrawingsDataManager__.js`)
+  - Centralizes drawing data fetching from JSON configuration
+  - Manages design phase configuration and active phase state
+  - Provides data access to UI components
+  - Handles validation and error states
+  - ~130 lines extracted from main HTML
+
+- **Extracted Drawing Buttons Module** (`UserInterface__DrawingButtons__.js`)
+  - Creates dynamic buttons for document selection
+  - Filters by design phase (current vs historic)
+  - Filters by document-type (Drawing vs Specification)
+  - Supports historic archive mode
+  - ~150 lines extracted from main HTML
+
+- **Extracted Historic Archive Module** (`UserInterface__HistoricArchive__.js`)
+  - Displays warning modal before accessing historic documents
+  - Manages historic archive filtering within categories
+  - Coordinates with DrawingButtons for document display
+  - ~120 lines extracted from main HTML
+
+### Impact
+- Main HTML reduced from 1,396 lines to 976 lines (~420 lines removed)
+- Menu system now fully modular with clean separation of concerns
+- Data loading separated from UI rendering
+- All 4 modules follow consistent Noble Architecture coding style
+- Initialization pattern updated to bootstrap new modules properly
 
 # -----------------------------------------------------------------------------
 
 ## PlanVision - Version 2.0.3 - 09-Feb-2026
 
-### Added
-- Modular URL query system for resolving project context and data paths
-
 ### Changed
-- Main app now resolves project data via the URL query system module
-
-#### Files Modified
-- `03__Src__AppModules/01__AppCore/AppCore__UrlQuerySystem__.js`
-- `PlanVision__WebApp__Main__.html`
+- Wired in the measurement tools system modules as the authoritative source
+  - `MeasurmentToolsSystem__Main__.js` now handles all tool activation, rendering, and events
+  - `MeasurmentTool__LinearMeasurmentTool__.js`, `AreaMeasurmentTool`, `RectangularMeasurmentTool` handle per-tool logic
+  - `MeasurmentTools__SharedMathHelpers__.js` provides all measurement drawing functions
+- Created two new User Interaction modules to offload event handling from the main HTML
+  - `UserIteraction__KeyboardAndMouse__.js` - mouse down/move/up, wheel zoom, keyboard delegation
+  - `UserIteraction__TouchScreenDevices__.js` - touch start/move/end, pinch-to-zoom
+- Replaced hardcoded measurement tool buttons with dynamic UI injection via host divs
+- Removed ~850 lines of inline measurement drawing, event handler, and tool management code
+- Main HTML reduced from 2,231 lines to 1,380 lines
+- Measurement system now self-manages its own state, buttons, and rendering
 
 # -----------------------------------------------------------------------------
 
 ## PlanVision - Version 2.0.2 - 09-Feb-2026
 
 ### Changed
-- Updated project data loading to use `__PlanVision__ProjectData__.json`
-- Set local project portal base path for JH03 Romer Cottage on localhost
-
-#### Files Modified
-- `PlanVision__WebApp__Main__.html`
+- Completed markup tools system modularisation: split into four sub-modules
+  - `MarkupToolsSystem__Main__.js` - orchestrator (state, events, UI wiring)
+  - `MarkupToolsSystem__SketchyRenderers__.js` - all canvas rendering functions
+  - `MarkupToolsSystem__SelectionHandlers__.js` - hit detection, selection, clipboard, movement
+  - `MarkupToolsSystem__UiTemplate__.js` - HTML template generation (existing)
+- Removed ~3,800 lines of dead/duplicate inline markup code from the main HTML
+- Main HTML reduced from 5,426 lines to 1,608 lines
+- Replaced empty stub functions in the markup orchestrator with real sub-module delegation
+- Cleaned up orphaned inline state variables and duplicate function definitions
+- Added arc tool handling to the external markup system module
+- Module architecture now mirrors the measurement tools system pattern
 
 # -----------------------------------------------------------------------------
 
 ## PlanVision - Version 2.0.1 - 09-Feb-2026
 
+### Added
+- Measurement tools system modules with per-tool APIs and shared helpers
+- App config flags for enabling measurement tools and per-tool toggles
+- Markup tools system modules with injected UI templates
+- App config section to enable/disable markup tools (disabled by default)
+- Modular URL query system for resolving project context and data paths
+
 ### Changed
+- Main app delegates measurement rendering and input to the new system
+- Refactored video player code into dedicated system modules and cleaned HTML wiring
+- Offloaded the polyfill conditional loader into a CommonUtils module
+- Main app initialises markup system only when enabled in config
+- Local server now serves project assets only via `/na-project-portal/...`
+- Fixed local URL transformation to keep project portal base path for assets
+- Main app now resolves project data via the URL query system module
+- Updated project data loading to use `__PlanVision__ProjectData__.json`
+- Set local project portal base path for JH03 Romer Cottage on localhost
 - Offloaded inline CSS into dedicated core, markup, and measuring stylesheets
 - Linked external stylesheets from `PlanVision__WebApp__Main__.html`
 
 #### Files Modified
+- `PlanVision__WebApp__Main__.html`
+- `03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTools__SharedMathHelpers__.js`
+- `03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTool__LinearMeasurmentTool__.js`
+- `03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTool__AreaMeasurmentTool__.js`
+- `03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTool__RectangularMeasurmentTool__.js`
+- `03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentToolsSystem__Main__.js`
+- `03__Src__AppModules/02__AppData/AppConfiguration__PlanVision__MainAppSettings__.json`
+- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__Core__.js`
+- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__DataLoader__.js`
+- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__GalleryManager__.js`
+- `03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__Main__.js`
+- `03__Src__AppModules/03__CommonUtils/CommonUtils__PolyfillConditionalLoader__.js`
+- `03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__Main__.js`
+- `03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__UiTemplate__.js`
+- `03__Src__AppModules/01__AppCore/AppCore__UrlQuerySystem__.js`
 - `04__Style__AppStylesheets/StyleSheet__CorePlanVisionApp__.css`
 - `04__Style__AppStylesheets/StyleSheet__MarkUpTools__.css`
 - `04__Style__AppStylesheets/StyleSheet__MeasuringTools__.css`
-- `PlanVision__WebApp__Main__.html`
+- `local_server.py`
 
 # -----------------------------------------------------------------------------
 
-## PlanVision - Version 1.0.0 - 09-Feb-2026
+## PlanVision - Version x.x.x - DD-MMM-YYYY
 
 ### Added
 - ADD HERE
