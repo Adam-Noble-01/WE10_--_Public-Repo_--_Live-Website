@@ -137,8 +137,8 @@
                 const currentFilter = menuSystem.Na__Menu__GetCurrentDocumentTypeFilter();
 
                 const documentType = pendingHistoricCategory || currentFilter;
-                const allDocuments = drawingsDataManager.Na__GetAllDrawingsData();
-                const currentPhase = drawingsDataManager.Na__GetCurrentDesignPhase();
+                const allDocuments = drawingsDataManager.Na__Data__GetAllDrawingsData();
+                const currentPhase = drawingsDataManager.Na__Data__GetCurrentDesignPhase();
 
                 if (allDocuments && documentType) {
                     isViewingHistoricArchive = true;

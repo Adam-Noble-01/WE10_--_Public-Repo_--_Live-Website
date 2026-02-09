@@ -26,6 +26,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
 PROJECT_PORTAL_DIR = os.path.join(REPO_ROOT, 'na-project-portal')
 APP_ENTRY_FILENAME = 'PlanVision__WebApp__Main__.html'
+INDEX_FILENAME = 'index.html'
 
 # -----------------------------------------------------------------------------
 # FLASK APP SETUP
@@ -38,13 +39,26 @@ CORS(app)  # Enable CORS for all routes (mimics CDN behavior)
 # -----------------------------------------------------------------------------
 
 @app.route('/')
+def root():
+    """Serve index.html if it exists, otherwise serve the main app file"""
+    index_path = os.path.join(BASE_DIR, INDEX_FILENAME)
+    if os.path.exists(index_path):
+        return send_file(index_path)
+    return send_file(os.path.join(BASE_DIR, APP_ENTRY_FILENAME))
+
+
 @app.route('/index.html')
+def index_file():
+    """Serve index.html (redirect page)"""
+    return send_file(os.path.join(BASE_DIR, INDEX_FILENAME))
+
+
 @app.route('/PlanVision__WebApp__Main__.html')
 @app.route('/PlanVision__WebApp__Main__')
 @app.route('/JH03__PlanVision__WebApp.html')
 @app.route('/JH03__PlanVision__WebApp')
-def index():
-    """Serve the main PlanVision WebApp"""
+def main_app():
+    """Serve the main PlanVision WebApp directly"""
     return send_file(os.path.join(BASE_DIR, APP_ENTRY_FILENAME))
 
 
@@ -94,6 +108,8 @@ def open_browser():
 def print_startup_banner():
     """Print startup information"""
     assets_dir = os.path.join(REPO_ROOT, 'na-apps', '01__Assets__NaApps__CommonAssets')
+    index_exists = os.path.exists(os.path.join(BASE_DIR, INDEX_FILENAME))
+    
     print("")
     print("=" * 70)
     print("  NOBLE ARCHITECTURE | PlanVision Local Development Server")
@@ -103,9 +119,15 @@ def print_startup_banner():
     print(f"  Project portal:    {PROJECT_PORTAL_DIR}")
     print(f"  Common assets:     {assets_dir}")
     print("")
-    print("  Available routes:")
-    print(f"    - http://{HOST}:{PORT}/")
-    print(f"    - http://{HOST}:{PORT}/PlanVision__WebApp__Main__.html")
+    print("  Entry Points:")
+    if index_exists:
+        print(f"    - http://{HOST}:{PORT}/ (redirects via index.html)")
+        print(f"    - http://{HOST}:{PORT}/index.html (redirect page)")
+    else:
+        print(f"    - http://{HOST}:{PORT}/ (direct to main app)")
+    print(f"    - http://{HOST}:{PORT}/PlanVision__WebApp__Main__.html (main app)")
+    print("")
+    print("  Additional Routes:")
     print(f"    - http://{HOST}:{PORT}/na-project-portal/25-Projects/... (project files)")
     print(f"    - http://{HOST}:{PORT}/na-apps/01__Assets__NaApps__CommonAssets/... (assets)")
     print("")

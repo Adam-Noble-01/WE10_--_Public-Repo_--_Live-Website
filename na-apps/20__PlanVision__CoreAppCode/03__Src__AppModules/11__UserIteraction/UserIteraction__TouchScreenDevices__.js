@@ -90,7 +90,7 @@
     // PUBLIC | Initialise
     // ----------------------------------------------------
 
-        TouchScreenDevices.initialise = function(context) {
+        TouchScreenDevices.Na__Interact__Initialise = function(context) {
             appContext = context;
             if (!appContext || !appContext.planCanvas) {
                 console.warn('[UserInteraction.TouchScreenDevices] Missing app context');
@@ -113,10 +113,10 @@
         function onTouchStart(e) {
             // Delegate single-finger to markup system
             const markup = markupSystem();
-            if (markup && markup.isActive && markup.isActive()) {
-                if (e.touches.length === 1 && markup.handleMouseDown) {
+            if (markup && markup.Na__Markup__IsActive && markup.Na__Markup__IsActive()) {
+                if (e.touches.length === 1 && markup.Na__Markup__HandleMouseDown) {
                     const touchEvent = createTouchEvent(e.touches[0], e);
-                    if (markup.handleMouseDown(touchEvent)) {
+                    if (markup.Na__Markup__HandleMouseDown(touchEvent)) {
                         e.preventDefault();
                         return;
                     }
@@ -128,7 +128,7 @@
                 const meas = measSystem();
                 const touchEvent = createTouchEvent(e.touches[0], e);
 
-                if (meas && meas.handleMouseDown && meas.handleMouseDown(touchEvent)) {
+                if (meas && meas.Na__Measure__HandleMouseDown && meas.Na__Measure__HandleMouseDown(touchEvent)) {
                     e.preventDefault();
                     return;
                 }
@@ -157,10 +157,10 @@
         function onTouchMove(e) {
             // Delegate single-finger to markup system
             const markup = markupSystem();
-            if (markup && markup.isActive && markup.isActive()) {
-                if (e.touches.length === 1 && markup.handleMouseMove) {
+            if (markup && markup.Na__Markup__IsActive && markup.Na__Markup__IsActive()) {
+                if (e.touches.length === 1 && markup.Na__Markup__HandleMouseMove) {
                     const touchEvent = createTouchEvent(e.touches[0], e);
-                    if (markup.handleMouseMove(touchEvent)) {
+                    if (markup.Na__Markup__HandleMouseMove(touchEvent)) {
                         e.preventDefault();
                         return;
                     }
@@ -185,7 +185,7 @@
                 const meas = measSystem();
                 const touchEvent = createTouchEvent(e.touches[0], e);
 
-                if (meas && meas.handleMouseMove && meas.handleMouseMove(touchEvent)) {
+                if (meas && meas.Na__Measure__HandleMouseMove && meas.Na__Measure__HandleMouseMove(touchEvent)) {
                     return;
                 }
 
@@ -211,8 +211,8 @@
         function onTouchEnd(e) {
             // Delegate to markup system
             const markup = markupSystem();
-            if (markup && markup.isActive && markup.isActive()) {
-                if (markup.handleMouseUp) {
+            if (markup && markup.Na__Markup__IsActive && markup.Na__Markup__IsActive()) {
+                if (markup.Na__Markup__HandleMouseUp) {
                     const state = getState();
                     const fakeEvent = {
                         clientX: state.lastX,
@@ -224,7 +224,7 @@
                         stopPropagation: () => e.stopPropagation(),
                         ctrlKey: e.ctrlKey || false
                     };
-                    if (markup.handleMouseUp(fakeEvent)) {
+                    if (markup.Na__Markup__HandleMouseUp(fakeEvent)) {
                         return;
                     }
                 }
@@ -245,8 +245,8 @@
                     ctrlKey: e.ctrlKey || false
                 };
 
-                if (meas && meas.handleMouseUp) {
-                    meas.handleMouseUp(fakeEvent);
+                if (meas && meas.Na__Measure__HandleMouseUp) {
+                    meas.Na__Measure__HandleMouseUp(fakeEvent);
                 }
             }
 

@@ -4,6 +4,10 @@ REM  NOBLE ARCHITECTURE | PlanVision Local Development Server
 REM =============================================================================
 REM  Starts the Flask development server for local testing
 REM  
+REM  Entry Points:
+REM    - http://127.0.0.1:5900/ (index.html or main app)
+REM    - http://127.0.0.1:5900/PlanVision__WebApp__Main__.html (direct)
+REM  
 REM  Requirements: Python 3.x with Flask and flask-cors installed
 REM  Install with: pip install flask flask-cors
 REM =============================================================================

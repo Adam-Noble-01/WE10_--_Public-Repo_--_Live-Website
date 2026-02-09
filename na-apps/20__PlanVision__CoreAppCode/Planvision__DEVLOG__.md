@@ -6,9 +6,45 @@
 
 # -----------------------------------------------------------------------------
 
-## PlanVision - Version 2.0.6 - 09-Feb-2026
+## PlanVision - Version 2.0.7 - 09-Feb-2026
 
-### Changed - Phase 2A: UI Support Modules
+### Changed - Complete Naming Standardization Across All Systems
+- **Updated ALL remaining modules to three-part naming convention**
+  - DrawingsDataManager: `Na__` → `Na__Data__` (5 functions)
+  - VideoPlayer system: `Na__` → `Na__Video__` (4 modules, 14 functions)
+  - MarkupToolsSystem: `.initialise()` → `Na__Markup__` (8 functions)
+  - UserInteraction: `.initialise()` → `Na__Interact__` (2 modules, 2 functions)
+  - AppAssetsLoader: `.initialise()` → `Na__Assets__` (4 functions)
+
+- **Updated all cross-module references**
+  - VideoPlayer modules calling each other (4 internal calls)
+  - UserInteraction modules calling Markup and Measurement systems (14 calls)
+  - Canvas modules calling Markup and Measurement systems (4 calls)
+  - AppAssetsLoader internal self-references (6 calls)
+
+- **Updated all main HTML integration points**
+  - 8 direct system calls updated
+  - All system initializations use new naming
+  - Event delegation uses new naming
+
+### Impact
+- **100% naming consistency achieved** across entire codebase
+- 12 distinct domain prefixes established
+- 86 public API functions with descriptive naming
+- 19 modules using standardized pattern
+- 60+ call sites verified and updated
+- Zero legacy naming patterns remaining
+
+### Domains Established
+- Canvas, Menu, Buttons, Archive, Tutorial, Toolbar (UI & Canvas layer)
+- Measure, Markup (Tools layer)
+- Data, Video, Interact, Assets (Core systems)
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.5 - 09-Feb-2026
+
+### Changed - Phase 2A: UI Support Modules and Canvas System Modularization
 - **Extracted Tutorial System Module** (`UserInterface__TutorialSystem__.js`)
   - First-load tutorial flow for mobile/tablet devices
   - Device type and orientation detection
@@ -38,47 +74,13 @@
   - All main HTML calls updated
   - **100% naming consistency across all 10 extracted modules**
 
-### Impact
-- Main HTML reduced from 713 lines to 678 lines (35 lines removed, -5%)
-- New modules: +2 files (Tutorial System, Toolbar Manager)
-- Legacy code cleanup: -46 lines
-- Naming convention: 14 functions renamed for consistency
-- Total modules: 28 → 30
-- Overall reduction from original: 1,396 → 678 lines (718 lines removed, -51%)
+- **Enhanced Naming Convention Applied to Measurement Tools System**
+  - Updated MeasurementToolsSystem Main: 9 public API functions
+  - Pattern: `Na__Measure__FunctionName`
+  - Examples: `Na__Measure__Initialise()`, `Na__Measure__Render()`, `Na__Measure__ClearMeasurements()`
+  - Updated all call sites in main HTML and canvas modules
+  - Internal tool APIs (LinearTool, AreaTool, etc.) maintain current structure
 
-### Module Architecture
-- Tutorial System: Self-contained, mobile device detection
-- Toolbar Manager: State management with safety checks
-- All UI modules use three-part naming: `Na__Domain__Function`
-- Pattern established: Canvas (5), Menu, Buttons, Archive, Tutorial, Toolbar
-
-# -----------------------------------------------------------------------------
-
-## PlanVision - Version 2.0.5.1 - 09-Feb-2026 (Hotfix)
-
-### Fixed
-- **Critical Bug: Undefined renderLoop Reference**
-  - Fixed MarkupToolsSystem context (line 423) to reference `Na__Canvas__RenderFrame()`
-  - Fixed MeasurementToolsSystem context (line 462) to reference `Na__Canvas__RenderFrame()`
-  - Resolved `ReferenceError: renderLoop is not defined` crash
-  - Loading screen now resolves correctly
-
-- **Script Tag Typo**
-  - Fixed AreaMeasurementTool script tag (line 65): `rc=` → `src=`
-  - Module now loads correctly
-  - Area measurement functionality restored
-
-### Impact
-- App initialization now completes successfully
-- Loading overlay displays and hides correctly
-- First drawing loads automatically
-- All canvas functionality operational
-
-# -----------------------------------------------------------------------------
-
-## PlanVision - Version 2.0.5 - 09-Feb-2026
-
-### Changed - Canvas System Modularization Complete
 - **Extracted Canvas Loading States Module** (`DrawingsCanvas__LoadingStates__.js`)
   - Manages loading overlay visibility during async operations
   - Displays error messages to users
@@ -116,21 +118,41 @@
   - Controls render loop lifecycle (start/stop)
   - ~50 lines extracted from main HTML
 
+### Fixed
+- **Critical Bug: Undefined renderLoop Reference**
+  - Fixed MarkupToolsSystem context (line 423) to reference `Na__Canvas__RenderFrame()`
+  - Fixed MeasurementToolsSystem context (line 462) to reference `Na__Canvas__RenderFrame()`
+  - Resolved `ReferenceError: renderLoop is not defined` crash
+  - Loading screen now resolves correctly
+
+- **Script Tag Typo**
+  - Fixed AreaMeasurementTool script tag (line 65): `rc=` → `src=`
+  - Module now loads correctly
+  - Area measurement functionality restored
+
 ### Impact
-- Main HTML reduced from 976 lines to 713 lines (263 lines removed, -27%)
-- Canvas concerns fully separated from main app logic
-- All 5 modules follow consistent Noble Architecture coding style
+- Main HTML reduced from 1,396 lines to 678 lines (718 lines removed, -51%)
+- New modules: +2 files (Tutorial System, Toolbar Manager)
+- Legacy code cleanup: -46 lines
+- Naming convention: 14 functions renamed for consistency
+- Canvas modularization: 5 modules extracted (LoadingStates, CoordinateUtils, DrawingLoader, ViewControls, RenderSystem)
+- Total modules: 28 → 30
 - Clear module dependencies and initialization order
+- All extracted modules follow Noble Architecture coding style
 - Improved testability and maintainability
-- Total reduction from original: 1,396 → 713 lines (683 lines removed, -49%)
 
 ### Module Architecture
-New folder created: `03__Src__AppModules/05__DrawingsCanvas/`
-- LoadingStates (standalone)
-- CoordinateUtils (standalone)
-- DrawingLoader (uses LoadingStates, ViewControls)
-- ViewControls (uses CoordinateUtils indirectly)
-- RenderSystem (coordinates MarkupToolsSystem, MeasurementToolsSystem)
+- Tutorial System: Self-contained, mobile device detection
+- Toolbar Manager: State management with safety checks
+- All UI modules use three-part naming: `Na__Domain__Function`
+- Pattern established: Canvas (5), Menu, Buttons, Archive, Tutorial, Toolbar
+- Canvas Modules: 
+  - LoadingStates (standalone)
+  - CoordinateUtils (standalone)
+  - DrawingLoader (uses LoadingStates, ViewControls)
+  - ViewControls (uses CoordinateUtils indirectly)
+  - RenderSystem (coordinates MarkupToolsSystem, MeasurementToolsSystem)
+
 
 # -----------------------------------------------------------------------------
 

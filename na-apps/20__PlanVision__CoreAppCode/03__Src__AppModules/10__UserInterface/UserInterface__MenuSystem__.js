@@ -94,7 +94,7 @@
 
                 // Reset video gallery state if available
                 if (window.NaPlanVision && window.NaPlanVision.VideoPlayerGalleryManager) {
-                    window.NaPlanVision.VideoPlayerGalleryManager.Na__ResetVideoGalleryState();
+                    window.NaPlanVision.VideoPlayerGalleryManager.Na__Video__ResetVideoGalleryState();
                 }
 
                 console.log('[MenuSystem] Showing main menu...');

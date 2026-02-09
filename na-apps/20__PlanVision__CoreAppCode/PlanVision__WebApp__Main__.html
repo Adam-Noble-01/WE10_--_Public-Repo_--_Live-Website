@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <!-- #Region ------------------------------------------ -->
@@ -483,7 +483,7 @@
                         }
                     };
 
-                    await window.NaPlanVision.AppAssetsLoader.initialise(assetLoaderConfig);
+                    await window.NaPlanVision.AppAssetsLoader.Na__Assets__Initialise(assetLoaderConfig);
                 } else {
                     console.warn('[AppAssetsLoader] Module not available - asset URLs may be missing.');
                 }
@@ -501,7 +501,7 @@
                         renderLoop: () => window.NaPlanVision.DrawingsCanvas.RenderSystem.Na__Canvas__RenderFrame(),
                         cancelTool: () => {
                             const ms = window.NaPlanVision?.MeasurmentToolsSystem?.Main;
-                            if (ms && ms.cancelTool) ms.cancelTool();
+                            if (ms && ms.Na__Measure__CancelTool) ms.Na__Measure__CancelTool();
                         },
                         toPlanCoords: (x, y) => window.NaPlanVision.DrawingsCanvas.CoordinateUtils.Na__Canvas__ToPlanCoords(x, y),
                         getState: () => ({
@@ -518,7 +518,7 @@
                         }
                     };
 
-                    window.NaPlanVision.MarkupToolsSystem.Main.initialise(markupContext, {
+                    window.NaPlanVision.MarkupToolsSystem.Main.Na__Markup__Initialise(markupContext, {
                         defaultColor: markupConfig?.defaults?.defaultColor,
                         defaultLineWidth: markupConfig?.defaults?.lineWidth
                     });
@@ -555,7 +555,7 @@
                         getScaleMetresPerPixel: () => scaleMetresPerPixel
                     };
 
-                    window.NaPlanVision.MeasurmentToolsSystem.Main.initialise(measContext, measConfig);
+                    window.NaPlanVision.MeasurmentToolsSystem.Main.Na__Measure__Initialise(measContext, measConfig);
                 } else {
                     console.info('[MeasurmentToolsSystem] Disabled via AppConfiguration__PlanVision__MainAppSettings__.json');
                 }
@@ -646,11 +646,11 @@
                 // Initialize Drawings Data Manager
                 // -----------------------------------------
                 if (window.NaPlanVision && window.NaPlanVision.DrawingsDataManager) {
-                    window.NaPlanVision.DrawingsDataManager.Na__Initialize(JSON_CONFIG_URL);
-                    const drawings = await window.NaPlanVision.DrawingsDataManager.Na__FetchDrawings();
+                    window.NaPlanVision.DrawingsDataManager.Na__Data__Initialize(JSON_CONFIG_URL);
+                    const drawings = await window.NaPlanVision.DrawingsDataManager.Na__Data__FetchDrawings();
 
                     if (drawings) {
-                        const currentDesignPhase = window.NaPlanVision.DrawingsDataManager.Na__GetCurrentDesignPhase();
+                        const currentDesignPhase = window.NaPlanVision.DrawingsDataManager.Na__Data__GetCurrentDesignPhase();
 
                         // -----------------------------------------
                         // Initialize User Interface Modules
@@ -698,7 +698,7 @@
                 console.log("[Init] Checking for Video Player system modules...");
                 if (window.NaPlanVision && window.NaPlanVision.VideoPlayerMain) {
                     try {
-                        await window.NaPlanVision.VideoPlayerMain.Na__Initialise();
+                        await window.NaPlanVision.VideoPlayerMain.Na__Video__Initialise();
                     } catch (error) {
                         console.error("[Init] Error initializing video player system:", error);
                     }
@@ -804,10 +804,10 @@
                 };
 
                 const kbMouse = window.NaPlanVision?.UserInteraction?.KeyboardAndMouse;
-                if (kbMouse) kbMouse.initialise(interactionContext);
+                if (kbMouse) kbMouse.Na__Interact__Initialise(interactionContext);
 
                 const touchDevices = window.NaPlanVision?.UserInteraction?.TouchScreenDevices;
-                if (touchDevices) touchDevices.initialise(interactionContext);
+                if (touchDevices) touchDevices.Na__Interact__Initialise(interactionContext);
 
                 window.addEventListener("resize", () => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__OnResize());
                 document.getElementById("resetViewBtn").addEventListener("click", () => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__ResetView());

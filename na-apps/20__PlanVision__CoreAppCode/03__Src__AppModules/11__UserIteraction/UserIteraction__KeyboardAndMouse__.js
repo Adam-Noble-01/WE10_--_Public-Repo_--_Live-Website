@@ -53,7 +53,7 @@
     // PUBLIC | Initialise
     // ----------------------------------------------------
 
-        KeyboardAndMouse.initialise = function(context) {
+        KeyboardAndMouse.Na__Interact__Initialise = function(context) {
             appContext = context;
             if (!appContext || !appContext.planCanvas) {
                 console.warn('[UserInteraction.KeyboardAndMouse] Missing app context');
@@ -77,15 +77,15 @@
         function onMouseMove(e) {
             // Delegate to markup system first
             const markup = markupSystem();
-            if (markup && markup.isActive && markup.isActive()) {
-                if (markup.handleMouseMove && markup.handleMouseMove(e)) {
+            if (markup && markup.Na__Markup__IsActive && markup.Na__Markup__IsActive()) {
+                if (markup.Na__Markup__HandleMouseMove && markup.Na__Markup__HandleMouseMove(e)) {
                     return;
                 }
             }
 
             // Delegate to measurement system
             const meas = measSystem();
-            if (meas && meas.handleMouseMove && meas.handleMouseMove(e)) {
+            if (meas && meas.Na__Measure__HandleMouseMove && meas.Na__Measure__HandleMouseMove(e)) {
                 return;
             }
 
@@ -110,15 +110,15 @@
         function onMouseDown(e) {
             // Delegate to markup system first
             const markup = markupSystem();
-            if (markup && markup.isActive && markup.isActive()) {
-                if (markup.handleMouseDown && markup.handleMouseDown(e)) {
+            if (markup && markup.Na__Markup__IsActive && markup.Na__Markup__IsActive()) {
+                if (markup.Na__Markup__HandleMouseDown && markup.Na__Markup__HandleMouseDown(e)) {
                     return;
                 }
             }
 
             // Delegate to measurement system
             const meas = measSystem();
-            if (meas && meas.handleMouseDown && meas.handleMouseDown(e)) {
+            if (meas && meas.Na__Measure__HandleMouseDown && meas.Na__Measure__HandleMouseDown(e)) {
                 return;
             }
 
@@ -177,8 +177,8 @@
 
         function onKeyDown(e) {
             const markup = markupSystem();
-            if (markup && markup.handleKeyDown) {
-                markup.handleKeyDown(e);
+            if (markup && markup.Na__Markup__HandleKeyDown) {
+                markup.Na__Markup__HandleKeyDown(e);
             }
         }
 

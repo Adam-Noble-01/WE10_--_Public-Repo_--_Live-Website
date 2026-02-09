@@ -1328,6 +1328,16 @@
     // EXPORTS | Module API
     // ----------------------------------------------------
 
+        // Add three-part naming aliases to existing API
+        MarkupToolsSystem.Na__Markup__Initialise      = MarkupToolsSystem.initialise;
+        MarkupToolsSystem.Na__Markup__IsActive        = MarkupToolsSystem.isActive;
+        MarkupToolsSystem.Na__Markup__HasMarkup       = MarkupToolsSystem.hasMarkup;
+        MarkupToolsSystem.Na__Markup__Render          = MarkupToolsSystem.render;
+        MarkupToolsSystem.Na__Markup__HandleMouseDown = MarkupToolsSystem.handleMouseDown;
+        MarkupToolsSystem.Na__Markup__HandleMouseMove = MarkupToolsSystem.handleMouseMove;
+        MarkupToolsSystem.Na__Markup__HandleMouseUp   = MarkupToolsSystem.handleMouseUp;
+        MarkupToolsSystem.Na__Markup__HandleKeyDown   = MarkupToolsSystem.handleKeyDown;
+
         window.NaPlanVision = window.NaPlanVision || {};
         window.NaPlanVision.MarkupToolsSystem = window.NaPlanVision.MarkupToolsSystem || {};
         window.NaPlanVision.MarkupToolsSystem.Main = MarkupToolsSystem;

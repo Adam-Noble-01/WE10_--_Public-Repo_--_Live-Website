@@ -154,9 +154,9 @@
 
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.VideoPlayerDataLoader = {
-                Na__FetchVideos          : Na__FetchVideos,
-                Na__PreloadVideos        : Na__PreloadVideos,
-                Na__BuildSortedVideoList : Na__BuildSortedVideoList
+                Na__Video__FetchVideos          : Na__FetchVideos,
+                Na__Video__PreloadVideos        : Na__PreloadVideos,
+                Na__Video__BuildSortedVideoList : Na__BuildSortedVideoList
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

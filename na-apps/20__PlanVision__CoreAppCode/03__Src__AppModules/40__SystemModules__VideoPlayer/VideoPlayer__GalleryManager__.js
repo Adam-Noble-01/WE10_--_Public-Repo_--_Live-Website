@@ -222,7 +222,7 @@
                     Na__ButtonContainer.className = 'drawing-button-container';
                     Na__DocumentSelectionArea.appendChild(Na__ButtonContainer);
 
-                    const Na__VideoList = window.NaPlanVision.VideoPlayerDataLoader.Na__BuildSortedVideoList(Na__AllVideosData);
+                    const Na__VideoList = window.NaPlanVision.VideoPlayerDataLoader.Na__Video__BuildSortedVideoList(Na__AllVideosData);
 
                     Na__VideoList.forEach((videoItem) => {
                         const Na__Video = videoItem.data;
@@ -231,7 +231,7 @@
                         Na__Button.textContent = Na__Video['video-name'];
                         Na__Button.addEventListener('click', () => {
                             if (window.NaPlanVision && window.NaPlanVision.VideoPlayerCore) {
-                                window.NaPlanVision.VideoPlayerCore.Na__OpenVideoPlayer({
+                                window.NaPlanVision.VideoPlayerCore.Na__Video__OpenVideoPlayer({
                                     cdnUrl : Na__Video['video-links']['cdn-url'],
                                     name   : Na__Video['video-name'],
                                     type   : Na__Video['video-type']
@@ -359,13 +359,13 @@
 
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.VideoPlayerGalleryManager = {
-                Na__SetVideoData             : Na__SetVideoData,
-                Na__ResetVideoGalleryState   : Na__ResetVideoGalleryState,
-                Na__CreateVideoButtons       : Na__CreateVideoButtons,
-                Na__CreateMainMenuVideoButton: Na__CreateMainMenuVideoButton,
-                Na__ShowVideoGallery         : Na__ShowVideoGallery,
-                Na__ShowVideoGalleryFromMainMenu : Na__ShowVideoGalleryFromMainMenu,
-                Na__HideVideoGallery         : Na__HideVideoGallery
+                Na__Video__SetVideoData             : Na__SetVideoData,
+                Na__Video__ResetVideoGalleryState   : Na__ResetVideoGalleryState,
+                Na__Video__CreateVideoButtons       : Na__CreateVideoButtons,
+                Na__Video__CreateMainMenuVideoButton: Na__CreateMainMenuVideoButton,
+                Na__Video__ShowVideoGallery         : Na__ShowVideoGallery,
+                Na__Video__ShowVideoGalleryFromMainMenu : Na__ShowVideoGalleryFromMainMenu,
+                Na__Video__HideVideoGallery         : Na__HideVideoGallery
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

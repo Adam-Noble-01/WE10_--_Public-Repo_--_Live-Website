@@ -413,7 +413,7 @@
         // API | Public Interface Methods
         // ------------------------------------------------------------
 
-            MeasurmentToolsSystem.initialise = function(context, configOverrides = {}) {
+            MeasurmentToolsSystem.Na__Measure__Initialise = function(context, configOverrides = {}) {
                 appContext = context || null;
                 if (!appContext || !appContext.planCanvas) {
                     console.warn("[MeasurmentToolsSystem] Missing app context");
@@ -449,14 +449,14 @@
                 }
             };
 
-            MeasurmentToolsSystem.render = function() {
+            MeasurmentToolsSystem.Na__Measure__Render = function() {
                 if (!config.enabled) return;
                 renderMeasurements();
                 renderPreview();
                 adjustConfirmButtonPosition();
             };
 
-            MeasurmentToolsSystem.handleMouseDown = function(e) {
+            MeasurmentToolsSystem.Na__Measure__HandleMouseDown = function(e) {
                 if (!config.enabled || !state.currentTool) return false;
                 const pos = appContext.toPlanCoords(e.offsetX, e.offsetY);
                 const tool = tools[state.currentTool];
@@ -466,7 +466,7 @@
                 return false;
             };
 
-            MeasurmentToolsSystem.handleMouseMove = function(e) {
+            MeasurmentToolsSystem.Na__Measure__HandleMouseMove = function(e) {
                 if (!config.enabled || !state.currentTool) return false;
                 const pos = appContext.toPlanCoords(e.offsetX, e.offsetY);
                 const tool = tools[state.currentTool];
@@ -476,7 +476,7 @@
                 return false;
             };
 
-            MeasurmentToolsSystem.handleMouseUp = function(e) {
+            MeasurmentToolsSystem.Na__Measure__HandleMouseUp = function(e) {
                 if (!config.enabled || !state.currentTool) return false;
                 const pos = appContext.toPlanCoords(e.offsetX, e.offsetY);
                 const tool = tools[state.currentTool];
@@ -486,19 +486,19 @@
                 return false;
             };
 
-            MeasurmentToolsSystem.clearMeasurements = function() {
+            MeasurmentToolsSystem.Na__Measure__ClearMeasurements = function() {
                 clearMeasurements();
             };
 
-            MeasurmentToolsSystem.cancelTool = function() {
+            MeasurmentToolsSystem.Na__Measure__CancelTool = function() {
                 cancelTool();
             };
 
-            MeasurmentToolsSystem.hasActiveTool = function() {
+            MeasurmentToolsSystem.Na__Measure__HasActiveTool = function() {
                 return !!state.currentTool;
             };
 
-            MeasurmentToolsSystem.hasMeasurements = function() {
+            MeasurmentToolsSystem.Na__Measure__HasMeasurements = function() {
                 return state.measurements.length > 0 || (state.currentTool && state.measuringPoints.length > 0);
             };
 

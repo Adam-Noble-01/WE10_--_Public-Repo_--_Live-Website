@@ -48,7 +48,7 @@
 
             // FUNCTION | Initialize Drawings Data Manager
             // ------------------------------------------------------------
-            const Na__Initialize = function (configUrl) {
+            const Na__Data__Initialize = function (configUrl) {
                 console.log('[DrawingsDataManager] Initializing...');
                 jsonConfigUrl = configUrl;
                 console.log('[DrawingsDataManager] JSON Config URL:', jsonConfigUrl);
@@ -63,7 +63,7 @@
 
             // FUNCTION | Fetch Drawings from JSON Configuration File
             // ------------------------------------------------------------
-            const Na__FetchDrawings = async function () {
+            const Na__Data__FetchDrawings = async function () {
                 try {
                     const response = await fetch(jsonConfigUrl);
                     if (!response.ok) {
@@ -123,21 +123,21 @@
 
             // FUNCTION | Get Current Design Phase
             // ------------------------------------------------------------
-            const Na__GetCurrentDesignPhase = function () {
+            const Na__Data__GetCurrentDesignPhase = function () {
                 return currentDesignPhase;
             };
             // ---------------------------------------------------------------
 
             // FUNCTION | Get Project Phase Config
             // ------------------------------------------------------------
-            const Na__GetProjectPhaseConfig = function () {
+            const Na__Data__GetProjectPhaseConfig = function () {
                 return projectPhaseConfig;
             };
             // ---------------------------------------------------------------
 
             // FUNCTION | Get All Drawings Data
             // ------------------------------------------------------------
-            const Na__GetAllDrawingsData = function () {
+            const Na__Data__GetAllDrawingsData = function () {
                 return allDrawingsData;
             };
             // ---------------------------------------------------------------
@@ -150,11 +150,11 @@
 
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.DrawingsDataManager = {
-                Na__Initialize               : Na__Initialize,
-                Na__FetchDrawings            : Na__FetchDrawings,
-                Na__GetCurrentDesignPhase    : Na__GetCurrentDesignPhase,
-                Na__GetProjectPhaseConfig    : Na__GetProjectPhaseConfig,
-                Na__GetAllDrawingsData       : Na__GetAllDrawingsData
+                Na__Data__Initialize               : Na__Data__Initialize,
+                Na__Data__FetchDrawings            : Na__Data__FetchDrawings,
+                Na__Data__GetCurrentDesignPhase    : Na__Data__GetCurrentDesignPhase,
+                Na__Data__GetProjectPhaseConfig    : Na__Data__GetProjectPhaseConfig,
+                Na__Data__GetAllDrawingsData       : Na__Data__GetAllDrawingsData
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

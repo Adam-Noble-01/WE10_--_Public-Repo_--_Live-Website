@@ -208,8 +208,8 @@
 
                 // Clear measurements via measurement system
                 const measSystem = window.NaPlanVision?.MeasurmentToolsSystem?.Main;
-                if (measSystem && measSystem.clearMeasurements) {
-                    measSystem.clearMeasurements();
+                if (measSystem && measSystem.Na__Measure__ClearMeasurements) {
+                    measSystem.Na__Measure__ClearMeasurements();
                 }
 
                 // Update markup handles after transform

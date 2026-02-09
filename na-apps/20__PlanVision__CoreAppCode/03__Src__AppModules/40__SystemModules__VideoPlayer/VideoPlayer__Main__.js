@@ -54,7 +54,7 @@
                 return Na__HasCore && Na__HasData && Na__HasGallery;
             };
 
-            const Na__Initialise = async function () {
+            const Na__Video__Initialise = async function () {
                 console.log('[VideoPlayerMain] Initialising video player system...');
 
                 if (!Na__LogModuleAvailability()) {
@@ -62,15 +62,15 @@
                     return;
                 }
 
-                window.NaPlanVision.VideoPlayerCore.Na__Initialize();
+                window.NaPlanVision.VideoPlayerCore.Na__Video__Initialize();
 
-                const Na__Videos = await window.NaPlanVision.VideoPlayerDataLoader.Na__FetchVideos();
+                const Na__Videos = await window.NaPlanVision.VideoPlayerDataLoader.Na__Video__FetchVideos();
                 if (Na__Videos) {
                     console.log('[VideoPlayerMain] Videos loaded successfully');
-                    window.NaPlanVision.VideoPlayerGalleryManager.Na__CreateMainMenuVideoButton(Na__Videos);
+                    window.NaPlanVision.VideoPlayerGalleryManager.Na__Video__CreateMainMenuVideoButton(Na__Videos);
 
                     console.log('[VideoPlayerMain] Starting background video preload...');
-                    setTimeout(() => window.NaPlanVision.VideoPlayerDataLoader.Na__PreloadVideos(Na__Videos), 2000);
+                    setTimeout(() => window.NaPlanVision.VideoPlayerDataLoader.Na__Video__PreloadVideos(Na__Videos), 2000);
                 } else {
                     console.warn('[VideoPlayerMain] No videos found in JSON - Video buttons will not appear');
                     if (typeof NaProjectDataFile__ActiveProject !== 'undefined') {
@@ -89,7 +89,7 @@
 
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.VideoPlayerMain = {
-                Na__Initialise : Na__Initialise
+                Na__Video__Initialise : Na__Video__Initialise
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

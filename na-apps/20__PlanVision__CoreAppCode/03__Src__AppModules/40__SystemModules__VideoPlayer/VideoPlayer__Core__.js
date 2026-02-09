@@ -917,9 +917,9 @@
 
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.VideoPlayerCore = {
-                Na__Initialize       : Na__Initialize,
-                Na__OpenVideoPlayer  : Na__OpenVideoPlayer,
-                Na__CloseVideoPlayer : Na__CloseVideoPlayer
+                Na__Video__Initialize       : Na__Initialize,
+                Na__Video__OpenVideoPlayer  : Na__OpenVideoPlayer,
+                Na__Video__CloseVideoPlayer : Na__CloseVideoPlayer
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

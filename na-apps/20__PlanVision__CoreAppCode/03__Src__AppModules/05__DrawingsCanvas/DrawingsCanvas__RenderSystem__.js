@@ -133,14 +133,14 @@
 
                 // Draw markup paths if enabled
                 const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
-                if (markupSystem && markupSystem.hasMarkup && markupSystem.hasMarkup()) {
-                    markupSystem.render(ctx);
+                if (markupSystem && markupSystem.Na__Markup__HasMarkup && markupSystem.Na__Markup__HasMarkup()) {
+                    markupSystem.Na__Markup__Render(ctx);
                 }
 
                 // Draw measurement tools and results
                 const measSystem = window.NaPlanVision?.MeasurmentToolsSystem?.Main;
                 if (measSystem) {
-                    measSystem.render();
+                    measSystem.Na__Measure__Render();
                 }
             }
             // ---------------------------------------------------------------
@@ -209,14 +209,14 @@
 
                 // Draw markup paths if enabled
                 const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
-                if (markupSystem && markupSystem.hasMarkup && markupSystem.hasMarkup()) {
-                    markupSystem.render(ctx);
+                if (markupSystem && markupSystem.Na__Markup__HasMarkup && markupSystem.Na__Markup__HasMarkup()) {
+                    markupSystem.Na__Markup__Render(ctx);
                 }
 
                 // Draw measurement tools and results
                 const measSystem = window.NaPlanVision?.MeasurmentToolsSystem?.Main;
                 if (measSystem) {
-                    measSystem.render();
+                    measSystem.Na__Measure__Render();
                 }
             };
             // ---------------------------------------------------------------

@@ -61,7 +61,7 @@
 
             // FUNCTION | Initialise App Assets Loader
             // ------------------------------------------------------------
-            AppAssetsLoader.initialise = async function(appConfig) {
+            AppAssetsLoader.Na__Assets__Initialise = async function(appConfig) {
                 if (isInitialised) {
                     console.log('[AppAssetsLoader] Already initialised');
                     return;
@@ -88,7 +88,7 @@
 
             // FUNCTION | Get Asset URL
             // ------------------------------------------------------------
-            AppAssetsLoader.getAssetUrl = function(category, filename) {
+            AppAssetsLoader.Na__Assets__GetAssetUrl = function(category, filename) {
                 if (!config) {
                     console.error('[AppAssetsLoader] Not initialised - call initialise() first');
                     return '';
@@ -107,7 +107,7 @@
 
             // FUNCTION | Get Project Asset URL
             // ------------------------------------------------------------
-            AppAssetsLoader.getProjectAssetUrl = function(projectCode, year, relativePath) {
+            AppAssetsLoader.Na__Assets__GetProjectAssetUrl = function(projectCode, year, relativePath) {
                 if (!config) {
                     console.error('[AppAssetsLoader] Not initialised');
                     return '';
@@ -126,7 +126,7 @@
             // FUNCTION | Parse Asset Path
             // Extracts category and filename from a relative path
             // ------------------------------------------------------------
-            AppAssetsLoader.parseAssetPath = function(path) {
+            AppAssetsLoader.Na__Assets__ParseAssetPath = function(path) {
                 if (!path) return null;
                 
                 const filename = path.split('/').pop();        // <-- Get filename
@@ -168,7 +168,7 @@
                 let cssRules = '';                             // <-- Build CSS string
 
                 fonts.forEach(font => {
-                    const url = AppAssetsLoader.getAssetUrl('FONTS', font.file);
+                    const url = AppAssetsLoader.Na__Assets__GetAssetUrl('FONTS', font.file);
                     cssRules += `
                         @font-face {
                             font-family: '${font.family}';
@@ -200,10 +200,10 @@
                 
                 elements.forEach(el => {
                     const assetPath = el.getAttribute('data-asset-src');
-                    const parsed = AppAssetsLoader.parseAssetPath(assetPath);
+                    const parsed = AppAssetsLoader.Na__Assets__ParseAssetPath(assetPath);
                     
                     if (parsed && parsed.category && parsed.filename) {
-                        const url = AppAssetsLoader.getAssetUrl(parsed.category, parsed.filename);
+                        const url = AppAssetsLoader.Na__Assets__GetAssetUrl(parsed.category, parsed.filename);
                         el.src = url;                          // <-- Set actual src
                         count++;
                         console.log(`[AppAssetsLoader] Injected: ${parsed.filename} -> ${url}`);
@@ -226,10 +226,10 @@
                 
                 links.forEach(link => {
                     const assetPath = link.getAttribute('data-asset-href');
-                    const parsed = AppAssetsLoader.parseAssetPath(assetPath);
+                    const parsed = AppAssetsLoader.Na__Assets__ParseAssetPath(assetPath);
                     
                     if (parsed && parsed.category && parsed.filename) {
-                        const url = AppAssetsLoader.getAssetUrl(parsed.category, parsed.filename);
+                        const url = AppAssetsLoader.Na__Assets__GetAssetUrl(parsed.category, parsed.filename);
                         link.href = url;                       // <-- Set actual href
                         count++;
                     } else {
