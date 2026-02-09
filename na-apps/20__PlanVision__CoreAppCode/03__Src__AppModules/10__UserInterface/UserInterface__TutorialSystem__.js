@@ -87,15 +87,16 @@
         // --------------------------------------------------------
 
             // FUNCTION | Start Tutorial Flow
-            // Begins the three-step tutorial sequence for mobile devices
+            // Begins the three-step tutorial sequence for all platforms
             // ------------------------------------------------------------
             const Na__Tutorial__StartFlow = function () {
-                if (!Na__Tutorial__IsMobilePortrait()) {
-                    console.log('[TutorialSystem] Not mobile portrait - skipping tutorial');
-                    return;
-                }
+                // Removed mobile-only restriction - now works on all platforms
+                // if (!Na__Tutorial__IsMobilePortrait()) {
+                //     console.log('[TutorialSystem] Not mobile portrait - skipping tutorial');
+                //     return;
+                // }
 
-                console.log('[TutorialSystem] Starting tutorial flow for mobile device...');
+                console.log('[TutorialSystem] Starting tutorial flow...');
 
                 // STEP 1: Show menu open immediately
                 if (toolbar) {

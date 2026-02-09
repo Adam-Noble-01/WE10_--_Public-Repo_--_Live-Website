@@ -6,6 +6,90 @@
 
 # -----------------------------------------------------------------------------
 
+## PlanVision - Version 2.1.0 - 09-Feb-2026
+
+### Added - Enhanced Tutorial Animation System
+- **New TutorialAnimations module** (`UserInterface__TutorialAnimations__.js`)
+  - Standalone module working alongside existing TutorialSystem
+  - Manages flashing animation lifecycle for tutorial overlay
+  - Auto-dismiss functionality after 4.5 seconds
+  - User interaction dismissal on toolbar/menu clicks
+  - Functions: `Na__TutAnim__Initialize()`, `StartFlashAnimation()`, `EnableAutoDismiss()`, `DismissOverlay()`
+  - Follows Noble Architecture conventions with `Na__TutAnim__` prefix
+  - 253 lines with comprehensive logging and error handling
+
+- **CSS flashing animation** (`tutorialAppear` keyframe)
+  - 4-second animation sequence inspired by DocumentSystem
+  - Smooth fade-in with translateY transform (0-5%: fade in)
+  - Solid display for 2 seconds (5-50%: full opacity)
+  - 3 attention-grabbing flashes (50-100%: flash cycles)
+  - Applied to `#menu-tutorial-overlay` element
+  - Creates eye-catching effect to ensure users notice tutorial
+
+### Changed
+- **Tutorial System platform behavior**
+  - Removed mobile-only restriction from `TutorialSystem.js`
+  - Tutorial now runs on ALL platforms (desktop, tablet, mobile)
+  - Previously limited to mobile/portrait orientation only
+  - Ensures all users see the tutorial on first launch
+
+- **CSS positioning and z-index**
+  - Changed overlay position from `absolute` to `fixed`
+  - Increased z-index from 13000 to 150000 (highest in app)
+  - Ensures overlay appears above all other UI elements
+  - Prevents overlay from being hidden behind modals/dialogs
+
+- **HTML integration** (`PlanVision__WebApp__Main__.html`)
+  - Added script tag for new TutorialAnimations module (v1.0.0)
+  - Added initialization code with DOM references (menuTutorialOverlay, toolbar, toggleToolbarBtn)
+  - Added enhanced flow to trigger flash animation after overlay appears
+  - Fixed missing `toolbarToggleButton` reference (now uses `getElementById`)
+
+### Fixed
+- **ReferenceError: toolbarToggleButton is not defined**
+  - Changed from undefined variable to direct DOM query
+  - Now uses `document.getElementById("toggleToolbarBtn")`
+  - Resolved initialization crash on page load
+
+- **Overlay visibility issues**
+  - Added debug logging to track display state
+  - Logs overlay display, z-index, and position values
+  - Helps diagnose rendering and visibility problems
+
+### Technical Details
+- **Animation Timing**
+  - Menu opens immediately on startup
+  - Menu closes after 1000ms (MENU_OPEN_DURATION)
+  - Overlay appears 300ms after menu closes (TOOLTIP_DELAY)
+  - Flash animation starts 1300ms after StartFlow call
+  - Auto-dismiss after 4500ms (AUTO_DISMISS_DELAY)
+  - Total lifecycle: ~6 seconds from start to auto-dismiss
+
+- **User Interaction Dismissal**
+  - Clicking toolbar toggle button immediately hides overlay
+  - Clicking anywhere within toolbar dismisses overlay
+  - Clears auto-dismiss timer on manual dismissal
+  - Prevents duplicate or conflicting timers
+
+### Impact
+- **Attention-grabbing**: Flashing animation ensures users notice the tutorial
+- **Auto-cleanup**: Overlay auto-dismisses to prevent UI clutter
+- **Platform-inclusive**: Works on desktop, tablet, and mobile devices
+- **Modular design**: Easy to disable or modify independently
+- **Zero conflicts**: Works alongside existing TutorialSystem module
+- **Professional polish**: Smooth animations match DocumentSystem quality
+
+#### Files Created
+- `03__Src__AppModules/10__UserInterface/UserInterface__TutorialAnimations__.js` (253 lines)
+
+#### Files Modified
+- `04__Style__AppStylesheets/StyleSheet__CorePlanVisionApp__.css` (added tutorialAppear keyframe + updated overlay styles)
+- `03__Src__AppModules/10__UserInterface/UserInterface__TutorialSystem__.js` (removed mobile-only restriction)
+- `PlanVision__WebApp__Main__.html` (added script tag, initialization, and enhanced flow)
+- `Planvision__DEVLOG__.md` (this file - documented tutorial animation enhancements)
+
+# -----------------------------------------------------------------------------
+
 ## PlanVision - Version 2.0.10 - 09-Feb-2026
 
 ### Added - Cache-Busting System

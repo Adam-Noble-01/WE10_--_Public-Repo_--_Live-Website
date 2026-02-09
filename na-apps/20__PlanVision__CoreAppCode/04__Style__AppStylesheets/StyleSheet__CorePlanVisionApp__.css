@@ -10,12 +10,19 @@
 
     :root {
         --App_BrandPrimary         : #555041;            /* Noble Architecture brown */
+        --App_BgPrimary            : #f8f7f5;            /* Warm off-white backgrounds */
+        --App_BgSecondary          : #ffffff;            /* Pure white */
         --App_BgTertiary           : #eeecea;            /* Light grey-brown for hover */
         --App_TextPrimary          : #333333;            /* Main text color */
+        --App_TextSecondary        : #666666;            /* Secondary text */
+        --App_TextMuted            : #999999;            /* Muted/disabled text */
         --App_TextLight            : #ffffff;            /* Light text on dark backgrounds */
         --App_BorderLight          : #e0ddd8;            /* Light borders */
-        --App_TransitionFast       : 0.15s ease;         /* Fast smooth transitions */
+        --App_BorderMedium         : #c4c0b8;            /* Medium borders */
+        --App_SpacingSm            : 0.5rem;             /* 8px */
         --App_SpacingMd            : 1rem;               /* 16px standard spacing */
+        --App_SpacingLg            : 1.5rem;             /* 24px */
+        --App_TransitionFast       : 0.15s ease;         /* Fast smooth transitions */
     }
 
 /*  endregion -------------------------------------------------- */
@@ -114,7 +121,7 @@
         position                         :  absolute;
         top                              :  50px;
         left                             :  0;
-        width                            :  264px;
+        width                            :  317px;
         height                           :  calc(100% - 50px);
         background                       :  #fff;
         border-right                     :  2px solid #555041;
@@ -126,7 +133,7 @@
     }
 
     #toolbar.collapsed {
-        transform                        :  translateX(-264px);
+        transform                        :  translateX(-317px);
     }
 
 /*  endregion -------------------------------------------------- */
@@ -190,7 +197,7 @@
         border                           :  none;
         border-bottom                    :  1px solid var(--App_BorderLight);
         cursor                           :  pointer;
-        font-size                        :  0.9375rem;
+        font-size                        :  0.75rem;
         border-radius                    :  0;
         transition                       :  all var(--App_TransitionFast);
     }
@@ -274,7 +281,8 @@
     /* All category variants use the same base styling */
     .category-button.drawings-category,
     .category-button.specifications-category,
-    .category-button.register-category {
+    .category-button.register-category,
+    .category-button.help-category {
         /* Inherit base category-button styles */
     }
 
@@ -508,12 +516,13 @@
 
     /* Menu Tutorial Overlay */
     #menu-tutorial-overlay {
-        position                         :  absolute;
+        position                         :  fixed;
         top                              :  60px;
         left                             :  10px;
         display                          :  none;
-        z-index                          :  13000;
+        z-index                          :  150000;
         pointer-events                   :  none;
+        animation                        :  tutorialAppear 4s ease;
     }
 
     #menu-pointer-arrow {
@@ -789,6 +798,44 @@
 
         100% {
             background-position          :  40px 0;
+        }
+    }
+
+    @keyframes tutorialAppear {
+        /* Fade in and stay solid for 2 seconds */
+        0% {
+            opacity                      :  0;
+            transform                    :  translateY(-10px);
+        }
+
+        5%, 50% {
+            opacity                      :  1;
+            transform                    :  translateY(0);
+        }
+
+        /* Flash 3 times to grab attention (1.5 seconds) */
+        58.33% {
+            opacity                      :  0;
+        }
+
+        66.66% {
+            opacity                      :  1;
+        }
+
+        75% {
+            opacity                      :  0;
+        }
+
+        83.33% {
+            opacity                      :  1;
+        }
+
+        91.66% {
+            opacity                      :  0;
+        }
+
+        100% {
+            opacity                      :  1;
         }
     }
 

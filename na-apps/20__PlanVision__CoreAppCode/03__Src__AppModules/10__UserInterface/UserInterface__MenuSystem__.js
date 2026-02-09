@@ -105,8 +105,9 @@
                     window.NaPlanVision.VideoPlayerGalleryManager.Na__Video__ResetVideoGalleryState();
                 }
 
-                // Hide Drawing Register when returning to main menu
+                // Hide Drawing Register and How To Use when returning to main menu
                 hideDrawingRegister();
+                hideHowToUse();
 
                 console.log('[MenuSystem] Showing main menu...');
 
@@ -148,8 +149,9 @@
 
                 console.log('[MenuSystem] Showing drawings menu...');
 
-                // Hide Drawing Register if visible
+                // Hide Drawing Register and How To Use if visible
                 hideDrawingRegister();
+                hideHowToUse();
 
                 // Hide main menu section
                 if (mainMenuSection) {
@@ -174,6 +176,29 @@
                         'Drawing',
                         false
                     );
+
+                    // Auto-load first drawing
+                    var flatDrawings = dataManager.Na__Data__GetFlatDrawingsList('Drawing');
+                    if (flatDrawings && flatDrawings.length > 0) {
+                        var firstDrawing = flatDrawings[0];
+                        var drawingLoader = window.NaPlanVision
+                            && window.NaPlanVision.DrawingsCanvas
+                            && window.NaPlanVision.DrawingsCanvas.DrawingLoader;
+                        
+                        if (drawingLoader) {
+                            drawingLoader.Na__Canvas__LoadDrawing(firstDrawing);
+                            
+                            // Mark first button as active
+                            setTimeout(function() {
+                                var firstButton = documentSelectionArea.querySelector('.tool-button');
+                                if (firstButton) {
+                                    firstButton.classList.add('active');
+                                }
+                            }, 100);
+                            
+                            console.log('[MenuSystem] Auto-loaded first drawing:', firstDrawing['document-name']);
+                        }
+                    }
                 }
 
                 console.log('[MenuSystem] Drawings menu displayed');
@@ -193,8 +218,9 @@
 
                 console.log('[MenuSystem] Showing specifications menu...');
 
-                // Hide Drawing Register if visible
+                // Hide Drawing Register and How To Use if visible
                 hideDrawingRegister();
+                hideHowToUse();
 
                 // Hide main menu section
                 if (mainMenuSection) {
@@ -219,6 +245,29 @@
                         'Specification',
                         false
                     );
+
+                    // Auto-load first specification
+                    var flatDrawings = dataManager.Na__Data__GetFlatDrawingsList('Specification');
+                    if (flatDrawings && flatDrawings.length > 0) {
+                        var firstDrawing = flatDrawings[0];
+                        var drawingLoader = window.NaPlanVision
+                            && window.NaPlanVision.DrawingsCanvas
+                            && window.NaPlanVision.DrawingsCanvas.DrawingLoader;
+                        
+                        if (drawingLoader) {
+                            drawingLoader.Na__Canvas__LoadDrawing(firstDrawing);
+                            
+                            // Mark first button as active
+                            setTimeout(function() {
+                                var firstButton = documentSelectionArea.querySelector('.tool-button');
+                                if (firstButton) {
+                                    firstButton.classList.add('active');
+                                }
+                            }, 100);
+                            
+                            console.log('[MenuSystem] Auto-loaded first specification:', firstDrawing['document-name']);
+                        }
+                    }
                 }
 
                 console.log('[MenuSystem] Specifications menu displayed');
@@ -233,11 +282,32 @@
                 // Set active category button
                 setActiveCategoryButton('showDrawingRegisterBtn');
 
+                // Hide How To Use if visible
+                hideHowToUse();
+
                 var landingPage = window.NaPlanVision && window.NaPlanVision.LandingPage;
                 if (landingPage) {
                     landingPage.Na__Landing__Show();
                 }
                 console.log('[MenuSystem] Drawing Register shown');
+            };
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Show How To Use
+            // Shows the How To Use instructions panel in the canvas area
+            // ------------------------------------------------------------
+            const Na__Menu__ShowHowToUse = function () {
+                // Set active category button
+                setActiveCategoryButton('showHowToUseBtn');
+
+                // Hide Drawing Register if visible
+                hideDrawingRegister();
+
+                var howToUse = window.NaPlanVision && window.NaPlanVision.HowToUse;
+                if (howToUse) {
+                    howToUse.Na__HowToUse__Show();
+                }
+                console.log('[MenuSystem] How To Use shown');
             };
             // ---------------------------------------------------------------
 
@@ -254,6 +324,17 @@
                 var landingPage = window.NaPlanVision && window.NaPlanVision.LandingPage;
                 if (landingPage && landingPage.Na__Landing__IsVisible()) {
                     landingPage.Na__Landing__Hide();
+                }
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Hide How To Use Helper
+            // Hides the How To Use panel if it is visible
+            // ------------------------------------------------------------
+            function hideHowToUse() {
+                var howToUse = window.NaPlanVision && window.NaPlanVision.HowToUse;
+                if (howToUse && howToUse.Na__HowToUse__IsVisible()) {
+                    howToUse.Na__HowToUse__Hide();
                 }
             }
             // ---------------------------------------------------------------
@@ -278,6 +359,12 @@
                 var specificationsBtn = document.getElementById('showSpecificationsMenuBtn');
                 if (specificationsBtn) {
                     specificationsBtn.addEventListener('click', Na__Menu__ShowSpecificationsMenu);
+                }
+
+                // How To Use category button
+                var howToUseBtn = document.getElementById('showHowToUseBtn');
+                if (howToUseBtn) {
+                    howToUseBtn.addEventListener('click', Na__Menu__ShowHowToUse);
                 }
 
                 // Back to main menu button

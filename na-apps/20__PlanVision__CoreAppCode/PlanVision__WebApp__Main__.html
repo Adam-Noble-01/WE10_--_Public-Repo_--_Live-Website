@@ -86,10 +86,12 @@
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__DrawingButtons__.js?v=2.0.9"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__HistoricArchive__.js?v=2.0.9"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialSystem__.js?v=2.0.9"></script>
+    <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialAnimations__.js?v=1.0.0"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__ToolbarManager__.js?v=2.0.9"></script>
 
     <!-- Load The Landing Page Module -->
     <script src="03__Src__AppModules/09__AppLandingPage/LandingPage__Main__.js?v=2.0.9"></script>
+    <script src="03__Src__AppModules/09__AppLandingPage/LandingPage__HowToUse__.js?v=2.0.9"></script>
 
     <!-- Load The Markup Tools System Modules -->
     <!-- - These are unused currently  -->
@@ -114,10 +116,10 @@
     <!-- STYLESHEETS | Application CSS Imports                                 -->
     <!-- ----- -->
 
-    <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__CorePlanVisionApp__.css?v=2.0.9">
-    <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MarkUpTools__.css?v=2.0.9">
-    <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MeasuringTools__.css?v=2.0.9">
-    <link rel="stylesheet" href="./03__Src__AppModules/09__AppLandingPage/LandingPage__Styles__.css?v=2.0.9">
+    <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__CorePlanVisionApp__.css?v=2.0.11">
+    <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MarkUpTools__.css?v=2.0.11">
+    <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MeasuringTools__.css?v=2.0.11">
+    <link rel="stylesheet" href="./03__Src__AppModules/09__AppLandingPage/LandingPage__Styles__.css?v=2.0.11">
 
     <!-- endregion ---------------------------------------- -->
 
@@ -219,6 +221,9 @@
                         <button class="category-button specifications-category" id="showSpecificationsMenuBtn">
                             🔧 Details & Specifications
                         </button>
+                        <button class="category-button help-category" id="showHowToUseBtn">
+                            ❓ How to Use
+                        </button>
                     </div>
 
                     <div class="menu-section-divider"></div>
@@ -245,10 +250,8 @@
                 <div id="sub-menu-section" class="sub-menu-section">
                     <!-- Back to Main Menu Button - Always at top -->
                     <button class="back-to-main-btn" id="backToMainMenuBtn">
-                        ← Back to Main Menu
+                        ← &nbsp; &nbsp; Back to Main Menu
                     </button>
-
-                    <div class="menu-section-divider"></div>
 
                     <!-- Document selection header and buttons inserted dynamically -->
                     <div id="document-selection-area">
@@ -303,6 +306,9 @@
 
             <!-- LANDING PAGE OVERLAY - Shown on app start, dismissed by user -->
             <div id="landing-page-overlay" class="landing-page-overlay"></div>
+
+            <!-- HOW TO USE OVERLAY - Shows instructions for using the app -->
+            <div id="how-to-use-overlay" class="landing-page-overlay"></div>
 
             <!-- endregion ---------------------------------------- -->
 
@@ -744,6 +750,12 @@
                             }
                             console.log("[Init] Drawing Register displayed as default view");
                         }
+
+                        // Initialize How To Use section
+                        if (window.NaPlanVision.HowToUse) {
+                            window.NaPlanVision.HowToUse.Na__HowToUse__Initialize();
+                            console.log("[Init] How To Use initialized");
+                        }
                     }
                 } else {
                     console.error('[Init] DrawingsDataManager module not available');
@@ -788,11 +800,28 @@
                     console.log('[Init] Tutorial System initialized');
                 }
 
+                // Initialize Tutorial Animations
+                if (window.NaPlanVision?.UserInterface?.TutorialAnimations) {
+                    window.NaPlanVision.UserInterface.TutorialAnimations.Na__TutAnim__Initialize({
+                        menuTutorialOverlay: menuTutorialOverlay,
+                        toolbar: toolbar,
+                        toolbarToggleButton: document.getElementById("toggleToolbarBtn")
+                    });
+                    console.log('[Init] Tutorial Animations initialized');
+                }
+
                 attachEventListeners();
 
                 // Start tutorial flow for mobile devices
                 if (window.NaPlanVision?.UserInterface?.TutorialSystem) {
                     window.NaPlanVision.UserInterface.TutorialSystem.Na__Tutorial__StartFlow();
+                    
+                    // Start flash animation after overlay appears
+                    if (window.NaPlanVision?.UserInterface?.TutorialAnimations) {
+                        setTimeout(() => {
+                            window.NaPlanVision.UserInterface.TutorialAnimations.Na__TutAnim__StartFlashAnimation();
+                        }, 1300);  // After menu opens/closes
+                    }
                 }
                 
                 // Start render loop

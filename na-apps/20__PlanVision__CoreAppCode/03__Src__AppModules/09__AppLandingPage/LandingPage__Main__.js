@@ -66,7 +66,6 @@
                 var html = '';
                 html += renderProjectHeader(projectDetails, phaseConfig);
                 html += renderDrawingRegister(folderGroups);
-                html += renderInstructions();
 
                 overlayElement.innerHTML = html;
 
@@ -220,70 +219,6 @@
 
                 html +=         '</tbody>';
                 html +=     '</table>';
-                html +=     '</div>';
-                html += '</div>';
-
-                return html;
-            }
-            // ---------------------------------------------------------------
-
-            // FUNCTION | Render How-To Instructions
-            // Concise numbered steps for using the app
-            // ------------------------------------------------------------
-            function renderInstructions() {
-                var html = '';
-                html += '<div class="landing-instructions-section">';
-                html +=     '<div class="landing-section-title">How to Use PlanVision</div>';
-                html +=     '<div class="landing-instructions-grid">';
-
-                html +=         '<div class="landing-instruction-step">';
-                html +=             '<div class="landing-step-number">1</div>';
-                html +=             '<div class="landing-step-content">';
-                html +=                 '<div class="landing-step-title">Open the Menu</div>';
-                html +=                 '<div class="landing-step-desc">Tap the <strong>hamburger menu</strong> button in the top-left corner to open the tools panel.</div>';
-                html +=             '</div>';
-                html +=         '</div>';
-
-                html +=         '<div class="landing-instruction-step">';
-                html +=             '<div class="landing-step-number">2</div>';
-                html +=             '<div class="landing-step-content">';
-                html +=                 '<div class="landing-step-title">Select a Category</div>';
-                html +=                 '<div class="landing-step-desc">Choose <strong>Drawings</strong> or <strong>Details &amp; Specifications</strong> to browse documents by type.</div>';
-                html +=             '</div>';
-                html +=         '</div>';
-
-                html +=         '<div class="landing-instruction-step">';
-                html +=             '<div class="landing-step-number">3</div>';
-                html +=             '<div class="landing-step-content">';
-                html +=                 '<div class="landing-step-title">Choose a Document</div>';
-                html +=                 '<div class="landing-step-desc">Select any drawing or specification from the list to display it on the canvas.</div>';
-                html +=             '</div>';
-                html +=         '</div>';
-
-                html +=         '<div class="landing-instruction-step">';
-                html +=             '<div class="landing-step-number">4</div>';
-                html +=             '<div class="landing-step-content">';
-                html +=                 '<div class="landing-step-title">Navigate the Drawing</div>';
-                html +=                 '<div class="landing-step-desc"><strong>Pan</strong> by clicking and dragging. <strong>Zoom</strong> with the scroll wheel or pinch gesture on touch devices.</div>';
-                html +=             '</div>';
-                html +=         '</div>';
-
-                html +=         '<div class="landing-instruction-step">';
-                html +=             '<div class="landing-step-number">5</div>';
-                html +=             '<div class="landing-step-content">';
-                html +=                 '<div class="landing-step-title">Measure on Drawings</div>';
-                html +=                 '<div class="landing-step-desc">Use the <strong>Measuring Tools</strong> to take linear, rectangular, or area measurements directly on any drawing.</div>';
-                html +=             '</div>';
-                html +=         '</div>';
-
-                html +=         '<div class="landing-instruction-step">';
-                html +=             '<div class="landing-step-number">6</div>';
-                html +=             '<div class="landing-step-content">';
-                html +=                 '<div class="landing-step-title">Download PDF</div>';
-                html +=                 '<div class="landing-step-desc">Use the <strong>Download PDF</strong> button to save any drawing as a PDF document to your device.</div>';
-                html +=             '</div>';
-                html +=         '</div>';
-
                 html +=     '</div>';
                 html += '</div>';
 
