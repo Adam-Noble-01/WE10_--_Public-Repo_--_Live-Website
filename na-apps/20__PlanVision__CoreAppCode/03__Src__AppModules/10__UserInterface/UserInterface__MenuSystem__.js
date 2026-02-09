@@ -54,7 +54,7 @@
 
             // FUNCTION | Initialize Menu System
             // ------------------------------------------------------------
-            const Na__Initialize = function (context) {
+            const Na__Menu__Initialize = function (context) {
                 console.log('[MenuSystem] Initializing...');
 
                 // Store DOM references
@@ -71,7 +71,7 @@
 
             // FUNCTION | Set Documents Data
             // ------------------------------------------------------------
-            const Na__SetDocumentsData = function (documents, designPhase) {
+            const Na__Menu__SetDocumentsData = function (documents, designPhase) {
                 allDocumentsData    = documents;
                 currentDesignPhase  = designPhase;
                 console.log('[MenuSystem] Documents data updated');
@@ -88,7 +88,7 @@
             // Displays category buttons (Drawings, Specifications, Videos)
             // Hides sub-menu section with document lists
             // ------------------------------------------------------------
-            const Na__ShowMainMenu = function () {
+            const Na__Menu__ShowMainMenu = function () {
                 currentMenuView             = 'main';
                 currentDocumentTypeFilter   = null;
 
@@ -128,7 +128,7 @@
             // Displays documents where document-type === "Drawing"
             // Shows measuring tools and markup tools
             // ------------------------------------------------------------
-            const Na__ShowDrawingsMenu = function () {
+            const Na__Menu__ShowDrawingsMenu = function () {
                 currentMenuView             = 'drawings';
                 currentDocumentTypeFilter   = 'Drawing';
 
@@ -148,7 +148,7 @@
                 if (allDocumentsData) {
                     const drawingButtons = window.NaPlanVision?.UserInterface?.DrawingButtons;
                     if (drawingButtons) {
-                        drawingButtons.Na__CreateFilteredDocumentButtons(
+                        drawingButtons.Na__Buttons__CreateFilteredDocumentButtons(
                             allDocumentsData,
                             'Drawing',
                             false,
@@ -165,7 +165,7 @@
             // Displays documents where document-type === "Specification"
             // Shows measuring tools and markup tools
             // ------------------------------------------------------------
-            const Na__ShowSpecificationsMenu = function () {
+            const Na__Menu__ShowSpecificationsMenu = function () {
                 currentMenuView             = 'specifications';
                 currentDocumentTypeFilter   = 'Specification';
 
@@ -185,7 +185,7 @@
                 if (allDocumentsData) {
                     const drawingButtons = window.NaPlanVision?.UserInterface?.DrawingButtons;
                     if (drawingButtons) {
-                        drawingButtons.Na__CreateFilteredDocumentButtons(
+                        drawingButtons.Na__Buttons__CreateFilteredDocumentButtons(
                             allDocumentsData,
                             'Specification',
                             false,
@@ -211,19 +211,19 @@
                 // Drawings category button
                 const drawingsBtn = document.getElementById('showDrawingsMenuBtn');
                 if (drawingsBtn) {
-                    drawingsBtn.addEventListener('click', Na__ShowDrawingsMenu);
+                    drawingsBtn.addEventListener('click', Na__Menu__ShowDrawingsMenu);
                 }
 
                 // Specifications category button
                 const specificationsBtn = document.getElementById('showSpecificationsMenuBtn');
                 if (specificationsBtn) {
-                    specificationsBtn.addEventListener('click', Na__ShowSpecificationsMenu);
+                    specificationsBtn.addEventListener('click', Na__Menu__ShowSpecificationsMenu);
                 }
 
                 // Back to main menu button
                 const backBtn = document.getElementById('backToMainMenuBtn');
                 if (backBtn) {
-                    backBtn.addEventListener('click', Na__ShowMainMenu);
+                    backBtn.addEventListener('click', Na__Menu__ShowMainMenu);
                 }
 
                 // Main menu historic archive button
@@ -232,7 +232,7 @@
                     mainHistoricBtn.addEventListener('click', () => {
                         const historicArchive = window.NaPlanVision?.UserInterface?.HistoricArchive;
                         if (historicArchive) {
-                            historicArchive.Na__ShowHistoricWarningModal();
+                            historicArchive.Na__Archive__ShowHistoricWarningModal();
                         }
                     });
                 }
@@ -249,14 +249,14 @@
 
             // FUNCTION | Get Current Menu View
             // ------------------------------------------------------------
-            const Na__GetCurrentMenuView = function () {
+            const Na__Menu__GetCurrentMenuView = function () {
                 return currentMenuView;
             };
             // ---------------------------------------------------------------
 
             // FUNCTION | Get Current Document Type Filter
             // ------------------------------------------------------------
-            const Na__GetCurrentDocumentTypeFilter = function () {
+            const Na__Menu__GetCurrentDocumentTypeFilter = function () {
                 return currentDocumentTypeFilter;
             };
             // ---------------------------------------------------------------
@@ -270,13 +270,13 @@
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.UserInterface = window.NaPlanVision.UserInterface || {};
             window.NaPlanVision.UserInterface.MenuSystem = {
-                Na__Initialize                       : Na__Initialize,
-                Na__SetDocumentsData                 : Na__SetDocumentsData,
-                Na__ShowMainMenu                     : Na__ShowMainMenu,
-                Na__ShowDrawingsMenu                 : Na__ShowDrawingsMenu,
-                Na__ShowSpecificationsMenu           : Na__ShowSpecificationsMenu,
-                Na__GetCurrentMenuView               : Na__GetCurrentMenuView,
-                Na__GetCurrentDocumentTypeFilter     : Na__GetCurrentDocumentTypeFilter
+                Na__Menu__Initialize                       : Na__Menu__Initialize,
+                Na__Menu__SetDocumentsData                 : Na__Menu__SetDocumentsData,
+                Na__Menu__ShowMainMenu                     : Na__Menu__ShowMainMenu,
+                Na__Menu__ShowDrawingsMenu                 : Na__Menu__ShowDrawingsMenu,
+                Na__Menu__ShowSpecificationsMenu           : Na__Menu__ShowSpecificationsMenu,
+                Na__Menu__GetCurrentMenuView               : Na__Menu__GetCurrentMenuView,
+                Na__Menu__GetCurrentDocumentTypeFilter     : Na__Menu__GetCurrentDocumentTypeFilter
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

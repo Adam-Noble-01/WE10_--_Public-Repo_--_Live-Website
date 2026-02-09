@@ -46,7 +46,7 @@
 
             // FUNCTION | Initialize Historic Archive System
             // ------------------------------------------------------------
-            const Na__Initialize = function () {
+            const Na__Archive__Initialize = function () {
                 console.log('[HistoricArchive] Initializing...');
 
                 // Initialize modal event listeners
@@ -89,7 +89,7 @@
             // FUNCTION | Show Historic Archive Warning Modal
             // Displays full-screen warning before allowing access to old docs
             // ------------------------------------------------------------
-            const Na__ShowHistoricWarningModal = function () {
+            const Na__Archive__ShowHistoricWarningModal = function () {
                 const overlay = document.getElementById('historic-warning-overlay');
                 if (overlay) {
                     overlay.style.display = 'flex';
@@ -102,7 +102,7 @@
             // Shows warning before accessing historic documents
             // Remembers which category to show after dismissal
             // ------------------------------------------------------------
-            const Na__ShowHistoricWarningModalForCategory = function (documentType) {
+            const Na__Archive__ShowHistoricWarningModalForCategory = function (documentType) {
                 // Store the document type for after dismissal
                 pendingHistoricCategory = documentType;
 
@@ -133,8 +133,8 @@
                 }
 
                 // Check if we're in a category sub-menu or main menu
-                const currentView = menuSystem.Na__GetCurrentMenuView();
-                const currentFilter = menuSystem.Na__GetCurrentDocumentTypeFilter();
+                const currentView = menuSystem.Na__Menu__GetCurrentMenuView();
+                const currentFilter = menuSystem.Na__Menu__GetCurrentDocumentTypeFilter();
 
                 const documentType = pendingHistoricCategory || currentFilter;
                 const allDocuments = drawingsDataManager.Na__GetAllDrawingsData();
@@ -142,7 +142,7 @@
 
                 if (allDocuments && documentType) {
                     isViewingHistoricArchive = true;
-                    drawingButtons.Na__CreateFilteredDocumentButtons(
+                    drawingButtons.Na__Buttons__CreateFilteredDocumentButtons(
                         allDocuments,
                         documentType,
                         true,
@@ -164,14 +164,14 @@
 
             // FUNCTION | Is Viewing Historic Archive
             // ------------------------------------------------------------
-            const Na__IsViewingHistoricArchive = function () {
+            const Na__Archive__IsViewingHistoricArchive = function () {
                 return isViewingHistoricArchive;
             };
             // ---------------------------------------------------------------
 
             // FUNCTION | Set Historic Archive Viewing State
             // ------------------------------------------------------------
-            const Na__SetHistoricArchiveState = function (state) {
+            const Na__Archive__SetHistoricArchiveState = function (state) {
                 isViewingHistoricArchive = state;
             };
             // ---------------------------------------------------------------
@@ -185,11 +185,11 @@
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.UserInterface = window.NaPlanVision.UserInterface || {};
             window.NaPlanVision.UserInterface.HistoricArchive = {
-                Na__Initialize                           : Na__Initialize,
-                Na__ShowHistoricWarningModal             : Na__ShowHistoricWarningModal,
-                Na__ShowHistoricWarningModalForCategory  : Na__ShowHistoricWarningModalForCategory,
-                Na__IsViewingHistoricArchive             : Na__IsViewingHistoricArchive,
-                Na__SetHistoricArchiveState              : Na__SetHistoricArchiveState
+                Na__Archive__Initialize                           : Na__Archive__Initialize,
+                Na__Archive__ShowHistoricWarningModal             : Na__Archive__ShowHistoricWarningModal,
+                Na__Archive__ShowHistoricWarningModalForCategory  : Na__Archive__ShowHistoricWarningModalForCategory,
+                Na__Archive__IsViewingHistoricArchive             : Na__Archive__IsViewingHistoricArchive,
+                Na__Archive__SetHistoricArchiveState              : Na__Archive__SetHistoricArchiveState
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

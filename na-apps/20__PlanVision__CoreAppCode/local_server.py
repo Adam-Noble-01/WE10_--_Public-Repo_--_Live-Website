@@ -60,6 +60,13 @@ def core_app_files(filename):
     return send_from_directory(BASE_DIR, filename)
 
 
+@app.route('/na-apps/01__Assets__NaApps__CommonAssets/<path:filename>')
+def common_assets(filename):
+    """Serve common assets (fonts, icons, graphics) from the shared assets directory"""
+    assets_dir = os.path.join(REPO_ROOT, 'na-apps', '01__Assets__NaApps__CommonAssets')
+    return send_from_directory(assets_dir, filename)
+
+
 @app.route('/AppModules/<path:filename>')
 def app_modules(filename):
     """Serve files from AppModules directory"""
@@ -86,6 +93,7 @@ def open_browser():
 
 def print_startup_banner():
     """Print startup information"""
+    assets_dir = os.path.join(REPO_ROOT, 'na-apps', '01__Assets__NaApps__CommonAssets')
     print("")
     print("=" * 70)
     print("  NOBLE ARCHITECTURE | PlanVision Local Development Server")
@@ -93,11 +101,13 @@ def print_startup_banner():
     print(f"  Server running at: http://{HOST}:{PORT}/")
     print(f"  Base directory:    {BASE_DIR}")
     print(f"  Project portal:    {PROJECT_PORTAL_DIR}")
+    print(f"  Common assets:     {assets_dir}")
     print("")
     print("  Available routes:")
     print(f"    - http://{HOST}:{PORT}/")
     print(f"    - http://{HOST}:{PORT}/PlanVision__WebApp__Main__.html")
     print(f"    - http://{HOST}:{PORT}/na-project-portal/25-Projects/... (project files)")
+    print(f"    - http://{HOST}:{PORT}/na-apps/01__Assets__NaApps__CommonAssets/... (assets)")
     print("")
     print("  Press Ctrl+C to stop the server")
     print("=" * 70)

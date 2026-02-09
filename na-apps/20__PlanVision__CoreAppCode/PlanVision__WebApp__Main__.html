@@ -1,21 +1,24 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 
+<!-- #Region ------------------------------------------ -->
+<!-- HEAD | Document Metadata, Scripts, and Styles                           -->
+<!-- ----- -->
+
 <head>
+    <!-- #Region ------------------------------------------ -->
+    <!-- META & CONFIGURATION | Document Settings and Favicon Links           -->
+    <!-- ----- -->
+
     <meta charset="UTF-8" />
     <title>Noble Architecture | PlanVision</title>
     <!-- Favicon Configuration (URLs injected by AppAssetsLoader) -->
     <link rel="icon" type="image/x-icon" data-asset-href="NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
-    <link rel="icon" type="image/png" sizes="32x32"
-        data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h32px.png">
-    <link rel="icon" type="image/png" sizes="192x192"
-        data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png">
-    <link rel="icon" type="image/png" sizes="512x512"
-        data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h512px.png">
-    <link rel="icon" type="image/svg+xml"
-        data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
-    <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-    <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <link rel="icon" type="image/png" sizes="32x32" data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h32px.png">
+    <link rel="icon" type="image/png" sizes="192x192" data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png">
+    <link rel="icon" type="image/png" sizes="512x512" data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h512px.png">
+    <link rel="icon" type="image/svg+xml" data-asset-href="NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <!-- endregion ---------------------------------------- -->
 
     <!--
     ================================================================================================================
@@ -34,6 +37,10 @@
     ================================================================================================================
     -->
 
+    <!-- #Region ------------------------------------------ -->
+    <!-- SCRIPTS | Polyfill and Core Application Module Imports                -->
+    <!-- --------------------------------------------------- -->
+
     <!-- Polyfill Conditional Loader
         -----------------------------------------------------------------------------------------------------
         - This script checks if the browser supports modern JavaScript features (e.g. Promise).
@@ -48,20 +55,25 @@
     <script src="03__Src__AppModules/03__CommonUtils/CommonUtils__ProjectCodeValidator__.js"></script>
     <script src="03__Src__AppModules/01__AppCore/AppCore__UrlQuerySystem__.js"></script>
 
-
+    
     <!-- Load The Data Loader Modules -->
     <script src="03__Src__AppModules/04__AssetAndDataLoaders/Loader__DrawingsDataManager__.js"></script>
-
+    
+    <!-- Load The Document System Modules -->
+    <script src="03__Src__AppModules/20__SystemModules__DocumentSystem/DocumentSystem__GeneratePdf__.js"></script>
+    
+    <!-- Load The Canvas System Modules -->
+    <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__CoordinateUtils__.js"></script>
+    <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__LoadingStates__.js"></script>
+    <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__DrawingLoader__.js"></script>
+    <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__ViewControls__.js"></script>
+    <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__RenderSystem__.js"></script>
 
     <!-- Load The Measurement Tools System Modules -->
-    <script
-        src="03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTools__SharedMathHelpers__.js"></script>
-    <script
-        src="03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTool__LinearMeasurmentTool__.js"></script>
-    <script
-        rc="03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTool__AreaMeasurmentTool__.js"></script>
-    <script
-        src="03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTool__RectangularMeasurmentTool__.js"></script>
+    <script src="03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTools__SharedMathHelpers__.js"></script>
+    <script src="03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTool__LinearMeasurmentTool__.js"></script>
+    <script src="03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTool__AreaMeasurmentTool__.js"></script>
+    <script src="03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentTool__RectangularMeasurmentTool__.js"></script>
     <script src="03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentToolsSystem__Main__.js"></script>
 
 
@@ -73,17 +85,15 @@
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__MenuSystem__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__DrawingButtons__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__HistoricArchive__.js"></script>
-
-
+    <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialSystem__.js"></script>
+    <script src="03__Src__AppModules/10__UserInterface/UserInterface__ToolbarManager__.js"></script>
 
     <!-- Load The Markup Tools System Modules -->
     <!-- - These are unused currently  -->
     <!-- - System requires more developement  -->
     <script src="03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__UiTemplate__.js"></script>
-    <script
-        src="03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__SketchyRenderers__.js"></script>
-    <script
-        src="03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__SelectionHandlers__.js"></script>
+    <script src="03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__SketchyRenderers__.js"></script>
+    <script src="03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__SelectionHandlers__.js"></script>
     <script src="03__Src__AppModules/50__SystemModules__MarkupToolsSystem/MarkupToolsSystem__Main__.js"></script>
 
     <!-- Video Player System Modules
@@ -95,16 +105,34 @@
     <script src="03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__GalleryManager__.js"></script>
     <script src="03__Src__AppModules/40__SystemModules__VideoPlayer/VideoPlayer__Main__.js"></script>
 
+    <!-- endregion ---------------------------------------- -->
+
+    <!-- #Region ------------------------------------------ -->
+    <!-- STYLESHEETS | Application CSS Imports                                 -->
+    <!-- ----- -->
 
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__CorePlanVisionApp__.css">
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MarkUpTools__.css">
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MeasuringTools__.css">
+
+    <!-- endregion ---------------------------------------- -->
+
 </head>
+
+<!-- endregion ---------------------------------------- -->
+
+<!-- #Region ------------------------------------------ -->
+<!-- BODY | Application Container and UI Components                          -->
+<!-- ----- -->
 
 <body>
     <div id="app">
         <div id="app-container">
-            <!-- HEADER -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- HEADER | App Title Bar with Logo and Menu Toggle                     -->
+            <!-- ----- -->
+
             <div id="header">
                 <button id="toggleToolbarBtn">☰</button>
                 <span id="app-title" style="padding-left: 10px;">PlanVision
@@ -113,6 +141,12 @@
                 <img data-asset-src="NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
                     alt="Noble Architecture Logo">
             </div>
+
+            <!-- endregion ---------------------------------------- -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- OVERLAYS | Tutorial and Warning Modal Overlays                       -->
+            <!-- ----- -->
 
             <!-- MENU TUTORIAL OVERLAY (arrow + message) -->
             <div id="menu-tutorial-overlay">
@@ -139,13 +173,20 @@
                 </div>
             </div>
 
-            <!-- TOOLBAR -->
+            <!-- endregion ---------------------------------------- -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- TOOLBAR | Side Menu with Navigation and Tool Controls                -->
+            <!-- ----- -->
+
             <div id="toolbar">
-                <!-- ================================================================
-                     MAIN MENU SECTION - Category Selection
-                     - Shows category buttons (Drawings, Specifications, Videos)
-                     - Initially visible, hidden when viewing sub-menus
-                ================================================================ -->
+
+                <!-- #Region ------------------------------------------ -->
+                <!-- MAIN MENU SECTION | Category Selection                               -->
+                <!-- ----- -->
+                <!-- Shows category buttons (Drawings, Specifications, Videos)
+                     Initially visible, hidden when viewing sub-menus -->
+
                 <div id="main-menu-section" class="main-menu-section">
                     <div class="menu_-_drawing-button-header-text">Select Category</div>
                     <div class="category-button-container">
@@ -170,11 +211,14 @@
                     </div>
                 </div>
 
-                <!-- ================================================================
-                     SUB-MENU SECTION - Document List with Tools
-                     - Shows filtered documents based on category selection
-                     - Initially hidden, visible when category is selected
-                ================================================================ -->
+                <!-- endregion ---------------------------------------- -->
+
+                <!-- #Region ------------------------------------------ -->
+                <!-- SUB-MENU SECTION | Document List with Tools                          -->
+                <!-- ----- -->
+                <!-- Shows filtered documents based on category selection
+                     Initially hidden, visible when category is selected -->
+
                 <div id="sub-menu-section" class="sub-menu-section">
                     <!-- Document selection header and buttons inserted dynamically -->
                     <div id="document-selection-area">
@@ -202,15 +246,35 @@
                         ← Back to Main Menu
                     </button>
                 </div>
+
+                <!-- endregion ---------------------------------------- -->
+
             </div>
+
+            <!-- endregion ---------------------------------------- -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- MEASUREMENT UI | Floating Finish Button Host                         -->
+            <!-- ----- -->
 
             <!-- FINISH MEASUREMENT BUTTON (floating) - Injected by MeasurmentToolsSystem__Main__.js -->
             <div id="measurement-finish-host"></div>
 
-            <!-- CANVAS CONTAINER -->
+            <!-- endregion ---------------------------------------- -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- CANVAS | Main Drawing Display Canvas                                  -->
+            <!-- ----- -->
+
             <div id="canvas-container">
                 <canvas id="planCanvas"></canvas>
             </div>
+
+            <!-- endregion ---------------------------------------- -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- STATUS OVERLAYS | Loading, Error, and Tool Instructions              -->
+            <!-- ----- -->
 
             <!-- LOADING OVERLAY -->
             <div id="loading-overlay">
@@ -231,55 +295,79 @@
             <!-- Markup Tools Dialog - Injected when enabled via config -->
             <div id="markup-dialog-host"></div>
 
-            <!-- FOOTER -->
+            <!-- endregion ---------------------------------------- -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- FOOTER | Copyright and Legal Information                             -->
+            <!-- ----- -->
+
             <div id="footer">
                 © 2025 Noble Architecture | All Rights Reserved
             </div>
+
+            <!-- endregion ---------------------------------------- -->
+
         </div>
     </div>
 
+<!-- endregion ---------------------------------------- -->
+
+<!-- #Region ------------------------------------------ -->
+<!-- MAIN APPLICATION SCRIPT | Core JavaScript Logic and Initialization     -->
+<!-- ----- -->
+
     <script>
         (function () {
-            // =============================================================================================
-            // JAVASCRIPT |  GLOBAL VARIABLES & CONSTANTS
-            // - This section introduced in v1.8.1
-            // Contains all global variables and constant definitions for the application
-            // =============================================================================================
-            const MIN_ZOOM = 0.1;
-            const MAX_ZOOM = 2;
-            const ROUND_DIMENSIONS_ENABLED = true;
-            const ROUNDING_INTERVAL = 5;
-            const CONFIRM_BUTTON_OFFSET_X_PC = 10;
-            const CONFIRM_BUTTON_OFFSET_Y_PC = -10;
-            const CONFIRM_BUTTON_OFFSET_X_TOUCH = 10;
-            const CONFIRM_BUTTON_OFFSET_Y_TOUCH = -25;
 
-            const planCanvas = document.getElementById("planCanvas");
-            const ctx = planCanvas.getContext("2d");
-            const loadingOverlay = document.getElementById("loading-overlay");
-            const errorMessage = document.getElementById("error-message");
-            const menuTutorialOverlay = document.getElementById("menu-tutorial-overlay");
-            const toolbar = document.getElementById("toolbar");
+            // #Region --------------------------------------------------------
+            // CONST | Global Application Constants
+            // ----------------------------------------------------------------
 
-            let isToolbarOpen = true;
-            const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
-            const markerRadius = isTouchDevice ? 36 : 24;
-            const baseLineWidth = isTouchDevice ? 3 : 2;
+            const MIN_ZOOM                      =  0.1;
+            const MAX_ZOOM                      =  2;
+            const ROUND_DIMENSIONS_ENABLED      =  true;
+            const ROUNDING_INTERVAL             =  5;
+            const CONFIRM_BUTTON_OFFSET_X_PC    =  10;
+            const CONFIRM_BUTTON_OFFSET_Y_PC    =  -10;
+            const CONFIRM_BUTTON_OFFSET_X_TOUCH =  10;
+            const CONFIRM_BUTTON_OFFSET_Y_TOUCH =  -25;
+
+            // endregion ------------------------------------------------------
+
+            // #Region --------------------------------------------------------
+            // STATE | DOM References and Application State Variables
+            // ----------------------------------------------------------------
+
+            const planCanvas         = document.getElementById("planCanvas");
+            const ctx                = planCanvas.getContext("2d");
+            const loadingOverlay     = document.getElementById("loading-overlay");
+            const errorMessage       = document.getElementById("error-message");
+            const menuTutorialOverlay= document.getElementById("menu-tutorial-overlay");
+            const toolbar            = document.getElementById("toolbar");
+
+            let   isToolbarOpen      = true;
+            const isTouchDevice      = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
+            const markerRadius       = isTouchDevice ? 36 : 24;
+            const baseLineWidth      = isTouchDevice ? 3 : 2;
 
             // Core canvas state (shared with UserInteraction modules via getState/setState)
-            let offsetX = 0, offsetY = 0, zoomFactor = 1;
-            let isDragging = false, lastX = 0, lastY = 0;
-            let currentTool = null;
+            let offsetX              = 0, 
+                offsetY              = 0, 
+                zoomFactor           = 1;
+            let isDragging           = false, 
+                lastX                = 0, 
+                lastY                = 0;
+            let currentTool          = null;
 
             // Plan image state
-            let planImage = new Image();
-            planImage.crossOrigin = "anonymous";
-            let isImageLoaded = false;
-            let naturalImageWidth = 0;
-            let naturalImageHeight = 0;
-            let scaleMetresPerPixel = 0;
-            let currentDrawingScale = "1:50";
-            let currentDrawingSize = "A1";
+            let planImage            = new Image();
+            planImage.crossOrigin    = "anonymous";
+            let isImageLoaded        = false;
+            let naturalImageWidth    = 0;
+            let naturalImageHeight   = 0;
+            let scaleMetresPerPixel  = 0;
+            let currentDrawingScale  = "1:50";
+            let currentDrawingSize   = "A1";
 
             // Measurement state is now managed by MeasurmentToolsSystem__Main__.js
             // Touch state is now managed by UserIteraction__TouchScreenDevices__.js
@@ -291,9 +379,13 @@
             // Markup toolset state is managed by MarkupToolsSystem__Main__.js
             // (all markup variables have been moved to the external module)
 
-            // ========================================================================
-            // ENVIRONMENT DETECTION - LOCAL VS PRODUCTION
-            // ========================================================================
+            // endregion ------------------------------------------------------
+
+
+            // #Region --------------------------------------------------------
+            // INIT | Environment Detection and Configuration
+            // ----------------------------------------------------------------
+
             const NaIsLocalDev__Fallback = window.location.hostname === '127.0.0.1' || // <-- Localhost IP
                 window.location.hostname === 'localhost' ||            // <-- Localhost name
                 window.location.protocol === 'file:';                  // <-- File protocol
@@ -323,6 +415,7 @@
 
             const BASE_URL = NaUrlQueryContext.projectBaseUrl;
             const JSON_CONFIG_URL = NaUrlQueryContext.projectDataUrl;
+            window.JSON_CONFIG_URL = JSON_CONFIG_URL;  // <-- Expose globally for VideoPlayer modules
             const APP_CONFIG_URL = '03__Src__AppModules/02__AppData/AppConfiguration__PlanVision__MainAppSettings__.json';
             let NaAppConfig = null;
 
@@ -331,24 +424,7 @@
             console.log(`[Environment] Base URL: ${BASE_URL || '(relative)'}`);
             console.log(`[Environment] JSON URL: ${JSON_CONFIG_URL}`);
 
-            // FUNCTION | Transform production URLs to local paths for dev environment
-            // --------------------------------------------------------------------
-            function transformUrl(url) {
-                if (!IS_LOCAL_DEV || !url) return url;
-
-                // Extract the path after JH03__RomerCottage/
-                const projectPath = `${NaProjectFolder__ActiveProject}/`;
-                const pathIndex = url.indexOf(projectPath);
-
-                if (pathIndex !== -1) {
-                    const localPath = url.substring(pathIndex + projectPath.length);
-                    const fullLocalUrl = `${BASE_URL}/${localPath}`;
-                    console.log(`[URL Transform] ${url} → ${fullLocalUrl}`);
-                    return fullLocalUrl;
-                }
-
-                return url;
-            }
+            // URL transformation is now handled by DrawingsCanvas__DrawingLoader__.js
 
             async function loadAppConfig() {
                 try {
@@ -366,98 +442,21 @@
                 }
             }
 
-            // ========================================================================
-            // DESIGN PHASE MANAGEMENT & DATA LOADING
-            // ========================================================================
-            // These functions are now handled by external modules:
-            // - DrawingsDataManager: Fetches and manages drawing data and design phases
-            // - UserInterface__MenuSystem: Manages menu navigation and state
-            // - UserInterface__DrawingButtons: Creates document selection buttons
-            // - UserInterface__HistoricArchive: Manages historic document warnings
-
-            // ========================================================================
-            // MENU NAVIGATION & DRAWING BUTTONS
-            // ========================================================================
-            // These functions are now handled by external modules:
-            // - UserInterface__MenuSystem: Menu navigation and state
-            // - UserInterface__DrawingButtons: Document button creation
-            // - UserInterface__HistoricArchive: Historic document warnings
+            // endregion ----
 
 
-            // Load a specific drawing's image and update download link //
-            async function loadDrawing(drawing) {
-                showLoading();
-                try {
-                    // Get URLs and transform for local development if needed
-                    const pngUrl = transformUrl(drawing["document-links"]["png--github-link-url"]);
-                    const pdfUrl = transformUrl(drawing["document-links"]["pdf--github-link-url"]);
-                    const documentName = drawing["document-name"];
-                    const documentScale = drawing["document-scale"];
-                    const documentSize = drawing["document-size"];
+            // #Region --------------------------------------------------------
+            // FUNCTION | Application Initialization
+            // ----------------------------------------------------------------
 
-                    // Store drawing metadata for scale calculation
-                    currentDrawingScale = documentScale || "1:50"; // Default to 1:50 if not specified
-                    currentDrawingSize = documentSize || "A1"; // Default to A1 if not specified
+            // Note: The following functionality is delegated to external modules:
+            // - Design Phase Management & Data Loading -> DrawingsDataManager
+            // - Menu Navigation -> UserInterface__MenuSystem
+            // - Drawing Buttons -> UserInterface__DrawingButtons
+            // - Historic Archive -> UserInterface__HistoricArchive
+            // - Drawing Loading -> DrawingsCanvas__DrawingLoader
+            // - Canvas Operations -> DrawingsCanvas (ViewControls, RenderSystem, CoordinateUtils)
 
-                    await loadPlanImage(pngUrl);
-                    isImageLoaded = true;
-                    resetView();
-                    updateDownloadLink(pdfUrl, documentName);
-                } catch (error) {
-                    console.error("Error loading drawing:", error);
-                    displayError("Failed to load the selected drawing.");
-                } finally {
-                    hideLoading();
-                }
-            }
-
-            // Load the plan image asynchronously //
-            function loadPlanImage(url) {
-                return new Promise((resolve, reject) => {
-                    planImage.onload = () => {
-                        naturalImageWidth = planImage.naturalWidth;
-                        naturalImageHeight = planImage.naturalHeight;
-                        resolve();
-                    };
-                    planImage.onerror = () => {
-                        reject(new Error("Failed to load plan image: " + url));
-                    };
-                    planImage.src = url;
-                });
-            }
-
-            // Update the PDF download button with the current drawing's link //
-            function updateDownloadLink(pdfUrl, documentName) {
-                const downloadBtn = document.getElementById("downloadPDFBtn");
-                downloadBtn.onclick = () => {
-                    const link = document.createElement("a");
-                    link.href = pdfUrl;
-                    link.download = documentName.replace(/ /g, "-") + ".pdf";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                };
-            }
-
-            // Show the loading overlay //
-            function showLoading() {
-                loadingOverlay.classList.remove("hidden");
-            }
-
-            // Hide the loading overlay //
-            function hideLoading() {
-                loadingOverlay.classList.add("hidden");
-            }
-
-            // Display an error message to the user //
-            function displayError(message) {
-                errorMessage.textContent = message;
-                errorMessage.style.display = "block";
-            }
-
-            // ========================================================================
-            // INITIALISATION
-            // ========================================================================
             async function init() {
                 const appRoot = document.getElementById("app");
                 if (!appRoot) {
@@ -472,7 +471,7 @@
                         window.location.protocol === 'file:';
 
                     const commonAssetsBase = isLocalAssets
-                        ? '../01__Assets__NaApps__CommonAssets/'
+                        ? '/na-apps/01__Assets__NaApps__CommonAssets/'
                         : '/na-apps/01__Assets__NaApps__CommonAssets/';
 
                     const assetLoaderConfig = {
@@ -499,12 +498,12 @@
                         planCanvas: planCanvas,
                         ctx: ctx,
                         planImage: planImage,
-                        renderLoop: renderLoop,
+                        renderLoop: () => window.NaPlanVision.DrawingsCanvas.RenderSystem.Na__Canvas__RenderFrame(),
                         cancelTool: () => {
                             const ms = window.NaPlanVision?.MeasurmentToolsSystem?.Main;
                             if (ms && ms.cancelTool) ms.cancelTool();
                         },
-                        toPlanCoords: toPlanCoords,
+                        toPlanCoords: (x, y) => window.NaPlanVision.DrawingsCanvas.CoordinateUtils.Na__Canvas__ToPlanCoords(x, y),
                         getState: () => ({
                             offsetX: offsetX,
                             offsetY: offsetY,
@@ -537,8 +536,8 @@
                     const measContext = {
                         planCanvas: planCanvas,
                         ctx: ctx,
-                        toPlanCoords: toPlanCoords,
-                        renderLoop: renderLoop,
+                        toPlanCoords: (x, y) => window.NaPlanVision.DrawingsCanvas.CoordinateUtils.Na__Canvas__ToPlanCoords(x, y),
+                        renderLoop: () => window.NaPlanVision.DrawingsCanvas.RenderSystem.Na__Canvas__RenderFrame(),
                         baseLineWidth: baseLineWidth,
                         markerRadius: markerRadius,
                         isTouchDevice: isTouchDevice,
@@ -561,7 +560,87 @@
                     console.info('[MeasurmentToolsSystem] Disabled via AppConfiguration__PlanVision__MainAppSettings__.json');
                 }
 
-                resizeCanvas();
+                // -----------------------------------------
+                // Initialize Canvas System Modules
+                // -----------------------------------------
+                if (window.NaPlanVision && window.NaPlanVision.DrawingsCanvas) {
+                    // Initialize Loading States
+                    window.NaPlanVision.DrawingsCanvas.LoadingStates.Na__Canvas__Initialize();
+                    
+                    // Initialize Coordinate Utils
+                    window.NaPlanVision.DrawingsCanvas.CoordinateUtils.Na__Canvas__Initialize({
+                        getState: () => ({
+                            offsetX: offsetX,
+                            offsetY: offsetY,
+                            zoomFactor: zoomFactor
+                        })
+                    });
+                    
+                    // Initialize View Controls
+                    window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__Initialize({
+                        planCanvas: planCanvas,
+                        planImage: planImage,
+                        getState: () => ({
+                            offsetX: offsetX,
+                            offsetY: offsetY,
+                            zoomFactor: zoomFactor,
+                            currentDrawingScale: currentDrawingScale,
+                            currentDrawingSize: currentDrawingSize,
+                            naturalImageWidth: naturalImageWidth,
+                            naturalImageHeight: naturalImageHeight
+                        }),
+                        setState: (patch) => {
+                            if (patch.offsetX !== undefined) offsetX = patch.offsetX;
+                            if (patch.offsetY !== undefined) offsetY = patch.offsetY;
+                            if (patch.zoomFactor !== undefined) zoomFactor = patch.zoomFactor;
+                            if (patch.scaleMetresPerPixel !== undefined) scaleMetresPerPixel = patch.scaleMetresPerPixel;
+                        }
+                    });
+                    
+                    // Resize canvas after view controls are initialized
+                    window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__ResizeCanvas();
+                    
+                    // Initialize PDF Generator Module
+                    if (window.NaPlanVision?.DocumentSystem?.PdfGenerator) {
+                        window.NaPlanVision.DocumentSystem.PdfGenerator.Na__Pdf__Initialize({
+                            downloadButtonId: 'downloadPDFBtn'
+                        });
+                        console.log('[Init] PDF Generator initialized');
+                    }
+                    
+                    // Initialize Drawing Loader
+                    window.NaPlanVision.DrawingsCanvas.DrawingLoader.Na__Canvas__Initialize({
+                        planImage: planImage,
+                        showLoading: () => window.NaPlanVision.DrawingsCanvas.LoadingStates.Na__Canvas__ShowLoading(),
+                        hideLoading: () => window.NaPlanVision.DrawingsCanvas.LoadingStates.Na__Canvas__HideLoading(),
+                        displayError: (msg) => window.NaPlanVision.DrawingsCanvas.LoadingStates.Na__Canvas__DisplayError(msg),
+                        setImageState: (state) => {
+                            if (state.isImageLoaded !== undefined) isImageLoaded = state.isImageLoaded;
+                            if (state.naturalImageWidth !== undefined) naturalImageWidth = state.naturalImageWidth;
+                            if (state.naturalImageHeight !== undefined) naturalImageHeight = state.naturalImageHeight;
+                            if (state.currentDrawingScale !== undefined) currentDrawingScale = state.currentDrawingScale;
+                            if (state.currentDrawingSize !== undefined) currentDrawingSize = state.currentDrawingSize;
+                        },
+                        resetView: () => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__ResetView()
+                    });
+                    
+                    // Initialize Render System
+                    window.NaPlanVision.DrawingsCanvas.RenderSystem.Na__Canvas__Initialize({
+                        planCanvas: planCanvas,
+                        ctx: ctx,
+                        planImage: planImage,
+                        getState: () => ({
+                            offsetX: offsetX,
+                            offsetY: offsetY,
+                            zoomFactor: zoomFactor,
+                            isImageLoaded: isImageLoaded
+                        })
+                    });
+                    
+                    console.log('[Init] Canvas system modules initialized');
+                } else {
+                    console.error('[Init] DrawingsCanvas modules not available');
+                }
 
                 // -----------------------------------------
                 // Initialize Drawings Data Manager
@@ -578,25 +657,25 @@
                         // -----------------------------------------
                         // Initialize Menu System
                         if (window.NaPlanVision.UserInterface && window.NaPlanVision.UserInterface.MenuSystem) {
-                            window.NaPlanVision.UserInterface.MenuSystem.Na__Initialize();
-                            window.NaPlanVision.UserInterface.MenuSystem.Na__SetDocumentsData(drawings, currentDesignPhase);
+                            window.NaPlanVision.UserInterface.MenuSystem.Na__Menu__Initialize();
+                            window.NaPlanVision.UserInterface.MenuSystem.Na__Menu__SetDocumentsData(drawings, currentDesignPhase);
                         }
 
                         // Initialize Drawing Buttons
                         if (window.NaPlanVision.UserInterface && window.NaPlanVision.UserInterface.DrawingButtons) {
-                            window.NaPlanVision.UserInterface.DrawingButtons.Na__Initialize({
-                                loadDrawing: loadDrawing
+                            window.NaPlanVision.UserInterface.DrawingButtons.Na__Buttons__Initialize({
+                                loadDrawing: (drawing) => window.NaPlanVision.DrawingsCanvas.DrawingLoader.Na__Canvas__LoadDrawing(drawing)
                             });
                         }
 
                         // Initialize Historic Archive
                         if (window.NaPlanVision.UserInterface && window.NaPlanVision.UserInterface.HistoricArchive) {
-                            window.NaPlanVision.UserInterface.HistoricArchive.Na__Initialize();
+                            window.NaPlanVision.UserInterface.HistoricArchive.Na__Archive__Initialize();
                         }
 
                         // Show main menu by default
                         if (window.NaPlanVision.UserInterface && window.NaPlanVision.UserInterface.MenuSystem) {
-                            window.NaPlanVision.UserInterface.MenuSystem.Na__ShowMainMenu();
+                            window.NaPlanVision.UserInterface.MenuSystem.Na__Menu__ShowMainMenu();
                         }
 
                         // Load the first Drawing-type document from the CURRENT design phase
@@ -607,7 +686,7 @@
                                 drawings[key]["document-type"] === "Drawing"  // <-- Only load Drawing type
                         );
                         if (firstDrawingKey) {
-                            await loadDrawing(drawings[firstDrawingKey]);
+                            await window.NaPlanVision.DrawingsCanvas.DrawingLoader.Na__Canvas__LoadDrawing(drawings[firstDrawingKey]);
                             console.log("[Init] Loaded first Drawing-type document:", drawings[firstDrawingKey]["document-name"]);
                         }
                     }
@@ -627,153 +706,64 @@
                     console.warn("[Init] ⚠ Video Player system not available - Video features disabled");
                     console.info("[Init] → Action Required: Ensure VideoPlayer__*.js modules are loaded");
                 }
-                attachEventListeners();
-                handleInitialTutorialFlow();
-                renderLoop();
-            }
 
-            // Preload fonts to ensure they're available before drawing
-            async function preloadFonts() {
-                try {
-                    // Create a FontFace object for Caveat
-                    const caveat = new FontFace('Caveat', 'url(https://fonts.gstatic.com/s/caveat/v17/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYS9AoA.woff2)', {
-                        style: 'normal',
-                        weight: '400',
-                        display: 'swap'
+                // -----------------------------------------
+                // Initialize User Interface Support Modules
+                // -----------------------------------------
+                // Initialize Toolbar Manager
+                if (window.NaPlanVision?.UserInterface?.ToolbarManager) {
+                    window.NaPlanVision.UserInterface.ToolbarManager.Na__Toolbar__Initialize({
+                        toolbar: toolbar,
+                        menuTutorialOverlay: menuTutorialOverlay,
+                        getCurrentTool: () => currentTool,
+                        getIsToolbarOpen: () => isToolbarOpen,
+                        setIsToolbarOpen: (state) => { isToolbarOpen = state; }
                     });
+                    console.log('[Init] Toolbar Manager initialized');
+                }
 
-                    // Wait for the font to load
-                    const loadedFace = await caveat.load();
+                // Initialize Tutorial System
+                if (window.NaPlanVision?.UserInterface?.TutorialSystem) {
+                    window.NaPlanVision.UserInterface.TutorialSystem.Na__Tutorial__Initialize({
+                        toolbar: toolbar,
+                        menuTutorialOverlay: menuTutorialOverlay,
+                        getIsToolbarOpen: () => isToolbarOpen,
+                        setIsToolbarOpen: (state) => { isToolbarOpen = state; }
+                    });
+                    console.log('[Init] Tutorial System initialized');
+                }
 
-                    // Add the loaded font to the document fonts
-                    document.fonts.add(loadedFace);
-                    console.log("Caveat font preloaded successfully as backup");
+                attachEventListeners();
 
-                    return true;
-                } catch (error) {
-                    console.error("Failed to preload Caveat font:", error);
-                    return false;
+                // Start tutorial flow for mobile devices
+                if (window.NaPlanVision?.UserInterface?.TutorialSystem) {
+                    window.NaPlanVision.UserInterface.TutorialSystem.Na__Tutorial__StartFlow();
+                }
+                
+                // Start render loop
+                if (window.NaPlanVision && window.NaPlanVision.DrawingsCanvas && window.NaPlanVision.DrawingsCanvas.RenderSystem) {
+                    window.NaPlanVision.DrawingsCanvas.RenderSystem.Na__Canvas__StartRendering();
                 }
             }
 
-            // Check if the Caveat font is available
-            async function checkFontAvailability() {
-                if (!document.fonts.check("16px 'Caveat'")) {
-                    console.warn("Caveat font not loaded or available after initialization. Using fallback fonts.");
+            // endregion ----
 
-                    // Try to preload the font as a last resort
-                    const preloaded = await preloadFonts();
+            // #Region ---
+            // FUNCTION | Event Listeners and User Interaction
+            // -----
 
-                    if (!preloaded) {
-                        // If preloading fails, use link method as absolute fallback
-                        const link = document.createElement('link');
-                        link.rel = 'stylesheet';
-                        link.href = 'https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&display=swap';
-                        document.head.appendChild(link);
-                        console.log("Using Google Fonts stylesheet as fallback for Caveat font");
-                    }
-
-                    // Display warning to user if in development mode
-                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                        console.error("DEVELOPER WARNING: Sketchy Text Style (Caveat font) failed to load initially.");
-                    }
-                } else {
-                    console.log("Caveat font loaded successfully. Sketchy text style is available.");
-                }
-            }
-
-            // ========================================================================
-            // FIRST-LOAD TUTORIAL FLOW
-            // ========================================================================
-            function handleInitialTutorialFlow() {
-                if (isMobileOrTabletPortrait()) {
-                    // STEP 1: Show menu open immediately
-                    toolbar.classList.remove("collapsed");
-                    isToolbarOpen = true;
-
-                    // STEP 2: After 1 second, retract the menu
-                    setTimeout(() => {
-                        toolbar.classList.add("collapsed");
-                        isToolbarOpen = false;
-
-                        // STEP 3: Show the tooltip after a small delay
-                        setTimeout(() => {
-                            menuTutorialOverlay.style.display = "block";
-                        }, 300);
-
-                    }, 1000);
-                }
-            }
-
-            function isMobileOrTabletPortrait() {
-                const maxTabletWidth = 1024;
-                return (window.innerWidth <= maxTabletWidth) && isPortrait();
-            }
-
-            function isPortrait() {
-                if (window.screen.orientation && window.screen.orientation.type) {
-                    return window.screen.orientation.type.startsWith("portrait");
-                }
-                return window.innerHeight > window.innerWidth;
-            }
-
-            // ========================================================================
-            // COORDINATE UTILITY
-            // ========================================================================
-            function toPlanCoords(x, y) {
-                return {
-                    x: (x - offsetX) / zoomFactor,
-                    y: (y - offsetY) / zoomFactor
-                };
-            }
-
-            // ========================================================================
-            // RENDER LOOP
-            // ========================================================================
-            function renderLoop() {
-                if (!isImageLoaded) return;
-                requestAnimationFrame(renderLoop);
-
-                ctx.clearRect(0, 0, planCanvas.width, planCanvas.height);
-                ctx.save();
-                ctx.translate(offsetX, offsetY);
-                ctx.scale(zoomFactor, zoomFactor);
-
-                // - - - -  RENDER EFFECT |  Drop Shadow Effect Under Drawing  - - - -
-                // Added v1.5.7. - 16-Mar-2025
-                //   -  Sets drop shadow properties for the drawing
-                //   -  Creates a subtle shadow effect creating the illusion of paper plan
-                ctx.shadowColor = "rgba(\
-                                            0,0,0, \
-                                            0.2\)" ;
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetX = 5;
-                ctx.shadowOffsetY = 5;
-                // - - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - -
-
-                ctx.drawImage(planImage, 0, 0);
-                ctx.restore();
-
-                // Draw markup paths if enabled
-                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
-                if (markupSystem && markupSystem.hasMarkup && markupSystem.hasMarkup()) {
-                    markupSystem.render(ctx);
-                }
-
-                // Draw measurement tools and results (delegated to MeasurmentToolsSystem)
-                const measSystem = window.NaPlanVision?.MeasurmentToolsSystem?.Main;
-                if (measSystem) {
-                    measSystem.render();
-                }
-            }
-
-            // ========================================================================
-            // EVENT LISTENERS & INTERACTION
-            // ========================================================================
-
+            // Note: The following functionality is delegated to external modules:
+            // - Font Loading -> Loader__AppAssetsLoader
+            // - Tutorial Flow -> UserInterface__TutorialSystem
+            // - Coordinate Utilities -> DrawingsCanvas__CoordinateUtils
+            // - Render Loop -> DrawingsCanvas__RenderSystem
 
             function attachEventListeners() {
-                document.getElementById("toggleToolbarBtn").addEventListener("click", toggleToolbar);
+                document.getElementById("toggleToolbarBtn").addEventListener("click", () => {
+                    if (window.NaPlanVision?.UserInterface?.ToolbarManager) {
+                        window.NaPlanVision.UserInterface.ToolbarManager.Na__Toolbar__Toggle();
+                    }
+                });
 
                 const fullscreenBtn = document.getElementById("fullscreenBtn");
                 if (fullscreenBtn) {
@@ -809,8 +799,8 @@
                         if (patch.lastX !== undefined) lastX = patch.lastX;
                         if (patch.lastY !== undefined) lastY = patch.lastY;
                     },
-                    applyZoom: applyZoom,
-                    setZoom: setZoom
+                    applyZoom: (delta, cx, cy) => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__ApplyZoom(delta, cx, cy),
+                    setZoom: (z, cx, cy) => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__SetZoom(z, cx, cy)
                 };
 
                 const kbMouse = window.NaPlanVision?.UserInteraction?.KeyboardAndMouse;
@@ -819,164 +809,34 @@
                 const touchDevices = window.NaPlanVision?.UserInteraction?.TouchScreenDevices;
                 if (touchDevices) touchDevices.initialise(interactionContext);
 
-                window.addEventListener("resize", onResize);
-                document.getElementById("resetViewBtn").addEventListener("click", resetView);
+                window.addEventListener("resize", () => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__OnResize());
+                document.getElementById("resetViewBtn").addEventListener("click", () => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__ResetView());
 
                 // Measurement tool buttons are wired by MeasurmentToolsSystem__Main__.js
                 // Markup tool buttons are wired by MarkupToolsSystem__Main__.js
             }
 
+            // endregion ----
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // FUNCTION |  Toggles Visibility Of The Tools Menu (Toolbar)
+            // #Region --------------------------------------------------------
+            // INIT | Application Startup
+            // ----------------------------------------------------------------
 
-            function toggleToolbar() {
-                if (menuTutorialOverlay.style.display === "block") {
-                    menuTutorialOverlay.style.display = "none";
-                }
-                if (currentTool) return;
-                isToolbarOpen = !isToolbarOpen;
-                toolbar.classList.toggle("collapsed", !isToolbarOpen);
-            }
-
-
-
-            // ----------------------------------------------------
-            // VIEW & SCALE CONTROLS
-            // ========================================================================
-            // ----------------------------------------------------
-            // FUNCTION |  ZOOM CONTROLS
-            // - This section introduced in v1.8.3
-            // Handles zoom operations including setting zoom level and maintaining focus point
-            // ----------------------------------------------------
-            function applyZoom(delta, cx, cy) {
-                let newZoom = zoomFactor + delta;
-                setZoom(newZoom, cx, cy);
-            }
-
-            function setZoom(z, cx, cy) {
-                if (z < MIN_ZOOM) z = MIN_ZOOM;
-                if (z > MAX_ZOOM) z = MAX_ZOOM;
-                const wx = (cx - offsetX) / zoomFactor;
-                const wy = (cy - offsetY) / zoomFactor;
-                zoomFactor = z;
-                offsetX = cx - wx * zoomFactor;
-                offsetY = cy - wy * zoomFactor;
-            }
-
-            // ----------------------------------------------------
-            // FUNCTION |  CANVAS MANAGEMENT
-            // - This section introduced in v1.8.3
-            // Handles canvas resizing to maintain appropriate display dimensions
-            // ----------------------------------------------------
-            function resizeCanvas() {
-                planCanvas.width = window.innerWidth;
-                planCanvas.height = window.innerHeight + 10;    // ← Updated To Top Cropping At Bottom
-            }
-
-            // ----------------------------------------------------
-            // FUNCTION |  VIEW RESET & SCALE CALIBRATION
-            // - This section introduced in v1.8.3
-            // Handles resetting view position and calculating measurement scale based on drawing metadata
-            // ----------------------------------------------------
-            function resetView() {
-                const cw = planCanvas.width;
-                const ch = planCanvas.height;
-                const iw = planImage.width;
-                const ih = planImage.height;
-
-                zoomFactor = Math.min(cw / iw, ch / ih) * 0.85;    // ← Updated To Show Whole Drawing When Loaded
-                offsetX = (cw - iw * zoomFactor) / 2;
-                offsetY = (ch - ih * zoomFactor) / 2;
-
-                // ---------------------------------------------------------------------------------------------------------
-                // MEASUREMENT SCALE & ACCURACY
-                // ---------------------------------------------------------------------------------------------------------
-                // - Defines The Scale Conversion From Pixels To Real-World Millimetres.  
-                // - Ensures All Measurements Remain Accurate Regardless Of Zoom Level.  
-                // - Critical To The Correct Functioning Of The Measuring Tools.  
-                // ---------------------------------------------------------------------------------------------------------
-                // -----------------------------------------------------------------------------------------------------
-                // A-SERIES PAPER SIZES (MM)
-                // -----------------------------------------------------------------------------------------------------
-                // A0 Paper | 1189 × 841 mm
-                // A1 Paper | 841 × 594 mm
-                // A2 Paper | 594 × 420 mm
-                // A3 Paper | 420 × 297 mm
-                // A4 Paper | 297 × 210 mm
-
-                // Get paper size dimensions based on the current drawing's size
-                let realWidthMM;
-                switch (currentDrawingSize) {
-                    case "A0": realWidthMM = 1189; break;
-                    case "A1": realWidthMM = 841; break;
-                    case "A2": realWidthMM = 594; break;
-                    case "A3": realWidthMM = 420; break;
-                    case "A4": realWidthMM = 297; break;
-                    default: realWidthMM = 841; // Default to A1 if not specified
-                }
-
-                // Parse scale from format like "1:50" to get the scale factor
-                let scaleRatio = 50; // Default scale ratio
-                if (currentDrawingScale && currentDrawingScale.includes(":")) {
-                    const scaleParts = currentDrawingScale.split(":");
-                    if (scaleParts.length === 2 && !isNaN(scaleParts[1])) {
-                        scaleRatio = parseInt(scaleParts[1], 10);
-                    }
-                }
-
-                // Calculate scale metres per pixel using the drawing-specific values
-                const drawnWidthPx = naturalImageWidth;
-                const mmPerPixel = realWidthMM / drawnWidthPx;
-                scaleMetresPerPixel = (mmPerPixel * scaleRatio) / 1000;
-
-                console.log(`Drawing set to ${currentDrawingSize} at scale ${currentDrawingScale} (1:${scaleRatio})`);
-                console.log(`Scale calculation: ${realWidthMM}mm paper width / ${drawnWidthPx}px image width * ${scaleRatio} scale ratio / 1000 = ${scaleMetresPerPixel} metres per pixel`);
-
-                // ---------------------------------------------------------------------------------------------------------
-
-                // Clear measurements via the measurement system
-                const measSystem = window.NaPlanVision?.MeasurmentToolsSystem?.Main;
-                if (measSystem && measSystem.clearMeasurements) {
-                    measSystem.clearMeasurements();
-                }
-
-                // Update handle positions after resetting view
-                updateAllHandlePositions();
-            }
-
-            // ========================================================================
-            // RESIZE
-            // ========================================================================
-            function onResize() {
-                resizeCanvas();
-
-                // Update handle positions after resize
-                updateAllHandlePositions();
-            }
-
-
-            // ========================================================================
-            // MARKUP SYSTEM SHIM
-            // All markup logic now lives in external modules:
-            //   - MarkupToolsSystem__Main__.js (orchestrator)
-            //   - MarkupToolsSystem__SketchyRenderers__.js (canvas rendering)
-            //   - MarkupToolsSystem__SelectionHandlers__.js (selection, detection, clipboard)
-            //   - MarkupToolsSystem__UiTemplate__.js (UI HTML templates)
-            // ========================================================================
-
-            // Shim: called by core app handlers (zoom, resize, touch) to update
-            // selection handles when the canvas transform changes
-            function updateAllHandlePositions() {
-                const markupSystem = window.NaPlanVision?.MarkupToolsSystem?.Main;
-                // The markup system handles this internally; no-op if not initialised
-            }
+            // Note: The following functionality is delegated to external modules:
+            // - Toolbar Management -> UserInterface__ToolbarManager
+            // - View & Scale Controls -> DrawingsCanvas__ViewControls
+            // - Markup System -> MarkupToolsSystem (Main, SketchyRenderers, SelectionHandlers, UiTemplate)
 
             // Start the app
             init();
 
+            // endregion ------------------------------------------------------
+
         })();        // <---- This is where the function is immediately executed
     </script>
+
+<!-- endregion ---------------------------------------- -->
+
 </body>
 
 </html>

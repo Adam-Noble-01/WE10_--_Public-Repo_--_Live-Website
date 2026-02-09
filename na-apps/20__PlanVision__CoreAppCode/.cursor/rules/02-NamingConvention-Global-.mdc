@@ -20,6 +20,10 @@ alwaysApply: true
 
 # Code Naming Convention
 - Prefix all custom identifiers with `Na__`, `Na_`, or `na_` as appropriate to the language.
+- **Module Functions:** Use three-part naming: `Na__Domain__FunctionName`
+  - Examples: `Na__Canvas__ResetView()`, `Na__Menu__ShowMainMenu()`, `Na__Toolbar__Toggle()`
+  - Domain identifies the system (Canvas, Menu, Toolbar, Tutorial, Archive, etc.)
+  - Provides clear domain recognition and prevents naming conflicts
 - Align constant and config names with source data keys where possible.
 - The project uses ES6 modules with highly structured module system. 
 - Proper import/export management is critical.

@@ -45,7 +45,7 @@
 
             // FUNCTION | Initialize Drawing Buttons System
             // ------------------------------------------------------------
-            const Na__Initialize = function (callbacks) {
+            const Na__Buttons__Initialize = function (callbacks) {
                 console.log('[DrawingButtons] Initializing...');
 
                 // Store callback for loading drawings
@@ -69,7 +69,7 @@
             // Creates buttons for documents matching the specified type
             // Supports historic archive mode within each category
             // ------------------------------------------------------------
-            const Na__CreateFilteredDocumentButtons = function (
+            const Na__Buttons__CreateFilteredDocumentButtons = function (
                 documents,
                 documentType,
                 showHistoric,
@@ -151,7 +151,7 @@
                     navButton.className = 'tool-button return-current-btn';
                     navButton.textContent = 'Return to Current ' + (documentType === 'Drawing' ? 'Drawings' : 'Specifications');
                     navButton.addEventListener('click', () => {
-                        Na__CreateFilteredDocumentButtons(documents, documentType, false, currentDesignPhase);
+                        Na__Buttons__CreateFilteredDocumentButtons(documents, documentType, false, currentDesignPhase);
                     });
                 } else {
                     navButton.className = 'tool-button historic-archive-btn';
@@ -159,7 +159,7 @@
                     navButton.addEventListener('click', () => {
                         const historicArchive = window.NaPlanVision?.UserInterface?.HistoricArchive;
                         if (historicArchive) {
-                            historicArchive.Na__ShowHistoricWarningModalForCategory(documentType);
+                            historicArchive.Na__Archive__ShowHistoricWarningModalForCategory(documentType);
                         }
                     });
                 }
@@ -178,8 +178,8 @@
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.UserInterface = window.NaPlanVision.UserInterface || {};
             window.NaPlanVision.UserInterface.DrawingButtons = {
-                Na__Initialize                       : Na__Initialize,
-                Na__CreateFilteredDocumentButtons    : Na__CreateFilteredDocumentButtons
+                Na__Buttons__Initialize                       : Na__Buttons__Initialize,
+                Na__Buttons__CreateFilteredDocumentButtons    : Na__Buttons__CreateFilteredDocumentButtons
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

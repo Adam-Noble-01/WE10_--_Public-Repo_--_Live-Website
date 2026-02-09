@@ -6,6 +6,134 @@
 
 # -----------------------------------------------------------------------------
 
+## PlanVision - Version 2.0.6 - 09-Feb-2026
+
+### Changed - Phase 2A: UI Support Modules
+- **Extracted Tutorial System Module** (`UserInterface__TutorialSystem__.js`)
+  - First-load tutorial flow for mobile/tablet devices
+  - Device type and orientation detection
+  - Three-step sequence: menu open → collapse → tooltip
+  - Functions use `Na__Tutorial__` prefix
+  - ~34 lines extracted from main HTML
+
+- **Extracted Toolbar Manager Module** (`UserInterface__ToolbarManager__.js`)
+  - Toolbar visibility toggle and state management
+  - Dismisses tutorial overlay when toggling
+  - Prevents toggle during active tool operations
+  - Expanded API: Toggle, Open, Close, IsOpen, CanToggle
+  - Functions use `Na__Toolbar__` prefix
+  - ~8 lines extracted from main HTML
+
+- **Deleted Legacy Font Functions** (Code Cleanup)
+  - Removed `preloadFonts()` and `checkFontAvailability()` functions
+  - These were NOT being called and duplicated AppAssetsLoader functionality
+  - AppAssetsLoader already loads all Caveat and Open Sans fonts properly
+  - ~46 lines of dead code removed
+
+- **Enhanced Naming Convention Applied to All UI Modules**
+  - Updated MenuSystem: `Na__` → `Na__Menu__` (7 functions)
+  - Updated DrawingButtons: `Na__` → `Na__Buttons__` (2 functions)
+  - Updated HistoricArchive: `Na__` → `Na__Archive__` (5 functions)
+  - All cross-module references updated
+  - All main HTML calls updated
+  - **100% naming consistency across all 10 extracted modules**
+
+### Impact
+- Main HTML reduced from 713 lines to 678 lines (35 lines removed, -5%)
+- New modules: +2 files (Tutorial System, Toolbar Manager)
+- Legacy code cleanup: -46 lines
+- Naming convention: 14 functions renamed for consistency
+- Total modules: 28 → 30
+- Overall reduction from original: 1,396 → 678 lines (718 lines removed, -51%)
+
+### Module Architecture
+- Tutorial System: Self-contained, mobile device detection
+- Toolbar Manager: State management with safety checks
+- All UI modules use three-part naming: `Na__Domain__Function`
+- Pattern established: Canvas (5), Menu, Buttons, Archive, Tutorial, Toolbar
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.5.1 - 09-Feb-2026 (Hotfix)
+
+### Fixed
+- **Critical Bug: Undefined renderLoop Reference**
+  - Fixed MarkupToolsSystem context (line 423) to reference `Na__Canvas__RenderFrame()`
+  - Fixed MeasurementToolsSystem context (line 462) to reference `Na__Canvas__RenderFrame()`
+  - Resolved `ReferenceError: renderLoop is not defined` crash
+  - Loading screen now resolves correctly
+
+- **Script Tag Typo**
+  - Fixed AreaMeasurementTool script tag (line 65): `rc=` → `src=`
+  - Module now loads correctly
+  - Area measurement functionality restored
+
+### Impact
+- App initialization now completes successfully
+- Loading overlay displays and hides correctly
+- First drawing loads automatically
+- All canvas functionality operational
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.5 - 09-Feb-2026
+
+### Changed - Canvas System Modularization Complete
+- **Extracted Canvas Loading States Module** (`DrawingsCanvas__LoadingStates__.js`)
+  - Manages loading overlay visibility during async operations
+  - Displays error messages to users
+  - Provides clean API for loading and error state management
+  - ~30 lines extracted from main HTML
+
+- **Extracted Canvas Coordinate Utils Module** (`DrawingsCanvas__CoordinateUtils__.js`)
+  - Converts screen coordinates to plan coordinates
+  - Converts plan coordinates to screen coordinates (new)
+  - Accounts for zoom factor and canvas offset
+  - Used by measurement and markup tools
+  - ~20 lines extracted from main HTML
+
+- **Extracted Canvas Drawing Loader Module** (`DrawingsCanvas__DrawingLoader__.js`)
+  - Loads drawing images asynchronously with Promise-based API
+  - Manages drawing metadata (scale, size, dimensions)
+  - Handles PDF download link updates
+  - Transforms URLs for local development environment
+  - Integrates with loading states and error handling
+  - ~90 lines extracted from main HTML
+
+- **Extracted Canvas View Controls Module** (`DrawingsCanvas__ViewControls__.js`)
+  - Manages zoom operations with focus point preservation
+  - Handles canvas resizing and view reset
+  - Calculates measurement scale from drawing metadata
+  - A-series paper size calculations (A0-A4)
+  - Drawing scale parsing (e.g., "1:50")
+  - Coordinates with measurement and markup systems
+  - ~150 lines extracted from main HTML
+
+- **Extracted Canvas Render System Module** (`DrawingsCanvas__RenderSystem__.js`)
+  - Central rendering orchestration with requestAnimationFrame
+  - Coordinates rendering of plan image, markup, and measurements
+  - Applies canvas transforms and drop shadow effects
+  - Controls render loop lifecycle (start/stop)
+  - ~50 lines extracted from main HTML
+
+### Impact
+- Main HTML reduced from 976 lines to 713 lines (263 lines removed, -27%)
+- Canvas concerns fully separated from main app logic
+- All 5 modules follow consistent Noble Architecture coding style
+- Clear module dependencies and initialization order
+- Improved testability and maintainability
+- Total reduction from original: 1,396 → 713 lines (683 lines removed, -49%)
+
+### Module Architecture
+New folder created: `03__Src__AppModules/05__DrawingsCanvas/`
+- LoadingStates (standalone)
+- CoordinateUtils (standalone)
+- DrawingLoader (uses LoadingStates, ViewControls)
+- ViewControls (uses CoordinateUtils indirectly)
+- RenderSystem (coordinates MarkupToolsSystem, MeasurementToolsSystem)
+
+# -----------------------------------------------------------------------------
+
 ## PlanVision - Version 2.0.4 - 09-Feb-2026
 
 ### Changed - Priority 1 Modularization Complete
