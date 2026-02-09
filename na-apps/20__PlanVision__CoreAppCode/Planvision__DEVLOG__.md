@@ -6,6 +6,40 @@
 
 # -----------------------------------------------------------------------------
 
+## PlanVision - Version 2.0.10 - 09-Feb-2026
+
+### Added - Cache-Busting System
+- **Version-based cache control**
+  - Added `APP_VERSION` constant (currently '2.0.9') in main script
+  - All JavaScript module imports now include `?v=2.0.9` query parameter
+  - All CSS stylesheet imports now include `?v=2.0.9` query parameter
+  - Ensures browsers always load latest code after deployments
+  - Prevents cached JavaScript from causing errors with updated JSON structure
+
+- **Updated header version display**
+  - Changed from "Version 2.0.4 Beta" to "Version 2.0.9 Beta"
+  - Reflects current application version accurately
+
+### Problem Solved
+- **Web version caching issue**
+  - Local version worked: read updated files directly from disk
+  - Web version failed: browsers served old cached JavaScript
+  - Old code looked for deprecated `project-drawings` property
+  - New code supports both `phase-content` (current) and `project-drawings` (legacy)
+  - Cache-busting ensures web browsers always fetch latest code
+
+### Impact
+- **Eliminated web deployment issues**: No more cached JavaScript errors
+- **Consistent behavior**: Web and local versions now work identically
+- **Future-proof**: Version parameter can be updated with each release
+- **Better reliability**: Users always get latest code without manual cache clearing
+
+#### Files Modified
+- `PlanVision__WebApp__Main__.html` (added version constant and ?v= parameters to all script/stylesheet tags)
+- `Planvision__DEVLOG__.md` (this file - documented cache-busting implementation)
+
+# -----------------------------------------------------------------------------
+
 ## PlanVision - Version 2.0.9 - 09-Feb-2026
 
 ### Added - Drawing Register Landing Page

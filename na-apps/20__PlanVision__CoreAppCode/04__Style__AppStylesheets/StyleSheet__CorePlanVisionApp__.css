@@ -5,6 +5,23 @@
 
 
 /*  #Region --------------------------------------------------------
+ *  CSS VARIABLES | Design tokens for consistent styling
+ *  ------------------------------------------------------------- */
+
+    :root {
+        --App_BrandPrimary         : #555041;            /* Noble Architecture brown */
+        --App_BgTertiary           : #eeecea;            /* Light grey-brown for hover */
+        --App_TextPrimary          : #333333;            /* Main text color */
+        --App_TextLight            : #ffffff;            /* Light text on dark backgrounds */
+        --App_BorderLight          : #e0ddd8;            /* Light borders */
+        --App_TransitionFast       : 0.15s ease;         /* Fast smooth transitions */
+        --App_SpacingMd            : 1rem;               /* 16px standard spacing */
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
  *  BASE STYLES | Document-level resets and typography
  *  ------------------------------------------------------------- */
 
@@ -165,26 +182,33 @@
     .tool-button {
         display                          :  block;
         width                            :  100%;
-        margin-bottom                    :  8px;
-        padding                          :  10px;
-        background                       :  #7a7a7a;
-        color                            :  #fff;
-        text-align                       :  center;
+        margin-bottom                    :  0;
+        padding                          :  var(--App_SpacingMd);
+        background                       :  transparent;
+        color                            :  var(--App_TextPrimary);
+        text-align                       :  left;
         border                           :  none;
+        border-bottom                    :  1px solid var(--App_BorderLight);
         cursor                           :  pointer;
-        font-size                        :  12px;
-        border-radius                    :  3px;
-        transition                       :  all 0.2s ease;
+        font-size                        :  0.9375rem;
+        border-radius                    :  0;
+        transition                       :  all var(--App_TransitionFast);
     }
 
     .tool-button:hover {
-        filter                           :  brightness(0.85);
-        transform                        :  translateY(-1px);
+        background-color                 :  var(--App_BgTertiary);
+        color                            :  var(--App_TextPrimary);
     }
 
-    /* Drawing Buttons - Blue Tint */
-    .drawing-button-container .tool-button {
-        background                       :  linear-gradient(135deg, #5a6a7a 0%, #4a5a6a 100%);
+    .tool-button.active {
+        background-color                 :  var(--App_BgTertiary);
+        color                            :  var(--App_TextPrimary);
+        font-weight                      :  600;
+    }
+
+    /* Container Styling */
+    .drawing-button-container {
+        /* Container only - buttons inherit base .tool-button styles */
     }
 
     .menu_-_drawing-button-container {
@@ -192,24 +216,19 @@
         margin-bottom                    :  10px;
     }
 
-    /* Specification Buttons - Teal Tint */
-    .specification-button-container .tool-button {
-        background                       :  linear-gradient(135deg, #5a7a7a 0%, #4a6a6a 100%);
+    .specification-button-container {
+        /* Container only - buttons inherit base .tool-button styles */
     }
 
-    /* View & Export Buttons - Green Tint */
+    /* View & Export Buttons */
     #downloadPDFBtn,
     #resetViewBtn {
-        background                       :  linear-gradient(135deg, #5a7a6a 0%, #4a6a5a 100%);
+        /* Inherit base .tool-button styles */
     }
 
-    /* Video Gallery Buttons - Purple Tint */
+    /* Video Gallery Container */
     .video-button-container {
         margin-bottom                    :  10px;
-    }
-
-    .video-button-container .tool-button {
-        background                       :  linear-gradient(135deg, #6a5a7a 0%, #5a4a6a 100%);
     }
 
     .video-button-container .tool-button:last-child {
@@ -226,75 +245,76 @@
     .category-button {
         display                          :  block;
         width                            :  100%;
-        margin-bottom                    :  10px;
-        padding                          :  14px 10px;
-        background                       :  linear-gradient(135deg, #555041 0%, #3d3a30 100%);
-        color                            :  #fff;
-        text-align                       :  center;
+        margin-bottom                    :  0;
+        padding                          :  var(--App_SpacingMd);
+        background                       :  transparent;
+        color                            :  var(--App_TextPrimary);
+        text-align                       :  left;
         border                           :  none;
+        border-bottom                    :  1px solid var(--App_BorderLight);
         cursor                           :  pointer;
-        font-size                        :  13px;
-        font-weight                      :  600;
-        border-radius                    :  4px;
-        transition                       :  all 0.2s ease;
-        letter-spacing                   :  0.5px;
+        font-size                        :  0.9375rem;
+        font-weight                      :  400;
+        border-radius                    :  0;
+        transition                       :  all var(--App_TransitionFast);
+        letter-spacing                   :  0;
     }
 
     .category-button:hover {
-        filter                           :  brightness(1.15);
-        transform                        :  translateY(-2px);
-        box-shadow                       :  0 3px 8px rgba(0, 0, 0, 0.2);
+        background-color                 :  var(--App_BgTertiary);
+        color                            :  var(--App_TextPrimary);
     }
 
-    /* Drawings Category - Blue Accent */
-    .category-button.drawings-category {
-        background                       :  linear-gradient(135deg, #4a5a6a 0%, #3a4a5a 100%);
+    .category-button.active {
+        background-color                 :  var(--App_BgTertiary);
+        color                            :  var(--App_TextPrimary);
+        font-weight                      :  600;
     }
 
-    /* Specifications Category - Teal Accent */
-    .category-button.specifications-category {
-        background                       :  linear-gradient(135deg, #5a7a7a 0%, #4a6a6a 100%);
-    }
-
-    /* Drawing Register Category - Warm Accent */
+    /* All category variants use the same base styling */
+    .category-button.drawings-category,
+    .category-button.specifications-category,
     .category-button.register-category {
-        background                       :  linear-gradient(135deg, #6a6050 0%, #555041 100%);
+        /* Inherit base category-button styles */
     }
 
     /* Back to Main Menu Button */
     .back-to-main-btn {
         display                          :  block;
         width                            :  100%;
-        margin-top                       :  15px;
-        margin-bottom                    :  8px;
-        padding                          :  10px;
-        background                       :  linear-gradient(135deg, #555041 0%, #3d3a30 100%);
-        color                            :  #fff;
-        text-align                       :  center;
+        margin-top                       :  0;
+        margin-bottom                    :  0;
+        padding                          :  var(--App_SpacingMd);
+        background                       :  transparent;
+        color                            :  var(--App_TextPrimary);
+        text-align                       :  left;
         border                           :  none;
+        border-bottom                    :  1px solid var(--App_BorderLight);
         cursor                           :  pointer;
-        font-size                        :  12px;
-        border-radius                    :  3px;
-        transition                       :  all 0.2s ease;
+        font-size                        :  0.9375rem;
+        border-radius                    :  0;
+        transition                       :  all var(--App_TransitionFast);
+        font-weight                      :  500;
     }
 
     .back-to-main-btn:hover {
-        filter                           :  brightness(1.15);
-        transform                        :  translateY(-1px);
+        background-color                 :  var(--App_BgTertiary);
+        color                            :  var(--App_TextPrimary);
     }
 
-    /* Historic Archive Button */
+    /* Historic Archive Button - Keep special styling but match light theme */
     .historic-archive-btn {
-        background                       :  linear-gradient(135deg, #6a6058 0%, #5a5048 100%) !important;
-        border                           :  1px dashed #8a8078 !important;
-        color                            :  #d8d4d0 !important;
+        background                       :  transparent !important;
+        border-top                       :  1px dashed #8a8078 !important;
+        border-bottom                    :  1px dashed #8a8078 !important;
+        color                            :  #666666 !important;
         font-style                       :  italic;
         position                         :  relative;
     }
 
     .historic-archive-btn:hover {
-        filter                           :  brightness(1.1) !important;
-        border-color                     :  #aaa !important;
+        background-color                 :  var(--App_BgTertiary) !important;
+        color                            :  var(--App_TextPrimary) !important;
     }
 
     .historic-archive-btn::before {
@@ -303,12 +323,13 @@
 
     /* Return to Current Button */
     .return-current-btn {
-        background                       :  linear-gradient(135deg, #5a7a6a 0%, #4a6a5a 100%) !important;
+        background                       :  transparent !important;
+        color                            :  var(--App_TextPrimary) !important;
         font-weight                      :  600 !important;
     }
 
     .return-current-btn:hover {
-        filter                           :  brightness(0.9) !important;
+        background-color                 :  var(--App_BgTertiary) !important;
     }
 
     .return-current-btn::before {

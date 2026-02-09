@@ -42,6 +42,7 @@
         // --------------------------------------------------------
 
             let loadDrawingCallback            = null;                        // <-- Callback for loading drawings
+            let activeDocumentButton           = null;                        // <-- Currently active document button
 
         // endregion ----------------------------------------------
 
@@ -149,13 +150,23 @@
                             button.textContent = drawingObj['document-name'] || drawingObj['file-name'];
 
                             // Attach click handler (use closure to capture drawingObj)
-                            (function (doc) {
-                                button.addEventListener('click', function () {
+                            (function (doc, btn) {
+                                btn.addEventListener('click', function () {
+                                    // Remove active from all document buttons
+                                    var allButtons = documentSelectionArea.querySelectorAll('.tool-button');
+                                    allButtons.forEach(function(b) {
+                                        b.classList.remove('active');
+                                    });
+
+                                    // Mark this button as active
+                                    btn.classList.add('active');
+                                    activeDocumentButton = btn;
+
                                     if (loadDrawingCallback) {
                                         loadDrawingCallback(doc);
                                     }
                                 });
-                            })(drawingObj);
+                            })(drawingObj, button);
 
                             groupWrapper.appendChild(button);
                             buttonCount++;

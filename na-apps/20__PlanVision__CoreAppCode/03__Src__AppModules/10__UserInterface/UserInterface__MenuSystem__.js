@@ -44,6 +44,7 @@
 
             let currentMenuView                = 'main';                      // <-- 'main', 'drawings', 'specifications'
             let currentDocumentTypeFilter      = null;                        // <-- 'Drawing' or 'Specification'
+            let activeCategoryButton           = null;                        // <-- Currently active category button
 
             // DOM References
             let mainMenuSection                = null;
@@ -96,6 +97,9 @@
                 currentMenuView             = 'main';
                 currentDocumentTypeFilter   = null;
 
+                // Clear active category button state
+                clearActiveCategoryButton();
+
                 // Reset video gallery state if available
                 if (window.NaPlanVision && window.NaPlanVision.VideoPlayerGalleryManager) {
                     window.NaPlanVision.VideoPlayerGalleryManager.Na__Video__ResetVideoGalleryState();
@@ -139,6 +143,9 @@
                 currentMenuView             = 'drawings';
                 currentDocumentTypeFilter   = 'Drawing';
 
+                // Set active category button
+                setActiveCategoryButton('showDrawingsMenuBtn');
+
                 console.log('[MenuSystem] Showing drawings menu...');
 
                 // Hide Drawing Register if visible
@@ -181,6 +188,9 @@
                 currentMenuView             = 'specifications';
                 currentDocumentTypeFilter   = 'Specification';
 
+                // Set active category button
+                setActiveCategoryButton('showSpecificationsMenuBtn');
+
                 console.log('[MenuSystem] Showing specifications menu...');
 
                 // Hide Drawing Register if visible
@@ -220,6 +230,9 @@
             // Shows the Drawing Register panel in the canvas area
             // ------------------------------------------------------------
             const Na__Menu__ShowDrawingRegister = function () {
+                // Set active category button
+                setActiveCategoryButton('showDrawingRegisterBtn');
+
                 var landingPage = window.NaPlanVision && window.NaPlanVision.LandingPage;
                 if (landingPage) {
                     landingPage.Na__Landing__Show();
@@ -287,6 +300,37 @@
                 }
 
                 console.log('[MenuSystem] Menu navigation event listeners initialized');
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Set Active Category Button
+            // Marks the specified category button as active
+            // ------------------------------------------------------------
+            function setActiveCategoryButton(buttonId) {
+                // Remove active from all category buttons
+                var categoryButtons = document.querySelectorAll('.category-button');
+                categoryButtons.forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
+
+                // Add active to selected button
+                var activeBtn = document.getElementById(buttonId);
+                if (activeBtn) {
+                    activeBtn.classList.add('active');
+                    activeCategoryButton = activeBtn;
+                }
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Clear Active Category Button
+            // Removes active state from all category buttons
+            // ------------------------------------------------------------
+            function clearActiveCategoryButton() {
+                var categoryButtons = document.querySelectorAll('.category-button');
+                categoryButtons.forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
+                activeCategoryButton = null;
             }
             // ---------------------------------------------------------------
 
