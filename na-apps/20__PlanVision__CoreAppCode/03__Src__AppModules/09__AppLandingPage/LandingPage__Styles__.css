@@ -1,0 +1,295 @@
+/* =============================================================================
+ * NOBLE ARCHITECTURE - LANDING PAGE STYLES
+ * =============================================================================
+ *
+ * FILE       : LandingPage__Styles__.css
+ * PURPOSE    : Styles for the app landing page overlay
+ * CREATED    : 09-Feb-2026
+ *
+ * =========================================================================== */
+
+
+/*  #Region --------------------------------------------------------
+ *  OVERLAY | Full-viewport landing page container
+ *  ------------------------------------------------------------- */
+
+    .landing-page-overlay {
+        position                         :  absolute;
+        top                              :  50px;
+        left                             :  0;
+        right                            :  0;
+        bottom                           :  0;
+        overflow-y                       :  auto;
+        background                       :  #fafaf8;
+        z-index                          :  9997;
+        display                          :  none;
+        padding                          :  0;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  PROJECT HEADER | Project name, address, and phase info
+ *  ------------------------------------------------------------- */
+
+    .landing-project-header {
+        background                       :  linear-gradient(135deg, #555041 0%, #3d3a30 100%);
+        color                            :  #fff;
+        padding                          :  30px 40px;
+        text-align                       :  center;
+    }
+
+    .landing-project-name {
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  22pt;
+        font-weight                      :  700;
+        letter-spacing                   :  0.5px;
+        margin-bottom                    :  6px;
+    }
+
+    .landing-project-address {
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  11pt;
+        font-weight                      :  300;
+        color                            :  #c8c4b8;
+        letter-spacing                   :  0.3px;
+        margin-bottom                    :  14px;
+    }
+
+    .landing-phase-info {
+        display                          :  flex;
+        justify-content                  :  center;
+        align-items                      :  center;
+        gap                              :  14px;
+        flex-wrap                        :  wrap;
+    }
+
+    .landing-phase-badge {
+        display                          :  inline-block;
+        background                       :  rgba(255, 255, 255, 0.15);
+        border                           :  1px solid rgba(255, 255, 255, 0.25);
+        padding                          :  5px 14px;
+        border-radius                    :  3px;
+        font-size                        :  10pt;
+        font-weight                      :  600;
+        letter-spacing                   :  0.3px;
+    }
+
+    .landing-phase-date {
+        font-size                        :  9pt;
+        color                            :  #a8a498;
+        font-style                       :  italic;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  SECTION TITLES | Shared heading style for register & instructions
+ *  ------------------------------------------------------------- */
+
+    .landing-section-title {
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  14pt;
+        font-weight                      :  700;
+        color                            :  #555041;
+        margin-bottom                    :  16px;
+        padding-bottom                   :  8px;
+        border-bottom                    :  2px solid #d8d4c8;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  DRAWING REGISTER | Table displaying all project documents
+ *  ------------------------------------------------------------- */
+
+    .landing-register-section {
+        padding                          :  30px 40px;
+    }
+
+    .landing-register-table-wrapper {
+        overflow-x                       :  auto;
+    }
+
+    .landing-register-table {
+        width                            :  100%;
+        border-collapse                  :  collapse;
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  10pt;
+    }
+
+    .landing-register-table thead th {
+        background                       :  #555041;
+        color                            :  #fff;
+        padding                          :  10px 12px;
+        text-align                       :  left;
+        font-weight                      :  600;
+        font-size                        :  9pt;
+        letter-spacing                   :  0.4px;
+        text-transform                   :  uppercase;
+        white-space                      :  nowrap;
+    }
+
+    .landing-register-table thead th:first-child {
+        border-radius                    :  3px 0 0 0;
+    }
+
+    .landing-register-table thead th:last-child {
+        border-radius                    :  0 3px 0 0;
+    }
+
+    .landing-register-table tbody td {
+        padding                          :  8px 12px;
+        border-bottom                    :  1px solid #e8e4d8;
+        color                            :  #444;
+        vertical-align                   :  middle;
+    }
+
+    .landing-register-group-row td {
+        background                       :  #e8e4d8;
+        color                            :  #555041;
+        font-weight                      :  700;
+        font-size                        :  10pt;
+        padding                          :  8px 12px;
+        border-bottom                    :  1px solid #d0ccc0;
+        letter-spacing                   :  0.3px;
+    }
+
+    .landing-row-even td {
+        background                       :  #fff;
+    }
+
+    .landing-row-odd td {
+        background                       :  #f8f6f2;
+    }
+
+    .landing-cell-code {
+        font-weight                      :  600;
+        color                            :  #555041;
+        white-space                      :  nowrap;
+    }
+
+    .landing-cell-center {
+        text-align                       :  center;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  INSTRUCTIONS | How-to-use guide steps
+ *  ------------------------------------------------------------- */
+
+    .landing-instructions-section {
+        padding                          :  30px 40px;
+        background                       :  #f0eee8;
+    }
+
+    .landing-instructions-grid {
+        display                          :  grid;
+        grid-template-columns            :  repeat(auto-fill, minmax(280px, 1fr));
+        gap                              :  16px;
+    }
+
+    .landing-instruction-step {
+        display                          :  flex;
+        align-items                      :  flex-start;
+        gap                              :  12px;
+        background                       :  #fff;
+        padding                          :  16px;
+        border-radius                    :  4px;
+        border                           :  1px solid #e0dcd0;
+    }
+
+    .landing-step-number {
+        flex-shrink                      :  0;
+        width                            :  32px;
+        height                           :  32px;
+        background                       :  linear-gradient(135deg, #555041 0%, #3d3a30 100%);
+        color                            :  #fff;
+        border-radius                    :  50%;
+        display                          :  flex;
+        align-items                      :  center;
+        justify-content                  :  center;
+        font-weight                      :  700;
+        font-size                        :  13px;
+    }
+
+    .landing-step-content {
+        flex                             :  1;
+    }
+
+    .landing-step-title {
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  10pt;
+        font-weight                      :  700;
+        color                            :  #555041;
+        margin-bottom                    :  4px;
+    }
+
+    .landing-step-desc {
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  9pt;
+        color                            :  #666;
+        line-height                      :  1.5;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  endregion (instructions) ---------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  RESPONSIVE | Mobile-friendly adjustments
+ *  ------------------------------------------------------------- */
+
+    @media (max-width: 600px) {
+
+        .landing-project-header {
+            padding                      :  20px 20px;
+        }
+
+        .landing-project-name {
+            font-size                    :  16pt;
+        }
+
+        .landing-register-section {
+            padding                      :  20px 15px;
+        }
+
+        .landing-register-table {
+            font-size                    :  8pt;
+        }
+
+        .landing-register-table thead th {
+            padding                      :  6px 6px;
+            font-size                    :  7pt;
+        }
+
+        .landing-register-table tbody td {
+            padding                      :  6px 6px;
+        }
+
+        .landing-instructions-section {
+            padding                      :  20px 15px;
+        }
+
+        .landing-instructions-grid {
+            grid-template-columns        :  1fr;
+        }
+
+        .landing-get-started-section {
+            padding                      :  20px 15px 30px;
+        }
+
+        .landing-get-started-btn {
+            width                        :  100%;
+            padding                      :  14px 20px;
+        }
+    }
+
+/*  endregion -------------------------------------------------- */

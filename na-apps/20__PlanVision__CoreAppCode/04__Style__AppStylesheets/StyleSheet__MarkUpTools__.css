@@ -1,209 +1,243 @@
 /* =============================================================================
  * NOBLE ARCHITECTURE - PLANVISION MARKUP TOOLS STYLES
  * =============================================================================
+ * Markup toolset introduced in v1.6.0
+ * Technical pen sketchy line styles and hand-drawn aesthetics
  */
 
-/* Markup Tools - Subtle Warm Tint */
-#markup-toolset .tool-button {
-    background  :  linear-gradient(135deg, #7a6a5a 0%, #6a5a4a 100%);
-    color       :  #fff;
-}
 
-#markup-toolset .tool-button:hover {
-    filter  :  brightness(0.85);
-}
+/*  #Region --------------------------------------------------------
+ *  TOOLSET BUTTONS | Toggle and tool button styles
+ *  ----- */
 
-/* 
-====================================================================
-MARKUP TOOLSET MODULE - CSS STYLES
-- These styles support the markup drawing toolset introduced in v1.6.0
-- Includes technical pen sketchy line styles and hand-drawn aesthetics
-==================================================================== 
-*/
+    /* Toolset Toggle Button */
+    #toggleMarkupToolsetBtn {
+        display                          :  block;
+        width                            :  100%;
+        margin-bottom                    :  8px;
+        padding                          :  10px;
+        background                       :  #888888;
+        color                            :  #fff;
+        text-align                       :  center;
+        border                           :  none;
+        cursor                           :  pointer;
+        font-size                        :  14px;
+        border-radius                    :  3px;
+        transition                       :  all 0.2s ease;
+    }
 
-/* Toolset Toggle Button */
-#toggleMarkupToolsetBtn {
-    display        :  block;
-    width          :  100%;
-    margin-bottom  :  8px;
-    padding        :  10px;
-    background     :  #888888;
-    color          :  #fff;
-    text-align     :  center;
-    border         :  none;
-    cursor         :  pointer;
-    font-size      :  14px;
-    border-radius  :  3px;
-    transition     :  all 0.2s ease;
-}
+    #toggleMarkupToolsetBtn:hover {
+        background-color                 :  #585858;
+    }
 
-#toggleMarkupToolsetBtn:hover {
-    background-color  :  #585858;
-    /* Darker grey on hover */
-}
+    /* Markup Tool Buttons - Warm Tint */
+    #markup-toolset .tool-button {
+        background                       :  linear-gradient(135deg, #7a6a5a 0%, #6a5a4a 100%);
+        color                            :  #fff;
+    }
 
-/* Markup Tools Container */
-#markup-toolset {
-    display     :  none;
-    /* Initially hidden */
-    margin-top  :  10px;
-}
+    #markup-toolset .tool-button:hover {
+        filter                           :  brightness(0.85);
+    }
 
-/* Color Picker Styling */
-#markupColorInput {
-    display        :  block;
-    width          :  100%;
-    margin-bottom  :  8px;
-    height         :  40px;
-    border         :  none;
-    cursor         :  pointer;
-}
+/*  endregion -------------------------------------------------- */
 
-/* Arrow Tool Specific Styles */
-.control-point {
-    position       :  absolute;
-    width          :  8px;
-    height         :  8px;
-    background     :  #fff;
-    border         :  2px solid #555041;
-    border-radius  :  50%;
-    transform      :  translate(-50%, -50%);
-    cursor         :  move;
-    z-index        :  10000;
-}
 
-.handle-point {
-    position       :  absolute;
-    width          :  6px;
-    height         :  6px;
-    background     :  #4287f5;
-    border         :  1px solid #2c5aa0;
-    border-radius  :  50%;
-    transform      :  translate(-50%, -50%);
-    cursor         :  pointer;
-    z-index        :  9990;
-}
+/*  #Region --------------------------------------------------------
+ *  TOOLSET CONTAINER | Layout and visibility
+ *  ----- */
 
-.handle-line {
-    position        :  absolute;
-    height          :  1px;
-    background      :  #a0a0a0;
-    z-index         :  9980;
-    pointer-events  :  none;
-}
+    #markup-toolset {
+        display                          :  none;
+        margin-top                       :  10px;
+    }
 
-/* Canvas cursor styles */
-#planCanvas.markup-pencil {
-    cursor  :  crosshair;
-}
+/*  endregion -------------------------------------------------- */
 
-#planCanvas.markup-eraser {
-    cursor  :  url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="5" stroke="black" stroke-width="1" fill="white"/></svg>'), auto;
-}
 
-#planCanvas.markup-arrow-start {
-    cursor  :  cell;
-}
+/*  #Region --------------------------------------------------------
+ *  COLOR CONTROLS | Color picker and palette
+ *  ----- */
 
-#planCanvas.markup-arrow-end {
-    cursor  :  crosshair;
-}
+    /* Color Input Field */
+    #markupColorInput {
+        display                          :  block;
+        width                            :  100%;
+        margin-bottom                    :  8px;
+        height                           :  40px;
+        border                           :  none;
+        cursor                           :  pointer;
+    }
 
-#planCanvas.markup-arrow-edit {
-    cursor  :  default;
-}
+    /* Color Palette Grid */
+    .color-palette {
+        display                          :  flex;
+        flex-wrap                        :  wrap;
+        gap                              :  5px;
+        margin-bottom                    :  10px;
+        max-width                        :  200px;
+    }
 
-#planCanvas.markup-text {
-    cursor  :  text;
-}
+    .color-swatch {
+        width                            :  45px;
+        height                           :  45px;
+        border                           :  2px solid transparent;
+        cursor                           :  pointer;
+        border-radius                    :  3px;
+    }
 
-#planCanvas.markup-shape {
-    cursor  :  crosshair;
-}
+    .color-swatch.active {
+        border-color                     :  #555041;
+    }
 
-/* Text Entry Dialog */
-#markup-text-dialog {
-    position    :  absolute;
-    z-index     :  13000;
-    background  :  white;
-    border      :  1px solid #555041;
-    padding     :  15px;
-    box-shadow  :  0 0 10px rgba(0, 0, 0, 0.2);
-    display     :  none;
-    min-width   :  300px;
-    /* Increased from default size */
-}
+/*  endregion -------------------------------------------------- */
 
-#markup-text-input {
-    width          :  100%;
-    font-family    :  'Caveat', 'Comic Sans MS', cursive, sans-serif;
-    /* Handwriting font */
-    font-size      :  125%;
-    /* Increased text size by 25% */
-    padding        :  8px;
-    margin-bottom  :  15px;
-    min-height     :  100px;
-    /* Ensure text area is tall enough */
-}
 
-.markup-dialog-buttons {
-    display          :  flex;
-    justify-content  :  space-between;
-}
+/*  #Region --------------------------------------------------------
+ *  ARROW TOOL | Control points, handles, and guide lines
+ *  ----- */
 
-.markup-dialog-button {
-    padding     :  8px 15px;
-    background  :  #888888;
-    color       :  white;
-    border      :  none;
-    cursor      :  pointer;
-    font-size   :  12px;
-    /* Slightly larger button text */
-    transition  :  all 0.2s ease;
-}
+    /* Main Control Points */
+    .control-point {
+        position                         :  absolute;
+        width                            :  8px;
+        height                           :  8px;
+        background                       :  #fff;
+        border                           :  2px solid #555041;
+        border-radius                    :  50%;
+        transform                        :  translate(-50%, -50%);
+        cursor                           :  move;
+        z-index                          :  10000;
+    }
 
-.markup-dialog-button:hover {
-    background-color  :  #585858;
-    /* Darker grey on hover */
-}
+    /* Bezier Curve Handles */
+    .handle-point {
+        position                         :  absolute;
+        width                            :  6px;
+        height                           :  6px;
+        background                       :  #4287f5;
+        border                           :  1px solid #2c5aa0;
+        border-radius                    :  50%;
+        transform                        :  translate(-50%, -50%);
+        cursor                           :  pointer;
+        z-index                          :  9990;
+    }
 
-/* End of Markup Toolset Module CSS */
+    /* Handle Guide Lines */
+    .handle-line {
+        position                         :  absolute;
+        height                           :  1px;
+        background                       :  #a0a0a0;
+        z-index                          :  9980;
+        pointer-events                   :  none;
+    }
 
-/* Color Picker Styling */
-.color-palette {
-    display        :  flex;
-    flex-wrap      :  wrap;
-    gap            :  5px;
-    margin-bottom  :  10px;
-    max-width      :  200px;
-    /* Limit width to create 4x4 grid */
-}
+/*  endregion -------------------------------------------------- */
 
-.color-swatch {
-    width          :  45px;
-    height         :  45px;
-    border         :  2px solid transparent;
-    cursor         :  pointer;
-    border-radius  :  3px;
-}
 
-.color-swatch.active {
-    border-color  :  #555041;
-}
+/*  #Region --------------------------------------------------------
+ *  CANVAS CURSORS | Tool-specific cursor styles
+ *  ----- */
 
-/* Selection Tool Styles */
-.selection-handle {
-    position       :  absolute;
-    width          :  10px;
-    height         :  10px;
-    background     :  white;
-    border         :  2px solid #555041;
-    border-radius  :  50%;
-    transform      :  translate(-50%, -50%);
-    cursor         :  move;
-    z-index        :  10000;
-}
+    #planCanvas.markup-pencil {
+        cursor                           :  crosshair;
+    }
 
-#planCanvas.markup-selection {
-    cursor  :  default;
-}
+    #planCanvas.markup-eraser {
+        cursor                           :  url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="5" stroke="black" stroke-width="1" fill="white"/></svg>'), auto;
+    }
+
+    #planCanvas.markup-arrow-start {
+        cursor                           :  cell;
+    }
+
+    #planCanvas.markup-arrow-end {
+        cursor                           :  crosshair;
+    }
+
+    #planCanvas.markup-arrow-edit {
+        cursor                           :  default;
+    }
+
+    #planCanvas.markup-text {
+        cursor                           :  text;
+    }
+
+    #planCanvas.markup-shape {
+        cursor                           :  crosshair;
+    }
+
+    #planCanvas.markup-selection {
+        cursor                           :  default;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  TEXT DIALOG | Text entry modal and controls
+ *  ----- */
+
+    /* Dialog Container */
+    #markup-text-dialog {
+        position                         :  absolute;
+        z-index                          :  13000;
+        background                       :  white;
+        border                           :  1px solid #555041;
+        padding                          :  15px;
+        box-shadow                       :  0 0 10px rgba(0, 0, 0, 0.2);
+        display                          :  none;
+        min-width                        :  300px;
+    }
+
+    /* Text Input Area */
+    #markup-text-input {
+        width                            :  100%;
+        font-family                      :  'Caveat', 'Comic Sans MS', cursive, sans-serif;
+        font-size                        :  125%;
+        padding                          :  8px;
+        margin-bottom                    :  15px;
+        min-height                       :  100px;
+    }
+
+    /* Dialog Button Container */
+    .markup-dialog-buttons {
+        display                          :  flex;
+        justify-content                  :  space-between;
+    }
+
+    /* Dialog Action Buttons */
+    .markup-dialog-button {
+        padding                          :  8px 15px;
+        background                       :  #888888;
+        color                            :  white;
+        border                           :  none;
+        cursor                           :  pointer;
+        font-size                        :  12px;
+        transition                       :  all 0.2s ease;
+    }
+
+    .markup-dialog-button:hover {
+        background-color                 :  #585858;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  SELECTION TOOL | Selection handles and controls
+ *  ----- */
+
+    .selection-handle {
+        position                         :  absolute;
+        width                            :  10px;
+        height                           :  10px;
+        background                       :  white;
+        border                           :  2px solid #555041;
+        border-radius                    :  50%;
+        transform                        :  translate(-50%, -50%);
+        cursor                           :  move;
+        z-index                          :  10000;
+    }
+
+/*  endregion -------------------------------------------------- */

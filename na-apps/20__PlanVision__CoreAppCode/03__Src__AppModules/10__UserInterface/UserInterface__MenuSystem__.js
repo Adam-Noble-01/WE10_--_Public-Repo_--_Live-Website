@@ -14,6 +14,7 @@
 // - Filters documents by document-type (Drawing/Specification)
 // - Manages menu state and visibility transitions
 // - Coordinates with DrawingButtons and HistoricArchive modules
+// - Uses folder-grouped data from DrawingsDataManager
 //
 // -----
 //
@@ -22,6 +23,11 @@
 // - Extracted from main HTML file
 // - Implements two-tier menu system (Main Menu / Category Sub-Menus)
 // - Supports Drawings, Specifications, and Videos categories
+//
+// 09-Feb-2026 - Version 2.0.0
+// - Updated for folder-structure-driven data flow
+// - Uses folder groups from DrawingsDataManager for grouped button display
+// - Passes grouped data to DrawingButtons.CreateGroupedDocumentButtons
 //
 // =============================================================================
 
@@ -38,8 +44,6 @@
 
             let currentMenuView                = 'main';                      // <-- 'main', 'drawings', 'specifications'
             let currentDocumentTypeFilter      = null;                        // <-- 'Drawing' or 'Specification'
-            let allDocumentsData               = null;                        // <-- Store all documents for filtering
-            let currentDesignPhase             = null;                        // <-- Active design phase
 
             // DOM References
             let mainMenuSection                = null;
@@ -69,12 +73,12 @@
             };
             // ---------------------------------------------------------------
 
-            // FUNCTION | Set Documents Data
+            // FUNCTION | Set Documents Data (backward compatibility placeholder)
+            // Data is now accessed directly from DrawingsDataManager
+            // This function is retained for init-flow compatibility
             // ------------------------------------------------------------
             const Na__Menu__SetDocumentsData = function (documents, designPhase) {
-                allDocumentsData    = documents;
-                currentDesignPhase  = designPhase;
-                console.log('[MenuSystem] Documents data updated');
+                console.log('[MenuSystem] Documents data reference updated');
             };
             // ---------------------------------------------------------------
 
@@ -97,6 +101,9 @@
                     window.NaPlanVision.VideoPlayerGalleryManager.Na__Video__ResetVideoGalleryState();
                 }
 
+                // Hide Drawing Register when returning to main menu
+                hideDrawingRegister();
+
                 console.log('[MenuSystem] Showing main menu...');
 
                 // Show main menu section
@@ -115,7 +122,7 @@
                 }
 
                 // Hide markup toolset if it was open
-                const markupToolset = document.getElementById('markup-toolset');
+                var markupToolset = document.getElementById('markup-toolset');
                 if (markupToolset) {
                     markupToolset.style.display = 'none';
                 }
@@ -134,6 +141,9 @@
 
                 console.log('[MenuSystem] Showing drawings menu...');
 
+                // Hide Drawing Register if visible
+                hideDrawingRegister();
+
                 // Hide main menu section
                 if (mainMenuSection) {
                     mainMenuSection.classList.add('hidden');
@@ -144,17 +154,19 @@
                     subMenuSection.classList.add('visible');
                 }
 
-                // Populate document buttons filtered by Drawing type
-                if (allDocumentsData) {
-                    const drawingButtons = window.NaPlanVision?.UserInterface?.DrawingButtons;
-                    if (drawingButtons) {
-                        drawingButtons.Na__Buttons__CreateFilteredDocumentButtons(
-                            allDocumentsData,
-                            'Drawing',
-                            false,
-                            currentDesignPhase
-                        );
-                    }
+                // Get folder groups from DrawingsDataManager and create grouped buttons
+                var dataManager    = window.NaPlanVision && window.NaPlanVision.DrawingsDataManager;
+                var drawingButtons = window.NaPlanVision
+                    && window.NaPlanVision.UserInterface
+                    && window.NaPlanVision.UserInterface.DrawingButtons;
+
+                if (dataManager && drawingButtons) {
+                    var folderGroups = dataManager.Na__Data__GetFolderGroups('Drawing');
+                    drawingButtons.Na__Buttons__CreateGroupedDocumentButtons(
+                        folderGroups,
+                        'Drawing',
+                        false
+                    );
                 }
 
                 console.log('[MenuSystem] Drawings menu displayed');
@@ -171,6 +183,9 @@
 
                 console.log('[MenuSystem] Showing specifications menu...');
 
+                // Hide Drawing Register if visible
+                hideDrawingRegister();
+
                 // Hide main menu section
                 if (mainMenuSection) {
                     mainMenuSection.classList.add('hidden');
@@ -181,20 +196,35 @@
                     subMenuSection.classList.add('visible');
                 }
 
-                // Populate document buttons filtered by Specification type
-                if (allDocumentsData) {
-                    const drawingButtons = window.NaPlanVision?.UserInterface?.DrawingButtons;
-                    if (drawingButtons) {
-                        drawingButtons.Na__Buttons__CreateFilteredDocumentButtons(
-                            allDocumentsData,
-                            'Specification',
-                            false,
-                            currentDesignPhase
-                        );
-                    }
+                // Get folder groups from DrawingsDataManager and create grouped buttons
+                var dataManager    = window.NaPlanVision && window.NaPlanVision.DrawingsDataManager;
+                var drawingButtons = window.NaPlanVision
+                    && window.NaPlanVision.UserInterface
+                    && window.NaPlanVision.UserInterface.DrawingButtons;
+
+                if (dataManager && drawingButtons) {
+                    var folderGroups = dataManager.Na__Data__GetFolderGroups('Specification');
+                    drawingButtons.Na__Buttons__CreateGroupedDocumentButtons(
+                        folderGroups,
+                        'Specification',
+                        false
+                    );
                 }
 
                 console.log('[MenuSystem] Specifications menu displayed');
+            };
+
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Show Drawing Register
+            // Shows the Drawing Register panel in the canvas area
+            // ------------------------------------------------------------
+            const Na__Menu__ShowDrawingRegister = function () {
+                var landingPage = window.NaPlanVision && window.NaPlanVision.LandingPage;
+                if (landingPage) {
+                    landingPage.Na__Landing__Show();
+                }
+                console.log('[MenuSystem] Drawing Register shown');
             };
             // ---------------------------------------------------------------
 
@@ -204,33 +234,52 @@
         // EVENT HANDLERS | Menu Navigation
         // --------------------------------------------------------
 
+            // FUNCTION | Hide Drawing Register Helper
+            // Hides the Drawing Register panel if it is visible
+            // ------------------------------------------------------------
+            function hideDrawingRegister() {
+                var landingPage = window.NaPlanVision && window.NaPlanVision.LandingPage;
+                if (landingPage && landingPage.Na__Landing__IsVisible()) {
+                    landingPage.Na__Landing__Hide();
+                }
+            }
+            // ---------------------------------------------------------------
+
             // FUNCTION | Initialize Menu Navigation Event Listeners
             // Attaches click handlers to category buttons
             // ------------------------------------------------------------
             function initMenuNavigation() {
+                // Drawing Register category button
+                var registerBtn = document.getElementById('showDrawingRegisterBtn');
+                if (registerBtn) {
+                    registerBtn.addEventListener('click', Na__Menu__ShowDrawingRegister);
+                }
+
                 // Drawings category button
-                const drawingsBtn = document.getElementById('showDrawingsMenuBtn');
+                var drawingsBtn = document.getElementById('showDrawingsMenuBtn');
                 if (drawingsBtn) {
                     drawingsBtn.addEventListener('click', Na__Menu__ShowDrawingsMenu);
                 }
 
                 // Specifications category button
-                const specificationsBtn = document.getElementById('showSpecificationsMenuBtn');
+                var specificationsBtn = document.getElementById('showSpecificationsMenuBtn');
                 if (specificationsBtn) {
                     specificationsBtn.addEventListener('click', Na__Menu__ShowSpecificationsMenu);
                 }
 
                 // Back to main menu button
-                const backBtn = document.getElementById('backToMainMenuBtn');
+                var backBtn = document.getElementById('backToMainMenuBtn');
                 if (backBtn) {
                     backBtn.addEventListener('click', Na__Menu__ShowMainMenu);
                 }
 
                 // Main menu historic archive button
-                const mainHistoricBtn = document.getElementById('mainMenuHistoricBtn');
+                var mainHistoricBtn = document.getElementById('mainMenuHistoricBtn');
                 if (mainHistoricBtn) {
-                    mainHistoricBtn.addEventListener('click', () => {
-                        const historicArchive = window.NaPlanVision?.UserInterface?.HistoricArchive;
+                    mainHistoricBtn.addEventListener('click', function () {
+                        var historicArchive = window.NaPlanVision
+                            && window.NaPlanVision.UserInterface
+                            && window.NaPlanVision.UserInterface.HistoricArchive;
                         if (historicArchive) {
                             historicArchive.Na__Archive__ShowHistoricWarningModal();
                         }

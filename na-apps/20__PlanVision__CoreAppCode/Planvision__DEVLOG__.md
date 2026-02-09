@@ -6,6 +6,189 @@
 
 # -----------------------------------------------------------------------------
 
+## PlanVision - Version 2.0.9 - 09-Feb-2026
+
+### Added - Drawing Register Landing Page
+- **New menu category: "Drawing Register"**
+  - Added as first menu button (above Drawings and Specifications)
+  - Displays comprehensive project information and document register
+  - Functions as a menu feature rather than blocking overlay
+  - Accessible at any time, auto-hides when selecting drawings
+
+- **Landing page module** (`09__AppLandingPage/LandingPage__Main__.js`)
+  - Project header: displays project name, address, active design phase
+  - Dynamic drawing register table: all documents grouped by folder
+  - Table columns: Code, Document Name, Type, Scale, Size, Revision
+  - How-to-use instructions: 6 numbered steps with responsive grid layout
+  - Functions: `Na__Landing__Initialize()`, `Show()`, `Hide()`, `IsVisible()`
+
+- **Landing page styles** (`09__AppLandingPage/LandingPage__Styles__.css`)
+  - Full-viewport overlay at z-index 9997 (below toolbar, above canvas)
+  - Project header with brand gradient and phase badge
+  - Clean table with alternating row shading and folder group headers
+  - Instruction cards with numbered badges and responsive grid
+  - Mobile-responsive layout with smaller fonts and single-column instructions
+
+### Changed
+- **Replaced broken first-drawing auto-load**
+  - Removed auto-load of first drawing in DesignPhase03 (lines 724-729)
+  - Now shows Drawing Register as default view on startup
+  - Eliminated "Failed to load the selected drawing" error on startup
+  - No drawing loads until user explicitly selects one from sidebar
+
+- **Enhanced DrawingsDataManager** (`Loader__DrawingsDataManager__.js`)
+  - Added `projectDetails` state variable
+  - Stores `project-details` during JSON fetch
+  - New getter: `Na__Data__GetProjectDetails()` exposes project metadata
+  - Provides project name, address, portal links to Landing Page
+
+- **Menu system integration** (`UserInterface__MenuSystem__.js`)
+  - Added `Na__Menu__ShowDrawingRegister()` function
+  - Added `hideDrawingRegister()` helper
+  - Drawing Register button event listener
+  - Auto-hides register when navigating to Drawings/Specifications
+  - Auto-hides register when returning to Main Menu
+
+- **Canvas drawing loader** (`DrawingsCanvas__DrawingLoader__.js`)
+  - Auto-hides Drawing Register when a drawing is loaded
+  - Prevents register from obscuring newly loaded drawings
+
+### Impact
+- **Eliminated startup errors**: No more failed loads from PDF-only first drawings
+- **Improved onboarding**: Users see project context and instructions immediately
+- **Better UX**: Menu remains accessible; register is optional, not forced
+- **Professional presentation**: Clean register table with all project documents
+- **Self-documenting app**: How-to instructions built into the interface
+
+#### Files Created
+- `03__Src__AppModules/09__AppLandingPage/LandingPage__Main__.js` (367 lines)
+- `03__Src__AppModules/09__AppLandingPage/LandingPage__Styles__.css` (296 lines)
+
+#### Files Modified
+- `Loader__DrawingsDataManager__.js` (+16 lines)
+- `UserInterface__MenuSystem__.js` (+50 lines)
+- `DrawingsCanvas__DrawingLoader__.js` (+5 lines)
+- `StyleSheet__CorePlanVisionApp__.css` (+5 lines)
+- `PlanVision__WebApp__Main__.html` (+12 lines)
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.0.8 - 09-Feb-2026
+
+### Added - Folder-Structure-Driven File Loading System
+- **Per-phase folder-structure definitions in JSON**
+  - Replaced flat `project-drawings` with `phase-content` per design phase
+  - Each phase declares `phase-folder` and nested `folder-structure` array
+  - Folders have `label`, `document-type`, `document-scale`, `document-size`
+  - Subfolders inherit properties from parent unless overridden
+  - Files listed as base filenames (no extension) in `files` arrays
+  - System auto-appends `.png` / `.pdf` extensions for URL construction
+
+- **PowerShell manifest script** (`05__Tools__BuildScripts/Update-ProjectManifest.ps1`)
+  - Auto-discovers files on disk and updates JSON `files` arrays
+  - Recursively scans phase folders and subfolders
+  - Skips `00__Archive` folders and `.note` placeholder files
+  - Prioritizes PNG files; includes PDF-only files as fallback
+  - Detects new subfolders not in JSON and auto-adds them
+  - Preserves all manual metadata (labels, types, scales, sizes)
+  - Supports dry-run mode for preview before updating
+  - User workflow: drop file in folder → run script → done
+
+- **Recursive folder processor** (`Loader__DrawingsDataManager__.js`)
+  - Walks `folder-structure` to unlimited nesting depth
+  - Builds drawing objects with auto-constructed URLs
+  - Pattern: `{baseUrl}/{phaseFolder}/{folderPath}/{filename}.{ext}`
+  - Supports `folder: "."` for files at phase root
+  - Handles nested `subfolders` arrays recursively
+
+- **Intelligent filename parser** (`Loader__DrawingsDataManager__.js`)
+  - Extracts human-readable display names from filenames
+  - Input: `"JH03_T03_D21__TechnicalPlan__RevF__"`
+  - Output: `"D21 - Technical Plan (Rev F)"`
+  - Handles multiple naming patterns (with/without `_-_` separator)
+  - Identifies drawing code (e.g., "D21", "CM10")
+  - Extracts document name with PascalCase spacing
+  - Parses revision info (e.g., "Rev F", "Rev-A")
+
+- **Dual data output structure**
+  - Folder-grouped data: `[{ label, depth, drawings[] }, ...]` for UI rendering
+  - Flat list: `[ drawingObj, drawingObj, ... ]` for first-drawing loading
+  - New getters: `GetFolderGroups()`, `GetHistoricFolderGroups()`, `GetFlatDrawingsList()`
+
+### Changed - UI Rendering for Grouped Display
+- **DrawingButtons module rewritten** (`UserInterface__DrawingButtons__.js`)
+  - New function: `Na__Buttons__CreateGroupedDocumentButtons()`
+  - Renders section headers for each folder group
+  - Renders sub-headers for nested subfolders with indentation
+  - Supports unlimited nesting depth with visual hierarchy
+  - Maintains historic archive toggle functionality
+  - Legacy `CreateFilteredDocumentButtons()` redirects to new grouped display
+
+- **New CSS classes for folder hierarchy** (`StyleSheet__CorePlanVisionApp__.css`)
+  - `.folder-group` -- wrapper for top-level folder sections
+  - `.folder-group-header` -- section label with left border accent (#7a7060)
+  - `.subfolder-group` -- nested section with left margin indent
+  - `.subfolder-group-header` -- smaller italic sub-section labels
+  - `.no-documents-message` -- empty state messaging
+  - `.historic-mode-banner` -- warning banner for historic documents
+
+- **MenuSystem updated for grouped data flow** (`UserInterface__MenuSystem__.js`)
+  - `ShowDrawingsMenu()` / `ShowSpecificationsMenu()` now pull folder groups
+  - Direct integration with `DrawingsDataManager.GetFolderGroups(type)`
+  - No longer stores flat documents object
+
+- **HistoricArchive updated for grouped data** (`UserInterface__HistoricArchive__.js`)
+  - Uses `GetHistoricFolderGroups()` for previous-phase documents
+  - Passes grouped data to DrawingButtons for sectioned display
+
+- **Main HTML init updated** (`PlanVision__WebApp__Main__.html`)
+  - Passes `BASE_URL` to `DrawingsDataManager.Initialize()`
+  - Uses `GetFlatDrawingsList()` for first-drawing loading (now removed)
+  - No longer iterates flat drawing keys
+
+### Fixed
+- **Error banner persistence bug**
+  - Added `HideError()` call in DrawingLoader when starting new load
+  - Error banner from failed loads now clears properly
+  - Prevents stale error messages when subsequent drawings load successfully
+
+### Impact
+- **Eliminated manual JSON maintenance**: User drops files in folders, runs script, done
+- **Handles unlimited nesting**: Construction Details with 4 subfolder levels works perfectly
+- **Auto-generated display names**: "D21 - Technical Plan (Rev F)" from filenames
+- **Folder-organized UI**: Buttons grouped by Plans, Elevations, Wall Details, Roof Details, etc.
+- **No more tedious JSON editing**: Was 10+ fields per drawing; now 1 filename per drawing
+- **DesignPhase03 example**: 8 folder groups, 22 total drawings, 4-level nesting (20__ConstructionDetails/21__WallDetails)
+
+#### JSON Restructure
+- **Before**: 
+  - Flat `project-drawings` object
+  - Manual enumeration: `drawing-01`, `drawing-02`, etc.
+  - 10+ fields per entry (name, type, scale, size, phase, links)
+  
+- **After**:
+  - Per-phase `phase-content` structure
+  - Folder metadata set once per folder
+  - Files array with base filenames only
+  - All URLs and display names auto-constructed
+
+#### Files Created
+- `05__Tools__BuildScripts/Update-ProjectManifest.ps1` (385 lines)
+
+#### Files Modified (Major Rewrite)
+- `Loader__DrawingsDataManager__.js` (171 → 537 lines, +366 lines)
+- `UserInterface__DrawingButtons__.js` (196 → 265 lines, +69 lines)
+- `JH03__PlanVision__ProjectData__.json` (restructured from flat to folder-based)
+
+#### Files Modified (Integration)
+- `UserInterface__MenuSystem__.js` (+10 lines)
+- `UserInterface__HistoricArchive__.js` (+8 lines)
+- `PlanVision__WebApp__Main__.html` (+3 lines)
+- `StyleSheet__CorePlanVisionApp__.css` (+67 lines)
+- `DrawingsCanvas__DrawingLoader__.js` (+4 lines)
+
+# -----------------------------------------------------------------------------
+
 ## PlanVision - Version 2.0.7 - 09-Feb-2026
 
 ### Changed - Complete Naming Standardization Across All Systems

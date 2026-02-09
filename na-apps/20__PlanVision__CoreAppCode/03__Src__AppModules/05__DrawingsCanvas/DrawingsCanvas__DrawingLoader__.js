@@ -148,6 +148,16 @@
                         });
                     }
 
+                    // Hide any previous error message before loading
+                    if (window.NaPlanVision.DrawingsCanvas && window.NaPlanVision.DrawingsCanvas.LoadingStates) {
+                        window.NaPlanVision.DrawingsCanvas.LoadingStates.Na__Canvas__HideError();
+                    }
+
+                    // Hide Drawing Register if visible (user selected a drawing)
+                    if (window.NaPlanVision.LandingPage && window.NaPlanVision.LandingPage.Na__Landing__IsVisible()) {
+                        window.NaPlanVision.LandingPage.Na__Landing__Hide();
+                    }
+
                     // Load the plan image
                     await loadPlanImage(pngUrl);
 

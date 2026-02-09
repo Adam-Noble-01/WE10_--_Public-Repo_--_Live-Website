@@ -256,6 +256,11 @@
         background                       :  linear-gradient(135deg, #5a7a7a 0%, #4a6a6a 100%);
     }
 
+    /* Drawing Register Category - Warm Accent */
+    .category-button.register-category {
+        background                       :  linear-gradient(135deg, #6a6050 0%, #555041 100%);
+    }
+
     /* Back to Main Menu Button */
     .back-to-main-btn {
         display                          :  block;
@@ -308,6 +313,66 @@
 
     .return-current-btn::before {
         content                          :  "← ";
+    }
+
+    /* Folder Group - Top-Level Section Wrapper */
+    .folder-group {
+        margin-top                       :  8px;
+        margin-bottom                    :  6px;
+    }
+
+    /* Folder Group Header - Top-Level Section Label */
+    .folder-group-header {
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  10pt;
+        font-weight                      :  600;
+        color                            :  #b0a890;
+        padding                          :  6px 2px 4px 8px;
+        margin-bottom                    :  4px;
+        border-left                      :  3px solid #7a7060;
+        letter-spacing                   :  0.3px;
+    }
+
+    /* Subfolder Group - Nested Section Wrapper */
+    .subfolder-group {
+        margin-top                       :  4px;
+        margin-bottom                    :  4px;
+        margin-left                      :  10px;
+    }
+
+    /* Subfolder Group Header - Nested Section Label */
+    .subfolder-group-header {
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  9pt;
+        font-weight                      :  400;
+        color                            :  #8a8070;
+        padding                          :  4px 2px 3px 6px;
+        margin-bottom                    :  3px;
+        border-left                      :  2px solid #5a5548;
+        font-style                       :  italic;
+    }
+
+    /* No Documents Message */
+    .no-documents-message {
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  11px;
+        color                            :  #8a8070;
+        text-align                       :  center;
+        padding                          :  15px 10px;
+        font-style                       :  italic;
+    }
+
+    /* Historic Mode Banner */
+    .historic-mode-banner {
+        background                       :  linear-gradient(135deg, #8a4a2a 0%, #6a3a1a 100%);
+        color                            :  #ffd700;
+        text-align                       :  center;
+        padding                          :  8px 10px;
+        margin-bottom                    :  10px;
+        font-size                        :  11px;
+        font-weight                      :  700;
+        letter-spacing                   :  1px;
+        border-radius                    :  3px;
     }
 
 /*  endregion -------------------------------------------------- */

@@ -88,6 +88,9 @@
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialSystem__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__ToolbarManager__.js"></script>
 
+    <!-- Load The Landing Page Module -->
+    <script src="03__Src__AppModules/09__AppLandingPage/LandingPage__Main__.js"></script>
+
     <!-- Load The Markup Tools System Modules -->
     <!-- - These are unused currently  -->
     <!-- - System requires more developement  -->
@@ -114,6 +117,7 @@
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__CorePlanVisionApp__.css">
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MarkUpTools__.css">
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MeasuringTools__.css">
+    <link rel="stylesheet" href="./03__Src__AppModules/09__AppLandingPage/LandingPage__Styles__.css">
 
     <!-- endregion ---------------------------------------- -->
 
@@ -206,6 +210,9 @@
                 <div id="main-menu-section" class="main-menu-section">
                     <div class="menu_-_drawing-button-header-text">Select Category</div>
                     <div class="category-button-container">
+                        <button class="category-button register-category" id="showDrawingRegisterBtn">
+                            📋 Drawing Register
+                        </button>
                         <button class="category-button drawings-category" id="showDrawingsMenuBtn">
                             📐 Drawings
                         </button>
@@ -285,6 +292,15 @@
             <div id="canvas-container">
                 <canvas id="planCanvas"></canvas>
             </div>
+
+            <!-- endregion ---------------------------------------- -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- LANDING PAGE | Dynamic drawing register and instructions              -->
+            <!-- ----- -->
+
+            <!-- LANDING PAGE OVERLAY - Shown on app start, dismissed by user -->
+            <div id="landing-page-overlay" class="landing-page-overlay"></div>
 
             <!-- endregion ---------------------------------------- -->
 
@@ -676,10 +692,10 @@
                 // Initialize Drawings Data Manager
                 // -----------------------------------------
                 if (window.NaPlanVision && window.NaPlanVision.DrawingsDataManager) {
-                    window.NaPlanVision.DrawingsDataManager.Na__Data__Initialize(JSON_CONFIG_URL);
-                    const drawings = await window.NaPlanVision.DrawingsDataManager.Na__Data__FetchDrawings();
+                    window.NaPlanVision.DrawingsDataManager.Na__Data__Initialize(JSON_CONFIG_URL, BASE_URL);
+                    const fetchResult = await window.NaPlanVision.DrawingsDataManager.Na__Data__FetchDrawings();
 
-                    if (drawings) {
+                    if (fetchResult) {
                         const currentDesignPhase = window.NaPlanVision.DrawingsDataManager.Na__Data__GetCurrentDesignPhase();
 
                         // -----------------------------------------
@@ -688,7 +704,7 @@
                         // Initialize Menu System
                         if (window.NaPlanVision.UserInterface && window.NaPlanVision.UserInterface.MenuSystem) {
                             window.NaPlanVision.UserInterface.MenuSystem.Na__Menu__Initialize();
-                            window.NaPlanVision.UserInterface.MenuSystem.Na__Menu__SetDocumentsData(drawings, currentDesignPhase);
+                            window.NaPlanVision.UserInterface.MenuSystem.Na__Menu__SetDocumentsData(fetchResult, currentDesignPhase);
                         }
 
                         // Initialize Drawing Buttons
@@ -708,16 +724,20 @@
                             window.NaPlanVision.UserInterface.MenuSystem.Na__Menu__ShowMainMenu();
                         }
 
-                        // Load the first Drawing-type document from the CURRENT design phase
-                        const firstDrawingKey = Object.keys(drawings).find(
-                            key => key.startsWith("drawing-") &&
-                                drawings[key]["file-name"] !== "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}" &&
-                                drawings[key]["design-phase"] === currentDesignPhase &&
-                                drawings[key]["document-type"] === "Drawing"  // <-- Only load Drawing type
-                        );
-                        if (firstDrawingKey) {
-                            await window.NaPlanVision.DrawingsCanvas.DrawingLoader.Na__Canvas__LoadDrawing(drawings[firstDrawingKey]);
-                            console.log("[Init] Loaded first Drawing-type document:", drawings[firstDrawingKey]["document-name"]);
+                        // Initialize Drawing Register (shown in canvas area, menu stays accessible)
+                        if (window.NaPlanVision.LandingPage) {
+                            window.NaPlanVision.LandingPage.Na__Landing__Initialize({
+                                projectDetails: window.NaPlanVision.DrawingsDataManager.Na__Data__GetProjectDetails(),
+                                phaseConfig: window.NaPlanVision.DrawingsDataManager.Na__Data__GetProjectPhaseConfig(),
+                                folderGroups: window.NaPlanVision.DrawingsDataManager.Na__Data__GetFolderGroups(null)
+                            });
+                            // Show register as default view on startup
+                            window.NaPlanVision.LandingPage.Na__Landing__Show();
+                            // Hide loading overlay since no drawing is being loaded
+                            if (window.NaPlanVision.DrawingsCanvas && window.NaPlanVision.DrawingsCanvas.LoadingStates) {
+                                window.NaPlanVision.DrawingsCanvas.LoadingStates.Na__Canvas__HideLoading();
+                            }
+                            console.log("[Init] Drawing Register displayed as default view");
                         }
                     }
                 } else {

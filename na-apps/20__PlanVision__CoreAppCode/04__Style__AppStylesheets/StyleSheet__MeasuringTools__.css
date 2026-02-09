@@ -3,38 +3,53 @@
  * =============================================================================
  */
 
-/* Measuring Tools - Subtle Teal Tint */
-#linearMeasureBtn,
-#rectMeasureBtn,
-#areaMeasureBtn,
-#clearMeasurementsBtn {
-    background  :  linear-gradient(135deg, #5a7a7a 0%, #4a6a6a 100%);
-}
 
-#cancelToolBtn {
-    display     :  none;
-    background  :  #d9534f;
-}
+/*  #Region --------------------------------------------------------
+ *  TOOL BUTTONS | Measurement tool button styles
+ *  ----- */
 
-#cancelToolBtn:hover {
-    opacity  :  0.8;
-}
+    /* Primary Measuring Tools - Teal Tint */
+    #linearMeasureBtn,
+    #rectMeasureBtn,
+    #areaMeasureBtn,
+    #clearMeasurementsBtn {
+        background                       :  linear-gradient(135deg, #5a7a7a 0%, #4a6a6a 100%);
+    }
 
-/* CONFIRM MEASUREMENT BUTTON */
-#finishMeasurementBtn {
-    position       :  absolute;
-    z-index        :  13000;
-    background     :  #5cb85c;
-    color          :  #fff;
-    border         :  none;
-    border-radius  :  4px;
-    padding        :  8px 12px;
-    cursor         :  pointer;
-    display        :  none;
-    box-shadow     :  0 0 5px rgba(0, 0, 0, 0.3);
-    font-size      :  14px;
-}
+/*  endregion -------------------------------------------------- */
 
-#finishMeasurementBtn:hover {
-    opacity  :  0.9;
-}
+
+/*  #Region --------------------------------------------------------
+ *  ACTION BUTTONS | Confirm and cancel controls
+ *  ----- */
+
+    /* Cancel Tool Button */
+    #cancelToolBtn {
+        display                          :  none;
+        background                       :  #d9534f;
+    }
+
+    #cancelToolBtn:hover {
+        opacity                          :  0.8;
+    }
+
+    /* Confirm Measurement Button */
+    #finishMeasurementBtn {
+        position                         :  absolute;
+        z-index                          :  13000;
+        background                       :  #5cb85c;
+        color                            :  #fff;
+        border                           :  none;
+        border-radius                    :  4px;
+        padding                          :  8px 12px;
+        cursor                           :  pointer;
+        display                          :  none;
+        box-shadow                       :  0 0 5px rgba(0, 0, 0, 0.3);
+        font-size                        :  14px;
+    }
+
+    #finishMeasurementBtn:hover {
+        opacity                          :  0.9;
+    }
+
+/*  endregion -------------------------------------------------- */

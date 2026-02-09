@@ -14,6 +14,7 @@
 // - Manages historic archive filtering within document categories
 // - Coordinates with DrawingButtons to show/hide historic documents
 // - Remembers which category to show after modal dismissal
+// - Uses folder-grouped data from DrawingsDataManager for historic phases
 //
 // -----
 //
@@ -21,6 +22,11 @@
 // 09-Feb-2026 - Version 1.0.0
 // - Extracted from main HTML file
 // - Implements safety warnings for historic document access
+//
+// 09-Feb-2026 - Version 2.0.0
+// - Updated for folder-structure-driven data flow
+// - Uses GetHistoricFolderGroups from DrawingsDataManager
+// - Passes grouped data to DrawingButtons.CreateGroupedDocumentButtons
 //
 // =============================================================================
 
@@ -59,8 +65,8 @@
             // FUNCTION | Initialize Historic Warning Modal Event Listeners
             // ------------------------------------------------------------
             function initHistoricWarningModal() {
-                const dismissBtn = document.getElementById('historic-warning-dismiss');
-                const overlay = document.getElementById('historic-warning-overlay');
+                var dismissBtn = document.getElementById('historic-warning-dismiss');
+                var overlay    = document.getElementById('historic-warning-overlay');
 
                 if (dismissBtn) {
                     dismissBtn.addEventListener('click', dismissHistoricWarningAndShowArchive);
@@ -68,7 +74,7 @@
 
                 // Close modal if clicking outside the content (optional)
                 if (overlay) {
-                    overlay.addEventListener('click', (e) => {
+                    overlay.addEventListener('click', function (e) {
                         if (e.target === overlay) {
                             overlay.style.display = 'none';
                             console.log('[HistoricArchive] Historic warning modal closed without action');
@@ -90,7 +96,7 @@
             // Displays full-screen warning before allowing access to old docs
             // ------------------------------------------------------------
             const Na__Archive__ShowHistoricWarningModal = function () {
-                const overlay = document.getElementById('historic-warning-overlay');
+                var overlay = document.getElementById('historic-warning-overlay');
                 if (overlay) {
                     overlay.style.display = 'flex';
                     console.log('[HistoricArchive] Historic archive warning modal displayed');
@@ -106,7 +112,7 @@
                 // Store the document type for after dismissal
                 pendingHistoricCategory = documentType;
 
-                const overlay = document.getElementById('historic-warning-overlay');
+                var overlay = document.getElementById('historic-warning-overlay');
                 if (overlay) {
                     overlay.style.display = 'flex';
                     console.log('[HistoricArchive] Historic warning modal displayed for', documentType);
@@ -115,41 +121,57 @@
             // ---------------------------------------------------------------
 
             // FUNCTION | Hide Historic Warning Modal and Switch to Historic View
+            // Uses folder-grouped data from DrawingsDataManager for historic phases
             // ------------------------------------------------------------
             function dismissHistoricWarningAndShowArchive() {
-                const overlay = document.getElementById('historic-warning-overlay');
+                var overlay = document.getElementById('historic-warning-overlay');
                 if (overlay) {
                     overlay.style.display = 'none';
                 }
 
-                // Get menu system reference
-                const menuSystem = window.NaPlanVision?.UserInterface?.MenuSystem;
-                const drawingButtons = window.NaPlanVision?.UserInterface?.DrawingButtons;
-                const drawingsDataManager = window.NaPlanVision?.DrawingsDataManager;
+                // Get module references
+                var menuSystem     = window.NaPlanVision
+                    && window.NaPlanVision.UserInterface
+                    && window.NaPlanVision.UserInterface.MenuSystem;
+                var drawingButtons = window.NaPlanVision
+                    && window.NaPlanVision.UserInterface
+                    && window.NaPlanVision.UserInterface.DrawingButtons;
+                var dataManager    = window.NaPlanVision
+                    && window.NaPlanVision.DrawingsDataManager;
 
-                if (!menuSystem || !drawingButtons || !drawingsDataManager) {
+                if (!menuSystem || !drawingButtons || !dataManager) {
                     console.error('[HistoricArchive] Required modules not available');
                     return;
                 }
 
-                // Check if we're in a category sub-menu or main menu
-                const currentView = menuSystem.Na__Menu__GetCurrentMenuView();
-                const currentFilter = menuSystem.Na__Menu__GetCurrentDocumentTypeFilter();
+                // Determine which document type to show
+                var currentFilter = menuSystem.Na__Menu__GetCurrentDocumentTypeFilter();
+                var documentType  = pendingHistoricCategory || currentFilter || 'Drawing';
 
-                const documentType = pendingHistoricCategory || currentFilter;
-                const allDocuments = drawingsDataManager.Na__Data__GetAllDrawingsData();
-                const currentPhase = drawingsDataManager.Na__Data__GetCurrentDesignPhase();
+                // Get historic folder groups (from all phases except current)
+                var historicGroups = dataManager.Na__Data__GetHistoricFolderGroups(documentType);
 
-                if (allDocuments && documentType) {
-                    isViewingHistoricArchive = true;
-                    drawingButtons.Na__Buttons__CreateFilteredDocumentButtons(
-                        allDocuments,
-                        documentType,
-                        true,
-                        currentPhase
-                    );
-                    console.log('[HistoricArchive] Switched to historic archive for', documentType);
+                // Ensure sub-menu is visible for historic view
+                var mainMenuSection = document.getElementById('main-menu-section');
+                var subMenuSection  = document.getElementById('sub-menu-section');
+
+                if (mainMenuSection) {
+                    mainMenuSection.classList.add('hidden');
                 }
+                if (subMenuSection) {
+                    subMenuSection.classList.add('visible');
+                }
+
+                // Create grouped buttons showing historic documents
+                isViewingHistoricArchive = true;
+                drawingButtons.Na__Buttons__CreateGroupedDocumentButtons(
+                    historicGroups,
+                    documentType,
+                    true
+                );
+
+                console.log('[HistoricArchive] Switched to historic archive for', documentType,
+                    '(' + historicGroups.length + ' groups)');
 
                 // Reset pending category
                 pendingHistoricCategory = null;

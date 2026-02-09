@@ -1,0 +1,205 @@
+{
+    "na-project-data-library": {
+        "file-metadata": {
+            "file-name": "JH03__PlanVision__ProjectData__.json",
+            "file-type": ".json",
+            "file-purpose": "Project Configuration with File Discovery",
+            "file-description": "Simplified JSON using automatic file discovery from folder structure",
+            "file-created": "18-Aug-2025",
+            "file-updated": "09-Feb-2026",
+            "file-author": "Adam Noble - Noble Architecture",
+            "file-key-required": "FALSE",
+            "file-key-note": "Public Repo File - Sensitive Data Omitted",
+            "file-links": {
+                "windows-dir-path": "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03__PlanVision__ProjectData__.json",
+                "github-link-url": "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__PlanVision__ProjectData__.json"
+            }
+        },
+        "project-details": {
+            "project-name-nickname": "JH03 | Romer Cottage",
+            "project-name-string": "JH03_--_Romer-Cottage",
+            "project-address--house": "Romer Cottage",
+            "project-address--house-no": "NIL",
+            "project-address-street": "NIL",
+            "project-address-town": "Burston",
+            "project-address-city": "NIL",
+            "project-address-county": "Staffordshire",
+            "project-address-postcode": "ST18 0DT",
+            "project-general-notes-01": "NIL",
+            "project-portal-links": {
+                "portal-url-home": "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__Project-Portal",
+                "portal-url-planvision": "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__PlanVision__WebApp",
+                "portal-url-truevision": "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__TrueVision__WebApp"
+            }
+        },
+        "project-phase-config": {
+            "active-design-phase": "DesignPhase03",
+            "phase-last-updated": "09-Feb-2026",
+            "available-phases": ["DesignPhase01", "DesignPhase02", "DesignPhase03"],
+            "phase-descriptions": {
+                "DesignPhase01": "Initial Concept Design",
+                "DesignPhase02": "Planning Phase Drawings",
+                "DesignPhase03": "Construction Phase Drawings"
+            }
+        },
+        "project-documentation": {
+            "file-discovery-enabled": true,
+            "folder-structure": [
+                {
+                    "folder": "01__Plans",
+                    "label": "Plans",
+                    "document-type": "Drawing",
+                    "document-scale": "1:50",
+                    "document-size": "A2"
+                },
+                {
+                    "folder": "02__Elevations",
+                    "label": "Elevations",
+                    "document-type": "Drawing",
+                    "document-scale": "1:50",
+                    "document-size": "A2"
+                },
+                {
+                    "folder": "03__CrossSections",
+                    "label": "Cross Sections",
+                    "document-type": "Drawing",
+                    "document-scale": "1:50",
+                    "document-size": "A2"
+                },
+                {
+                    "folder": "10__3dViews",
+                    "label": "3D Views",
+                    "document-type": "Drawing",
+                    "document-scale": "1:50",
+                    "document-size": "A2"
+                },
+                {
+                    "folder": "20__ConstructionDetails",
+                    "label": "Construction Details",
+                    "document-type": "Specification",
+                    "document-scale": "1:5",
+                    "document-size": "A2",
+                    "subfolders": [
+                        {
+                            "folder": "21__WallDetails",
+                            "label": "Wall Details"
+                        },
+                        {
+                            "folder": "22__FloorDetails",
+                            "label": "Floor Details"
+                        },
+                        {
+                            "folder": "23__RoofDetails",
+                            "label": "Roof Details"
+                        },
+                        {
+                            "folder": "24__ChimneyDetails",
+                            "label": "Chimney Details"
+                        }
+                    ]
+                }
+            ],
+            "project-drawings": {
+                "_comment": "Files are now auto-discovered from folder structure. This section can be used for manual overrides or legacy entries.",
+                "drawing-template": {
+                    "file-name": "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}",
+                    "added-to-register": "{{ENTER_DATE}}",
+                    "document-name": "Drawing",
+                    "document-type": "Elevations Drawing",
+                    "document-scale": "1:50",
+                    "document-status": "Planning Phase Drawing",
+                    "document-notes": "NIL",
+                    "design-phase": "DesignPhase03",
+                    "document-revisions": {
+                        "revision-a": "{{ENTER_DATE}}",
+                        "revision-b": "{{ENTER_DATE}}",
+                        "revision-c": "{{ENTER_DATE}}",
+                        "revision-d": "{{ENTER_DATE}}",
+                        "revision-e": "{{ENTER_DATE}}",
+                        "revision-f": "{{ENTER_DATE}}"
+                    },
+                    "document-links": {
+                        "png--windows-dir-path": "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                        "pdf--windows-dir-path": "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf",
+                        "png--github-link-url": "https://www.noble-architecture.com/na-project-portal/25-Projects/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                        "pdf--github-link-url": "https://www.noble-architecture.com/na-project-portal/25-Projects/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf"
+                    }
+                }
+            }
+        },
+        "project-videos": {
+            "video-01": {
+                "file-name": "VID01__ViewFromPergola.mp4",
+                "added-to-register": "03-Nov-2025",
+                "video-type": "Project Video",
+                "video-name": "View From Pergola",
+                "video-duration": "NIL",
+                "video-status": "Active",
+                "video-notes": "NIL",
+                "video-links": {
+                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID01__ViewFromPergola.mp4"
+                }
+            },
+            "video-02": {
+                "file-name": "VID02__InteriorToExteriorTransition.mp4",
+                "added-to-register": "03-Nov-2025",
+                "video-type": "Project Video",
+                "video-name": "Interior To Exterior Transition",
+                "video-duration": "NIL",
+                "video-status": "Active",
+                "video-notes": "NIL",
+                "video-links": {
+                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID02__InteriorToExteriorTransition.mp4"
+                }
+            },
+            "video-03": {
+                "file-name": "VID03__ViewFromSouthToNorth.mp4",
+                "added-to-register": "03-Nov-2025",
+                "video-type": "Project Video",
+                "video-name": "View From South To North",
+                "video-duration": "NIL",
+                "video-status": "Active",
+                "video-notes": "NIL",
+                "video-links": {
+                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID03__ViewFromSouthToNorth.mp4"
+                }
+            },
+            "video-04": {
+                "file-name": "VID04__SouthSidePath.mp4",
+                "added-to-register": "03-Nov-2025",
+                "video-type": "Project Video",
+                "video-name": "South Side Path",
+                "video-duration": "NIL",
+                "video-status": "Active",
+                "video-notes": "NIL",
+                "video-links": {
+                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID04__SouthSidePath.mp4"
+                }
+            },
+            "video-05": {
+                "file-name": "VID05__AerialView.mp4",
+                "added-to-register": "03-Nov-2025",
+                "video-type": "Project Video",
+                "video-name": "Aerial View",
+                "video-duration": "NIL",
+                "video-status": "Active",
+                "video-notes": "NIL",
+                "video-links": {
+                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID05__AerialView.mp4"
+                }
+            },
+            "video-template": {
+                "file-name": "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}",
+                "added-to-register": "{{ENTER_DATE}}",
+                "video-type": "Project Video",
+                "video-name": "Video Description",
+                "video-duration": "NIL",
+                "video-status": "Active",
+                "video-notes": "NIL",
+                "video-links": {
+                    "cdn-url": "https://cdn.example.com/videos/{{PROJECT_CODE}}/{{VIDEO_FILE_NAME}}.mp4"
+                }
+            }
+        }
+    }
+}

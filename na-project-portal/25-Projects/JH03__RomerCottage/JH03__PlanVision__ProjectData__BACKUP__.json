@@ -1,0 +1,883 @@
+{"na-project-data-library":{
+    "file-metadata":{
+        "file-name"                 :    "JH03__DATA_-_Document-Library.json",
+        "file-type"                 :    ".json",
+        "file-purpose"              :    "Project Specific Documentation Link Library",
+        "file-description"          :    "This JSON file stores Noble Architecture project file documentation links in a single location and ensures quick retrieval.",
+        "file-created"              :    "18-Aug-2025",
+        "file-author"               :    "Adam Noble - Noble Architecture",
+        "file-key-required"         :    "FALSE",
+        "file-key-note"             :    "Public Repo File - Sensitive Data Omitted",
+        "file-links":{
+            "windows-dir-path"      :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\JH03_-_DATA_-_Document-Library.json",
+            "github-link-url"       :     "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03_-_DATA_-_Document-Library.json"
+        }
+    },
+    "project-details":{
+        "project-name-nickname"        :    "JH03 | Romer Cottage",
+        "project-name-string"          :    "JH03_--_Romer-Cottage",
+        "project-address--house"       :    "Romer Cottage",
+        "project-address--house-no"    :    "NIL",
+        "project-address-street"       :    "NIL",
+        "project-address-town"         :    "Burston",
+        "project-address-city"         :    "NIL",
+        "project-address-county"       :    "Staffordshire",
+        "project-address-postcode"     :    "ST18 0DT",
+        "project-general-notes-01"     :    "NIL",
+        "project-portal-links":{
+            "portal-url-home"          :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__Project-Portal",
+            "portal-url-planvision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__PlanVision__WebApp",
+            "portal-url-truevision"    :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__TrueVision__WebApp"
+        }
+    },
+    "project-phase-config":{
+        "active-design-phase"          :    "DesignPhase03",
+        "phase-last-updated"           :    "09-Feb-2026",
+        "available-phases"             :    ["DesignPhase01", "DesignPhase02", "DesignPhase03"],
+        "phase-descriptions":{
+            "DesignPhase01"            :    "Initial Concept Design",
+            "DesignPhase02"            :    "Planning Phase Drawings",
+            "DesignPhase03"            :    "Construction Phase Drawings"
+        }
+    },
+    "project-documentation":{
+        "project-drawings":{
+            "drawing-01"               :    {
+                "file-name"            :    "JH03_T03_D21__TechnicalPlan__RevF__.pdf",
+                "added-to-register"    :    "08-Jan-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Proposed Technical Plan",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "08-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "08-Jan-2026",
+                    "revision-d"       :    "08-Jan-2026",
+                    "revision-e"       :    "19-Jan-2026",
+                    "revision-f"       :    "09-Feb-2026"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\01__Plans\\JH03_T03_D21__TechnicalPlan__RevF__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\01__Plans\\JH03_T03_D21__TechnicalPlan__RevF__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/01__Plans/JH03_T03_D21__TechnicalPlan__RevF__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/01__Plans/JH03_T03_D21__TechnicalPlan__RevF__.pdf"
+                }
+            },
+            "drawing-02"               :    {
+                "file-name"            :    "JH03_T03_D22__FoundationsPlan__RevE__.pdf",
+                "added-to-register"    :    "08-Jan-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Foundations Plan",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "08-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "07-Jan-2026",
+                    "revision-d"       :    "08-Jan-2026",
+                    "revision-e"       :    "09-Feb-2026"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\01__Plans\\JH03_T03_D22__FoundationsPlan__RevE__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\01__Plans\\JH03_T03_D22__FoundationsPlan__RevE__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/01__Plans/JH03_T03_D22__FoundationsPlan__RevE__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/01__Plans/JH03_T03_D22__FoundationsPlan__RevE__.pdf"
+                }
+            },
+            "drawing-03"               :    {
+                "file-name"            :    "JH03_T03_D31__Elevations__Sheet-01__RevC__.pdf",
+                "added-to-register"    :    "08-Jan-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "West Elevation (Back Garden View)",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "08-Jan-2026",
+                    "revision-b"       :    "19-Jan-2026",
+                    "revision-c"       :    "09-Feb-2026",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\02__Elevations\\JH03_T03_D31__Elevations__Sheet-01__RevC__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\02__Elevations\\JH03_T03_D31__Elevations__Sheet-01__RevC__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/02__Elevations/JH03_T03_D31__Elevations__Sheet-01__RevC__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/02__Elevations/JH03_T03_D31__Elevations__Sheet-01__RevC__.pdf"
+                }
+            },
+            "drawing-04"               :    {
+                "file-name"            :    "JH03_T03_D32__Elevations__Sheet-02__RevC__.pdf",
+                "added-to-register"    :    "08-Jan-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "East Elevation (Driveway Side)",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "08-Jan-2026",
+                    "revision-b"       :    "19-Jan-2026",
+                    "revision-c"       :    "09-Feb-2026",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\02__Elevations\\JH03_T03_D32__Elevations__Sheet-02__RevC__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\02__Elevations\\JH03_T03_D32__Elevations__Sheet-02__RevC__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/02__Elevations/JH03_T03_D32__Elevations__Sheet-02__RevC__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/02__Elevations/JH03_T03_D32__Elevations__Sheet-02__RevC__.pdf"
+                }
+            },
+            "drawing-05"               :    {
+                "file-name"            :    "JH03_T03_D51__3dModelView__Sheet-01__RevB__.pdf",
+                "added-to-register"    :    "08-Jan-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "3D Model View Sheet 01",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "08-Jan-2026",
+                    "revision-b"       :    "09-Feb-2026",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\10__3dViews\\JH03_T03_D51__3dModelView__Sheet-01__RevB__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\10__3dViews\\JH03_T03_D51__3dModelView__Sheet-01__RevB__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/10__3dViews/JH03_T03_D51__3dModelView__Sheet-01__RevB__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/10__3dViews/JH03_T03_D51__3dModelView__Sheet-01__RevB__.pdf"
+                }
+            },
+            "drawing-06"               :    {
+                "file-name"            :    "JH03_T02_D21_-_Site-Plans__Rev-G__1.0.0_.pdf",
+                "added-to-register"    :    "20-Aug-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Proposed Site Plan",   
+                "document-scale"       :    "1:500",
+                "document-size"        :    "A2",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase02",
+                "document-revisions":{
+                    "revision-a"       :   "20-08-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D21_-_Site-Plans__Rev-G__1.0.0_.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D21_-_Site-Plans__Rev-G__1.0.0_.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D21_-_Site-Plans__Rev-G__1.0.0_.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D21_-_Site-Plans__Rev-G__1.0.0_.pdf"
+                }
+            },
+            "drawing-07"               :    {
+                "file-name"            :    "JH03_T02_D02_-_FloorPlans__Scheme-02__Rev-G.pdf",
+                "added-to-register"    :    "22-Mar-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Floor Plans",   
+                "document-scale"       :    "1:100",
+                "document-size"        :    "A1",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase02",
+                "document-revisions":{
+                    "revision-a"       :   "18-08-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D02_-_FloorPlans__Scheme-02__Rev-G.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D02_-_FloorPlans__Scheme-02__Rev-G.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D02_-_FloorPlans__Scheme-02__Rev-G.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D02_-_FloorPlans__Scheme-02__Rev-G.pdf"
+                }
+            },
+            "drawing-08"               :    {
+                "file-name"            :    "JH03_T02_D03_-_Elevations__Scheme-02__Rev-G.pdf",
+                "added-to-register"    :    "22-Mar-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Elevations",   
+                "document-scale"       :    "1:100",
+                "document-size"        :    "A1",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase02",
+                "document-revisions":{
+                    "revision-a"       :   "18-08-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D03_-_Elevations__Scheme-02__Rev-G.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D03_-_Elevations__Scheme-02__Rev-G.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D03_-_Elevations__Scheme-02__Rev-G.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D03_-_Elevations__Scheme-02__Rev-G.pdf"
+                }
+            },
+            "drawing-09"               :    {
+                "file-name"            :    "JH03_T02_D31__TechnicalPlan__Rev-A__.pdf",
+                "added-to-register"    :    "01-Dec-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Technical Plan (Historic)",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase02",
+                "document-revisions":{
+                    "revision-a"       :   "01-Dec-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D31__TechnicalPlan__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D31__TechnicalPlan__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D31__TechnicalPlan__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D31__TechnicalPlan__Rev-A__.pdf"
+                }
+            },
+            "drawing-10"               :    {
+                "file-name"            :    "JH03_T02_D30__FoundationsPlan__Rev-A__.pdf",
+                "added-to-register"    :    "01-Dec-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Foundations Plan (Historic)",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase02",
+                "document-revisions":{
+                    "revision-a"       :   "01-Dec-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D30__FoundationsPlan__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_D30__FoundationsPlan__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D30__FoundationsPlan__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_D30__FoundationsPlan__Rev-A__.pdf"
+                }
+            },
+            "drawing-11"               :    {
+                "file-name"            :    "JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.pdf",
+                "added-to-register"    :    "17-Nov-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Prelim Structural Concept",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A1",
+                "document-status"      :    "Sketch Concept",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase02",
+                "document-revisions":{
+                    "revision-a"       :   "17-11-2025",
+                    "revision-b"       :    "03-Dec-2025",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__.pdf"
+                }
+            },
+            "drawing-12"               :    {
+                "file-name"            :    "JH03_T01_D31_-_FrontDesignRefinements__Rev-A.pdf",
+                "added-to-register"    :    "20-Aug-2025",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Front Design Refinements",   
+                "document-scale"       :    "1:100",
+                "document-size"        :    "A2",
+                "document-status"      :    "Concept Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase02",
+                "document-revisions":{
+                    "revision-a"       :   "20-08-2025",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T01_D31_-_FrontDesignRefinements__Rev-A.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T01_D31_-_FrontDesignRefinements__Rev-A.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T01_D31_-_FrontDesignRefinements__Rev-A.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T01_D31_-_FrontDesignRefinements__Rev-A.pdf"
+                }
+            },
+            "drawing-13":{
+                "file-name"             :    "JH03_T01_D30_-_FrontageDesignOptions__Rev-A.pdf",
+                "added-to-register"     :    "22-Mar-2025",
+                "document-type"         :    "Drawing",
+                "document-name"         :    "Prelim Frontage Options",
+                "document-scale"        :    "1:100",
+                "document-size"         :    "A1",
+                "document-status"       :    "Concept Phase Drawing",
+                "document-notes"        :    "NIL",
+                "design-phase"          :    "DesignPhase02",
+                "document-revisions":{
+                    "revision-a"        :    "18-08-2025"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T01_D30_-_FrontageDesignOptions__Rev-A.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T01_D30_-_FrontageDesignOptions__Rev-A.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T01_D30_-_FrontageDesignOptions__Rev-A.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T01_D30_-_FrontageDesignOptions__Rev-A.pdf"
+                }
+            },
+            "drawing-14":{
+                "file-name"             :    "JH03_T02_N30__PlanningCoveringLetter.pdf",
+                "added-to-register"     :    "20-Aug-2025",
+                "document-type"         :    "Document",
+                "document-name"         :    "Planning Covering Letter",
+                "document-scale"        :    "NIL",
+                "document-size"         :    "A4",
+                "document-status"       :    "Planning Phase Document",
+                "document-notes"        :    "NIL",
+                "design-phase"          :    "DesignPhase02",
+                "document-revisions":{
+                    "revision-a"        :    "20-08-2025"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_N30__PlanningCoveringLetter.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase02\\JH03_T02_N30__PlanningCoveringLetter.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_N30__PlanningCoveringLetter.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase02/JH03_T02_N30__PlanningCoveringLetter.pdf"
+                }
+            },
+            "drawing-15"               :    {
+                "file-name"            :    "JH03_T03_D23__StructuralPlan__RevC__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Proposed Structural Setting Out",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "09-Feb-2026",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\01__Plans\\JH03_T03_D23__StructuralPlan__RevC__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\01__Plans\\JH03_T03_D23__StructuralPlan__RevC__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/01__Plans/JH03_T03_D23__StructuralPlan__RevC__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/01__Plans/JH03_T03_D23__StructuralPlan__RevC__.pdf"
+                }
+            },
+            "drawing-16"               :    {
+                "file-name"            :    "JH03_T03_D24__RoofPlan__RevB__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Proposed Roof Plan",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "09-Feb-2026",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\01__Plans\\JH03_T03_D24__RoofPlan__RevB__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\01__Plans\\JH03_T03_D24__RoofPlan__RevB__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/01__Plans/JH03_T03_D24__RoofPlan__RevB__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/01__Plans/JH03_T03_D24__RoofPlan__RevB__.pdf"
+                }
+            },
+            "drawing-17"               :    {
+                "file-name"            :    "JH03_T03_D41__CrossSection__Sheet-01__RevB__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Technical Cross Section A - A",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "09-Feb-2026",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\03__CrossSections\\JH03_T03_D41__CrossSection__Sheet-01__RevB__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\03__CrossSections\\JH03_T03_D41__CrossSection__Sheet-01__RevB__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/03__CrossSections/JH03_T03_D41__CrossSection__Sheet-01__RevB__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/03__CrossSections/JH03_T03_D41__CrossSection__Sheet-01__RevB__.pdf"
+                }
+            },
+            "drawing-18"               :    {
+                "file-name"            :    "JH03_T03_D42__CrossSection__Sheet-02__RevB__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "Technical Cross Section B - B",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "09-Feb-2026",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\03__CrossSections\\JH03_T03_D42__CrossSection__Sheet-02__RevB__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\03__CrossSections\\JH03_T03_D42__CrossSection__Sheet-02__RevB__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/03__CrossSections/JH03_T03_D42__CrossSection__Sheet-02__RevB__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/03__CrossSections/JH03_T03_D42__CrossSection__Sheet-02__RevB__.pdf"
+                }
+            },
+            "drawing-19"               :    {
+                "file-name"            :    "JH03_T03_CM10__ChimneyBreast__Rev-A__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Chimney Breast Detail Plan & Specifications",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_CM10__ChimneyBreast__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_CM10__ChimneyBreast__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_CM10__ChimneyBreast__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_CM10__ChimneyBreast__Rev-A__.pdf"
+                }
+            },
+            "drawing-20"               :    {
+                "file-name"            :    "JH03_T03_CM20__Chimney__FireBox__RevA__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Chimney Fire Box Details & Specifications",   
+                "document-scale"       :    "1:10",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_CM20__Chimney__FireBox__RevA__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_CM20__Chimney__FireBox__RevA__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_CM20__Chimney__FireBox__RevA__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_CM20__Chimney__FireBox__RevA__.pdf"
+                }
+            },
+            "drawing-21"               :    {
+                "file-name"            :    "JH03_T03_CM40__Chimney__Capping__RevA__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Chimney Capping Details & Specifications",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_CM40__Chimney__Capping__RevA__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_CM40__Chimney__Capping__RevA__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_CM40__Chimney__Capping__RevA__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_CM40__Chimney__Capping__RevA__.pdf"
+                }
+            },
+            "drawing-22"               :    {
+                "file-name"            :    "JH03_T03_GF10__GroundFloorSlab__Rev-A__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Ground Floor Slab Details & U-Value Calculations",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_GF10__GroundFloorSlab__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_GF10__GroundFloorSlab__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_GF10__GroundFloorSlab__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_GF10__GroundFloorSlab__Rev-A__.pdf"
+                }
+            },
+            "drawing-23"               :    {
+                "file-name"            :    "JH03_T03_RF10__LoungeArea__PitchedRoof__Rev-A__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Lounge Area Pitched Roof Details & U-Value Calculations",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_RF10__LoungeArea__PitchedRoof__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_RF10__LoungeArea__PitchedRoof__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_RF10__LoungeArea__PitchedRoof__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_RF10__LoungeArea__PitchedRoof__Rev-A__.pdf"
+                }
+            },
+            "drawing-24"               :    {
+                "file-name"            :    "JH03_T03_RF12__AbutmentDetail__RF10-RF30__RevB__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Abutment Detail Showing Ventilation Strategy Between RF10 & RF30",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "09-Feb-2026",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\20__ConstructionDetails\\23__RoofDetails\\JH03_T03_RF12__AbutmentDetail__RF10-RF30__RevB__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\20__ConstructionDetails\\23__RoofDetails\\JH03_T03_RF12__AbutmentDetail__RF10-RF30__RevB__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/20__ConstructionDetails/23__RoofDetails/JH03_T03_RF12__AbutmentDetail__RF10-RF30__RevB__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/20__ConstructionDetails/23__RoofDetails/JH03_T03_RF12__AbutmentDetail__RF10-RF30__RevB__.pdf"
+                }
+            },
+            "drawing-25"               :    {
+                "file-name"            :    "JH03_T03_RF20__LoungeArea__ApexCownRoof__Rev-A__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Lead Crown Warm Roof Abutment, Details & U-Value Calculations",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_RF20__LoungeArea__ApexCownRoof__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_RF20__LoungeArea__ApexCownRoof__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_RF20__LoungeArea__ApexCownRoof__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_RF20__LoungeArea__ApexCownRoof__Rev-A__.pdf"
+                }
+            },
+            "drawing-26"               :    {
+                "file-name"            :    "JH03_T03_RF30__GreenFlatRoof__Rev-A__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Green Flat Warm Roof Details & U-Value Calculations",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_RF30__GreenFlatRoof__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_RF30__GreenFlatRoof__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_RF30__GreenFlatRoof__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_RF30__GreenFlatRoof__Rev-A__.pdf"
+                }
+            },
+            "drawing-27"               :    {
+                "file-name"            :    "JH03_T03_SP10__StepTransition__RevA__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Floor Height Change Transition & Steps Detail",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_SP10__StepTransition__RevA__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_SP10__StepTransition__RevA__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_SP10__StepTransition__RevA__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_SP10__StepTransition__RevA__.pdf"
+                }
+            },
+            "drawing-28"               :    {
+                "file-name"            :    "JH03_T03_WT10__BrickworkCavityWall__Rev-A__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Brickwork Cavity Wall Details & U-Value Calculations",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_WT10__BrickworkCavityWall__Rev-A__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03\\JH03_T03_WT10__BrickworkCavityWall__Rev-A__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_WT10__BrickworkCavityWall__Rev-A__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03/JH03_T03_WT10__BrickworkCavityWall__Rev-A__.pdf"
+                }
+            },
+            "drawing-29"               :    {
+                "file-name"            :    "JH03_T03_WT30__InsulatedShadowBoxSpandrel__Rev-B__.pdf",
+                "added-to-register"    :    "19-Jan-2026",
+                "document-type"        :    "Specification",
+                "document-name"        :    "Insulated Spandrel Details & U-Value Calculations",   
+                "document-scale"       :    "1:5",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "19-Jan-2026",
+                    "revision-b"       :    "09-Feb-2026",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\20__ConstructionDetails\\21__WallDetails\\JH03_T03_WT30__InsulatedShadowBoxSpandrel__Rev-B__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\20__ConstructionDetails\\21__WallDetails\\JH03_T03_WT30__InsulatedShadowBoxSpandrel__Rev-B__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/20__ConstructionDetails/21__WallDetails/JH03_T03_WT30__InsulatedShadowBoxSpandrel__Rev-B__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/20__ConstructionDetails/21__WallDetails/JH03_T03_WT30__InsulatedShadowBoxSpandrel__Rev-B__.pdf"
+                }
+            },
+            "drawing-30"               :    {
+                "file-name"            :    "JH03_T03_D52__3dModelView__Sheet-02__RevA__.pdf",
+                "added-to-register"    :    "09-Feb-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "3D Model View Sheet 02",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "09-Feb-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\10__3dViews\\JH03_T03_D52__3dModelView__Sheet-02__RevA__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\10__3dViews\\JH03_T03_D52__3dModelView__Sheet-02__RevA__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/10__3dViews/JH03_T03_D52__3dModelView__Sheet-02__RevA__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/10__3dViews/JH03_T03_D52__3dModelView__Sheet-02__RevA__.pdf"
+                }
+            },
+            "drawing-31"               :    {
+                "file-name"            :    "JH03_T03_D61__3dIsometricViews__TopDown__RevA__.pdf",
+                "added-to-register"    :    "09-Feb-2026",
+                "document-type"        :    "Drawing",
+                "document-name"        :    "3D Isometric Views - Top Down",   
+                "document-scale"       :    "1:50",
+                "document-size"        :    "A2",
+                "document-status"      :    "Construction Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions":{
+                    "revision-a"       :    "09-Feb-2026",
+                    "revision-b"       :    "NIL",
+                    "revision-c"       :    "NIL",
+                    "revision-d"       :    "NIL",
+                    "revision-e"       :    "NIL"
+                },
+                "document-links":{
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\10__3dViews\\JH03_T03_D61__3dIsometricViews__TopDown__RevA__.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\DesignPhase03__BuildingRegs__Content\\10__3dViews\\JH03_T03_D61__3dIsometricViews__TopDown__RevA__.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/10__3dViews/JH03_T03_D61__3dIsometricViews__TopDown__RevA__.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/DesignPhase03__BuildingRegs__Content/10__3dViews/JH03_T03_D61__3dIsometricViews__TopDown__RevA__.pdf"
+                }
+            },
+            "drawing-template"    :    {
+                "file-name"    :    "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}",
+                "added-to-register"    :    "{{ENTER_DATE}}",
+                "document-name"        :    "Drawing",
+                "document-type"        :    "Elevations Drawing",
+                "document-scale"       :    "1:50",
+                "document-status"      :    "Planning Phase Drawing",
+                "document-notes"       :    "NIL",
+                "design-phase"         :    "DesignPhase03",
+                "document-revisions"   :    {
+                    "revision-a"       :    "{{ENTER_DATE}}",
+                    "revision-b"       :    "{{ENTER_DATE}}",
+                    "revision-c"       :    "{{ENTER_DATE}}",
+                    "revision-d"       :    "{{ENTER_DATE}}",
+                    "revision-e"       :    "{{ENTER_DATE}}",
+                    "revision-f"       :    "{{ENTER_DATE}}"
+                },
+                "document-links"    :    {
+                    "png--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                    "pdf--windows-dir-path"    :    "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf",
+                    "png--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.png",
+                    "pdf--github-link-url"     :    "https://www.noble-architecture.com/na-project-portal/25-Projects/{{PLACEHOLDER_PATH_PLEASE_INSERT_ACTUAL_PROJECT_PATH_HERE}}.pdf"
+                }
+            }
+        },
+        "project-videos":{
+            "video-01":{
+                "file-name"             :    "VID01__ViewFromPergola.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "View From Pergola",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID01__ViewFromPergola.mp4"
+                }
+            },
+            "video-02":{
+                "file-name"             :    "VID02__InteriorToExteriorTransition.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "Interior To Exterior Transition",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID02__InteriorToExteriorTransition.mp4"
+                }
+            },
+            "video-03":{
+                "file-name"             :    "VID03__ViewFromSouthToNorth.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "View From South To North",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID03__ViewFromSouthToNorth.mp4"
+                }
+            },
+            "video-04":{
+                "file-name"             :    "VID04__SouthSidePath.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "South Side Path",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID04__SouthSidePath.mp4"
+                }
+            },
+            "video-05":{
+                "file-name"             :    "VID05__AerialView.mp4",
+                "added-to-register"     :    "03-Nov-2025",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "Aerial View",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID05__AerialView.mp4"
+                }
+            },
+            "video-template":{
+                "file-name"             :    "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}",
+                "added-to-register"     :    "{{ENTER_DATE}}",
+                "video-type"            :    "Project Video",
+                "video-name"            :    "Video Description",
+                "video-duration"        :    "NIL",
+                "video-status"          :    "Active",
+                "video-notes"           :    "NIL",
+                "video-links":{
+                    "cdn-url"           :    "https://cdn.example.com/videos/{{PROJECT_CODE}}/{{VIDEO_FILE_NAME}}.mp4"
+                }
+            }
+        }
+    }
+}
+}
