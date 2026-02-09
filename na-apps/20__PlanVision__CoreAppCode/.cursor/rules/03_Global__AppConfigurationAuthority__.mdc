@@ -1,0 +1,40 @@
+---
+alwaysApply: true
+---
+# Configuration Authority
+**CRITICAL:** `03__Src__AppModules/02__AppData/AppConfiguration__PlanVision__MainAppSettings__.json` is the SINGLE SOURCE OF TRUTH for ALL configuration values.
+- PlanVision App Config is the critical single source of truth for all configuration values.
+- All feature flags, behaviours, and settings must be sourced from the app config JSON.
+- Do not hardcode values in modules; read from config and pass values through.
+- App config path (relative): `03__Src__AppModules/02__AppData/AppConfiguration__PlanVision__MainAppSettings__.json`
+
+## Principle
+- JSON config is always source of truth.
+- All modules use `AppConfiguration__MainAppSettings__.json`, no overrides.
+
+## Must:
+- Use `=== true`. Never `|| true`.
+- Never override JSON with code defaults.
+- If JSON is `false`, keep it.
+- Check config before init.
+
+## Forbidden:
+- `appConfig?.setting || true`
+- Hardcoded/default config in code
+- `==` or type coercion
+
+## Always:
+- `===` for booleans
+- Compare to `true` directly
+- `??` (not `||`) for non-booleans
+- Wait for config load
+- Never override JSON `false`
+- Always check relevant setting in JSON
+
+## Never:
+- Use `||` for defaults
+- Use `==`
+- Hardcode config
+- Ignore JSON `false`
+- Use config before loaded
+- Use truthy checks

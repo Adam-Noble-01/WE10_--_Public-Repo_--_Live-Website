@@ -1,0 +1,42 @@
+---
+alwaysApply: true
+---
+
+## CRITICAL:
+**App is highly structured and modular, with a clear separation of concerns, this means you must always check module dependencies and imports / export before editing or writing code.**
+
+## HTML, CSS, JavaScript
+  - Core app shell is a static site using HTML, CSS, JS.
+  - Core app shell is stored in the GitHub Pages repository.
+  - Projects loaded via URL query.
+    - The URL query is used to load the project specific files from a different GitHub Pages repository.
+    - These files are relevant to the specific project.
+    - Loads static (GitHub) + dynamic/user (Cloudflare R2) files.
+  - Combines all of the above and serves to client.
+
+## GitHub Sites - Core App Shell
+  - This is where the static application source code is stored and served from: 
+  - Anything that is outside of the PlanVision App root directory needs to be accessed via the URL builder.
+    - This is because the GitHub Pages server does not have access to files outside of the PlanVision App root directory.
+
+## GitHub Sites - Project Specific Files
+  - Static project specific files are stored in the GitHub Pages repository.
+  - This includes.
+    - Each projects specific Data File (JSON)
+    - The Png Files for the project which will link to the dynamic image viewer.
+    - The PDF files for the project which will link to the dynamic download button.
+
+## Cloudflare 
+  - This is where the serverless functions are to operate and manage the dynamic project content.
+  - Usage of cloudflare Workers is required to operate and manage the dynamic project content.
+
+## Core App - Main App Configuration
+  - The main app exists and loads each project individually as needed, but the core app itself has its own configuration file.
+  - Master configuration file is located at: `03__Src__AppModules/02__AppData/AppConfiguration__PlanVision__MainAppSettings__.json`
+  - This file is the single source of truth for all main app configuration values.
+
+## Core App - Project Loading
+  - URL format: `?project=XX00`
+  - Static files from GitHub Pages, dynamic from Cloudflare R2
+  - Project config: `ProjectAdmin__ProjectConfig__.json`
+

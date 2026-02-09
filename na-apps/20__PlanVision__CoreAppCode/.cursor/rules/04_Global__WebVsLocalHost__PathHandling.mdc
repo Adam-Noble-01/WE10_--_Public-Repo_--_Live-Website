@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+---
+
+## URL Roots And Linking Rules
+
+The URL Tool must link live online resources across different roots:
+- Core app root (web):
+  - Root: `https://www.noble-architecture.com/na-apps/20__PlanVision__CoreAppCode`
+  - Index: `https://www.noble-architecture.com/na-apps/20__PlanVision__CoreAppCode/index.html`
+- Project portal root (web):
+  - Root: `https://www.noble-architecture.com/na-project-portal/`
+  - Typical project:
+    - `https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage`
+
+## URL Tool Behavior
+- **Live web usage**
+  - When constructing links to resources in different roots, the URL Tool must output absolute web URLs pointing to the live online versions.
+  - This is required because the core app and project content live under different web roots.
+**
+- **Localhost usage**
+  - When running locally, the URL Tool must use local relative paths instead of the live web roots.
+  - Local relative paths should mirror the repo folder structure for the core app and project portal.
+  This is the local path to the core app repository:
+  `D:\WE10_--_Public-Repo_--_Live-Website\na-apps\20__PlanVision__CoreAppCode`
+  This is the local path to the project portal repository:
+  `D:\WE10_--_Public-Repo_--_Live-Website\na-project-portal`
+    - Relative path to the project portal repository from the Application Shell Root:
+        `../na-project-portal`
+  This is a typical project folder:
+  `D:\WE10_--_Public-Repo_--_Live-Website\na-project-portal\25-Projects\JH03__RomerCottage`
+       - Relative path to the project folder from the Application Shell Root:
+        `../na-project-portal/25-Projects/JH03__RomerCottage`
+
+## Intent
+The same link-building logic must support both:
+- Live production URLs across multiple web roots.
+- Local development with relative paths.

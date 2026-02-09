@@ -1,0 +1,27 @@
+---
+description: Short HTML structure and region rules.
+alwaysApply: false
+---
+# HTML Rules
+
+- Use regional comments:
+    ```html
+    <!-- #Region ------------------------------------------ -->
+        <!-- Content (4-space indent) -->
+    <!-- endregion ---------------------------------------- -->
+    ```
+- Only 4-space indent (no tabs)
+- Head must include UTF-8, viewport, description, author, title, favicon (`data-asset-href`), css
+- Use semantic elements: `<header>`, `<nav>`, `<main>`, `<section>`, `<footer>`, etc.
+- ARIA/accessibility required on buttons/nav/inputs
+- IDs/classes: kebab-case, BEM for classes
+- Script order: ModuleDependencyManager, ConfigManager, AssetLoader, others, Main (last)
+- Close all regions
+
+NEVER:
+- Use tabs
+- Omit regions
+- Use generic divs when semantic available
+- Skip ARIA/alt text
+- Use inline styles
+

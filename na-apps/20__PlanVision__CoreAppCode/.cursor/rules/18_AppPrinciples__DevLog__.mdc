@@ -1,0 +1,23 @@
+---
+alwaysApply: true
+---
+# Development Log & Versioning
+- Always update the development log when making changes to the code.
+
+## Version Format
+`X.Y.Z` - Semantic versioning
+- **X** - Major (breaking changes)
+- **Y** - Minor (new features)
+- **Z** - Patch (bug fixes)
+
+## Version Milestones
+- `0.x.x` - Beta/Development
+- `1.0.0` - First stable release
+
+## Agent Responsibility
+**ALWAYS** add a version note to `DEVLOG.md` when:
+- Adding new features
+- Fixing significant bugs
+- Changing module structure
+- Modifying configuration schema
+- Updating API endpoints

@@ -1,0 +1,56 @@
+---
+alwaysApply: true
+---
+# Regional Structure (SHORT)
+
+Use regions for code folding + clarity.  
+**Indent all region content 4 spaces.**  
+**Close every region!**  
+**No tabs.**
+
+---
+
+**JavaScript:**
+```javascript
+// #Region ------------------------------------------------
+// BLOCK TYPE | Desc
+// --------------------------------------------------------
+
+    // Content (4-space indent)
+
+// endregion ----------------------------------------------
+```
+
+**CSS:**
+```css
+/*  #Region ------------------------------------------------
+ * BLOCK TYPE | Desc
+ * -------------------------------------------------------- */
+
+    /* CSS (4-space indent) */
+
+/* endregion ---------------------------------------------- */
+```
+
+**HTML:**
+```html
+<!-- #Region ------------------------------------------ -->
+<!-- BLOCK TYPE | Desc                                -->
+<!-- ----------------------------------------------- -->
+
+    <!-- Content/Components (4-space indent) -->
+
+<!-- endregion ---------------------------------------- -->
+```
+
+**Block Types:**  
+JS/CSS: MODULE, FUNCTION, CLASS, DATA, CONST, STATE, API, INIT  
+HTML: REGION, UI HEADER, UI NAV, MAIN, SECTION, FOOTER, etc.
+
+---
+
+**Dash counts:**  
+JS/CSS: open 60, section 56 (indented), close 50  
+HTML: open 65, close 60
+
+---

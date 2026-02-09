@@ -1,0 +1,27 @@
+{
+	"folders": [
+		{
+			"name": "20__NaWebApp__PlanVision",
+			"description": "The Noble Architecture PlanVision Web App Code - Root Directory",
+			"path": "."
+		},
+		{
+			"name": "01__Assets__NaApps__CommonAssets",
+			"description": "Common shared assets for all Noble Architecture Web Apps",
+			"path": "../01__Assets__NaApps__CommonAssets"
+		},
+		{
+			"name": "NobleArchitecture__ProjectPortal__ProjectFilesAndContent",
+			"description": "The Noble Architecture Project Portal - Project Files and Content per Project per Client per Year",
+			"path": "../../na-project-portal"
+		},
+		{
+			"name": "10__NaProjectAdmin__DocumentSystem__CoreAppCode",
+			"description": "The Noble Architecture Project Admin & Documentation System Core App Code - Root Directory",
+			"path": "../10__NaProjectAdmin__DocumentSystem__CoreAppCode"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "10__NaProjectAdmin__DocumentSystem__CoreAppCode"
+	}
+}

@@ -1,0 +1,50 @@
+---
+description: Noble Architecture CSS style guide.
+alwaysApply: false
+---
+# CSS Guide (Short)
+
+- Header:  
+  ```css
+  /* =============================================================================
+   * NOBLE ARCHITECTURE - [STYLESHEET NAME]
+   * =============================================================================
+   */
+  ```
+- Regions:  
+  Use regions for organization; follow JS 60-char divider.
+
+- Align all property colons at ~column 40.
+
+- Indent 4 spaces in regions.
+
+- **Variables:**  
+  Use CSS vars—`--App_Category_Name`—for colors, spacing, reused values.
+
+- **Naming:**  
+  BEM:  
+    - `.block`  
+    - `.block__element`  
+    - `.block--modifier`
+
+- **Fonts:**  
+  Don't use `@font-face`.  
+  Fonts loaded with `CommonUtils__AssetLoader__.js` (get `'Open Sans'` 300–700).  
+  ```css
+  body { font-family: 'Open Sans', ...; font-weight: 400; }
+  ```
+
+- Include inline comments for unclear props.
+
+**ALWAYS:**  
+- File header  
+- Regions  
+- Column-alignment  
+- CSS vars  
+- BEM
+
+**NEVER:**  
+- Omit header  
+- Hardcode colors/spacing  
+- Use tabs  
+- Skip alignment

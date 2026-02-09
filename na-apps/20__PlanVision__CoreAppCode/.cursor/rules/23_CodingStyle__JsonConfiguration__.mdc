@@ -1,0 +1,34 @@
+---
+description: Short JSON config style rules.
+alwaysApply: false
+---
+# JSON Config Rules
+
+- File: `Data__[ConfigName]__.json`
+- 4-space indent, double quotes, camelCase, no tabs, no trailing commas
+- Align property colons within each level
+- Lowercase booleans, plain numbers, no quotes for numbers/booleans
+- Include description fields for complex/feature objects
+
+**Example:**
+```json
+{
+    "appName"   : "NaProjectAdmin",
+    "appAuthor" : "Adam Noble",
+    "AppConfig" : {
+        "devMode" : true,
+        "Features": {"X": {"enabled": true, "description": "Demo"}}
+    }
+}
+```
+
+**Load:**  
+```javascript
+await (window.NaProjectAdmin.configLoadPromise = (async ()=>{
+    const r = await fetch('Data__MainAppConfig__.json');
+    window.NaProjectAdmin.Config = await r.json();
+    window.dispatchEvent(new CustomEvent('configLoaded'));
+})());
+// Usage: appConfig?.Features?.X?.enabled === true
+```
+See `03_Global__ConfigurationAuthority__.mdc` for access rules.

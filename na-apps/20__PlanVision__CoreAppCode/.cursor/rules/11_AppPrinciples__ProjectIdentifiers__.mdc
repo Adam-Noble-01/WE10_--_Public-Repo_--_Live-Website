@@ -1,0 +1,29 @@
+---
+alwaysApply: true
+---
+# Project Identifiers
+
+Use the standardized format:  
+**Project code:** `[A-Z][A-Z][0-9][0-9]`  
+- Example: `AB01` (Alice Brown, 1st project), `JH03` (John Harris, 3rd project)
+
+- **First two letters:** Client initials (uppercase, First+Last)
+- **Last two digits:** Project number (01–99; never 00)
+
+**ALWAYS:**  
+- Prefix project code variables/functions with `NaProjectCode__`
+- Validate all project codes (use format, enforce rules above)
+- Consistently use codes in filenames, routes, and data keys
+
+**NEVER:**  
+- Use lowercase in project codes
+- Use `00` as project number
+- Hardcode unvalidated codes
+
+**Project key master index:**  
+Stored locally at:  
+`../../../10__NaProjectAdmin__DocumentSystem__CoreAppCode/03__Src__AppModules/02__AppData/AppConfiguration__ProjectKeysIndex__.json`  
+*For web: Use the URL builder, as GH Pages can’t access outside root directory*
+
+**URL Query Format:**  
+`?project=XX00` (where XX00 is the required project code)
