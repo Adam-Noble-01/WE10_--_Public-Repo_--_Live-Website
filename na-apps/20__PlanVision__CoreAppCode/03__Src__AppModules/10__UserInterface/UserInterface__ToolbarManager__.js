@@ -76,6 +76,7 @@
 
             // FUNCTION | Toggle Toolbar Visibility
             // Toggles between open and collapsed states
+            // When a tool is active, only closing is allowed (not opening)
             // ------------------------------------------------------------
             const Na__Toolbar__Toggle = function () {
                 // Dismiss tutorial overlay if visible
@@ -84,16 +85,16 @@
                     console.log('[ToolbarManager] Tutorial overlay dismissed');
                 }
 
-                // Check if toggle is allowed
-                if (!Na__Toolbar__CanToggle()) {
-                    console.log('[ToolbarManager] Toggle blocked - tool is active');
-                    return;
-                }
-
                 // Toggle toolbar state
                 if (getIsToolbarOpen && setIsToolbarOpen && toolbar) {
                     const currentState = getIsToolbarOpen();
                     const newState = !currentState;
+
+                    // If trying to open while a tool is active, block it
+                    if (newState === true && !Na__Toolbar__CanToggle()) {
+                        console.log('[ToolbarManager] Open blocked - tool is active');
+                        return;
+                    }
 
                     setIsToolbarOpen(newState);
                     toolbar.classList.toggle('collapsed', !newState);
@@ -153,18 +154,37 @@
         // endregion ----------------------------------------------
 
         // #Region ------------------------------------------------
+        // CANVAS INTERACTION | Smart Menu Auto-Hide
+        // --------------------------------------------------------
+
+            // FUNCTION | Close On Canvas Use
+            // Closes the toolbar when the user interacts with the canvas
+            // (panning, zooming, measurement tool use)
+            // ------------------------------------------------------------
+            const Na__Toolbar__CloseOnCanvasUse = function () {
+                if (getIsToolbarOpen && getIsToolbarOpen()) {
+                    Na__Toolbar__Close();
+                    console.log('[ToolbarManager] Toolbar closed via canvas interaction');
+                }
+            };
+            // ---------------------------------------------------------------
+
+        // endregion ----------------------------------------------
+
+        // #Region ------------------------------------------------
         // EXPORTS | Module API
         // --------------------------------------------------------
 
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.UserInterface = window.NaPlanVision.UserInterface || {};
             window.NaPlanVision.UserInterface.ToolbarManager = {
-                Na__Toolbar__Initialize  : Na__Toolbar__Initialize,
-                Na__Toolbar__Toggle      : Na__Toolbar__Toggle,
-                Na__Toolbar__Open        : Na__Toolbar__Open,
-                Na__Toolbar__Close       : Na__Toolbar__Close,
-                Na__Toolbar__IsOpen      : Na__Toolbar__IsOpen,
-                Na__Toolbar__CanToggle   : Na__Toolbar__CanToggle
+                Na__Toolbar__Initialize        : Na__Toolbar__Initialize,
+                Na__Toolbar__Toggle            : Na__Toolbar__Toggle,
+                Na__Toolbar__Open              : Na__Toolbar__Open,
+                Na__Toolbar__Close             : Na__Toolbar__Close,
+                Na__Toolbar__IsOpen            : Na__Toolbar__IsOpen,
+                Na__Toolbar__CanToggle         : Na__Toolbar__CanToggle,
+                Na__Toolbar__CloseOnCanvasUse  : Na__Toolbar__CloseOnCanvasUse
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

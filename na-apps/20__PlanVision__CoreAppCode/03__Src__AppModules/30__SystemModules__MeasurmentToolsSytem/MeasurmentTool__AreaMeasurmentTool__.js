@@ -39,16 +39,44 @@
         // EVENTS | Mouse Event Handlers
         // ------------------------------------------------------------
 
+            // Tolerance in plan-space pixels for snapping to the first point
+            const CLOSE_TOLERANCE = 30;
+
             AreaTool.onMouseDown = function(context, pos) {
-                const { state } = context;
+                const { state, hideFinishButton, showFinishButton, adjustConfirmButtonPosition, helpers } = context;
+
+                // If shape is closed (waiting for Accept/Cancel), a new click reopens for editing
+                if (state.isAreaComplete) {
+                    state.isAreaComplete = false;
+                    hideFinishButton();
+                    state.measuringPoints.push(pos);
+                    return true;
+                }
+
+                // Snap-to-close: if clicking near the first point with 3+ points, close the loop
+                if (state.measuringPoints.length >= 3) {
+                    var distToFirst = helpers.dist(pos, state.measuringPoints[0]);
+                    if (distToFirst <= CLOSE_TOLERANCE) {
+                        state.isAreaComplete = true;
+                        showFinishButton();
+                        adjustConfirmButtonPosition();
+                        return true;
+                    }
+                }
+
                 state.measuringPoints.push(pos);
                 return true;
             };
 
-            AreaTool.onMouseUp = function(context, event) {
-                const { state, requestRender } = context;
-                if (event && event.detail === 2) {
-                    state.isAreaComplete = true;
+            AreaTool.onMouseUp = function(context, pos, e) {
+                const { state, requestRender, showFinishButton, adjustConfirmButtonPosition } = context;
+                if (e && e.detail === 2) {
+                    // Only close if we have enough points for a polygon
+                    if (state.measuringPoints.length >= 3) {
+                        state.isAreaComplete = true;
+                        showFinishButton();
+                        adjustConfirmButtonPosition();
+                    }
                     requestRender();
                     return true;
                 }
@@ -64,7 +92,11 @@
             AreaTool.renderPreview = function(context) {
                 const { state, helpers, getRenderContext } = context;
                 if (state.measuringPoints.length > 0) {
-                    helpers.drawOpenPolygon(getRenderContext(), state.measuringPoints, "red");
+                    if (state.isAreaComplete) {
+                        helpers.drawPolygon(getRenderContext(), state.measuringPoints, "rgba(255,0,0,0.2)", "red");
+                    } else {
+                        helpers.drawOpenPolygon(getRenderContext(), state.measuringPoints, "red");
+                    }
                     helpers.drawMarkers(getRenderContext(), state.measuringPoints, "red");
                 }
             };
@@ -84,7 +116,7 @@
         // ------------------------------------------------------------
 
             AreaTool.finalize = function(context) {
-                const { state, helpers, getRenderContext, hideFinishButton, hideCancelTool, setCursor } = context;
+                const { state, helpers, getRenderContext } = context;
                 if (state.measuringPoints.length <= 2) return null;
 
                 const renderContext = getRenderContext();
@@ -97,11 +129,9 @@
                     areaM2: areaM2
                 };
 
+                // Reset tool-specific state (main system handles full deactivation)
                 state.measuringPoints = [];
                 state.isAreaComplete = false;
-                hideCancelTool();
-                setCursor("default");
-                hideFinishButton();
                 return measurement;
             };
 

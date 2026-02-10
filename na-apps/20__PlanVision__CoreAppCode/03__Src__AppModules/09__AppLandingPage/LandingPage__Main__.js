@@ -64,8 +64,7 @@
 
                 // Build the landing page content
                 var html = '';
-                html += renderProjectHeader(projectDetails, phaseConfig);
-                html += renderDrawingRegister(folderGroups);
+                html += renderDrawingRegister(folderGroups, projectDetails, phaseConfig);
 
                 overlayElement.innerHTML = html;
 
@@ -114,14 +113,22 @@
         // RENDERING | Build Landing Page Sections
         // --------------------------------------------------------
 
-            // FUNCTION | Render Project Header
-            // Shows project name, address, and active design phase
+            // FUNCTION | Render Drawing Register Table
+            // Builds a grouped table of all documents in the current phase
             // ------------------------------------------------------------
-            function renderProjectHeader(details, phaseConfig) {
-                var projectName = details['project-name-nickname'] || 'Project';
-                var town        = details['project-address-town'] || '';
-                var county      = details['project-address-county'] || '';
-                var postcode    = details['project-address-postcode'] || '';
+            function renderDrawingRegister(folderGroups, projectDetails, phaseConfig) {
+                if (!folderGroups || folderGroups.length === 0) {
+                    return '<div class="landing-register-section"><p>No documents available.</p></div>';
+                }
+
+                // Project details for header
+                projectDetails = projectDetails || {};
+                phaseConfig = phaseConfig || {};
+                
+                var projectName = projectDetails['project-name-nickname'] || 'Project';
+                var town        = projectDetails['project-address-town'] || '';
+                var county      = projectDetails['project-address-county'] || '';
+                var postcode    = projectDetails['project-address-postcode'] || '';
 
                 // Build address string from non-NIL parts
                 var addressParts = [];
@@ -140,51 +147,43 @@
                 }
 
                 var html = '';
-                html += '<div class="landing-project-header">';
-                html +=     '<div class="landing-project-name">' + escapeHtml(projectName) + '</div>';
-
-                if (addressStr) {
-                    html += '<div class="landing-project-address">' + escapeHtml(addressStr) + '</div>';
-                }
-
-                html +=     '<div class="landing-phase-info">';
+                html += '<div class="landing-register-section">';
+                html +=     '<div class="landing-register-content">';
+                html +=         '<div class="landing-register-card">';
+                
+                // Document-style header inside card
+                html +=             '<div class="landing-document-header">';
+                html +=                 '<div class="landing-document-title-row">';
+                html +=                     '<div class="landing-project-name">' + escapeHtml(projectName) + '</div>';
                 if (phaseDesc) {
-                    html += '<span class="landing-phase-badge">' + escapeHtml(phaseDesc) + '</span>';
+                    html +=                 '<span class="landing-phase-badge">' + escapeHtml(phaseDesc) + '</span>';
+                }
+                html +=                 '</div>';
+                html +=                 '<div class="landing-document-info-row">';
+                if (addressStr) {
+                    html +=                 '<div class="landing-project-address">' + escapeHtml(addressStr) + '</div>';
                 }
                 if (lastUpdated) {
-                    html += '<span class="landing-phase-date">Last Updated: ' + escapeHtml(lastUpdated) + '</span>';
+                    html +=                 '<span class="landing-phase-date">Last Updated: ' + escapeHtml(lastUpdated) + '</span>';
                 }
-                html +=     '</div>';
-                html += '</div>';
-
-                return html;
-            }
-            // ---------------------------------------------------------------
-
-            // FUNCTION | Render Drawing Register Table
-            // Builds a grouped table of all documents in the current phase
-            // ------------------------------------------------------------
-            function renderDrawingRegister(folderGroups) {
-                if (!folderGroups || folderGroups.length === 0) {
-                    return '<div class="landing-register-section"><p>No documents available.</p></div>';
-                }
-
-                var html = '';
-                html += '<div class="landing-register-section">';
-                html +=     '<div class="landing-section-title">Drawing Register</div>';
-                html +=     '<div class="landing-register-table-wrapper">';
-                html +=     '<table class="landing-register-table">';
-                html +=         '<thead>';
-                html +=             '<tr>';
-                html +=                 '<th>Code</th>';
-                html +=                 '<th>Document Name</th>';
-                html +=                 '<th>Type</th>';
-                html +=                 '<th>Scale</th>';
-                html +=                 '<th>Size</th>';
-                html +=                 '<th>Revision</th>';
-                html +=             '</tr>';
-                html +=         '</thead>';
-                html +=         '<tbody>';
+                html +=                 '</div>';
+                html +=             '</div>';
+                
+                // Register title and table
+                html +=             '<div class="landing-register-title">Drawing Register</div>';
+                html +=             '<div class="landing-register-table-wrapper">';
+                html +=             '<table class="landing-register-table">';
+                html +=                 '<thead>';
+                html +=                     '<tr>';
+                html +=                         '<th>Code</th>';
+                html +=                         '<th>Document Name</th>';
+                html +=                         '<th>Type</th>';
+                html +=                         '<th>Scale</th>';
+                html +=                         '<th>Size</th>';
+                html +=                         '<th>Revision</th>';
+                html +=                     '</tr>';
+                html +=                 '</thead>';
+                html +=                 '<tbody>';
 
                 for (var g = 0; g < folderGroups.length; g++) {
                     var group    = folderGroups[g];
@@ -210,15 +209,17 @@
                         html +=     '<td class="landing-cell-code">' + escapeHtml(parsed.code) + '</td>';
                         html +=     '<td>' + escapeHtml(parsed.name) + '</td>';
                         html +=     '<td>' + escapeHtml(docType) + '</td>';
-                        html +=     '<td class="landing-cell-center">' + escapeHtml(scale) + '</td>';
-                        html +=     '<td class="landing-cell-center">' + escapeHtml(size) + '</td>';
-                        html +=     '<td class="landing-cell-center">' + escapeHtml(parsed.revision) + '</td>';
+                        html +=     '<td>' + escapeHtml(scale) + '</td>';
+                        html +=     '<td>' + escapeHtml(size) + '</td>';
+                        html +=     '<td>' + escapeHtml(parsed.revision) + '</td>';
                         html += '</tr>';
                     }
                 }
 
-                html +=         '</tbody>';
-                html +=     '</table>';
+                html +=                 '</tbody>';
+                html +=             '</table>';
+                html +=             '</div>';
+                html +=         '</div>';
                 html +=     '</div>';
                 html += '</div>';
 

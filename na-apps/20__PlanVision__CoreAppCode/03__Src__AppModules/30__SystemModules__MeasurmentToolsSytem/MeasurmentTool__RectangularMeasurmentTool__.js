@@ -38,40 +38,69 @@
 
         // #region --------------------------------------------------------
         // EVENTS | Mouse Event Handlers
+        // Supports both click-click and click-drag-release flows
         // ------------------------------------------------------------
 
             RectangleTool.onMouseDown = function(context, pos) {
-                const { state } = context;
+                const { state, hideFinishButton, adjustConfirmButtonPosition, showFinishButton } = context;
+
+                // First click: set start point
                 if (!state.isRectMeasuring) {
                     state.measuringPoints = [pos];
                     state.isRectMeasuring = true;
-                    state.isRectDragging = true;
+                    state.isRectDragging = false;
+                    state.isRectLocked = false;
+                    hideFinishButton();
                     return true;
                 }
-                return false;
-            };
 
-            RectangleTool.onMouseMove = function(context, pos) {
-                const { state } = context;
-                if (state.isRectMeasuring && state.isRectDragging) {
+                // Second click: set end point (click-click flow)
+                if (state.isRectMeasuring && state.measuringPoints.length >= 1 && !state.isRectLocked) {
                     if (state.measuringPoints.length === 1) {
                         state.measuringPoints.push(pos);
                     } else {
                         state.measuringPoints[1] = pos;
                     }
-                    return true;
-                }
-                return false;
-            };
-
-            RectangleTool.onMouseUp = function(context) {
-                const { state, adjustConfirmButtonPosition, showFinishButton } = context;
-                if (state.isRectMeasuring && state.isRectDragging) {
+                    state.isRectLocked = true;
                     state.isRectDragging = false;
                     adjustConfirmButtonPosition();
                     showFinishButton();
                     return true;
                 }
+
+                return false;
+            };
+
+            RectangleTool.onMouseMove = function(context, pos) {
+                const { state, adjustConfirmButtonPosition } = context;
+
+                // Update preview while measuring and not locked
+                if (state.isRectMeasuring && !state.isRectLocked) {
+                    state.isRectDragging = true;
+                    if (state.measuringPoints.length === 1) {
+                        state.measuringPoints.push(pos);
+                    } else {
+                        state.measuringPoints[1] = pos;
+                    }
+                    adjustConfirmButtonPosition();
+                    return true;
+                }
+
+                return false;
+            };
+
+            RectangleTool.onMouseUp = function(context) {
+                const { state, adjustConfirmButtonPosition, showFinishButton } = context;
+
+                // Lock on mouse up after drag (click-drag-release flow)
+                if (state.isRectMeasuring && state.isRectDragging && state.measuringPoints.length === 2 && !state.isRectLocked) {
+                    state.isRectLocked = true;
+                    state.isRectDragging = false;
+                    adjustConfirmButtonPosition();
+                    showFinishButton();
+                    return true;
+                }
+
                 return false;
             };
 
@@ -105,7 +134,7 @@
         // ------------------------------------------------------------
 
             RectangleTool.finalize = function(context) {
-                const { state, helpers, getRenderContext, hideFinishButton, hideCancelTool, setCursor } = context;
+                const { state, helpers, getRenderContext } = context;
                 if (state.measuringPoints.length !== 2) return null;
 
                 const renderContext = getRenderContext();
@@ -128,12 +157,11 @@
                     areaM2: areaM2
                 };
 
+                // Reset tool-specific state (main system handles full deactivation)
                 state.measuringPoints = [];
                 state.isRectMeasuring = false;
                 state.isRectDragging = false;
-                hideCancelTool();
-                setCursor("default");
-                hideFinishButton();
+                state.isRectLocked = false;
                 return measurement;
             };
 
@@ -142,6 +170,7 @@
                 state.measuringPoints = [];
                 state.isRectMeasuring = false;
                 state.isRectDragging = false;
+                state.isRectLocked = false;
             };
 
         // endregion --------------------------------------------------

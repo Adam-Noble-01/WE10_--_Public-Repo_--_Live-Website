@@ -53,6 +53,10 @@
             return window.NaPlanVision?.MarkupToolsSystem?.Main;
         }
 
+        function toolbarManager() {
+            return window.NaPlanVision?.UserInterface?.ToolbarManager;
+        }
+
     // endregion ----------------------------------------------
 
     // #region ------------------------------------------------
@@ -134,6 +138,9 @@
                 }
 
                 // Default: start panning
+                var tb = toolbarManager();
+                if (tb && tb.Na__Toolbar__CloseOnCanvasUse) tb.Na__Toolbar__CloseOnCanvasUse();
+
                 setState({
                     isDragging: true,
                     lastX: e.touches[0].clientX,
@@ -141,6 +148,9 @@
                 });
             } else if (e.touches.length === 2) {
                 // Start pinch-to-zoom
+                var tb2 = toolbarManager();
+                if (tb2 && tb2.Na__Toolbar__CloseOnCanvasUse) tb2.Na__Toolbar__CloseOnCanvasUse();
+
                 isPinching = true;
                 pinchStartDist = touchDistance(e.touches[0], e.touches[1]);
                 pinchMidpoint = touchMidpoint(e.touches[0], e.touches[1]);

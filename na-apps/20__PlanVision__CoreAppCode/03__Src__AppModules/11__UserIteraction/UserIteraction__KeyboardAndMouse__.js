@@ -47,6 +47,10 @@
             return window.NaPlanVision?.MarkupToolsSystem?.Main;
         }
 
+        function toolbarManager() {
+            return window.NaPlanVision?.UserInterface?.ToolbarManager;
+        }
+
     // endregion ----------------------------------------------
 
     // #region ------------------------------------------------
@@ -123,6 +127,9 @@
             }
 
             // Default: start panning
+            const tb = toolbarManager();
+            if (tb && tb.Na__Toolbar__CloseOnCanvasUse) tb.Na__Toolbar__CloseOnCanvasUse();
+
             setState({
                 isDragging: true,
                 lastX: e.clientX,
@@ -147,7 +154,7 @@
 
             // Delegate to measurement system
             const meas = measSystem();
-            if (meas && meas.handleMouseUp && meas.handleMouseUp(e)) {
+            if (meas && meas.Na__Measure__HandleMouseUp && meas.Na__Measure__HandleMouseUp(e)) {
                 return;
             }
 
@@ -163,6 +170,10 @@
 
         function onWheel(e) {
             e.preventDefault();
+
+            const tb = toolbarManager();
+            if (tb && tb.Na__Toolbar__CloseOnCanvasUse) tb.Na__Toolbar__CloseOnCanvasUse();
+
             const zoomChange = e.deltaY * -0.001;
             if (appContext.applyZoom) {
                 appContext.applyZoom(zoomChange, e.offsetX, e.offsetY);

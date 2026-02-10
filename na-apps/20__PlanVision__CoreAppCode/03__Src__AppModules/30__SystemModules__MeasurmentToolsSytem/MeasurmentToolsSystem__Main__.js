@@ -47,9 +47,11 @@
                 linearMeasurementLocked: false,
                 isRectMeasuring: false,
                 isRectDragging: false,
+                isRectLocked: false,
                 isAreaComplete: false,
                 hasShownLinearInstructions: false,
-                hasShownAreaInstructions: false
+                hasShownAreaInstructions: false,
+                hasShownRectInstructions: false
             };
 
             let config = DEFAULT_CONFIG;
@@ -63,7 +65,9 @@
                 finishHost: null,
                 measureInfo: null,
                 cancelToolBtn: null,
-                finishBtn: null
+                finishBtn: null,
+                cancelMeasureBtn: null,
+                actionBtnsContainer: null
             };
 
         // endregion --------------------------------------------------
@@ -152,17 +156,24 @@
                     </div>
                 `;
 
-                ui.finishHost.innerHTML = `<button id="finishMeasurementBtn">Confirm</button>`;
+                ui.finishHost.innerHTML = `
+                    <div class="measurement-action-buttons" id="measurementActionBtns">
+                        <button id="finishMeasurementBtn">Accept</button>
+                        <button id="cancelMeasurementBtn">Cancel</button>
+                    </div>
+                `;
 
                 ui.measureInfo = document.getElementById("measureInfo");
                 ui.cancelToolBtn = document.getElementById("cancelToolBtn");
                 ui.finishBtn = document.getElementById("finishMeasurementBtn");
+                ui.cancelMeasureBtn = document.getElementById("cancelMeasurementBtn");
+                ui.actionBtnsContainer = document.getElementById("measurementActionBtns");
 
                 if (ui.cancelToolBtn) {
                     ui.cancelToolBtn.style.display = "none";
                 }
-                if (ui.finishBtn) {
-                    ui.finishBtn.style.display = "none";
+                if (ui.actionBtnsContainer) {
+                    ui.actionBtnsContainer.style.display = "none";
                 }
             }
 
@@ -200,6 +211,9 @@
                 if (ui.finishBtn) {
                     ui.finishBtn.addEventListener("click", finalizeActiveTool);
                 }
+                if (ui.cancelMeasureBtn) {
+                    ui.cancelMeasureBtn.addEventListener("click", cancelActiveMeasurement);
+                }
             }
 
         // endregion --------------------------------------------------
@@ -220,6 +234,11 @@
                 if (tool && tool.onActivate) {
                     tool.onActivate(createToolContext());
                 }
+
+                // Auto-hide menu when tool activates (frees screen space)
+                if (window.NaPlanVision?.UserInterface?.ToolbarManager) {
+                    window.NaPlanVision.UserInterface.ToolbarManager.Na__Toolbar__Close();
+                }
             }
 
             function cancelTool() {
@@ -229,6 +248,8 @@
                 state.linearMeasurementLocked = false;
                 state.isRectMeasuring = false;
                 state.isRectDragging = false;
+                state.isRectLocked = false;
+                state.isAreaComplete = false;
                 hideCancelTool();
                 hideFinishButton();
                 appContext.planCanvas.style.cursor = "default";
@@ -249,6 +270,13 @@
                     state.measurements.push(measurement);
                     updateMeasureInfo();
                 }
+                // Deactivate tool after accepting measurement
+                cancelTool();
+            }
+
+            function cancelActiveMeasurement() {
+                // Discard in-progress measurement and deactivate tool
+                cancelTool();
             }
 
         // endregion --------------------------------------------------
@@ -289,19 +317,24 @@
             }
 
             function showFinishButton() {
-                if (ui.finishBtn) {
-                    ui.finishBtn.style.display = "block";
+                if (ui.actionBtnsContainer) {
+                    ui.actionBtnsContainer.style.display = "flex";
                 }
             }
 
             function hideFinishButton() {
-                if (ui.finishBtn) {
-                    ui.finishBtn.style.display = "none";
+                if (ui.actionBtnsContainer) {
+                    ui.actionBtnsContainer.style.display = "none";
                 }
             }
 
             function adjustConfirmButtonPosition() {
-                if (!ui.finishBtn || !state.currentTool) {
+                if (!ui.actionBtnsContainer || !state.currentTool) {
+                    hideFinishButton();
+                    return;
+                }
+                // Area tool: only show Accept/Cancel after shape is closed (double-click)
+                if (state.currentTool === "area" && !state.isAreaComplete) {
                     hideFinishButton();
                     return;
                 }
@@ -313,11 +346,11 @@
                     const sy = (lastPt.y * appState.zoomFactor) + appState.offsetY;
 
                     if (appContext.isTouchDevice) {
-                        ui.finishBtn.style.left = (sx + config.confirmButtonOffsets.touch.x) + "px";
-                        ui.finishBtn.style.top = (sy + config.confirmButtonOffsets.touch.y) + "px";
+                        ui.actionBtnsContainer.style.left = (sx + config.confirmButtonOffsets.touch.x) + "px";
+                        ui.actionBtnsContainer.style.top = (sy + config.confirmButtonOffsets.touch.y) + "px";
                     } else {
-                        ui.finishBtn.style.left = (sx + config.confirmButtonOffsets.pc.x) + "px";
-                        ui.finishBtn.style.top = (sy + config.confirmButtonOffsets.pc.y) + "px";
+                        ui.actionBtnsContainer.style.left = (sx + config.confirmButtonOffsets.pc.x) + "px";
+                        ui.actionBtnsContainer.style.top = (sy + config.confirmButtonOffsets.pc.y) + "px";
                     }
                 } else {
                     hideFinishButton();
@@ -338,30 +371,29 @@
                 if (tool === "linear" && !state.hasShownLinearInstructions) {
                     state.hasShownLinearInstructions = true;
                     text.innerText =
-                        "LINEAR TOOL:\\n\\n" +
-                        "This Tool Functions As A Tape Measure\\n" +
-                        " \\n" +
-                        "1. Click to set the starting point.\\n" +
-                        "2. Click and drag the dimension line\\n" +
-                        "3. Press 'Confirm' to finalise or 'Cancel Tool' to exit.";
+                        "LINEAR TOOL:\n\n" +
+                        "This Tool Functions As A Tape Measure\n\n" +
+                        "1. Click to set the starting point.\n" +
+                        "2. Click again to set the end point (or drag).\n" +
+                        "3. Press 'Accept' to commit or 'Cancel' to discard.";
                     displayInstructionsOverlay();
                 }
                 if (tool === "area" && !state.hasShownAreaInstructions) {
                     state.hasShownAreaInstructions = true;
                     text.innerText =
-                        "AREA TOOL:\\n\\n" +
-                        "1. Click each corner in turn.\\n" +
-                        "2. Press 'Confirm' to close the shape.\\n" +
-                        "3. Use 'Cancel Tool' to exit without finishing.";
+                        "AREA TOOL:\n\n" +
+                        "1. Click each corner in turn.\n" +
+                        "2. Double-click to close the shape.\n" +
+                        "3. Accept or Cancel to commit/discard. Click on the plan to add more points and edit before accepting.";
                     displayInstructionsOverlay();
                 }
-                if (tool === "rectangle" && !state.hasShownAreaInstructions) {
-                    state.hasShownAreaInstructions = true;
+                if (tool === "rectangle" && !state.hasShownRectInstructions) {
+                    state.hasShownRectInstructions = true;
                     text.innerText =
-                        "RECTANGLE TOOL:\\n\\n" +
-                        "1. Click and drag diagonally to draw a rectangle.\\n" +
-                        "2. Release to set the size.\\n" +
-                        "3. Press 'Confirm' to finalise or 'Cancel Tool' to exit.";
+                        "RECTANGLE TOOL:\n\n" +
+                        "1. Click to set the first corner.\n" +
+                        "2. Click again to set the opposite corner (or drag).\n" +
+                        "3. Press 'Accept' to commit or 'Cancel' to discard.";
                     displayInstructionsOverlay();
                 }
             }

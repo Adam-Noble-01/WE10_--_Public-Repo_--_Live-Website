@@ -20,7 +20,7 @@
         right                            :  0;
         bottom                           :  0;
         overflow-y                       :  auto;
-        background                       :  #fafaf8;
+        background                       :  var(--App_BgPrimary);
         z-index                          :  9997;
         display                          :  none;
         padding                          :  0;
@@ -30,41 +30,31 @@
 
 
 /*  #Region --------------------------------------------------------
- *  PROJECT HEADER | Project name, address, and phase info
+ *  PROJECT HEADER | Compact document-style header in card
  *  ------------------------------------------------------------- */
 
-    .landing-project-header {
-        background                       :  var(--App_BgSecondary);
-        color                            :  var(--App_TextPrimary);
-        padding                          :  30px 40px;
-        text-align                       :  center;
-        border-bottom                    :  1.5px solid var(--App_BrandPrimary);
+    .landing-document-header {
+        padding                          :  0 0 20px 0;
+        border-bottom                    :  1px solid var(--App_BorderLight);
+        margin-bottom                    :  20px;
+    }
+
+    .landing-document-title-row {
+        display                          :  flex;
+        justify-content                  :  space-between;
+        align-items                      :  flex-start;
+        margin-bottom                    :  8px;
+        flex-wrap                        :  wrap;
+        gap                              :  12px;
     }
 
     .landing-project-name {
         font-family                      :  'Open Sans', sans-serif;
-        font-size                        :  22pt;
+        font-size                        :  16pt;
         font-weight                      :  600;
         color                            :  var(--App_BrandPrimary);
-        letter-spacing                   :  0.5px;
-        margin-bottom                    :  6px;
-    }
-
-    .landing-project-address {
-        font-family                      :  'Open Sans', sans-serif;
-        font-size                        :  11pt;
-        font-weight                      :  400;
-        color                            :  var(--App_TextSecondary);
         letter-spacing                   :  0.3px;
-        margin-bottom                    :  14px;
-    }
-
-    .landing-phase-info {
-        display                          :  flex;
-        justify-content                  :  center;
-        align-items                      :  center;
-        gap                              :  14px;
-        flex-wrap                        :  wrap;
+        line-height                      :  1.3;
     }
 
     .landing-phase-badge {
@@ -72,11 +62,29 @@
         background                       :  var(--App_BgTertiary);
         border                           :  1px solid var(--App_BorderMedium);
         color                            :  var(--App_BrandPrimary);
-        padding                          :  5px 14px;
+        padding                          :  4px 12px;
         border-radius                    :  3px;
-        font-size                        :  10pt;
+        font-size                        :  9pt;
         font-weight                      :  600;
         letter-spacing                   :  0.3px;
+        white-space                      :  nowrap;
+    }
+
+    .landing-document-info-row {
+        display                          :  flex;
+        justify-content                  :  space-between;
+        align-items                      :  center;
+        font-size                        :  10pt;
+        color                            :  var(--App_TextSecondary);
+        flex-wrap                        :  wrap;
+        gap                              :  12px;
+    }
+
+    .landing-project-address {
+        font-family                      :  'Open Sans', sans-serif;
+        font-size                        :  10pt;
+        font-weight                      :  400;
+        color                            :  var(--App_TextSecondary);
     }
 
     .landing-phase-date {
@@ -85,21 +93,14 @@
         font-style                       :  italic;
     }
 
-/*  endregion -------------------------------------------------- */
-
-
-/*  #Region --------------------------------------------------------
- *  SECTION TITLES | Shared heading style for register & instructions
- *  ------------------------------------------------------------- */
-
-    .landing-section-title {
+    .landing-register-title {
         font-family                      :  'Open Sans', sans-serif;
-        font-size                        :  14pt;
-        font-weight                      :  700;
-        color                            :  #555041;
+        font-size                        :  13pt;
+        font-weight                      :  600;
+        color                            :  var(--App_BrandPrimary);
+        text-transform                   :  uppercase;
+        letter-spacing                   :  0.5px;
         margin-bottom                    :  16px;
-        padding-bottom                   :  8px;
-        border-bottom                    :  2px solid var(--App_BorderMedium);
     }
 
 /*  endregion -------------------------------------------------- */
@@ -110,7 +111,25 @@
  *  ------------------------------------------------------------- */
 
     .landing-register-section {
-        padding                          :  30px 40px;
+        padding                          :  30px 40px 40px;
+        display                          :  flex;
+        flex-direction                   :  column;
+        align-items                      :  center;
+    }
+
+    .landing-register-content {
+        width                            :  100%;
+        max-width                        :  48%;
+        min-width                        :  600px;
+        margin                           :  0 auto 40px;
+    }
+
+    .landing-register-card {
+        background-color                 :  var(--App_BgSecondary);
+        box-shadow                       :  0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius                    :  8px;
+        padding                          :  30px;
+        overflow                         :  hidden;
     }
 
     .landing-register-table-wrapper {
@@ -136,6 +155,12 @@
         white-space                      :  nowrap;
     }
 
+    .landing-register-table thead th:nth-child(4),
+    .landing-register-table thead th:nth-child(5),
+    .landing-register-table thead th:nth-child(6) {
+        text-align                       :  center;
+    }
+
     .landing-register-table thead th:first-child {
         border-radius                    :  3px 0 0 0;
     }
@@ -149,6 +174,12 @@
         border-bottom                    :  1px solid var(--App_BorderLight);
         color                            :  #444;
         vertical-align                   :  middle;
+    }
+
+    .landing-register-table tbody td:nth-child(4),
+    .landing-register-table tbody td:nth-child(5),
+    .landing-register-table tbody td:nth-child(6) {
+        text-align                       :  center;
     }
 
     .landing-register-group-row td {
@@ -175,9 +206,6 @@
         white-space                      :  nowrap;
     }
 
-    .landing-cell-center {
-        text-align                       :  center;
-    }
 
 /*  endregion -------------------------------------------------- */
 
@@ -270,18 +298,61 @@
  *  RESPONSIVE | Mobile-friendly adjustments
  *  ------------------------------------------------------------- */
 
-    @media (max-width: 600px) {
+    /* Tablet and medium screens: wider table */
+    @media (max-width: 1199px) {
+        .landing-register-content {
+            max-width                    :  80%;
+            min-width                    :  500px;
+        }
+    }
 
-        .landing-project-header {
-            padding                      :  20px 20px;
+    /* Small tablets and large phones: full width table */
+    @media (max-width: 768px) {
+        .landing-register-content {
+            max-width                    :  100%;
+            min-width                    :  auto;
+            margin-bottom                :  30px;
         }
 
+        .landing-register-card {
+            padding                      :  20px;
+        }
+    }
+
+    /* Mobile phones: compact layout */
+    @media (max-width: 600px) {
+
         .landing-project-name {
-            font-size                    :  16pt;
+            font-size                    :  13pt;
+        }
+
+        .landing-document-title-row {
+            flex-direction               :  column;
+            align-items                  :  flex-start;
+            gap                          :  8px;
+        }
+
+        .landing-document-info-row {
+            flex-direction               :  column;
+            align-items                  :  flex-start;
+            gap                          :  6px;
+        }
+
+        .landing-register-title {
+            font-size                    :  11pt;
+            margin-bottom                :  12px;
         }
 
         .landing-register-section {
-            padding                      :  20px 15px;
+            padding                      :  20px 15px 30px;
+        }
+
+        .landing-register-content {
+            margin-bottom                :  20px;
+        }
+
+        .landing-register-card {
+            padding                      :  15px;
         }
 
         .landing-register-table {

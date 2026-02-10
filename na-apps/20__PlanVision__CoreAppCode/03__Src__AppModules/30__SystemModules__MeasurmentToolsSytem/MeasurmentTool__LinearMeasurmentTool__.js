@@ -147,7 +147,7 @@
         // ------------------------------------------------------------
 
             LinearTool.finalize = function(context) {
-                const { state, helpers, getRenderContext, hideFinishButton, hideCancelTool, setCursor } = context;
+                const { state, helpers, getRenderContext } = context;
                 if (state.measuringPoints.length !== 2) return null;
 
                 const renderContext = getRenderContext();
@@ -164,12 +164,10 @@
                     distanceMM: mmDist
                 };
 
+                // Reset tool-specific state (main system handles full deactivation)
                 state.measuringPoints = [];
                 state.isLinearMeasuring = false;
                 state.linearMeasurementLocked = false;
-                hideCancelTool();
-                setCursor("default");
-                hideFinishButton();
                 return measurement;
             };
 
