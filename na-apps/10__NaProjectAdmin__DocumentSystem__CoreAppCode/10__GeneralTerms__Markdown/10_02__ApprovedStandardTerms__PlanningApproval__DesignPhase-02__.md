@@ -12,9 +12,7 @@ Noble Architecture - Design Phase 02
 
 #### Council Submission Fees
 
-Application fees are set by the Government. **Noble Architecture** will calculate the required fee and request this from the Client.
-
-Funds must be transferred to **Noble Architecture** and **cleared at least one (1) working day** prior to the intended submission date. These are treated as pass-through expenses.
+Application fees are set by the Government. **Noble Architecture** will calculate the required fee and request this from the Client. Funds must be transferred to **Noble Architecture** and **cleared at least one (1) working day** prior to the intended submission date. These are treated as pass-through expenses.
 
 *Please note: The following fee schedule is based on government planning data researched as of January 2026. These figures are provided for indicative purposes and remain subject to annual indexation or further government amendments.*
 
