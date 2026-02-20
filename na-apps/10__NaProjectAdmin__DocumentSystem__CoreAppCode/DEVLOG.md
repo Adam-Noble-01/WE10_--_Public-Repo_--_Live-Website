@@ -3,6 +3,66 @@
 
 # =============================================================================
 
+## Admin & Doc System - Version 0.6.9 - 20-Feb-2026
+
+### Fixed
+
+- **VAT Toggle Not Reflected on Client-Facing Quote** - Renderer now reads VAT settings from the quotation JSON instead of the app config
+  - Root cause: `DocumentSystem__QuotationRenderer__.js` was reading `showVat` and `vatRate` from `AppConfiguration__MainAppSettings__.json`, where `vatRate` is `0`, so VAT was never shown regardless of the editor toggle state
+  - Added `vatApplicable` boolean to the `totals` object in the saved quotation JSON, written directly from the editor's VAT checkbox state
+  - Renderer now reads `quotationData.totals.vatApplicable` for the toggle and `quotationData.totals.vatRate` for the rate
+  - Backwards compatible: old quotations without `vatApplicable` fall back to checking `vatRate > 0`
+
+#### Files Modified
+
+- `04__EditorTools/Editor__QuotationBuilder__.html` - `generateJson()` saves `vatApplicable`; `populateFormFromData()` restores toggle from `vatApplicable`
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__QuotationRenderer__.js` - `render()` reads VAT settings from quotation data
+
+---
+
+## Admin & Doc System - Version 0.6.8 - 20-Feb-2026
+
+### Added
+
+- **Two-Tier Design Brief System** - Concise and full markdown-supported briefs
+  - **Concise Brief** - Short one-line description for welcome letter and quotations
+  - **Full Brief** - Extended markdown-formatted description for detailed project documentation
+  - Conditional rendering: detailed section only appears if full brief exists
+  - Simple markdown parser supporting headings (##, ###), lists, bold, italic, and code
+  - Quotation-specific brief override capability with "Reload from Project Config" button
+
+### Changed
+
+- **Project Config Editor** - Renamed and enhanced description fields
+  - "Project Description" renamed to "Project Design Brief: Concise"
+  - Added "Project Design Brief: Full (Markdown)" textarea with monospace font and syntax hints
+  - JSON now stores `projectBriefConcise` and `projectBriefFull` fields
+  - Backward compatible with old `projectDescription` field
+- **Welcome Letter Renderer** - New detailed brief section with markdown support
+  - Uses `projectBriefConcise` for existing "Design Brief" section (fallback to `projectDescription`)
+  - New `renderDetailedBrief()` function parses markdown and renders "Detailed Project Brief" section
+  - Section positioned between "Design Brief" and "How to Navigate This Portal"
+  - Includes horizontal divider before detailed brief section
+- **Quotation Builder** - Auto-loads concise brief from project config
+  - Project Description field now auto-populated from Project Config's concise brief
+  - Info box explains field defaults and allows editing for quotation-specific variations
+  - `loadBriefFromProjectConfig()` function loads on form init and via reload button
+- **CSS Styling** - Enhanced styles for markdown content and editor
+  - Editor: `.form-input--markdown` for larger monospace textarea (300px height)
+  - Cover Letter: Paragraph spacing aligned to 1rem with justified text
+  - Markdown headings (`.brief-heading`, `.brief-subheading`) with proper hierarchy
+  - List, code, and inline formatting styles matching letter design
+
+#### Files Modified
+
+- `04__EditorTools/Editor__ProjectConfig__.html` - Two brief fields, updated JSON save/load
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__CoverLetterRenderer__.js` - Detailed brief rendering with simple markdown parser
+- `04__EditorTools/Editor__QuotationBuilder__.html` - Brief loading and override functionality
+- `04__EditorTools/Editor__CommonStylesheet__.css` - Markdown input styling
+- `StyleSheet__Main__.css` - Cover letter markdown content styles
+
+---
+
 ## Admin & Doc System - Version 0.6.7 - 06-Feb-2026
 
 ### Added

@@ -1,0 +1,51 @@
+{
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "contracts": {
+        "building-regulations": {
+            "enabled": true,
+            "signatureRef": null,
+            "signed": false,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        },
+        "building-surveying": {
+            "enabled": true,
+            "signatureRef": null,
+            "signed": false,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "concept-design": {
+            "enabled": true,
+            "signatureRef": null,
+            "signed": false,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "general-business": {
+            "enabled": true,
+            "signatureRef": null,
+            "signed": false,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "planning-approval": {
+            "enabled": true,
+            "signatureRef": null,
+            "signed": false,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        }
+    },
+    "createdDate": "20-Feb-2026",
+    "documents": {
+        "quotation": true,
+        "specialTerms": true
+    },
+    "lastModified": "2026-02-20T15:19:58.646Z",
+    "projectBriefConcise": "A new Detached Double Garage to the front of the property.",
+    "projectBriefFull": "You require us to design, draft, and submit to your local planning authority a scheme for a new detached double garage to the front of the property. The garage will be similar in size to the neighbour’s, but ideally set further forward towards the street-facing boundary where possible as to maximise driveway space and utility. The aesthetic of the new garage should echo the style of the house. We discussed colour-matching the garage doors and avoiding the more modern aesthetic of the neighbour’s garage, which was used primarily as a scale reference only. We will ensure the garage can accommodate two decent-sized cars (crossovers/SUVs), which are now more common than saloons. Once you provide a list of gym equipment, we will also produce a plan showing a future-proof gym layout to demonstrate how the space could be outfitted. We will include Velux roof windows in anticipation of this future use, to allow natural lighting to permeate the space.\n\nWe will design the garage with non-insulated walls to save valuable floor space, as you confirmed you have no intention to convert this into fully habitable accommodation. The main house is intended to be utilised and reconfigured in the future to accommodate potential later-life living (Though not part of this engagement). We explored converting the garage for this purpose, but it was far too small, and any increase in size would further reduce the valuable driveway area. The garage will have one or two vehicle doors, depending on which option best matches the house aesthetically, with a pedestrian access door on the house-facing side. Budget sensitivity was noted, so using a non-insulated wall build-up and an off-site constructed trussed roof will significantly reduce costs compared to designing to full habitable Building Regulations compliance standards. The brief is to design a functional twin-car garage with potential for adaptation as an outdoor gym, in keeping with the house and maximising driveway area.\n\n## Spoken about but not confirmed during the initial call:\n- Scope to consider removal of the current large hedges and replacement of the boundary treatment with a new security wall and more managed box hedge.\n\n## Services excluded:\n- To save you money, these services have been excluded from Noble Architecture’s scope and responsibility passed to others. \n- We can of course manage these items if required, but for a project of this scale we do not consider the additional cost proportionate and would prefer to focus on what we do best: design and drawings up to planning submission.\n- Building Regulations compliance (handled by the client’s builder, Sukhi of Sukhi Home Solutions).\n- Planning agency services (e.g. liaising with planners, coordinating any additional reports or documents if required, and engaging third parties to produce deliverables outside Noble Architecture’s scope).\n- Mandatory planning fees set by the council are outside our scope. Please refer to the council website for the current Householder planning application fees.",
+    "projectCode": "BH03",
+    "projectName": "Boundary Road",
+    "projectPin": "2602"
+}

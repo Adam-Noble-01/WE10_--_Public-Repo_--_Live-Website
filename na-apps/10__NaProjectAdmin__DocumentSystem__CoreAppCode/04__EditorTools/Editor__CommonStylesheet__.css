@@ -608,3 +608,32 @@
 
 /* endregion ---- */
 
+/*  #Region ------------------------------------------------
+ * REGION | Markdown Input Styling
+ * -------------------------------------------------------- */
+
+    /* Markdown textarea - larger and monospace for better editing */
+    .form-input--markdown {
+        min-height                 : 300px;
+        font-family                : 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size                  : 0.9rem;
+        line-height                : 1.6;
+        resize                     : vertical;
+    }
+
+    /* Helper text for markdown syntax */
+    .form-hint {
+        font-size                  : 0.85rem;
+        color                      : #666;
+        margin-top                 : 0.25rem;
+        font-style                 : italic;
+    }
+
+    /* Small button styling */
+    .btn--small {
+        padding                    : 0.35rem 0.75rem;
+        font-size                  : 0.875rem;
+    }
+
+/* endregion ---- */
+

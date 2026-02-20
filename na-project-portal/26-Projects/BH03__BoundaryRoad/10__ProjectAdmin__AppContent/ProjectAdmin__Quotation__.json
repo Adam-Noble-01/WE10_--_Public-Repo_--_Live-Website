@@ -1,0 +1,116 @@
+{
+    "quotationRef": "QUO-BH03-2026-001",
+    "quotationDate": "20-Feb-2026",
+    "projectAddress": "46, Boundary Road, West Bridgford, NG2 7BZ",
+    "projectDescription": "A new Detached Double Garage to the front of the property.",
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "lineItems": [
+        {
+            "description": "Initial design consultation (Free, conducted remotely)",
+            "quantity": 1,
+            "unit": "Hour",
+            "rate": 0,
+            "group": "Initial Consultation "
+        },
+        {
+            "description": "Travel to site (1 Visit)",
+            "quantity": 2,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Surveying Services"
+        },
+        {
+            "description": "Measured Site & Boundary Survey ",
+            "quantity": 2,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Surveying Services"
+        },
+        {
+            "description": "Convert survey into CAD Line drawings",
+            "quantity": 6.5,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Surveying Services"
+        },
+        {
+            "description": "Concept design model produced for client approval",
+            "quantity": 7,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Design Phase 01 - Concept Design"
+        },
+        {
+            "description": "Upload to our TrueVision platform for you to navigate and approve",
+            "quantity": 1,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Design Phase 01 - Concept Design"
+        },
+        {
+            "description": "Coordinate concept design approval and programme amendments into Design Phase 02",
+            "quantity": 1,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Design Phase 01 - Concept Design"
+        },
+        {
+            "description": "Drafting of Floor Plan Drawing : 1:50 @ A2  -  (Required by LPA)",
+            "quantity": 1.5,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Design Phase 02 - Planning Application"
+        },
+        {
+            "description": "Drafting of Elevations Drawings : 1:50 @ A2  -  (Required by LPA)",
+            "quantity": 3,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Design Phase 02 - Planning Application"
+        },
+        {
+            "description": "Drafting of Block Plan : 1:500 @ A2  -  (Required by LPA)",
+            "quantity": 4,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Design Phase 02 - Planning Application"
+        },
+        {
+            "description": "Drafting of Roof Plan Drawing : 1:50 @ A2  -  (Required by LPA)",
+            "quantity": 1,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Design Phase 02 - Planning Application"
+        },
+        {
+            "description": "Plotting the Location Plan using OS Data : 1:1250 @ A2  -  (Required by LPA)",
+            "quantity": 1.5,
+            "unit": "Hours",
+            "rate": 30,
+            "group": "Design Phase 02 - Planning Application"
+        },
+        {
+            "description": "3D Views  -  (Not required by LPA, but advised to boost chances)",
+            "quantity": 1,
+            "unit": "item",
+            "rate": 30,
+            "group": "Design Phase 02 - Planning Application"
+        },
+        {
+            "description": "Planning application paperwork taken care of for you and the application filed with the LPA",
+            "quantity": 2,
+            "unit": "item",
+            "rate": 30,
+            "group": "Design Phase 02 - Planning Application"
+        }
+    ],
+    "totals": {
+        "subtotal": 1005,
+        "vatApplicable": true,
+        "vatRate": 20,
+        "vat": 201,
+        "grandTotal": 1206
+    },
+    "additionalTerms": "",
+    "createdDate": "20-Feb-2026 at 15:26"
+}

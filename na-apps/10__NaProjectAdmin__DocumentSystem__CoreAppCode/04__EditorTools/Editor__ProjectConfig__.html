@@ -82,10 +82,19 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="projectDescription">Project Description</label>
-                    <textarea id="projectDescription" class="form-input"
+                    <label for="projectBriefConcise">Project Design Brief: Concise</label>
+                    <textarea id="projectBriefConcise" class="form-input"
                         placeholder="e.g., Two-storey rear extension with open-plan kitchen/dining area"
                         onchange="updatePreview(); markFormDirty()"></textarea>
+                    <div class="form-hint">Short description for welcome letter and quotations</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="projectBriefFull">Project Design Brief: Full (Markdown)</label>
+                    <textarea id="projectBriefFull" class="form-input form-input--markdown"
+                        placeholder="Enter detailed project brief using markdown syntax&#10;&#10;Supported markdown:&#10;**Bold text**&#10;*Italic text*&#10;- Bullet points&#10;## Headings"
+                        onchange="updatePreview(); markFormDirty()"></textarea>
+                    <div class="form-hint">Extended description with markdown support. Leave empty to hide detailed brief section on welcome letter.</div>
                 </div>
 
                 <h3 class="section-heading">Client Details</h3>
@@ -369,7 +378,11 @@
         // Populate non-PII fields from local config
         document.getElementById('projectCode').value = data.projectCode || '';
         document.getElementById('projectName').value = data.projectName || '';
-        document.getElementById('projectDescription').value = data.projectDescription || '';
+        
+        // Backward compatibility: migrate old projectDescription to projectBriefConcise
+        document.getElementById('projectBriefConcise').value = data.projectBriefConcise || data.projectDescription || '';
+        document.getElementById('projectBriefFull').value = data.projectBriefFull || '';
+        
         document.getElementById('projectPin').value = data.projectPin || '';
         document.getElementById('hasQuotation').checked = data.documents?.quotation || false;
         document.getElementById('hasSpecialTerms').checked = data.documents?.specialTerms || false;
@@ -543,7 +556,8 @@
         return {
             projectCode: projectCode || undefined,
             projectName: document.getElementById('projectName').value || `Project ${projectCode}`,
-            projectDescription: document.getElementById('projectDescription').value || undefined,
+            projectBriefConcise: document.getElementById('projectBriefConcise').value || undefined,
+            projectBriefFull: document.getElementById('projectBriefFull').value || undefined,
             specialNotes: document.getElementById('specialNotes').value || undefined,
             projectPin: pin || null,
             documents: {

@@ -164,8 +164,15 @@
 
                 <div class="form-group">
                     <label for="projectDescription">Project Description</label>
+                    <div class="info-box" style="background: #fff7e6; border-color: #ffa500; margin-bottom: 0.5rem;">
+                        <strong>💡 Defaults to Concise Brief</strong><br>
+                        This field is auto-populated from the Project Config Editor's "Concise Brief".
+                        You can edit it here for quotation-specific variations if needed.
+                    </div>
                     <textarea id="projectDescription" class="form-input" placeholder="Brief description of the project"
                         onchange="updatePreview(); markFormDirty()"></textarea>
+                    <button class="btn btn--secondary btn--small" style="margin-top: 0.5rem;"
+                        onclick="loadBriefFromProjectConfig(true)">Reload from Project Config</button>
                 </div>
 
                 <!-- Client Details -->
@@ -357,6 +364,9 @@
             document.getElementById('quotationRef').value = `QUO-${currentProjectCode}-${new Date().getFullYear()}-001`;
         }
 
+        // Load project config to populate project description from concise brief
+        await loadBriefFromProjectConfig();
+
         // Also load client data from Cloudflare R2
         await loadClientDataFromCloudflare();
     }
@@ -445,6 +455,49 @@
         return btoa(`${projectCode}:${timestamp}:${random}`);
     }
 
+    /**
+     * Load project brief from Project Config and populate description field
+     * @param {boolean} forceReload - If true, overwrites existing content
+     */
+    async function loadBriefFromProjectConfig(forceReload = false) {
+        if (!currentProjectCode || !currentYear) {
+            console.warn('[QuotationBuilder] Cannot load project config - no project context');
+            return;
+        }
+
+        try {
+            const CONFIG_FILENAME = 'ProjectAdmin__ProjectConfig__.json';
+            const configData = await NaEditorTools.loadProjectFile(CONFIG_FILENAME, currentProjectCode, currentYear);
+
+            if (configData) {
+                // Get concise brief from config (with backward compatibility)
+                const conciseBrief = configData.projectBriefConcise || configData.projectDescription || '';
+                
+                if (conciseBrief) {
+                    const currentDescription = document.getElementById('projectDescription').value;
+                    
+                    // Update if field is empty OR force reload is requested
+                    if (forceReload || !currentDescription || currentDescription.trim() === '') {
+                        document.getElementById('projectDescription').value = conciseBrief;
+                        updatePreview();
+                        markFormDirty();
+                        
+                        if (forceReload && window.NaEditorTools) {
+                            NaEditorTools.showSuccessMessage('Project description reloaded from config');
+                        }
+                        
+                        console.log('[QuotationBuilder] Loaded concise brief from project config');
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('[QuotationBuilder] Could not load project config:', error);
+            if (forceReload && window.NaEditorTools) {
+                NaEditorTools.showErrorMessage('Failed to reload project config');
+            }
+        }
+    }
+
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
@@ -481,7 +534,7 @@
         document.getElementById('clientAddress').value = data.clientDetails?.address || '';
         document.getElementById('clientEmail').value = data.clientDetails?.email || '';
 
-        if (data.totals?.vatRate > 0) {
+        if (data.totals?.vatApplicable === true || data.totals?.vatRate > 0) {
             document.getElementById('showVat').checked = true;
             document.getElementById('vatRate').value = data.totals.vatRate;
         }
@@ -781,6 +834,7 @@
             lineItems: formattedItems,
             totals: {
                 subtotal: totals.subtotal,
+                vatApplicable: document.getElementById('showVat').checked,
                 vatRate: totals.vatRate,
                 vat: totals.vat,
                 grandTotal: totals.total

@@ -1678,6 +1678,74 @@
         margin-bottom              : 0;
     }
 
+    /* Detailed Brief Section - Markdown Content */
+    .cover-letter__detailed-brief {
+        margin-top                 : 1rem;
+        margin-bottom              : 1.5rem;
+    }
+
+    .cover-letter__markdown-content {
+        margin-top                 : 1rem;
+    }
+
+    /* Paragraphs */
+    .cover-letter__markdown-content p {
+        margin-bottom              : 1rem;
+        line-height                : 1.6;
+        text-align                 : justify;
+    }
+
+    .cover-letter__markdown-content p:last-child {
+        margin-bottom              : 0;
+    }
+
+    /* Headings */
+    .cover-letter__markdown-content .brief-heading {
+        font-size                  : 1.1rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-top                 : 1.5rem;
+        margin-bottom              : 0.75rem;
+    }
+
+    .cover-letter__markdown-content .brief-heading:first-child {
+        margin-top                 : 0;
+    }
+
+    .cover-letter__markdown-content .brief-subheading {
+        font-size                  : 1rem;
+        font-weight                : 600;
+        margin-top                 : 1rem;
+        margin-bottom              : 0.5rem;
+    }
+
+    /* Lists */
+    .cover-letter__markdown-content ul {
+        margin                     : 0.75rem 0 1rem 1.5rem;
+        padding                    : 0;
+    }
+
+    .cover-letter__markdown-content ul li {
+        margin-bottom              : 0.5rem;
+    }
+
+    /* Inline formatting */
+    .cover-letter__markdown-content strong {
+        font-weight                : 600;
+    }
+
+    .cover-letter__markdown-content em {
+        font-style                 : italic;
+    }
+
+    .cover-letter__markdown-content code {
+        background-color           : var(--App_BgTertiary);
+        padding                    : 0.15em 0.4em;
+        border-radius              : 3px;
+        font-family                : 'Consolas', 'Monaco', monospace;
+        font-size                  : 0.9em;
+    }
+
 /* endregion -------------------------------------------------- */
 
 /*  #Region --------------------------------------------------------

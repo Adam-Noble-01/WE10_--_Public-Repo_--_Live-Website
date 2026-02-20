@@ -8,6 +8,40 @@ Noble Architecture - Design Phase 02
 
 ---
 
+## Disbursements and Third-Party Fees
+
+#### Council Submission Fees
+
+Application fees are set by the Government. **Noble Architecture** will calculate the required fee and request this from the Client.
+
+Funds must be transferred to **Noble Architecture** and **cleared at least one (1) working day** prior to the intended submission date. These are treated as pass-through expenses.
+
+*Please note: The following fee schedule is based on government planning data researched as of January 2026. These figures are provided for indicative purposes and remain subject to annual indexation or further government amendments.*
+
+| Application Type | 2026 Fees |
+| :--- | :--- |
+| **Householder Planning Application** | £548 |
+| **Change of Use** | £610 |
+| **Full Application (Fewer than 10 dwellings)** | £610 per dwelling |
+| **Non-Material Amendment** | £44 (Householder) / £298 (Other) |
+| **Planning Portal Upload Service Charge** | £70.83 + VAT (£85.00) |
+
+#### Planning Portal Upload Service Charge
+
+When submitting your application online via the national Planning Portal, an administrative service charge applies. This fee is levied directly by the Planning Portal (the national submission platform) to cover the costs of operating their system and processing payments. It is not a council fee or a fee charged by **Noble Architecture**.
+
+Currently, the service charge is **£70.83 + VAT (£85.00)** and applies to all planning applications where the base statutory planning fee exceeds £100. This charge is payable at the time of submission alongside the main council application fee.
+
+#### Ordnance Survey (OS) Data
+
+The LPA mandates the purchase of licensed OS mapping data (Site Location and Block Plans) for all applications.
+
+The cost is variable based on geography and area (typically budgeted at **£50.00** for standard domestic projects as of March 2025).
+
+These funds will be collected at the **start of the documentation phase** to allow early integration of the data into the drawing set.
+
+---
+
 ## The Nature of UK Planning Policy (Risk Acknowledgement)
 
 #### No Guarantee of Outcome
@@ -77,25 +111,6 @@ No additional billable work will commence without a formal quotation and written
 
 ---
 
-## Disbursements and Third-Party Fees
-
-#### Council Submission Fees
-
-Application fees are set by the Government. **Noble Architecture** will calculate the required fee and request this from the Client.
-
-Funds must be transferred to **Noble Architecture** and **cleared at least one (1) working day** prior to the intended submission date. These are treated as pass-through expenses.
-
-
-#### Ordnance Survey (OS) Data
-
-The LPA mandates the purchase of licensed OS mapping data (Site Location and Block Plans) for all applications.
-
-The cost is variable based on geography and area (typically budgeted at **£50.00** for standard domestic projects as of March 2025).
-
-These funds will be collected at the **start of the documentation phase** to allow early integration of the data into the drawing set.
-
----
-
 ## Timelines and Determination
 
 #### Statutory Dates
@@ -106,6 +121,9 @@ The Validation Letter will state a "Target Determination Date" (usually 8 weeks)
 #### Extensions of Time
 
 LPAs frequently require "Extensions of Time" due to staffing shortages or backlog. The Council has the power to extend the determination period significantly. **Noble Architecture** has no power to expedite this process.
+
+#### Reasonable Timescales
+The Client acknowledges that any revisions, amendments, or additional work requested are subject to reasonable timescales. Noble Architecture undertakes multiple projects concurrently, and as such, revisions and updates will be scheduled in accordance with existing workload, availability, and project priorities. No guarantee is given as to immediate turnaround times unless expressly agreed in writing in advance.
 
 ---
 

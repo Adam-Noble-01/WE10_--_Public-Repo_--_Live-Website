@@ -1,0 +1,49 @@
+{
+    "contractId": "building-regulations",
+    "contractName": "Building Regulations Stage",
+    "introduction": "The following special conditions apply to this contract.",
+    "lastUpdated": "2026-02-20T14:56:28.000Z",
+    "sectionTitle": "Special Terms - Building Regs",
+    "terms": [
+        {
+            "content": "Noble Architecture is not appointed to provide Building Regulations design, compliance, coordination, or Building Control services in relation to the Works.",
+            "id": 1,
+            "title": "Building Regulations – Excluded from Scope"
+        },
+        {
+            "content": "The Client’s appointed contractor, Sukhi of Sukhi Home Solutions, shall be solely responsible for engaging with Building Control and for achieving full compliance with all applicable Building Regulations and statutory requirements in relation to the construction of the garage.",
+            "id": 2,
+            "title": "Contractor Responsibility for Building Regulations"
+        },
+        {
+            "content": "The presence of trees along the existing boundary may have the potential to adversely affect the foundations and long-term performance of the proposed structure. This is provided as a non-binding advisory note for the Client’s consideration only and does not form part of Noble Architecture’s scope of services or professional responsibility.\n\nThe assessment of tree species, root systems, proximity to foundations, ground conditions, and any associated risk to the proposed structure shall be the responsibility of the Contractor, in coordination with Building Control and, where necessary, any appointed specialists. The Contractor shall confirm the suitability of the existing trees to remain in situ and shall be responsible for implementing any mitigation measures required to address risks arising from trees, including foundation design, ground treatment, or tree management, as necessary to achieve compliance and long-term structural performance.",
+            "id": 3,
+            "title": "Trees on Existing Boundary"
+        },
+        {
+            "content": "Noble Architecture accepts no responsibility or liability for Building Regulations compliance, construction methodology, detailing, specification, or site execution, whether arising from drawings issued for planning purposes or otherwise, unless expressly agreed in writing as a separate appointment.",
+            "id": 4,
+            "title": "No Liability for Building Regulations Compliance"
+        },
+        {
+            "content": "Sukhi Home Solutions shall be solely responsible for appointing, instructing, and coordinating with any third-party engineers, consultants, manufacturers, or specialist designers required for the Works, including but not limited to truss manufacturers, structural engineers, and specialist suppliers.",
+            "id": 5,
+            "title": "Third-Party Engineers and Specialist Designers"
+        },
+        {
+            "content": "Sukhi Home Solutions shall be responsible for the selection, review, coordination, and technical approval of all third-party designs, calculations, details, and specifications required for construction. Any reliance on such third-party information is at the sole risk of Sukhi Home Solutions.",
+            "id": 6,
+            "title": "Selection and Approval of Third-Party Designs"
+        },
+        {
+            "content": "Noble Architecture accepts no responsibility or liability for the content, adequacy, compliance, coordination, or performance of any third-party designs, calculations, details, or specifications, nor for any errors, omissions, or failures arising from third-party appointments or outputs.",
+            "id": 7,
+            "title": "No Responsibility for Third-Party Specifications "
+        },
+        {
+            "content": "Sukhi Home Solutions shall assume the role of Lead Designer for Building Regulations and technical construction detailing. Responsibility for all construction methodology, technical detailing, compliance with statutory requirements, and workmanship in relation to Building Regulations shall rest exclusively with Sukhi Home Solutions.",
+            "id": 8,
+            "title": "Transfer of Technical Design Responsibility"
+        }
+    ]
+}

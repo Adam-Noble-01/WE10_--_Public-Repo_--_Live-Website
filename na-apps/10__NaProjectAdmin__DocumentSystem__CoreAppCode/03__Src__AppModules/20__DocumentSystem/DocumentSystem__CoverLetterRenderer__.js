@@ -75,6 +75,7 @@
                     ${renderHeader(projectConfig, companyDetails, quotationData)}
                     ${renderGreeting(clientDetails)}
                     ${renderBody(projectConfig)}
+                    ${renderDetailedBrief(projectConfig)}
                     ${renderNavigationGuide()}
                     ${renderSignature(companyDetails)}
                 </div>
@@ -246,7 +247,8 @@
         // FUNCTION | Render Body
         // ------------------------------------------------------------
         function renderBody(projectConfig) {
-            const projectDescription = projectConfig?.projectDescription || '';
+            // Backward compatibility: use projectBriefConcise, fallback to projectDescription
+            const projectBrief = projectConfig?.projectBriefConcise || projectConfig?.projectDescription || '';
 
             return `
                 <div class="cover-letter__body">
@@ -262,11 +264,163 @@
                 <div class="cover-letter__section">
                     <p class="cover-letter__section-heading"><strong>Design Brief</strong></p>
                     
-                    ${projectDescription ? `
-                        <p class="cover-letter__project-description">${projectDescription}</p>
+                    ${projectBrief ? `
+                        <p class="cover-letter__project-description">${projectBrief}</p>
                     ` : ''}
                 </div>
             `;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Render Detailed Brief (Markdown)
+        // ------------------------------------------------------------
+        /**
+         * Render detailed project brief from markdown content
+         * @param {Object} projectConfig - Project configuration data
+         * @returns {string} Rendered HTML or empty string if no full brief
+         */
+        function renderDetailedBrief(projectConfig) {
+            const fullBrief = projectConfig?.projectBriefFull || '';
+            
+            // Return empty string if no full brief content
+            if (!fullBrief || fullBrief.trim() === '') {
+                return '';
+            }
+            
+            // Use simple markdown parser for free-form content
+            const parsedHtml = parseSimpleMarkdown(fullBrief);
+            
+            return `
+                <hr class="cover-letter__divider">
+                <div class="cover-letter__section cover-letter__detailed-brief">
+                    <p class="cover-letter__section-heading"><strong>Detailed Project Brief</strong></p>
+                    <div class="cover-letter__markdown-content">
+                        ${parsedHtml}
+                    </div>
+                </div>
+            `;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Parse Simple Markdown
+        // ------------------------------------------------------------
+        /**
+         * Simple markdown parser for free-form content (not structured terms)
+         * @param {string} markdown - Raw markdown content
+         * @returns {string} Rendered HTML
+         */
+        function parseSimpleMarkdown(markdown) {
+            if (!markdown) return '';
+            
+            let html = '';
+            const lines = markdown.split('\n');
+            let inList = false;
+            let currentParagraph = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmed = line.trim();
+                
+                // Empty line - close paragraph and list
+                if (trimmed === '') {
+                    if (currentParagraph.length > 0) {
+                        html += `<p>${processInlineMarkdown(currentParagraph.join(' '))}</p>`;
+                        currentParagraph = [];
+                    }
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    continue;
+                }
+                
+                // Heading level 2 (##)
+                if (trimmed.startsWith('## ')) {
+                    if (currentParagraph.length > 0) {
+                        html += `<p>${processInlineMarkdown(currentParagraph.join(' '))}</p>`;
+                        currentParagraph = [];
+                    }
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    const headingText = trimmed.substring(3).trim();
+                    html += `<h3 class="brief-heading">${processInlineMarkdown(headingText)}</h3>`;
+                    continue;
+                }
+                
+                // Heading level 3 (###)
+                if (trimmed.startsWith('### ')) {
+                    if (currentParagraph.length > 0) {
+                        html += `<p>${processInlineMarkdown(currentParagraph.join(' '))}</p>`;
+                        currentParagraph = [];
+                    }
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    const headingText = trimmed.substring(4).trim();
+                    html += `<h4 class="brief-subheading">${processInlineMarkdown(headingText)}</h4>`;
+                    continue;
+                }
+                
+                // List item
+                if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+                    if (currentParagraph.length > 0) {
+                        html += `<p>${processInlineMarkdown(currentParagraph.join(' '))}</p>`;
+                        currentParagraph = [];
+                    }
+                    if (!inList) {
+                        html += '<ul>';
+                        inList = true;
+                    }
+                    const listItemText = trimmed.substring(2).trim();
+                    html += `<li>${processInlineMarkdown(listItemText)}</li>`;
+                    continue;
+                }
+                
+                // Regular line - add to current paragraph
+                currentParagraph.push(trimmed);
+            }
+            
+            // Flush remaining content
+            if (currentParagraph.length > 0) {
+                html += `<p>${processInlineMarkdown(currentParagraph.join(' '))}</p>`;
+            }
+            if (inList) {
+                html += '</ul>';
+            }
+            
+            return html;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Process Inline Markdown
+        // ------------------------------------------------------------
+        /**
+         * Process inline markdown formatting
+         * @param {string} text - Text with inline markdown
+         * @returns {string} HTML with inline formatting
+         */
+        function processInlineMarkdown(text) {
+            if (!text) return '';
+            
+            // Escape HTML first
+            let processed = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            
+            // Bold: **text**
+            processed = processed.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            
+            // Italic: *text*
+            processed = processed.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            
+            // Inline code: `code`
+            processed = processed.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            return processed;
         }
         // ---------------------------------------------------------------
 

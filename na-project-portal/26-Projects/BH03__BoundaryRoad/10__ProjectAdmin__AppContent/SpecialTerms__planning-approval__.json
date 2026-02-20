@@ -1,0 +1,39 @@
+{
+    "contractId": "planning-approval",
+    "contractName": "Planning Approval Stage",
+    "introduction": "The following special conditions apply to this contract.",
+    "lastUpdated": "2026-02-20T14:50:02.950Z",
+    "sectionTitle": "Special Terms - Planning",
+    "terms": [
+        {
+            "content": "Agency services are expressly excluded from the agreed fee and scope of appointment.",
+            "id": 1,
+            "title": "Agency Services Excluded"
+        },
+        {
+            "content": "Noble Architecture’s appointment is limited to the preparation of the planning drawings and documents and the submission of the planning application and required forms to the Local Planning Authority.",
+            "id": 2,
+            "title": "Scope of Included Planning Services"
+        },
+        {
+            "content": "Noble Architecture’s scope of services in relation to the planning process ends once the application has been validated by the Local Planning Authority.",
+            "id": 3,
+            "title": "End of Scope at Validation"
+        },
+        {
+            "content": "From the point of validation onwards, responsibility for monitoring the progress of the application, liaising with the Local Planning Authority, responding to any correspondence, and coordinating or commissioning any additional reports, surveys, or third-party information requested by the Local Planning Authority rests solely with the Client.",
+            "id": 4,
+            "title": "Client Responsibility Post-Validation"
+        },
+        {
+            "content": "Any design amendments, additional drawings, revised documents, resubmissions, or further professional input requested by the Client or required as a result of Local Planning Authority feedback after validation constitute Additional Services and are not included in the agreed fee. Such services will be quoted and charged separately at a fair and reasonable professional rate prior to commencement of additional work.",
+            "id": 5,
+            "title": "Additional Services and Fees"
+        },
+        {
+            "content": "Noble Architecture has no obligation to provide any post-validation planning agency, negotiation, coordination, or application management services unless expressly agreed in writing as a separate instruction and fee arrangement.",
+            "id": 6,
+            "title": "No Obligation for Post-Validation Agency Role"
+        }
+    ]
+}

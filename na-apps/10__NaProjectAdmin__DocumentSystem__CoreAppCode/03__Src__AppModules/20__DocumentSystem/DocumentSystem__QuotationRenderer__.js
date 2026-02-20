@@ -65,8 +65,11 @@
 
             // Get formatting options
             const currencySymbol = quoteConfig?.currencySymbol || '£';
-            const showVat = quoteConfig?.showVat === true;
-            const vatRate = quoteConfig?.vatRate || 0;
+
+            // VAT settings are read from the quotation data (set by the editor toggle).
+            // Fall back to app config only for legacy quotations that pre-date vatApplicable.
+            const showVat = quotationData.totals?.vatApplicable === true;
+            const vatRate = quotationData.totals?.vatRate ?? quoteConfig?.vatRate ?? 0;
 
             // Calculate totals and phase subtotals
             const totals = calculateTotals(quotationData.lineItems || [], vatRate, showVat);
