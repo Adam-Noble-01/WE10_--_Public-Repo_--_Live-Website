@@ -1,6 +1,6 @@
 {
     "quotationRef": "QUO-BH03-2026-001",
-    "quotationDate": "20-Feb-2026",
+    "quotationDate": "21-Feb-2026",
     "projectAddress": "46, Boundary Road, West Bridgford, NG2 7BZ",
     "projectDescription": "A new Detached Double Garage to the front of the property.",
     "clientDataStorage": "cloudflare-r2-encrypted",
@@ -102,15 +102,29 @@
             "unit": "item",
             "rate": 30,
             "group": "Design Phase 02 - Planning Application"
+        },
+        {
+            "description": "Balance Paid In Full During Site Visit : 21ˢᵗ February 2026",
+            "quantity": 1,
+            "unit": "Payment",
+            "rate": -1005,
+            "group": "PAYMENT MADE IN FULL"
+        },
+        {
+            "description": "NO Outstanding Design Fee balance as Of 21ˢᵗ February 2026",
+            "quantity": 1,
+            "unit": "item",
+            "rate": 0,
+            "group": "PAYMENT MADE IN FULL"
         }
     ],
     "totals": {
-        "subtotal": 1005,
-        "vatApplicable": true,
-        "vatRate": 20,
-        "vat": 201,
-        "grandTotal": 1206
+        "subtotal": 0,
+        "vatApplicable": false,
+        "vatRate": 0,
+        "vat": 0,
+        "grandTotal": 0
     },
     "additionalTerms": "",
-    "createdDate": "20-Feb-2026 at 15:26"
+    "createdDate": "21-Feb-2026 at 17:43"
 }
