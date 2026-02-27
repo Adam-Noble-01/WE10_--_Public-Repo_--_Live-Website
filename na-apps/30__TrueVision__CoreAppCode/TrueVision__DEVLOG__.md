@@ -2,6 +2,59 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.2.0  -  27-Feb-2026
+### Real-Time Screen-Space Ambient Occlusion (SSAO) System
+
+**Overview**
+- Implemented a fully custom real-time SSAO post-processing system for TrueVision3D that adds contact shadow detail at geometry junctions (wall-floor intersections, window reveals, ceiling corners).
+- The effect is dynamic and view-dependent; not baked. It recalculates every frame using a hemisphere-sampled screen-space technique with noise rotation to break banding.
+- Required a custom shader because Three.js built-in SAOPass/SSAOPass do not support `logarithmicDepthBuffer: true`, which TrueVision requires for its large architectural scenes.
+- All config values use integer millimeters per project convention, converted at runtime via `Na__Math__ConvertMmToUnits`.
+- User-facing language uses "Shadows" throughout since end users are architects, not graphics programmers.
+
+**Architecture — Pipeline Integration**
+- Two sequential ShaderPass instances are inserted into the EffectComposer:
+  - `[RenderPass] → [ProfileLines] → [Fog] → [SSAO] → [AO Blur] → [FXAA]`
+- **SSAO pass** reads the scene colour from `tDiffuse` and a separate depth texture from `tDepth`. Outputs sharp scene RGB with the AO factor stored in the alpha channel.
+- **AO Blur pass** reads the SSAO output, blurs ONLY the alpha channel (5x5 gaussian), then composites: `sharpRgb * blurredAo`. This keeps geometry edges razor-sharp while smoothing noisy AO boundaries.
+
+**Critical Technical Challenge — WebGL Feedback Loop**
+- Initial implementation attached a `DepthTexture` to the EffectComposer's own `WebGLRenderTarget`. This caused `GL_INVALID_OPERATION: Feedback loop formed between Framebuffer and active Texture` because the ping-ponged RT was being read and written simultaneously.
+- **Solution**: A dedicated depth pre-pass renders the scene into a separate `WebGLRenderTarget` with a `FloatType DepthTexture` before the EffectComposer runs. Both the fog and SSAO passes sample from this independent texture, eliminating the feedback loop entirely.
+
+**Logarithmic Depth Buffer Inversion**
+- Three.js writes `gl_FragDepth = log2(1.0 + w) / log2(far + 1.0)`.
+- Custom inversion: `clipW = pow(cameraFar + 1.0, storedDepth) - 1.0`.
+- View-space position reconstructed by building a ray through the pixel via the inverse projection matrix, scaled by the recovered clip-space W.
+
+**Performance Optimisation**
+- AO culling distance (`CullDistanceMm`) skips the expensive kernel loop for pixels beyond a configurable range, with a smooth fade-out over the last 20%.
+- FPS-based auto-disable monitor samples frame rate after a warmup period. If below threshold, disables both passes and shows a user toast: "Shadows have been switched off to improve performance."
+- `depthWrite=false` and `depthTest=false` on all ShaderPass materials to prevent depth buffer interference between passes.
+
+**UI — Shadows Toggle**
+- Added a "Shadows" ON/OFF toggle to the "Tools & Settings" dropdown menu.
+- Toggle calls `pipeline.toggleAo()` which enables/disables both SSAO and blur passes in real time.
+- A `na-ao-disabled` custom event keeps the toggle UI synchronised when the performance monitor auto-disables AO.
+
+**Config (`Na__AppConfig__Main.json` → `RenderEffect__AmbientOcclusion`)**
+- `Enabled` (bool), `RadiusMm` (50), `Intensity` (1.2), `Bias` (0.005), `Samples` (16)
+- `CullDistanceMm` (10000), `BlurRadius` (1.2)
+- `FpsThreshold` (24), `FpsSampleFrames` (120), `PerformanceMonitorStartupDelayMs` (3000)
+- `DebugMode` — 0=off, 1=raw depth, 2=linear Z, 3=normals, 4=raw AO
+
+**Files Added**
+- `02__Src__AppModules/07__Scene__EnvironmentEffects/Na__RenderEffect__AmbientOcclusion__.js`
+- `02__Src__AppModules/07__Scene__EnvironmentEffects/Na__RenderEffect__AmbientOcclusion__Shader.js`
+
+**Files Changed**
+- `02__Src__AppModules/05__RenderPipeline/Na__RenderPipeline__PostProcessing__Setup.js`
+- `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js`
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json`
+- `Index.html`
+- `03__Style__AppStylesheets/Na__UiFeature__Styles__DropdownAndToast__.css`
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.1.1  -  27-Feb-2026
 ### Floor Isolate — Landscape Off + User Guide Isolation Notes
 

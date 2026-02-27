@@ -256,6 +256,10 @@
         const Na__RenderPipeline__State = Na__RenderPipeline__SetupComposer(Na__Renderer__Main, Na__Scene__Main, Na__Camera__Main, Na__Config__ProfileLines, Na__SceneEffect__FogPass, Na__Config__AmbientOcclusion);
         const Na__RenderComposer__Main  = Na__RenderPipeline__State.composer;
         pipelineRef.current = Na__RenderPipeline__State;                     // <-- Write back to index.html ref for ImageExport
+        const Na__AoPerformanceMonitorStartupDelayMs = (Na__Config__AmbientOcclusion && Number.isFinite(Na__Config__AmbientOcclusion.RenderEffect__AmbientOcclusion__PerformanceMonitorStartupDelayMs))
+            ? Na__Config__AmbientOcclusion.RenderEffect__AmbientOcclusion__PerformanceMonitorStartupDelayMs
+            : 3000;
+        let Na__RenderLoop__CanMonitorAoPerformance = false;                 // <-- Prevent startup spikes from disabling AO too early
 
         let modelUrls = [...Na__ModelDefaults__ModelUrls];                   // <-- Start with config defaults
         let Na__Saved__ProjectCameraConfig = null;                           // <-- Hoisted for post-OrbitCube re-apply
@@ -431,6 +435,9 @@
             }
 
             Na__UiFeature__ShowScene();                                      // <-- Reveal scene after all models loaded
+            window.setTimeout(() => {
+                Na__RenderLoop__CanMonitorAoPerformance = true;              // <-- Enable AO monitor only after scene settles
+            }, Math.max(0, Na__AoPerformanceMonitorStartupDelayMs));
 
             // INITIALIZE MODEL TOGGLE CONTROLS (dynamic per-category buttons)
             Na__UiFeature__InitializeModelToggleControls(Na__LoadedModelGroups);  // <-- Build toggle buttons from loaded groups
@@ -502,6 +509,7 @@
         } catch (error) {
             console.error('[TrueVision3D] Model load error:', error);
             Na__UiFeature__UpdateStatus('Model load error - check console', true);
+            Na__RenderLoop__CanMonitorAoPerformance = true;                  // <-- Do not keep monitor blocked forever on load errors
         }
 
         // RENDER LOOP (with delta time tracking for animations)
@@ -524,7 +532,10 @@
 
             if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
                 Na__RenderPipeline__State.updateAoUniforms(Na__Camera__Main); // <-- Update AO camera matrices
-                Na__RenderPipeline__State.monitorAoFrame(deltaMs);           // <-- AO performance auto-disable check
+                if (Na__RenderLoop__CanMonitorAoPerformance) {
+                    Na__RenderPipeline__State.monitorAoFrame(deltaMs);       // <-- AO performance auto-disable check (post-startup only)
+                }
+                Na__RenderPipeline__State.renderDepthPrePass();              // <-- Populate depth texture for fog + AO (separate RT, no feedback loop)
                 Na__RenderPipeline__State.renderProfileNormals();            // <-- Update profile lines
                 Na__RenderComposer__Main.render();                           // <-- Render with post-processing
             }
@@ -542,6 +553,7 @@
             Na__Renderer__Main.setSize(width, height);
             if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
                 Na__RenderComposer__Main.setSize(width, height);
+                Na__RenderPipeline__State.setDepthPrePassSize(width, height); // <-- Resize depth pre-pass RT
                 Na__RenderPipeline__State.setProfileLinesSize(width, height);
                 Na__RenderPipeline__State.setAoSize(width, height);          // <-- Update AO resolution uniform
             }

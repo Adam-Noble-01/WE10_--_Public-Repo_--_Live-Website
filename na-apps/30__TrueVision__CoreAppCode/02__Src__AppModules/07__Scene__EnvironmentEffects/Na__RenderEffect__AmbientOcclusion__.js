@@ -24,6 +24,55 @@
 // All distance config values are integer millimeters (per project convention)
 // and converted to Three.js scene units via Na__Math__ConvertMmToUnits.
 //
+// PIPELINE ARCHITECTURE:
+// The AO effect is composed of two sequential ShaderPass instances inserted
+// into the EffectComposer pipeline:
+//
+//   [RenderPass] → [ProfileLines] → [Fog] → [SSAO] → [AO Blur] → [FXAA]
+//
+//   1. SSAO pass   – hemisphere-sampled screen-space occlusion calculation.
+//                    Reads colour from the previous pass (tDiffuse) and the
+//                    separate depth pre-pass texture (tDepth).  Outputs
+//                    composited colour: texel.rgb * aoFactor.
+//
+//   2. AO Blur     – lightweight 5×5 gaussian blur that smooths the
+//                    per-pixel noise inherent to the random kernel rotation.
+//                    Acts on the composited output from step 1.  Because the
+//                    whitecard scene uses flat colours the blur primarily
+//                    softens noisy AO boundaries without visibly degrading
+//                    geometry edges.
+//
+// DEPTH TEXTURE:
+// Both the fog pass and SSAO pass require a depth texture.  This texture
+// MUST come from a separate render target (the "depth pre-pass") rather
+// than from the EffectComposer's own render targets.  Attaching a
+// DepthTexture to the EffectComposer RT would cause a WebGL feedback loop
+// because ShaderPasses read from and write to the EffectComposer's
+// ping-ponged targets.
+//
+// PERFORMANCE MONITOR:
+// An optional FPS-based auto-disable mechanism samples the frame rate after
+// a warmup period.  If the average falls below the configured threshold,
+// the SSAO + blur passes are disabled and a user-facing toast message is
+// shown (worded as "Shadows" for non-technical users).
+//
+// CONFIG (Na__AppConfig__Main.json → RenderEffect__AmbientOcclusion):
+//   Enabled          — boolean toggle
+//   RadiusMm         — world-space sampling hemisphere radius (mm)
+//   Intensity        — occlusion strength multiplier (0-2)
+//   Bias             — minimum depth difference to count as occluded
+//   Samples          — number of hemisphere kernel samples
+//   CullDistanceMm   — max distance from camera for AO (mm); 0 = unlimited
+//   BlurRadius       — texel spread multiplier for the blur pass
+//   FpsThreshold     — auto-disable threshold (fps)
+//   FpsSampleFrames  — frames to average for performance check
+//   DebugMode        — 0=off, 1=raw depth, 2=linear Z, 3=normals, 4=raw AO
+//
+// SHADER SOURCE:
+// GLSL code lives in the companion file
+//   Na__RenderEffect__AmbientOcclusion__Shader.js
+// to keep shader source cleanly separated from JS orchestration.
+//
 // =============================================================================
 
 
@@ -31,11 +80,16 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Three.js, Post Processing, Unit Conversion
+    // MODULE IMPORTS | Three.js, Post Processing, Unit Conversion, Shader Source
     // ------------------------------------------------------------
     import * as THREE from 'three';
     import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
     import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
+    import {
+        Na__AoShader__VertexSource,
+        Na__AoShader__FragmentSource,
+        Na__AoBlurShader__FragmentSource
+    } from './Na__RenderEffect__AmbientOcclusion__Shader.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -46,6 +100,12 @@
 // -----------------------------------------------------------------------------
 
     // HELPER FUNCTION | Generate SSAO Hemisphere Sample Kernel
+    //
+    // Creates `sampleCount` random points inside a unit hemisphere oriented
+    // along +Z.  Samples are cosine-weighted toward the surface (small scale
+    // values for early samples) so nearby geometry contributes more.
+    // The kernel is later oriented to the surface normal via a TBN matrix
+    // in the fragment shader.
     // ------------------------------------------------------------
     function Na__AmbientOcclusion__GenerateKernel(sampleCount) {
         const kernel = [];
@@ -71,14 +131,19 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | SSAO Shader Definition
+// REGION | SSAO Shader Definition (assembled from external GLSL source)
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Custom SSAO Shader (Log-Depth Compatible)
+    // FUNCTION | Assemble SSAO shader object from external GLSL source
+    //
+    // Combines the vertex/fragment strings imported from the companion Shader
+    // file with the Three.js uniform dictionary.  The fragment shader is a
+    // template requiring sampleCount so that the kernel loop is unrolled at
+    // compile time (GLSL does not allow variable-length for-loops on all
+    // drivers).
     // ------------------------------------------------------------
     function Na__AmbientOcclusion__BuildShader(sampleCount) {
         return {
-
             uniforms: {
                 'tDiffuse'                 : { value: null },
                 'tDepth'                   : { value: null },
@@ -91,128 +156,12 @@
                 'uAoIntensity'             : { value: 0.7 },
                 'uAoBias'                  : { value: 0.025 },
                 'uKernel'                  : { value: [] },
-                'uAoEnabled'               : { value: 1.0 }
+                'uAoEnabled'               : { value: 1.0 },
+                'uAoCullDistance'           : { value: 0.0 },
+                'uDebugMode'               : { value: 0 }
             },
-
-            vertexShader: /* glsl */`
-                varying vec2 vUv;
-                void main() {
-                    vUv = uv;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-
-            fragmentShader: /* glsl */`
-                precision highp float;
-
-                uniform sampler2D tDiffuse;
-                uniform sampler2D tDepth;
-                uniform float     uCameraFar;
-                uniform float     uCameraNear;
-                uniform mat4      uInverseProjectionMatrix;
-                uniform mat4      uProjectionMatrix;
-                uniform vec2      uResolution;
-                uniform float     uAoRadius;
-                uniform float     uAoIntensity;
-                uniform float     uAoBias;
-                uniform vec3      uKernel[${sampleCount}];
-                uniform float     uAoEnabled;
-
-                varying vec2 vUv;
-
-                // Invert Three.js logarithmic depth buffer encoding.
-                // Three.js writes: gl_FragDepthEXT = log2(1.0 + w) / log2(far + 1.0)
-                // Inversion: clipW = pow(far + 1.0, storedDepth) - 1.0
-                float reconstructClipW(float storedDepth) {
-                    return pow(uCameraFar + 1.0, storedDepth) - 1.0;
-                }
-
-                vec3 getViewPosition(vec2 screenUv) {
-                    float depth = texture2D(tDepth, screenUv).x;
-                    if (depth >= 1.0) return vec3(0.0);
-
-                    float clipW = reconstructClipW(depth);
-
-                    vec2 ndc = screenUv * 2.0 - 1.0;
-                    vec4 clipPos = vec4(ndc, 0.0, 1.0);
-                    vec4 viewRay = uInverseProjectionMatrix * clipPos;
-                    vec3 viewDir = normalize(viewRay.xyz / viewRay.w);
-
-                    return viewDir * (clipW / max(-viewDir.z, 0.0001));
-                }
-
-                void main() {
-                    vec4 texel = texture2D(tDiffuse, vUv);
-
-                    if (uAoEnabled < 0.5) {
-                        gl_FragColor = texel;
-                        return;
-                    }
-
-                    float centerDepth = texture2D(tDepth, vUv).x;
-                    if (centerDepth >= 1.0) {
-                        gl_FragColor = texel;
-                        return;
-                    }
-
-                    vec3 viewPos = getViewPosition(vUv);
-                    vec3 normal  = normalize(cross(dFdx(viewPos), dFdy(viewPos)));
-
-                    // Per-pixel noise rotation to break banding
-                    float noiseAngle = fract(sin(dot(vUv * uResolution, vec2(12.9898, 78.233))) * 43758.5453) * 6.283185;
-                    float cosA = cos(noiseAngle);
-                    float sinA = sin(noiseAngle);
-
-                    // Build TBN matrix to orient hemisphere to surface normal
-                    vec3 tangent = abs(normal.y) < 0.999
-                        ? normalize(cross(normal, vec3(0.0, 1.0, 0.0)))
-                        : normalize(cross(normal, vec3(1.0, 0.0, 0.0)));
-                    vec3 bitangent = cross(normal, tangent);
-                    mat3 TBN = mat3(tangent, bitangent, normal);
-
-                    float occlusion   = 0.0;
-                    float validCount  = 0.0;
-
-                    for (int i = 0; i < ${sampleCount}; i++) {
-                        // Rotate kernel sample by noise angle (XY plane)
-                        vec3 ks = uKernel[i];
-                        vec3 rotatedSample = vec3(
-                            ks.x * cosA - ks.y * sinA,
-                            ks.x * sinA + ks.y * cosA,
-                            ks.z
-                        );
-
-                        vec3 samplePos = viewPos + TBN * rotatedSample * uAoRadius;
-
-                        // Project sample back to screen space
-                        vec4 projected = uProjectionMatrix * vec4(samplePos, 1.0);
-                        vec2 sampleUv  = (projected.xy / projected.w) * 0.5 + 0.5;
-
-                        if (sampleUv.x < 0.0 || sampleUv.x > 1.0 || sampleUv.y < 0.0 || sampleUv.y > 1.0) continue;
-
-                        float sampleStoredDepth = texture2D(tDepth, sampleUv).x;
-                        if (sampleStoredDepth >= 1.0) continue;
-
-                        vec3 actualViewPos = getViewPosition(sampleUv);
-
-                        // Occlusion: actual surface is closer to camera than our sample point
-                        // In view space z is negative; more negative = further from camera
-                        float depthDiff = actualViewPos.z - samplePos.z;
-
-                        // Range check prevents contribution from surfaces far beyond the AO radius
-                        float rangeCheck = smoothstep(0.0, 1.0, uAoRadius / (abs(depthDiff) + 0.0001));
-                        float aoContrib  = step(uAoBias, depthDiff) * rangeCheck;
-
-                        occlusion  += aoContrib;
-                        validCount += 1.0;
-                    }
-
-                    float aoFactor = (validCount > 0.0) ? (occlusion / validCount) : 0.0;
-                    float finalAo  = 1.0 - aoFactor * uAoIntensity;
-
-                    gl_FragColor = vec4(texel.rgb * finalAo, texel.a);
-                }
-            `
+            vertexShader:   Na__AoShader__VertexSource,
+            fragmentShader: Na__AoShader__FragmentSource(sampleCount)
         };
     }
     // ------------------------------------------------------------
@@ -221,10 +170,48 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | AO Pass Creation
+// REGION | AO Blur Shader Definition
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Create Ambient Occlusion Post-Processing Pass
+    // FUNCTION | Assemble AO Blur shader object from external GLSL source
+    //
+    // Produces a ShaderPass-compatible object for a 5×5 gaussian blur.
+    // uBlurRadius scales the texel-offset multiplier:
+    //   1.0 → standard 5×5, 2.0 → wider spread.
+    // ------------------------------------------------------------
+    function Na__AoBlur__BuildShader() {
+        return {
+            uniforms: {
+                'tDiffuse'    : { value: null },
+                'uResolution' : { value: new THREE.Vector2(1, 1) },
+                'uBlurRadius' : { value: 1.0 }
+            },
+            vertexShader:   Na__AoShader__VertexSource,
+            fragmentShader: Na__AoBlurShader__FragmentSource
+        };
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | AO + Blur Pass Creation
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Create Ambient Occlusion + Blur Post-Processing Passes
+    //
+    // Returns an object containing:
+    //   aoPass         – the main SSAO ShaderPass
+    //   blurPass       – the gaussian blur ShaderPass
+    //   updateUniforms – call per-frame to sync camera matrices
+    //   setSize        – call on window resize to update resolution uniforms
+    //   disable        – turns off both passes (used by perf monitor)
+    //
+    // Parameters:
+    //   camera        – the scene perspective camera
+    //   aoConfig      – the RenderEffect__AmbientOcclusion block from AppConfig
+    //   depthTexture  – the DepthTexture from the dedicated depth pre-pass RT
     // ------------------------------------------------------------
     function Na__RenderEffect__AmbientOcclusion__Create(camera, aoConfig, depthTexture) {
         const sampleCount = (aoConfig && Number.isFinite(aoConfig.RenderEffect__AmbientOcclusion__Samples))
@@ -240,11 +227,23 @@
         const bias = (aoConfig && Number.isFinite(aoConfig.RenderEffect__AmbientOcclusion__Bias))
             ? aoConfig.RenderEffect__AmbientOcclusion__Bias
             : 0.025;
+        const blurRadius = (aoConfig && Number.isFinite(aoConfig.RenderEffect__AmbientOcclusion__BlurRadius))
+            ? aoConfig.RenderEffect__AmbientOcclusion__BlurRadius
+            : 1.5;
+        const cullDistanceMm = (aoConfig && Number.isFinite(aoConfig.RenderEffect__AmbientOcclusion__CullDistanceMm))
+            ? aoConfig.RenderEffect__AmbientOcclusion__CullDistanceMm
+            : 0;
+        const cullDistanceUnits = (cullDistanceMm > 0) ? Na__Math__ConvertMmToUnits(cullDistanceMm) : 0.0;
 
         const radiusUnits = Na__Math__ConvertMmToUnits(radiusMm);
         const kernel      = Na__AmbientOcclusion__GenerateKernel(sampleCount);
-        const shader      = Na__AmbientOcclusion__BuildShader(sampleCount);
-        const aoPass      = new ShaderPass(shader);
+
+        // ----- SSAO pass -----
+        const shader = Na__AmbientOcclusion__BuildShader(sampleCount);
+        const aoPass = new ShaderPass(shader);
+
+        aoPass.material.depthWrite = false;
+        aoPass.material.depthTest  = false;
 
         aoPass.uniforms['tDepth'].value                   = depthTexture;
         aoPass.uniforms['uAoRadius'].value                = radiusUnits;
@@ -257,7 +256,20 @@
         aoPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
         aoPass.uniforms['uKernel'].value                  = kernel;
         aoPass.uniforms['uAoEnabled'].value               = 1.0;
+        aoPass.uniforms['uAoCullDistance'].value           = cullDistanceUnits;
+        aoPass.uniforms['uDebugMode'].value               = aoConfig.RenderEffect__AmbientOcclusion__DebugMode || 0;
 
+        // ----- AO Blur pass -----
+        const blurShader = Na__AoBlur__BuildShader();
+        const blurPass   = new ShaderPass(blurShader);
+
+        blurPass.material.depthWrite = false;
+        blurPass.material.depthTest  = false;
+
+        blurPass.uniforms['uBlurRadius'].value  = blurRadius;
+        blurPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
+
+        // ----- Per-frame camera sync -----
         function updateUniforms(cam) {
             if (!cam) return;
             aoPass.uniforms['uCameraFar'].value  = cam.far;
@@ -266,16 +278,27 @@
             aoPass.uniforms['uProjectionMatrix'].value.copy(cam.projectionMatrix);
         }
 
+        // ----- Resize handler -----
         function setSize(width, height) {
             aoPass.uniforms['uResolution'].value.set(width, height);
+            blurPass.uniforms['uResolution'].value.set(width, height);
         }
 
+        // ----- Disable both passes (perf monitor or manual) -----
         function disable() {
-            aoPass.enabled = false;
+            aoPass.enabled   = false;
+            blurPass.enabled = false;
             aoPass.uniforms['uAoEnabled'].value = 0.0;
         }
 
-        return { pass: aoPass, updateUniforms, setSize, disable };
+        // ----- Re-enable both passes (Settings toggle) -----
+        function enable() {
+            aoPass.enabled   = true;
+            blurPass.enabled = true;
+            aoPass.uniforms['uAoEnabled'].value = 1.0;
+        }
+
+        return { pass: aoPass, blurPass, updateUniforms, setSize, disable, enable };
     }
     // ------------------------------------------------------------
 
@@ -287,6 +310,18 @@
 // -----------------------------------------------------------------------------
 
     // FUNCTION | Create FPS-Based Auto-Disable Monitor
+    //
+    // After an initial warmup period (WARMUP_FRAMES) the monitor begins
+    // counting frames.  Once `sampleFrames` have been collected the average
+    // FPS is compared against `fpsThreshold`.  If below threshold:
+    //   1. Both the SSAO and blur passes are disabled via aoState.disable()
+    //   2. A user-facing toast says "Shadows have been switched off…"
+    //
+    // The word "shadows" is deliberately used instead of "ambient occlusion"
+    // because end users are architects, not graphics programmers.
+    //
+    // This function is called once and returns a monitorFrame callback to be
+    // invoked from the render loop.
     // ------------------------------------------------------------
     function Na__RenderEffect__AmbientOcclusion__CreatePerformanceMonitor(aoState, aoConfig) {
         const fpsThreshold   = (aoConfig && Number.isFinite(aoConfig.RenderEffect__AmbientOcclusion__FpsThreshold))
@@ -326,6 +361,7 @@
                             isError: false
                         }
                     }));
+                    window.dispatchEvent(new CustomEvent('na-ao-disabled'));
                     console.warn(`[TrueVision3D] AO auto-disabled: avg ${avgFps.toFixed(1)} fps < ${fpsThreshold} fps threshold`);
                 } else {
                     console.log(`[TrueVision3D] AO performance OK: avg ${avgFps.toFixed(1)} fps`);

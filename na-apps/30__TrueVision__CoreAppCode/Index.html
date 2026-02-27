@@ -156,7 +156,7 @@
     <div class="na-dropdown-menu">
         <details class="na-dropdown-menu__details" id="naToolsMenu">
             <summary class="na-dropdown-menu__summary">
-                Tools
+                Tools &amp; Settings
                 <span class="na-dropdown-menu__arrow">&#9662;</span>
             </summary>
             <ul class="na-dropdown-menu__list">
@@ -270,6 +270,12 @@
                 <li class="na-dropdown-menu__item">
                     <button class="na-dropdown-menu__button" id="naUserInstructionsToggle">
                         User Guide
+                    </button>
+                </li>
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-walk-mode__toggle na-walk-mode__toggle--active" id="naSsaoToggle">
+                        <span class="na-walk-mode__label">Shadows</span>
+                        <span class="na-walk-mode__status" id="naSsaoStatus">ON</span>
                     </button>
                 </li>
             </ul>
@@ -630,6 +636,30 @@
     }
     // ------------------------------------------------------------
 
+    // SETTINGS MENU | SSAO (Shadows) Real-Time Toggle
+    // ------------------------------------------------------------
+    const Na__SsaoToggleBtn = document.getElementById('naSsaoToggle');
+    const Na__SsaoStatusEl  = document.getElementById('naSsaoStatus');
+
+    function Na__UiFeature__UpdateSsaoStatus(isOn) {
+        if (Na__SsaoStatusEl)  Na__SsaoStatusEl.textContent = isOn ? 'ON' : 'OFF';
+        if (Na__SsaoToggleBtn) Na__SsaoToggleBtn.classList.toggle('na-walk-mode__toggle--active', isOn);
+    }
+
+    if (Na__SsaoToggleBtn) {
+        Na__SsaoToggleBtn.addEventListener('click', () => {
+            const pipeline = Na__AppFlow__PipelineRef.current;
+            if (!pipeline || !pipeline.toggleAo) return;
+            const isNowOn = pipeline.toggleAo();
+            Na__UiFeature__UpdateSsaoStatus(isNowOn);
+        });
+    }
+
+    window.addEventListener('na-ao-disabled', () => {
+        Na__UiFeature__UpdateSsaoStatus(false);
+    });
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -725,10 +755,15 @@
     function Na__UiFeature__PromptToolsMenu() {
         const menu = document.getElementById('naToolsMenu');
         if (!menu) return;
+        const closeAnimationDurationMs = 240;
         
         menu.setAttribute('open', 'open');
         setTimeout(() => {
-            menu.removeAttribute('open');
+            menu.classList.add('na-dropdown-menu__details--closing');
+            setTimeout(() => {
+                menu.removeAttribute('open');
+                menu.classList.remove('na-dropdown-menu__details--closing');
+            }, closeAnimationDurationMs);
         }, 3600);
     }
     // ------------------------------------------------------------

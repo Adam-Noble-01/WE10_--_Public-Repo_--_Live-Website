@@ -82,6 +82,7 @@
 .na-dropdown-menu__arrow {
     font-size                           : 0.85rem;
     color                               : #172b3a;
+    transition                          : transform 0.24s ease;
 }
 
 .na-dropdown-menu__list {
@@ -89,6 +90,24 @@
     padding                             : 6px 0 10px 0;
     list-style                          : none;
     border-top                          : 1px solid rgba(0, 0, 0, 0.08);
+    opacity                             : 0;
+    transform                           : translateY(-6px);
+    transition                          : opacity 0.24s ease, transform 0.24s ease;
+    will-change                         : opacity, transform;
+}
+
+.na-dropdown-menu__details[open] .na-dropdown-menu__arrow {
+    transform                           : rotate(180deg);
+}
+
+.na-dropdown-menu__details[open] .na-dropdown-menu__list {
+    opacity                             : 1;
+    transform                           : translateY(0);
+}
+
+.na-dropdown-menu__details.na-dropdown-menu__details--closing .na-dropdown-menu__list {
+    opacity                             : 0;
+    transform                           : translateY(-6px);
 }
 
 .na-dropdown-menu__item {
