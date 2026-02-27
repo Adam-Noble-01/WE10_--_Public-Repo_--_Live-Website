@@ -161,25 +161,16 @@
             </summary>
             <ul class="na-dropdown-menu__list">
                 <li class="na-dropdown-menu__item">
-                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naCameraLensToggle">
-                        Adjust Camera Lens
-                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    <button class="na-dropdown-menu__button na-walk-mode__toggle" id="naWalkModeToggle">
+                        <span class="na-walk-mode__label">Walk Mode</span>
+                        <span class="na-walk-mode__status" id="naWalkModeStatus">Off</span>
                     </button>
-                    <div class="na-dropdown-menu__panel" id="naCameraLensPanel">
-                        <div class="na-dropdown-menu__panel-title">Lens Width</div>
-                        <div class="na-dropdown-menu__panel-row">
-                            <input
-                                type="range"
-                                id="naCameraLensSlider"
-                                class="na-dropdown-menu__slider"
-                                min="28"
-                                max="75"
-                                step="1"
-                                value="50"
-                            />
-                            <span class="na-dropdown-menu__value" id="naCameraLensValue">50 mm</span>
-                        </div>
-                    </div>
+                </li>
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-walk-mode__toggle" id="naOrbitModeToggle">
+                        <span class="na-walk-mode__label">Orbit Mode</span>
+                        <span class="na-walk-mode__status" id="naOrbitModeStatus">Active</span>
+                    </button>
                 </li>
                 <li class="na-dropdown-menu__item">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naImageExportToggle">
@@ -187,6 +178,21 @@
                         <span class="na-dropdown-menu__subarrow">&#9662;</span>
                     </button>
                     <div class="na-dropdown-menu__panel" id="naImageExportPanel">
+                        <div class="na-dropdown-menu__section" id="naCameraLensPanel">
+                            <div class="na-dropdown-menu__panel-title">Lens Width</div>
+                            <div class="na-dropdown-menu__panel-row">
+                                <input
+                                    type="range"
+                                    id="naCameraLensSlider"
+                                    class="na-dropdown-menu__slider"
+                                    min="28"
+                                    max="75"
+                                    step="1"
+                                    value="50"
+                                />
+                                <span class="na-dropdown-menu__value" id="naCameraLensValue">50 mm</span>
+                            </div>
+                        </div>
                         <div class="na-dropdown-menu__panel-row na-dropdown-menu__panel-row--toggle">
                             <span class="na-dropdown-menu__panel-title">Custom Export</span>
                             <input type="checkbox" id="naImageExportCustomToggle" class="na-dropdown-menu__checkbox" />
@@ -225,8 +231,18 @@
                         <button class="na-dropdown-menu__action na-dropdown-menu__action--secondary" id="naImageExportAction">Download Image</button>
                     </div>
                 </li>
-                <!-- <li class="na-dropdown-menu__item">Document Layout</li> -->
-                <!-- <li class="na-dropdown-menu__item">Return To Project</li> -->
+                <li class="na-dropdown-menu__item" id="naStoreyViewItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naStoreyViewButton">
+                        Storey View
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naStoreyViewPanel">
+                        <div class="na-dropdown-menu__panel-title">Building Storeys</div>
+                        <div class="na-storey-view__list" id="naStoreyViewList">
+                            <!-- Buttons generated dynamically by Na__UiFeature__StoreyView__Controls.js -->
+                        </div>
+                    </div>
+                </li>
                 <li class="na-dropdown-menu__item" id="naModelGroupSelectorItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naModelGroupSelectorButton">
                         Design Phase
@@ -239,6 +255,18 @@
                         </div>
                     </div>
                 </li>
+            </ul>
+            
+        </details>
+    </div>
+
+    <div class="na-dropdown-menu na-dropdown-menu--dev-localhost" id="naDevToolsMenuContainer" style="display:none;">
+        <details class="na-dropdown-menu__details" id="naDevToolsMenu">
+            <summary class="na-dropdown-menu__summary">
+                Dev Tools
+                <span class="na-dropdown-menu__arrow">&#9662;</span>
+            </summary>
+            <ul class="na-dropdown-menu__list">
                 <li class="na-dropdown-menu__item">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naModelToggleButton">
                         Toggle Model Layers
@@ -257,7 +285,6 @@
                     </button>
                 </li>
             </ul>
-            
         </details>
     </div>
     
@@ -285,6 +312,7 @@
     import { Na__UiFeature__InitializeCameraLensControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__CameraLens__Controls.js';
     import { Na__UiFeature__InitializeImageExportControls } from './02__Src__AppModules/30__System__ImageExport/Na__UiFeature__ImageExport__Controls.js';
     import { Na__UiFeature__InitializeSaveCameraButton } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__SaveCameraSettings.js';
+    import { Na__UiFeature__InitializeLocalhostDevMenu } from './02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__DevMenu__LocalhostOnly.js';
     import { Na__Math__ConvertMmToUnits } from './02__Src__AppModules/04__MathUtils/Na__Math__Units.js';
     import {
         Na__Scene__CreateFogPass,
@@ -292,7 +320,7 @@
         Na__Scene__ApplyFogBackground
     } from './02__Src__AppModules/07__Scene__EnvironmentEffects/Na__Scene__DefaultFogEffect.js';
     import { Na__UiFeature__InitializeWalkModeSystem, Na__UiFeature__ToggleWalkMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeControls.js';
-    import { Na__UiFeature__InitializeWalkModeHotkey } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js';
+    import { Na__UiFeature__InitializeWalkModeHotkey, Na__UiFeature__InitializeWalkModeToggleButton } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js';
     import { Na__AppFlow__StartLoadingSequence } from './02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js';
     // ------------------------------------------------------------
 
@@ -345,6 +373,7 @@
         : {};                                                                     // <-- Walk mode config (MM)
     const Na__Config__GlobalHotkeys = Na__AppConfig__Data.Global__Hotkeys || {};  // <-- Global hotkeys config
     const Na__Config__MaterialsSystem = Na__AppConfig__Data.MaterialsSystem__Config || {};  // <-- Materials system config
+    const Na__Config__StoreyVisibility = Na__AppConfig__Data.StoreyVisibility || {};       // <-- Storey visibility config
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -541,7 +570,42 @@
     Na__UiFeature__InitializeWalkModeSystem(Na__Scene__Main, Na__Camera__Main, Na__Renderer__Main, Na__Controls__Orbit, Na__Config__WalkMode, Na__Device__UseTouchControls);
 
     // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js
-    Na__UiFeature__InitializeWalkModeHotkey(() => Na__UiFeature__ToggleWalkMode());
+    const Na__WalkMode__ToggleBtn = document.getElementById('naWalkModeToggle');
+    const Na__WalkMode__StatusEl  = document.getElementById('naWalkModeStatus');
+    const Na__OrbitMode__ToggleBtn = document.getElementById('naOrbitModeToggle');
+    const Na__OrbitMode__StatusEl  = document.getElementById('naOrbitModeStatus');
+
+    function Na__UiFeature__UpdateModeStatus(isWalkModeActive) {
+        if (Na__WalkMode__StatusEl) {
+            Na__WalkMode__StatusEl.textContent = isWalkModeActive ? 'Active' : 'Off';
+        }
+        if (Na__WalkMode__ToggleBtn) {
+            Na__WalkMode__ToggleBtn.classList.toggle('na-walk-mode__toggle--active', isWalkModeActive);
+        }
+
+        if (Na__OrbitMode__StatusEl) {
+            Na__OrbitMode__StatusEl.textContent = isWalkModeActive ? 'Off' : 'Active';
+        }
+        if (Na__OrbitMode__ToggleBtn) {
+            Na__OrbitMode__ToggleBtn.classList.toggle('na-walk-mode__toggle--active', !isWalkModeActive);
+        }
+    }
+
+    const Na__WalkMode__ToggleFn  = () => Na__UiFeature__ToggleWalkMode(
+        () => Na__UiFeature__UpdateModeStatus(true),
+        () => Na__UiFeature__UpdateModeStatus(false)
+    );
+    Na__UiFeature__InitializeWalkModeHotkey(Na__WalkMode__ToggleFn);
+    Na__UiFeature__InitializeWalkModeToggleButton('naWalkModeToggle', Na__WalkMode__ToggleFn);
+    Na__UiFeature__UpdateModeStatus(false);
+
+    if (Na__OrbitMode__ToggleBtn) {
+        Na__OrbitMode__ToggleBtn.addEventListener('click', () => {
+            if (Na__WalkMode__ToggleBtn?.classList.contains('na-walk-mode__toggle--active')) {
+                Na__WalkMode__ToggleFn();
+            }
+        });
+    }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -700,10 +764,12 @@
             modelUrls                   : Na__ModelDefaults__ModelUrls,
             materialsSystem             : Na__Config__MaterialsSystem,
             doorAnimation               : Na__Config__DoorAnimation,
-            orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible
+            orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible,
+            storeyVisibility            : Na__Config__StoreyVisibility
         }
     });
     Na__UiFeature__PromptToolsMenu();
+    Na__UiFeature__InitializeLocalhostDevMenu();
     Na__UiFeature__InitializeSaveCameraButton(Na__Camera__Main, Na__Controls__Orbit, Na__UiFeature__ShowToast);
     // ------------------------------------------------------------
 

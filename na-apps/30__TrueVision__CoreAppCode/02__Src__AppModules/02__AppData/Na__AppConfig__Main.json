@@ -185,7 +185,7 @@
     "MaterialsSystem__Config": {
         "MaterialsSystem__Config__Description"         : "Configuration for the PBR materials swap system. When enabled, GLB material names matching the library are replaced with PBR materials. Unmatched materials retain the whitecard appearance.",
         "MaterialsSystem__Config__Enabled"             : true,
-        "MaterialsSystem__Config__LibraryUrl"          : "././Na__AppConfig__MaterialsLibrary.json",
+        "MaterialsSystem__Config__LibraryUrl"          : "./02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json",
         "MaterialsSystem__Config__FallbackToWhitecard" : true,
         "MaterialsSystem__Config__PolygonOffsetFactor" : 2,
         "MaterialsSystem__Config__PolygonOffsetUnits"  : 2
@@ -198,6 +198,17 @@
             "3dObject__Interaction__DoorAnimation__DefaultRotationDeg"  : 90,
             "3dObject__Interaction__DoorAnimation__ClickThresholdPx"    : 4
         }
+    },
+    "StoreyVisibility": {
+        "StoreyVisibility__Description"  : "Storey-based visibility toggle settings. Panel auto-detects storey models from GLB filenames containing Storey__ prefix.",
+        "StoreyVisibility__Enabled"      : true,
+        "StoreyVisibility__DefaultMode"  : "ShowAll",
+        "StoreyVisibility__StoreyOrder"  : [
+            "GroundFloor",
+            "FirstFloor",
+            "SecondFloor",
+            "ThirdFloor"
+        ]
     }
 }
 

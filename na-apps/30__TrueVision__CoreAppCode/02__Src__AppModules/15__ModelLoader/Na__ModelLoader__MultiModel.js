@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // TRUEVISION3D - MULTI-MODEL LOADER
 // =============================================================================
 //
@@ -55,11 +55,14 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
     // Primary: Accepts __TrueVision__ (CDN rebranded) and __NaModel__ (raw SketchUp export).
     // Supports optional project prefix (e.g., DeLisle__TrueVision__).
     // Captures: [1] namespace (TrueVision|NaModel), [2] category, [3] model type.
+    // Storey:  Matches storey-based GLB filenames (e.g., NP03__Storey__GroundFloor__ProposedWalls__MeshModel__.glb).
+    // Captures: [1] storey name (GroundFloor), [2] element type (ProposedWalls), [3] model type.
     // Legacy:  Matches older __Layer-XX__BaseMeshModel__ / __LineworkModel__ patterns.
     // Captures: [1] model type indicator (BaseMeshModel|LineworkModel).
     // OrbitHelperCube: Matches OrbitHelperCube GLB files exported from SketchUp for orbit target positioning.
     // ------------------------------------------------------------
     const Na__ModelUrl__ParseRegex        = /(?:.*?__)?(TrueVision|NaModel)__(.+?)__(MeshModel|LineworkModel)__\.glb/i;
+    const Na__ModelUrl__StoreyParseRegex  = /(?:.*?__)?Storey__([A-Za-z]+)__([A-Za-z]+)__(MeshModel|LineworkModel)__\.glb/i;
     const Na__ModelUrl__LegacyParseRegex  = /__(BaseMeshModel|LineworkModel|MeshModel)__/i;
     const Na__ModelUrl__LegacyCategoryKey = "TrueVision__LegacyModel";   // <-- Fallback category for legacy URLs
     const Na__ModelUrl__OrbitCubeRegex    = /OrbitHelperCube__MeshModel__\.glb$/i;  // <-- Orbit helper cube detection
@@ -94,6 +97,23 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                 category       : normalizedCategory,                     // <-- Normalized category key
                 modelType      : modelType,                              // <-- MeshModel or LineworkModel
                 rawNamespace   : namespace                               // <-- Original namespace for logging
+            };
+        }
+
+        // STOREY REGEX | Storey-based GLB naming (e.g., NP03__Storey__GroundFloor__ProposedWalls__MeshModel__.glb)
+        const storeyMatch = Na__ModelUrl__StoreyParseRegex.exec(filename);
+        if (storeyMatch) {
+            const storeyName  = storeyMatch[1];                          // <-- e.g. "GroundFloor"
+            const elementType = storeyMatch[2];                          // <-- e.g. "ProposedWalls"
+            const modelType   = storeyMatch[3];                          // <-- MeshModel or LineworkModel
+
+            const storeyCategory = `Storey__${storeyName}__${elementType}`;  // <-- Preserves Storey__ prefix for detection
+
+            return {
+                url            : url,                                    // <-- Original full URL
+                category       : storeyCategory,                         // <-- e.g. "Storey__GroundFloor__ProposedWalls"
+                modelType      : modelType,                              // <-- MeshModel or LineworkModel
+                rawNamespace   : 'Storey'                                // <-- Flag as storey for logging
             };
         }
 
@@ -392,6 +412,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                         config.baseMesh,                                 // <-- Base mesh material config
                         loader
                     );
+                    meshRoot.userData.Na__ModelType = 'mesh';            // <-- Tag for downstream identification
                     categoryGroup.add(meshRoot);                         // <-- Add mesh to category group
                     console.log(`[TrueVision3D] Loaded Mesh: ${shortName}`);
                 } catch (error) {
@@ -409,6 +430,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                         loader,
                         lineResolution
                     );
+                    lineworkRoot.userData.Na__ModelType = 'linework';    // <-- Tag for downstream identification
                     categoryGroup.add(lineworkRoot);                     // <-- Add linework to category group
                     console.log(`[TrueVision3D] Loaded Linework: ${shortName}`);
                 } catch (error) {
@@ -432,6 +454,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                 if (statusCallback) statusCallback(`Loading ${shortName} Mesh...`);
                 try {
                     const meshRoot = await Na__ModelLoader__LoadSingleMesh(entry.meshUrl, config.baseMesh, loader);
+                    meshRoot.userData.Na__ModelType = 'mesh';
                     categoryGroup.add(meshRoot);
                     console.log(`[TrueVision3D] Loaded Mesh (unordered): ${shortName}`);
                 } catch (error) {
@@ -443,6 +466,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                 if (statusCallback) statusCallback(`Loading ${shortName} Linework...`);
                 try {
                     const lineworkRoot = await Na__ModelLoader__LoadSingleLinework(entry.lineworkUrl, config.RenderConfig__Linework, loader, lineResolution);
+                    lineworkRoot.userData.Na__ModelType = 'linework';
                     categoryGroup.add(lineworkRoot);
                     console.log(`[TrueVision3D] Loaded Linework (unordered): ${shortName}`);
                 } catch (error) {

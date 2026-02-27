@@ -56,7 +56,7 @@
         const valueLabel = document.getElementById('naCameraLensValue');
         const toggleButton = document.getElementById('naCameraLensToggle');
         
-        if (!panel || !slider || !valueLabel || !toggleButton) return;
+        if (!panel || !slider || !valueLabel) return;
         
         const currentFocal = Na__UiFeature__LensFovToFocal(camera.fov, lensConfig.sensorHeightMM);
         const initialFocal = lensConfig.defaultFocalLengthMM ?? currentFocal;
@@ -82,10 +82,12 @@
             applyLens(focalLength);
         });
         
-        toggleButton.addEventListener('click', () => {
-            const isOpen = panel.classList.contains('is-open');
-            panel.classList.toggle('is-open', !isOpen);
-        });
+        if (toggleButton) {
+            toggleButton.addEventListener('click', () => {
+                const isOpen = panel.classList.contains('is-open');
+                panel.classList.toggle('is-open', !isOpen);
+            });
+        }
     }
     // ------------------------------------------------------------
 

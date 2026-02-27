@@ -2,7 +2,86 @@
 # =========================================================
 
 # ---------------------------------------------------------
-## TrueVision3D v2.0.1  -  27-Feb-2026
+## TrueVision3D v2.0.4  -  27-Feb-2026
+### Localhost Dev Menu Split + Navigation Mode Status UX
+
+**Overview**
+- Split tools into client-facing and localhost-only menu scopes so live builds remain client-safe while local builds expose developer controls.
+- Added explicit dual-mode status UX (`Walk Mode` / `Orbit Mode`) with mutually exclusive Active states.
+- Moved camera lens/FOV control into the Export tools section.
+- Updated local server behavior to canonicalize mixed-case entrypoints (`Index.html` -> `index.html`) to prevent stale/incorrect page variants during local testing.
+
+**Main UI Menu Changes (`index.html`)**
+- Client-facing `Tools` order now follows:
+  - `Walk Mode`
+  - `Orbit Mode`
+  - `Export Image` (includes Lens Width/FOV slider)
+  - `Storey View`
+  - `Design Phase`
+- Added left-side `Dev Tools` menu container (hidden by default) containing:
+  - `Toggle Model Layers`
+  - `Save Camera Settings`
+
+**Localhost-Only Dev Menu**
+- Added `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__DevMenu__LocalhostOnly.js`.
+- Dev menu visibility is gated by `Na__AppUtils__IsRunningOnLocalhost()`.
+- Main runtime now initializes dev menu visibility via `Na__UiFeature__InitializeLocalhostDevMenu()`.
+
+**Navigation Mode Status UX**
+- Added Orbit mode button/status in main menu.
+- Implemented shared mode-status updater so exactly one mode is Active at a time:
+  - Startup defaults to Orbit Active.
+  - Enabling Walk sets Walk Active / Orbit Off.
+  - Disabling Walk sets Walk Off / Orbit Active.
+
+**Lens/FOV in Export**
+- Lens slider/value UI moved from top-level menu item into the Export panel.
+- `Na__UiFeature__CameraLens__Controls.js` updated so lens initialization no longer requires a dedicated top-level lens toggle button.
+
+**Server Routing Reliability (Local Dev)**
+- Updated `na-apps/ProjectVision__LocalServer__Main__.py`:
+  - Added case-insensitive path resolution helper.
+  - Canonicalized requests for `.../Index.html` to `.../index.html` when available.
+  - Updated printed TrueVision test URL to lowercase `index.html`.
+- Updated `na-apps/ProjectVision__LocalServer__Main__.bat` startup notes to reflect new canonicalization behavior.
+
+**Notes**
+- Follow-up cleanup pass performed to trim non-essential inline logic additions in `index.html` while preserving behavior.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.0.3  -  27-Feb-2026
+### Feature Integration Sprint: Storey, Walk Mode, Doors, Materials
+
+**Overview**
+- Integrated prototype features from the test environment into the main TrueVision3D app: building storey visibility, Walk Mode navigation, door click-to-open and proximity-to-open, and auto materials swap.
+- Resolved structural mismatches between the test env (separate mesh/linework groups per GLB) and the main app (combined category groups with mesh + linework children).
+- Simplified the test environment by replacing duplicated logic with calls to shared main-app modules.
+
+**Building Storey System**
+- Moved storey visibility from prototype to main app; added dropdown menu section for storey toggles.
+- Fixed `Na__ModelLoader__MultiModel.js` regex to correctly parse `Storey__` prefixed model URLs into categories (e.g. `Storey__GroundFloor__ProposedDoors`).
+- Test env now calls shared `Na__UiFeature__InitializeStoreyViewControls` instead of duplicating UI code.
+
+**Walk Mode Navigation**
+- Integrated Walk Mode into main app with dropdown toggle, status badge, and hotkey.
+- Fixed `Na__Navmode__WalkMode__SystemLogic.js`: set `Raycaster.camera` during init so `LineSegments2` objects (linework) can be raycast for collision without crashing.
+
+**Door Animation (Click-to-Open + Proximity)**
+- Door systems require **separate** mesh and linework groups: Phase 1 scans mesh groups for ADR assemblies; Phase 2 scans linework groups and links them to existing records. Passing the same combined group as both corrupted the registry.
+- Main app fix: tag mesh/linework scene roots with `userData.Na__ModelType` in `Na__ModelLoader__MultiModel.js` (both priority-order and **unordered** load paths; Storey models use the unordered path).
+- Loading sequence: extract tagged children from each `ProposedDoors` category group; fallback to child index (mesh=0, linework=1) when tags are absent (e.g. cached loader).
+- Added shared `Na__DoorAnimation__FindDoorGroups.js` for test env reuse.
+
+**Test Environment Simplification**
+- Replaced duplicated lighting setup with `Na__Scene__SetupDefaultSceneLighting()`.
+- Replaced duplicated door-finding logic with `Na__DoorAnimation__FindDoorGroups()`.
+
+**Takeaways**
+- Main app multi-model loader has two paths: priority order (Landscape, etc.) and unordered (Storey categories). Both must tag scene roots for downstream consumers.
+- Fallback strategies (e.g. child index when tags missing) improve resilience against caching and deployment lag.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.0.2  -  27-Feb-2026
 ### Core Codebase Modularization (PlanVision-Aligned Structure)
 
 **Overview**

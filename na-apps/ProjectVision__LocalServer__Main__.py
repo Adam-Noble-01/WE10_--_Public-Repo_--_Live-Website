@@ -79,6 +79,47 @@ def get_base_url():
 
 
 # #region ---------------------------------------------------------------------
+# REGION | Path Resolution Helpers
+# -----------------------------------------------------------------------------
+
+def resolve_case_insensitive_path(base_path, relative_path):
+    """
+    Resolve a repo-relative path in a case-insensitive way.
+    Useful in mixed-case entrypoint requests (Index.html vs index.html).
+    Returns absolute path when resolved, else None.
+    """
+    normalized = relative_path.replace('\\', '/').strip('/')
+    if not normalized:
+        return base_path
+
+    current_path = base_path
+    for segment in normalized.split('/'):
+        exact_path = os.path.join(current_path, segment)
+        if os.path.exists(exact_path):
+            current_path = exact_path
+            continue
+
+        if not os.path.isdir(current_path):
+            return None
+
+        lower_segment = segment.lower()
+        try:
+            entries = os.listdir(current_path)
+        except OSError:
+            return None
+
+        matched_entry = next((entry for entry in entries if entry.lower() == lower_segment), None)
+        if not matched_entry:
+            return None
+
+        current_path = os.path.join(current_path, matched_entry)
+
+    return current_path
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
 # REGION | Flask Application Setup
 # -----------------------------------------------------------------------------
 
@@ -138,14 +179,25 @@ def health_check():
 @app.route('/<path:filepath>')
 def serve_static(filepath):
     """Serve static files from repository root."""
-    full_path = os.path.join(REPO_ROOT, filepath)
+    normalized_path = filepath.replace('\\', '/')
+
+    # CANONICAL ENTRYPOINT | Prefer lowercase index.html when mixed-case is requested
+    # -------------------------------------------------------------------------
+    if normalized_path.endswith('/Index.html') or normalized_path == 'Index.html':
+        normalized_path = normalized_path[:-10] + 'index.html' if normalized_path.endswith('/Index.html') else 'index.html'
+
+    full_path = resolve_case_insensitive_path(REPO_ROOT, normalized_path)
+    if not full_path:
+        abort(404)
 
     if os.path.isdir(full_path):
-        index_path = os.path.join(full_path, 'index.html')
-        if os.path.exists(index_path):
+        index_path_lower = os.path.join(full_path, 'index.html')
+        index_path_upper = os.path.join(full_path, 'Index.html')
+        if os.path.exists(index_path_lower):
             return send_from_directory(full_path, 'index.html')
-        else:
-            abort(404)
+        if os.path.exists(index_path_upper):
+            return send_from_directory(full_path, 'Index.html')
+        abort(404)
 
     if os.path.exists(full_path):
         directory = os.path.dirname(full_path)
@@ -237,7 +289,7 @@ def print_banner():
     print("\n  Sub-Application URLs (via Project Vision):")
     print(f"    - Project Admin: http://localhost:{PORT}/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/?project={DEFAULT_PROJECT}")
     print(f"    - PlanVision:    http://localhost:{PORT}/na-apps/20__PlanVision__CoreAppCode/PlanVision__WebApp__Main__.html?project={DEFAULT_PROJECT}")
-    print(f"    - TrueVision:    http://localhost:{PORT}/na-apps/30__TrueVision__CoreAppCode/Index.html?project={DEFAULT_PROJECT}")
+    print(f"    - TrueVision:    http://localhost:{PORT}/na-apps/30__TrueVision__CoreAppCode/index.html?project={DEFAULT_PROJECT}")
 
     print(f"\n  API:")
     print(f"    - Health: http://localhost:{PORT}/api/health")

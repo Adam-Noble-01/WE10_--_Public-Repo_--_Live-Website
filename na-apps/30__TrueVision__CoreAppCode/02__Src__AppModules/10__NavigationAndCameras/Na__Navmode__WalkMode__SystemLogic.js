@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // TRUEVISION3D - WALK MODE NAVIGATION SYSTEM LOGIC
 // =============================================================================
 //
@@ -214,6 +214,7 @@
         Na__WalkMode__Scene              = scene;
         Na__WalkMode__Camera             = camera;
         Na__WalkMode__RendererDomElement = rendererDomElement;
+        Na__WalkMode__Raycaster.camera   = camera;
 
         Na__WalkMode__ApplyConfig(walkModeConfig);
         Na__WalkMode__ConvertConfigToUnits();

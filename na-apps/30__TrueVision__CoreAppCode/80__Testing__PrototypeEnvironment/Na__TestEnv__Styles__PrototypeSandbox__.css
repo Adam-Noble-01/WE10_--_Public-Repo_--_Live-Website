@@ -1,4 +1,4 @@
-﻿/* =============================================================================
+/* =============================================================================
  * TRUEVISION3D - TEST ENVIRONMENT STYLESHEET
  * =============================================================================
  *
@@ -602,268 +602,6 @@
 /* endregion ------------------------------------------------------------------- */
 
 
-/* -----------------------------------------------------------------------------
- * REGION | Storey Visibility Controls Panel
- * ----------------------------------------------------------------------------- */
-
-    /* STOREY PANEL | Container (positioned bottom-left) */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-panel {
-        position                           : fixed;
-        bottom                             : 20px;
-        left                               : 20px;
-        z-index                            : 1000;
-        width                              : 260px;
-        background                         : rgba(255, 255, 255, 0.95);
-        border                             : 1px solid rgba(23, 43, 58, 0.15);
-        border-radius                      : 8px;
-        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0.12);
-        font-family                        : var(--Vale_FontFamily);
-        backdrop-filter                    : blur(8px);
-        overflow                           : hidden;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Header */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-panel__header {
-        padding                            : 12px 14px 8px 14px;
-        border-bottom                      : 1px solid rgba(23, 43, 58, 0.1);
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Title */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-panel__title {
-        font-size                          : 0.82rem;
-        font-weight                        : 600;
-        color                              : var(--Vale_TextPrimary);
-        margin                             : 0 0 2px 0;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Hint text */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-panel__hint {
-        font-size                          : 0.62rem;
-        color                              : rgba(23, 43, 58, 0.45);
-        font-weight                        : 400;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Controls container */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-panel__controls {
-        padding                            : 8px 10px;
-        display                            : flex;
-        flex-direction                     : column;
-        gap                                : 4px;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Individual storey toggle button */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-btn {
-        display                            : flex;
-        align-items                        : center;
-        gap                                : 8px;
-        width                              : 100%;
-        padding                            : 8px 10px;
-        border                             : 1px solid rgba(23, 43, 58, 0.12);
-        border-radius                      : 6px;
-        background                         : white;
-        cursor                             : pointer;
-        font-family                        : var(--Vale_FontFamily);
-        font-size                          : 0.75rem;
-        color                              : var(--Vale_TextPrimary);
-        transition                         : all 0.15s ease;
-        text-align                         : left;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Storey button - visible state */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-btn--visible {
-        background                         : rgba(46, 125, 50, 0.06);
-        border-color                       : rgba(46, 125, 50, 0.25);
-    }
-
-    .testenv-storey-btn--visible:hover {
-        background                         : rgba(46, 125, 50, 0.12);
-        border-color                       : rgba(46, 125, 50, 0.4);
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Storey button - hidden state */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-btn--hidden {
-        background                         : rgba(211, 47, 47, 0.04);
-        border-color                       : rgba(211, 47, 47, 0.15);
-        opacity                            : 0.65;
-    }
-
-    .testenv-storey-btn--hidden:hover {
-        background                         : rgba(211, 47, 47, 0.08);
-        border-color                       : rgba(211, 47, 47, 0.3);
-        opacity                            : 1;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Eye icon */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-btn__icon {
-        font-size                          : 1rem;
-        width                              : 20px;
-        text-align                         : center;
-        flex-shrink                        : 0;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Storey name label */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-btn__label {
-        flex                               : 1;
-        font-weight                        : 500;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Model count badge */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-btn__count {
-        font-size                          : 0.65rem;
-        color                              : rgba(23, 43, 58, 0.45);
-        font-weight                        : 400;
-        flex-shrink                        : 0;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Actions bar (Show All button) */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-panel__actions {
-        padding                            : 6px 10px 10px 10px;
-        border-top                         : 1px solid rgba(23, 43, 58, 0.08);
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Show All Storeys button */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-panel__show-all-btn {
-        width                              : 100%;
-        padding                            : 6px 10px;
-        border                             : 1px solid rgba(23, 43, 58, 0.15);
-        border-radius                      : 5px;
-        background                         : rgba(23, 43, 58, 0.04);
-        color                              : var(--Vale_TextPrimary);
-        font-family                        : var(--Vale_FontFamily);
-        font-size                          : 0.7rem;
-        font-weight                        : 500;
-        cursor                             : pointer;
-        transition                         : all 0.15s ease;
-    }
-
-    .testenv-storey-panel__show-all-btn:hover {
-        background                         : rgba(23, 43, 58, 0.1);
-        border-color                       : rgba(23, 43, 58, 0.25);
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Roof toggle button (at top of panel) */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-roof-btn {
-        display                            : flex;
-        align-items                        : center;
-        gap                                : 8px;
-        width                              : 100%;
-        padding                            : 10px 10px;
-        border                             : 2px solid rgba(23, 43, 58, 0.2);
-        border-radius                      : 6px;
-        background                         : white;
-        cursor                             : pointer;
-        font-family                        : var(--Vale_FontFamily);
-        font-size                          : 0.78rem;
-        color                              : var(--Vale_TextPrimary);
-        font-weight                        : 600;
-        transition                         : all 0.15s ease;
-        text-align                         : left;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Roof button - visible state (auto dolls house mode) */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-roof-btn--visible {
-        background                         : rgba(63, 81, 181, 0.08);
-        border-color                       : rgba(63, 81, 181, 0.3);
-    }
-
-    .testenv-storey-roof-btn--visible:hover {
-        background                         : rgba(63, 81, 181, 0.15);
-        border-color                       : rgba(63, 81, 181, 0.45);
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Roof button - hidden state (all roofs hidden) */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-roof-btn--hidden {
-        background                         : rgba(158, 158, 158, 0.06);
-        border-color                       : rgba(158, 158, 158, 0.25);
-        opacity                            : 0.7;
-    }
-
-    .testenv-storey-roof-btn--hidden:hover {
-        background                         : rgba(158, 158, 158, 0.12);
-        border-color                       : rgba(158, 158, 158, 0.4);
-        opacity                            : 1;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Roof button icon */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-roof-btn__icon {
-        font-size                          : 1.1rem;
-        width                              : 22px;
-        text-align                         : center;
-        flex-shrink                        : 0;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Roof button label */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-roof-btn__label {
-        flex                               : 1;
-        font-weight                        : 600;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* STOREY PANEL | Visual separator */
-    /* ------------------------------------------------------------ */
-    .testenv-storey-separator {
-        height                             : 1px;
-        background                         : rgba(23, 43, 58, 0.12);
-        margin                             : 8px 0;
-    }
-    /* ------------------------------------------------------------ */
-
-/* endregion ------------------------------------------------------------------- */
-
-
 /* ----------------------------------------------------------------------------- */
 /* REGION | Walk Mode Toggle Panel                                               */
 /* ----------------------------------------------------------------------------- */
@@ -1050,6 +788,46 @@
         box-shadow                         : 0 1px 0 rgba(0, 0, 0, 0.1);
     }
     /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* ================================================================= */
+/* REGION  |  Storey Visibility Controls Panel (Shared Module Host)  */
+/* ================================================================= */
+
+    .testenv-storey-panel {
+        position                           : fixed;
+        left                               : 12px;
+        top                                : 180px;
+        width                              : 200px;
+        background                         : rgba(255, 255, 255, 0.95);
+        border                             : 1px solid rgba(23, 43, 58, 0.15);
+        border-radius                      : 8px;
+        padding                            : 12px;
+        box-shadow                         : 0 2px 12px rgba(0, 0, 0, 0.08);
+        z-index                            : 500;
+        font-family                        : 'Open Sans', sans-serif;
+    }
+
+    .testenv-storey-panel__header {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 6px;
+        margin-bottom                      : 10px;
+        padding-bottom                     : 8px;
+        border-bottom                      : 1px solid rgba(23, 43, 58, 0.1);
+    }
+
+    .testenv-storey-panel__icon {
+        font-size                          : 1rem;
+    }
+
+    .testenv-storey-panel__title {
+        font-size                          : 0.82rem;
+        font-weight                        : 600;
+        color                              : #172b3a;
+    }
 
 /* endregion ------------------------------------------------------------------- */
 

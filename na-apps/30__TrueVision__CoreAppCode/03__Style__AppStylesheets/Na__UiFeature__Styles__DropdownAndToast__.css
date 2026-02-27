@@ -45,6 +45,12 @@
     transform-origin                   : top right;
 }
 
+.na-dropdown-menu--dev-localhost {
+    left                               : 20px;
+    right                              : auto;
+    transform-origin                   : top left;
+}
+
 .na-dropdown-menu__details {
     background                          : rgba(255, 255, 255, 0.95);
     border                              : 1px solid rgba(0, 0, 0, 0.12);
@@ -155,6 +161,10 @@
 
 .na-dropdown-menu__panel-row--toggle {
     justify-content                     : space-between;
+}
+
+.na-dropdown-menu__section {
+    margin-bottom                       : 12px;
 }
 
 .na-dropdown-menu__slider {
@@ -691,6 +701,142 @@
 
 
 /* ================================================================= */
+/* REGION  |  Storey View Controls (Per-Storey Visibility)           */
+/* ================================================================= */
+
+.na-storey-view__list {
+    display                             : flex;
+    flex-direction                      : column;
+    gap                                 : 4px;
+}
+
+.na-storey-view__button {
+    width                               : 100%;
+    border                              : 1px solid rgba(23, 43, 58, 0.15);
+    border-radius                       : 4px;
+    padding                             : 6px 10px;
+    background                          : rgba(23, 43, 58, 0.04);
+    text-align                          : left;
+    font-size                           : 0.8rem;
+    font-weight                         : 400;
+    font-family                         : 'Open Sans', sans-serif;
+    color                               : rgba(23, 43, 58, 0.4);
+    cursor                              : pointer;
+    transition                          : all 0.15s ease;
+    display                             : flex;
+    align-items                         : center;
+    gap                                 : 8px;
+    text-decoration                     : line-through;
+}
+
+.na-storey-view__button:hover {
+    background                          : rgba(23, 43, 58, 0.08);
+}
+
+.na-storey-view__button--visible {
+    color                               : #172b3a;
+    font-weight                         : 500;
+    background                          : rgba(23, 43, 58, 0.06);
+    border-color                        : rgba(23, 43, 58, 0.25);
+    text-decoration                     : none;
+}
+
+.na-storey-view__button--visible:hover {
+    background                          : rgba(23, 43, 58, 0.1);
+}
+
+.na-storey-view__button--hidden {
+    color                               : rgba(23, 43, 58, 0.4);
+    text-decoration                     : line-through;
+}
+
+.na-storey-view__dot {
+    display                             : inline-block;
+    width                               : 8px;
+    height                              : 8px;
+    border-radius                       : 50%;
+    flex-shrink                         : 0;
+    transition                          : background 0.15s ease;
+}
+
+.na-storey-view__dot--on {
+    background                          : #2a7d4f;
+}
+
+.na-storey-view__dot--off {
+    background                          : rgba(23, 43, 58, 0.2);
+}
+
+.na-storey-view__label {
+    flex                                : 1;
+}
+
+.na-storey-view__roof-btn {
+    width                               : 100%;
+    border                              : 1px solid rgba(23, 43, 58, 0.15);
+    border-radius                       : 4px;
+    padding                             : 6px 10px;
+    background                          : rgba(23, 43, 58, 0.04);
+    text-align                          : left;
+    font-size                           : 0.8rem;
+    font-weight                         : 400;
+    font-family                         : 'Open Sans', sans-serif;
+    color                               : rgba(23, 43, 58, 0.4);
+    cursor                              : pointer;
+    transition                          : all 0.15s ease;
+    display                             : flex;
+    align-items                         : center;
+    gap                                 : 8px;
+    text-decoration                     : line-through;
+}
+
+.na-storey-view__roof-btn:hover {
+    background                          : rgba(23, 43, 58, 0.08);
+}
+
+.na-storey-view__roof-btn.na-storey-view__button--visible {
+    color                               : #172b3a;
+    font-weight                         : 500;
+    background                          : rgba(23, 43, 58, 0.06);
+    border-color                        : rgba(23, 43, 58, 0.25);
+    text-decoration                     : none;
+}
+
+.na-storey-view__roof-btn.na-storey-view__button--hidden {
+    color                               : rgba(23, 43, 58, 0.4);
+    text-decoration                     : line-through;
+}
+
+.na-storey-view__separator {
+    height                              : 1px;
+    background                          : rgba(23, 43, 58, 0.1);
+    margin                              : 4px 0;
+}
+
+.na-storey-view__show-all-btn {
+    width                               : 100%;
+    margin-top                          : 6px;
+    border                              : none;
+    border-radius                       : 4px;
+    padding                             : 6px 10px;
+    background                          : rgba(23, 43, 58, 0.08);
+    text-align                          : center;
+    font-size                           : 0.78rem;
+    font-weight                         : 500;
+    font-family                         : 'Open Sans', sans-serif;
+    color                               : #172b3a;
+    cursor                              : pointer;
+    transition                          : all 0.15s ease;
+}
+
+.na-storey-view__show-all-btn:hover {
+    background                          : rgba(23, 43, 58, 0.14);
+}
+
+/* endregion -------------------------------------------------------- */
+
+
+/* ================================================================= */
 /* REGION  |  Model Group Selector (Design Phase Switcher)           */
 /* ================================================================= */
 
@@ -746,6 +892,43 @@
 .na-model-group-selector__button--loading {
     opacity                             : 0.5;
     pointer-events                      : none;
+}
+
+/* endregion -------------------------------------------------------- */
+
+
+/* ================================================================= */
+/* REGION  |  Walk Mode Toggle Button                                */
+/* ================================================================= */
+
+/* Walk Mode Button - Layout */
+/* ----------------------------------------------------------------- */
+.na-walk-mode__toggle {
+    display                            : flex;
+    align-items                        : center;
+    justify-content                    : space-between;
+    width                              : 100%;
+}
+
+/* Walk Mode Status Badge */
+/* ----------------------------------------------------------------- */
+.na-walk-mode__status {
+    font-size                          : 0.7rem;
+    font-weight                        : 600;
+    text-transform                     : uppercase;
+    letter-spacing                     : 0.04em;
+    padding                            : 2px 8px;
+    border-radius                      : 3px;
+    background                         : rgba(23, 43, 58, 0.08);
+    color                              : rgba(23, 43, 58, 0.5);
+    transition                         : background 0.2s ease, color 0.2s ease;
+}
+
+/* Walk Mode Status Badge - Active State */
+/* ----------------------------------------------------------------- */
+.na-walk-mode__toggle--active .na-walk-mode__status {
+    background                         : rgba(42, 125, 79, 0.15);
+    color                              : #2a7d4f;
 }
 
 /* endregion -------------------------------------------------------- */

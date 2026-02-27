@@ -42,6 +42,10 @@ echo   --port XXXX     Use different port
 echo   --project XX00  Change default project
 echo   --no-browser    Don't auto-open browser
 echo.
+echo Note:
+echo   The local server now canonicalizes mixed-case entrypoints
+echo   (e.g. Index.html) to lowercase index.html when available.
+echo.
 echo ============================================================
 echo.
 
