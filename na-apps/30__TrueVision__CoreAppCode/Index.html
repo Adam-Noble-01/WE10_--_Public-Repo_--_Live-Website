@@ -157,13 +157,13 @@
         <details class="na-dropdown-menu__details" id="naToolsMenu">
             <summary class="na-dropdown-menu__summary">
                 Tools
-                <span class="na-dropdown-menu__arrow">â–¾</span>
+                <span class="na-dropdown-menu__arrow">&#9662;</span>
             </summary>
             <ul class="na-dropdown-menu__list">
                 <li class="na-dropdown-menu__item">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naCameraLensToggle">
                         Adjust Camera Lens
-                        <span class="na-dropdown-menu__subarrow">â–¾</span>
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
                     </button>
                     <div class="na-dropdown-menu__panel" id="naCameraLensPanel">
                         <div class="na-dropdown-menu__panel-title">Lens Width</div>
@@ -184,7 +184,7 @@
                 <li class="na-dropdown-menu__item">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naImageExportToggle">
                         Export Image
-                        <span class="na-dropdown-menu__subarrow">â–¾</span>
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
                     </button>
                     <div class="na-dropdown-menu__panel" id="naImageExportPanel">
                         <div class="na-dropdown-menu__panel-row na-dropdown-menu__panel-row--toggle">
@@ -227,10 +227,22 @@
                 </li>
                 <!-- <li class="na-dropdown-menu__item">Document Layout</li> -->
                 <!-- <li class="na-dropdown-menu__item">Return To Project</li> -->
+                <li class="na-dropdown-menu__item" id="naModelGroupSelectorItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naModelGroupSelectorButton">
+                        Design Phase
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naModelGroupSelectorPanel">
+                        <div class="na-dropdown-menu__panel-title">Select Model Group</div>
+                        <div class="na-model-group-selector__list" id="naModelGroupSelectorList">
+                            <!-- Buttons generated dynamically by Na__UiFeature__ModelGroupSelector.js -->
+                        </div>
+                    </div>
+                </li>
                 <li class="na-dropdown-menu__item">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naModelToggleButton">
                         Toggle Model Layers
-                        <span class="na-dropdown-menu__subarrow">â–¾</span>
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
                     </button>
                     <div class="na-dropdown-menu__panel" id="naModelTogglePanel">
                         <div class="na-dropdown-menu__panel-title">Model Parts List</div>

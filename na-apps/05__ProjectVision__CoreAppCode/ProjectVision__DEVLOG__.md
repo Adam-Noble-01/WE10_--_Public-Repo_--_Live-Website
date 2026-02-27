@@ -6,6 +6,165 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.0.4 - 27-Feb-2026
+
+### Fixed - R2 Sync Pipeline Stability
+
+#### ANSI Colour Codes in PowerShell Console (`CloudflareR2__ModelSync__Main__.py`)
+
+- Added `_enable_windows_ansi()` function using `ctypes.windll.kernel32` to enable `ENABLE_VIRTUAL_TERMINAL_PROCESSING` on the Windows console handle before any output is printed
+- This fixes the raw escape codes (`←[96m←[1m...←[0m`) that were appearing instead of colours when the script was launched via `start powershell ... -File`
+- The fix is applied at the Python level (more reliable than the previous PowerShell P/Invoke approach since Python owns its own stdout handle)
+
+#### Build Pipeline Robustness (`CloudflareR2__ModelSync__Main__.py`)
+
+- Added top-level `try/except` with `traceback.print_exc()` around the `run_r2_sync()` call so any unhandled exceptions print a full Python traceback instead of silently closing the window
+- Added `sys.stdout.flush()` after every upload print line and after error messages to prevent output buffering loss before a crash
+- Upload error messages now include the exception type name (`type(error).__name__`) for faster diagnosis
+- Removed the PowerShell P/Invoke ANSI block from `ProjectVision__BuildPipeline__.ps1` (now handled by the Python script itself)
+
+#### Build Script Launcher (`ProjectVision__BuildScript__.bat`)
+
+- Changed from running `powershell -File` inside the current `cmd.exe` window to using `start "Noble Architecture - Build Pipeline" powershell ...` which opens a dedicated PowerShell window
+- The BAT file now closes immediately after launching, leaving only the PowerShell window open
+
+#### Build Pipeline Stay-Open (`ProjectVision__BuildPipeline__.ps1`)
+
+- Replaced `Write-Host 'You can close this window...'` at the end with `Read-Host 'Press Enter to close this window'`
+- The PowerShell window now stays open showing the full pipeline output and success/error messages until the user explicitly dismisses it
+
+#### Files Modified
+- `CloudflareR2__ModelSync__Main__.py` (ANSI init, flush calls, traceback wrapper)
+- `ProjectVision__BuildPipeline__.ps1` (removed P/Invoke block, added Read-Host pause)
+- `ProjectVision__BuildScript__.bat` (use `start` to open PowerShell window)
+
+# -----------------------------------------------------------------------------
+
+## Project Vision - Version 0.0.3 - 27-Feb-2026
+
+### Added - TrueVision R2 Model Upload Pipeline and Project Loader Update
+
+This version introduces a complete Cloudflare R2 upload pipeline for TrueVision GLB models, rewrites the TrueVision project loader to fetch model data from the new project portal CDN structure, and adds a runtime model group selector for switching between design phases.
+
+#### Cloudflare R2 Model Sync Script (`CloudflareR2__ModelSync__Main__.py`)
+
+- **New Python module** for syncing GLB model files to Cloudflare R2 via `boto3` (S3-compatible API)
+- Scans `na-project-portal/{year}-Projects/*/30__TrueVision__AppContent/` for model group subfolders
+- Each subfolder (e.g. `DesignPhase01__ConceptDesign__ExistingBuilding`) is treated as a model group containing `.glb` files
+- R2 bucket key mirrors the local folder structure under the `NaProjectPortal/` prefix
+- Incremental sync: uses `HEAD` requests to check file existence and size, only uploads new or changed files
+- Also uploads `TrueVision__ProjectData__.json` alongside GLB files
+- Dry-run preview with colourful ANSI console output, then yes/no confirmation before committing
+- CLI flags: `--dry-run-only`, `--project <FOLDER_NAME>`
+- Credentials loaded from `API__Cloudflare/Token__CloudflareR2.env` via `python-dotenv`
+
+#### R2 Credentials Template (`API__Cloudflare/Token__CloudflareR2.env`)
+
+- Template file with `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_ENDPOINT`
+- Added `**/API__Cloudflare/` to root `.gitignore` to prevent credential leaks
+
+#### Build Script Updates (`ProjectVision__BuildScript__.py`)
+
+- New `discover_truevision_model_groups()` function scans TrueVision content folders for GLB files
+- New `generate_truevision_project_data()` builds `TrueVision__ProjectData__.json` with:
+  - `projectCode`, `projectName`, `activeGroupIndex`
+  - `modelGroups` array: one entry per subfolder with `groupId`, `label`, `modelUrls` (CDN URLs)
+  - `Camera__DefaultPosition` placeholder (preserved from existing file if present)
+- `write_truevision_project_data()` preserves user-customised labels and camera config from existing files
+- Auto-generates human-readable labels from folder names (e.g. `DesignPhase01__ConceptDesign__ExistingBuilding` → "Concept Design - Existing Building")
+
+#### Build BAT File Updates (`ProjectVision__BuildScript__.bat`)
+
+- Now opens PowerShell as the console for full ANSI colour support
+- Two-step pipeline: Step 1 runs `ProjectVision__BuildScript__.py`, Step 2 runs `CloudflareR2__ModelSync__Main__.py`
+- Checks for `boto3` and `python-dotenv` dependencies, auto-installs if missing
+- Colourful status output with `Write-Host -ForegroundColor`
+
+#### TrueVision Project Loader Rewrite (`Na__AppUtils__ProjectLoader.js`)
+
+- **Version 2.0.0** - Rewritten to fetch `TrueVision__ProjectData__.json` from Cloudflare R2 CDN
+- New `Na__AppUtils__GetProjectFolderFromUrl()` reads `?project-folder=` parameter (passed by Project Vision)
+- New `Na__AppUtils__GetYearFromUrl()` reads `?year=` parameter (defaults to `26`)
+- New `Na__AppUtils__FetchTrueVisionProjectData()` constructs CDN URL from project folder and year:
+  - Production: `https://cdn.noble-architecture.com/NaProjectPortal/{year}-Projects/{folder}/30__TrueVision__AppContent/TrueVision__ProjectData__.json`
+  - Localhost: serves from local Flask server path
+- New `Na__AppUtils__HasModelGroups()`, `Na__AppUtils__ExtractModelGroup()`, `Na__AppUtils__GetActiveGroupIndex()`
+- Legacy `Na__AppUtils__FetchProjectJson()` and `Na__AppUtils__ExtractModelUrls()` retained for backward compatibility
+
+#### Loading Sequence Updates (`Na__AppFlow__LoadingSequence.js`)
+
+- Updated to support the new `modelGroups` format from `TrueVision__ProjectData__.json`
+- Three-tier project data resolution:
+  1. New CDN path (when both `?project=` and `?project-folder=` are present)
+  2. Legacy fallback to old `project.json` format if CDN fetch fails
+  3. Legacy-only path when only `?project=` is provided
+- Stores all model groups in `Na__ProjectData__AllModelGroups` for the group selector UI
+- Initialises `Na__UiFeature__InitializeModelGroupSelector` when multiple groups exist
+
+#### Model Group Selector UI (`Na__UiFeature__ModelGroupSelector.js`)
+
+- **New module** for switching between model groups (design phases) at runtime
+- Creates selector buttons in the Tools dropdown panel (one per model group)
+- When a group is selected: disposes current models, loads new group's GLB URLs via `Na__ModelLoader__LoadAllModels()`
+- Re-initialises the model toggle controls after each group switch
+- Only visible when a project has 2+ model groups
+- Loading state disables buttons during model switch
+
+#### HTML and CSS Updates
+
+- Added `naModelGroupSelectorItem` menu item to `Index.html` Tools dropdown (hidden by default, shown by JS when groups > 1)
+- Added `.na-model-group-selector__*` CSS classes to `Na__UiFeature__Styles__DropdownAndToast__.css`
+- Selector buttons match the existing model toggle button styling with green active indicator
+
+#### R2 Bucket Path Convention
+
+```
+Local:  na-project-portal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__01__OrbitHelperCube__MeshModel__.glb
+R2 Key: NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__01__OrbitHelperCube__MeshModel__.glb
+CDN:    https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__01__OrbitHelperCube__MeshModel__.glb
+```
+
+#### TrueVision__ProjectData__.json Schema
+
+```json
+{
+    "projectCode": "NP03",
+    "projectName": "Ashness Close",
+    "activeGroupIndex": 0,
+    "modelGroups": [
+        {
+            "groupId": "DesignPhase01__ConceptDesign__ExistingBuilding",
+            "label": "Concept Design - Existing Building",
+            "modelUrls": [
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__01__OrbitHelperCube__MeshModel__.glb"
+            ]
+        }
+    ],
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPosition__PosX": 0,
+        "Camera__DefaultPosition__PosY": 5000,
+        "Camera__DefaultPosition__PosZ": 15000,
+        "Camera__DefaultFov": 50
+    }
+}
+```
+
+#### Files Created
+- `CloudflareR2__ModelSync__Main__.py`
+- `API__Cloudflare/Token__CloudflareR2.env` (template)
+- `../30__TrueVision__CoreAppCode/02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__ModelGroupSelector.js`
+
+#### Files Modified
+- `ProjectVision__BuildScript__.py` (added TrueVision data generation)
+- `ProjectVision__BuildScript__.bat` (PowerShell pipeline with R2 sync step)
+- `../../.gitignore` (added `**/API__Cloudflare/` pattern)
+- `../30__TrueVision__CoreAppCode/02__Src__AppModules/03__AppUtils/Na__AppUtils__ProjectLoader.js` (v2.0.0 rewrite)
+- `../30__TrueVision__CoreAppCode/02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` (modelGroups support)
+- `../30__TrueVision__CoreAppCode/Index.html` (model group selector menu item)
+- `../30__TrueVision__CoreAppCode/03__Style__AppStylesheets/Na__UiFeature__Styles__DropdownAndToast__.css` (group selector styles)
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.0.2 - 27-Feb-2026
 
 ### Added - Local Development Server

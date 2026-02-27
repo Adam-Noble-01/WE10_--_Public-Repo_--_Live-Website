@@ -4,39 +4,15 @@
 :: =============================================================================
 ::
 :: FILE    : ProjectVision__BuildScript__.bat
-:: PURPOSE : Run the ProjectVision__BuildScript__.py Python build script
+:: PURPOSE : Run the Project Vision build pipeline in PowerShell
+::           1. ProjectVision__BuildScript__.py  (project index + TrueVision data)
+::           2. CloudflareR2__ModelSync__Main__.py (R2 upload with dry-run)
 ::
 :: USAGE:
 ::   Double-click this file, or run from command prompt:
 ::   ProjectVision__BuildScript__.bat
-::
-::   To specify a custom portal root path:
 ::   ProjectVision__BuildScript__.bat --portal-root "D:\path\to\na-project-portal"
 ::
 :: =============================================================================
 
-setlocal
-
-:: Change to the directory containing this batch file
-cd /d "%~dp0"
-
-echo.
-echo ============================================================
-echo  Noble Architecture - Project Vision Build Script
-echo ============================================================
-echo.
-
-:: Run the Python build script, forwarding any arguments passed to this bat file
-python ProjectVision__BuildScript__.py %*
-
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo [ERROR] Build script exited with error code %ERRORLEVEL%
-) else (
-    echo.
-    echo [DONE] Build script completed successfully.
-)
-
-echo.
-pause
-endlocal
+start "Noble Architecture - Build Pipeline" powershell -NoExit -ExecutionPolicy Bypass -File "%~dp0ProjectVision__BuildPipeline__.ps1" %*

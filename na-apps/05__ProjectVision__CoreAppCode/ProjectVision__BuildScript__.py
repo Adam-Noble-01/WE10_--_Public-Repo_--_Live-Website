@@ -27,6 +27,7 @@ import os
 import re
 import json
 import argparse
+from pathlib import Path
 from datetime import datetime, timezone
 
 
@@ -45,6 +46,10 @@ PLACEHOLDER_FILES = {
 }
 
 LIVE_DOMAIN = 'https://www.noble-architecture.com'
+CDN_BASE_URL = 'https://cdn.noble-architecture.com'
+R2_BASE_PREFIX = 'NaProjectPortal'
+TRUEVISION_CONTENT_FOLDER = '30__TrueVision__AppContent'
+GLB_FILE_PATTERN = re.compile(r'^.+\.glb$', re.IGNORECASE)
 
 
 # =============================================================================
@@ -310,6 +315,114 @@ def generate_redirect_html(project_code, project_name, project_folder):
 
 
 # =============================================================================
+# TRUEVISION PROJECT DATA GENERATION
+# =============================================================================
+
+def discover_truevision_model_groups(project_path, year_folder_name, project_folder):
+    """Discover model group subfolders and their GLB files under TrueVision content."""
+    tv_path = os.path.join(project_path, TRUEVISION_CONTENT_FOLDER)
+    groups = []
+
+    if not os.path.isdir(tv_path):
+        return groups
+
+    for entry in sorted(os.listdir(tv_path)):
+        entry_path = os.path.join(tv_path, entry)
+        if not os.path.isdir(entry_path):
+            continue
+        if entry.startswith('.') or entry.startswith('00__'):
+            continue
+
+        glb_files = sorted([
+            f for f in os.listdir(entry_path)
+            if os.path.isfile(os.path.join(entry_path, f)) and GLB_FILE_PATTERN.match(f)
+        ])
+
+        if not glb_files:
+            continue
+
+        model_urls = [
+            f"{CDN_BASE_URL}/{R2_BASE_PREFIX}/{year_folder_name}/{project_folder}"
+            f"/{TRUEVISION_CONTENT_FOLDER}/{entry}/{f}"
+            for f in glb_files
+        ]
+
+        label = parse_group_label(entry)
+
+        groups.append({
+            'groupId'   : entry,
+            'label'     : label,
+            'modelUrls' : model_urls,
+        })
+
+    return groups
+
+
+def parse_group_label(group_id):
+    """Convert a folder name like DesignPhase01__ConceptDesign__ExistingBuilding to a label."""
+    parts = group_id.split('__')
+    if len(parts) >= 2:
+        label_parts = parts[1:]
+        label = ' - '.join(label_parts)
+    else:
+        label = group_id
+
+    label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
+    return label
+
+
+def generate_truevision_project_data(project_code, project_name, model_groups):
+    """Build the TrueVision__ProjectData__.json structure for a project."""
+    return {
+        'projectCode'      : project_code,
+        'projectName'      : project_name,
+        'activeGroupIndex' : 0,
+        'modelGroups'      : model_groups,
+        'Camera__DefaultPosition' : {
+            'Camera__DefaultPosition__PosX' : 0,
+            'Camera__DefaultPosition__PosY' : 5000,
+            'Camera__DefaultPosition__PosZ' : 15000,
+            'Camera__DefaultFov'            : 50,
+        },
+    }
+
+
+def write_truevision_project_data(project_path, data):
+    """Write TrueVision__ProjectData__.json into the project's TrueVision content folder."""
+    tv_dir = os.path.join(project_path, TRUEVISION_CONTENT_FOLDER)
+    os.makedirs(tv_dir, exist_ok=True)
+    output_path = os.path.join(tv_dir, 'TrueVision__ProjectData__.json')
+
+    existing_data = None
+    if os.path.isfile(output_path):
+        try:
+            with open(output_path, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    if existing_data:
+        if 'Camera__DefaultPosition' in existing_data:
+            data['Camera__DefaultPosition'] = existing_data['Camera__DefaultPosition']
+        if 'activeGroupIndex' in existing_data:
+            data['activeGroupIndex'] = existing_data['activeGroupIndex']
+
+        existing_labels = {}
+        for g in existing_data.get('modelGroups', []):
+            if g.get('groupId') and g.get('label'):
+                existing_labels[g['groupId']] = g['label']
+        for g in data['modelGroups']:
+            if g['groupId'] in existing_labels:
+                g['label'] = existing_labels[g['groupId']]
+
+    with open(output_path, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+        f.write('\n')
+
+    print(f'  [WRITTEN] {output_path}')
+
+
+# =============================================================================
 # FILE WRITERS
 # =============================================================================
 
@@ -445,6 +558,27 @@ def main():
             proj['projectFolder']
         )
         write_redirect_html(proj['folderPath'], html)
+
+    # GENERATE TRUEVISION PROJECT DATA JSON FOR EACH PROJECT WITH TV CONTENT
+    tv_generated_count = 0
+    for proj in all_projects:
+        if not proj['subApps']['trueVision']:
+            continue
+
+        year_folder_name = f"{proj['projectYear']}-Projects"
+        model_groups = discover_truevision_model_groups(
+            proj['folderPath'], year_folder_name, proj['projectFolder']
+        )
+
+        if model_groups:
+            tv_data = generate_truevision_project_data(
+                proj['projectCode'], proj['projectName'], model_groups
+            )
+            write_truevision_project_data(proj['folderPath'], tv_data)
+            tv_generated_count += 1
+
+    if tv_generated_count > 0:
+        print(f'\n  [INFO] Generated TrueVision__ProjectData__.json for {tv_generated_count} project(s)')
 
     print_summary(all_projects, warnings)
     return 0

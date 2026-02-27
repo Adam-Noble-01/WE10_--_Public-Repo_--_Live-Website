@@ -36,6 +36,9 @@ public/build/
 .env.*
 !.env.example
 
+# API credentials directories
+**/API__Cloudflare/
+
 # Temp files
 *.tmp
 *.temp

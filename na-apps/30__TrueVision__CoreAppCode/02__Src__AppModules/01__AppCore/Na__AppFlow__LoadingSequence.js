@@ -127,9 +127,22 @@
     // ------------------------------------------------------------
     import {
         Na__AppUtils__GetProjectCodeFromUrl,
+        Na__AppUtils__GetProjectFolderFromUrl,
+        Na__AppUtils__GetYearFromUrl,
+        Na__AppUtils__FetchTrueVisionProjectData,
+        Na__AppUtils__HasModelGroups,
+        Na__AppUtils__ExtractModelGroup,
+        Na__AppUtils__GetActiveGroupIndex,
         Na__AppUtils__FetchProjectJson,
         Na__AppUtils__ExtractModelUrls
     } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Model Group Selector UI
+    // ------------------------------------------------------------
+    import {
+        Na__UiFeature__InitializeModelGroupSelector
+    } from '../26__System__ToggleModelElements/Na__UiFeature__ModelGroupSelector.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -235,25 +248,68 @@
         let modelUrls = [...Na__ModelDefaults__ModelUrls];                   // <-- Start with config defaults
         let Na__Saved__ProjectCameraConfig = null;                           // <-- Hoisted for post-OrbitCube re-apply
         let Na__Saved__ProjectOrbitTarget  = null;                           // <-- Hoisted for post-OrbitCube re-apply
+        let Na__ProjectData__AllModelGroups = null;                          // <-- Store all model groups for group selector UI
 
         // RESOLVE PROJECT-SPECIFIC MODEL URLS
-        const projectCode = Na__AppUtils__GetProjectCodeFromUrl();
-        if (projectCode) {
+        const projectCode   = Na__AppUtils__GetProjectCodeFromUrl();
+        const projectFolder = Na__AppUtils__GetProjectFolderFromUrl();
+        const yearCode      = Na__AppUtils__GetYearFromUrl();
+
+        if (projectCode && projectFolder) {
+            // NEW PATH | Fetch TrueVision__ProjectData__.json from CDN
+            try {
+                Na__UiFeature__UpdateStatus('Loading project data...');
+                const projectData = await Na__AppUtils__FetchTrueVisionProjectData(projectFolder, yearCode);
+
+                Na__Saved__ProjectCameraConfig = projectData.Camera__DefaultPosition || null;
+                Na__Saved__ProjectOrbitTarget  = projectData.OrbitHelperCube__Position || null;
+
+                if (Na__AppUtils__HasModelGroups(projectData)) {
+                    Na__ProjectData__AllModelGroups = projectData.modelGroups;
+                    const activeIndex = Na__AppUtils__GetActiveGroupIndex(projectData);
+                    const groupUrls   = Na__AppUtils__ExtractModelGroup(projectData, activeIndex);
+
+                    if (groupUrls.length > 0) {
+                        modelUrls = groupUrls;
+                    }
+                    console.log(`[TrueVision3D] Loaded ${projectData.modelGroups.length} model group(s), active: ${activeIndex}`);
+                }
+            } catch (error) {
+                console.warn('[TrueVision3D] TrueVision project data load failed, trying legacy path', error);
+
+                // LEGACY FALLBACK | Try old project.json format
+                try {
+                    const legacyData = await Na__AppUtils__FetchProjectJson(projectCode);
+
+                    Na__Saved__ProjectCameraConfig = legacyData.Camera__DefaultPosition
+                        || legacyData.trueVision_Camera__DefaultPosition
+                        || legacyData.valeVision_Camera__DefaultPosition
+                        || null;
+                    Na__Saved__ProjectOrbitTarget = legacyData.OrbitHelperCube__Position || null;
+
+                    const projectUrls = Na__AppUtils__ExtractModelUrls(legacyData);
+                    if (projectUrls.length > 0) {
+                        modelUrls = projectUrls;
+                    }
+                } catch (legacyError) {
+                    console.warn('[TrueVision3D] Legacy project data also failed, using defaults', legacyError);
+                }
+            }
+        } else if (projectCode) {
+            // LEGACY PATH | Only ?project= provided (no project-folder), use old fetch
             try {
                 Na__UiFeature__UpdateStatus('Loading project data...');
                 const projectData = await Na__AppUtils__FetchProjectJson(projectCode);
 
-                // STORE CAMERA CONFIG FROM PROJECT (supports both key formats)
                 Na__Saved__ProjectCameraConfig = projectData.Camera__DefaultPosition
                     || projectData.trueVision_Camera__DefaultPosition
                     || projectData.valeVision_Camera__DefaultPosition
                     || null;
                 Na__Saved__ProjectOrbitTarget  = projectData.OrbitHelperCube__Position || null;
 
-                // EXTRACT MODEL URLS FROM PROJECT DATA
                 const projectUrls = Na__AppUtils__ExtractModelUrls(projectData);
                 if (projectUrls.length > 0) {
-                    modelUrls = projectUrls;                                 // <-- Override defaults with project URLs
+                    modelUrls = projectUrls;
                 }
             } catch (error) {
                 console.warn('[TrueVision3D] Project data load failed, using defaults', error);
@@ -366,6 +422,18 @@
 
             // INITIALIZE MODEL TOGGLE CONTROLS (dynamic per-category buttons)
             Na__UiFeature__InitializeModelToggleControls(Na__LoadedModelGroups);  // <-- Build toggle buttons from loaded groups
+
+            // INITIALIZE MODEL GROUP SELECTOR (switch between design phases)
+            if (Na__ProjectData__AllModelGroups && Na__ProjectData__AllModelGroups.length > 1) {
+                Na__UiFeature__InitializeModelGroupSelector(
+                    Na__ProjectData__AllModelGroups,
+                    Na__ModelGroup__Root,
+                    Na__Config__Models,
+                    Na__LineResolution__Screen,
+                    Na__UiFeature__UpdateStatus,
+                    Na__UiFeature__InitializeModelToggleControls
+                );
+            }
 
             // INITIALIZE DOOR ANIMATION (if enabled in config)
             if (Na__Config__DoorAnimation['3dObject__Interaction__DoorAnimation__Enabled'] !== false) {

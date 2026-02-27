@@ -1,0 +1,105 @@
+{
+    "na-project-data-library": {
+
+        "project-details": {
+            "project-name"                  : "Example Project Structure",
+            "project-name-nickname"         : "Example Project",
+            "project-address"               : "123 Example Street, Nottingham, NG1 1AA",
+            "project-description"           : "This is an example project demonstrating the full PlanVision data structure. It includes multiple design phases, folder-organised drawings and specifications.",
+            "client-name"                   : "Example Client"
+        },
+
+        "project-phase-config": {
+            "active-design-phase"           : "DesignPhase02",
+            "available-phases"              : ["DesignPhase01", "DesignPhase02"],
+            "phase-last-updated"            : "27-Feb-2026"
+        },
+
+        "project-documentation": {
+
+            "phase-content": {
+
+                "DesignPhase01": {
+                    "phase-folder"          : "DesignPhase01__ConceptDesign__Content",
+                    "folder-structure": [
+                        {
+                            "label"             : "Floor Plans",
+                            "document-type"     : "Drawing",
+                            "document-scale"    : "1:50",
+                            "document-size"     : "A2",
+                            "files"             : [
+                                "AA00_T01_D01__ExistingGroundFloorPlan__RevA__",
+                                "AA00_T01_D02__ExistingFirstFloorPlan__RevA__",
+                                "AA00_T01_D03__ProposedGroundFloorPlan__RevA__",
+                                "AA00_T01_D04__ProposedFirstFloorPlan__RevA__"
+                            ]
+                        },
+                        {
+                            "label"             : "Elevations",
+                            "document-type"     : "Drawing",
+                            "document-scale"    : "1:50",
+                            "document-size"     : "A2",
+                            "files"             : [
+                                "AA00_T01_D10__ExistingFrontElevation__RevA__",
+                                "AA00_T01_D11__ExistingRearElevation__RevA__",
+                                "AA00_T01_D12__ProposedFrontElevation__RevA__",
+                                "AA00_T01_D13__ProposedRearElevation__RevA__"
+                            ]
+                        }
+                    ]
+                },
+
+                "DesignPhase02": {
+                    "phase-folder"          : "DesignPhase02__PlanningApproval__Content",
+                    "folder-structure": [
+                        {
+                            "label"             : "Plans",
+                            "document-type"     : "Drawing",
+                            "document-scale"    : "1:50",
+                            "document-size"     : "A2",
+                            "files"             : [
+                                "AA00_T02_D01__ExistingGroundFloorPlan__RevB__",
+                                "AA00_T02_D02__ExistingFirstFloorPlan__RevB__",
+                                "AA00_T02_D03__ProposedGroundFloorPlan__RevB__",
+                                "AA00_T02_D04__ProposedFirstFloorPlan__RevB__"
+                            ]
+                        },
+                        {
+                            "label"             : "Elevations",
+                            "document-type"     : "Drawing",
+                            "document-scale"    : "1:50",
+                            "document-size"     : "A2",
+                            "files"             : [
+                                "AA00_T02_D10__ExistingFrontElevation__RevB__",
+                                "AA00_T02_D11__ExistingRearElevation__RevB__",
+                                "AA00_T02_D12__ProposedFrontElevation__RevB__",
+                                "AA00_T02_D13__ProposedRearElevation__RevB__"
+                            ]
+                        },
+                        {
+                            "label"             : "Site Plans",
+                            "document-type"     : "Drawing",
+                            "document-scale"    : "1:1250",
+                            "document-size"     : "A2",
+                            "files"             : [
+                                "AA00_T02_D20__LocationPlan__RevB__",
+                                "AA00_T02_D21__SitePlan__RevB__"
+                            ]
+                        },
+                        {
+                            "label"             : "Specifications",
+                            "document-type"     : "Specification",
+                            "document-scale"    : "N/A",
+                            "document-size"     : "A4",
+                            "files"             : [
+                                "AA00_T02_S01__DesignAndAccessStatement__RevA__"
+                            ]
+                        }
+                    ]
+                }
+
+            }
+        }
+
+    }
+}

@@ -687,6 +687,69 @@
     background                          : rgba(23, 43, 58, 0.1);
 }
 
+/* endregion -------------------------------------------------------- */
+
+
+/* ================================================================= */
+/* REGION  |  Model Group Selector (Design Phase Switcher)           */
+/* ================================================================= */
+
+.na-model-group-selector__list {
+    display                             : flex;
+    flex-direction                      : column;
+    gap                                 : 4px;
+}
+
+.na-model-group-selector__button {
+    width                               : 100%;
+    border                              : 1px solid rgba(23, 43, 58, 0.15);
+    border-radius                       : 4px;
+    padding                             : 8px 10px;
+    background                          : rgba(23, 43, 58, 0.04);
+    text-align                          : left;
+    font-size                           : 0.8rem;
+    font-weight                         : 400;
+    color                               : rgba(23, 43, 58, 0.55);
+    cursor                              : pointer;
+    transition                          : all 0.15s ease;
+    display                             : flex;
+    align-items                         : center;
+    gap                                 : 8px;
+}
+
+.na-model-group-selector__button::before {
+    content                             : '';
+    display                             : inline-block;
+    width                               : 8px;
+    height                              : 8px;
+    border-radius                       : 50%;
+    background                          : rgba(23, 43, 58, 0.2);
+    flex-shrink                         : 0;
+    transition                          : background 0.15s ease;
+}
+
+.na-model-group-selector__button:hover {
+    background                          : rgba(23, 43, 58, 0.08);
+}
+
+.na-model-group-selector__button--active {
+    color                               : #172b3a;
+    font-weight                         : 500;
+    background                          : rgba(23, 43, 58, 0.06);
+    border-color                        : rgba(42, 125, 79, 0.4);
+}
+
+.na-model-group-selector__button--active::before {
+    background                          : #2a7d4f;
+}
+
+.na-model-group-selector__button--loading {
+    opacity                             : 0.5;
+    pointer-events                      : none;
+}
+
+/* endregion -------------------------------------------------------- */
+
 
 /* ================================================================= */
 /* REGION  |  Toast Notification (Save Camera Settings Feedback)     */
