@@ -233,7 +233,7 @@
                 </li>
                 <li class="na-dropdown-menu__item" id="naStoreyViewItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naStoreyViewButton">
-                        Storey View
+                        Storey Toggle
                         <span class="na-dropdown-menu__subarrow">&#9662;</span>
                     </button>
                     <div class="na-dropdown-menu__panel" id="naStoreyViewPanel">
@@ -254,6 +254,11 @@
                             <!-- Buttons generated dynamically by Na__UiFeature__ModelGroupSelector.js -->
                         </div>
                     </div>
+                </li>
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button" id="naUserInstructionsToggle">
+                        User Guide
+                    </button>
                 </li>
             </ul>
             
@@ -322,6 +327,8 @@
     import { Na__UiFeature__InitializeWalkModeSystem, Na__UiFeature__ToggleWalkMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeControls.js';
     import { Na__UiFeature__InitializeWalkModeHotkey, Na__UiFeature__InitializeWalkModeToggleButton } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js';
     import { Na__AppFlow__StartLoadingSequence } from './02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js';
+    import { Na__UiFeature__InitializeUserInstructionsMenuItem } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UiFeature__UserInstructions__MenuItem.js';
+    import { Na__UserInstructions__Initialize, Na__UserInstructions__Open } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__SystemLogic.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -513,7 +520,8 @@
             movementSpeedMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__MovementSpeedMm,    // <-- Navigation speed (mm)
             elevationSpeedMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__ElevationSpeedMm,  // <-- Vertical navigation speed (mm)
             minDistanceMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMinDistanceMm,   // <-- Orbit zoom in (mm)
-            maxDistanceMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMaxDistanceMm    // <-- Orbit zoom out (mm)
+            maxDistanceMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMaxDistanceMm,   // <-- Orbit zoom out (mm)
+            minCameraYMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMinCameraYMm      // <-- Camera floor guard (mm)
         }
         : {
             damping: {
@@ -525,7 +533,8 @@
             elevationSpeedMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__ElevationSpeedMm, // <-- Vertical navigation speed (mm)
             minDistanceMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__OrbitMinDistanceMm,  // <-- Orbit zoom in (mm)
             maxDistanceMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__OrbitMaxDistanceMm,  // <-- Orbit zoom out (mm)
-            zoomStepMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__ZoomStepMm              // <-- Fixed wheel zoom step (mm)
+            zoomStepMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__ZoomStepMm,             // <-- Fixed wheel zoom step (mm)
+            minCameraYMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__OrbitMinCameraYMm     // <-- Camera floor guard (mm)
         };
     
     const Na__NavBundle__Main = Na__Navmode__InitializeControls(Na__Camera__Main, Na__Renderer__Main.domElement, {
@@ -743,6 +752,13 @@
 // -----------------------------------------------------------------------------
 // REGION | Engine Entry Points
 // -----------------------------------------------------------------------------
+
+    // MODULE INITIALIZATION | User Instructions System
+    // ------------------------------------------------------------
+    await Na__UserInstructions__Initialize(Na__Device__UseTouchControls);
+    Na__UiFeature__InitializeUserInstructionsMenuItem(Na__UserInstructions__Open);
+    // ------------------------------------------------------------
+
 
     // INITIALIZE LOADING SEQUENCE
     // ------------------------------------------------------------

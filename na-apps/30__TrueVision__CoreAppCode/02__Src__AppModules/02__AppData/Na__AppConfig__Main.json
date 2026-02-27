@@ -86,18 +86,20 @@
             "Navmode__MouseControls__ElevationSpeedMm"   : 50,
             "Navmode__MouseControls__OrbitMinDistanceMm" : 200,
             "Navmode__MouseControls__OrbitMaxDistanceMm" : 60000,
-            "Navmode__MouseControls__ZoomStepMm"         : 250
+            "Navmode__MouseControls__ZoomStepMm"         : 250,
+            "Navmode__MouseControls__OrbitMinCameraYMm"  : 0
         },
         "Navmode__IpadControls": {
             "Navmode__IpadControls__EnableWASD"          : false,
             "Navmode__IpadControls__MovementSpeedMm"     : 50,
             "Navmode__IpadControls__ElevationSpeedMm"    : 50,
             "Navmode__IpadControls__OrbitMinDistanceMm"  : 200,
-            "Navmode__IpadControls__OrbitMaxDistanceMm"  : 50000
+            "Navmode__IpadControls__OrbitMaxDistanceMm"  : 50000,
+            "Navmode__IpadControls__OrbitMinCameraYMm"   : 0
         },
         "Navmode__WalkMode": {
             "Navmode__WalkMode__Description"                       : "First-person walk mode settings. All distance values are integer millimeters; convert to 3D units in code.",
-            "Navmode__WalkMode__EyeHeightMm"                       : 1600,
+            "Navmode__WalkMode__EyeHeightMm"                       : 1650,
             "Navmode__WalkMode__CapsuleHeightMm"                   : 1200,
             "Navmode__WalkMode__CapsuleRadiusMm"                   : 260,
             "Navmode__WalkMode__HorizontalFovDeg"                  : 55,
@@ -108,7 +110,7 @@
             "Navmode__WalkMode__MouseSensitivity"                  : 0.002,
             "Navmode__WalkMode__DoorProximityThresholdMm"          : 2000,
             "Navmode__WalkMode__MaxEntryPitchDeg"                  : 30,
-            "Navmode__WalkMode__EntryForwardNudgeMm"               : 12000
+            "Navmode__WalkMode__EntryForwardNudgeMm"               : 1000
         }
     },
     "Navmode__Damping": {

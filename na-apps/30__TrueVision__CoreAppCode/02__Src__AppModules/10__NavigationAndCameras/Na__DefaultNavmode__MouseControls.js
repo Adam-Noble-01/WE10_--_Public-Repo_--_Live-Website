@@ -133,6 +133,7 @@
         const elevationSpeedUnits = Na__Math__ConvertMmToUnits(config.elevationSpeedMm);
         const minDistanceUnits = Number.isFinite(config.minDistanceMm) ? Na__Math__ConvertMmToUnits(config.minDistanceMm) : null;
         const maxDistanceUnits = Number.isFinite(config.maxDistanceMm) ? Na__Math__ConvertMmToUnits(config.maxDistanceMm) : null;
+        const minCameraYUnits  = Number.isFinite(config.minCameraYMm)  ? Na__Math__ConvertMmToUnits(config.minCameraYMm)  : null;
         const zoomStepUnits = Na__Math__ConvertMmToUnits(config.zoomStepMm);
         let wheelTickCount = 0;                                       // <-- Consecutive wheel ticks
         let lastWheelTimestamp = 0;                                   // <-- Last wheel time (ms)
@@ -216,6 +217,10 @@
         const updateNavigation = () => {
             updateMovement();
             controls.update();
+            if (Number.isFinite(minCameraYUnits) && camera.position.y < minCameraYUnits) {
+                camera.position.y = minCameraYUnits;                 // <-- World-space floor guard
+                controls.update();
+            }
         };
         
         const dispose = () => {

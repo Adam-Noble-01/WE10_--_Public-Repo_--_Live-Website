@@ -2,6 +2,70 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.1.0  -  27-Feb-2026
+### User Instructions System — User Guide Modal Overlay
+
+**Overview**
+- Built a new User Guide system accessible from the Tools dropdown menu.
+- Clicking "User Guide" (last item in the menu) opens a full-screen modal overlay listing all navigation controls for both PC and touchscreen users.
+- The overlay covers Orbit Mode, Walk Mode, and Global Hotkeys with clear, explicit descriptions of each control gesture and mouse button action.
+- System is fully self-contained in a new module folder with clean separation between menu hookup, logic, content, and styles.
+
+**New Module: `02__Src__AppModules/75__System__UserInstructionsSystem/`**
+- `Na__UiFeature__UserInstructions__MenuItem.js` — resolves `#naUserInstructionsToggle` from the DOM, collapses the Tools dropdown on click, and delegates to the open function. No cross-system imports.
+- `Na__UserInstructions__SystemLogic.js` — builds the overlay/modal DOM structure at initialisation, fetches `Na__UserInstructions__Content__.html` via `fetch()` using `import.meta.url` for correct path resolution, and injects it into the modal. Handles all three close triggers: close button click, backdrop click, and `Escape` key. On touch devices, smooth-scrolls to the touchscreen section on open.
+- `Na__UserInstructions__Content__.html` — standalone HTML fragment (no `<html>`/`<body>`) containing the full controls guide: Orbit Mode (PC mouse with explicit button + drag labels, touchscreen), Walk Mode (PC keyboard, PC mouse with pointer lock explanation, touchscreen), and Global Hotkeys.
+- `Na__UiFeature__Styles__UserInstructions__.css` — full styles for the overlay backdrop (fixed, full-screen, fade transition), modal card (centred, max-width 680px, brand blue, scrollable), header with close button, section separators, group sub-labels ("PC — Keyboard", "Touchscreen", etc.), control key badge pills, and responsive stacking for narrow viewports.
+
+**`index.html` changes**
+- Added "User Guide" `<li>` as the last item in the Tools dropdown (after Design Phase).
+- Imported `Na__UiFeature__InitializeUserInstructionsMenuItem` and `Na__UserInstructions__Initialize` / `Na__UserInstructions__Open`.
+- Added `await Na__UserInstructions__Initialize(Na__Device__UseTouchControls)` and `Na__UiFeature__InitializeUserInstructionsMenuItem(Na__UserInstructions__Open)` in the Engine Entry Points region.
+- Renamed "Storey View" menu label to "Storey Toggle".
+
+**`03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` changes**
+- Added `@import` for `Na__UiFeature__Styles__UserInstructions__.css` from the new module folder.
+
+**Files Added**
+- `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UiFeature__UserInstructions__MenuItem.js`
+- `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__SystemLogic.js`
+- `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__Content__.html`
+- `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UiFeature__Styles__UserInstructions__.css`
+
+**Files Changed**
+- `index.html`
+- `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css`
+
+# ---------------------------------------------------------
+## TrueVision3D v2.0.9  -  27-Feb-2026
+### Orbit Mode — Landscape Floor Collision Guard
+
+**Overview**
+- Diagnosed and fixed the ability to orbit the camera below the landscape plane in orbit mode.
+- The camera could be dragged in a full 180° arc around the orbit target, passing through the ground and emerging underground looking up at the building underside.
+- Implemented a world-space camera Y floor guard that runs every frame in the navigation update loop, preventing the camera from descending below a configurable minimum world height regardless of input source.
+
+**Root Cause Analysis**
+- Three.js `OrbitControls` defaults `maxPolarAngle` to `Math.PI` (180°), allowing the camera to orbit from directly above the target all the way to directly below it.
+- No polar angle or world-height constraint was set anywhere in the orbit control setup.
+- All orbit input paths (mouse drag, pinch-to-zoom pan, WASD Q-key) were unrestricted.
+- A `maxPolarAngle` approach was evaluated but discarded — it constrains angle relative to the orbit target position, not the world floor, so it conflicts with OrbitHelperCube placement at varying heights and breaks saved camera restoration.
+
+**Fix — World-Space Camera Y Floor Guard**
+- Added `Navmode__MouseControls__OrbitMinCameraYMm: 0` and `Navmode__IpadControls__OrbitMinCameraYMm: 0` to both `Na__AppConfig__Main.json` and `TestEnv__SubAppData__Config.json`.
+- In `Na__DefaultNavmode__MouseControls.js` and `Na__DefaultNavmode__IpadControls.js`, the `updateNavigation` function now clamps `camera.position.y` to `minCameraYUnits` after every `controls.update()` call, followed by a second `controls.update()` to re-sync internal state.
+- The guard is world-space (absolute Y ≥ configured floor), independent of orbit target position and OrbitHelperCube placement.
+- Setting `OrbitMinCameraYMm` to `null` or omitting it disables the guard entirely.
+- `index.html` passes `minCameraYMm` through in both the mouse and iPad nav config payloads.
+
+**Files Changed**
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json`
+- `80__Testing__PrototypeEnvironment/TestEnv__SubAppData__Config.json`
+- `02__Src__AppModules/10__NavigationAndCameras/Na__DefaultNavmode__MouseControls.js`
+- `02__Src__AppModules/10__NavigationAndCameras/Na__DefaultNavmode__IpadControls.js`
+- `index.html`
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.0.8  -  27-Feb-2026
 ### Camera Mode Transition — Spatial Continuity Fix
 

@@ -2,24 +2,24 @@
     "Camera__DefaultPosition": {
         "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
         "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": -3691,
-            "Camera__DefaultPos__PosY": 3374,
-            "Camera__DefaultPos__PosZ": 21238
+            "Camera__DefaultPos__PosX": 12745,
+            "Camera__DefaultPos__PosY": 3237,
+            "Camera__DefaultPos__PosZ": 9616
         },
         "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -0.0517,
-            "Camera__DefaultRotation__RotY": -0.364,
-            "Camera__DefaultRotation__RotZ": -0.0184
+            "Camera__DefaultRotation__RotX": -0.1106,
+            "Camera__DefaultRotation__RotY": 0.5406,
+            "Camera__DefaultRotation__RotZ": 0.0571
         },
         "Camera__DefaultMisc": {
-            "Camera__DefaultMisc__Fov": 29.8628
+            "Camera__DefaultMisc__Fov": 55
         }
     },
     "OrbitHelperCube__Position": {
         "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
-        "OrbitHelperCube__Position__PosX": 6385,
-        "OrbitHelperCube__Position__PosY": 2007,
-        "OrbitHelperCube__Position__PosZ": -5177
+        "OrbitHelperCube__Position__PosX": 2835,
+        "OrbitHelperCube__Position__PosY": 1415,
+        "OrbitHelperCube__Position__PosZ": -6792
     },
     "activeGroupIndex": 0,
     "modelGroups": [

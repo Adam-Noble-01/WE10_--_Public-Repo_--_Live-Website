@@ -1,0 +1,358 @@
+/* =============================================================================
+ * TRUEVISION3D - USER INSTRUCTIONS OVERLAY STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__UiFeature__Styles__UserInstructions__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : User Instructions Overlay Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Full-screen modal overlay for User Guide / Controls Help
+ * CREATED    : 27-Feb-2026
+ *
+ * DESCRIPTION:
+ * - Styles for the User Guide modal overlay opened from the Tools menu.
+ * - Fixed full-screen backdrop with fade-in transition.
+ * - Centred modal card with scrollable content area.
+ * - Control key badge styles matching the brand blue palette.
+ * - Grouped control sections with PC and Touchscreen sub-headings.
+ *
+ * =============================================================================
+ */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Overlay Backdrop
+ * ----------------------------------------------------------------------------- */
+
+    /* OVERLAY | Full-screen backdrop container */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-overlay {
+        position                           : fixed;
+        inset                              : 0;                           /* <-- Cover full viewport */
+        background-color                   : rgba(0, 0, 0, 0.65);        /* <-- Semi-transparent dark backdrop */
+        z-index                            : 2000;                        /* <-- Above all other UI */
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        padding                            : 20px;
+        opacity                            : 0;
+        pointer-events                     : none;
+        transition                         : opacity 0.25s ease;
+    }
+    /* ------------------------------------------------------------ */
+
+    /* OVERLAY OPEN STATE | Fade in and enable interaction */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-overlay.is-open {
+        opacity                            : 1;
+        pointer-events                     : all;                         /* <-- Re-enable interaction */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Modal Card
+ * ----------------------------------------------------------------------------- */
+
+    /* MODAL | Centred card container */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-modal {
+        position                           : relative;
+        background-color                   : rgba(23, 43, 58, 0.98);     /* <-- Vale brand blue */
+        color                              : #ffffff;
+        border-radius                      : 10px;
+        box-shadow                         : 0 8px 32px rgba(0, 0, 0, 0.5);
+        backdrop-filter                    : blur(12px);
+        width                              : 100%;
+        max-width                          : 680px;
+        max-height                         : calc(100vh - 80px);         /* <-- Respect viewport height */
+        display                            : flex;
+        flex-direction                     : column;
+        overflow                           : hidden;
+        transform                          : translateY(8px);
+        transition                         : transform 0.25s ease;
+    }
+    /* ------------------------------------------------------------ */
+
+    /* MODAL OPEN STATE | Settle into position */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-overlay.is-open .na-user-instructions-modal {
+        transform                          : translateY(0);               /* <-- Slide up to final position */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Modal Header
+ * ----------------------------------------------------------------------------- */
+
+    /* MODAL HEADER | Title bar with close button */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-modal__header {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : space-between;
+        padding                            : 18px 22px 16px;
+        border-bottom                      : 1px solid rgba(255, 255, 255, 0.12);
+        flex-shrink                        : 0;                           /* <-- Prevent header from compressing */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* MODAL TITLE | "User Guide" heading */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-modal__title {
+        margin                             : 0;
+        font-size                          : 1.1rem;
+        font-weight                        : 600;
+        color                              : #ffffff;
+        letter-spacing                     : 0.02em;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* CLOSE BUTTON | × dismiss button */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-modal__close {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        width                              : 32px;
+        height                             : 32px;
+        background                         : rgba(255, 255, 255, 0.08);
+        border                             : none;
+        border-radius                      : 6px;
+        color                              : rgba(255, 255, 255, 0.7);
+        font-size                          : 1.1rem;
+        cursor                             : pointer;
+        transition                         : background-color 0.15s ease, color 0.15s ease;
+        flex-shrink                        : 0;
+    }
+
+    .na-user-instructions-modal__close:hover {
+        background-color                   : rgba(255, 255, 255, 0.15);  /* <-- Hover highlight */
+        color                              : #ffffff;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* ERROR STATE | Content load failure message */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-modal__error {
+        padding                            : 24px 22px;
+        color                              : rgba(255, 255, 255, 0.6);
+        font-size                          : 0.9rem;
+        text-align                         : center;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Modal Content Area
+ * ----------------------------------------------------------------------------- */
+
+    /* MODAL CONTENT | Scrollable body */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-modal__content {
+        padding                            : 20px 22px 24px;
+        overflow-y                         : auto;
+        flex                               : 1;                           /* <-- Fill remaining height */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SCROLLBAR | Custom scrollbar for content */
+    /* ------------------------------------------------------------ */
+    .na-user-instructions-modal__content::-webkit-scrollbar {
+        width                              : 6px;
+    }
+
+    .na-user-instructions-modal__content::-webkit-scrollbar-track {
+        background                         : rgba(255, 255, 255, 0.04);
+        border-radius                      : 3px;
+    }
+
+    .na-user-instructions-modal__content::-webkit-scrollbar-thumb {
+        background                         : rgba(255, 255, 255, 0.18);
+        border-radius                      : 3px;
+    }
+
+    .na-user-instructions-modal__content::-webkit-scrollbar-thumb:hover {
+        background                         : rgba(255, 255, 255, 0.28);
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Instruction Sections
+ * ----------------------------------------------------------------------------- */
+
+    /* SECTION | Mode section container (Orbit / Walk / Hotkeys) */
+    /* ------------------------------------------------------------ */
+    .na-instructions-section {
+        margin-bottom                      : 28px;
+        padding-bottom                     : 24px;
+        border-bottom                      : 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .na-instructions-section--last {
+        margin-bottom                      : 0;
+        padding-bottom                     : 0;
+        border-bottom                      : none;                        /* <-- No divider after last section */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SECTION TITLE | Mode heading (e.g. "Orbit Mode") */
+    /* ------------------------------------------------------------ */
+    .na-instructions-section__title {
+        margin                             : 0 0 6px 0;
+        font-size                          : 1rem;
+        font-weight                        : 600;
+        color                              : #ffffff;
+        letter-spacing                     : 0.01em;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SECTION INTRO | Brief description under section title */
+    /* ------------------------------------------------------------ */
+    .na-instructions-section__intro {
+        margin                             : 0 0 16px 0;
+        font-size                          : 0.85rem;
+        color                              : rgba(255, 255, 255, 0.55);
+        line-height                        : 1.5;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Control Groups
+ * ----------------------------------------------------------------------------- */
+
+    /* GROUP | Container for a sub-section (e.g. "PC — Mouse") */
+    /* ------------------------------------------------------------ */
+    .na-instructions-group {
+        margin-bottom                      : 14px;
+    }
+
+    .na-instructions-group:last-child {
+        margin-bottom                      : 0;
+    }
+
+    .na-instructions-group--no-label {
+        margin-top                         : 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* GROUP LABEL | Sub-section heading (e.g. "PC — Keyboard") */
+    /* ------------------------------------------------------------ */
+    .na-instructions-group__label {
+        font-size                          : 0.78rem;
+        font-weight                        : 600;
+        color                              : rgba(255, 255, 255, 0.45);
+        text-transform                     : uppercase;
+        letter-spacing                     : 0.08em;
+        margin-bottom                      : 8px;
+        padding-left                       : 2px;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Instructions List and Items
+ * ----------------------------------------------------------------------------- */
+
+    /* LIST | Two-column grid — key badge column auto-sizes to widest badge, desc fills remaining */
+    /* ------------------------------------------------------------ */
+    .na-instructions-list {
+        list-style                         : none;
+        margin                             : 0;
+        padding                            : 0;
+        display                            : grid;
+        grid-template-columns              : max-content 1fr;             /* <-- Key col sizes to widest badge; desc fills rest */
+        column-gap                         : 12px;
+        row-gap                            : 6px;
+        align-items                        : center;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* ITEM | display:contents makes spans direct grid children so they share the parent column track */
+    /* ------------------------------------------------------------ */
+    .na-instructions-item {
+        display                            : contents;                    /* <-- Spans flow into grid as direct children */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* KEY BADGE | Control key / gesture label pill */
+    /* ------------------------------------------------------------ */
+    .na-instructions-item__key {
+        background-color                   : rgba(255, 255, 255, 0.1);
+        color                              : #ffffff;
+        font-weight                        : 600;
+        font-size                          : 0.82rem;
+        font-family                        : 'Open Sans', sans-serif;
+        line-height                        : 1.4;
+        padding                            : 4px 10px;
+        border-radius                      : 4px;
+        text-align                         : center;
+        white-space                        : nowrap;
+        align-self                         : center;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* DESCRIPTION | Action description text */
+    /* ------------------------------------------------------------ */
+    .na-instructions-item__desc {
+        color                              : rgba(255, 255, 255, 0.8);
+        font-size                          : 0.88rem;
+        font-weight                        : 400;
+        line-height                        : 1.5;
+        align-self                         : center;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Responsive — Narrow Viewports
+ * ----------------------------------------------------------------------------- */
+
+    /* NARROW VIEWPORT | Collapse to single column, key above description */
+    /* ------------------------------------------------------------ */
+    @media (max-width: 480px) {
+
+        .na-user-instructions-modal {
+            border-radius                  : 8px;
+        }
+
+        .na-instructions-list {
+            grid-template-columns          : 1fr;                         /* <-- Single column on narrow screens */
+            row-gap                        : 10px;
+        }
+
+        .na-instructions-item__key {
+            text-align                     : left;
+        }
+
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */

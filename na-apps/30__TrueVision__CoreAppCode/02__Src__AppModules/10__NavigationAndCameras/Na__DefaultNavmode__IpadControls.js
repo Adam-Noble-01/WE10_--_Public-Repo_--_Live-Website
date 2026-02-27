@@ -67,6 +67,7 @@
         const elevationSpeedUnits = Na__Math__ConvertMmToUnits(config.elevationSpeedMm);
         const minDistanceUnits = Number.isFinite(config.minDistanceMm) ? Na__Math__ConvertMmToUnits(config.minDistanceMm) : null;
         const maxDistanceUnits = Number.isFinite(config.maxDistanceMm) ? Na__Math__ConvertMmToUnits(config.maxDistanceMm) : null;
+        const minCameraYUnits  = Number.isFinite(config.minCameraYMm)  ? Na__Math__ConvertMmToUnits(config.minCameraYMm)  : null;
         
         if (Number.isFinite(minDistanceUnits)) {
             controls.minDistance = minDistanceUnits;                 // <-- Clamp orbit zoom in
@@ -118,6 +119,10 @@
         const updateNavigation = () => {
             updateMovement();
             controls.update();
+            if (Number.isFinite(minCameraYUnits) && camera.position.y < minCameraYUnits) {
+                camera.position.y = minCameraYUnits;                 // <-- World-space floor guard
+                controls.update();
+            }
         };
         
         const dispose = () => {

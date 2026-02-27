@@ -1,0 +1,203 @@
+<!-- =============================================================================
+     TRUEVISION3D - USER INSTRUCTIONS CONTENT
+     =============================================================================
+
+     FILE       : Na__UserInstructions__Content__.html
+     NAMESPACE  : Na__UserInstructions
+     MODULE     : UserInstructions - Content Fragment
+     AUTHOR     : Adam Noble - Noble Architecture
+     PURPOSE    : HTML fragment containing all navigation control instructions
+     CREATED    : 27-Feb-2026
+
+     DESCRIPTION:
+     - Standalone HTML fragment loaded by Na__UserInstructions__SystemLogic.js.
+     - No <html>, <head>, or <body> tags — injected directly into the modal.
+     - All classes are defined in Na__UiFeature__Styles__UserInstructions__.css.
+     - Covers Orbit Mode (PC + Touchscreen), Walk Mode (PC + Touchscreen),
+       and Global hotkeys.
+
+     ============================================================================= -->
+
+
+<!-- MODAL HEADER | Title and Close Button -->
+<!-- ------------------------------------------------------------ -->
+<div class="na-user-instructions-modal__header">
+    <h2 class="na-user-instructions-modal__title">User Guide</h2>
+    <button class="na-user-instructions-modal__close" id="naUserInstructionsClose" aria-label="Close User Guide">&#x2715;</button>
+</div>
+<!-- ------------------------------------------------------------ -->
+
+
+<!-- MODAL CONTENT | All Navigation Instructions -->
+<!-- ------------------------------------------------------------ -->
+<div class="na-user-instructions-modal__content">
+
+
+    <!-- ============================================================ -->
+    <!-- SECTION | Orbit Mode                                         -->
+    <!-- ============================================================ -->
+    <div class="na-instructions-section">
+
+        <h3 class="na-instructions-section__title">Orbit Mode</h3>
+        <p class="na-instructions-section__intro">The default navigation mode. Rotate, pan, and zoom around the model freely.</p>
+
+
+        <!-- PC CONTROLS | Orbit Mode -->
+        <!-- ------------------------------------------------------------ -->
+        <div class="na-instructions-group">
+            <div class="na-instructions-group__label">PC — Mouse</div>
+            <ul class="na-instructions-list">
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">Left Button + Drag</span>
+                    <span class="na-instructions-item__desc">Rotate view around model</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">Right Button + Drag</span>
+                    <span class="na-instructions-item__desc">Pan camera</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">Middle Button + Drag</span>
+                    <span class="na-instructions-item__desc">Pan camera</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">Scroll Wheel</span>
+                    <span class="na-instructions-item__desc">Zoom in / out</span>
+                </li>
+            </ul>
+        </div>
+        <!-- ------------------------------------------------------------ -->
+
+
+        <!-- TOUCHSCREEN CONTROLS | Orbit Mode -->
+        <!-- ------------------------------------------------------------ -->
+        <div class="na-instructions-group" id="naInstructionsTouchSection">
+            <div class="na-instructions-group__label">Touchscreen</div>
+            <ul class="na-instructions-list">
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">1 Finger Drag</span>
+                    <span class="na-instructions-item__desc">Rotate view around model</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">2 Finger Drag</span>
+                    <span class="na-instructions-item__desc">Pan camera</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">2 Finger Pinch</span>
+                    <span class="na-instructions-item__desc">Zoom in / out</span>
+                </li>
+            </ul>
+        </div>
+        <!-- ------------------------------------------------------------ -->
+
+    </div>
+    <!-- ============================================================ -->
+
+
+    <!-- ============================================================ -->
+    <!-- SECTION | Walk Mode                                          -->
+    <!-- ============================================================ -->
+    <div class="na-instructions-section">
+
+        <h3 class="na-instructions-section__title">Walk Mode</h3>
+        <p class="na-instructions-section__intro">First-person navigation inside the building. Activate using the Tools menu or the hotkey below.</p>
+
+
+        <!-- PC KEYBOARD | Walk Mode -->
+        <!-- ------------------------------------------------------------ -->
+        <div class="na-instructions-group">
+            <div class="na-instructions-group__label">PC — Keyboard</div>
+            <ul class="na-instructions-list">
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">W &nbsp;/&nbsp; ↑</span>
+                    <span class="na-instructions-item__desc">Walk forward</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">S &nbsp;/&nbsp; ↓</span>
+                    <span class="na-instructions-item__desc">Walk backward</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">A &nbsp;/&nbsp; ←</span>
+                    <span class="na-instructions-item__desc">Strafe left</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">D &nbsp;/&nbsp; →</span>
+                    <span class="na-instructions-item__desc">Strafe right</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">Shift</span>
+                    <span class="na-instructions-item__desc">Sprint (hold while moving)</span>
+                </li>
+            </ul>
+        </div>
+        <!-- ------------------------------------------------------------ -->
+
+
+        <!-- PC MOUSE | Walk Mode -->
+        <!-- ------------------------------------------------------------ -->
+        <div class="na-instructions-group">
+            <div class="na-instructions-group__label">PC — Mouse</div>
+            <ul class="na-instructions-list">
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">Left Click Canvas</span>
+                    <span class="na-instructions-item__desc">Lock pointer to activate mouse look</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">Move Mouse</span>
+                    <span class="na-instructions-item__desc">Look around (no button held)</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">Esc</span>
+                    <span class="na-instructions-item__desc">Release pointer lock / stop mouse look</span>
+                </li>
+            </ul>
+        </div>
+        <!-- ------------------------------------------------------------ -->
+
+
+        <!-- TOUCHSCREEN | Walk Mode -->
+        <!-- ------------------------------------------------------------ -->
+        <div class="na-instructions-group">
+            <div class="na-instructions-group__label">Touchscreen</div>
+            <ul class="na-instructions-list">
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">1 Finger Drag</span>
+                    <span class="na-instructions-item__desc">Move — forward, backward, and strafe</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">2 Finger Drag</span>
+                    <span class="na-instructions-item__desc">Look around (head rotation)</span>
+                </li>
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">2 Finger Pinch</span>
+                    <span class="na-instructions-item__desc">Move forward / backward</span>
+                </li>
+            </ul>
+        </div>
+        <!-- ------------------------------------------------------------ -->
+
+    </div>
+    <!-- ============================================================ -->
+
+
+    <!-- ============================================================ -->
+    <!-- SECTION | Global Hotkeys                                     -->
+    <!-- ============================================================ -->
+    <div class="na-instructions-section na-instructions-section--last">
+
+        <h3 class="na-instructions-section__title">Global Hotkeys</h3>
+
+        <div class="na-instructions-group na-instructions-group--no-label">
+            <ul class="na-instructions-list">
+                <li class="na-instructions-item">
+                    <span class="na-instructions-item__key">Alt + Shift + W</span>
+                    <span class="na-instructions-item__desc">Toggle Walk Mode / Orbit Mode</span>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+    <!-- ============================================================ -->
+
+
+</div>
+<!-- ------------------------------------------------------------ -->
