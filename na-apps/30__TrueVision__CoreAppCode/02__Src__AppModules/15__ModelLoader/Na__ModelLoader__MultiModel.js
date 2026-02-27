@@ -252,6 +252,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
     async function Na__ModelLoader__LoadSingleMesh(modelUrl, baseMeshConfig, loader) {
         const gltf         = await loader.loadAsync(modelUrl);           // <-- Load GLB file
         const meshRoot     = gltf.scene;                                 // <-- Extract scene graph
+        const indexedNameRegex = /^MAT\d{3}__/;                          // <-- Indexed materials that should survive to swap pass
 
         const Na__Material__WhiteMat = new THREE.MeshStandardMaterial({
             color               : baseMeshConfig.material.whiteColor,    // <-- White base color
@@ -263,31 +264,71 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
             polygonOffsetUnits  : baseMeshConfig.material.polygonOffsetUnits
         });
 
+        const Na__MaterialDiagnostics = {
+            totalMaterialsSeen     : 0,                                   // <-- Total material slots processed
+            indexedMaterialsSeen   : 0,                                   // <-- MAT### materials that can be swapped later
+            whiteFallbackApplied   : 0                                    // <-- Invalid/missing materials repaired with white fallback
+        };
+
+        const Na__ModelLoader__CloneAndPrepareMaterial = (sourceMaterial) => {
+            if (!sourceMaterial || !sourceMaterial.isMaterial) {
+                Na__MaterialDiagnostics.whiteFallbackApplied++;
+                return Na__Material__WhiteMat.clone();                    // <-- Fallback only when source material is invalid/missing
+            }
+
+            Na__MaterialDiagnostics.totalMaterialsSeen++;
+            if (indexedNameRegex.test(sourceMaterial.name || '')) {
+                Na__MaterialDiagnostics.indexedMaterialsSeen++;
+            }
+
+            const preparedMaterial               = sourceMaterial.clone(); // <-- Preserve original identity (name/transparency/alpha/etc)
+            preparedMaterial.side                = THREE.DoubleSide;
+            preparedMaterial.polygonOffset       = true;
+            preparedMaterial.polygonOffsetFactor = baseMeshConfig.material.polygonOffsetFactor;
+            preparedMaterial.polygonOffsetUnits  = baseMeshConfig.material.polygonOffsetUnits;
+
+            if (preparedMaterial.map || preparedMaterial.emissiveMap) {
+                // Preserve the original transparent/opacity pipeline while keeping whitecard tuning behaviour for textured meshes.
+                if ('emissive' in preparedMaterial) {
+                    preparedMaterial.emissive = new THREE.Color(baseMeshConfig.material.textureEmissive);
+                }
+                if ('emissiveIntensity' in preparedMaterial) {
+                    preparedMaterial.emissiveIntensity = 0.0;
+                }
+                if (preparedMaterial.map && !preparedMaterial.emissiveMap) {
+                    preparedMaterial.emissiveMap = preparedMaterial.map;   // <-- Use diffuse as emissive fallback
+                }
+                if ('roughness' in preparedMaterial) {
+                    preparedMaterial.roughness = 1.0;                      // <-- Keep prior whitecard look tuning
+                }
+                if ('metalness' in preparedMaterial) {
+                    preparedMaterial.metalness = 0.0;                      // <-- Keep prior whitecard look tuning
+                }
+            }
+
+            return preparedMaterial;
+        };
+
         meshRoot.traverse((node) => {
             if (!node.isMesh) return;                                    // <-- Skip non-mesh nodes
 
             node.castShadow    = true;                                   // <-- Enable shadow casting
             node.receiveShadow = true;                                   // <-- Enable shadow receiving
 
-            if (node.material && (node.material.map || node.material.emissiveMap)) {
-                node.material                    = node.material.clone();
-                node.material.side               = THREE.DoubleSide;
-                node.material.polygonOffset      = true;
-                node.material.polygonOffsetFactor = baseMeshConfig.material.polygonOffsetFactor;
-                node.material.polygonOffsetUnits  = baseMeshConfig.material.polygonOffsetUnits;
-                node.material.emissive           = new THREE.Color(baseMeshConfig.material.textureEmissive);
-                node.material.emissiveIntensity  = 0.0;
-
-                if (node.material.map && !node.material.emissiveMap) {
-                    node.material.emissiveMap = node.material.map;       // <-- Use diffuse as emissive fallback
-                }
-
-                node.material.roughness = 1.0;                          // <-- Override roughness for textured
-                node.material.metalness = 0.0;                          // <-- Override metalness for textured
+            if (Array.isArray(node.material)) {
+                node.material = node.material.map((material) => Na__ModelLoader__CloneAndPrepareMaterial(material));
             } else {
-                node.material = Na__Material__WhiteMat;                  // <-- Apply white material
+                node.material = Na__ModelLoader__CloneAndPrepareMaterial(node.material);
             }
         });
+
+        const modelNameForLog = (typeof modelUrl === 'string') ? modelUrl.split('/').pop() : 'UnknownModel.glb';
+        console.log(
+            `[TrueVision3D] Mesh material prep ${modelNameForLog}: ` +
+            `materials=${Na__MaterialDiagnostics.totalMaterialsSeen}, ` +
+            `indexed=${Na__MaterialDiagnostics.indexedMaterialsSeen}, ` +
+            `whiteFallback=${Na__MaterialDiagnostics.whiteFallbackApplied}`
+        );
 
         return meshRoot;                                                 // <-- Return processed mesh root
     }

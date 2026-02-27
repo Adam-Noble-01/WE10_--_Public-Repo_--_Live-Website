@@ -22,14 +22,14 @@
     // REGION | Export Configuration and Defaults
     // -------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Export Config Keys
+    // MODULE CONSTANTS | Export Config Keys (align with Na__AppConfig__Main.json ImageExport__Panel)
     // ------------------------------------------------------------
     const Na__UiFeature__ExportConfigKeys = {
-        aspectRatios: 'aspectRatios',
-        defaultAspectIndex: 'defaultAspectIndex',
-        resolutions: 'resolutions',
-        defaultResolutionIndex: 'defaultResolutionIndex',
-        customEnabled: 'customEnabled'
+        aspectRatios         : 'ImageExport__Panel__AspectRatios',
+        defaultAspectIndex   : 'ImageExport__Panel__DefaultAspectIndex',
+        resolutions         : 'ImageExport__Panel__Resolutions',
+        defaultResolutionIndex: 'ImageExport__Panel__DefaultResolutionIndex',
+        customEnabled       : 'ImageExport__Panel__CustomEnabled'
     };
     // ------------------------------------------------------------
 
@@ -169,8 +169,8 @@
 
         // CUSTOM MODE | Render at configured aspect ratio and resolution
         // ------------------------------------------------------------
-        const ratio         = Na__UiFeature__ParseAspectRatio(exportConfig.aspectRatios[ratioIndex]); // <-- Parse selected aspect ratio
-        const targetHeight  = exportConfig.resolutions[resIndex]; // <-- Target height from resolution slider
+        const ratio         = Na__UiFeature__ParseAspectRatio(exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex]); // <-- Parse selected aspect ratio
+        const targetHeight  = exportConfig[Na__UiFeature__ExportConfigKeys.resolutions][resIndex]; // <-- Target height from resolution slider
         const targetWidth   = Math.round(targetHeight * (ratio.width / ratio.height)); // <-- Calculate width from ratio
 
         const size           = renderer.getSize(new THREE.Vector2()); // <-- Store current renderer size
@@ -225,7 +225,7 @@
             dataUrl     : dataUrl,                               // <-- PNG data URL
             width       : targetWidth,                           // <-- Rendered width in pixels
             height      : targetHeight,                          // <-- Rendered height in pixels
-            aspectRatio : exportConfig.aspectRatios[ratioIndex]  // <-- Selected aspect ratio string
+            aspectRatio : exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex]  // <-- Selected aspect ratio string
         };
     }
     // ------------------------------------------------------------
@@ -268,10 +268,10 @@
             enhanceToggle.checked = enhanceEnabledDefault; // <-- Set initial state
         }
         
-        let isCustomEnabled  = exportConfig.customEnabled;
+        let isCustomEnabled  = exportConfig[Na__UiFeature__ExportConfigKeys.customEnabled];
         let isEnhanceEnabled = enhanceEnabledDefault; // <-- Track enhance toggle state
-        let ratioIndex       = Na__UiFeature__ClampIndex(exportConfig.defaultAspectIndex, 0, exportConfig.aspectRatios.length - 1);
-        let resIndex         = Na__UiFeature__ClampIndex(exportConfig.defaultResolutionIndex, 0, exportConfig.resolutions.length - 1);
+        let ratioIndex       = Na__UiFeature__ClampIndex(exportConfig[Na__UiFeature__ExportConfigKeys.defaultAspectIndex], 0, exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios].length - 1);
+        let resIndex         = Na__UiFeature__ClampIndex(exportConfig[Na__UiFeature__ExportConfigKeys.defaultResolutionIndex], 0, exportConfig[Na__UiFeature__ExportConfigKeys.resolutions].length - 1);
         
         const updateControlsState = () => {
             ratioSlider.disabled = !isCustomEnabled;
@@ -280,17 +280,17 @@
         };
         
         const updateLabels = () => {
-            ratioValue.textContent = exportConfig.aspectRatios[ratioIndex];
-            resValue.textContent   = `${exportConfig.resolutions[resIndex] / 1024}k`;
+            ratioValue.textContent = exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex];
+            resValue.textContent   = `${exportConfig[Na__UiFeature__ExportConfigKeys.resolutions][resIndex] / 1024}k`;
         };
         
         ratioSlider.min   = 0;
-        ratioSlider.max   = exportConfig.aspectRatios.length - 1;
+        ratioSlider.max   = exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios].length - 1;
         ratioSlider.step  = 1;
         ratioSlider.value = ratioIndex;
         
         resSlider.min   = 0;
-        resSlider.max   = exportConfig.resolutions.length - 1;
+        resSlider.max   = exportConfig[Na__UiFeature__ExportConfigKeys.resolutions].length - 1;
         resSlider.step  = 1;
         resSlider.value = resIndex;
         
@@ -310,7 +310,7 @@
             // ------------------------------------------------------------
             const panelIsNowOpen = panel.classList.contains('is-open'); // <-- Check new panel state
             if (panelIsNowOpen) { // <-- Panel is now open
-                Na__UiFeature__UpdateViewportOverlays(exportConfig.aspectRatios[ratioIndex], true); // <-- Show overlay with current aspect ratio
+                Na__UiFeature__UpdateViewportOverlays(exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex], true); // <-- Show overlay with current aspect ratio
                 
                 // Also expand Camera Lens panel so user is aware of lens setting before export
                 const cameraLensPanel = document.getElementById('naCameraLensPanel'); // <-- Get camera lens panel
@@ -318,7 +318,7 @@
                     cameraLensPanel.classList.add('is-open'); // <-- Ensure lens panel is open alongside export panel
                 }
             } else { // <-- Panel is now closed
-                Na__UiFeature__UpdateViewportOverlays(exportConfig.aspectRatios[ratioIndex], false); // <-- Hide overlay
+                Na__UiFeature__UpdateViewportOverlays(exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex], false); // <-- Hide overlay
             }
             // ------------------------------------------------------------
         });
@@ -331,9 +331,9 @@
             // ------------------------------------------------------------
             if (panel.classList.contains('is-open')) { // <-- Check if panel is open
                 if (isCustomEnabled) { // <-- Custom export enabled
-                    Na__UiFeature__UpdateViewportOverlays(exportConfig.aspectRatios[ratioIndex], true); // <-- Show overlay
+                    Na__UiFeature__UpdateViewportOverlays(exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex], true); // <-- Show overlay
                 } else { // <-- Custom export disabled
-                    Na__UiFeature__UpdateViewportOverlays(exportConfig.aspectRatios[ratioIndex], false); // <-- Hide overlay
+                    Na__UiFeature__UpdateViewportOverlays(exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex], false); // <-- Hide overlay
                 }
             }
             // ------------------------------------------------------------
@@ -352,7 +352,7 @@
             // Update overlay with new aspect ratio if panel is open
             // ------------------------------------------------------------
             if (panel.classList.contains('is-open')) { // <-- Check if panel is open
-                Na__UiFeature__UpdateViewportOverlays(exportConfig.aspectRatios[ratioIndex], true); // <-- Update overlay with new ratio
+                Na__UiFeature__UpdateViewportOverlays(exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex], true); // <-- Update overlay with new ratio
             }
             // ------------------------------------------------------------
         });

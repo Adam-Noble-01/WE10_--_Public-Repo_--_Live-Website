@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // TRUEVISION3D - MATERIALS SYSTEM - MATERIAL SWAP
 // =============================================================================
 //
@@ -282,6 +282,8 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
         const materialCache   = new Map();                                    // <-- Cache created materials by SketchUpName
         const texturePromises = [];                                           // <-- Collect async texture loads
         let   swapCount       = 0;                                            // <-- Counter for logging
+        let   indexedSeen     = 0;                                            // <-- Indexed material names encountered
+        let   indexedMissing  = 0;                                            // <-- Indexed names not found in lookup map
 
         modelGroup.traverse((node) => {
             if (!node.isMesh) return;                                         // <-- Skip non-mesh nodes
@@ -291,9 +293,13 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
             if (!materialName || !Na__MaterialsSystem__IsIndexedName(materialName)) {
                 return;                                                       // <-- No indexed name, keep whitecard
             }
+            indexedSeen++;
 
             const config = lookupMap.get(materialName);                       // <-- O(1) lookup by SketchUpName
-            if (!config) return;                                              // <-- Not in library, keep whitecard
+            if (!config) {
+                indexedMissing++;
+                return;                                                       // <-- Not in library, keep existing material
+            }
 
             let pbrMaterial;
 
@@ -319,9 +325,9 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
             await Promise.all(texturePromises);                               // <-- Wait for all texture loads
         }
 
-        if (swapCount > 0) {
-            console.log(`[MaterialsSystem] Swapped ${swapCount} mesh material(s) across ${materialCache.size} unique material(s)`);
-        }
+        console.log(
+            `[MaterialsSystem] IndexedSeen=${indexedSeen}, Swapped=${swapCount}, IndexedMissing=${indexedMissing}, UniqueSwapped=${materialCache.size}`
+        );
     }
     // ------------------------------------------------------------
 

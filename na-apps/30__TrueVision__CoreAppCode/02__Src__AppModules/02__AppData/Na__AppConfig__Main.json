@@ -69,12 +69,13 @@
         "defaultFocalLengthMM": 45,
         "sensorHeightMM": 24
     },
-    "imageExport": {
-        "customEnabled": true,
-        "aspectRatios": ["3:2", "4:3", "16:9"],
-        "defaultAspectIndex": 0,
-        "resolutions": [1024, 2048, 4096],
-        "defaultResolutionIndex": 2
+    "ImageExport__Panel": {
+        "ImageExport__Panel__Description"           : "Custom export panel settings: aspect ratio, resolution, and custom mode toggle.",
+        "ImageExport__Panel__CustomEnabled"         : true,
+        "ImageExport__Panel__AspectRatios"          : ["3:2", "4:3", "16:9"],
+        "ImageExport__Panel__DefaultAspectIndex"    : 0,
+        "ImageExport__Panel__Resolutions"           : [1024, 2048, 4096],
+        "ImageExport__Panel__DefaultResolutionIndex": 1
     },
     "Global__Hotkeys": {
         "Global__Hotkeys__Description"                             : "Global keyboard shortcuts. Modifier keys joined with '+'. Evaluated in keydown handlers.",
