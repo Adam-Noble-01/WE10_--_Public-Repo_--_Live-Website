@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Vision | Noble Architecture</title>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  BRANDING | Favicon and Brand Icons                     -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <link rel="apple-touch-icon" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <meta name="theme-color" content="#555041">
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Stylesheet Imports                                     -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <link rel="stylesheet" href="04__Style__AppStylesheets/StyleSheet__ProjectVisionApp__.css">
+
+    <!-- endregion -------------------------------------------------------- -->
+
+</head>
+<body>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Application Header Bar                                 -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <header class="pv-header">
+        <img
+            src="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
+            alt="Noble Architecture"
+            class="pv-header__logo"
+        />
+        <span class="pv-header__title">Project Vision</span>
+    </header>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Loading Overlay                                        -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <div class="pv-loading-overlay" id="pvLoadingOverlay">
+        <div class="pv-loading-spinner"></div>
+        <p class="pv-loading-text">Loading project...</p>
+    </div>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Main Content Area                                      -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <main class="pv-main" id="pvMain" style="display: none;">
+
+        <!-- Project Title -->
+        <div class="pv-project-title" id="pvProjectTitle">
+            <h1 class="pv-project-title__name" id="pvProjectName"></h1>
+            <p class="pv-project-title__subtitle">Select an application to continue</p>
+        </div>
+
+        <!-- Sub-Application Card Grid -->
+        <div class="pv-card-grid" id="pvCardGrid">
+
+            <!-- Card: Project Admin -->
+            <a class="pv-card pv-card--admin" id="pvCardAdmin" href="#" data-subapp="projectAdmin">
+                <div class="pv-card__icon-area">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-3-7H9v-2h6v2zm0 4H9v-2h6v2zm-2-8H9V7h4v2z"/>
+                    </svg>
+                </div>
+                <h2 class="pv-card__title">Project Admin</h2>
+                <p class="pv-card__description">Documents, quotations &amp; contracts</p>
+                <span class="pv-card__badge" id="pvBadgeAdmin"></span>
+            </a>
+
+            <!-- Card: PlanVision -->
+            <a class="pv-card pv-card--planvision" id="pvCardPlanVision" href="#" data-subapp="planVision">
+                <div class="pv-card__icon-area">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 12h2v5H7zm4-3h2v8h-2zm4-3h2v11h-2z"/>
+                    </svg>
+                </div>
+                <h2 class="pv-card__title">PlanVision</h2>
+                <p class="pv-card__description">2D drawings, plans &amp; documents</p>
+                <span class="pv-card__badge" id="pvBadgePlanVision"></span>
+            </a>
+
+            <!-- Card: TrueVision 3D -->
+            <a class="pv-card pv-card--truevision" id="pvCardTrueVision" href="#" data-subapp="trueVision">
+                <div class="pv-card__icon-area">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.83 3.41L12 10.96 5.17 7.59 12 4.18zM4 8.82l7 3.5v7.86l-7-3.5V8.82zm9 11.36v-7.86l7-3.5v7.86l-7 3.5z"/>
+                    </svg>
+                </div>
+                <h2 class="pv-card__title">TrueVision 3D</h2>
+                <p class="pv-card__description">Interactive 3D model viewer</p>
+                <span class="pv-card__badge" id="pvBadgeTrueVision"></span>
+            </a>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="pv-footer">
+            &copy; Noble Architecture
+        </footer>
+
+    </main>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Error State                                            -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <div class="pv-error" id="pvError">
+        <div class="pv-error__icon">!</div>
+        <h2 class="pv-error__title" id="pvErrorTitle">Project Not Found</h2>
+        <p class="pv-error__message" id="pvErrorMessage">
+            No project code was provided. Please use a valid project link to access this page.
+        </p>
+    </div>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Application Scripts                                    -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <!-- 1. URL Query System Module -->
+    <script src="02__Src__AppModules/Na__AppUtils__UrlQuerySystem.js"></script>
+
+    <!-- 2. Application Initialization -->
+    <script>
+    // =========================================================================
+    // PROJECT VISION | Application Entry Point
+    // =========================================================================
+
+    (async function Na__ProjectVision__Init() {
+        'use strict';
+
+        // DOM REFERENCES
+        // -----------------------------------------------------------------
+        const elLoadingOverlay = document.getElementById('pvLoadingOverlay');
+        const elMain           = document.getElementById('pvMain');
+        const elError          = document.getElementById('pvError');
+        const elErrorTitle     = document.getElementById('pvErrorTitle');
+        const elErrorMessage   = document.getElementById('pvErrorMessage');
+        const elProjectName    = document.getElementById('pvProjectName');
+
+        const elCardAdmin      = document.getElementById('pvCardAdmin');
+        const elCardPlanVision = document.getElementById('pvCardPlanVision');
+        const elCardTrueVision = document.getElementById('pvCardTrueVision');
+
+        const elBadgeAdmin      = document.getElementById('pvBadgeAdmin');
+        const elBadgePlanVision = document.getElementById('pvBadgePlanVision');
+        const elBadgeTrueVision = document.getElementById('pvBadgeTrueVision');
+
+        const UrlQuerySystem = window.NaProjectVision.UrlQuerySystem;
+
+
+        // HELPER | Show Error State
+        // -----------------------------------------------------------------
+        function showError(title, message) {
+            elLoadingOverlay.classList.add('pv-loading-overlay--hidden');
+            elMain.style.display = 'none';
+            elErrorTitle.textContent = title;
+            elErrorMessage.textContent = message;
+            elError.classList.add('pv-error--visible');
+        }
+
+
+        // HELPER | Hide Loading and Show Main Content
+        // -----------------------------------------------------------------
+        function showContent() {
+            elMain.style.display = '';
+            elLoadingOverlay.classList.add('pv-loading-overlay--hidden');
+            setTimeout(function() {
+                elLoadingOverlay.style.display = 'none';
+            }, 500);
+        }
+
+
+        // HELPER | Configure a Card
+        // -----------------------------------------------------------------
+        function configureCard(cardEl, badgeEl, isAvailable, href) {
+            if (isAvailable && href) {
+                cardEl.href = href;
+                cardEl.classList.remove('pv-card--disabled');
+                badgeEl.textContent = 'Available';
+                badgeEl.className = 'pv-card__badge pv-card__badge--available';
+            } else {
+                cardEl.removeAttribute('href');
+                cardEl.classList.add('pv-card--disabled');
+                badgeEl.textContent = 'Coming Soon';
+                badgeEl.className = 'pv-card__badge pv-card__badge--unavailable';
+            }
+        }
+
+
+        // MAIN INITIALIZATION
+        // -----------------------------------------------------------------
+        try {
+            const context = UrlQuerySystem.getProjectContext({
+                defaultProjectCode   : null,
+                defaultProjectYear   : '26',
+                defaultProjectFolder : null
+            });
+
+            if (!context.projectCode) {
+                showError(
+                    'No Project Selected',
+                    'A project code is required. Please use a valid project link (e.g. ?project=NP03) to access this page.'
+                );
+                return;
+            }
+
+            const masterIndex = await UrlQuerySystem.fetchMasterIndex(context.masterIndexUrl);
+            const projectData = UrlQuerySystem.resolveProjectFromIndex(masterIndex, context.projectCode);
+
+            if (!projectData) {
+                showError(
+                    'Project Not Found',
+                    'The project code "' + context.projectCode + '" was not found in the project index. Please check the link and try again.'
+                );
+                return;
+            }
+
+            const projectFolder = context.projectFolder || projectData.projectFolder;
+            const projectCode   = projectData.projectCode;
+            const subApps       = projectData.subApps || {};
+
+            elProjectName.textContent = projectData.projectName || projectCode;
+            document.title = (projectData.projectName || projectCode) + ' | Project Vision';
+
+            const adminUrl = UrlQuerySystem.buildSubAppUrl(
+                context.appsBase, 'projectAdmin', projectCode, projectFolder);
+
+            const planVisionUrl = UrlQuerySystem.buildSubAppUrl(
+                context.appsBase, 'planVision', projectCode, projectFolder);
+
+            const trueVisionUrl = UrlQuerySystem.buildSubAppUrl(
+                context.appsBase, 'trueVision', projectCode, projectFolder);
+
+            configureCard(elCardAdmin,      elBadgeAdmin,      subApps.projectAdmin,  adminUrl);
+            configureCard(elCardPlanVision, elBadgePlanVision, subApps.planVision,     planVisionUrl);
+            configureCard(elCardTrueVision, elBadgeTrueVision, subApps.trueVision,     trueVisionUrl);
+
+            showContent();
+
+        } catch (err) {
+            console.error('[ProjectVision] Initialization failed:', err);
+            showError(
+                'Loading Error',
+                'Failed to load project data. Please check your connection and try again.'
+            );
+        }
+
+    })();
+
+    </script>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+</body>
+</html>

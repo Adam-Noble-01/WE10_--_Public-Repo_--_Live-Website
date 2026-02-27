@@ -38,7 +38,6 @@ Examples:
 
 ## URL Query Format
 ```
-?project=XX00&year=26
+?project=XX00
 ```
 - `project` - Four-character project code (required)
-- `year` - Two-digit year for project folder (default: current year)

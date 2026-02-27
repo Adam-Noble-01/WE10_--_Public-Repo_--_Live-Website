@@ -1,0 +1,736 @@
+/* ================================================================= */
+/* REGION  |  UI Components - Loading & Debug Overlays              */
+/* ================================================================= */
+
+/* Canvas Visibility Control - Hide during initialization */
+/* ----------------------------------------------------------------- */
+#renderCanvas.canvas-hidden {
+    opacity                            : 0;                            /* <-- Initially transparent */
+    pointer-events                     : none;                         /* <-- Disable interaction during load */
+}
+
+
+/* Canvas Visibility Control - Show with fade-in animation */
+/* ----------------------------------------------------------------- */
+#renderCanvas.canvas-visible {
+    opacity                            : 1;                            /* <-- Fully visible */
+    pointer-events                     : auto;                         /* <-- Enable interaction */
+    transition                         : opacity 0.8s ease-in;         /* <-- Smooth fade-in over 800ms */
+}
+
+
+/* Loading Indicator - Centered Overlay */
+/* ----------------------------------------------------------------- */
+.loading-indicator {
+    position                           : absolute;
+    top                                : 50%;
+    left                               : 50%;
+    transform                          : translate(-50%, -50%);
+    font-size                          : 1.2rem;
+    font-weight                        : 400;
+    color                              : #172b3a;
+    text-align                         : center;
+}
+
+
+/* Dropdown Menu - Tools Panel (Top Right) */
+/* ----------------------------------------------------------------- */
+.na-dropdown-menu {
+    position                           : fixed;
+    top                                : calc(var(--Vale_HeaderHeight) + 10px);
+    right                              : 20px;
+    z-index                            : 1001;
+    font-family                        : 'Open Sans', sans-serif;
+    transform                          : scale(1.2);
+    transform-origin                   : top right;
+}
+
+.na-dropdown-menu__details {
+    background                          : rgba(255, 255, 255, 0.95);
+    border                              : 1px solid rgba(0, 0, 0, 0.12);
+    border-radius                       : 6px;
+    box-shadow                          : 0 6px 18px rgba(0, 0, 0, 0.15);
+    min-width                           : 220px;
+}
+
+.na-dropdown-menu__details--camera-open {
+    min-width                           : 440px;
+}
+
+.na-dropdown-menu__summary {
+    list-style                          : none;
+    cursor                              : pointer;
+    padding                             : 10px 14px;
+    font-weight                         : 600;
+    color                               : #172b3a;
+    display                             : flex;
+    align-items                         : center;
+    justify-content                     : space-between;
+    gap                                 : 10px;
+}
+
+.na-dropdown-menu__summary::-webkit-details-marker {
+    display                             : none;
+}
+
+.na-dropdown-menu__arrow {
+    font-size                           : 0.85rem;
+    color                               : #172b3a;
+}
+
+.na-dropdown-menu__list {
+    margin                              : 0;
+    padding                             : 6px 0 10px 0;
+    list-style                          : none;
+    border-top                          : 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.na-dropdown-menu__item {
+    padding                             : 8px 14px;
+    font-size                           : 0.85rem;
+    color                               : #172b3a;
+}
+
+.na-dropdown-menu__item:hover {
+    background                          : rgba(23, 43, 58, 0.06);
+}
+
+.na-dropdown-menu__button {
+    width                               : 100%;
+    border                              : none;
+    background                          : transparent;
+    padding                             : 0;
+    margin                              : 0;
+    text-align                          : left;
+    font-size                           : 0.85rem;
+    color                               : #172b3a;
+    font-family                         : 'Open Sans', sans-serif;
+    cursor                              : pointer;
+}
+
+.na-dropdown-menu__button--has-submenu {
+    display                             : flex;
+    align-items                         : center;
+    justify-content                     : space-between;
+    gap                                 : 10px;
+}
+
+.na-dropdown-menu__subarrow {
+    font-size                           : 0.75rem;
+    color                               : #172b3a;
+}
+
+.na-dropdown-menu__panel {
+    margin-top                          : 8px;
+    padding                             : 10px 12px;
+    background                          : rgba(23, 43, 58, 0.05);
+    border-radius                       : 6px;
+    display                             : none;
+}
+
+.na-dropdown-menu__panel.is-open {
+    display                             : block;
+}
+
+.na-dropdown-menu__panel.is-open .na-dropdown-menu__textarea {
+    font-size                           : 0.60rem;
+}
+
+.na-dropdown-menu__panel.is-open#naCameraPositionPanel {
+    padding                             : 20px 12px;
+}
+
+.na-dropdown-menu__panel-title {
+    font-size                           : 0.8rem;
+    font-weight                         : 600;
+    color                               : #172b3a;
+    margin-bottom                       : 8px;
+}
+
+.na-dropdown-menu__panel-row {
+    display                             : flex;
+    align-items                         : center;
+    gap                                 : 10px;
+}
+
+.na-dropdown-menu__panel-row--toggle {
+    justify-content                     : space-between;
+}
+
+.na-dropdown-menu__slider {
+    flex                                : 1;
+    height                              : 6px;
+    border-radius                       : 3px;
+    background                          : rgba(23, 43, 58, 0.2);
+    outline                             : none;
+    -webkit-appearance                  : none;
+    appearance                          : none;
+}
+
+.na-dropdown-menu__slider::-webkit-slider-thumb {
+    -webkit-appearance                  : none;
+    appearance                          : none;
+    width                               : 16px;
+    height                              : 16px;
+    border-radius                       : 50%;
+    background                          : #172b3a;
+    cursor                              : pointer;
+}
+
+.na-dropdown-menu__slider::-moz-range-thumb {
+    width                               : 16px;
+    height                              : 16px;
+    border-radius                       : 50%;
+    background                          : #172b3a;
+    cursor                              : pointer;
+    border                              : none;
+}
+
+.na-dropdown-menu__value {
+    min-width                           : 52px;
+    text-align                          : right;
+    font-weight                         : 600;
+    font-family                         : 'Courier New', monospace;
+    font-size                           : 0.85rem;
+    color                               : #172b3a;
+}
+
+.na-dropdown-menu__textarea {
+    width                               : 100%;
+    min-height                          : 300px;
+    padding                             : 8px;
+    border-radius                       : 6px;
+    border                              : 1px solid rgba(0, 0, 0, 0.15);
+    font-family                         : 'Courier New', monospace;
+    font-size                           : 0.65rem;
+    resize                              : none;
+    background                          : #ffffff;
+    color                               : #172b3a;
+}
+
+.na-dropdown-menu__file-input {
+    display                             : none;
+}
+
+.na-dropdown-menu__checkbox {
+    width                               : 18px;
+    height                              : 18px;
+    accent-color                        : #172b3a;
+}
+
+.na-dropdown-menu__action {
+    margin-top                          : 10px;
+    width                               : 100%;
+    border                              : none;
+    border-radius                       : 6px;
+    padding                             : 6px 10px;
+    background                          : #172b3a;
+    color                               : #ffffff;
+    font-weight                         : 400;
+    font-size                           : 0.78rem;
+    cursor                              : pointer;
+}
+
+.na-dropdown-menu__action--secondary {
+    background                          : rgba(23, 43, 58, 0.12);
+    color                               : #172b3a;
+}
+
+.na-dropdown-menu__action--secondary:hover {
+    background                          : rgba(23, 43, 58, 0.2);
+    color                               : #ffffff;                          /* <-- White text on hover */
+}
+
+.na-dropdown-menu__action--secondary:active {
+    background                          : rgba(23, 43, 58, 0.28);         /* <-- Darker press state */
+    transform                           : scale(0.97);                    /* <-- Subtle press-in effect */
+}
+
+.na-dropdown-menu__action--secondary.is-loading {
+    opacity                             : 0.5;                            /* <-- Dimmed during loading */
+    pointer-events                      : none;                           /* <-- Prevent double-click */
+    cursor                              : not-allowed;                    /* <-- Indicate disabled state */
+}
+
+.na-dropdown-menu__action:hover {
+    background                          : #1e3a4f;
+}
+
+
+/* Debug Info Overlay - Top Left Panel (Below Header) */
+/* ----------------------------------------------------------------- */
+.debug-info {
+    position                           : absolute;
+    top                                : calc(var(--Vale_HeaderHeight) + 10px);  /* <-- Position below header */
+    left                               : 10px;
+    background-color                   : rgba(0, 0, 0, 0.7);
+    color                              : #00ff00;
+    padding                            : 10px;
+    font-family                        : 'Open Sans', 'Courier New', monospace;
+    font-size                          : 0.85rem;
+    font-weight                        : 400;
+    border-radius                      : 4px;
+    z-index                            : 1000;
+    max-width                          : 350px;
+}
+
+
+/* Debug Info - Header Styles */
+/* ----------------------------------------------------------------- */
+.debug-info h4 {
+    margin                             : 0 0 8px 0;
+    color                              : #ffffff;
+    font-size                          : 0.95rem;
+    font-weight                        : 600;
+}
+
+
+/* Debug Info - Paragraph Styles */
+/* ----------------------------------------------------------------- */
+.debug-info p {
+    margin                             : 4px 0;
+    line-height                        : 1.4;
+}
+
+
+/* Debug Info - Strong/Bold Elements */
+/* ----------------------------------------------------------------- */
+.debug-info p strong {
+    font-weight                        : 600;
+}
+
+
+/* Camera Position Overlay - Top Left Panel (Below Debug Info) */
+/* ----------------------------------------------------------------- */
+.camera-position-overlay {
+    position                           : absolute;
+    top                                : calc(var(--Vale_HeaderHeight) + 120px);  /* <-- Position below debug info */
+    left                               : 20px;
+    background-color                   : rgba(0, 0, 0, 0.7);
+    color                              : #ffffff;
+    padding                            : 12px 16px;
+    font-size                          : 0.85rem;
+    font-weight                        : 400;
+    border-radius                      : 4px;
+    z-index                            : 1001;
+    pointer-events                     : none;
+    box-shadow                         : 0 2px 8px rgba(0, 0, 0, 0.3);
+    backdrop-filter                    : blur(4px);
+    min-width                          : 180px;
+}
+
+
+/* Camera Overlay - Content Container */
+/* ----------------------------------------------------------------- */
+.camera-overlay-content {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 8px;
+}
+
+
+/* Camera Overlay - Title */
+/* ----------------------------------------------------------------- */
+.camera-overlay-title {
+    font-weight                        : 600;
+    font-size                          : 0.95rem;
+    margin                             : 0 0 4px 0;
+    color                              : #ffffff;
+    border-bottom                      : 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom                     : 6px;
+}
+
+
+/* Camera Overlay - Data Container */
+/* ----------------------------------------------------------------- */
+.camera-overlay-data {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 4px;
+}
+
+
+/* Camera Overlay - Data Row */
+/* ----------------------------------------------------------------- */
+.camera-overlay-row {
+    display                            : flex;
+    justify-content                    : space-between;
+    align-items                        : center;
+    gap                                : 12px;
+}
+
+
+/* Camera Overlay - Label */
+/* ----------------------------------------------------------------- */
+.camera-overlay-label {
+    color                              : rgba(255, 255, 255, 0.7);
+    font-weight                        : 400;
+    min-width                          : 20px;
+}
+
+
+/* Camera Overlay - Value */
+/* ----------------------------------------------------------------- */
+.camera-overlay-value {
+    color                              : #ffffff;
+    font-weight                        : 600;
+    font-family                        : 'Courier New', monospace;
+    text-align                         : right;
+    min-width                          : 80px;
+}
+
+
+/* Camera Overlay - Section Container */
+/* ----------------------------------------------------------------- */
+.camera-overlay-section {
+    margin-top                         : 8px;
+}
+
+.camera-overlay-section:first-child {
+    margin-top                         : 0;
+}
+
+
+/* Camera Overlay - Section Title */
+/* ----------------------------------------------------------------- */
+.camera-overlay-section-title {
+    font-weight                        : 600;
+    font-size                          : 0.8rem;
+    margin                             : 0 0 4px 0;
+    color                              : rgba(255, 255, 255, 0.85);
+    border-bottom                      : 1px solid rgba(255, 255, 255, 0.15);
+    padding-bottom                     : 4px;
+}
+
+
+/* Camera Position Download Button - Below Camera Stats Overlay */
+/* ----------------------------------------------------------------- */
+.camera-position-download-button {
+    position                            : absolute;
+    top                                 : calc(var(--Vale_HeaderHeight) + 450px);  /* <-- Position below lens section at bottom of stats */
+    left                                : 20px;
+    background-color                    : #172b3a;
+    color                               : #ffffff;
+    border                              : none;
+    padding                             : 10px 16px;
+    font-family                         : 'Open Sans', sans-serif;
+    font-size                           : 0.85rem;
+    font-weight                         : 600;
+    border-radius                       : 4px;
+    cursor                              : pointer;
+    z-index                             : 1002;
+    box-shadow                          : 0 2px 6px rgba(0, 0, 0, 0.3);
+    backdrop-filter                     : blur(4px);
+    transition                          : all 0.2s ease;
+    display                             : flex;
+    align-items                         : center;
+    justify-content                     : center;
+    gap                                 : 6px;
+    min-width                           : 180px;
+}
+
+
+/* Camera Position Download Button - Hover State */
+/* ----------------------------------------------------------------- */
+.camera-position-download-button:hover:not(.disabled) {
+    background-color                    : #1e3a4f;
+    transform                           : translateY(-1px);
+    box-shadow                          : 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+
+/* Camera Position Download Button - Active State */
+/* ----------------------------------------------------------------- */
+.camera-position-download-button:active:not(.disabled) {
+    transform                           : translateY(0);
+    box-shadow                          : 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+
+/* Camera Position Download Button - Disabled State */
+/* ----------------------------------------------------------------- */
+.camera-position-download-button.disabled {
+    opacity                             : 0.6;
+    cursor                              : not-allowed;
+    pointer-events                      : none;
+}
+
+
+/* Download Screenshot Button - Top Right Panel (Below Navigation Controls) */
+/* ----------------------------------------------------------------- */
+.download-screenshot-button {
+    position                           : absolute;
+    top                                : calc(var(--Vale_HeaderHeight) + 700px);  /* <-- Position below navigation controls */
+    right                              : 20px;
+    background-color                   : #172b3a;
+    color                              : #ffffff;
+    border                             : none;
+    padding                            : 12px 20px;
+    font-family                        : 'Open Sans', sans-serif;
+    font-size                          : 0.9rem;
+    font-weight                        : 600;
+    border-radius                      : 4px;
+    cursor                             : pointer;
+    z-index                            : 1002;
+    box-shadow                         : 0 2px 8px rgba(0, 0, 0, 0.3);
+    backdrop-filter                    : blur(4px);
+    transition                         : all 0.3s ease, top 0.3s ease;  /* <-- Smooth repositioning with navigation controls */
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+}
+
+
+/* Download Button - Hover State */
+/* ----------------------------------------------------------------- */
+.download-screenshot-button:hover:not(.disabled) {
+    background-color                   : #1e3a4f;
+    transform                          : translateY(-1px);
+    box-shadow                         : 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+
+/* Download Button - Active State */
+/* ----------------------------------------------------------------- */
+.download-screenshot-button:active:not(.disabled) {
+    transform                          : translateY(0);
+    box-shadow                         : 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+
+/* Download Button - Disabled State */
+/* ----------------------------------------------------------------- */
+.download-screenshot-button.disabled {
+    opacity                            : 0.6;
+    cursor                             : not-allowed;
+    pointer-events                     : none;
+}
+
+
+/* Camera Lens Adjustment Overlay - Top Right Panel (Below Download Button) */
+/* ----------------------------------------------------------------- */
+/* Camera Lens Panel - Deprecated (moved into dropdown) */
+/* ----------------------------------------------------------------- */
+
+
+/* Camera Lens Adjustment - Content Container */
+/* ----------------------------------------------------------------- */
+.camera-lens-adjustment-content {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 8px;
+}
+
+
+/* Camera Lens Adjustment - Title */
+/* ----------------------------------------------------------------- */
+.camera-lens-adjustment-title {
+    font-weight                        : 600;
+    font-size                          : 0.95rem;
+    margin                             : 0 0 4px 0;
+    color                              : #ffffff;
+    border-bottom                      : 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom                     : 6px;
+}
+
+
+/* Camera Lens Adjustment - Section Container */
+/* ----------------------------------------------------------------- */
+.camera-lens-adjustment-section {
+    margin-top                         : 4px;
+}
+
+
+/* Camera Lens Adjustment - Controls Container */
+/* ----------------------------------------------------------------- */
+.camera-lens-adjustment-controls {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 8px;
+}
+
+
+/* Camera Lens Adjustment - Label */
+/* ----------------------------------------------------------------- */
+.camera-lens-label {
+    color                              : rgba(255, 255, 255, 0.85);
+    font-weight                        : 500;
+    font-size                          : 0.85rem;
+}
+
+
+/* Camera Lens Adjustment - Slider Container */
+/* ----------------------------------------------------------------- */
+.camera-lens-slider-container {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 12px;
+}
+
+
+/* Camera Lens Adjustment - Slider Input */
+/* ----------------------------------------------------------------- */
+.camera-lens-slider {
+    flex                                : 1;
+    height                             : 6px;
+    border-radius                      : 3px;
+    background                         : rgba(255, 255, 255, 0.2);
+    outline                            : none;
+    -webkit-appearance                 : none;
+    appearance                        : none;
+}
+
+.camera-lens-slider::-webkit-slider-thumb {
+    -webkit-appearance                 : none;
+    appearance                        : none;
+    width                             : 18px;
+    height                            : 18px;
+    border-radius                     : 50%;
+    background                        : #ffffff;
+    cursor                            : pointer;
+    box-shadow                         : 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition                        : all 0.2s ease;
+}
+
+.camera-lens-slider::-webkit-slider-thumb:hover {
+    background                        : #f0f0f0;
+    transform                         : scale(1.1);
+}
+
+.camera-lens-slider::-moz-range-thumb {
+    width                             : 18px;
+    height                            : 18px;
+    border-radius                     : 50%;
+    background                        : #ffffff;
+    cursor                            : pointer;
+    box-shadow                         : 0 2px 4px rgba(0, 0, 0, 0.3);
+    border                            : none;
+    transition                        : all 0.2s ease;
+}
+
+.camera-lens-slider::-moz-range-thumb:hover {
+    background                        : #f0f0f0;
+    transform                         : scale(1.1);
+}
+
+
+/* Camera Lens Adjustment - Value Display */
+/* ----------------------------------------------------------------- */
+.camera-lens-value {
+    color                              : #ffffff;
+    font-weight                        : 600;
+    font-family                        : 'Courier New', monospace;
+    font-size                          : 0.9rem;
+    min-width                          : 60px;
+    text-align                         : right;
+}
+
+/* Model Toggle Panel - Category Visibility Controls */
+/* ----------------------------------------------------------------- */
+/* NOTE: Panel and title styles removed - now using standard dropdown panel styles */
+/* .na-model-toggle__panel styles removed - inherits from .na-dropdown-menu__panel */
+/* .na-model-toggle__title styles removed - inherits from .na-dropdown-menu__panel-title */
+
+.na-model-toggle__list {
+    display                             : flex;
+    flex-direction                      : column;
+    gap                                 : 4px;
+}
+
+.na-model-toggle__button {
+    width                               : 100%;
+    border                              : 1px solid rgba(23, 43, 58, 0.15);
+    border-radius                       : 4px;
+    padding                             : 6px 10px;
+    background                          : rgba(23, 43, 58, 0.04);
+    text-align                          : left;
+    font-size                           : 0.8rem;
+    font-weight                         : 400;
+    font-family                         : 'Open Sans', sans-serif;
+    color                               : rgba(23, 43, 58, 0.4);
+    cursor                              : pointer;
+    transition                          : all 0.15s ease;
+    display                             : flex;
+    align-items                         : center;
+    gap                                 : 8px;
+    text-decoration                     : line-through;
+}
+
+.na-model-toggle__button::before {
+    content                             : '';
+    display                             : inline-block;
+    width                               : 8px;
+    height                              : 8px;
+    border-radius                       : 50%;
+    background                          : rgba(23, 43, 58, 0.2);
+    flex-shrink                         : 0;
+    transition                          : background 0.15s ease;
+}
+
+.na-model-toggle__button:hover {
+    background                          : rgba(23, 43, 58, 0.08);
+}
+
+.na-model-toggle__button--active {
+    color                               : #172b3a;
+    font-weight                         : 500;
+    background                          : rgba(23, 43, 58, 0.06);
+    border-color                        : rgba(23, 43, 58, 0.25);
+    text-decoration                     : none;
+}
+
+.na-model-toggle__button--active::before {
+    background                          : #2a7d4f;
+}
+
+.na-model-toggle__button--active:hover {
+    background                          : rgba(23, 43, 58, 0.1);
+}
+
+
+/* ================================================================= */
+/* REGION  |  Toast Notification (Save Camera Settings Feedback)     */
+/* ================================================================= */
+
+/* Toast Container - Fixed Bottom Center */
+/* ----------------------------------------------------------------- */
+.na-toast {
+    position                           : fixed;
+    bottom                             : 40px;
+    left                               : 50%;
+    transform                          : translateX(-50%) translateY(20px);
+    padding                            : 12px 24px;
+    border-radius                      : 6px;
+    font-family                        : 'Open Sans', sans-serif;
+    font-size                          : 0.85rem;
+    font-weight                        : 500;
+    color                              : #ffffff;
+    background                         : #2a7d4f;
+    box-shadow                         : 0 4px 14px rgba(0, 0, 0, 0.25);
+    z-index                            : 9999;
+    opacity                            : 0;
+    pointer-events                     : none;
+    transition                         : opacity 0.3s ease, transform 0.3s ease;
+    max-width                          : 420px;
+    text-align                         : center;
+}
+
+
+/* Toast - Visible State */
+/* ----------------------------------------------------------------- */
+.na-toast--visible {
+    opacity                            : 1;
+    pointer-events                     : auto;
+    transform                          : translateX(-50%) translateY(0);
+}
+
+
+/* Toast - Error Variant */
+/* ----------------------------------------------------------------- */
+.na-toast--error {
+    background                         : #c0392b;
+}
+
+
+/* endregion -------------------------------------------------------- */
+

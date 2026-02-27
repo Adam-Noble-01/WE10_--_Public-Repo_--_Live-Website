@@ -1,0 +1,466 @@
+// =============================================================================
+// TRUEVISION3D - APP FLOW - LOADING SEQUENCE
+// =============================================================================
+//
+// FILE       : Na__AppFlow__LoadingSequence.js
+// NAMESPACE  : Na__AppFlow
+// MODULE     : LoadingSequence
+// AUTHOR     : Adam Noble - Noble Architecture
+// PURPOSE    : Main scene loading sequence, render loop, and resize handler
+// CREATED    : 24-Feb-2026
+//
+// DESCRIPTION:
+// - Initialises scene lighting and the render pipeline composer.
+// - Resolves model URLs from the URL query parameter or config defaults.
+// - Loads the OrbitHelperCube GLB and sets the orbit target from its centre.
+// - Re-applies any saved camera / orbit target values from project.json.
+// - Loads all scene models via the multi-model loader.
+// - Runs the PBR materials second-pass if the materials system is enabled.
+// - Initialises door animations and walk-mode collision meshes.
+// - Starts the RAF render loop (including walk mode, door proximity, fog updates).
+// - Attaches the window resize handler.
+//
+// Context Object (Na__AppFlow__StartLoadingSequence argument):
+// - scene, camera, renderer, controls, modelRoot, fogPass, lineResolution
+// - updateNavigation  : orbit controls update function from nav bundle
+// - pipelineRef       : { current: null } mutable ref - module writes pipeline state here
+// - configs           : lightingConfig, groundPlane, profileLines, models,
+//                       modelUrls, materialsSystem, doorAnimation,
+//                       orbitHelperCubeDebugVisible
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 24-Feb-2026 - Version 1.0.0
+// - Extracted from index.html inline script block (lines 604-849).
+// - Na__UiFeature__UpdateStatus and Na__UiFeature__ShowScene moved to private
+//   module functions; both now use document.getElementById directly.
+// - Na__AppFlow__StartLoadingSequence refactored to accept a context object
+//   instead of closing over index.html scope variables.
+// - Na__RenderPipeline__State written back to context.pipelineRef.current
+//   so the ImageExportControls lazy getter in index.html can read it.
+//
+// =============================================================================
+
+
+// -----------------------------------------------------------------------------
+// REGION | Module Imports
+// -----------------------------------------------------------------------------
+
+    // MODULE IMPORTS | Three.js GLTF Loader
+    // ------------------------------------------------------------
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Render Pipeline
+    // ------------------------------------------------------------
+    import { Na__RenderPipeline__SetupComposer } from '../05__RenderPipeline/Na__RenderPipeline__PostProcessing__Setup.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Model Loader
+    // ------------------------------------------------------------
+    import {
+        Na__ModelLoader__LoadAllModels,
+        Na__ModelLoader__SeparateOrbitCubeUrl,
+        Na__ModelLoader__LoadOrbitHelperCube
+    } from '../15__ModelLoader/Na__ModelLoader__MultiModel.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Scene Lighting
+    // ------------------------------------------------------------
+    import { Na__Scene__SetupDefaultSceneLighting } from '../06__Scene__LightingEffects/Na__Scene__DefaultSceneLighting.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Fog Effect
+    // ------------------------------------------------------------
+    import {
+        Na__Scene__SetFogOrbitReference,
+        Na__Scene__UpdateFogPassUniforms
+    } from '../07__Scene__EnvironmentEffects/Na__Scene__DefaultFogEffect.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Math Utils
+    // ------------------------------------------------------------
+    import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Camera Controls
+    // ------------------------------------------------------------
+    import { Na__UiFeature__ApplyCameraConfig } from '../11__CameraUtils/Na__UiFeature__CameraPosition__Controls.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Materials System
+    // ------------------------------------------------------------
+    import { Na__MaterialsSystem__LoadLibrary, Na__MaterialsSystem__BuildLookup } from '../20__System__MaterialsSystem/Na__MaterialsSystem__LibraryLoader.js';
+    import { Na__MaterialsSystem__ApplyMaterials } from '../20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Model Toggle Controls
+    // ------------------------------------------------------------
+    import { Na__UiFeature__InitializeModelToggleControls } from '../26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Door Animation System
+    // ------------------------------------------------------------
+    import {
+        Na__DoorAnimation__Initialize,
+        Na__DoorAnimation__Update
+    } from '../25__System__3dObject__InteractionSystem/3dObjectIInteraction__Animation__ClickToOpenDoors__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Walk Mode System
+    // ------------------------------------------------------------
+    import {
+        Na__WalkMode__IsActive,
+        Na__WalkMode__Update,
+        Na__WalkMode__SetCollisionMeshes,
+        Na__WalkMode__GetCapsulePosition
+    } from '../10__NavigationAndCameras/Na__Navmode__WalkMode__SystemLogic.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Door Proximity System
+    // ------------------------------------------------------------
+    import { Na__DoorProximity__Update } from '../25__System__3dObject__InteractionSystem/3dObjectInteraction__Animation__WalkMode__ProximityToOpenDoors__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Project Loader Utilities
+    // ------------------------------------------------------------
+    import {
+        Na__AppUtils__GetProjectCodeFromUrl,
+        Na__AppUtils__FetchProjectJson,
+        Na__AppUtils__ExtractModelUrls
+    } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Private UI Helpers
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Update Status Display
+    // ------------------------------------------------------------
+    function Na__UiFeature__UpdateStatus(message, isError = false) {
+        const statusText      = document.getElementById('statusText');       // <-- Debug status element
+        const loadingIndicator = document.getElementById('loadingIndicator'); // <-- Loading overlay text
+
+        if (statusText) statusText.textContent = message;
+        if (!loadingIndicator) return;
+        loadingIndicator.textContent = message;
+
+        if (isError) {
+            loadingIndicator.style.color = '#d32f2f';                        // <-- Error color
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Show Scene When Ready
+    // ------------------------------------------------------------
+    function Na__UiFeature__ShowScene() {
+        const statusText       = document.getElementById('statusText');      // <-- Debug status element
+        const loadingOverlay   = document.getElementById('loadingOverlay');  // <-- Loading overlay container
+        const canvas           = document.getElementById('renderCanvas');    // <-- Render canvas
+        const loadingIndicator = document.getElementById('loadingIndicator'); // <-- Loading overlay text
+
+        if (statusText) statusText.textContent = 'Complete - TrueVision3D Ready';
+
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 500);
+        }
+
+        if (canvas) {
+            canvas.classList.remove('canvas-hidden');
+            canvas.classList.add('canvas-visible');
+        }
+
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Main Loading Sequence
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Main Loading Sequence
+    // ------------------------------------------------------------
+    async function Na__AppFlow__StartLoadingSequence(context) {
+
+        // DESTRUCTURE CONTEXT | Scene Instances
+        // ---------------------------------------------------------------
+        const {
+            scene      : Na__Scene__Main,
+            camera     : Na__Camera__Main,
+            renderer   : Na__Renderer__Main,
+            controls   : Na__Controls__Orbit,
+            modelRoot  : Na__ModelGroup__Root,
+            fogPass    : Na__SceneEffect__FogPass,
+            lineResolution   : Na__LineResolution__Screen,
+            updateNavigation : Na__Navmode__UpdateNavigation,
+            pipelineRef,
+            configs
+        } = context;
+        // ---------------------------------------------------------------
+
+        // DESTRUCTURE CONTEXT | Config Values
+        // ---------------------------------------------------------------
+        const {
+            lightingConfig              : Na__Config__LightingConfig,
+            groundPlane                 : Na__Config__GroundPlane,
+            profileLines                : Na__Config__ProfileLines,
+            models                      : Na__Config__Models,
+            modelUrls                   : Na__ModelDefaults__ModelUrls,
+            materialsSystem             : Na__Config__MaterialsSystem,
+            doorAnimation               : Na__Config__DoorAnimation,
+            orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible
+        } = configs;
+        // ---------------------------------------------------------------
+
+        Na__UiFeature__UpdateStatus('Creating scene...');
+        Na__Scene__SetupDefaultSceneLighting(Na__Scene__Main, Na__Config__LightingConfig, Na__Config__GroundPlane);
+
+        const Na__RenderPipeline__State = Na__RenderPipeline__SetupComposer(Na__Renderer__Main, Na__Scene__Main, Na__Camera__Main, Na__Config__ProfileLines, Na__SceneEffect__FogPass);
+        const Na__RenderComposer__Main  = Na__RenderPipeline__State.composer;
+        pipelineRef.current = Na__RenderPipeline__State;                     // <-- Write back to index.html ref for ImageExport
+
+        let modelUrls = [...Na__ModelDefaults__ModelUrls];                   // <-- Start with config defaults
+        let Na__Saved__ProjectCameraConfig = null;                           // <-- Hoisted for post-OrbitCube re-apply
+        let Na__Saved__ProjectOrbitTarget  = null;                           // <-- Hoisted for post-OrbitCube re-apply
+
+        // RESOLVE PROJECT-SPECIFIC MODEL URLS
+        const projectCode = Na__AppUtils__GetProjectCodeFromUrl();
+        if (projectCode) {
+            try {
+                Na__UiFeature__UpdateStatus('Loading project data...');
+                const projectData = await Na__AppUtils__FetchProjectJson(projectCode);
+
+                // STORE CAMERA CONFIG FROM PROJECT (supports both key formats)
+                Na__Saved__ProjectCameraConfig = projectData.Camera__DefaultPosition
+                    || projectData.trueVision_Camera__DefaultPosition
+                    || projectData.valeVision_Camera__DefaultPosition
+                    || null;
+                Na__Saved__ProjectOrbitTarget  = projectData.OrbitHelperCube__Position || null;
+
+                // EXTRACT MODEL URLS FROM PROJECT DATA
+                const projectUrls = Na__AppUtils__ExtractModelUrls(projectData);
+                if (projectUrls.length > 0) {
+                    modelUrls = projectUrls;                                 // <-- Override defaults with project URLs
+                }
+            } catch (error) {
+                console.warn('[TrueVision3D] Project data load failed, using defaults', error);
+            }
+        }
+
+        // SEPARATE ORBIT HELPER CUBE URL FROM MODEL URLS
+        const { orbitCubeUrl, filteredUrls } = Na__ModelLoader__SeparateOrbitCubeUrl(modelUrls);
+        modelUrls = filteredUrls;                                            // <-- Use filtered URLs (without orbit cube) for model loading
+        if (!orbitCubeUrl) {
+            console.warn('[TrueVision3D] OrbitHelperCube URL not found in model list. Orbit target will use saved project target if available.');
+        }
+
+        // LOAD ORBIT HELPER CUBE IF PRESENT
+        let Na__OrbitHelperCube__Mesh = null;                                // <-- Store orbit cube mesh reference
+        let Na__OrbitHelperCube__CenterPosition = null;                      // <-- Store orbit cube center for target precedence
+        if (orbitCubeUrl) {
+            try {
+                Na__UiFeature__UpdateStatus('Loading orbit helper cube...');
+                const loader = new GLTFLoader();
+                const orbitCubeResult = await Na__ModelLoader__LoadOrbitHelperCube(orbitCubeUrl, loader);
+
+                if (orbitCubeResult && orbitCubeResult.mesh && orbitCubeResult.centerPosition) {
+                    Na__OrbitHelperCube__Mesh = orbitCubeResult.mesh;        // <-- Store mesh reference
+                    Na__OrbitHelperCube__CenterPosition = orbitCubeResult.centerPosition.clone(); // <-- Store center position
+                    Na__OrbitHelperCube__Mesh.name = 'OrbitHelperCube';      // <-- Name for debugging
+                    Na__OrbitHelperCube__Mesh.visible = Na__OrbitHelperCube__Debug__Visible;  // <-- Hide unless debug enabled
+
+                    Na__Scene__Main.add(Na__OrbitHelperCube__Mesh);          // <-- Add to scene
+                    Na__Scene__SetFogOrbitReference(Na__SceneEffect__FogPass, orbitCubeResult.centerPosition); // <-- Fog anchor now follows orbit cube center
+
+                    console.log('[TrueVision3D] OrbitHelperCube loaded. Center resolved:', orbitCubeResult.centerPosition);
+                } else {
+                    console.warn('[TrueVision3D] OrbitHelperCube loaded but center position could not be resolved.');
+                }
+            } catch (error) {
+                console.warn('[TrueVision3D] OrbitHelperCube could not be loaded. Orbit will use saved project target if available.', error);
+            }
+        }
+
+        // RESOLVE FINAL ORBIT TARGET (STRICT PRECEDENCE)
+        // 1) Loaded OrbitHelperCube GLB center (authoritative fixed anchor)
+        // 2) Saved project OrbitHelperCube__Position (only if helper cube unavailable)
+        // 3) Keep current controls target (no Dev__DefaultCube fallback)
+        let Na__FinalOrbitTargetApplied = false;
+        if (Na__OrbitHelperCube__CenterPosition && Na__OrbitHelperCube__CenterPosition.isVector3) {
+            Na__Controls__Orbit.target.copy(Na__OrbitHelperCube__CenterPosition);
+            Na__FinalOrbitTargetApplied = true;
+            if (Na__Saved__ProjectOrbitTarget) {
+                console.warn('[TrueVision3D] Saved OrbitHelperCube__Position ignored because OrbitHelperCube GLB center is available.');
+            }
+        } else if (Na__Saved__ProjectOrbitTarget) {
+            Na__Controls__Orbit.target.set(
+                Na__Math__ConvertMmToUnits(Na__Saved__ProjectOrbitTarget.OrbitHelperCube__Position__PosX),  // <-- Saved orbit X
+                Na__Math__ConvertMmToUnits(Na__Saved__ProjectOrbitTarget.OrbitHelperCube__Position__PosY),  // <-- Saved orbit Y
+                Na__Math__ConvertMmToUnits(Na__Saved__ProjectOrbitTarget.OrbitHelperCube__Position__PosZ)   // <-- Saved orbit Z
+            );
+            Na__FinalOrbitTargetApplied = true;
+        } else {
+            console.warn('[TrueVision3D] No saved orbit target and no OrbitHelperCube center resolved. Keeping current controls.target.');
+        }
+
+        // RE-APPLY SAVED CAMERA (without legacy Camera__DefaultTarget override)
+        if (Na__Saved__ProjectCameraConfig) {
+            const Na__CameraConfigWithoutLegacyTarget = { ...Na__Saved__ProjectCameraConfig };
+            if (Na__CameraConfigWithoutLegacyTarget.Camera__DefaultTarget) {
+                delete Na__CameraConfigWithoutLegacyTarget.Camera__DefaultTarget;
+            }
+            Na__UiFeature__ApplyCameraConfig(
+                Na__Camera__Main,                                            // <-- Re-apply saved camera position + FOV
+                Na__Controls__Orbit,                                         // <-- Re-apply with correct orbit target
+                Na__CameraConfigWithoutLegacyTarget
+            );
+        }
+        if (Na__FinalOrbitTargetApplied || Na__Saved__ProjectCameraConfig) {
+            Na__Controls__Orbit.update();                                    // <-- Finalize controls with restored state
+        }
+
+        // LOAD ALL MODELS VIA MULTI-MODEL LOADER
+        try {
+            let Na__LoadedModelGroups = null;                                 // <-- Map of category -> THREE.Group
+
+            if (modelUrls.length > 0) {
+                Na__LoadedModelGroups = await Na__ModelLoader__LoadAllModels(
+                    modelUrls,                                               // <-- Array of CDN URLs (orbit cube already filtered out)
+                    Na__ModelGroup__Root,                                    // <-- Scene root group
+                    Na__Config__Models,                                      // <-- Material configs (baseMesh + linework)
+                    Na__LineResolution__Screen,                              // <-- Screen resolution for line width
+                    Na__UiFeature__UpdateStatus                              // <-- Status callback for loading overlay
+                );
+            }
+
+            // APPLY PBR MATERIALS FROM LIBRARY (second pass - selective override)
+            if (Na__Config__MaterialsSystem.MaterialsSystem__Config__Enabled && Na__LoadedModelGroups) {
+                const Na__MaterialsLibraryUrl  = Na__Config__MaterialsSystem.MaterialsSystem__Config__LibraryUrl;
+                const Na__MaterialsLibraryData = await Na__MaterialsSystem__LoadLibrary(Na__MaterialsLibraryUrl);
+
+                if (Na__MaterialsLibraryData) {
+                    const Na__MaterialsLookupMap = Na__MaterialsSystem__BuildLookup(Na__MaterialsLibraryData);
+
+                    if (Na__MaterialsLookupMap.size > 0) {
+                        for (const [, group] of Na__LoadedModelGroups) {
+                            await Na__MaterialsSystem__ApplyMaterials(group, Na__MaterialsLookupMap, Na__Config__MaterialsSystem);
+                        }
+                    }
+                }
+            }
+
+            Na__UiFeature__ShowScene();                                      // <-- Reveal scene after all models loaded
+
+            // INITIALIZE MODEL TOGGLE CONTROLS (dynamic per-category buttons)
+            Na__UiFeature__InitializeModelToggleControls(Na__LoadedModelGroups);  // <-- Build toggle buttons from loaded groups
+
+            // INITIALIZE DOOR ANIMATION (if enabled in config)
+            if (Na__Config__DoorAnimation['3dObject__Interaction__DoorAnimation__Enabled'] !== false) {
+                let doorMeshGroup     = null;                                // <-- Mesh version of door models
+                let doorLineworkGroup = null;                                // <-- Linework version of door models
+
+                Na__LoadedModelGroups.forEach((group, categoryKey) => {
+                    if (categoryKey.includes('ProposedDoors') && categoryKey.includes('MeshModel')) {
+                        doorMeshGroup = group;                               // <-- Found mesh door group
+                    }
+                    if (categoryKey.includes('ProposedDoors') && categoryKey.includes('LineworkModel')) {
+                        doorLineworkGroup = group;                           // <-- Found linework door group
+                    }
+                });
+
+                if (doorMeshGroup || doorLineworkGroup) {
+                    Na__DoorAnimation__Initialize(
+                        Na__Scene__Main,                                     // <-- Scene reference
+                        Na__Camera__Main,                                    // <-- Camera reference
+                        Na__Renderer__Main.domElement,                       // <-- Canvas DOM element
+                        doorMeshGroup,                                       // <-- Mesh model group
+                        doorLineworkGroup,                                   // <-- Linework model group
+                        Na__Config__DoorAnimation                            // <-- Door animation config
+                    );
+                    console.log('[TrueVision3D] Door animation initialized');
+                } else {
+                    console.log('[TrueVision3D] Door animation enabled but no door model groups found');
+                }
+            }
+
+            // SET WALK MODE COLLISION MESHES (from loaded model root)
+            Na__WalkMode__SetCollisionMeshes(Na__ModelGroup__Root);
+
+        } catch (error) {
+            console.error('[TrueVision3D] Model load error:', error);
+            Na__UiFeature__UpdateStatus('Model load error - check console', true);
+        }
+
+        // RENDER LOOP (with delta time tracking for animations)
+        let Na__RenderLoop__PrevTimestamp = performance.now();               // <-- Previous frame timestamp for delta
+        function Na__RenderLoop__Animate() {
+            requestAnimationFrame(Na__RenderLoop__Animate);
+
+            const now     = performance.now();                               // <-- Current timestamp
+            const deltaMs = now - Na__RenderLoop__PrevTimestamp;             // <-- Time since last frame
+            Na__RenderLoop__PrevTimestamp = now;                             // <-- Update previous timestamp
+
+            if (Na__WalkMode__IsActive()) {
+                Na__WalkMode__Update(deltaMs);                               // <-- Update walk mode physics and camera
+                Na__DoorProximity__Update(Na__WalkMode__GetCapsulePosition()); // <-- Proximity door triggers
+            } else {
+                Na__Navmode__UpdateNavigation();                             // <-- Update orbit controls
+            }
+            Na__DoorAnimation__Update(deltaMs);                              // <-- Update door animations
+            Na__Scene__UpdateFogPassUniforms(Na__SceneEffect__FogPass, Na__Camera__Main); // <-- Update fog camera matrices
+
+            if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
+                Na__RenderPipeline__State.renderProfileNormals();            // <-- Update profile lines
+                Na__RenderComposer__Main.render();                           // <-- Render with post-processing
+            }
+        }
+
+        Na__RenderLoop__Animate();
+
+        // RESIZE HANDLER
+        window.addEventListener('resize', () => {
+            const width  = window.innerWidth;
+            const height = window.innerHeight;
+
+            Na__Camera__Main.aspect = width / height;
+            Na__Camera__Main.updateProjectionMatrix();
+            Na__Renderer__Main.setSize(width, height);
+            if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
+                Na__RenderComposer__Main.setSize(width, height);
+                Na__RenderPipeline__State.setProfileLinesSize(width, height);
+            }
+
+            Na__LineResolution__Screen.set(width, height);
+        });
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Module Exports
+// -----------------------------------------------------------------------------
+
+    // MODULE EXPORTS | App Flow API
+    // ------------------------------------------------------------
+    export {
+        Na__AppFlow__StartLoadingSequence
+    };
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+

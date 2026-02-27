@@ -1,0 +1,44 @@
+---
+alwaysApply: true
+description: Project code format and naming convention
+---
+# Project Code Format
+All project-specific code must use the standardised project identifier format and naming convention.
+
+## Project Code Format
+
+### Two-Letter Two-Digit Format
+
+```
+[A-Z][A-Z][0-9][0-9]
+
+Examples:
+- JH03  (John Harris, project 03)
+- AB01  (Alice Brown, project 01)
+- CM31  (Charles Miller, project 31)
+```
+
+**Letters (positions 1-2):** Two uppercase letters - Client initials (First name initial + Last name initial)
+**Numbers (positions 3-4):** Two digits: 01-99 - Used for duplicate client initials, increment for each new client
+
+
+## Coding Context Rules for Project Identifiers
+
+### ALWAYS:
+- Use `NaProjectCode__` prefix for project code functions/variables
+- Validate project codes before use
+- Use uppercase letters for client initials
+- Use two digits for project numbers (01-99)
+- Include project codes in filenames, routes, keys in data files, etc. consistently
+
+### NEVER:
+- Use lowercase letters in project codes
+- Use 00 as project number (start at 01)
+- Skip validation of user-provided project codes
+- Hardcode project codes without validation
+
+## URL Query Format
+```
+?project=XX00
+```
+- `project` - Four-character project code (required)

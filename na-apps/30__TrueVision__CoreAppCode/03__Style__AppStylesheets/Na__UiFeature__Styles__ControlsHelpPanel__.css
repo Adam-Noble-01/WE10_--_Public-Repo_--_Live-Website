@@ -1,0 +1,255 @@
+﻿/* =============================================================================
+ * TRUEVISION3D - NAVIGATION CONTROLS INSTRUCTIONS PANEL STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__UiFeature__Styles__ControlsHelpPanel__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : Controls Instructions Panel Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Styles for collapsible navigation controls instructions panel
+ * CREATED    : 2025
+ *
+ * DESCRIPTION:
+ * - Styles for navigation controls instructions panel
+ * - Collapsible panel with toggle arrow
+ * - Clear, readable typography for instructions
+ * - Positioned in top-right area for easy access
+ *
+ * =============================================================================
+ */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Controls Instructions Panel - Container and Layout
+ * ----------------------------------------------------------------------------- */
+
+    /* PANEL CONTAINER | Main panel wrapper */
+    /* ------------------------------------------------------------ */
+    .controls-instructions-panel {
+        position                           : absolute;
+        top                                : calc(var(--Vale_HeaderHeight) + 20px);  /* <-- Position below header */
+        right                              : 20px;
+        background-color                   : rgba(23, 43, 58, 0.95);  /* <-- Vale brand blue with transparency */
+        color                              : #ffffff;
+        padding                            : 0;
+        border-radius                      : 8px;
+        z-index                            : 1003;
+        box-shadow                         : 0 4px 12px rgba(0, 0, 0, 0.3);
+        backdrop-filter                    : blur(8px);
+        min-width                          : 320px;
+        max-width                          : 400px;
+        transition                         : all 0.3s ease;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Panel Header - Title and Toggle Button
+ * ----------------------------------------------------------------------------- */
+
+    /* PANEL HEADER | Header container with title and toggle */
+    /* ------------------------------------------------------------ */
+    .controls-panel-header {
+        display                            : flex;
+        justify-content                    : space-between;
+        align-items                        : center;
+        padding                            : 14px 18px;
+        border-bottom                      : 1px solid rgba(255, 255, 255, 0.15);
+        cursor                             : pointer;
+        user-select                        : none;
+        transition                         : background-color 0.2s ease;
+    }
+    
+    .controls-panel-header:hover {
+        background-color                   : rgba(255, 255, 255, 0.05);  /* <-- Subtle hover effect */
+    }
+    /* ------------------------------------------------------------ */
+    
+    
+    /* PANEL TITLE | Main title text */
+    /* ------------------------------------------------------------ */
+    .controls-panel-title {
+        margin                             : 0;
+        font-size                          : 1.05rem;
+        font-weight                        : 600;
+        color                              : #ffffff;
+    }
+    /* ------------------------------------------------------------ */
+    
+    
+    /* TOGGLE BUTTON | Arrow toggle indicator */
+    /* ------------------------------------------------------------ */
+    .controls-panel-toggle {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        width                              : 24px;
+        height                             : 24px;
+        transition                         : transform 0.2s ease;
+    }
+    
+    .controls-panel-toggle:hover {
+        transform                          : scale(1.1);              /* <-- Slight scale on hover */
+    }
+    
+    .toggle-arrow {
+        font-size                          : 0.9rem;
+        color                              : rgba(255, 255, 255, 0.85);
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Panel Content - Instructions Container
+ * ----------------------------------------------------------------------------- */
+
+    /* PANEL CONTENT | Main content container */
+    /* ------------------------------------------------------------ */
+    .controls-panel-content {
+        padding                            : 16px 18px;
+        max-height                         : 600px;                  /* <-- Maximum height for content */
+        overflow-y                         : auto;
+        transition                         : max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+    }
+    
+    /* Collapsed state */
+    .controls-instructions-panel.collapsed .controls-panel-content {
+        max-height                         : 0;                      /* <-- Hide content when collapsed */
+        padding                            : 0 18px;
+        opacity                            : 0;
+        overflow                           : hidden;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Controls Section - Section Containers
+ * ----------------------------------------------------------------------------- */
+
+    /* CONTROLS SECTION | Individual control section container */
+    /* ------------------------------------------------------------ */
+    .controls-section {
+        margin-bottom                      : 20px;
+    }
+    
+    .controls-section:last-child {
+        margin-bottom                      : 0;
+    }
+    /* ------------------------------------------------------------ */
+    
+    
+    /* SECTION TITLE | Section heading */
+    /* ------------------------------------------------------------ */
+    .controls-section-title {
+        margin                             : 0 0 10px 0;
+        font-size                          : 0.95rem;
+        font-weight                        : 600;
+        color                              : rgba(255, 255, 255, 0.95);
+        border-bottom                      : 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom                     : 6px;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Control Items - Individual Control Instructions
+ * ----------------------------------------------------------------------------- */
+
+    /* CONTROLS LIST | List of control items */
+    /* ------------------------------------------------------------ */
+    .controls-list {
+        display                            : flex;
+        flex-direction                     : column;
+        gap                                : 8px;
+    }
+    /* ------------------------------------------------------------ */
+    
+    
+    /* CONTROL ITEM | Individual control instruction row */
+    /* ------------------------------------------------------------ */
+    .control-item {
+        display                            : flex;
+        align-items                        : flex-start;
+        gap                                : 8px;
+        font-size                          : 0.9rem;
+        line-height                        : 1.5;
+    }
+    /* ------------------------------------------------------------ */
+    
+    
+    /* CONTROL KEY | Key/button label */
+    /* ------------------------------------------------------------ */
+    .control-key {
+        flex-shrink                        : 0;
+        min-width                          : 140px;
+        font-weight                        : 600;
+        color                              : #ffffff;
+        background-color                   : rgba(255, 255, 255, 0.1);
+        padding                            : 4px 10px;
+        border-radius                      : 4px;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 0.85rem;
+        text-align                         : center;
+    }
+    /* ------------------------------------------------------------ */
+    
+    
+    /* CONTROL SEPARATOR | Colon separator */
+    /* ------------------------------------------------------------ */
+    .control-separator {
+        flex-shrink                        : 0;
+        color                              : rgba(255, 255, 255, 0.5);
+        font-weight                        : 600;
+    }
+    /* ------------------------------------------------------------ */
+    
+    
+    /* CONTROL DESCRIPTION | Action description text */
+    /* ------------------------------------------------------------ */
+    .control-description {
+        flex                               : 1;
+        color                              : rgba(255, 255, 255, 0.85);
+        font-weight                        : 400;
+        line-height                        : 1.6;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Scrollbar Styling - Custom scrollbar for content
+ * ----------------------------------------------------------------------------- */
+
+    /* SCROLLBAR | Custom scrollbar for panel content */
+    /* ------------------------------------------------------------ */
+    .controls-panel-content::-webkit-scrollbar {
+        width                              : 8px;
+    }
+    
+    .controls-panel-content::-webkit-scrollbar-track {
+        background                         : rgba(255, 255, 255, 0.05);
+        border-radius                      : 4px;
+    }
+    
+    .controls-panel-content::-webkit-scrollbar-thumb {
+        background                         : rgba(255, 255, 255, 0.2);
+        border-radius                      : 4px;
+    }
+    
+    .controls-panel-content::-webkit-scrollbar-thumb:hover {
+        background                         : rgba(255, 255, 255, 0.3);
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+

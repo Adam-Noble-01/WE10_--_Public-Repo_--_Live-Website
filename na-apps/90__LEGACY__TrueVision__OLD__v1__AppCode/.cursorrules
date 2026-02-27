@@ -1,0 +1,94 @@
+# TRUEVISION 3D - CURSOR AI RULES
+# =============================================================================
+
+## CRITICAL RULE #1: JSON CONFIGURATION AUTHORITY
+Data_-_MainAppConfig.json is SINGLE SOURCE OF TRUTH for ALL config values.
+
+MANDATORY:
+- Use strict equality: `appConfig?.setting === true` (never `|| true`)
+- NO configuration defaults that override JSON values
+- When JSON sets false, it MUST remain false
+
+CORRECT:
+```javascript
+const enabled = appConfig?.devMode_WaypointOrbsOn === true;
+const visible = appConfig?.devMode_CameraAgentMarkers !== false;
+```
+
+FORBIDDEN:
+```javascript
+const enabled = appConfig?.devMode_WaypointOrbsOn || true;  // ❌ Default override
+const HARDCODED_VALUE = true;  // ❌ Hardcoded config
+```
+
+## CRITICAL RULE #2: MODULE SYSTEM
+Current: Namespace-based with proper loading marks
+Future: ES6 modules with explicit imports/exports
+
+REQUIRED PATTERN - ALL MODULES:
+```javascript
+// Namespace export
+window.TrueVision3D.SomeModule = { /* exports */ };
+
+// MANDATORY: Mark as loaded
+if (window.TrueVision3D.ModuleDependencyManager) {
+    window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('ModuleName');
+}
+```
+
+ES6 MODULES (when transitioning):
+```javascript
+// Explicit imports only
+import { ConfigManager } from './config/ConfigManager.js';
+
+// Clear exports
+export class NavigationManager { }
+export const API_METHODS = { initialize, dispose };
+```
+
+## CRITICAL RULE #3: LOADING SEQUENCE
+1. ModuleDependencyManager.js (first)
+2. Configuration loading
+3. Rendering pipeline + event dispatch
+4. Other modules
+
+MANDATORY EVENT DISPATCH:
+```javascript
+// Rendering pipelines MUST dispatch
+window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));
+```
+
+## ADAM NOBLE STYLE REQUIREMENTS
+```javascript
+// Regional structure
+// -----------------------------------------------------------------------------
+// REGION | Module Description  
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Clear Description
+    // ------------------------------------------------------------
+    function name() {
+        const SETTING_ONE        = true;                     // <-- Aligned
+        const SETTING_TWO_LONGER = false;                    // <-- Comments
+    }
+    // ---------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+```
+
+## ENFORCEMENT CHECKLIST
+ALWAYS verify before completing changes:
+- [ ] Config accessed from Data_-_MainAppConfig.json only
+- [ ] Strict equality (=== true/false) for boolean config checks  
+- [ ] Module marks itself loaded with markModuleLoaded()
+- [ ] Proper namespace attachment exists
+- [ ] Regional structure and <-- comment style followed
+- [ ] NO hardcoded configuration values
+- [ ] ES6 imports/exports explicit if used
+
+## FORBIDDEN ACTIONS
+❌ Override JSON config with defaults
+❌ Use loose equality for config checks
+❌ Create modules without markModuleLoaded()  
+❌ Hardcode configuration values
+❌ Violate regional structure or comment style

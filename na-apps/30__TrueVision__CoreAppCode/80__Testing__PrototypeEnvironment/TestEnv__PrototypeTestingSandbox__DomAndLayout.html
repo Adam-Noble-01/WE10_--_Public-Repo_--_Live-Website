@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrueVision3D | TEST ENVIRONMENT</title>
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  BRANDING | Favicon and Brand Icons                     -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <link rel="apple-touch-icon" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <meta name="theme-color" content="#e67e22">
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Three.js Import Map                                    -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://esm.sh/three@0.160.0",
+            "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Stylesheet Imports                                     -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <!-- Parent TrueVision3D Stylesheets (engine styles) -->
+    <link rel="stylesheet" href="03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css">
+    
+    <!-- Test Environment Specific Stylesheet -->
+    <link rel="stylesheet" href="/80__Testing__PrototypeEnvironment/Na__TestEnv__Styles__PrototypeSandbox__.css">
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Font Loading Detection Script                          -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <script>
+        // FUNCTION | DetectFontLoading - Monitors Open Sans font loading
+        // --------------------------------------------------------
+        (function detectFontLoading() {
+            if ('fonts' in document) {
+                Promise.all([
+                    document.fonts.load('400 1em "Open Sans"'),
+                    document.fonts.load('600 1em "Open Sans"'),
+                    document.fonts.load('300 1em "Open Sans"')
+                ]).then(function() {
+                    console.log('[TestEnv] Custom Fonts Loaded');
+                }).catch(function(error) {
+                    console.warn('[TestEnv] Font loading failed, using fallback fonts:', error);
+                });
+            }
+        })();
+        // --------------------------------------------------------
+    </script>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+</head>
+<body>
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Testing Environment Banner                             -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="testenv-banner" id="testEnvBanner">
+        <span class="testenv-banner__icon">&#9888;</span>
+        <span class="testenv-banner__text">TEST ENVIRONMENT</span>
+        <span class="testenv-banner__subtext">TrueVision3D Prototype Sandbox</span>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Application Header Bar                                 -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <header class="app-header testenv-header-shifted">
+        <div class="app-header__logo-container app-header__logo-container--left">
+            <img 
+                src="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
+                alt="Noble Architecture"
+                class="app-header__logo-left"
+            />
+        </div>
+        
+        <div class="app-header__logo-container app-header__logo-container--right">
+            <h1 class="app-header__title">TrueVision 3D <span class="testenv-header-tag">TEST</span></h1>
+        </div>
+    </header>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Application Root Container                             -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div id="root">
+        <!-- Loading Overlay (Vale Blue Spinner) -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading Test Environment...</p>
+        </div>
+        
+        <canvas id="renderCanvas" class="canvas-hidden"></canvas>
+        
+        <!-- Loading Indicator -->
+        <div class="loading-indicator" id="loadingIndicator">
+            Loading Scene...
+        </div>
+        
+        <span id="statusText" style="display: none;">Initializing...</span>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Statistics Debug Overlay                               -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="testenv-stats-overlay" id="testEnvStatsOverlay">
+        <div class="testenv-stats-overlay__title">Scene Statistics</div>
+        <div class="testenv-stats-overlay__row">
+            <span class="testenv-stats-overlay__label">FPS</span>
+            <span class="testenv-stats-overlay__value" id="testEnvStatsFps">0</span>
+        </div>
+        <div class="testenv-stats-overlay__row">
+            <span class="testenv-stats-overlay__label">Meshes</span>
+            <span class="testenv-stats-overlay__value" id="testEnvStatsMeshes">0</span>
+        </div>
+        <div class="testenv-stats-overlay__row">
+            <span class="testenv-stats-overlay__label">Vertices</span>
+            <span class="testenv-stats-overlay__value" id="testEnvStatsVertices">0</span>
+        </div>
+        <div class="testenv-stats-overlay__row">
+            <span class="testenv-stats-overlay__label">GLB Files</span>
+            <span class="testenv-stats-overlay__value" id="testEnvStatsGlbCount">0</span>
+        </div>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Walk Mode Toggle Panel                                 -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="testenv-walkmode-panel" id="testEnvWalkModePanel">
+        <div class="testenv-walkmode-panel__header">
+            <span class="testenv-walkmode-panel__icon">&#128694;</span>
+            <span class="testenv-walkmode-panel__title">Navigation Mode</span>
+        </div>
+        <div class="testenv-walkmode-panel__controls">
+            <button class="testenv-walkmode-panel__toggle-btn" id="testEnvWalkModeToggle">
+                Toggle Walk Mode
+            </button>
+            <div class="testenv-walkmode-panel__status">
+                <span class="testenv-walkmode-panel__status-label">Active:</span>
+                <span class="testenv-walkmode-panel__status-value" id="testEnvWalkModeStatus">Orbit Mode</span>
+            </div>
+        </div>
+        <div class="testenv-walkmode-panel__divider"></div>
+        <button class="testenv-walkmode-panel__save-btn" id="testEnvSaveViewBtn" title="Save current camera position as default view on refresh">
+            &#128190; Save View
+        </button>
+        <div class="testenv-walkmode-panel__hint">
+            Walk: <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>W</kbd>
+        </div>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Storey Visibility Controls Panel (Left Side)           -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="testenv-storey-panel" id="testEnvStoreyPanel" style="display: none;">
+        <div class="testenv-storey-panel__header">
+            <h3 class="testenv-storey-panel__title">&#127970; Storey View</h3>
+            <div class="testenv-storey-panel__hint">Click to toggle &middot; Right-click for dolls house view</div>
+        </div>
+        <div class="testenv-storey-panel__controls" id="testEnvStoreyControls">
+            <!-- Storey toggle buttons generated dynamically by JS -->
+        </div>
+        <div class="testenv-storey-panel__actions">
+            <button class="testenv-storey-panel__show-all-btn" id="testEnvStoreyShowAll">Show Entire Building</button>
+        </div>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Node Graph Explorer Panel (Right Side)                 -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="testenv-node-explorer" id="testEnvNodeExplorer">
+        <!-- Drag Resize Handle -->
+        <div class="testenv-node-explorer__resize-handle" id="testEnvResizeHandle" title="Drag to resize panel"></div>
+        
+        <!-- Panel Toggle Tab -->
+        <button class="testenv-node-explorer__toggle" id="testEnvNodeExplorerToggle" title="Toggle Node Explorer">
+            <span class="testenv-node-explorer__toggle-arrow" id="testEnvNodeExplorerArrow">&#9654;</span>
+        </button>
+        
+        <!-- Panel Content -->
+        <div class="testenv-node-explorer__content" id="testEnvNodeExplorerContent">
+            <div class="testenv-node-explorer__header">
+                <h3 class="testenv-node-explorer__title">Node Graph Explorer</h3>
+                <div class="testenv-node-explorer__actions">
+                    <button class="testenv-node-explorer__action-btn testenv-node-explorer__action-btn--refresh" id="testEnvRefreshModels" title="Reload GLB models from folder">&#8635; Refresh</button>
+                    <button class="testenv-node-explorer__action-btn" id="testEnvExpandAll" title="Expand All">&#9660; All</button>
+                    <button class="testenv-node-explorer__action-btn" id="testEnvCollapseAll" title="Collapse All">&#9654; All</button>
+                    <button class="testenv-node-explorer__action-btn" id="testEnvShowAll" title="Show All">&#9673; Show</button>
+                    <button class="testenv-node-explorer__action-btn" id="testEnvHideAll" title="Hide All">&#9675; Hide</button>
+                    <button class="testenv-node-explorer__action-btn testenv-node-explorer__action-btn--primary" id="testEnvCopyTree" title="Copy Tree to Clipboard">&#128203; Copy</button>
+                </div>
+            </div>
+            
+            <div class="testenv-node-explorer__info" id="testEnvNodeExplorerInfo">
+                No GLB models loaded. Place .glb files in TestEnv__GlbFiles/ and refresh.
+            </div>
+            
+            <div class="testenv-node-explorer__tree" id="testEnvNodeTree">
+                <!-- Tree nodes generated dynamically by JS -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Three.js Test Environment Application Logic            -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <script type="module" src="TestEnv__PrototypeTestingSandbox__Main__.js"></script>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+</body>
+</html>
+

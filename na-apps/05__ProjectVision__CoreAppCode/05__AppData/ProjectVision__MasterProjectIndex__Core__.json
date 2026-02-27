@@ -1,0 +1,115 @@
+{
+    "buildTimestamp": "2026-02-27T15:36:37.432257+00:00",
+    "projects": {
+        "GA06": {
+            "projectCode": "GA06",
+            "projectName": "GA06",
+            "projectFolder": "GA06_-_Cloves-Wood",
+            "projectYear": "25",
+            "subApps": {
+                "projectAdmin": false,
+                "planVision": false,
+                "trueVision": false
+            }
+        },
+        "JH03": {
+            "projectCode": "JH03",
+            "projectName": "JH03",
+            "projectFolder": "JH03__RomerCottage__OLD__DELETE_AFTER_FEB_2026__",
+            "projectYear": "25",
+            "subApps": {
+                "projectAdmin": false,
+                "planVision": false,
+                "trueVision": false
+            }
+        },
+        "RJ03": {
+            "projectCode": "RJ03",
+            "projectName": "RJ03",
+            "projectFolder": "RJ03__OundleDrive",
+            "projectYear": "25",
+            "subApps": {
+                "projectAdmin": false,
+                "planVision": false,
+                "trueVision": false
+            }
+        },
+        "SB03": {
+            "projectCode": "SB03",
+            "projectName": "SB03",
+            "projectFolder": "SB03_-_Patterdale-Close",
+            "projectYear": "25",
+            "subApps": {
+                "projectAdmin": false,
+                "planVision": false,
+                "trueVision": false
+            }
+        },
+        "SM05": {
+            "projectCode": "SM05",
+            "projectName": "SM05",
+            "projectFolder": "SM05_-_Wollaton-Vale",
+            "projectYear": "25",
+            "subApps": {
+                "projectAdmin": false,
+                "planVision": false,
+                "trueVision": false
+            }
+        },
+        "AA00": {
+            "projectCode": "AA00",
+            "projectName": "Example Project Structure",
+            "projectFolder": "AA00__ExampleProjectStructure",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": true,
+                "trueVision": true
+            }
+        },
+        "BH03": {
+            "projectCode": "BH03",
+            "projectName": "Boundary Road",
+            "projectFolder": "BH03__BoundaryRoad",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
+                "trueVision": false
+            }
+        },
+        "JS01": {
+            "projectCode": "JS01",
+            "projectName": "Meadow Lane",
+            "projectFolder": "JS01__JohnSmith",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
+                "trueVision": false
+            }
+        },
+        "NP03": {
+            "projectCode": "NP03",
+            "projectName": "Ashness Close",
+            "projectFolder": "NP03__AshnessClose",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": true,
+                "trueVision": true
+            }
+        },
+        "TS01": {
+            "projectCode": "TS01",
+            "projectName": "Test Project",
+            "projectFolder": "TS01__TestProject",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
+                "trueVision": false
+            }
+        }
+    }
+}

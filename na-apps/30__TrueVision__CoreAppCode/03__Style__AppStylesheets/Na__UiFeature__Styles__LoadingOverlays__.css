@@ -1,0 +1,183 @@
+﻿/* =============================================================================
+ * TRUEVISION3D - LOADING OVERLAY COMPONENT
+ * =============================================================================
+ *
+ * FILE       : Na__UiFeature__Styles__LoadingOverlays__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : Loading Overlay Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Loading screen overlay with Vale branded spinner animation
+ * CREATED    : 2025
+ *
+ * DESCRIPTION:
+ * - Full-screen loading overlay that covers the canvas during initialization
+ * - Vale blue (#172b3a) spinning circle animation
+ * - Smooth fade-out animation when loading completes
+ * - High z-index to ensure visibility above all other elements
+ *
+ * =============================================================================
+ */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Loading Overlay Container
+ * ----------------------------------------------------------------------------- */
+
+    /* LOADING OVERLAY | Full-screen container */
+    /* ------------------------------------------------------------ */
+    .loading-overlay {
+        position                           : fixed;                        /* <-- Fixed positioning over entire viewport */
+        top                                : 0;                            /* <-- Align to top */
+        left                               : 0;                            /* <-- Align to left */
+        width                              : 100vw;                        /* <-- Full viewport width */
+        height                             : 100vh;                        /* <-- Full viewport height */
+        background-color                   : #ffffff;                      /* <-- White background matching scene */
+        display                            : flex;                         /* <-- Flexbox for centering */
+        flex-direction                     : column;                       /* <-- Stack vertically */
+        justify-content                    : center;                       /* <-- Center vertically */
+        align-items                        : center;                       /* <-- Center horizontally */
+        z-index                            : 9999;                         /* <-- Above all other elements */
+        opacity                            : 1;                            /* <-- Initially visible */
+        transition                         : opacity 0.5s ease-out;        /* <-- Smooth fade-out */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* LOADING OVERLAY HIDDEN STATE | Fade-out state */
+    /* ------------------------------------------------------------ */
+    .loading-overlay.hidden {
+        opacity                            : 0;                            /* <-- Transparent */
+        pointer-events                     : none;                         /* <-- Disable interaction */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Spinner Animation
+ * ----------------------------------------------------------------------------- */
+
+    /* SPINNER CONTAINER | Wrapper for spinner elements */
+    /* ------------------------------------------------------------ */
+    .loading-spinner {
+        width                              : 80px;                         /* <-- Spinner size */
+        height                             : 80px;                         /* <-- Spinner size */
+        position                           : relative;                     /* <-- Relative for absolute children */
+        margin-bottom                      : 24px;                         /* <-- Space below spinner */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* SPINNER CIRCLE | Animated spinning circle */
+    /* ------------------------------------------------------------ */
+    .loading-spinner::before {
+        content                            : '';                           /* <-- Required for pseudo-element */
+        display                            : block;                        /* <-- Block element */
+        width                              : 80px;                         /* <-- Circle size */
+        height                             : 80px;                         /* <-- Circle size */
+        border-radius                      : 50%;                          /* <-- Circular shape */
+        border                             : 6px solid #e0e0e0;            /* <-- Light gray background ring */
+        border-top-color                   : #172b3a;                      /* <-- Vale blue active segment */
+        animation                          : spinner-rotate 1s linear infinite;  /* <-- Continuous rotation */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* SPINNER ROTATION ANIMATION | Keyframes for spinning effect */
+    /* ------------------------------------------------------------ */
+    @keyframes spinner-rotate {
+        0% {
+            transform                      : rotate(0deg);                 /* <-- Start position */
+        }
+        100% {
+            transform                      : rotate(360deg);               /* <-- Full rotation */
+        }
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Loading Text
+ * ----------------------------------------------------------------------------- */
+
+    /* LOADING TEXT | Status message below spinner */
+    /* ------------------------------------------------------------ */
+    .loading-text {
+        font-family                        : 'Open Sans', sans-serif;      /* <-- Vale standard font */
+        font-size                          : 16px;                         /* <-- Readable size */
+        font-weight                        : 400;                          /* <-- Regular weight */
+        color                              : #172b3a;                      /* <-- Vale blue text */
+        letter-spacing                     : 0.5px;                        /* <-- Slight letter spacing */
+        text-align                         : center;                       /* <-- Center text */
+        margin-top                         : 0;                            /* <-- Remove default margin */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Layout View Loading Overlay
+ * ----------------------------------------------------------------------------- */
+
+    /* LAYOUT LOADING OVERLAY | Full-screen container (hidden by default) */
+    /* ------------------------------------------------------------ */
+    .na-layout-loading-overlay {
+        position                           : fixed;                        /* <-- Fixed positioning over entire viewport */
+        top                                : 0;                            /* <-- Align to top */
+        left                               : 0;                            /* <-- Align to left */
+        width                              : 100vw;                        /* <-- Full viewport width */
+        height                             : 100vh;                        /* <-- Full viewport height */
+        background-color                   : rgba(255, 255, 255, 0.92);    /* <-- Semi-transparent white */
+        display                            : none;                         /* <-- Hidden by default */
+        flex-direction                     : column;                       /* <-- Stack vertically */
+        justify-content                    : center;                       /* <-- Center vertically */
+        align-items                        : center;                       /* <-- Center horizontally */
+        z-index                            : 10000;                        /* <-- Above all other elements */
+        opacity                            : 0;                            /* <-- Start transparent for fade-in */
+        transition                         : opacity 0.35s ease-out;       /* <-- Smooth fade transition */
+        backdrop-filter                    : blur(4px);                    /* <-- Subtle blur behind overlay */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* LAYOUT LOADING OVERLAY VISIBLE STATE | Shown during layout export */
+    /* ------------------------------------------------------------ */
+    .na-layout-loading-overlay--visible {
+        display                            : flex;                         /* <-- Enable flexbox layout */
+        opacity                            : 1;                            /* <-- Fully visible */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* LAYOUT LOADING OVERLAY FADE-OUT STATE | Dismissing overlay */
+    /* ------------------------------------------------------------ */
+    .na-layout-loading-overlay--fade-out {
+        opacity                            : 0;                            /* <-- Fade to transparent */
+        pointer-events                     : none;                         /* <-- Disable interaction during fade */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* LAYOUT LOADING STATUS TEXT | Progress message below spinner */
+    /* ------------------------------------------------------------ */
+    .na-layout-loading-overlay__status {
+        font-family                        : 'Open Sans', sans-serif;      /* <-- Vale standard font */
+        font-size                          : 16px;                         /* <-- Readable size */
+        font-weight                        : 400;                          /* <-- Regular weight */
+        color                              : #172b3a;                      /* <-- Vale blue text */
+        letter-spacing                     : 0.5px;                        /* <-- Slight letter spacing */
+        text-align                         : center;                       /* <-- Center text */
+        margin-top                         : 0;                            /* <-- Remove default margin */
+        transition                         : color 0.3s ease;              /* <-- Smooth color change on success */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* LAYOUT LOADING SUCCESS STATE | Green text on completion */
+    /* ------------------------------------------------------------ */
+    .na-layout-loading-overlay__status--success {
+        color                              : #2a7d4f;                      /* <-- Green success color */
+        font-weight                        : 600;                          /* <-- Bold for emphasis */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+

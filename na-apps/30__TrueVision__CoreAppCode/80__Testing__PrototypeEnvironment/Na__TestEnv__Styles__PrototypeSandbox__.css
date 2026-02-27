@@ -1,0 +1,1055 @@
+﻿/* =============================================================================
+ * TRUEVISION3D - TEST ENVIRONMENT STYLESHEET
+ * =============================================================================
+ *
+ * FILE       : Na__TestEnv__Styles__PrototypeSandbox__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : Test Environment Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Styles for the prototype testing sandbox UI components
+ * CREATED    : 14-Feb-2026
+ *
+ * DESCRIPTION:
+ * - Testing mode banner at the top of the viewport.
+ * - Statistics debug overlay panel (FPS, meshes, vertices).
+ * - Node graph explorer panel on the right side with tree view.
+ * - Adjusts header and canvas positioning to account for the banner.
+ * - Collapsible panel with per-node visibility toggles.
+ *
+ * ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Test Environment CSS Variables
+ * ----------------------------------------------------------------------------- */
+
+    /* CSS VARIABLES | Test Environment Design Tokens */
+    /* ------------------------------------------------------------ */
+    :root {
+        --TestEnv_BannerHeight             : 32px;                          /* <-- Testing banner height */
+        --TestEnv_BannerColor              : #e67e22;                       /* <-- Amber/orange banner background */
+        --TestEnv_BannerTextColor          : #ffffff;                       /* <-- White banner text */
+        --TestEnv_TotalHeaderOffset        : calc(var(--Vale_HeaderHeight) + var(--TestEnv_BannerHeight));  /* <-- Combined offset */
+        --TestEnv_NodeExplorerWidth        : 320px;                         /* <-- Node explorer panel width */
+        --TestEnv_StatsOverlayBg           : rgba(0, 0, 0, 0.80);          /* <-- Stats panel background */
+        --TestEnv_StatsTextColor           : #00ff88;                       /* <-- Stats green text */
+        --TestEnv_NodeExplorerBg           : rgba(255, 255, 255, 0.97);    /* <-- Node explorer background */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Testing Mode Banner
+ * ----------------------------------------------------------------------------- */
+
+    /* BANNER | Fixed top bar indicating test mode */
+    /* ------------------------------------------------------------ */
+    .testenv-banner {
+        position                           : fixed;
+        top                                : 0;
+        left                               : 0;
+        right                              : 0;
+        height                             : var(--TestEnv_BannerHeight);
+        background                         : var(--TestEnv_BannerColor);
+        color                              : var(--TestEnv_BannerTextColor);
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        gap                                : 10px;
+        z-index                            : 2000;
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.75rem;
+        font-weight                        : 600;
+        letter-spacing                     : 1.5px;
+        text-transform                     : uppercase;
+        box-shadow                         : 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* BANNER | Warning icon */
+    /* ------------------------------------------------------------ */
+    .testenv-banner__icon {
+        font-size                          : 0.9rem;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* BANNER | Main text */
+    /* ------------------------------------------------------------ */
+    .testenv-banner__text {
+        font-weight                        : 700;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* BANNER | Subtext (sandbox label) */
+    /* ------------------------------------------------------------ */
+    .testenv-banner__subtext {
+        font-weight                        : 400;
+        opacity                            : 0.85;
+        font-size                          : 0.65rem;
+        letter-spacing                     : 0.5px;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Header Adjustments (Shifted Below Banner)
+ * ----------------------------------------------------------------------------- */
+
+    /* HEADER | Push header below the testing banner */
+    /* ------------------------------------------------------------ */
+    .testenv-header-shifted {
+        top                                : var(--TestEnv_BannerHeight) !important;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HEADER | TEST tag badge next to title */
+    /* ------------------------------------------------------------ */
+    .testenv-header-tag {
+        display                            : inline-block;
+        background                         : var(--TestEnv_BannerColor);
+        color                              : #ffffff;
+        font-size                          : 0.55rem;
+        font-weight                        : 700;
+        padding                            : 2px 8px;
+        border-radius                      : 3px;
+        vertical-align                     : middle;
+        margin-left                        : 8px;
+        letter-spacing                     : 1px;
+        text-transform                     : uppercase;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Canvas Positioning Adjustments
+ * ----------------------------------------------------------------------------- */
+
+    /* CANVAS | Adjust canvas top to account for banner + header */
+    /* ------------------------------------------------------------ */
+    #renderCanvas {
+        top                                : var(--TestEnv_TotalHeaderOffset) !important;
+        height                             : calc(100vh - var(--TestEnv_TotalHeaderOffset)) !important;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Statistics Debug Overlay
+ * ----------------------------------------------------------------------------- */
+
+    /* STATS OVERLAY | Semi-transparent panel (top left) */
+    /* ------------------------------------------------------------ */
+    .testenv-stats-overlay {
+        position                           : fixed;
+        top                                : calc(var(--TestEnv_TotalHeaderOffset) + 12px);
+        left                               : 12px;
+        background                         : var(--TestEnv_StatsOverlayBg);
+        border-radius                      : 6px;
+        padding                            : 10px 14px;
+        z-index                            : 1500;
+        min-width                          : 160px;
+        backdrop-filter                    : blur(6px);
+        border                             : 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow                         : 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STATS OVERLAY | Title */
+    /* ------------------------------------------------------------ */
+    .testenv-stats-overlay__title {
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.7rem;
+        font-weight                        : 600;
+        color                              : rgba(255, 255, 255, 0.7);
+        text-transform                     : uppercase;
+        letter-spacing                     : 1px;
+        margin-bottom                      : 8px;
+        padding-bottom                     : 6px;
+        border-bottom                      : 1px solid rgba(255, 255, 255, 0.12);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STATS OVERLAY | Data Row */
+    /* ------------------------------------------------------------ */
+    .testenv-stats-overlay__row {
+        display                            : flex;
+        justify-content                    : space-between;
+        align-items                        : center;
+        gap                                : 16px;
+        padding                            : 2px 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STATS OVERLAY | Label */
+    /* ------------------------------------------------------------ */
+    .testenv-stats-overlay__label {
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.72rem;
+        font-weight                        : 400;
+        color                              : rgba(255, 255, 255, 0.6);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STATS OVERLAY | Value */
+    /* ------------------------------------------------------------ */
+    .testenv-stats-overlay__value {
+        font-family                        : 'Courier New', monospace;
+        font-size                          : 0.78rem;
+        font-weight                        : 600;
+        color                              : var(--TestEnv_StatsTextColor);
+        min-width                          : 50px;
+        text-align                         : right;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Node Graph Explorer Panel
+ * ----------------------------------------------------------------------------- */
+
+    /* NODE EXPLORER | Panel container (right side, full height) */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer {
+        position                           : fixed;
+        top                                : var(--TestEnv_TotalHeaderOffset);
+        right                              : 0;
+        width                              : var(--TestEnv_NodeExplorerWidth);
+        height                             : calc(100vh - var(--TestEnv_TotalHeaderOffset));
+        background                         : var(--TestEnv_NodeExplorerBg);
+        border-left                        : 1px solid rgba(0, 0, 0, 0.1);
+        z-index                            : 1500;
+        display                            : flex;
+        flex-direction                     : row;
+        box-shadow                         : -4px 0 12px rgba(0, 0, 0, 0.08);
+        transition                         : transform 0.3s ease, width 0.3s ease;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Collapsed state */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer--collapsed {
+        transform                          : translateX(calc(var(--TestEnv_NodeExplorerWidth) - 28px));
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Drag resize handle (left edge) */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__resize-handle {
+        position                           : absolute;
+        left                               : 0;
+        top                                : 0;
+        width                              : 6px;
+        height                             : 100%;
+        cursor                             : ew-resize;
+        background                         : transparent;
+        z-index                            : 10;
+        transition                         : background 0.2s ease;
+    }
+
+    .testenv-node-explorer__resize-handle:hover {
+        background                         : rgba(23, 43, 58, 0.15);
+    }
+
+    .testenv-node-explorer__resize-handle--dragging {
+        background                         : rgba(23, 43, 58, 0.3) !important;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Toggle tab button (left edge) */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__toggle {
+        width                              : 28px;
+        min-width                          : 28px;
+        border                             : none;
+        background                         : var(--Vale_PrimaryBrand);
+        color                              : #ffffff;
+        cursor                             : pointer;
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        font-size                          : 0.7rem;
+        border-radius                      : 4px 0 0 4px;
+        transition                         : background 0.2s ease;
+    }
+
+    .testenv-node-explorer__toggle:hover {
+        background                         : #1e3a4f;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Toggle arrow icon */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__toggle-arrow {
+        display                            : block;
+        line-height                        : 1;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Content area */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__content {
+        flex                               : 1;
+        display                            : flex;
+        flex-direction                     : column;
+        overflow                           : hidden;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Header bar */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__header {
+        padding                            : 12px 14px 10px 14px;
+        border-bottom                      : 1px solid rgba(0, 0, 0, 0.08);
+        flex-shrink                        : 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Panel title */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__title {
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.85rem;
+        font-weight                        : 600;
+        color                              : var(--Vale_PrimaryBrand);
+        margin                             : 0 0 8px 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Action buttons row */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__actions {
+        display                            : flex;
+        gap                                : 4px;
+        flex-wrap                          : wrap;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Action button */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__action-btn {
+        border                             : 1px solid rgba(23, 43, 58, 0.15);
+        background                         : rgba(23, 43, 58, 0.04);
+        color                              : var(--Vale_PrimaryBrand);
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.65rem;
+        font-weight                        : 500;
+        padding                            : 3px 8px;
+        border-radius                      : 3px;
+        cursor                             : pointer;
+        transition                         : all 0.15s ease;
+    }
+
+    .testenv-node-explorer__action-btn:hover {
+        background                         : rgba(23, 43, 58, 0.1);
+    }
+
+    .testenv-node-explorer__action-btn--primary {
+        background                         : var(--Vale_PrimaryBrand);
+        color                              : #ffffff;
+        border-color                       : var(--Vale_PrimaryBrand);
+        font-weight                        : 600;
+    }
+
+    .testenv-node-explorer__action-btn--primary:hover {
+        background                         : #1e3a4f;
+        border-color                       : #1e3a4f;
+    }
+
+    .testenv-node-explorer__action-btn--success {
+        background                         : #2e7d32;
+        color                              : #ffffff;
+        border-color                       : #2e7d32;
+    }
+
+    .testenv-node-explorer__action-btn--refresh {
+        background                         : #e67e22;
+        color                              : #ffffff;
+        border-color                       : #e67e22;
+        font-weight                        : 600;
+    }
+
+    .testenv-node-explorer__action-btn--refresh:hover {
+        background                         : #d35400;
+        border-color                       : #d35400;
+    }
+
+    .testenv-node-explorer__action-btn--refresh:disabled {
+        background                         : rgba(23, 43, 58, 0.2);
+        color                              : rgba(23, 43, 58, 0.4);
+        border-color                       : rgba(23, 43, 58, 0.15);
+        cursor                             : not-allowed;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Info message */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__info {
+        padding                            : 10px 14px;
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.72rem;
+        color                              : rgba(23, 43, 58, 0.5);
+        font-style                         : italic;
+        flex-shrink                        : 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE EXPLORER | Tree container (scrollable) */
+    /* ------------------------------------------------------------ */
+    .testenv-node-explorer__tree {
+        flex                               : 1;
+        overflow-y                         : auto;
+        overflow-x                         : hidden;
+        padding                            : 4px 8px 16px 8px;
+    }
+
+    .testenv-node-explorer__tree::-webkit-scrollbar {
+        width                              : 6px;
+    }
+
+    .testenv-node-explorer__tree::-webkit-scrollbar-track {
+        background                         : transparent;
+    }
+
+    .testenv-node-explorer__tree::-webkit-scrollbar-thumb {
+        background                         : rgba(23, 43, 58, 0.2);
+        border-radius                      : 3px;
+    }
+
+    .testenv-node-explorer__tree::-webkit-scrollbar-thumb:hover {
+        background                         : rgba(23, 43, 58, 0.35);
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Node Tree Item Styles
+ * ----------------------------------------------------------------------------- */
+
+    /* NODE ITEM | Wrapper for node + children */
+    /* ------------------------------------------------------------ */
+    .testenv-node-wrapper {
+        display                            : block;                         /* <-- Structural wrapper for node tree */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Single tree row */
+    /* ------------------------------------------------------------ */
+    .testenv-node-item {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 4px;
+        padding-top                        : 2px;
+        padding-bottom                     : 2px;
+        padding-right                      : 4px;
+        border-radius                      : 3px;
+        transition                         : background 0.1s ease;
+        min-height                         : 24px;
+    }
+
+    .testenv-node-item:hover {
+        background                         : rgba(23, 43, 58, 0.05);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Expand/collapse arrow */
+    /* ------------------------------------------------------------ */
+    .testenv-node-item__arrow {
+        width                              : 14px;
+        min-width                          : 14px;
+        text-align                         : center;
+        font-size                          : 0.6rem;
+        color                              : rgba(23, 43, 58, 0.4);
+        user-select                        : none;
+        line-height                        : 1;
+    }
+
+    .testenv-node-item__arrow:hover {
+        color                              : var(--Vale_PrimaryBrand);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Visibility toggle checkbox */
+    /* ------------------------------------------------------------ */
+    .testenv-node-item__toggle {
+        width                              : 14px;
+        height                             : 14px;
+        min-width                          : 14px;
+        accent-color                       : var(--Vale_PrimaryBrand);
+        cursor                             : pointer;
+        margin                             : 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Type badge (base) */
+    /* ------------------------------------------------------------ */
+    .testenv-node-item__type {
+        font-family                        : 'Courier New', monospace;
+        font-size                          : 0.58rem;
+        font-weight                        : 600;
+        padding                            : 1px 5px;
+        border-radius                      : 2px;
+        text-transform                     : uppercase;
+        white-space                        : nowrap;
+        letter-spacing                     : 0.3px;
+        min-width                          : 48px;
+        text-align                         : center;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Type badge - Mesh */
+    /* ------------------------------------------------------------ */
+    .testenv-node--mesh {
+        background                         : rgba(46, 125, 50, 0.12);
+        color                              : #2e7d32;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Type badge - Group */
+    /* ------------------------------------------------------------ */
+    .testenv-node--group {
+        background                         : rgba(21, 101, 192, 0.12);
+        color                              : #1565c0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Type badge - Light */
+    /* ------------------------------------------------------------ */
+    .testenv-node--light {
+        background                         : rgba(255, 160, 0, 0.15);
+        color                              : #e65100;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Type badge - Scene */
+    /* ------------------------------------------------------------ */
+    .testenv-node--scene {
+        background                         : rgba(106, 27, 154, 0.12);
+        color                              : #6a1b9a;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Type badge - Object3D (default) */
+    /* ------------------------------------------------------------ */
+    .testenv-node--object {
+        background                         : rgba(23, 43, 58, 0.08);
+        color                              : rgba(23, 43, 58, 0.6);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Node name text */
+    /* ------------------------------------------------------------ */
+    .testenv-node-item__name {
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.72rem;
+        font-weight                        : 400;
+        color                              : var(--Vale_TextPrimary);
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        white-space                        : nowrap;
+        flex                               : 1;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NODE ITEM | Children container */
+    /* ------------------------------------------------------------ */
+    .testenv-node-item__children {
+        display                            : block;                         /* <-- Visibility controlled by JS */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Storey Visibility Controls Panel
+ * ----------------------------------------------------------------------------- */
+
+    /* STOREY PANEL | Container (positioned bottom-left) */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-panel {
+        position                           : fixed;
+        bottom                             : 20px;
+        left                               : 20px;
+        z-index                            : 1000;
+        width                              : 260px;
+        background                         : rgba(255, 255, 255, 0.95);
+        border                             : 1px solid rgba(23, 43, 58, 0.15);
+        border-radius                      : 8px;
+        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0.12);
+        font-family                        : var(--Vale_FontFamily);
+        backdrop-filter                    : blur(8px);
+        overflow                           : hidden;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Header */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-panel__header {
+        padding                            : 12px 14px 8px 14px;
+        border-bottom                      : 1px solid rgba(23, 43, 58, 0.1);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Title */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-panel__title {
+        font-size                          : 0.82rem;
+        font-weight                        : 600;
+        color                              : var(--Vale_TextPrimary);
+        margin                             : 0 0 2px 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Hint text */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-panel__hint {
+        font-size                          : 0.62rem;
+        color                              : rgba(23, 43, 58, 0.45);
+        font-weight                        : 400;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Controls container */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-panel__controls {
+        padding                            : 8px 10px;
+        display                            : flex;
+        flex-direction                     : column;
+        gap                                : 4px;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Individual storey toggle button */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-btn {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+        width                              : 100%;
+        padding                            : 8px 10px;
+        border                             : 1px solid rgba(23, 43, 58, 0.12);
+        border-radius                      : 6px;
+        background                         : white;
+        cursor                             : pointer;
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.75rem;
+        color                              : var(--Vale_TextPrimary);
+        transition                         : all 0.15s ease;
+        text-align                         : left;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Storey button - visible state */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-btn--visible {
+        background                         : rgba(46, 125, 50, 0.06);
+        border-color                       : rgba(46, 125, 50, 0.25);
+    }
+
+    .testenv-storey-btn--visible:hover {
+        background                         : rgba(46, 125, 50, 0.12);
+        border-color                       : rgba(46, 125, 50, 0.4);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Storey button - hidden state */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-btn--hidden {
+        background                         : rgba(211, 47, 47, 0.04);
+        border-color                       : rgba(211, 47, 47, 0.15);
+        opacity                            : 0.65;
+    }
+
+    .testenv-storey-btn--hidden:hover {
+        background                         : rgba(211, 47, 47, 0.08);
+        border-color                       : rgba(211, 47, 47, 0.3);
+        opacity                            : 1;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Eye icon */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-btn__icon {
+        font-size                          : 1rem;
+        width                              : 20px;
+        text-align                         : center;
+        flex-shrink                        : 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Storey name label */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-btn__label {
+        flex                               : 1;
+        font-weight                        : 500;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Model count badge */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-btn__count {
+        font-size                          : 0.65rem;
+        color                              : rgba(23, 43, 58, 0.45);
+        font-weight                        : 400;
+        flex-shrink                        : 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Actions bar (Show All button) */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-panel__actions {
+        padding                            : 6px 10px 10px 10px;
+        border-top                         : 1px solid rgba(23, 43, 58, 0.08);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Show All Storeys button */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-panel__show-all-btn {
+        width                              : 100%;
+        padding                            : 6px 10px;
+        border                             : 1px solid rgba(23, 43, 58, 0.15);
+        border-radius                      : 5px;
+        background                         : rgba(23, 43, 58, 0.04);
+        color                              : var(--Vale_TextPrimary);
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.7rem;
+        font-weight                        : 500;
+        cursor                             : pointer;
+        transition                         : all 0.15s ease;
+    }
+
+    .testenv-storey-panel__show-all-btn:hover {
+        background                         : rgba(23, 43, 58, 0.1);
+        border-color                       : rgba(23, 43, 58, 0.25);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Roof toggle button (at top of panel) */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-roof-btn {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+        width                              : 100%;
+        padding                            : 10px 10px;
+        border                             : 2px solid rgba(23, 43, 58, 0.2);
+        border-radius                      : 6px;
+        background                         : white;
+        cursor                             : pointer;
+        font-family                        : var(--Vale_FontFamily);
+        font-size                          : 0.78rem;
+        color                              : var(--Vale_TextPrimary);
+        font-weight                        : 600;
+        transition                         : all 0.15s ease;
+        text-align                         : left;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Roof button - visible state (auto dolls house mode) */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-roof-btn--visible {
+        background                         : rgba(63, 81, 181, 0.08);
+        border-color                       : rgba(63, 81, 181, 0.3);
+    }
+
+    .testenv-storey-roof-btn--visible:hover {
+        background                         : rgba(63, 81, 181, 0.15);
+        border-color                       : rgba(63, 81, 181, 0.45);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Roof button - hidden state (all roofs hidden) */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-roof-btn--hidden {
+        background                         : rgba(158, 158, 158, 0.06);
+        border-color                       : rgba(158, 158, 158, 0.25);
+        opacity                            : 0.7;
+    }
+
+    .testenv-storey-roof-btn--hidden:hover {
+        background                         : rgba(158, 158, 158, 0.12);
+        border-color                       : rgba(158, 158, 158, 0.4);
+        opacity                            : 1;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Roof button icon */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-roof-btn__icon {
+        font-size                          : 1.1rem;
+        width                              : 22px;
+        text-align                         : center;
+        flex-shrink                        : 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Roof button label */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-roof-btn__label {
+        flex                               : 1;
+        font-weight                        : 600;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STOREY PANEL | Visual separator */
+    /* ------------------------------------------------------------ */
+    .testenv-storey-separator {
+        height                             : 1px;
+        background                         : rgba(23, 43, 58, 0.12);
+        margin                             : 8px 0;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------------------- */
+/* REGION | Walk Mode Toggle Panel                                               */
+/* ----------------------------------------------------------------------------- */
+
+    /* WALK MODE PANEL | Container */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel {
+        position                           : fixed;
+        bottom                             : 20px;
+        left                               : 300px;
+        z-index                            : 1000;
+        background                         : rgba(255, 255, 255, 0.92);
+        backdrop-filter                    : blur(12px);
+        -webkit-backdrop-filter            : blur(12px);
+        border                             : 1px solid rgba(23, 43, 58, 0.15);
+        border-radius                      : 10px;
+        padding                            : 14px 18px;
+        min-width                          : 200px;
+        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0.08);
+        font-family                        : 'Open Sans', sans-serif;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Header */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__header {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+        margin-bottom                      : 10px;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Icon */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__icon {
+        font-size                          : 1.3rem;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Title */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__title {
+        font-size                          : 0.85rem;
+        font-weight                        : 600;
+        color                              : #172b3a;
+        letter-spacing                     : 0.02em;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Controls */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__controls {
+        display                            : flex;
+        flex-direction                     : column;
+        gap                                : 8px;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Toggle Button */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__toggle-btn {
+        display                            : block;
+        width                              : 100%;
+        padding                            : 8px 14px;
+        background                         : #172b3a;
+        color                              : #ffffff;
+        border                             : none;
+        border-radius                      : 6px;
+        font-size                          : 0.82rem;
+        font-weight                        : 600;
+        font-family                        : 'Open Sans', sans-serif;
+        cursor                             : pointer;
+        transition                         : background 0.2s ease;
+        letter-spacing                     : 0.02em;
+    }
+
+    .testenv-walkmode-panel__toggle-btn:hover {
+        background                         : #1e3a4f;
+    }
+
+    .testenv-walkmode-panel__toggle-btn:active {
+        background                         : #0e1f2b;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Status Row */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__status {
+        display                            : flex;
+        justify-content                    : space-between;
+        align-items                        : center;
+        font-size                          : 0.78rem;
+        color                              : #555;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Status Label */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__status-label {
+        font-weight                        : 400;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Status Value */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__status-value {
+        font-weight                        : 600;
+        color                              : #172b3a;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Divider */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__divider {
+        height                             : 1px;
+        background                         : rgba(23, 43, 58, 0.1);
+        margin                             : 10px 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Save View Button */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__save-btn {
+        display                            : block;
+        width                              : 100%;
+        padding                            : 7px 14px;
+        background                         : rgba(23, 43, 58, 0.06);
+        color                              : #172b3a;
+        border                             : 1px solid rgba(23, 43, 58, 0.2);
+        border-radius                      : 6px;
+        font-size                          : 0.80rem;
+        font-weight                        : 600;
+        font-family                        : 'Open Sans', sans-serif;
+        cursor                             : pointer;
+        transition                         : background 0.2s ease, border-color 0.2s ease;
+        letter-spacing                     : 0.02em;
+        margin-bottom                      : 6px;
+    }
+
+    .testenv-walkmode-panel__save-btn:hover {
+        background                         : rgba(23, 43, 58, 0.12);
+        border-color                       : rgba(23, 43, 58, 0.35);
+    }
+
+    .testenv-walkmode-panel__save-btn:active {
+        background                         : rgba(23, 43, 58, 0.18);
+    }
+
+    .testenv-walkmode-panel__save-btn:disabled {
+        opacity                            : 0.5;
+        cursor                             : not-allowed;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* WALK MODE PANEL | Hotkey Hint */
+    /* ------------------------------------------------------------ */
+    .testenv-walkmode-panel__hint {
+        margin-top                         : 10px;
+        font-size                          : 0.72rem;
+        color                              : #888;
+        text-align                         : center;
+    }
+
+    .testenv-walkmode-panel__hint kbd {
+        display                            : inline-block;
+        padding                            : 1px 5px;
+        font-size                          : 0.70rem;
+        font-family                        : 'Open Sans', monospace;
+        background                         : #f0f0f0;
+        border                             : 1px solid #ccc;
+        border-radius                      : 3px;
+        box-shadow                         : 0 1px 0 rgba(0, 0, 0, 0.1);
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+

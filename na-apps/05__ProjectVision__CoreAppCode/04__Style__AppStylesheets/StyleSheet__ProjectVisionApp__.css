@@ -1,0 +1,512 @@
+/* =============================================================================
+ * PROJECT VISION - CORE APPLICATION STYLES
+ * =============================================================================
+ *
+ * FILE       : StyleSheet__ProjectVisionApp__.css
+ * NAMESPACE  : ProjectVision
+ * MODULE     : Core Application Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Landing page layout, button cards, responsive grid, and states
+ * CREATED    : 27-Feb-2026
+ *
+ * DESCRIPTION:
+ * - Full-screen landing page with Noble Architecture branding
+ * - Three responsive button cards for sub-applications
+ * - Landscape: 3-column row | Portrait: stacked vertically
+ * - Disabled state for sub-apps without content
+ * - Loading spinner and error state overlays
+ *
+ * ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | CSS Variables - Design Tokens
+ * ----------------------------------------------------------------------------- */
+
+    :root {
+        --Pv_BrandPrimary              : #555041;
+        --Pv_BrandAccent               : #7a7460;
+        --Pv_BgPrimary                 : #f8f7f5;
+        --Pv_BgSecondary               : #ffffff;
+        --Pv_BgTertiary                : #eeecea;
+        --Pv_TextPrimary               : #333333;
+        --Pv_TextSecondary             : #666666;
+        --Pv_TextMuted                 : #999999;
+        --Pv_TextLight                 : #ffffff;
+        --Pv_BorderLight               : #e0ddd8;
+        --Pv_BorderMedium              : #c4c0b8;
+        --Pv_HeaderHeight              : 60px;
+        --Pv_SpacingSm                 : 0.5rem;
+        --Pv_SpacingMd                 : 1rem;
+        --Pv_SpacingLg                 : 1.5rem;
+        --Pv_SpacingXl                 : 2.5rem;
+        --Pv_TransitionFast            : 0.2s ease;
+        --Pv_TransitionMedium          : 0.35s ease;
+        --Pv_FontFamily                : 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --Pv_CardRadius                : 12px;
+        --Pv_CardShadow                : 0 2px 12px rgba(0, 0, 0, 0.06);
+        --Pv_CardShadowHover           : 0 8px 28px rgba(0, 0, 0, 0.12);
+
+        --Pv_CardColor__Admin          : #555041;
+        --Pv_CardColor__PlanVision     : #3b6e8f;
+        --Pv_CardColor__TrueVision     : #172b3a;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Font Loading - Open Sans from Google Fonts CDN
+ * ----------------------------------------------------------------------------- */
+
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Base Styles - Reset and Document Defaults
+ * ----------------------------------------------------------------------------- */
+
+    *,
+    *::before,
+    *::after {
+        margin                             : 0;
+        padding                            : 0;
+        box-sizing                         : border-box;
+    }
+
+    html,
+    body {
+        width                              : 100%;
+        height                             : 100%;
+        background-color                   : var(--Pv_BgPrimary);
+        font-family                        : var(--Pv_FontFamily);
+        color                              : var(--Pv_TextPrimary);
+        overflow-x                         : hidden;
+        overflow-y                         : auto;
+        -webkit-font-smoothing             : antialiased;
+        -moz-osx-font-smoothing            : grayscale;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Header - Branding Bar
+ * ----------------------------------------------------------------------------- */
+
+    .pv-header {
+        position                           : fixed;
+        top                                : 0;
+        left                               : 0;
+        right                              : 0;
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : space-between;
+        height                             : var(--Pv_HeaderHeight);
+        padding                            : 0 24px;
+        background                         : var(--Pv_BgSecondary);
+        border-bottom                      : 2px solid var(--Pv_BrandPrimary);
+        box-shadow                         : 0 2px 8px rgba(0, 0, 0, 0.06);
+        z-index                            : 1000;
+    }
+
+    .pv-header__logo {
+        height                             : 38px;
+        width                              : auto;
+    }
+
+    .pv-header__title {
+        font-size                          : 22px;
+        font-weight                        : 600;
+        color                              : var(--Pv_BrandPrimary);
+        letter-spacing                     : 0.3px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Main Content Area
+ * ----------------------------------------------------------------------------- */
+
+    .pv-main {
+        display                            : flex;
+        flex-direction                     : column;
+        align-items                        : center;
+        justify-content                    : center;
+        min-height                         : 100vh;
+        padding-top                        : calc(var(--Pv_HeaderHeight) + var(--Pv_SpacingXl));
+        padding-bottom                     : var(--Pv_SpacingXl);
+        padding-left                       : var(--Pv_SpacingLg);
+        padding-right                      : var(--Pv_SpacingLg);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Project Title Section
+ * ----------------------------------------------------------------------------- */
+
+    .pv-project-title {
+        text-align                         : center;
+        margin-bottom                      : var(--Pv_SpacingXl);
+    }
+
+    .pv-project-title__name {
+        font-size                          : 28px;
+        font-weight                        : 700;
+        color                              : var(--Pv_BrandPrimary);
+        margin-bottom                      : 6px;
+    }
+
+    .pv-project-title__subtitle {
+        font-size                          : 15px;
+        font-weight                        : 400;
+        color                              : var(--Pv_TextSecondary);
+        letter-spacing                     : 0.2px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Card Grid - Responsive Layout
+ * ----------------------------------------------------------------------------- */
+
+    .pv-card-grid {
+        display                            : grid;
+        grid-template-columns              : repeat(3, 1fr);
+        gap                                : var(--Pv_SpacingLg);
+        max-width                          : 960px;
+        width                              : 100%;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Card Component - Sub-Application Buttons
+ * ----------------------------------------------------------------------------- */
+
+    .pv-card {
+        position                           : relative;
+        display                            : flex;
+        flex-direction                     : column;
+        align-items                        : center;
+        text-align                         : center;
+        background                         : var(--Pv_BgSecondary);
+        border                             : 2px solid var(--Pv_BorderLight);
+        border-radius                      : var(--Pv_CardRadius);
+        padding                            : var(--Pv_SpacingXl) var(--Pv_SpacingLg) var(--Pv_SpacingLg);
+        cursor                             : pointer;
+        text-decoration                    : none;
+        color                              : inherit;
+        box-shadow                         : var(--Pv_CardShadow);
+        transition                         : transform var(--Pv_TransitionFast),
+                                             box-shadow var(--Pv_TransitionFast),
+                                             border-color var(--Pv_TransitionFast);
+        overflow                           : hidden;
+    }
+
+    .pv-card::before {
+        content                            : '';
+        position                           : absolute;
+        top                                : 0;
+        left                               : 0;
+        right                              : 0;
+        height                             : 4px;
+        background                         : var(--Pv_BrandPrimary);
+        transition                         : height var(--Pv_TransitionFast);
+    }
+
+    .pv-card--admin::before {
+        background                         : var(--Pv_CardColor__Admin);
+    }
+
+    .pv-card--planvision::before {
+        background                         : var(--Pv_CardColor__PlanVision);
+    }
+
+    .pv-card--truevision::before {
+        background                         : var(--Pv_CardColor__TrueVision);
+    }
+
+    .pv-card:hover:not(.pv-card--disabled) {
+        transform                          : translateY(-4px);
+        box-shadow                         : var(--Pv_CardShadowHover);
+        border-color                       : var(--Pv_BorderMedium);
+    }
+
+    .pv-card:hover:not(.pv-card--disabled)::before {
+        height                             : 6px;
+    }
+
+    .pv-card:active:not(.pv-card--disabled) {
+        transform                          : translateY(-1px);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Card Disabled State
+ * ----------------------------------------------------------------------------- */
+
+    .pv-card--disabled {
+        opacity                            : 0.45;
+        cursor                             : default;
+        pointer-events                     : none;
+    }
+
+    .pv-card--disabled .pv-card__icon-area {
+        filter                             : grayscale(1);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Card Icon Area - Placeholder Graphic
+ * ----------------------------------------------------------------------------- */
+
+    .pv-card__icon-area {
+        width                              : 80px;
+        height                             : 80px;
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        border-radius                      : 50%;
+        margin-bottom                      : var(--Pv_SpacingMd);
+        font-size                          : 32px;
+        color                              : var(--Pv_TextLight);
+    }
+
+    .pv-card--admin .pv-card__icon-area {
+        background                         : var(--Pv_CardColor__Admin);
+    }
+
+    .pv-card--planvision .pv-card__icon-area {
+        background                         : var(--Pv_CardColor__PlanVision);
+    }
+
+    .pv-card--truevision .pv-card__icon-area {
+        background                         : var(--Pv_CardColor__TrueVision);
+    }
+
+    .pv-card__icon-area svg {
+        width                              : 36px;
+        height                             : 36px;
+        fill                               : currentColor;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Card Text Content
+ * ----------------------------------------------------------------------------- */
+
+    .pv-card__title {
+        font-size                          : 17px;
+        font-weight                        : 600;
+        color                              : var(--Pv_TextPrimary);
+        margin-bottom                      : 6px;
+    }
+
+    .pv-card__description {
+        font-size                          : 13px;
+        font-weight                        : 400;
+        color                              : var(--Pv_TextSecondary);
+        line-height                        : 1.5;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Card Badge - Coming Soon / Available
+ * ----------------------------------------------------------------------------- */
+
+    .pv-card__badge {
+        display                            : inline-block;
+        margin-top                         : var(--Pv_SpacingMd);
+        padding                            : 4px 14px;
+        border-radius                      : 20px;
+        font-size                          : 11px;
+        font-weight                        : 600;
+        letter-spacing                     : 0.5px;
+        text-transform                     : uppercase;
+    }
+
+    .pv-card__badge--available {
+        background                         : #e8f5e9;
+        color                              : #2e7d32;
+    }
+
+    .pv-card__badge--unavailable {
+        background                         : var(--Pv_BgTertiary);
+        color                              : var(--Pv_TextMuted);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Loading Overlay
+ * ----------------------------------------------------------------------------- */
+
+    .pv-loading-overlay {
+        position                           : fixed;
+        top                                : 0;
+        left                               : 0;
+        width                              : 100vw;
+        height                             : 100vh;
+        background-color                   : var(--Pv_BgPrimary);
+        display                            : flex;
+        flex-direction                     : column;
+        justify-content                    : center;
+        align-items                        : center;
+        z-index                            : 9999;
+        opacity                            : 1;
+        transition                         : opacity 0.4s ease-out;
+    }
+
+    .pv-loading-overlay--hidden {
+        opacity                            : 0;
+        pointer-events                     : none;
+    }
+
+    .pv-loading-spinner {
+        width                              : 56px;
+        height                             : 56px;
+        border-radius                      : 50%;
+        border                             : 5px solid var(--Pv_BorderLight);
+        border-top-color                   : var(--Pv_BrandPrimary);
+        animation                          : pv-spin 0.9s linear infinite;
+        margin-bottom                      : 20px;
+    }
+
+    @keyframes pv-spin {
+        to { transform                     : rotate(360deg); }
+    }
+
+    .pv-loading-text {
+        font-size                          : 15px;
+        font-weight                        : 400;
+        color                              : var(--Pv_TextSecondary);
+        letter-spacing                     : 0.3px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Error State
+ * ----------------------------------------------------------------------------- */
+
+    .pv-error {
+        display                            : none;
+        flex-direction                     : column;
+        align-items                        : center;
+        text-align                         : center;
+        padding                            : var(--Pv_SpacingXl);
+        max-width                          : 480px;
+    }
+
+    .pv-error--visible {
+        display                            : flex;
+    }
+
+    .pv-error__icon {
+        width                              : 56px;
+        height                             : 56px;
+        border-radius                      : 50%;
+        background                         : #fbe9e7;
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        margin-bottom                      : var(--Pv_SpacingMd);
+        font-size                          : 24px;
+        color                              : #c62828;
+    }
+
+    .pv-error__title {
+        font-size                          : 20px;
+        font-weight                        : 600;
+        color                              : var(--Pv_TextPrimary);
+        margin-bottom                      : 8px;
+    }
+
+    .pv-error__message {
+        font-size                          : 14px;
+        color                              : var(--Pv_TextSecondary);
+        line-height                        : 1.6;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Footer
+ * ----------------------------------------------------------------------------- */
+
+    .pv-footer {
+        text-align                         : center;
+        margin-top                         : var(--Pv_SpacingXl);
+        padding-bottom                     : var(--Pv_SpacingMd);
+        font-size                          : 12px;
+        color                              : var(--Pv_TextMuted);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Responsive - Portrait Layout
+ * ----------------------------------------------------------------------------- */
+
+    @media (max-width: 720px) {
+
+        .pv-card-grid {
+            grid-template-columns          : 1fr;
+            max-width                      : 380px;
+        }
+
+        .pv-project-title__name {
+            font-size                      : 22px;
+        }
+
+        .pv-header__title {
+            font-size                      : 18px;
+        }
+
+        .pv-header__logo {
+            height                         : 30px;
+        }
+
+        .pv-main {
+            padding-left                   : var(--Pv_SpacingMd);
+            padding-right                  : var(--Pv_SpacingMd);
+        }
+    }
+
+    @media (min-width: 721px) and (max-width: 900px) {
+
+        .pv-card-grid {
+            grid-template-columns          : repeat(3, 1fr);
+            gap                            : var(--Pv_SpacingMd);
+            max-width                      : 720px;
+        }
+    }
+
+    @media (orientation: portrait) and (max-width: 720px) {
+
+        .pv-card-grid {
+            grid-template-columns          : 1fr;
+        }
+    }
+
+/* endregion ------------------------------------------------------------------- */

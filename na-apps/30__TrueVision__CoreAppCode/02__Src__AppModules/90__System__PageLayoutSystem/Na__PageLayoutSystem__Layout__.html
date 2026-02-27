@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayoutVision 2D | Page Layout</title>
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  BRANDING | Favicon and Brand Icons                     -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <link rel="apple-touch-icon" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <meta name="theme-color" content="#172b3a">
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Page Layout System Stylesheet                          -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <link rel="stylesheet" href="Na__PageLayoutSystem__Styles__Main__.css">
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  jsPDF Dependency (Version Locked, CDN Independent)     -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <!-- jsPDF v4.1.0 UMD Build - Self-contained, all dependencies bundled -->
+    <!-- CDN Reference: https://esm.sh/jspdf@4.1.0 -->
+    <script src="01__Dependencies__VersionLocked/jspdf.umd.js"></script>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+</head>
+<body>
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Application Header Bar (Matches Main TrueVision App)   -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <header class="app-header">
+        <div class="app-header__logo-container app-header__logo-container--left">
+            <img 
+                src="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
+                alt="Noble Architecture"
+                class="app-header__logo-left"
+            />
+        </div>
+        
+        <div class="app-header__logo-container app-header__logo-container--right">
+            <h1 class="app-header__title">LayoutVision 2D</h1>
+        </div>
+    </header>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Secondary Actions Bar (Below Header)                   -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="na-layout-actions">
+        <button class="na-layout-actions__button na-layout-actions__button--primary" id="naLayoutExportFull">
+            Export Full Layout
+        </button>
+        <button class="na-layout-actions__button na-layout-actions__button--secondary" id="naLayoutExportImageOnly">
+            Export Image Only
+        </button>
+        <button class="na-layout-actions__button na-layout-actions__button--close" id="naLayoutClose">
+            Close
+        </button>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Layout Canvas                                          -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="na-layout-canvas-container" id="naLayoutCanvasContainer">
+        <canvas id="naLayoutCanvas"></canvas>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Error Overlay (No Image Data)                          -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="na-layout-error" id="naLayoutError" style="display: none;">
+        <div class="na-layout-error__content">
+            <h2 class="na-layout-error__title">No Image Data</h2>
+            <p class="na-layout-error__message">
+                Please open the Layout View from the TrueVision 3D viewer.<br>
+                Use the <strong>Export Image</strong> menu and click <strong>Layout View</strong>.
+            </p>
+        </div>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Page Layout System Application Logic                   -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <script type="module">
+    // -------------------------------------------------------------------------
+    // REGION | Page Layout System - Module Initialization
+    // -------------------------------------------------------------------------
+
+        // MODULE IMPORTS | Page Layout System Modules
+        // ------------------------------------------------------------
+        import { Na__PageLayout__Initialize }        from './Na__PageLayoutSystem__SystemLogic__Main__.js';
+        import { Na__PageLayout__RenderFrame }        from './Na__PageLayoutSystem__CanvasRenderPipeline__.js';
+        import { Na__PageLayout__InitNavigation }     from './Na__PageLayoutSystem__2dNavigationControls__.js';
+        import { Na__PageLayout__InitPcControls }     from './Na__PageLayoutSystem__Controls__Pc__.js';
+        import { Na__PageLayout__InitTouchControls }  from './Na__PageLayoutSystem__Controls__TouchScreen__.js';
+        import { Na__PageLayout__InitPdfExport }      from './Na__PageLayoutSystem__PdfExport__A3__.js';
+        // ------------------------------------------------------------
+
+
+        // FUNCTION | Boot Page Layout System
+        // ------------------------------------------------------------
+        async function Na__PageLayout__Boot() {
+            const canvas          = document.getElementById('naLayoutCanvas'); // <-- Layout canvas element
+            const canvasContainer = document.getElementById('naLayoutCanvasContainer'); // <-- Canvas container
+            const errorOverlay    = document.getElementById('naLayoutError'); // <-- Error overlay
+
+            if (!canvas || !canvasContainer) return; // <-- Guard against missing elements
+
+            // Initialize the system (loads image data from opener, loads title block)
+            // ------------------------------------------------------------
+            const state = await Na__PageLayout__Initialize(canvas, canvasContainer, errorOverlay); // <-- Init and get shared state
+            if (!state) return; // <-- Initialization failed (error overlay shown)
+
+            // Render function bound to state
+            // ------------------------------------------------------------
+            const requestRedraw = () => {
+                const ctx = canvas.getContext('2d'); // <-- Get 2D context
+                Na__PageLayout__RenderFrame(ctx, canvas.width, canvas.height, state); // <-- Draw frame
+            };
+
+            state.requestRedraw = requestRedraw; // <-- Store redraw reference on state
+
+            // Initialize sub-modules
+            // ------------------------------------------------------------
+            Na__PageLayout__InitNavigation(canvas, state, requestRedraw); // <-- 2D zoom/pan controls
+            Na__PageLayout__InitPcControls(canvas, state, requestRedraw); // <-- PC mouse interaction
+            Na__PageLayout__InitTouchControls(canvas, state, requestRedraw); // <-- Touch interaction
+            Na__PageLayout__InitPdfExport(state); // <-- PDF export button handlers
+
+            // Initial render
+            // ------------------------------------------------------------
+            requestRedraw(); // <-- Draw first frame
+        }
+        // ------------------------------------------------------------
+
+
+        // Boot on DOM ready
+        // ------------------------------------------------------------
+        Na__PageLayout__Boot(); // <-- Start the layout system
+        // ------------------------------------------------------------
+
+    // endregion -------------------------------------------------------------------
+    </script>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+</body>
+</html>
+

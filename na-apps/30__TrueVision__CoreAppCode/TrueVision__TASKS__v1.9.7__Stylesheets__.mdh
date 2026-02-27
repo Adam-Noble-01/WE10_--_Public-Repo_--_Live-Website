@@ -1,0 +1,269 @@
+﻿# TrueVision3D v1.9.7 Tasks
+
+## MAIN OBJECTIVE:
+Better more descriptive naming and structure of stylesheets.
+
+## Stylesheets
+
+### IMPORTANT BACKGROUND
+- Project uses a descriptive naming structure typical of all other files.
+
+### INTRODUCTION 
+- Several Stylesheets exist but are poorly named, located in the incorrect locations and structured in an ad hoc manner.
+
+### THE ISSUE
+- Stylesheets are not named consistently and are not structured in a way that is easy to understand and maintain.
+
+### TASKS
+- locate all of the style sheets throughout the project 
+- they are currently named with all kinds of ad hoc naming. 
+- we need to create a new unified naming structure with the correct name spacing and the correct naming style and convention like used on the rest of the project so map out all of the project names to build an idea of how I name things. 
+- certain modules in their own folders such as the drawing layout tool Etc should have all of their styles separated and put in a style sheet in that respective modules subfolder rather than in the broad style sheets folder, though we only need to move if they pertain to a highly specific sub feature most of the style sheets should stay in this folder but just be renamed. 
+- you will need to do an extensive search of all of the modules and see where the style sheets are loaded and update the loading links to point back to this new locations
+- take your time with this task because it will affect loads of parts of the app and needs to be done very carefully. 
+- building out a full picture is critical before doing anything
+
+### AIMS OF THE UPDATES
+- To align Stylesheet naming with the rest of the project and to be more descriptive and consistent.
+
+### IMPORTANT CODING RULES
+- Separate concerns as much as possible within new files. 
+- Use the established three-stage name spacing system. 
+- Carefully check all of the systems and build out a mental picture of the structures of dependencies between scripts. 
+- Strictly use the existing units and Mass helper scripts already set up don't reinvent the wheel. 
+- Use the app config file as much as possible for defaults driving downstream variables and constants in the modules. 
+
+### MAP THE PROJECT FIRST BEFORE CODING
+- The project is HIGHLY modular thus you need to build a picture of the existing systems to see how to wire up the new system to the existing systems.
+- Utilise the tree diagram in the final section below to build a picture of the project and how the stylesheets are loaded and wired up to the correct systems and modules.
+
+# -------------------------------------------------------------
+## CONCLUSION
+Once completed we should have a robust set of Stylesheets that are properly named and structured and loaded in the correct locations and wired up to the correct systems and modules.
+
+# -------------------------------------------------------------
+## PROJECT TREE STRUCTURE
+TrueVision3D/
+â”œâ”€â”€ .cursor/
+â”‚   â”œâ”€â”€ rules/
+â”‚   â”‚   â”œâ”€â”€â”€â”€ 00-AgentRole-Global-.mdc
+â”‚   â”‚   â”œâ”€â”€â”€â”€ 01-NamingConvention-Global-.mdc
+â”‚   â”‚   â”œâ”€â”€â”€â”€ 02-Description-Global-.mdc
+â”‚   â”‚   â”œâ”€â”€â”€â”€ 03-dependency-Traversal-Protocol-.mdc
+â”‚   â”‚   â”œâ”€â”€â”€â”€ 04-AppConfig-Global-Critical-.mdc
+â”‚   â”‚   â”œâ”€â”€â”€â”€ 05-CodingConventions-Global-.mdc
+â”‚   â”‚   â””â”€â”€â”€â”€ 06-World-Units-And-Conversions-Required-Global-.mdc
+â”‚   â”‚
+â”‚   â””â”€â”€â”€â”€ debug.log
+â”‚
+â”œâ”€â”€ 10__DistributionEmails/
+â”‚   â””â”€â”€â”€â”€ Distro__InviteEmailEmbedCard__TrueVision3D.html
+â”‚
+â”œâ”€â”€ 80__Testing__PrototypeEnvironment/
+â”‚   â”œâ”€â”€ TestEnv__CompletedFeaturesDocs/
+â”‚   â”‚   â””â”€â”€â”€â”€ Test__ModelInteraction__Animation__ClickToOpenDoors__.md
+â”‚   â”‚
+â”‚   â”œâ”€â”€ TestEnv__CurrentFeatureTestScripts/
+â”‚   â”‚   â”œâ”€â”€â”€â”€ Test__TopLevelContainer__BuildingModelsByStorey__.js
+â”‚   â”‚   â””â”€â”€â”€â”€ Test__TopLevelContainer__BuildingModelsByStorey__.md
+â”‚   â”‚
+â”‚   â”œâ”€â”€â”€â”€ TestEnv__FlaskLocalServer.bat
+â”‚   â”œâ”€â”€â”€â”€ TestEnv__FlaskLocalServer.py
+â”‚   â”œâ”€â”€â”€â”€ TestEnv__PrototypeTestingSandbox__DomAndLayout.html
+â”‚   â”œâ”€â”€â”€â”€ TestEnv__PrototypeTestingSandbox__Main__.js
+â”‚   â”œâ”€â”€â”€â”€ TestEnv__PrototypeTestingSandbox__Stylesheet.css
+â”‚   â”œâ”€â”€â”€â”€ TestEnv__README__.md
+â”‚   â””â”€â”€â”€â”€ TestEnv__SubAppData__Config.json
+â”‚
+â”œâ”€â”€ assets__Skydomes/
+â”‚   â””â”€â”€â”€â”€ HdriSkydome__RuralLandscape__AutumnField__SunnyDay__4k__.hdr
+â”‚
+â”œâ”€â”€ rubyScript__SketchUpSisterTools__ToolsAndUtils/
+â”‚   â”œâ”€â”€â”€â”€ Na__TrueVision__GlbBuilder__Version-1.3.0__10-Feb-2026__.zip
+â”‚   â”œâ”€â”€â”€â”€ Na__TrueVision__GlbBuilder__Version-1.4.0__10-Feb-2026__.zip
+â”‚   â”œâ”€â”€â”€â”€ Na__TrueVision__GlbBuilderUtility__Version-1.7.0__23-Feb-2026__.zip
+â”‚   â”œâ”€â”€â”€â”€ Na__TrueVision__GlbBuilderUtility__Version-1.7.1__23-Feb-2026.zip
+â”‚   â””â”€â”€â”€â”€ Na__TrueVision__WhitecardModel__GlbBuilderUtility__Modules__LocalShortcut__.lnk
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€â”€â”€ 3dObjectIInteraction__Animation__ClickToOpenDoors__.js
+â”‚   â”œâ”€â”€â”€â”€ 3dObjectIInteraction__Animation__ClickToOpenDoors__README__.md
+â”‚   â””â”€â”€â”€â”€ 3dObjectInteraction__Animation__WalkMode__ProximityToOpenDoors__.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€â”€â”€ 3dObject__ViewBuildingStoreys__README__.md
+â”‚   â””â”€â”€â”€â”€ 3dObject__ViewBuildingStoreys__SystemLogic__.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€â”€â”€ Na__AppConfig__Loader.js
+â”‚   â”œâ”€â”€â”€â”€ Na__AppConfig__Main.json
+â”‚   â””â”€â”€â”€â”€ Na__AppConfig__MaterialsLibrary.json
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â””â”€â”€â”€â”€ Na__AppFlow__LoadingSequence.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â””â”€â”€â”€â”€ Na__AppUtils__ProjectLoader.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€â”€â”€ Na__UiFeature__CameraLens__Controls.js
+â”‚   â”œâ”€â”€â”€â”€ Na__UiFeature__CameraPosition__Controls.js
+â”‚   â””â”€â”€â”€â”€ Na__UiFeature__SaveCameraSettings.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€â”€â”€ GenerateObject__AnimatedBallCloud.js
+â”‚   â”œâ”€â”€â”€â”€ GenerateObject__AnimatedRGBBoxes.js
+â”‚   â””â”€â”€â”€â”€ GenerateObject__AnimatedWhiteStars.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€â”€â”€ Na__ImageExport__PostProcessEffects__HighPassSharpen.js
+â”‚   â”œâ”€â”€â”€â”€ Na__ImageExport__PostProcessEffects__Levels.js
+â”‚   â”œâ”€â”€â”€â”€ Na__ImageExport__PostProcessEffects__Pipeline.js
+â”‚   â”œâ”€â”€â”€â”€ Na__UiFeature__ImageExport__Controls.js
+â”‚   â””â”€â”€â”€â”€ Na__UiFeature__ImageExport__ViewportOverlays.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€â”€â”€ Na__MaterialsSystem__LibraryLoader.js
+â”‚   â””â”€â”€â”€â”€ Na__MaterialsSystem__MaterialSwap.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â””â”€â”€â”€â”€ Na__Math__Units.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â””â”€â”€â”€â”€ Na__ModelLoader__MultiModel.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â””â”€â”€â”€â”€ Na__UiFeature__ModelToggle__Controls.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€â”€â”€ Na__DefaultNavmode__IpadControls.js
+â”‚   â”œâ”€â”€â”€â”€ Na__DefaultNavmode__MouseControls.js
+â”‚   â”œâ”€â”€â”€â”€ Na__Navmode__OrbitControls__Damping.js
+â”‚   â”œâ”€â”€â”€â”€ Na__Navmode__OrbitMode__SystemLogic.js
+â”‚   â”œâ”€â”€â”€â”€ Na__Navmode__WalkMode__DesktopControls.js
+â”‚   â”œâ”€â”€â”€â”€ Na__Navmode__WalkMode__SystemLogic.js
+â”‚   â”œâ”€â”€â”€â”€ Na__Navmode__WalkMode__TouchScreenControls.js
+â”‚   â”œâ”€â”€â”€â”€ Na__UiFeature__WalkModeControls.js
+â”‚   â””â”€â”€â”€â”€ Na__UiFeature__WalkModeEventListeners.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€ 01__Dependencies__VersionLocked/
+â”‚   â”‚   â””â”€â”€â”€â”€ jspdf.umd.js
+â”‚   â”‚
+â”‚   â”œâ”€â”€ 02__VizDpt__TitleBlock__Pdf__/
+â”‚   â”‚   â”œâ”€â”€â”€â”€ PageLayoutSystem__TitleBlock__A3__.pdf
+â”‚   â”‚   â””â”€â”€â”€â”€ PageLayoutSystem__TitleBlock__A3__.png
+â”‚   â”‚
+â”‚   â”œâ”€â”€ 03__TitleBlock__LayoutPdfs__RecConcept__Feb-2026__/
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A1 landscape layout.pdf
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A1 landscape layout_-_Converted_From_PDF.png
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A1 portrait layout.pdf
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A1 portrait layout_-_Converted_From_PDF.png
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A2 landscape layout.pdf
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A2 landscape layout_-_Converted_From_PDF.png
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A2 portrait layout.pdf
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A2 portrait layout_-_Converted_From_PDF.png
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A3 landscape layout.pdf
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A3 landscape layout_-_Converted_From_PDF.png
+â”‚   â”‚   â”œâ”€â”€â”€â”€ A3 portrait layout.pdf
+â”‚   â”‚   â””â”€â”€â”€â”€ A3 portrait layout_-_Converted_From_PDF.png
+â”‚   â”‚
+â”‚   â”œâ”€â”€â”€â”€ Na__PageLayoutSystem__2dNavigationControls__.js
+â”‚   â”œâ”€â”€â”€â”€ Na__PageLayoutSystem__CanvasRenderPipeline__.js
+â”‚   â”œâ”€â”€â”€â”€ Na__PageLayoutSystem__Controls__Pc__.js
+â”‚   â”œâ”€â”€â”€â”€ Na__PageLayoutSystem__Controls__TouchScreen__.js
+â”‚   â”œâ”€â”€â”€â”€ Na__PageLayoutSystem__Layout__.html
+â”‚   â”œâ”€â”€â”€â”€ Na__PageLayoutSystem__PdfExport__A3__.js
+â”‚   â”œâ”€â”€â”€â”€ Na__PageLayoutSystem__Stylesheet__.css
+â”‚   â”œâ”€â”€â”€â”€ Na__PageLayoutSystem__SystemLogic__Main__.js
+â”‚   â””â”€â”€â”€â”€ PageLayoutSystem__TitleBlock__A3__.png
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â”œâ”€â”€â”€â”€ Na__RenderEffect__ProfileLines__.js
+â”‚   â””â”€â”€â”€â”€ Na__RenderPipeline__PostProcessing__Setup.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â””â”€â”€â”€â”€ Na__Scene__DefaultFogEffect.js
+â”‚
+â”œâ”€â”€ 02__Src__AppModules/\1/
+â”‚   â””â”€â”€â”€â”€ Na__Scene__DefaultSceneLighting.js
+â”‚
+â”œâ”€â”€ 03__Style__AppStylesheets/
+    â”œâ”€â”€â”€â”€ base.css
+    â”œâ”€â”€â”€â”€ canvas.css
+    â”œâ”€â”€â”€â”€ controls-instructions-panel.css
+    â”œâ”€â”€â”€â”€ fonts.css
+    â”œâ”€â”€â”€â”€ header.css
+    â”œâ”€â”€â”€â”€ image-export-overlays.css
+    â”œâ”€â”€â”€â”€ index.css
+    â”œâ”€â”€â”€â”€ loading-overlay.css
+    â””â”€â”€â”€â”€ ui-components.css
+
+# -------------------------------------------------------------
+# PROPOSED NEW NAMING CONVENTION
+- **Canonical stylesheet file pattern**
+  - `Na__<DomainOrModule>__Styles__<FeatureOrScope>__.css`
+  - Keep `Na__` prefix for all first-party files.
+  - Keep `Styles` as the third namespace slot for consistency.
+  - Use descriptive final scope names (avoid generic names like `base`, `index`, `main` unless intentionally acting as aggregator files).
+
+- **Folder placement rules**
+  - Shared/global app CSS remains in `03__Style__AppStylesheets/`.
+  - Module-specific CSS remains inside its module folder (example: `02__Src__AppModules/\1/`).
+  - Prototype/TestEnv-specific CSS stays in `80__Testing__PrototypeEnvironment/`.
+  - Only move a stylesheet if it is tightly scoped to one feature/module and not reused globally.
+
+- **Phase 01 | Build dependency map (NO renaming yet)**
+  - Locate every `.css` file in the repo.
+  - Locate every `link rel="stylesheet"` and every CSS `@import`.
+  - Build a reference map: `stylesheet file -> all loader/import locations`.
+  - Confirm import order dependencies for aggregator/index stylesheets before any rename.
+
+- **Phase 02 | Apply naming convention to current known stylesheets**
+  - `03__Style__AppStylesheets/index.css` -> `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css`
+  - `03__Style__AppStylesheets/fonts.css` -> `03__Style__AppStylesheets/Na__CoreUi__Styles__Fonts__.css`
+  - `03__Style__AppStylesheets/base.css` -> `03__Style__AppStylesheets/Na__CoreUi__Styles__BaseLayout__.css`
+  - `03__Style__AppStylesheets/canvas.css` -> `03__Style__AppStylesheets/Na__CoreUi__Styles__RenderCanvas__.css`
+  - `03__Style__AppStylesheets/ui-components.css` -> `03__Style__AppStylesheets/Na__UiFeature__Styles__DropdownAndToast__.css`
+  - `03__Style__AppStylesheets/header.css` -> `03__Style__AppStylesheets/Na__UiFeature__Styles__AppHeader__.css`
+  - `03__Style__AppStylesheets/controls-instructions-panel.css` -> `03__Style__AppStylesheets/Na__UiFeature__Styles__ControlsHelpPanel__.css`
+  - `03__Style__AppStylesheets/loading-overlay.css` -> `03__Style__AppStylesheets/Na__UiFeature__Styles__LoadingOverlays__.css`
+  - `03__Style__AppStylesheets/image-export-overlays.css` -> `03__Style__AppStylesheets/Na__ImageExport__Styles__ViewportOverlays__.css`
+  - `02__Src__AppModules/\1/Na__PageLayoutSystem__Stylesheet__.css` -> `02__Src__AppModules/14__PageLayoutSystem/Na__PageLayoutSystem__Styles__Main__.css`
+  - `80__Testing__PrototypeEnvironment/TestEnv__PrototypeTestingSandbox__Stylesheet.css` -> `80__Testing__PrototypeEnvironment/Na__TestEnv__Styles__PrototypeSandbox__.css`
+
+- **Phase 03 | Update all links/imports immediately after rename**
+  - Update `index.html` stylesheet link to new `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css`.
+  - Update `80__Testing__PrototypeEnvironment/TestEnv__PrototypeTestingSandbox__DomAndLayout.html` links to:
+    - `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css`
+    - `Na__TestEnv__Styles__PrototypeSandbox__.css`
+  - Update `02__Src__AppModules/14__PageLayoutSystem/Na__PageLayoutSystem__Layout__.html` link to `Na__PageLayoutSystem__Styles__Main__.css`.
+  - Update all `@import` paths inside `Na__CoreUi__Styles__Index__.css` to new filenames.
+
+- **Phase 04 | Validation checklist**
+  - Run a full-text search for old stylesheet names; result must be zero references.
+  - Open main app and verify:
+    - Header, overlays, dropdowns, loading states, and canvas visuals.
+    - Export overlay UI visibility and styling.
+  - Open Page Layout System and verify layout UI styles.
+  - Open Test Environment and verify both shared + test-specific styles.
+  - Confirm no 404 stylesheet network errors in browser dev tools.
+
+- **Phase 05 | Risk controls**
+  - Rename and reference-update in one small batch per file to avoid broken intermediate states.
+  - Preserve existing stylesheet import order to prevent visual regressions.
+  - Do not change CSS selector behavior in this task; naming/placement refactor only.
+  - Keep a rollback list of old->new names for quick recovery if needed.
+
+- **Definition of done**
+  - All stylesheet files follow the canonical naming convention.
+  - All loaders/imports point to new names and paths.
+  - No stale references remain in repo.
+  - Main app, Page Layout System, and TestEnv render correctly with no missing styles.
+
+
+
+# -------------------------------------------------------------
+*END OF FILE*

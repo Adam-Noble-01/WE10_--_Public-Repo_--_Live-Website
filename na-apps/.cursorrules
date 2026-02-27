@@ -1,0 +1,281 @@
+# CODE STRUCTURE RULES - HEADER/FOOTER PATTERN
+# =============================================================================
+
+## MANDATORY PATTERN FOR ALL CODE BLOCKS
+
+ALL functions, classes, methods, and significant code blocks MUST follow this header/footer pattern:
+
+### REGION PATTERN (for code blocks/modules):
+```javascript
+// #Region ------------------------------------------------
+// DESCRIPTION | Optional subtitle or additional info
+// --------------------------------------------------------
+// ... code content ...
+// #endregion ---------------------------------------------
+```
+
+### FUNCTION PATTERN:
+```javascript
+// FUNCTION | Function Name - Brief Description
+// --------------------------------------------------------
+function functionName() {
+    // ... function body ...
+}
+// --------------------------------------------------------
+```
+
+### CLASS PATTERN:
+```javascript
+// CLASS | Class Name - Brief Description
+// --------------------------------------------------------
+class ClassName {
+    // ... class content ...
+}
+// --------------------------------------------------------
+```
+
+### METHOD PATTERN (within classes):
+```javascript
+// METHOD | Method Name - Brief Description
+// --------------------------------------------------------
+methodName() {
+    // ... method body ...
+}
+// --------------------------------------------------------
+```
+
+### SUB-SECTION PATTERN (for sub-functions and logical sections):
+```javascript
+// Sub-section description
+// ------------------------------------
+codeBlock() {
+    // ... code ...
+}
+```
+
+## FORMATTING REQUIREMENTS
+
+1. **Header Format:**
+   - Start with `// #Region` or `// FUNCTION` or `// CLASS` or `// METHOD`
+   - Follow with `|` separator
+   - Include descriptive name and brief description
+   - Use exactly 48 dashes: `------------------------------------------------`
+
+2. **Separator Line (after header):**
+   - Use exactly 56 dashes: `--------------------------------------------------------`
+
+3. **Footer Format:**
+   - Use `// #endregion` for regions
+   - Use `// --------------------------------------------------------` (56 dashes) for functions/classes/methods
+   - Footer should align with the closing brace or end of block
+   - Include a blank line after function/class/method footer before next code block
+
+4. **Sub-Section Format (for sub-functions and logical sections):**
+   - Write a descriptive comment on one line
+   - Follow immediately with `// ------------------------------------` (36 dashes)
+   - Place the comment underline directly before the code block it describes
+   - Use this pattern for:
+     - Sub-functions within larger functions
+     - Logical code sections within functions/methods
+     - Callback functions or event handlers
+     - Any significant code block that needs visual separation
+
+5. **Spacing and Alignment (DOUBLE BLANK LINES FOR VISUAL CLARITY):**
+   - **USE DOUBLE BLANK LINES** (two consecutive blank lines) to space out major logical sections - this improves readability and visual separation
+   - Include **double blank lines** after multi-line function calls or complex statements
+   - Include **double blank lines** after variable assignment blocks before next logical section
+   - Include **double blank lines** before error handling sections (catch blocks)
+   - Error handling comments should align with the try/catch block indentation level
+   - Include a blank line after function closing brace before next code block
+   - Include a blank line before final region end marker
+   - **Double blank lines help space the code out nicely for visual clarity and easier reading**
+
+6. **Region Tag Rules:**
+   - **ONLY the start and end of regions have `#region`/`#endregion` tags**
+   - Main file headers do NOT use region tags (use plain comment format: `// --------------------------------------------------------`)
+   - Nested comment sections inside functions do NOT use region tags
+   - Use `// --------------------------------------------------------` (56 dashes) for comment sections inside functions
+   - Regions are used only for top-level code organization (configuration, helper functions, main modules)
+
+7. **Spacing Between Blocks:**
+   - **2 blank lines** between function blocks
+   - **3 blank lines** between region blocks
+   - Maintain existing double blank line rules for logical sections within functions
+
+## EXAMPLES
+
+### Example 1: Region Block (Top-Level Only)
+```javascript
+// Main file header (NO region tag)
+// --------------------------------------------------------
+// MODULE NAME | Module description
+// --------------------------------------------------------
+
+
+// #Region ------------------------------------------------
+// CONFIGURATION | Settings and constants
+// --------------------------------------------------------
+const SETTING_ONE = true;
+const SETTING_TWO = false;
+// #endregion ---------------------------------------------
+
+
+// #Region ------------------------------------------------
+// HELPER FUNCTIONS | Utility functions
+// --------------------------------------------------------
+
+// FUNCTION | HelperFunction - Does something useful
+// --------------------------------------------------------
+function helperFunction() {
+    return true;
+}
+// --------------------------------------------------------
+
+// #endregion ---------------------------------------------
+```
+
+**Key Points:**
+- Main file header uses plain comment format (no `#region` tag)
+- Only top-level sections use `#region`/`#endregion` tags
+- 3 blank lines between regions
+- 2 blank lines between functions within a region
+
+### Example 2: Function
+```javascript
+// FUNCTION | CalculateDistance - Computes 3D distance between points
+// --------------------------------------------------------
+function calculateDistance(point1, point2) {
+    return Math.sqrt(
+        Math.pow(point2.x - point1.x, 2) +
+        Math.pow(point2.y - point1.y, 2) +
+        Math.pow(point2.z - point1.z, 2)
+    );
+}
+// --------------------------------------------------------
+```
+
+### Example 3: Class
+```javascript
+// CLASS | SphereManager - Manages sphere creation and animation
+// --------------------------------------------------------
+class SphereManager {
+    // METHOD | Initialize - Sets up sphere array
+    // --------------------------------------------------------
+    initialize() {
+        // ... code ...
+    }
+    // --------------------------------------------------------
+}
+// --------------------------------------------------------
+```
+
+### Example 4: Sub-Section Pattern (Inside Functions)
+```javascript
+// FUNCTION | SetupScene - Configures scene elements
+// --------------------------------------------------------
+function setupScene() {
+    // Comment sections inside functions use plain comment format (NO region tags)
+    // --------------------------------------------------------
+    // CAMERA SETUP | Initialize camera
+    // --------------------------------------------------------
+    const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 0, 0), scene);
+
+
+    // --------------------------------------------------------
+    // LIGHTING SETUP | Configure lights
+    // --------------------------------------------------------
+    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+
+    // Animate spheres each frame
+    // ------------------------------------
+    scene.registerBeforeRender(() => {
+        for (let i = 0; i < sphereCount; i++) {
+            // ... animation code ...
+        }
+    });
+}
+// --------------------------------------------------------
+```
+
+**Key Points:**
+- Comment sections inside functions use `// --------------------------------------------------------` (NO `#region` tags)
+- Sub-sections use `// ------------------------------------` (36 dashes) for minor separations
+- Double blank lines between logical sections within functions
+
+### Example 5: Function with Spacing and Error Handling (ModelLoader Pattern)
+```javascript
+// FUNCTION | LoadModel - Asynchronously loads model from CDN
+// --------------------------------------------------------
+async function loadModel() {
+    try {
+        // Load all meshes from the file
+        // ------------------------------------
+        const result = await BABYLON.SceneLoader.ImportMeshAsync(
+            '',                    // Parameter 1
+            '',                   // Parameter 2
+            modelUrl,             // Parameter 3
+            scene                 // Parameter 4
+        );
+
+
+        // Store loaded meshes and root node
+        // ------------------------------------
+        loadedMeshes = result.meshes;
+        loadedModelRoot = result.meshes[0];
+
+
+        // Position and scale the loaded model
+        // ------------------------------------
+        if (loadedModelRoot) {
+            loadedModelRoot.position = new BABYLON.Vector3(0, 0, 0);
+            loadedModelRoot.scaling = new BABYLON.Vector3(1, 1, 1);
+        }
+
+        // Log success
+        // ------------------------------------
+        console.log('Model loaded successfully');
+        return result;
+
+        
+    // Error handling
+    // ------------------------------------
+    } catch (error) {
+        console.error('Error loading model:', error);
+        throw error;
+    }
+}
+// --------------------------------------------------------
+
+// Initialize model loading
+// ------------------------------------
+loadModel();
+```
+
+**Note:** The double blank lines (shown as empty lines between code sections) are intentional and improve visual spacing for readability.
+
+## ENFORCEMENT
+
+- ALL functions must have header and footer
+- ALL classes must have header and footer
+- ALL methods must have header and footer
+- ALL significant code blocks/modules should use region pattern
+- Headers must include descriptive names and brief descriptions
+- Footer must match the header style (region vs function/class/method)
+- ALL sub-functions and logical sub-sections must use comment underline pattern
+- Sub-section comments must be followed by exactly 36 dashes: `------------------------------------`
+- **MANDATORY: Use DOUBLE BLANK LINES** (two consecutive blank lines) to space out major logical sections for better visual clarity and readability
+- Spacing must follow the alignment patterns: **double blank lines** after multi-line calls, after variable blocks, before error handling, single blank line after function closures, and before region end markers
+- Error handling comments must align with try/catch block indentation level
+- **Region tags (`#region`/`#endregion`) are ONLY used at the start and end of top-level regions**
+- Main file headers do NOT use region tags
+- Comment sections inside functions do NOT use region tags
+- **2 blank lines between function blocks**
+- **3 blank lines between region blocks**
+
+## EXCEPTIONS
+
+- Very short utility functions (< 3 lines) may omit headers/footers
+- Arrow functions used as callbacks may omit headers/footers
+- Simple getters/setters may use abbreviated format
+

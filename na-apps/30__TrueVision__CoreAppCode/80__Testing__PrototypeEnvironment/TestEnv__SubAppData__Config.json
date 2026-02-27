@@ -1,0 +1,166 @@
+{
+    "testEnvironment": {
+        "testEnvironment__Description": "Configuration flags for the TrueVision3D test environment sandbox.",
+        "testEnvironment__ShowStatsOverlay": true,
+        "testEnvironment__ShowNodeExplorer": true,
+        "testEnvironment__ShowTestingBanner": true,
+        "testEnvironment__AutoLoadGlbFiles": true
+    },
+    "modelDefaults": {
+        "modelUrls": []
+    },
+    "Scene__Default__CameraConfig": {
+        "Scene__Default__CameraConfig__Fov": 45,
+        "Scene__Default__CameraConfig__Near": 0.1,
+        "Scene__Default__CameraConfig__Far": 1000
+    },
+    "Scene__Default__LightingConfig": {
+        "Scene__Default__LightingConfig__AmbientIntensity": 2.5,
+        "Scene__Default__LightingConfig__DirectionalIntensity": 1.0
+    },
+    "Scene__Default__FogConfig": {
+        "Scene__Default__FogConfig__Density": 0.0003,
+        "Scene__Default__FogConfig__Color": 16777215
+    },
+    "Scene__Default__ControlsConfig": {
+        "Scene__Default__ControlsConfig__MovementSpeed": 0.5,
+        "Scene__Default__ControlsConfig__ElevationSpeed": 0.5,
+        "Scene__Default__ControlsConfig__EnableWASD": true,
+        "Scene__Default__ControlsConfig__EnableDamping": false,
+        "Scene__Default__ControlsConfig__StatusHideDelay": 3000
+    },
+    "Scene__GroundPlane": {
+        "Scene__GroundPlane__Enabled": false,
+        "Scene__GroundPlane__Size": 500,
+        "Scene__GroundPlane__yAxisOffset": -0.05,
+        "Scene__GroundPlane__ShadowOpacity": 0.1
+    },
+    "models": {
+        "baseMesh": {
+            "material": {
+                "whiteColor": 16777215,
+                "roughness": 1.0,
+                "metalness": 0.0,
+                "polygonOffsetFactor": 2,
+                "polygonOffsetUnits": 2,
+                "emissiveBoost": 3355443,
+                "textureEmissive": 4473924
+            }
+        },
+        "RenderConfig__Linework": {
+            "RenderConfig__Linework__EdgeColor": 1315860,
+            "RenderConfig__Linework__LineWidth": 0.9,
+            "RenderConfig__Linework__PolygonOffsetFactor": -4,
+            "RenderConfig__Linework__PolygonOffsetUnits": -4,
+            "RenderConfig__Linework__RenderOrder": 999,
+            "RenderConfig__Linework__DepthBias": 0.00015
+        }
+    },
+    "RenderEffect__ProfileLines": {
+        "RenderEffect__ProfileLines__Description": "Profile lines render silhouette edges around curved/rounded geometry.",
+        "RenderEffect__ProfileLines__Enabled": true,
+        "RenderEffect__ProfileLines__EdgeColor": 4210752,
+        "RenderEffect__ProfileLines__EdgeThresholdNormal": 0.2,
+        "RenderEffect__ProfileLines__EdgeThresholdDepth": 0.002,
+        "RenderEffect__ProfileLines__EdgeWidth": 0.5
+    },
+    "Global__Hotkeys": {
+        "Global__Hotkeys__Description": "Global keyboard shortcuts. Modifier keys joined with '+'. Evaluated in keydown handlers.",
+        "Global__Hotkeys__ToggleWalkMode": "Alt+Shift+W"
+    },
+    "Navmode__Settings": {
+        "Navmode__Settings__Description": "All navmode values are integer millimeters where noted; convert to 3D units in code.",
+        "Navmode__MouseControls": {
+            "Navmode__MouseControls__EnableWASD": true,
+            "Navmode__MouseControls__MovementSpeedMm": 50,
+            "Navmode__MouseControls__ElevationSpeedMm": 50,
+            "Navmode__MouseControls__OrbitMinDistanceMm": 250,
+            "Navmode__MouseControls__OrbitMaxDistanceMm": 50000,
+            "Navmode__MouseControls__ZoomStepMm": 250
+        },
+        "Navmode__IpadControls": {
+            "Navmode__IpadControls__EnableWASD": false,
+            "Navmode__IpadControls__MovementSpeedMm": 50,
+            "Navmode__IpadControls__ElevationSpeedMm": 50,
+            "Navmode__IpadControls__OrbitMinDistanceMm": 250,
+            "Navmode__IpadControls__OrbitMaxDistanceMm": 50000
+        },
+        "Navmode__WalkMode": {
+            "Navmode__WalkMode__Description": "First-person walk mode settings. All distance values are integer millimeters; convert to 3D units in code.",
+            "Navmode__WalkMode__EyeHeightMm": 1620,
+            "Navmode__WalkMode__CapsuleHeightMm": 1700,
+            "Navmode__WalkMode__CapsuleRadiusMm": 280,
+            "Navmode__WalkMode__HorizontalFovDeg": 75,
+            "Navmode__WalkMode__MovementSpeedMmPerSec": 3500,
+            "Navmode__WalkMode__SprintMultiplier": 1.8,
+            "Navmode__WalkMode__GravityMmPerSecSq": 9810,
+            "Navmode__WalkMode__MaxStepHeightMm": 300,
+            "Navmode__WalkMode__MouseSensitivity": 0.002,
+            "Navmode__WalkMode__DoorProximityThresholdMm": 2000
+        }
+    },
+    "Navmode__Damping": {
+        "Navmode__Damping__Description": "Orbit-controls damping settings. Factor values are unitless scalar values (not millimeters).",
+        "Navmode__Damping__Mouse": {
+            "Navmode__Damping__Mouse__Enabled": false,
+            "Navmode__Damping__Mouse__Factor": 0.08
+        },
+        "Navmode__Damping__Ipad": {
+            "Navmode__Damping__Ipad__Enabled": true,
+            "Navmode__Damping__Ipad__Factor": 0.08
+        }
+    },
+    "MaterialsSystem__Config": {
+        "MaterialsSystem__Config__Description"         : "PBR materials swap system config for test environment. Uses shared library from parent project.",
+        "MaterialsSystem__Config__Enabled"             : true,
+        "MaterialsSystem__Config__LibraryUrl"          : "../02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json",
+        "MaterialsSystem__Config__FallbackToWhitecard" : true,
+        "MaterialsSystem__Config__PolygonOffsetFactor" : 2,
+        "MaterialsSystem__Config__PolygonOffsetUnits"  : 2
+    },
+    "3dObject__InteractionsSystem": {
+        "3dObject__Interaction__DoorAnimation": {
+            "3dObject__Interaction__DoorAnimation__Description": "Interactive door animation settings for click-to-open doors. Inherits from main app, test environment enabled by default.",
+            "3dObject__Interaction__DoorAnimation__Enabled": true,
+            "3dObject__Interaction__DoorAnimation__AnimationDurationMs": 600,
+            "3dObject__Interaction__DoorAnimation__DefaultRotationDeg": 90,
+            "3dObject__Interaction__DoorAnimation__ClickThresholdPx": 4
+        }
+    },
+    "StoreyVisibility": {
+        "StoreyVisibility__Description": "Storey-based visibility toggle settings. Panel auto-detects storey models from GLB filenames containing Storey__ prefix.",
+        "StoreyVisibility__Enabled": true,
+        "StoreyVisibility__DefaultMode": "ShowAll",
+        "StoreyVisibility__StoreyOrder": [
+            "GroundFloor",
+            "FirstFloor",
+            "SecondFloor",
+            "ThirdFloor"
+        ]
+    },
+    "Dev__DeveloperMode": {
+        "Dev__DeveloperMode__Description": "Dev cube visible by default in test environment for orientation reference.",
+        "Dev__DefaultCube": {
+            "Dev__DefaultCube__Visible": true,
+            "Dev__DefaultCube__SizeInMm": 1000,
+            "Dev__DefaultCube__Colour": "#1e3a4f",
+            "Dev__DefaultCube__PozX": 0,
+            "Dev__DefaultCube__PozY": 500,
+            "Dev__DefaultCube__PozZ": 0
+        },
+        "OrbitHelperCube__Debug__Visible": false
+    },
+    "TestEnv__DefaultView": {
+        "TestEnv__DefaultView__Description": "Saved default camera view. Populated by Save View button in test environment. All distances are millimeters.",
+        "TestEnv__DefaultView__Camera__PosXMm": 12321,
+        "TestEnv__DefaultView__Camera__PosYMm": 3092,
+        "TestEnv__DefaultView__Camera__PosZMm": 13872,
+        "TestEnv__DefaultView__Camera__RotX": -0.068033,
+        "TestEnv__DefaultView__Camera__RotY": 0.326175,
+        "TestEnv__DefaultView__Camera__RotZ": 0.02183,
+        "TestEnv__DefaultView__Camera__Fov": 45,
+        "TestEnv__DefaultView__OrbitTarget__XMm": 4479,
+        "TestEnv__DefaultView__OrbitTarget__YMm": 1516,
+        "TestEnv__DefaultView__OrbitTarget__ZMm": -9257
+    }
+}

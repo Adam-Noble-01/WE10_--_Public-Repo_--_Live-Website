@@ -1,0 +1,203 @@
+{
+    "modelDefaults": {
+        "modelUrls": [
+            "https://cdn.noble-architecture.com/VaApps/Projects/2026/60834__Clough/Clough__Whitecard__Layer-01__BaseMeshModel__1.2.0__.glb",
+            "https://cdn.noble-architecture.com/VaApps/Projects/2026/60834__Clough/Clough__Whitecard__Layer-02__LineworkModel__1.2.0__.glb"
+        ]
+    },
+    "Scene__Default__CameraConfig": {
+        "Scene__Default__CameraConfig__Fov": 45,
+        "Scene__Default__CameraConfig__Near": 0.1,
+        "Scene__Default__CameraConfig__Far": 1000
+    },
+    "Scene__Default__LightingConfig": {
+        "Scene__Default__LightingConfig__AmbientIntensity": 2.5,
+        "Scene__Default__LightingConfig__DirectionalIntensity": 1.0
+    },
+    "Scene__Default__FogConfig": {
+        "Scene__Default__FogConfig__Description"     : "Default orbit-cube anchored fog envelope. Distances are integer millimeters and must be converted to 3D units in code.",
+        "Scene__Default__FogConfig__Enabled"         : true,
+        "Scene__Default__FogConfig__Color"           : 16777215,
+        "Scene__Default__FogConfig__StartDistanceMm" : 65000,
+        "Scene__Default__FogConfig__EndDistanceMm"   : 95000
+    },
+    "Scene__Default__ControlsConfig": {
+        "Scene__Default__ControlsConfig__MovementSpeed"   : 0.5,
+        "Scene__Default__ControlsConfig__ElevationSpeed"  : 0.5,
+        "Scene__Default__ControlsConfig__EnableWASD"      : true,
+        "Scene__Default__ControlsConfig__EnableDamping"   : false,
+        "Scene__Default__ControlsConfig__StatusHideDelay" : 3000
+    },
+    "Scene__GroundPlane": {
+        "Scene__GroundPlane__Enabled": false,
+        "Scene__GroundPlane__Size": 500,
+        "Scene__GroundPlane__yAxisOffset": -0.05,
+        "Scene__GroundPlane__ShadowOpacity": 0.1
+    },
+    "models": {
+        "baseMesh": {
+            "material": {
+                "whiteColor": 16777215,
+                "roughness": 1.0,
+                "metalness": 0.0,
+                "polygonOffsetFactor": 2,
+                "polygonOffsetUnits": 2,
+                "emissiveBoost": 3355443,
+                "textureEmissive": 4473924
+            }
+        },
+        "RenderConfig__Linework": {
+            "RenderConfig__Linework__EdgeColor"           : 1315860,
+            "RenderConfig__Linework__LineWidth"           : 0.8,
+            "RenderConfig__Linework__PolygonOffsetFactor" : -4,
+            "RenderConfig__Linework__PolygonOffsetUnits"  : -4,
+            "RenderConfig__Linework__RenderOrder"         : 999,
+            "RenderConfig__Linework__DepthBias"           : 0.00015
+        }
+    },
+    "RenderEffect__ProfileLines": {
+        "RenderEffect__ProfileLines__Description"        : "Profile lines render silhouette edges around curved/rounded geometry, similar to SketchUp profile lines.",
+        "RenderEffect__ProfileLines__Enabled"           : true,
+        "RenderEffect__ProfileLines__EdgeColor"          : 4210752,
+        "RenderEffect__ProfileLines__EdgeThresholdNormal": 0.2,
+        "RenderEffect__ProfileLines__EdgeThresholdDepth" : 0.002,
+        "RenderEffect__ProfileLines__EdgeWidth"          : 0.4
+    },
+    "cameraLens": {
+        "minFocalLengthMM": 24,
+        "maxFocalLengthMM": 75,
+        "defaultFocalLengthMM": 45,
+        "sensorHeightMM": 24
+    },
+    "imageExport": {
+        "customEnabled": true,
+        "aspectRatios": ["3:2", "4:3", "16:9"],
+        "defaultAspectIndex": 0,
+        "resolutions": [1024, 2048, 4096],
+        "defaultResolutionIndex": 2
+    },
+    "Global__Hotkeys": {
+        "Global__Hotkeys__Description"                             : "Global keyboard shortcuts. Modifier keys joined with '+'. Evaluated in keydown handlers.",
+        "Global__Hotkeys__ToggleWalkMode"                          : "Alt+Shift+W"
+    },
+    "Navmode__Settings": {
+        "Navmode__Settings__Description": "All navmode values are integer millimeters where noted; convert to 3D units in code.",
+        "Navmode__MouseControls": {
+            "Navmode__MouseControls__EnableWASD"         : true,
+            "Navmode__MouseControls__MovementSpeedMm"    : 50,
+            "Navmode__MouseControls__ElevationSpeedMm"   : 50,
+            "Navmode__MouseControls__OrbitMinDistanceMm" : 200,
+            "Navmode__MouseControls__OrbitMaxDistanceMm" : 60000,
+            "Navmode__MouseControls__ZoomStepMm"         : 250
+        },
+        "Navmode__IpadControls": {
+            "Navmode__IpadControls__EnableWASD"          : false,
+            "Navmode__IpadControls__MovementSpeedMm"     : 50,
+            "Navmode__IpadControls__ElevationSpeedMm"    : 50,
+            "Navmode__IpadControls__OrbitMinDistanceMm"  : 200,
+            "Navmode__IpadControls__OrbitMaxDistanceMm"  : 50000
+        },
+        "Navmode__WalkMode": {
+            "Navmode__WalkMode__Description"                       : "First-person walk mode settings. All distance values are integer millimeters; convert to 3D units in code.",
+            "Navmode__WalkMode__EyeHeightMm"                       : 1620,
+            "Navmode__WalkMode__CapsuleHeightMm"                   : 1800,
+            "Navmode__WalkMode__CapsuleRadiusMm"                   : 280,
+            "Navmode__WalkMode__HorizontalFovDeg"                  : 75,
+            "Navmode__WalkMode__MovementSpeedMmPerSec"             : 3500,
+            "Navmode__WalkMode__SprintMultiplier"                  : 1.8,
+            "Navmode__WalkMode__GravityMmPerSecSq"                 : 9810,
+            "Navmode__WalkMode__MaxStepHeightMm"                   : 350,
+            "Navmode__WalkMode__MouseSensitivity"                  : 0.002,
+            "Navmode__WalkMode__DoorProximityThresholdMm"          : 2000
+        }
+    },
+    "Navmode__Damping": {
+        "Navmode__Damping__Description"        : "Orbit-controls damping settings. Factor values are unitless scalar values (not millimeters).",
+        "Navmode__Damping__Mouse": {
+            "Navmode__Damping__Mouse__Enabled" : false,
+            "Navmode__Damping__Mouse__Factor"  : 0.08
+        },
+        "Navmode__Damping__Ipad": {
+            "Navmode__Damping__Ipad__Enabled"  : true,
+            "Navmode__Damping__Ipad__Factor"   : 0.08
+        }
+    },
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX"       : 36025,
+            "Camera__DefaultPos__PosY"       : 2898,
+            "Camera__DefaultPos__PosZ"       : 7246
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX"  : -0.0387,
+            "Camera__DefaultRotation__RotY"  : 0.5919,
+            "Camera__DefaultRotation__RotZ"  : 0.0216
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov"       : 29.8628
+        }
+    },
+    "Dev__DeveloperMode": {
+        "Dev__DeveloperMode__Description": "All Dev__DefaultCube values are integer millimeters; convert to 3D units in code.",
+        "Dev__DefaultCube": {
+            "Dev__DefaultCube__Visible"  : false,
+            "Dev__DefaultCube__SizeInMm" : 1000,
+            "Dev__DefaultCube__Colour"   : "#1e3a4f",
+            "Dev__DefaultCube__PozX"     : 20000,
+            "Dev__DefaultCube__PozZ"     : -10000,
+            "Dev__DefaultCube__PozY"     : 2000
+        },
+        "OrbitHelperCube__Debug__Visible": false
+    },
+    "ImageExport__PostProcessEffects": {
+        "ImageExport__PostProcessEffects__Description"  : "All post process effects applied to the image export before download are configured here.",
+        "ImageExport__PostProcessEffects__Enabled"      : true,
+        "ImageExport__PostProcessEffects__Config": [
+            {
+                "ImageExport__PostProcessEffects__Levels": {
+                    "ImageExport__PostProcessEffects__Levels__Enabled"     : true,
+                    "ImageExport__PostProcessEffects__Levels__Order"       : 1,
+                    "ImageExport__PostProcessEffects__Levels__Parameters"  : [
+                        {
+                            "ImageExport__PostProcessEffects__Levels__Parameter__Black"  :  0,
+                            "ImageExport__PostProcessEffects__Levels__Parameter__White"  :  230,
+                            "ImageExport__PostProcessEffects__Levels__Parameter__Gamma"  :  1.0
+                        }
+                    ]
+                }
+            },
+            {
+                "ImageExport__PostProcessEffects__HighPassSharpen": {
+                    "ImageExport__PostProcessEffects__HighPassSharpen__Enabled"   : true,
+                    "ImageExport__PostProcessEffects__HighPassSharpen__Order"     : 2,
+                    "ImageExport__PostProcessEffects__HighPassSharpen__Parameters": [
+                        {
+                            "ImageExport__PostProcessEffects__HighPassSharpen__Parameter__Radius"   : 2.0,
+                            "ImageExport__PostProcessEffects__HighPassSharpen__Parameter__BlendMode": "Overlay",
+                            "ImageExport__PostProcessEffects__HighPassSharpen__Parameter__Opacity"  : 1.0
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "MaterialsSystem__Config": {
+        "MaterialsSystem__Config__Description"         : "Configuration for the PBR materials swap system. When enabled, GLB material names matching the library are replaced with PBR materials. Unmatched materials retain the whitecard appearance.",
+        "MaterialsSystem__Config__Enabled"             : true,
+        "MaterialsSystem__Config__LibraryUrl"          : "././Na__AppConfig__MaterialsLibrary.json",
+        "MaterialsSystem__Config__FallbackToWhitecard" : true,
+        "MaterialsSystem__Config__PolygonOffsetFactor" : 2,
+        "MaterialsSystem__Config__PolygonOffsetUnits"  : 2
+    },
+    "3dObject__InteractionsSystem": {
+        "3dObject__Interaction__DoorAnimation": {
+            "3dObject__Interaction__DoorAnimation__Description"         : "Interactive door animation settings for click-to-open doors. Doors must be exported from SketchUp with ADR/MOD/ROT naming convention via GLB Builder v1.5.0+",
+            "3dObject__Interaction__DoorAnimation__Enabled"             : true,
+            "3dObject__Interaction__DoorAnimation__AnimationDurationMs" : 600,
+            "3dObject__Interaction__DoorAnimation__DefaultRotationDeg"  : 90,
+            "3dObject__Interaction__DoorAnimation__ClickThresholdPx"    : 4
+        }
+    }
+}
+

@@ -1,0 +1,2328 @@
+{
+    "File_Metadata": {
+        "file-name": "NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json",
+        "file-dir-path": "/na-apps/NA23_01_WebApp_-_ThermalCalcTool/NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json",
+        "file-web-url": "https://www.noble-architecture.com/na-apps/NA23_01_WebApp_-_ThermalCalcTool/NA23_01_03-WebApp_-_ThermalCalcTool_-_ThermalData.json",
+        "file-type": "json",
+        "file-category": "Application Data",
+        "file-purpose": "Thermal Calculation Tool Data",
+        "file-author": "Adam Noble - Studio NoodlFjørd",
+        "file-description": {
+            "file-description-heading": "This file contains thermal insulation and material data for the Thermal Calculator application.",
+            "file-description-text": [
+                "- Contains thermal conductivity values for various insulation materials",
+                "- Lists R-values for different material thicknesses",
+                "- Includes notes and warnings for correct application"
+            ]
+        }
+    },
+    "file-version-history-log": [
+        {
+            "version": "1.2.0",
+            "log-date": "2024-05-16",
+            "log-title": "Full Data Integration from Research",
+            "log-changes": [
+                "Integrated all missing specific insulation products (PIR, Phenolic, XPS, EPS variants).",
+                "Added alternative generic insulation values (Mineral Wool, Glass Wool, XPS, EPS, Wood Fibre, Urea Formaldehyde, Wood Wool Slab).",
+                "Expanded Masonry-Materials with specific brick densities/conditions, concrete block types (Forterra, Gryphonn), AAC variants, additional stone types (Malta BCA Granite), and alternative mortar values.",
+                "Expanded Concrete-And-Screeds with various concrete types/densities (Heavy Weight, No-Fines, Aerated Generic, Low Thermal Conductivity, Precast Hollow Core material) and screed variants (CIBSE cement-sand, Agilia Anhydrite).",
+                "Added alternative values for Roofing-Materials-Outer-Coverings (Greenspec Clay Tiles, Malta BCA/Greenspec/Cupa Slates, alternative Bitumen Felts).",
+                "Expanded Surface-Finishes-And-Boards with specific plaster types (Gypsum Perlite, DBW Generic Gypsum), cement render conditions, alternative lime plaster, alternative plasterboard values (Malta BCA, StdUVal/DBW), and Gypsum Fibreboard.",
+                "Added missing Insulated Plasterboard product variants (Siniat GTEC Thermal XP, Unilin Safe-R SR/TB-MF).",
+                "Updated Rockwool-Roll with additional thicknesses."
+            ]
+        },
+        {
+            "version": "1.1.0",
+            "log-date": "2024-05-14",
+            "log-title": "Comprehensive Data Expansion",
+            "log-changes": [
+                "Added numerous missing insulation products based on research document.",
+                "Added new categories: Other-Insulation-Materials, Concrete-And-Screeds, Roofing-Materials-Outer-Coverings, Surface-Finishes-And-Boards, Insulated-Plasterboard.",
+                "Populated new and existing categories with detailed entries for various construction materials (mortars, specific stone types, concrete types, screeds, plasters, renders, roofing layers).",
+                "Included specific product lines for insulated plasterboards with various core materials and thicknesses.",
+                "Ensured data (lambda, R-value, notes, source) aligned with 'Research_-_Thermal-Properies-Research.txt'."
+            ]
+        },
+        {
+            "version": "1.0.1",
+            "log-date": "TBD",
+            "log-title": "Minor additions and corrections",
+            "log-changes": [
+                "Added Unilin-Thin-R-XT_PR_UF, Knauf-DriTherm-Cavity-Slab-32, Rockwool-Rainscreen-Duo-Slab, Isover-CWS-36.",
+                "Added Generic XPS, EPS, Wood-Fibre boards.",
+                "Added Aerated-Concrete-Block, more Stone types.",
+                "Corrected R-value notes for some existing items to specify 100mm where applicable."
+            ]
+        },
+        {
+            "version": "1.0.0",
+            "log-date": "TBD",
+            "log-title": "Initial data compilation",
+            "log-changes": [
+                "- Initial creation of thermal data library",
+                "- Added PIR, phenolic, mineral wool, glass mineral wool, masonry and timber materials"
+            ]
+        }
+    ],
+    "Insulation": {
+        "Celotex-GA4000-PIR": {
+            "is_product": true,
+            "50mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 2.25,
+                "notes": "Standard PIR board for floors, walls and roofs.",
+                "info": "Suitable for warm and cold roof applications.",
+                "warnings": "Ensure VCL is used where required to avoid condensation risks.",
+                "source": "Celotex GA4000 Product Page"
+            },
+            "60mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 2.7,
+                "notes": "Standard PIR board for floors, walls and roofs.",
+                "info": "Ground floor and suspended floor applications.",
+                "warnings": "Board must be tightly butted to avoid thermal bridging.",
+                "source": "Celotex GA4000 Product Page"
+            },
+            "70mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 3.15,
+                "notes": "Standard PIR board for floors, walls and roofs.",
+                "info": "Good balance of thermal performance and thickness.",
+                "warnings": "Ensure correct fixing pattern is used.",
+                "source": "Celotex GA4000 Product Page"
+            },
+            "75mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 3.4,
+                "notes": "Often used in roof rafter applications.",
+                "info": "High thermal performance in minimal thickness.",
+                "warnings": "Compression can reduce effective R-value if not installed flat.",
+                "source": "Celotex GA4000 Product Page"
+            },
+            "80mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 3.6,
+                "notes": "Provides good thermal performance for roofs and floors.",
+                "info": "Suitable for achieving lower U-values in constrained spaces.",
+                "warnings": "Ensure correct fixings are used for the application.",
+                "source": "Celotex GA4000 Product Page"
+            },
+            "90mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 4.05,
+                "notes": "High performance insulation for demanding applications.",
+                "info": "Helps achieve Part L compliance with single layer.",
+                "warnings": "Requires careful handling to avoid damage to board edges.",
+                "source": "Celotex GA4000 Product Page"
+            },
+            "100mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 4.5,
+                "notes": "Maximum thickness in the GA4000 range.",
+                "info": "Provides excellent thermal performance for all applications.",
+                "warnings": "Heavyweight board requires careful handling and installation.",
+                "source": "Celotex GA4000 Product Page"
+            }
+        },
+        "Celotex-TB4000-PIR": {
+            "is_product": true,
+            "12mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 0.55,
+                "notes": "Thin PIR board for thermal bridging control.",
+                "info": "Used for localised heat loss reduction.",
+                "warnings": "Not suitable as sole insulation layer.",
+                "source": "Celotex TB4000 Datasheet"
+            },
+            "20mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 0.9,
+                "notes": "Thin PIR board for thermal bridging control.",
+                "info": "Used for localised heat loss reduction.",
+                "warnings": "Not suitable as sole insulation layer.",
+                "source": "Celotex TB4000 Datasheet"
+            },
+            "25mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 1.1,
+                "notes": "Thin PIR board for thermal bridging control.",
+                "info": "Used for localised heat loss reduction.",
+                "warnings": "Not suitable as sole insulation layer.",
+                "source": "Celotex TB4000 Datasheet"
+            },
+            "30mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 1.35,
+                "notes": "Thin PIR board for thermal bridging control.",
+                "info": "Used for localised heat loss reduction.",
+                "warnings": "Not suitable as sole insulation layer.",
+                "source": "Celotex TB4000 Datasheet"
+            },
+            "40mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 1.8,
+                "notes": "Thin PIR board for thermal bridging control.",
+                "info": "Used for localised heat loss reduction.",
+                "warnings": "Not suitable as sole insulation layer.",
+                "source": "Celotex TB4000 Datasheet"
+            }
+        },
+        "Celotex-XR4000-PIR": {
+            "is_product": true,
+            "110mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 5.0,
+                "notes": "High performance PIR insulation board for roofs, walls and floors.",
+                "info": "Part of the XR4000 Extra Resistance range.",
+                "warnings": "Ensure correct VCL and application-specific details.",
+                "source": "Celotex XR4000 Datasheet"
+            },
+            "120mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 5.45,
+                "notes": "High performance PIR insulation board for roofs, walls and floors.",
+                "info": "Part of the XR4000 Extra Resistance range.",
+                "warnings": "Ensure correct VCL and application-specific details.",
+                "source": "Celotex XR4000 Datasheet"
+            },
+            "130mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 5.9,
+                "notes": "High performance PIR insulation board for roofs, walls and floors.",
+                "info": "Part of the XR4000 Extra Resistance range.",
+                "warnings": "Ensure correct VCL and application-specific details.",
+                "source": "Celotex XR4000 Datasheet"
+            },
+            "140mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 6.35,
+                "notes": "High performance PIR insulation board for roofs, walls and floors.",
+                "info": "Part of the XR4000 Extra Resistance range.",
+                "warnings": "Ensure correct VCL and application-specific details.",
+                "source": "Celotex XR4000 Datasheet"
+            },
+            "150mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 6.8,
+                "notes": "High performance PIR insulation board for roofs, walls and floors.",
+                "info": "Part of the XR4000 Extra Resistance range.",
+                "warnings": "Ensure correct VCL and application-specific details.",
+                "source": "Celotex XR4000 Datasheet"
+            },
+            "165mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 7.5,
+                "notes": "High performance PIR insulation board for roofs, walls and floors.",
+                "info": "Part of the XR4000 Extra Resistance range.",
+                "warnings": "Ensure correct VCL and application-specific details.",
+                "source": "Celotex XR4000 Datasheet"
+            },
+            "200mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 9.05,
+                "notes": "High performance PIR insulation board for roofs, walls and floors.",
+                "info": "Part of the XR4000 Extra Resistance range.",
+                "warnings": "Ensure correct VCL and application-specific details.",
+                "source": "Celotex XR4000 Datasheet"
+            }
+        },
+        "Celotex-Thermaclass-CW21-PIR": {
+            "is_product": true,
+            "90mm-Thickness": {
+                "lambda": 0.021,
+                "r_value": 4.25,
+                "notes": "Specifically designed for cavity wall applications.",
+                "info": "Premium thermal performance for cavity walls.",
+                "warnings": "Must be installed with correct cavity wall ties.",
+                "source": "Celotex Thermaclass Cavity Wall 21"
+            },
+            "115mm-Thickness": {
+                "lambda": 0.021,
+                "r_value": 5.45,
+                "notes": "High performance cavity wall insulation.",
+                "info": "Suitable for meeting stringent U-value requirements.",
+                "warnings": "Requires minimum 150mm cavity width.",
+                "source": "Celotex Thermaclass Cavity Wall 21"
+            },
+            "140mm-Thickness": {
+                "lambda": 0.021,
+                "r_value": 6.65,
+                "notes": "Maximum thickness for cavity wall applications.",
+                "info": "Designed for ultra-low U-value specifications.",
+                "warnings": "Requires careful detailing around openings.",
+                "source": "Celotex Thermaclass Cavity Wall 21"
+            }
+        },
+        "Celotex-PL4000-PIR": {
+            "is_product": true,
+            "Insulation-25mm_Overall-37.5mm": {
+                "lambda": 0.022,
+                "r_value": 1.2,
+                "notes": "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "PIR insulated plasterboard for dry lining applications.",
+                "warnings": "Integral VCL. Ensure correct installation.",
+                "source": "Celotex PL4000 Datasheet"
+            },
+            "Insulation-40mm_Overall-52.5mm": {
+                "lambda": 0.022,
+                "r_value": 1.85,
+                "notes": "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "PIR insulated plasterboard for dry lining applications.",
+                "warnings": "Integral VCL. Ensure correct installation.",
+                "source": "Celotex PL4000 Datasheet"
+            },
+            "Insulation-50mm_Overall-62.5mm": {
+                "lambda": 0.022,
+                "r_value": 2.3,
+                "notes": "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "PIR insulated plasterboard for dry lining applications.",
+                "warnings": "Integral VCL. Ensure correct installation.",
+                "source": "Celotex PL4000 Datasheet"
+            },
+            "Insulation-65mm_Overall-77.5mm": {
+                "lambda": 0.022,
+                "r_value": 3.0,
+                "notes": "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "PIR insulated plasterboard for dry lining applications.",
+                "warnings": "Integral VCL. Ensure correct installation.",
+                "source": "Celotex PL4000 Datasheet"
+            }
+        },
+        "Celotex-CW4000-PIR": {
+            "is_product": true,
+            "40mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 1.8,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "50mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 2.25,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "60mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 2.7,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "75mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 3.4,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "100mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 4.5,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            }
+        },
+        "Celotex-XPS-Floor-Insulation-PIR": {
+            "is_product": true,
+            "40mm-Thickness": {
+                "lambda": 0.033,
+                "r_value": 1.21,
+                "notes": "XPS floor insulation, high compressive strength.",
+                "info": "For ground floors, lambda 0.033 W/mK.",
+                "warnings": "Check fire and application suitability.",
+                "source": "Celotex XPS 300 SL FN Datasheet"
+            },
+            "50mm-Thickness": {
+                "lambda": 0.033,
+                "r_value": 1.52,
+                "notes": "XPS floor insulation, high compressive strength.",
+                "info": "For ground floors, lambda 0.033 W/mK.",
+                "warnings": "Check fire and application suitability.",
+                "source": "Celotex XPS 300 SL FN Datasheet"
+            },
+            "100mm-Thickness": {
+                "lambda": 0.033,
+                "r_value": 3.03,
+                "notes": "XPS floor insulation, high compressive strength.",
+                "info": "For ground floors, lambda 0.033 W/mK.",
+                "warnings": "Check fire and application suitability.",
+                "source": "Celotex XPS 300 SL FN Datasheet"
+            }
+        },
+        "Recticel-Eurowall-Plus-Full-Fill-PIR": {
+            "is_product": true,
+            "75mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 3.4,
+                "cavity_fit": "85mm",
+                "notes": "Special order item. Designed for slim 85mm cavities.",
+                "info": "Tongue & Groove edge. Leaves 10mm residual cavity.",
+                "warnings": "Rarely stocked. Long lead time likely.",
+                "source": "Recticel Eurowall+ Technical Datasheet"
+            },
+            "90mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 4.05,
+                "cavity_fit": "100mm",
+                "notes": "Standard stock item. Designed for 100mm cavities.",
+                "info": "Tongue & Groove edge. Leaves 10mm residual cavity.",
+                "warnings": "Ensure bricklayers keep the 10mm gap clean.",
+                "source": "Recticel Eurowall+ Technical Datasheet"
+            },
+            "115mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 5.2,
+                "cavity_fit": "125mm",
+                "notes": "Standard stock item. Designed for 125mm cavities.",
+                "info": "Tongue & Groove edge. Leaves 10mm residual cavity.",
+                "warnings": "Requires 125mm wide cavity lintels.",
+                "source": "Recticel Eurowall+ Technical Datasheet"
+            },
+            "140mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 6.35,
+                "cavity_fit": "150mm",
+                "notes": "HERO PRODUCT. Designed for 150mm cavities.",
+                "info": "Tongue & Groove edge. Achieves 0.14 U-value in standard walls.",
+                "warnings": "Must use 275mm or 300mm wall ties.",
+                "source": "Recticel Eurowall+ Technical Datasheet"
+            }
+        },
+        "Kingspan-Kooltherm-K103-Phenolic": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.019,
+                "r_value": 5.26,
+                "notes": "Premium phenolic insulation board (e.g. for floors). Lambda assumed based on K-range typicals (0.019 W/mK for K108/K110/K118). R-value for 100mm.",
+                "info": "Part of Kooltherm K-range. BBA Cert 16/5299 covers K103/K112.",
+                "warnings": "Verify specific lambda from BBA 16/5299 for K103 if critical.",
+                "source": "Research Doc Sec 2.2 (BBA Cert 16/5299)"
+            }
+        },
+        "Kingspan-Kooltherm-K108-Phenolic": {
+            "is_product": true,
+            "25mm-Thickness": {
+                "lambda": 0.019,
+                "r_value": 1.3,
+                "notes": "Premium phenolic insulation for cavity walls.",
+                "info": "Offers better thermal performance than PIR.",
+                "warnings": "Requires careful handling due to rigid board properties.",
+                "source": "Kingspan Kooltherm K108 BBA Cert 16/5299"
+            },
+            "50mm-Thickness": {
+                "lambda": 0.019,
+                "r_value": 2.6,
+                "notes": "High performance phenolic insulation.",
+                "info": "More efficient than equivalent thickness of PIR.",
+                "warnings": "Maintain minimum 50mm residual cavity.",
+                "source": "Kingspan Kooltherm K108 BBA Cert 16/5299"
+            },
+            "75mm-Thickness": {
+                "lambda": 0.019,
+                "r_value": 3.9,
+                "notes": "Advanced cavity wall insulation.",
+                "info": "Used where space is at a premium.",
+                "warnings": "Follow manufacturer's handling instructions.",
+                "source": "Kingspan Kooltherm K108 BBA Cert 16/5299"
+            }
+        },
+        "Kingspan-Kooltherm-K110-Phenolic": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.019,
+                "r_value": 5.26,
+                "notes": "Premium phenolic insulation board. Declared lambda 0.019 W/mK. R-value for 100mm thickness.",
+                "info": "Part of Kooltherm K-range.",
+                "warnings": "Refer to manufacturer data for available thicknesses.",
+                "source": "Research Doc Sec 2.2"
+            }
+        },
+        "Kingspan-Kooltherm-K112-Phenolic": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.019,
+                "r_value": 5.26,
+                "notes": "Premium phenolic insulation board (e.g. for soffits). Lambda assumed based on K-range typicals (0.019 W/mK for K108/K110/K118). R-value for 100mm.",
+                "info": "Part of Kooltherm K-range. BBA Cert 16/5299 covers K103/K112.",
+                "warnings": "Verify specific lambda from BBA 16/5299 for K112 if critical.",
+                "source": "Research Doc Sec 2.2 (BBA Cert 16/5299)"
+            }
+        },
+        "Kingspan-Kooltherm-K118-Board-Phenolic": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.019,
+                "r_value": 5.26,
+                "notes": "Premium phenolic insulation board (standalone). Declared lambda 0.019 W/mK. R-value for 100mm thickness.",
+                "info": "Part of Kooltherm K-range. Also used as core for K118 insulated plasterboard.",
+                "warnings": "Refer to manufacturer data for available thicknesses as standalone board.",
+                "source": "Research Doc Sec 2.2"
+            }
+        },
+        "Kingspan-Kooltherm-K15-Rainscreen-Phenolic": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.019,
+                "r_value": 5.26,
+                "notes": "Premium phenolic insulation for rainscreen applications. Lambda assumed as 0.019 W/mK (typical for Kooltherm K-range, verify BBA). R-value for 100mm.",
+                "info": "BBA 14/5134.",
+                "warnings": "Verify specific lambda and thicknesses from BBA certificate.",
+                "source": "Research Doc Sec 2.2 (BBA 14/5134)"
+            }
+        },
+        "Unilin-Safe-R-SR_UF-Phenolic": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.021,
+                "r_value": 4.76,
+                "notes": "Phenolic foam insulation for floors (underfloor heating). Lambda 0.020-0.021. R-value for 100mm at lambda 0.021.",
+                "info": "High performance phenolic foam. Thickness dependent lambda.",
+                "warnings": "Verify specific product data for chosen thickness. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            }
+        },
+        "Unilin-Safe-R-SR_PR-Phenolic": {
+            "is_product": true,
+            "50mm-Thickness": {
+                "lambda": 0.021,
+                "r_value": 2.38,
+                "notes": "Phenolic foam insulation for pitched roofs.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            },
+            "75mm-Thickness": {
+                "lambda": 0.021,
+                "r_value": 3.57,
+                "notes": "Phenolic foam insulation for pitched roofs.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            },
+            "100mm-Thickness": {
+                "lambda": 0.02,
+                "r_value": 5.0,
+                "notes": "Phenolic foam insulation for pitched roofs.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            },
+            "120mm-Thickness": {
+                "lambda": 0.02,
+                "r_value": 6.0,
+                "notes": "Phenolic foam insulation for pitched roofs.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            }
+        },
+        "Unilin-Safe-R-SR_CW-Phenolic": {
+            "is_product": true,
+            "50mm-Thickness": {
+                "lambda": 0.023,
+                "r_value": 2.17,
+                "notes": "Phenolic foam insulation for cavity walls.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            },
+            "60mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 2.73,
+                "notes": "Phenolic foam insulation for cavity walls.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            },
+            "75mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 3.41,
+                "notes": "Phenolic foam insulation for cavity walls.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            },
+            "80mm-Thickness": {
+                "lambda": 0.021,
+                "r_value": 3.81,
+                "notes": "Phenolic foam insulation for cavity walls.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            },
+            "100mm-Thickness": {
+                "lambda": 0.021,
+                "r_value": 4.76,
+                "notes": "Phenolic foam insulation for cavity walls.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            },
+            "120mm-Thickness": {
+                "lambda": 0.021,
+                "r_value": 5.71,
+                "notes": "Phenolic foam insulation for cavity walls.",
+                "info": "High performance phenolic foam.",
+                "warnings": "Verify specific product data. BBA 10/4803.",
+                "source": "Xtratherm/Unilin Safe-R series BBA 10/4803 / Research Doc Sec 2.2"
+            }
+        },
+        "Generic-Mineral-Wool-CIBSE-25kg_m3-MineralWool": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.035,
+                "r_value": 2.86,
+                "notes": "Generic mineral wool (rock/stone wool), 25 kg/m³. R-value for 100mm thickness.",
+                "info": "Typical 'book value' for mineral wool at this density.",
+                "warnings": "Use manufacturer-specific data for products where available.",
+                "source": "CIBSE Guide A / Research Doc Sec 2.3"
+            }
+        },
+        "Rockwool-Cavity-Slab-32-MineralWool": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.032,
+                "r_value": 3.13,
+                "notes": "Non-combustible cavity wall insulation. R-value for 100mm.",
+                "info": "Variable thickness material for cavity walls.",
+                "warnings": "Must be kept dry during storage and installation.",
+                "source": "Rockwool Cavity Slab 32 BBA 22/6335 (Apr 2024)"
+            }
+        },
+        "Rockwool-Roll-MineralWool": {
+            "is_product": true,
+            "100mm-Thickness": {
+                "lambda": 0.044,
+                "r_value": 2.27,
+                "notes": "Flexible mineral wool insulation roll.",
+                "info": "Suitable for lofts and between timber joists.",
+                "warnings": "Compression affects thermal performance.",
+                "source": "Rockwool Roll Datasheet / Research Doc"
+            },
+            "150mm-Thickness": {
+                "lambda": 0.044,
+                "r_value": 3.41,
+                "notes": "Flexible mineral wool insulation roll.",
+                "info": "Suitable for lofts and between timber joists.",
+                "warnings": "Compression affects thermal performance.",
+                "source": "Rockwool Roll Datasheet / Research Doc"
+            },
+            "200mm-Thickness": {
+                "lambda": 0.044,
+                "r_value": 4.55,
+                "notes": "Flexible mineral wool insulation roll.",
+                "info": "Suitable for lofts and between timber joists.",
+                "warnings": "Compression affects thermal performance.",
+                "source": "Rockwool Roll Datasheet / Research Doc"
+            },
+            "250mm-Thickness": {
+                "lambda": 0.044,
+                "r_value": 5.68,
+                "notes": "Flexible mineral wool insulation roll.",
+                "info": "Suitable for lofts and between timber joists.",
+                "warnings": "Compression affects thermal performance.",
+                "source": "Rockwool Roll Datasheet / Research Doc"
+            },
+            "300mm-Thickness": {
+                "lambda": 0.044,
+                "r_value": 6.82,
+                "notes": "Flexible mineral wool insulation roll.",
+                "info": "Suitable for lofts and between timber joists.",
+                "warnings": "Compression affects thermal performance.",
+                "source": "Rockwool Roll Datasheet / Research Doc"
+            }
+        },
+        "Knauf-DriTherm-Cavity-Slab-32-MineralWool": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.032,
+                "r_value": 3.13,
+                "notes": "Non-combustible mineral wool cavity slab. R-value for 100mm.",
+                "info": "For thermal insulation in masonry cavity walls.",
+                "warnings": "Ensure tight fit to prevent air gaps. Keep dry.",
+                "source": "Knauf DriTherm Cavity Slab 32 Datasheet"
+            }
+        },
+        "Rockwool-Rainscreen-Duo-Slab-MineralWool": {
+            "is_product": true,
+            "50mm-Thickness": {
+                "lambda": 0.034,
+                "r_value": 1.47,
+                "notes": "Dual density mineral wool slab for rainscreen facades.",
+                "info": "Outer layer resists weather, inner layer for thermal performance.",
+                "warnings": "Ensure correct orientation and fixing.",
+                "source": "Rockwool Rainscreen Duo Slab BBA 17/5402"
+            },
+            "70mm-Thickness": {
+                "lambda": 0.034,
+                "r_value": 2.06,
+                "notes": "Dual density mineral wool slab for rainscreen facades.",
+                "info": "Outer layer resists weather, inner layer for thermal performance.",
+                "warnings": "Ensure correct orientation and fixing.",
+                "source": "Rockwool Rainscreen Duo Slab BBA 17/5402"
+            },
+            "90mm-Thickness": {
+                "lambda": 0.034,
+                "r_value": 2.65,
+                "notes": "Dual density mineral wool slab for rainscreen facades.",
+                "info": "Outer layer resists weather, inner layer for thermal performance.",
+                "warnings": "Ensure correct orientation and fixing.",
+                "source": "Rockwool Rainscreen Duo Slab BBA 17/5402"
+            },
+            "100mm-Thickness": {
+                "lambda": 0.035,
+                "r_value": 2.86,
+                "notes": "Dual density mineral wool slab for rainscreen facades.",
+                "info": "Outer layer resists weather, inner layer for thermal performance.",
+                "warnings": "Ensure correct orientation and fixing.",
+                "source": "Rockwool Rainscreen Duo Slab BBA 17/5402"
+            },
+            "120mm-Thickness": {
+                "lambda": 0.035,
+                "r_value": 3.43,
+                "notes": "Dual density mineral wool slab for rainscreen facades.",
+                "info": "Outer layer resists weather, inner layer for thermal performance.",
+                "warnings": "Ensure correct orientation and fixing.",
+                "source": "Rockwool Rainscreen Duo Slab BBA 17/5402"
+            },
+            "150mm-Thickness": {
+                "lambda": 0.035,
+                "r_value": 4.29,
+                "notes": "Dual density mineral wool slab for rainscreen facades.",
+                "info": "Outer layer resists weather, inner layer for thermal performance.",
+                "warnings": "Ensure correct orientation and fixing.",
+                "source": "Rockwool Rainscreen Duo Slab BBA 17/5402"
+            }
+        },
+        "Rockwool-RW-Slabs-General-MineralWool": {
+            "is_product": true,
+            "50mm-Thickness": {
+                "lambda": 0.035,
+                "r_value": 1.43,
+                "notes": "General purpose stone wool slabs. Lambda 0.034-0.035. R-value at lambda 0.035.",
+                "info": "Thermal, acoustic and fire insulation. Range of densities.",
+                "warnings": "Confirm specific product grade for application.",
+                "source": "Rockwool RW Slabs Datasheet / Research Doc Sec 2.3 & Floor Insulation"
+            },
+            "100mm-Thickness": {
+                "lambda": 0.035,
+                "r_value": 2.86,
+                "notes": "General purpose stone wool slabs. Lambda 0.034-0.035. R-value at lambda 0.035.",
+                "info": "Thermal, acoustic and fire insulation. Range of densities.",
+                "warnings": "Confirm specific product grade for application.",
+                "source": "Rockwool RW Slabs Datasheet / Research Doc Sec 2.3 & Floor Insulation"
+            }
+        },
+        "Knauf-RainScreen-Slab-MineralWool": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.034,
+                "r_value": 2.94,
+                "notes": "Mineral wool slab for rainscreen applications. R-value for 100mm.",
+                "info": "Non-combustible, for use in ventilated facades.",
+                "warnings": "Ensure compatibility with facade system.",
+                "source": "Knauf Datasheet / Research Doc Sec 2.3"
+            }
+        },
+        "Knauf-Rocksilk-RainScreen-Slab-MineralWool": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.034,
+                "r_value": 2.94,
+                "notes": "Mineral wool slab for rainscreen applications. BBA certified. R-value for 100mm.",
+                "info": "Non-combustible, BBA 19/5609.",
+                "warnings": "Refer to BBA certificate for specific application details.",
+                "source": "Knauf Rocksilk RainScreen BBA 19/5609 / Research Doc Sec 2.3"
+            }
+        },
+        "Generic-Fibreglass-CIBSE-12kg_m3-Fibreglass": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.04,
+                "r_value": 2.5,
+                "notes": "Generic fibreglass insulation, 12 kg/m³. R-value for 100mm thickness.",
+                "info": "Typical 'book value' for fibreglass at this density.",
+                "warnings": "Use manufacturer-specific data for products where available.",
+                "source": "CIBSE Guide A / Research Doc Sec 2.4"
+            }
+        },
+        "Isover-CWS-32-Fibreglass": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.032,
+                "r_value": 3.13,
+                "notes": "Fibreglass cavity wall insulation. R-value for 100mm.",
+                "info": "High performance fibreglass insulation.",
+                "warnings": "Must be protected from water during installation.",
+                "source": "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
+            }
+        },
+        "Isover-CWS-34-Fibreglass": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.034,
+                "r_value": 2.94,
+                "notes": "Standard performance fibreglass insulation. R-value for 100mm.",
+                "info": "For cavity wall applications.",
+                "warnings": "Water exposure reduces thermal performance.",
+                "source": "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
+            }
+        },
+        "Isover-CWS-36-Fibreglass": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.036,
+                "r_value": 2.78,
+                "notes": "Fibreglass cavity wall insulation. R-value for 100mm.",
+                "info": "Cost-effective fibreglass for cavity walls.",
+                "warnings": "Protect from moisture during installation.",
+                "source": "Isover Cavity Wall Slabs BBA 18/5560 (Nov 2021)"
+            }
+        },
+        "Generic-XPS-Board-XPS": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.033,
+                "r_value": 3.03,
+                "notes": "Extruded Polystyrene insulation board. R-value for 100mm. Lambda can be lower (e.g. 0.027 for some types).",
+                "info": "High compressive strength and moisture resistance. Suitable for floors.",
+                "warnings": "Check fire performance for specific application. Can be brittle.",
+                "source": "Manufacturer Datasheets / BS EN 13164 / Research Doc Sec 2.5"
+            }
+        },
+        "Generic-XPS-Board-Malta-BCA-40kg_m3-XPS": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.027,
+                "r_value": 3.7,
+                "notes": "Generic XPS board (40 kg/m³, 25-50mm thick). R-value for 100mm thickness for comparison (source specifies for 25-50mm).",
+                "info": "Value from EN 12524 via Malta BCA.",
+                "warnings": "Declared for 25-50mm thickness range in source. Differs from other generic XPS (0.033 W/mK).",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 2.5"
+            }
+        },
+        "Celotex-XPS-Floor-Insulation-XPS": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.027,
+                "r_value": 3.7,
+                "notes": "BBA certified XPS floor insulation. Lambda 0.027 W/mK assumed (similar to generic Malta BCA XPS). R-value for 100mm. Verify from BBA/Celotex.",
+                "info": "High compressive strength for floor applications.",
+                "warnings": "Specific lambda and thicknesses to be confirmed from BBA/manufacturer data.",
+                "source": "Research Doc Sec 2.5"
+            }
+        },
+        "Polyfoam-XPS-XPS": {
+            "is_product": true,
+            "standard": {
+                "lambda": 0.027,
+                "r_value": 3.7,
+                "notes": "BBA certified XPS insulation. Lambda 0.027 W/mK assumed (similar to generic Malta BCA XPS). R-value for 100mm. Verify from BBA/Polyfoam.",
+                "info": "Follows BR 443 conventions. Various grades available.",
+                "warnings": "Specific lambda and thicknesses to be confirmed from BBA/manufacturer data.",
+                "source": "Research Doc Sec 2.5"
+            }
+        },
+        "Generic-EPS-Board-EPS": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.038,
+                "r_value": 2.63,
+                "notes": "Expanded Polystyrene insulation board (e.g. EPS70). R-value for 100mm. Lambda range 0.033-0.046.",
+                "info": "Cost-effective insulation, lightweight. Various densities available.",
+                "warnings": "Lower compressive strength than XPS. Ensure appropriate grade is used.",
+                "source": "Manufacturer Datasheets / BS EN 13163 / Research Doc Sec 2.6"
+            }
+        },
+        "Generic-EPS-Board-Malta-BCA-15kg_m3-EPS": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.04,
+                "r_value": 2.5,
+                "notes": "Generic EPS board (15 kg/m³, 25-200mm thick). R-value for 100mm thickness.",
+                "info": "Value from EN 12524 via Malta BCA. Differs from other generic EPS (0.038 W/mK).",
+                "warnings": "Declared for 25-200mm thickness range in source.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 2.6"
+            }
+        },
+        "Stylite-Cavity-Wall-Loose-Fill-EPS-Beads-EPS": {
+            "is_product": true,
+            "100mm-equivalent-fill": {
+                "lambda": 0.033,
+                "r_value": 3.03,
+                "notes": "EPS beads for cavity wall fill. R-value for 100mm fill depth.",
+                "info": "Suitable for retrofit applications in masonry cavity walls.",
+                "warnings": "Ensure complete fill and use approved installers/systems.",
+                "source": "Stylite Cavity Wall Loose Fill Datasheet / Research Doc"
+            }
+        },
+        "Cellular-Glass-Insulation-Specialist": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.048,
+                "r_value": 2.08,
+                "notes": "Cellular glass insulation (140 kg/m³). R-value for 100mm.",
+                "info": "Rigid, non-combustible, high compressive strength, impervious to water.",
+                "warnings": "Higher lambda than foam insulations. BS EN 13167.",
+                "source": "CIBSE Guide A / Research Doc Sec 2.7"
+            }
+        },
+        "Generic-Wood-Fibre-Board-Specialist": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.042,
+                "r_value": 2.38,
+                "notes": "Wood fibre insulation board (~240 kg/m³). R-value for 100mm.",
+                "info": "Eco-friendly insulation with good thermal mass and breathability.",
+                "warnings": "Check suitability for moisture-prone areas. Can be heavier than foam boards.",
+                "source": "CIBSE Guide A / BS EN 13171 / Research Doc Sec 2.7"
+            }
+        },
+        "Generic-Wood-Fibre-Board-Malta-BCA-250-800kg_m3-Specialist": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.125,
+                "r_value": 0.8,
+                "notes": "Wood fibre board (250-800 kg/m³). Lambda range 0.07-0.18 W/mK. R-value for 100mm thickness using mid-range lambda (0.125 W/mK).",
+                "info": "Eco-friendly insulation. Properties vary significantly with density.",
+                "warnings": "Use specific product data due to wide lambda range. Differs from CIBSE value (0.042 W/mK).",
+                "source": "Malta BCA / Research Doc Sec 2.7"
+            }
+        },
+        "Urea-Formaldehyde-Foam-CIBSE-10kg_m3-Specialist": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.04,
+                "r_value": 2.5,
+                "notes": "Urea Formaldehyde Foam (10 kg/m³). R-value for 100mm thickness.",
+                "info": "Restricted in new builds.",
+                "warnings": "Check current regulations for use.",
+                "source": "CIBSE Guide A / Research Doc Sec 2.7"
+            }
+        },
+        "Wood-Wool-Slab-500kg_m3-Specialist": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.1,
+                "r_value": 1.0,
+                "notes": "Wood wool slab (500 kg/m³). R-value for 100mm thickness.",
+                "info": "Cement-bonded wood fibres. Good for acoustics and thermal mass.",
+                "warnings": "Higher conductivity than dedicated wood fibre insulation boards.",
+                "source": "Research Doc Sec 2.7"
+            }
+        }
+    },
+    "Plasterboard": {
+        "British-Gypsum-Gyproc-WallBoard": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.19,
+                "r_value": 0.066,
+                "thickness": 12.5,
+                "notes": "Standard gypsum plasterboard for general internal wall and ceiling applications.",
+                "info": "Complies with EN 520 Type A; suitable for most drylining applications.",
+                "warnings": "Not moisture resistant; avoid use in high humidity areas.",
+                "source": "British Gypsum Product Data Sheet"
+            }
+        },
+        "British-Gypsum-Gyproc-WallBoard-Ten": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.19,
+                "r_value": 0.066,
+                "thickness": 12.5,
+                "notes": "Enhanced density plasterboard designed to meet Part E acoustic requirements.",
+                "info": "Mass of 10 kg/m²; reduces sound transmission in residential buildings.",
+                "warnings": "Heavier than standard boards; ensure structural suitability.",
+                "source": "British Gypsum Product Data Sheet"
+            }
+        },
+        "British-Gypsum-Gyproc-FireLine": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.24,
+                "r_value": 0.052,
+                "thickness": 12.5,
+                "notes": "Fire-resistant plasterboard suitable for areas requiring enhanced fire protection.",
+                "info": "Contains glass fibre and other additives to improve fire performance.",
+                "warnings": "Higher density may affect handling and installation.",
+                "source": "Briary Energy Material Database"
+            }
+        },
+        "British-Gypsum-Gyproc-Moisture-Resistant": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.19,
+                "r_value": 0.066,
+                "thickness": 12.5,
+                "notes": "Moisture-resistant plasterboard for use in areas with intermittent humidity.",
+                "info": "Suitable for kitchens, bathrooms, and utility rooms; complies with EN 520 Type H1.",
+                "warnings": "Not intended for continuous high-humidity environments.",
+                "source": "British Gypsum Product Data Sheet"
+            }
+        },
+        "British-Gypsum-Gyproc-SoundBloc": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.25,
+                "r_value": 0.05,
+                "thickness": 12.5,
+                "notes": "High-density plasterboard designed for enhanced acoustic performance.",
+                "info": "Reduces sound transmission; ideal for partitions and separating walls.",
+                "warnings": "Increased weight requires appropriate structural support.",
+                "source": "British Gypsum Product Page"
+            }
+        },
+        "British-Gypsum-Rigidur-H": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.19,
+                "r_value": 0.066,
+                "thickness": 12.5,
+                "notes": "Impact-resistant gypsum fibreboard for high-traffic areas.",
+                "info": "Offers superior strength and durability; suitable for schools, hospitals, and public buildings.",
+                "warnings": "Requires appropriate fixings due to increased density.",
+                "source": "InsulationBee Product Specification"
+            }
+        },
+        "Knauf-Wallboard": {
+            "is_product": true,
+            "12.5mm-Thickness": {
+                "lambda": 0.16,
+                "r_value": 0.078,
+                "thickness": 12.5,
+                "notes": "Standard gypsum-based plasterboard for partitions, linings, and ceilings.",
+                "info": "Lightweight and easy to install; suitable for direct decoration or plaster finish.",
+                "warnings": "Not suitable for areas with high moisture exposure.",
+                "source": "InsulationGo Product Specification"
+            }
+        },
+        "Skimming-Plaster": {
+            "is_product": true,
+            "2mm-Thickness-Skimming-Plaster-Coat": {
+                "lambda": 0.46,
+                "r_value": 0.004,
+                "thickness": 2,
+                "notes": "Dense gypsum skimming plaster (1200 kg/m³). R-value for 2 mm thickness.",
+                "info": "Thin finish coat for internal walls and ceilings.",
+                "warnings": "Very thin layer, minimal thermal resistance. Properties vary with mix and application.",
+                "source": "EN 12524:2000 Table A6",
+                "validated": "11-May-2025"
+            },
+            "3mm-Thickness-Skimming-Plaster-Coat": {
+                "lambda": 0.46,
+                "r_value": 0.0065,
+                "thickness": 3,
+                "notes": "Dense gypsum skimming plaster (1200 kg/m³). R-value for 3 mm thickness.",
+                "info": "Standard finish coat for internal walls and ceilings.",
+                "warnings": "Very thin layer, minimal thermal resistance. Properties vary with mix and application.",
+                "source": "EN 12524:2000 Table A6",
+                "validated": "11-May-2025"
+            },
+            "5mm-Thickness-Skimming-Plaster-Coat": {
+                "lambda": 0.46,
+                "r_value": 0.011,
+                "thickness": 5,
+                "notes": "Dense gypsum skimming plaster (1200 kg/m³). R-value for 5 mm thickness.",
+                "info": "Thicker finish coat for internal walls and ceilings where additional smoothing is required.",
+                "warnings": "Thin layer, minimal thermal resistance. Properties vary with mix and application.",
+                "source": "EN 12524:2000 Table A6",
+                "validated": "11-May-2025"
+            }
+        },
+        "Plasterboard-Adhesive": {
+            "Gyproc-DriWall-Adhesive": {
+                "is_product": true,
+                "10mm-Thickness": {
+                    "lambda": 0.46,
+                    "r_value": 0.022,
+                    "thickness": 10,
+                    "notes": "General-purpose gypsum-based adhesive for dot-and-dab drylining systems.",
+                    "info": "Suitable for Gyproc DriLyner and other dot-and-dab applications on high, medium or low suction backgrounds; allows finishing same day.",
+                    "warnings": "Ensure substrate is clean, dry and free of dust; follow mixing and application instructions to avoid sagging.",
+                    "source": "British Gypsum Gyproc DriWall Adhesive Product Data Sheet",
+                    "validated": "11-May-2025"
+                }
+            },
+            "Knauf-Plasterboard-Adhesive": {
+                "is_product": true,
+                "10mm-Thickness": {
+                    "lambda": 0.46,
+                    "r_value": 0.022,
+                    "thickness": 10,
+                    "notes": "High-strength gypsum adhesive for plasterboard bonding.",
+                    "info": "Rapid-setting formulation allows dot-and-dab fixing of boards with minimal waiting time before jointing or skimming.",
+                    "warnings": "Mix to manufacturer consistency; use within pot life and protect from frost and extreme heat during cure.",
+                    "source": "Knauf Plasterboard Adhesive Technical Literature",
+                    "validated": "11-May-2025"
+                }
+            }
+        },
+        "Gypsum-Plaster": {
+            "is_product": false,
+            "Lightweight-600kg_m3": {
+                "lambda": 0.18,
+                "r_value": 0.072,
+                "thickness": 13,
+                "notes": "Lightweight gypsum plaster (600 kg/m³). R-value for 13mm thickness.",
+                "info": "Internal wall finish. Better insulator than dense plaster.",
+                "warnings": "Check suitability for application (e.g. durability).",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 7.1"
+            },
+            "Medium-Density-900kg_m3": {
+                "lambda": 0.3,
+                "r_value": 0.043,
+                "notes": "Medium density gypsum plaster (900 kg/m³). R-value for 13mm thickness.",
+                "info": "Internal wall finish.",
+                "warnings": "Properties vary with mix.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 7.1"
+            },
+            "Dense-1200kg_m3": {
+                "lambda": 0.43,
+                "r_value": 0.03,
+                "notes": "Dense gypsum plaster (1200 kg/m³). R-value for 13mm thickness.",
+                "info": "Internal wall finish. More durable, less insulating.",
+                "warnings": "Properties vary with mix.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 7.1"
+            },
+            "Gypsum-Perlite-Plaster-950kg_m3": {
+                "lambda": 0.18,
+                "r_value": 0.072,
+                "notes": "Gypsum perlite plaster (950 kg/m³). R-value for 13mm thickness.",
+                "info": "Lightweight plaster with perlite for improved insulation. Same lambda as Malta BCA Lightweight.",
+                "warnings": "Check mix and application.",
+                "source": "Standard U-Values / Research Doc Sec 7.1"
+            },
+            "Generic-Gypsum-Plaster-DesigningBuildingsWiki": {
+                "lambda": 0.46,
+                "r_value": 0.028,
+                "notes": "Generic gypsum plaster. R-value for 13mm thickness.",
+                "info": "Alternative generic value from Designing Buildings Wiki. Higher conductivity than other listed gypsum plasters.",
+                "warnings": "Properties vary with mix.",
+                "source": "Designing Buildings Wiki / Research Doc Sec 7.1"
+            }
+        },
+        "Cement-Render-Plaster": {
+            "is_product": false,
+            "External-Render-1300kg_m3": {
+                "lambda": 0.57,
+                "r_value": 0.033,
+                "notes": "External cement render (1300 kg/m³). R-value for 19mm thickness.",
+                "info": "External weatherproof finish.",
+                "warnings": "Conductivity affected by moisture and density.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 7.2"
+            },
+            "Cement-Plaster-1760kg_m3": {
+                "lambda": 0.72,
+                "r_value": 0.018,
+                "notes": "Internal cement plaster (1760 kg/m³). R-value for 13mm thickness.",
+                "info": "Durable internal finish, often in wet areas.",
+                "warnings": "Poor insulator.",
+                "source": "CIBSE Guide A / Research Doc Sec 7.2"
+            },
+            "Rendering-1430kg_m3-1pc-Moisture": {
+                "lambda": 1.13,
+                "r_value": 0.017,
+                "notes": "Rendering (1430 kg/m³, 1% moisture). R-value for 19mm thickness.",
+                "info": "Value from CIBSE Guide A.",
+                "warnings": "Conductivity affected by density and moisture.",
+                "source": "CIBSE Guide A / Research Doc Sec 7.2"
+            },
+            "Rendering-1330kg_m3-8pc-Moisture": {
+                "lambda": 0.79,
+                "r_value": 0.024,
+                "notes": "Rendering (1330 kg/m³, 8% moisture). R-value for 19mm thickness.",
+                "info": "Value from CIBSE Guide A.",
+                "warnings": "Higher moisture content increases conductivity compared to very dry mix.",
+                "source": "CIBSE Guide A / Research Doc Sec 7.2"
+            },
+            "Sand-Cement-Render-DesigningBuildingsWiki": {
+                "lambda": 0.5,
+                "r_value": 0.038,
+                "notes": "Sand/cement render. R-value for 19mm thickness.",
+                "info": "Alternative generic value from Designing Buildings Wiki. Close to Malta BCA External Render (0.57 W/mK).",
+                "warnings": "Properties vary with mix.",
+                "source": "Designing Buildings Wiki / Research Doc Sec 7.2"
+            }
+        },
+        "Lime-Render-Plaster": {
+            "is_product": false,
+            "Lime-Plaster-Render-1300kg_m3": {
+                "lambda": 0.8,
+                "r_value": 0.024,
+                "notes": "Lime plaster/render (Limestone in torba, 1300 kg/m³). R-value for 19mm thickness.",
+                "info": "Breathable finish, used in traditional construction.",
+                "warnings": "Properties vary with mix and application.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 7.3"
+            },
+            "Cement-Lime-Plaster-CIBSE-1600kg_m3": {
+                "lambda": 0.8,
+                "r_value": 0.024,
+                "notes": "Cement/lime plaster (1600 kg/m³). R-value for 19mm thickness (if render). Same as Malta BCA Lime Plaster/Render.",
+                "info": "Value from CIBSE Guide A.",
+                "warnings": "Check if for plaster or render thickness.",
+                "source": "CIBSE Guide A / Research Doc Sec 7.3"
+            }
+        },
+        "Gypsum-Fibreboard-Fermacell-Type": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.32,
+                "r_value": 0.039,
+                "notes": "Gypsum Fibreboard (e.g., Fermacell). R-value for 12.5mm thickness.",
+                "info": "High-density building board with structural, impact, and acoustic properties. Not primarily an insulator.",
+                "warnings": "Distinct from foam-backed insulated plasterboards.",
+                "source": "Research Doc - Insulated Plasterboard Section (Fermacell)"
+            }
+        },
+        "Kingspan-Kooltherm-K118-Insulated": {
+            "is_product": true,
+            "Insulation-25mm_Overall-37.5mm": {
+                "lambda": 0.019,
+                "r_value": 1.38,
+                "notes": "Phenolic foam core (0.019 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "Premium performance insulated plasterboard for dry lining.",
+                "warnings": "Integral VCL. Ensure correct installation for VCL continuity.",
+                "source": "Kingspan K118 Datasheet / Research Doc - Insulated Plasterboard Section"
+            },
+            "Insulation-40mm_Overall-52.5mm": {
+                "lambda": 0.019,
+                "r_value": 2.17,
+                "notes": "Phenolic foam core (0.019 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "Premium performance insulated plasterboard for dry lining.",
+                "warnings": "Integral VCL. Ensure correct installation for VCL continuity.",
+                "source": "Kingspan K118 Datasheet / Research Doc - Insulated Plasterboard Section"
+            },
+            "Insulation-50mm_Overall-62.5mm": {
+                "lambda": 0.019,
+                "r_value": 2.7,
+                "notes": "Phenolic foam core (0.019 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "Premium performance insulated plasterboard for dry lining.",
+                "warnings": "Integral VCL. Ensure correct installation for VCL continuity.",
+                "source": "Kingspan K118 Datasheet / Research Doc - Insulated Plasterboard Section"
+            },
+            "Insulation-60mm_Overall-72.5mm": {
+                "lambda": 0.019,
+                "r_value": 3.22,
+                "notes": "Phenolic foam core (0.019 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "Premium performance insulated plasterboard for dry lining.",
+                "warnings": "Integral VCL. Ensure correct installation for VCL continuity.",
+                "source": "Kingspan K118 Datasheet / Research Doc - Insulated Plasterboard Section"
+            },
+            "Insulation-80mm_Overall-92.5mm": {
+                "lambda": 0.019,
+                "r_value": 4.27,
+                "notes": "Phenolic foam core (0.019 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "Premium performance insulated plasterboard for dry lining.",
+                "warnings": "Integral VCL. Ensure correct installation for VCL continuity.",
+                "source": "Kingspan K118 Datasheet / Research Doc - Insulated Plasterboard Section"
+            }
+        },
+        "Celotex-PL4000-Insulated": {
+            "is_product": true,
+            "Insulation-25mm_Overall-37.5mm": {
+                "lambda": 0.022,
+                "r_value": 1.2,
+                "notes": "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "PIR insulated plasterboard for dry lining applications.",
+                "warnings": "Integral VCL. Ensure correct installation.",
+                "source": "Celotex PL4000 Datasheet"
+            },
+            "Insulation-40mm_Overall-52.5mm": {
+                "lambda": 0.022,
+                "r_value": 1.85,
+                "notes": "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "PIR insulated plasterboard for dry lining applications.",
+                "warnings": "Integral VCL. Ensure correct installation.",
+                "source": "Celotex PL4000 Datasheet"
+            },
+            "Insulation-50mm_Overall-62.5mm": {
+                "lambda": 0.022,
+                "r_value": 2.3,
+                "notes": "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "PIR insulated plasterboard for dry lining applications.",
+                "warnings": "Integral VCL. Ensure correct installation.",
+                "source": "Celotex PL4000 Datasheet"
+            },
+            "Insulation-65mm_Overall-77.5mm": {
+                "lambda": 0.022,
+                "r_value": 3.0,
+                "notes": "PIR core (0.022 W/mK) bonded to 12.5mm plasterboard. R-value for composite board.",
+                "info": "PIR insulated plasterboard for dry lining applications.",
+                "warnings": "Integral VCL. Ensure correct installation.",
+                "source": "Celotex PL4000 Datasheet"
+            }
+        },
+        "Celotex-CW4000-Insulated": {
+            "is_product": true,
+            "40mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 1.8,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "50mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 2.25,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "60mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 2.7,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "75mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 3.4,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            },
+            "100mm-Thickness": {
+                "lambda": 0.022,
+                "r_value": 4.5,
+                "notes": "Partial fill cavity wall PIR insulation.",
+                "info": "Foil faced, sized for cavity walls.",
+                "warnings": "Ensure correct installation in cavity.",
+                "source": "Celotex CW4000 Datasheet"
+            }
+        },
+        "Celotex-XPS-Floor-Insulation-Insulated": {
+            "is_product": true,
+            "40mm-Thickness": {
+                "lambda": 0.033,
+                "r_value": 1.21,
+                "notes": "XPS floor insulation, high compressive strength.",
+                "info": "For ground floors, lambda 0.033 W/mK.",
+                "warnings": "Check fire and application suitability.",
+                "source": "Celotex XPS 300 SL FN Datasheet"
+            },
+            "50mm-Thickness": {
+                "lambda": 0.033,
+                "r_value": 1.52,
+                "notes": "XPS floor insulation, high compressive strength.",
+                "info": "For ground floors, lambda 0.033 W/mK.",
+                "warnings": "Check fire and application suitability.",
+                "source": "Celotex XPS 300 SL FN Datasheet"
+            },
+            "100mm-Thickness": {
+                "lambda": 0.033,
+                "r_value": 3.03,
+                "notes": "XPS floor insulation, high compressive strength.",
+                "info": "For ground floors, lambda 0.033 W/mK.",
+                "warnings": "Check fire and application suitability.",
+                "source": "Celotex XPS 300 SL FN Datasheet"
+            }
+        }
+    },
+    "Typical-Masonry-Wall-Skins": {
+        "Facing-Brickwork-Wall-Skin": {
+            "is_product": true,
+            "102.5mm-Thickness": {
+                "lambda": 0.85,
+                "r_value": 0.13,
+                "thickness": 102.5,
+                "notes": "Facing clay bricks (λ 0.77 W/mK) plus 10 % cement mortar (λ 0.88 W/mK).",
+                "info": "External skin of cavity walls built to UK practice.",
+                "warnings": "Moisture raises conductivity; adjust for wet conditions.",
+                "source": "BR 443 / ISO 6946 brick-and-mortar data"
+            }
+        },
+        "Facing-Brickwork-Solid-Wall": {
+            "is_product": true,
+            "225mm-Thickness": {
+                "lambda": 0.85,
+                "r_value": 0.29,
+                "thickness": 225,
+                "notes": "Nine-inch solid wall; same weighted λ as 102 mm leaf.",
+                "info": "Common in pre-1919 construction; high thermal mass.",
+                "warnings": "No cavity – moisture correction essential.",
+                "source": "BR 443 / ISO 6946 brick-and-mortar data"
+            }
+        },
+        "Engineering-Brickwork-Wall-Skin": {
+            "is_product": true,
+            "102.5mm-Thickness": {
+                "lambda": 0.53,
+                "r_value": 0.2,
+                "thickness": 102.5,
+                "notes": "Engineering bricks (λ 0.47 W/mK) with 10 % mortar.",
+                "info": "Durable units for DPC and retaining courses.",
+                "warnings": "Higher λ than facing bricks – check U-value impact.",
+                "source": "Marshalls BTB-15 + ISO 6946 mortar"
+            }
+        },
+        "Celcon-Lightweight-Block-Wall-Skin": {
+            "is_product": true,
+            "100mm-Thickness": {
+                "lambda": 0.223,
+                "r_value": 0.45,
+                "thickness": 100,
+                "notes": "Celcon Standard Grade AAC (λ 0.15 W/mK) + 10 % mortar.",
+                "info": "Typical inner-leaf or partition block.",
+                "warnings": "Thin-joint mortar lowers λ further.",
+                "source": "H+H Celcon Standard Grade datasheet"
+            }
+        },
+        "Celcon-Solar-Block-Wall-Skin": {
+            "is_product": true,
+            "100mm-Thickness": {
+                "lambda": 0.187,
+                "r_value": 0.53,
+                "thickness": 100,
+                "notes": "Celcon Solar Grade AAC (λ 0.11 W/mK) + 10 % mortar.",
+                "info": "Low-λ block enabling sub-0.15 W/m²K walls.",
+                "warnings": "Protect blocks from saturation on site.",
+                "source": "H+H Celcon Solar Grade datasheet"
+            }
+        },
+        "Dense-Concrete-Block-Wall-Skin": {
+            "is_product": true,
+            "100mm-Thickness": {
+                "lambda": 1.56,
+                "r_value": 0.06,
+                "thickness": 100,
+                "notes": "Dense aggregate block (λ 1.63 W/mK) + 10 % mortar.",
+                "info": "Low-cost structural inner leaf where separate insulation is provided.",
+                "warnings": "Significant thermal bridge – use carefully in low-U walls.",
+                "source": "IES Table 6 + ISO 6946 mortar"
+            }
+        }
+    },
+    "Masonry-Materials": {
+        "Clay-Brick": {
+            "is_product": false,
+            "Outer-Leaf": {
+                "lambda": 0.77,
+                "r_value": 0.13,
+                "notes": "Typical clay brick for external walls (102.5mm thick). R-value is 0.1025m / 0.77 W/mK.",
+                "info": "Standard value for U-value calculations per BR 443:2019. R-value in BR443 of 0.26 includes mortar.",
+                "warnings": "Thermal conductivity affected by moisture content.",
+                "source": "BR 443:2019"
+            },
+            "Inner-Leaf": {
+                "lambda": 0.56,
+                "r_value": 0.18,
+                "notes": "Typical clay brick for internal walls (102.5mm thick). R-value is 0.1025m / 0.56 W/mK.",
+                "info": "Protected from external weathering. R-value in BR443 of 0.36 includes mortar.",
+                "warnings": "Thermal bridges at mortar joints not accounted for in material R-value.",
+                "source": "BR 443:2019"
+            },
+            "Exposed-DesigningBuildingsWiki": {
+                "lambda": 0.84,
+                "r_value": 0.122,
+                "notes": "Clay brick, exposed conditions. R-value for 102.5mm thickness.",
+                "info": "Alternative value from Designing Buildings Wiki.",
+                "warnings": "Moisture content impacts lambda.",
+                "source": "Designing Buildings Wiki / Research Doc Sec 3.1"
+            },
+            "Protected-DesigningBuildingsWiki": {
+                "lambda": 0.62,
+                "r_value": 0.165,
+                "notes": "Clay brick, protected conditions. R-value for 102.5mm thickness.",
+                "info": "Alternative value from Designing Buildings Wiki.",
+                "warnings": "Moisture content impacts lambda.",
+                "source": "Designing Buildings Wiki / Research Doc Sec 3.1"
+            },
+            "Density-1600kg_m3-Protected-1pc-Moisture": {
+                "lambda": 0.54,
+                "r_value": 0.19,
+                "notes": "Clay brick (1600 kg/m³, 1% moisture, protected). R-value for 102.5mm thickness.",
+                "info": "Value based on density and moisture content.",
+                "warnings": "Specific conditions apply.",
+                "source": "Standard U-Values / Research Doc Sec 3.1"
+            },
+            "Density-1600kg_m3-Exposed-5pc-Moisture": {
+                "lambda": 0.73,
+                "r_value": 0.14,
+                "notes": "Clay brick (1600 kg/m³, 5% moisture, exposed). R-value for 102.5mm thickness.",
+                "info": "Value based on density and moisture content.",
+                "warnings": "Specific conditions apply.",
+                "source": "Standard U-Values / Research Doc Sec 3.1"
+            },
+            "Density-1800kg_m3-Protected-1pc-Moisture": {
+                "lambda": 0.71,
+                "r_value": 0.144,
+                "notes": "Clay brick (1800 kg/m³, 1% moisture, protected). R-value for 102.5mm thickness.",
+                "info": "Value based on density and moisture content.",
+                "warnings": "Specific conditions apply.",
+                "source": "Standard U-Values / Research Doc Sec 3.1"
+            },
+            "Density-1800kg_m3-Exposed-5pc-Moisture": {
+                "lambda": 0.96,
+                "r_value": 0.107,
+                "notes": "Clay brick (1800 kg/m³, 5% moisture, exposed). R-value for 102.5mm thickness.",
+                "info": "Value based on density and moisture content.",
+                "warnings": "Specific conditions apply.",
+                "source": "Standard U-Values / Research Doc Sec 3.1"
+            },
+            "Density-2000kg_m3-Protected-1pc-Moisture": {
+                "lambda": 0.92,
+                "r_value": 0.111,
+                "notes": "Clay brick (2000 kg/m³, 1% moisture, protected). R-value for 102.5mm thickness.",
+                "info": "Value based on density and moisture content.",
+                "warnings": "Specific conditions apply.",
+                "source": "Standard U-Values / Research Doc Sec 3.1"
+            },
+            "Density-2000kg_m3-Exposed-5pc-Moisture": {
+                "lambda": 1.24,
+                "r_value": 0.083,
+                "notes": "Clay brick (2000 kg/m³, 5% moisture, exposed). R-value for 102.5mm thickness.",
+                "info": "Value based on density and moisture content.",
+                "warnings": "Specific conditions apply.",
+                "source": "Standard U-Values / Research Doc Sec 3.1"
+            }
+        },
+        "Concrete-Block": {
+            "is_product": false,
+            "Dense-Aggregate": {
+                "lambda": 1.35,
+                "r_value": 0.074,
+                "notes": "Medium density (2000 kg/m³) concrete blocks (100mm thick). R-value from 0.1m / 1.35 W/mK. BR443 R-value 0.15 includes mortar.",
+                "info": "Used for structural applications and inner leaves.",
+                "warnings": "Poor thermal performance requires additional insulation.",
+                "source": "BR 443:2019"
+            },
+            "Lightweight-Aggregate": {
+                "lambda": 0.22,
+                "r_value": 0.455,
+                "notes": "Lightweight (600 kg/m³) concrete blocks (100mm thick). R-value from 0.1m / 0.22 W/mK. BR443 R-value 0.91 includes mortar.",
+                "info": "Better thermal performance than dense blocks.",
+                "warnings": "Lower compressive strength than dense blocks.",
+                "source": "BR 443:2019"
+            },
+            "Dense-Aggregate-High-Density-2400kg_m3": {
+                "lambda": 1.93,
+                "r_value": 0.052,
+                "notes": "Dense aggregate concrete block (high density, 2400 kg/m³). R-value for 100mm thickness.",
+                "info": "High strength, poor thermal insulation.",
+                "warnings": "Requires significant additional insulation.",
+                "source": "Research Doc Sec 3.2"
+            },
+            "Dense-Aggregate-2200kg_m3": {
+                "lambda": 1.65,
+                "r_value": 0.061,
+                "notes": "Dense aggregate concrete block (2200 kg/m³). R-value for 100mm thickness.",
+                "info": "High strength, poor thermal insulation.",
+                "warnings": "Requires significant additional insulation.",
+                "source": "Research Doc Sec 3.2"
+            },
+            "Forterra-Conbloc-Internal": {
+                "is_product": true,
+                "standard": {
+                    "lambda": 1.32,
+                    "r_value": 0.076,
+                    "notes": "Forterra Conbloc concrete block (internal use). R-value for 100mm thickness.",
+                    "info": "Specific manufacturer product.",
+                    "warnings": "Check manufacturer data for specific block size and application.",
+                    "source": "Research Doc Sec 3.2"
+                }
+            },
+            "Forterra-Conbloc-External": {
+                "is_product": true,
+                "standard": {
+                    "lambda": 1.42,
+                    "r_value": 0.07,
+                    "notes": "Forterra Conbloc concrete block (external use). R-value for 100mm thickness.",
+                    "info": "Specific manufacturer product.",
+                    "warnings": "Check manufacturer data for specific block size and application.",
+                    "source": "Research Doc Sec 3.2"
+                }
+            },
+            "Lightweight-Aggregate-1400kg_m3": {
+                "lambda": 0.57,
+                "r_value": 0.175,
+                "notes": "Lightweight aggregate concrete block (1400 kg/m³). R-value for 100mm thickness.",
+                "info": "Better thermal performance than dense blocks. Value from BR443 / Research Doc.",
+                "warnings": "Lower compressive strength.",
+                "source": "Research Doc Sec 3.2 / BR 443"
+            },
+            "Gryphonn-Block-950-1000kg_m3": {
+                "is_product": true,
+                "standard": {
+                    "lambda": 0.285,
+                    "r_value": 0.351,
+                    "notes": "Gryphonn lightweight concrete block (950/1000 kg/m³). R-value for 100mm thickness.",
+                    "info": "Specific manufacturer product with good thermal properties for a block.",
+                    "warnings": "Check manufacturer data for specific block size and application.",
+                    "source": "Research Doc Sec 3.2"
+                }
+            }
+        },
+        "Aerated-Concrete-Block": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.11,
+                "r_value": 0.91,
+                "notes": "Autoclaved Aerated Concrete block (e.g. Airtec, 600-700 kg/m³, protected). R-value for 100mm (material only).",
+                "info": "Lightweight block with good thermal performance for masonry.",
+                "warnings": "Lower compressive strength than dense blocks, check structural requirements.",
+                "source": "BR 443:2019 / Manufacturer Data / Research Doc Sec 3.2"
+            },
+            "Airtec-Dry": {
+                "lambda": 0.1,
+                "r_value": 1.0,
+                "notes": "Airtec Autoclaved Aerated Concrete block (dry condition). R-value for 100mm thickness.",
+                "info": "Excellent thermal performance for masonry, dry value.",
+                "warnings": "Protected value (0.11 W/mK) usually used for design.",
+                "source": "Research Doc Sec 3.2"
+            },
+            "Generic-AAC-Block-600kg_m3-Alt": {
+                "lambda": 0.18,
+                "r_value": 0.556,
+                "notes": "Generic Autoclaved Aerated Concrete block (600 kg/m³). R-value for 100mm thickness. Alternative value.",
+                "info": "Alternative generic value for AAC blocks.",
+                "warnings": "Product specific data (like Airtec or BR443 generic) is preferred.",
+                "source": "Research Doc Sec 3.2"
+            }
+        },
+        "Stone": {
+            "is_product": false,
+            "Limestone-2000kg_m3": {
+                "lambda": 1.4,
+                "r_value": 0.071,
+                "notes": "Limestone masonry (2000 kg/m³). R-value for 100mm thickness (material only).",
+                "info": "Natural stone for wall construction.",
+                "warnings": "Thermal properties vary with density and type. High conductivity.",
+                "source": "BR 443:2019 / Research Doc Sec 3.3"
+            },
+            "Limestone-Malta-BCA-1600-2600kg_m3": {
+                "lambda": 1.575,
+                "r_value": 0.063,
+                "notes": "Limestone (1600-2600 kg/m³). Lambda range 0.85-2.3 W/mK. R-value for 100mm using mid-range lambda (1.575 W/mK).",
+                "info": "Natural stone with wide property variation. Differs from BR443 value (1.40 W/mK for 2000kg/m³).",
+                "warnings": "Use specific data for chosen limestone type and density.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 3.3"
+            },
+            "Sandstone-Granite-2600kg_m3": {
+                "lambda": 2.3,
+                "r_value": 0.043,
+                "notes": "Sandstone or Granite masonry (2600 kg/m³). R-value for 100mm thickness (material only).",
+                "info": "Dense natural stone for wall construction.",
+                "warnings": "Very high thermal conductivity, poor insulator.",
+                "source": "BR 443:2019 / Research Doc Sec 3.3"
+            },
+            "Granite-Malta-BCA-2500-2700kg_m3": {
+                "lambda": 2.8,
+                "r_value": 0.036,
+                "notes": "Granite (2500-2700 kg/m³). R-value for 100mm thickness.",
+                "info": "Alternative value for Granite from Malta BCA / EN 12524. Higher than BR443 (2.3 W/mK).",
+                "warnings": "Very high thermal conductivity.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 3.3"
+            },
+            "Artificial-Stone-1750kg_m3": {
+                "lambda": 1.3,
+                "r_value": 0.077,
+                "notes": "Artificial stone (1750 kg/m³). R-value for 100mm thickness (material only).",
+                "info": "Reconstituted stone for wall construction.",
+                "warnings": "High thermal conductivity.",
+                "source": "BR 443:2019 / Research Doc Sec 3.3"
+            },
+            "Pumice-Stone-400kg_m3": {
+                "lambda": 0.12,
+                "r_value": 0.833,
+                "notes": "Pumice stone masonry (400 kg/m³). R-value for 100mm thickness (material only).",
+                "info": "Lightweight volcanic rock with better insulation properties.",
+                "warnings": "Lower compressive strength.",
+                "source": "BR 443:2019 / Research Doc Sec 3.3"
+            },
+            "Marble-2800kg_m3": {
+                "lambda": 3.5,
+                "r_value": 0.029,
+                "notes": "Marble masonry (2800 kg/m³). R-value for 100mm thickness (material only).",
+                "info": "Dense metamorphic rock, often used for cladding or finishes.",
+                "warnings": "Extremely high thermal conductivity.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 3.3"
+            },
+            "Slate-Masonry-2000-2800kg_m3": {
+                "lambda": 2.2,
+                "r_value": 0.045,
+                "notes": "Slate masonry (2000-2800 kg/m³). R-value for 100mm thickness (material only).",
+                "info": "Dense metamorphic rock, used for walling or cladding.",
+                "warnings": "Very high thermal conductivity.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 3.3"
+            }
+        },
+        "Mortar": {
+            "is_product": false,
+            "Cement-Mortar-Outer-Leaf": {
+                "lambda": 0.94,
+                "r_value": 0.011,
+                "notes": "Cement mortar for outer leaf joints (typically 10mm). R-value for 10mm thickness.",
+                "info": "Standard mortar for external brick/blockwork. Higher conductivity due to moisture.",
+                "warnings": "Mortar joints contribute to thermal bridging in masonry walls.",
+                "source": "BR 443:2019 (citing CIBSE Guide A) / Research Doc Sec 3.4"
+            },
+            "Cement-Mortar-Inner-Leaf": {
+                "lambda": 0.88,
+                "r_value": 0.011,
+                "notes": "Cement mortar for inner leaf joints (typically 10mm). R-value for 10mm thickness.",
+                "info": "Standard mortar for internal brick/blockwork. Lower conductivity than outer leaf.",
+                "warnings": "Mortar joints contribute to thermal bridging in masonry walls.",
+                "source": "BR 443:2019 (citing CIBSE Guide A) / Research Doc Sec 3.4"
+            },
+            "Lime-Mortar-1300kg_m3": {
+                "lambda": 0.8,
+                "r_value": 0.013,
+                "notes": "Lime mortar (Limestone in torba, 1300 kg/m³). R-value for 10mm thickness.",
+                "info": "More breathable mortar, often used in historic building conservation.",
+                "warnings": "Properties can vary based on mix.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 3.4"
+            },
+            "Cement-Mortar-CIBSE-1650kg_m3": {
+                "lambda": 0.72,
+                "r_value": 0.014,
+                "notes": "Cement mortar (1650 kg/m³). R-value for 10mm thickness.",
+                "info": "Value from CIBSE Guide A.",
+                "warnings": "Mortar joints act as thermal bridges.",
+                "source": "CIBSE Guide A / Research Doc Sec 3.4"
+            },
+            "Cement-Mortar-CIBSE-1900kg_m3-Dry": {
+                "lambda": 0.93,
+                "r_value": 0.011,
+                "notes": "Cement mortar (1900 kg/m³, dry). R-value for 10mm thickness.",
+                "info": "Value from CIBSE Guide A (dry condition).",
+                "warnings": "Moist condition significantly increases lambda (to 1.5 W/mK).",
+                "source": "CIBSE Guide A / Research Doc Sec 3.4"
+            },
+            "Cement-Mortar-CIBSE-1900kg_m3-Moist": {
+                "lambda": 1.5,
+                "r_value": 0.007,
+                "notes": "Cement mortar (1900 kg/m³, moist). R-value for 10mm thickness.",
+                "info": "Value from CIBSE Guide A (moist condition).",
+                "warnings": "Significantly higher conductivity than dry.",
+                "source": "CIBSE Guide A / Research Doc Sec 3.4"
+            },
+            "Cement-Lime-Plaster-Mortar-CIBSE-1600kg_m3": {
+                "lambda": 0.8,
+                "r_value": 0.013,
+                "notes": "Cement/lime plaster (indicative for mortar, 1600 kg/m³). R-value for 10mm thickness.",
+                "info": "Value from CIBSE Guide A.",
+                "warnings": "Indicative value for mortar.",
+                "source": "CIBSE Guide A / Research Doc Sec 3.4"
+            },
+            "Mortar-DesigningBuildingsWiki": {
+                "lambda": 0.8,
+                "r_value": 0.013,
+                "notes": "Generic mortar. R-value for 10mm thickness.",
+                "info": "Alternative value from Designing Buildings Wiki.",
+                "warnings": "Generic value, properties vary with mix.",
+                "source": "Designing Buildings Wiki / Research Doc Sec 3.4"
+            }
+        }
+    },
+    "Timber-Products": {
+        "Softwood": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.13,
+                "r_value": 0.77,
+                "notes": "Softwood timber (~500 kg/m³). R-value for 100mm thickness.",
+                "info": "Typically used for structural framing (studs, joists).",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "BR 443:2019"
+            }
+        },
+        "Hardwood": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.18,
+                "r_value": 0.56,
+                "notes": "Hardwood timber (~700 kg/m³). R-value for 100mm thickness.",
+                "info": "Denser wood with higher thermal conductivity than softwood.",
+                "warnings": "Less commonly used in thermal elements due to higher conductivity and cost.",
+                "source": "BR 443:2019"
+            }
+        },
+        "OSB-Sheet": {
+            "is_product": true,
+            "6mm-Thickness": {
+                "thickness": 6,
+                "lambda": 0.13,
+                "r_value": 0.046,
+                "notes": "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 6mm.",
+                "info": "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "9mm-Thickness": {
+                "thickness": 9,
+                "lambda": 0.13,
+                "r_value": 0.069,
+                "notes": "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 9mm.",
+                "info": "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "12mm-Thickness": {
+                "thickness": 12,
+                "lambda": 0.13,
+                "r_value": 0.092,
+                "notes": "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 12mm.",
+                "info": "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "15mm-Thickness": {
+                "thickness": 15,
+                "lambda": 0.13,
+                "r_value": 0.115,
+                "notes": "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 15mm.",
+                "info": "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "18mm-Thickness": {
+                "thickness": 18,
+                "lambda": 0.13,
+                "r_value": 0.138,
+                "notes": "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 18mm.",
+                "info": "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "22mm-Thickness": {
+                "thickness": 22,
+                "lambda": 0.13,
+                "r_value": 0.169,
+                "notes": "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 22mm.",
+                "info": "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "25mm-Thickness": {
+                "thickness": 25,
+                "lambda": 0.13,
+                "r_value": 0.192,
+                "notes": "OSB/3 sheet (oriented strand board, ~650 kg/m³). Lambda 0.13 W/mK. Thickness 25mm.",
+                "info": "Engineered wood panel commonly used for sheathing and flooring. Good strength and versatility.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 300 / Manufacturer Data / Web Research 2025-12-27"
+            }
+        },
+        "Standard-Plywood": {
+            "is_product": true,
+            "6mm-Thickness": {
+                "thickness": 6,
+                "lambda": 0.13,
+                "r_value": 0.046,
+                "notes": "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 6mm.",
+                "info": "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "9mm-Thickness": {
+                "thickness": 9,
+                "lambda": 0.13,
+                "r_value": 0.069,
+                "notes": "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 9mm.",
+                "info": "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "12mm-Thickness": {
+                "thickness": 12,
+                "lambda": 0.13,
+                "r_value": 0.092,
+                "notes": "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 12mm.",
+                "info": "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "15mm-Thickness": {
+                "thickness": 15,
+                "lambda": 0.13,
+                "r_value": 0.115,
+                "notes": "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 15mm.",
+                "info": "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "18mm-Thickness": {
+                "thickness": 18,
+                "lambda": 0.13,
+                "r_value": 0.138,
+                "notes": "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 18mm.",
+                "info": "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "22mm-Thickness": {
+                "thickness": 22,
+                "lambda": 0.13,
+                "r_value": 0.169,
+                "notes": "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 22mm.",
+                "info": "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            },
+            "25mm-Thickness": {
+                "thickness": 25,
+                "lambda": 0.13,
+                "r_value": 0.192,
+                "notes": "Standard softwood plywood (~560 kg/m³). Lambda 0.13 W/mK. Thickness 25mm.",
+                "info": "Multi-ply softwood panel used for general construction, flooring, and sheathing applications.",
+                "warnings": "Moisture content affects thermal properties. Acts as thermal bridge in insulated elements.",
+                "source": "EN 12524 / CIBSE Guide A / Web Research 2025-12-27"
+            }
+        },
+        "Marine-Plywood": {
+            "is_product": true,
+            "6mm-Thickness": {
+                "thickness": 6,
+                "lambda": 0.16,
+                "r_value": 0.038,
+                "notes": "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 6mm. Waterproof bonding adhesive.",
+                "info": "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings": "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source": "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "9mm-Thickness": {
+                "thickness": 9,
+                "lambda": 0.16,
+                "r_value": 0.056,
+                "notes": "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 9mm. Waterproof bonding adhesive.",
+                "info": "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings": "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source": "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "12mm-Thickness": {
+                "thickness": 12,
+                "lambda": 0.16,
+                "r_value": 0.075,
+                "notes": "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 12mm. Waterproof bonding adhesive.",
+                "info": "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings": "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source": "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "15mm-Thickness": {
+                "thickness": 15,
+                "lambda": 0.16,
+                "r_value": 0.094,
+                "notes": "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 15mm. Waterproof bonding adhesive.",
+                "info": "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings": "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source": "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "18mm-Thickness": {
+                "thickness": 18,
+                "lambda": 0.16,
+                "r_value": 0.113,
+                "notes": "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 18mm. Waterproof bonding adhesive.",
+                "info": "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings": "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source": "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "22mm-Thickness": {
+                "thickness": 22,
+                "lambda": 0.16,
+                "r_value": 0.138,
+                "notes": "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 22mm. Waterproof bonding adhesive.",
+                "info": "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings": "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source": "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            },
+            "25mm-Thickness": {
+                "thickness": 25,
+                "lambda": 0.16,
+                "r_value": 0.156,
+                "notes": "Marine plywood (~700 kg/m³). Lambda 0.16 W/mK. Thickness 25mm. Waterproof bonding adhesive.",
+                "info": "High-grade plywood with waterproof adhesive, suitable for high-moisture environments and marine applications.",
+                "warnings": "More expensive than standard plywood. Thermal properties similar to standard grade. Acts as thermal bridge.",
+                "source": "BS 1088 / Manufacturer Data / Web Research 2025-12-27"
+            }
+        }
+    },
+    "Concrete": {
+        "Reinforced-Concrete-1pc-Steel-2300kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 2.3,
+                "r_value": 0.043,
+                "notes": "Reinforced concrete (1% steel, ~2300 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Common structural concrete. Steel increases conductivity.",
+                "warnings": "Very poor insulator. Requires significant additional insulation.",
+                "source": "BR 443:2019 / Research Doc Sec 4.1"
+            }
+        },
+        "Concrete-1800kg_m3-Protected": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.87,
+                "r_value": 0.115,
+                "notes": "Concrete (1800 kg/m³, protected/internal). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Medium-density concrete, lower moisture content.",
+                "warnings": "Thermal performance varies with aggregate and moisture.",
+                "source": "BR 443:2019 / Research Doc Sec 4.1"
+            }
+        },
+        "Concrete-1800kg_m3-Exposed": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.96,
+                "r_value": 0.104,
+                "notes": "Concrete (1800 kg/m³, exposed/external). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Medium-density concrete, higher moisture content.",
+                "warnings": "Thermal performance varies with aggregate and moisture.",
+                "source": "BR 443:2019 / Research Doc Sec 4.1"
+            }
+        },
+        "Concrete-2200kg_m3-Protected": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.45,
+                "r_value": 0.069,
+                "notes": "Concrete (2200 kg/m³, protected/internal). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Dense concrete, lower moisture content.",
+                "warnings": "Poor insulator.",
+                "source": "BR 443:2019 / Research Doc Sec 4.1"
+            }
+        },
+        "Concrete-2200kg_m3-Exposed": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.6,
+                "r_value": 0.063,
+                "notes": "Concrete (2200 kg/m³, exposed/external). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Dense concrete, higher moisture content.",
+                "warnings": "Poor insulator.",
+                "source": "BR 443:2019 / Research Doc Sec 4.1"
+            }
+        },
+        "Concrete-2400kg_m3-Protected": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.83,
+                "r_value": 0.055,
+                "notes": "Concrete (2400 kg/m³, protected/internal). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Very dense concrete, lower moisture content.",
+                "warnings": "Very poor insulator.",
+                "source": "BR 443:2019 / Research Doc Sec 4.1"
+            }
+        },
+        "Concrete-2400kg_m3-Exposed": {
+            "is_product": false,
+            "standard": {
+                "lambda": 2.0,
+                "r_value": 0.05,
+                "notes": "Concrete (2400 kg/m³, exposed/external). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Very dense concrete, higher moisture content.",
+                "warnings": "Very poor insulator.",
+                "source": "BR 443:2019 / Research Doc Sec 4.1"
+            }
+        },
+        "Cellular-Concrete-400kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.1,
+                "r_value": 1.0,
+                "notes": "Lightweight cellular concrete (400 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Good thermal performance for concrete due to air voids.",
+                "warnings": "Low compressive strength, not for all structural uses.",
+                "source": "CIBSE Guide A / Research Doc Sec 4.1"
+            }
+        },
+        "Cellular-Concrete-1200kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.4,
+                "r_value": 0.25,
+                "notes": "Cellular concrete (1200 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Moderate thermal performance for concrete.",
+                "warnings": "Check structural suitability.",
+                "source": "CIBSE Guide A / Research Doc Sec 4.1"
+            }
+        },
+        "Heavy-Weight-Concrete-2243kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 2.0,
+                "r_value": 0.05,
+                "notes": "Heavy weight concrete (2243 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Dense concrete.",
+                "warnings": "Very poor insulator.",
+                "source": "Research Doc Sec 4.1"
+            }
+        },
+        "Reinforced-Concrete-2pc-Steel-2400kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 2.5,
+                "r_value": 0.04,
+                "notes": "Reinforced concrete (2% steel, 2400 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Higher steel content increases conductivity.",
+                "warnings": "Extremely poor insulator.",
+                "source": "Research Doc Sec 4.1"
+            }
+        },
+        "Roof-Floor-Slab-Concrete-2000kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.35,
+                "r_value": 0.074,
+                "notes": "Concrete for roof/floor slab (2000 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Typical slab concrete.",
+                "warnings": "Poor insulator.",
+                "source": "Research Doc Sec 4.1"
+            }
+        },
+        "No-Fines-Concrete-1800kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.96,
+                "r_value": 0.104,
+                "notes": "No-fines concrete (1800 kg/m³). R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Concrete with voids, slightly better thermal performance than dense concrete of similar overall density.",
+                "warnings": "Specific structural applications.",
+                "source": "Research Doc Sec 4.1"
+            }
+        },
+        "Dense-Generic-Concrete-Approx-2300kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.575,
+                "r_value": 0.063,
+                "notes": "Dense generic concrete (~2300 kg/m³). Lambda range 1.4-1.75 W/mK. R-value for 100mm using mid-range lambda (1.575 W/mK). R-value scales with thickness: R = d/λ.",
+                "info": "General value for dense concrete.",
+                "warnings": "Use specific data if available.",
+                "source": "Research Doc Sec 4.1"
+            }
+        },
+        "Aerated-Generic-Concrete": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.16,
+                "r_value": 0.625,
+                "notes": "Aerated generic concrete. R-value for 100mm thickness. R-value scales with thickness: R = d/λ.",
+                "info": "Better thermal performance due to aeration. Not to be confused with AAC/Cellular.",
+                "warnings": "Distinguish from AAC blocks or cellular concrete which have lower lambdas.",
+                "source": "Research Doc Sec 4.1"
+            }
+        },
+        "Low-Thermally-Conductive-Concrete-1400kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.625,
+                "r_value": 0.16,
+                "notes": "Low thermally conductive concrete (1400 kg/m³). Lambda range 0.45-0.8 W/mK. R-value for 100mm using mid-range lambda (0.625 W/mK). R-value scales with thickness: R = d/λ.",
+                "info": "Specialized concrete with improved thermal properties.",
+                "warnings": "Product specific data essential.",
+                "source": "Research Doc Sec 4.1"
+            }
+        },
+        "Precast-Hollow-Core-Concrete-Material-1290-2105kg_m3": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.319,
+                "r_value": 0.076,
+                "notes": "Precast hollow core concrete (material property, 1290-2105 kg/m³). Lambda range 1.012-1.626 W/mK. R-value for 100mm using mid-range lambda (1.319 W/mK). R-value scales with thickness: R = d/λ.",
+                "info": "Hollow cores improve overall thermal resistance of the element but material lambda is still high.",
+                "warnings": "Lambda is for solid material; element U-value calculation needs to account for cores.",
+                "source": "Research Doc Sec 4.1"
+            }
+        }
+    },
+    "Screeds": {
+        "Cement-Sand-Screed-BR443": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.15,
+                "r_value": 0.043,
+                "notes": "Cement-sand screed (1800 kg/m³). R-value for typical 50mm thickness is 0.043 (BR443 value for 50mm). For 100mm R=0.087.",
+                "info": "Common floor screed. Value from BR 443 for 50mm screed.",
+                "warnings": "Conductivity varies with mix and density.",
+                "source": "BR 443:2019 / Research Doc Sec 4.2"
+            }
+        },
+        "Flooring-Roofing-Screed-EN12524": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.41,
+                "r_value": 0.122,
+                "notes": "Flooring/roofing screed (1200 kg/m³). R-value for 50mm thickness. For 100mm R=0.244.",
+                "info": "Lighter weight screed.",
+                "warnings": "Confirm density and mix for specific application.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 4.2"
+            }
+        },
+        "Anhydrite-Screed-Generic": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.6,
+                "r_value": 0.031,
+                "notes": "Calcium sulphate / Anhydrite screed. Lambda typically 1.2-2.0 W/mK. R-value for 50mm at lambda 1.6. For 100mm R=0.063.",
+                "info": "Often used with underfloor heating due to good conductivity.",
+                "warnings": "Poor insulator. Lambda varies by product.",
+                "source": "Industry Literature / Research Doc Sec 4.3"
+            }
+        },
+        "Cement-Sand-Screed-CIBSE-1900kg_m3-Dry": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.93,
+                "r_value": 0.054,
+                "notes": "Cement mortar/screed (1900 kg/m³, dry). R-value for 50mm thickness.",
+                "info": "Value from CIBSE Guide A (cement mortar, indicative for screed).",
+                "warnings": "Conductivity varies with mix, density, and moisture.",
+                "source": "CIBSE Guide A / Research Doc Sec 4.2"
+            }
+        },
+        "Traditional-Sand-Cement-Screed-1-3-Mix": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.4,
+                "notes": "Traditional sand/cement screed, 1:3 mix ratio (cement:sand). Lambda 1.0-1.4 W/mK (using 1.4 for conservative estimate). R-value scales with thickness: R = d/λ. Typical thickness 50-75mm, can go up to 100mm+.",
+                "info": "Standard construction screed for general floor applications. Better insulator than anhydrite products.",
+                "warnings": "Requires 28 days full curing time. Conductivity varies with exact mix ratio and density.",
+                "source": "Industry Standard / BS EN / Web Research 2025-12-27"
+            }
+        },
+        "Traditional-Sand-Cement-Screed-1-4-Mix": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.2,
+                "notes": "Traditional sand/cement screed, 1:4 mix ratio (cement:sand). Lambda approximately 1.0-1.2 W/mK. R-value scales with thickness: R = d/λ. Typical thickness 50-75mm.",
+                "info": "Leaner mix with slightly lower conductivity than 1:3 mix. Commonly used for general applications.",
+                "warnings": "Lower cement content may affect strength. Requires proper curing (28 days).",
+                "source": "Industry Standard / Web Research 2025-12-27"
+            }
+        },
+        "Traditional-Sand-Cement-Screed-Lightweight": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.41,
+                "notes": "Lightweight traditional screed (can include lightweight aggregates or additives). Lambda 0.41 W/mK. R-value scales with thickness: R = d/λ. Typical thickness 50-100mm.",
+                "info": "Better thermal insulation than standard screeds. May use perlite, vermiculite, or other lightweight aggregates.",
+                "warnings": "Load-bearing capacity may be lower than dense screeds. Verify suitability for application.",
+                "source": "EN 12524 / Malta BCA / Web Research 2025-12-27"
+            }
+        },
+        "Agilia-Screed-A-Gyvlon": {
+            "is_product": true,
+            "standard": {
+                "lambda": 1.6,
+                "r_value": 0.031,
+                "notes": "Agilia Screed A Gyvlon (Anhydrite, 2000 kg/m³ dry density). Lambda typically 1.2-2.0 W/mK. R-value for 50mm using lambda 1.6 W/mK.",
+                "info": "Calcium sulphate screed, good for UFH.",
+                "warnings": "Poor insulator. Confirm lambda from manufacturer.",
+                "source": "Research Doc Sec 4.3"
+            }
+        }
+    },
+    "Roofing-Materials-Outer-Coverings": {
+        "Concrete-Roof-Tiles": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.5,
+                "r_value": 0.01,
+                "notes": "Concrete roof tiles (2100 kg/m³). R-value for typical 15mm thickness. Negligible in most U-value calcs.",
+                "info": "Outer weatherproof layer for pitched roofs.",
+                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 6.1 & Table 6.1"
+            }
+        },
+        "Clay-Roof-Tiles": {
+            "is_product": false,
+            "standard": {
+                "lambda": 1.0,
+                "r_value": 0.012,
+                "notes": "Clay roof tiles (1900-2000 kg/m³). Lambda 0.85-1.0. R-value for typical 12mm thickness at lambda 1.0. Negligible in most U-value calcs.",
+                "info": "Outer weatherproof layer for pitched roofs.",
+                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                "source": "Malta BCA / EN 12524, Greenspec / Research Doc Sec 6.2 & Table 6.1"
+            },
+            "Greenspec-1900kg_m3": {
+                "lambda": 0.85,
+                "r_value": 0.014,
+                "notes": "Clay roof tiles (1900 kg/m³). R-value for typical 12mm thickness. Negligible in most U-value calcs.",
+                "info": "Alternative value from Greenspec. Differs from Malta BCA (1.0 W/mK).",
+                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                "source": "Greenspec / Research Doc Sec 6.2 & Table 6.1"
+            }
+        },
+        "Natural-Slates-Roofing": {
+            "is_product": false,
+            "standard": {
+                "lambda": 2.2,
+                "r_value": 0.003,
+                "notes": "Natural slates for roofing (1600-2800 kg/m³). Lambda 1.0-2.5. R-value for typical 7mm thickness at lambda 2.2. Negligible.",
+                "info": "Outer weatherproof layer for pitched roofs. Lambda varies significantly.",
+                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                "source": "Multiple Sources (Malta BCA, Greenspec, Cupa) / Research Doc Sec 6.3 & Table 6.1"
+            },
+            "Malta-BCA-13mm-1602kg_m3": {
+                "lambda": 1.0,
+                "r_value": 0.013,
+                "notes": "Natural slates (13mm thick, 1602 kg/m³). R-value for 13mm thickness. Negligible.",
+                "info": "Specific value from Malta BCA / EN 12524.",
+                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 6.3 & Table 6.1"
+            },
+            "Greenspec-2691kg_m3": {
+                "lambda": 2.5,
+                "r_value": 0.003,
+                "notes": "Natural slates (2691 kg/m³). R-value for typical 7mm thickness. Negligible.",
+                "info": "Alternative value from Greenspec. Very high conductivity.",
+                "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                "source": "Greenspec / Research Doc Sec 6.3 & Table 6.1"
+            },
+            "Cupa-Pizarras-Slate": {
+                "is_product": true,
+                "standard": {
+                    "lambda": 1.49,
+                    "r_value": 0.005,
+                    "notes": "Cupa Pizarras natural slate. R-value for typical 7mm thickness. Negligible.",
+                    "info": "Manufacturer specific value. Higher conductivity parallel to cleavage.",
+                    "warnings": "Thermal resistance usually ignored if roof void is ventilated.",
+                    "source": "Cupa Pizarras / Research Doc Sec 6.3 & Table 6.1"
+                }
+            }
+        },
+        "Bituminous-Roofing-Felt": {
+            "is_product": false,
+            "standard": {
+                "lambda": 0.23,
+                "r_value": 0.013,
+                "notes": "Bituminous roofing felt (1100 kg/m³). Lambda 0.20-0.23. R-value for typical 3mm thickness at lambda 0.23.",
+                "info": "Waterproofing layer, often in flat roofs or as underlay.",
+                "warnings": "Usually part of a built-up system. Negligible thermal resistance alone.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 6.4 & Table 6.1"
+            },
+            "Felt-On-Flat-Roof-Malta-BCA-1100kg_m3": {
+                "lambda": 0.2,
+                "r_value": 0.015,
+                "notes": "Bitumen felt on flat roof (1100 kg/m³). R-value for typical 3mm thickness.",
+                "info": "Alternative value from Malta BCA / EN 12524. Differs from other Malta BCA felt (0.23 W/mK).",
+                "warnings": "Negligible thermal resistance.",
+                "source": "Malta BCA / EN 12524 / Research Doc Sec 6.4 & Table 6.1"
+            },
+            "Bitumen-Insulation-Felt-CIBSE-1000kg_m3": {
+                "lambda": 0.2,
+                "r_value": 0.015,
+                "notes": "Bitumen insulation/felt, all types (1000 kg/m³). R-value for typical 3mm thickness.",
+                "info": "Value from CIBSE Guide A. May refer to bitumen-bonded boards rather than simple felt.",
+                "warnings": "Source note suggests potential ambiguity.",
+                "source": "CIBSE Guide A / Research Doc Sec 6.4 & Table 6.1"
+            }
+        }
+    }
+}

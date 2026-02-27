@@ -1,0 +1,19 @@
+/* ================================================================= */
+/* REGION  |  Three.js Canvas Rendering Styles                      */
+/* ================================================================= */
+
+/* Three.js Render Canvas - Full Screen 3D Viewport */
+/* ----------------------------------------------------------------- */
+#renderCanvas {
+    width                              : 100vw;                                   /* <-- Full viewport width */
+    height                             : calc(100vh - var(--Vale_HeaderHeight));  /* <-- Viewport height minus header */
+    touch-action                       : none;
+    outline                            : none;
+    display                            : block;
+    position                           : absolute;                    /* <-- Absolute positioning */
+    top                                : var(--Vale_HeaderHeight);    /* <-- Start below header */
+    left                               : 0;                           /* <-- Align to left edge */
+}
+
+/* endregion -------------------------------------------------------- */
+

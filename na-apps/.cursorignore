@@ -1,0 +1,11 @@
+# Ignore backup files ending with .--BAK
+**/*.--BAK
+
+# Ignore all files in folders named 00__Archive (any depth)
+**/00__Archive/**
+**/00__Archive/*
+**/01__ArchivedVersions/**
+**/01__ArchivedVersions/*
+
+# Ignore markdown files marked as hidden (ending with .mdh)
+*.mdh

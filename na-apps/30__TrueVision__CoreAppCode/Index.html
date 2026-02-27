@@ -1,560 +1,710 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
-<!--=========================================================================
-NOBLE ARCHITECTURE  - TRUEVISION 3D MODEL VIEWER
-=============================================================================
-
-FILE        :  Index.html
-DIRECTORY   :  ./
-FILE URL    :  ((TBC_Currently_locally_And_Not_Hosted_On_Web_Yet))
-NAMESPACE   :  TrueVision3D
-MODULE      :  TrueVision3D Core Application
-AUTHOR      :  Adam Noble - Noble Architecture
-PURPOSE     :  3D Model Viewer for Architectural Presentations using Babylon.js
-CREATED     :  2025
-
-DESCRIPTION:
-- Web-based 3D model viewer built with Babylon.js for architectural visualization
-- Supports GLB format models with real-time lighting and shadow calculations
-- Features multiple camera navigation modes configurable per client
-- Includes waypoint navigation system for curated architectural tours
-- Interactive sun positioning based on time of day and geographical coordinates
-- Automatic material detection and enhancement for glass and metal surfaces
-- Responsive interface with toolbar controls and loading states
-- Optimized for Noble Architecture client presentations and design reviews
-
-=============================================================================
--->
-
-
-<!-- ----------------------------------------------------------------- -->
-<!-- REGION | HTML Document Head Configuration                         -->
-<!-- ----------------------------------------------------------------- -->
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="file_name" content="index.html">
-    <meta name="app_name" content="TrueVision">
-    <meta name="version" content="1.1.1"> <!-- Version tracking for deployment   -->
-    <meta name="version_notes" content="Added HDRI environmental lighting system with configuration-driven control">
-    <title>True Vision 3D by Noble Architecture – Pre Beta Version</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrueVision3D |  0.2.5_LivePreview</title>
+    
     <!-- ----------------------------------------------------------------- -->
-    <!-- FAVICON | Application Icon Configuration                          -->
+    <!-- REGION  |  BRANDING | Favicon and Brand Icons                     -->
     <!-- ----------------------------------------------------------------- -->
-    <link rel="icon" type="image/svg+xml"
-        href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
-
-    <!-- ----------------------------------------------------------------- -->
-    <!-- STYLESHEET | Core CSS Stylesheet for TrueVision Core Application  -->
-    <!-- ----------------------------------------------------------------- -->
-    <link rel="stylesheet" href="StyleSheet_TrueVisionCoreAppStyles.css">
-
-    <!-- ----------------------------------------------------------------- -->
-    <!-- REGION | External JavaScript Library Dependencies                 -->
-    <!-- ----------------------------------------------------------------- -->
-    <script src="https://cdn.babylonjs.com/babylon.js"></script> <!--  Core Babylon.js 3D engine        -->
-    <script src="./20_Dev_External-Scripts/babylon.glTF2FileLoader.js"></script>
-    <!--  .Glb  /  glTF model loader       -->
-    <script src="RenderEffect_SsaoAmbientOcclusionEffect.js"></script> <!--  SSAO Ambient Occlusion Effect    -->
-    <script src="UiMenu_NavModeButtonManager.js"></script> <!--  UI Menu Navigation Mode Manager  -->
+    
+    <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <link rel="apple-touch-icon" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <meta name="theme-color" content="#172b3a">
+    
     <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Three.js Import Map                                    -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://esm.sh/three@0.160.0",
+            "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
 
     <!-- ----------------------------------------------------------------- -->
-    <!-- REGION | Application Configuration and Core JavaScript Modules    -->
+    <!-- REGION  |  TrueVision3D Stylesheet Imports                        -->
     <!-- ----------------------------------------------------------------- -->
-
-    <!-- Module Dependency Manager - MUST BE FIRST -->
-    <script src="ModuleDependencyManager.js"></script>
-
+    
+    <!-- Main Stylesheet Index (imports all component stylesheets) -->
+    <link rel="stylesheet" href="03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css">
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Font Loading Detection Script                          -->
+    <!-- ----------------------------------------------------------------- -->
+    
     <script>
-        // Create global namespace
-        window.TrueVision3D = window.TrueVision3D || {};
-
-        // Load application configuration with promise for synchronization
-        window.TrueVision3D.configLoadPromise = (async function () {
-            try {
-                const response = await fetch('Data_-_MainAppConfig.json');
-                if (response.ok) {
-                    window.TrueVision3D.AppConfig = await response.json();
-                    console.log('App configuration loaded successfully:', window.TrueVision3D.AppConfig);
-
-                    // MARK CONFIG AS LOADED
-                    if (window.TrueVision3D.ModuleDependencyManager) {
-                        window.TrueVision3D.ModuleDependencyManager.markModuleLoaded('config');
-                    }
-
-                    return true;
-                } else {
-                    console.error('Failed to load app configuration:', response.status);
-                    return false;
-                }
-            } catch (error) {
-                console.error('Error loading app configuration:', error);
-                return false;
+        // FUNCTION | DetectFontLoading - Monitors Open Sans font loading
+        // --------------------------------------------------------
+        (function detectFontLoading() {
+            if ('fonts' in document) {
+                // Modern Font Loading API
+                // ------------------------------------
+                Promise.all([
+                    document.fonts.load('400 1em "Open Sans"'),
+                    document.fonts.load('600 1em "Open Sans"'),
+                    document.fonts.load('300 1em "Open Sans"')
+                ]).then(function() {
+                    console.log('=== Custom Fonts Loaded ===');
+                    console.log('Open Sans Regular (400) - Loaded');
+                    console.log('Open Sans SemiBold (600) - Loaded');
+                    console.log('Open Sans Light (300) - Loaded');
+                    console.log('===========================');
+                }).catch(function(error) {
+                    console.warn('Font loading failed, using fallback fonts:', error);
+                });
+                
+                // Monitor overall font loading state
+                // ------------------------------------
+                document.fonts.ready.then(function() {
+                    console.log('All fonts ready for use');
+                });
+                
+            } else {
+                // Fallback for browsers without Font Loading API
+                // ------------------------------------
+                console.log('Font Loading API not supported, fonts will load naturally');
             }
         })();
+        // --------------------------------------------------------
     </script>
-
-    <!-- Core Application JavaScript Modules - Loaded in priority order -->
-    <script src="ModelLoader_CdnProgressiveLoader.js"></script>
-    <script src="Materials_TextureSubstitutionAutomationLogic.js"></script>
-    <script src="SceneConfig_HdriLightingLogic.js"></script>
-    <script src="SceneConfig_SolarOrientationControlLogic.js"></script>
-
-    <!-- Replace the single RenderingPipeline script with conditional loading -->
-    <script>
-        // After config is loaded, determine which rendering pipeline to use
-        window.TrueVision3D.configLoadPromise.then(success => {
-            console.log("🔍 Config promise resolved, success:", success);
-            console.log("🔍 TrueVision3D.AppConfig available:", !!window.TrueVision3D.AppConfig);
-
-            if (success && window.TrueVision3D.AppConfig) {
-                const renderConfig = window.TrueVision3D.AppConfig.AppConfig.RenderPipelineConfig;
-                console.log("🔍 RenderPipelineConfig:", renderConfig);
-
-                // HELPER FUNCTION | Enhanced Mobile Detection
-                // ---------------------------------------------------------------
-                function detectMobileDevice() {
-                    // Check user agent (primary method)
-                    const userAgentCheck = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-                    // Check for touch support (secondary method)
-                    const touchCheck = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
-                    // Check screen size (tertiary method)
-                    const screenCheck = window.innerWidth <= 768 || window.innerHeight <= 768;
-
-                    // Check for mobile-specific features
-                    const mobileFeatures = window.orientation !== undefined;
-
-                    // iPad Pro and tablets in desktop mode detection
-                    const isIpadOS = (navigator.platform === 'MacIntel' && touchCheck && navigator.maxTouchPoints > 1);
-
-                    // Combine checks with weighted decision
-                    if (userAgentCheck || isIpadOS) return true;
-                    if (touchCheck && screenCheck) return true;
-                    if (mobileFeatures && touchCheck) return true;
-
-                    return false;
-                }
-                // ---------------------------------------------------------------
-
-                const isMobile = detectMobileDevice();
-                let scriptToLoad = null;
-
-                // ROBUST CONFIGURATION CHECKING WITH FALLBACKS
-                // Handle both old and new property name formats
-                const pcEnabled = renderConfig.RenderPipeline_PcEnabled !== undefined
-                    ? renderConfig.RenderPipeline_PcEnabled
-                    : renderConfig.PC;
-
-                const mobileEnabled = renderConfig.RenderPipeline_MobileEnabled !== undefined
-                    ? renderConfig.RenderPipeline_MobileEnabled
-                    : renderConfig.Mobile;
-
-                const fallbackToPcOnMobileFail = renderConfig.RenderPipeline_FallbackToPcOnMobileFail !== undefined
-                    ? renderConfig.RenderPipeline_FallbackToPcOnMobileFail
-                    : true; // Default to true for robustness
-
-                const pcFile = renderConfig.RenderPipeline_PcFile || 'RenderingPipeline__TrueVision3DCore__PcVersion.js';
-                const mobileFile = renderConfig.RenderPipeline_MobileFile || 'RenderingPipeline__TrueVision3DCore__MobileVersion.js';
-
-                // DETERMINE PRIMARY AND FALLBACK SCRIPTS
-                if (isMobile) {
-                    if (mobileEnabled) {
-                        scriptToLoad = mobileFile;
-                        console.log('Device detected as mobile - loading mobile pipeline:', scriptToLoad);
-                    } else if (pcEnabled && fallbackToPcOnMobileFail) {
-                        // Mobile device but mobile disabled - try PC version as fallback
-                        scriptToLoad = pcFile;
-                        console.warn('Mobile device detected but mobile pipeline disabled - attempting PC pipeline fallback');
-                    }
-                } else {
-                    if (pcEnabled) {
-                        scriptToLoad = pcFile;
-                        console.log('Device detected as PC - loading PC pipeline:', scriptToLoad);
-                    } else if (mobileEnabled) {
-                        // PC but PC disabled - try mobile version as fallback
-                        scriptToLoad = mobileFile;
-                        console.warn('PC detected but PC pipeline disabled - attempting mobile pipeline fallback');
-                    }
-                }
-
-                // CHECK IF ANY PIPELINE IS AVAILABLE
-                if (!scriptToLoad) {
-                    console.error('No rendering pipeline enabled in configuration');
-                    console.error('Configuration state:', {
-                        pcEnabled,
-                        mobileEnabled,
-                        isMobile,
-                        fallbackToPcOnMobileFail
-                    });
-
-                    document.body.innerHTML = `
-                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0; font-family: Arial, sans-serif;">
-                            <h1 style="color: #172b3a; margin-bottom: 20px;">Configuration Error</h1>
-                            <p style="color: #1e1e1e; max-width: 600px; line-height: 1.6; margin-bottom: 20px;">
-                                No rendering pipeline is enabled in the configuration. Please contact support.
-                            </p>
-                            <div style="background: #fff; padding: 15px; border-radius: 5px; border-left: 4px solid #cd0000; margin-bottom: 20px;">
-                                <h3 style="color: #cd0000; margin: 0 0 10px 0;">Debug Information</h3>
-                                <p style="margin: 0; font-size: 12px; color: #666;">
-                                    Device: ${isMobile ? 'Mobile' : 'Desktop'}<br>
-                                    PC Pipeline: ${pcEnabled ? 'Enabled' : 'Disabled'}<br>
-                                    Mobile Pipeline: ${mobileEnabled ? 'Enabled' : 'Disabled'}<br>
-                                    Fallback Allowed: ${fallbackToPcOnMobileFail ? 'Yes' : 'No'}<br>
-                                    User Agent: ${navigator.userAgent}
-                                </p>
-                            </div>
-                            <button onclick="location.reload()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                                Reload Page
-                            </button>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // LOAD THE SELECTED PIPELINE WITH ENHANCED ERROR HANDLING
-                const script = document.createElement('script');
-                script.src = scriptToLoad;
-                script.async = false; // Ensure synchronous loading
-
-                script.onload = () => {
-                    console.log('✅ Rendering pipeline loaded successfully:', scriptToLoad);
-                    console.log('🔍 window.TrueVision3D.RenderingPipeline available:', !!window.TrueVision3D.RenderingPipeline);
-                    if (window.TrueVision3D.RenderingPipeline) {
-                        console.log('🔍 RenderingPipeline methods:', Object.keys(window.TrueVision3D.RenderingPipeline));
-                    }
-
-                    // Add comprehensive device info to TrueVision3D namespace for debugging
-                    window.TrueVision3D.deviceInfo = {
-                        detectedAsMobile: isMobile,
-                        loadedPipeline: scriptToLoad,
-                        userAgent: navigator.userAgent,
-                        touchSupport: ('ontouchstart' in window) || (navigator.maxTouchPoints > 0),
-                        screenSize: `${window.innerWidth}x${window.innerHeight}`,
-                        devicePixelRatio: window.devicePixelRatio,
-                        platform: navigator.platform,
-                        configState: {
-                            pcEnabled,
-                            mobileEnabled,
-                            fallbackToPcOnMobileFail
-                        }
-                    };
-
-                    // Notify that the rendering pipeline is ready
-                    window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));
-                    console.log('🔔 Rendering pipeline loaded event dispatched');
-                };
-
-                script.onerror = (error) => {
-                    console.error('❌ Failed to load rendering pipeline script:', scriptToLoad);
-                    console.error('Error details:', error);
-
-                    // ATTEMPT FALLBACK IF MOBILE PIPELINE FAILS
-                    if (isMobile && scriptToLoad === mobileFile && pcEnabled && fallbackToPcOnMobileFail) {
-                        console.warn('🔄 Attempting PC pipeline fallback after mobile pipeline failure');
-
-                        const fallbackScript = document.createElement('script');
-                        fallbackScript.src = pcFile;
-                        fallbackScript.async = false;
-
-                        fallbackScript.onload = () => {
-                            console.log('✅ PC pipeline fallback loaded successfully');
-                            window.TrueVision3D.deviceInfo = {
-                                detectedAsMobile: isMobile,
-                                loadedPipeline: pcFile,
-                                fallbackUsed: true,
-                                originalAttempt: mobileFile,
-                                userAgent: navigator.userAgent,
-                                touchSupport: ('ontouchstart' in window) || (navigator.maxTouchPoints > 0),
-                                screenSize: `${window.innerWidth}x${window.innerHeight}`
-                            };
-                            window.dispatchEvent(new CustomEvent('renderingPipelineLoaded'));
-                        };
-
-                        fallbackScript.onerror = () => {
-                            console.error('❌ PC pipeline fallback also failed');
-                            showLoadingError(pcFile, 'Both mobile and PC pipelines failed to load');
-                        };
-
-                        document.head.appendChild(fallbackScript);
-                    } else {
-                        showLoadingError(scriptToLoad, 'Failed to load rendering pipeline');
-                    }
-                };
-
-                // HELPER FUNCTION | Show Loading Error Page
-                function showLoadingError(failedScript, message) {
-                    document.body.innerHTML = `
-                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0; font-family: Arial, sans-serif;">
-                            <h1 style="color: #172b3a; margin-bottom: 20px;">Loading Error</h1>
-                            <p style="color: #1e1e1e; max-width: 600px; line-height: 1.6; margin-bottom: 20px;">
-                                ${message}. Please refresh the page or contact support if the problem persists.
-                            </p>
-                            <div style="background: #fff; padding: 15px; border-radius: 5px; border-left: 4px solid #cd0000; margin-bottom: 20px;">
-                                <h3 style="color: #cd0000; margin: 0 0 10px 0;">Technical Details</h3>
-                                <p style="margin: 0; font-size: 12px; color: #666;">
-                                    Failed to load: ${failedScript}<br>
-                                    Device: ${isMobile ? 'Mobile' : 'Desktop'}<br>
-                                    Browser: ${navigator.userAgent}
-                                </p>
-                            </div>
-                            <div style="display: flex; gap: 10px;">
-                                <button onclick="location.reload()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                                    Reload Page
-                                </button>
-                                <button onclick="localStorage.clear(); location.reload()" style="padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                                    Clear Cache & Reload
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                console.log('🚀 Attempting to load rendering pipeline:', scriptToLoad);
-                document.head.appendChild(script);
-            } else {
-                console.error('❌ Configuration failed to load or is invalid');
-                document.body.innerHTML = `
-                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0; font-family: Arial, sans-serif;">
-                        <h1 style="color: #172b3a;">Configuration Error</h1>
-                        <p style="color: #1e1e1e; max-width: 600px; line-height: 1.6;">
-                            Unable to load application configuration. Please check your internet connection and try again.
-                        </p>
-                        <button onclick="location.reload()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            Reload Page
-                        </button>
-                    </div>
-                `;
-            }
-        }).catch(error => {
-            console.error('❌ Critical error in configuration loading:', error);
-            document.body.innerHTML = `
-                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center; background: #f0f0f0; font-family: Arial, sans-serif;">
-                    <h1 style="color: #172b3a;">Critical Error</h1>
-                    <p style="color: #1e1e1e; max-width: 600px; line-height: 1.6;">
-                        A critical error occurred while loading the application. Please contact support.
-                    </p>
-                    <p style="color: #666; font-size: 12px; margin-top: 20px;">
-                        Error: ${error.message}
-                    </p>
-                </div>
-            `;
-        });
-    </script>
-
-    <!-- Dev Tools Manager - Load before navigation systems -->
-    <script src="DevTools_DebugMarkersManager.js"></script>
-
-    <!-- Navigation Mode Scripts - Loaded in priority order -->
-    <script src="NavMode_WaypointNavigationSystemLogic.js"></script>
-    <script src="NavMode_WalkNavigationSystemLogic.js"></script>
-    <script src="NavMode_OrbitNavigationSystemLogic.js"></script>
-    <script src="NavMode_FlyNavigationSystemLogic.js"></script>
-
-    <!-- Application Core Manager - Loaded last to coordinate all modules -->
-    <script src="ApplicationCore_TrueVision3DManager.js"></script>
-
-    <!-- endregion ----------------------------------------------------------------- -->
-
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
 </head>
-<!-- endregion ----------------------------------------------------------------- -->
-
-
 <body>
     <!-- ----------------------------------------------------------------- -->
-    <!-- REGION | User Interface HTML Layout & Elements                   -->
+    <!-- REGION  |  Application Header Bar                                  -->
     <!-- ----------------------------------------------------------------- -->
-    <div id="app-container">
-
-        <!-- ----------------------------------------------------------------- -->
-        <!-- UI MENU | Application Header with Hamburger Menu and Branding    -->
-        <!-- ----------------------------------------------------------------- -->
-        <div id="header">
-            <button id="toggleToolbarBtn">☰</button> <!-- Hamburger menu toggle -->
-            <span id="app-title" style="padding-left: 10px;">True Vision 3D
-                <span class="version-text" style="font-size: 12px; color: #656565;">- Pre Beta Version 1.3.0</span>
-            </span> <!-- Application title with version -->
-            <img src="https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png"
-                alt="Noble Architecture Logo"> <!-- Company logo on right  -->
-        </div>
-        <!-- ---------------------------------------------------------------- -->
-
-        <!-- ----------------------------------------------------------------- -->
-        <!-- UI MENU | Menu Tutorial Overlay for First-Time Users             -->
-        <!-- ----------------------------------------------------------------- -->
-        <div id="menu-tutorial-overlay">
-            <div id="menu-pointer-arrow"></div> <!-- Arrow pointing to menu -->
-            <div id="menu-tutorial-text">Press Here To Open / Hide The Tools Menu</div> <!-- Tutorial message     -->
-        </div>
-        <!-- ---------------------------------------------------------------- -->
-
-        <!-- ----------------------------------------------------------------- -->
-        <!-- UI MENU | Interactive Toolbar with Camera and Lighting Controls  -->
-        <!-- ----------------------------------------------------------------- -->
-        <div id="toolbar">
-            <div style="margin-top: -15px;"></div> <!-- Top spacing adjustment -->
-
-            <label for="resetViewBtn" style="margin-top: 20px; margin-bottom: 10px;">View Controls</label>
-            <button class="tool-button" id="resetViewBtn">Reset View</button> <!-- Reset camera position  -->
-
-            <label style="margin-top: 20px; margin-bottom: 10px;">Navigation Modes</label>
-            <button class="tool-button nav-mode-btn" id="waypointModeBtn" style="display:none;">Waypoint Mode</button>
-            <!-- Waypoint navigation -->
-            <button class="tool-button nav-mode-btn" id="walkModeBtn" style="display:none;">Walk Mode</button>
-            <!-- Walk navigation     -->
-            <button class="tool-button nav-mode-btn" id="orbitModeBtn" style="display:none;">Orbit Mode</button>
-            <!-- Orbit navigation    -->
-            <button class="tool-button nav-mode-btn" id="flyModeBtn" style="display:none;">Fly Mode</button>
-            <!-- Fly navigation      -->
-
-            <label style="margin-top: 20px; margin-bottom: 10px;">Visual Effects</label>
-            <button class="tool-button" id="ssaoToggleBtn">Toggle SSAO</button> <!-- Toggle SSAO effect     -->
-            <button class="tool-button" id="furnishingsToggleBtn">Furnishings: ON</button>
-            <!-- Toggle furnishings visibility -->
-
-            <label for="sunTimeSlider" style="margin-top: 20px;">Sun Time Control</label>
-            <input type="range" id="sunTimeSlider" min="9" max="15" step="0.1" value="11"
-                style="width:100%; margin-top:5px;"> <!-- Time of day slider     -->
-            <p id="sunTimeDisplay">11:00</p> <!-- Current time display   -->
-        </div>
-        <!-- ---------------------------------------------------------------- -->
-
-        <!-- ----------------------------------------------------------------- -->
-        <!-- UI MENU | Main 3D Rendering Canvas Container                     -->
-        <!-- ----------------------------------------------------------------- -->
-        <div id="canvas-container">
-            <canvas id="renderCanvas"></canvas> <!-- Babylon.js render target -->
-        </div>
-        <!-- ---------------------------------------------------------------- -->
-
-        <!-- ----------------------------------------------------------------- -->
-        <!-- UI MENU | Loading State Overlay with Progress Indicator          -->
-        <!-- ----------------------------------------------------------------- -->
-        <div id="loading-overlay">
-            <div class="spinner" id="loading-spinner"></div> <!-- Animated loading spinner -->
-            <p id="loading-status">Loading Your Vision… Please Wait</p> <!-- Loading status message   -->
-            <div class="loading-progress-container">
-                <div class="loading-progress-bar" id="loading-progress"></div> <!-- Progress bar -->
-            </div>
-        </div>
-        <!-- ---------------------------------------------------------------- -->
-
-        <!-- ----------------------------------------------------------------- -->
-        <!-- UI MENU | Error Message Display for Failed Operations            -->
-        <!-- ----------------------------------------------------------------- -->
-        <div id="error-message">
-            Failed to load the 3D model. Please check the file URL or try again later. <!-- Error notification text -->
-        </div>
-        <!-- ---------------------------------------------------------------- -->
-
-        <!-- ----------------------------------------------------------------- -->
-        <!-- UI MENU | Application Footer with Copyright Information          -->
-        <!-- ----------------------------------------------------------------- -->
-        <div id="footer">
-            © 2025 Noble Architecture | All Rights Reserved <!-- Copyright notice -->
-        </div>
-        <!-- ---------------------------------------------------------------- -->
-
-    </div>
-    <!-- endregion ----------------------------------------------------------------- -->
-
-
-    <!-- ----------------------------------------------------------------- -->
-    <!-- REGION | Application Ready - All Core Modules Loaded                -->
-    <!-- ----------------------------------------------------------------- -->
-    <!-- 
-    All TrueVision3D application logic has been modularized into separate files:
-    - SceneConfig_SolarOrientationControlLogic.js: Solar positioning and lighting calculations
-    - RenderingPipeline_TrueVision3DCore.js: 3D scene creation and rendering management  
-    - ApplicationCore_TrueVision3DManager.js: Application initialization and coordination
     
-    The ApplicationCore_TrueVision3DManager.js automatically initializes when DOM is ready.
-    -->
-    <!-- endregion ----------------------------------------------------------------- -->
-
+    <header class="app-header">
+        <div class="app-header__logo-container app-header__logo-container--left">
+            <img 
+                src="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
+                alt="Noble Architecture"
+                class="app-header__logo-left"
+            />
+        </div>
+        
+        <div class="app-header__logo-container app-header__logo-container--right">
+            <h1 class="app-header__title">TrueVision 3D</h1>
+        </div>
+    </header>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
     <!-- ----------------------------------------------------------------- -->
-    <!-- DEBUGGING SCRIPT | Add this temporarily before closing </body>   -->
+    <!-- REGION  |  Application Root Container                             -->
     <!-- ----------------------------------------------------------------- -->
-    <script>
-        // DEBUGGING SCRIPT - Add before closing </body> tag
-        window.addEventListener('DOMContentLoaded', function () {
-            console.log("🔍 DEBUG: DOM Content Loaded");
+    
+    <div id="root">
+        <!-- Loading Overlay (Vale Blue Spinner) -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading TrueVision3D...</p>
+        </div>
+        
+        <canvas id="renderCanvas" class="canvas-hidden"></canvas>
+        
+        <!-- Image Export Safe Frame & Rule of Thirds Overlay -->
+        <div class="na-export-overlay" id="naExportOverlay">
+            <div class="na-export-overlay__safe-frame-bar na-export-overlay__safe-frame-bar--top" id="naExportSafeTop"></div>
+            <div class="na-export-overlay__safe-frame-bar na-export-overlay__safe-frame-bar--bottom" id="naExportSafeBottom"></div>
+            <div class="na-export-overlay__safe-frame-bar na-export-overlay__safe-frame-bar--left" id="naExportSafeLeft"></div>
+            <div class="na-export-overlay__safe-frame-bar na-export-overlay__safe-frame-bar--right" id="naExportSafeRight"></div>
+            <div class="na-export-overlay__thirds-line na-export-overlay__thirds-line--horizontal" id="naExportThirdsH1"></div>
+            <div class="na-export-overlay__thirds-line na-export-overlay__thirds-line--horizontal" id="naExportThirdsH2"></div>
+            <div class="na-export-overlay__thirds-line na-export-overlay__thirds-line--vertical" id="naExportThirdsV1"></div>
+            <div class="na-export-overlay__thirds-line na-export-overlay__thirds-line--vertical" id="naExportThirdsV2"></div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div class="loading-indicator" id="loadingIndicator">
+            Loading Scene...
+        </div>
+        
+        <span id="statusText" style="display: none;">Initializing...</span>
+        
+        <!-- Layout View Loading Overlay (Spinner + Status Messages) -->
+        <div class="na-layout-loading-overlay" id="naLayoutLoadingOverlay">
+            <div class="loading-spinner"></div>
+            <p class="na-layout-loading-overlay__status" id="naLayoutLoadingStatus">Rendering Your Image...</p>
+        </div>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Navigation Dropdown Menu                               -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="na-dropdown-menu">
+        <details class="na-dropdown-menu__details" id="naToolsMenu">
+            <summary class="na-dropdown-menu__summary">
+                Tools
+                <span class="na-dropdown-menu__arrow">â–¾</span>
+            </summary>
+            <ul class="na-dropdown-menu__list">
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naCameraLensToggle">
+                        Adjust Camera Lens
+                        <span class="na-dropdown-menu__subarrow">â–¾</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naCameraLensPanel">
+                        <div class="na-dropdown-menu__panel-title">Lens Width</div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <input
+                                type="range"
+                                id="naCameraLensSlider"
+                                class="na-dropdown-menu__slider"
+                                min="28"
+                                max="75"
+                                step="1"
+                                value="50"
+                            />
+                            <span class="na-dropdown-menu__value" id="naCameraLensValue">50 mm</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naImageExportToggle">
+                        Export Image
+                        <span class="na-dropdown-menu__subarrow">â–¾</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naImageExportPanel">
+                        <div class="na-dropdown-menu__panel-row na-dropdown-menu__panel-row--toggle">
+                            <span class="na-dropdown-menu__panel-title">Custom Export</span>
+                            <input type="checkbox" id="naImageExportCustomToggle" class="na-dropdown-menu__checkbox" />
+                        </div>
+                        <div class="na-dropdown-menu__panel-title">Aspect Ratio</div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <input
+                                type="range"
+                                id="naImageExportRatioSlider"
+                                class="na-dropdown-menu__slider"
+                                min="0"
+                                max="2"
+                                step="1"
+                                value="0"
+                            />
+                            <span class="na-dropdown-menu__value" id="naImageExportRatioValue">3:2</span>
+                        </div>
+                        <div class="na-dropdown-menu__panel-title">Resolution</div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <input
+                                type="range"
+                                id="naImageExportResolutionSlider"
+                                class="na-dropdown-menu__slider"
+                                min="0"
+                                max="3"
+                                step="1"
+                                value="1"
+                            />
+                            <span class="na-dropdown-menu__value" id="naImageExportResolutionValue">2k</span>
+                        </div>
+                        <div class="na-dropdown-menu__panel-row na-dropdown-menu__panel-row--toggle">
+                            <span class="na-dropdown-menu__panel-title">Enhance Whitecard</span>
+                            <input type="checkbox" id="naImageExportEnhanceToggle" class="na-dropdown-menu__checkbox" checked />
+                        </div>
+                        <button class="na-dropdown-menu__action" id="naLayoutViewAction">Create Drawing</button>
+                        <button class="na-dropdown-menu__action na-dropdown-menu__action--secondary" id="naImageExportAction">Download Image</button>
+                    </div>
+                </li>
+                <!-- <li class="na-dropdown-menu__item">Document Layout</li> -->
+                <!-- <li class="na-dropdown-menu__item">Return To Project</li> -->
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naModelToggleButton">
+                        Toggle Model Layers
+                        <span class="na-dropdown-menu__subarrow">â–¾</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naModelTogglePanel">
+                        <div class="na-dropdown-menu__panel-title">Model Parts List</div>
+                        <div class="na-model-toggle__list" id="naModelToggleList">
+                            <!-- Buttons generated dynamically by Na__UiFeature__ModelToggle__Controls.js -->
+                        </div>
+                    </div>
+                </li>
+                <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naSaveCameraSettingsItem" style="display:none;">
+                    <button class="na-dropdown-menu__button" id="naSaveCameraSettingsButton">
+                        Save Camera Settings
+                    </button>
+                </li>
+            </ul>
+            
+        </details>
+    </div>
+    
+    <!-- Toast Notification (success / error feedback) -->
+    <div class="na-toast" id="naToastNotification"></div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Three.js Application Logic                             -->
+    <!-- ----------------------------------------------------------------- -->
 
-            // CHECK NAMESPACE
-            console.log("🔍 DEBUG: TrueVision3D namespace:", window.TrueVision3D);
+    <script type="module">
+// -----------------------------------------------------------------------------
+// REGION | Module Imports
+// -----------------------------------------------------------------------------
 
-            // CHECK MATERIAL LOGIC
-            if (window.TrueVision3D && window.TrueVision3D.MaterialLogic) {
-                console.log("✅ DEBUG: MaterialLogic module found");
-                console.log("🔍 DEBUG: MaterialLogic methods:", Object.keys(window.TrueVision3D.MaterialLogic));
-            } else {
-                console.error("❌ DEBUG: MaterialLogic module NOT found");
-            }
+    // MODULE VARIABLES | Three.js Imports
+    // ------------------------------------------------------------
+    import * as THREE from 'three';
+    import { Na__DefaultNavmode__InitializeMouseControls } from './02__Src__AppModules/10__NavigationAndCameras/Na__DefaultNavmode__MouseControls.js';
+    import { Na__DefaultNavmode__InitializeIpadControls } from './02__Src__AppModules/10__NavigationAndCameras/Na__DefaultNavmode__IpadControls.js';
+    import { Na__AppConfig__LoadConfig } from './02__Src__AppModules/01__AppCore/Na__AppConfig__Loader.js';
+    import { Na__UiFeature__InitializeCameraLensControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__CameraLens__Controls.js';
+    import { Na__UiFeature__InitializeImageExportControls } from './02__Src__AppModules/30__System__ImageExport/Na__UiFeature__ImageExport__Controls.js';
+    import { Na__UiFeature__InitializeSaveCameraButton } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__SaveCameraSettings.js';
+    import { Na__Math__ConvertMmToUnits } from './02__Src__AppModules/04__MathUtils/Na__Math__Units.js';
+    import {
+        Na__Scene__CreateFogPass,
+        Na__Scene__SetFogOrbitReference,
+        Na__Scene__ApplyFogBackground
+    } from './02__Src__AppModules/07__Scene__EnvironmentEffects/Na__Scene__DefaultFogEffect.js';
+    import { Na__UiFeature__InitializeWalkModeSystem, Na__UiFeature__ToggleWalkMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeControls.js';
+    import { Na__UiFeature__InitializeWalkModeHotkey } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js';
+    import { Na__AppFlow__StartLoadingSequence } from './02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js';
+    // ------------------------------------------------------------
 
-            // CHECK CONFIG LOADING
-            if (window.TrueVision3D && window.TrueVision3D.configLoadPromise) {
-                console.log("🔍 DEBUG: Config loading...");
-                window.TrueVision3D.configLoadPromise.then(success => {
-                    console.log("🔍 DEBUG: Config loaded:", success);
-                    if (success && window.TrueVision3D.AppConfig) {
-                        console.log("✅ DEBUG: App configuration available");
-                    } else {
-                        console.error("❌ DEBUG: App configuration failed or missing");
-                    }
-                }).catch(error => {
-                    console.error("❌ DEBUG: Config loading error:", error);
-                });
-            } else {
-                console.error("❌ DEBUG: configLoadPromise not found");
-            }
+// endregion -------------------------------------------------------------------
 
-            // CHECK BABYLON.JS
-            if (typeof BABYLON !== 'undefined') {
-                console.log("✅ DEBUG: Babylon.js loaded");
-            } else {
-                console.error("❌ DEBUG: Babylon.js NOT loaded");
-            }
 
-            // CHECK ALL SCRIPT MODULES
-            setTimeout(() => {
-                console.log("🔍 DEBUG: Checking all modules after 1 second...");
+// -----------------------------------------------------------------------------
+// REGION | DOM References
+// -----------------------------------------------------------------------------
 
-                const modules = [
-                    'TrueVision3D.MaterialLogic',
-                    'TrueVision3D.SceneConfig.HdriLightingLogic',
-                    'TrueVision3D.RenderingPipeline',
-                    'TrueVision3D.RenderEffects.SsaoAmbientOcclusionEffect'
-                ];
+    // MODULE VARIABLES | DOM References
+    // ------------------------------------------------------------
+    const canvas = document.getElementById('renderCanvas');                     // <-- Render canvas
+    const loadingOverlay = document.getElementById('loadingOverlay');           // <-- Loading overlay
+    const loadingIndicator = document.getElementById('loadingIndicator');       // <-- Loading indicator
+    const statusText = document.getElementById('statusText');                   // <-- Debug status text
+    // ------------------------------------------------------------
 
-                modules.forEach(modulePath => {
-                    const module = modulePath.split('.').reduce((obj, prop) => obj && obj[prop], window);
-                    if (module) {
-                        console.log(`✅ DEBUG: ${modulePath} loaded`);
-                    } else {
-                        console.error(`❌ DEBUG: ${modulePath} NOT loaded`);
-                    }
-                });
-            }, 1000);
-        });
+// endregion -------------------------------------------------------------------
 
-        // CATCH ALL ERRORS
-        window.addEventListener('error', function (event) {
-            console.error("🚨 DEBUG: Global error caught:", event.error);
-            console.error("🚨 DEBUG: Error in file:", event.filename, "line:", event.lineno);
-        });
 
-        // CATCH UNHANDLED PROMISE REJECTIONS
-        window.addEventListener('unhandledrejection', function (event) {
-            console.error("🚨 DEBUG: Unhandled promise rejection:", event.reason);
-        });
+// -----------------------------------------------------------------------------
+// REGION | App Config Loading and Destructuring
+// -----------------------------------------------------------------------------
+
+    // MODULE VARIABLES | App Config (JSON Source of Truth)
+    // ------------------------------------------------------------
+    const Na__AppConfig__Data = await Na__AppConfig__LoadConfig();
+    
+    const Na__Config__ModelDefaults = Na__AppConfig__Data.modelDefaults;            // <-- Model defaults
+    const Na__Config__CameraConfig = Na__AppConfig__Data.Scene__Default__CameraConfig;      // <-- Camera settings
+    const Na__Config__LightingConfig = Na__AppConfig__Data.Scene__Default__LightingConfig;  // <-- Lighting settings
+    const Na__Config__FogConfig = Na__AppConfig__Data.Scene__Default__FogConfig;            // <-- Fog settings
+    const Na__Config__ControlsConfig = Na__AppConfig__Data.Scene__Default__ControlsConfig;  // <-- Controls settings
+    const Na__Config__GroundPlane = Na__AppConfig__Data.Scene__GroundPlane;         // <-- Ground plane settings
+    const Na__Config__Models = Na__AppConfig__Data.models;                          // <-- Model-specific settings
+    const Na__Config__CameraLens = Na__AppConfig__Data.cameraLens;                  // <-- Camera lens settings
+    const Na__Config__ImageExport = Na__AppConfig__Data.imageExport;                // <-- Image export settings
+    const Na__Config__PostProcessEffects = Na__AppConfig__Data.ImageExport__PostProcessEffects; // <-- Post-process effects config
+    const Na__Config__CameraDefault = Na__AppConfig__Data.Camera__DefaultPosition;  // <-- Camera defaults (MM)
+    const Na__Config__NavmodeSettings = Na__AppConfig__Data.Navmode__Settings;      // <-- Navmode config (MM)
+    const Na__Config__NavmodeDamping = Na__AppConfig__Data.Navmode__Damping;        // <-- Navmode damping config (unitless)
+    const Na__Config__ProfileLines = Na__AppConfig__Data.RenderEffect__ProfileLines || null;  // <-- Profile lines effect (enable/disable + params)
+    const Na__Config__3dObjectInteractions = Na__AppConfig__Data['3dObject__InteractionsSystem'] || {};                 // <-- 3D object interactions configuration
+    const Na__Config__DoorAnimation = Na__Config__3dObjectInteractions['3dObject__Interaction__DoorAnimation'] || {};  // <-- Door animation configuration
+    
+    const Na__ModelDefaults__ModelUrls = Na__Config__ModelDefaults.modelUrls || [];  // <-- Default model URLs array
+    const Na__Config__WalkMode = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__WalkMode)
+        ? Na__Config__NavmodeSettings.Navmode__WalkMode
+        : {};                                                                     // <-- Walk mode config (MM)
+    const Na__Config__GlobalHotkeys = Na__AppConfig__Data.Global__Hotkeys || {};  // <-- Global hotkeys config
+    const Na__Config__MaterialsSystem = Na__AppConfig__Data.MaterialsSystem__Config || {};  // <-- Materials system config
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Dev Mode Config Extraction
+// -----------------------------------------------------------------------------
+
+    // MODULE VARIABLES | Dev Mode - Default Cube (MM Scale Anchor)
+    // ------------------------------------------------------------
+    const Na__Dev__DefaultCube__Config = (Na__AppConfig__Data.Dev__DeveloperMode && Na__AppConfig__Data.Dev__DeveloperMode.Dev__DefaultCube)
+        ? Na__AppConfig__Data.Dev__DeveloperMode.Dev__DefaultCube
+        : {};
+    
+    const Na__Dev__DefaultCube__Visible = (Na__Dev__DefaultCube__Config.Dev__DefaultCube__Visible !== undefined)
+        ? Boolean(Na__Dev__DefaultCube__Config.Dev__DefaultCube__Visible)
+        : true;
+    const Na__Dev__DefaultCube__SizeInMm = Number.isFinite(Na__Dev__DefaultCube__Config.Dev__DefaultCube__SizeInMm)
+        ? Na__Dev__DefaultCube__Config.Dev__DefaultCube__SizeInMm
+        : 1000;
+    const Na__Dev__DefaultCube__Colour = Na__Dev__DefaultCube__Config.Dev__DefaultCube__Colour || '#1e3a4f';
+    
+    const Na__Dev__DefaultCube__PozX = Number.isFinite(Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozX)
+        ? Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozX
+        : 0;
+    const Na__Dev__DefaultCube__PozY = Number.isFinite(Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozY)
+        ? Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozY
+        : 0;
+    const Na__Dev__DefaultCube__PozZ = Number.isFinite(Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozZ)
+        ? Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozZ
+        : 0;
+    
+    const Na__OrbitHelperCube__Debug__Visible = (Na__AppConfig__Data.Dev__DeveloperMode && Na__AppConfig__Data.Dev__DeveloperMode.OrbitHelperCube__Debug__Visible !== undefined)
+        ? Boolean(Na__AppConfig__Data.Dev__DeveloperMode.OrbitHelperCube__Debug__Visible)
+        : false;
+    
+    const Na__Dev__DefaultCube__SizeUnits = Na__Math__ConvertMmToUnits(Na__Dev__DefaultCube__SizeInMm);
+    const Na__Dev__DefaultCube__PositionUnits = new THREE.Vector3(
+        Na__Math__ConvertMmToUnits(Na__Dev__DefaultCube__PozX),
+        Na__Math__ConvertMmToUnits(Na__Dev__DefaultCube__PozY),
+        Na__Math__ConvertMmToUnits(Na__Dev__DefaultCube__PozZ)
+    );
+    
+    const Na__Navmode__ConfigMouse = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__MouseControls)
+        ? Na__Config__NavmodeSettings.Navmode__MouseControls
+        : {};
+    const Na__Navmode__ConfigIpad = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__IpadControls)
+        ? Na__Config__NavmodeSettings.Navmode__IpadControls
+        : {};
+    const Na__Navmode__DampingMouse = (Na__Config__NavmodeDamping && Na__Config__NavmodeDamping.Navmode__Damping__Mouse)
+        ? Na__Config__NavmodeDamping.Navmode__Damping__Mouse
+        : {};
+    const Na__Navmode__DampingIpad = (Na__Config__NavmodeDamping && Na__Config__NavmodeDamping.Navmode__Damping__Ipad)
+        ? Na__Config__NavmodeDamping.Navmode__Damping__Ipad
+        : {};
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Device Detection
+// -----------------------------------------------------------------------------
+
+    // MODULE VARIABLES | Device Detection (Mouse vs Touch)
+    // ------------------------------------------------------------
+    const Na__Device__HasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const Na__Device__IsIpadOS = navigator.userAgent.includes('Macintosh') && navigator.maxTouchPoints > 1;
+    const Na__Device__IsMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || Na__Device__IsIpadOS;
+    const Na__Device__UseTouchControls = Na__Device__IsMobile || Na__Device__HasTouch;
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Scene, Camera, Renderer and Navigation Setup
+// -----------------------------------------------------------------------------
+
+    // MODULE VARIABLES | Scene Objects
+    // ------------------------------------------------------------
+    const Na__Scene__Main = new THREE.Scene();
+    // @delegate: ./02__Src__AppModules/07__Scene__EnvironmentEffects/Na__Scene__DefaultFogEffect.js
+    
+    const Na__Camera__Main = new THREE.PerspectiveCamera(
+        Na__Config__CameraConfig.Scene__Default__CameraConfig__Fov,
+        window.innerWidth / window.innerHeight,
+        Na__Config__CameraConfig.Scene__Default__CameraConfig__Near,
+        Na__Config__CameraConfig.Scene__Default__CameraConfig__Far
+    );
+    if (Na__Config__CameraDefault && Na__Config__CameraDefault.Camera__DefaultPos) {
+        Na__Camera__Main.position.set(
+            Na__Math__ConvertMmToUnits(Na__Config__CameraDefault.Camera__DefaultPos.Camera__DefaultPos__PosX),
+            Na__Math__ConvertMmToUnits(Na__Config__CameraDefault.Camera__DefaultPos.Camera__DefaultPos__PosY),
+            Na__Math__ConvertMmToUnits(Na__Config__CameraDefault.Camera__DefaultPos.Camera__DefaultPos__PosZ)
+        );
+    } else {
+        Na__Camera__Main.position.set(
+            Na__Dev__DefaultCube__PositionUnits.x + (Na__Dev__DefaultCube__SizeUnits * 3),
+            Na__Dev__DefaultCube__PositionUnits.y + (Na__Dev__DefaultCube__SizeUnits * 2),
+            Na__Dev__DefaultCube__PositionUnits.z + (Na__Dev__DefaultCube__SizeUnits * 3)
+        );
+    }
+    
+    const Na__Renderer__Main = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+        stencil: true,
+        depth: true,
+        logarithmicDepthBuffer: true
+    });
+    Na__Renderer__Main.setSize(window.innerWidth, window.innerHeight);
+    Na__Renderer__Main.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    Na__Renderer__Main.shadowMap.enabled = true;
+    Na__Renderer__Main.shadowMap.type = THREE.PCFSoftShadowMap;
+    Na__Renderer__Main.outputColorSpace = THREE.SRGBColorSpace;
+    Na__Renderer__Main.toneMapping = THREE.NoToneMapping;
+    Na__Renderer__Main.toneMappingExposure = 1.0;
+    
+    const Na__LineResolution__Screen = new THREE.Vector2(window.innerWidth, window.innerHeight);
+    const Na__AppFlow__PipelineRef   = { current: null };                  // <-- Mutable ref; AppFlow writes pipeline state here
+    const Na__Navmode__InitializeControls = Na__Device__UseTouchControls
+        ? Na__DefaultNavmode__InitializeIpadControls
+        : Na__DefaultNavmode__InitializeMouseControls;
+    
+    const Na__Navmode__ActiveConfig = Na__Device__UseTouchControls ? Na__Navmode__ConfigIpad : Na__Navmode__ConfigMouse;
+    const Na__Navmode__ConfigPayload = Na__Device__UseTouchControls
+        ? {
+            damping: {
+                enabled: Na__Navmode__DampingIpad.Navmode__Damping__Ipad__Enabled,                // <-- Orbit damping enabled
+                factor: Na__Navmode__DampingIpad.Navmode__Damping__Ipad__Factor                    // <-- Orbit damping factor (unitless)
+            },
+            enableWASD: Na__Navmode__ActiveConfig.Navmode__IpadControls__EnableWASD,              // <-- Optional WASD fly mode
+            movementSpeedMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__MovementSpeedMm,    // <-- Navigation speed (mm)
+            elevationSpeedMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__ElevationSpeedMm,  // <-- Vertical navigation speed (mm)
+            minDistanceMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMinDistanceMm,   // <-- Orbit zoom in (mm)
+            maxDistanceMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMaxDistanceMm    // <-- Orbit zoom out (mm)
+        }
+        : {
+            damping: {
+                enabled: Na__Navmode__DampingMouse.Navmode__Damping__Mouse__Enabled,              // <-- Orbit damping enabled
+                factor: Na__Navmode__DampingMouse.Navmode__Damping__Mouse__Factor                 // <-- Orbit damping factor (unitless)
+            },
+            enableWASD: Na__Navmode__ActiveConfig.Navmode__MouseControls__EnableWASD,             // <-- Optional WASD fly mode
+            movementSpeedMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__MovementSpeedMm,   // <-- Navigation speed (mm)
+            elevationSpeedMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__ElevationSpeedMm, // <-- Vertical navigation speed (mm)
+            minDistanceMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__OrbitMinDistanceMm,  // <-- Orbit zoom in (mm)
+            maxDistanceMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__OrbitMaxDistanceMm,  // <-- Orbit zoom out (mm)
+            zoomStepMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__ZoomStepMm              // <-- Fixed wheel zoom step (mm)
+        };
+    
+    const Na__NavBundle__Main = Na__Navmode__InitializeControls(Na__Camera__Main, Na__Renderer__Main.domElement, {
+        ...Na__Navmode__ConfigPayload
+    });
+    const Na__Controls__Orbit = Na__NavBundle__Main.controls;
+    const Na__Navmode__UpdateNavigation = Na__NavBundle__Main.updateNavigation;
+    
+    if (Na__Config__CameraDefault) {
+        if (Na__Config__CameraDefault.Camera__DefaultRotation) {
+            Na__Camera__Main.rotation.set(
+                Na__Config__CameraDefault.Camera__DefaultRotation.Camera__DefaultRotation__RotX,
+                Na__Config__CameraDefault.Camera__DefaultRotation.Camera__DefaultRotation__RotY,
+                Na__Config__CameraDefault.Camera__DefaultRotation.Camera__DefaultRotation__RotZ
+            );
+        }
+        
+        if (Na__Config__CameraDefault.Camera__DefaultMisc && Number.isFinite(Na__Config__CameraDefault.Camera__DefaultMisc.Camera__DefaultMisc__Fov)) {
+            Na__Camera__Main.fov = Na__Config__CameraDefault.Camera__DefaultMisc.Camera__DefaultMisc__Fov;
+            Na__Camera__Main.updateProjectionMatrix();
+        }
+        
+        // NOTE: Camera__DefaultTarget removed - orbit target now set by OrbitHelperCube GLB or Dev__DefaultCube fallback
+    }
+    
+    const Na__ModelGroup__Root = new THREE.Group();
+    Na__Scene__Main.add(Na__ModelGroup__Root);
+    
+    // @delegate: ./02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js            // <-- Na__LoadedModelGroups is internal to AppFlow
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Walk Mode System Initialization
+// -----------------------------------------------------------------------------
+
+    // MODULE INITIALIZATION | Walk Mode System
+    // ------------------------------------------------------------
+    // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeControls.js
+    Na__UiFeature__InitializeWalkModeSystem(Na__Scene__Main, Na__Camera__Main, Na__Renderer__Main, Na__Controls__Orbit, Na__Config__WalkMode, Na__Device__UseTouchControls);
+
+    // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js
+    Na__UiFeature__InitializeWalkModeHotkey(() => Na__UiFeature__ToggleWalkMode());
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Dev Default Cube, Orbit Pivot and Fog Setup
+// -----------------------------------------------------------------------------
+
+    // MODULE INITIALIZATION | Default Dev Cube (Scale + Pivot)
+    // ------------------------------------------------------------
+    function Na__DevUtils__CreateDefaultCube() {
+        const geometry = new THREE.BoxGeometry(
+            Na__Dev__DefaultCube__SizeUnits,
+            Na__Dev__DefaultCube__SizeUnits,
+            Na__Dev__DefaultCube__SizeUnits
+        );
+        const material = new THREE.MeshStandardMaterial({ color: Na__Dev__DefaultCube__Colour });
+        const cube = new THREE.Mesh(geometry, material);
+        
+        cube.name = 'Dev__DefaultCube';
+        cube.position.copy(Na__Dev__DefaultCube__PositionUnits);
+        cube.visible = Na__Dev__DefaultCube__Visible;
+        
+        Na__Scene__Main.add(cube);
+        return cube;
+    }
+    
+    const Na__Dev__DefaultCube__Mesh = Na__DevUtils__CreateDefaultCube();
+    const Na__Camera__InitialForwardVector = new THREE.Vector3();
+    Na__Camera__Main.getWorldDirection(Na__Camera__InitialForwardVector);
+    const Na__Camera__InitialTarget = Na__Camera__Main.position.clone().add(
+        Na__Camera__InitialForwardVector.multiplyScalar(10)
+    );
+    Na__Controls__Orbit.target.copy(Na__Camera__InitialTarget);                 // <-- Initial fallback uses camera forward direction (not Dev cube)
+    Na__Controls__Orbit.update();
+    
+    // @delegate: ./02__Src__AppModules/07__Scene__EnvironmentEffects/Na__Scene__DefaultFogEffect.js
+    Na__Scene__ApplyFogBackground(Na__Scene__Main, Na__Config__FogConfig);
+    const Na__SceneEffect__FogPass = Na__Scene__CreateFogPass(Na__Config__FogConfig);
+    Na__Scene__SetFogOrbitReference(Na__SceneEffect__FogPass, Na__Controls__Orbit.target);
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Camera UI Controls Initialization
+// -----------------------------------------------------------------------------
+
+    // MODULE INITIALIZATION | Camera Lens Controls
+    // ------------------------------------------------------------
+    const Na__CameraLens__Config = { ...Na__Config__CameraLens };
+    
+    if (Na__Config__CameraDefault && Na__Config__CameraDefault.Camera__DefaultMisc && Number.isFinite(Na__Config__CameraDefault.Camera__DefaultMisc.Camera__DefaultMisc__Fov)) {
+        Na__CameraLens__Config.defaultFocalLengthMM = null;                   // <-- Preserve initial FOV
+    }
+    
+    Na__UiFeature__InitializeCameraLensControls(Na__Camera__Main, Na__CameraLens__Config);
+    Na__UiFeature__InitializeImageExportControls(
+        Na__Renderer__Main,
+        Na__Scene__Main,
+        Na__Camera__Main,
+        () => Na__AppFlow__PipelineRef.current,                            // <-- Read pipeline state from mutable ref
+        Na__Config__ImageExport,
+        Na__Config__PostProcessEffects
+    );
+    // @delegate: ./02__Src__AppModules/11__CameraUtils/Na__UiFeature__CameraPosition__Controls.js
+    // ------------------------------------------------------------
+
+
+    // @delegate: ./02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js
+
+
+    // @delegate: ./02__Src__AppModules/03__AppUtils/Na__AppUtils__ProjectLoader.js
+
+
+    // @delegate: ./02__Src__AppModules/06__Scene__LightingEffects/Na__Scene__DefaultSceneLighting.js
+
+
+    // @delegate: ./02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js
+
+
+    // @delegate: ./02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | UI Notification Helpers
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Auto-Prompt Tools Dropdown
+    // ------------------------------------------------------------
+    function Na__UiFeature__PromptToolsMenu() {
+        const menu = document.getElementById('naToolsMenu');
+        if (!menu) return;
+        
+        menu.setAttribute('open', 'open');
+        setTimeout(() => {
+            menu.removeAttribute('open');
+        }, 2600);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Show Toast Notification
+    // ------------------------------------------------------------
+    function Na__UiFeature__ShowToast(message, isError = false) {
+        const toast = document.getElementById('naToastNotification');
+        if (!toast) return;
+        
+        toast.textContent = message;
+        toast.classList.remove('na-toast--visible', 'na-toast--error');
+        
+        if (isError) {
+            toast.classList.add('na-toast--error');
+        }
+        
+        void toast.offsetWidth;                                              // <-- Force reflow for re-trigger
+        toast.classList.add('na-toast--visible');
+        
+        setTimeout(() => {
+            toast.classList.remove('na-toast--visible');
+        }, 3500);
+    }
+    // ------------------------------------------------------------
+
+
+    // @delegate: ./02__Src__AppModules/11__CameraUtils/Na__UiFeature__SaveCameraSettings.js
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Engine Entry Points
+// -----------------------------------------------------------------------------
+
+    // INITIALIZE LOADING SEQUENCE
+    // ------------------------------------------------------------
+    Na__AppFlow__StartLoadingSequence({
+        scene            : Na__Scene__Main,
+        camera           : Na__Camera__Main,
+        renderer         : Na__Renderer__Main,
+        controls         : Na__Controls__Orbit,
+        modelRoot        : Na__ModelGroup__Root,
+        fogPass          : Na__SceneEffect__FogPass,
+        lineResolution   : Na__LineResolution__Screen,
+        updateNavigation : Na__Navmode__UpdateNavigation,
+        pipelineRef      : Na__AppFlow__PipelineRef,                      // <-- Mutable ref for pipeline state
+        configs: {
+            lightingConfig              : Na__Config__LightingConfig,
+            groundPlane                 : Na__Config__GroundPlane,
+            profileLines                : Na__Config__ProfileLines,
+            models                      : Na__Config__Models,
+            modelUrls                   : Na__ModelDefaults__ModelUrls,
+            materialsSystem             : Na__Config__MaterialsSystem,
+            doorAnimation               : Na__Config__DoorAnimation,
+            orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible
+        }
+    });
+    Na__UiFeature__PromptToolsMenu();
+    Na__UiFeature__InitializeSaveCameraButton(Na__Camera__Main, Na__Controls__Orbit, Na__UiFeature__ShowToast);
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
     </script>
-    <!-- endregion ----------------------------------------------------------------- -->
+    
+    <!-- endregion -------------------------------------------------------- -->
+
 
 </body>
-
 </html>
+
+
+
+
+

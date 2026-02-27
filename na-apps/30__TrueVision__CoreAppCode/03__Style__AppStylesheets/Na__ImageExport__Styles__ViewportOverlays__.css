@@ -1,0 +1,133 @@
+﻿/* =============================================================================
+ * TRUEVISION3D - IMAGE EXPORT VIEWPORT OVERLAYS
+ * =============================================================================
+ *
+ * FILE       : Na__ImageExport__Styles__ViewportOverlays__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : Image Export Overlay Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Safe Frame and Rule of Thirds Grid overlay styles for image export
+ * CREATED    : 2025
+ *
+ * DESCRIPTION:
+ * - Safe Frame overlay: Semi-transparent grey bars showing export crop area
+ * - Rule of Thirds Grid: Composition guide lines within the safe frame
+ * - Overlays appear when Image Export panel is opened
+ * - Positioned between viewport (z: default) and tools menu (z: 1001)
+ * - Uses pointer-events: none to allow 3D interaction through overlay
+ *
+ * ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+ * REGION | Image Export Overlay Container
+ * ----------------------------------------------------------------------------- */
+
+    /* OVERLAY CONTAINER | Base Styles */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay {
+        position                           : absolute;                    /* <-- Absolute positioning */
+        top                                : var(--Vale_HeaderHeight);    /* <-- Start below header */
+        left                               : 0;                           /* <-- Align to left edge */
+        width                              : 100vw;                       /* <-- Full viewport width */
+        height                             : calc(100vh - var(--Vale_HeaderHeight));  /* <-- Viewport height minus header */
+        z-index                            : 500;                         /* <-- Between canvas and menu */
+        pointer-events                     : none;                        /* <-- Allow interaction through overlay */
+        opacity                            : 0;                           /* <-- Hidden by default */
+        transition                         : opacity 0.3s ease;           /* <-- Smooth fade transition */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* OVERLAY CONTAINER | Visible State */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay--visible {
+        opacity                            : 1;                           /* <-- Fully visible */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SAFE FRAME BAR | Base Styles for All Bars */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay__safe-frame-bar {
+        position                           : absolute;                    /* <-- Absolute positioning */
+        background-color                   : rgba(0, 0, 0, 0.45);        /* <-- Semi-transparent dark grey */
+        pointer-events                     : none;                        /* <-- Allow interaction through bars */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SAFE FRAME BAR | Top Bar */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay__safe-frame-bar--top {
+        top                                : 0;                           /* <-- Align to top of overlay */
+        left                               : 0;                           /* <-- Align to left edge */
+        width                              : 100%;                        /* <-- Full width */
+        height                             : 0;                           /* <-- Height set dynamically */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SAFE FRAME BAR | Bottom Bar */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay__safe-frame-bar--bottom {
+        bottom                              : 0;                          /* <-- Align to bottom of overlay */
+        left                                : 0;                          /* <-- Align to left edge */
+        width                               : 100%;                      /* <-- Full width */
+        height                              : 0;                         /* <-- Height set dynamically */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SAFE FRAME BAR | Left Bar */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay__safe-frame-bar--left {
+        top                                 : 0;                         /* <-- Align to top */
+        left                                : 0;                         /* <-- Align to left edge */
+        width                               : 0;                         /* <-- Width set dynamically */
+        height                              : 100%;                      /* <-- Full height */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SAFE FRAME BAR | Right Bar */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay__safe-frame-bar--right {
+        top                                 : 0;                         /* <-- Align to top */
+        right                               : 0;                         /* <-- Align to right edge */
+        width                               : 0;                         /* <-- Width set dynamically */
+        height                              : 100%;                      /* <-- Full height */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* RULE OF THIRDS LINE | Base Styles for All Lines */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay__thirds-line {
+        position                            : absolute;                   /* <-- Absolute positioning */
+        background-color                    : rgba(24, 44, 59, 0.5);      /* <-- Vale blue (#182c3b) at 50% opacity */
+        pointer-events                      : none;                       /* <-- Allow interaction through lines */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* RULE OF THIRDS LINE | Horizontal Lines */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay__thirds-line--horizontal {
+        left                                : 0;                         /* <-- Align to left edge of safe frame */
+        width                               : 0;                         /* <-- Width set dynamically */
+        height                              : 1.5px;                     /* <-- Line thickness 1.5x original */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* RULE OF THIRDS LINE | Vertical Lines */
+    /* ------------------------------------------------------------ */
+    .na-export-overlay__thirds-line--vertical {
+        top                                 : 0;                         /* <-- Align to top of safe frame */
+        width                               : 1.5px;                     /* <-- Line thickness 1.5x original */
+        height                              : 0;                         /* <-- Height set dynamically */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
