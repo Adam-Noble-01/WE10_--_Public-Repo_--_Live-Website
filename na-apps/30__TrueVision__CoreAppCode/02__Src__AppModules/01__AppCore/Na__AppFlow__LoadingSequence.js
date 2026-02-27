@@ -245,14 +245,15 @@
             materialsSystem             : Na__Config__MaterialsSystem,
             doorAnimation               : Na__Config__DoorAnimation,
             orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible,
-            storeyVisibility            : Na__Config__StoreyVisibility
+            storeyVisibility            : Na__Config__StoreyVisibility,
+            ambientOcclusion            : Na__Config__AmbientOcclusion
         } = configs;
         // ---------------------------------------------------------------
 
         Na__UiFeature__UpdateStatus('Creating scene...');
         Na__Scene__SetupDefaultSceneLighting(Na__Scene__Main, Na__Config__LightingConfig, Na__Config__GroundPlane);
 
-        const Na__RenderPipeline__State = Na__RenderPipeline__SetupComposer(Na__Renderer__Main, Na__Scene__Main, Na__Camera__Main, Na__Config__ProfileLines, Na__SceneEffect__FogPass);
+        const Na__RenderPipeline__State = Na__RenderPipeline__SetupComposer(Na__Renderer__Main, Na__Scene__Main, Na__Camera__Main, Na__Config__ProfileLines, Na__SceneEffect__FogPass, Na__Config__AmbientOcclusion);
         const Na__RenderComposer__Main  = Na__RenderPipeline__State.composer;
         pipelineRef.current = Na__RenderPipeline__State;                     // <-- Write back to index.html ref for ImageExport
 
@@ -522,6 +523,8 @@
             Na__Scene__UpdateFogPassUniforms(Na__SceneEffect__FogPass, Na__Camera__Main); // <-- Update fog camera matrices
 
             if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
+                Na__RenderPipeline__State.updateAoUniforms(Na__Camera__Main); // <-- Update AO camera matrices
+                Na__RenderPipeline__State.monitorAoFrame(deltaMs);           // <-- AO performance auto-disable check
                 Na__RenderPipeline__State.renderProfileNormals();            // <-- Update profile lines
                 Na__RenderComposer__Main.render();                           // <-- Render with post-processing
             }
@@ -540,6 +543,7 @@
             if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
                 Na__RenderComposer__Main.setSize(width, height);
                 Na__RenderPipeline__State.setProfileLinesSize(width, height);
+                Na__RenderPipeline__State.setAoSize(width, height);          // <-- Update AO resolution uniform
             }
 
             Na__LineResolution__Screen.set(width, height);

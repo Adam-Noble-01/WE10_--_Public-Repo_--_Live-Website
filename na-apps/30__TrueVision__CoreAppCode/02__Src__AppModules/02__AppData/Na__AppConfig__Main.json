@@ -60,6 +60,16 @@
         "RenderEffect__ProfileLines__EdgeThresholdDepth" : 0.002,
         "RenderEffect__ProfileLines__EdgeWidth"          : 0.4
     },
+    "RenderEffect__AmbientOcclusion": {
+        "RenderEffect__AmbientOcclusion__Description"      : "Screen-space ambient occlusion. RadiusMm sets the world-space sampling radius controlling shadow strip width at geometry junctions. Distance values are integer millimeters; convert to 3D units in code.",
+        "RenderEffect__AmbientOcclusion__Enabled"          : true,
+        "RenderEffect__AmbientOcclusion__RadiusMm"         : 500,
+        "RenderEffect__AmbientOcclusion__Intensity"        : 1.0,
+        "RenderEffect__AmbientOcclusion__Bias"             : 0.005,
+        "RenderEffect__AmbientOcclusion__Samples"          : 16,
+        "RenderEffect__AmbientOcclusion__FpsThreshold"     : 24,
+        "RenderEffect__AmbientOcclusion__FpsSampleFrames"  : 120
+    },
     "cameraLens": {
         "minFocalLengthMM": 24,
         "maxFocalLengthMM": 75,

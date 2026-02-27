@@ -12,15 +12,23 @@
     import { Na__RenderEffect__ProfileLines__Create } from './Na__RenderEffect__ProfileLines__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Ambient Occlusion Effect
+    // ------------------------------------------------------------
+    import {
+        Na__RenderEffect__AmbientOcclusion__Create,
+        Na__RenderEffect__AmbientOcclusion__CreatePerformanceMonitor
+    } from '../07__Scene__EnvironmentEffects/Na__RenderEffect__AmbientOcclusion__.js';
+    // ------------------------------------------------------------
+
 
     // FUNCTION | Setup Post Processing Composer
     // ------------------------------------------------------------
-    function Na__RenderPipeline__SetupComposer(renderer, scene, camera, profileLinesConfig, fogPass) {
+    function Na__RenderPipeline__SetupComposer(renderer, scene, camera, profileLinesConfig, fogPass, aoConfig) {
         const pixelRatio = renderer.getPixelRatio();
         const width      = window.innerWidth * pixelRatio;
         const height     = window.innerHeight * pixelRatio;
 
-        const depthTexture = new THREE.DepthTexture(width, height); // <-- Required for fog pass depth reads
+        const depthTexture = new THREE.DepthTexture(width, height); // <-- Required for fog + AO depth reads
         depthTexture.type  = THREE.FloatType;
 
         const renderTarget = new THREE.WebGLRenderTarget(width, height, {
@@ -47,10 +55,24 @@
             setProfileLinesSize = profileLines.setSize;
         }
 
-        // FOG PASS | Inserted after profile lines, before FXAA
+        // FOG PASS | Inserted after profile lines, before AO
         if (fogPass) {
             fogPass.uniforms['tDepth'].value = depthTexture; // <-- Wire depth texture into fog shader
             composer.addPass(fogPass);
+        }
+
+        // AO PASS | Inserted after fog, before FXAA
+        let updateAoUniforms = () => {};
+        let setAoSize        = () => {};
+        let monitorAoFrame   = () => {};
+        const aoEnabled = aoConfig
+            && aoConfig.RenderEffect__AmbientOcclusion__Enabled === true;
+        if (aoEnabled) {
+            const aoState = Na__RenderEffect__AmbientOcclusion__Create(camera, aoConfig, depthTexture);
+            composer.addPass(aoState.pass);
+            updateAoUniforms = aoState.updateUniforms;
+            setAoSize        = aoState.setSize;
+            monitorAoFrame   = Na__RenderEffect__AmbientOcclusion__CreatePerformanceMonitor(aoState, aoConfig);
         }
         
         const fxaaPass = new ShaderPass(FXAAShader);
@@ -62,7 +84,10 @@
             composer,
             renderProfileNormals,
             setProfileLinesSize,
-            depthTexture
+            depthTexture,
+            updateAoUniforms,
+            setAoSize,
+            monitorAoFrame
         };
     }
     // ------------------------------------------------------------
