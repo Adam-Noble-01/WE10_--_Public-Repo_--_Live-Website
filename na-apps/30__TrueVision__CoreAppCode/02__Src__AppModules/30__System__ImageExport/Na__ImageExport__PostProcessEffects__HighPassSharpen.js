@@ -14,7 +14,7 @@
         const blendMode = param.ImageExport__PostProcessEffects__HighPassSharpen__Parameter__BlendMode || 'overlay'; // <-- Blend mode (overlay, soft-light, etc.)
         const opacity = param.ImageExport__PostProcessEffects__HighPassSharpen__Parameter__Opacity || 1.0; // <-- Opacity (0.0-1.0)
         
-        const ctx = canvas.getContext('2d'); // <-- Get 2D rendering context
+        const ctx = canvas.getContext('2d', { willReadFrequently: true }); // <-- Get 2D rendering context (willReadFrequently: avoids repeated readback warning)
         if (!ctx) return canvas; // <-- Guard against missing context
         
         const width = canvas.width; // <-- Canvas width
@@ -25,7 +25,7 @@
         const blurCanvas = document.createElement('canvas'); // <-- Create temporary canvas
         blurCanvas.width = width; // <-- Set width
         blurCanvas.height = height; // <-- Set height
-        const blurCtx = blurCanvas.getContext('2d'); // <-- Get blur canvas context
+        const blurCtx = blurCanvas.getContext('2d', { willReadFrequently: true }); // <-- Get blur canvas context (willReadFrequently: avoids repeated readback warning)
         
         // Draw original image onto blur canvas
         // ------------------------------------------------------------

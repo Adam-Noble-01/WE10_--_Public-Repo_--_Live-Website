@@ -2,6 +2,142 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.0.8  -  27-Feb-2026
+### Camera Mode Transition — Spatial Continuity Fix
+
+**Overview**
+- Diagnosed and fixed the position discontinuity when switching between orbit and walk modes.
+- Orbit-to-walk spawned the user far from where they were looking due to ground-snap dropping the camera from elevation, and the inherited orbit pitch pointing at the floor.
+- Walk-to-orbit discarded the walk exploration and teleported back to the pre-walk orbit snapshot.
+- Created a dedicated transition module (`Na__Navmode__ModeTransition.js`) to own all switching logic, keeping it cleanly separated from the two mode systems.
+
+**Root Cause Analysis**
+- Orbit-to-walk: capsule X/Z was placed at the orbit camera position (correct), but ground-snap caused a large Y drop, and the full orbit pitch was inherited rather than clamped — resulting in the user staring at the floor.
+- Walk-to-orbit: `Na__WalkMode__Deactivate` unconditionally restored a stale pre-walk snapshot, discarding everything the user had explored.
+- The OrbitHelperCube target must never be modified during any transition — it is the authoritative architectural pivot set at load time.
+
+**New Module: `Na__Navmode__ModeTransition.js`**
+- `Na__ModeTransition__OrbitToWalk(orbitControls, maxEntryPitchDeg, entryForwardNudgeMm)`:
+  - Delegates to `Na__WalkMode__Activate` (saves orbit state, ground-snaps capsule, extracts yaw/pitch).
+  - Clamps the inherited pitch to `MaxEntryPitchDeg` (default 30°) so the user enters looking level rather than at the floor.
+  - Nudges the capsule forward by `EntryForwardNudgeMm` along the camera yaw direction to compensate for the orbit camera being pulled back from the scene at orbit distance.
+- `Na__ModeTransition__WalkToOrbit(camera, orbitControls)`:
+  - Reads the saved orbit state from `Na__WalkMode__GetSavedOrbitState()`.
+  - Computes a new orbit camera position at the same distance and elevation from the OrbitHelperCube target, but rotated so the camera faces the target from the direction of the user's current walk position.
+  - Passes this as `overrideCameraPosition` to `Na__WalkMode__Deactivate` — orbit target and FOV are always restored from saved state and never modified.
+
+**`Na__Navmode__WalkMode__SystemLogic.js` additions**
+- `Na__WalkMode__ClampEntryPitch(maxRad)`: clamps `Na__WalkMode__CameraPitch` to ±maxRad and immediately updates the camera quaternion.
+- `Na__WalkMode__NudgeCapsuleForward(distanceUnits)`: moves capsule forward along the current yaw direction, re-detects ground at new position, updates camera.
+- `Na__WalkMode__GetSavedOrbitState()`: returns a read-only copy of the pre-walk orbit snapshot for use by the transition module.
+- `Na__WalkMode__Deactivate` updated to accept an optional `overrideCameraPosition` (Vector3) — when provided the orbit camera is placed there; orbit target and FOV always restore from saved state.
+- All new functions added to module exports.
+
+**`Na__UiFeature__WalkModeControls.js` updates**
+- Imports `Na__ModeTransition__OrbitToWalk` and `Na__ModeTransition__WalkToOrbit` from new module.
+- Direct `Na__WalkMode__Activate` / `Na__WalkMode__Deactivate` calls replaced with transition module calls.
+- Stores camera ref, `MaxEntryPitchDeg`, and `EntryForwardNudgeMm` from config at init time.
+
+**`Na__AppConfig__Main.json` additions (`Navmode__WalkMode` section)**
+- `Navmode__WalkMode__MaxEntryPitchDeg`: 30 — maximum inherited orbit pitch (degrees) when entering walk mode.
+- `Navmode__WalkMode__EntryForwardNudgeMm`: 5000 — forward nudge applied on walk mode entry to bring spawn point closer to the viewed scene (mm, converted to 3JS units via `Na__Math__ConvertMmToUnits`).
+
+**Notes**
+- The OrbitHelperCube system is completely unaffected — `controls.target` is always restored from the saved OrbitHelperCube value, never derived from walk position.
+- Forward nudge direction uses the same `(0,0,-1)` + yaw rotation convention as `Na__WalkMode__ProcessMovement` (W key forward).
+- All new values in AppConfig are integer millimeters per project convention, converted at runtime.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.0.7  -  27-Feb-2026
+### Export Image — Loading Spinner + Readback Performance Fix
+
+**Overview**
+- Added a loading spinner overlay to the "Download Image" export button, matching the existing UX pattern used by the "Send to Drawing Document" (layout view) button.
+- Fixed a browser performance warning caused by calling `getImageData` on canvas contexts that were not created with `willReadFrequently: true`.
+
+**Loading Spinner (`Na__UiFeature__ImageExport__Controls.js`)**
+- Export button click handler rewritten to match the layout view overlay pattern exactly.
+- Added `exportInProgress` guard to prevent double-click during render.
+- Added `is-loading` class to dim the button during export.
+- Reuses the existing shared `#naLayoutLoadingOverlay` / `#naLayoutLoadingStatus` DOM elements and `na-layout-loading-overlay` CSS modifier classes — no new HTML or CSS required.
+- Double-`requestAnimationFrame` defer ensures the overlay paints before the blocking render call executes.
+- On completion: status updates to `"Image Downloaded!"` (green success state), overlay fades out after 2 seconds, button and guard reset.
+
+**Canvas Readback Fix (`Na__ImageExport__PostProcessEffects__HighPassSharpen.js`)**
+- Both `getContext('2d')` calls in `Na__PostProcess__ApplyHighPassSharpen` now pass `{ willReadFrequently: true }` to match the browser's recommended hint for canvases that call `getImageData` multiple times.
+- Resolves the `Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true` console warning.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.0.6  -  27-Feb-2026
+### Save Camera Persistence + Targeted CDN Sync (Localhost)
+
+**Overview**
+- Fixed the localhost `Save Camera Settings` flow so camera coordinates now persist into the active project's `TrueVision__ProjectData__.json`.
+- Added confirm-driven targeted CDN upload for the same project via ProjectVision's existing R2 sync tooling.
+- Follow-up refactor applied to keep the save module closer to Noble modular style with purer helper functions and clearer region grouping.
+
+**Root Cause**
+- The button flow called `GET/POST /api/projects/<projectCode>`, but the local ProjectVision server did not expose that API route initially.
+- CORS on local server only allowed `GET/OPTIONS`, so save requests could not complete as intended.
+- During validation, duplicate local Flask instances on the same port caused stale 404 behavior until processes were deduplicated.
+
+**Local Server API Fixes (`na-apps/ProjectVision__LocalServer__Main__.py`)**
+- Added CORS `POST` support.
+- Added `GET/POST /api/projects/<project_code>` for project JSON read/write.
+- Added robust project-path resolution using:
+  - URL/body context (`project-folder`, `year`)
+  - fallback scan by project code under `na-project-portal/*-Projects/*/30__TrueVision__AppContent/TrueVision__ProjectData__.json`
+- Added `POST /api/projects/<project_code>/sync-cdn` endpoint for one-project CDN upload.
+
+**CDN Sync Integration (`na-apps/05__ProjectVision__CoreAppCode/CloudflareR2__ModelSync__Main__.py`)**
+- Extended `run_r2_sync(...)` with optional `auto_confirm_upload` parameter.
+- Preserved default CLI behavior (interactive confirmation) while enabling non-interactive server-triggered sync after browser-side confirmation.
+
+**Save Module Updates (`Na__UiFeature__SaveCameraSettings.js`)**
+- Save flow now passes `project-folder` and `year` to local API.
+- Added confirm prompt before CDN upload after local save success.
+- Refactored to smaller helpers for readability and purity:
+  - context/query/url builders
+  - pure project-data merge transform
+  - isolated fetch/save/sync API wrappers
+  - thin orchestration in main save function
+
+**Validation Notes**
+- Local API probe confirmed `GET /api/projects/NP03?project-folder=NP03__AshnessClose&year=26` resolves and returns project data.
+- Save button now updates local `TrueVision__ProjectData__.json` and can trigger targeted CDN sync for the same project.
+- No linter errors introduced in touched JS/Python files.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.0.5  -  27-Feb-2026
+### Main-App Material Preservation + Transparency Parity Fix
+
+**Overview**
+- Fixed main-app material pipeline so indexed GLB materials survive initial mesh loading and can be swapped by the Materials System.
+- Resolved mismatch where test environment rendered transparent materials (e.g. windows) correctly, but main app could lose material identity before swap.
+- Added focused diagnostics to confirm indexed material detection and swap coverage during runtime.
+
+**Root Cause**
+- In `Na__ModelLoader__MultiModel.js`, mesh materials were being replaced too aggressively during first-pass loading, which could remove indexed `MAT###__...` names needed by the second-pass material swap.
+- `Na__MaterialsSystem__MaterialSwap.js` depends on indexed material names to look up PBR configs from `Na__AppConfig__MaterialsLibrary.json`; once names were lost, transparent glass configs could not be applied.
+
+**Main Loader Fix (`Na__ModelLoader__MultiModel.js`)**
+- Refactored `Na__ModelLoader__LoadSingleMesh` to preserve and clone existing GLB materials by default.
+- Tightened white fallback behavior: fallback now applies only to missing/invalid material slots (instead of broad non-textured replacement).
+- Preserved array material handling (`Array.isArray(node.material)`) so all material slots are processed consistently.
+- Kept base mesh prep behavior (double-sided + polygon offset + textured emissive/roughness tuning) without discarding material identity.
+
+**Diagnostics Added**
+- Loader summary per mesh GLB:
+  - `materials=<count>, indexed=<count>, whiteFallback=<count>`
+- Material swap summary per processed group:
+  - `IndexedSeen=<count>, Swapped=<count>, IndexedMissing=<count>, UniqueSwapped=<count>`
+
+**Validation Notes**
+- Main app runtime now reports non-zero indexed detection and non-zero swaps for relevant model groups, including window groups.
+- `IndexedMissing=0` observed for swapped indexed groups during validation run.
+- No lint errors introduced in modified JS modules.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.0.4  -  27-Feb-2026
 ### Localhost Dev Menu Split + Navigation Mode Status UX
 

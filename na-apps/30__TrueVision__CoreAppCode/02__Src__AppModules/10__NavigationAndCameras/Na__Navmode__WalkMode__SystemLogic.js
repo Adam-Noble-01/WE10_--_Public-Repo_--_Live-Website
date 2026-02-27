@@ -660,11 +660,18 @@
 
     // FUNCTION | Deactivate Walk Mode (Switch Back to Orbit)
     // ------------------------------------------------------------
-    function Na__WalkMode__Deactivate(orbitControls) {
+    // overrideCameraPosition (optional Vector3): when provided the orbit
+    // camera is placed here instead of at the pre-walk snapshot position.
+    // The orbit target and FOV are always restored from the saved state.
+    // ------------------------------------------------------------
+    function Na__WalkMode__Deactivate(orbitControls, overrideCameraPosition) {
         if (!Na__WalkMode__Active) return false;
 
-        Na__WalkMode__Camera.position.copy(Na__WalkMode__SavedOrbitState.cameraPosition);
-        Na__WalkMode__Camera.quaternion.copy(Na__WalkMode__SavedOrbitState.cameraQuaternion);
+        const restorePos = (overrideCameraPosition && overrideCameraPosition.isVector3)
+            ? overrideCameraPosition
+            : Na__WalkMode__SavedOrbitState.cameraPosition;
+
+        Na__WalkMode__Camera.position.copy(restorePos);
         Na__WalkMode__Camera.fov = Na__WalkMode__SavedOrbitState.cameraFov;
         Na__WalkMode__Camera.updateProjectionMatrix();
 
@@ -735,6 +742,71 @@
 // REGION | Public Getters
 // -----------------------------------------------------------------------------
 
+    // FUNCTION | Clamp Entry Pitch After Activation
+    // ------------------------------------------------------------
+    // Called by the transition module immediately after Activate to
+    // prevent the inherited orbit pitch from pointing the walk camera
+    // at the floor or sky.  Clamps to +/- maxRad and updates the
+    // camera quaternion so the very first rendered frame is correct.
+    // ------------------------------------------------------------
+    function Na__WalkMode__ClampEntryPitch(maxRad) {
+        if (!Na__WalkMode__Active || !Na__WalkMode__Camera) return;
+
+        Na__WalkMode__CameraPitch = Math.max(-maxRad, Math.min(maxRad, Na__WalkMode__CameraPitch));
+
+        const euler = new THREE.Euler(Na__WalkMode__CameraPitch, Na__WalkMode__CameraYaw, 0, 'YXZ');
+        Na__WalkMode__Camera.quaternion.setFromEuler(euler);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Nudge Capsule Forward After Activation
+    // ------------------------------------------------------------
+    // Pushes the capsule forward along the current yaw direction by
+    // distanceUnits (Three.js world units).  Re-detects the ground at
+    // the new position and updates the camera so the first rendered
+    // frame reflects the nudged location.
+    // ------------------------------------------------------------
+    function Na__WalkMode__NudgeCapsuleForward(distanceUnits) {
+        if (!Na__WalkMode__Active || !Na__WalkMode__Camera || distanceUnits <= 0) return;
+
+        const forward = new THREE.Vector3(0, 0, -1);
+        forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), Na__WalkMode__CameraYaw);
+
+        Na__WalkMode__CapsulePosition.x += forward.x * distanceUnits;
+        Na__WalkMode__CapsulePosition.z += forward.z * distanceUnits;
+
+        const groundY = Na__WalkMode__DetectGroundHeight(
+            Na__WalkMode__CapsulePosition.x,
+            Na__WalkMode__CapsulePosition.z,
+            Na__WalkMode__CapsulePosition.y
+        );
+
+        if (groundY !== null) {
+            Na__WalkMode__CapsulePosition.y = groundY;
+        }
+
+        Na__WalkMode__UpdateCameraFromCapsule();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Get Saved Orbit State (Read-Only Copy)
+    // ------------------------------------------------------------
+    // Returns a snapshot of the orbit state captured at activation time
+    // so the transition module can compute a repositioned orbit camera
+    // without reaching into private module state.
+    // ------------------------------------------------------------
+    function Na__WalkMode__GetSavedOrbitState() {
+        return {
+            cameraPosition : Na__WalkMode__SavedOrbitState.cameraPosition.clone(),
+            cameraFov      : Na__WalkMode__SavedOrbitState.cameraFov,
+            orbitTarget    : Na__WalkMode__SavedOrbitState.orbitTarget.clone()
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Check If Walk Mode Is Active
     // ------------------------------------------------------------
     function Na__WalkMode__IsActive() {
@@ -787,7 +859,10 @@
         Na__WalkMode__GetCapsulePosition,
         Na__WalkMode__GetConfig,
         Na__WalkMode__SetMovementInput,
-        Na__WalkMode__AccumulateLookInput
+        Na__WalkMode__AccumulateLookInput,
+        Na__WalkMode__ClampEntryPitch,
+        Na__WalkMode__NudgeCapsuleForward,
+        Na__WalkMode__GetSavedOrbitState
     };
     // ------------------------------------------------------------
 

@@ -43,11 +43,17 @@
     // ------------------------------------------------------------
     import {
         Na__WalkMode__Initialize,
-        Na__WalkMode__Activate,
-        Na__WalkMode__Deactivate,
         Na__WalkMode__IsActive,
         Na__WalkMode__GetConfig
     } from './Na__Navmode__WalkMode__SystemLogic.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Mode Transition Logic
+    // ------------------------------------------------------------
+    import {
+        Na__ModeTransition__OrbitToWalk,
+        Na__ModeTransition__WalkToOrbit
+    } from './Na__Navmode__ModeTransition.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Walk Mode Desktop Controls
@@ -77,9 +83,12 @@
 
     // MODULE VARIABLES | Walk Mode Runtime References
     // ------------------------------------------------------------
-    let Na__UiFeature__WalkMode__Controls  = null;   // <-- Orbit controls instance
-    let Na__UiFeature__WalkMode__Renderer  = null;   // <-- Renderer instance
-    let Na__UiFeature__WalkMode__UseTouch  = false;  // <-- Device uses touch controls
+    let Na__UiFeature__WalkMode__Camera           = null;   // <-- Camera instance (for transition module)
+    let Na__UiFeature__WalkMode__Controls         = null;   // <-- Orbit controls instance
+    let Na__UiFeature__WalkMode__Renderer         = null;   // <-- Renderer instance
+    let Na__UiFeature__WalkMode__UseTouch         = false;  // <-- Device uses touch controls
+    let Na__UiFeature__WalkMode__MaxEntryPitchDeg    = 30;   // <-- Max pitch on orbit-to-walk entry (degrees)
+    let Na__UiFeature__WalkMode__EntryForwardNudgeMm = 0;   // <-- Forward nudge on orbit-to-walk entry (mm)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -97,9 +106,17 @@
             walkConfig.Navmode__WalkMode__DoorProximityThresholdMm || 2000        // <-- Door proximity threshold (mm)
         );
 
+        Na__UiFeature__WalkMode__Camera   = camera;            // <-- Store camera ref (for transition module)
         Na__UiFeature__WalkMode__Controls = controls;          // <-- Store orbit controls ref
         Na__UiFeature__WalkMode__Renderer = renderer;          // <-- Store renderer ref
         Na__UiFeature__WalkMode__UseTouch = useTouchControls;  // <-- Store device type flag
+
+        if (Number.isFinite(walkConfig.Navmode__WalkMode__MaxEntryPitchDeg)) {
+            Na__UiFeature__WalkMode__MaxEntryPitchDeg = walkConfig.Navmode__WalkMode__MaxEntryPitchDeg;
+        }
+        if (Number.isFinite(walkConfig.Navmode__WalkMode__EntryForwardNudgeMm)) {
+            Na__UiFeature__WalkMode__EntryForwardNudgeMm = walkConfig.Navmode__WalkMode__EntryForwardNudgeMm;
+        }
     }
     // ------------------------------------------------------------
 
@@ -121,12 +138,20 @@
                 Na__WalkModeDesktop__Deactivate();                             // <-- Remove keyboard/mouse listeners
             }
             Na__DoorProximity__SetEnabled(false);                              // <-- Disable door proximity triggers
-            Na__WalkMode__Deactivate(Na__UiFeature__WalkMode__Controls);       // <-- Restore orbit camera state
+
+            Na__ModeTransition__WalkToOrbit(                                   // <-- Reposition orbit camera near walk position
+                Na__UiFeature__WalkMode__Camera,
+                Na__UiFeature__WalkMode__Controls
+            );
 
             if (onDeactivate) onDeactivate();                                  // <-- Fire caller UI callback
         } else {
             // ACTIVATE WALK MODE
-            const activated = Na__WalkMode__Activate(Na__UiFeature__WalkMode__Controls);
+            const activated = Na__ModeTransition__OrbitToWalk(                  // <-- Activate with pitch clamp + forward nudge
+                Na__UiFeature__WalkMode__Controls,
+                Na__UiFeature__WalkMode__MaxEntryPitchDeg,
+                Na__UiFeature__WalkMode__EntryForwardNudgeMm
+            );
             if (activated) {
                 const walkConfig = Na__WalkMode__GetConfig();                  // <-- Get current walk config values
                 if (Na__UiFeature__WalkMode__UseTouch) {

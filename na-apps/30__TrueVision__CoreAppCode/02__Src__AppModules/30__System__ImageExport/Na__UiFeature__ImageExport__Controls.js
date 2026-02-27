@@ -366,18 +366,67 @@
         // ------------------------------------------------------------
         // SUB FUNCTION | Handle Export Now Action
         // ------------------------------------------------------------
+        let exportInProgress = false;                                        // <-- Guard against double-click
+
         exportButton.addEventListener('click', () => {
-            const result = Na__UiFeature__RenderToDataUrl( // <-- Render using shared helper
-                renderer, scene, camera, getRenderPipelineState,
-                postProcessConfig, isEnhanceEnabled,
-                isCustomEnabled, exportConfig, ratioIndex, resIndex
-            );
+            if (exportInProgress) return;                                    // <-- Ignore if already running
+            exportInProgress = true;                                         // <-- Lock
 
-            const filename = isCustomEnabled // <-- Generate filename based on mode
-                ? `TrueVision3D__${result.width}x${result.height}.png`
-                : 'TrueVision3D__Viewport.png';
+            // DOM references for loading overlay (shared with layout view)
+            // ------------------------------------------------------------
+            const loadingOverlay = document.getElementById('naLayoutLoadingOverlay'); // <-- Overlay container
+            const loadingStatus  = document.getElementById('naLayoutLoadingStatus');  // <-- Status text element
 
-            Na__UiFeature__DownloadImage(result.dataUrl, filename); // <-- Download the rendered image
+            // SHOW OVERLAY | "Rendering Your Image..."
+            // ------------------------------------------------------------
+            exportButton.classList.add('is-loading');                        // <-- Dim the button
+            if (loadingOverlay && loadingStatus) {
+                loadingStatus.textContent = 'Rendering Your Image...';      // <-- Status message
+                loadingStatus.classList.remove('na-layout-loading-overlay__status--success'); // <-- Reset success state
+                loadingOverlay.classList.remove('na-layout-loading-overlay--fade-out');        // <-- Reset fade-out
+                loadingOverlay.classList.add('na-layout-loading-overlay--visible');            // <-- Show overlay
+            }
+
+            // DEFER RENDER | Allow overlay to paint before blocking render
+            // ------------------------------------------------------------
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+
+                    const result = Na__UiFeature__RenderToDataUrl(          // <-- Render using shared helper
+                        renderer, scene, camera, getRenderPipelineState,
+                        postProcessConfig, isEnhanceEnabled,
+                        isCustomEnabled, exportConfig, ratioIndex, resIndex
+                    );
+
+                    const filename = isCustomEnabled                         // <-- Generate filename based on mode
+                        ? `TrueVision3D__${result.width}x${result.height}.png`
+                        : 'TrueVision3D__Viewport.png';
+
+                    Na__UiFeature__DownloadImage(result.dataUrl, filename);  // <-- Download the rendered image
+
+                    // SHOW SUCCESS STATE | "Image Downloaded!"
+                    // ------------------------------------------------------------
+                    if (loadingOverlay && loadingStatus) {
+                        loadingStatus.textContent = 'Image Downloaded!';    // <-- Success message
+                        loadingStatus.classList.add('na-layout-loading-overlay__status--success'); // <-- Green text
+                    }
+
+                    // DISMISS OVERLAY | Fade out after short delay
+                    // ------------------------------------------------------------
+                    setTimeout(() => {
+                        if (loadingOverlay) {
+                            loadingOverlay.classList.add('na-layout-loading-overlay--fade-out');     // <-- Start fade-out
+                            setTimeout(() => {
+                                loadingOverlay.classList.remove('na-layout-loading-overlay--visible');  // <-- Hide completely
+                                loadingOverlay.classList.remove('na-layout-loading-overlay--fade-out'); // <-- Reset fade class
+                            }, 400);
+                        }
+                        exportButton.classList.remove('is-loading');         // <-- Re-enable button
+                        exportInProgress = false;                            // <-- Unlock
+                    }, 2000);
+
+                });
+            });
         });
         // ------------------------------------------------------------
 

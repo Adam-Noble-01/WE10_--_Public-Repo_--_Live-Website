@@ -36,16 +36,13 @@
         "Scene__GroundPlane__ShadowOpacity": 0.1
     },
     "models": {
-        "baseMesh": {
-            "material": {
-                "whiteColor": 16777215,
-                "roughness": 1.0,
-                "metalness": 0.0,
-                "polygonOffsetFactor": 2,
-                "polygonOffsetUnits": 2,
-                "emissiveBoost": 3355443,
-                "textureEmissive": 4473924
-            }
+        "BaseMesh__DefaultMaterial": {
+            "BaseMesh__DefaultMaterial__WhitecardColor"             : 16777215,
+            "BaseMesh__DefaultMaterial__Roughness"                  : 1.0,
+            "BaseMesh__DefaultMaterial__Metalness"                  : 0.0,
+            "BaseMesh__DefaultMaterial__PolygonOffsetFactor"        : 2,
+            "BaseMesh__DefaultMaterial__PolygonOffsetUnits"         : 2,
+            "BaseMesh__DefaultMaterial__TexturedMesh__EmissiveColor": 4473924
         },
         "RenderConfig__Linework": {
             "RenderConfig__Linework__EdgeColor": 1315860,

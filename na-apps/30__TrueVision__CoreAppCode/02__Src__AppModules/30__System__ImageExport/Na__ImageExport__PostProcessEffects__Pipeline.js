@@ -16,10 +16,11 @@
             return sourceCanvas; // <-- Return original if no canvas provided
         }
         
-        // Check if post-processing is enabled
+        // NOTE | UI toggle is the source-of-truth for whether to run this pipeline.
+        // This function only validates config presence and applies configured effects.
         // ------------------------------------------------------------
-        if (!postProcessConfig || !postProcessConfig.ImageExport__PostProcessEffects__Enabled) {
-            return sourceCanvas; // <-- Return original canvas if disabled
+        if (!postProcessConfig) {
+            return sourceCanvas; // <-- Return original canvas if config is missing
         }
         
         const configArray = postProcessConfig.ImageExport__PostProcessEffects__Config; // <-- Get effects config array

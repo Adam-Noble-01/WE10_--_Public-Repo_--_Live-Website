@@ -530,7 +530,11 @@ def prompt_confirmation() -> bool:
 
     # FUNCTION | Main Sync Execution
     # ------------------------------------------------------------
-def run_r2_sync(target_project: Optional[str] = None, dry_run_only: bool = False):
+def run_r2_sync(
+    target_project: Optional[str] = None,
+    dry_run_only: bool = False,
+    auto_confirm_upload: bool = False
+):
     """Execute the full R2 sync pipeline. Called by the build script or CLI."""
 
     print_banner()
@@ -627,7 +631,9 @@ def run_r2_sync(target_project: Optional[str] = None, dry_run_only: bool = False
         return 0
 
     # STEP 6 | Confirm and upload
-    if not prompt_confirmation():
+    if auto_confirm_upload:
+        print(f"  {C_GREEN}[OK] Upload confirmed by caller. Skipping interactive prompt.{C_RESET}\n")
+    elif not prompt_confirmation():
         return 0
 
     print(f"  {C_GREEN}{C_BOLD}MODE: UPLOADING FILES TO R2{C_RESET}\n")

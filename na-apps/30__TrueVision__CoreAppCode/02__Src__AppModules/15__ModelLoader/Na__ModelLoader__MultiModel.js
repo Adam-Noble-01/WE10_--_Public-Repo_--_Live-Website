@@ -255,13 +255,13 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
         const indexedNameRegex = /^MAT\d{3}__/;                          // <-- Indexed materials that should survive to swap pass
 
         const Na__Material__WhiteMat = new THREE.MeshStandardMaterial({
-            color               : baseMeshConfig.material.whiteColor,    // <-- White base color
-            roughness           : baseMeshConfig.material.roughness,     // <-- Surface roughness
-            metalness           : baseMeshConfig.material.metalness,     // <-- Metallic factor
-            side                : THREE.DoubleSide,                      // <-- Render both faces
-            polygonOffset       : true,                                  // <-- Enable polygon offset
-            polygonOffsetFactor : baseMeshConfig.material.polygonOffsetFactor,
-            polygonOffsetUnits  : baseMeshConfig.material.polygonOffsetUnits
+            color               : baseMeshConfig.BaseMesh__DefaultMaterial__WhitecardColor,     // <-- White base color
+            roughness           : baseMeshConfig.BaseMesh__DefaultMaterial__Roughness,          // <-- Surface roughness
+            metalness           : baseMeshConfig.BaseMesh__DefaultMaterial__Metalness,          // <-- Metallic factor
+            side                : THREE.DoubleSide,                                             // <-- Render both faces
+            polygonOffset       : true,                                                         // <-- Enable polygon offset
+            polygonOffsetFactor : baseMeshConfig.BaseMesh__DefaultMaterial__PolygonOffsetFactor,
+            polygonOffsetUnits  : baseMeshConfig.BaseMesh__DefaultMaterial__PolygonOffsetUnits
         });
 
         const Na__MaterialDiagnostics = {
@@ -284,13 +284,13 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
             const preparedMaterial               = sourceMaterial.clone(); // <-- Preserve original identity (name/transparency/alpha/etc)
             preparedMaterial.side                = THREE.DoubleSide;
             preparedMaterial.polygonOffset       = true;
-            preparedMaterial.polygonOffsetFactor = baseMeshConfig.material.polygonOffsetFactor;
-            preparedMaterial.polygonOffsetUnits  = baseMeshConfig.material.polygonOffsetUnits;
+            preparedMaterial.polygonOffsetFactor = baseMeshConfig.BaseMesh__DefaultMaterial__PolygonOffsetFactor;
+            preparedMaterial.polygonOffsetUnits  = baseMeshConfig.BaseMesh__DefaultMaterial__PolygonOffsetUnits;
 
             if (preparedMaterial.map || preparedMaterial.emissiveMap) {
                 // Preserve the original transparent/opacity pipeline while keeping whitecard tuning behaviour for textured meshes.
                 if ('emissive' in preparedMaterial) {
-                    preparedMaterial.emissive = new THREE.Color(baseMeshConfig.material.textureEmissive);
+                    preparedMaterial.emissive = new THREE.Color(baseMeshConfig.BaseMesh__DefaultMaterial__TexturedMesh__EmissiveColor);
                 }
                 if ('emissiveIntensity' in preparedMaterial) {
                     preparedMaterial.emissiveIntensity = 0.0;
@@ -450,7 +450,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                 try {
                     const meshRoot = await Na__ModelLoader__LoadSingleMesh(
                         entry.meshUrl,
-                        config.baseMesh,                                 // <-- Base mesh material config
+                        config.BaseMesh__DefaultMaterial,                // <-- Base mesh default material config
                         loader
                     );
                     meshRoot.userData.Na__ModelType = 'mesh';            // <-- Tag for downstream identification
@@ -494,7 +494,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
             if (entry.meshUrl) {
                 if (statusCallback) statusCallback(`Loading ${shortName} Mesh...`);
                 try {
-                    const meshRoot = await Na__ModelLoader__LoadSingleMesh(entry.meshUrl, config.baseMesh, loader);
+                    const meshRoot = await Na__ModelLoader__LoadSingleMesh(entry.meshUrl, config.BaseMesh__DefaultMaterial, loader);
                     meshRoot.userData.Na__ModelType = 'mesh';
                     categoryGroup.add(meshRoot);
                     console.log(`[TrueVision3D] Loaded Mesh (unordered): ${shortName}`);

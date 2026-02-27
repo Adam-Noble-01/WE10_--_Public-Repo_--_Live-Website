@@ -31,14 +31,17 @@
 
 import os
 import sys
+import re
+import json
 import webbrowser
 import threading
 import time
 import platform
 import argparse
+import traceback
 
 try:
-    from flask import Flask, send_from_directory, jsonify, abort
+    from flask import Flask, send_from_directory, jsonify, abort, request
     from flask_cors import CORS
 except ImportError:
     print("\n" + "=" * 60)
@@ -61,6 +64,11 @@ HOST                     = '127.0.0.1'                               # <-- Local
 DEBUG_MODE               = False                                     # <-- Flask debug mode
 
 CORE_APP_PATH            = '/na-apps/05__ProjectVision__CoreAppCode/'
+PORTAL_ROOT              = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'na-project-portal'))
+PROJECTVISION_CORE_DIR   = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '05__ProjectVision__CoreAppCode'))
+TRUEVISION_CONTENT_DIR   = '30__TrueVision__AppContent'
+TRUEVISION_DATA_FILENAME = 'TrueVision__ProjectData__.json'
+YEAR_FOLDER_PATTERN      = re.compile(r'^(\d{2})-Projects$')
 
 DEFAULT_PROJECT          = 'NP03'                                    # <-- Project code
 DEFAULT_YEAR             = '26'                                      # <-- Year folder (2026)
@@ -131,7 +139,7 @@ app                      = Flask(__name__)
 CORS(app, resources={
     r"/*": {
         "origins"        : "*",
-        "methods"        : ["GET", "OPTIONS"],
+        "methods"        : ["GET", "POST", "OPTIONS"],
         "allow_headers"  : ["Content-Type"]
     }
 })
@@ -142,6 +150,174 @@ CORS(app, resources={
 # #region ---------------------------------------------------------------------
 # REGION | Route Handlers
 # -----------------------------------------------------------------------------
+
+def _sanitize_project_code(project_code):
+    """Normalize and validate project code from route parameter."""
+    normalized = (project_code or '').strip().upper()
+    if not re.match(r'^[A-Z]{2}[0-9]{2}$', normalized):
+        return None
+    return normalized
+
+
+def _extract_project_context():
+    """
+    Read project context from query params/body.
+    Priority order:
+    - Query string (?project-folder=...&year=...)
+    - JSON body ({ projectFolder, year })
+    """
+    body = request.get_json(silent=True) or {}
+    project_folder = (
+        request.args.get('project-folder')
+        or request.args.get('project_folder')
+        or body.get('projectFolder')
+        or body.get('project-folder')
+    )
+    year_code = request.args.get('year') or body.get('year')
+    return project_folder, year_code
+
+
+def _find_project_file_by_folder(project_code, project_folder, year_code=None):
+    """Resolve project data path directly from a known project folder."""
+    if not project_folder:
+        return None
+
+    # Folder names are expected like NP03__AshnessClose; block traversal.
+    safe_folder = os.path.basename(project_folder.strip())
+    if safe_folder != project_folder.strip():
+        return None
+
+    if not safe_folder.startswith(project_code + '__') and not safe_folder.startswith(project_code + '_-_'):
+        return None
+
+    year_folder = f"{year_code}-Projects" if year_code else None
+    candidate_years = []
+
+    if year_folder:
+        candidate_years.append(year_folder)
+    if f"{DEFAULT_YEAR}-Projects" not in candidate_years:
+        candidate_years.append(f"{DEFAULT_YEAR}-Projects")
+
+    for yf in candidate_years:
+        candidate = os.path.join(
+            PORTAL_ROOT,
+            yf,
+            safe_folder,
+            TRUEVISION_CONTENT_DIR,
+            TRUEVISION_DATA_FILENAME
+        )
+        if os.path.isfile(candidate):
+            return candidate
+
+    # Fallback: search all years.
+    if not os.path.isdir(PORTAL_ROOT):
+        return None
+
+    for year_entry in sorted(os.listdir(PORTAL_ROOT)):
+        if not YEAR_FOLDER_PATTERN.match(year_entry):
+            continue
+        candidate = os.path.join(
+            PORTAL_ROOT,
+            year_entry,
+            safe_folder,
+            TRUEVISION_CONTENT_DIR,
+            TRUEVISION_DATA_FILENAME
+        )
+        if os.path.isfile(candidate):
+            return candidate
+
+    return None
+
+
+def _find_project_file_by_code(project_code, year_code=None):
+    """Resolve project data path by scanning project folders for matching code."""
+    if not os.path.isdir(PORTAL_ROOT):
+        return None
+
+    preferred_years = []
+    if year_code:
+        preferred_years.append(f"{year_code}-Projects")
+    preferred_years.append(f"{DEFAULT_YEAR}-Projects")
+
+    discovered_years = [name for name in sorted(os.listdir(PORTAL_ROOT)) if YEAR_FOLDER_PATTERN.match(name)]
+
+    ordered_years = []
+    for year_name in preferred_years + discovered_years:
+        if year_name not in ordered_years:
+            ordered_years.append(year_name)
+
+    for year_folder in ordered_years:
+        year_path = os.path.join(PORTAL_ROOT, year_folder)
+        if not os.path.isdir(year_path):
+            continue
+
+        for project_folder in sorted(os.listdir(year_path)):
+            if not (
+                project_folder.startswith(project_code + '__')
+                or project_folder.startswith(project_code + '_-_')
+            ):
+                continue
+
+            candidate = os.path.join(
+                year_path,
+                project_folder,
+                TRUEVISION_CONTENT_DIR,
+                TRUEVISION_DATA_FILENAME
+            )
+            if os.path.isfile(candidate):
+                return candidate
+
+    return None
+
+
+def _resolve_project_data_path(project_code):
+    """Resolve the TrueVision project data file path from route + request context."""
+    project_folder, year_code = _extract_project_context()
+
+    path = _find_project_file_by_folder(project_code, project_folder, year_code)
+    if path:
+        return path
+
+    return _find_project_file_by_code(project_code, year_code)
+
+
+def _extract_project_folder_from_project_file(project_file_path):
+    """Infer project folder from .../{year}-Projects/{project_folder}/30__TrueVision__AppContent/..."""
+    normalized = project_file_path.replace('\\', '/')
+    marker = f"/{TRUEVISION_CONTENT_DIR}/{TRUEVISION_DATA_FILENAME}"
+    if marker not in normalized:
+        return None
+
+    prefix = normalized.split(marker)[0]
+    return os.path.basename(prefix)
+
+
+def _run_targeted_r2_sync(project_folder):
+    """Run ProjectVision R2 sync for one project folder."""
+    if not os.path.isdir(PROJECTVISION_CORE_DIR):
+        return False, f'ProjectVision core directory not found: {PROJECTVISION_CORE_DIR}'
+
+    if PROJECTVISION_CORE_DIR not in sys.path:
+        sys.path.insert(0, PROJECTVISION_CORE_DIR)
+
+    try:
+        from CloudflareR2__ModelSync__Main__ import run_r2_sync
+    except Exception as error:
+        traceback.print_exc()
+        return False, f'Failed to import R2 sync module: {type(error).__name__}: {error}'
+
+    try:
+        exit_code = run_r2_sync(
+            target_project=project_folder,
+            dry_run_only=False,
+            auto_confirm_upload=True
+        )
+        if exit_code == 0:
+            return True, 'CDN sync complete'
+        return False, f'CDN sync failed with exit code {exit_code}'
+    except Exception as error:
+        traceback.print_exc()
+        return False, f'CDN sync raised {type(error).__name__}: {error}'
 
 @app.route('/')
 def index():
@@ -167,6 +343,74 @@ def health_check():
         'service'        : 'na-projectvision-local-dev',
         'port'           : PORT,
         'repoRoot'       : REPO_ROOT
+    })
+
+
+@app.route('/api/projects/<project_code>', methods=['GET', 'POST'])
+def project_data_api(project_code):
+    """Read or update TrueVision__ProjectData__.json for a project."""
+    safe_project_code = _sanitize_project_code(project_code)
+    if not safe_project_code:
+        return jsonify({'error': 'Invalid project code'}), 400
+
+    project_file_path = _resolve_project_data_path(safe_project_code)
+    if not project_file_path:
+        return jsonify({'error': f'Project not found: {safe_project_code}'}), 404
+
+    if request.method == 'GET':
+        try:
+            with open(project_file_path, 'r', encoding='utf-8') as file_handle:
+                project_data = json.load(file_handle)
+            return jsonify(project_data)
+        except Exception as error:
+            print(f"[LocalServer] Failed to read project data file: {project_file_path}")
+            print(f"[LocalServer] {type(error).__name__}: {error}")
+            return jsonify({'error': 'Failed to read project data file'}), 500
+
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({'error': 'Request body must be a JSON object'}), 400
+
+    try:
+        with open(project_file_path, 'w', encoding='utf-8', newline='\n') as file_handle:
+            json.dump(payload, file_handle, indent=4, ensure_ascii=False)
+            file_handle.write('\n')
+    except Exception as error:
+        print(f"[LocalServer] Failed to write project data file: {project_file_path}")
+        print(f"[LocalServer] {type(error).__name__}: {error}")
+        return jsonify({'error': 'Failed to write project data file'}), 500
+
+    return jsonify({
+        'status': 'ok',
+        'message': f'Project data updated for {safe_project_code}',
+        'projectFile': project_file_path
+    })
+
+
+@app.route('/api/projects/<project_code>/sync-cdn', methods=['POST'])
+def project_sync_cdn_api(project_code):
+    """Trigger targeted CDN sync for the resolved project folder."""
+    safe_project_code = _sanitize_project_code(project_code)
+    if not safe_project_code:
+        return jsonify({'error': 'Invalid project code'}), 400
+
+    project_file_path = _resolve_project_data_path(safe_project_code)
+    if not project_file_path:
+        return jsonify({'error': f'Project not found: {safe_project_code}'}), 404
+
+    project_folder = _extract_project_folder_from_project_file(project_file_path)
+    if not project_folder:
+        return jsonify({'error': 'Could not resolve project folder for CDN sync'}), 500
+
+    success, message = _run_targeted_r2_sync(project_folder)
+    if not success:
+        return jsonify({'error': message, 'projectFolder': project_folder}), 500
+
+    return jsonify({
+        'status': 'ok',
+        'message': message,
+        'projectCode': safe_project_code,
+        'projectFolder': project_folder
     })
 
 # endregion -------------------------------------------------------------------
