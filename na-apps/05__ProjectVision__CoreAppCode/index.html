@@ -11,7 +11,7 @@
 
     <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
     <link rel="apple-touch-icon" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
-    <meta name="theme-color" content="#555041">
+    <meta name="theme-color" content="#172b3a">
 
     <!-- endregion -------------------------------------------------------- -->
 
@@ -61,56 +61,56 @@
 
     <main class="pv-main" id="pvMain" style="display: none;">
 
-        <!-- Project Title -->
+        <!-- Project Container - Title + Card Grid -->
         <div class="pv-project-title" id="pvProjectTitle">
             <h1 class="pv-project-title__name" id="pvProjectName"></h1>
             <p class="pv-project-title__subtitle">Select an application to continue</p>
-        </div>
 
-        <!-- Sub-Application Card Grid -->
-        <div class="pv-card-grid" id="pvCardGrid">
+            <!-- Sub-Application Card Grid -->
+            <div class="pv-card-grid" id="pvCardGrid">
 
-            <!-- Card: Project Admin -->
-            <a class="pv-card pv-card--admin" id="pvCardAdmin" href="#" data-subapp="projectAdmin">
-                <div class="pv-card__icon-area">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-3-7H9v-2h6v2zm0 4H9v-2h6v2zm-2-8H9V7h4v2z"/>
-                    </svg>
-                </div>
-                <h2 class="pv-card__title">Project Admin</h2>
-                <p class="pv-card__description">Documents, quotations &amp; contracts</p>
-                <span class="pv-card__badge" id="pvBadgeAdmin"></span>
-            </a>
+                <!-- Card: Project Admin -->
+                <a class="pv-card pv-card--admin" id="pvCardAdmin" href="#" data-subapp="projectAdmin">
+                    <div class="pv-card__icon-area">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-3-7H9v-2h6v2zm0 4H9v-2h6v2zm-2-8H9V7h4v2z"/>
+                        </svg>
+                    </div>
+                    <h2 class="pv-card__title">Project Admin</h2>
+                    <p class="pv-card__description">Documents, quotations &amp; contracts</p>
+                    <span class="pv-card__badge" id="pvBadgeAdmin"></span>
+                </a>
 
-            <!-- Card: PlanVision -->
-            <a class="pv-card pv-card--planvision" id="pvCardPlanVision" href="#" data-subapp="planVision">
-                <div class="pv-card__icon-area">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 12h2v5H7zm4-3h2v8h-2zm4-3h2v11h-2z"/>
-                    </svg>
-                </div>
-                <h2 class="pv-card__title">PlanVision</h2>
-                <p class="pv-card__description">2D drawings, plans &amp; documents</p>
-                <span class="pv-card__badge" id="pvBadgePlanVision"></span>
-            </a>
+                <!-- Card: PlanVision -->
+                <a class="pv-card pv-card--planvision" id="pvCardPlanVision" href="#" data-subapp="planVision">
+                    <div class="pv-card__icon-area">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 21h18L3 3v18zM8 16V11l7.5 5H8z"/>
+                        </svg>
+                    </div>
+                    <h2 class="pv-card__title">PlanVision</h2>
+                    <p class="pv-card__description">2D drawings, plans &amp; documents</p>
+                    <span class="pv-card__badge" id="pvBadgePlanVision"></span>
+                </a>
 
-            <!-- Card: TrueVision 3D -->
-            <a class="pv-card pv-card--truevision" id="pvCardTrueVision" href="#" data-subapp="trueVision">
-                <div class="pv-card__icon-area">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.83 3.41L12 10.96 5.17 7.59 12 4.18zM4 8.82l7 3.5v7.86l-7-3.5V8.82zm9 11.36v-7.86l7-3.5v7.86l-7 3.5z"/>
-                    </svg>
-                </div>
-                <h2 class="pv-card__title">TrueVision 3D</h2>
-                <p class="pv-card__description">Interactive 3D model viewer</p>
-                <span class="pv-card__badge" id="pvBadgeTrueVision"></span>
-            </a>
+                <!-- Card: TrueVision 3D -->
+                <a class="pv-card pv-card--truevision" id="pvCardTrueVision" href="#" data-subapp="trueVision">
+                    <div class="pv-card__icon-area">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.83 3.41L12 10.96 5.17 7.59 12 4.18zM4 8.82l7 3.5v7.86l-7-3.5V8.82zm9 11.36v-7.86l7-3.5v7.86l-7 3.5z"/>
+                        </svg>
+                    </div>
+                    <h2 class="pv-card__title">TrueVision 3D</h2>
+                    <p class="pv-card__description">Interactive 3D model viewer</p>
+                    <span class="pv-card__badge" id="pvBadgeTrueVision"></span>
+                </a>
 
+            </div>
         </div>
 
         <!-- Footer -->
         <footer class="pv-footer">
-            &copy; Noble Architecture
+            &copy; 2026 Noble Architecture
         </footer>
 
     </main>

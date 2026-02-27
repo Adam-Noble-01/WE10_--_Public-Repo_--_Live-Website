@@ -105,6 +105,11 @@
     import { Na__UiFeature__InitializeStoreyViewControls } from '../26__System__ToggleModelElements/Na__UiFeature__StoreyView__Controls.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Storey Isolate Controls
+    // ------------------------------------------------------------
+    import { Na__UiFeature__InitializeStoreyIsolateControls } from '../26__System__ToggleModelElements/Na__UiFeature__StoreyIsolate__Controls.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Door Animation System
     // ------------------------------------------------------------
     import {
@@ -431,6 +436,9 @@
 
             // INITIALIZE STOREY VIEW CONTROLS (per-storey visibility toggling)
             Na__UiFeature__InitializeStoreyViewControls(Na__ModelGroup__Root, Na__Config__StoreyVisibility || {});
+
+            // INITIALIZE STOREY ISOLATE CONTROLS (single-floor isolate with roofs off)
+            Na__UiFeature__InitializeStoreyIsolateControls();
 
             // INITIALIZE MODEL GROUP SELECTOR (switch between design phases)
             if (Na__ProjectData__AllModelGroups && Na__ProjectData__AllModelGroups.length > 1) {

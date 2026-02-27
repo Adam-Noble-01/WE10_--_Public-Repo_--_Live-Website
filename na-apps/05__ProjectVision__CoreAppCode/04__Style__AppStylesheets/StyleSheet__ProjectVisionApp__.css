@@ -24,17 +24,17 @@
  * ----------------------------------------------------------------------------- */
 
     :root {
-        --Pv_BrandPrimary              : #555041;
-        --Pv_BrandAccent               : #7a7460;
-        --Pv_BgPrimary                 : #f8f7f5;
+        --Pv_BrandPrimary              : #172b3a;
+        --Pv_BrandAccent               : #2a4a5e;
+        --Pv_BgPrimary                 : #f7f9fb;
         --Pv_BgSecondary               : #ffffff;
-        --Pv_BgTertiary                : #eeecea;
+        --Pv_BgTertiary                : #eaeff3;
         --Pv_TextPrimary               : #333333;
         --Pv_TextSecondary             : #666666;
         --Pv_TextMuted                 : #999999;
         --Pv_TextLight                 : #ffffff;
-        --Pv_BorderLight               : #e0ddd8;
-        --Pv_BorderMedium              : #c4c0b8;
+        --Pv_BorderLight               : #dce3e8;
+        --Pv_BorderMedium              : #b8c5cf;
         --Pv_HeaderHeight              : 60px;
         --Pv_SpacingSm                 : 0.5rem;
         --Pv_SpacingMd                 : 1rem;
@@ -47,7 +47,7 @@
         --Pv_CardShadow                : 0 2px 12px rgba(0, 0, 0, 0.06);
         --Pv_CardShadowHover           : 0 8px 28px rgba(0, 0, 0, 0.12);
 
-        --Pv_CardColor__Admin          : #555041;
+        --Pv_CardColor__Admin          : #5b8ea5;
         --Pv_CardColor__PlanVision     : #3b6e8f;
         --Pv_CardColor__TrueVision     : #172b3a;
     }
@@ -56,10 +56,48 @@
 
 
 /* -----------------------------------------------------------------------------
- * REGION | Font Loading - Open Sans from Google Fonts CDN
+ * REGION | Font Loading - Open Sans from Common Fonts Folder
  * ----------------------------------------------------------------------------- */
 
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+    @font-face {
+        font-family                        : 'Open Sans';
+        font-style                         : normal;
+        font-weight                        : 300;
+        font-display                       : swap;
+        src                                : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Light__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family                        : 'Open Sans';
+        font-style                         : normal;
+        font-weight                        : 400;
+        font-display                       : swap;
+        src                                : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family                        : 'Open Sans';
+        font-style                         : normal;
+        font-weight                        : 500;
+        font-display                       : swap;
+        src                                : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Medium__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family                        : 'Open Sans';
+        font-style                         : normal;
+        font-weight                        : 600;
+        font-display                       : swap;
+        src                                : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__SemiBold__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family                        : 'Open Sans';
+        font-style                         : normal;
+        font-weight                        : 700;
+        font-display                       : swap;
+        src                                : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Bold__.ttf') format('truetype');
+    }
 
 /* endregion ------------------------------------------------------------------- */
 
@@ -113,7 +151,7 @@
     }
 
     .pv-header__logo {
-        height                             : 38px;
+        height                             : 44px;
         width                              : auto;
     }
 
@@ -152,7 +190,14 @@
 
     .pv-project-title {
         text-align                         : center;
-        margin-bottom                      : var(--Pv_SpacingXl);
+        background                         : var(--Pv_BgSecondary);
+        border                             : 1px solid var(--Pv_BorderLight);
+        border-top                         : 3px solid var(--Pv_BrandPrimary);
+        border-radius                      : var(--Pv_CardRadius);
+        padding                            : var(--Pv_SpacingXl) var(--Pv_SpacingXl) var(--Pv_SpacingLg);
+        box-shadow                         : var(--Pv_CardShadow);
+        max-width                          : 960px;
+        width                              : 100%;
     }
 
     .pv-project-title__name {
@@ -167,6 +212,7 @@
         font-weight                        : 400;
         color                              : var(--Pv_TextSecondary);
         letter-spacing                     : 0.2px;
+        margin-bottom                      : var(--Pv_SpacingXl);
     }
 
 /* endregion ------------------------------------------------------------------- */
@@ -180,7 +226,6 @@
         display                            : grid;
         grid-template-columns              : repeat(3, 1fr);
         gap                                : var(--Pv_SpacingLg);
-        max-width                          : 960px;
         width                              : 100%;
     }
 
@@ -472,7 +517,6 @@
 
         .pv-card-grid {
             grid-template-columns          : 1fr;
-            max-width                      : 380px;
         }
 
         .pv-project-title__name {
@@ -484,7 +528,7 @@
         }
 
         .pv-header__logo {
-            height                         : 30px;
+            height                         : 34px;
         }
 
         .pv-main {
@@ -498,7 +542,6 @@
         .pv-card-grid {
             grid-template-columns          : repeat(3, 1fr);
             gap                            : var(--Pv_SpacingMd);
-            max-width                      : 720px;
         }
     }
 

@@ -2,6 +2,40 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.1.1  -  27-Feb-2026
+### Floor Isolate — Landscape Off + User Guide Isolation Notes
+
+**Overview**
+- Extended the new `Floor Isolate` workflow so it now disables landscape as well as roofs when isolating a storey.
+- Added client-friendly documentation to the User Guide explaining the difference between `Storey Toggle` and `Floor Isolate`, including when each is useful.
+- Preserved coexistence: both systems remain available for flexible model view control.
+
+**Floor Isolate Logic Update**
+- Updated `3dObject__IsolateBuildingStoreys__SystemLogic__.js` to:
+  - Detect landscape groups from the same loaded model root used by storey models.
+  - Cache current landscape visibility before isolate actions.
+  - Force landscape visibility off during `Na__StoreyIsolate__IsolateSingleStorey(...)`.
+  - Restore cached landscape visibility when `Na__StoreyIsolate__ShowEntireBuilding()` is used.
+- Roof behavior remains unchanged from previous release: isolate mode forces roofs off.
+
+**UI/UX Copy Update**
+- Updated floor isolate button tooltip text in `Na__UiFeature__StoreyIsolate__Controls.js` to communicate that isolate mode now switches both roofs and landscape off.
+
+**User Guide Content Update**
+- Added a new section after the existing divider structure in `Na__UserInstructions__Content__.html`:
+  - `Model Isolation Tools`
+  - Plain-language explanations for:
+    - `Storey Toggle` (custom multi-floor combinations)
+    - `Floor Isolate` (single floor focus with roofs + landscape off)
+    - `Show Entire Building` (quick reset)
+- Reassigned `na-instructions-section--last` so the new isolation section is now the final section in the modal.
+
+**Files Changed**
+- `02__Src__AppModules/26__System__ToggleModelElements/3dObject__IsolateBuildingStoreys__SystemLogic__.js`
+- `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__StoreyIsolate__Controls.js`
+- `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__Content__.html`
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.1.0  -  27-Feb-2026
 ### User Instructions System — User Guide Modal Overlay
 
