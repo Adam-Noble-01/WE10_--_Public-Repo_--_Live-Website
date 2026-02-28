@@ -2,6 +2,23 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## GLB Builder Utility v1.9.0  -  28-Feb-2026
+### Component Instancing — 449 MB → 1 MB GLB Export Optimisation
+
+**This entry documents an upstream SketchUp plugin change that directly benefits TrueVision3D load times and runtime performance. No TrueVision app code changes were required.**
+
+**Result: >99% reduction in exported GLB file size on production architectural model.**
+
+The GLB Builder Utility plugin (`Na__TrueVision__GlbBuilder__EngineCore__ComponentInstancing__.rb`) was extended with a full Component Instancing system. SketchUp "Components" (as distinct from "Groups") are shared-definition objects — editing one updates all. The exporter now respects this: instead of flattening every component instance into duplicated vertex data, each unique `ComponentDefinition` is written to the GLB binary buffer exactly once, and multiple glTF nodes reference it with per-instance transform matrices.
+
+**Why TrueVision benefits automatically (zero code changes):**
+- Three.js `GLTFLoader` automatically shares a single `BufferGeometry` instance in GPU memory when multiple nodes reference the same mesh index (confirmed Three.js issue #29768). No `InstancedMesh` required for the GPU memory savings.
+- Material traversal in `Na__ModelLoader__MultiModel.js` operates per-node (`node.material.name`), not per-geometry, so all existing material cloning, PBR swap, and shadow setup work identically for instanced nodes.
+- Walk mode collision, door animation (ADR entities excluded from instancing), storey visibility toggles — all operate by scene traversal and are unaffected by the new node structure.
+
+**Future opportunity:** Converting shared-mesh node groups into `THREE.InstancedMesh` on load would reduce these to a single draw call per definition, delivering a further GPU render performance improvement on top of the memory savings already achieved.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.2.0  -  27-Feb-2026
 ### Real-Time Screen-Space Ambient Occlusion (SSAO) System
 

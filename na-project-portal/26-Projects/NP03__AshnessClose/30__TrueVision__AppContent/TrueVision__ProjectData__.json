@@ -1,26 +1,6 @@
 {
-    "Camera__DefaultPosition": {
-        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
-        "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": 6677,
-            "Camera__DefaultPos__PosY": 6166,
-            "Camera__DefaultPos__PosZ": -4879
-        },
-        "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -0.0792,
-            "Camera__DefaultRotation__RotY": 0.8181,
-            "Camera__DefaultRotation__RotZ": 0.0579
-        },
-        "Camera__DefaultMisc": {
-            "Camera__DefaultMisc__Fov": 55
-        }
-    },
-    "OrbitHelperCube__Position": {
-        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
-        "OrbitHelperCube__Position__PosX": 3675,
-        "OrbitHelperCube__Position__PosY": 5943,
-        "OrbitHelperCube__Position__PosZ": -7683
-    },
+    "projectCode": "NP03",
+    "projectName": "Ashness Close",
     "activeGroupIndex": 0,
     "modelGroups": [
         {
@@ -73,6 +53,20 @@
             ]
         }
     ],
-    "projectCode": "NP03",
-    "projectName": "Ashness Close"
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX": 6677,
+            "Camera__DefaultPos__PosY": 6166,
+            "Camera__DefaultPos__PosZ": -4879
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX": -0.0792,
+            "Camera__DefaultRotation__RotY": 0.8181,
+            "Camera__DefaultRotation__RotZ": 0.0579
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov": 55
+        }
+    }
 }
