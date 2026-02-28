@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // TRUEVISION3D - MODEL TOGGLE CONTROLS
 // =============================================================================
 //
@@ -31,17 +31,33 @@
     // Any category NOT in this map gets an auto-generated label from its key.
     // ------------------------------------------------------------
     const Na__ModelToggle__DisplayNames = {
-        "TrueVision__MainBuildingModel__Existing"      : "Existing Building",      // <-- Tag 10-19
-        "TrueVision__MainBuildingModel__Proposed"      : "Design Proposal",        // <-- Tag 20-24
-        "TrueVision__MainBuildingModel__ProposedDoors" : "Doors",                  // <-- Tag 25 (interactive ADR assemblies)
+        "TrueVision__MainBuildingModel__Existing"              : "Existing Building",
+        "TrueVision__MainBuildingModel__ExistingWalls"         : "Existing Walls",
+        "TrueVision__MainBuildingModel__ExistingFloors"        : "Existing Floors",
+        "TrueVision__MainBuildingModel__ExistingRoofs"         : "Existing Roofs",
+        "TrueVision__MainBuildingModel__ExistingWindows"       : "Existing Windows",
+        "TrueVision__MainBuildingModel__ExistingDoors"         : "Existing Doors",
+        "TrueVision__MainBuildingModel__ExistingStairs"        : "Existing Staircase",
+        "TrueVision__MainBuildingModel__ExistingFixtures"      : "Existing Fixtures",
+        "TrueVision__MainBuildingModel__ExistingFurniture"     : "Existing Furniture",
+        "TrueVision__MainBuildingModel__ExistingInteriorDecor" : "Existing Interior Decor",
+        "TrueVision__MainBuildingModel__Proposed"              : "Design Proposal",
+        "TrueVision__MainBuildingModel__ProposedWalls"         : "Proposed Walls",
+        "TrueVision__MainBuildingModel__ProposedFloors"        : "Proposed Floors",
+        "TrueVision__MainBuildingModel__ProposedRoofs"         : "Proposed Roofs",
+        "TrueVision__MainBuildingModel__ProposedWindows"       : "Proposed Windows",
+        "TrueVision__MainBuildingModel__ProposedDoors"         : "Proposed Doors",
+        "TrueVision__MainBuildingModel__ProposedStairs"        : "Proposed Staircase",
+        "TrueVision__MainBuildingModel__ProposedFixtures"      : "Proposed Fixtures",
+        "TrueVision__MainBuildingModel__ProposedFurniture"     : "Proposed Furniture",
+        "TrueVision__MainBuildingModel__ProposedInteriorDecor" : "Proposed Interior Decor",
         "TrueVision__LandscapeEnvironment"             : "Landscape",              // <-- Tag 07-09
         "TrueVision__GroundFloorFurniture"             : "Ground Floor Furniture", // <-- Tag 30-38
         "TrueVision__GroundFloorDecor"                 : "Ground Floor Decor",     // <-- Tag 39
         "TrueVision__FirstFloorFurniture"              : "First Floor Furniture",  // <-- Tag 40-48
         "TrueVision__FirstFloorDecor"                  : "First Floor Decor",      // <-- Tag 49
         "TrueVision__Vegetation"                       : "Vegetation",             // <-- Tag 50-59
-        "TrueVision__SceneContextual"                  : "Scene Context",          // <-- Tag 60-70
-        "TrueVision__LegacyModel"                      : "Model"                   // <-- Legacy fallback
+        "TrueVision__SceneContextual"                  : "Scene Context"           // <-- Tag 60-70
     };
     // ------------------------------------------------------------
 

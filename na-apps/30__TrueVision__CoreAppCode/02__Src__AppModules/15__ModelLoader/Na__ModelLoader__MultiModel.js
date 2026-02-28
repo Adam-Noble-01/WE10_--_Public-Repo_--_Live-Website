@@ -12,7 +12,7 @@
 // DESCRIPTION:
 // - Loads multiple GLB model pairs from an array of CDN URLs.
 // - Classifies each URL by parsing the TrueVision category and model type.
-// - Accepts both __TrueVision__ (preferred) and __NaModel__ (backstop) namespaces.
+// - Accepts strict __TrueVision__ namespace model filenames.
 // - Loads models sequentially in priority order defined by the GLB Builder tag ranges.
 // - Each category gets its own THREE.Group for future per-category toggling.
 // - Material config and linework config are read from AppConfig (passed in).
@@ -36,9 +36,26 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
     // Building models load first, then environment, furniture, vegetation, context.
     // ------------------------------------------------------------
     const Na__ModelCategories__LoadOrder = [
-        "TrueVision__MainBuildingModel__Existing",   // <-- Tag 10-19: Existing building
-        "TrueVision__MainBuildingModel__Proposed",   // <-- Tag 20-24: Proposed building (non-door)
-        "TrueVision__MainBuildingModel__ProposedDoors",  // <-- Tag 25: Proposed building doors (ADR assemblies)
+        "TrueVision__MainBuildingModel__Existing",           // <-- Tag 10: Existing building massing
+        "TrueVision__MainBuildingModel__ExistingWalls",      // <-- Tag 11
+        "TrueVision__MainBuildingModel__ExistingFloors",     // <-- Tag 12
+        "TrueVision__MainBuildingModel__ExistingRoofs",      // <-- Tag 13
+        "TrueVision__MainBuildingModel__ExistingWindows",    // <-- Tag 14
+        "TrueVision__MainBuildingModel__ExistingDoors",      // <-- Tag 15
+        "TrueVision__MainBuildingModel__ExistingStairs",     // <-- Tag 16
+        "TrueVision__MainBuildingModel__ExistingFixtures",   // <-- Tag 17
+        "TrueVision__MainBuildingModel__ExistingFurniture",  // <-- Tag 18
+        "TrueVision__MainBuildingModel__ExistingInteriorDecor", // <-- Tag 19
+        "TrueVision__MainBuildingModel__Proposed",           // <-- Tag 20
+        "TrueVision__MainBuildingModel__ProposedWalls",      // <-- Tag 21
+        "TrueVision__MainBuildingModel__ProposedFloors",     // <-- Tag 22
+        "TrueVision__MainBuildingModel__ProposedRoofs",      // <-- Tag 23
+        "TrueVision__MainBuildingModel__ProposedWindows",    // <-- Tag 24
+        "TrueVision__MainBuildingModel__ProposedDoors",      // <-- Tag 25 (interactive ADR assemblies)
+        "TrueVision__MainBuildingModel__ProposedStairs",     // <-- Tag 26
+        "TrueVision__MainBuildingModel__ProposedFixtures",   // <-- Tag 27
+        "TrueVision__MainBuildingModel__ProposedFurniture",  // <-- Tag 28
+        "TrueVision__MainBuildingModel__ProposedInteriorDecor", // <-- Tag 29
         "TrueVision__LandscapeEnvironment",          // <-- Tag 07-09: Landscape & environment
         "TrueVision__GroundFloorFurniture",          // <-- Tag 30-38: Ground floor furniture
         "TrueVision__GroundFloorDecor",              // <-- Tag 39:    Ground floor high detail
@@ -52,19 +69,15 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 
     // MODULE CONSTANTS | URL Parsing Regex
     // ------------------------------------------------------------
-    // Primary: Accepts __TrueVision__ (CDN rebranded) and __NaModel__ (raw SketchUp export).
+    // Primary: Accepts strict __TrueVision__ naming with optional project prefix.
     // Supports optional project prefix (e.g., DeLisle__TrueVision__).
-    // Captures: [1] namespace (TrueVision|NaModel), [2] category, [3] model type.
+    // Captures: [1] namespace (TrueVision), [2] category, [3] model type.
     // Storey:  Matches storey-based GLB filenames (e.g., NP03__Storey__GroundFloor__ProposedWalls__MeshModel__.glb).
     // Captures: [1] storey name (GroundFloor), [2] element type (ProposedWalls), [3] model type.
-    // Legacy:  Matches older __Layer-XX__BaseMeshModel__ / __LineworkModel__ patterns.
-    // Captures: [1] model type indicator (BaseMeshModel|LineworkModel).
     // OrbitHelperCube: Matches OrbitHelperCube GLB files exported from SketchUp for orbit target positioning.
     // ------------------------------------------------------------
-    const Na__ModelUrl__ParseRegex        = /(?:.*?__)?(TrueVision|NaModel)__(.+?)__(MeshModel|LineworkModel)__\.glb/i;
+    const Na__ModelUrl__ParseRegex        = /(?:.*?__)?(TrueVision)__(.+?)__(MeshModel|LineworkModel)__\.glb/i;
     const Na__ModelUrl__StoreyParseRegex  = /(?:.*?__)?Storey__([A-Za-z]+)__([A-Za-z]+)__(MeshModel|LineworkModel)__\.glb/i;
-    const Na__ModelUrl__LegacyParseRegex  = /__(BaseMeshModel|LineworkModel|MeshModel)__/i;
-    const Na__ModelUrl__LegacyCategoryKey = "TrueVision__LegacyModel";   // <-- Fallback category for legacy URLs
     const Na__ModelUrl__OrbitCubeRegex    = /OrbitHelperCube__MeshModel__\.glb$/i;  // <-- Orbit helper cube detection
     // ------------------------------------------------------------
 
@@ -82,15 +95,14 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 
         const filename  = url.split('/').pop();                          // <-- Extract filename from URL
 
-        // PRIMARY REGEX | New TrueVision / NaModel naming convention
+        // PRIMARY REGEX | New TrueVision naming convention
         const match = Na__ModelUrl__ParseRegex.exec(filename);           // <-- Run primary regex
         if (match) {
-            const namespace = match[1];                                  // <-- TrueVision or NaModel
+            const namespace = match[1];                                  // <-- TrueVision
             const category  = match[2];                                  // <-- e.g. MainBuildingModel__Existing
             const modelType = match[3];                                  // <-- MeshModel or LineworkModel
 
-            // NORMALIZE NAMESPACE | NaModel -> TrueVision (backstop support)
-            const normalizedCategory = `TrueVision__${category}`;        // <-- Always use TrueVision prefix
+            const normalizedCategory = `TrueVision__${category}`;        // <-- Build strict category key
 
             return {
                 url            : url,                                    // <-- Original full URL
@@ -114,22 +126,6 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                 category       : storeyCategory,                         // <-- e.g. "Storey__GroundFloor__ProposedWalls"
                 modelType      : modelType,                              // <-- MeshModel or LineworkModel
                 rawNamespace   : 'Storey'                                // <-- Flag as storey for logging
-            };
-        }
-
-        // LEGACY REGEX | Older __Layer-XX__BaseMeshModel__ / __LineworkModel__ patterns
-        const legacyMatch = Na__ModelUrl__LegacyParseRegex.exec(filename);
-        if (legacyMatch) {
-            const legacyType = legacyMatch[1];                           // <-- BaseMeshModel, MeshModel, or LineworkModel
-            const modelType  = (legacyType === 'LineworkModel')
-                ? 'LineworkModel'                                        // <-- Map to LineworkModel
-                : 'MeshModel';                                           // <-- BaseMeshModel and MeshModel -> MeshModel
-
-            return {
-                url            : url,                                    // <-- Original full URL
-                category       : Na__ModelUrl__LegacyCategoryKey,        // <-- Fallback legacy category
-                modelType      : modelType,                              // <-- MeshModel or LineworkModel
-                rawNamespace   : 'Legacy'                                // <-- Flag as legacy for logging
             };
         }
 
