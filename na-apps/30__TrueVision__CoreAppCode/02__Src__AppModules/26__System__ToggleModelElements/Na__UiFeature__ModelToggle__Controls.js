@@ -103,6 +103,7 @@
     // MODULE VARIABLES | Internal Toggle State
     // ------------------------------------------------------------
     let Na__ModelToggle__StateMap = new Map();                            // <-- Map of category -> { group, visible }
+    let Na__ModelToggle__SubmenuWired = false;                            // <-- Guard against duplicate submenu listeners
     // ------------------------------------------------------------
 
 
@@ -147,6 +148,7 @@
         }
 
         listContainer.innerHTML = '';                                    // <-- Clear any existing buttons
+        Na__ModelToggle__StateMap.clear();                               // <-- Clear stale category references
 
         if (!loadedGroups || loadedGroups.size === 0) {
             listContainer.style.display = 'none';                        // <-- Hide if no groups
@@ -207,11 +209,12 @@
         const toggleButton = document.getElementById('naModelToggleButton');  // <-- Get toggle button element
         const panel = document.getElementById(Na__ModelToggle__PanelId);     // <-- Get panel container
         
-        if (toggleButton && panel) {
+        if (toggleButton && panel && !Na__ModelToggle__SubmenuWired) {
             toggleButton.addEventListener('click', () => {
                 const isOpen = panel.classList.contains('is-open');      // <-- Check current panel state
                 panel.classList.toggle('is-open', !isOpen);            // <-- Toggle panel visibility
             });
+            Na__ModelToggle__SubmenuWired = true;
         }
         
         console.log(`[TrueVision3D] Model toggle controls initialized for ${loadedGroups.size} categories`);

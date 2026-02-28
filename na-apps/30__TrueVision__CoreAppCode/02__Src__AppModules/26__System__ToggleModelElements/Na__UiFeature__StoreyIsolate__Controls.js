@@ -48,6 +48,18 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Module State
+// -----------------------------------------------------------------------------
+
+    // MODULE VARIABLES | Listener Guards
+    // ------------------------------------------------------------
+    let Na__StoreyIsolate__SubmenuWired = false;                               // <-- Prevent duplicate submenu handlers on re-init
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | UI State Sync
 // -----------------------------------------------------------------------------
 
@@ -168,12 +180,16 @@
     // ------------------------------------------------------------
     function Na__UiFeature__InitializeStoreyIsolateControls() {
         const hasStoreys = Na__StoreyIsolate__Initialize();
+        const isolateItem = document.getElementById(Na__StoreyIsolate__ItemId);
+
         if (!hasStoreys) {
+            if (isolateItem) {
+                isolateItem.style.display = 'none';
+            }
             console.log('[TrueVision3D] No storey models detected, storey isolate menu hidden');
             return false;
         }
 
-        const isolateItem = document.getElementById(Na__StoreyIsolate__ItemId);
         if (isolateItem) {
             isolateItem.style.display = '';
         }
@@ -183,11 +199,12 @@
         const toggleButton = document.getElementById(Na__StoreyIsolate__ButtonId);
         const panel = document.getElementById(Na__StoreyIsolate__PanelId);
 
-        if (toggleButton && panel) {
+        if (toggleButton && panel && !Na__StoreyIsolate__SubmenuWired) {
             toggleButton.addEventListener('click', () => {
                 const isOpen = panel.classList.contains('is-open');
                 panel.classList.toggle('is-open', !isOpen);
             });
+            Na__StoreyIsolate__SubmenuWired = true;
         }
 
         console.log('[TrueVision3D] Storey isolate controls initialized');

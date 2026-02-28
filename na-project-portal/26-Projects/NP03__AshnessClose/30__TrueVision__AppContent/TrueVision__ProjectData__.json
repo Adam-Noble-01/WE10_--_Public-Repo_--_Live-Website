@@ -36,6 +36,8 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__Storey__GroundFloor__ProposedWalls__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__Storey__GroundFloor__ProposedWindows__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__Storey__GroundFloor__ProposedWindows__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__Storey__SecondFloor__ExistingFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__Storey__SecondFloor__ExistingFloors__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__Storey__SecondFloor__ProposedRoofs__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__Storey__SecondFloor__ProposedRoofs__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/NP03__AshnessClose/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/NP03__Storey__SecondFloor__ProposedWalls__LineworkModel__.glb",
@@ -111,14 +113,14 @@
     "Camera__DefaultPosition": {
         "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
         "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": 6677,
-            "Camera__DefaultPos__PosY": 6166,
-            "Camera__DefaultPos__PosZ": -4879
+            "Camera__DefaultPos__PosX": 1517,
+            "Camera__DefaultPos__PosY": 3048,
+            "Camera__DefaultPos__PosZ": 9495
         },
         "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -0.0792,
-            "Camera__DefaultRotation__RotY": 0.8181,
-            "Camera__DefaultRotation__RotZ": 0.0579
+            "Camera__DefaultRotation__RotX": -0.0881,
+            "Camera__DefaultRotation__RotY": -0.2659,
+            "Camera__DefaultRotation__RotZ": -0.0232
         },
         "Camera__DefaultMisc": {
             "Camera__DefaultMisc__Fov": 55

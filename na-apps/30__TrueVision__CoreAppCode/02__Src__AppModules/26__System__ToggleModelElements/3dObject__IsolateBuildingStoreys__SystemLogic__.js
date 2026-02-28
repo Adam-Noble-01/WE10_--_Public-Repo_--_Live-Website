@@ -27,7 +27,7 @@
         Na__StoreySystem__GetState,
         Na__StoreySystem__SetStoreyVisibility,
         Na__StoreySystem__ToggleRoof,
-        Na__StoreySystem__ShowAll,
+        Na__StoreySystem__ResetEntireBuilding,
         Na__StoreySystem__GetStoreyDisplayName
     } from './3dObject__ViewBuildingStoreys__SystemLogic__.js';
     // ------------------------------------------------------------
@@ -149,8 +149,8 @@
         const state = Na__StoreySystem__GetState();
         if (!state || !state.hasStoreys) return false;
 
-        Na__StoreySystem__ShowAll();
-        Na__StoreyIsolate__RestoreLandscape(state);
+        Na__StoreySystem__ResetEntireBuilding();
+        Na__StoreyIsolate__LandscapeVisibilityCache = null;                      // <-- Reset cached isolate landscape state after global reset
         return true;
     }
     // ------------------------------------------------------------

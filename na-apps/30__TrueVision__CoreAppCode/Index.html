@@ -378,6 +378,7 @@
     const Na__Config__ModelDefaults = Na__AppConfig__Data.modelDefaults;            // <-- Model defaults
     const Na__Config__CameraConfig = Na__AppConfig__Data.Scene__Default__CameraConfig;      // <-- Camera settings
     const Na__Config__LightingConfig = Na__AppConfig__Data.Scene__Default__LightingConfig;  // <-- Lighting settings
+    const Na__Config__SceneEnvironment = Na__AppConfig__Data.Scene__Environment || null;     // <-- HDR environment settings
     const Na__Config__FogConfig = Na__AppConfig__Data.Scene__Default__FogConfig;            // <-- Fog settings
     const Na__Config__ControlsConfig = Na__AppConfig__Data.Scene__Default__ControlsConfig;  // <-- Controls settings
     const Na__Config__GroundPlane = Na__AppConfig__Data.Scene__GroundPlane;         // <-- Ground plane settings
@@ -830,6 +831,7 @@
         pipelineRef      : Na__AppFlow__PipelineRef,                      // <-- Mutable ref for pipeline state
         configs: {
             lightingConfig              : Na__Config__LightingConfig,
+            sceneEnvironment            : Na__Config__SceneEnvironment,
             groundPlane                 : Na__Config__GroundPlane,
             profileLines                : Na__Config__ProfileLines,
             models                      : Na__Config__Models,

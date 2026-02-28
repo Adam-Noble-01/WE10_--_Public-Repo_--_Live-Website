@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // TRUEVISION3D - CLICK TO OPEN DOORS ANIMATION
 // =============================================================================
 //
@@ -29,6 +29,14 @@
 // - Expects glTF nodes in Y-up coordinate space with conjugated transforms.
 // - Call Na__DoorAnimation__Initialize() after GLB models are loaded.
 // - Call Na__DoorAnimation__Update(deltaMs) every frame in render loop.
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 28-Feb-2026 - Version 1.1.0
+// - Added Na__DoorAnimation__RebindModelGroups() for safe model-group switching.
+// - Door registry now refreshes against newly loaded model roots without
+//   duplicating pointer listeners.
 //
 // =============================================================================
 
@@ -605,6 +613,24 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Rebind Door Model Groups After Scene Reload
+    // ------------------------------------------------------------
+    function Na__DoorAnimation__RebindModelGroups(meshGroups, lineworkGroups) {
+        if (!Na__DoorAnim__Initialized) {
+            console.warn('[DoorAnimation] Cannot rebind before initialization');
+            return false;
+        }
+
+        Na__DoorAnim__ModelGroupsMesh     = Array.isArray(meshGroups)     ? meshGroups     : (meshGroups     ? [meshGroups]     : []);
+        Na__DoorAnim__ModelGroupsLinework = Array.isArray(lineworkGroups) ? lineworkGroups : (lineworkGroups ? [lineworkGroups] : []);
+
+        Na__DoorAnimation__ScanForDoors();
+        console.log(`[DoorAnimation] Rebound model groups (${Na__DoorAnim__ModelGroupsMesh.length} mesh, ${Na__DoorAnim__ModelGroupsLinework.length} linework)`);
+        return true;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -616,6 +642,7 @@
     // ------------------------------------------------------------
     export {
         Na__DoorAnimation__Initialize,                                           // <-- Initialize system
+        Na__DoorAnimation__RebindModelGroups,                                    // <-- Rebind loaded model groups after group switch
         Na__DoorAnimation__Update,                                               // <-- Per-frame update
         Na__DoorAnimation__ScanForDoors,                                         // <-- Re-scan scene graph
         Na__DoorAnim__DoorRegistry,                                              // <-- Door registry Map (for proximity system)

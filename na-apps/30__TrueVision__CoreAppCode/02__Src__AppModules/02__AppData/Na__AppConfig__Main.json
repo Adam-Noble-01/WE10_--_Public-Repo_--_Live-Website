@@ -14,6 +14,23 @@
         "Scene__Default__LightingConfig__AmbientIntensity": 2.5,
         "Scene__Default__LightingConfig__DirectionalIntensity": 1.0
     },
+    "Scene__Environment": {
+        "Scene__Environment__Description"          : "HDR environment map settings. Mirror-only mode keeps the rest of the model neutral while applying reflections to the targeted mirror material.",
+        "Scene__Environment__Enabled"              : true,
+        "Scene__Environment__HdriUrl"              : "./01__AppAssets__TrueVision/05__AppAssets__SkyDomes/HdriSkydome__RuralLandscape__AutumnField__SunnyDay__4k__.hdr",
+        "Scene__Environment__Intensity"            : 1.0,
+        "Scene__Environment__ApplyToScene"         : false,
+        "Scene__Environment__UseAsBackground"      : false,
+        "Scene__Environment__MirrorOnly"           : true,
+        "Scene__Environment__MirrorMaterialName"   : "MAT140__Mirror__ClearDefault",
+        "Scene__Environment__MirrorEnvMapIntensity": 1.0,
+        "Scene__Environment__MirrorBrightnessBoost": 1.00,
+        "Scene__Environment__MirrorRoughnessOverride": 0.14,
+        "Scene__Environment__GlassEnabled"         : true,
+        "Scene__Environment__GlassMaterialName"    : "MAT101__Glass__ClearDefault",
+        "Scene__Environment__GlassEnvMapIntensity" : 1.00,
+        "Scene__Environment__GlassBrightnessMultiplier": 0.25
+    },
     "Scene__Default__FogConfig": {
         "Scene__Default__FogConfig__Description"     : "Default orbit-cube anchored fog envelope. Distances are integer millimeters and must be converted to 3D units in code.",
         "Scene__Default__FogConfig__Enabled"         : true,

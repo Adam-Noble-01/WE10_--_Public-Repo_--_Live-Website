@@ -249,6 +249,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
         const gltf         = await loader.loadAsync(modelUrl);           // <-- Load GLB file
         const meshRoot     = gltf.scene;                                 // <-- Extract scene graph
         const indexedNameRegex = /^MAT\d{3}__/;                          // <-- Indexed materials that should survive to swap pass
+        const mirrorDebugName  = 'MAT140__Mirror__ClearDefault';         // <-- Targeted diagnostics for black mirror investigation
 
         const Na__Material__WhiteMat = new THREE.MeshStandardMaterial({
             color               : baseMeshConfig.BaseMesh__DefaultMaterial__WhitecardColor,     // <-- White base color
@@ -263,7 +264,8 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
         const Na__MaterialDiagnostics = {
             totalMaterialsSeen     : 0,                                   // <-- Total material slots processed
             indexedMaterialsSeen   : 0,                                   // <-- MAT### materials that can be swapped later
-            whiteFallbackApplied   : 0                                    // <-- Invalid/missing materials repaired with white fallback
+            whiteFallbackApplied   : 0,                                   // <-- Invalid/missing materials repaired with white fallback
+            mirrorMaterialsSeen    : 0                                    // <-- Tracks MAT140 mirror materials found in source GLB
         };
 
         const Na__ModelLoader__CloneAndPrepareMaterial = (sourceMaterial) => {
@@ -276,6 +278,9 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
             if (indexedNameRegex.test(sourceMaterial.name || '')) {
                 Na__MaterialDiagnostics.indexedMaterialsSeen++;
             }
+            if ((sourceMaterial.name || '') === mirrorDebugName) {
+                Na__MaterialDiagnostics.mirrorMaterialsSeen++;
+            }
 
             const preparedMaterial               = sourceMaterial.clone(); // <-- Preserve original identity (name/transparency/alpha/etc)
             preparedMaterial.side                = THREE.DoubleSide;
@@ -283,8 +288,14 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
             preparedMaterial.polygonOffsetFactor = baseMeshConfig.BaseMesh__DefaultMaterial__PolygonOffsetFactor;
             preparedMaterial.polygonOffsetUnits  = baseMeshConfig.BaseMesh__DefaultMaterial__PolygonOffsetUnits;
 
+            const isIndexedMaterial = indexedNameRegex.test(preparedMaterial.name || '');
             if (preparedMaterial.map || preparedMaterial.emissiveMap) {
-                // Preserve the original transparent/opacity pipeline while keeping whitecard tuning behaviour for textured meshes.
+                // Keep indexed materials intact so second-pass material swap can apply authored PBR values.
+                if (isIndexedMaterial) {
+                    return preparedMaterial;
+                }
+
+                // Preserve the original transparent/opacity pipeline while keeping whitecard tuning behaviour for non-indexed textured meshes.
                 if ('emissive' in preparedMaterial) {
                     preparedMaterial.emissive = new THREE.Color(baseMeshConfig.BaseMesh__DefaultMaterial__TexturedMesh__EmissiveColor);
                 }
@@ -323,7 +334,8 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
             `[TrueVision3D] Mesh material prep ${modelNameForLog}: ` +
             `materials=${Na__MaterialDiagnostics.totalMaterialsSeen}, ` +
             `indexed=${Na__MaterialDiagnostics.indexedMaterialsSeen}, ` +
-            `whiteFallback=${Na__MaterialDiagnostics.whiteFallbackApplied}`
+            `whiteFallback=${Na__MaterialDiagnostics.whiteFallbackApplied}, ` +
+            `mirrorSeen=${Na__MaterialDiagnostics.mirrorMaterialsSeen}`
         );
 
         return meshRoot;                                                 // <-- Return processed mesh root

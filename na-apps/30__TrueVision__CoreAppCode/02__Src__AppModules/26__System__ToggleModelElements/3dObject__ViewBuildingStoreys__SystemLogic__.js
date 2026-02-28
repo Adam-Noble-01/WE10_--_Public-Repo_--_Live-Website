@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // TRUEVISION3D - BUILDING STOREY VISIBILITY SYSTEM
 // =============================================================================
 //
@@ -31,6 +31,14 @@
 // - Call visibility control functions to toggle storey/roof visibility.
 // - Caller responsible for UI rendering and DOM manipulation.
 //
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 28-Feb-2026 - Version 1.1.0
+// - Added Na__StoreySystem__ResetEntireBuilding() as a true reset action.
+// - Reset now restores all storeys, forces roofs on, and forces landscape visible.
+// - Added model-root tracking to support landscape reset operations.
+//
 // =============================================================================
 
 
@@ -55,6 +63,7 @@
     let Na__StoreySystem__Map           = {};                                    // <-- { "GroundFloor": [model1, model2, ...], ... }
     let Na__StoreySystem__Order         = [];                                    // <-- Ordered storey names (bottom to top)
     let Na__StoreySystem__HasStoreys    = false;                                 // <-- Flag: storey models detected
+    let Na__StoreySystem__ModelRoot     = null;                                  // <-- Current loaded model root (for global reset tasks)
     let Na__StoreySystem__VisibleState  = {};                                    // <-- { "GroundFloor": true, "FirstFloor": true, ... }
     let Na__StoreySystem__RoofMap       = {};                                    // <-- { "GroundFloor": [roofModels...], "FirstFloor": [roofModels...], ... }
     let Na__StoreySystem__RoofVisible   = true;                                  // <-- Roof toggle state (true = all visible, false = dolls house mode)
@@ -77,6 +86,20 @@
     // ------------------------------------------------------------
     function Na__StoreySystem__DisplayName(storeyKey) {
         return storeyKey.replace(/([a-z])([A-Z])/g, '$1 $2');                   // <-- "GroundFloor" -> "Ground Floor"
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Force Landscape Group Visibility
+    // ------------------------------------------------------------
+    function Na__StoreySystem__SetLandscapeVisible(visible) {
+        if (!Na__StoreySystem__ModelRoot) return;
+
+        Na__StoreySystem__ModelRoot.traverse((obj) => {
+            if (!obj || typeof obj.name !== 'string') return;
+            if (!/Landscape/i.test(obj.name)) return;
+            obj.visible = visible;
+        });
     }
     // ------------------------------------------------------------
 
@@ -204,6 +227,22 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Full Building Reset (Storeys + Roofs + Landscape)
+    // ------------------------------------------------------------
+    function Na__StoreySystem__Internal__ResetEntireBuilding() {
+        for (const key of Na__StoreySystem__Order) {
+            Na__StoreySystem__Internal__SetStoreyVisibility(key, true);         // <-- Reset all storeys to visible
+        }
+
+        Na__StoreySystem__RoofVisible = true;                                   // <-- Always restore solid building roof mode
+        Na__StoreySystem__Internal__ApplyRoofVisibilityLogic();
+        Na__StoreySystem__SetLandscapeVisible(true);                            // <-- Always restore all landscape groups
+
+        console.log('[Storey System] Reset entire building (storeys + roofs + landscape visible)');
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Toggle a Single Storey Visibility
     // ------------------------------------------------------------
     function Na__StoreySystem__Internal__ToggleStorey(storeyKey) {
@@ -289,6 +328,7 @@
     // ------------------------------------------------------------
     export function Na__StoreySystem__Initialize(modelGroupRoot, config = {}) {
         console.log('[Storey System] Initializing...');
+        Na__StoreySystem__ModelRoot = modelGroupRoot || null;
 
         // Apply configuration overrides
         if (config.storeyOrder && Array.isArray(config.storeyOrder)) {
@@ -315,6 +355,7 @@
     // FUNCTION | Detect Storeys (Public Entry Point)
     // ------------------------------------------------------------
     export function Na__StoreySystem__DetectStoreys(modelGroupRoot) {
+        Na__StoreySystem__ModelRoot = modelGroupRoot || null;
         Na__StoreySystem__Internal__DetectStoreys(modelGroupRoot);
         return Na__StoreySystem__HasStoreys;
     }
@@ -342,6 +383,14 @@
     // ------------------------------------------------------------
     export function Na__StoreySystem__ShowAll() {
         Na__StoreySystem__Internal__ShowAll();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Reset Entire Building (Storeys + Roofs + Landscape)
+    // ------------------------------------------------------------
+    export function Na__StoreySystem__ResetEntireBuilding() {
+        Na__StoreySystem__Internal__ResetEntireBuilding();
     }
     // ------------------------------------------------------------
 

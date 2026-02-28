@@ -31,6 +31,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 28-Feb-2026 - Version 1.1.0
+// - Added model-group switch rebind pipeline via Na__ReinitializeModelBoundSystems.
+// - Group switching now refreshes model toggles, storey controls, door bindings,
+//   and walk-mode collision meshes against newly loaded scene objects.
+// - Added preferred model group selection (latest non-existing group) for startup.
+//
 // 24-Feb-2026 - Version 1.0.0
 // - Extracted from index.html inline script block (lines 604-849).
 // - Na__UiFeature__UpdateStatus and Na__UiFeature__ShowScene moved to private
@@ -68,7 +74,10 @@
 
     // MODULE IMPORTS | Scene Lighting
     // ------------------------------------------------------------
-    import { Na__Scene__SetupDefaultSceneLighting } from '../06__Scene__LightingEffects/Na__Scene__DefaultSceneLighting.js';
+    import {
+        Na__Scene__SetupDefaultSceneLighting,
+        Na__Scene__ApplyEnvironmentMap
+    } from '../06__Scene__LightingEffects/Na__Scene__DefaultSceneLighting.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Fog Effect
@@ -92,7 +101,11 @@
     // MODULE IMPORTS | Materials System
     // ------------------------------------------------------------
     import { Na__MaterialsSystem__LoadLibrary, Na__MaterialsSystem__BuildLookup } from '../20__System__MaterialsSystem/Na__MaterialsSystem__LibraryLoader.js';
-    import { Na__MaterialsSystem__ApplyMaterials } from '../20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js';
+    import {
+        Na__MaterialsSystem__ApplyMaterials,
+        Na__MaterialsSystem__ApplyMirrorEnvironmentOverrides,
+        Na__MaterialsSystem__ApplyGlassEnvironmentOverrides
+    } from '../20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Model Toggle Controls
@@ -114,6 +127,7 @@
     // ------------------------------------------------------------
     import {
         Na__DoorAnimation__Initialize,
+        Na__DoorAnimation__RebindModelGroups,
         Na__DoorAnimation__Update
     } from '../25__System__3dObject__InteractionSystem/3dObjectIInteraction__Animation__ClickToOpenDoors__.js';
     // ------------------------------------------------------------
@@ -142,7 +156,6 @@
         Na__AppUtils__FetchTrueVisionProjectData,
         Na__AppUtils__HasModelGroups,
         Na__AppUtils__ExtractModelGroup,
-        Na__AppUtils__GetActiveGroupIndex,
         Na__AppUtils__FetchProjectJson,
         Na__AppUtils__ExtractModelUrls
     } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
@@ -238,6 +251,7 @@
         // ---------------------------------------------------------------
         const {
             lightingConfig              : Na__Config__LightingConfig,
+            sceneEnvironment            : Na__Config__SceneEnvironment,
             groundPlane                 : Na__Config__GroundPlane,
             profileLines                : Na__Config__ProfileLines,
             models                      : Na__Config__Models,
@@ -252,6 +266,7 @@
 
         Na__UiFeature__UpdateStatus('Creating scene...');
         Na__Scene__SetupDefaultSceneLighting(Na__Scene__Main, Na__Config__LightingConfig, Na__Config__GroundPlane);
+        const Na__Scene__EnvironmentTexture = await Na__Scene__ApplyEnvironmentMap(Na__Scene__Main, Na__Renderer__Main, Na__Config__SceneEnvironment);
 
         const Na__RenderPipeline__State = Na__RenderPipeline__SetupComposer(Na__Renderer__Main, Na__Scene__Main, Na__Camera__Main, Na__Config__ProfileLines, Na__SceneEffect__FogPass, Na__Config__AmbientOcclusion);
         const Na__RenderComposer__Main  = Na__RenderPipeline__State.composer;
@@ -265,6 +280,93 @@
         let Na__Saved__ProjectCameraConfig = null;                           // <-- Hoisted for post-OrbitCube re-apply
         let Na__Saved__ProjectOrbitTarget  = null;                           // <-- Hoisted for post-OrbitCube re-apply
         let Na__ProjectData__AllModelGroups = null;                          // <-- Store all model groups for group selector UI
+
+        // HELPER FUNCTION | Pick Latest Concept Group (prefer non-existing, newest at end)
+        // ------------------------------------------------------------
+        const Na__ResolvePreferredModelGroupIndex = (modelGroups) => {
+            if (!Array.isArray(modelGroups) || modelGroups.length === 0) return 0;
+
+            for (let i = modelGroups.length - 1; i >= 0; i--) {
+                const group = modelGroups[i] || {};
+                const label = String(group.label || group.groupId || '').toLowerCase();
+                if (!label.includes('existing')) {
+                    return i;                                                // <-- Prefer latest non-existing concept
+                }
+            }
+
+            return modelGroups.length - 1;                                   // <-- Fallback: newest item in list
+        };
+        // ------------------------------------------------------------
+
+        // HELPER FUNCTION | Collect Door Mesh/Linework Roots from Loaded Groups
+        // ------------------------------------------------------------
+        const Na__CollectDoorModelGroups = (loadedModelGroups) => {
+            const doorMeshGroups = [];
+            const doorLineworkGroups = [];
+
+            if (!loadedModelGroups || typeof loadedModelGroups.forEach !== 'function') {
+                return { doorMeshGroups, doorLineworkGroups };
+            }
+
+            loadedModelGroups.forEach((categoryGroup, categoryKey) => {
+                if (!categoryKey.includes('ProposedDoors')) return;
+
+                const children = categoryGroup.children || [];
+                let taggedMesh = null;
+                let taggedLinework = null;
+
+                for (const child of children) {
+                    const modelType = child.userData && child.userData.Na__ModelType;
+                    if (modelType === 'mesh') taggedMesh = child;
+                    if (modelType === 'linework') taggedLinework = child;
+                }
+
+                if (taggedMesh || taggedLinework) {
+                    if (taggedMesh) doorMeshGroups.push(taggedMesh);
+                    if (taggedLinework) doorLineworkGroups.push(taggedLinework);
+                } else if (children.length >= 2) {
+                    doorMeshGroups.push(children[0]);                         // <-- Mesh is always loaded first
+                    doorLineworkGroups.push(children[1]);                     // <-- Linework is always loaded second
+                } else if (children.length === 1) {
+                    doorMeshGroups.push(children[0]);                         // <-- Single child, assume mesh
+                }
+            });
+
+            return { doorMeshGroups, doorLineworkGroups };
+        };
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Reinitialize Model-Bound Runtime Systems
+        // ------------------------------------------------------------
+        const Na__ReinitializeModelBoundSystems = (loadedModelGroups) => {
+            Na__UiFeature__InitializeModelToggleControls(loadedModelGroups);
+            Na__UiFeature__InitializeStoreyViewControls(Na__ModelGroup__Root, Na__Config__StoreyVisibility || {});
+            Na__UiFeature__InitializeStoreyIsolateControls();
+
+            if (Na__Config__DoorAnimation['3dObject__Interaction__DoorAnimation__Enabled'] !== false) {
+                const { doorMeshGroups, doorLineworkGroups } = Na__CollectDoorModelGroups(loadedModelGroups);
+                if (doorMeshGroups.length > 0 || doorLineworkGroups.length > 0) {
+                    const rebound = Na__DoorAnimation__RebindModelGroups(doorMeshGroups, doorLineworkGroups);
+                    if (!rebound) {
+                        Na__DoorAnimation__Initialize(
+                            Na__Scene__Main,
+                            Na__Camera__Main,
+                            Na__Renderer__Main.domElement,
+                            doorMeshGroups,
+                            doorLineworkGroups,
+                            Na__Config__DoorAnimation
+                        );
+                    }
+                    console.log(`[TrueVision3D] Door animation ready (${doorMeshGroups.length} mesh, ${doorLineworkGroups.length} linework)`);
+                } else {
+                    console.log('[TrueVision3D] Door animation enabled but no door model groups found');
+                }
+            }
+
+            Na__WalkMode__SetCollisionMeshes(Na__ModelGroup__Root);
+        };
+        // ------------------------------------------------------------
 
         // RESOLVE PROJECT-SPECIFIC MODEL URLS
         const projectCode   = Na__AppUtils__GetProjectCodeFromUrl();
@@ -282,7 +384,7 @@
 
                 if (Na__AppUtils__HasModelGroups(projectData)) {
                     Na__ProjectData__AllModelGroups = projectData.modelGroups;
-                    const activeIndex = Na__AppUtils__GetActiveGroupIndex(projectData);
+                    const activeIndex = Na__ResolvePreferredModelGroupIndex(projectData.modelGroups);
                     const groupUrls   = Na__AppUtils__ExtractModelGroup(projectData, activeIndex);
 
                     if (groupUrls.length > 0) {
@@ -429,6 +531,23 @@
                     if (Na__MaterialsLookupMap.size > 0) {
                         for (const [, group] of Na__LoadedModelGroups) {
                             await Na__MaterialsSystem__ApplyMaterials(group, Na__MaterialsLookupMap, Na__Config__MaterialsSystem);
+
+                            if (Na__Scene__EnvironmentTexture && Na__Config__SceneEnvironment && Na__Config__SceneEnvironment.Scene__Environment__MirrorOnly === true) {
+                                Na__MaterialsSystem__ApplyMirrorEnvironmentOverrides(group, Na__Scene__EnvironmentTexture, {
+                                    targetMaterialName : Na__Config__SceneEnvironment.Scene__Environment__MirrorMaterialName,
+                                    envMapIntensity    : Na__Config__SceneEnvironment.Scene__Environment__MirrorEnvMapIntensity,
+                                    brightnessBoost    : Na__Config__SceneEnvironment.Scene__Environment__MirrorBrightnessBoost,
+                                    roughnessOverride  : Na__Config__SceneEnvironment.Scene__Environment__MirrorRoughnessOverride
+                                });
+
+                                if (Na__Config__SceneEnvironment.Scene__Environment__GlassEnabled === true) {
+                                    Na__MaterialsSystem__ApplyGlassEnvironmentOverrides(group, Na__Scene__EnvironmentTexture, {
+                                        targetMaterialName : Na__Config__SceneEnvironment.Scene__Environment__GlassMaterialName,
+                                        envMapIntensity    : Na__Config__SceneEnvironment.Scene__Environment__GlassEnvMapIntensity,
+                                        brightnessMultiplier: Na__Config__SceneEnvironment.Scene__Environment__GlassBrightnessMultiplier
+                                    });
+                                }
+                            }
                         }
                     }
                 }
@@ -439,14 +558,8 @@
                 Na__RenderLoop__CanMonitorAoPerformance = true;              // <-- Enable AO monitor only after scene settles
             }, Math.max(0, Na__AoPerformanceMonitorStartupDelayMs));
 
-            // INITIALIZE MODEL TOGGLE CONTROLS (dynamic per-category buttons)
-            Na__UiFeature__InitializeModelToggleControls(Na__LoadedModelGroups);  // <-- Build toggle buttons from loaded groups
-
-            // INITIALIZE STOREY VIEW CONTROLS (per-storey visibility toggling)
-            Na__UiFeature__InitializeStoreyViewControls(Na__ModelGroup__Root, Na__Config__StoreyVisibility || {});
-
-            // INITIALIZE STOREY ISOLATE CONTROLS (single-floor isolate with roofs off)
-            Na__UiFeature__InitializeStoreyIsolateControls();
+            // INITIALIZE MODEL-BOUND RUNTIME SYSTEMS
+            Na__ReinitializeModelBoundSystems(Na__LoadedModelGroups);
 
             // INITIALIZE MODEL GROUP SELECTOR (switch between design phases)
             if (Na__ProjectData__AllModelGroups && Na__ProjectData__AllModelGroups.length > 1) {
@@ -456,55 +569,9 @@
                     Na__Config__Models,
                     Na__LineResolution__Screen,
                     Na__UiFeature__UpdateStatus,
-                    Na__UiFeature__InitializeModelToggleControls
+                    Na__ReinitializeModelBoundSystems
                 );
             }
-
-            // INITIALIZE DOOR ANIMATION (if enabled in config)
-            if (Na__Config__DoorAnimation['3dObject__Interaction__DoorAnimation__Enabled'] !== false) {
-                const doorMeshGroups     = [];
-                const doorLineworkGroups = [];
-
-                Na__LoadedModelGroups.forEach((categoryGroup, categoryKey) => {
-                    if (!categoryKey.includes('ProposedDoors')) return;
-
-                    const children = categoryGroup.children;
-                    let taggedMesh = null, taggedLinework = null;
-
-                    for (const child of children) {
-                        const modelType = child.userData && child.userData.Na__ModelType;
-                        if (modelType === 'mesh')     taggedMesh     = child;
-                        if (modelType === 'linework') taggedLinework = child;
-                    }
-
-                    if (taggedMesh || taggedLinework) {
-                        if (taggedMesh)     doorMeshGroups.push(taggedMesh);
-                        if (taggedLinework) doorLineworkGroups.push(taggedLinework);
-                    } else if (children.length >= 2) {
-                        doorMeshGroups.push(children[0]);                    // <-- Mesh is always loaded first
-                        doorLineworkGroups.push(children[1]);                // <-- Linework is always loaded second
-                    } else if (children.length === 1) {
-                        doorMeshGroups.push(children[0]);                    // <-- Single child, assume mesh
-                    }
-                });
-
-                if (doorMeshGroups.length > 0 || doorLineworkGroups.length > 0) {
-                    Na__DoorAnimation__Initialize(
-                        Na__Scene__Main,                                     // <-- Scene reference
-                        Na__Camera__Main,                                    // <-- Camera reference
-                        Na__Renderer__Main.domElement,                       // <-- Canvas DOM element
-                        doorMeshGroups,                                      // <-- Mesh scene roots only
-                        doorLineworkGroups,                                  // <-- Linework scene roots only
-                        Na__Config__DoorAnimation                            // <-- Door animation config
-                    );
-                    console.log(`[TrueVision3D] Door animation initialized (${doorMeshGroups.length} mesh, ${doorLineworkGroups.length} linework)`);
-                } else {
-                    console.log('[TrueVision3D] Door animation enabled but no door model groups found');
-                }
-            }
-
-            // SET WALK MODE COLLISION MESHES (from loaded model root)
-            Na__WalkMode__SetCollisionMeshes(Na__ModelGroup__Root);
 
         } catch (error) {
             console.error('[TrueVision3D] Model load error:', error);

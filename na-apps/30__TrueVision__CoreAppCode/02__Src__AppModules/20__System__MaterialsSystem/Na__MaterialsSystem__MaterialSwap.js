@@ -269,6 +269,7 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
     // ------------------------------------------------------------
     async function Na__MaterialsSystem__ApplyMaterials(modelGroup, lookupMap, materialsConfig) {
         if (!modelGroup || !lookupMap || lookupMap.size === 0) return;         // <-- Guard against invalid input
+        const mirrorDebugName = 'MAT140__Mirror__ClearDefault';                 // <-- Targeted diagnostics for black mirror investigation
 
         const polygonOffsetConfig = {
             factor : (typeof materialsConfig.MaterialsSystem__Config__PolygonOffsetFactor === 'number')
@@ -284,6 +285,8 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
         let   swapCount       = 0;                                            // <-- Counter for logging
         let   indexedSeen     = 0;                                            // <-- Indexed material names encountered
         let   indexedMissing  = 0;                                            // <-- Indexed names not found in lookup map
+        let   mirrorSeen      = 0;                                            // <-- Number of mirror materials encountered in traversal
+        let   mirrorSwapped   = 0;                                            // <-- Number of mirror materials swapped from library
 
         modelGroup.traverse((node) => {
             if (!node.isMesh) return;                                         // <-- Skip non-mesh nodes
@@ -294,10 +297,16 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
                 return;                                                       // <-- No indexed name, keep whitecard
             }
             indexedSeen++;
+            if (materialName === mirrorDebugName) {
+                mirrorSeen++;
+            }
 
             const config = lookupMap.get(materialName);                       // <-- O(1) lookup by SketchUpName
             if (!config) {
                 indexedMissing++;
+                if (materialName === mirrorDebugName) {
+                    console.warn('[MaterialsSystem] Mirror material indexed but missing in lookup map:', materialName);
+                }
                 return;                                                       // <-- Not in library, keep existing material
             }
 
@@ -319,6 +328,9 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
 
             node.material = pbrMaterial;                                      // <-- Swap the material
             swapCount++;
+            if (materialName === mirrorDebugName) {
+                mirrorSwapped++;
+            }
         });
 
         if (texturePromises.length > 0) {
@@ -326,7 +338,110 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
         }
 
         console.log(
-            `[MaterialsSystem] IndexedSeen=${indexedSeen}, Swapped=${swapCount}, IndexedMissing=${indexedMissing}, UniqueSwapped=${materialCache.size}`
+            `[MaterialsSystem] IndexedSeen=${indexedSeen}, Swapped=${swapCount}, IndexedMissing=${indexedMissing}, UniqueSwapped=${materialCache.size}, MirrorSeen=${mirrorSeen}, MirrorSwapped=${mirrorSwapped}`
+        );
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Mirror-Only Environment Overrides
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Apply Mirror-Only Environment and Brightness Overrides
+    // ------------------------------------------------------------
+    // Applies env reflections and optional brightness boost only to
+    // the targeted mirror material name, avoiding scene-wide tinting.
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__ApplyMirrorEnvironmentOverrides(modelGroup, envMapTexture, options = {}) {
+        if (!modelGroup || !envMapTexture) return;
+
+        const targetMaterialName = (typeof options.targetMaterialName === 'string' && options.targetMaterialName.length > 0)
+            ? options.targetMaterialName
+            : 'MAT140__Mirror__ClearDefault';
+
+        const envIntensity = Number.isFinite(options.envMapIntensity) ? options.envMapIntensity : 1.6;
+        const brightnessBoost = Number.isFinite(options.brightnessBoost) ? options.brightnessBoost : 1.15;
+        const roughnessOverride = Number.isFinite(options.roughnessOverride) ? options.roughnessOverride : null;
+
+        let mirrorMatchedCount = 0;
+
+        const applyToMaterial = (material) => {
+            if (!material || material.name !== targetMaterialName) return;
+
+            material.envMap = envMapTexture;
+            material.envMapIntensity = envIntensity;
+            if (roughnessOverride !== null && 'roughness' in material) {
+                material.roughness = roughnessOverride;
+            }
+
+            if (material.color && typeof material.color.multiplyScalar === 'function') {
+                material.color.multiplyScalar(brightnessBoost);
+            }
+
+            material.needsUpdate = true;
+            mirrorMatchedCount++;
+        };
+
+        modelGroup.traverse((node) => {
+            if (!node.isMesh || !node.material) return;
+
+            if (Array.isArray(node.material)) {
+                node.material.forEach(applyToMaterial);
+            } else {
+                applyToMaterial(node.material);
+            }
+        });
+
+        console.log(
+            `[MaterialsSystem] Mirror overrides applied: target=${targetMaterialName}, matched=${mirrorMatchedCount}, envIntensity=${envIntensity}, brightnessBoost=${brightnessBoost}, roughness=${roughnessOverride}`
+        );
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Apply Subtle Glass Environment Overrides
+    // ------------------------------------------------------------
+    // Applies a low-intensity environment reflection to window glass
+    // so it reflects slightly without affecting the full scene tone.
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__ApplyGlassEnvironmentOverrides(modelGroup, envMapTexture, options = {}) {
+        if (!modelGroup || !envMapTexture) return;
+
+        const targetMaterialName = (typeof options.targetMaterialName === 'string' && options.targetMaterialName.length > 0)
+            ? options.targetMaterialName
+            : 'MAT101__Glass__ClearDefault';
+
+        const envIntensity = Number.isFinite(options.envMapIntensity) ? options.envMapIntensity : 0.3;
+        const brightnessMultiplier = Number.isFinite(options.brightnessMultiplier) ? options.brightnessMultiplier : 1.0;
+        let glassMatchedCount = 0;
+
+        const applyToMaterial = (material) => {
+            if (!material || material.name !== targetMaterialName) return;
+
+            material.envMap = envMapTexture;
+            material.envMapIntensity = envIntensity;
+            if (material.color && typeof material.color.multiplyScalar === 'function') {
+                material.color.multiplyScalar(brightnessMultiplier);
+            }
+            material.needsUpdate = true;
+            glassMatchedCount++;
+        };
+
+        modelGroup.traverse((node) => {
+            if (!node.isMesh || !node.material) return;
+
+            if (Array.isArray(node.material)) {
+                node.material.forEach(applyToMaterial);
+            } else {
+                applyToMaterial(node.material);
+            }
+        });
+
+        console.log(
+            `[MaterialsSystem] Glass overrides applied: target=${targetMaterialName}, matched=${glassMatchedCount}, envIntensity=${envIntensity}, brightnessMultiplier=${brightnessMultiplier}`
         );
     }
     // ------------------------------------------------------------
@@ -341,7 +456,9 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
     // MODULE EXPORTS | Material Swap API
     // ------------------------------------------------------------
     export {
-        Na__MaterialsSystem__ApplyMaterials
+        Na__MaterialsSystem__ApplyMaterials,
+        Na__MaterialsSystem__ApplyMirrorEnvironmentOverrides,
+        Na__MaterialsSystem__ApplyGlassEnvironmentOverrides
     };
     // ------------------------------------------------------------
 

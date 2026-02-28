@@ -2,6 +2,105 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.2.2  -  28-Feb-2026
+### Selective HDR Reflections (Mirror + Glass) with Per-Material Tuning
+
+**Overview**
+- Implemented HDR environment reflections using `HdriSkydome__RuralLandscape__AutumnField__SunnyDay__4k__.hdr` without tinting the whole model.
+- Fixed black mirror behavior by preserving indexed material PBR during mesh prep and applying reflection overrides after material swap.
+- Added selective reflection controls so mirrors are strong/bright (and optionally blurred) while window glass remains subtle.
+
+**Root Cause**
+- A global scene environment assignment (`scene.environment`) pushed HDR colour influence across all PBR materials, causing an unwanted blue cast on non-reflective building surfaces.
+- Mirror material intent could also be degraded during first-pass loader prep if indexed materials were flattened to whitecard roughness/metalness values before swap.
+
+**Selective Reflection Solution**
+- Added HDR load + PMREM pipeline in `Na__Scene__DefaultSceneLighting.js` that returns an environment texture and only applies globally when explicitly configured.
+- Introduced mirror-only material override pass in `Na__MaterialsSystem__MaterialSwap.js`:
+  - target by material name (`MAT140__Mirror__ClearDefault`),
+  - apply env map + env intensity,
+  - apply brightness boost,
+  - apply optional roughness override for blurred reflections.
+- Introduced glass override pass for subtle reflections:
+  - target by material name (`MAT101__Glass__ClearDefault`),
+  - apply low env intensity,
+  - apply brightness multiplier to keep glass less bright.
+- Updated loading flow in `Na__AppFlow__LoadingSequence.js` to run selective overrides immediately after library material swap.
+
+**Config Additions (`Na__AppConfig__Main.json`)**
+- `Scene__Environment__ApplyToScene` (bool) — keep false for selective-only mode.
+- `Scene__Environment__MirrorOnly` (bool) — enables selective mirror pass.
+- `Scene__Environment__MirrorMaterialName`
+- `Scene__Environment__MirrorEnvMapIntensity`
+- `Scene__Environment__MirrorBrightnessBoost`
+- `Scene__Environment__MirrorRoughnessOverride` (blur control)
+- `Scene__Environment__GlassEnabled`
+- `Scene__Environment__GlassMaterialName`
+- `Scene__Environment__GlassEnvMapIntensity`
+- `Scene__Environment__GlassBrightnessMultiplier`
+
+**Result**
+- Mirrors now render reflective and controllable (brightness + blur), instead of dark/black.
+- Window glass now reflects environment slightly while staying visually softer/dimmer.
+- Non-mirror/non-glass materials remain neutral with no global HDR blue tint.
+
+**Files Changed**
+- `index.html`
+- `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js`
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json`
+- `02__Src__AppModules/06__Scene__LightingEffects/Na__Scene__DefaultSceneLighting.js`
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__MultiModel.js`
+- `02__Src__AppModules/20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js`
+
+# ---------------------------------------------------------
+## TrueVision3D v2.2.1  -  28-Feb-2026
+### Model Group Switch State Rebind + Full Building Reset Consistency
+
+**Overview**
+- Fixed a state lifecycle regression where switching Design Phases replaced scene objects but left runtime systems bound to stale references.
+- Resolved failures in storey toggles, floor isolate controls, and door interactions after model-group switching.
+- Standardized `Show Entire Building` in both Storey Toggle and Floor Isolate as a true reset for the active model set.
+
+**Root Cause**
+- Group switching only reinitialized category model toggles.
+- Storey visibility, floor isolate, door registry bindings, and walk collision meshes were initialized at startup only and not rebound to newly loaded model roots.
+
+**Runtime Rebind Fix**
+- Added a unified post-switch rebind path in `Na__AppFlow__LoadingSequence.js` (`Na__ReinitializeModelBoundSystems`).
+- Model-group switches now reinitialize:
+  - model category toggles,
+  - storey view controls,
+  - storey isolate controls,
+  - door animation model bindings/registry,
+  - walk mode collision meshes.
+- Added `Na__DoorAnimation__RebindModelGroups()` in `3dObjectIInteraction__Animation__ClickToOpenDoors__.js` so door registry can refresh safely on group switch without duplicating pointer listeners.
+
+**Show Entire Building Reset Behavior**
+- Added `Na__StoreySystem__ResetEntireBuilding()` in `3dObject__ViewBuildingStoreys__SystemLogic__.js`.
+- Reset now guarantees:
+  - all storeys visible,
+  - roofs forced on,
+  - all landscape groups visible.
+- Updated both UI flows to use the same reset:
+  - `Na__UiFeature__StoreyView__Controls.js` ("Show Entire Building")
+  - `3dObject__IsolateBuildingStoreys__SystemLogic__.js` (`Na__StoreyIsolate__ShowEntireBuilding`)
+
+**Stability Hardening**
+- Added listener guards in reinitialized UI modules to prevent duplicate submenu handlers on repeated group switches:
+  - `Na__UiFeature__ModelToggle__Controls.js`
+  - `Na__UiFeature__StoreyView__Controls.js`
+  - `Na__UiFeature__StoreyIsolate__Controls.js`
+
+**Files Changed**
+- `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js`
+- `02__Src__AppModules/25__System__3dObject__InteractionSystem/3dObjectIInteraction__Animation__ClickToOpenDoors__.js`
+- `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js`
+- `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__StoreyView__Controls.js`
+- `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__StoreyIsolate__Controls.js`
+- `02__Src__AppModules/26__System__ToggleModelElements/3dObject__ViewBuildingStoreys__SystemLogic__.js`
+- `02__Src__AppModules/26__System__ToggleModelElements/3dObject__IsolateBuildingStoreys__SystemLogic__.js`
+
+# ---------------------------------------------------------
 ## GLB Builder Utility v1.9.0  -  28-Feb-2026
 ### Component Instancing — 449 MB → 1 MB GLB Export Optimisation
 

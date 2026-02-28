@@ -225,7 +225,8 @@ import {
     ) {
         if (!modelGroups || modelGroups.length < 2) return;
 
-        Na__GroupSelector__ModelGroups    = modelGroups;
+        // Show newest concept first in the UI list.
+        Na__GroupSelector__ModelGroups    = [...modelGroups].reverse();
         Na__GroupSelector__ModelRoot      = modelRoot;
         Na__GroupSelector__ModelsConfig   = modelsConfig;
         Na__GroupSelector__LineResolution = lineResolution;

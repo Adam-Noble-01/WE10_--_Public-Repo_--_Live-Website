@@ -32,7 +32,7 @@
         Na__StoreySystem__Initialize,
         Na__StoreySystem__ToggleStorey,
         Na__StoreySystem__ShowOnlyBelow,
-        Na__StoreySystem__ShowAll,
+        Na__StoreySystem__ResetEntireBuilding,
         Na__StoreySystem__ToggleRoof,
         Na__StoreySystem__GetState,
         Na__StoreySystem__GetStoreyDisplayName
@@ -55,6 +55,18 @@
     const Na__StoreyView__ButtonClass  = 'na-storey-view__button';
     const Na__StoreyView__VisibleClass = 'na-storey-view__button--visible';
     const Na__StoreyView__HiddenClass  = 'na-storey-view__button--hidden';
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Module State
+// -----------------------------------------------------------------------------
+
+    // MODULE VARIABLES | Listener Guards
+    // ------------------------------------------------------------
+    let Na__StoreyView__SubmenuWired = false;                                  // <-- Prevent duplicate submenu handlers on re-init
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -186,7 +198,7 @@
         showAllBtn.className   = 'na-storey-view__show-all-btn';
         showAllBtn.textContent = 'Show Entire Building';
         showAllBtn.addEventListener('click', () => {
-            Na__StoreySystem__ShowAll();
+            Na__StoreySystem__ResetEntireBuilding();
             Na__StoreyView__UpdateButtonStates();
         });
         listContainer.appendChild(showAllBtn);
@@ -214,13 +226,17 @@
             defaultRoofVisible : true
         });
 
+        const selectorItem = document.getElementById(Na__StoreyView__ItemId);
+
         if (!hasStoreys) {
+            if (selectorItem) {
+                selectorItem.style.display = 'none';
+            }
             console.log('[TrueVision3D] No storey models detected, storey view menu hidden');
             return false;
         }
 
         // Show the menu item
-        const selectorItem = document.getElementById(Na__StoreyView__ItemId);
         if (selectorItem) {
             selectorItem.style.display = '';
         }
@@ -232,11 +248,12 @@
         const toggleButton = document.getElementById(Na__StoreyView__ButtonId);
         const panel        = document.getElementById(Na__StoreyView__PanelId);
 
-        if (toggleButton && panel) {
+        if (toggleButton && panel && !Na__StoreyView__SubmenuWired) {
             toggleButton.addEventListener('click', () => {
                 const isOpen = panel.classList.contains('is-open');
                 panel.classList.toggle('is-open', !isOpen);
             });
+            Na__StoreyView__SubmenuWired = true;
         }
 
         console.log(`[TrueVision3D] Storey view controls initialized`);
