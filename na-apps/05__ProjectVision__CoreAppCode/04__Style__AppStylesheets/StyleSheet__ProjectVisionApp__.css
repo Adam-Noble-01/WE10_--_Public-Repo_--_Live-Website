@@ -495,6 +495,56 @@
 
 
 /* -----------------------------------------------------------------------------
+ * REGION | Local Dev Utilities - Invite Email Generator
+ * ----------------------------------------------------------------------------- */
+
+    .pv-dev-tools {
+        display                            : flex;
+        flex-direction                     : column;
+        align-items                        : center;
+        gap                                : 8px;
+        margin-top                         : var(--Pv_SpacingLg);
+        padding-top                        : var(--Pv_SpacingMd);
+        border-top                         : 1px solid var(--Pv_BorderLight);
+    }
+
+    .pv-dev-tools[hidden] {
+        display                            : none !important;
+    }
+
+    .pv-dev-tools__button {
+        appearance                         : none;
+        border                             : 1px solid var(--Pv_BrandPrimary);
+        background                         : var(--Pv_BrandPrimary);
+        color                              : var(--Pv_TextLight);
+        font-family                        : var(--Pv_FontFamily);
+        font-size                          : 13px;
+        font-weight                        : 600;
+        padding                            : 10px 16px;
+        border-radius                      : 8px;
+        cursor                             : pointer;
+        transition                         : background var(--Pv_TransitionFast),
+                                             transform var(--Pv_TransitionFast);
+    }
+
+    .pv-dev-tools__button:hover {
+        background                         : var(--Pv_BrandAccent);
+    }
+
+    .pv-dev-tools__button:active {
+        transform                          : translateY(1px);
+    }
+
+    .pv-dev-tools__status {
+        min-height                         : 18px;
+        font-size                          : 12px;
+        color                              : var(--Pv_TextSecondary);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
  * REGION | Footer
  * ----------------------------------------------------------------------------- */
 
