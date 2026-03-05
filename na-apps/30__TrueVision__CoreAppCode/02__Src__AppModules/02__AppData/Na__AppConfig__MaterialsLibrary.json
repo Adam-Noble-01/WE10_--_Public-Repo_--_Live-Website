@@ -1,4 +1,4 @@
-﻿{
+{
     "meta": {
         "fileName"        : "Na__AppConfig__MaterialsLibrary.json",
         "description"     : "Single source of truth for standard indexed materials and their PBR render settings. Used by both the SketchUp GLB exporter and the TrueVision3D WebApp renderer for dynamic material swapping.",

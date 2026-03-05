@@ -288,35 +288,33 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
         let   mirrorSeen      = 0;                                            // <-- Number of mirror materials encountered in traversal
         let   mirrorSwapped   = 0;                                            // <-- Number of mirror materials swapped from library
 
-        modelGroup.traverse((node) => {
-            if (!node.isMesh) return;                                         // <-- Skip non-mesh nodes
-
-            const materialName = node.material ? node.material.name : null;
+        const Na__MaterialsSystem__ResolveSwappedMaterial = (sourceMaterial) => {
+            const materialName = sourceMaterial ? sourceMaterial.name : null;
 
             if (!materialName || !Na__MaterialsSystem__IsIndexedName(materialName)) {
-                return;                                                       // <-- No indexed name, keep whitecard
+                return sourceMaterial;                                         // <-- No indexed name, keep original material
             }
             indexedSeen++;
             if (materialName === mirrorDebugName) {
                 mirrorSeen++;
             }
 
-            const config = lookupMap.get(materialName);                       // <-- O(1) lookup by SketchUpName
+            const config = lookupMap.get(materialName);                        // <-- O(1) lookup by SketchUpName
             if (!config) {
                 indexedMissing++;
                 if (materialName === mirrorDebugName) {
                     console.warn('[MaterialsSystem] Mirror material indexed but missing in lookup map:', materialName);
                 }
-                return;                                                       // <-- Not in library, keep existing material
+                return sourceMaterial;                                         // <-- Not in library, keep existing material
             }
 
             let pbrMaterial;
 
             if (materialCache.has(materialName)) {
-                pbrMaterial = materialCache.get(materialName);                // <-- Reuse cached material instance
+                pbrMaterial = materialCache.get(materialName);                 // <-- Reuse cached material instance
             } else {
                 pbrMaterial = Na__MaterialsSystem__CreatePbrMaterial(config, polygonOffsetConfig);
-                materialCache.set(materialName, pbrMaterial);                 // <-- Cache for reuse
+                materialCache.set(materialName, pbrMaterial);                  // <-- Cache for reuse
 
                 const hasTextures = config.TextureMaps && Object.values(config.TextureMaps).some((url) => url !== null);
                 if (hasTextures) {
@@ -326,10 +324,20 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
                 }
             }
 
-            node.material = pbrMaterial;                                      // <-- Swap the material
             swapCount++;
             if (materialName === mirrorDebugName) {
                 mirrorSwapped++;
+            }
+            return pbrMaterial;
+        };
+
+        modelGroup.traverse((node) => {
+            if (!node.isMesh) return;                                         // <-- Skip non-mesh nodes
+
+            if (Array.isArray(node.material)) {
+                node.material = node.material.map((material) => Na__MaterialsSystem__ResolveSwappedMaterial(material));
+            } else {
+                node.material = Na__MaterialsSystem__ResolveSwappedMaterial(node.material);
             }
         });
 
