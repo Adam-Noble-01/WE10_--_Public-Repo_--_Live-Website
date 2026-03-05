@@ -1,0 +1,48 @@
+{
+    "projectCode": "RB05",
+    "projectName": "WestFarm",
+    "activeGroupIndex": 0,
+    "modelGroups": [
+        {
+            "groupId": "DesignPhase01__ConceptDesign__Scheme-01",
+            "label": "Concept Design - Scheme-01",
+            "modelUrls": [
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__01__OrbitHelperCube__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedFixtures__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedFixtures__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedWindows__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedWindows__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__SecondFloor__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__SecondFloor__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__LandscapeEnvironment__MeshModel__.glb"
+            ]
+        }
+    ],
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX": 1517,
+            "Camera__DefaultPos__PosY": 3048,
+            "Camera__DefaultPos__PosZ": 9495
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX": -0.0881,
+            "Camera__DefaultRotation__RotY": -0.2659,
+            "Camera__DefaultRotation__RotZ": -0.0232
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov": 55
+        }
+    }
+}

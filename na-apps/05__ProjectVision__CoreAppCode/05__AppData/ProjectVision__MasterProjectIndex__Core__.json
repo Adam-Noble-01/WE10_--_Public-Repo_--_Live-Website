@@ -1,5 +1,5 @@
 {
-    "buildTimestamp": "2026-02-28T22:14:44.143366+00:00",
+    "buildTimestamp": "2026-03-05T18:43:03.903038+00:00",
     "projects": {
         "GA06": {
             "projectCode": "GA06",
@@ -97,6 +97,17 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
+                "trueVision": true
+            }
+        },
+        "RB05": {
+            "projectCode": "RB05",
+            "projectName": "WestFarm",
+            "projectFolder": "RB05__WestFarm",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
                 "trueVision": true
             }
         },
