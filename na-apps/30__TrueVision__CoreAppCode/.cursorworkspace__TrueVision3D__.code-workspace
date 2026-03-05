@@ -1,4 +1,4 @@
-﻿{
+{
 	"folders": [
 	  {
         "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/30__TrueVision__CoreAppCode",
@@ -17,7 +17,7 @@
 	  {
         "name"        : "SketchUp Plugin - GLB Builder Utility",
         "description" : "This is the sister SketchUp plugin for the TrueVision3D project. It is used to build GLB files from SketchUp models.",
-        "path"        : "C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__WhitecardModel__GlbBuilderUtility__Modules__"
+        "path"        : "C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__"
 	  },
 	  {
         "name"        : "Parent App - ProjectVision",

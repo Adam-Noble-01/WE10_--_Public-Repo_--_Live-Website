@@ -1,6 +1,26 @@
 {
-    "projectCode": "RB05",
-    "projectName": "WestFarm",
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX": -5515,
+            "Camera__DefaultPos__PosY": 3639,
+            "Camera__DefaultPos__PosZ": -61104
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX": -3.0829,
+            "Camera__DefaultRotation__RotY": -0.7605,
+            "Camera__DefaultRotation__RotZ": -3.1011
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov": 29.8628
+        }
+    },
+    "OrbitHelperCube__Position": {
+        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
+        "OrbitHelperCube__Position__PosX": 22708,
+        "OrbitHelperCube__Position__PosY": 1898,
+        "OrbitHelperCube__Position__PosZ": -31492
+    },
     "activeGroupIndex": 0,
     "modelGroups": [
         {
@@ -8,8 +28,12 @@
             "label": "Concept Design - Scheme-01",
             "modelUrls": [
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__01__OrbitHelperCube__MeshModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedRoofs__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedWindows__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedWindows__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedDoors__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedDoors__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__GroundFloor__ProposedFixtures__LineworkModel__.glb",
@@ -29,20 +53,6 @@
             ]
         }
     ],
-    "Camera__DefaultPosition": {
-        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
-        "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": 1517,
-            "Camera__DefaultPos__PosY": 3048,
-            "Camera__DefaultPos__PosZ": 9495
-        },
-        "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -0.0881,
-            "Camera__DefaultRotation__RotY": -0.2659,
-            "Camera__DefaultRotation__RotZ": -0.0232
-        },
-        "Camera__DefaultMisc": {
-            "Camera__DefaultMisc__Fov": 55
-        }
-    }
+    "projectCode": "RB05",
+    "projectName": "WestFarm"
 }
