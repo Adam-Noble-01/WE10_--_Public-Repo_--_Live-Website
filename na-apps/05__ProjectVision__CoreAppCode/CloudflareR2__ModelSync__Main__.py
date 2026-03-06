@@ -15,24 +15,29 @@
 # - Each subfolder under 30__TrueVision__AppContent/ is a model group
 # - Uploads .glb files to Cloudflare R2 via boto3 (S3-compatible API)
 # - Also uploads TrueVision__ProjectData__.json for each project
-# - Uses incremental sync (HEAD check, size comparison, skip/new/update)
+# - Uses incremental sync (HEAD check, date comparison, skip/new/update)
 # - Dry-run preview then yes/no confirmation before uploading
 # - Colourful console output using ANSI escape codes
+# - GLB purge mode: delete all GLB files from R2 for a given project
 #
 # USAGE:
 #   python CloudflareR2__ModelSync__Main__.py
 #   python CloudflareR2__ModelSync__Main__.py --dry-run-only
 #   python CloudflareR2__ModelSync__Main__.py --project NP03__AshnessClose
+#   python CloudflareR2__ModelSync__Main__.py --purge RB05
+#   python CloudflareR2__ModelSync__Main__.py --instructions
 #
 # =============================================================================
 
 import os
 import sys
 import re
+import json
 import argparse
 import ctypes
 import boto3
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import List, Dict, Tuple, Optional
 from dotenv import load_dotenv
 from botocore.exceptions import ClientError, NoCredentialsError
@@ -80,10 +85,12 @@ ENV_FILE_PATH                      = 'API__Cloudflare/Token__CloudflareR2.env'
     # ------------------------------------------------------------
 YEAR_FOLDER_PATTERN                = re.compile(r'^(\d{2})-Projects$')
 PROJECT_DIR_PATTERN                = re.compile(r'^([A-Z]{2}[0-9]{2})(?:__|_-_)(.+)$')
+PROJECT_CODE_PATTERN               = re.compile(r'^[A-Z]{2}\d{2}$', re.IGNORECASE)
 TRUEVISION_CONTENT_FOLDER          = '30__TrueVision__AppContent'
 PLANVISION_CONTENT_FOLDER          = '20__PlanVision__AppContent'
 GLB_FILE_PATTERN                   = re.compile(r'^.+\.glb$', re.IGNORECASE)
 JSON_PROJECT_DATA_FILENAME         = 'TrueVision__ProjectData__.json'
+MASTER_PROJECT_INDEX_PATH          = SCRIPT_DIR / '05__AppData' / 'ProjectVision__MasterProjectIndex__Core__.json'
     # ------------------------------------------------------------
 
     # MODULE CONSTANTS | Content Types
@@ -166,19 +173,19 @@ def create_r2_client(credentials: Dict[str, str]) -> Optional[boto3.client]:
     # ------------------------------------------------------------
 
 
-    # FUNCTION | Check if File Exists in R2 and Return Size
+    # FUNCTION | Check if File Exists in R2 and Return Size + LastModified
     # ------------------------------------------------------------
-def check_r2_file(s3_client, bucket_name: str, key: str) -> Tuple[bool, Optional[int]]:
-    """HEAD request to check if a file exists in R2 and get its size."""
+def check_r2_file(s3_client, bucket_name: str, key: str) -> Tuple[bool, Optional[int], Optional[datetime]]:
+    """HEAD request to check if a file exists in R2 and get its size and last modified date."""
     try:
         response = s3_client.head_object(Bucket=bucket_name, Key=key)
-        return True, response['ContentLength']
+        return True, response['ContentLength'], response['LastModified']
     except ClientError as error:
         error_code = error.response['Error']['Code']
         if error_code in ('404', '400', '403'):
-            return False, None
+            return False, None, None
         print(f"{C_RED}[ERROR] HEAD check failed for {key}: {error}{C_RESET}")
-        return False, None
+        return False, None, None
     # ------------------------------------------------------------
 
 
@@ -346,14 +353,19 @@ def format_size(size_bytes: int) -> str:
     # FUNCTION | Determine Upload Action for a Single File
     # ------------------------------------------------------------
 def determine_action(s3_client, bucket_name: str, local_path: Path, r2_key: str) -> Tuple[str, str]:
-    """Compare local file to R2 and return action (new/update/skip) with detail."""
-    local_size = local_path.stat().st_size
-    exists, remote_size = check_r2_file(s3_client, bucket_name, r2_key)
+    """Compare local file date to R2 LastModified and return action (new/update/skip) with detail."""
+    stat        = local_path.stat()
+    local_size  = stat.st_size
+    local_mtime = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)
+    exists, remote_size, remote_mtime = check_r2_file(s3_client, bucket_name, r2_key)
 
     if not exists:
         return 'new', f"NEW ({format_size(local_size)})"
-    elif remote_size != local_size:
-        return 'update', f"UPDATE (local {format_size(local_size)} vs remote {format_size(remote_size)})"
+    elif local_mtime > remote_mtime:
+        return 'update', (
+            f"UPDATE (local {local_mtime:%Y-%m-%d %H:%M} "
+            f"vs remote {remote_mtime:%Y-%m-%d %H:%M})"
+        )
     else:
         return 'skip', f"SKIP ({format_size(local_size)})"
     # ------------------------------------------------------------
@@ -525,6 +537,200 @@ def prompt_confirmation() -> bool:
 
 
 # -----------------------------------------------------------------------------
+# REGION | Project GLB Purge
+# -----------------------------------------------------------------------------
+
+    # FUNCTION | Resolve Project Info from Code
+    # ------------------------------------------------------------
+def resolve_project_info(project_code: str) -> Optional[Dict[str, str]]:
+    """Look up a project code in the master index, falling back to folder scan."""
+    code = project_code.upper()
+
+    if MASTER_PROJECT_INDEX_PATH.is_file():
+        try:
+            with open(MASTER_PROJECT_INDEX_PATH, 'r', encoding='utf-8') as fh:
+                index = json.load(fh)
+            entry = index.get('projects', {}).get(code)
+            if entry:
+                return {
+                    'project_code'   : code,
+                    'project_name'   : entry.get('projectName', code),
+                    'project_folder' : entry.get('projectFolder', ''),
+                    'project_year'   : entry.get('projectYear', ''),
+                }
+        except (json.JSONDecodeError, KeyError):
+            pass
+
+    for year_code, year_path in discover_year_folders(PORTAL_ROOT):
+        for project in discover_projects(year_path):
+            if project['project_code'] == code:
+                return {
+                    'project_code'   : code,
+                    'project_name'   : project['project_name'],
+                    'project_folder' : project['project_folder'],
+                    'project_year'   : year_code,
+                }
+
+    return None
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Purge GLB Files from R2 for a Project
+    # ------------------------------------------------------------
+def purge_project_glbs(s3_client, bucket_name: str, project_info: Dict[str, str]) -> int:
+    """List and delete all .glb objects under a project's TrueVision prefix."""
+    prefix = (
+        f"{R2_BASE_PREFIX}/"
+        f"{project_info['project_year']}-Projects/"
+        f"{project_info['project_folder']}/"
+        f"{TRUEVISION_CONTENT_FOLDER}/"
+    )
+
+    # -- Warning banner -------------------------------------------------------
+    print(f"\n{C_RED}{C_BOLD}{'=' * 80}{C_RESET}")
+    print(f"{C_RED}{C_BOLD}  WARNING - DESTRUCTIVE OPERATION - GLB PURGE{C_RESET}")
+    print(f"{C_RED}{C_BOLD}{'=' * 80}{C_RESET}")
+    print(f"  Project Code   : {C_YELLOW}{C_BOLD}{project_info['project_code']}{C_RESET}")
+    print(f"  Project Name   : {C_YELLOW}{C_BOLD}{project_info['project_name']}{C_RESET}")
+    print(f"  Project Folder : {C_CYAN}{project_info['project_folder']}{C_RESET}")
+    print(f"  R2 Prefix      : {C_CYAN}{prefix}{C_RESET}")
+    print(f"\n  {C_RED}This will permanently delete ALL .glb files under this prefix.{C_RESET}")
+    print(f"{C_RED}{C_BOLD}{'=' * 80}{C_RESET}")
+
+    # -- Enumerate GLB keys before confirming ---------------------------------
+    print(f"\n  {C_BLUE}[SCAN] Listing GLB files in R2...{C_RESET}")
+    sys.stdout.flush()
+
+    glb_keys        = []
+    continuation    = None
+
+    while True:
+        list_kwargs = {'Bucket': bucket_name, 'Prefix': prefix, 'MaxKeys': 1000}
+        if continuation:
+            list_kwargs['ContinuationToken'] = continuation
+
+        response = s3_client.list_objects_v2(**list_kwargs)
+
+        for obj in response.get('Contents', []):
+            if obj['Key'].lower().endswith('.glb'):
+                glb_keys.append(obj['Key'])
+
+        if response.get('IsTruncated'):
+            continuation = response['NextContinuationToken']
+        else:
+            break
+
+    if not glb_keys:
+        print(f"  {C_YELLOW}[INFO] No GLB files found under this prefix. Nothing to purge.{C_RESET}\n")
+        return 0
+
+    print(f"  {C_YELLOW}Found {len(glb_keys)} GLB file(s) to delete:{C_RESET}\n")
+    for key in glb_keys:
+        short_key = key.replace(prefix, '')
+        print(f"    {C_RED}[-] {short_key}{C_RESET}")
+
+    # -- Confirmation ---------------------------------------------------------
+    print(f"\n  {C_RED}{C_BOLD}Type 'yes' to confirm deletion of all "
+          f"{len(glb_keys)} GLB file(s) for "
+          f"{project_info['project_code']} ({project_info['project_name']}).{C_RESET}")
+
+    try:
+        response = input(f"  {C_RED}Confirm purge (yes/no): {C_RESET}").strip().lower()
+    except (KeyboardInterrupt, EOFError):
+        print(f"\n  {C_BLUE}[CANCEL] Purge cancelled by user.{C_RESET}\n")
+        return 0
+
+    if response != 'yes':
+        print(f"  {C_BLUE}[CANCEL] Purge cancelled. No files were deleted.{C_RESET}\n")
+        return 0
+
+    # -- Delete ---------------------------------------------------------------
+    print(f"\n  {C_RED}{C_BOLD}MODE: PURGING GLB FILES FROM R2{C_RESET}\n")
+
+    deleted  = 0
+    errors   = 0
+
+    for key in glb_keys:
+        try:
+            s3_client.delete_object(Bucket=bucket_name, Key=key)
+            deleted += 1
+            short_key = key.replace(prefix, '')
+            print(f"  {C_RED}[DELETED] {short_key}{C_RESET}")
+        except Exception as error:
+            errors += 1
+            print(f"  {C_RED}[ERROR] Failed to delete {key}: {error}{C_RESET}")
+        sys.stdout.flush()
+
+    # -- Summary --------------------------------------------------------------
+    print(f"\n{C_CYAN}{'=' * 80}{C_RESET}")
+    print(f"{C_CYAN}{C_BOLD}  PURGE SUMMARY{C_RESET}")
+    print(f"{C_CYAN}{'=' * 80}{C_RESET}")
+    print(f"  Project        : {project_info['project_code']} ({project_info['project_name']})")
+    print(f"  {C_RED}Deleted          : {deleted}{C_RESET}")
+    if errors:
+        print(f"  {C_RED}Errors           : {errors}{C_RESET}")
+    print(f"{C_CYAN}{'=' * 80}{C_RESET}\n")
+
+    return 0 if errors == 0 else 1
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Run R2 Purge Pipeline
+    # ------------------------------------------------------------
+def run_r2_purge(project_code: str) -> int:
+    """Validate, connect, resolve project, and purge its GLB files from R2."""
+    code = project_code.upper()
+
+    print(f"\n{C_CYAN}{C_BOLD}{'=' * 80}{C_RESET}")
+    print(f"{C_CYAN}{C_BOLD}  NOBLE ARCHITECTURE - CLOUDFLARE R2 GLB PURGE{C_RESET}")
+    print(f"{C_CYAN}{C_BOLD}{'=' * 80}{C_RESET}\n")
+
+    # Validate project code format
+    if not PROJECT_CODE_PATTERN.match(code):
+        print(f"  {C_RED}[ERROR] Invalid project code format: '{project_code}'{C_RESET}")
+        print(f"  {C_YELLOW}        Expected format: two letters + two digits (e.g. RB05, NP03){C_RESET}\n")
+        return 1
+
+    # Load credentials
+    print(f"  {C_BLUE}[INIT] Loading Cloudflare R2 credentials...{C_RESET}")
+    success, credentials = load_r2_credentials()
+    if not success:
+        return 1
+    print(f"  {C_GREEN}[OK] Credentials loaded - Bucket: {credentials['bucket_name']}{C_RESET}\n")
+
+    # Create client
+    print(f"  {C_BLUE}[INIT] Connecting to Cloudflare R2...{C_RESET}")
+    s3_client = create_r2_client(credentials)
+    if not s3_client:
+        return 1
+
+    bucket_name = credentials['bucket_name']
+
+    try:
+        s3_client.list_objects_v2(Bucket=bucket_name, Prefix=R2_BASE_PREFIX + '/', MaxKeys=1)
+        print(f"  {C_GREEN}[OK] Connected to Cloudflare R2 (credentials verified){C_RESET}\n")
+    except Exception as error:
+        print(f"  {C_RED}[ERROR] R2 connection test failed: {error}{C_RESET}\n")
+        return 1
+
+    # Resolve project
+    print(f"  {C_BLUE}[RESOLVE] Looking up project code: {code}...{C_RESET}")
+    project_info = resolve_project_info(code)
+
+    if not project_info:
+        print(f"  {C_RED}[ERROR] Project '{code}' not found in master index or local folders.{C_RESET}\n")
+        return 1
+
+    print(f"  {C_GREEN}[OK] Resolved: {project_info['project_folder']} "
+          f"({project_info['project_name']}){C_RESET}\n")
+
+    return purge_project_glbs(s3_client, bucket_name, project_info)
+    # ------------------------------------------------------------
+
+# endregion -------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
 # REGION | Main Entry Point
 # -----------------------------------------------------------------------------
 
@@ -667,10 +873,85 @@ def run_r2_sync(
 # REGION | CLI Entry Point
 # -----------------------------------------------------------------------------
 
+    # CONSTANT | Instructions Text
+    # ------------------------------------------------------------
+INSTRUCTIONS_TEXT = f"""
+{C_CYAN}{C_BOLD}{'=' * 80}{C_RESET}
+{C_CYAN}{C_BOLD}  NOBLE ARCHITECTURE - CLOUDFLARE R2 MODEL SYNC UTILITY{C_RESET}
+{C_CYAN}{C_BOLD}  Instructions & Usage Guide{C_RESET}
+{C_CYAN}{C_BOLD}{'=' * 80}{C_RESET}
+
+  {C_BOLD}OVERVIEW{C_RESET}
+  This utility syncs GLB model files and TrueVision project data from
+  the local na-project-portal directory to the Cloudflare R2 CDN bucket.
+  It can also purge (delete) all GLB files for a specific project.
+
+  {C_BOLD}HOW IT WORKS{C_RESET}
+  1. Scans na-project-portal/{{year}}-Projects/ for project folders
+  2. Finds all .glb files under 30__TrueVision__AppContent/ subfolders
+  3. Compares local file dates against remote R2 timestamps
+  4. Shows a dry-run preview of new, updated, and unchanged files
+  5. Prompts for confirmation before uploading
+
+  {C_BOLD}COMMANDS{C_RESET}
+
+  {C_GREEN}Default sync (all projects):{C_RESET}
+    python CloudflareR2__ModelSync__Main__.py
+
+  {C_GREEN}Dry run only (preview, no upload):{C_RESET}
+    python CloudflareR2__ModelSync__Main__.py --dry-run-only
+
+  {C_GREEN}Sync a single project:{C_RESET}
+    python CloudflareR2__ModelSync__Main__.py --project RB05__WestFarm
+
+  {C_GREEN}Purge all GLB files for a project:{C_RESET}
+    python CloudflareR2__ModelSync__Main__.py --purge RB05
+
+  {C_GREEN}Via the build pipeline (.bat):{C_RESET}
+    ProjectVision__BuildScript__.bat
+    ProjectVision__BuildScript__.bat --purge RB05
+
+  {C_BOLD}PURGE MODE{C_RESET}
+  The --purge flag accepts a project code (e.g. RB05, NP03).
+  It resolves the project name from the master index, lists all .glb
+  files in the R2 bucket under that project's TrueVision prefix, and
+  asks for explicit 'yes' confirmation before deleting them.
+  JSON config files are not affected by purge.
+  Aliases: --purge, --Purge, --purgeGlb, --PurgeGlb
+
+  {C_BOLD}FILE COMPARISON{C_RESET}
+  Files are compared by modification date (local mtime vs R2 LastModified).
+  If the local file is newer than the R2 copy, it is marked for update.
+  Files with equal or older local dates are skipped.
+
+  {C_BOLD}PROJECT CODE FORMAT{C_RESET}
+  Two uppercase letters + two digits: AA00, RB05, NP03, etc.
+  The code maps to a project folder like RB05__WestFarm via the
+  master project index (ProjectVision__MasterProjectIndex__Core__.json).
+
+  {C_BOLD}CREDENTIALS{C_RESET}
+  R2 credentials are loaded from:
+    API__Cloudflare/Token__CloudflareR2.env
+  Required keys: R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY,
+                 R2_BUCKET_NAME, R2_ENDPOINT
+
+{C_CYAN}{C_BOLD}{'=' * 80}{C_RESET}
+"""
+    # ------------------------------------------------------------
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Noble Architecture - Cloudflare R2 Model Sync Utility',
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            'Examples:\n'
+            '  python CloudflareR2__ModelSync__Main__.py\n'
+            '  python CloudflareR2__ModelSync__Main__.py --dry-run-only\n'
+            '  python CloudflareR2__ModelSync__Main__.py --project RB05__WestFarm\n'
+            '  python CloudflareR2__ModelSync__Main__.py --purge RB05\n'
+            '  python CloudflareR2__ModelSync__Main__.py --instructions\n'
+        ),
     )
     parser.add_argument(
         '--dry-run-only',
@@ -683,14 +964,34 @@ if __name__ == '__main__':
         metavar='FOLDER_NAME',
         help='Sync only a specific project folder (e.g. NP03__AshnessClose).',
     )
+    parser.add_argument(
+        '--purge', '--Purge', '--purgeGlb', '--PurgeGlb',
+        dest='purge_project',
+        type=str,
+        metavar='PROJECT_CODE',
+        help='Purge all GLB files from R2 for a project code (e.g. RB05).',
+    )
+    parser.add_argument(
+        '--instructions', '--Instructions',
+        dest='show_instructions',
+        action='store_true',
+        help='Show detailed usage instructions and exit.',
+    )
 
     args = parser.parse_args()
 
+    if args.show_instructions:
+        print(INSTRUCTIONS_TEXT)
+        raise SystemExit(0)
+
     try:
-        exit_code = run_r2_sync(
-            target_project=args.project,
-            dry_run_only=args.dry_run_only,
-        )
+        if args.purge_project:
+            exit_code = run_r2_purge(project_code=args.purge_project)
+        else:
+            exit_code = run_r2_sync(
+                target_project=args.project,
+                dry_run_only=args.dry_run_only,
+            )
     except Exception as error:
         import traceback
         print(f"\n{C_RED}{C_BOLD}[FATAL] Unhandled exception:{C_RESET}")

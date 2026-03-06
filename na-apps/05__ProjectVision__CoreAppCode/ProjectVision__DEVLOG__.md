@@ -6,6 +6,72 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.0.6 - 06-Mar-2026
+
+### Validated - Build Pipeline Purge Flow
+
+#### Purge Workflow Confirmation (`ProjectVision__BuildPipeline__.ps1`, `CloudflareR2__ModelSync__Main__.py`)
+
+- Confirmed the build pipeline now enters purge mode correctly when `--purge <PROJECT_CODE>` is supplied
+- Purge mode skips the normal build step and routes directly into the Cloudflare R2 GLB purge workflow
+- The purge workflow resolves the target project, connects to Cloudflare R2, lists matching `.glb` files under the project prefix, and waits for explicit `yes` confirmation before deletion
+- This provides a reliable review step before any destructive action is taken
+
+#### Files Validated
+- `ProjectVision__BuildPipeline__.ps1`
+- `CloudflareR2__ModelSync__Main__.py`
+
+# -----------------------------------------------------------------------------
+
+## Project Vision - Version 0.0.5 - 06-Mar-2026
+
+### Added - GLB Purge, Date-Based Sync, Help Flags, Pipeline Improvements
+
+#### GLB Purge Function (`CloudflareR2__ModelSync__Main__.py`)
+
+- **New `--purge` / `--Purge` / `--purgeGlb` / `--PurgeGlb` CLI flag** accepts a project code (e.g. `RB05`) to delete all GLB files for that project from the Cloudflare R2 bucket
+- Resolves project via `ProjectVision__MasterProjectIndex__Core__.json` or folder scan fallback
+- Red warning banner shows project code, name, folder, and R2 prefix before confirmation
+- Lists all `.glb` objects under `NaProjectPortal/{year}-Projects/{projectFolder}/30__TrueVision__AppContent/`
+- Requires typing `yes` exactly to confirm; JSON config files are not affected
+- `run_r2_purge()` handles credentials, client creation, project resolution, and `purge_project_glbs()`
+
+#### Date-Based File Comparison (`CloudflareR2__ModelSync__Main__.py`)
+
+- Switched from size-based to **date-based comparison** for sync decisions
+- `check_r2_file()` now returns `(exists, size, last_modified)` from HEAD response
+- `determine_action()` compares local `st_mtime` (UTC) vs R2 `LastModified`
+- Local file newer than remote → `UPDATE`; otherwise → `SKIP`
+- Display shows timestamps, e.g. `UPDATE (local 2026-03-06 10:15 vs remote 2026-03-05 14:30)`
+
+#### Help and Instructions Flags (`CloudflareR2__ModelSync__Main__.py`)
+
+- **`--help`** (argparse built-in) shows argument list and examples epilog
+- **`--instructions` / `--Instructions`** prints a detailed colourised usage guide covering overview, commands, purge mode, file comparison, project code format, and credentials path; then exits
+
+#### Confirmation Prompt Hint (`CloudflareR2__ModelSync__Main__.py`)
+
+- When user types a flag (e.g. `--purge RB05`) at the yes/no prompt, shows a hint that flags must be passed when launching the script, with example commands
+
+#### Build Pipeline Argument Passing (`ProjectVision__BuildScript__.bat`, `ProjectVision__BuildPipeline__.ps1`)
+
+- **BAT**: Switched from `-File` to `-Command "& '...' %*"` so `%*` arguments reliably reach the PowerShell script
+- **Pipeline**: Detects `--purge` among `$ExtraArgs`; when present, skips Step 1 (build) and runs only R2 sync with purge flag
+- **Pipeline**: In normal mode, `$ExtraArgs` now forwarded to both build script and R2 sync script (e.g. `--dry-run-only`, `--project`)
+
+#### Removed End Pause (`ProjectVision__BuildPipeline__.ps1`)
+
+- Removed `Read-Host 'Press Enter to close this window'` at end of pipeline
+- Window closes automatically when script finishes
+- Error-path `Read-Host` pauses (Python not found, deps failed) retained so user can read errors before window closes
+
+#### Files Modified
+- `CloudflareR2__ModelSync__Main__.py` (purge, date-based sync, help/instructions, prompt hint)
+- `ProjectVision__BuildPipeline__.ps1` (purge detection, arg forwarding, removed end pause)
+- `ProjectVision__BuildScript__.bat` (`-Command` for reliable arg passing)
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.0.4 - 27-Feb-2026
 
 ### Fixed - R2 Sync Pipeline Stability

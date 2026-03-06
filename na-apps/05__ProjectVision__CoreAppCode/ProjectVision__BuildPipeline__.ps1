@@ -6,6 +6,11 @@
 # 1. Runs ProjectVision__BuildScript__.py (project index + TrueVision data)
 # 2. Runs CloudflareR2__ModelSync__Main__.py (R2 upload with dry-run)
 #
+# PURGE MODE:
+#   When --purge / --Purge / --purgeGlb / --PurgeGlb is passed, the pipeline
+#   skips the build step and runs only the R2 sync script with the purge flag.
+#   Example:  ProjectVision__BuildScript__.bat --purge RB05
+#
 # =============================================================================
 
 param(
@@ -29,6 +34,17 @@ Write-Host '============================================================' -Foreg
 Write-Host '  Noble Architecture - Project Vision Build Pipeline' -ForegroundColor Cyan
 Write-Host '============================================================' -ForegroundColor Cyan
 Write-Host ''
+
+# Detect purge flags among the arguments
+$isPurge = $false
+if ($ExtraArgs) {
+    foreach ($arg in $ExtraArgs) {
+        if ($arg -in '--purge','--Purge','--purgeGlb','--PurgeGlb') {
+            $isPurge = $true
+            break
+        }
+    }
+}
 
 # CHECK PYTHON
 Write-Host '[CHECK] Verifying Python installation...' -ForegroundColor Blue
@@ -66,41 +82,62 @@ if ($missing.Count -gt 0) {
 
 Write-Host ''
 
-# STEP 1 | Run Project Vision Build Script
-Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
-Write-Host '  STEP 1: Project Index + TrueVision Data Generation' -ForegroundColor Cyan
-Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
-Write-Host ''
-
-if ($ExtraArgs) {
-    python ProjectVision__BuildScript__.py @ExtraArgs
-} else {
-    python ProjectVision__BuildScript__.py
-}
-
-if ($LASTEXITCODE -ne 0) {
+if ($isPurge) {
+    # PURGE MODE | Skip build, run R2 sync with purge flag only
+    Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
+    Write-Host '  MODE: GLB PURGE (skipping build step)' -ForegroundColor Yellow
+    Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
     Write-Host ''
-    Write-Host "[ERROR] Build script failed with exit code $LASTEXITCODE" -ForegroundColor Red
-    Read-Host 'Press Enter to exit'
-    exit $LASTEXITCODE
-}
 
-Write-Host '[DONE] Build script completed successfully' -ForegroundColor Green
-Write-Host ''
+    python CloudflareR2__ModelSync__Main__.py @ExtraArgs
 
-# STEP 2 | Run Cloudflare R2 Model Sync
-Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
-Write-Host '  STEP 2: Cloudflare R2 Model Sync' -ForegroundColor Cyan
-Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
-Write-Host ''
-
-python CloudflareR2__ModelSync__Main__.py
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host ''
-    Write-Host "[ERROR] R2 sync failed with exit code $LASTEXITCODE" -ForegroundColor Red
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ''
+        Write-Host "[ERROR] R2 purge failed with exit code $LASTEXITCODE" -ForegroundColor Red
+    } else {
+        Write-Host '[DONE] R2 purge completed successfully' -ForegroundColor Green
+    }
 } else {
-    Write-Host '[DONE] R2 sync completed successfully' -ForegroundColor Green
+    # STEP 1 | Run Project Vision Build Script
+    Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
+    Write-Host '  STEP 1: Project Index + TrueVision Data Generation' -ForegroundColor Cyan
+    Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
+    Write-Host ''
+
+    if ($ExtraArgs) {
+        python ProjectVision__BuildScript__.py @ExtraArgs
+    } else {
+        python ProjectVision__BuildScript__.py
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ''
+        Write-Host "[ERROR] Build script failed with exit code $LASTEXITCODE" -ForegroundColor Red
+        Read-Host 'Press Enter to exit'
+        exit $LASTEXITCODE
+    }
+
+    Write-Host '[DONE] Build script completed successfully' -ForegroundColor Green
+    Write-Host ''
+
+    # STEP 2 | Run Cloudflare R2 Model Sync
+    Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
+    Write-Host '  STEP 2: Cloudflare R2 Model Sync' -ForegroundColor Cyan
+    Write-Host '------------------------------------------------------------' -ForegroundColor DarkGray
+    Write-Host ''
+
+    if ($ExtraArgs) {
+        python CloudflareR2__ModelSync__Main__.py @ExtraArgs
+    } else {
+        python CloudflareR2__ModelSync__Main__.py
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ''
+        Write-Host "[ERROR] R2 sync failed with exit code $LASTEXITCODE" -ForegroundColor Red
+    } else {
+        Write-Host '[DONE] R2 sync completed successfully' -ForegroundColor Green
+    }
 }
 
 Write-Host ''
