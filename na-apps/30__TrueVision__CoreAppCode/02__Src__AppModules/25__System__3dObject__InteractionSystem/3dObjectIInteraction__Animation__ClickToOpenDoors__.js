@@ -63,7 +63,7 @@
     const Na__DoorAnim__PREFIX_MOD             = 'MOD';                          // <-- Modifier object prefix
     const Na__DoorAnim__PREFIX_ROT             = 'ROT';                          // <-- Rotation point prefix
     const Na__DoorAnim__MOD_ROT_TAG            = '__ROT__';                      // <-- Rotation modifier tag in MOD name
-    const Na__DoorAnim__DEG_REGEX              = /(\d+)-Deg/i;                   // <-- Regex to extract degrees from MOD name
+    const Na__DoorAnim__DEG_REGEX              = /(-?\d+)-Deg/i;                  // <-- Regex to extract degrees from MOD name (supports negative)
     const Na__DoorAnim__Y_AXIS                 = new THREE.Vector3(0, 1, 0);     // <-- Vertical rotation axis (Y-up from GLB Builder export)
     // ------------------------------------------------------------
 
@@ -131,8 +131,8 @@
 
         if (match && match[1]) {
             const degrees = parseInt(match[1], 10);                              // <-- Parse integer degrees
-            if (Number.isFinite(degrees) && degrees > 0) {
-                return degrees;                                                  // <-- Return parsed value
+            if (Number.isFinite(degrees) && degrees !== 0) {
+                return degrees;                                                  // <-- Return parsed value (positive or negative)
             }
         }
 

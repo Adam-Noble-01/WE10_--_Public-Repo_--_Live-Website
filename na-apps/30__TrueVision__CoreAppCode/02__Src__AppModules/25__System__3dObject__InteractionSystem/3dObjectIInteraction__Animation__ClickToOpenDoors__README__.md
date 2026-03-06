@@ -11,7 +11,8 @@
 
 **1. Model Setup in SketchUp:**
 - Name door assemblies with `ADR` prefix (e.g., `ADR002__InternalDoor__GroundFloor__PorchToLounge`)
-- Inside each ADR: create `MOD001__ROT__90-Deg__DoorPanel` (rotating panel) and `ROT001__RotationPoint__DoorHingeCentre` (hinge pivot)
+- Inside each ADR: create `MOD001__ROT__90-Deg__DoorPanel` or `MOD001__ROT__-90-Deg__DoorPanel` (rotating panel) and `ROT001__RotationPoint__DoorHingeCentre` (hinge pivot)
+- Use a positive degree value (e.g. `90-Deg`) to open anticlockwise, or a negative value (e.g. `-90-Deg`) to open clockwise when viewed from above
 - Place all doors on tag `25__ProposedBuilding__Doors`
 
 **2. Export from SketchUp:**
@@ -114,11 +115,12 @@ function Na__RenderLoop__Animate() {
 - **3-Digit Code:** Unique identifier (001, 002, 003...)
 
 ### MOD (Modifier Object - Door Panel)
-- **Format:** `MOD###__ROT__[N]-Deg__[Description]`
-- **Example:** `MOD001__ROT__90-Deg__DoorPanel`
+- **Format:** `MOD###__ROT__[N]-Deg__[Description]` or `MOD###__ROT__-[N]-Deg__[Description]`
+- **Example (opens anticlockwise):** `MOD001__ROT__90-Deg__DoorPanel`
+- **Example (opens clockwise):** `MOD001__ROT__-90-Deg__DoorPanel`
 - **Purpose:** Contains all rotating geometry (panel, handles, etc.)
-- **Required:** `__ROT__` tag and `[N]-Deg` pattern
-- **Parsed:** Rotation angle extracted by `/(\d+)-Deg/i` regex
+- **Required:** `__ROT__` tag and `[N]-Deg` pattern (positive or negative integer)
+- **Parsed:** Rotation angle extracted by `/(-?\d+)-Deg/i` regex — negative values reverse the swing direction
 
 ### ROT (Rotation/Hinge Point)
 - **Format:** `ROT###__[Description]`
@@ -341,6 +343,11 @@ Re-scans scene graph for door assemblies. Useful for dynamically loaded models.
 - Y-axis rotation with proper Y-up coordinate space
 - Hierarchy-preserving GLB export integration
 - Synchronized mesh and linework animation
+
+**Version 1.2.0** (06-Mar-2026)
+- Negative rotation degree support (`-90-Deg`) to reverse door swing direction
+- Regex updated from `/(\d+)-Deg/i` to `/(-?\d+)-Deg/i`
+- Validation guard updated to allow negative values (`degrees !== 0`)
 
 ---
 

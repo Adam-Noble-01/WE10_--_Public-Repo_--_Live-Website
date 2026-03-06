@@ -1,26 +1,6 @@
 {
-    "Camera__DefaultPosition": {
-        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
-        "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": -1227,
-            "Camera__DefaultPos__PosY": 6796,
-            "Camera__DefaultPos__PosZ": 20717
-        },
-        "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -0.1752,
-            "Camera__DefaultRotation__RotY": -0.5459,
-            "Camera__DefaultRotation__RotZ": -0.0917
-        },
-        "Camera__DefaultMisc": {
-            "Camera__DefaultMisc__Fov": 33.3985
-        }
-    },
-    "OrbitHelperCube__Position": {
-        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
-        "OrbitHelperCube__Position__PosX": 25754,
-        "OrbitHelperCube__Position__PosY": -946,
-        "OrbitHelperCube__Position__PosZ": -23017
-    },
+    "projectCode": "RB05",
+    "projectName": "WestFarm",
     "activeGroupIndex": 0,
     "modelGroups": [
         {
@@ -53,6 +33,20 @@
             ]
         }
     ],
-    "projectCode": "RB05",
-    "projectName": "WestFarm"
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX": -1227,
+            "Camera__DefaultPos__PosY": 6796,
+            "Camera__DefaultPos__PosZ": 20717
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX": -0.1752,
+            "Camera__DefaultRotation__RotY": -0.5459,
+            "Camera__DefaultRotation__RotZ": -0.0917
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov": 33.3985
+        }
+    }
 }
