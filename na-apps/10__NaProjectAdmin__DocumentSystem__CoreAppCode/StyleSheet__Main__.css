@@ -1118,6 +1118,20 @@
         width                      : 50%;
     }
 
+    .quote-table__description-main {
+        color                      : var(--App_TextPrimary);
+        font-weight                : 400;
+    }
+
+    .quote-table__description-secondary {
+        margin-top                 : 0.25rem;
+        color                      : var(--App_TextMuted);
+        font-size                  : 0.8125rem;
+        font-weight                : 300;
+        line-height                : 1.45;
+        white-space                : pre-line;
+    }
+
     .quote-table__qty,
     .quote-table__unit,
     .quote-table__rate,

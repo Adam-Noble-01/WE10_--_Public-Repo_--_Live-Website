@@ -354,10 +354,16 @@
                     
                     // Display quantity - show actual value (including 0)
                     const displayQty = item.quantity !== undefined ? item.quantity : 1;
+                    const secondaryDescription = typeof item.itemDescription === 'string'
+                        ? item.itemDescription.trim()
+                        : '';
                     
                     html += `
                         <tr>
-                            <td class="quote-table__description">${item.description || ''}</td>
+                            <td class="quote-table__description">
+                                <div class="quote-table__description-main">${item.description || ''}</div>
+                                ${secondaryDescription ? `<div class="quote-table__description-secondary">${secondaryDescription}</div>` : ''}
+                            </td>
                             <td class="quote-table__qty">${displayQty}</td>
                             <td class="quote-table__unit">${item.unit || '-'}</td>
                             <td class="quote-table__rate">${currencySymbol}${formatNumber(item.rate || 0)}</td>

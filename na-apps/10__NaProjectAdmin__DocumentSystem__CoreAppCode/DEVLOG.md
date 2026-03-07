@@ -3,6 +3,35 @@
 
 # =============================================================================
 
+## Admin & Doc System - Version 0.7.0 - 07-Mar-2026
+
+### Added
+
+- **Optional Secondary Line Item Description** - Quotation items now support a second descriptive text block
+  - Added `itemDescription` as an optional field on quotation `lineItems`
+  - Editor now provides a second input area under each item title for additional context/caveats
+  - Secondary description uses lighter visual weight to keep hierarchy clear
+  - Empty secondary descriptions are omitted from client-facing rendering
+  - Pricing logic remains unchanged: totals still derive only from `quantity * rate`
+
+### Changed
+
+- **Quotation Builder Data Flow** - Extended line item mapping for load/edit/save
+  - `populateFormFromData()` now hydrates `itemDescription` with safe fallback
+  - `addLineItem()` initializes `itemDescription` as empty string
+  - `generateJson()` persists `itemDescription` into quotation JSON line items
+- **Quotation Renderer Output** - Description cell now supports conditional two-line display
+  - Main line renders from `description`
+  - Secondary line renders only when `itemDescription` is non-empty after trim
+
+#### Files Modified
+
+- `04__EditorTools/Editor__QuotationBuilder__.html` - Added secondary description input and schema load/save mapping
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__QuotationRenderer__.js` - Conditional secondary description rendering
+- `StyleSheet__Main__.css` - Added quote description hierarchy styles (`main` + `secondary`)
+
+---
+
 ## Admin & Doc System - Version 0.6.9 - 20-Feb-2026
 
 ### Fixed

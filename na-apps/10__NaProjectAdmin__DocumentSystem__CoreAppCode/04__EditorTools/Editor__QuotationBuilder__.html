@@ -83,6 +83,21 @@
             width: auto;
         }
 
+        .line-item-description-main {
+            width: 100%;
+            margin-bottom: 0.35rem;
+        }
+
+        .line-item-description-details {
+            width: 100%;
+            min-height: 2.75rem;
+            resize: vertical;
+            font-size: 0.875rem;
+            color: #666;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
         .line-items-table .col-qty,
         .line-items-table .col-unit,
         .line-items-table .col-rate,
@@ -559,6 +574,7 @@
                     type: 'item',
                     group: item.group || '',
                     description: item.description,
+                    itemDescription: item.itemDescription || '',
                     quantity: item.quantity,
                     unit: item.unit,
                     rate: item.rate
@@ -595,6 +611,7 @@
             type: 'item',
             group: group,
             description: '',
+            itemDescription: '',
             quantity: 1,
             unit: 'item',
             rate: 0
@@ -671,8 +688,11 @@
                                 <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
                             </td>
                             <td class="col-description">
-                                <input type="text" value="${item.description}" 
+                                <input type="text" value="${item.description || ''}" class="line-item-description-main"
                                        onchange="updateItem(${item.id}, 'description', this.value)" placeholder="Description">
+                                <textarea class="line-item-description-details"
+                                          onchange="updateItem(${item.id}, 'itemDescription', this.value)"
+                                          placeholder="Optional details (shown under title on final quote)">${item.itemDescription || ''}</textarea>
                             </td>
                             <td class="col-qty">
                                 <input type="number" value="${item.quantity}" min="0" step="0.5"
@@ -806,6 +826,7 @@
             } else if (item.type === 'item') {
                 formattedItems.push({
                     description: item.description,
+                    itemDescription: item.itemDescription || '',
                     quantity: item.quantity,
                     unit: item.unit,
                     rate: item.rate,

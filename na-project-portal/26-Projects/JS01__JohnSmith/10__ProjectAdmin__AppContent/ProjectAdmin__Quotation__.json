@@ -1,16 +1,13 @@
 {
     "quotationRef": "QUO-JS01-2026-001",
-    "quotationDate": "31-Jan-2026",
+    "quotationDate": "07-Mar-2026",
     "projectAddress": "42 Meadow Lane, Nottingham, NG2 3BQ",
     "projectDescription": "Two-storey rear extension with open-plan kitchen/dining area and loft conversion to create master bedroom suite with en-suite bathroom",
-    "clientDetails": {
-        "name": "John Smith",
-        "address": "42 Meadow Lane\nNottingham\nNG2 3BQ",
-        "email": "john.smith@example.com"
-    },
+    "clientDataStorage": "cloudflare-r2-encrypted",
     "lineItems": [
         {
             "description": "Full architectural drawings (plans, elevations, sections)",
+            "itemDescription": "This is a test to see what appears",
             "quantity": 1,
             "unit": "set",
             "rate": 2800,
@@ -18,6 +15,7 @@
         },
         {
             "description": "Structural calculations and engineer's drawings",
+            "itemDescription": "This is a second test",
             "quantity": 1,
             "unit": "set",
             "rate": 1200,
@@ -25,6 +23,7 @@
         },
         {
             "description": "3D visualisations and renderings",
+            "itemDescription": "",
             "quantity": 4,
             "unit": "views",
             "rate": 350,
@@ -32,6 +31,7 @@
         },
         {
             "description": "Planning application submission and management",
+            "itemDescription": "",
             "quantity": 1,
             "unit": "application",
             "rate": 1800,
@@ -39,6 +39,7 @@
         },
         {
             "description": "Planning consultant fees (if required)",
+            "itemDescription": "",
             "quantity": 1,
             "unit": "item",
             "rate": 850,
@@ -46,6 +47,7 @@
         },
         {
             "description": "Building Regulations application and approval",
+            "itemDescription": "",
             "quantity": 1,
             "unit": "application",
             "rate": 1500,
@@ -53,6 +55,7 @@
         },
         {
             "description": "Site inspections during construction (8 visits)",
+            "itemDescription": "",
             "quantity": 8,
             "unit": "visits",
             "rate": 180,
@@ -60,6 +63,7 @@
         },
         {
             "description": "Construction drawings and specifications",
+            "itemDescription": "",
             "quantity": 1,
             "unit": "set",
             "rate": 1850,
@@ -67,6 +71,7 @@
         },
         {
             "description": "Project coordination and client liaison",
+            "itemDescription": "",
             "quantity": 1,
             "unit": "service",
             "rate": 1200,
@@ -74,12 +79,12 @@
         }
     ],
     "totals": {
-        "subtotal": 13130,
+        "subtotal": 14040,
+        "vatApplicable": true,
         "vatRate": 20,
-        "vat": 2626,
-        "grandTotal": 15756
+        "vat": 2808,
+        "grandTotal": 16848
     },
     "additionalTerms": "",
-    "createdDate": "31-Jan-2026"
+    "createdDate": "07-Mar-2026 at 10:41"
 }
-
