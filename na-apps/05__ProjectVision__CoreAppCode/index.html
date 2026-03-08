@@ -366,14 +366,16 @@
             elProjectName.textContent = projectData.projectName || projectCode;
             document.title = (projectData.projectName || projectCode) + ' | Project Vision';
 
+            const projectYear = projectData.projectYear;
+
             const adminUrl = UrlQuerySystem.buildSubAppUrl(
-                context.appsBase, 'projectAdmin', projectCode, projectFolder);
+                context.appsBase, 'projectAdmin', projectCode, projectFolder, projectYear);
 
             const planVisionUrl = UrlQuerySystem.buildSubAppUrl(
-                context.appsBase, 'planVision', projectCode, projectFolder);
+                context.appsBase, 'planVision', projectCode, projectFolder, projectYear);
 
             const trueVisionUrl = UrlQuerySystem.buildSubAppUrl(
-                context.appsBase, 'trueVision', projectCode, projectFolder);
+                context.appsBase, 'trueVision', projectCode, projectFolder, projectYear);
 
             configureCard(elCardAdmin,      elBadgeAdmin,      subApps.projectAdmin,  adminUrl);
             configureCard(elCardPlanVision, elBadgePlanVision, subApps.planVision,     planVisionUrl);

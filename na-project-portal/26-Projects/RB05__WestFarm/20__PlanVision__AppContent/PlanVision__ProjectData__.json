@@ -1,0 +1,38 @@
+{
+    "na-project-data-library": {
+        "project-details": {
+            "project-name": "Example Project Structure",
+            "project-name-nickname": "Example Project",
+            "project-address": "123 Example Street, Nottingham, NG1 1AA",
+            "project-description": "This is an example project demonstrating the full PlanVision data structure. It includes multiple design phases, folder-organised drawings and specifications.",
+            "client-name": "Example Client"
+        },
+        "project-phase-config": {
+            "active-design-phase": "DesignPhase01",
+            "available-phases": [
+                "DesignPhase01"
+            ],
+            "phase-last-updated": "08-Mar-2026"
+        },
+        "project-documentation": {
+            "phase-content": {
+                "DesignPhase01": {
+                    "phase-folder": "DesignPhase01__ConceptDesign__Content",
+                    "folder-structure": [
+                        {
+                            "label": "Concept Design",
+                            "label-override": false,
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
+                                "RB05_T01_D01__TEST__Elevations__RevA__",
+                                "RB05_T01_D01__TEST__FloorPlan__RevA__"
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

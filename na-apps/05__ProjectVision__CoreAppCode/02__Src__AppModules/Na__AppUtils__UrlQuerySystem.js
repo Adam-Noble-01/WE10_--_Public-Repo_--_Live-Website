@@ -221,7 +221,7 @@
                 return masterIndex.projects[projectCode] || null;
             };
 
-            UrlQuerySystem.buildSubAppUrl = function(appsBase, subAppKey, projectCode, projectFolder) {
+            UrlQuerySystem.buildSubAppUrl = function(appsBase, subAppKey, projectCode, projectFolder, projectYear) {
                 const subAppPath = NaSubAppPaths[subAppKey];
 
                 if (!subAppPath || !projectCode) {
@@ -235,6 +235,10 @@
 
                 if (projectFolder) {
                     params.set('project-folder', projectFolder);
+                }
+
+                if (projectYear) {
+                    params.set('year', projectYear);
                 }
 
                 return `${baseUrl}?${params.toString()}`;

@@ -71,14 +71,11 @@
                              window.location.hostname === 'localhost' ||
                              window.location.protocol === 'file:';
 
-                // Get project folder from URL query system if available
                 if (window.NaPlanVision && window.NaPlanVision.UrlQuerySystem) {
-                    const context = window.NaPlanVision.UrlQuerySystem.getProjectContext({
-                        defaultProjectFolder: 'JH03__RomerCottage'
-                    });
-                    projectFolderName = context.projectFolder || 'JH03__RomerCottage';
+                    const urlContext = window.NaPlanVision.UrlQuerySystem.getProjectContext({});
+                    projectFolderName = urlContext.projectFolder || '';
                 } else {
-                    projectFolderName = 'JH03__RomerCottage';
+                    projectFolderName = '';
                 }
 
                 if (!planImage) {
@@ -107,10 +104,12 @@
 
                 if (pathIndex !== -1) {
                     const localPath = url.substring(pathIndex + projectPath.length);
-                    const baseUrl = window.NaPlanVision?.UrlQuerySystem
-                        ? window.NaPlanVision.UrlQuerySystem.getProjectContext({}).projectBaseUrl
-                        : `../na-project-portal/25-Projects/${projectFolderName}`;
-                    const fullLocalUrl = `${baseUrl}/${localPath}`;
+                    const urlContext = window.NaPlanVision?.UrlQuerySystem
+                        ? window.NaPlanVision.UrlQuerySystem.getProjectContext({})
+                        : null;
+                    const contentBase = urlContext?.projectContentBaseUrl
+                        || `../na-project-portal/26-Projects/${projectFolderName}/20__PlanVision__AppContent`;
+                    const fullLocalUrl = `${contentBase}/${localPath}`;
                     console.log(`[DrawingLoader] URL Transform: ${url} → ${fullLocalUrl}`);
                     return fullLocalUrl;
                 }
@@ -125,7 +124,28 @@
         // IMAGE LOADING | Async Drawing Load
         // --------------------------------------------------------
 
+            // FUNCTION | Build CDN URL for a Drawing Asset if CDN Loader Available
+            // ------------------------------------------------------------
+            function buildCdnUrlForAsset(legacyUrl) {
+                if (isLocalDev) return null;
+
+                const cdnLoader = window.NaPlanVision?.CloudflareCdnLoader;
+                if (!cdnLoader) return null;
+
+                const urlContext = window.NaPlanVision?.UrlQuerySystem
+                    ? window.NaPlanVision.UrlQuerySystem.getProjectContext({})
+                    : null;
+
+                if (!urlContext || !urlContext.projectFolder || !urlContext.projectYear) return null;
+
+                return cdnLoader.Na__Cdn__ConvertLegacyUrlToCdn(
+                    legacyUrl, urlContext.projectFolder, urlContext.projectYear
+                );
+            }
+            // ---------------------------------------------------------------
+
             // FUNCTION | Load Drawing Image and Metadata
+            // Uses CDN URL as primary source, legacy URL as fallback
             // ------------------------------------------------------------
             const Na__Canvas__LoadDrawing = async function (drawing) {
                 if (showLoadingCallback) {
@@ -133,14 +153,15 @@
                 }
 
                 try {
-                    // Get URLs and transform for local development if needed
-                    const pngUrl = transformUrl(drawing['document-links']['png--github-link-url']);
-                    const pdfUrl = transformUrl(drawing['document-links']['pdf--github-link-url']);
-                    const documentName = drawing['document-name'];
+                    const legacyPngUrl = transformUrl(drawing['document-links']['png--github-link-url']);
+                    const legacyPdfUrl = transformUrl(drawing['document-links']['pdf--github-link-url']);
+                    const documentName  = drawing['document-name'];
                     const documentScale = drawing['document-scale'];
-                    const documentSize = drawing['document-size'];
+                    const documentSize  = drawing['document-size'];
 
-                    // Store drawing metadata via callback
+                    const cdnPngUrl = buildCdnUrlForAsset(drawing['document-links']['png--github-link-url']);
+                    const cdnPdfUrl = buildCdnUrlForAsset(drawing['document-links']['pdf--github-link-url']);
+
                     if (setImageStateCallback) {
                         setImageStateCallback({
                             currentDrawingScale: documentScale || '1:50',
@@ -148,34 +169,38 @@
                         });
                     }
 
-                    // Hide any previous error message before loading
                     if (window.NaPlanVision.DrawingsCanvas && window.NaPlanVision.DrawingsCanvas.LoadingStates) {
                         window.NaPlanVision.DrawingsCanvas.LoadingStates.Na__Canvas__HideError();
                     }
 
-                    // Hide Drawing Register if visible (user selected a drawing)
                     if (window.NaPlanVision.LandingPage && window.NaPlanVision.LandingPage.Na__Landing__IsVisible()) {
                         window.NaPlanVision.LandingPage.Na__Landing__Hide();
                     }
 
-                    // Load the plan image
-                    await loadPlanImage(pngUrl);
+                    // CDN-first image loading with silent fallback
+                    const cdnLoader = window.NaPlanVision?.CloudflareCdnLoader;
+                    let resolvedPngUrl = legacyPngUrl;
+                    let resolvedPdfUrl = cdnPdfUrl || legacyPdfUrl;
 
-                    // Update image loaded state
-                    if (setImageStateCallback) {
-                        setImageStateCallback({
-                            isImageLoaded: true
-                        });
+                    if (cdnLoader && cdnPngUrl) {
+                        const imgResult = await cdnLoader.Na__Cdn__LoadImageWithFallback(cdnPngUrl, legacyPngUrl);
+                        resolvedPngUrl = imgResult.url;
                     }
 
-                    // Reset view to fit new drawing
+                    await loadPlanImage(resolvedPngUrl);
+
+                    if (setImageStateCallback) {
+                        setImageStateCallback({ isImageLoaded: true });
+                    }
+
                     if (resetViewCallback) {
                         resetViewCallback();
                     }
 
-                    // Update PDF download link via DocumentSystem module
                     if (window.NaPlanVision.DocumentSystem?.PdfGenerator) {
-                        window.NaPlanVision.DocumentSystem.PdfGenerator.Na__Pdf__UpdateDownloadLink(pdfUrl, documentName);
+                        window.NaPlanVision.DocumentSystem.PdfGenerator.Na__Pdf__UpdateDownloadLink(
+                            resolvedPdfUrl, documentName
+                        );
                     }
 
                     console.log('[DrawingLoader] Drawing loaded successfully:', documentName);

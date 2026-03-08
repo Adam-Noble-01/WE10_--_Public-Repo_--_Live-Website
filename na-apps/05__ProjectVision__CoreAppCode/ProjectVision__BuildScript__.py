@@ -49,7 +49,12 @@ LIVE_DOMAIN = 'https://www.noble-architecture.com'
 CDN_BASE_URL = 'https://cdn.noble-architecture.com'
 R2_BASE_PREFIX = 'NaProjectPortal'
 TRUEVISION_CONTENT_FOLDER = '30__TrueVision__AppContent'
+PLANVISION_CONTENT_FOLDER = '20__PlanVision__AppContent'
+PLANVISION_DATA_FILENAME  = 'PlanVision__ProjectData__.json'
 GLB_FILE_PATTERN = re.compile(r'^.+\.glb$', re.IGNORECASE)
+DRAWING_FILE_PATTERN = re.compile(r'^.+\.(png|pdf)$', re.IGNORECASE)
+PHASE_FOLDER_PATTERN = re.compile(r'^DesignPhase\d+__(.+)$')
+SKIP_FOLDER_PREFIXES = ('.', '00__')
 
 
 # =============================================================================
@@ -423,6 +428,286 @@ def write_truevision_project_data(project_path, data):
 
 
 # =============================================================================
+# PLANVISION PROJECT DATA GENERATION
+# =============================================================================
+
+def parse_folder_label(folder_name):
+    """Convert a folder name like '01__FloorPlans' or 'DesignPhase01__ConceptDesign__Content' to a readable label."""
+    cleaned = re.sub(r'^\d+__', '', folder_name)
+    cleaned = re.sub(r'^DesignPhase\d+__', '', cleaned)
+    cleaned = re.sub(r'__Content$', '', cleaned)
+    parts = cleaned.split('__')
+    label = ' - '.join(p for p in parts if p)
+    label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
+    return label or folder_name
+
+
+def parse_drawing_button_name(filename):
+    """Convert a drawing filename to a default button label.
+
+    Strips the extension and replaces __ delimiters with spaces.
+    """
+    name = re.sub(r'\.(png|pdf)$', '', filename, flags=re.IGNORECASE)
+    name = name.rstrip('_')
+    parts = name.split('__')
+    return ' '.join(p for p in parts if p)
+
+
+def discover_planvision_folder(dir_path, depth=0, max_depth=3):
+    """Recursively discover drawing files and subfolders within a PlanVision folder.
+
+    Returns a list of folder-structure entries matching the PlanVision JSON schema.
+    """
+    if depth > max_depth or not os.path.isdir(dir_path):
+        return []
+
+    png_bases = set()
+    pdf_bases = set()
+
+    for f in sorted(os.listdir(dir_path)):
+        fpath = os.path.join(dir_path, f)
+        if not os.path.isfile(fpath):
+            continue
+        if not DRAWING_FILE_PATTERN.match(f):
+            continue
+
+        base = os.path.splitext(f)[0]
+        ext = os.path.splitext(f)[1].lower()
+
+        if ext == '.png':
+            png_bases.add(base)
+        elif ext == '.pdf':
+            pdf_bases.add(base)
+
+    all_bases = sorted(png_bases | pdf_bases)
+
+    subfolders = []
+    for entry in sorted(os.listdir(dir_path)):
+        entry_path = os.path.join(dir_path, entry)
+        if not os.path.isdir(entry_path):
+            continue
+        if any(entry.startswith(p) for p in SKIP_FOLDER_PREFIXES):
+            continue
+
+        sub_entries = discover_planvision_folder(entry_path, depth + 1, max_depth)
+        if sub_entries is not None:
+            sub_label = parse_folder_label(entry)
+            sub_item = {
+                'folder'  : entry,
+                'label'   : sub_label,
+                'label-override' : False,
+            }
+            sub_files = sub_entries.get('files', []) if isinstance(sub_entries, dict) else []
+            sub_subs  = sub_entries.get('subfolders', []) if isinstance(sub_entries, dict) else []
+
+            if sub_files:
+                sub_item['files'] = sub_files
+            if sub_subs:
+                sub_item['subfolders'] = sub_subs
+
+            if sub_files or sub_subs:
+                subfolders.append(sub_item)
+
+    return {
+        'files'      : all_bases,
+        'subfolders' : subfolders,
+    }
+
+
+def discover_planvision_phases(project_path):
+    """Discover all design phase folders and their content under 20__PlanVision__AppContent."""
+    pv_path = os.path.join(project_path, PLANVISION_CONTENT_FOLDER)
+    phases = []
+
+    if not os.path.isdir(pv_path):
+        return phases
+
+    for entry in sorted(os.listdir(pv_path)):
+        entry_path = os.path.join(pv_path, entry)
+        if not os.path.isdir(entry_path):
+            continue
+        if any(entry.startswith(p) for p in SKIP_FOLDER_PREFIXES):
+            continue
+
+        match = PHASE_FOLDER_PATTERN.match(entry)
+        if not match:
+            continue
+
+        phase_key_match = re.match(r'^(DesignPhase\d+)', entry)
+        phase_key = phase_key_match.group(1) if phase_key_match else entry
+
+        folder_structure = []
+        for sub_entry in sorted(os.listdir(entry_path)):
+            sub_path = os.path.join(entry_path, sub_entry)
+
+            if os.path.isdir(sub_path):
+                if any(sub_entry.startswith(p) for p in SKIP_FOLDER_PREFIXES):
+                    continue
+                content = discover_planvision_folder(sub_path, depth=1)
+                label = parse_folder_label(sub_entry)
+                item = {
+                    'folder'         : sub_entry,
+                    'label'          : label,
+                    'label-override' : False,
+                    'document-type'  : 'Drawing',
+                    'document-scale' : '1:50',
+                    'document-size'  : 'A2',
+                }
+                if content.get('files'):
+                    item['files'] = content['files']
+                if content.get('subfolders'):
+                    item['subfolders'] = content['subfolders']
+                if content.get('files') or content.get('subfolders'):
+                    folder_structure.append(item)
+
+        root_content = discover_planvision_folder(entry_path, depth=0)
+        if root_content.get('files'):
+            folder_structure.insert(0, {
+                'label'          : parse_folder_label(entry),
+                'label-override' : False,
+                'document-type'  : 'Drawing',
+                'document-scale' : '1:50',
+                'document-size'  : 'A2',
+                'files'          : root_content['files'],
+            })
+
+        if folder_structure:
+            phases.append({
+                'phase_key'        : phase_key,
+                'phase_folder'     : entry,
+                'folder_structure' : folder_structure,
+            })
+
+    return phases
+
+
+def generate_planvision_project_data(project_code, project_name, phases):
+    """Build the PlanVision__ProjectData__.json structure."""
+    phase_content = {}
+    available_phases = []
+
+    for phase in phases:
+        key = phase['phase_key']
+        available_phases.append(key)
+        phase_content[key] = {
+            'phase-folder'     : phase['phase_folder'],
+            'folder-structure' : phase['folder_structure'],
+        }
+
+    active_phase = available_phases[-1] if available_phases else 'DesignPhase01'
+
+    return {
+        'na-project-data-library' : {
+            'project-details' : {
+                'project-name'          : project_name,
+                'project-name-nickname' : project_name,
+                'project-address'       : '',
+                'project-description'   : '',
+                'client-name'           : '',
+            },
+            'project-phase-config' : {
+                'active-design-phase' : active_phase,
+                'available-phases'    : available_phases,
+                'phase-last-updated'  : datetime.now().strftime('%d-%b-%Y'),
+            },
+            'project-documentation' : {
+                'phase-content' : phase_content,
+            },
+        }
+    }
+
+
+def merge_planvision_existing_data(new_data, existing_data):
+    """Preserve manual overrides from existing PlanVision JSON when regenerating."""
+    if not existing_data:
+        return new_data
+
+    new_lib = new_data.get('na-project-data-library', {})
+    old_lib = existing_data.get('na-project-data-library', {})
+
+    old_details = old_lib.get('project-details', {})
+    new_details = new_lib.get('project-details', {})
+    for key in ('project-name', 'project-name-nickname', 'project-address',
+                'project-description', 'client-name'):
+        if old_details.get(key):
+            new_details[key] = old_details[key]
+
+    old_phase_cfg = old_lib.get('project-phase-config', {})
+    new_phase_cfg = new_lib.get('project-phase-config', {})
+    old_active = old_phase_cfg.get('active-design-phase')
+    new_available = new_phase_cfg.get('available-phases', [])
+    if old_active and old_active in new_available:
+        new_phase_cfg['active-design-phase'] = old_active
+
+    old_phases = old_lib.get('project-documentation', {}).get('phase-content', {})
+    new_phases = new_lib.get('project-documentation', {}).get('phase-content', {})
+
+    for phase_key, new_phase in new_phases.items():
+        old_phase = old_phases.get(phase_key, {})
+        old_folders = {_build_folder_id(f): f for f in old_phase.get('folder-structure', [])}
+
+        for folder_entry in new_phase.get('folder-structure', []):
+            fid = _build_folder_id(folder_entry)
+            old_folder = old_folders.get(fid)
+            if not old_folder:
+                continue
+
+            if old_folder.get('label-override', False):
+                folder_entry['label'] = old_folder['label']
+                folder_entry['label-override'] = True
+
+            for prop in ('document-type', 'document-scale', 'document-size'):
+                if old_folder.get(prop):
+                    folder_entry[prop] = old_folder[prop]
+
+            _merge_subfolder_labels(folder_entry.get('subfolders', []),
+                                    old_folder.get('subfolders', []))
+
+    return new_data
+
+
+def _build_folder_id(folder_entry):
+    """Create a stable identifier for a folder entry."""
+    return folder_entry.get('folder', folder_entry.get('label', ''))
+
+
+def _merge_subfolder_labels(new_subs, old_subs):
+    """Recursively preserve label-override flags in subfolders."""
+    old_map = {_build_folder_id(s): s for s in old_subs}
+    for sub in new_subs:
+        old_sub = old_map.get(_build_folder_id(sub))
+        if old_sub and old_sub.get('label-override', False):
+            sub['label'] = old_sub['label']
+            sub['label-override'] = True
+        if old_sub:
+            _merge_subfolder_labels(sub.get('subfolders', []),
+                                    old_sub.get('subfolders', []))
+
+
+def write_planvision_project_data(project_path, data):
+    """Write PlanVision__ProjectData__.json into the project's PlanVision content folder."""
+    pv_dir = os.path.join(project_path, PLANVISION_CONTENT_FOLDER)
+    os.makedirs(pv_dir, exist_ok=True)
+    output_path = os.path.join(pv_dir, PLANVISION_DATA_FILENAME)
+
+    existing_data = None
+    if os.path.isfile(output_path):
+        try:
+            with open(output_path, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    data = merge_planvision_existing_data(data, existing_data)
+
+    with open(output_path, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+        f.write('\n')
+
+    print(f'  [WRITTEN] {output_path}')
+
+
+# =============================================================================
 # FILE WRITERS
 # =============================================================================
 
@@ -579,6 +864,23 @@ def main():
 
     if tv_generated_count > 0:
         print(f'\n  [INFO] Generated TrueVision__ProjectData__.json for {tv_generated_count} project(s)')
+
+    # GENERATE PLANVISION PROJECT DATA JSON FOR EACH PROJECT WITH PV CONTENT
+    pv_generated_count = 0
+    for proj in all_projects:
+        if not proj['subApps']['planVision']:
+            continue
+
+        phases = discover_planvision_phases(proj['folderPath'])
+        if phases:
+            pv_data = generate_planvision_project_data(
+                proj['projectCode'], proj['projectName'], phases
+            )
+            write_planvision_project_data(proj['folderPath'], pv_data)
+            pv_generated_count += 1
+
+    if pv_generated_count > 0:
+        print(f'\n  [INFO] Generated PlanVision__ProjectData__.json for {pv_generated_count} project(s)')
 
     print_summary(all_projects, warnings)
     return 0

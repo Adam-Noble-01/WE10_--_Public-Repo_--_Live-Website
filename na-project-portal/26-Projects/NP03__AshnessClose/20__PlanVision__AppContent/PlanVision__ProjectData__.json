@@ -1,0 +1,69 @@
+{
+    "na-project-data-library": {
+        "project-details": {
+            "project-name": "Ashness Close",
+            "project-name-nickname": "Ashness Close",
+            "project-address": "",
+            "project-description": "",
+            "client-name": ""
+        },
+        "project-phase-config": {
+            "active-design-phase": "DesignPhase03",
+            "available-phases": [
+                "DesignPhase01",
+                "DesignPhase02",
+                "DesignPhase03"
+            ],
+            "phase-last-updated": "08-Mar-2026"
+        },
+        "project-documentation": {
+            "phase-content": {
+                "DesignPhase01": {
+                    "phase-folder": "DesignPhase01__ConceptDesign__Content",
+                    "folder-structure": [
+                        {
+                            "label": "Concept Design",
+                            "label-override": false,
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
+                                "NP03_T01_D01__TestConceptPlan__RevA__"
+                            ]
+                        }
+                    ]
+                },
+                "DesignPhase02": {
+                    "phase-folder": "DesignPhase02__PlanningApproval__Content",
+                    "folder-structure": [
+                        {
+                            "label": "Planning Approval",
+                            "label-override": false,
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
+                                "NP03_T02_D11__TestPlanningApproval__RevA__"
+                            ]
+                        }
+                    ]
+                },
+                "DesignPhase03": {
+                    "phase-folder": "DesignPhase03__BuildingRegs__Content",
+                    "folder-structure": [
+                        {
+                            "label": "Building Regs",
+                            "label-override": false,
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
+                                "NP03_T03_D21__TestBuildingRegs__RevA__"
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

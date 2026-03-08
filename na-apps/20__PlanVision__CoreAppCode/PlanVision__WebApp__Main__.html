@@ -55,7 +55,12 @@
     <script src="03__Src__AppModules/03__CommonUtils/CommonUtils__ProjectCodeValidator__.js?v=2.1.1"></script>
     <script src="03__Src__AppModules/01__AppCore/AppCore__UrlQuerySystem__.js?v=2.1.1"></script>
 
-    
+    <!-- Cloudflare CDN Loader (must load before data loaders) -->
+    <script src="03__Src__AppModules/04__AssetAndDataLoaders/Loader__CloudflareCdnLoader__.js?v=2.1.1"></script>
+
+    <!-- Toast Notification System -->
+    <script src="03__Src__AppModules/10__UserInterface/UserInterface__ToastNotification__.js?v=2.1.1"></script>
+
     <!-- Load The Data Loader Modules -->
     <script src="03__Src__AppModules/04__AssetAndDataLoaders/Loader__DrawingsDataManager__.js?v=2.1.1"></script>
     
@@ -440,7 +445,7 @@
             const NaUrlQueryContext = window.NaPlanVision?.UrlQuerySystem
                 ? window.NaPlanVision.UrlQuerySystem.getProjectContext({
                     defaultProjectCode: null,
-                    defaultProjectYear: '25',
+                    defaultProjectYear: '26',
                     defaultProjectFolder: null,
                     localProjectPortalBase: '../na-project-portal',
                     liveProjectPortalBase: 'https://www.noble-architecture.com/na-project-portal'
@@ -448,9 +453,10 @@
                 : {
                     isLocalDev: NaIsLocalDev__Fallback,
                     projectCode: null,
-                    projectYear: '25',
+                    projectYear: '26',
                     projectFolder: null,
                     projectBaseUrl: null,
+                    projectContentBaseUrl: null,
                     projectDataFilename: null,
                     projectDataUrl: null
                 };
@@ -460,16 +466,27 @@
             const NaProjectFolder__ActiveProject = NaUrlQueryContext.projectFolder;
             const NaProjectDataFile__ActiveProject = NaUrlQueryContext.projectDataFilename;
 
-            const BASE_URL = NaUrlQueryContext.projectBaseUrl;
+            const BASE_URL = NaUrlQueryContext.projectContentBaseUrl;
             const JSON_CONFIG_URL = NaUrlQueryContext.projectDataUrl;
-            window.JSON_CONFIG_URL = JSON_CONFIG_URL;  // <-- Expose globally for VideoPlayer modules
+            window.JSON_CONFIG_URL = JSON_CONFIG_URL;
+
+            // Build CDN URL for project data (production only, local dev uses direct paths)
+            const CDN_CONFIG_URL = (!IS_LOCAL_DEV && window.NaPlanVision?.CloudflareCdnLoader)
+                ? window.NaPlanVision.CloudflareCdnLoader.Na__Cdn__BuildProjectDataUrl(
+                    NaProjectFolder__ActiveProject,
+                    NaUrlQueryContext.projectYear
+                  )
+                : null;
+
             const APP_CONFIG_URL = '03__Src__AppModules/02__AppData/AppConfiguration__PlanVision__MainAppSettings__.json';
             let NaAppConfig = null;
 
-            // Log environment on startup
             console.log(`[Environment] Running in ${IS_LOCAL_DEV ? 'LOCAL DEVELOPMENT' : 'PRODUCTION'} mode`);
             console.log(`[Environment] Base URL: ${BASE_URL || '(relative)'}`);
             console.log(`[Environment] JSON URL: ${JSON_CONFIG_URL}`);
+            if (CDN_CONFIG_URL) {
+                console.log(`[Environment] CDN URL: ${CDN_CONFIG_URL}`);
+            }
 
             // URL transformation is now handled by DrawingsCanvas__DrawingLoader__.js
 
@@ -703,7 +720,7 @@
                 // Initialize Drawings Data Manager
                 // -----------------------------------------
                 if (window.NaPlanVision && window.NaPlanVision.DrawingsDataManager) {
-                    window.NaPlanVision.DrawingsDataManager.Na__Data__Initialize(JSON_CONFIG_URL, BASE_URL);
+                    window.NaPlanVision.DrawingsDataManager.Na__Data__Initialize(JSON_CONFIG_URL, BASE_URL, CDN_CONFIG_URL);
                     const fetchResult = await window.NaPlanVision.DrawingsDataManager.Na__Data__FetchDrawings();
 
                     if (fetchResult) {

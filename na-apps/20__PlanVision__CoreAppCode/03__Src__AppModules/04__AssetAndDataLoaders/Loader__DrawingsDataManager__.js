@@ -44,16 +44,17 @@
         // STATE | Data State Variables
         // --------------------------------------------------------
 
-            let phaseContentData               = null;                        // <-- Stores all phase-content from JSON
-            let currentDesignPhase             = null;                        // <-- Set from JSON config
-            let projectPhaseConfig             = null;                        // <-- Stores phase config from JSON
-            let projectDetails                 = null;                        // <-- Stores project-details from JSON
-            let jsonConfigUrl                  = null;                        // <-- JSON file URL
-            let projectBaseUrl                 = null;                        // <-- Project base URL for path construction
+            let phaseContentData               = null;
+            let currentDesignPhase             = null;
+            let projectPhaseConfig             = null;
+            let projectDetails                 = null;
+            let jsonConfigUrl                  = null;
+            let projectBaseUrl                 = null;
+            let cdnDataUrl                     = null;
+            let dataLoadSource                 = null;
 
-            // Processed data stores (built from folder-structure)
-            let folderGroupsByPhase            = {};                          // <-- { DesignPhase03: [ { label, type, drawings[] }, ... ] }
-            let flatDrawingsByPhase            = {};                          // <-- { DesignPhase03: [ drawingObj, drawingObj, ... ] }
+            let folderGroupsByPhase            = {};
+            let flatDrawingsByPhase            = {};
 
         // endregion ----------------------------------------------
 
@@ -63,11 +64,13 @@
 
             // FUNCTION | Initialize Drawings Data Manager
             // ------------------------------------------------------------
-            const Na__Data__Initialize = function (configUrl, baseUrl) {
+            const Na__Data__Initialize = function (configUrl, baseUrl, cdnConfigUrl) {
                 console.log('[DrawingsDataManager] Initializing...');
                 jsonConfigUrl    = configUrl;
                 projectBaseUrl   = baseUrl || '';
+                cdnDataUrl       = cdnConfigUrl || null;
                 console.log('[DrawingsDataManager] JSON Config URL:', jsonConfigUrl);
+                console.log('[DrawingsDataManager] CDN Config URL:', cdnDataUrl || '(none)');
                 console.log('[DrawingsDataManager] Project Base URL:', projectBaseUrl);
             };
             // ---------------------------------------------------------------
@@ -324,16 +327,39 @@
         // --------------------------------------------------------
 
             // FUNCTION | Fetch Drawings from JSON Configuration File
+            // Uses CDN loader when available, falls back to direct fetch
             // ------------------------------------------------------------
             const Na__Data__FetchDrawings = async function () {
                 try {
-                    const response = await fetch(jsonConfigUrl);
-                    if (!response.ok) {
-                        throw new Error('HTTP error! Status: ' + response.status);
+                    let data;
+                    const cdnLoader = window.NaPlanVision?.CloudflareCdnLoader;
+
+                    if (cdnLoader && cdnDataUrl) {
+                        const result = await cdnLoader.Na__Cdn__FetchJsonWithFallback(cdnDataUrl, jsonConfigUrl);
+                        data = result.data;
+                        dataLoadSource = result.source;
+
+                        if (result.source === 'legacy' && window.NaPlanVision?.ToastNotification) {
+                            window.NaPlanVision.ToastNotification.Na__Toast__Show(
+                                'CDN unavailable \u2014 using legacy loader. Files may be up to 5 minutes behind.',
+                                'warning',
+                                6000
+                            );
+                        }
+                    } else {
+                        const response = await fetch(jsonConfigUrl);
+                        if (!response.ok) {
+                            throw new Error('HTTP error! Status: ' + response.status);
+                        }
+                        data = await response.json();
+                        dataLoadSource = cdnDataUrl ? 'legacy' : 'direct';
                     }
 
-                    const data = await response.json();
-                    console.log('[DrawingsDataManager] Fetched data successfully');
+                    if (!data) {
+                        throw new Error('No data returned from fetch');
+                    }
+
+                    console.log('[DrawingsDataManager] Fetched data successfully (source: ' + dataLoadSource + ')');
 
                     // Validate JSON structure
                     if (!data['na-project-data-library']) {
@@ -504,6 +530,14 @@
             };
             // ---------------------------------------------------------------
 
+            // FUNCTION | Get Data Load Source
+            // Returns 'cdn', 'legacy', or 'direct'
+            // ------------------------------------------------------------
+            const Na__Data__GetDataLoadSource = function () {
+                return dataLoadSource;
+            };
+            // ---------------------------------------------------------------
+
         // endregion ----------------------------------------------
 
         // #Region ------------------------------------------------
@@ -520,7 +554,8 @@
                 Na__Data__GetAllDrawingsData        : Na__Data__GetAllDrawingsData,
                 Na__Data__GetFolderGroups           : Na__Data__GetFolderGroups,
                 Na__Data__GetHistoricFolderGroups   : Na__Data__GetHistoricFolderGroups,
-                Na__Data__GetFlatDrawingsList       : Na__Data__GetFlatDrawingsList
+                Na__Data__GetFlatDrawingsList       : Na__Data__GetFlatDrawingsList,
+                Na__Data__GetDataLoadSource         : Na__Data__GetDataLoadSource
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

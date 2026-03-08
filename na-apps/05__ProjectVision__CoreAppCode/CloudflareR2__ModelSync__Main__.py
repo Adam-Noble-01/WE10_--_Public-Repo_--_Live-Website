@@ -89,14 +89,19 @@ PROJECT_CODE_PATTERN               = re.compile(r'^[A-Z]{2}\d{2}$', re.IGNORECAS
 TRUEVISION_CONTENT_FOLDER          = '30__TrueVision__AppContent'
 PLANVISION_CONTENT_FOLDER          = '20__PlanVision__AppContent'
 GLB_FILE_PATTERN                   = re.compile(r'^.+\.glb$', re.IGNORECASE)
+PLANVISION_FILE_PATTERN            = re.compile(r'^.+\.(png|pdf|json)$', re.IGNORECASE)
 JSON_PROJECT_DATA_FILENAME         = 'TrueVision__ProjectData__.json'
+PLANVISION_DATA_FILENAME           = 'PlanVision__ProjectData__.json'
 MASTER_PROJECT_INDEX_PATH          = SCRIPT_DIR / '05__AppData' / 'ProjectVision__MasterProjectIndex__Core__.json'
+SKIP_FOLDER_PREFIXES               = ('.', '00__')
     # ------------------------------------------------------------
 
     # MODULE CONSTANTS | Content Types
     # ------------------------------------------------------------
 CONTENT_TYPE_GLB                   = 'model/gltf-binary'
 CONTENT_TYPE_JSON                  = 'application/json'
+CONTENT_TYPE_PNG                   = 'image/png'
+CONTENT_TYPE_PDF                   = 'application/pdf'
     # ------------------------------------------------------------
 
     # MODULE CONSTANTS | Console Colour Codes
@@ -312,6 +317,37 @@ def parse_group_label(group_id: str) -> str:
     return label
     # ------------------------------------------------------------
 
+
+    # FUNCTION | Discover PlanVision Content Files Recursively
+    # ------------------------------------------------------------
+def discover_planvision_content(project_path: Path) -> List[Dict]:
+    """Walk 20__PlanVision__AppContent/ and collect all PNG, PDF, and JSON files."""
+    pv_content_path = project_path / PLANVISION_CONTENT_FOLDER
+    files = []
+
+    if not pv_content_path.is_dir():
+        return files
+
+    for root_path, dirs, filenames in os.walk(pv_content_path):
+        dirs[:] = [d for d in dirs if not any(d.startswith(p) for p in SKIP_FOLDER_PREFIXES)]
+        root = Path(root_path)
+
+        for fname in sorted(filenames):
+            if not PLANVISION_FILE_PATTERN.match(fname):
+                continue
+
+            local_path = root / fname
+            relative   = local_path.relative_to(pv_content_path)
+
+            files.append({
+                'local_path'    : local_path,
+                'relative_path' : relative,
+                'filename'      : fname,
+            })
+
+    return files
+    # ------------------------------------------------------------
+
 # endregion -------------------------------------------------------------------
 
 
@@ -324,6 +360,15 @@ def parse_group_label(group_id: str) -> str:
 def build_r2_key(year_folder_name: str, project_folder: str, content_folder: str, subfolder: str, filename: str) -> str:
     """Construct the R2 object key mirroring the local folder structure."""
     return f"{R2_BASE_PREFIX}/{year_folder_name}/{project_folder}/{content_folder}/{subfolder}/{filename}"
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Build R2 Key for PlanVision Content File
+    # ------------------------------------------------------------
+def build_r2_key_planvision(year_folder_name: str, project_folder: str, relative_path: Path) -> str:
+    """Construct the R2 key for a PlanVision content file."""
+    rel_posix = relative_path.as_posix()
+    return f"{R2_BASE_PREFIX}/{year_folder_name}/{project_folder}/{PLANVISION_CONTENT_FOLDER}/{rel_posix}"
     # ------------------------------------------------------------
 
 
@@ -413,6 +458,57 @@ def collect_sync_operations(
             'size'         : project_data_path.stat().st_size,
             'group_id'     : '__project_data__',
             'filename'     : JSON_PROJECT_DATA_FILENAME,
+        })
+
+    return operations
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Resolve Content Type from File Extension
+    # ------------------------------------------------------------
+def resolve_content_type(filename: str) -> str:
+    """Return the appropriate MIME type for a PlanVision file."""
+    ext = Path(filename).suffix.lower()
+    return {
+        '.png'  : CONTENT_TYPE_PNG,
+        '.pdf'  : CONTENT_TYPE_PDF,
+        '.json' : CONTENT_TYPE_JSON,
+        '.glb'  : CONTENT_TYPE_GLB,
+    }.get(ext, 'application/octet-stream')
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Collect PlanVision Sync Operations for a Project
+    # ------------------------------------------------------------
+def collect_planvision_sync_operations(
+    s3_client, bucket_name: str,
+    year_folder_name: str, project: Dict, pv_files: List[Dict]
+) -> List[Dict]:
+    """Build a list of all PlanVision file operations (PNG + PDF + JSON)."""
+    operations = []
+
+    for pv_file in pv_files:
+        local_path    = pv_file['local_path']
+        relative_path = pv_file['relative_path']
+        filename      = pv_file['filename']
+
+        r2_key = build_r2_key_planvision(
+            year_folder_name, project['project_folder'], relative_path
+        )
+        content_type = resolve_content_type(filename)
+        action, detail = determine_action(s3_client, bucket_name, local_path, r2_key)
+
+        parent_folder = str(relative_path.parent) if relative_path.parent != Path('.') else '__pv_root__'
+
+        operations.append({
+            'local_path'   : local_path,
+            'r2_key'       : r2_key,
+            'content_type' : content_type,
+            'action'       : action,
+            'detail'       : detail,
+            'size'         : local_path.stat().st_size,
+            'group_id'     : f'PV:{parent_folder}',
+            'filename'     : filename,
         })
 
     return operations
@@ -739,7 +835,9 @@ def run_r2_purge(project_code: str) -> int:
 def run_r2_sync(
     target_project: Optional[str] = None,
     dry_run_only: bool = False,
-    auto_confirm_upload: bool = False
+    auto_confirm_upload: bool = False,
+    sync_truevision: bool = True,
+    sync_planvision: bool = True,
 ):
     """Execute the full R2 sync pipeline. Called by the build script or CLI."""
 
@@ -797,26 +895,38 @@ def run_r2_sync(
             if target_project and project['project_folder'] != target_project:
                 continue
 
-            model_groups = discover_model_groups(project['project_path'])
-            if not model_groups:
-                continue
+            project_operations = []
 
-            project_data_path = (
-                project['project_path'] / TRUEVISION_CONTENT_FOLDER / JSON_PROJECT_DATA_FILENAME
-            )
+            # TrueVision sync
+            if sync_truevision:
+                model_groups = discover_model_groups(project['project_path'])
+                if model_groups:
+                    project_data_path = (
+                        project['project_path'] / TRUEVISION_CONTENT_FOLDER / JSON_PROJECT_DATA_FILENAME
+                    )
+                    tv_ops = collect_sync_operations(
+                        s3_client, bucket_name,
+                        year_folder_name, project, model_groups,
+                        project_data_path if project_data_path.is_file() else None
+                    )
+                    project_operations.extend(tv_ops)
 
-            operations = collect_sync_operations(
-                s3_client, bucket_name,
-                year_folder_name, project, model_groups,
-                project_data_path if project_data_path.is_file() else None
-            )
+            # PlanVision sync
+            if sync_planvision:
+                pv_files = discover_planvision_content(project['project_path'])
+                if pv_files:
+                    pv_ops = collect_planvision_sync_operations(
+                        s3_client, bucket_name,
+                        year_folder_name, project, pv_files
+                    )
+                    project_operations.extend(pv_ops)
 
-            if operations:
-                all_operations.extend(operations)
-                project_op_groups.append((project, operations))
+            if project_operations:
+                all_operations.extend(project_operations)
+                project_op_groups.append((project, project_operations))
 
     if not all_operations:
-        print(f"  {C_YELLOW}[INFO] No TrueVision model files found to sync.{C_RESET}\n")
+        print(f"  {C_YELLOW}[INFO] No syncable files found.{C_RESET}\n")
         return 0
 
     # STEP 5 | Print dry-run preview
@@ -972,7 +1082,25 @@ if __name__ == '__main__':
         help='Purge all GLB files from R2 for a project code (e.g. RB05).',
     )
     parser.add_argument(
-        '--instructions', '--Instructions',
+        '--tv-only', '--truevision-only', '--TrueVision',
+        dest='tv_only',
+        action='store_true',
+        help='Sync only TrueVision files (GLB + TrueVision JSON).',
+    )
+    parser.add_argument(
+        '--pv-only', '--planvision-only', '--PlanVision',
+        dest='pv_only',
+        action='store_true',
+        help='Sync only PlanVision files (PNG + PDF + PlanVision JSON).',
+    )
+    parser.add_argument(
+        '--all',
+        dest='sync_all',
+        action='store_true',
+        help='Scan all projects from year 25 onwards.',
+    )
+    parser.add_argument(
+        '--instructions', '--Instructions', '--help-detail',
         dest='show_instructions',
         action='store_true',
         help='Show detailed usage instructions and exit.',
@@ -984,6 +1112,9 @@ if __name__ == '__main__':
         print(INSTRUCTIONS_TEXT)
         raise SystemExit(0)
 
+    sync_tv = not args.pv_only
+    sync_pv = not args.tv_only
+
     try:
         if args.purge_project:
             exit_code = run_r2_purge(project_code=args.purge_project)
@@ -991,6 +1122,8 @@ if __name__ == '__main__':
             exit_code = run_r2_sync(
                 target_project=args.project,
                 dry_run_only=args.dry_run_only,
+                sync_truevision=sync_tv,
+                sync_planvision=sync_pv,
             )
     except Exception as error:
         import traceback

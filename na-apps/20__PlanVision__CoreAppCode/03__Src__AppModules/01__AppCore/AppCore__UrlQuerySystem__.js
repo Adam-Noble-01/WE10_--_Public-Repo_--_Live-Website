@@ -12,11 +12,17 @@
 // DESCRIPTION:
 // - Reads ?project=XX00 and related query values
 // - Resolves project paths for local and production environments
+// - Includes 20__PlanVision__AppContent in content path resolution
 // - Builds project data file URLs using standard naming conventions
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 08-Mar-2026 - Version 1.1.0
+// - Fixed project content path to include 20__PlanVision__AppContent
+// - Fixed data filename to PlanVision__ProjectData__.json (no project code prefix)
+// - Exposed projectContentBaseUrl for drawing file resolution
+//
 // 09-Feb-2026 - Version 1.0.0
 // - Initial Stable Release
 //   - Query parsing
@@ -41,8 +47,11 @@
             const NaProjectFolderQueryKey__Default = 'project-folder';
 
             const NaDefaultProjectCode__Fallback = 'JH03';
-            const NaDefaultProjectYear__Fallback = '25';
+            const NaDefaultProjectYear__Fallback = '26';
             const NaDefaultProjectFolder__Fallback = 'JH03__RomerCottage';
+
+            const NaPlanVisionContentDir__Default = '20__PlanVision__AppContent';
+            const NaPlanVisionDataFilename__Default = 'PlanVision__ProjectData__.json';
 
             const NaLocalProjectPortalBase__Fallback = '../na-project-portal';
             const NaLiveProjectPortalBase__Fallback = 'https://www.noble-architecture.com/na-project-portal';
@@ -182,35 +191,37 @@
                 const projectYear = Na__GetProjectYear(queryParams, resolvedOptions);
                 const projectFolder = Na__GetProjectFolder(queryParams, resolvedOptions, projectCode);
 
-                // Only build URLs if we have valid project code and folder
-                let projectPortalBase = null;
-                let projectBasePath = null;
-                let projectBaseUrl = null;
-                let projectDataFilename = null;
-                let projectDataUrl = null;
+                let projectPortalBase    = null;
+                let projectBasePath      = null;
+                let projectBaseUrl       = null;
+                let projectContentBaseUrl = null;
+                let projectDataFilename  = null;
+                let projectDataUrl       = null;
 
                 if (projectCode && projectFolder) {
                     projectPortalBase = isLocalDev
                         ? resolvedOptions.localProjectPortalBase
                         : resolvedOptions.liveProjectPortalBase;
 
-                    projectBasePath = `${projectYear}-Projects/${projectFolder}`;
-                    projectBaseUrl = Na__JoinUrlParts(projectPortalBase, projectBasePath);
+                    projectBasePath      = `${projectYear}-Projects/${projectFolder}`;
+                    projectBaseUrl       = Na__JoinUrlParts(projectPortalBase, projectBasePath);
+                    projectContentBaseUrl = Na__JoinUrlParts(projectBaseUrl, NaPlanVisionContentDir__Default);
 
-                    projectDataFilename = `${projectCode}__PlanVision__ProjectData__.json`;
-                    projectDataUrl = Na__JoinUrlParts(projectBaseUrl, projectDataFilename);
+                    projectDataFilename  = NaPlanVisionDataFilename__Default;
+                    projectDataUrl       = Na__JoinUrlParts(projectContentBaseUrl, projectDataFilename);
                 }
 
                 return {
-                    isLocalDev           : isLocalDev,
-                    projectCode          : projectCode,
-                    projectYear          : projectYear,
-                    projectFolder        : projectFolder,
-                    projectPortalBase    : projectPortalBase,
-                    projectBaseUrl       : projectBaseUrl,
-                    projectDataFilename  : projectDataFilename,
-                    projectDataUrl       : projectDataUrl,
-                    queryParams          : queryParams
+                    isLocalDev             : isLocalDev,
+                    projectCode            : projectCode,
+                    projectYear            : projectYear,
+                    projectFolder          : projectFolder,
+                    projectPortalBase      : projectPortalBase,
+                    projectBaseUrl         : projectBaseUrl,
+                    projectContentBaseUrl  : projectContentBaseUrl,
+                    projectDataFilename    : projectDataFilename,
+                    projectDataUrl         : projectDataUrl,
+                    queryParams            : queryParams
                 };
             };
 
