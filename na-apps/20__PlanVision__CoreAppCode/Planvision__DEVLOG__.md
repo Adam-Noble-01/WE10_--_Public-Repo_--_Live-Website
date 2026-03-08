@@ -6,6 +6,81 @@
 
 # -----------------------------------------------------------------------------
 
+## PlanVision - Version 2.2.0 - 08-Mar-2026
+
+### Added - Cloudflare CDN Integration, Session Cache, and ProjectVision Launch Support
+
+#### Cloudflare CDN Loader (`Loader__CloudflareCdnLoader__.js`) - NEW MODULE
+- PlanVision now loads project data and drawing assets from Cloudflare R2 CDN as the primary source
+- Falls back to GitHub Pages (legacy loader) automatically if CDN is unavailable
+- Eliminates the 5-minute propagation delay when pushing updates via GitHub Pages
+- CDN URL construction mirrors the R2 bucket key structure: `cdn.noble-architecture.com/NaProjectPortal/{year}-Projects/{folder}/20__PlanVision__AppContent/...`
+- `Na__Cdn__BuildProjectDataUrl()` builds the CDN path for `PlanVision__ProjectData__.json`
+- `Na__Cdn__BuildAssetUrl()` builds CDN paths for any PNG/PDF drawing asset
+- `Na__Cdn__ConvertLegacyUrlToCdn()` converts existing GitHub Pages URLs to their CDN equivalents
+- `Na__Cdn__FetchJsonWithFallback()` fetches JSON with CDN priority and legacy fallback
+- `Na__Cdn__LoadImageWithFallback()` probes CDN image availability with legacy fallback
+
+#### Toast Notification System (`UserInterface__ToastNotification__.js`) - NEW MODULE
+- Transient on-screen notifications for load source warnings
+- Displays a red warning toast when CDN is unavailable and the legacy loader is active
+- Supports warning (red), info (blue), and success (green) notification types
+- Auto-fades after configurable duration (default 5 seconds)
+- Creates its own DOM container on first use, no HTML template required
+
+#### Drawing Session Cache (`DrawingsCanvas__SessionCache__.js`) - NEW MODULE
+- In-memory blob URL cache eliminates redundant CDN downloads when switching between drawings
+- Previously every drawing button press triggered 2 full CDN requests (probe image + planImage.src assignment); now triggers 1 `fetch()` on first view and 0 on revisit
+- Uses `fetch()` + `response.blob()` + `URL.createObjectURL()` to store images as blob URLs
+- Blob URLs live only in browser memory -- no disk persistence, fresh CDN fetch on every new session
+- 2-hour staleness guard: after 2 hours the session is considered stale and all subsequent fetches bypass the cache, forcing fresh CDN downloads
+- `Na__Cache__Clear()` revokes all blob URLs to prevent memory leaks
+- Also caches JSON project data with the same staleness logic
+
+### Changed - URL Path Fix for ProjectVision Launch
+
+#### URL Query System Fix (`AppCore__UrlQuerySystem__.js`)
+- **Critical fix**: Added `20__PlanVision__AppContent` directory segment to the URL path construction
+- Previously the data URL resolved to `.../RB05__WestFarm/RB05__PlanVision__ProjectData__.json` (missing content directory, wrong filename)
+- Now correctly resolves to `.../RB05__WestFarm/20__PlanVision__AppContent/PlanVision__ProjectData__.json`
+- Added `NaPlanVisionContentDir__Default` and `NaPlanVisionDataFilename__Default` constants
+- Exposed `projectContentBaseUrl` in the context return object for drawing file resolution
+- Changed default project year from `'25'` to `'26'`
+
+#### DrawingsDataManager CDN Integration (`Loader__DrawingsDataManager__.js`)
+- `Na__Data__FetchDrawings()` now uses `CloudflareCdnLoader.Na__Cdn__FetchJsonWithFallback()` for project data
+- Triggers toast notification when falling back to legacy loader
+- Added `cdnDataUrl` parameter to `Na__Data__Initialize()`
+- Added `Na__Data__GetDataLoadSource()` accessor to report load source (cdn / legacy / direct)
+
+#### DrawingLoader Cache Integration (`DrawingsCanvas__DrawingLoader__.js`)
+- Drawing load path now routes through `SessionCache.Na__Cache__GetOrFetchImage()` when available
+- Eliminates the double-fetch pattern (CDN probe + planImage.src) by using a single `fetch()` with blob storage
+- Falls back to the original `Na__Cdn__LoadImageWithFallback` if session cache is not loaded
+- Removed hardcoded `JH03__RomerCottage` fallback from project folder resolution
+- Fixed local dev URL transform to use `projectContentBaseUrl`
+
+#### Main HTML Wiring (`PlanVision__WebApp__Main__.html`)
+- Added `<script>` tags for CDN loader, toast notification, and session cache modules
+- `BASE_URL` now uses `projectContentBaseUrl` (includes `20__PlanVision__AppContent`)
+- Builds `CDN_CONFIG_URL` from the CDN loader for production environments
+- Passes CDN URL to `Na__Data__Initialize()` as third parameter
+- Added `Na__Cache__Initialize()` call in the init sequence
+- Changed `defaultProjectYear` from `'25'` to `'26'`
+
+#### Files Created
+- `03__Src__AppModules/04__AssetAndDataLoaders/Loader__CloudflareCdnLoader__.js` (206 lines)
+- `03__Src__AppModules/10__UserInterface/UserInterface__ToastNotification__.js` (162 lines)
+- `03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__SessionCache__.js` (282 lines)
+
+#### Files Modified
+- `03__Src__AppModules/01__AppCore/AppCore__UrlQuerySystem__.js`
+- `03__Src__AppModules/04__AssetAndDataLoaders/Loader__DrawingsDataManager__.js`
+- `03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__DrawingLoader__.js`
+- `PlanVision__WebApp__Main__.html`
+
+# -----------------------------------------------------------------------------
+
 ## PlanVision - Version 2.1.1 - 10-Feb-2026
 
 ### Added - Area Tool Snap-to-Close & Smart Menu Auto-Hide

@@ -177,14 +177,20 @@
                         window.NaPlanVision.LandingPage.Na__Landing__Hide();
                     }
 
-                    // CDN-first image loading with silent fallback
-                    const cdnLoader = window.NaPlanVision?.CloudflareCdnLoader;
+                    // @delegate: 03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__SessionCache__.js
+                    const sessionCache = window.NaPlanVision?.DrawingsCanvas?.SessionCache;
                     let resolvedPngUrl = legacyPngUrl;
                     let resolvedPdfUrl = cdnPdfUrl || legacyPdfUrl;
 
-                    if (cdnLoader && cdnPngUrl) {
-                        const imgResult = await cdnLoader.Na__Cdn__LoadImageWithFallback(cdnPngUrl, legacyPngUrl);
-                        resolvedPngUrl = imgResult.url;
+                    if (sessionCache) {
+                        const cached = await sessionCache.Na__Cache__GetOrFetchImage(cdnPngUrl, legacyPngUrl);
+                        resolvedPngUrl = cached.blobUrl;
+                    } else {
+                        const cdnLoader = window.NaPlanVision?.CloudflareCdnLoader;
+                        if (cdnLoader && cdnPngUrl) {
+                            const imgResult = await cdnLoader.Na__Cdn__LoadImageWithFallback(cdnPngUrl, legacyPngUrl);
+                            resolvedPngUrl = imgResult.url;
+                        }
                     }
 
                     await loadPlanImage(resolvedPngUrl);

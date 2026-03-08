@@ -6,6 +6,62 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.1.0 - 08-Mar-2026
+
+### Added - PlanVision CDN Integration, Build Pipeline Overhaul, Interactive CLI
+
+#### PlanVision R2 Sync (`CloudflareR2__ModelSync__Main__.py`)
+- Extended the Cloudflare R2 sync utility to upload PlanVision content (PNG, PDF, JSON) alongside TrueVision GLB files
+- New `discover_planvision_content()` function recursively walks `20__PlanVision__AppContent/` and collects all syncable files
+- New `collect_planvision_sync_operations()` builds R2 keys mirroring the local folder structure
+- New `resolve_content_type()` maps file extensions to MIME types (image/png, application/pdf, application/json)
+- New `build_r2_key_planvision()` constructs R2 keys for PlanVision content files
+- Added `sync_truevision` and `sync_planvision` parameters to `run_r2_sync()` for selective sync
+- Added CLI flags: `--tv-only` / `--truevision-only`, `--pv-only` / `--planvision-only`, `--all`
+- R2 key pattern: `NaProjectPortal/{year}-Projects/{folder}/20__PlanVision__AppContent/{relativePath}`
+
+#### PlanVision Project Data Generation (`ProjectVision__BuildScript__.py`)
+- Build script now auto-generates `PlanVision__ProjectData__.json` for projects with PlanVision content
+- New `discover_planvision_phases()` scans for `DesignPhaseNN__*` folders and their drawing content
+- New `discover_planvision_folder()` recursively discovers PNG/PDF files up to 3 levels of nesting
+- New `generate_planvision_project_data()` builds the standard PlanVision JSON schema
+- New `merge_planvision_existing_data()` preserves manual overrides (project details, label overrides) across rebuilds
+- `label-override` flag per folder entry: when `true`, the build script preserves the existing label; when `false` (default), it auto-generates from the folder name
+- `parse_folder_label()` strips `DesignPhaseNN__` prefixes and `__Content` suffixes for clean labels
+- Active design phase validation: preserved from existing JSON only if it exists in the new available phases
+
+#### Interactive Build Pipeline (`ProjectVision__BuildPipeline__.ps1`)
+- Complete rewrite with interactive numbered menu when launched with no arguments (double-click)
+- Menu options: Sync All, Sync Specific Project (TV+PV / TV only / PV only), Purge GLBs, Help
+- Project code prompt with validation (`[A-Z]{2}[0-9]{2}` format)
+- Resolves project name from master index for confirmation before proceeding
+- Two-stage confirmation: first confirms project identity, then the R2 sync handles upload confirmation
+- All original CLI flags still work when passed as arguments (`--All`, `--Project--{CODE}`, `--Project--{CODE}--TV`, `--Project--{CODE}--PV`, `--Help`)
+- Shorthand aliases: `--project {CODE} --tv`, `--project {CODE} --pv`, `--TrueVision`, `--PlanVision`
+- Displays mode summary (project + filter) before running
+
+### Changed - Sub-App URL Year Parameter
+
+#### URL Query System (`Na__AppUtils__UrlQuerySystem.js`)
+- `buildSubAppUrl()` now accepts and passes `projectYear` as a `year` query parameter
+- All sub-app URLs (Admin, PlanVision, TrueVision) now include the year so the target app resolves the correct year folder
+
+#### ProjectVision Landing Page (`index.html`)
+- Updated all three `buildSubAppUrl` calls to pass `projectData.projectYear`
+- Sub-app URLs now include `&year=26` (or whichever year the project belongs to)
+
+#### Files Created
+- None (all changes extend existing files)
+
+#### Files Modified
+- `CloudflareR2__ModelSync__Main__.py` (PlanVision discovery, sync, CLI flags)
+- `ProjectVision__BuildScript__.py` (PlanVision JSON generation, label parsing, merge logic)
+- `ProjectVision__BuildPipeline__.ps1` (interactive menu, flag parsing rewrite)
+- `02__Src__AppModules/Na__AppUtils__UrlQuerySystem.js` (year parameter in sub-app URLs)
+- `index.html` (pass projectYear to buildSubAppUrl)
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.0.6 - 06-Mar-2026
 
 ### Validated - Build Pipeline Purge Flow

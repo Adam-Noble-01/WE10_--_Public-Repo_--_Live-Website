@@ -71,6 +71,7 @@
     <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__CoordinateUtils__.js"></script>
     <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__LoadingStates__.js"></script>
     <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__DrawingLoader__.js"></script>
+    <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__SessionCache__.js"></script>
     <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__ViewControls__.js"></script>
     <script src="03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__RenderSystem__.js"></script>
 
@@ -694,6 +695,12 @@
                         },
                         resetView: () => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__ResetView()
                     });
+
+                    // Initialize Session Cache
+                    if (window.NaPlanVision.DrawingsCanvas.SessionCache) {
+                        window.NaPlanVision.DrawingsCanvas.SessionCache.Na__Cache__Initialize();
+                        console.log('[Init] Session Cache initialized');
+                    }
                     
                     // Initialize Render System
                     window.NaPlanVision.DrawingsCanvas.RenderSystem.Na__Canvas__Initialize({
