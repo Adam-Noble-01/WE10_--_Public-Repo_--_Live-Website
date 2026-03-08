@@ -6,6 +6,79 @@
 
 # -----------------------------------------------------------------------------
 
+## PlanVision - Version 2.3.0 - 08-Mar-2026
+
+### Added - Dedicated Measurement Tools Panel
+
+Measurement tools were previously buried as text-only buttons at the bottom of the drawings sidebar menu, making them nearly invisible on projects with large document sets. This release extracts them into a dedicated floating panel in the top-right corner, modelled on TrueVision's dropdown menu pattern, with custom icons and interactive feedback.
+
+#### Measurement Tools Panel (`UserInterface__MeasurementToolsPanel__.js`) - NEW MODULE
+- Floating `<details>`-based dropdown panel positioned top-right over the canvas
+- Tape measure icon in the header bar with "Measurement Tools" title and dropdown arrow
+- Each tool (Linear, Rectangle, Area, Clear) displayed as a button with a custom icon and label
+- Active tool feedback: selected tool button highlights with brand-colour left accent border
+- Hover animations on all tool buttons for clear interactive affordance
+- Prompt animation on app launch: panel opens briefly then auto-closes to show users the tools exist
+- Collapsible "Dimensions" sub-section listing all finalised measurements
+- Editable name input per measurement so users can label each dimension
+- "Copy All to Clipboard" button formats measurements as plain text with names and values
+- Defensive `typeof` checks on all measurement system API calls for cache-resilience
+
+#### Measurement Tools Panel Stylesheet (`StyleSheet__MeasurementToolsPanel__.css`) - NEW STYLESHEET
+- Adapted from TrueVision's `Na__UiFeature__Styles__DropdownAndToast__.css` using PlanVision CSS variables
+- Box-shadow depth effect emphasising the panel as a floating tool suite over the canvas
+- Animated open/close transitions (opacity + translateY over 0.24s)
+- Active state, hover state, and danger state button styles
+- Responsive breakpoint for mobile devices
+- z-index 9997: above canvas (9996), below toolbar (9998) and header (9999)
+
+#### Measurement Tool Icons (`02__AppAssets__PlanVision/MeasureToolIcons/`) - NEW ASSETS
+- `Icon__MeasureTools__TapeMeasure__.png` - panel header icon
+- `Icon__MeasureTools__LinearMeasurment__.png` - linear/tape measure tool
+- `Icon__MeasureTools__AreaMeasurment__.png` - freeform area tool
+- `Icon__MeasureTools__RectangularMeasurment__.png` - rectangle area tool
+- `Icon__MeasureTools__ClearMeasurements__.png` - clear all measurements
+
+### Changed - Measurement System Refactored for Panel Integration
+
+#### MeasurmentToolsSystem Main (`MeasurmentToolsSystem__Main__.js`)
+- Removed sidebar UI injection (`injectUi`, `applyToolVisibility`, `wireButtons`) - panel now owns all tool buttons
+- Replaced with `injectFloatingButtons()` for Accept/Cancel canvas overlay only
+- Added callback system: `onToolChangeCallback` and `onMeasurementChangeCallback`
+- Added `Na__Measure__GetMeasurements()` to expose finalised measurements array
+- Added `Na__Measure__ActivateToolByName()` for panel-driven tool activation
+- Added `Na__Measure__SetOnToolChange()` and `Na__Measure__SetOnMeasurementChange()` callback registration
+- `setActiveTool()` and `cancelTool()` now fire `notifyToolChange()` to update panel highlighting
+- `finalizeActiveTool()` and `clearMeasurements()` now fire `notifyMeasurementChange()` to update dimensions list
+- `showCancelTool`/`hideCancelTool` replaced with no-ops in tool context (backward compatible with individual tool modules)
+
+#### Main HTML Wiring (`PlanVision__WebApp__Main__.html`)
+- Added `<script>` tag for `UserInterface__MeasurementToolsPanel__.js`
+- Added `<link>` tag for `StyleSheet__MeasurementToolsPanel__.css`
+- Added `<div id="measurement-tools-panel-host">` floating host element after toolbar
+- Removed `#measurement-tools-host` and `#measurement-info-host` from sidebar
+- Panel initialised immediately after measurement system in the init flow
+
+#### Existing Stylesheet Cleanup (`StyleSheet__MeasuringTools__.css`)
+- Removed all sidebar tool button styles (no longer needed)
+- Retained floating Accept/Cancel action button styles for canvas overlay
+
+#### Files Created
+- `03__Src__AppModules/10__UserInterface/UserInterface__MeasurementToolsPanel__.js` (501 lines)
+- `04__Style__AppStylesheets/StyleSheet__MeasurementToolsPanel__.css` (398 lines)
+- `02__AppAssets__PlanVision/MeasureToolIcons/Icon__MeasureTools__TapeMeasure__.png`
+- `02__AppAssets__PlanVision/MeasureToolIcons/Icon__MeasureTools__LinearMeasurment__.png`
+- `02__AppAssets__PlanVision/MeasureToolIcons/Icon__MeasureTools__AreaMeasurment__.png`
+- `02__AppAssets__PlanVision/MeasureToolIcons/Icon__MeasureTools__RectangularMeasurment__.png`
+- `02__AppAssets__PlanVision/MeasureToolIcons/Icon__MeasureTools__ClearMeasurements__.png`
+
+#### Files Modified
+- `03__Src__AppModules/30__SystemModules__MeasurmentToolsSytem/MeasurmentToolsSystem__Main__.js`
+- `04__Style__AppStylesheets/StyleSheet__MeasuringTools__.css`
+- `PlanVision__WebApp__Main__.html`
+
+# -----------------------------------------------------------------------------
+
 ## PlanVision - Version 2.2.0 - 08-Mar-2026
 
 ### Added - Cloudflare CDN Integration, Session Cache, and ProjectVision Launch Support
