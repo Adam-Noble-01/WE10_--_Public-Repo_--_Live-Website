@@ -1,0 +1,397 @@
+/* =============================================================================
+ * NOBLE ARCHITECTURE - PLANVISION MEASUREMENT TOOLS PANEL STYLES
+ * =============================================================================
+ *
+ * FILE       : StyleSheet__MeasurementToolsPanel__.css
+ * PURPOSE    : Floating measurement tools dropdown panel (top-right)
+ * CREATED    : 08-Mar-2026
+ *
+ * DESCRIPTION:
+ * Adapted from TrueVision's na-dropdown-menu pattern but using PlanVision's
+ * CSS design tokens. Provides a floating, collapsible tools panel that hovers
+ * over the canvas with shadow depth and smooth open/close animations.
+ *
+ * ============================================================================= */
+
+
+/*  #Region --------------------------------------------------------
+ *  PANEL CONTAINER | Fixed position floating panel
+ *  ----- */
+
+    .na-measure-panel {
+        position                         : fixed;
+        top                              : 62px;
+        right                            : 20px;
+        z-index                          : 1001;
+        font-family                      : 'Open Sans', sans-serif;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  DETAILS WRAPPER | Main collapsible container
+ *  ----- */
+
+    .na-measure-panel__details {
+        background                       : rgba(255, 255, 255, 0.96);
+        border                           : 1px solid var(--App_BorderLight);
+        border-radius                    : 8px;
+        box-shadow                       : 0 6px 24px rgba(0, 0, 0, 0.14),
+                                           0 2px 6px rgba(0, 0, 0, 0.06);
+        min-width                        : 260px;
+        max-width                        : 320px;
+        overflow                         : hidden;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  SUMMARY BAR | Clickable header with icon, title, and arrow
+ *  ----- */
+
+    .na-measure-panel__summary {
+        list-style                       : none;
+        cursor                           : pointer;
+        padding                          : 11px 14px;
+        font-weight                      : 600;
+        font-size                        : 0.875rem;
+        color                            : var(--App_BrandPrimary);
+        display                          : flex;
+        align-items                      : center;
+        gap                              : 10px;
+        user-select                      : none;
+        -webkit-user-select              : none;
+    }
+
+    .na-measure-panel__summary::-webkit-details-marker {
+        display                          : none;
+    }
+
+    .na-measure-panel__summary-icon {
+        width                            : 22px;
+        height                           : 22px;
+        flex-shrink                      : 0;
+        opacity                          : 0.85;
+    }
+
+    .na-measure-panel__summary-title {
+        flex                             : 1;
+        letter-spacing                   : 0.01em;
+    }
+
+    .na-measure-panel__arrow {
+        font-size                        : 0.8rem;
+        color                            : var(--App_BrandPrimary);
+        transition                       : transform 0.24s ease;
+        flex-shrink                      : 0;
+    }
+
+    .na-measure-panel__details[open] .na-measure-panel__arrow {
+        transform                        : rotate(180deg);
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  TOOLS LIST | Animated dropdown content area
+ *  ----- */
+
+    .na-measure-panel__list {
+        margin                           : 0;
+        padding                          : 6px 0 8px 0;
+        list-style                       : none;
+        border-top                       : 1px solid var(--App_BorderLight);
+        opacity                          : 0;
+        transform                        : translateY(-6px);
+        transition                       : opacity 0.24s ease,
+                                           transform 0.24s ease;
+        will-change                      : opacity, transform;
+    }
+
+    .na-measure-panel__details[open] .na-measure-panel__list {
+        opacity                          : 1;
+        transform                        : translateY(0);
+    }
+
+    .na-measure-panel__details.na-measure-panel__details--closing .na-measure-panel__list {
+        opacity                          : 0;
+        transform                        : translateY(-6px);
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  TOOL BUTTONS | Individual measurement tool items
+ *  ----- */
+
+    .na-measure-panel__item {
+        padding                          : 0;
+    }
+
+    .na-measure-panel__tool-btn {
+        width                            : 100%;
+        border                           : none;
+        background                       : transparent;
+        padding                          : 9px 14px;
+        margin                           : 0;
+        text-align                       : left;
+        font-size                        : 0.825rem;
+        font-weight                      : 450;
+        font-family                      : 'Open Sans', sans-serif;
+        color                            : var(--App_TextPrimary);
+        cursor                           : pointer;
+        display                          : flex;
+        align-items                      : center;
+        gap                              : 10px;
+        transition                       : background-color 0.15s ease,
+                                           color 0.15s ease,
+                                           border-color 0.15s ease;
+        border-left                      : 3px solid transparent;
+    }
+
+    .na-measure-panel__tool-btn:hover {
+        background                       : var(--App_BgTertiary);
+    }
+
+    .na-measure-panel__tool-btn--active {
+        background                       : rgba(85, 80, 65, 0.08);
+        border-left-color                : var(--App_BrandPrimary);
+        color                            : var(--App_BrandPrimary);
+        font-weight                      : 600;
+    }
+
+    .na-measure-panel__tool-btn--active:hover {
+        background                       : rgba(85, 80, 65, 0.12);
+    }
+
+    .na-measure-panel__tool-btn--danger {
+        color                            : var(--App_TextSecondary);
+    }
+
+    .na-measure-panel__tool-btn--danger:hover {
+        background                       : #fdf2f2;
+        color                            : #c9302c;
+    }
+
+    .na-measure-panel__tool-icon {
+        width                            : 20px;
+        height                           : 20px;
+        flex-shrink                      : 0;
+        opacity                          : 0.75;
+        transition                       : opacity 0.15s ease;
+    }
+
+    .na-measure-panel__tool-btn:hover .na-measure-panel__tool-icon {
+        opacity                          : 1;
+    }
+
+    .na-measure-panel__tool-btn--active .na-measure-panel__tool-icon {
+        opacity                          : 1;
+    }
+
+    .na-measure-panel__tool-label {
+        flex                             : 1;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  DIVIDER | Separator between tools and dimensions sections
+ *  ----- */
+
+    .na-measure-panel__divider {
+        height                           : 1px;
+        background                       : var(--App_BorderLight);
+        margin                           : 4px 14px;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  DIMENSIONS SECTION | Collapsible measurements list
+ *  ----- */
+
+    .na-measure-panel__dims-item {
+        padding                          : 0;
+    }
+
+    .na-measure-panel__dims-toggle {
+        width                            : 100%;
+        border                           : none;
+        background                       : transparent;
+        padding                          : 9px 14px;
+        margin                           : 0;
+        text-align                       : left;
+        font-size                        : 0.825rem;
+        font-weight                      : 600;
+        font-family                      : 'Open Sans', sans-serif;
+        color                            : var(--App_TextPrimary);
+        cursor                           : pointer;
+        display                          : flex;
+        align-items                      : center;
+        justify-content                  : space-between;
+        gap                              : 10px;
+        transition                       : background-color 0.15s ease;
+    }
+
+    .na-measure-panel__dims-toggle:hover {
+        background                       : var(--App_BgTertiary);
+    }
+
+    .na-measure-panel__dims-arrow {
+        font-size                        : 0.75rem;
+        color                            : var(--App_TextSecondary);
+        transition                       : transform 0.24s ease;
+        flex-shrink                      : 0;
+    }
+
+    .na-measure-panel__dims-arrow--open {
+        transform                        : rotate(180deg);
+    }
+
+    .na-measure-panel__dims-panel {
+        display                          : none;
+        padding                          : 4px 14px 10px 14px;
+        background                       : rgba(85, 80, 65, 0.03);
+    }
+
+    .na-measure-panel__dims-panel.is-open {
+        display                          : block;
+    }
+
+    .na-measure-panel__dims-empty {
+        font-size                        : 0.78rem;
+        color                            : var(--App_TextMuted);
+        font-style                       : italic;
+        padding                          : 6px 0;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  DIMENSION ROWS | Individual measurement entries
+ *  ----- */
+
+    .na-measure-panel__dim-row {
+        display                          : flex;
+        align-items                      : center;
+        gap                              : 8px;
+        padding                          : 5px 0;
+        border-bottom                    : 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .na-measure-panel__dim-row:last-of-type {
+        border-bottom                    : none;
+    }
+
+    .na-measure-panel__dim-name {
+        width                            : 90px;
+        min-width                        : 70px;
+        border                           : 1px solid var(--App_BorderLight);
+        border-radius                    : 4px;
+        padding                          : 4px 6px;
+        font-size                        : 0.72rem;
+        font-family                      : 'Open Sans', sans-serif;
+        color                            : var(--App_TextPrimary);
+        background                       : var(--App_BgSecondary);
+        outline                          : none;
+        transition                       : border-color 0.15s ease;
+    }
+
+    .na-measure-panel__dim-name:focus {
+        border-color                     : var(--App_BrandPrimary);
+    }
+
+    .na-measure-panel__dim-name::placeholder {
+        color                            : var(--App_TextMuted);
+        font-style                       : italic;
+    }
+
+    .na-measure-panel__dim-value {
+        flex                             : 1;
+        font-size                        : 0.75rem;
+        font-weight                      : 500;
+        color                            : var(--App_TextPrimary);
+        font-family                      : 'Courier New', monospace;
+        white-space                      : nowrap;
+        overflow                         : hidden;
+        text-overflow                    : ellipsis;
+    }
+
+    .na-measure-panel__dim-index {
+        font-size                        : 0.68rem;
+        font-weight                      : 600;
+        color                            : var(--App_TextMuted);
+        min-width                        : 16px;
+        flex-shrink                      : 0;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  COPY BUTTON | Copy all dimensions to clipboard
+ *  ----- */
+
+    .na-measure-panel__copy-btn {
+        margin-top                       : 8px;
+        width                            : 100%;
+        border                           : none;
+        border-radius                    : 6px;
+        padding                          : 7px 10px;
+        background                       : var(--App_BrandPrimary);
+        color                            : var(--App_TextLight);
+        font-weight                      : 500;
+        font-size                        : 0.78rem;
+        font-family                      : 'Open Sans', sans-serif;
+        cursor                           : pointer;
+        transition                       : background-color 0.2s ease,
+                                           transform 0.1s ease;
+    }
+
+    .na-measure-panel__copy-btn:hover {
+        background                       : #3d3b32;
+    }
+
+    .na-measure-panel__copy-btn:active {
+        transform                        : scale(0.97);
+    }
+
+    .na-measure-panel__copy-btn--copied {
+        background                       : #2a7d4f;
+    }
+
+/*  endregion -------------------------------------------------- */
+
+
+/*  #Region --------------------------------------------------------
+ *  RESPONSIVE | Mobile and small screen adjustments
+ *  ----- */
+
+    @media (max-width: 600px) {
+
+        .na-measure-panel {
+            right                        : 10px;
+            top                          : 56px;
+        }
+
+        .na-measure-panel__details {
+            min-width                    : 220px;
+            max-width                    : 280px;
+        }
+
+        .na-measure-panel__dim-name {
+            width                        : 70px;
+            min-width                    : 60px;
+        }
+
+    }
+
+/*  endregion -------------------------------------------------- */

@@ -1,108 +1,18 @@
 /* =============================================================================
  * NOBLE ARCHITECTURE - PLANVISION MEASURING TOOLS STYLES
  * =============================================================================
+ *
+ * Sidebar tool button styles removed - now handled by
+ * StyleSheet__MeasurementToolsPanel__.css
+ *
+ * This file retains only the floating Accept/Cancel action button styles
+ * used during active measurement placement on the canvas.
  */
 
 
 /*  #Region --------------------------------------------------------
- *  TOOL BUTTONS | Measurement tool button styles (sidebar)
+ *  ACTION BUTTONS | Floating confirm and cancel controls
  *  ----- */
-
-    #measurement-tools-host .menu_-_drawing-button-header-text {
-        font-weight                      :  600;
-        letter-spacing                   :  0.02em;
-        margin-bottom                    :  10px;
-        padding-bottom                   :  8px;
-        border-bottom                    :  2px solid var(--App_BorderLight);
-    }
-
-    /* Primary measuring tool buttons - clean card style */
-    #linearMeasureBtn,
-    #rectMeasureBtn,
-    #areaMeasureBtn {
-        background                       :  var(--App_BgSecondary);
-        color                            :  var(--App_BrandPrimary);
-        border                           :  1px solid var(--App_BorderLight);
-        border-radius                    :  6px;
-        padding                         :  10px 14px;
-        margin-bottom                    :  8px;
-        font-size                        :  0.8125rem;
-        font-weight                      :  500;
-        letter-spacing                   :  0.01em;
-        box-shadow                       :  0 1px 2px rgba(0, 0, 0, 0.04);
-        transition                       :  background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    #linearMeasureBtn:hover,
-    #rectMeasureBtn:hover,
-    #areaMeasureBtn:hover {
-        background                       :  var(--App_BgTertiary);
-        border-color                     :  var(--App_BrandPrimary);
-        box-shadow                       :  0 2px 6px rgba(85, 80, 65, 0.12);
-    }
-
-    #linearMeasureBtn:active,
-    #rectMeasureBtn:active,
-    #areaMeasureBtn:active {
-        box-shadow                       :  0 0 0 2px rgba(85, 80, 65, 0.2);
-    }
-
-    /* Clear Measurements - secondary style */
-    #clearMeasurementsBtn {
-        background                       :  var(--App_BgSecondary);
-        color                            :  var(--App_TextSecondary);
-        border                           :  1px solid var(--App_BorderLight);
-        border-radius                    :  6px;
-        padding                         :  10px 14px;
-        margin-bottom                    :  8px;
-        margin-top                       :  4px;
-        font-size                        :  0.8125rem;
-        font-weight                      :  500;
-        letter-spacing                   :  0.01em;
-        box-shadow                       :  0 1px 2px rgba(0, 0, 0, 0.04);
-        transition                       :  background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-    }
-
-    #clearMeasurementsBtn:hover {
-        background                       :  var(--App_BgTertiary);
-        color                            :  var(--App_TextPrimary);
-        border-color                     :  var(--App_BorderMedium);
-    }
-
-    /* Cancel Tool - only visible when a tool is active */
-    #measurement-tools-host #cancelToolBtn {
-        background                       :  var(--App_BgSecondary);
-        color                            :  #c9302c;
-        border                           :  1px solid #e4b9b9;
-        border-radius                    :  6px;
-        padding                         :  10px 14px;
-        margin-bottom                    :  8px;
-        font-size                        :  0.8125rem;
-        font-weight                      :  500;
-        transition                       :  background-color 0.2s ease, border-color 0.2s ease;
-    }
-
-    #measurement-tools-host #cancelToolBtn:hover {
-        background                       :  #f8e8e8;
-        border-color                     :  #c9302c;
-    }
-
-/*  endregion -------------------------------------------------- */
-
-
-/*  #Region --------------------------------------------------------
- *  ACTION BUTTONS | Confirm and cancel controls
- *  ----- */
-
-    /* Cancel Tool Button */
-    #cancelToolBtn {
-        display                          :  none;
-        background                       :  #d9534f;
-    }
-
-    #cancelToolBtn:hover {
-        opacity                          :  0.8;
-    }
 
     /* Floating Button Container (Accept + Cancel pair) */
     .measurement-action-buttons {

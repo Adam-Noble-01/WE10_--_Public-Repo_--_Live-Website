@@ -94,6 +94,7 @@
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialSystem__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialAnimations__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__ToolbarManager__.js"></script>
+    <script src="03__Src__AppModules/10__UserInterface/UserInterface__MeasurementToolsPanel__.js"></script>
 
     <!-- Load The Landing Page Module -->
     <script src="03__Src__AppModules/09__AppLandingPage/LandingPage__Main__.js"></script>
@@ -125,6 +126,7 @@
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__CorePlanVisionApp__.css">
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MarkUpTools__.css">
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MeasuringTools__.css">
+    <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MeasurementToolsPanel__.css">
     <link rel="stylesheet" href="./03__Src__AppModules/09__AppLandingPage/LandingPage__Styles__.css">
 
     <!-- endregion ---------------------------------------- -->
@@ -271,19 +273,22 @@
                     <button class="tool-button" id="downloadPDFBtn">Download PDF</button>
                     <button class="tool-button" id="resetViewBtn">Reset View</button>
 
-                    <!-- Measurement Tools System - Injected by MeasurmentToolsSystem__Main__.js -->
-                    <div id="measurement-tools-host"></div>
-
                     <!-- Markup Tools System - Injected when enabled via config -->
                     <div id="markup-tools-host"></div>
-
-                    <!-- Measurement Info Display - Injected by MeasurmentToolsSystem__Main__.js -->
-                    <div id="measurement-info-host"></div>
                 </div>
 
                 <!-- endregion ---------------------------------------- -->
 
             </div>
+
+            <!-- endregion ---------------------------------------- -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- MEASUREMENT TOOLS PANEL | Floating dropdown (top-right)               -->
+            <!-- ----- -->
+            <!-- @delegate: 03__Src__AppModules/10__UserInterface/UserInterface__MeasurementToolsPanel__.js -->
+
+            <div id="measurement-tools-panel-host"></div>
 
             <!-- endregion ---------------------------------------- -->
 
@@ -628,6 +633,12 @@
                     };
 
                     window.NaPlanVision.MeasurmentToolsSystem.Main.Na__Measure__Initialise(measContext, measConfig);
+
+                    // Initialise the floating Measurement Tools Panel UI
+                    if (window.NaPlanVision?.UserInterface?.MeasurementToolsPanel) {
+                        window.NaPlanVision.UserInterface.MeasurementToolsPanel.Na__MeasurePanel__Initialize();
+                        console.log('[Init] MeasurementToolsPanel initialized');
+                    }
                 } else {
                     console.info('[MeasurmentToolsSystem] Disabled via AppConfiguration__PlanVision__MainAppSettings__.json');
                 }

@@ -59,12 +59,11 @@
             let helpers = null;
             let tools = null;
 
+            let onToolChangeCallback        = null;
+            let onMeasurementChangeCallback  = null;
+
             let ui = {
-                toolsHost: null,
-                infoHost: null,
                 finishHost: null,
-                measureInfo: null,
-                cancelToolBtn: null,
                 finishBtn: null,
                 cancelMeasureBtn: null,
                 actionBtnsContainer: null
@@ -116,8 +115,8 @@
                     helpers: helpers,
                     getRenderContext: getRenderContext,
                     setCursor: (cursor) => { appContext.planCanvas.style.cursor = cursor; },
-                    showCancelTool: showCancelTool,
-                    hideCancelTool: hideCancelTool,
+                    showCancelTool: function () {},
+                    hideCancelTool: function () {},
                     showFinishButton: showFinishButton,
                     hideFinishButton: hideFinishButton,
                     adjustConfirmButtonPosition: adjustConfirmButtonPosition,
@@ -131,30 +130,28 @@
                 };
             }
 
+            function notifyToolChange(toolName) {
+                if (typeof onToolChangeCallback === 'function') {
+                    onToolChangeCallback(toolName);
+                }
+            }
+
+            function notifyMeasurementChange() {
+                if (typeof onMeasurementChangeCallback === 'function') {
+                    onMeasurementChangeCallback(state.measurements.slice());
+                }
+            }
+
         // endregion --------------------------------------------------
 
         // #region --------------------------------------------------------
-        // UI | DOM Injection and Button Wiring
+        // UI | Floating Accept/Cancel Button Injection
         // ------------------------------------------------------------
+        // Tool buttons and measurement info are now handled by
+        // @delegate: ../../10__UserInterface/UserInterface__MeasurementToolsPanel__.js
 
-            function injectUi() {
-                if (!ui.toolsHost || !ui.infoHost || !ui.finishHost) return;
-
-                ui.toolsHost.innerHTML = `
-                    <div class="menu_-_drawing-button-header-text">Measuring Tools</div>
-                    <button class="tool-button" id="linearMeasureBtn">Linear Measurement</button>
-                    <button class="tool-button" id="rectMeasureBtn">Rectangle Measurement</button>
-                    <button class="tool-button" id="areaMeasureBtn">Area Measurement</button>
-                    <button class="tool-button" id="clearMeasurementsBtn">Clear Measurements</button>
-                    <button class="tool-button" id="cancelToolBtn">Cancel Tool</button>
-                `;
-
-                ui.infoHost.innerHTML = `
-                    <div style="margin-top:20px; font-size:12px; color:#555041;">
-                        <strong>Measurements:</strong>
-                        <div id="measureInfo" style="margin-top:5px;">No measurements yet.</div>
-                    </div>
-                `;
+            function injectFloatingButtons() {
+                if (!ui.finishHost) return;
 
                 ui.finishHost.innerHTML = `
                     <div class="measurement-action-buttons" id="measurementActionBtns">
@@ -163,51 +160,14 @@
                     </div>
                 `;
 
-                ui.measureInfo = document.getElementById("measureInfo");
-                ui.cancelToolBtn = document.getElementById("cancelToolBtn");
                 ui.finishBtn = document.getElementById("finishMeasurementBtn");
                 ui.cancelMeasureBtn = document.getElementById("cancelMeasurementBtn");
                 ui.actionBtnsContainer = document.getElementById("measurementActionBtns");
 
-                if (ui.cancelToolBtn) {
-                    ui.cancelToolBtn.style.display = "none";
-                }
                 if (ui.actionBtnsContainer) {
                     ui.actionBtnsContainer.style.display = "none";
                 }
-            }
 
-            function applyToolVisibility() {
-                const linearBtn = document.getElementById("linearMeasureBtn");
-                const rectBtn = document.getElementById("rectMeasureBtn");
-                const areaBtn = document.getElementById("areaMeasureBtn");
-
-                if (linearBtn) linearBtn.style.display = config.tools.linear.enabled ? "block" : "none";
-                if (rectBtn) rectBtn.style.display = config.tools.rectangle.enabled ? "block" : "none";
-                if (areaBtn) areaBtn.style.display = config.tools.area.enabled ? "block" : "none";
-            }
-
-            function wireButtons() {
-                const linearBtn = document.getElementById("linearMeasureBtn");
-                const rectBtn = document.getElementById("rectMeasureBtn");
-                const areaBtn = document.getElementById("areaMeasureBtn");
-                const clearBtn = document.getElementById("clearMeasurementsBtn");
-
-                if (linearBtn) {
-                    linearBtn.addEventListener("click", () => setActiveTool("linear"));
-                }
-                if (rectBtn) {
-                    rectBtn.addEventListener("click", () => setActiveTool("rectangle"));
-                }
-                if (areaBtn) {
-                    areaBtn.addEventListener("click", () => setActiveTool("area"));
-                }
-                if (clearBtn) {
-                    clearBtn.addEventListener("click", clearMeasurements);
-                }
-                if (ui.cancelToolBtn) {
-                    ui.cancelToolBtn.addEventListener("click", cancelTool);
-                }
                 if (ui.finishBtn) {
                     ui.finishBtn.addEventListener("click", finalizeActiveTool);
                 }
@@ -235,7 +195,8 @@
                     tool.onActivate(createToolContext());
                 }
 
-                // Auto-hide menu when tool activates (frees screen space)
+                notifyToolChange(toolName);
+
                 if (window.NaPlanVision?.UserInterface?.ToolbarManager) {
                     window.NaPlanVision.UserInterface.ToolbarManager.Na__Toolbar__Close();
                 }
@@ -250,16 +211,16 @@
                 state.isRectDragging = false;
                 state.isRectLocked = false;
                 state.isAreaComplete = false;
-                hideCancelTool();
                 hideFinishButton();
                 appContext.planCanvas.style.cursor = "default";
                 appContext.setState({ currentTool: null });
+                notifyToolChange(null);
             }
 
             function clearMeasurements() {
                 state.measurements = [];
                 state.measuringPoints = [];
-                updateMeasureInfo();
+                notifyMeasurementChange();
                 cancelTool();
             }
 
@@ -268,9 +229,8 @@
                 const measurement = tools[state.currentTool].finalize(createToolContext());
                 if (measurement) {
                     state.measurements.push(measurement);
-                    updateMeasureInfo();
+                    notifyMeasurementChange();
                 }
-                // Deactivate tool after accepting measurement
                 cancelTool();
             }
 
@@ -286,34 +246,7 @@
         // ------------------------------------------------------------
 
             function updateMeasureInfo() {
-                if (!ui.measureInfo) return;
-                if (!state.measurements.length) {
-                    ui.measureInfo.innerHTML = "No measurements yet.";
-                    return;
-                }
-                let txt = "";
-                state.measurements.forEach((m, i) => {
-                    if (m.type === "linear") {
-                        txt += `Measurement ${i + 1} (Line): ${m.distanceMM} mm<br/>`;
-                    } else if (m.type === "area") {
-                        txt += `Measurement ${i + 1} (Area): ${m.areaM2} m²<br/>`;
-                    } else if (m.type === "rectangle") {
-                        txt += `Measurement ${i + 1} (Rectangle): ${m.widthMm} mm × ${m.heightMm} mm = ${m.areaM2} m²<br/>`;
-                    }
-                });
-                ui.measureInfo.innerHTML = txt;
-            }
-
-            function showCancelTool() {
-                if (ui.cancelToolBtn) {
-                    ui.cancelToolBtn.style.display = "block";
-                }
-            }
-
-            function hideCancelTool() {
-                if (ui.cancelToolBtn) {
-                    ui.cancelToolBtn.style.display = "none";
-                }
+                notifyMeasurementChange();
             }
 
             function showFinishButton() {
@@ -466,17 +399,11 @@
 
                 config = deepMerge(DEFAULT_CONFIG, configOverrides || {});
 
-                ui.toolsHost = document.getElementById("measurement-tools-host");
-                ui.infoHost = document.getElementById("measurement-info-host");
                 ui.finishHost = document.getElementById("measurement-finish-host");
 
                 if (config.enabled === true) {
-                    injectUi();
-                    applyToolVisibility();
-                    wireButtons();
+                    injectFloatingButtons();
                 } else {
-                    if (ui.toolsHost) ui.toolsHost.innerHTML = "";
-                    if (ui.infoHost) ui.infoHost.innerHTML = "";
                     if (ui.finishHost) ui.finishHost.innerHTML = "";
                 }
             };
@@ -532,6 +459,22 @@
 
             MeasurmentToolsSystem.Na__Measure__HasMeasurements = function() {
                 return state.measurements.length > 0 || (state.currentTool && state.measuringPoints.length > 0);
+            };
+
+            MeasurmentToolsSystem.Na__Measure__GetMeasurements = function() {
+                return state.measurements.slice();
+            };
+
+            MeasurmentToolsSystem.Na__Measure__ActivateToolByName = function(toolName) {
+                setActiveTool(toolName);
+            };
+
+            MeasurmentToolsSystem.Na__Measure__SetOnToolChange = function(callback) {
+                onToolChangeCallback = typeof callback === 'function' ? callback : null;
+            };
+
+            MeasurmentToolsSystem.Na__Measure__SetOnMeasurementChange = function(callback) {
+                onMeasurementChangeCallback = typeof callback === 'function' ? callback : null;
             };
 
         // endregion --------------------------------------------------
