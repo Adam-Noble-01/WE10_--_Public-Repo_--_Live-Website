@@ -6,7 +6,31 @@
 
 # -----------------------------------------------------------------------------
 
-## PlanVision - Version 2.3.0 - 08-Mar-2026
+## PlanVision - Version 2.1.4 - 08-Mar-2026
+
+### Fixed - Local Development Drawing Loading (CDN-First Asset Strategy)
+
+Drawings failed to load on localhost because CDN loading was explicitly disabled for local development environments. The local project portal only contains JSON config files and placeholder text files — the actual drawing PNG/PDF assets only exist on the Cloudflare CDN. With CDN skipped, the app attempted to fetch images from local paths that did not exist, resulting in a load failure every time a drawing was selected.
+
+#### Root Cause
+- `buildCdnUrlForAsset()` in DrawingLoader returned `null` immediately when `isLocalDev` was true, preventing CDN URLs from ever being constructed for drawing images on localhost
+- `CDN_CONFIG_URL` in the main HTML init was gated behind `!IS_LOCAL_DEV`, so the JSON project data also bypassed CDN and loaded from the local placeholder file instead of the real project data
+
+#### DrawingsCanvas Drawing Loader (`DrawingsCanvas__DrawingLoader__.js`)
+- Removed the `if (isLocalDev) return null;` guard from `buildCdnUrlForAsset()` so CDN URLs are built for drawing image assets on all environments
+- SessionCache now receives CDN URLs on localhost and fetches from CDN first, falling back to local paths if CDN is unavailable
+
+#### Main HTML Init (`PlanVision__WebApp__Main__.html`)
+- Removed the `!IS_LOCAL_DEV &&` condition from `CDN_CONFIG_URL` construction so JSON project data also loads from CDN first on localhost
+- Local JSON path is retained as the automatic fallback via `CloudflareCdnLoader.Na__Cdn__FetchJsonWithFallback()`
+
+#### Files Modified
+- `03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__DrawingLoader__.js`
+- `PlanVision__WebApp__Main__.html`
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.1.3 - 08-Mar-2026
 
 ### Added - Dedicated Measurement Tools Panel
 
@@ -79,7 +103,7 @@ Measurement tools were previously buried as text-only buttons at the bottom of t
 
 # -----------------------------------------------------------------------------
 
-## PlanVision - Version 2.2.0 - 08-Mar-2026
+## PlanVision - Version 2.1.2 - 08-Mar-2026
 
 ### Added - Cloudflare CDN Integration, Session Cache, and ProjectVision Launch Support
 
