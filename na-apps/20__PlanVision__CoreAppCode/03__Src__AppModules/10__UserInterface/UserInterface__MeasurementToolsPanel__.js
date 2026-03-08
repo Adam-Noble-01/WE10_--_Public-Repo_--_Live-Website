@@ -160,14 +160,14 @@
         // ------------------------------------------------------------
 
             function wireToolButtons() {
-                var measureSystem = getMeasureSystem();
-                if (!measureSystem) return;
-
                 TOOL_DEFINITIONS.forEach(function (tool) {
                     var btn = document.getElementById(tool.btnId);
                     if (btn) {
                         btn.addEventListener('click', function () {
-                            measureSystem.Na__Measure__ActivateToolByName(tool.id);
+                            var ms = getMeasureSystem();
+                            if (ms && typeof ms.Na__Measure__ActivateToolByName === 'function') {
+                                ms.Na__Measure__ActivateToolByName(tool.id);
+                            }
                         });
                     }
                 });
@@ -175,7 +175,10 @@
                 var clearBtn = document.getElementById(CLEAR_DEFINITION.btnId);
                 if (clearBtn) {
                     clearBtn.addEventListener('click', function () {
-                        measureSystem.Na__Measure__ClearMeasurements();
+                        var ms = getMeasureSystem();
+                        if (ms && typeof ms.Na__Measure__ClearMeasurements === 'function') {
+                            ms.Na__Measure__ClearMeasurements();
+                        }
                     });
                 }
             }
@@ -331,7 +334,7 @@
 
             const Na__MeasurePanel__CopyToClipboard = function () {
                 var measureSystem = getMeasureSystem();
-                if (!measureSystem) return;
+                if (!measureSystem || typeof measureSystem.Na__Measure__GetMeasurements !== 'function') return;
 
                 var measurements = measureSystem.Na__Measure__GetMeasurements();
                 if (!measurements || measurements.length === 0) {
@@ -457,8 +460,12 @@
 
                 var measureSystem = getMeasureSystem();
                 if (measureSystem) {
-                    measureSystem.Na__Measure__SetOnToolChange(onToolChange);
-                    measureSystem.Na__Measure__SetOnMeasurementChange(onMeasurementChange);
+                    if (typeof measureSystem.Na__Measure__SetOnToolChange === 'function') {
+                        measureSystem.Na__Measure__SetOnToolChange(onToolChange);
+                    }
+                    if (typeof measureSystem.Na__Measure__SetOnMeasurementChange === 'function') {
+                        measureSystem.Na__Measure__SetOnMeasurementChange(onMeasurementChange);
+                    }
                 }
 
                 runPromptAnimation();
