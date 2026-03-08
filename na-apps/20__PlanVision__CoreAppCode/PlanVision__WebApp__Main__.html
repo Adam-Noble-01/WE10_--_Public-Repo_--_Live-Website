@@ -473,8 +473,8 @@
             const JSON_CONFIG_URL = NaUrlQueryContext.projectDataUrl;
             window.JSON_CONFIG_URL = JSON_CONFIG_URL;
 
-            // Build CDN URL for project data (production only, local dev uses direct paths)
-            const CDN_CONFIG_URL = (!IS_LOCAL_DEV && window.NaPlanVision?.CloudflareCdnLoader)
+            // Build CDN URL for project data (CDN-first on all environments, local fallback if CDN unavailable)
+            const CDN_CONFIG_URL = (window.NaPlanVision?.CloudflareCdnLoader)
                 ? window.NaPlanVision.CloudflareCdnLoader.Na__Cdn__BuildProjectDataUrl(
                     NaProjectFolder__ActiveProject,
                     NaUrlQueryContext.projectYear

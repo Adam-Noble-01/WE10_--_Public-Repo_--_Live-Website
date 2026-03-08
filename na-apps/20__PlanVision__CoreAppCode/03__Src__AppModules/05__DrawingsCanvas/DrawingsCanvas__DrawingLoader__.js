@@ -128,8 +128,6 @@
             // FUNCTION | Build CDN URL for a Drawing Asset if CDN Loader Available
             // ------------------------------------------------------------
             function buildCdnUrlForAsset(legacyUrl) {
-                if (isLocalDev) return null;
-
                 const cdnLoader = window.NaPlanVision?.CloudflareCdnLoader;
                 if (!cdnLoader) return null;
 
