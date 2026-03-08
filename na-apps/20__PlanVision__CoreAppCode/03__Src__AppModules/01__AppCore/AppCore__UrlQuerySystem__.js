@@ -53,7 +53,7 @@
             const NaPlanVisionContentDir__Default = '20__PlanVision__AppContent';
             const NaPlanVisionDataFilename__Default = 'PlanVision__ProjectData__.json';
 
-            const NaLocalProjectPortalBase__Fallback = '../na-project-portal';
+            const NaLocalProjectPortalBase__Fallback = '/na-project-portal';
             const NaLiveProjectPortalBase__Fallback = 'https://www.noble-architecture.com/na-project-portal';
 
         // endregion ----------------------------------------------

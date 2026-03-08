@@ -277,6 +277,7 @@
                 if (!dimsListContainer) return;
 
                 if (!measurements || measurements.length === 0) {
+                    measurementNames = {};
                     dimsListContainer.innerHTML =
                         '<div class="na-measure-panel__dims-empty">No measurements yet.</div>';
                     return;

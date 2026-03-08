@@ -107,8 +107,9 @@
                     const urlContext = window.NaPlanVision?.UrlQuerySystem
                         ? window.NaPlanVision.UrlQuerySystem.getProjectContext({})
                         : null;
+                    const projectYear = urlContext?.projectYear || '26';
                     const contentBase = urlContext?.projectContentBaseUrl
-                        || `../na-project-portal/26-Projects/${projectFolderName}/20__PlanVision__AppContent`;
+                        || `/na-project-portal/${projectYear}-Projects/${projectFolderName}/20__PlanVision__AppContent`;
                     const fullLocalUrl = `${contentBase}/${localPath}`;
                     console.log(`[DrawingLoader] URL Transform: ${url} → ${fullLocalUrl}`);
                     return fullLocalUrl;
