@@ -7,10 +7,24 @@
             "groupId": "DesignPhase01__ConceptDesign__ExistingBuilding",
             "label": "Concept Design - Existing Building",
             "modelUrls": [
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/BH03__01__OrbitHelperCube__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/BH03__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/BH03__TrueVision__LandscapeEnvironment__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/BH03__TrueVision__MainBuildingModel__Existing__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/BH03__TrueVision__MainBuildingModel__Existing__MeshModel__.glb"
+            ]
+        },
+        {
+            "groupId": "DesignPhase01__ConceptDesign__Scheme-01",
+            "label": "Concept Design - Scheme-01",
+            "modelUrls": [
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__01__OrbitHelperCube__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__LandscapeEnvironment__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__MainBuildingModel__Existing__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__MainBuildingModel__Existing__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__MainBuildingModel__Proposed__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__MainBuildingModel__Proposed__MeshModel__.glb"
             ]
         }
     ],

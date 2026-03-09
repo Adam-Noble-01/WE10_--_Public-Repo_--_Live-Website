@@ -1,5 +1,5 @@
 {
-    "buildTimestamp": "2026-03-08T21:21:16.554681+00:00",
+    "buildTimestamp": "2026-03-09T11:55:20.790142+00:00",
     "projects": {
         "GA06": {
             "projectCode": "GA06",
@@ -74,7 +74,7 @@
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,
-                "planVision": true,
+                "planVision": false,
                 "trueVision": true
             }
         },
