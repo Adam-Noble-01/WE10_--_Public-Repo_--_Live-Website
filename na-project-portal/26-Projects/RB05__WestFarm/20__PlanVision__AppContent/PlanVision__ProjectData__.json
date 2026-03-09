@@ -1,8 +1,8 @@
 {
     "na-project-data-library": {
         "project-details": {
-            "project-name": "Example Project Structure",
-            "project-name-nickname": "Example Project",
+            "project-name": "West Farm",
+            "project-name-nickname": "West Farm",
             "project-address": "123 Example Street, Nottingham, NG1 1AA",
             "project-description": "This is an example project demonstrating the full PlanVision data structure. It includes multiple design phases, folder-organised drawings and specifications.",
             "client-name": "Example Client"
@@ -23,11 +23,16 @@
                             "label": "Concept Design",
                             "label-override": false,
                             "document-type": "Drawing",
-                            "document-scale": "1:50",
+                            "document-scale": "1:100",
                             "document-size": "A2",
                             "files": [
-                                "RB05_T01_D01__TEST__Elevations__RevA__",
-                                "RB05_T01_D01__TEST__FloorPlan__RevA__"
+                                "RB05_T01_D01__GroundFloor__GeneralArrangementPlan__MainResidence__RevA__",
+                                "RB05_T01_D02__FirstFloor__GeneralArrangementPlan__MainResidence__RevA__",
+                                "RB05_T01_D03__SecondFloor__GeneralArrangementPlan__MainResidence__RevA__",
+                                "RB05_T01_D04__GeneralArrangementPlan__CoachHouse__RevA__",
+                                "RB05_T01_D05__ElevationsDrawing__Sheet-01__RevA__",
+                                "RB05_T01_D06__ElevationsDrawing__Sheet-02__RevA__",
+                                "RB05_T01_D07__ElevationsDrawing__Sheet-03__RevA__"
                             ]
                         }
                     ]

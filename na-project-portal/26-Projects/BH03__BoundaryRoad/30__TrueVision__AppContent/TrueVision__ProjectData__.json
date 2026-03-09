@@ -19,19 +19,66 @@
             "label": "Concept Design - Scheme-01",
             "modelUrls": [
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__01__OrbitHelperCube__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__FirstFloor__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__FirstFloor__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__FirstFloor__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__FirstFloor__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedFurniture__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedFurniture__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedInteriorDecor__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedInteriorDecor__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__Storey__GroundFloor__ProposedWalls__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__LandscapeEnvironment__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__MainBuildingModel__Existing__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__MainBuildingModel__Existing__MeshModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__MainBuildingModel__Proposed__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__MainBuildingModel__Proposed__MeshModel__.glb"
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/BH03__TrueVision__MainBuildingModel__Existing__MeshModel__.glb"
+            ]
+        },
+        {
+            "groupId": "DesignPhase01__ConceptDesign__Scheme-02",
+            "label": "Concept Design - Scheme-02",
+            "modelUrls": [
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__01__OrbitHelperCube__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__FirstFloor__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__FirstFloor__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__FirstFloor__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__FirstFloor__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedFurniture__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedFurniture__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedInteriorDecor__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedInteriorDecor__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__Storey__GroundFloor__ProposedWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__TrueVision__LandscapeEnvironment__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__TrueVision__MainBuildingModel__Existing__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/BH03__BoundaryRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/BH03__TrueVision__MainBuildingModel__Existing__MeshModel__.glb"
             ]
         }
     ],
     "Camera__DefaultPosition": {
-        "Camera__DefaultPosition__PosX": 0,
-        "Camera__DefaultPosition__PosY": 5000,
-        "Camera__DefaultPosition__PosZ": 15000,
-        "Camera__DefaultFov": 50
+        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX": 22449,
+            "Camera__DefaultPos__PosY": 1769,
+            "Camera__DefaultPos__PosZ": -18365
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX": -3.0584,
+            "Camera__DefaultRotation__RotY": 0.915,
+            "Camera__DefaultRotation__RotZ": 3.0756
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov": 29.8628
+        }
     }
 }
