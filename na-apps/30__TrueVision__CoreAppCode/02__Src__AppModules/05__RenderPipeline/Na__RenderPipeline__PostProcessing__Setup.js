@@ -93,7 +93,7 @@
     //   fogPass             – pre-built fog ShaderPass (or null)
     //   aoConfig            – AppConfig block for ambient occlusion (or null)
     // ------------------------------------------------------------
-    function Na__RenderPipeline__SetupComposer(renderer, scene, camera, profileLinesConfig, fogPass, aoConfig) {
+    function Na__RenderPipeline__SetupComposer(renderer, scene, camera, profileLinesConfig, fogPass, aoConfig, orbitTarget) {
         const pixelRatio = renderer.getPixelRatio();
         const width      = window.innerWidth * pixelRatio;
         const height     = window.innerHeight * pixelRatio;
@@ -144,7 +144,7 @@
         const profileLinesEnabled = profileLinesConfig
             && profileLinesConfig.RenderEffect__ProfileLines__Enabled === true;
         if (profileLinesEnabled) {
-            const profileLines = Na__RenderEffect__ProfileLines__Create(renderer, scene, camera, profileLinesConfig, window.innerWidth, window.innerHeight);
+            const profileLines = Na__RenderEffect__ProfileLines__Create(renderer, scene, camera, profileLinesConfig, window.innerWidth, window.innerHeight, orbitTarget);
             profileLines.pass.material.depthWrite = false;
             profileLines.pass.material.depthTest  = false;
             composer.addPass(profileLines.pass);

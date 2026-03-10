@@ -357,16 +357,23 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
         });
 
         nodesToReplace.forEach((node) => {
-            const positions = node.geometry.attributes.position.array;   // <-- Get vertex positions
+            const positions      = node.geometry.attributes.position.array;   // <-- Get vertex positions
+            const importedColors = node.geometry.attributes.color
+                ? node.geometry.attributes.color.array
+                : null;                                                       // <-- Extract glTF COLOR_0 when present
 
             const fatLineGeometry = new LineSegmentsGeometry();
             fatLineGeometry.setPositions(positions);                     // <-- Set line segment positions
+            if (importedColors) {
+                fatLineGeometry.setColors(importedColors);               // <-- Carry glTF COLOR_0 into fat-line geometry
+            }
 
             const fatLineMaterial = new LineMaterial({
                 color               : lineworkConfig.RenderConfig__Linework__EdgeColor,          // <-- Line color from config
                 linewidth           : lineworkConfig.RenderConfig__Linework__LineWidth,          // <-- Line width from config
                 resolution          : lineResolution,                                            // <-- Screen resolution for line width
                 worldUnits          : false,                                                     // <-- Screen-space line width
+                vertexColors        : !!importedColors,                                          // <-- Enable per-vertex colours when exported linework provides them
                 depthTest           : true,                                                      // <-- Enable depth testing
                 depthWrite          : true,                                                      // <-- Enable depth writing
                 polygonOffset       : true,                                                      // <-- Enable polygon offset
