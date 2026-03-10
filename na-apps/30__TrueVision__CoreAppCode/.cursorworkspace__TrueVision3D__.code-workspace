@@ -37,7 +37,7 @@
       {
         "name"        : "Cousin App - ValeVision",
         "description" : "This is the cousin application to TrueVision3D, oit was originally a branch but developed into its own seperate application.",
-        "path"        : "D:/80__External__LiveRepos/ValeCodebase"
+        "path"        : "D:/80__External__LiveRepos/ValeCodebase/WebApps/ValeVision3D"
 	  }
 	],
 	"settings": {
