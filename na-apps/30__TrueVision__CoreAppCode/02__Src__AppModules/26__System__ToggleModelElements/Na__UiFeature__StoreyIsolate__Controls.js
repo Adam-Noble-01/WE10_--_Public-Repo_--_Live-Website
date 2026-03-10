@@ -26,6 +26,11 @@
     } from './3dObject__IsolateBuildingStoreys__SystemLogic__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Render Loop Invalidation
+    // ------------------------------------------------------------
+    import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -151,6 +156,7 @@
             btn.addEventListener('click', () => {
                 Na__StoreyIsolate__IsolateSingleStorey(storeyKey);
                 Na__StoreyIsolate__UpdateButtonStates();
+                Na__RenderLoop__RequestRender();
             });
 
             listContainer.appendChild(btn);
@@ -162,6 +168,7 @@
         showAllBtn.addEventListener('click', () => {
             Na__StoreyIsolate__ShowEntireBuilding();
             Na__StoreyIsolate__UpdateButtonStates();
+            Na__RenderLoop__RequestRender();
         });
 
         listContainer.appendChild(showAllBtn);

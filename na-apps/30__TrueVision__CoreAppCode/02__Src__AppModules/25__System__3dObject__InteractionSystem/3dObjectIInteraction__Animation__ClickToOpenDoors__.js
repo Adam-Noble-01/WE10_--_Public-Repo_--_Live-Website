@@ -50,6 +50,11 @@
     import * as THREE from 'three';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Render Loop Invalidation
+    // ------------------------------------------------------------
+    import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -461,6 +466,8 @@
             console.log(`[DoorAnimation] Reversed mid-animation: "${doorRecord.adrName}"`);
 
         }
+
+        Na__RenderLoop__RequestRender();                                          // <-- Wake render loop so door animation can begin
     }
     // ------------------------------------------------------------
 
@@ -560,6 +567,22 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Check Whether Any Door Is Currently Animating
+    // ------------------------------------------------------------
+    function Na__DoorAnimation__HasActiveAnimations() {
+        let hasActiveAnimations = false;
+
+        Na__DoorAnim__DoorRegistry.forEach((doorRecord) => {
+            if (doorRecord.state === Na__DoorAnim__STATE_OPENING || doorRecord.state === Na__DoorAnim__STATE_CLOSING) {
+                hasActiveAnimations = true;
+            }
+        });
+
+        return hasActiveAnimations;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -609,6 +632,7 @@
         rendererDomElement.addEventListener('pointerup',   Na__DoorAnim__OnPointerUp);    // <-- Pointer up
 
         Na__DoorAnim__Initialized = true;                                        // <-- Mark as initialized
+        Na__RenderLoop__RequestRender();                                         // <-- Ensure first door-ready frame is shown
         console.log('[DoorAnimation] Door animation system initialized');
     }
     // ------------------------------------------------------------
@@ -626,6 +650,7 @@
         Na__DoorAnim__ModelGroupsLinework = Array.isArray(lineworkGroups) ? lineworkGroups : (lineworkGroups ? [lineworkGroups] : []);
 
         Na__DoorAnimation__ScanForDoors();
+        Na__RenderLoop__RequestRender();                                         // <-- Redraw after swapping model groups
         console.log(`[DoorAnimation] Rebound model groups (${Na__DoorAnim__ModelGroupsMesh.length} mesh, ${Na__DoorAnim__ModelGroupsLinework.length} linework)`);
         return true;
     }
@@ -644,6 +669,7 @@
         Na__DoorAnimation__Initialize,                                           // <-- Initialize system
         Na__DoorAnimation__RebindModelGroups,                                    // <-- Rebind loaded model groups after group switch
         Na__DoorAnimation__Update,                                               // <-- Per-frame update
+        Na__DoorAnimation__HasActiveAnimations,                                  // <-- True while any door animation is running
         Na__DoorAnimation__ScanForDoors,                                         // <-- Re-scan scene graph
         Na__DoorAnim__DoorRegistry,                                              // <-- Door registry Map (for proximity system)
         Na__DoorAnim__ToggleDoor                                                 // <-- Toggle door open/close (for proximity system)

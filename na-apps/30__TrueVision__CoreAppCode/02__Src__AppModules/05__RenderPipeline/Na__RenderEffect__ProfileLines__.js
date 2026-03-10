@@ -75,7 +75,7 @@
     // ---------------------------------------------------------------
     function collectLineObjects(scene) {
         const lineObjects = [];
-        scene.traverseVisible((obj) => {
+        scene.traverse((obj) => {
             if (obj.isLine2 || obj.isLineSegments2) lineObjects.push(obj); // <-- Collect all line segment objects
         });
         return lineObjects;
@@ -87,7 +87,7 @@
     // ---------------------------------------------------------------
     function collectMeshObjects(scene) {
         const meshObjects = [];
-        scene.traverseVisible((obj) => {
+        scene.traverse((obj) => {
             if (obj.isMesh) meshObjects.push(obj); // <-- Collect all visible mesh objects
         });
         return meshObjects;
@@ -240,19 +240,41 @@
             ? config.RenderEffect__ProfileLines__EdgeWidthDistanceFar
             : PROFILE_LINES__DEFAULT_EDGE_WIDTH_DIST_FAR;
         const edgeWidthDistRange = edgeWidthDistFar - edgeWidthDistNear; // <-- Precompute denominator
+        let cachedLineObjects = [];
+        let cachedMeshObjects = [];
+        let sceneCacheDirty = true;
 
 
         // SUB FUNCTION | Resize Render Targets to Match Viewport
         // ---------------------------------------------------------------
         function setSize(nw, nh) {
-            const nwPx = nw * pixelRatio;
-            const nhPx = nh * pixelRatio;
+            const currentPixelRatio = renderer.getPixelRatio();
+            const nwPx = nw * currentPixelRatio;
+            const nhPx = nh * currentPixelRatio;
             normalRenderTarget.setSize(nwPx, nhPx);                                      // <-- Resize normal buffer
             profileColorRenderTarget.setSize(nwPx, nhPx);                               // <-- Resize colour buffer
             profileLinesPass.material.uniforms.resolution.value.set(nwPx, nhPx);        // <-- Update shader resolution uniform
         }
         // ---------------------------------------------------------------
         setSize(width || window.innerWidth, height || window.innerHeight);
+
+
+        // SUB FUNCTION | Rebuild Cached Scene Object Collections
+        // ---------------------------------------------------------------
+        function rebuildSceneCache() {
+            cachedLineObjects = collectLineObjects(scene);
+            cachedMeshObjects = collectMeshObjects(scene);
+            sceneCacheDirty = false;
+        }
+        // ---------------------------------------------------------------
+
+
+        // SUB FUNCTION | Invalidate Cached Scene Object Collections
+        // ---------------------------------------------------------------
+        function invalidateSceneCache() {
+            sceneCacheDirty = true;
+        }
+        // ---------------------------------------------------------------
 
 
         // SUB FUNCTION | Render Normal and Profile Colour Pre-Passes
@@ -264,8 +286,12 @@
                 profileLinesPass.material.uniforms.u_edgeWidth.value = edgeWidthMin + t * (edgeWidthMax - edgeWidthMin); // <-- Lerp: far=min, near=max
             }
 
-            const lineObjects = collectLineObjects(scene); // <-- Gather line segment objects
-            const meshObjects = collectMeshObjects(scene); // <-- Gather mesh objects
+            if (sceneCacheDirty) {
+                rebuildSceneCache();
+            }
+
+            const lineObjects = cachedLineObjects; // <-- Reuse cached line segment objects
+            const meshObjects = cachedMeshObjects; // <-- Reuse cached mesh objects
 
             lineObjects.forEach((obj) => { obj.visible = false; }); // <-- Hide linework for normal prepass
 
@@ -310,7 +336,8 @@
             normalRenderTarget,
             profileColorRenderTarget,
             setSize,
-            renderProfileNormals
+            renderProfileNormals,
+            invalidateSceneCache
         };
     }
     // ------------------------------------------------------------

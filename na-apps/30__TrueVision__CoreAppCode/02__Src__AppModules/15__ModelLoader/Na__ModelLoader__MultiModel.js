@@ -367,6 +367,8 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
             if (importedColors) {
                 fatLineGeometry.setColors(importedColors);               // <-- Carry glTF COLOR_0 into fat-line geometry
             }
+            fatLineGeometry.computeBoundingBox();
+            fatLineGeometry.computeBoundingSphere();
 
             const fatLineMaterial = new LineMaterial({
                 color               : lineworkConfig.RenderConfig__Linework__EdgeColor,          // <-- Line color from config
@@ -399,7 +401,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 
             const fatLineSegment = new LineSegments2(fatLineGeometry, fatLineMaterial);
             fatLineSegment.computeLineDistances();                                       // <-- Compute for proper rendering
-            fatLineSegment.frustumCulled = false;                                        // <-- Always render (no culling)
+            fatLineSegment.frustumCulled = true;                                         // <-- Allow off-screen linework to be culled
             fatLineSegment.renderOrder   = lineworkConfig.RenderConfig__Linework__RenderOrder;   // <-- Render order from config
 
             fatLineSegment.position.copy(node.position);                 // <-- Copy transform from original

@@ -74,6 +74,14 @@
     } from '../25__System__3dObject__InteractionSystem/3dObjectInteraction__Animation__WalkMode__ProximityToOpenDoors__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Render Loop Invalidation
+    // ------------------------------------------------------------
+    import {
+        Na__RenderLoop__RequestActiveRender,
+        Na__RenderLoop__RequestRender
+    } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -144,6 +152,7 @@
                 Na__UiFeature__WalkMode__Controls
             );
 
+            Na__RenderLoop__RequestRender();                                   // <-- Redraw once after returning to orbit mode
             if (onDeactivate) onDeactivate();                                  // <-- Fire caller UI callback
         } else {
             // ACTIVATE WALK MODE
@@ -161,6 +170,7 @@
                 }
                 Na__DoorProximity__SetEnabled(true);                           // <-- Enable door proximity triggers
 
+                Na__RenderLoop__RequestActiveRender('walk-mode');              // <-- Walk mode requires continuous frames while active
                 if (onActivate) onActivate();                                  // <-- Fire caller UI callback
             }
         }

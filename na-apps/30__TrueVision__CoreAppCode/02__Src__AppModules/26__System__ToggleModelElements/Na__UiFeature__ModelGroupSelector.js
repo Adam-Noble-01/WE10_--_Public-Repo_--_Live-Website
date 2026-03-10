@@ -23,6 +23,7 @@ import {
     Na__ModelLoader__LoadAllModels,
     Na__ModelLoader__SeparateOrbitCubeUrl
 } from '../15__ModelLoader/Na__ModelLoader__MultiModel.js';
+import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
 
 
 // -----------------------------------------------------------------------------
@@ -135,6 +136,7 @@ import {
                 Na__GroupSelector__ToggleReinitFn(loadedGroups);
             }
 
+            Na__RenderLoop__RequestRender();                                // <-- Redraw after model group switch completes
             console.log(`[TrueVision3D] Model group switched to: ${group.label} (index ${groupIndex})`);
         } catch (error) {
             console.error('[TrueVision3D] Failed to load model group:', error);

@@ -134,12 +134,14 @@
         }
 
         function setDepthPrePassSize(w, h) {
-            depthPrePassTarget.setSize(w * pixelRatio, h * pixelRatio);
+            const currentPixelRatio = renderer.getPixelRatio();
+            depthPrePassTarget.setSize(w * currentPixelRatio, h * currentPixelRatio);
         }
         
         // PASS 2 — PROFILE LINES (optional)
         let renderProfileNormals = () => {};
         let setProfileLinesSize = () => {};
+        let invalidateProfileLinesCache = () => {};
         
         const profileLinesEnabled = profileLinesConfig
             && profileLinesConfig.RenderEffect__ProfileLines__Enabled === true;
@@ -150,6 +152,7 @@
             composer.addPass(profileLines.pass);
             renderProfileNormals = profileLines.renderProfileNormals;
             setProfileLinesSize = profileLines.setSize;
+            invalidateProfileLinesCache = profileLines.invalidateSceneCache;
         }
 
         // PASS 3 — FOG (optional)
@@ -199,6 +202,12 @@
         fxaaPass.material.uniforms['resolution'].value.x = 1 / (window.innerWidth * pixelRatio);
         fxaaPass.material.uniforms['resolution'].value.y = 1 / (window.innerHeight * pixelRatio);
         composer.addPass(fxaaPass);
+
+        function setFxaaSize(w, h) {
+            const currentPixelRatio = renderer.getPixelRatio();
+            fxaaPass.material.uniforms['resolution'].value.x = 1 / (w * currentPixelRatio);
+            fxaaPass.material.uniforms['resolution'].value.y = 1 / (h * currentPixelRatio);
+        }
         
         return {
             composer,
@@ -206,9 +215,11 @@
             setDepthPrePassSize,
             renderProfileNormals,
             setProfileLinesSize,
+            invalidateProfileLinesCache,
             updateAoUniforms,
             setAoSize,
             monitorAoFrame,
+            setFxaaSize,
             toggleAo
         };
     }

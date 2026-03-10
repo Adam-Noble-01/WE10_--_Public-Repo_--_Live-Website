@@ -93,24 +93,48 @@
     // ------------------------------------------------------------
     function Na__UiFeature__ResolveRenderPipelineState(getRenderPipelineState) {
         if (typeof getRenderPipelineState !== 'function') {
-            return { composer: null, renderProfileNormals: () => {}, setProfileLinesSize: () => {} };
+            return {
+                composer: null,
+                renderProfileNormals: () => {},
+                setProfileLinesSize: () => {},
+                setDepthPrePassSize: () => {},
+                setAoSize: () => {},
+                setFxaaSize: () => {}
+            };
         }
 
         const pipelineState = getRenderPipelineState();
         if (!pipelineState) {
-            return { composer: null, renderProfileNormals: () => {}, setProfileLinesSize: () => {} };
+            return {
+                composer: null,
+                renderProfileNormals: () => {},
+                setProfileLinesSize: () => {},
+                setDepthPrePassSize: () => {},
+                setAoSize: () => {},
+                setFxaaSize: () => {}
+            };
         }
 
         // BACKWARD COMPAT | Legacy getter may return composer directly
         // ------------------------------------------------------------
         if (typeof pipelineState.render === 'function' && !pipelineState.composer) {
-            return { composer: pipelineState, renderProfileNormals: () => {}, setProfileLinesSize: () => {} };
+            return {
+                composer: pipelineState,
+                renderProfileNormals: () => {},
+                setProfileLinesSize: () => {},
+                setDepthPrePassSize: () => {},
+                setAoSize: () => {},
+                setFxaaSize: () => {}
+            };
         }
 
         return {
             composer            : pipelineState.composer || null,
             renderProfileNormals: (typeof pipelineState.renderProfileNormals === 'function') ? pipelineState.renderProfileNormals : () => {},
-            setProfileLinesSize : (typeof pipelineState.setProfileLinesSize === 'function') ? pipelineState.setProfileLinesSize : () => {}
+            setProfileLinesSize : (typeof pipelineState.setProfileLinesSize === 'function') ? pipelineState.setProfileLinesSize : () => {},
+            setDepthPrePassSize : (typeof pipelineState.setDepthPrePassSize === 'function') ? pipelineState.setDepthPrePassSize : () => {},
+            setAoSize           : (typeof pipelineState.setAoSize === 'function') ? pipelineState.setAoSize : () => {},
+            setFxaaSize         : (typeof pipelineState.setFxaaSize === 'function') ? pipelineState.setFxaaSize : () => {}
         };
     }
     // ------------------------------------------------------------
@@ -187,7 +211,10 @@
 
         if (composer) {
             composer.setSize(targetWidth, targetHeight); // <-- Resize composer
+            pipelineState.setDepthPrePassSize(targetWidth, targetHeight); // <-- Resize depth pre-pass RT
             pipelineState.setProfileLinesSize(targetWidth, targetHeight); // <-- Resize profile lines render target
+            pipelineState.setAoSize(targetWidth, targetHeight); // <-- Resize AO uniforms
+            pipelineState.setFxaaSize(targetWidth, targetHeight); // <-- Resize FXAA uniforms
             pipelineState.renderProfileNormals(); // <-- Refresh profile normals at export dimensions
             composer.render(); // <-- Render via composer
         } else {
@@ -217,7 +244,10 @@
         renderer.setSize(size.x, size.y); // <-- Restore renderer size
         if (composer) {
             composer.setSize(size.x, size.y); // <-- Restore composer size
+            pipelineState.setDepthPrePassSize(size.x, size.y); // <-- Restore depth pre-pass RT size
             pipelineState.setProfileLinesSize(size.x, size.y); // <-- Restore profile lines render target size
+            pipelineState.setAoSize(size.x, size.y); // <-- Restore AO uniforms
+            pipelineState.setFxaaSize(size.x, size.y); // <-- Restore FXAA uniforms
             pipelineState.renderProfileNormals(); // <-- Refresh profile normals for live viewport after restore
         }
 

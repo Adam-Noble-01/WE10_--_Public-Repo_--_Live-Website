@@ -180,7 +180,7 @@
             
             updateMovement = () => {
                 if (!Na__DefaultNavmode__KeyState.w && !Na__DefaultNavmode__KeyState.a && !Na__DefaultNavmode__KeyState.s && !Na__DefaultNavmode__KeyState.d && !Na__DefaultNavmode__KeyState.q && !Na__DefaultNavmode__KeyState.e && !Na__DefaultNavmode__KeyState.arrowup && !Na__DefaultNavmode__KeyState.arrowleft && !Na__DefaultNavmode__KeyState.arrowdown && !Na__DefaultNavmode__KeyState.arrowright) {
-                    return;
+                    return false;
                 }
                 
                 const forward = new THREE.Vector3();
@@ -208,6 +208,8 @@
                 if (Na__DefaultNavmode__KeyState.q) {
                     camera.position.y -= elevationSpeedUnits;
                 }
+
+                return true;
             };
         }
         // ------------------------------------------------------------
@@ -215,12 +217,16 @@
         // SUB SECTION | Update Loop & Cleanup
         // ------------------------------------------------------------
         const updateNavigation = () => {
-            updateMovement();
-            controls.update();
+            const moved = updateMovement() === true;
+            const controlsChanged = controls.update() === true;
+            let clamped = false;
             if (Number.isFinite(minCameraYUnits) && camera.position.y < minCameraYUnits) {
                 camera.position.y = minCameraYUnits;                 // <-- World-space floor guard
                 controls.update();
+                clamped = true;
             }
+
+            return moved || controlsChanged || clamped;
         };
         
         const dispose = () => {

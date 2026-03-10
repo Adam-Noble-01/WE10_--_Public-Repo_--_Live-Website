@@ -39,6 +39,11 @@
     } from './3dObject__ViewBuildingStoreys__SystemLogic__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Render Loop Invalidation
+    // ------------------------------------------------------------
+    import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -150,6 +155,7 @@
         roofBtn.addEventListener('click', () => {
             Na__StoreySystem__ToggleRoof();
             Na__StoreyView__UpdateButtonStates();
+            Na__RenderLoop__RequestRender();
         });
 
         listContainer.appendChild(roofBtn);
@@ -182,12 +188,14 @@
             btn.addEventListener('click', () => {
                 Na__StoreySystem__ToggleStorey(storeyKey);
                 Na__StoreyView__UpdateButtonStates();
+                Na__RenderLoop__RequestRender();
             });
 
             btn.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 Na__StoreySystem__ShowOnlyBelow(storeyKey);
                 Na__StoreyView__UpdateButtonStates();
+                Na__RenderLoop__RequestRender();
             });
 
             listContainer.appendChild(btn);
@@ -200,6 +208,7 @@
         showAllBtn.addEventListener('click', () => {
             Na__StoreySystem__ResetEntireBuilding();
             Na__StoreyView__UpdateButtonStates();
+            Na__RenderLoop__RequestRender();
         });
         listContainer.appendChild(showAllBtn);
     }

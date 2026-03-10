@@ -347,6 +347,7 @@
     import { Na__AppFlow__StartLoadingSequence } from './02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js';
     import { Na__UiFeature__InitializeUserInstructionsMenuItem } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UiFeature__UserInstructions__MenuItem.js';
     import { Na__UserInstructions__Initialize, Na__UserInstructions__Open } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__SystemLogic.js';
+    import { Na__RenderLoop__RequestRender } from './02__Src__AppModules/05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -516,7 +517,7 @@
         logarithmicDepthBuffer: true
     });
     Na__Renderer__Main.setSize(window.innerWidth, window.innerHeight);
-    Na__Renderer__Main.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    Na__Renderer__Main.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     Na__Renderer__Main.shadowMap.enabled = true;
     Na__Renderer__Main.shadowMap.type = THREE.PCFSoftShadowMap;
     Na__Renderer__Main.outputColorSpace = THREE.SRGBColorSpace;
@@ -653,6 +654,7 @@
             if (!pipeline || !pipeline.toggleAo) return;
             const isNowOn = pipeline.toggleAo();
             Na__UiFeature__UpdateSsaoStatus(isNowOn);
+            Na__RenderLoop__RequestRender();
         });
     }
 

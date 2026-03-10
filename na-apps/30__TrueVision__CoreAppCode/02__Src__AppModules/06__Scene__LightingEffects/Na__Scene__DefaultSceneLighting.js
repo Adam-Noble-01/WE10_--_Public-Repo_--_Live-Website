@@ -27,8 +27,8 @@
         const Na__Light__Directional = new THREE.DirectionalLight(0xffffff, directionalIntensity); // <-- Main directional light
         Na__Light__Directional.position.set(50, 100, 40);
         Na__Light__Directional.castShadow = true;
-        Na__Light__Directional.shadow.mapSize.width = 2048;
-        Na__Light__Directional.shadow.mapSize.height = 2048;
+        Na__Light__Directional.shadow.mapSize.width = 1024;
+        Na__Light__Directional.shadow.mapSize.height = 1024;
         Na__Light__Directional.shadow.bias = -0.0001;
         scene.add(Na__Light__Directional);
 
