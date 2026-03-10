@@ -2,6 +2,41 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.2.3  -  10-Mar-2026
+### Profile Lines + Colour System — Aligned With ValeVision3D
+
+**Overview**
+- Ported ValeVision3D's profile line system and authored edge colour support into TrueVision so both apps render profile lines identically.
+- Profile lines now use a profile colour buffer (meshes + linework in one pass), dynamic camera-distance edge width, and smoothstep blending.
+- Linework model loader preserves glTF `COLOR_0` (SketchUp edge paint) into fat-line geometry with `vertexColors`.
+
+**Profile Lines Module**
+- Replaced `Na__RenderEffect__ProfileLines__.js` with ValeVision's current version.
+- Adds `tProfileColor` buffer: meshes render with fallback colour, linework with vertex colours, in a single depth pass.
+- Adds `collectMeshObjects` helper for mesh material swap during profile colour pass.
+- Shader uses `smoothstep` for gradual edge transitions instead of hard threshold.
+- `orbitTarget` parameter enables per-frame dynamic `u_edgeWidth` (thick when close, thin when far).
+
+**Pipeline Setup**
+- `Na__RenderPipeline__SetupComposer` now accepts `orbitTarget` as 7th parameter and forwards it to `ProfileLines__Create`.
+
+**Model Loader — Authored Edge Colours**
+- `Na__ModelLoader__LoadSingleLinework` extracts `node.geometry.attributes.color` (glTF `COLOR_0`) when present.
+- Calls `fatLineGeometry.setColors(importedColors)` to carry vertex colours into fat-line geometry.
+- Sets `vertexColors: !!importedColors` on `LineMaterial` so SketchUp edge paint is preserved.
+
+**Config**
+- Added `EdgeWidthMin`, `EdgeWidthMax`, `EdgeWidthDistanceNear`, `EdgeWidthDistanceFar` to `RenderEffect__ProfileLines`.
+- Updated `EdgeWidth` to 0.25; values aligned with ValeVision tuned settings.
+
+**Key Files**
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json`
+- `02__Src__AppModules/05__RenderPipeline/Na__RenderEffect__ProfileLines__.js`
+- `02__Src__AppModules/05__RenderPipeline/Na__RenderPipeline__PostProcessing__Setup.js`
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__MultiModel.js`
+- `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js`
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.2.2  -  28-Feb-2026
 ### Selective HDR Reflections (Mirror + Glass) with Per-Material Tuning
 
