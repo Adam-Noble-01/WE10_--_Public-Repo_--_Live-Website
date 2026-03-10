@@ -33,6 +33,11 @@
         "name"        : "Sister App - Project Admin System & Document System",
         "description" : "This is the sister application code for the project documentation system for Admin such as quotation and contract documents.",
         "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode"
+	  },
+      {
+        "name"        : "Cousin App - ValeVision",
+        "description" : "This is the cousin application to TrueVision3D, oit was originally a branch but developed into its own seperate application.",
+        "path"        : "D:/80__External__LiveRepos/ValeCodebase"
 	  }
 	],
 	"settings": {

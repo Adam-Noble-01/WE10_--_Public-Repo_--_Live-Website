@@ -125,23 +125,12 @@
         // PASS 1 — SCENE RENDER
         composer.addPass(new RenderPass(scene, camera));
 
-        // Depth pre-pass render function — called from the render loop
-        function renderDepthPrePass() {
-            renderer.setRenderTarget(depthPrePassTarget);
-            renderer.clear();
-            renderer.render(scene, camera);
-            renderer.setRenderTarget(null);
-        }
-
-        function setDepthPrePassSize(w, h) {
-            const currentPixelRatio = renderer.getPixelRatio();
-            depthPrePassTarget.setSize(w * currentPixelRatio, h * currentPixelRatio);
-        }
-        
         // PASS 2 — PROFILE LINES (optional)
         let renderProfileNormals = () => {};
         let setProfileLinesSize = () => {};
         let invalidateProfileLinesCache = () => {};
+        let profileLinesPassRef = null;
+        let profileLinesDepthTexture = null;                               // <-- Depth texture from profile normal pass (avoids separate depth pre-pass)
         
         const profileLinesEnabled = profileLinesConfig
             && profileLinesConfig.RenderEffect__ProfileLines__Enabled === true;
@@ -153,10 +142,31 @@
             renderProfileNormals = profileLines.renderProfileNormals;
             setProfileLinesSize = profileLines.setSize;
             invalidateProfileLinesCache = profileLines.invalidateSceneCache;
+            profileLinesPassRef = profileLines.pass;
+            profileLinesDepthTexture = profileLines.depthTexture;          // <-- Normal pass already writes depth; reuse it
+        }
+
+        // DEPTH SOURCE | Use normal-pass depth when available, fall back to dedicated pre-pass
+        const depthTexture = profileLinesDepthTexture || depthPrePassTarget.depthTexture;
+        const needsSeparateDepthPrePass = !profileLinesDepthTexture;       // <-- Only render the extra depth pass when profile lines are off
+
+        // Depth pre-pass render function — called from the render loop.
+        // When profile lines are active, the normal pass already populates an
+        // equivalent depth texture, so this becomes a no-op (saving a full scene render).
+        function renderDepthPrePass() {
+            if (!needsSeparateDepthPrePass) return;                        // <-- Normal pass depth is shared; skip redundant render
+            renderer.setRenderTarget(depthPrePassTarget);
+            renderer.clear();
+            renderer.render(scene, camera);
+            renderer.setRenderTarget(null);
+        }
+
+        function setDepthPrePassSize(w, h) {
+            const currentPixelRatio = renderer.getPixelRatio();
+            depthPrePassTarget.setSize(w * currentPixelRatio, h * currentPixelRatio);
         }
 
         // PASS 3 — FOG (optional)
-        const depthTexture = depthPrePassTarget.depthTexture;
         if (fogPass) {
             fogPass.material.depthWrite = false;
             fogPass.material.depthTest  = false;
@@ -194,6 +204,22 @@
             if (currentlyOn) { disableAo(); } else { enableAo(); }
             return !currentlyOn;
         }
+
+        // Runtime toggle — profile lines ON/OFF; returns new state
+        let profileLinesRuntimeEnabled = true;
+        function toggleProfileLines() {
+            if (!profileLinesPassRef) return false;
+            profileLinesRuntimeEnabled = !profileLinesRuntimeEnabled;
+            profileLinesPassRef.enabled = profileLinesRuntimeEnabled;
+            return profileLinesRuntimeEnabled;
+        }
+
+        // Wrapped renderProfileNormals that respects the runtime toggle
+        const originalRenderProfileNormals = renderProfileNormals;
+        renderProfileNormals = () => {
+            if (!profileLinesRuntimeEnabled) return;
+            originalRenderProfileNormals();
+        };
         
         // PASS 6 — FXAA (always last)
         const fxaaPass = new ShaderPass(FXAAShader);
@@ -220,7 +246,8 @@
             setAoSize,
             monitorAoFrame,
             setFxaaSize,
-            toggleAo
+            toggleAo,
+            toggleProfileLines
         };
     }
     // ------------------------------------------------------------

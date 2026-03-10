@@ -618,6 +618,9 @@
             Na__RenderLoop__RequestRenderOnce();
         }
 
+        const NA__ORBIT_TRAILING_FRAMES = 3;                                   // <-- Extra frames after orbit 'end' to let controls.update() settle
+        let Na__RenderLoop__OrbitTrailingFrames = 0;
+
         function Na__RenderLoop__RenderFrame(deltaMs) {
             let navigationChanged = false;
 
@@ -636,13 +639,17 @@
                 if (Na__RenderLoop__CanMonitorAoPerformance) {
                     Na__RenderPipeline__State.monitorAoFrame(deltaMs);       // <-- AO performance auto-disable check (post-startup only)
                 }
-                Na__RenderPipeline__State.renderDepthPrePass();              // <-- Populate depth texture for fog + AO (separate RT, no feedback loop)
+                Na__RenderPipeline__State.renderDepthPrePass();              // <-- Populate depth texture for fog + AO (no-op when profile lines provide it)
                 Na__RenderPipeline__State.renderProfileNormals();            // <-- Update profile lines
                 Na__RenderComposer__Main.render();                           // <-- Render with post-processing
             }
 
-            return navigationChanged
-                || Na__WalkMode__IsActive()
+            if (Na__RenderLoop__OrbitTrailingFrames > 0) {
+                Na__RenderLoop__OrbitTrailingFrames--;
+                return true;                                                 // <-- Keep rendering for trailing settle frames
+            }
+
+            return Na__WalkMode__IsActive()
                 || Na__DoorAnimation__HasActiveAnimations()
                 || Na__RenderLoop__ActiveReasons.size > 0;
         }
@@ -674,10 +681,13 @@
         });
 
         Na__Controls__Orbit.addEventListener('start', () => {
+            Na__RenderLoop__OrbitTrailingFrames = 0;                          // <-- Cancel any pending trail; user is actively interacting
             Na__RenderLoop__EnableActiveRendering('orbit');
         });
         Na__Controls__Orbit.addEventListener('end', () => {
             Na__RenderLoop__DisableActiveRendering('orbit');
+            Na__RenderLoop__OrbitTrailingFrames = NA__ORBIT_TRAILING_FRAMES;  // <-- Render a few more frames to let controls.update() settle
+            Na__RenderLoop__RequestRenderOnce();
         });
         Na__Controls__Orbit.addEventListener('change', Na__RenderLoop__RequestRenderOnce);
 

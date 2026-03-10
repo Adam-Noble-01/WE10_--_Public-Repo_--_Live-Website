@@ -278,6 +278,12 @@
                         <span class="na-walk-mode__status" id="naSsaoStatus">ON</span>
                     </button>
                 </li>
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-walk-mode__toggle na-walk-mode__toggle--active" id="naProfileLinesToggle">
+                        <span class="na-walk-mode__label">Profile Lines</span>
+                        <span class="na-walk-mode__status" id="naProfileLinesStatus">ON</span>
+                    </button>
+                </li>
             </ul>
             
         </details>
@@ -661,6 +667,27 @@
     window.addEventListener('na-ao-disabled', () => {
         Na__UiFeature__UpdateSsaoStatus(false);
     });
+    // ------------------------------------------------------------
+
+    // SETTINGS MENU | Profile Lines Real-Time Toggle
+    // ------------------------------------------------------------
+    const Na__ProfileLinesToggleBtn = document.getElementById('naProfileLinesToggle');
+    const Na__ProfileLinesStatusEl  = document.getElementById('naProfileLinesStatus');
+
+    function Na__UiFeature__UpdateProfileLinesStatus(isOn) {
+        if (Na__ProfileLinesStatusEl)  Na__ProfileLinesStatusEl.textContent = isOn ? 'ON' : 'OFF';
+        if (Na__ProfileLinesToggleBtn) Na__ProfileLinesToggleBtn.classList.toggle('na-walk-mode__toggle--active', isOn);
+    }
+
+    if (Na__ProfileLinesToggleBtn) {
+        Na__ProfileLinesToggleBtn.addEventListener('click', () => {
+            const pipeline = Na__AppFlow__PipelineRef.current;
+            if (!pipeline || !pipeline.toggleProfileLines) return;
+            const isNowOn = pipeline.toggleProfileLines();
+            Na__UiFeature__UpdateProfileLinesStatus(isNowOn);
+            Na__RenderLoop__RequestRender();
+        });
+    }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
