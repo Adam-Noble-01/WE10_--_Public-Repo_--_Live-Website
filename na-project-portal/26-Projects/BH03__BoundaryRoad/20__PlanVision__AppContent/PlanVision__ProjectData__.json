@@ -12,7 +12,7 @@
             "available-phases": [
                 "DesignPhase01"
             ],
-            "phase-last-updated": "09-Mar-2026"
+            "phase-last-updated": "10-Mar-2026"
         },
         "project-documentation": {
             "phase-content": {
@@ -26,7 +26,7 @@
                             "document-scale": "1:50",
                             "document-size": "A2",
                             "files": [
-                                "BH03_T01_D01__ConceptVisuals__RevA__"
+                                "BH03_T01_D01__ConceptVisuals__RevB__"
                             ]
                         }
                     ]
