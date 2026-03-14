@@ -182,6 +182,113 @@
 
         // endregion -----
 
+        // FUNCTION | Show Quotation Picker (card-based selection screen)
+        // ------------------------------------------------------------
+        async function showQuotationPicker() {
+            console.log('[UserInterfaceMain] Showing quotation picker...');
+
+            const documentContainer = document.getElementById('document-container');
+            if (!documentContainer) return;
+
+            documentContainer.innerHTML = `
+                <div class="document" style="text-align: center; padding: 3rem;">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">Loading quotations...</p>
+                </div>
+            `;
+
+            try {
+                const allQuotations = await loadAllQuotations();
+
+                if (!allQuotations || allQuotations.length === 0) {
+                    documentContainer.innerHTML = `
+                        <div class="document" style="text-align: center; padding: 3rem;">
+                            <h2>No Quotations Available</h2>
+                            <p style="color: var(--App_TextSecondary);">
+                                No quotations have been created for this project yet.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (allQuotations.length === 1) {
+                    await showQuotation(allQuotations[0].quotationRef);
+                    return;
+                }
+
+                const formatNumber = window.NaProjectAdmin.QuotationRenderer?.formatNumber
+                    || function(n) { return Number(n).toFixed(2); };
+
+                const statusLabels = { draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined' };
+
+                const cardsHtml = allQuotations.map(q => {
+                    const name    = q.quotationName || q.quotationRef;
+                    const ref     = q.quotationRef || '';
+                    const date    = q.quotationDate || '';
+                    const total   = q.totals?.grandTotal ?? 0;
+                    const status  = q.status || 'draft';
+                    const label   = statusLabels[status] || status;
+
+                    return `
+                        <div class="na-quotation-picker__card" data-ref="${ref}" tabindex="0" role="button">
+                            <div class="na-quotation-picker__card-header">
+                                <span class="na-quotation-picker__card-name">${escapeHtml(name)}</span>
+                                <span class="na-invoice-status__badge na-invoice-status__badge--${status === 'accepted' ? 'paid' : status === 'declined' ? 'overdue' : 'unpaid'}">${escapeHtml(label)}</span>
+                            </div>
+                            <div class="na-quotation-picker__card-meta">
+                                <span>${escapeHtml(ref)}</span>
+                                <span>&middot;</span>
+                                <span>${escapeHtml(date)}</span>
+                            </div>
+                            <div class="na-quotation-picker__card-total">
+                                &pound;${formatNumber(total)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                documentContainer.innerHTML = `
+                    <div class="na-quotation-picker">
+                        <h2 class="na-quotation-picker__title">Select a Quotation</h2>
+                        <div class="na-quotation-picker__cards">
+                            ${cardsHtml}
+                        </div>
+                    </div>
+                `;
+
+                documentContainer.querySelectorAll('.na-quotation-picker__card').forEach(card => {
+                    const handler = async () => {
+                        await showQuotation(card.dataset.ref);
+                    };
+                    card.addEventListener('click', handler);
+                    card.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); }
+                    });
+                });
+
+                currentView = 'quotation-picker';
+                currentContractId = null;
+
+            } catch (error) {
+                console.error('[UserInterfaceMain] Failed to load quotation picker:', error);
+                documentContainer.innerHTML = `
+                    <div class="document" style="text-align: center; padding: 3rem;">
+                        <h2 style="color: var(--App_StatusError);">Error Loading Quotations</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Show Quotation
         // ------------------------------------------------------------
         async function showQuotation(quotationRef) {
@@ -201,26 +308,15 @@
                 const allQuotations = await loadAllQuotations();
 
                 if (allQuotations && allQuotations.length > 0) {
-                    // Find the requested quotation or default to first
                     let quotationData = quotationRef
                         ? allQuotations.find(q => q.quotationRef === quotationRef) || allQuotations[0]
                         : allQuotations[0];
 
-                    // Build selector if multiple quotations exist
-                    let selectorHtml = '';
+                    let backLinkHtml = '';
                     if (allQuotations.length > 1) {
-                        const options = allQuotations.map(q => {
-                            const selected = q.quotationRef === quotationData.quotationRef ? 'selected' : '';
-                            const status = q.status ? ` (${q.status})` : '';
-                            return `<option value="${q.quotationRef}" ${selected}>${q.quotationRef}${status}</option>`;
-                        }).join('');
-
-                        selectorHtml = `
-                            <div style="margin-bottom: 1rem; text-align: right;">
-                                <label style="font-size: 0.875rem; color: var(--App_TextSecondary); margin-right: 0.5rem;">Quotation:</label>
-                                <select id="quotation-selector" style="padding: 0.35rem 0.75rem; border: 1px solid var(--App_BorderLight); border-radius: var(--App_BorderRadius); font-size: 0.875rem;">
-                                    ${options}
-                                </select>
+                        backLinkHtml = `
+                            <div class="na-quotation-back-link">
+                                <a href="#" id="back-to-quotations">&larr; All Quotations</a>
                             </div>
                         `;
                     }
@@ -232,11 +328,16 @@
                         renderedHtml = renderBasicQuotation(quotationData);
                     }
 
-                    documentContainer.innerHTML = selectorHtml + renderedHtml;
+                    documentContainer.innerHTML = backLinkHtml + renderedHtml;
 
-                    // Attach selector handler
                     if (allQuotations.length > 1) {
-                        setupQuotationSelectorHandlers();
+                        const backLink = document.getElementById('back-to-quotations');
+                        if (backLink) {
+                            backLink.addEventListener('click', async (e) => {
+                                e.preventDefault();
+                                await showQuotationPicker();
+                            });
+                        }
                     }
 
                     loadedQuotation = quotationData;
@@ -263,15 +364,6 @@
                     </div>
                 `;
             }
-        }
-
-        function setupQuotationSelectorHandlers() {
-            const selector = document.getElementById('quotation-selector');
-            if (!selector) return;
-
-            selector.addEventListener('change', async function() {
-                await showQuotation(this.value);
-            });
         }
         // ---------------------------------------------------------------
 
@@ -911,6 +1003,8 @@
             loadDefaultView          : loadDefaultView,
             showCoverLetter          : showCoverLetter,
             showQuotation            : showQuotation,
+            showQuotationPicker      : showQuotationPicker,
+            loadAllQuotations        : loadAllQuotations,
             showInvoice              : showInvoice,
             showTerms                : showTerms,
             showContract             : showContract,

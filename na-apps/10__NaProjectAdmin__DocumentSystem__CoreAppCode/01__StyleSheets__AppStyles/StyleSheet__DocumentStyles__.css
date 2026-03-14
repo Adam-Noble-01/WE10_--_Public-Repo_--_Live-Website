@@ -465,6 +465,93 @@
 /* endregion -------------------------------------------------- */
 
 /*  #Region --------------------------------------------------------
+ * REGION | Quotation Picker (na-quotation-picker)
+ * -------------------------------------------------------- */
+
+    .na-quotation-picker {
+        max-width                  : 600px;
+        margin                     : 0 auto;
+        padding                    : var(--App_SpacingXl) var(--App_SpacingLg);
+    }
+
+    .na-quotation-picker__title {
+        font-size                  : 1.375rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingLg);
+        padding-bottom             : var(--App_SpacingSm);
+        border-bottom              : 1.5px solid var(--App_BrandPrimary);
+    }
+
+    .na-quotation-picker__cards {
+        display                    : flex;
+        flex-direction             : column;
+        gap                        : var(--App_SpacingMd);
+    }
+
+    .na-quotation-picker__card {
+        background                 : #ffffff;
+        border                     : 1px solid var(--App_BorderLight);
+        border-radius              : 10px;
+        padding                    : var(--App_SpacingLg);
+        cursor                     : pointer;
+        transition                 : box-shadow 0.15s ease, border-color 0.15s ease;
+        box-shadow                 : 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .na-quotation-picker__card:hover,
+    .na-quotation-picker__card:focus-visible {
+        border-color               : var(--App_BrandPrimary);
+        box-shadow                 : 0 3px 12px rgba(0, 0, 0, 0.1);
+        outline                    : none;
+    }
+
+    .na-quotation-picker__card-header {
+        display                    : flex;
+        justify-content            : space-between;
+        align-items                : center;
+        margin-bottom              : 0.4rem;
+    }
+
+    .na-quotation-picker__card-name {
+        font-size                  : 1.125rem;
+        font-weight                : 600;
+        color                      : var(--App_TextPrimary);
+    }
+
+    .na-quotation-picker__card-meta {
+        display                    : flex;
+        gap                        : 0.4rem;
+        font-size                  : 0.8125rem;
+        color                      : var(--App_TextMuted);
+        margin-bottom              : 0.35rem;
+    }
+
+    .na-quotation-picker__card-total {
+        font-size                  : 1.0625rem;
+        font-weight                : 700;
+        color                      : var(--App_BrandPrimary);
+    }
+
+    /* Back link above rendered quotation */
+    .na-quotation-back-link {
+        margin-bottom              : var(--App_SpacingMd);
+    }
+
+    .na-quotation-back-link a {
+        font-size                  : 0.875rem;
+        color                      : var(--App_BrandPrimary);
+        text-decoration            : none;
+        font-weight                : 500;
+    }
+
+    .na-quotation-back-link a:hover {
+        text-decoration            : underline;
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
  * REGION | Mobile Responsive — Document Tables & Layout (max-width: 768px)
  * -------------------------------------------------------- */
 
@@ -677,6 +764,19 @@
             flex-direction             : column;
             align-items                : flex-start;
             gap                        : 0.25rem;
+        }
+
+        /* --- Quotation picker mobile --- */
+        .na-quotation-picker {
+            padding                    : var(--App_SpacingMd);
+        }
+
+        .na-quotation-picker__card {
+            padding                    : var(--App_SpacingMd);
+        }
+
+        .na-quotation-picker__card-name {
+            font-size                  : 1rem;
         }
     }
 

@@ -243,13 +243,16 @@
                 });
             }
 
-            // Always add Quotation if enabled
+            // Add Quotation / Quotations menu item (pluralised when multiple exist)
             if (appConfig?.AppConfig?.Features?.QuotationSystem?.enabled === true) {
+                const quotationCount = await getQuotationCount();
+                const hasMultiple    = quotationCount > 1;
+
                 items.push({
                     id                   : 'quotation',
-                    label                : 'Quotation',
+                    label                : hasMultiple ? 'Quotations' : 'Quotation',
                     icon                 : '&#128196;',              // <-- Document icon
-                    action               : 'showQuotation',
+                    action               : hasMultiple ? 'showQuotationPicker' : 'showQuotation',
                     badge                : await checkQuotationSigned() ? 'Signed' : null,
                     badgeClass           : 'nav-menu__badge'
                 });
@@ -468,6 +471,22 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Get Quotation Count (for menu pluralisation)
+        // ------------------------------------------------------------
+        async function getQuotationCount() {
+            try {
+                const uiMain = window.NaProjectAdmin.UserInterfaceMain;
+                if (uiMain?.loadAllQuotations) {
+                    const allQuotations = await uiMain.loadAllQuotations();
+                    return allQuotations ? allQuotations.length : 0;
+                }
+            } catch (e) {
+                console.warn('[Navigation] Could not determine quotation count', e);
+            }
+            return 0;
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Check Quotation Signed
         // ------------------------------------------------------------
         async function checkQuotationSigned() {
@@ -657,6 +676,13 @@
                     closeActiveEditor();
                     if (window.NaProjectAdmin.UserInterfaceMain) {
                         await window.NaProjectAdmin.UserInterfaceMain.showQuotation();
+                    }
+                    break;
+
+                case 'showQuotationPicker':
+                    closeActiveEditor();
+                    if (window.NaProjectAdmin.UserInterfaceMain) {
+                        await window.NaProjectAdmin.UserInterfaceMain.showQuotationPicker();
                     }
                     break;
 

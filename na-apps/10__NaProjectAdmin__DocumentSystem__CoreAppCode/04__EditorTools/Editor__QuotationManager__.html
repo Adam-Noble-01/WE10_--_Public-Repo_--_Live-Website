@@ -133,11 +133,12 @@
             background-color: #f9f9f9;
         }
 
-        .quotation-list-table .col-ref { width: 24%; }
-        .quotation-list-table .col-date { width: 16%; }
-        .quotation-list-table .col-status { width: 14%; }
-        .quotation-list-table .col-total { width: 16%; text-align: right; }
-        .quotation-list-table .col-list-actions { width: 30%; text-align: right; }
+        .quotation-list-table .col-ref { width: 22%; }
+        .quotation-list-table .col-date { width: 14%; }
+        .quotation-list-table .col-name { width: 14%; }
+        .quotation-list-table .col-status { width: 10%; }
+        .quotation-list-table .col-total { width: 14%; text-align: right; }
+        .quotation-list-table .col-list-actions { width: 26%; text-align: right; }
 
         /* Status Badges */
         .status-badge {
@@ -266,6 +267,13 @@
                         <label for="quotationRef">Quotation Reference</label>
                         <input type="text" id="quotationRef" class="form-input" placeholder="e.g., QUO-JH03-2026-001"
                             readonly style="background: #f8f8f8;"
+                            onchange="markFormDirty()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quotationName">Quotation Name</label>
+                        <input type="text" id="quotationName" class="form-input" placeholder="e.g. Original, Extras, Remedial"
+                            maxlength="30"
                             onchange="markFormDirty()">
                     </div>
 
@@ -587,6 +595,7 @@
                     <tr>
                         <th class="col-ref">Ref</th>
                         <th class="col-date">Date</th>
+                        <th class="col-name">Name</th>
                         <th class="col-status">Status</th>
                         <th class="col-total">Total</th>
                         <th class="col-list-actions"></th>
@@ -598,11 +607,13 @@
         currentQuotations.quotations.forEach((quotation, index) => {
             const status = quotation.status || 'draft';
             const total = quotation.totals?.grandTotal ?? 0;
+            const name = quotation.quotationName || '';
 
             html += `
                 <tr>
                     <td class="col-ref"><strong>${escapeHtml(quotation.quotationRef || 'N/A')}</strong></td>
                     <td class="col-date">${escapeHtml(quotation.quotationDate || '')}</td>
+                    <td class="col-name">${escapeHtml(name)}</td>
                     <td class="col-status">${formatStatusBadge(status)}</td>
                     <td class="col-total">£${formatNumber(total)}</td>
                     <td class="col-list-actions">
@@ -642,6 +653,7 @@
 
         const ref = generateNextQuotationRef();
         document.getElementById('quotationRef').value = ref;
+        document.getElementById('quotationName').value = '';
         document.getElementById('quotationDate').valueAsDate = new Date();
         document.getElementById('projectAddress').value = '';
         document.getElementById('projectDescription').value = '';
@@ -677,6 +689,7 @@
 
     function populateFormFromQuotation(quotation) {
         document.getElementById('quotationRef').value = quotation.quotationRef || '';
+        document.getElementById('quotationName').value = quotation.quotationName || '';
 
         if (quotation.quotationDate) {
             const ukDateMatch = quotation.quotationDate.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
@@ -811,8 +824,11 @@
             ? currentQuotations.quotations[editingQuotationIndex]
             : null;
 
+        const quotationName = document.getElementById('quotationName').value.trim();
+
         const quotation = {
             quotationRef: document.getElementById('quotationRef').value,
+            quotationName: quotationName || undefined,
             quotationDate: quotationDate,
             projectAddress: document.getElementById('projectAddress').value,
             projectDescription: document.getElementById('projectDescription').value,

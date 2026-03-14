@@ -1,0 +1,50 @@
+{
+    "invoices": [
+        {
+            "invoiceRef": "INV-NP03-2026-001",
+            "invoiceDate": "14-Mar-2026",
+            "dueDate": "21-Mar-2026",
+            "projectAddress": "",
+            "projectDescription": "A loft conversion, likely a dormer loft conversion to maximise space, together with associated internal alterations to the existing dwelling, requiring concept design and the preparation and submission of a planning application.",
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "unpaid",
+            "paidDate": null,
+            "lineItems": [
+                {
+                    "description": "Design Phase - 01 : Concept Design",
+                    "itemDescription": "- Concept Design Approved Sunday 08-Mar-2026\n- Design Fees as per Ref: QUO-NP03-2026-001\n",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 1000,
+                    "group": "Stage Payment 1 of 2"
+                },
+                {
+                    "description": "OS Mapping Data ",
+                    "itemDescription": "- OS Mapping Data required for site plan document production.\n- See original quotation & contracts for details\n- Data purchased from MapServe.com",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 30,
+                    "group": "Additional Items Required Prior To Application Production"
+                },
+                {
+                    "description": "Design Phase - 02 : Planning Approval - NOT YET DUE",
+                    "itemDescription": "REMINDER : The remainder of the design fees from Ref: QUO-NP03-2026-001 and the Additional Design & Acccess statement production fee from QUO-NP03-2026-002 will be due upon completion of planning permission documentation.\n",
+                    "quantity": 1,
+                    "unit": "Ref",
+                    "rate": 0,
+                    "group": "Stage Payment 2 of 2"
+                }
+            ],
+            "totals": {
+                "subtotal": 1030,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 1030
+            },
+            "createdDate": "14/03/2026, 15:48:30",
+            "lastModified": "14/03/2026, 15:48:49"
+        }
+    ]
+}

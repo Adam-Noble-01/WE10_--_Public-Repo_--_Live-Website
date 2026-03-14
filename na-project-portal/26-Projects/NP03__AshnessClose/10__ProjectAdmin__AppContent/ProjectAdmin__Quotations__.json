@@ -1,0 +1,190 @@
+{
+    "quotations": [
+        {
+            "additionalTerms": "",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "createdDate": "01-Feb-2026 at 19:50",
+            "lastModified": "01-Feb-2026 at 19:50",
+            "lineItems": [
+                {
+                    "description": "Initial Design Consultation",
+                    "group": "Design Phase - 01  :  Concept Design ",
+                    "quantity": 1,
+                    "rate": 0,
+                    "unit": "Free"
+                },
+                {
+                    "description": "Building Survey & Travel",
+                    "group": "Design Phase - 01  :  Concept Design ",
+                    "quantity": 5,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Model Existing Site Conditions",
+                    "group": "Design Phase - 01  :  Concept Design ",
+                    "quantity": 16,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Prepare Design Proposal & Design Development",
+                    "group": "Design Phase - 01  :  Concept Design ",
+                    "quantity": 16,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Finalisation of TrueVison Experience & Distribution",
+                    "group": "Design Phase - 01  :  Concept Design ",
+                    "quantity": 2,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Coordination & Admin",
+                    "group": "Design Phase - 01  :  Concept Design ",
+                    "quantity": 1,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Planning Drawing - 1:50 Existing Floor Plans @ A2",
+                    "group": "Design Phase - 02  :  Planning Approval",
+                    "quantity": 4,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Planning Drawing - 1:1250 Site Plan & 1:500 Site Plan @ A2",
+                    "group": "Design Phase - 02  :  Planning Approval",
+                    "quantity": 2,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Planning Drawing - 1:50 Proposed Floor Plans @ A2",
+                    "group": "Design Phase - 02  :  Planning Approval",
+                    "quantity": 4,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Planning Drawing - 1:50 Existing Elevations @ A2",
+                    "group": "Design Phase - 02  :  Planning Approval",
+                    "quantity": 6,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Planning Drawing - 1:50 Proposed Elevations @ A2",
+                    "group": "Design Phase - 02  :  Planning Approval",
+                    "quantity": 6,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Coordination & Admin",
+                    "group": "Design Phase - 02  :  Planning Approval",
+                    "quantity": 1,
+                    "rate": 25,
+                    "unit": "Optional"
+                },
+                {
+                    "description": "File the Planning Application with Rushcliffe Borough Council",
+                    "group": "Design Phase - 02  :  Planning Approval",
+                    "quantity": 1,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Managed Planning Application  (See Contract)",
+                    "group": "Additional Extras  :  **For Discussion",
+                    "quantity": 0,
+                    "rate": 600,
+                    "unit": "Optional"
+                },
+                {
+                    "description": "Design Phase 03 - Building Regulations",
+                    "group": "Additional Extras  :  **For Discussion",
+                    "quantity": 0,
+                    "rate": 1600,
+                    "unit": "Optional"
+                },
+                {
+                    "description": "Photorealistic CGI",
+                    "group": "Additional Extras  :  **For Discussion",
+                    "quantity": 0,
+                    "rate": 200,
+                    "unit": "Optional"
+                },
+                {
+                    "description": "Planning Portal Fee ",
+                    "group": "Additional Extras  :  **For Discussion",
+                    "quantity": 0,
+                    "rate": 95,
+                    "unit": "item"
+                },
+                {
+                    "description": "Design & Access Statement",
+                    "group": "Additional Extras  :  **For Discussion",
+                    "quantity": 0,
+                    "rate": 200,
+                    "unit": "Optional"
+                },
+                {
+                    "description": "Planning Application Fee - Set by Local Planning Authority.",
+                    "group": "Third Party Fees  -  **Not Included",
+                    "quantity": 0,
+                    "rate": 528,
+                    "unit": "Ref Only"
+                },
+                {
+                    "description": "OS Mapping Data required for site plan document production.",
+                    "group": "Third Party Fees  -  **Not Included",
+                    "quantity": 0,
+                    "rate": 30,
+                    "unit": "Ref Only"
+                }
+            ],
+            "projectAddress": "7, Ashness close, Nottingham, NG2 6QW",
+            "projectDescription": "A loft conversion, likely a dormer loft conversion to maximise space, together with associated internal alterations to the existing dwelling, requiring concept design and the preparation and submission of a planning application.",
+            "quotationDate": "29-Jan-2026",
+            "quotationRef": "QUO-NP03-2026-001",
+            "status": "draft",
+            "totals": {
+                "grandTotal": 1600,
+                "subtotal": 1600,
+                "vat": 0,
+                "vatRate": 0
+            }
+        },
+        {
+            "quotationRef": "QUO-NP03-2026-002",
+            "quotationDate": "14-Mar-2026",
+            "projectAddress": "7, Ashness close, Nottingham, NG2 6QW",
+            "projectDescription": "Additional Design & Access Statement required as per client instructions.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "draft",
+            "lineItems": [
+                {
+                    "description": "Design & Access Statement",
+                    "itemDescription": "- Produce a detailed design & access statement for the scheme.\n- Utilise Drone photography to communicate the unique circumstance of the site and surrounding neighbours etc.\n- Form a robust argument for the scheme.\n- Clearly communicate all design rationale clearly.",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 200
+                }
+            ],
+            "totals": {
+                "subtotal": 200,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 200
+            },
+            "additionalTerms": "",
+            "createdDate": "14-Mar-2026 at 15:31",
+            "lastModified": "14-Mar-2026 at 15:40"
+        }
+    ]
+}
