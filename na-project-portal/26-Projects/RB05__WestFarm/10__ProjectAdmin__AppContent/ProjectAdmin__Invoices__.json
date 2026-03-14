@@ -1,0 +1,75 @@
+{
+    "invoices": [
+        {
+            "invoiceRef": "INV-RB05-2026-001",
+            "invoiceDate": "14-Mar-2026",
+            "dueDate": "21-Mar-2026",
+            "projectAddress": "",
+            "projectDescription": "Concept Design services delivered for the initial Period style Georgian Home scheme for West Farm.",
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "unpaid",
+            "paidDate": null,
+            "lineItems": [
+                {
+                    "description": "Mon 02-Mar-2026 - 5h 30m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 5.5,
+                    "unit": "Hours",
+                    "rate": 25
+                },
+                {
+                    "description": "Tue 03-Mar-2026 - 8h 30m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 8.5,
+                    "unit": "Hours",
+                    "rate": 25
+                },
+                {
+                    "description": "Wed 04-Mar-2026 - 6h",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 6,
+                    "unit": "Hours",
+                    "rate": 25
+                },
+                {
+                    "description": "Thu 05-Mar-2026 - 6h",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 6,
+                    "unit": "Hours",
+                    "rate": 25
+                },
+                {
+                    "description": "Fri 06-Mar-2026 - 5h",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 5,
+                    "unit": "Hours",
+                    "rate": 25
+                },
+                {
+                    "description": " Sat 07-Mar-2026 - 10h",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 10,
+                    "unit": "Hours",
+                    "rate": 25
+                },
+                {
+                    "description": "Mon 09-Mar-2026 - 7h",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 7,
+                    "unit": "Hours",
+                    "rate": 25
+                }
+            ],
+            "totals": {
+                "subtotal": 1200,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 1200
+            },
+            "createdDate": "14/03/2026, 17:38:45",
+            "lastModified": "14/03/2026, 17:39:18"
+        }
+    ]
+}
