@@ -207,6 +207,7 @@
                 // Check for existing session
                 if (checkExistingSession()) {
                     isAuthenticated = true;
+                    updateAuthStatus(true);
                     await showProjectContent();
                 } else {
                     // Show login screen
