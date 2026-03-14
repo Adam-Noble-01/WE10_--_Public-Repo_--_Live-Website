@@ -360,14 +360,14 @@
                     
                     html += `
                         <tr>
-                            <td class="quote-table__description">
+                            <td class="quote-table__description" data-label="Description">
                                 <div class="quote-table__description-main">${item.description || ''}</div>
                                 ${secondaryDescription ? `<div class="quote-table__description-secondary">${secondaryDescription}</div>` : ''}
                             </td>
-                            <td class="quote-table__qty">${displayQty}</td>
-                            <td class="quote-table__unit">${item.unit || '-'}</td>
-                            <td class="quote-table__rate">${currencySymbol}${formatNumber(item.rate || 0)}</td>
-                            <td class="quote-table__amount">${currencySymbol}${formatNumber(amount)}</td>
+                            <td class="quote-table__qty" data-label="Qty">${displayQty}</td>
+                            <td class="quote-table__unit" data-label="Unit">${item.unit || '-'}</td>
+                            <td class="quote-table__rate" data-label="Rate">${currencySymbol}${formatNumber(item.rate || 0)}</td>
+                            <td class="quote-table__amount" data-label="Amount">${currencySymbol}${formatNumber(amount)}</td>
                         </tr>
                     `;
                 });

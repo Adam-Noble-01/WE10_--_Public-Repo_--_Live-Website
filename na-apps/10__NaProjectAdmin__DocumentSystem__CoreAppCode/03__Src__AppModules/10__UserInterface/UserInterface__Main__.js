@@ -184,13 +184,12 @@
 
         // FUNCTION | Show Quotation
         // ------------------------------------------------------------
-        async function showQuotation() {
+        async function showQuotation(quotationRef) {
             console.log('[UserInterfaceMain] Showing quotation...');
 
             const documentContainer = document.getElementById('document-container');
             if (!documentContainer) return;
 
-            // Show loading state
             documentContainer.innerHTML = `
                 <div class="document" style="text-align: center; padding: 3rem;">
                     <div class="loading-spinner"></div>
@@ -199,16 +198,45 @@
             `;
 
             try {
-                // Load quotation data
-                const quotationData = await loadQuotationData();
+                const allQuotations = await loadAllQuotations();
 
-                if (quotationData) {
-                    // Render quotation (async to fetch client data from Cloudflare)
+                if (allQuotations && allQuotations.length > 0) {
+                    // Find the requested quotation or default to first
+                    let quotationData = quotationRef
+                        ? allQuotations.find(q => q.quotationRef === quotationRef) || allQuotations[0]
+                        : allQuotations[0];
+
+                    // Build selector if multiple quotations exist
+                    let selectorHtml = '';
+                    if (allQuotations.length > 1) {
+                        const options = allQuotations.map(q => {
+                            const selected = q.quotationRef === quotationData.quotationRef ? 'selected' : '';
+                            const status = q.status ? ` (${q.status})` : '';
+                            return `<option value="${q.quotationRef}" ${selected}>${q.quotationRef}${status}</option>`;
+                        }).join('');
+
+                        selectorHtml = `
+                            <div style="margin-bottom: 1rem; text-align: right;">
+                                <label style="font-size: 0.875rem; color: var(--App_TextSecondary); margin-right: 0.5rem;">Quotation:</label>
+                                <select id="quotation-selector" style="padding: 0.35rem 0.75rem; border: 1px solid var(--App_BorderLight); border-radius: var(--App_BorderRadius); font-size: 0.875rem;">
+                                    ${options}
+                                </select>
+                            </div>
+                        `;
+                    }
+
+                    let renderedHtml = '';
                     if (window.NaProjectAdmin.QuotationRenderer) {
-                        const html = await window.NaProjectAdmin.QuotationRenderer.renderAsync(quotationData);
-                        documentContainer.innerHTML = html;
+                        renderedHtml = await window.NaProjectAdmin.QuotationRenderer.renderAsync(quotationData);
                     } else {
-                        documentContainer.innerHTML = renderBasicQuotation(quotationData);
+                        renderedHtml = renderBasicQuotation(quotationData);
+                    }
+
+                    documentContainer.innerHTML = selectorHtml + renderedHtml;
+
+                    // Attach selector handler
+                    if (allQuotations.length > 1) {
+                        setupQuotationSelectorHandlers();
                     }
 
                     loadedQuotation = quotationData;
@@ -236,14 +264,23 @@
                 `;
             }
         }
+
+        function setupQuotationSelectorHandlers() {
+            const selector = document.getElementById('quotation-selector');
+            if (!selector) return;
+
+            selector.addEventListener('change', async function() {
+                await showQuotation(this.value);
+            });
+        }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Load Quotation Data
+        // FUNCTION | Load All Quotations (plural format with legacy fallback)
         // ------------------------------------------------------------
-        async function loadQuotationData() {
+        async function loadAllQuotations() {
             const projectPath = window.NaProjectAdmin.currentProjectPath;
             const config = window.NaProjectAdmin.ConfigManager?.getConfig();
-            const quotationFile = config?.AppConfig?.ProjectLoading?.quotationFile || 'ProjectAdmin__Quotation__.json';
+            const quotationFile = config?.AppConfig?.ProjectLoading?.quotationFile || 'ProjectAdmin__Quotations__.json';
 
             if (!projectPath) {
                 console.warn('[UserInterfaceMain] No project path available');
@@ -252,17 +289,49 @@
 
             try {
                 const response = await fetch(`${projectPath}${quotationFile}`);
-                
-                if (!response.ok) {
-                    return null;
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // New plural format: { quotations: [...] }
+                    if (data.quotations && Array.isArray(data.quotations)) {
+                        return data.quotations;
+                    }
+
+                    // Single quotation object (legacy format loaded via new filename)
+                    if (data.quotationRef) {
+                        return [data];
+                    }
                 }
-
-                return await response.json();
-
             } catch (error) {
-                console.warn('[UserInterfaceMain] Quotation file not found');
-                return null;
+                console.warn('[UserInterfaceMain] Could not load quotations file');
             }
+
+            // Fallback: try legacy singular filename
+            try {
+                const legacyResponse = await fetch(`${projectPath}ProjectAdmin__Quotation__.json`);
+                if (legacyResponse.ok) {
+                    const legacyData = await legacyResponse.json();
+                    if (legacyData.quotationRef) {
+                        return [legacyData];
+                    }
+                }
+            } catch (error) {
+                console.warn('[UserInterfaceMain] Legacy quotation file not found');
+            }
+
+            return null;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Load Quotation Data (backward-compatible wrapper)
+        // ------------------------------------------------------------
+        async function loadQuotationData() {
+            const allQuotations = await loadAllQuotations();
+            if (allQuotations && allQuotations.length > 0) {
+                return allQuotations[0];
+            }
+            return null;
         }
         // ---------------------------------------------------------------
 

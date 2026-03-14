@@ -21,7 +21,7 @@
             "defaultYear"                      : "26",
             "projectFolderPattern"             : "{year}-Projects/{projectCode}",
             "projectAdminFolder"               : "10__ProjectAdmin__AppContent",
-            "quotationFile"                    : "ProjectAdmin__Quotation__.json",
+            "quotationFile"                    : "ProjectAdmin__Quotations__.json",
             "invoiceFile"                      : "ProjectAdmin__Invoices__.json",
             "specialTermsFile"                 : "ProjectAdmin__SpecialTerms__.json",
             "projectConfigFile"                : "ProjectAdmin__ProjectConfig__.json"
@@ -66,7 +66,7 @@
                 "invoiceFile"                  : "ProjectAdmin__Invoices__.json",
                 "standardNote"                 : "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
                 "passwordResetEmail"           : "Billing@Noble-Architecture.com",
-                "passwordResetNote"            : "If you have forgotten your password to access this invoice, please contact"
+                "passwordResetNote"            : "If you have any issues with this invoice, please contact"
             },
             "CoverLetterSystem": {
                 "enabled"                      : true,

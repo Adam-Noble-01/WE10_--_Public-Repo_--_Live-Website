@@ -1,0 +1,683 @@
+/* =============================================================================
+ * NOBLE ARCHITECTURE - DOCUMENT STYLES (QUOTATION & INVOICE)
+ * =============================================================================
+ *
+ * Shared document layout, table, and totals styles used by both the
+ * Quotation Renderer and Invoice Renderer.  Invoice-specific rules
+ * (status badges, payment card, note section) follow at the end.
+ *
+ * Extracted from StyleSheet__Main__.css — March 2026
+ * =============================================================================
+ */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Shared Project Document Layout (na-project-document)
+ * -------------------------------------------------------- */
+
+    .na-project-document,
+    .na-doc,
+    .document {
+        padding                    : var(--App_SpacingXl);
+    }
+
+    .na-project-document__header,
+    .na-doc__header,
+    .document__header {
+        display                    : flex;
+        justify-content            : space-between;
+        align-items                : flex-start;
+        margin-bottom              : var(--App_SpacingXl);
+        padding-bottom             : var(--App_SpacingLg);
+        border-bottom              : 1.5px solid var(--App_BrandPrimary);
+    }
+
+    .na-project-document__logo,
+    .na-doc__logo,
+    .document__logo {
+        max-width                  : 290px;
+    }
+
+    .na-project-document__meta-info,
+    .na-doc__meta,
+    .document__meta {
+        text-align                 : right;
+    }
+
+    .na-project-document__title,
+    .na-doc__title,
+    .document__title {
+        font-size                  : 1.75rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingXs);
+    }
+
+    .na-project-document__reference,
+    .na-doc__ref,
+    .document__ref {
+        font-size                  : 0.9375rem;
+        color                      : var(--App_TextSecondary);
+    }
+
+    .na-project-document__section,
+    .na-doc__section,
+    .document__section {
+        margin-bottom              : var(--App_SpacingXl);
+    }
+
+    .na-project-document__section-title,
+    .na-doc__section-title,
+    .document__section-title {
+        font-size                  : 1.125rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingMd);
+        padding-bottom             : var(--App_SpacingXs);
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .na-project-document__section ul,
+    .na-doc__section ul,
+    .document__section ul {
+        padding-left               : 2rem;
+        margin                     : var(--App_SpacingSm) 0;
+        list-style-type            : disc;
+    }
+
+    .na-project-document__section li,
+    .na-doc__section li,
+    .document__section li {
+        margin-bottom              : var(--App_SpacingSm);
+        line-height                : 1.8;
+        color                      : var(--App_TextSecondary);
+    }
+
+    .na-project-document__section p + p,
+    .na-doc__section p + p,
+    .document__section p + p {
+        margin-top                 : var(--App_SpacingXs);
+    }
+
+    .na-project-document__section p,
+    .na-doc__section p,
+    .document__section p {
+        line-height                : 1.7;
+    }
+
+    .na-project-document__address-grid,
+    .na-doc__addresses,
+    .document__addresses {
+        display                    : grid;
+        grid-template-columns      : 1fr 1fr;
+        gap                        : var(--App_SpacingXl);
+    }
+
+    .na-project-document-address__title,
+    .na-doc-address__title,
+    .address-block__title {
+        font-size                  : 0.75rem;
+        font-weight                : 600;
+        text-transform             : uppercase;
+        letter-spacing             : 0.05em;
+        color                      : var(--App_TextMuted);
+        margin-bottom              : var(--App_SpacingSm);
+    }
+
+    .na-project-document-address__content,
+    .na-doc-address__content,
+    .address-block__content {
+        font-size                  : 0.9375rem;
+        line-height                : 1.7;
+    }
+
+    .na-project-document-address__content strong,
+    .na-doc-address__content strong,
+    .address-block__content strong {
+        color                      : var(--App_TextPrimary);
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Document Line-Item Table (na-document-table)
+ * -------------------------------------------------------- */
+
+    .na-document-table,
+    .na-doc-table,
+    .quote-table {
+        width                      : 100%;
+        border-collapse            : collapse;
+        margin-bottom              : var(--App_SpacingLg);
+    }
+
+    .na-document-table th,
+    .na-document-table td,
+    .na-doc-table th,
+    .na-doc-table td,
+    .quote-table th,
+    .quote-table td {
+        padding                    : var(--App_SpacingSm) var(--App_SpacingMd);
+        text-align                 : left;
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .na-document-table th,
+    .na-doc-table th,
+    .quote-table th {
+        font-size                  : 0.8125rem;
+        font-weight                : 600;
+        text-transform             : uppercase;
+        letter-spacing             : 0.03em;
+        color                      : var(--App_TextMuted);
+        background-color           : var(--App_BgTertiary);
+    }
+
+    .na-document-table td,
+    .na-doc-table td,
+    .quote-table td {
+        font-size                  : 0.9375rem;
+    }
+
+    .na-document-table td strong,
+    .na-document-table th strong,
+    .na-doc-table td strong,
+    .na-doc-table th strong,
+    .quote-table td strong,
+    .quote-table th strong {
+        font-size                  : inherit;
+        font-weight                : 600;
+    }
+
+    .na-document-table__description-cell,
+    .na-doc-table__description,
+    .quote-table__description {
+        width                      : 50%;
+    }
+
+    .na-document-table__description-main,
+    .na-doc-table__description-main,
+    .quote-table__description-main {
+        color                      : var(--App_TextPrimary);
+        font-weight                : 400;
+    }
+
+    .na-document-table__description-secondary,
+    .na-doc-table__description-secondary,
+    .quote-table__description-secondary {
+        margin-top                 : 0.25rem;
+        color                      : var(--App_TextMuted);
+        font-size                  : 0.8125rem;
+        font-weight                : 300;
+        line-height                : 1.45;
+        white-space                : pre-line;
+    }
+
+    .na-document-table__qty,
+    .na-document-table__unit,
+    .na-document-table__rate,
+    .na-document-table__amount,
+    .na-doc-table__qty,
+    .na-doc-table__unit,
+    .na-doc-table__rate,
+    .na-doc-table__amount,
+    .quote-table__qty,
+    .quote-table__unit,
+    .quote-table__rate,
+    .quote-table__amount {
+        text-align                 : right;
+        white-space                : nowrap;
+    }
+
+    .na-document-table__group-header-row,
+    .na-doc-table__group-header,
+    .quote-table__group-header {
+        background-color           : var(--App_BgTertiary);
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+    }
+
+    .na-document-table__group-header-row td,
+    .na-doc-table__group-header td,
+    .quote-table__group-header td {
+        border-bottom              : 2px solid var(--App_BrandSecondary);
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Document Totals Block (na-document-totals)
+ * -------------------------------------------------------- */
+
+    .na-document-totals,
+    .na-doc-totals,
+    .quote-totals {
+        margin-left                : auto;
+        min-width                  : 300px;
+        max-width                  : 450px;
+        width                      : fit-content;
+        border-top                 : 2px solid var(--App_BrandPrimary);
+    }
+
+    .na-document-totals__row--phase,
+    .na-doc-totals__row--phase,
+    .quote-totals__row--phase {
+        color                      : var(--App_TextSecondary);
+        font-size                  : 0.875rem;
+    }
+
+    .na-document-totals__row--phase span:first-child,
+    .na-doc-totals__row--phase span:first-child,
+    .quote-totals__row--phase span:first-child {
+        padding-right              : var(--App_SpacingXxl);
+    }
+
+    .na-document-totals__row,
+    .na-doc-totals__row,
+    .quote-totals__row {
+        display                    : flex;
+        justify-content            : space-between;
+        padding                    : var(--App_SpacingSm) 0;
+        font-size                  : 0.9375rem;
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .na-document-totals__row:last-child,
+    .na-doc-totals__row:last-child,
+    .quote-totals__row:last-child {
+        border-bottom              : none;
+    }
+
+    .na-document-totals__row--grand-total,
+    .na-doc-totals__row--grand,
+    .quote-totals__row--grand {
+        font-size                  : 1.125rem;
+        font-weight                : 700;
+        color                      : var(--App_BrandPrimary);
+        padding-top                : var(--App_SpacingMd);
+        border-top                 : 2px solid var(--App_BrandPrimary);
+        margin-top                 : var(--App_SpacingXs);
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Invoice Status Badge (na-invoice-status)
+ * -------------------------------------------------------- */
+
+    .na-invoice-status__badge,
+    .invoice-status-badge {
+        display                    : inline-block;
+        padding                    : 0.25rem 0.75rem;
+        font-size                  : 0.75rem;
+        font-weight                : 600;
+        text-transform             : uppercase;
+        letter-spacing             : 0.05em;
+        border-radius              : var(--App_BorderRadius);
+        line-height                : 1.4;
+    }
+
+    .na-invoice-status__badge--unpaid,
+    .invoice-status-badge--unpaid {
+        background-color           : #fff3cd;
+        color                      : #856404;
+        border                     : 1px solid #ffc107;
+    }
+
+    .na-invoice-status__badge--paid,
+    .invoice-status-badge--paid {
+        background-color           : #d4edda;
+        color                      : #155724;
+        border                     : 1px solid #28a745;
+    }
+
+    .na-invoice-status__badge--overdue,
+    .invoice-status-badge--overdue {
+        background-color           : #f8d7da;
+        color                      : #721c24;
+        border                     : 1px solid #dc3545;
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Invoice Divider and Payment Card (na-invoice-payment-card)
+ * -------------------------------------------------------- */
+
+    .na-invoice-divider,
+    .invoice-divider {
+        border                     : none;
+        border-top                 : 1.5px solid var(--App_BrandPrimary);
+        margin                     : var(--App_SpacingXl) 0;
+    }
+
+    .na-invoice-payment-card,
+    .invoice-payment-card {
+        background-color           : #fafafa;
+        border                     : 1px solid var(--App_BorderLight);
+        border-radius              : 12px;
+        padding                    : var(--App_SpacingLg) var(--App_SpacingXl);
+        box-shadow                 : 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom              : var(--App_SpacingXl);
+        max-width                  : 420px;
+    }
+
+    .na-invoice-payment-card__title,
+    .invoice-payment-card__title {
+        font-size                  : 1.125rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingMd);
+        padding-bottom             : var(--App_SpacingXs);
+        border-bottom              : 1px solid var(--App_BorderLight);
+    }
+
+    .na-invoice-payment-card__method-label,
+    .invoice-payment-card__method-label {
+        font-size                  : 0.8125rem;
+        font-weight                : 600;
+        text-transform             : uppercase;
+        letter-spacing             : 0.04em;
+        color                      : var(--App_TextMuted);
+        margin-bottom              : var(--App_SpacingMd);
+    }
+
+    .na-invoice-payment-card__detail,
+    .invoice-payment-card__detail {
+        display                    : flex;
+        justify-content            : space-between;
+        align-items                : center;
+        padding                    : var(--App_SpacingSm) 0;
+        border-bottom              : 1px dashed var(--App_BorderLight);
+    }
+
+    .na-invoice-payment-card__detail:last-child,
+    .invoice-payment-card__detail:last-child {
+        border-bottom              : none;
+    }
+
+    .na-invoice-payment-card__label,
+    .invoice-payment-card__label {
+        font-size                  : 0.875rem;
+        font-weight                : 500;
+        color                      : var(--App_TextSecondary);
+    }
+
+    .na-invoice-payment-card__value,
+    .invoice-payment-card__value {
+        font-family                : 'Courier New', 'Consolas', 'Liberation Mono', monospace;
+        font-size                  : 1rem;
+        font-weight                : 600;
+        color                      : var(--App_TextPrimary);
+        letter-spacing             : 0.04em;
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Invoice Note Section (na-invoice-note-section)
+ * -------------------------------------------------------- */
+
+    .na-invoice-note-section,
+    .invoice-note-section {
+        margin-top                 : var(--App_SpacingLg);
+        padding                    : var(--App_SpacingMd) var(--App_SpacingLg);
+        background-color           : var(--App_BgTertiary);
+        border-left                : 3px solid var(--App_BrandPrimary);
+        border-radius              : 0 var(--App_BorderRadius) var(--App_BorderRadius) 0;
+    }
+
+    .na-invoice-note-section__text,
+    .invoice-note-section__text {
+        font-size                  : 0.9375rem;
+        line-height                : 1.7;
+        color                      : var(--App_TextSecondary);
+        font-style                 : italic;
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Invoice Password Reset (na-invoice-password-reset)
+ * -------------------------------------------------------- */
+
+    .na-invoice-password-reset,
+    .invoice-password-reset {
+        margin-top                 : var(--App_SpacingXl);
+        padding-top                : var(--App_SpacingMd);
+        border-top                 : 1px solid var(--App_BorderLight);
+        text-align                 : center;
+        font-size                  : 0.8125rem;
+        color                      : var(--App_TextMuted);
+    }
+
+    .na-invoice-password-reset__link,
+    .invoice-password-reset__link {
+        color                      : var(--App_BrandPrimary);
+        text-decoration            : none;
+        font-weight                : 600;
+    }
+
+    .na-invoice-password-reset__link:hover,
+    .invoice-password-reset__link:hover {
+        text-decoration            : underline;
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Mobile Responsive — Document Tables & Layout (max-width: 768px)
+ * -------------------------------------------------------- */
+
+    @media (max-width: 768px) {
+
+        /* --- Document container padding --- */
+        .na-project-document,
+        .na-doc,
+        .document {
+            padding                    : var(--App_SpacingMd);
+        }
+
+        /* --- Header stacks vertically --- */
+        .na-project-document__header,
+        .na-doc__header,
+        .document__header {
+            flex-direction             : column;
+            gap                        : var(--App_SpacingMd);
+        }
+
+        .na-project-document__meta-info,
+        .na-doc__meta,
+        .document__meta {
+            text-align                 : left;
+        }
+
+        .na-project-document__logo,
+        .na-doc__logo,
+        .document__logo {
+            max-width                  : 200px;
+        }
+
+        /* --- Address grid stacks to single column --- */
+        .na-project-document__address-grid,
+        .na-doc__addresses,
+        .document__addresses {
+            grid-template-columns      : 1fr;
+            gap                        : var(--App_SpacingMd);
+        }
+
+        /* --- Table → stacked card layout --- */
+        .na-document-table thead,
+        .na-doc-table thead,
+        .quote-table thead {
+            display                    : none;
+        }
+
+        .na-document-table,
+        .na-doc-table,
+        .quote-table {
+            display                    : block;
+        }
+
+        .na-document-table tbody,
+        .na-doc-table tbody,
+        .quote-table tbody {
+            display                    : block;
+        }
+
+        .na-document-table tr,
+        .na-doc-table tr,
+        .quote-table tr {
+            display                    : block;
+            background                 : var(--App_BgSecondary, #fafafa);
+            border                     : 1px solid var(--App_BorderLight);
+            border-radius              : 8px;
+            padding                    : var(--App_SpacingSm) var(--App_SpacingMd);
+            margin-bottom              : var(--App_SpacingSm);
+        }
+
+        .na-document-table td,
+        .na-doc-table td,
+        .quote-table td {
+            display                    : flex;
+            justify-content            : space-between;
+            align-items                : baseline;
+            padding                    : 0.3rem 0;
+            border-bottom              : none;
+            text-align                 : right;
+            font-size                  : 0.875rem;
+        }
+
+        .na-document-table td::before,
+        .na-doc-table td::before,
+        .quote-table td::before {
+            content                    : attr(data-label);
+            font-weight                : 600;
+            font-size                  : 0.75rem;
+            text-transform             : uppercase;
+            letter-spacing             : 0.03em;
+            color                      : var(--App_TextMuted);
+            flex-shrink                : 0;
+            margin-right               : var(--App_SpacingMd);
+            text-align                 : left;
+        }
+
+        /* Description cell spans full width as the card title */
+        .na-document-table__description-cell,
+        .na-doc-table__description,
+        .quote-table__description {
+            width                      : 100%;
+            flex-direction             : column;
+            align-items                : flex-start;
+            text-align                 : left;
+            padding-bottom             : 0.4rem;
+            margin-bottom              : 0.25rem;
+            border-bottom              : 1px solid var(--App_BorderLight) !important;
+        }
+
+        .na-document-table__description-cell::before,
+        .na-doc-table__description::before,
+        .quote-table__description::before {
+            display                    : none;
+        }
+
+        .na-document-table__description-main,
+        .na-doc-table__description-main,
+        .quote-table__description-main {
+            font-weight                : 600;
+            font-size                  : 0.9375rem;
+            color                      : var(--App_TextPrimary);
+        }
+
+        /* Numeric columns keep right alignment */
+        .na-document-table__qty,
+        .na-document-table__unit,
+        .na-document-table__rate,
+        .na-document-table__amount,
+        .na-doc-table__qty,
+        .na-doc-table__unit,
+        .na-doc-table__rate,
+        .na-doc-table__amount,
+        .quote-table__qty,
+        .quote-table__unit,
+        .quote-table__rate,
+        .quote-table__amount {
+            text-align                 : right;
+            white-space                : nowrap;
+        }
+
+        /* Amount row is bolder */
+        .na-document-table__amount,
+        .na-doc-table__amount,
+        .quote-table__amount {
+            font-weight                : 600;
+        }
+
+        /* Group header rows span full width */
+        .na-document-table__group-header-row,
+        .na-doc-table__group-header,
+        .quote-table__group-header {
+            background-color           : var(--App_BgTertiary);
+            border                     : 1px solid var(--App_BrandSecondary);
+            border-left                : 3px solid var(--App_BrandPrimary);
+            padding                    : var(--App_SpacingSm) var(--App_SpacingMd);
+        }
+
+        .na-document-table__group-header-row td,
+        .na-doc-table__group-header td,
+        .quote-table__group-header td {
+            display                    : block;
+            border-bottom              : none;
+            padding                    : 0;
+            text-align                 : left;
+            font-weight                : 600;
+        }
+
+        .na-document-table__group-header-row td::before,
+        .na-doc-table__group-header td::before,
+        .quote-table__group-header td::before {
+            display                    : none;
+        }
+
+        /* Phase subtotal rows */
+        .quote-table__phase-subtotal,
+        .na-document-table__phase-subtotal {
+            background                 : transparent;
+            border                     : none;
+            padding                    : 0.25rem var(--App_SpacingMd);
+        }
+
+        .quote-table__phase-subtotal td,
+        .na-document-table__phase-subtotal td {
+            border-bottom              : none;
+        }
+
+        .quote-table__phase-subtotal td:empty,
+        .na-document-table__phase-subtotal td:empty {
+            display                    : none;
+        }
+
+        /* --- Totals block full-width --- */
+        .na-document-totals,
+        .na-doc-totals,
+        .quote-totals {
+            width                      : 100%;
+            max-width                  : 100%;
+            min-width                  : unset;
+        }
+
+        /* --- Payment card stacks labels above values --- */
+        .na-invoice-payment-card,
+        .invoice-payment-card {
+            padding                    : var(--App_SpacingMd);
+            max-width                  : 100%;
+        }
+
+        .na-invoice-payment-card__detail,
+        .invoice-payment-card__detail {
+            flex-direction             : column;
+            align-items                : flex-start;
+            gap                        : 0.25rem;
+        }
+    }
+
+/* endregion -------------------------------------------------- */

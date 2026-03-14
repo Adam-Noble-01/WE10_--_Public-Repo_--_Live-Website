@@ -3,6 +3,51 @@
 
 # =============================================================================
 
+## Admin & Doc System - Version 0.7.3 - 14-Mar-2026
+
+### Added
+
+- **Multi-Quotation Manager** - Quotation system now supports multiple quotations per project
+  - Renamed `Editor__QuotationBuilder__.html` to `Editor__QuotationManager__.html`
+  - Two-view architecture: list view (quotation table with status badges) and editor view (form)
+  - Quotation list displays Ref, Date, Status, Total, and Actions per row
+  - Empty state with "+ New Quotation" button when no quotations exist
+  - Status badges: Draft, Sent, Accepted, Declined with colour-coded indicators
+  - Sequential reference generation: `QUO-{ProjectCode}-{Year}-{Sequence}`
+  - JSON migration from singular `ProjectAdmin__Quotation__.json` to plural `ProjectAdmin__Quotations__.json`
+  - Client-facing quotation selector dropdown when multiple quotations exist
+
+### Changed
+
+- **Stylesheet Organisation** - Monolithic stylesheet split into three focused files
+  - `StyleSheet__Main__.css` - Core app UI styles only (navigation, layout, authentication, modals)
+  - `StyleSheet__DocumentStyles__.css` - Shared document + invoice-specific styles with new BEM naming
+  - `StyleSheet__ContentDocuments__.css` - Terms & Conditions + Cover Letter styles with new BEM naming
+  - All new classes use descriptive ValeVision-style BEM naming (e.g. `.na-project-document__header`, `.na-invoice-status__badge`, `.na-terms-document__section`)
+  - Backward compatible: old class names retained alongside new aliases via multi-selectors
+- **Stylesheet File Location** - All three stylesheets moved to `01__StyleSheets__AppStyles/` subfolder
+  - `index.html` links updated to reference new subfolder paths
+  - Keeps root directory cleaner with stylesheets grouped in dedicated folder
+- **Navigation Menu** - Quotation editor renamed to "Quotation Manager" with updated file reference
+- **App Configuration** - `quotationFile` updated from `ProjectAdmin__Quotation__.json` to `ProjectAdmin__Quotations__.json`
+- **Client-Facing UI** - `loadQuotationData()` replaced by `loadAllQuotations()` with fallback to legacy singular file
+
+#### Files Created
+
+- `01__StyleSheets__AppStyles/StyleSheet__DocumentStyles__.css` - Extracted document and invoice styles
+- `01__StyleSheets__AppStyles/StyleSheet__ContentDocuments__.css` - Extracted terms and cover letter styles
+- `04__EditorTools/Editor__QuotationManager__.html` - Multi-document quotation manager (renamed from QuotationBuilder)
+
+#### Files Modified
+
+- `01__StyleSheets__AppStyles/StyleSheet__Main__.css` - Extracted document/content sections, core UI styles retained
+- `index.html` - Stylesheet links updated to `01__StyleSheets__AppStyles/` subfolder
+- `03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js` - Editor filename and label updated
+- `03__Src__AppModules/10__UserInterface/UserInterface__Main__.js` - Multi-quotation loading and selector
+- `03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json` - Quotation filename reference updated
+
+# =============================================================================
+
 ## Admin & Doc System - Version 0.7.2 - 14-Mar-2026
 
 ### Changed

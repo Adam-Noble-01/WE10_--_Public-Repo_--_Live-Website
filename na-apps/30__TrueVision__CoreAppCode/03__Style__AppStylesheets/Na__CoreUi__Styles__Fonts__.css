@@ -9,7 +9,7 @@
     font-style                         : normal;
     font-weight                        : 400;
     font-display                       : swap;
-    src                                : url('https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_01_-_Standard-Font_-_Open-Sans-Regular.ttf') format('truetype');
+    src                                : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf') format('truetype');
 }
 
 
@@ -20,7 +20,7 @@
     font-style                         : normal;
     font-weight                        : 600;
     font-display                       : swap;
-    src                                : url('https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf') format('truetype');
+    src                                : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__SemiBold__.ttf') format('truetype');
 }
 
 
@@ -31,7 +31,7 @@
     font-style                         : normal;
     font-weight                        : 300;
     font-display                       : swap;
-    src                                : url('https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf') format('truetype');
+    src                                : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Light__.ttf') format('truetype');
 }
 
 /* endregion -------------------------------------------------------- */

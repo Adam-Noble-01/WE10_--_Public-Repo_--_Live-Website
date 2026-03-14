@@ -171,7 +171,7 @@
                     </div>
                     <a href="${adminUrl}" class="pv-invoice-toast__link">View Invoice</a>
                     <div class="pv-invoice-password-reset">
-                        If you have forgotten your password to access this invoice, please contact
+                        If you have any issues with this invoice, please contact
                         <a href="mailto:Billing@Noble-Architecture.com">Billing@Noble-Architecture.com</a>
                     </div>
                 </div>
@@ -215,7 +215,7 @@
                     </div>
                     <a href="${adminUrl}" class="pv-invoice-overdue__link">Pay Invoice Now</a>
                     <div class="pv-invoice-password-reset">
-                        If you have forgotten your password to access this invoice, please contact
+                        If you have any issues with this invoice, please contact
                         <a href="mailto:Billing@Noble-Architecture.com">Billing@Noble-Architecture.com</a>
                     </div>
                 </div>

@@ -395,10 +395,10 @@
                     badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
                 });
 
-                // Edit Quotation
+                // Quotation Manager
                 items.push({
                     id                   : 'edit-quotation',
-                    label                : 'Edit Quotation',
+                    label                : 'Quotation Manager',
                     icon                 : '&#128221;',              // <-- Memo icon
                     action               : 'editQuotation',
                     badge                : 'Dev',
@@ -711,7 +711,7 @@
                     break;
 
                 case 'editQuotation':
-                    await loadEditorInline('Editor__QuotationBuilder__.html');
+                    await loadEditorInline('Editor__QuotationManager__.html');
                     break;
 
                 case 'editInvoices':

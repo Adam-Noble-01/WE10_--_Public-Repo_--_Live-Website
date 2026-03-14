@@ -10,12 +10,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <meta name="googlebot" content="noindex, nofollow">
-    <title>Invoice Manager | Noble Architecture</title>
+    <title>Quotation Manager | Noble Architecture</title>
     <link rel="icon" type="image/x-icon"
         href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
     <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
 
-    <!-- Invoice Manager Custom Styles -->
+    <!-- Quotation Manager Custom Styles -->
     <style>
         /* Drag Handle Column */
         .col-drag {
@@ -109,36 +109,35 @@
             width: 40px;
         }
 
-        /* Invoice List Table */
-        .invoice-list-table {
+        /* Quotation List Table */
+        .quotation-list-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
         }
 
-        .invoice-list-table th,
-        .invoice-list-table td {
+        .quotation-list-table th,
+        .quotation-list-table td {
             padding: 0.75rem;
             text-align: left;
             border-bottom: 1px solid var(--border-light, #e0ddd8);
         }
 
-        .invoice-list-table th {
+        .quotation-list-table th {
             background-color: var(--bg-primary, #f8f7f5);
             font-weight: 600;
             font-size: 0.875rem;
         }
 
-        .invoice-list-table tr:hover {
+        .quotation-list-table tr:hover {
             background-color: #f9f9f9;
         }
 
-        .invoice-list-table .col-ref { width: 22%; }
-        .invoice-list-table .col-date { width: 14%; }
-        .invoice-list-table .col-due { width: 14%; }
-        .invoice-list-table .col-status { width: 12%; }
-        .invoice-list-table .col-total { width: 14%; text-align: right; }
-        .invoice-list-table .col-list-actions { width: 24%; text-align: right; }
+        .quotation-list-table .col-ref { width: 24%; }
+        .quotation-list-table .col-date { width: 16%; }
+        .quotation-list-table .col-status { width: 14%; }
+        .quotation-list-table .col-total { width: 16%; text-align: right; }
+        .quotation-list-table .col-list-actions { width: 30%; text-align: right; }
 
         /* Status Badges */
         .status-badge {
@@ -150,29 +149,24 @@
             text-transform: uppercase;
         }
 
-        .status-badge--paid {
+        .status-badge--draft {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .status-badge--sent {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-badge--accepted {
             background: #d4edda;
             color: #155724;
         }
 
-        .status-badge--unpaid {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-badge--overdue {
+        .status-badge--declined {
             background: #f8d7da;
             color: #721c24;
-        }
-
-        /* Mark as Paid Button */
-        .btn--success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn--success:hover {
-            background: #218838;
         }
 
         /* Empty State */
@@ -194,11 +188,10 @@
         }
     </style>
 
+    <!-- Load DateFormatter Module -->
+    <script src="../03__Src__AppModules/03__CommonUtils/CommonUtils__DateFormatter__.js"></script>
     <!-- Load Shared Editor Utilities -->
     <script src="Editor__SharedUtils__.js"></script>
-
-    <!-- Invoice Email Download Logic -->
-    <script src="../20__DistributionEmails/Distribution__ProjectInvoice__EmailLink__HtmlDownloadLogic__.js"></script>
 </head>
 <!-- endregion ---------------------------------------- -->
 
@@ -212,10 +205,10 @@
     <!-- UI HEADER | Application Header                    -->
     <!-- -------------------------------------------------- -->
     <header class="app-header">
-        <h1>Invoice Manager <span id="projectCodeDisplay" style="font-weight: 300; font-size: 1rem; color: #888;"></span></h1>
+        <h1>Quotation Manager <span id="projectCodeDisplay" style="font-weight: 300; font-size: 1rem; color: #888;"></span></h1>
         <div class="header-actions" id="flask-controls" style="display: none;">
             <button class="btn btn--secondary" onclick="loadFromProject()" id="btnLoadProject">Reload</button>
-            <button class="btn btn--primary" onclick="saveCurrentInvoice()" id="btnSaveProject">Save to Project</button>
+            <button class="btn btn--primary" onclick="saveCurrentQuotation()" id="btnSaveProject">Save to Project</button>
         </div>
     </header>
     <!-- endregion ---------------------------------------- -->
@@ -226,13 +219,13 @@
     <div class="main-container">
 
         <!-- #Region -------------------------------------- -->
-        <!-- VIEW 1 | Invoice List                         -->
+        <!-- VIEW 1 | Quotation List                       -->
         <!-- ---------------------------------------------- -->
-        <div id="invoice-list-view">
+        <div id="quotation-list-view">
             <div class="panel">
                 <div class="panel__header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>Invoices</span>
-                    <button class="btn btn--primary btn--small" onclick="startNewInvoice()" style="margin: -0.25rem 0;">+ New Invoice</button>
+                    <span>Quotations</span>
+                    <button class="btn btn--primary btn--small" onclick="startNewQuotation()" style="margin: -0.25rem 0;">+ New Quotation</button>
                 </div>
                 <div class="panel__body">
 
@@ -243,11 +236,11 @@
                         <span id="projectPathDisplay"></span>
                     </div>
 
-                    <div id="invoiceListContent">
+                    <div id="quotationListContent">
                         <div class="empty-state">
                             <div class="empty-state__icon">📄</div>
-                            <h3>No Invoices Yet</h3>
-                            <p>Click "+ New Invoice" to create your first invoice.</p>
+                            <h3>No Quotations Yet</h3>
+                            <p>Click "+ New Quotation" to create your first quotation.</p>
                         </div>
                     </div>
                 </div>
@@ -256,48 +249,83 @@
         <!-- endregion ------------------------------------ -->
 
         <!-- #Region -------------------------------------- -->
-        <!-- VIEW 2 | Invoice Editor Form                  -->
+        <!-- VIEW 2 | Quotation Editor Form                -->
         <!-- ---------------------------------------------- -->
-        <div id="invoice-editor-view" class="view-hidden">
+        <div id="quotation-editor-view" class="view-hidden">
             <div class="panel">
                 <div class="panel__header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>Edit Invoice</span>
+                    <span>Edit Quotation</span>
                     <button class="btn btn--secondary btn--small" onclick="showListView()" style="margin: -0.25rem 0; color: #fff; border-color: #fff;">← Back to List</button>
                 </div>
                 <div class="panel__body">
 
-                    <!-- Invoice Details -->
-                    <h3 class="section-heading section-heading--first">Invoice Details</h3>
+                    <!-- Project Details -->
+                    <h3 class="section-heading section-heading--first">Project Details</h3>
 
                     <div class="form-group">
-                        <label for="invoiceRef">Invoice Reference</label>
-                        <input type="text" id="invoiceRef" class="form-input" placeholder="INV-XX00-2026-001"
+                        <label for="quotationRef">Quotation Reference</label>
+                        <input type="text" id="quotationRef" class="form-input" placeholder="e.g., QUO-JH03-2026-001"
                             readonly style="background: #f8f8f8;"
                             onchange="markFormDirty()">
                     </div>
 
                     <div class="form-group">
-                        <label for="invoiceDate">Invoice Date (DD-Mon-YYYY)</label>
-                        <input type="text" id="invoiceDate" class="form-input" placeholder="14-Mar-2026"
-                            onchange="onInvoiceDateChange(); markFormDirty()">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="dueDate">Due Date</label>
-                        <input type="text" id="dueDate" class="form-input" placeholder="Auto-calculated (invoice date + 7 days)"
-                            readonly style="background: #f8f8f8;">
+                        <label for="quotationDate">Quotation Date</label>
+                        <input type="date" id="quotationDate" class="form-input"
+                            onchange="recalculateTotals(); markFormDirty()">
                     </div>
 
                     <div class="form-group">
                         <label for="projectAddress">Project Address</label>
-                        <textarea id="projectAddress" class="form-input" placeholder="Site address"
-                            onchange="markFormDirty()"></textarea>
+                        <input type="text" id="projectAddress" class="form-input" placeholder="Site address"
+                            onchange="markFormDirty()">
                     </div>
 
                     <div class="form-group">
                         <label for="projectDescription">Project Description</label>
+                        <div class="info-box" style="background: #fff7e6; border-color: #ffa500; margin-bottom: 0.5rem;">
+                            <strong>💡 Defaults to Concise Brief</strong><br>
+                            This field is auto-populated from the Project Config Editor's "Concise Brief".
+                            You can edit it here for quotation-specific variations if needed.
+                        </div>
                         <textarea id="projectDescription" class="form-input" placeholder="Brief description of the project"
                             onchange="markFormDirty()"></textarea>
+                        <button class="btn btn--secondary btn--small" style="margin-top: 0.5rem;"
+                            onclick="loadBriefFromProjectConfig(true)">Reload from Project Config</button>
+                    </div>
+
+                    <!-- Client Details -->
+                    <h3 class="section-heading">Client Details</h3>
+
+                    <div class="info-box" style="background: #e8f4fc; border-color: #0066cc;">
+                        <strong>🔒 Client Data from Secure Storage</strong><br>
+                        Client details are loaded from encrypted Cloudflare R2 storage.
+                        Edit client information in the Project Config Editor.
+                        <button class="btn btn--secondary btn--small" style="margin-top: 0.5rem;"
+                            onclick="loadClientDataFromCloudflare()">Refresh Client Data</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientName">Client Name</label>
+                        <input type="text" id="clientName" class="form-input" placeholder="(Loaded from secure storage)"
+                            onchange="markFormDirty()" readonly style="background: #f8f8f8;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientAddress">Client Address</label>
+                        <textarea id="clientAddress" class="form-input" placeholder="(Loaded from secure storage)"
+                            onchange="markFormDirty()" readonly style="background: #f8f8f8;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientEmail">Client Email</label>
+                        <input type="email" id="clientEmail" class="form-input" placeholder="(Loaded from secure storage)"
+                            onchange="markFormDirty()" readonly style="background: #f8f8f8;">
+                    </div>
+
+                    <div id="clientDataMissing" class="warning-box" style="display: none;">
+                        <strong>No Client Data Found</strong><br>
+                        Client details have not been set up yet. Please edit them in the Project Config Editor first.
                     </div>
 
                     <!-- VAT -->
@@ -309,14 +337,6 @@
                             VAT (<input type="number" id="vatRate" value="20" style="width: 50px;"
                                 onchange="recalculateTotals(); markFormDirty()">%)
                         </label>
-                    </div>
-
-                    <!-- Personal Note -->
-                    <h3 class="section-heading">Personal Note</h3>
-
-                    <div class="form-group">
-                        <textarea id="personalNote" class="form-input"
-                            onchange="markFormDirty()">Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.</textarea>
                     </div>
 
                     <!-- Line Items -->
@@ -363,9 +383,7 @@
 
                     <!-- Actions -->
                     <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button class="btn btn--success" id="btnMarkPaid" onclick="markCurrentAsPaid()" style="display: none;">Mark as Paid</button>
-                        <button class="btn btn--primary" onclick="saveCurrentInvoice()">Save Invoice</button>
-                        <button class="btn btn--secondary" onclick="generateInvoiceEmail()">Create Invoice Email</button>
+                        <button class="btn btn--primary" onclick="saveCurrentQuotation()">Save Quotation</button>
                     </div>
 
                 </div>
@@ -389,9 +407,9 @@
     // CONSTANTS | Configuration
     // --------------------------------------------------------
 
-    const INVOICES_FILENAME = 'ProjectAdmin__Invoices__.json';
+    const QUOTATIONS_FILENAME = 'ProjectAdmin__Quotations__.json';
+    const LEGACY_QUOTATION_FILENAME = 'ProjectAdmin__Quotation__.json';
     const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const DUE_DAYS = 7;
 
     // endregion ----------------------------------------------
 
@@ -399,18 +417,20 @@
     // STATE | Application State
     // --------------------------------------------------------
 
-    let currentInvoices = { invoices: [] };                       // <-- All invoices
-    let editingInvoiceIndex = -1;                                 // <-- -1 = new invoice
-    let lineItems = [];                                           // <-- Line items array
-    let lineItemId = 0;                                           // <-- ID counter
-    let isFlaskMode = false;                                      // <-- Flask server available
-    let currentProjectCode = null;                                // <-- Currently loaded project
-    let currentYear = null;                                       // <-- Current year
-    let isEmbedded = false;                                       // <-- Running in iframe
+    let currentQuotations = { quotations: [] };              // <-- All quotations
+    let editingQuotationIndex = -1;                          // <-- -1 = new quotation
+    let lineItems = [];                                      // <-- Line items array
+    let lineItemId = 0;                                      // <-- ID counter
+    let isFlaskMode = false;                                 // <-- Flask server available
+    let currentProjectCode = null;                           // <-- Currently loaded project
+    let currentYear = null;                                  // <-- Current year
+    let isEmbedded = false;                                  // <-- Running in iframe
+    let sessionToken = null;                                 // <-- Auth token for Cloudflare
+    let clientDataLoaded = false;                            // <-- PII data loaded from R2
 
     // Drag and drop state
-    let draggedIndex = null;                                      // <-- Index being dragged
-    let draggedType = null;                                       // <-- 'group' or 'item'
+    let draggedIndex = null;                                 // <-- Index being dragged
+    let draggedType = null;                                  // <-- 'group' or 'item'
 
     // endregion ----------------------------------------------
 
@@ -432,7 +452,7 @@
 
             if (isFlaskMode) {
                 setupFlaskMode();
-                await autoLoadInvoices();
+                await autoLoadQuotations();
             }
 
             NaEditorTools.setupUnsavedChangesWarning();
@@ -456,25 +476,36 @@
     // FILE OPERATIONS | Load and Save
     // --------------------------------------------------------
 
-    async function autoLoadInvoices() {
+    async function autoLoadQuotations() {
         if (!isFlaskMode || !currentProjectCode) return;
 
-        NaEditorTools.showInfoMessage(`Loading ${INVOICES_FILENAME}...`);
+        NaEditorTools.showInfoMessage(`Loading ${QUOTATIONS_FILENAME}...`);
 
-        const data = await NaEditorTools.loadProjectFile(INVOICES_FILENAME, currentProjectCode, currentYear);
+        let data = await NaEditorTools.loadProjectFile(QUOTATIONS_FILENAME, currentProjectCode, currentYear);
 
         if (data) {
-            currentInvoices = data;
-            if (!currentInvoices.invoices) {
-                currentInvoices.invoices = [];
+            currentQuotations = data;
+            if (!currentQuotations.quotations) {
+                currentQuotations.quotations = [];
             }
-            NaEditorTools.showSuccessMessage(`Loaded: ${INVOICES_FILENAME} (${currentInvoices.invoices.length} invoices)`);
+            NaEditorTools.showSuccessMessage(`Loaded: ${QUOTATIONS_FILENAME} (${currentQuotations.quotations.length} quotations)`);
         } else {
-            currentInvoices = { invoices: [] };
-            NaEditorTools.showInfoMessage('No existing invoices found — starting fresh');
+            // Attempt migration from legacy singular file
+            const legacyData = await NaEditorTools.loadProjectFile(LEGACY_QUOTATION_FILENAME, currentProjectCode, currentYear);
+
+            if (legacyData && legacyData.quotationRef) {
+                legacyData.status = legacyData.status || 'draft';
+                legacyData.lastModified = legacyData.lastModified || legacyData.createdDate || new Date().toLocaleString('en-GB');
+                currentQuotations = { quotations: [legacyData] };
+                NaEditorTools.showInfoMessage('Migrated legacy quotation to new format — save to persist');
+                markFormDirty();
+            } else {
+                currentQuotations = { quotations: [] };
+                NaEditorTools.showInfoMessage('No existing quotations found — starting fresh');
+            }
         }
 
-        renderInvoiceList();
+        renderQuotationList();
     }
 
     async function loadFromProject() {
@@ -482,26 +513,26 @@
 
         if (window.NaEditorTools?.hasUnsavedChanges()) {
             NaEditorTools.showSaveConfirmDialog(
-                INVOICES_FILENAME,
-                async () => { await saveCurrentInvoice(); await autoLoadInvoices(); },
-                async () => { await autoLoadInvoices(); },
+                QUOTATIONS_FILENAME,
+                async () => { await saveCurrentQuotation(); await autoLoadQuotations(); },
+                async () => { await autoLoadQuotations(); },
                 () => {}
             );
             return;
         }
 
-        await autoLoadInvoices();
+        await autoLoadQuotations();
     }
 
-    async function saveInvoiceData() {
+    async function saveQuotationData() {
         if (!isFlaskMode) {
             NaEditorTools.showErrorMessage('Cannot save: Flask server not available');
             return false;
         }
 
         const success = await NaEditorTools.saveProjectFile(
-            INVOICES_FILENAME,
-            currentInvoices,
+            QUOTATIONS_FILENAME,
+            currentQuotations,
             currentProjectCode,
             currentYear
         );
@@ -520,43 +551,42 @@
     // --------------------------------------------------------
 
     function showListView() {
-        document.getElementById('invoice-list-view').classList.remove('view-hidden');
-        document.getElementById('invoice-editor-view').classList.add('view-hidden');
-        renderInvoiceList();
+        document.getElementById('quotation-list-view').classList.remove('view-hidden');
+        document.getElementById('quotation-editor-view').classList.add('view-hidden');
+        renderQuotationList();
     }
 
     function showEditorView() {
-        document.getElementById('invoice-list-view').classList.add('view-hidden');
-        document.getElementById('invoice-editor-view').classList.remove('view-hidden');
+        document.getElementById('quotation-list-view').classList.add('view-hidden');
+        document.getElementById('quotation-editor-view').classList.remove('view-hidden');
     }
 
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // INVOICE LIST | Render List View
+    // QUOTATION LIST | Render List View
     // --------------------------------------------------------
 
-    function renderInvoiceList() {
-        const container = document.getElementById('invoiceListContent');
+    function renderQuotationList() {
+        const container = document.getElementById('quotationListContent');
 
-        if (!currentInvoices.invoices || currentInvoices.invoices.length === 0) {
+        if (!currentQuotations.quotations || currentQuotations.quotations.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state__icon">📄</div>
-                    <h3>No Invoices Yet</h3>
-                    <p>Click "+ New Invoice" to create your first invoice.</p>
+                    <h3>No Quotations Yet</h3>
+                    <p>Click "+ New Quotation" to create your first quotation.</p>
                 </div>
             `;
             return;
         }
 
         let html = `
-            <table class="invoice-list-table">
+            <table class="quotation-list-table">
                 <thead>
                     <tr>
                         <th class="col-ref">Ref</th>
                         <th class="col-date">Date</th>
-                        <th class="col-due">Due Date</th>
                         <th class="col-status">Status</th>
                         <th class="col-total">Total</th>
                         <th class="col-list-actions"></th>
@@ -565,20 +595,20 @@
                 <tbody>
         `;
 
-        currentInvoices.invoices.forEach((invoice, index) => {
-            const status = calculateInvoiceStatus(invoice);
-            const total = invoice.totals?.grandTotal ?? 0;
+        currentQuotations.quotations.forEach((quotation, index) => {
+            const status = quotation.status || 'draft';
+            const total = quotation.totals?.grandTotal ?? 0;
 
             html += `
                 <tr>
-                    <td class="col-ref"><strong>${escapeHtml(invoice.invoiceRef || 'N/A')}</strong></td>
-                    <td class="col-date">${escapeHtml(invoice.invoiceDate || '')}</td>
-                    <td class="col-due">${escapeHtml(invoice.dueDate || '')}</td>
+                    <td class="col-ref"><strong>${escapeHtml(quotation.quotationRef || 'N/A')}</strong></td>
+                    <td class="col-date">${escapeHtml(quotation.quotationDate || '')}</td>
                     <td class="col-status">${formatStatusBadge(status)}</td>
                     <td class="col-total">£${formatNumber(total)}</td>
                     <td class="col-list-actions">
-                        <button class="btn btn--secondary btn--small" onclick="editInvoice(${index})">Edit</button>
-                        ${status !== 'paid' ? `<button class="btn btn--success btn--small" onclick="markAsPaid(${index})">Mark Paid</button>` : ''}
+                        <button class="btn btn--secondary btn--small" onclick="editQuotation(${index})">Edit</button>
+                        ${status === 'draft' ? `<button class="btn btn--secondary btn--small" onclick="updateQuotationStatus(${index}, 'sent')">Mark Sent</button>` : ''}
+                        ${status === 'sent' ? `<button class="btn btn--secondary btn--small" style="background: #28a745; color: white;" onclick="updateQuotationStatus(${index}, 'accepted')">Accept</button>` : ''}
                     </td>
                 </tr>
             `;
@@ -588,99 +618,102 @@
         container.innerHTML = html;
     }
 
-    function calculateInvoiceStatus(invoice) {
-        if (invoice.status === 'paid') return 'paid';
-
-        if (invoice.dueDate) {
-            const due = parseDateString(invoice.dueDate);
-            if (due) {
-                const now = new Date();
-                now.setHours(0, 0, 0, 0);
-                due.setHours(0, 0, 0, 0);
-                if (due < now) return 'overdue';
-            }
-        }
-
-        return 'unpaid';
-    }
-
     function formatStatusBadge(status) {
-        const labels = { paid: 'Paid', unpaid: 'Unpaid', overdue: 'Overdue' };
+        const labels = {
+            draft    : 'Draft',
+            sent     : 'Sent',
+            accepted : 'Accepted',
+            declined : 'Declined'
+        };
         return `<span class="status-badge status-badge--${status}">${labels[status] || status}</span>`;
     }
 
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // INVOICE EDITOR | New and Edit
+    // QUOTATION EDITOR | New and Edit
     // --------------------------------------------------------
 
-    function startNewInvoice() {
-        editingInvoiceIndex = -1;
+    function startNewQuotation() {
+        editingQuotationIndex = -1;
 
-        // Reset form
         lineItems = [];
         lineItemId = 0;
 
-        const ref = generateNextInvoiceRef();
-        document.getElementById('invoiceRef').value = ref;
-        document.getElementById('invoiceDate').value = formatDateForDisplay(new Date());
-        document.getElementById('dueDate').value = formatDateForDisplay(addDays(new Date(), DUE_DAYS));
+        const ref = generateNextQuotationRef();
+        document.getElementById('quotationRef').value = ref;
+        document.getElementById('quotationDate').valueAsDate = new Date();
         document.getElementById('projectAddress').value = '';
         document.getElementById('projectDescription').value = '';
+        document.getElementById('clientName').value = '';
+        document.getElementById('clientAddress').value = '';
+        document.getElementById('clientEmail').value = '';
         document.getElementById('showVat').checked = false;
         document.getElementById('vatRate').value = '20';
-        document.getElementById('personalNote').value =
-            'Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.';
 
-        document.getElementById('btnMarkPaid').style.display = 'none';
+        document.getElementById('clientDataMissing').style.display = 'none';
+        clientDataLoaded = false;
 
         addLineItem();
         renderLineItems();
         recalculateTotals();
         showEditorView();
 
-        loadProjectDetailsFromConfig();
+        loadBriefFromProjectConfig();
+        loadClientDataFromCloudflare();
     }
 
-    function editInvoice(index) {
-        if (index < 0 || index >= currentInvoices.invoices.length) return;
+    function editQuotation(index) {
+        if (index < 0 || index >= currentQuotations.quotations.length) return;
 
-        editingInvoiceIndex = index;
-        const invoice = currentInvoices.invoices[index];
+        editingQuotationIndex = index;
+        const quotation = currentQuotations.quotations[index];
 
-        populateFormFromInvoice(invoice);
+        populateFormFromQuotation(quotation);
         showEditorView();
+
+        loadClientDataFromCloudflare();
     }
 
-    function populateFormFromInvoice(invoice) {
-        document.getElementById('invoiceRef').value = invoice.invoiceRef || '';
-        document.getElementById('invoiceDate').value = invoice.invoiceDate || '';
-        document.getElementById('dueDate').value = invoice.dueDate || '';
-        document.getElementById('projectAddress').value = invoice.projectAddress || '';
-        document.getElementById('projectDescription').value = invoice.projectDescription || '';
-        document.getElementById('personalNote').value = invoice.personalNote ||
-            'Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.';
+    function populateFormFromQuotation(quotation) {
+        document.getElementById('quotationRef').value = quotation.quotationRef || '';
 
-        if (invoice.totals?.vatApplicable === true || invoice.totals?.vatRate > 0) {
+        if (quotation.quotationDate) {
+            const ukDateMatch = quotation.quotationDate.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+            if (ukDateMatch) {
+                const monthIndex = MONTHS.findIndex(m => m.toLowerCase() === ukDateMatch[2].toLowerCase());
+                if (monthIndex !== -1) {
+                    const isoDate = `${ukDateMatch[3]}-${String(monthIndex + 1).padStart(2, '0')}-${ukDateMatch[1].padStart(2, '0')}`;
+                    document.getElementById('quotationDate').value = isoDate;
+                }
+            } else {
+                const date = new Date(quotation.quotationDate);
+                if (!isNaN(date)) {
+                    document.getElementById('quotationDate').value = date.toISOString().split('T')[0];
+                }
+            }
+        }
+
+        document.getElementById('projectAddress').value = quotation.projectAddress || '';
+        document.getElementById('projectDescription').value = quotation.projectDescription || '';
+        document.getElementById('clientName').value = quotation.clientDetails?.name || '';
+        document.getElementById('clientAddress').value = quotation.clientDetails?.address || '';
+        document.getElementById('clientEmail').value = quotation.clientDetails?.email || '';
+
+        if (quotation.totals?.vatApplicable === true || quotation.totals?.vatRate > 0) {
             document.getElementById('showVat').checked = true;
-            document.getElementById('vatRate').value = invoice.totals.vatRate;
+            document.getElementById('vatRate').value = quotation.totals.vatRate;
         } else {
             document.getElementById('showVat').checked = false;
             document.getElementById('vatRate').value = '20';
         }
 
-        // Show/hide mark as paid button
-        const status = calculateInvoiceStatus(invoice);
-        document.getElementById('btnMarkPaid').style.display = (status !== 'paid') ? 'inline-block' : 'none';
-
-        // Load line items
         lineItems = [];
         lineItemId = 0;
 
-        if (invoice.lineItems) {
+        if (quotation.lineItems) {
             let currentGroup = '';
-            invoice.lineItems.forEach(item => {
+            quotation.lineItems.forEach(item => {
                 if (item.group && item.group !== currentGroup) {
                     currentGroup = item.group;
                     lineItems.push({
@@ -710,42 +743,23 @@
         }
     }
 
-    async function loadProjectDetailsFromConfig() {
-        if (!currentProjectCode || !currentYear) return;
-
-        try {
-            const configData = await NaEditorTools.loadProjectFile(
-                'ProjectAdmin__ProjectConfig__.json', currentProjectCode, currentYear
-            );
-
-            if (configData) {
-                const brief = configData.projectBriefConcise || configData.projectDescription || '';
-                if (brief && !document.getElementById('projectDescription').value) {
-                    document.getElementById('projectDescription').value = brief;
-                }
-            }
-        } catch (error) {
-            console.warn('[InvoiceManager] Could not load project config:', error);
-        }
-    }
-
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // INVOICE REF | Generate Reference Numbers
+    // QUOTATION REF | Generate Reference Numbers
     // --------------------------------------------------------
 
-    function generateNextInvoiceRef() {
+    function generateNextQuotationRef() {
         const year = new Date().getFullYear();
         const code = currentProjectCode || 'XX00';
-        const prefix = `INV-${code}-${year}-`;
+        const prefix = `QUO-${code}-${year}-`;
 
         let maxSeq = 0;
 
-        if (currentInvoices.invoices) {
-            currentInvoices.invoices.forEach(inv => {
-                if (inv.invoiceRef && inv.invoiceRef.startsWith(prefix)) {
-                    const seqPart = inv.invoiceRef.substring(prefix.length);
+        if (currentQuotations.quotations) {
+            currentQuotations.quotations.forEach(q => {
+                if (q.quotationRef && q.quotationRef.startsWith(prefix)) {
+                    const seqPart = q.quotationRef.substring(prefix.length);
                     const seqNum = parseInt(seqPart, 10);
                     if (!isNaN(seqNum) && seqNum > maxSeq) {
                         maxSeq = seqNum;
@@ -761,7 +775,7 @@
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // JSON GENERATION | Build Invoice Object
+    // JSON GENERATION | Build Quotation Object
     // --------------------------------------------------------
 
     function generateJson() {
@@ -785,20 +799,25 @@
             }
         });
 
-        const existingInvoice = editingInvoiceIndex >= 0
-            ? currentInvoices.invoices[editingInvoiceIndex]
+        const formatDate = window.NaProjectAdmin?.DateFormatter?.formatDateToUK;
+        const nowUKTime = window.NaProjectAdmin?.DateFormatter?.nowUKWithTime?.() || new Date().toLocaleString('en-GB');
+
+        let quotationDate = document.getElementById('quotationDate').value;
+        if (formatDate && quotationDate) {
+            quotationDate = formatDate(quotationDate);
+        }
+
+        const existingQuotation = editingQuotationIndex >= 0
+            ? currentQuotations.quotations[editingQuotationIndex]
             : null;
 
-        const invoice = {
-            invoiceRef: document.getElementById('invoiceRef').value,
-            invoiceDate: document.getElementById('invoiceDate').value,
-            dueDate: document.getElementById('dueDate').value,
+        const quotation = {
+            quotationRef: document.getElementById('quotationRef').value,
+            quotationDate: quotationDate,
             projectAddress: document.getElementById('projectAddress').value,
             projectDescription: document.getElementById('projectDescription').value,
-            personalNote: document.getElementById('personalNote').value,
             clientDataStorage: 'cloudflare-r2-encrypted',
-            status: existingInvoice?.status || 'unpaid',
-            paidDate: existingInvoice?.paidDate || null,
+            status: existingQuotation?.status || 'draft',
             lineItems: formattedItems,
             totals: {
                 subtotal: totals.subtotal,
@@ -807,46 +826,47 @@
                 vat: totals.vat,
                 grandTotal: totals.total
             },
-            createdDate: existingInvoice?.createdDate || new Date().toLocaleString('en-GB'),
-            lastModified: new Date().toLocaleString('en-GB')
+            additionalTerms: '',
+            createdDate: existingQuotation?.createdDate || nowUKTime,
+            lastModified: nowUKTime
         };
 
-        return invoice;
+        return quotation;
     }
 
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // SAVE | Save Invoice
+    // SAVE | Save Quotation
     // --------------------------------------------------------
 
-    async function saveCurrentInvoice() {
+    async function saveCurrentQuotation() {
         if (!isFlaskMode) {
             NaEditorTools.showErrorMessage('Cannot save: Flask server not available');
             return;
         }
 
-        const invoice = generateJson();
+        const quotation = generateJson();
 
-        if (!invoice.invoiceRef) {
-            NaEditorTools.showErrorMessage('Invoice reference is required');
+        if (!quotation.quotationRef) {
+            NaEditorTools.showErrorMessage('Quotation reference is required');
             return;
         }
 
         NaEditorTools.showConfirmDialog(
-            'Save Invoice',
-            `Save <strong>${escapeHtml(invoice.invoiceRef)}</strong> to <strong>${INVOICES_FILENAME}</strong>?<br><br>This will update the invoices file.`,
+            'Save Quotation',
+            `Save <strong>${escapeHtml(quotation.quotationRef)}</strong> to <strong>${QUOTATIONS_FILENAME}</strong>?<br><br>This will update the quotations file.`,
             async () => {
-                if (editingInvoiceIndex >= 0) {
-                    currentInvoices.invoices[editingInvoiceIndex] = invoice;
+                if (editingQuotationIndex >= 0) {
+                    currentQuotations.quotations[editingQuotationIndex] = quotation;
                 } else {
-                    currentInvoices.invoices.push(invoice);
-                    editingInvoiceIndex = currentInvoices.invoices.length - 1;
+                    currentQuotations.quotations.push(quotation);
+                    editingQuotationIndex = currentQuotations.quotations.length - 1;
                 }
 
-                const success = await saveInvoiceData();
+                const success = await saveQuotationData();
                 if (success) {
-                    renderInvoiceList();
+                    renderQuotationList();
                 }
             },
             null,
@@ -857,100 +877,154 @@
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // MARK AS PAID | Update Invoice Status
+    // STATUS | Update Quotation Status
     // --------------------------------------------------------
 
-    async function markAsPaid(index) {
-        if (index < 0 || index >= currentInvoices.invoices.length) return;
+    async function updateQuotationStatus(index, newStatus) {
+        if (index < 0 || index >= currentQuotations.quotations.length) return;
 
-        const invoice = currentInvoices.invoices[index];
+        const quotation = currentQuotations.quotations[index];
+        const statusLabels = { sent: 'Sent', accepted: 'Accepted', declined: 'Declined' };
 
         NaEditorTools.showConfirmDialog(
-            'Mark as Paid',
-            `Mark <strong>${escapeHtml(invoice.invoiceRef)}</strong> as paid?`,
+            `Mark as ${statusLabels[newStatus]}`,
+            `Mark <strong>${escapeHtml(quotation.quotationRef)}</strong> as ${statusLabels[newStatus]}?`,
             async () => {
-                invoice.status = 'paid';
-                invoice.paidDate = formatDateForDisplay(new Date());
-                invoice.lastModified = new Date().toLocaleString('en-GB');
+                quotation.status = newStatus;
+                quotation.lastModified = new Date().toLocaleString('en-GB');
 
-                const success = await saveInvoiceData();
+                const success = await saveQuotationData();
                 if (success) {
-                    renderInvoiceList();
-                    NaEditorTools.showSuccessMessage(`${invoice.invoiceRef} marked as paid`);
+                    renderQuotationList();
+                    NaEditorTools.showSuccessMessage(`${quotation.quotationRef} marked as ${statusLabels[newStatus]}`);
                 }
             },
             null,
-            { confirmText: 'Mark Paid', cancelText: 'Cancel' }
-        );
-    }
-
-    function markCurrentAsPaid() {
-        if (editingInvoiceIndex < 0) return;
-
-        const invoice = generateJson();
-
-        NaEditorTools.showConfirmDialog(
-            'Mark as Paid',
-            `Save and mark <strong>${escapeHtml(invoice.invoiceRef)}</strong> as paid?`,
-            async () => {
-                invoice.status = 'paid';
-                invoice.paidDate = formatDateForDisplay(new Date());
-
-                currentInvoices.invoices[editingInvoiceIndex] = invoice;
-
-                const success = await saveInvoiceData();
-                if (success) {
-                    document.getElementById('btnMarkPaid').style.display = 'none';
-                    NaEditorTools.showSuccessMessage(`${invoice.invoiceRef} marked as paid`);
-                }
-            },
-            null,
-            { confirmText: 'Save & Mark Paid', cancelText: 'Cancel' }
+            { confirmText: `Mark ${statusLabels[newStatus]}`, cancelText: 'Cancel' }
         );
     }
 
     // endregion ----------------------------------------------
 
     // #Region ------------------------------------------------
-    // INVOICE EMAIL | Generate Email Card
+    // CLOUDFLARE | Client Data from Secure Storage
     // --------------------------------------------------------
 
-    async function generateInvoiceEmail() {
-        const invoice = generateJson();
-
-        if (!invoice.invoiceRef) {
-            NaEditorTools.showErrorMessage('Invoice reference is required to generate an email.');
-            return;
-        }
-        if (!invoice.invoiceDate || !invoice.dueDate) {
-            NaEditorTools.showErrorMessage('Invoice date and due date are required to generate an email.');
+    async function loadClientDataFromCloudflare() {
+        if (!currentProjectCode || !currentYear) {
+            console.warn('[QuotationManager] Cannot load client data - no project context');
             return;
         }
 
-        const templatePath = '../20__DistributionEmails/Distribution__ProjectInvoice__EmailLink__.html';
+        if (!sessionToken) {
+            sessionToken = generateDevSessionToken(currentProjectCode);
+        }
 
         try {
-            const response = await fetch(templatePath);
-            if (!response.ok) {
-                NaEditorTools.showErrorMessage('Could not load email template.');
-                return;
+            NaEditorTools.showInfoMessage('Loading client data from secure storage...');
+
+            const result = await NaEditorTools.loadClientDataFromCloudflare(
+                currentProjectCode,
+                currentYear,
+                sessionToken
+            );
+
+            if (result && result.success === true) {
+                populateClientDataFields(result.data);
+                clientDataLoaded = true;
+                document.getElementById('clientDataMissing').style.display = 'none';
+                NaEditorTools.showSuccessMessage('Client data loaded');
+            } else {
+                console.log('[QuotationManager] No client data in Cloudflare');
+                document.getElementById('clientDataMissing').style.display = 'block';
             }
+        } catch (error) {
+            console.warn('[QuotationManager] Could not load client data:', error.message);
+            document.getElementById('clientDataMissing').style.display = 'block';
+        }
+    }
 
-            const templateHtml = await response.text();
+    function populateClientDataFields(clientData) {
+        if (!clientData) return;
 
-            const data = {
-                ref     : invoice.invoiceRef,
-                date    : invoice.invoiceDate,
-                due     : invoice.dueDate,
-                project : currentProjectCode || '',
-                address : invoice.projectAddress || '',
-                note    : invoice.personalNote || ''
-            };
+        document.getElementById('clientName').value = clientData.clientName || '';
 
-            window.NaInvoiceEmailDownload.generateAndDownload(templateHtml, data);
+        const addr = clientData.clientAddress || {};
+        const addressParts = [];
+        if (addr.houseNameNo) addressParts.push(addr.houseNameNo);
+        if (addr.street) addressParts.push(addr.street);
+        if (addr.district) addressParts.push(addr.district);
+        if (addr.county) addressParts.push(addr.county);
+        if (addr.postcode) addressParts.push(addr.postcode);
+        document.getElementById('clientAddress').value = addressParts.join('\n');
 
-        } catch (err) {
-            NaEditorTools.showErrorMessage('Failed to generate email: ' + err.message);
+        document.getElementById('clientEmail').value = clientData.clientEmail || '';
+
+        const projAddr = clientData.projectAddress || {};
+        const projParts = [];
+        if (projAddr.houseNameNo) projParts.push(projAddr.houseNameNo);
+        if (projAddr.street) projParts.push(projAddr.street);
+        if (projAddr.district) projParts.push(projAddr.district);
+        if (projAddr.postcode) projParts.push(projAddr.postcode);
+
+        if (projParts.length > 0 && !document.getElementById('projectAddress').value) {
+            document.getElementById('projectAddress').value = projParts.join(', ');
+        }
+
+        console.log('[QuotationManager] Client data populated from Cloudflare');
+    }
+
+    function generateDevSessionToken(projectCode) {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2);
+        return btoa(`${projectCode}:${timestamp}:${random}`);
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // PROJECT CONFIG | Load Brief from Config
+    // --------------------------------------------------------
+
+    async function loadBriefFromProjectConfig(forceReload = false) {
+        if (!currentProjectCode || !currentYear) {
+            console.warn('[QuotationManager] Cannot load project config - no project context');
+            return;
+        }
+
+        try {
+            const CONFIG_FILENAME = 'ProjectAdmin__ProjectConfig__.json';
+            const configData = await NaEditorTools.loadProjectFile(CONFIG_FILENAME, currentProjectCode, currentYear);
+
+            if (configData) {
+                const conciseBrief = configData.projectBriefConcise || configData.projectDescription || '';
+
+                if (conciseBrief) {
+                    const currentDescription = document.getElementById('projectDescription').value;
+
+                    if (forceReload || !currentDescription || currentDescription.trim() === '') {
+                        document.getElementById('projectDescription').value = conciseBrief;
+                        markFormDirty();
+
+                        if (forceReload && window.NaEditorTools) {
+                            NaEditorTools.showSuccessMessage('Project description reloaded from config');
+                        }
+
+                        console.log('[QuotationManager] Loaded concise brief from project config');
+                    }
+                }
+
+                // Also populate project address from config if empty
+                const projAddress = configData.projectAddress || '';
+                if (projAddress && !document.getElementById('projectAddress').value) {
+                    document.getElementById('projectAddress').value = projAddress;
+                }
+            }
+        } catch (error) {
+            console.warn('[QuotationManager] Could not load project config:', error);
+            if (forceReload && window.NaEditorTools) {
+                NaEditorTools.showErrorMessage('Failed to reload project config');
+            }
         }
     }
 
@@ -1068,7 +1142,7 @@
                                    onchange="updateItem(${item.id}, 'description', this.value)" placeholder="Description">
                             <textarea class="line-item-description-details"
                                       onchange="updateItem(${item.id}, 'itemDescription', this.value)"
-                                      placeholder="Optional details">${escapeHtml(item.itemDescription || '')}</textarea>
+                                      placeholder="Optional details (shown under title on final quote)">${escapeHtml(item.itemDescription || '')}</textarea>
                         </td>
                         <td class="col-qty">
                             <input type="number" value="${item.quantity}" min="0" step="0.5"
@@ -1132,7 +1206,6 @@
     function recalculateTotals() {
         const totals = calculateTotals();
 
-        // Render per-phase subtotals
         const phaseSubtotalsEl = document.getElementById('phaseSubtotals');
         if (phaseSubtotalsEl && totals.phaseSubtotals.size > 0) {
             let phaseHtml = '';
@@ -1283,65 +1356,6 @@
         }
 
         item.group = newGroup;
-    }
-
-    // endregion ----------------------------------------------
-
-    // #Region ------------------------------------------------
-    // DATE HANDLING | Format and Parse Dates
-    // --------------------------------------------------------
-
-    function formatDateForDisplay(date) {
-        if (!date) return '';
-        if (typeof date === 'string') {
-            date = new Date(date);
-        }
-        if (isNaN(date.getTime())) return '';
-
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = MONTHS[date.getMonth()];
-        const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
-    }
-
-    function parseDateString(dateStr) {
-        if (!dateStr) return null;
-        if (dateStr instanceof Date) return dateStr;
-
-        const monthMap = {};
-        MONTHS.forEach((m, i) => { monthMap[m.toLowerCase()] = i; });
-
-        const parts = dateStr.split('-');
-        if (parts.length === 3) {
-            const day = parseInt(parts[0], 10);
-            const month = monthMap[parts[1].toLowerCase()];
-            const year = parseInt(parts[2], 10);
-
-            if (!isNaN(day) && month !== undefined && !isNaN(year)) {
-                return new Date(year, month, day);
-            }
-        }
-
-        const fallback = new Date(dateStr);
-        return isNaN(fallback.getTime()) ? null : fallback;
-    }
-
-    function addDays(date, days) {
-        const result = new Date(date);
-        result.setDate(result.getDate() + days);
-        return result;
-    }
-
-    function calculateDueDate(invoiceDateStr) {
-        const invoiceDate = parseDateString(invoiceDateStr);
-        if (!invoiceDate) return '';
-        return formatDateForDisplay(addDays(invoiceDate, DUE_DAYS));
-    }
-
-    function onInvoiceDateChange() {
-        const dateStr = document.getElementById('invoiceDate').value;
-        const dueDate = calculateDueDate(dateStr);
-        document.getElementById('dueDate').value = dueDate;
     }
 
     // endregion ----------------------------------------------

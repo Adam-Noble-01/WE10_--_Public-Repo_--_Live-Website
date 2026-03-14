@@ -33,6 +33,11 @@
         "name"        : "Child App - TrueVision3D",
         "description" : "This is the parent folder for the TrueVision3D project and houses the main App for each Noble Architecture project.",
         "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/30__TrueVision__CoreAppCode"
+	  },
+	  {
+        "name"        : "REFERENCE ONLY - ValeApps - D0 NOT EDIT",
+        "description" : "The is a reference only folder for the ValeApps project, do not edit this folder. it contains branches of the codebase for the ValeApps project, such as ValeVision & Whitecardopedia Project Apps ",
+        "path"        : "D:/80__External__LiveRepos/ValeCodebase/WebApps"
 	  }
 	],
 	"settings": {

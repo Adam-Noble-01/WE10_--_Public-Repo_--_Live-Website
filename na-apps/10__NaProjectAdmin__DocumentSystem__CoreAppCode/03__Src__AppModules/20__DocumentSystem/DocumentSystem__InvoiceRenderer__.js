@@ -348,14 +348,14 @@
 
                     html += `
                         <tr>
-                            <td class="na-doc-table__description">
+                            <td class="na-doc-table__description" data-label="Description">
                                 <div class="na-doc-table__description-main">${item.description || ''}</div>
                                 ${secondaryDescription ? `<div class="na-doc-table__description-secondary">${secondaryDescription}</div>` : ''}
                             </td>
-                            <td class="na-doc-table__qty">${displayQty}</td>
-                            <td class="na-doc-table__unit">${item.unit || '-'}</td>
-                            <td class="na-doc-table__rate">${currencySymbol}${QuotationRenderer.formatNumber(item.rate || 0)}</td>
-                            <td class="na-doc-table__amount">${currencySymbol}${QuotationRenderer.formatNumber(amount)}</td>
+                            <td class="na-doc-table__qty" data-label="Qty">${displayQty}</td>
+                            <td class="na-doc-table__unit" data-label="Unit">${item.unit || '-'}</td>
+                            <td class="na-doc-table__rate" data-label="Rate">${currencySymbol}${QuotationRenderer.formatNumber(item.rate || 0)}</td>
+                            <td class="na-doc-table__amount" data-label="Amount">${currencySymbol}${QuotationRenderer.formatNumber(amount)}</td>
                         </tr>
                     `;
                 });

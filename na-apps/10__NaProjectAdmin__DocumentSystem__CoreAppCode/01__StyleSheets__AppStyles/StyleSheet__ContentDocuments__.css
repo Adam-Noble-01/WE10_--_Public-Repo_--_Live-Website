@@ -1,0 +1,476 @@
+/* =============================================================================
+ * NOBLE ARCHITECTURE - CONTENT DOCUMENT STYLES (TERMS & COVER LETTER)
+ * =============================================================================
+ *
+ * Terms & Conditions document styles and Cover Letter formal business
+ * letter format.  Both old and new descriptive class names are supported
+ * via multi-selector rules for backward compatibility.
+ *
+ * Extracted from StyleSheet__Main__.css — March 2026
+ * =============================================================================
+ */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Terms & Conditions Document (na-terms-document)
+ * -------------------------------------------------------- */
+
+    .na-terms-document,
+    .terms-document {
+        padding                    : var(--App_SpacingXl);
+    }
+
+    .na-terms-document__section,
+    .terms-section {
+        margin-bottom              : var(--App_SpacingXl);
+    }
+
+    .na-terms-document__section-title,
+    .terms-section__title {
+        font-size                  : 1.25rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : var(--App_SpacingMd);
+        padding-bottom             : var(--App_SpacingSm);
+        border-bottom              : 1.0px solid var(--App_BrandPrimary);
+    }
+
+    .na-terms-document__section--highlighted,
+    .terms-section--special {
+        background-color           : #fffbe6;
+        border                     : 2px solid #ffe066;
+        border-left                : 4px solid #d4a000;
+        border-radius              : var(--App_BorderRadiusLg);
+        padding                    : var(--App_SpacingLg);
+        margin-bottom              : var(--App_SpacingXl);
+        box-shadow                 : 0 2px 8px rgba(212, 160, 0, 0.15);
+    }
+
+    .na-terms-document__section--highlighted .na-terms-document__section-title,
+    .terms-section--special .terms-section__title {
+        color                      : #856404;
+        border-bottom-color        : #ffe066;
+        font-size                  : 1.15rem;
+    }
+
+    .na-terms-document__section--highlighted .na-terms-document__section-intro,
+    .terms-section--special .terms-section__intro {
+        color                      : #6b5003;
+        font-style                 : italic;
+        margin-bottom              : var(--App_SpacingMd);
+        padding-bottom             : var(--App_SpacingSm);
+        border-bottom              : 1px dashed #ffe066;
+    }
+
+    .na-terms-document__item,
+    .terms-item {
+        margin-bottom              : var(--App_SpacingMd);
+    }
+
+    .na-terms-document__item-title,
+    .terms-item__title {
+        font-weight                : 600;
+        color                      : var(--App_TextPrimary);
+        margin-bottom              : var(--App_SpacingXs);
+    }
+
+    .na-terms-document__section--highlighted .na-terms-document__item-title,
+    .terms-section--special .terms-item__title {
+        color                      : #6b5003;
+    }
+
+    .na-terms-document__item-content,
+    .terms-item__content {
+        color                      : var(--App_TextSecondary);
+        line-height                : 1.7;
+    }
+
+    .na-terms-document__section--highlighted .na-terms-document__item-content,
+    .terms-section--special .terms-item__content {
+        color                      : #555;
+    }
+
+    .na-terms-document__section-divider,
+    .terms-section-divider {
+        border                     : none;
+        border-top                 : 0.25px solid #d0d0d0;
+        margin                     : var(--App_SpacingLg) 0;
+    }
+
+    .na-terms-document__subheading,
+    .terms-subheading {
+        font-size                  : 1rem;
+        font-weight                : 600;
+        color                      : var(--App_TextPrimary);
+        margin                     : var(--App_SpacingMd) 0 var(--App_SpacingSm);
+    }
+
+    .na-terms-document__footer,
+    .terms-footer {
+        margin-top                 : var(--App_SpacingLg);
+        padding-top                : var(--App_SpacingMd);
+        border-top                 : 1px solid #e0e0e0;
+        text-align                 : center;
+        color                      : var(--App_TextSecondary);
+        font-style                 : italic;
+    }
+
+    .na-terms-document__content ul,
+    .terms-content ul {
+        margin                     : var(--App_SpacingSm) 0;
+        padding-left               : 2rem;
+        list-style-type            : disc;
+    }
+
+    .na-terms-document__content li,
+    .terms-content li {
+        margin                     : var(--App_SpacingXs) 0;
+        line-height                : 1.7;
+        color                      : var(--App_TextSecondary);
+    }
+
+    .na-terms-document__content strong,
+    .na-terms-document__content b,
+    .terms-content strong,
+    .terms-content b {
+        font-size                  : inherit;
+        font-weight                : 600;
+    }
+
+    .na-terms-document__content .na-terms-document__table,
+    .terms-content .terms-table {
+        width                      : 100%;
+        border-collapse            : collapse;
+        margin                     : var(--App_SpacingMd) 0;
+        background-color           : #ffffff;
+        border                     : 1px solid #d0d0d0;
+        font-size                  : 1rem;
+    }
+
+    .na-terms-document__content .na-terms-document__table th,
+    .terms-content .terms-table th {
+        background-color           : #f5f5f5;
+        color                      : var(--App_TextPrimary);
+        font-weight                : 600;
+        text-align                 : left;
+        padding                    : 0.75rem 1rem;
+        border-bottom              : 2px solid #d0d0d0;
+        font-size                  : 0.95rem;
+    }
+
+    .na-terms-document__content .na-terms-document__table td,
+    .terms-content .terms-table td {
+        padding                    : 0.75rem 1rem;
+        border-bottom              : 1px solid #e5e5e5;
+        color                      : var(--App_TextSecondary);
+        line-height                : 1.7;
+        font-size                  : 1rem;
+    }
+
+    .na-terms-document__content .na-terms-document__table td strong,
+    .na-terms-document__content .na-terms-document__table th strong,
+    .terms-content .terms-table td strong,
+    .terms-content .terms-table th strong {
+        font-size                  : inherit;
+        font-weight                : 600;
+    }
+
+    .na-terms-document__content .na-terms-document__table tr:last-child td,
+    .terms-content .terms-table tr:last-child td {
+        border-bottom              : none;
+    }
+
+    .na-terms-document__content .na-terms-document__table tr:hover,
+    .terms-content .terms-table tr:hover {
+        background-color           : #fafafa;
+    }
+
+    @media (max-width: 768px) {
+        .na-terms-document__content .na-terms-document__table,
+        .terms-content .terms-table {
+            font-size              : 0.9rem;
+        }
+
+        .na-terms-document__content .na-terms-document__table th,
+        .terms-content .terms-table th {
+            font-size              : 0.875rem;
+            padding                : 0.5rem 0.75rem;
+        }
+
+        .na-terms-document__content .na-terms-document__table td,
+        .terms-content .terms-table td {
+            font-size              : 0.9rem;
+            padding                : 0.5rem 0.75rem;
+        }
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Cover Letter - Formal Business Letter (na-cover-letter)
+ * -------------------------------------------------------- */
+
+    .na-cover-letter,
+    .cover-letter {
+        background-color           : #ffffff;
+        padding                    : var(--App_SpacingXl);
+        max-width                  : 900px;
+        margin                     : 0 auto;
+        box-shadow                 : var(--App_ShadowMd);
+        border-radius              : var(--App_BorderRadiusLg);
+        font-family                : 'Open Sans', Georgia, 'Times New Roman', serif;
+        font-size                  : 1rem;
+        line-height                : 1.75;
+        color                      : var(--App_TextPrimary);
+    }
+
+    .na-cover-letter .document__header,
+    .cover-letter .document__header {
+        padding-bottom             : var(--App_SpacingXs);
+        margin-bottom              : var(--App_SpacingXs);
+        padding-top                : var(--App_SpacingXs);
+        margin-top                 : var(--App_SpacingXs);
+    }
+
+    .na-cover-letter__header .na-cover-letter__subject,
+    .cover-letter__header .cover-letter__subject {
+        margin-top                 : 0;
+        margin-bottom              : 0;
+        padding-bottom             : 0;
+        border-bottom              : none;
+    }
+
+    .na-cover-letter .na-cover-letter__subject,
+    .cover-letter .cover-letter__subject {
+        margin-top                 : 2rem;
+        margin-bottom              : 1.5rem;
+        padding-bottom             : 0;
+        border-bottom              : none;
+    }
+
+    .na-cover-letter__recipient-block,
+    .cover-letter__recipient {
+        margin-top                 : 2.5rem;
+        margin-bottom              : 1.5rem;
+    }
+
+    .na-cover-letter__address-block,
+    .cover-letter__address-block {
+        display                    : flex;
+        flex-direction             : column;
+        font-style                 : normal;
+        line-height                : 1.6;
+    }
+
+    .na-cover-letter__recipient-name,
+    .cover-letter__recipient-name {
+        font-weight                : 600;
+        color                      : var(--App_TextPrimary);
+    }
+
+    .na-cover-letter__recipient-address,
+    .cover-letter__recipient-address {
+        color                      : var(--App_TextSecondary);
+        font-size                  : 0.95rem;
+    }
+
+    .na-cover-letter__salutation,
+    .cover-letter__salutation {
+        margin-bottom              : 1rem;
+        font-weight                : 400;
+    }
+
+    .na-cover-letter__subject strong,
+    .cover-letter__subject strong {
+        color                      : var(--App_BrandPrimary);
+    }
+
+    .na-cover-letter__body-content,
+    .cover-letter__body {
+        margin-bottom              : 1.5rem;
+    }
+
+    .na-cover-letter__body-content p,
+    .cover-letter__body p {
+        margin-bottom              : 1rem;
+        text-align                 : justify;
+    }
+
+    .na-cover-letter__body-content p:last-child,
+    .cover-letter__body p:last-child {
+        margin-bottom              : 0;
+    }
+
+    .na-cover-letter__project-description,
+    .cover-letter__project-description {
+        font-style                 : italic;
+        color                      : var(--App_TextSecondary);
+        padding-left               : 1rem;
+        border-left                : 3px solid var(--App_BrandPrimary);
+    }
+
+    .na-cover-letter__section,
+    .cover-letter__section {
+        margin-bottom              : 1.5rem;
+        padding-top                : 1rem;
+    }
+
+    .na-cover-letter__section-heading,
+    .cover-letter__section-heading {
+        font-size                  : 1.125rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-bottom              : 0.75rem;
+    }
+
+    .na-cover-letter__menu-icon,
+    .cover-letter__menu-icon {
+        display                    : inline-block;
+        background-color           : var(--App_BgTertiary);
+        padding                    : 0.15em 0.4em;
+        border-radius              : 3px;
+        font-size                  : 0.9em;
+        border                     : 1px solid var(--App_BorderLight);
+    }
+
+    .na-cover-letter__bullet-list,
+    .cover-letter__bullet-list {
+        margin                     : 0.75rem 0 1rem 1.5rem;
+        padding                    : 0;
+        list-style-type            : disc;
+    }
+
+    .na-cover-letter__bullet-list li,
+    .cover-letter__bullet-list li {
+        margin-bottom              : 0.5rem;
+        padding-left               : 0.25rem;
+    }
+
+    .na-cover-letter__bullet-list li:last-child,
+    .cover-letter__bullet-list li:last-child {
+        margin-bottom              : 0;
+    }
+
+    .na-cover-letter__important-note,
+    .cover-letter__important-note {
+        background-color           : #fffdf5;
+        border-left                : 3px solid #d4a900;
+        padding                    : 0.75rem 1rem;
+        margin                     : 1rem 0;
+        font-size                  : 0.95rem;
+    }
+
+    .na-cover-letter__note-marker,
+    .cover-letter__note-marker {
+        color                      : #d4a900;
+        margin-right               : 0.25rem;
+    }
+
+    .na-cover-letter__yellow-highlight,
+    .cover-letter__yellow-highlight {
+        background-color           : #fff3b0;
+        padding                    : 0.1em 0.35em;
+        border-radius              : 2px;
+    }
+
+    .na-cover-letter__divider,
+    .cover-letter__divider {
+        border                     : none;
+        border-top                 : 1px solid var(--App_BorderLight);
+        margin                     : 1.5rem 0;
+    }
+
+    .na-cover-letter__closing-section,
+    .cover-letter__closing-section {
+        margin-top                 : 1.5rem;
+        margin-bottom              : 0;
+    }
+
+    .na-cover-letter__closing,
+    .cover-letter__closing {
+        margin-bottom              : 0.5rem;
+    }
+
+    .na-cover-letter__signature-image,
+    .cover-letter__signature-image {
+        max-width                  : 450px;
+        height                     : auto;
+        margin-top                 : 1rem;
+        margin-bottom              : 0;
+    }
+
+    .na-cover-letter__detailed-brief,
+    .cover-letter__detailed-brief {
+        margin-top                 : 1rem;
+        margin-bottom              : 1.5rem;
+    }
+
+    .na-cover-letter__markdown-content,
+    .cover-letter__markdown-content {
+        margin-top                 : 1rem;
+    }
+
+    .na-cover-letter__markdown-content p,
+    .cover-letter__markdown-content p {
+        margin-bottom              : 1rem;
+        line-height                : 1.6;
+        text-align                 : justify;
+    }
+
+    .na-cover-letter__markdown-content p:last-child,
+    .cover-letter__markdown-content p:last-child {
+        margin-bottom              : 0;
+    }
+
+    .na-cover-letter__markdown-content .brief-heading,
+    .cover-letter__markdown-content .brief-heading {
+        font-size                  : 1.1rem;
+        font-weight                : 600;
+        color                      : var(--App_BrandPrimary);
+        margin-top                 : 1.5rem;
+        margin-bottom              : 0.75rem;
+    }
+
+    .na-cover-letter__markdown-content .brief-heading:first-child,
+    .cover-letter__markdown-content .brief-heading:first-child {
+        margin-top                 : 0;
+    }
+
+    .na-cover-letter__markdown-content .brief-subheading,
+    .cover-letter__markdown-content .brief-subheading {
+        font-size                  : 1rem;
+        font-weight                : 600;
+        margin-top                 : 1rem;
+        margin-bottom              : 0.5rem;
+    }
+
+    .na-cover-letter__markdown-content ul,
+    .cover-letter__markdown-content ul {
+        margin                     : 0.75rem 0 1rem 1.5rem;
+        padding                    : 0;
+    }
+
+    .na-cover-letter__markdown-content ul li,
+    .cover-letter__markdown-content ul li {
+        margin-bottom              : 0.5rem;
+    }
+
+    .na-cover-letter__markdown-content strong,
+    .cover-letter__markdown-content strong {
+        font-weight                : 600;
+    }
+
+    .na-cover-letter__markdown-content em,
+    .cover-letter__markdown-content em {
+        font-style                 : italic;
+    }
+
+    .na-cover-letter__markdown-content code,
+    .cover-letter__markdown-content code {
+        background-color           : var(--App_BgTertiary);
+        padding                    : 0.15em 0.4em;
+        border-radius              : 3px;
+        font-family                : 'Consolas', 'Monaco', monospace;
+        font-size                  : 0.9em;
+    }
+
+/* endregion -------------------------------------------------- */
