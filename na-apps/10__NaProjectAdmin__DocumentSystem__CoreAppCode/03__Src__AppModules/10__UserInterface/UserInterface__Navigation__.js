@@ -255,6 +255,17 @@
                 });
             }
 
+            // Add Invoice menu item if enabled and invoices exist for this project
+            if (appConfig?.AppConfig?.Features?.InvoiceSystem?.enabled === true &&
+                await checkInvoicesExist()) {
+                items.push({
+                    id                   : 'invoices',
+                    label                : 'Invoices',
+                    icon                 : '&#128179;',              // <-- Money icon
+                    action               : 'showInvoice'
+                });
+            }
+
             // Add contracts section
             if (appConfig?.AppConfig?.Features?.TermsSystem?.enabled === true) {
                 // Add contracts label
@@ -389,6 +400,16 @@
                     badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
                 });
 
+                // Invoice Manager
+                items.push({
+                    id                   : 'edit-invoices',
+                    label                : 'Invoice Manager',
+                    icon                 : '&#128179;',              // <-- Money icon
+                    action               : 'editInvoices',
+                    badge                : 'Dev',
+                    badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
+                });
+
                 // Contract Manager
                 items.push({
                     id                   : 'edit-contracts',
@@ -411,6 +432,14 @@
             }
 
             return items;
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Check Invoices Exist
+        // ------------------------------------------------------------
+        async function checkInvoicesExist() {
+            const invoicesData = await window.NaProjectAdmin.UserInterfaceMain?.loadInvoiceData();
+            return invoicesData?.invoices?.length > 0;
         }
         // ---------------------------------------------------------------
 
@@ -606,6 +635,13 @@
                     }
                     break;
 
+                case 'showInvoice':
+                    closeActiveEditor();
+                    if (window.NaProjectAdmin.UserInterfaceMain) {
+                        await window.NaProjectAdmin.UserInterfaceMain.showInvoice();
+                    }
+                    break;
+
                 case 'showTerms':
                     closeActiveEditor();
                     if (window.NaProjectAdmin.UserInterfaceMain) {
@@ -651,6 +687,10 @@
 
                 case 'editQuotation':
                     await loadEditorInline('Editor__QuotationBuilder__.html');
+                    break;
+
+                case 'editInvoices':
+                    await loadEditorInline('Editor__InvoiceManager__.html');
                     break;
 
                 case 'editContracts':

@@ -1,0 +1,212 @@
+/* =============================================================================
+ * NOBLE ARCHITECTURE - INVOICE NOTIFICATION STYLES
+ * =============================================================================
+ *
+ * FILE       : StyleSheet__InvoiceNotification__.css
+ * PURPOSE    : Styles for invoice due/overdue notifications on ProjectVision
+ * CREATED    : 14-Mar-2026
+ *
+ * ============================================================================= */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Invoice Notification - Pre-Due Toast (Dismissible)
+ * -------------------------------------------------------- */
+
+    .pv-invoice-toast {
+        position               : absolute;
+        top                    : 0;
+        left                   : 0;
+        right                  : 0;
+        bottom                 : 0;
+        z-index                : 100;
+        display                : flex;
+        align-items            : center;
+        justify-content        : center;
+        background             : rgba(255, 255, 255, 0.92);
+        backdrop-filter        : blur(4px);
+        border-radius          : 16px;
+        padding                : 1.5rem;
+        animation              : pvToastFadeIn 0.4s ease;
+    }
+
+    @keyframes pvToastFadeIn {
+        from { opacity: 0; transform: scale(0.96); }
+        to   { opacity: 1; transform: scale(1); }
+    }
+
+    .pv-invoice-toast__card {
+        background             : #ffffff;
+        border                 : 2px solid #ffc107;
+        border-radius          : 12px;
+        padding                : 1.5rem 2rem;
+        max-width              : 520px;
+        width                  : 100%;
+        box-shadow             : 0 8px 32px rgba(0, 0, 0, 0.12);
+        position               : relative;
+        text-align             : center;
+    }
+
+    .pv-invoice-toast__close {
+        position               : absolute;
+        top                    : 0.5rem;
+        right                  : 0.75rem;
+        background             : none;
+        border                 : none;
+        font-size              : 1.25rem;
+        color                  : #856404;
+        cursor                 : pointer;
+        padding                : 0.25rem 0.5rem;
+        line-height            : 1;
+        opacity                : 0.7;
+        transition             : opacity 0.2s;
+    }
+
+    .pv-invoice-toast__close:hover {
+        opacity                : 1;
+    }
+
+    .pv-invoice-toast__icon {
+        font-size              : 2rem;
+        margin-bottom          : 0.5rem;
+    }
+
+    .pv-invoice-toast__title {
+        font-size              : 1rem;
+        font-weight            : 600;
+        color                  : #856404;
+        margin-bottom          : 0.5rem;
+    }
+
+    .pv-invoice-toast__dates {
+        font-size              : 0.875rem;
+        color                  : #666;
+        line-height            : 1.6;
+        margin-bottom          : 0.75rem;
+    }
+
+    .pv-invoice-toast__countdown {
+        font-size              : 1.5rem;
+        font-weight            : 700;
+        color                  : #856404;
+        margin-bottom          : 1rem;
+    }
+
+    .pv-invoice-toast__link {
+        display                : inline-block;
+        padding                : 0.625rem 1.5rem;
+        background             : #172b3a;
+        color                  : #ffffff;
+        text-decoration        : none;
+        border-radius          : 8px;
+        font-size              : 0.875rem;
+        font-weight            : 600;
+        transition             : background 0.2s;
+    }
+
+    .pv-invoice-toast__link:hover {
+        background             : #0d1e2a;
+    }
+
+/* endregion -------------------------------------------------- */
+
+/*  #Region --------------------------------------------------------
+ * REGION | Invoice Notification - Overdue Warning (Non-Dismissible)
+ * -------------------------------------------------------- */
+
+    .pv-invoice-overdue {
+        position               : absolute;
+        top                    : 0;
+        left                   : 0;
+        right                  : 0;
+        bottom                 : 0;
+        z-index                : 200;
+        display                : flex;
+        align-items            : center;
+        justify-content        : center;
+        background             : rgba(248, 215, 218, 0.96);
+        backdrop-filter        : blur(6px);
+        border-radius          : 16px;
+        padding                : 1.5rem;
+        animation              : pvOverdueFadeIn 0.5s ease;
+    }
+
+    @keyframes pvOverdueFadeIn {
+        from { opacity: 0; transform: scale(0.94); }
+        to   { opacity: 1; transform: scale(1); }
+    }
+
+    .pv-invoice-overdue__card {
+        background             : #ffffff;
+        border                 : 3px solid #dc3545;
+        border-radius          : 12px;
+        padding                : 2rem 2.5rem;
+        max-width              : 560px;
+        width                  : 100%;
+        box-shadow             : 0 12px 48px rgba(220, 53, 69, 0.2),
+                                 0 4px 16px rgba(0, 0, 0, 0.1);
+        text-align             : center;
+    }
+
+    .pv-invoice-overdue__icon {
+        font-size              : 3rem;
+        margin-bottom          : 0.75rem;
+    }
+
+    .pv-invoice-overdue__title {
+        font-size              : 1.25rem;
+        font-weight            : 700;
+        color                  : #721c24;
+        text-transform         : uppercase;
+        letter-spacing         : 0.05em;
+        margin-bottom          : 0.75rem;
+    }
+
+    .pv-invoice-overdue__ref {
+        font-size              : 0.9375rem;
+        font-weight            : 600;
+        color                  : #dc3545;
+        margin-bottom          : 0.5rem;
+    }
+
+    .pv-invoice-overdue__days {
+        font-size              : 2rem;
+        font-weight            : 800;
+        color                  : #dc3545;
+        margin-bottom          : 0.5rem;
+    }
+
+    .pv-invoice-overdue__dates {
+        font-size              : 0.875rem;
+        color                  : #721c24;
+        line-height            : 1.6;
+        margin-bottom          : 1.25rem;
+    }
+
+    .pv-invoice-overdue__message {
+        font-size              : 0.875rem;
+        color                  : #856404;
+        background             : #fff3cd;
+        border                 : 1px solid #ffc107;
+        border-radius          : 6px;
+        padding                : 0.75rem 1rem;
+        margin-bottom          : 1.25rem;
+        line-height            : 1.5;
+    }
+
+    .pv-invoice-overdue__link {
+        display                : inline-block;
+        padding                : 0.75rem 2rem;
+        background             : #dc3545;
+        color                  : #ffffff;
+        text-decoration        : none;
+        border-radius          : 8px;
+        font-size              : 1rem;
+        font-weight            : 700;
+        transition             : background 0.2s;
+    }
+
+    .pv-invoice-overdue__link:hover {
+        background             : #c82333;
+    }
+
+/* endregion -------------------------------------------------- */

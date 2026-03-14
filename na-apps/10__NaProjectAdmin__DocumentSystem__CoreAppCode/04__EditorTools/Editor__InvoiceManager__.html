@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Head                            -->
+<!-- -------------------------------------------------- -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    <title>Invoice Manager | Noble Architecture</title>
+    <link rel="icon" type="image/x-icon"
+        href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <link rel="stylesheet" href="Editor__CommonStylesheet__.css">
+
+    <!-- Invoice Manager Custom Styles -->
+    <style>
+        /* Drag Handle Column */
+        .col-drag {
+            width: 30px;
+            text-align: center;
+            padding: 0 !important;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: #999;
+            font-size: 1rem;
+            user-select: none;
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            letter-spacing: -2px;
+        }
+
+        .drag-handle:hover {
+            color: #555;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* Dragging States */
+        .line-item-row {
+            transition: background-color 0.15s ease, opacity 0.15s ease;
+        }
+
+        .line-item-row.dragging {
+            opacity: 0.5;
+            background-color: #e8f4fc !important;
+        }
+
+        .line-item-row.drag-over {
+            background-color: #d4edda !important;
+            border-top: 2px solid #28a745;
+        }
+
+        /* Group Header Row Styling */
+        .line-item-row--group {
+            background: #f5f5f5;
+        }
+
+        .line-item-row--group .drag-handle {
+            color: #777;
+        }
+
+        /* Per-Phase Subtotals */
+        .totals__row--phase {
+            font-size: 0.9rem;
+            color: #666;
+            padding: 0.35rem 0;
+            border-bottom: 1px dotted #ddd;
+        }
+
+        .totals__row--phase span:first-child {
+            font-style: italic;
+        }
+
+        /* Fix table column widths with drag column */
+        .line-items-table .col-description {
+            width: auto;
+        }
+
+        .line-item-description-main {
+            width: 100%;
+            margin-bottom: 0.35rem;
+        }
+
+        .line-item-description-details {
+            width: 100%;
+            min-height: 2.75rem;
+            resize: vertical;
+            font-size: 0.875rem;
+            color: #666;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+        .line-items-table .col-qty,
+        .line-items-table .col-unit,
+        .line-items-table .col-rate,
+        .line-items-table .col-amount {
+            width: 80px;
+        }
+
+        .line-items-table .col-actions {
+            width: 40px;
+        }
+
+        /* Invoice List Table */
+        .invoice-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .invoice-list-table th,
+        .invoice-list-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light, #e0ddd8);
+        }
+
+        .invoice-list-table th {
+            background-color: var(--bg-primary, #f8f7f5);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .invoice-list-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .invoice-list-table .col-ref { width: 22%; }
+        .invoice-list-table .col-date { width: 14%; }
+        .invoice-list-table .col-due { width: 14%; }
+        .invoice-list-table .col-status { width: 12%; }
+        .invoice-list-table .col-total { width: 14%; text-align: right; }
+        .invoice-list-table .col-list-actions { width: 24%; text-align: right; }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge--paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge--unpaid {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge--overdue {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Mark as Paid Button */
+        .btn--success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn--success:hover {
+            background: #218838;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary, #666);
+        }
+
+        .empty-state__icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        /* View Toggle */
+        .view-hidden {
+            display: none !important;
+        }
+    </style>
+
+    <!-- Load Shared Editor Utilities -->
+    <script src="Editor__SharedUtils__.js"></script>
+</head>
+<!-- endregion ---------------------------------------- -->
+
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | Document Body                            -->
+<!-- -------------------------------------------------- -->
+
+<body>
+
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI HEADER | Application Header                    -->
+    <!-- -------------------------------------------------- -->
+    <header class="app-header">
+        <h1>Invoice Manager <span id="projectCodeDisplay" style="font-weight: 300; font-size: 1rem; color: #888;"></span></h1>
+        <div class="header-actions" id="flask-controls" style="display: none;">
+            <button class="btn btn--secondary" onclick="loadFromProject()" id="btnLoadProject">Reload</button>
+            <button class="btn btn--primary" onclick="saveCurrentInvoice()" id="btnSaveProject">Save to Project</button>
+        </div>
+    </header>
+    <!-- endregion ---------------------------------------- -->
+
+    <!-- #Region ------------------------------------------ -->
+    <!-- UI MAIN | Main Content Container                  -->
+    <!-- -------------------------------------------------- -->
+    <div class="main-container">
+
+        <!-- #Region -------------------------------------- -->
+        <!-- VIEW 1 | Invoice List                         -->
+        <!-- ---------------------------------------------- -->
+        <div id="invoice-list-view">
+            <div class="panel">
+                <div class="panel__header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Invoices</span>
+                    <button class="btn btn--primary btn--small" onclick="startNewInvoice()" style="margin: -0.25rem 0;">+ New Invoice</button>
+                </div>
+                <div class="panel__body">
+
+                    <div class="info-box" id="flaskInfoBox"
+                        style="display: none; background: #e8f8e8; border-color: #28a745;">
+                        <strong>✓ Flask Server Connected</strong><br>
+                        Auto-loading and saving to project folder is enabled.
+                        <span id="projectPathDisplay"></span>
+                    </div>
+
+                    <div id="invoiceListContent">
+                        <div class="empty-state">
+                            <div class="empty-state__icon">📄</div>
+                            <h3>No Invoices Yet</h3>
+                            <p>Click "+ New Invoice" to create your first invoice.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- endregion ------------------------------------ -->
+
+        <!-- #Region -------------------------------------- -->
+        <!-- VIEW 2 | Invoice Editor Form                  -->
+        <!-- ---------------------------------------------- -->
+        <div id="invoice-editor-view" class="view-hidden">
+            <div class="panel">
+                <div class="panel__header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Edit Invoice</span>
+                    <button class="btn btn--secondary btn--small" onclick="showListView()" style="margin: -0.25rem 0; color: #fff; border-color: #fff;">← Back to List</button>
+                </div>
+                <div class="panel__body">
+
+                    <!-- Invoice Details -->
+                    <h3 class="section-heading section-heading--first">Invoice Details</h3>
+
+                    <div class="form-group">
+                        <label for="invoiceRef">Invoice Reference</label>
+                        <input type="text" id="invoiceRef" class="form-input" placeholder="INV-XX00-2026-001"
+                            readonly style="background: #f8f8f8;"
+                            onchange="markFormDirty()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="invoiceDate">Invoice Date (DD-Mon-YYYY)</label>
+                        <input type="text" id="invoiceDate" class="form-input" placeholder="14-Mar-2026"
+                            onchange="onInvoiceDateChange(); markFormDirty()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dueDate">Due Date</label>
+                        <input type="text" id="dueDate" class="form-input" placeholder="Auto-calculated (invoice date + 7 days)"
+                            readonly style="background: #f8f8f8;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectAddress">Project Address</label>
+                        <textarea id="projectAddress" class="form-input" placeholder="Site address"
+                            onchange="markFormDirty()"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectDescription">Project Description</label>
+                        <textarea id="projectDescription" class="form-input" placeholder="Brief description of the project"
+                            onchange="markFormDirty()"></textarea>
+                    </div>
+
+                    <!-- VAT -->
+                    <h3 class="section-heading">VAT</h3>
+
+                    <div class="totals__row">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="showVat" onchange="recalculateTotals(); markFormDirty()">
+                            VAT (<input type="number" id="vatRate" value="20" style="width: 50px;"
+                                onchange="recalculateTotals(); markFormDirty()">%)
+                        </label>
+                    </div>
+
+                    <!-- Personal Note -->
+                    <h3 class="section-heading">Personal Note</h3>
+
+                    <div class="form-group">
+                        <textarea id="personalNote" class="form-input"
+                            onchange="markFormDirty()">Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.</textarea>
+                    </div>
+
+                    <!-- Line Items -->
+                    <h3 class="section-heading">Line Items</h3>
+
+                    <table class="line-items-table" id="lineItemsTable">
+                        <thead>
+                            <tr>
+                                <th class="col-drag"></th>
+                                <th class="col-description">Description</th>
+                                <th class="col-qty">Qty</th>
+                                <th class="col-unit">Unit</th>
+                                <th class="col-rate">Rate (£)</th>
+                                <th class="col-amount">Amount</th>
+                                <th class="col-actions"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="lineItemsBody">
+                        </tbody>
+                    </table>
+
+                    <div class="actions-bar">
+                        <button class="btn btn--secondary" onclick="addLineItem()">+ Add Item</button>
+                        <button class="btn btn--secondary" onclick="addGroupHeader()">+ Add Group</button>
+                    </div>
+
+                    <div class="totals">
+                        <!-- Per-Phase Subtotals -->
+                        <div id="phaseSubtotals"></div>
+
+                        <div class="totals__row">
+                            <span>Subtotal</span>
+                            <span id="subtotal">£0.00</span>
+                        </div>
+                        <div class="totals__row">
+                            <span>VAT</span>
+                            <span id="vatAmount">£0.00</span>
+                        </div>
+                        <div class="totals__row totals__row--grand">
+                            <span>Total</span>
+                            <span id="grandTotal">£0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn btn--success" id="btnMarkPaid" onclick="markCurrentAsPaid()" style="display: none;">Mark as Paid</button>
+                        <button class="btn btn--primary" onclick="saveCurrentInvoice()">Save Invoice</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- endregion ------------------------------------ -->
+
+    </div>
+    <!-- endregion ---------------------------------------- -->
+
+</body>
+<!-- endregion ---------------------------------------- -->
+
+<!-- #Region ------------------------------------------ -->
+<!-- REGION | JavaScript Logic                         -->
+<!-- -------------------------------------------------- -->
+
+<script>
+
+    // #Region ------------------------------------------------
+    // CONSTANTS | Configuration
+    // --------------------------------------------------------
+
+    const INVOICES_FILENAME = 'ProjectAdmin__Invoices__.json';
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const DUE_DAYS = 7;
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // STATE | Application State
+    // --------------------------------------------------------
+
+    let currentInvoices = { invoices: [] };                       // <-- All invoices
+    let editingInvoiceIndex = -1;                                 // <-- -1 = new invoice
+    let lineItems = [];                                           // <-- Line items array
+    let lineItemId = 0;                                           // <-- ID counter
+    let isFlaskMode = false;                                      // <-- Flask server available
+    let currentProjectCode = null;                                // <-- Currently loaded project
+    let currentYear = null;                                       // <-- Current year
+    let isEmbedded = false;                                       // <-- Running in iframe
+
+    // Drag and drop state
+    let draggedIndex = null;                                      // <-- Index being dragged
+    let draggedType = null;                                       // <-- 'group' or 'item'
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // INITIALIZATION | DOM Ready
+    // --------------------------------------------------------
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        isEmbedded = window.location.search.includes('embedded=true');
+
+        if (window.NaEditorTools) {
+            const context = NaEditorTools.initialiseProjectContext();
+            currentProjectCode = context.project;
+            currentYear = context.year;
+
+            document.getElementById('projectCodeDisplay').textContent = currentProjectCode || '';
+
+            isFlaskMode = await NaEditorTools.isLocalDevServer();
+
+            if (isFlaskMode) {
+                setupFlaskMode();
+                await autoLoadInvoices();
+            }
+
+            NaEditorTools.setupUnsavedChangesWarning();
+            await NaEditorTools.createStatusBar();
+        }
+    });
+
+    function setupFlaskMode() {
+        document.getElementById('flaskInfoBox').style.display = 'block';
+        document.getElementById('flask-controls').style.display = 'flex';
+
+        const pathDisplay = document.getElementById('projectPathDisplay');
+        if (pathDisplay && currentProjectCode) {
+            pathDisplay.innerHTML = `<br><code>${currentYear}-Projects/${currentProjectCode}/</code>`;
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // FILE OPERATIONS | Load and Save
+    // --------------------------------------------------------
+
+    async function autoLoadInvoices() {
+        if (!isFlaskMode || !currentProjectCode) return;
+
+        NaEditorTools.showInfoMessage(`Loading ${INVOICES_FILENAME}...`);
+
+        const data = await NaEditorTools.loadProjectFile(INVOICES_FILENAME, currentProjectCode, currentYear);
+
+        if (data) {
+            currentInvoices = data;
+            if (!currentInvoices.invoices) {
+                currentInvoices.invoices = [];
+            }
+            NaEditorTools.showSuccessMessage(`Loaded: ${INVOICES_FILENAME} (${currentInvoices.invoices.length} invoices)`);
+        } else {
+            currentInvoices = { invoices: [] };
+            NaEditorTools.showInfoMessage('No existing invoices found — starting fresh');
+        }
+
+        renderInvoiceList();
+    }
+
+    async function loadFromProject() {
+        if (!isFlaskMode) return;
+
+        if (window.NaEditorTools?.hasUnsavedChanges()) {
+            NaEditorTools.showSaveConfirmDialog(
+                INVOICES_FILENAME,
+                async () => { await saveCurrentInvoice(); await autoLoadInvoices(); },
+                async () => { await autoLoadInvoices(); },
+                () => {}
+            );
+            return;
+        }
+
+        await autoLoadInvoices();
+    }
+
+    async function saveInvoiceData() {
+        if (!isFlaskMode) {
+            NaEditorTools.showErrorMessage('Cannot save: Flask server not available');
+            return false;
+        }
+
+        const success = await NaEditorTools.saveProjectFile(
+            INVOICES_FILENAME,
+            currentInvoices,
+            currentProjectCode,
+            currentYear
+        );
+
+        if (success) {
+            NaEditorTools.markClean();
+        }
+
+        return success;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // VIEW MANAGEMENT | Toggle Between List and Editor
+    // --------------------------------------------------------
+
+    function showListView() {
+        document.getElementById('invoice-list-view').classList.remove('view-hidden');
+        document.getElementById('invoice-editor-view').classList.add('view-hidden');
+        renderInvoiceList();
+    }
+
+    function showEditorView() {
+        document.getElementById('invoice-list-view').classList.add('view-hidden');
+        document.getElementById('invoice-editor-view').classList.remove('view-hidden');
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // INVOICE LIST | Render List View
+    // --------------------------------------------------------
+
+    function renderInvoiceList() {
+        const container = document.getElementById('invoiceListContent');
+
+        if (!currentInvoices.invoices || currentInvoices.invoices.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state__icon">📄</div>
+                    <h3>No Invoices Yet</h3>
+                    <p>Click "+ New Invoice" to create your first invoice.</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <table class="invoice-list-table">
+                <thead>
+                    <tr>
+                        <th class="col-ref">Ref</th>
+                        <th class="col-date">Date</th>
+                        <th class="col-due">Due Date</th>
+                        <th class="col-status">Status</th>
+                        <th class="col-total">Total</th>
+                        <th class="col-list-actions"></th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        currentInvoices.invoices.forEach((invoice, index) => {
+            const status = calculateInvoiceStatus(invoice);
+            const total = invoice.totals?.grandTotal ?? 0;
+
+            html += `
+                <tr>
+                    <td class="col-ref"><strong>${escapeHtml(invoice.invoiceRef || 'N/A')}</strong></td>
+                    <td class="col-date">${escapeHtml(invoice.invoiceDate || '')}</td>
+                    <td class="col-due">${escapeHtml(invoice.dueDate || '')}</td>
+                    <td class="col-status">${formatStatusBadge(status)}</td>
+                    <td class="col-total">£${formatNumber(total)}</td>
+                    <td class="col-list-actions">
+                        <button class="btn btn--secondary btn--small" onclick="editInvoice(${index})">Edit</button>
+                        ${status !== 'paid' ? `<button class="btn btn--success btn--small" onclick="markAsPaid(${index})">Mark Paid</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    function calculateInvoiceStatus(invoice) {
+        if (invoice.status === 'paid') return 'paid';
+
+        if (invoice.dueDate) {
+            const due = parseDateString(invoice.dueDate);
+            if (due) {
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                due.setHours(0, 0, 0, 0);
+                if (due < now) return 'overdue';
+            }
+        }
+
+        return 'unpaid';
+    }
+
+    function formatStatusBadge(status) {
+        const labels = { paid: 'Paid', unpaid: 'Unpaid', overdue: 'Overdue' };
+        return `<span class="status-badge status-badge--${status}">${labels[status] || status}</span>`;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // INVOICE EDITOR | New and Edit
+    // --------------------------------------------------------
+
+    function startNewInvoice() {
+        editingInvoiceIndex = -1;
+
+        // Reset form
+        lineItems = [];
+        lineItemId = 0;
+
+        const ref = generateNextInvoiceRef();
+        document.getElementById('invoiceRef').value = ref;
+        document.getElementById('invoiceDate').value = formatDateForDisplay(new Date());
+        document.getElementById('dueDate').value = formatDateForDisplay(addDays(new Date(), DUE_DAYS));
+        document.getElementById('projectAddress').value = '';
+        document.getElementById('projectDescription').value = '';
+        document.getElementById('showVat').checked = false;
+        document.getElementById('vatRate').value = '20';
+        document.getElementById('personalNote').value =
+            'Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.';
+
+        document.getElementById('btnMarkPaid').style.display = 'none';
+
+        addLineItem();
+        renderLineItems();
+        recalculateTotals();
+        showEditorView();
+
+        loadProjectDetailsFromConfig();
+    }
+
+    function editInvoice(index) {
+        if (index < 0 || index >= currentInvoices.invoices.length) return;
+
+        editingInvoiceIndex = index;
+        const invoice = currentInvoices.invoices[index];
+
+        populateFormFromInvoice(invoice);
+        showEditorView();
+    }
+
+    function populateFormFromInvoice(invoice) {
+        document.getElementById('invoiceRef').value = invoice.invoiceRef || '';
+        document.getElementById('invoiceDate').value = invoice.invoiceDate || '';
+        document.getElementById('dueDate').value = invoice.dueDate || '';
+        document.getElementById('projectAddress').value = invoice.projectAddress || '';
+        document.getElementById('projectDescription').value = invoice.projectDescription || '';
+        document.getElementById('personalNote').value = invoice.personalNote ||
+            'Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.';
+
+        if (invoice.totals?.vatApplicable === true || invoice.totals?.vatRate > 0) {
+            document.getElementById('showVat').checked = true;
+            document.getElementById('vatRate').value = invoice.totals.vatRate;
+        } else {
+            document.getElementById('showVat').checked = false;
+            document.getElementById('vatRate').value = '20';
+        }
+
+        // Show/hide mark as paid button
+        const status = calculateInvoiceStatus(invoice);
+        document.getElementById('btnMarkPaid').style.display = (status !== 'paid') ? 'inline-block' : 'none';
+
+        // Load line items
+        lineItems = [];
+        lineItemId = 0;
+
+        if (invoice.lineItems) {
+            let currentGroup = '';
+            invoice.lineItems.forEach(item => {
+                if (item.group && item.group !== currentGroup) {
+                    currentGroup = item.group;
+                    lineItems.push({
+                        id: ++lineItemId,
+                        type: 'group',
+                        name: item.group
+                    });
+                }
+                lineItems.push({
+                    id: ++lineItemId,
+                    type: 'item',
+                    group: item.group || '',
+                    description: item.description,
+                    itemDescription: item.itemDescription || '',
+                    quantity: item.quantity,
+                    unit: item.unit,
+                    rate: item.rate
+                });
+            });
+        }
+
+        renderLineItems();
+        recalculateTotals();
+
+        if (window.NaEditorTools) {
+            NaEditorTools.markClean();
+        }
+    }
+
+    async function loadProjectDetailsFromConfig() {
+        if (!currentProjectCode || !currentYear) return;
+
+        try {
+            const configData = await NaEditorTools.loadProjectFile(
+                'ProjectAdmin__ProjectConfig__.json', currentProjectCode, currentYear
+            );
+
+            if (configData) {
+                const brief = configData.projectBriefConcise || configData.projectDescription || '';
+                if (brief && !document.getElementById('projectDescription').value) {
+                    document.getElementById('projectDescription').value = brief;
+                }
+            }
+        } catch (error) {
+            console.warn('[InvoiceManager] Could not load project config:', error);
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // INVOICE REF | Generate Reference Numbers
+    // --------------------------------------------------------
+
+    function generateNextInvoiceRef() {
+        const year = new Date().getFullYear();
+        const code = currentProjectCode || 'XX00';
+        const prefix = `INV-${code}-${year}-`;
+
+        let maxSeq = 0;
+
+        if (currentInvoices.invoices) {
+            currentInvoices.invoices.forEach(inv => {
+                if (inv.invoiceRef && inv.invoiceRef.startsWith(prefix)) {
+                    const seqPart = inv.invoiceRef.substring(prefix.length);
+                    const seqNum = parseInt(seqPart, 10);
+                    if (!isNaN(seqNum) && seqNum > maxSeq) {
+                        maxSeq = seqNum;
+                    }
+                }
+            });
+        }
+
+        const nextSeq = String(maxSeq + 1).padStart(3, '0');
+        return `${prefix}${nextSeq}`;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // JSON GENERATION | Build Invoice Object
+    // --------------------------------------------------------
+
+    function generateJson() {
+        const totals = calculateTotals();
+
+        let currentGroup = '';
+        const formattedItems = [];
+
+        lineItems.forEach(item => {
+            if (item.type === 'group') {
+                currentGroup = item.name;
+            } else if (item.type === 'item') {
+                formattedItems.push({
+                    description: item.description,
+                    itemDescription: item.itemDescription || '',
+                    quantity: item.quantity,
+                    unit: item.unit,
+                    rate: item.rate,
+                    group: currentGroup || undefined
+                });
+            }
+        });
+
+        const existingInvoice = editingInvoiceIndex >= 0
+            ? currentInvoices.invoices[editingInvoiceIndex]
+            : null;
+
+        const invoice = {
+            invoiceRef: document.getElementById('invoiceRef').value,
+            invoiceDate: document.getElementById('invoiceDate').value,
+            dueDate: document.getElementById('dueDate').value,
+            projectAddress: document.getElementById('projectAddress').value,
+            projectDescription: document.getElementById('projectDescription').value,
+            personalNote: document.getElementById('personalNote').value,
+            clientDataStorage: 'cloudflare-r2-encrypted',
+            status: existingInvoice?.status || 'unpaid',
+            paidDate: existingInvoice?.paidDate || null,
+            lineItems: formattedItems,
+            totals: {
+                subtotal: totals.subtotal,
+                vatApplicable: document.getElementById('showVat').checked,
+                vatRate: totals.vatRate,
+                vat: totals.vat,
+                grandTotal: totals.total
+            },
+            createdDate: existingInvoice?.createdDate || new Date().toLocaleString('en-GB'),
+            lastModified: new Date().toLocaleString('en-GB')
+        };
+
+        return invoice;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // SAVE | Save Invoice
+    // --------------------------------------------------------
+
+    async function saveCurrentInvoice() {
+        if (!isFlaskMode) {
+            NaEditorTools.showErrorMessage('Cannot save: Flask server not available');
+            return;
+        }
+
+        const invoice = generateJson();
+
+        if (!invoice.invoiceRef) {
+            NaEditorTools.showErrorMessage('Invoice reference is required');
+            return;
+        }
+
+        NaEditorTools.showConfirmDialog(
+            'Save Invoice',
+            `Save <strong>${escapeHtml(invoice.invoiceRef)}</strong> to <strong>${INVOICES_FILENAME}</strong>?<br><br>This will update the invoices file.`,
+            async () => {
+                if (editingInvoiceIndex >= 0) {
+                    currentInvoices.invoices[editingInvoiceIndex] = invoice;
+                } else {
+                    currentInvoices.invoices.push(invoice);
+                    editingInvoiceIndex = currentInvoices.invoices.length - 1;
+                }
+
+                const success = await saveInvoiceData();
+                if (success) {
+                    renderInvoiceList();
+                }
+            },
+            null,
+            { confirmText: 'Save', cancelText: 'Cancel' }
+        );
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // MARK AS PAID | Update Invoice Status
+    // --------------------------------------------------------
+
+    async function markAsPaid(index) {
+        if (index < 0 || index >= currentInvoices.invoices.length) return;
+
+        const invoice = currentInvoices.invoices[index];
+
+        NaEditorTools.showConfirmDialog(
+            'Mark as Paid',
+            `Mark <strong>${escapeHtml(invoice.invoiceRef)}</strong> as paid?`,
+            async () => {
+                invoice.status = 'paid';
+                invoice.paidDate = formatDateForDisplay(new Date());
+                invoice.lastModified = new Date().toLocaleString('en-GB');
+
+                const success = await saveInvoiceData();
+                if (success) {
+                    renderInvoiceList();
+                    NaEditorTools.showSuccessMessage(`${invoice.invoiceRef} marked as paid`);
+                }
+            },
+            null,
+            { confirmText: 'Mark Paid', cancelText: 'Cancel' }
+        );
+    }
+
+    function markCurrentAsPaid() {
+        if (editingInvoiceIndex < 0) return;
+
+        const invoice = generateJson();
+
+        NaEditorTools.showConfirmDialog(
+            'Mark as Paid',
+            `Save and mark <strong>${escapeHtml(invoice.invoiceRef)}</strong> as paid?`,
+            async () => {
+                invoice.status = 'paid';
+                invoice.paidDate = formatDateForDisplay(new Date());
+
+                currentInvoices.invoices[editingInvoiceIndex] = invoice;
+
+                const success = await saveInvoiceData();
+                if (success) {
+                    document.getElementById('btnMarkPaid').style.display = 'none';
+                    NaEditorTools.showSuccessMessage(`${invoice.invoiceRef} marked as paid`);
+                }
+            },
+            null,
+            { confirmText: 'Save & Mark Paid', cancelText: 'Cancel' }
+        );
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // LINE ITEM MANAGEMENT | Add, Remove, Update Items
+    // --------------------------------------------------------
+
+    function addLineItem(group = '') {
+        const id = ++lineItemId;
+        lineItems.push({
+            id: id,
+            type: 'item',
+            group: group,
+            description: '',
+            itemDescription: '',
+            quantity: 1,
+            unit: 'item',
+            rate: 0
+        });
+        renderLineItems();
+        markFormDirty();
+    }
+
+    function addGroupHeader() {
+        const id = ++lineItemId;
+        const groupName = prompt('Enter group/phase name:', 'Design Phase');
+        if (groupName) {
+            lineItems.push({
+                id: id,
+                type: 'group',
+                name: groupName
+            });
+            renderLineItems();
+            markFormDirty();
+        }
+    }
+
+    function removeLineItem(id) {
+        lineItems = lineItems.filter(item => item.id !== id);
+        renderLineItems();
+        recalculateTotals();
+        markFormDirty();
+    }
+
+    function updateItem(id, property, value) {
+        const item = lineItems.find(i => i.id === id);
+        if (item) {
+            item[property] = value;
+            renderLineItems();
+            recalculateTotals();
+            markFormDirty();
+        }
+    }
+
+    function updateGroupName(id, name) {
+        const item = lineItems.find(i => i.id === id);
+        if (item) {
+            const oldName = item.name;
+            item.name = name;
+            lineItems.forEach(i => {
+                if (i.type === 'item' && i.group === oldName) {
+                    i.group = name;
+                }
+            });
+            recalculateTotals();
+            markFormDirty();
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // RENDERING | Display Line Items
+    // --------------------------------------------------------
+
+    function renderLineItems() {
+        const tbody = document.getElementById('lineItemsBody');
+
+        tbody.innerHTML = lineItems.map((item, index) => {
+            if (item.type === 'group') {
+                return `
+                    <tr class="line-item-row line-item-row--group"
+                        draggable="true"
+                        data-index="${index}"
+                        data-type="group"
+                        data-id="${item.id}">
+                        <td class="col-drag">
+                            <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
+                        </td>
+                        <td colspan="5">
+                            <input type="text" value="${escapeHtml(item.name)}"
+                                   style="font-weight: bold; border: none; background: transparent; width: 100%;"
+                                   onchange="updateGroupName(${item.id}, this.value)">
+                        </td>
+                        <td class="col-actions">
+                            <button class="btn btn--danger btn--small" onclick="removeLineItem(${item.id})">×</button>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                const amount = (item.quantity || 0) * (item.rate || 0);
+                return `
+                    <tr class="line-item-row line-item-row--item"
+                        draggable="true"
+                        data-index="${index}"
+                        data-type="item"
+                        data-id="${item.id}">
+                        <td class="col-drag">
+                            <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
+                        </td>
+                        <td class="col-description">
+                            <input type="text" value="${escapeHtml(item.description || '')}" class="line-item-description-main"
+                                   onchange="updateItem(${item.id}, 'description', this.value)" placeholder="Description">
+                            <textarea class="line-item-description-details"
+                                      onchange="updateItem(${item.id}, 'itemDescription', this.value)"
+                                      placeholder="Optional details">${escapeHtml(item.itemDescription || '')}</textarea>
+                        </td>
+                        <td class="col-qty">
+                            <input type="number" value="${item.quantity}" min="0" step="0.5"
+                                   onchange="updateItem(${item.id}, 'quantity', parseFloat(this.value))">
+                        </td>
+                        <td class="col-unit">
+                            <input type="text" value="${escapeHtml(item.unit || '')}"
+                                   onchange="updateItem(${item.id}, 'unit', this.value)" placeholder="item">
+                        </td>
+                        <td class="col-rate">
+                            <input type="number" value="${item.rate}" min="0" step="0.01"
+                                   onchange="updateItem(${item.id}, 'rate', parseFloat(this.value))">
+                        </td>
+                        <td class="col-amount">£${amount.toFixed(2)}</td>
+                        <td class="col-actions">
+                            <button class="btn btn--danger btn--small" onclick="removeLineItem(${item.id})">×</button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }).join('');
+
+        attachDragHandlers();
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // CALCULATIONS | Totals and VAT
+    // --------------------------------------------------------
+
+    function calculateTotals() {
+        let subtotal = 0;
+        let currentGroup = '';
+        const phaseSubtotals = new Map();
+
+        lineItems.forEach(item => {
+            if (item.type === 'group') {
+                currentGroup = item.name;
+                if (!phaseSubtotals.has(currentGroup)) {
+                    phaseSubtotals.set(currentGroup, 0);
+                }
+            } else if (item.type === 'item') {
+                const amount = (item.quantity || 0) * (item.rate || 0);
+                subtotal += amount;
+
+                if (currentGroup) {
+                    phaseSubtotals.set(currentGroup, (phaseSubtotals.get(currentGroup) || 0) + amount);
+                }
+            }
+        });
+
+        const showVat = document.getElementById('showVat').checked;
+        const vatRate = parseFloat(document.getElementById('vatRate').value) || 0;
+        const vat = showVat ? subtotal * (vatRate / 100) : 0;
+        const total = subtotal + vat;
+
+        return { subtotal, vatRate: showVat ? vatRate : 0, vat, total, phaseSubtotals };
+    }
+
+    function recalculateTotals() {
+        const totals = calculateTotals();
+
+        // Render per-phase subtotals
+        const phaseSubtotalsEl = document.getElementById('phaseSubtotals');
+        if (phaseSubtotalsEl && totals.phaseSubtotals.size > 0) {
+            let phaseHtml = '';
+            totals.phaseSubtotals.forEach((amount, phaseName) => {
+                phaseHtml += `
+                    <div class="totals__row totals__row--phase">
+                        <span>${escapeHtml(phaseName)}</span>
+                        <span>£${amount.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+            phaseSubtotalsEl.innerHTML = phaseHtml;
+        } else if (phaseSubtotalsEl) {
+            phaseSubtotalsEl.innerHTML = '';
+        }
+
+        document.getElementById('subtotal').textContent = '£' + totals.subtotal.toFixed(2);
+        document.getElementById('vatAmount').textContent = '£' + totals.vat.toFixed(2);
+        document.getElementById('grandTotal').textContent = '£' + totals.total.toFixed(2);
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // DRAG AND DROP | Reorder Items and Groups
+    // --------------------------------------------------------
+
+    function attachDragHandlers() {
+        const rows = document.querySelectorAll('.line-item-row');
+
+        rows.forEach(row => {
+            row.addEventListener('dragstart', handleDragStart);
+            row.addEventListener('dragend', handleDragEnd);
+            row.addEventListener('dragover', handleDragOver);
+            row.addEventListener('dragenter', handleDragEnter);
+            row.addEventListener('dragleave', handleDragLeave);
+            row.addEventListener('drop', handleDrop);
+        });
+    }
+
+    function handleDragStart(e) {
+        draggedIndex = parseInt(e.currentTarget.dataset.index);
+        draggedType = e.currentTarget.dataset.type;
+
+        e.currentTarget.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', draggedIndex);
+
+        setTimeout(() => {
+            e.currentTarget.style.opacity = '0.5';
+        }, 0);
+    }
+
+    function handleDragEnd(e) {
+        e.currentTarget.classList.remove('dragging');
+        e.currentTarget.style.opacity = '';
+
+        document.querySelectorAll('.drag-over').forEach(el => {
+            el.classList.remove('drag-over');
+        });
+
+        draggedIndex = null;
+        draggedType = null;
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleDragEnter(e) {
+        e.preventDefault();
+        const row = e.currentTarget;
+        if (!row.classList.contains('dragging')) {
+            row.classList.add('drag-over');
+        }
+    }
+
+    function handleDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+
+        const targetIndex = parseInt(e.currentTarget.dataset.index);
+
+        if (draggedIndex === null || draggedIndex === targetIndex) {
+            return;
+        }
+
+        if (draggedType === 'group') {
+            moveGroupWithItems(draggedIndex, targetIndex);
+        } else {
+            moveSingleItem(draggedIndex, targetIndex);
+        }
+
+        renderLineItems();
+        recalculateTotals();
+        markFormDirty();
+    }
+
+    function moveGroupWithItems(fromIndex, toIndex) {
+        let endIndex = fromIndex + 1;
+        while (endIndex < lineItems.length && lineItems[endIndex].type !== 'group') {
+            endIndex++;
+        }
+
+        const itemsToMove = lineItems.splice(fromIndex, endIndex - fromIndex);
+
+        let adjustedTarget = toIndex;
+        if (toIndex > fromIndex) {
+            adjustedTarget -= itemsToMove.length;
+        }
+
+        if (adjustedTarget < lineItems.length && lineItems[adjustedTarget]?.type === 'group') {
+            let targetEnd = adjustedTarget + 1;
+            while (targetEnd < lineItems.length && lineItems[targetEnd].type !== 'group') {
+                targetEnd++;
+            }
+            adjustedTarget = targetEnd;
+        }
+
+        lineItems.splice(adjustedTarget, 0, ...itemsToMove);
+    }
+
+    function moveSingleItem(fromIndex, toIndex) {
+        const item = lineItems[fromIndex];
+        lineItems.splice(fromIndex, 1);
+
+        const adjustedTarget = toIndex > fromIndex ? toIndex - 1 : toIndex;
+        lineItems.splice(adjustedTarget, 0, item);
+
+        updateItemGroup(adjustedTarget);
+    }
+
+    function updateItemGroup(itemIndex) {
+        const item = lineItems[itemIndex];
+        if (item.type !== 'item') return;
+
+        let newGroup = '';
+        for (let i = itemIndex - 1; i >= 0; i--) {
+            if (lineItems[i].type === 'group') {
+                newGroup = lineItems[i].name;
+                break;
+            }
+        }
+
+        item.group = newGroup;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // DATE HANDLING | Format and Parse Dates
+    // --------------------------------------------------------
+
+    function formatDateForDisplay(date) {
+        if (!date) return '';
+        if (typeof date === 'string') {
+            date = new Date(date);
+        }
+        if (isNaN(date.getTime())) return '';
+
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = MONTHS[date.getMonth()];
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
+
+    function parseDateString(dateStr) {
+        if (!dateStr) return null;
+        if (dateStr instanceof Date) return dateStr;
+
+        const monthMap = {};
+        MONTHS.forEach((m, i) => { monthMap[m.toLowerCase()] = i; });
+
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            const day = parseInt(parts[0], 10);
+            const month = monthMap[parts[1].toLowerCase()];
+            const year = parseInt(parts[2], 10);
+
+            if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+                return new Date(year, month, day);
+            }
+        }
+
+        const fallback = new Date(dateStr);
+        return isNaN(fallback.getTime()) ? null : fallback;
+    }
+
+    function addDays(date, days) {
+        const result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+    }
+
+    function calculateDueDate(invoiceDateStr) {
+        const invoiceDate = parseDateString(invoiceDateStr);
+        if (!invoiceDate) return '';
+        return formatDateForDisplay(addDays(invoiceDate, DUE_DAYS));
+    }
+
+    function onInvoiceDateChange() {
+        const dateStr = document.getElementById('invoiceDate').value;
+        const dueDate = calculateDueDate(dateStr);
+        document.getElementById('dueDate').value = dueDate;
+    }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // UTILITIES | Helper Functions
+    // --------------------------------------------------------
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatNumber(num) {
+        return (num || 0).toFixed(2);
+    }
+
+    function markFormDirty() {
+        if (window.NaEditorTools) {
+            NaEditorTools.markDirty();
+        }
+    }
+
+    // endregion ----------------------------------------------
+
+</script>
+<!-- endregion ---------------------------------------- -->
+
+</html>

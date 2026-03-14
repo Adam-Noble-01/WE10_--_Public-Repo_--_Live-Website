@@ -21,6 +21,7 @@
     <!-- ----------------------------------------------------------------- -->
 
     <link rel="stylesheet" href="04__Style__AppStylesheets/StyleSheet__ProjectVisionApp__.css">
+    <link rel="stylesheet" href="04__Style__AppStylesheets/StyleSheet__InvoiceNotification__.css">
 
     <!-- endregion -------------------------------------------------------- -->
 
@@ -148,7 +149,10 @@
     <!-- 1. URL Query System Module -->
     <script src="02__Src__AppModules/Na__AppUtils__UrlQuerySystem.js"></script>
 
-    <!-- 2. Application Initialization -->
+    <!-- 2. Invoice Notification Module -->
+    <script src="02__Src__AppModules/ProjectVision__InvoiceNotification__.js"></script>
+
+    <!-- 3. Application Initialization -->
     <script>
     // =========================================================================
     // PROJECT VISION | Application Entry Point
@@ -396,6 +400,11 @@
             }
 
             showContent();
+
+            // Check for unpaid invoices and display notifications
+            if (window.NaProjectVision && window.NaProjectVision.InvoiceNotification) {
+                window.NaProjectVision.InvoiceNotification.initialise(context, projectData);
+            }
 
         } catch (err) {
             console.error('[ProjectVision] Initialization failed:', err);

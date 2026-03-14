@@ -61,6 +61,7 @@
             let projectYear              = null;                         // <-- Project year folder
             let pendingSignatureType     = null;                         // <-- Type of document being signed
             let pendingSignatureTitle    = null;                         // <-- Title of document being signed
+            let parsedUrlParams          = null;                         // <-- Parsed URL parameters
 
         // endregion -----
 
@@ -107,6 +108,7 @@
 
                 // Parse URL parameters
                 const urlParams = parseUrlParameters();
+                parsedUrlParams = urlParams;
                 
                 if (urlParams.project) {
                     // Auto-detect year from project index
@@ -133,7 +135,9 @@
             const params = new URLSearchParams(window.location.search);
 
             return {
-                project              : params.get('project')
+                project              : params.get('project'),
+                view                 : params.get('view'),
+                invoice              : params.get('invoice')
             };
         }
         // ---------------------------------------------------------------
@@ -1101,6 +1105,7 @@
             getCurrentProject        : () => currentProject,
             getProjectConfig         : () => projectConfig,
             getProjectYear           : () => projectYear,
+            getUrlParams             : () => parsedUrlParams,        // <-- Parsed URL params (view, invoice)
             getSessionToken          : getSessionToken,             // <-- For Cloudflare API calls
             isAuthenticated          : () => isAuthenticated
         };

@@ -39,6 +39,9 @@ public/build/
 # API credentials directories
 **/API__Cloudflare/
 
+# Payment details (plaintext bank details - encrypted version uploaded to R2)
+**/PaymentDetails__BankTransfer__.json
+
 # Temp files
 *.tmp
 *.temp

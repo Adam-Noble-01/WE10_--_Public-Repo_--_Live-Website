@@ -71,7 +71,8 @@
             }
 
             // Get the actual document element within the container
-            const documentElement = documentContainer.querySelector('.document');
+            const documentElement = documentContainer.querySelector('.document') ||
+                                    documentContainer.querySelector('.na-doc');
             if (!documentElement) {
                 console.error('[PdfGenerator] No document element found');
                 showError('No document content to export.');
@@ -195,6 +196,9 @@
             switch (currentView) {
                 case 'quotation':
                     documentType = 'Quotation';
+                    break;
+                case 'invoice':
+                    documentType = 'Invoice';
                     break;
                 case 'terms':
                     documentType = 'Terms';

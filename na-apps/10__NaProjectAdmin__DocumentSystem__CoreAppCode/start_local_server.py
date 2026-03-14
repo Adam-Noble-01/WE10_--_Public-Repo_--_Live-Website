@@ -536,6 +536,17 @@ def create_project():
             json.dump(special_terms, f, indent=4)
             f.write('\n')
         
+        # Create empty invoices file
+        invoices_data = {
+            'invoices'   : []
+        }
+        
+        invoices_path = os.path.join(project_path, '10__ProjectAdmin__AppContent',
+                                     'ProjectAdmin__Invoices__.json')
+        with open(invoices_path, 'w', encoding='utf-8') as f:
+            json.dump(invoices_data, f, indent=4)
+            f.write('\n')
+        
         # Update project index
         index_path = os.path.join(
             REPO_ROOT,

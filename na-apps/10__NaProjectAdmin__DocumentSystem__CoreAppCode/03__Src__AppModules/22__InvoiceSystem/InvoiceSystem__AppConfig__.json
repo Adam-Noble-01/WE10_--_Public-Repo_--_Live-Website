@@ -1,0 +1,16 @@
+{
+    "dueDays"                              : 7,
+    "currencySymbol"                       : "£",
+    "currencyCode"                         : "GBP",
+
+    "standardNote"                         : "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+    "passwordResetEmail"                   : "Billing@Noble-Architecture.com",
+    "passwordResetNote"                    : "If you have forgotten your password to access this invoice, please contact",
+
+    "paymentDetailsR2Path"                 : "NaProjectPortal/SharedData/PaymentDetails__BankTransfer__.json.enc",
+    "paymentEncryptionAlgorithm"           : "AES-256-GCM",
+
+    "invoiceRefPrefix"                     : "INV",
+    "invoiceRefSeparator"                  : "-",
+    "invoiceRefSequenceDigits"             : 3
+}

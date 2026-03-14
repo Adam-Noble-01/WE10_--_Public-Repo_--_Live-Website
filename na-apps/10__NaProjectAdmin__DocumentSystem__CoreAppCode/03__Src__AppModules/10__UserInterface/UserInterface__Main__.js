@@ -51,6 +51,7 @@
         let currentView              = null;                         // <-- Currently displayed view
         let currentContractId        = null;                         // <-- Currently displayed contract
         let loadedQuotation          = null;                         // <-- Cached quotation data
+        let loadedInvoices           = null;                         // <-- Cached invoice data
         let loadedSpecialTerms       = null;                         // <-- Cached special terms
         let loadedContracts          = new Map();                    // <-- Cached contract data
 
@@ -65,8 +66,15 @@
         // FUNCTION | Load Default View
         // ------------------------------------------------------------
         async function loadDefaultView() {
-            const config = window.NaProjectAdmin.ConfigManager?.getConfig();
-            
+            const config    = window.NaProjectAdmin.ConfigManager?.getConfig();
+            const urlParams = window.NaProjectAdmin.App?.getUrlParams();
+
+            // Deep-link: if URL specifies view=invoice, go directly to invoice
+            if (urlParams?.view === 'invoice' && config?.AppConfig?.Features?.InvoiceSystem?.enabled === true) {
+                await showInvoice(urlParams.invoice || null);
+                return;
+            }
+
             // Show cover letter first if enabled (v0.6.0)
             if (config?.AppConfig?.Features?.CoverLetterSystem?.enabled === true &&
                 config?.AppConfig?.Features?.CoverLetterSystem?.showAsDefaultView === true) {
@@ -272,6 +280,164 @@
             `;
         }
         // ---------------------------------------------------------------
+
+        // #region -------------------------------------------------------
+        // INVOICE SYSTEM | Show Invoices
+        // ---------------------------------------------------------------
+
+            // FUNCTION | Show Invoice
+            // ------------------------------------------------------------
+            async function showInvoice(invoiceRef) {
+                console.log('[UserInterfaceMain] Showing invoice...');
+
+                const documentContainer = document.getElementById('document-container');
+                if (!documentContainer) return;
+
+                documentContainer.innerHTML = `
+                    <div class="na-doc" style="text-align: center; padding: 3rem;">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Loading invoice...</p>
+                    </div>
+                `;
+
+                try {
+                    const invoicesData = await loadInvoiceData();
+
+                    if (!invoicesData || !invoicesData.invoices || invoicesData.invoices.length === 0) {
+                        documentContainer.innerHTML = `
+                            <div class="na-doc" style="text-align: center; padding: 3rem;">
+                                <h2>No Invoices Available</h2>
+                                <p style="color: var(--App_TextSecondary);">
+                                    No invoices have been created for this project yet.
+                                </p>
+                            </div>
+                        `;
+                        currentView = 'invoice';
+                        return;
+                    }
+
+                    const targetRef = invoiceRef ||
+                                      window.NaProjectAdmin.App?.getUrlParams()?.invoice;
+
+                    let invoice = null;
+
+                    if (targetRef) {
+                        invoice = invoicesData.invoices.find(inv => inv.invoiceRef === targetRef);
+                    }
+
+                    if (!invoice) {
+                        invoice = invoicesData.invoices[invoicesData.invoices.length - 1];
+                    }
+
+                    if (window.NaProjectAdmin.InvoiceRenderer) {
+                        const html = await window.NaProjectAdmin.InvoiceRenderer.renderAsync(invoice);
+                        documentContainer.innerHTML = html;
+
+                        if (invoicesData.invoices.length > 1) {
+                            const selectorHtml = renderInvoiceSelector(invoicesData.invoices, invoice.invoiceRef);
+                            documentContainer.insertAdjacentHTML('afterbegin', selectorHtml);
+                            setupInvoiceSelectorHandlers(invoicesData.invoices);
+                        }
+                    } else {
+                        documentContainer.innerHTML = renderBasicInvoice(invoice);
+                    }
+
+                    loadedInvoices = invoicesData;
+                    currentView = 'invoice';
+                    currentContractId = null;
+
+                } catch (error) {
+                    console.error('[UserInterfaceMain] Failed to load invoice:', error);
+                    documentContainer.innerHTML = `
+                        <div class="na-doc" style="text-align: center; padding: 3rem;">
+                            <h2 style="color: var(--App_StatusError);">Error Loading Invoice</h2>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Load Invoice Data
+            // ------------------------------------------------------------
+            async function loadInvoiceData() {
+                const projectPath = window.NaProjectAdmin.currentProjectPath;
+                const config      = window.NaProjectAdmin.ConfigManager?.getConfig();
+                const invoiceFile = config?.AppConfig?.ProjectLoading?.invoiceFile || 'ProjectAdmin__Invoices__.json';
+
+                if (!projectPath) {
+                    console.warn('[UserInterfaceMain] No project path available');
+                    return null;
+                }
+
+                try {
+                    const response = await fetch(`${projectPath}${invoiceFile}`);
+
+                    if (!response.ok) {
+                        return null;
+                    }
+
+                    return await response.json();
+
+                } catch (error) {
+                    console.warn('[UserInterfaceMain] Invoice file not found');
+                    return null;
+                }
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Render Invoice Selector
+            // ------------------------------------------------------------
+            function renderInvoiceSelector(invoices, activeRef) {
+                let options = '';
+
+                invoices.forEach(inv => {
+                    const selected = inv.invoiceRef === activeRef ? 'selected' : '';
+                    const status   = inv.status === 'paid' ? ' (Paid)' : '';
+                    options += `<option value="${inv.invoiceRef}" ${selected}>${inv.invoiceRef}${status}</option>`;
+                });
+
+                return `
+                    <div style="padding: var(--App_SpacingMd) var(--App_SpacingXl); border-bottom: 1px solid var(--App_BorderLight); background: var(--App_BgTertiary);">
+                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--App_TextSecondary); margin-right: 0.5rem;">
+                            Select Invoice:
+                        </label>
+                        <select id="invoice-selector" style="padding: 0.375rem 0.75rem; border: 1px solid var(--App_BorderMedium); border-radius: var(--App_BorderRadius); font-size: 0.875rem;">
+                            ${options}
+                        </select>
+                    </div>
+                `;
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Setup Invoice Selector Handlers
+            // ------------------------------------------------------------
+            function setupInvoiceSelectorHandlers(invoices) {
+                const selector = document.getElementById('invoice-selector');
+                if (!selector) return;
+
+                selector.addEventListener('change', async function() {
+                    await showInvoice(this.value);
+                });
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Render Basic Invoice (Fallback)
+            // ------------------------------------------------------------
+            function renderBasicInvoice(data) {
+                return `
+                    <div class="na-doc">
+                        <div class="na-doc__header">
+                            <h1 class="na-doc__title">Invoice</h1>
+                            <p class="na-doc__ref">Ref: ${data.invoiceRef || 'N/A'}</p>
+                        </div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            }
+            // ---------------------------------------------------------------
+
+        // endregion -----
 
         // #region -----
         // MULTI-CONTRACT SYSTEM | Show Individual Contracts
@@ -676,13 +842,15 @@
             loadDefaultView          : loadDefaultView,
             showCoverLetter          : showCoverLetter,
             showQuotation            : showQuotation,
+            showInvoice              : showInvoice,
             showTerms                : showTerms,
             showContract             : showContract,
             showSignatureStatus      : showSignatureStatus,
             getCurrentView           : getCurrentView,
             getCurrentContractId     : getCurrentContractId,
             getLoadedQuotation       : getLoadedQuotation,
-            getLoadedSpecialTerms    : getLoadedSpecialTerms
+            getLoadedSpecialTerms    : getLoadedSpecialTerms,
+            loadInvoiceData          : loadInvoiceData
         };
 
         // Auto-initialise when DOM ready

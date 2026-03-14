@@ -1,0 +1,40 @@
+{
+    "invoices": [
+        {
+            "invoiceRef": "INV-JS01-2026-001",
+            "invoiceDate": "01-Mar-2026",
+            "dueDate": "08-Mar-2026",
+            "projectAddress": "",
+            "projectDescription": "",
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "unpaid",
+            "paidDate": null,
+            "lineItems": [
+                {
+                    "description": "Test 01",
+                    "itemDescription": "",
+                    "quantity": 1,
+                    "unit": "Hours",
+                    "rate": 20
+                },
+                {
+                    "description": "Test 02",
+                    "itemDescription": "",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 40
+                }
+            ],
+            "totals": {
+                "subtotal": 60,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 60
+            },
+            "createdDate": "14/03/2026, 12:04:13",
+            "lastModified": "14/03/2026, 12:06:18"
+        }
+    ]
+}
