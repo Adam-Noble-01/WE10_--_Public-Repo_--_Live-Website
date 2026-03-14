@@ -221,6 +221,7 @@
                     || function(n) { return Number(n).toFixed(2); };
 
                 const statusLabels = { draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined' };
+                const projectCode  = window.NaProjectAdmin.App?.getCurrentProject();
 
                 const cardsHtml = allQuotations.map(q => {
                     const name    = q.quotationName || q.quotationRef;
@@ -230,11 +231,31 @@
                     const status  = q.status || 'draft';
                     const label   = statusLabels[status] || status;
 
+                    const needsSig = q.signatureRequired !== false;
+                    let isSigned   = false;
+                    if (needsSig && projectCode && ref) {
+                        isSigned = sessionStorage.getItem(`naProjectAdmin_sig_quotation_${projectCode}_${ref}`) !== null;
+                        if (!isSigned) {
+                            const legacy = sessionStorage.getItem(`naProjectAdmin_sig_quotation_${projectCode}`);
+                            if (legacy) {
+                                try {
+                                    const p = JSON.parse(legacy);
+                                    isSigned = !p.quotationRef || p.quotationRef === ref;
+                                } catch (_) { /* ignore */ }
+                            }
+                        }
+                    }
+
+                    const signedBadge = isSigned
+                        ? '<span class="na-invoice-status__badge na-invoice-status__badge--paid" style="font-size: 0.7rem;">Signed</span>'
+                        : '';
+
                     return `
                         <div class="na-quotation-picker__card" data-ref="${ref}" tabindex="0" role="button">
                             <div class="na-quotation-picker__card-header">
                                 <span class="na-quotation-picker__card-name">${escapeHtml(name)}</span>
                                 <span class="na-invoice-status__badge na-invoice-status__badge--${status === 'accepted' ? 'paid' : status === 'declined' ? 'overdue' : 'unpaid'}">${escapeHtml(label)}</span>
+                                ${signedBadge}
                             </div>
                             <div class="na-quotation-picker__card-meta">
                                 <span>${escapeHtml(ref)}</span>

@@ -278,6 +278,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="signatureRequired" checked
+                                onchange="markFormDirty()">
+                            Require Client Signature
+                        </label>
+                    </div>
+
+                    <div class="form-group">
                         <label for="quotationDate">Quotation Date</label>
                         <input type="date" id="quotationDate" class="form-input"
                             onchange="recalculateTotals(); markFormDirty()">
@@ -654,6 +662,7 @@
         const ref = generateNextQuotationRef();
         document.getElementById('quotationRef').value = ref;
         document.getElementById('quotationName').value = '';
+        document.getElementById('signatureRequired').checked = true;
         document.getElementById('quotationDate').valueAsDate = new Date();
         document.getElementById('projectAddress').value = '';
         document.getElementById('projectDescription').value = '';
@@ -690,6 +699,7 @@
     function populateFormFromQuotation(quotation) {
         document.getElementById('quotationRef').value = quotation.quotationRef || '';
         document.getElementById('quotationName').value = quotation.quotationName || '';
+        document.getElementById('signatureRequired').checked = quotation.signatureRequired !== false;
 
         if (quotation.quotationDate) {
             const ukDateMatch = quotation.quotationDate.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
@@ -829,6 +839,7 @@
         const quotation = {
             quotationRef: document.getElementById('quotationRef').value,
             quotationName: quotationName || undefined,
+            signatureRequired: document.getElementById('signatureRequired').checked,
             quotationDate: quotationDate,
             projectAddress: document.getElementById('projectAddress').value,
             projectDescription: document.getElementById('projectDescription').value,

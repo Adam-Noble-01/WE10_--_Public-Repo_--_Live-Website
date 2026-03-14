@@ -41,6 +41,8 @@ public/build/
 
 # Payment details (plaintext bank details - encrypted version uploaded to R2)
 **/PaymentDetails__BankTransfer__.json
+**/PaymentDetails__BankTransfer__.json.enc
+**/InvoiceSystem__EncryptPaymentDetails__.js
 
 # Temp files
 *.tmp

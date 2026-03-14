@@ -487,14 +487,42 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Check Quotation Signed
+        // FUNCTION | Check Quotation Signed (per-quotation with legacy fallback)
         // ------------------------------------------------------------
         async function checkQuotationSigned() {
-            // Check for signature record in session or via API
-            const signatureRecord = sessionStorage.getItem(
-                `naProjectAdmin_sig_quotation_${projectData?.projectCode}`
-            );
-            return signatureRecord !== null;
+            const code = projectData?.projectCode;
+            if (!code) return false;
+
+            try {
+                const uiMain = window.NaProjectAdmin.UserInterfaceMain;
+                if (uiMain?.loadAllQuotations) {
+                    const allQuotations = await uiMain.loadAllQuotations();
+                    if (!allQuotations || allQuotations.length === 0) return false;
+
+                    const requiresSig = allQuotations.filter(q => q.signatureRequired !== false);
+                    if (requiresSig.length === 0) return false;
+
+                    return requiresSig.every(q => {
+                        const ref = q.quotationRef;
+                        if (ref && sessionStorage.getItem(`naProjectAdmin_sig_quotation_${code}_${ref}`)) {
+                            return true;
+                        }
+                        const legacy = sessionStorage.getItem(`naProjectAdmin_sig_quotation_${code}`);
+                        if (legacy) {
+                            try {
+                                const parsed = JSON.parse(legacy);
+                                return !parsed.quotationRef || parsed.quotationRef === ref;
+                            } catch (_) { /* ignore */ }
+                        }
+                        return false;
+                    });
+                }
+            } catch (e) {
+                console.warn('[Navigation] Could not check quotation signatures', e);
+            }
+
+            // Fallback: legacy single-key check
+            return sessionStorage.getItem(`naProjectAdmin_sig_quotation_${code}`) !== null;
         }
         // ---------------------------------------------------------------
 

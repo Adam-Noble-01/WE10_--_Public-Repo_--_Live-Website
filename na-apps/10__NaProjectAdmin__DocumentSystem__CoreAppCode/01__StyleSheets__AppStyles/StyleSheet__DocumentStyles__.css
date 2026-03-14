@@ -673,6 +673,13 @@
             font-weight                : 600;
             font-size                  : 0.9375rem;
             color                      : var(--App_TextPrimary);
+            text-align                 : left;
+        }
+
+        .na-document-table__description-secondary,
+        .na-doc-table__description-secondary,
+        .quote-table__description-secondary {
+            text-align                 : left;
         }
 
         /* Numeric columns keep right alignment */

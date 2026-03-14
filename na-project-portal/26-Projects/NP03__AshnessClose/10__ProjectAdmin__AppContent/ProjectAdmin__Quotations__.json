@@ -4,7 +4,7 @@
             "additionalTerms": "",
             "clientDataStorage": "cloudflare-r2-encrypted",
             "createdDate": "01-Feb-2026 at 19:50",
-            "lastModified": "01-Feb-2026 at 19:50",
+            "lastModified": "14/03/2026, 15:50:42",
             "lineItems": [
                 {
                     "description": "Initial Design Consultation",
@@ -151,7 +151,7 @@
             "projectDescription": "A loft conversion, likely a dormer loft conversion to maximise space, together with associated internal alterations to the existing dwelling, requiring concept design and the preparation and submission of a planning application.",
             "quotationDate": "29-Jan-2026",
             "quotationRef": "QUO-NP03-2026-001",
-            "status": "draft",
+            "status": "accepted",
             "totals": {
                 "grandTotal": 1600,
                 "subtotal": 1600,
@@ -160,31 +160,31 @@
             }
         },
         {
-            "quotationRef": "QUO-NP03-2026-002",
-            "quotationDate": "14-Mar-2026",
-            "projectAddress": "7, Ashness close, Nottingham, NG2 6QW",
-            "projectDescription": "Additional Design & Access Statement required as per client instructions.",
+            "additionalTerms": "",
             "clientDataStorage": "cloudflare-r2-encrypted",
-            "status": "draft",
+            "createdDate": "14-Mar-2026 at 15:31",
+            "lastModified": "14-Mar-2026 at 15:40",
             "lineItems": [
                 {
                     "description": "Design & Access Statement",
                     "itemDescription": "- Produce a detailed design & access statement for the scheme.\n- Utilise Drone photography to communicate the unique circumstance of the site and surrounding neighbours etc.\n- Form a robust argument for the scheme.\n- Clearly communicate all design rationale clearly.",
                     "quantity": 1,
-                    "unit": "item",
-                    "rate": 200
+                    "rate": 200,
+                    "unit": "item"
                 }
             ],
+            "projectAddress": "7, Ashness close, Nottingham, NG2 6QW",
+            "projectDescription": "Additional Design & Access Statement required as per client instructions.",
+            "quotationDate": "14-Mar-2026",
+            "quotationRef": "QUO-NP03-2026-002",
+            "status": "draft",
             "totals": {
+                "grandTotal": 200,
                 "subtotal": 200,
-                "vatApplicable": false,
-                "vatRate": 0,
                 "vat": 0,
-                "grandTotal": 200
-            },
-            "additionalTerms": "",
-            "createdDate": "14-Mar-2026 at 15:31",
-            "lastModified": "14-Mar-2026 at 15:40"
+                "vatApplicable": false,
+                "vatRate": 0
+            }
         }
     ]
 }

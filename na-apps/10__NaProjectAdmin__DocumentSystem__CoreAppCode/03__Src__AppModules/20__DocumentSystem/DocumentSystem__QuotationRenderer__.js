@@ -75,12 +75,44 @@
             const totals = calculateTotals(quotationData.lineItems || [], vatRate, showVat);
             const phaseSubtotals = calculatePhaseSubtotals(quotationData.lineItems || []);
 
-            // Check if already signed
-            const signatureRecord = sessionStorage.getItem(`naProjectAdmin_sig_quotation_${projectCode}`);
+            // Determine whether this quotation requires a signature
+            const signatureRequired = quotationData.signatureRequired !== false;
+
+            // Per-quotation signature lookup with legacy fallback
+            let signatureRecord = null;
+            if (signatureRequired) {
+                const quotationRef = quotationData.quotationRef;
+                if (quotationRef) {
+                    signatureRecord = sessionStorage.getItem(
+                        `naProjectAdmin_sig_quotation_${projectCode}_${quotationRef}`
+                    );
+                }
+                if (!signatureRecord) {
+                    const legacyRecord = sessionStorage.getItem(
+                        `naProjectAdmin_sig_quotation_${projectCode}`
+                    );
+                    if (legacyRecord) {
+                        try {
+                            const parsed = JSON.parse(legacyRecord);
+                            if (!parsed.quotationRef || parsed.quotationRef === quotationRef) {
+                                signatureRecord = legacyRecord;
+                            }
+                        } catch (_) { /* ignore parse errors */ }
+                    }
+                }
+            }
             const isSigned = signatureRecord !== null;
 
             // Use clientDataOverride if provided, otherwise fallback to inline data
             const clientDetails = clientDataOverride || quotationData.clientDetails || {};
+
+            // Build signature section based on signatureRequired flag
+            let signatureHtml = '';
+            if (signatureRequired) {
+                signatureHtml = isSigned
+                    ? renderSignatureRecord(signatureRecord)
+                    : renderSignButton('quotation', 'Quotation');
+            }
 
             let html = `
                 <div class="document">
@@ -90,7 +122,7 @@
                     ${renderLineItems(quotationData.lineItems || [], currencySymbol)}
                     ${renderTotals(totals, currencySymbol, showVat, phaseSubtotals)}
                     ${renderTerms(quotationData)}
-                    ${isSigned ? renderSignatureRecord(signatureRecord) : renderSignButton('quotation', 'Quotation')}
+                    ${signatureHtml}
                 </div>
             `;
 

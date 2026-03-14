@@ -954,7 +954,7 @@
 
                 // Show appropriate document based on what was just signed
                 if (pendingSignatureType === 'quotation' && window.NaProjectAdmin.UserInterfaceMain) {
-                    await window.NaProjectAdmin.UserInterfaceMain.showQuotation();
+                    await window.NaProjectAdmin.UserInterfaceMain.showQuotation(quotationRef);
                 } else if (pendingSignatureType === 'terms' && window.NaProjectAdmin.UserInterfaceMain) {
                     await window.NaProjectAdmin.UserInterfaceMain.showTerms();
                 } else if (pendingSignatureType?.startsWith('contract_') && window.NaProjectAdmin.UserInterfaceMain) {

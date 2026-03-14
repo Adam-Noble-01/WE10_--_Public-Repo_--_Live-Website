@@ -3,6 +3,37 @@
 
 # =============================================================================
 
+## Admin & Doc System - Version 0.7.4 - 14-Mar-2026
+
+### Added
+
+- **Per-Quotation Signature System** - Signatures are now tracked independently per quotation
+  - `signatureRequired` boolean field added to quotation data model (defaults to `true`)
+  - Quotation Manager editor includes "Require Client Signature" checkbox
+  - Quotations with `signatureRequired: false` show no sign button or signature record
+  - SessionStorage key changed from `naProjectAdmin_sig_quotation_{code}` to `naProjectAdmin_sig_quotation_{code}_{ref}`
+  - Legacy single-key signatures matched to original quotation via `quotationRef` in stored record
+
+### Changed
+
+- **SignatureSystem__AuditRecord__.js** - `storeLocally()` now uses per-quotation key when `quotationRef` is present
+- **DocumentSystem__QuotationRenderer__.js** - `render()` respects `signatureRequired` flag; per-quotation signature lookup with legacy fallback
+- **AppCore__Main__.js** - Post-sign navigation passes `quotationRef` to re-render the correct quotation
+- **UserInterface__Navigation__.js** - `checkQuotationSigned()` iterates all signature-required quotations; badge shows "Signed" only when all are signed
+- **UserInterface__Main__.js** - Quotation picker cards display per-quotation "Signed" badge
+- **Editor__QuotationManager__.html** - New `signatureRequired` checkbox; `generateJson()`, `populateFormFromQuotation()`, `startNewQuotation()` updated
+
+#### Files Modified
+
+- `03__Src__AppModules/40__SignatureSystem/SignatureSystem__AuditRecord__.js`
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__QuotationRenderer__.js`
+- `03__Src__AppModules/01__AppCore/AppCore__Main__.js`
+- `03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js`
+- `03__Src__AppModules/10__UserInterface/UserInterface__Main__.js`
+- `04__EditorTools/Editor__QuotationManager__.html`
+
+# =============================================================================
+
 ## Admin & Doc System - Version 0.7.3 - 14-Mar-2026
 
 ### Added

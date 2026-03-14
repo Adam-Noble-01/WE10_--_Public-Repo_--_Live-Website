@@ -291,8 +291,11 @@
                 // Multi-contract system: contract_<contractId>
                 const contractId = auditRecord.documentType.replace('contract_', '');
                 key = `naProjectAdmin_sig_contract_${auditRecord.projectCode}_${contractId}`;
+            } else if (auditRecord.documentType === 'quotation' && auditRecord.quotationRef) {
+                // Per-quotation signature: keyed by quotation ref
+                key = `naProjectAdmin_sig_quotation_${auditRecord.projectCode}_${auditRecord.quotationRef}`;
             } else {
-                // Legacy: quotation or terms
+                // Terms or legacy quotation without ref
                 key = `naProjectAdmin_sig_${auditRecord.documentType}_${auditRecord.projectCode}`;
             }
             
