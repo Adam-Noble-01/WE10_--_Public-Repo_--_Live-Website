@@ -64,20 +64,22 @@
 
             const clientDetails = clientDataOverride || invoiceData.clientDetails || {};
 
-            const statusHtml    = renderStatusBadge(invoiceData, invoiceConfig);
-            const dueDateInfo   = renderDueDateInfo(invoiceData, invoiceConfig);
+            const statusHtml      = renderStatusBadge(invoiceData, invoiceConfig);
+            const isOverdue       = invoiceData.status !== 'paid' && calculateDaysOverdue(invoiceData.dueDate) > 0;
+            const dueDateBanner   = renderDueDateInfo(invoiceData, invoiceConfig);
 
             let html = `
                 <div class="na-doc">
                     ${renderHeader(invoiceData, companyDetails)}
                     ${statusHtml}
-                    ${dueDateInfo}
+                    ${isOverdue ? dueDateBanner : ''}
                     ${renderAddresses(invoiceData, companyDetails, clientDetails)}
                     ${renderProjectDetails(invoiceData)}
                     ${renderLineItems(invoiceData.lineItems || [], currencySymbol)}
                     ${renderTotals(totals, currencySymbol, showVat, phaseSubtotals)}
                     <hr class="invoice-divider">
                     ${renderPaymentDetails(paymentDetails)}
+                    ${!isOverdue ? dueDateBanner : ''}
                     ${renderNoteSection(invoiceData, invoiceConfig)}
                     ${renderPasswordResetFooter(invoiceConfig)}
                 </div>

@@ -57,7 +57,7 @@
 
             if (!projectFolder || !projectYear) return null;
 
-            const portalBase = context.projectPortalBase;
+            const portalBase  = resolvePortalBase(context);
             const invoicePath = `${portalBase}${projectYear}-Projects/${projectFolder}/10__ProjectAdmin__AppContent/ProjectAdmin__Invoices__.json`;
 
             try {
@@ -67,6 +67,35 @@
             } catch (err) {
                 return null;
             }
+        }
+        // ---------------------------------------------------------------
+
+        // FUNCTION | Resolve Portal Base URL
+        // The projectPortalBase from UrlQuerySystem is relative to the appsBase
+        // directory (e.g. "../na-project-portal" relative to "/na-apps/").
+        // We resolve it against appsBase to get a correct absolute path.
+        // ------------------------------------------------------------
+        function resolvePortalBase(context) {
+            const portalBase = context.projectPortalBase || '';
+
+            if (portalBase.startsWith('http://') || portalBase.startsWith('https://')) {
+                return portalBase.endsWith('/') ? portalBase : portalBase + '/';
+            }
+
+            const appsBase = context.appsBase || '..';
+            const origin   = window.location.origin;
+
+            let appsDir = appsBase;
+            if (!appsBase.startsWith('http://') && !appsBase.startsWith('https://')) {
+                const pathname = window.location.pathname;
+                const pageDir  = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+                appsDir = new URL(appsBase, origin + pageDir).pathname;
+            }
+
+            if (!appsDir.endsWith('/')) appsDir += '/';
+
+            const resolved = new URL(portalBase, origin + appsDir).pathname;
+            return resolved.endsWith('/') ? resolved : resolved + '/';
         }
         // ---------------------------------------------------------------
 
@@ -141,6 +170,10 @@
                         ${daysRemaining} ${dayWord} remaining
                     </div>
                     <a href="${adminUrl}" class="pv-invoice-toast__link">View Invoice</a>
+                    <div class="pv-invoice-password-reset">
+                        If you have forgotten your password to access this invoice, please contact
+                        <a href="mailto:Billing@Noble-Architecture.com">Billing@Noble-Architecture.com</a>
+                    </div>
                 </div>
             `;
 
@@ -181,6 +214,10 @@
                         Please arrange payment at your earliest convenience.
                     </div>
                     <a href="${adminUrl}" class="pv-invoice-overdue__link">Pay Invoice Now</a>
+                    <div class="pv-invoice-password-reset">
+                        If you have forgotten your password to access this invoice, please contact
+                        <a href="mailto:Billing@Noble-Architecture.com">Billing@Noble-Architecture.com</a>
+                    </div>
                 </div>
             `;
 

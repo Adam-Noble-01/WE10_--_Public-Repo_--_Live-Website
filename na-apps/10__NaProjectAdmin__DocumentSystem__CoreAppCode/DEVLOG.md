@@ -3,6 +3,118 @@
 
 # =============================================================================
 
+## Admin & Doc System - Version 0.7.2 - 14-Mar-2026
+
+### Changed
+
+- **Invoice Due Date Banner Position** - Pre-due banner moved below payment details to reduce visual aggression
+  - When an invoice is not yet overdue, the yellow "Payment Due" banner now renders after the payment details card instead of at the top
+  - When overdue, the red warning banner remains at the top for urgency
+  - Small status badge ("Unpaid" / "Overdue - X days past due") stays at the top in all cases
+- **Payment Details Card Background** - Lightened from `var(--App_BgTertiary)` to `#fafafa` for a softer, less heavy appearance
+
+#### Files Modified
+
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__InvoiceRenderer__.js` - Conditional banner placement based on overdue status
+- `StyleSheet__Main__.css` - Payment card background colour lightened
+
+# =============================================================================
+
+
+## Admin & Doc System - Version 0.7.1 - 14-Mar-2026
+
+### Added
+
+- **Client Invoice System** - Full invoicing system matching the existing quotation workflow
+  - Invoice renderer (`DocumentSystem__InvoiceRenderer__.js`) mirroring quotation renderer with shared `na-doc` styles
+  - Invoice Manager editor tool (`Editor__InvoiceManager__.html`) for creating, editing, and publishing invoices
+  - Invoice list view with status badges (Unpaid, Paid, Overdue) and action buttons
+  - Invoice editor form with line items, drag-and-drop reordering, group headers, VAT toggle, and editable personal notes
+  - Mark-as-paid functionality to settle invoices and remove ProjectVision notifications
+  - Unique invoice reference numbers: `INV-{ProjectCode}-{Year}-{Sequence}`
+  - URL deep-linking via `?project=XX00&view=invoice&invoice=INV-XX00-YYYY-NNN`
+- **Invoice Payment Details** - Encrypted bank transfer details with secure client-side decryption
+  - Local plaintext `PaymentDetails__BankTransfer__.json` (gitignored) for bank details storage
+  - Node.js encryption utility (`InvoiceSystem__EncryptPaymentDetails__.js`) using AES-256-GCM with PBKDF2 key derivation
+  - Client-side fetcher (`InvoiceSystem__PaymentDetailsFetcher__.js`) decrypts from Cloudflare R2 using Web Crypto API
+  - Payment card rendered with monospace font for bank numbers, soft card styling with drop shadow
+  - Extensible payment method structure for future card/PayPal support
+- **Invoice URL Generator** - Standardised URL construction for invoice deep-links
+  - `InvoiceSystem__UrlGenerator__.js` builds relative and absolute URLs with correct query parameters
+  - Sequence number generation for new invoices based on existing data
+  - URL parameter extraction helpers for `view` and `invoice` params
+- **ProjectVision Invoice Notifications** - Due/overdue alerts on the ProjectVision main screen
+  - Pre-due toast (0-7 days): dismissible overlay covering application cards with countdown and "View Invoice" link
+  - Overdue warning (past 7 days): non-dismissible red overlay blocking all application buttons until paid
+  - Dedicated stylesheet (`StyleSheet__InvoiceNotification__.css`) with fade-in animations and backdrop blur
+  - Fetches invoice data from project portal and calculates most urgent unpaid invoice
+- **Invoice System Configuration** - Feature flag and dedicated config
+  - `InvoiceSystem` feature flag in `AppConfiguration__MainAppSettings__.json` with `dueDays`, currency, standard note, and password reset settings
+  - Dedicated `InvoiceSystem__AppConfig__.json` for invoice-specific parameters (R2 path, encryption algorithm, reference formatting)
+  - `ProjectAdmin__Invoices__.json` data file auto-created for new projects
+
+### Changed
+
+- **Shared Document Styles** - Quotation and invoice styles unified under `na-doc__*` aliases
+  - Existing `.document__*` and `.quote-*` classes aliased with `.na-doc__*` equivalents for shared use
+  - Backward compatible: old class names retained alongside new aliases
+  - Invoice-specific styles added: `.invoice-status-badge`, `.invoice-divider`, `.invoice-payment-card`, `.invoice-note-section`, `.invoice-password-reset`
+  - Responsive and print media queries updated for both `.document` and `.na-doc` elements
+- **Navigation Menu** - Invoice items added to sidebar
+  - Client-facing "Invoices" menu item (between Quotation and Contracts) when InvoiceSystem feature is enabled
+  - "Invoice Manager" editor tool in Editor Tools section for local development
+  - Action handlers for `showInvoice` and `editInvoices` in navigation switch
+- **URL Parameter Parsing** - Extended for invoice deep-linking
+  - `AppCore__Main__.js` now extracts `view` and `invoice` parameters from URL
+  - New `getUrlParams()` getter exposed on `window.NaProjectAdmin.App`
+- **Main UI** - Invoice display and selector
+  - `UserInterface__Main__.js` gains `showInvoice()` and `loadInvoiceData()` functions
+  - Invoice selector dropdown when multiple invoices exist for a project
+  - `loadDefaultView()` checks for `view=invoice` URL parameter
+- **PDF Generation** - Invoice support added
+  - `DocumentSystem__GeneratePdf__.js` now queries `.na-doc` elements alongside `.document`
+  - `getDocumentInfo()` includes `case 'invoice'` for correct PDF filenames
+- **Flask Local Server** - Invoice file creation on project setup
+  - `start_local_server.py` creates empty `ProjectAdmin__Invoices__.json` when a new project is initialised
+  - Existing generic read/write endpoints handle invoice data without new routes
+- **Git Ignore** - Plaintext bank details excluded from version control
+  - `**/PaymentDetails__BankTransfer__.json` added to `.gitignore`
+
+### Fixed
+
+- **ProjectVision Notification Fetch Path** - Portal base URL resolution corrected
+  - `projectPortalBase` from UrlQuerySystem is relative to `appsBase`, not the page directory
+  - Added `resolvePortalBase()` to resolve against `appsBase` first, producing correct absolute paths
+  - Fixes 404 on invoice data fetch that prevented notifications from appearing
+
+#### Files Created
+
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__InvoiceRenderer__.js` - Invoice HTML renderer
+- `03__Src__AppModules/22__InvoiceSystem/InvoiceSystem__AppConfig__.json` - Invoice system configuration
+- `03__Src__AppModules/22__InvoiceSystem/InvoiceSystem__PaymentDetailsFetcher__.js` - Encrypted payment details fetcher
+- `03__Src__AppModules/22__InvoiceSystem/InvoiceSystem__UrlGenerator__.js` - Invoice URL builder
+- `04__EditorTools/Editor__InvoiceManager__.html` - Invoice creation and management editor
+- `06__LocalUtilities/PaymentDetails__BankTransfer__.json` - Local plaintext bank details (gitignored)
+- `06__LocalUtilities/InvoiceSystem__EncryptPaymentDetails__.js` - Node.js encryption CLI utility
+- `05__ProjectVision__CoreAppCode/02__Src__AppModules/ProjectVision__InvoiceNotification__.js` - ProjectVision notification logic
+- `05__ProjectVision__CoreAppCode/04__Style__AppStylesheets/StyleSheet__InvoiceNotification__.css` - Notification styles
+
+#### Files Modified
+
+- `03__Src__AppModules/01__AppCore/AppCore__Main__.js` - URL parameter parsing for `view` and `invoice`
+- `03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json` - InvoiceSystem feature flag and invoice file path
+- `03__Src__AppModules/10__UserInterface/UserInterface__Main__.js` - Invoice display, selector, and default view routing
+- `03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js` - Invoice menu items and action handlers
+- `03__Src__AppModules/20__DocumentSystem/DocumentSystem__GeneratePdf__.js` - Invoice PDF support
+- `StyleSheet__Main__.css` - Shared `na-doc` aliases and invoice-specific styles
+- `index.html` - Script imports for invoice renderer and system modules
+- `start_local_server.py` - Empty invoice file creation on project setup
+- `05__ProjectVision__CoreAppCode/index.html` - Notification module import and initialisation
+- `.gitignore` - Plaintext payment details exclusion
+
+# =============================================================================
+
+
 ## Admin & Doc System - Version 0.7.0 - 07-Mar-2026
 
 ### Added
@@ -30,7 +142,8 @@
 - `03__Src__AppModules/20__DocumentSystem/DocumentSystem__QuotationRenderer__.js` - Conditional secondary description rendering
 - `StyleSheet__Main__.css` - Added quote description hierarchy styles (`main` + `secondary`)
 
----
+# =============================================================================
+
 
 ## Admin & Doc System - Version 0.6.9 - 20-Feb-2026
 
@@ -47,7 +160,8 @@
 - `04__EditorTools/Editor__QuotationBuilder__.html` - `generateJson()` saves `vatApplicable`; `populateFormFromData()` restores toggle from `vatApplicable`
 - `03__Src__AppModules/20__DocumentSystem/DocumentSystem__QuotationRenderer__.js` - `render()` reads VAT settings from quotation data
 
----
+# =============================================================================
+
 
 ## Admin & Doc System - Version 0.6.8 - 20-Feb-2026
 
@@ -90,7 +204,8 @@
 - `04__EditorTools/Editor__CommonStylesheet__.css` - Markdown input styling
 - `StyleSheet__Main__.css` - Cover letter markdown content styles
 
----
+# =============================================================================
+
 
 ## Admin & Doc System - Version 0.6.7 - 06-Feb-2026
 
@@ -113,7 +228,8 @@
 - `05__CloudflareWorkers/src/handlers/CloudflareHandler__ProjectPurge__.js`
 - `start_local_server.py`
 
----
+# =============================================================================
+
 
 ## Admin & Doc System - Version 0.6.6 - 06-Feb-2026
 
@@ -128,7 +244,8 @@
 
 - `05__CloudflareWorkers/src/handlers/CloudflareHandler__Signature__.js`
 
----
+# =============================================================================
+
 
 ## Admin & Doc System - Version 0.6.5 - 06-Feb-2026
 
@@ -157,7 +274,8 @@
 - `03__Src__AppModules/01__AppCore/AppCore__Main__.js`
 - `03__Src__AppModules/02__AppData/AppConfiguration__MainAppSettings__.json`
 
----
+# =============================================================================
+
 
 ## Version 0.6.4 - 05-Feb-2026
 
@@ -172,7 +290,8 @@
 
 - `04__EditorTools/Editor__ProjectIndexBuilder__.html`
 
----
+# =============================================================================
+
 
 ## Version 0.6.3 - 05-Feb-2026
 
@@ -186,7 +305,8 @@
 
 - `05__CloudflareWorkers/src/handlers/CloudflareHandler__Signature__.js`
 
----
+# =============================================================================
+
 
 ## Version 0.6.2 - 05-Feb-2026
 
@@ -210,7 +330,8 @@
 - `03__Src__AppModules/01__AppCore/AppCore__Main__.js`
 - `05__CloudflareWorkers/src/handlers/CloudflareHandler__ClientData__.js`
 
----
+# =============================================================================
+
 
 ## Version 0.6.1 - 01-Feb-2026
 
@@ -295,7 +416,8 @@ The date syncing fix ensures:
 - More prominent signature for stronger visual impact
 - Improved readability with better spacing and structure
 
----
+# =============================================================================
+
 
 ## Version 0.6.0 - 01-Feb-2026
 
@@ -375,7 +497,8 @@ Enable/disable via `AppConfiguration__MainAppSettings__.json`:
 }
 ```
 
----
+# =============================================================================
+
 
 ## Version 0.5.5 - 01-Feb-2026
 
@@ -429,7 +552,8 @@ This release fixes critical bugs in the quotation system where items were render
   - Implemented HTML5 drag-and-drop handlers
   - Added per-phase subtotals display
 
----
+# =============================================================================
+
 
 ## Version 0.5.4 - 01-Feb-2026
 
@@ -493,7 +617,8 @@ http://localhost:8080/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/04
 
 Client data now saves successfully to R2 even when project folder doesn't exist yet.
 
----
+# =============================================================================
+
 
 ## Version 0.5.3 - 01-Feb-2026
 
@@ -503,7 +628,8 @@ This release fixes terms document rendering issues including incorrect bullet po
 
 #### Markdown Parser Fixes
 
-- **Section Divider Handling** - `---` dividers now ignored completely
+- **Section Divider Handling** - `# =============================================================================
+` dividers now ignored completely
   - Dividers are purely cosmetic markdown formatting for human readability
   - Section numbering now driven entirely by `##` headings
   - `####` headings create subsection numbers (1.1, 1.2, 2.1, etc.)
@@ -556,7 +682,8 @@ This release fixes terms document rendering issues including incorrect bullet po
 #### Module Updates
 
 - **`GeneralTerms__MarkdownToHtmlParser__.js`** - Fixed parsing logic
-  - `---` dividers now skipped completely (line 126-128)
+  - `# =============================================================================
+` dividers now skipped completely (line 126-128)
   - Section numbering moved to `##` heading handler (lines 149-163)
   - Horizontal divider insertion on section close (line 107)
 
@@ -592,7 +719,8 @@ Text about services...
 End Of Contract Associated With QUO-JS01-2026-001
 ```
 
----
+# =============================================================================
+
 
 ## Version 0.5.2 - 01-Feb-2026
 
@@ -696,7 +824,8 @@ Editor loads
   → Editor fills available space
 ```
 
----
+# =============================================================================
+
 
 ## Version 0.5.1 - 01-Feb-2026
 
@@ -755,7 +884,8 @@ This release significantly improves the Contract Manager editor tool with a dedi
 - Updated `DR02__SilverAvenue` with new schema
 - Created sample `SpecialTerms__general-business__.json` for AA00 demonstration
 
----
+# =============================================================================
+
 
 ## Version 0.5.0 - 01-Feb-2026
 
@@ -768,7 +898,8 @@ This release introduces a comprehensive multi-contract system allowing projects 
 - **`GeneralTerms__MarkdownToHtmlParser__.js`** - Markdown to HTML parser
   - Parses structured markdown files into numbered HTML sections
   - Auto-generates section and sub-section numbering
-  - Supports section (`---`) and topic (`___`) dividers
+  - Supports section (`# =============================================================================
+`) and topic (`___`) dividers
   - Removes legacy `{{#}}` and `{{#.##}}` placeholders
   - Located in: `03__Src__AppModules/25__GeneralTerms__ParsingUtils/`
 
@@ -843,7 +974,8 @@ This release introduces a comprehensive multi-contract system allowing projects 
 
 - **`10__GeneralTerms__Markdown/`** - New folder for standard terms
   - `10_00__ApprovedStandardTerms__GeneralBuisinesTerms__.md` - General terms (15 sections)
-  - Structure: `---` section dividers, `## Heading` for sections, `####` for sub-sections
+  - Structure: `# =============================================================================
+` section dividers, `## Heading` for sections, `####` for sub-sections
 
 #### HTML Updates
 
@@ -883,11 +1015,13 @@ Project loads
 ```
 
 #### Markdown Parsing Rules
-- `---` = Section break (increments section number)
+- `# =============================================================================
+` = Section break (increments section number)
 - `___` = Topic break within section
 - `## Title` = Section heading (auto-numbered: "1. Definitions")
 - `#### Topic` = Sub-heading (auto-numbered: "1.1 Payment Terms")
-- Content before first `---` is treated as header/ignored
+- Content before first `# =============================================================================
+` is treated as header/ignored
 - `{{#}}` and `{{#.##}}` placeholders removed (legacy support)
 
 # =============================================================================
@@ -1008,7 +1142,8 @@ User views quotation
 - Seamless integration - works transparently with existing quotation files
 - GDPR compliant - client PII remains encrypted at rest in R2
 
----
+# =============================================================================
+
 
 ## Version 0.4.2 - 31-Jan-2026
 
@@ -1136,7 +1271,8 @@ This release fixes critical authentication failures and simplifies project URL s
 - Faster: Caching reduces lookup time for repeated requests
 - Consistent: All handlers use same path resolution logic
 
----
+# =============================================================================
+
 
 ## Version 0.4.1 - 31-Jan-2026
 
@@ -1225,7 +1361,8 @@ with A4 width and automatic height calculation.
 - A4 width ensures compatibility with standard document viewers
 - Automatic filename generation reduces user effort
 
----
+# =============================================================================
+
 
 ## Version 0.4.0 - 31-Jan-2026
 
@@ -1356,7 +1493,8 @@ becomes permanently unreadable.
 - `12_AppPrinciples__Authentication__.mdc` - Updated project config schema
 - `14_AppPrinciples__DocumentSystem__.mdc` - Added client data fetching flow
 
----
+# =============================================================================
+
 
 ## Version 0.3.2 - 31-Jan-2026
 
@@ -1369,7 +1507,8 @@ becomes permanently unreadable.
   - Provides defence-in-depth alongside existing PIN-based authentication
   - Prevents accidental indexing of private client project administration system
 
----
+# =============================================================================
+
 
 ## Version 0.3.1 - 31-Jan-2026
 
@@ -1386,7 +1525,8 @@ becomes permanently unreadable.
 ### Fixed
 - Menu tutorial overlay no longer blocks hamburger menu button visibility
 
----
+# =============================================================================
+
 
 ## Version 0.3.0 - 31-Jan-2026
 

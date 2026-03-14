@@ -1268,7 +1268,7 @@
     }
 
     .invoice-payment-card {
-        background-color           : var(--App_BgTertiary);
+        background-color           : #fafafa;
         border                     : 1px solid var(--App_BorderLight);
         border-radius              : 12px;
         padding                    : var(--App_SpacingLg) var(--App_SpacingXl);

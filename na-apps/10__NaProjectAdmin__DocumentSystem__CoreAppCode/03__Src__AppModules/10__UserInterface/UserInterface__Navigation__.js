@@ -256,13 +256,18 @@
             }
 
             // Add Invoice menu item if enabled and invoices exist for this project
-            if (appConfig?.AppConfig?.Features?.InvoiceSystem?.enabled === true &&
-                await checkInvoicesExist()) {
+            const invoiceNavStatus = appConfig?.AppConfig?.Features?.InvoiceSystem?.enabled === true
+                ? await getInvoiceNavStatus()
+                : null;
+
+            if (invoiceNavStatus !== null) {
                 items.push({
                     id                   : 'invoices',
                     label                : 'Invoices',
-                    icon                 : '&#128179;',              // <-- Money icon
-                    action               : 'showInvoice'
+                    icon                 : '&#128209;',              // <-- Document pages icon
+                    action               : 'showInvoice',
+                    badge                : invoiceNavStatus.badge      || null,
+                    badgeClass           : invoiceNavStatus.badgeClass || null
                 });
             }
 
@@ -435,11 +440,31 @@
         }
         // ---------------------------------------------------------------
 
-        // FUNCTION | Check Invoices Exist
+        // FUNCTION | Get Invoice Nav Status
         // ------------------------------------------------------------
-        async function checkInvoicesExist() {
+        async function getInvoiceNavStatus() {
             const invoicesData = await window.NaProjectAdmin.UserInterfaceMain?.loadInvoiceData();
-            return invoicesData?.invoices?.length > 0;
+
+            if (!invoicesData?.invoices?.length) return null;
+
+            const InvoiceRenderer = window.NaProjectAdmin.InvoiceRenderer;
+            let hasOverdue = false;
+            let hasDue     = false;
+
+            for (const invoice of invoicesData.invoices) {
+                if (invoice.status === 'paid') continue;
+
+                const daysOverdue = InvoiceRenderer?.calculateDaysOverdue(invoice.dueDate) ?? 0;
+                if (daysOverdue > 0) {
+                    hasOverdue = true;
+                } else {
+                    hasDue = true;
+                }
+            }
+
+            if (hasOverdue) return { badge: 'Overdue', badgeClass: 'nav-menu__badge nav-menu__badge--error'   };
+            if (hasDue)     return { badge: 'Due',     badgeClass: 'nav-menu__badge nav-menu__badge--warning' };
+            return null;
         }
         // ---------------------------------------------------------------
 
