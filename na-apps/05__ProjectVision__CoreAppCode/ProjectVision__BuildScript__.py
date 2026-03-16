@@ -784,6 +784,16 @@ def main():
         default=None,
         help='Path to na-project-portal directory (auto-detected if not provided)'
     )
+    parser.add_argument(
+        '--project',
+        default=None,
+        help='Target a single project folder (e.g. JH03__RomerCottage)'
+    )
+    parser.add_argument(
+        '--dry-run-check',
+        action='store_true',
+        help='Preview all changes without writing any files'
+    )
     args = parser.parse_args()
 
     if args.portal_root:
@@ -830,23 +840,43 @@ def main():
             proj['subApps']     = sub_apps
             all_projects.append(proj)
 
+    target_projects = all_projects
+    if args.project:
+        target_folder = args.project.strip()
+        target_projects = [p for p in all_projects if p['projectFolder'] == target_folder]
+        if not target_projects:
+            print(f'  [ERROR] Target project folder not found: {target_folder}')
+            return 1
+        print(f'  [TARGET] Running in targeted mode for: {target_folder}')
+
     master_index = build_master_index(all_projects)
-    write_json(paths['master_index_path'], master_index)
-
     project_keys = build_project_keys_index(all_projects, paths['project_keys_path'])
-    write_json(paths['project_keys_path'], project_keys)
 
-    for proj in all_projects:
+    if args.dry_run_check:
+        print('\n' + '=' * 78)
+        print('  DRY RUN CHECK MODE (NO FILES WRITTEN)')
+        print('=' * 78)
+        print(f'  [DRY-RUN] Would write: {paths["master_index_path"]}')
+        print(f'  [DRY-RUN] Would write: {paths["project_keys_path"]}')
+    else:
+        write_json(paths['master_index_path'], master_index)
+        write_json(paths['project_keys_path'], project_keys)
+
+    for proj in target_projects:
         html = generate_redirect_html(
             proj['projectCode'],
             proj['projectName'],
             proj['projectFolder']
         )
-        write_redirect_html(proj['folderPath'], html)
+        if args.dry_run_check:
+            redirect_path = os.path.join(proj['folderPath'], 'ProjectVision-WebApp.html')
+            print(f'  [DRY-RUN] Would write redirect: {redirect_path}')
+        else:
+            write_redirect_html(proj['folderPath'], html)
 
     # GENERATE TRUEVISION PROJECT DATA JSON FOR EACH PROJECT WITH TV CONTENT
     tv_generated_count = 0
-    for proj in all_projects:
+    for proj in target_projects:
         if not proj['subApps']['trueVision']:
             continue
 
@@ -859,7 +889,11 @@ def main():
             tv_data = generate_truevision_project_data(
                 proj['projectCode'], proj['projectName'], model_groups
             )
-            write_truevision_project_data(proj['folderPath'], tv_data)
+            if args.dry_run_check:
+                output_path = os.path.join(proj['folderPath'], TRUEVISION_CONTENT_FOLDER, 'TrueVision__ProjectData__.json')
+                print(f'  [DRY-RUN] Would write: {output_path}')
+            else:
+                write_truevision_project_data(proj['folderPath'], tv_data)
             tv_generated_count += 1
 
     if tv_generated_count > 0:
@@ -867,7 +901,7 @@ def main():
 
     # GENERATE PLANVISION PROJECT DATA JSON FOR EACH PROJECT WITH PV CONTENT
     pv_generated_count = 0
-    for proj in all_projects:
+    for proj in target_projects:
         if not proj['subApps']['planVision']:
             continue
 
@@ -876,7 +910,11 @@ def main():
             pv_data = generate_planvision_project_data(
                 proj['projectCode'], proj['projectName'], phases
             )
-            write_planvision_project_data(proj['folderPath'], pv_data)
+            if args.dry_run_check:
+                output_path = os.path.join(proj['folderPath'], PLANVISION_CONTENT_FOLDER, PLANVISION_DATA_FILENAME)
+                print(f'  [DRY-RUN] Would write: {output_path}')
+            else:
+                write_planvision_project_data(proj['folderPath'], pv_data)
             pv_generated_count += 1
 
     if pv_generated_count > 0:

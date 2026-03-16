@@ -1,5 +1,5 @@
 {
-    "buildTimestamp": "2026-03-10T19:31:53.888764+00:00",
+    "buildTimestamp": "2026-03-16T08:03:01.374224+00:00",
     "projects": {
         "GA06": {
             "projectCode": "GA06",
@@ -15,11 +15,11 @@
         "JH03": {
             "projectCode": "JH03",
             "projectName": "JH03",
-            "projectFolder": "JH03__RomerCottage__OLD__DELETE_AFTER_FEB_2026__",
+            "projectFolder": "JH03__RomerCottage",
             "projectYear": "25",
             "subApps": {
                 "projectAdmin": false,
-                "planVision": false,
+                "planVision": true,
                 "trueVision": false
             }
         },
