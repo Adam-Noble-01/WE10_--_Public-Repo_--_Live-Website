@@ -57,10 +57,15 @@
     </div>
     
     <script>
-        // JavaScript redirect as backup
-        setTimeout(function() {
-            window.location.href = 'https://www.noble-architecture.com/na-apps/20__PlanVision__CoreAppCode/PlanVision__WebApp__Main__.html?project=JH03&year=25&project-folder=JH03__RomerCottage';
-        }, 100);
+        // Enforce redirect: replace current entry so back button does not return here
+        (function() {
+            var target = 'https://www.noble-architecture.com/na-apps/20__PlanVision__CoreAppCode/PlanVision__WebApp__Main__.html?project=JH03&year=25&project-folder=JH03__RomerCottage';
+            if (window.location.replace) {
+                window.location.replace(target);
+            } else {
+                window.location.href = target;
+            }
+        })();
     </script>
 </body>
 </html>

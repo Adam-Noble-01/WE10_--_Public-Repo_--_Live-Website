@@ -1,68 +1,28 @@
 {
     "na-project-data-library": {
-        "file-metadata": {
-            "file-name": "PlanVision__ProjectData__.json",
-            "file-type": ".json",
-            "file-purpose": "Project Configuration with File Discovery",
-            "file-description": "Folder-structure-driven JSON using per-phase content definitions with auto-discovered file manifests",
-            "file-created": "18-Aug-2025",
-            "file-updated": "09-Feb-2026",
-            "file-author": "Adam Noble - Noble Architecture",
-            "file-key-required": "FALSE",
-            "file-key-note": "Public Repo File - Sensitive Data Omitted",
-            "file-links": {
-                "windows-dir-path": "D:\\WE10_--_Public-Repo_--_Live-Website\\na-project-portal\\25-Projects\\JH03__RomerCottage\\20__PlanVision__AppContent\\PlanVision__ProjectData__.json",
-                "github-link-url": "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/20__PlanVision__AppContent/PlanVision__ProjectData__.json"
-            }
-        },
         "project-details": {
+            "project-name": "JH03",
             "project-name-nickname": "JH03 | Romer Cottage",
-            "project-name-string": "JH03_--_Romer-Cottage",
-            "project-address--house": "Romer Cottage",
-            "project-address--house-no": "NIL",
-            "project-address-street": "NIL",
-            "project-address-town": "Burston",
-            "project-address-city": "NIL",
-            "project-address-county": "Staffordshire",
-            "project-address-postcode": "ST18 0DT",
-            "project-general-notes-01": "NIL",
-            "project-portal-links": {
-                "portal-url-home": "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__Project-Portal",
-                "portal-url-planvision": "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__PlanVision__WebApp",
-                "portal-url-truevision": "https://www.noble-architecture.com/na-project-portal/25-Projects/JH03__RomerCottage/JH03__TrueVision__WebApp"
-            }
+            "project-address": "",
+            "project-description": "",
+            "client-name": ""
         },
         "project-phase-config": {
             "active-design-phase": "DesignPhase03",
-            "phase-last-updated": "09-Feb-2026",
-            "available-phases": ["DesignPhase01", "DesignPhase02", "DesignPhase03"],
-            "phase-descriptions": {
-                "DesignPhase01": "Initial Concept Design",
-                "DesignPhase02": "Planning Phase Drawings",
-                "DesignPhase03": "Construction Phase Drawings"
-            }
+            "available-phases": [
+                "DesignPhase02",
+                "DesignPhase03"
+            ],
+            "phase-last-updated": "16-Mar-2026"
         },
         "project-documentation": {
             "phase-content": {
-                "DesignPhase01": {
-                    "phase-folder": "DesignPhase01__ConceptDesign__Content",
-                    "folder-structure": [
-                        {
-                            "folder": ".",
-                            "label": "Concept Drawings",
-                            "document-type": "Drawing",
-                            "document-scale": "NTS",
-                            "document-size": "A3",
-                            "files": []
-                        }
-                    ]
-                },
                 "DesignPhase02": {
                     "phase-folder": "DesignPhase02__PlanningApproval__Content",
                     "folder-structure": [
                         {
-                            "folder": ".",
-                            "label": "Planning Drawings",
+                            "label": "Planning Approval",
+                            "label-override": false,
                             "document-type": "Drawing",
                             "document-scale": "1:50",
                             "document-size": "A2",
@@ -75,7 +35,8 @@
                                 "JH03_T02_D30__FoundationsPlan__Rev-A__",
                                 "JH03_T02_D31__TechnicalPlan__Rev-A__",
                                 "JH03_T02_N30__PlanningCoveringLetter",
-                                "JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__"
+                                "JH03_T03_D61__PrelimStructuralConcept__SketchPlan__RevB__",
+                                "JH03__RomerCottage__CompletedPlanningForm__20-Aug-2025"
                             ]
                         }
                     ]
@@ -86,6 +47,7 @@
                         {
                             "folder": "01__Plans",
                             "label": "Plans",
+                            "label-override": false,
                             "document-type": "Drawing",
                             "document-scale": "1:50",
                             "document-size": "A2",
@@ -99,6 +61,7 @@
                         {
                             "folder": "02__Elevations",
                             "label": "Elevations",
+                            "label-override": false,
                             "document-type": "Drawing",
                             "document-scale": "1:50",
                             "document-size": "A2",
@@ -110,6 +73,7 @@
                         {
                             "folder": "03__CrossSections",
                             "label": "Cross Sections",
+                            "label-override": false,
                             "document-type": "Drawing",
                             "document-scale": "1:50",
                             "document-size": "A2",
@@ -120,7 +84,8 @@
                         },
                         {
                             "folder": "10__3dViews",
-                            "label": "3D Views",
+                            "label": "3d Views",
+                            "label-override": false,
                             "document-type": "Drawing",
                             "document-scale": "1:50",
                             "document-size": "A2",
@@ -133,6 +98,7 @@
                         {
                             "folder": "20__ConstructionDetails",
                             "label": "Construction Details",
+                            "label-override": false,
                             "document-type": "Specification",
                             "document-scale": "1:5",
                             "document-size": "A2",
@@ -140,6 +106,7 @@
                                 {
                                     "folder": "21__WallDetails",
                                     "label": "Wall Details",
+                                    "label-override": false,
                                     "files": [
                                         "JH03_T03_SP10__StepTransition__RevA__",
                                         "JH03_T03_WT10__BrickworkCavityWall__Rev-A__",
@@ -149,6 +116,7 @@
                                 {
                                     "folder": "22__FloorDetails",
                                     "label": "Floor Details",
+                                    "label-override": false,
                                     "files": [
                                         "JH03_T03_GF10__GroundFloorSlab__Rev-A__"
                                     ]
@@ -156,6 +124,7 @@
                                 {
                                     "folder": "23__RoofDetails",
                                     "label": "Roof Details",
+                                    "label-override": false,
                                     "files": [
                                         "JH03_T03_RF10__LoungeArea__PitchedRoof__Rev-A__",
                                         "JH03_T03_RF12__AbutmentDetail__RF10-RF30__RevB__",
@@ -166,6 +135,7 @@
                                 {
                                     "folder": "24__ChimneyDetails",
                                     "label": "Chimney Details",
+                                    "label-override": false,
                                     "files": [
                                         "JH03_T03_CM10__ChimneyBreast__Rev-A__",
                                         "JH03_T03_CM20__Chimney__FireBox__RevA__",
@@ -175,80 +145,6 @@
                             ]
                         }
                     ]
-                }
-            }
-        },
-        "project-videos": {
-            "video-01": {
-                "file-name": "VID01__ViewFromPergola.mp4",
-                "added-to-register": "03-Nov-2025",
-                "video-type": "Project Video",
-                "video-name": "View From Pergola",
-                "video-duration": "NIL",
-                "video-status": "Active",
-                "video-notes": "NIL",
-                "video-links": {
-                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID01__ViewFromPergola.mp4"
-                }
-            },
-            "video-02": {
-                "file-name": "VID02__InteriorToExteriorTransition.mp4",
-                "added-to-register": "03-Nov-2025",
-                "video-type": "Project Video",
-                "video-name": "Interior To Exterior Transition",
-                "video-duration": "NIL",
-                "video-status": "Active",
-                "video-notes": "NIL",
-                "video-links": {
-                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID02__InteriorToExteriorTransition.mp4"
-                }
-            },
-            "video-03": {
-                "file-name": "VID03__ViewFromSouthToNorth.mp4",
-                "added-to-register": "03-Nov-2025",
-                "video-type": "Project Video",
-                "video-name": "View From South To North",
-                "video-duration": "NIL",
-                "video-status": "Active",
-                "video-notes": "NIL",
-                "video-links": {
-                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID03__ViewFromSouthToNorth.mp4"
-                }
-            },
-            "video-04": {
-                "file-name": "VID04__SouthSidePath.mp4",
-                "added-to-register": "03-Nov-2025",
-                "video-type": "Project Video",
-                "video-name": "South Side Path",
-                "video-duration": "NIL",
-                "video-status": "Active",
-                "video-notes": "NIL",
-                "video-links": {
-                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID04__SouthSidePath.mp4"
-                }
-            },
-            "video-05": {
-                "file-name": "VID05__AerialView.mp4",
-                "added-to-register": "03-Nov-2025",
-                "video-type": "Project Video",
-                "video-name": "Aerial View",
-                "video-duration": "NIL",
-                "video-status": "Active",
-                "video-notes": "NIL",
-                "video-links": {
-                    "cdn-url": "https://cdn.noble-architecture.com/NaProjectPortal/25-Projects/JH03__RomerCottage/VideoFiles/VID05__AerialView.mp4"
-                }
-            },
-            "video-template": {
-                "file-name": "{{TEMPLATE_-_ENTRY_-_TO_-_COPY_-_DO_-_NOT_-_DELETE}}",
-                "added-to-register": "{{ENTER_DATE}}",
-                "video-type": "Project Video",
-                "video-name": "Video Description",
-                "video-duration": "NIL",
-                "video-status": "Active",
-                "video-notes": "NIL",
-                "video-links": {
-                    "cdn-url": "https://cdn.example.com/videos/{{PROJECT_CODE}}/{{VIDEO_FILE_NAME}}.mp4"
                 }
             }
         }
