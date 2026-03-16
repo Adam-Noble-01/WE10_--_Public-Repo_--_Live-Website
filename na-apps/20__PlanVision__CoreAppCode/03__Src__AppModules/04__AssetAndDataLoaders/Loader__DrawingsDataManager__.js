@@ -214,7 +214,16 @@
                 const drawings = [];
 
                 for (let i = 0; i < files.length; i++) {
-                    const baseFilename = files[i];
+                    // Support both plain string filenames and object entries with label overrides
+                    // Object format: { "filename": "BH03_T02_D01__...", "label": "D01 - Project Introduction (Rev A)" }
+                    let baseFilename, labelOverride;
+                    if (typeof files[i] === 'object' && files[i] !== null) {
+                        baseFilename  = files[i]['filename'];
+                        labelOverride = files[i]['label'] || null;
+                    } else {
+                        baseFilename  = files[i];
+                        labelOverride = null;
+                    }
 
                     // Build full URL paths
                     const filePath = folderPath
@@ -224,8 +233,8 @@
                     const pngUrl = projectBaseUrl + '/' + filePath + '.png';
                     const pdfUrl = projectBaseUrl + '/' + filePath + '.pdf';
 
-                    // Parse filename for display name
-                    const documentName = Na__Data__ParseFilename(baseFilename);
+                    // Use label override if provided, otherwise parse from filename
+                    const documentName = labelOverride || Na__Data__ParseFilename(baseFilename);
 
                     // Build drawing object matching DrawingLoader expected shape
                     const drawingObj = {

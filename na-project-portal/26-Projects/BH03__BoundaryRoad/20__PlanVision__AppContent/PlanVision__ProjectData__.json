@@ -8,9 +8,10 @@
             "client-name": ""
         },
         "project-phase-config": {
-            "active-design-phase": "DesignPhase01",
+            "active-design-phase": "DesignPhase02",
             "available-phases": [
-                "DesignPhase01"
+                "DesignPhase01",
+                "DesignPhase02"
             ],
             "phase-last-updated": "16-Mar-2026"
         },
@@ -27,6 +28,25 @@
                             "document-size": "A2",
                             "files": [
                                 "BH03_T01_D01__ConceptVisuals__RevB__"
+                            ]
+                        }
+                    ]
+                },
+                "DesignPhase02": {
+                    "phase-folder": "DesignPhase02__PlanningApproval__Content",
+                    "folder-structure": [
+                        {
+                            "label": "Planning Approval",
+                            "label-override": true,
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
+                                "BH03_T02_D01__ProjectIntroduction__IsoA2__RevA__",
+                                "BH03_T02_D02__GaragePlansAndElevations__IsoA2__RevA__",
+                                "BH03_T02_D03__ProposedSitePlan__IsoA2__RevA__",
+                                "BH03_T02_D03__ProposedSitePlan__IsoA2__RevA__pdf",
+                                "BH03_T02_D04__LocationAndBlockPlans__IsoA2__RevA__"
                             ]
                         }
                     ]
