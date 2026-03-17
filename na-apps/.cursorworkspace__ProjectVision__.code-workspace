@@ -43,6 +43,11 @@
         "name"        : "REFERENCE ONLY - ValeApps - DO NOT EDIT",
         "description" : "The is a reference only folder for the ValeApps project, do not edit this folder. it contains branches of the codebase for the ValeApps project, such as ValeVision & Whitecardopedia Project Apps ",
         "path"        : "D:/80__External__LiveRepos/ValeCodebase/WebApps"
+	  },
+	  {
+        "name"        : "TEMPORARY - Master Codebase Containing All Noble Architecture Project Codebases",
+        "description" : "This is a temporary folder containing the master codebase for all Noble Architecture projects. It is used to store the codebase for all Noble Architecture projects.",
+        "path"        : "D:/03__MasterCodebase"
 	  }
 	],
 	"settings": {
