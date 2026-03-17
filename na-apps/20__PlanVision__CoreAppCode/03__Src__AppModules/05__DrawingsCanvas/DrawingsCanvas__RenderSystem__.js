@@ -119,6 +119,15 @@
                 ctx.translate(state.offsetX, state.offsetY);
                 ctx.scale(state.zoomFactor, state.zoomFactor);
 
+                // Guard against broken image element (failed CDN/fallback fetch)
+                if (!planImage || planImage.naturalWidth === 0) {
+                    ctx.restore();
+                    if (isRenderLoopActive) {
+                        requestAnimationFrame(renderLoop);
+                    }
+                    return;
+                }
+
                 // Apply drop shadow effect for paper illusion
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
                 ctx.shadowBlur = 10;

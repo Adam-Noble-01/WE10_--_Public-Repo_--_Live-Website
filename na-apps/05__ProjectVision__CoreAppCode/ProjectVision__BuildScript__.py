@@ -660,6 +660,8 @@ def merge_planvision_existing_data(new_data, existing_data):
                 if old_folder.get(prop):
                     folder_entry[prop] = old_folder[prop]
 
+            _merge_file_labels(folder_entry, old_folder)
+
             _merge_subfolder_labels(folder_entry.get('subfolders', []),
                                     old_folder.get('subfolders', []))
 
@@ -671,8 +673,44 @@ def _build_folder_id(folder_entry):
     return folder_entry.get('folder', folder_entry.get('label', ''))
 
 
+def _get_file_base(file_entry):
+    """Return the base filename string from either a plain string or an object file entry."""
+    if isinstance(file_entry, dict):
+        return file_entry.get('filename', '')
+    return file_entry
+
+
+def _merge_file_labels(new_folder, old_folder):
+    """Preserve file label overrides from the existing JSON into the freshly-generated folder.
+
+    File entries may be plain strings (auto-generated) or objects with a 'label' key
+    (manually overridden).  When the old folder has an object entry for a given filename,
+    the label is carried forward into the new folder's files list.
+    """
+    old_files = old_folder.get('files', [])
+    new_files = new_folder.get('files', [])
+
+    if not old_files or not new_files:
+        return
+
+    # Build a lookup of filename -> label for any object entries in the old files list
+    old_labels = {}
+    for f in old_files:
+        if isinstance(f, dict) and f.get('label'):
+            old_labels[f['filename']] = f['label']
+
+    if not old_labels:
+        return  # <-- Nothing to preserve
+
+    # Upgrade any matching plain-string entries in the new list to objects with labels
+    for i, f in enumerate(new_files):
+        base = _get_file_base(f)
+        if base in old_labels:
+            new_files[i] = {'filename': base, 'label': old_labels[base]}
+
+
 def _merge_subfolder_labels(new_subs, old_subs):
-    """Recursively preserve label-override flags in subfolders."""
+    """Recursively preserve label-override flags and file label overrides in subfolders."""
     old_map = {_build_folder_id(s): s for s in old_subs}
     for sub in new_subs:
         old_sub = old_map.get(_build_folder_id(sub))
@@ -680,6 +718,7 @@ def _merge_subfolder_labels(new_subs, old_subs):
             sub['label'] = old_sub['label']
             sub['label-override'] = True
         if old_sub:
+            _merge_file_labels(sub, old_sub)
             _merge_subfolder_labels(sub.get('subfolders', []),
                                     old_sub.get('subfolders', []))
 

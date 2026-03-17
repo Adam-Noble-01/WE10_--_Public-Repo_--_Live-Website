@@ -27,7 +27,10 @@
                             "document-scale": "1:50",
                             "document-size": "A2",
                             "files": [
-                                "BH03_T01_D01__ConceptVisuals__RevB__"
+                                {
+                                    "filename": "BH03_T01_D01__ConceptVisuals__RevB__",
+                                    "label": "D01 - Concept Visuals (Rev B)"
+                                }
                             ]
                         }
                     ]
@@ -37,16 +40,27 @@
                     "folder-structure": [
                         {
                             "label": "Planning Approval",
-                            "label-override": true,
+                            "label-override": false,
                             "document-type": "Drawing",
                             "document-scale": "1:50",
                             "document-size": "A2",
                             "files": [
-                                "BH03_T02_D01__ProjectIntroduction__IsoA2__RevA__",
-                                "BH03_T02_D02__GaragePlansAndElevations__IsoA2__RevA__",
-                                "BH03_T02_D03__ProposedSitePlan__IsoA2__RevA__",
-                                "BH03_T02_D03__ProposedSitePlan__IsoA2__RevA__pdf",
-                                "BH03_T02_D04__LocationAndBlockPlans__IsoA2__RevA__"
+                                {
+                                    "filename": "BH03_T02_D01__ProjectIntroduction__IsoA2__RevA__",
+                                    "label": "D01 - Project Introduction (Rev A)"
+                                },
+                                {
+                                    "filename": "BH03_T02_D02__GaragePlansAndElevations__IsoA2__RevA__",
+                                    "label": "D02 - Garage Plans And Elevations (Rev A)"
+                                },
+                                {
+                                    "filename": "BH03_T02_D03__ProposedSitePlan__IsoA2__RevA__",
+                                    "label": "D03 - Proposed Site Plan (Rev A)"
+                                },
+                                {
+                                    "filename": "BH03_T02_D04__LocationAndBlockPlans__IsoA2__RevA__",
+                                    "label": "D04 - Location And Block Plans (Rev A)"
+                                }
                             ]
                         }
                     ]
