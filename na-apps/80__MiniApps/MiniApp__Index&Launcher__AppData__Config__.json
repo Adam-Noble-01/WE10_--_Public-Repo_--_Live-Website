@@ -1,0 +1,90 @@
+{
+    "MiniApp__Meta" : {
+        "MiniApp__BaseUrl"      : "https://www.noble-architecture.com/na-apps/80__MiniApps",
+        "MiniApp__LauncherPage" : "https://www.noble-architecture.com/na-apps/80__MiniApps/MiniApp__Index&Launcher__Main__.html",
+        "MiniApp__AppDataConfig": "https://www.noble-architecture.com/na-apps/80__MiniApps/MiniApp__Index&Launcher__AppData__Config__.json",
+        "MiniApp__Description"  : "This data is used to build the cards for the mini apps launcher page, it is a useful page that links to all of my small utilities and tools that I have created, keeping them all in one place for easy access on the web from my main website rather than having numerous links to different tools and utilities on the main website"
+    },
+
+    "MiniApp__PageConfig" : {
+        "MiniApp__PageTitle"          : "Mini Apps - Noble Architecture",
+        "MiniApp__PageHeading"        : "Mini Apps",
+        "MiniApp__PageSubHeading"     : "A collection of small utilities and tools by Noble Architecture",
+        "MiniApp__PageFooterText"     : "Noble Architecture - Mini Apps Launcher",
+        "MiniApp__CoreStylesheetUrl"  : "https://www.noble-architecture.com/assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css"
+    },
+
+    "MiniApp__Schema__Template" : {
+        "MiniApp__LaunchFile"  : "The NameOfTheIndexFilesHere.html",
+        "MiniApp__RelativePath": "The Relative Path To The Index File From the Base Url",
+        "MiniApp__Title"       : "The Title Of The Tool",
+        "MiniApp__Description" : "The Description here for the Mini App",
+        "MiniApp__Notes"       : "Useful Dev Notes here for the Mini App, these notes are not displayed on the page but are useful for development.",
+        "MiniApp__KeyWords"    : [
+                                    "Keyword01",
+                                    "Keyword02",
+                                    "Keyword"
+                                 ],
+        "MiniApp__Added"             : "DateAdded",
+        "MiniApp__LoadOrder"         : "Use 1, 2, 3, etc. for the order, This is used to sort the apps in the launcher page.",
+        "MiniApp__LaunchInNewTab"    : true,
+        "MiniApp__LaunchInNewWindow" : false
+    },
+
+    "MiniApp__AppsData" : {
+        "MiniApp__RoofPitchCalculator_01" : {
+            "MiniApp__LaunchFile"        : "MiniApp__Calculator__RoofPitch__Main__.html",
+            "MiniApp__RelativePath"      : "01_MiniApps__ArchiUtils",
+            "MiniApp__Title"             : "Roof Pitch Calculator",
+            "MiniApp__Description"       : "Calculate vertical and diagonal roof dimensions from a given bottom length and pitch angle. Draws an interactive triangle diagram with live updating measurements.",
+            "MiniApp__Notes"             : "Originally saved from a Pushbullet share. Single-file HTML app with inline CSS and JS, uses canvas for the triangle drawing.",
+            "MiniApp__KeyWords"          : [
+                                                "Roof Pitch",
+                                                "Calculator",
+                                                "Architecture",
+                                                "Triangle",
+                                                "Geometry"
+                                           ],
+            "MiniApp__Added"             : "17-Mar-2026",
+            "MiniApp__LoadOrder"         : 1,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
+        },
+        "MiniApp__ThermalCalcTool_02" : {
+            "MiniApp__LaunchFile"        : "NA23_01_01-WebApp_-_ThermalCalcTool_-_Index.html",
+            "MiniApp__RelativePath"      : "02_MiniApps__DrawingiUtils/MiniApp__Calculator__ThermalCalcTool__U-ValueCalc",
+            "MiniApp__Title"             : "U-Value Calculator",
+            "MiniApp__Description"       : "Calculate U-values for building components in compliance with ISO 6946:2017(E). Select materials from a comprehensive JSON database covering insulation, masonry, timber, and more.",
+            "MiniApp__Notes"             : "Multi-file app with separate CSS, JS modules and JSON thermal data. References the NA Core Utility Stylesheet. Version 1.4.2.",
+            "MiniApp__KeyWords"          : [
+                                                "U-Value",
+                                                "Thermal",
+                                                "Insulation",
+                                                "ISO 6946",
+                                                "Building Physics"
+                                           ],
+            "MiniApp__Added"             : "17-Mar-2026",
+            "MiniApp__LoadOrder"         : 2,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
+        },
+        "MiniApp__ScaleAccuratePaperGen_03" : {
+            "MiniApp__LaunchFile"        : "MiniApp__ScaleAccuratePaperGenerator__GeneratePdfToScale__IsoSeriesPaper__Main__.html",
+            "MiniApp__RelativePath"      : "02_MiniApps__DrawingiUtils",
+            "MiniApp__Title"             : "Scale Accurate Paper Generator",
+            "MiniApp__Description"       : "Generate scale-accurate paper templates for ISO A-series sheets (A0 through A5) with architectural scale factors from 1:1 to 1:1250. Export as PNG or PDF with optional dimension lines.",
+            "MiniApp__Notes"             : "Single-file HTML app with inline CSS and JS. Uses canvas rendering for paper preview and jsPDF for PDF export.",
+            "MiniApp__KeyWords"          : [
+                                                "Scale Drawing",
+                                                "Paper Template",
+                                                "ISO A-Series",
+                                                "PDF Export",
+                                                "Architecture"
+                                           ],
+            "MiniApp__Added"             : "17-Mar-2026",
+            "MiniApp__LoadOrder"         : 3,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
+        }
+    }
+}

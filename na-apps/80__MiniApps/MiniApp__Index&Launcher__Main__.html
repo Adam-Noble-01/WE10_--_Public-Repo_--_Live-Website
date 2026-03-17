@@ -1,0 +1,440 @@
+<!-- =============================================================================
+   NOBLE ARCHITECTURE - MINI APP LAUNCHER PAGE
+   =============================================================================
+
+   FILE    : MiniApp__Index&Launcher__Main__.html
+   AUTHOR  : Adam Noble - Noble Architecture
+   PURPOSE : Launcher page for all Noble Architecture mini apps and utilities
+   CREATED : 17-Mar-2026
+
+   DESCRIPTION:
+   - This page dynamically loads and displays cards for all mini apps.
+   - Cards are built from the JSON config file at runtime.
+   - Each card links to a mini app, opened in a new tab or window per config.
+
+   CRITICAL - JSON DRIVEN PAGE:
+   - This page is entirely driven by 'MiniApp__Index&Launcher__AppData__Config__.json'.
+   - ALL page content, app data, titles, descriptions, URLs and launch behaviour
+     are read from that JSON file at runtime.
+   - Do NOT hardcode app entries, page titles, or any display parameters in this
+     HTML file. If a new parameter is needed, add it to the JSON config first and
+     read it here via JavaScript.
+
+   =========================================================================== -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head & Metadata                                 -->
+<!-- ----------------------------------------------------------------- -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Mini Apps - Noble Architecture</title>
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap"
+              rel="stylesheet" />
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- REGION | Core Stylesheet (injected dynamically from JSON config)  -->
+        <!-- ----------------------------------------------------------------- -->
+            <link id="js__coreStylesheet" rel="stylesheet" href="" />
+        <!-- endregion -------------------------------------------------------- -->
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- REGION | Inline Application Styles                                -->
+        <!-- ----------------------------------------------------------------- -->
+            <style>
+
+                /* CSS Variables - Mini App Launcher Page */
+                :root {
+                    --LauncherCol_CardBackground         :  #ffffff;
+                    --LauncherCol_CardBorder              :  #e0e0e0;
+                    --LauncherCol_CardShadow              :  rgba(0, 0, 0, 0.08);
+                    --LauncherCol_CardShadowHover         :  rgba(0, 0, 0, 0.16);
+                    --LauncherCol_PageBackground          :  #f0f2f5;
+                    --LauncherCol_HeadingText             :  #172b3a;
+                    --LauncherCol_SubHeadingText          :  #555555;
+                    --LauncherCol_BodyText                :  #333333;
+                    --LauncherCol_KeywordBg               :  #eef2f7;
+                    --LauncherCol_KeywordText             :  #3a5a7c;
+                    --LauncherCol_ButtonBg                :  #555041;
+                    --LauncherCol_ButtonBgHover           :  #3d3a2f;
+                    --LauncherCol_ButtonText              :  #ffffff;
+                    --LauncherCol_FooterText              :  #888888;
+                    --LauncherCol_FooterBorder            :  #d0d0d0;
+
+                    --LauncherSize_CardRadius             :  8px;
+                    --LauncherSize_CardPadding            :  24px;
+                    --LauncherSize_GridGap                :  24px;
+                    --LauncherSize_MaxWidth               :  1100px;
+                }
+
+                /* Base Layout Styles */
+                html, body {
+                    margin                               :  0;
+                    padding                              :  0;
+                    height                               :  100%;
+                    box-sizing                           :  border-box;
+                    font-family                          :  'Open Sans', sans-serif;
+                    background-color                     :  var(--LauncherCol_PageBackground);
+                    color                                :  var(--LauncherCol_BodyText);
+                }
+
+                /* Page Container */
+                .PAGE__container {
+                    display                              :  flex;
+                    flex-direction                       :  column;
+                    min-height                           :  100vh;
+                }
+
+                /* Header Styles */
+                .HEAD__container {
+                    padding                              :  32px 24px 16px 24px;
+                    text-align                           :  center;
+                }
+                .HEAD__title {
+                    margin                               :  0 0 6px 0;
+                    font-size                            :  1.8rem;
+                    font-weight                          :  600;
+                    color                                :  var(--LauncherCol_HeadingText);
+                }
+                .HEAD__subtitle {
+                    margin                               :  0;
+                    font-size                            :  0.95rem;
+                    font-weight                          :  300;
+                    color                                :  var(--LauncherCol_SubHeadingText);
+                }
+
+                /* Main Content Area */
+                .MAIN__container {
+                    flex                                 :  1;
+                    width                                :  100%;
+                    max-width                            :  var(--LauncherSize_MaxWidth);
+                    margin                               :  0 auto;
+                    padding                              :  8px 24px 40px 24px;
+                    box-sizing                           :  border-box;
+                }
+
+                /* Card Grid */
+                .GRID__card-container {
+                    display                              :  grid;
+                    grid-template-columns                :  repeat(auto-fill, minmax(300px, 1fr));
+                    gap                                  :  var(--LauncherSize_GridGap);
+                }
+
+                /* Individual Card */
+                .CARD__item {
+                    display                              :  flex;
+                    flex-direction                       :  column;
+                    background-color                     :  var(--LauncherCol_CardBackground);
+                    border                               :  1px solid var(--LauncherCol_CardBorder);
+                    border-radius                        :  var(--LauncherSize_CardRadius);
+                    padding                              :  var(--LauncherSize_CardPadding);
+                    box-shadow                           :  0 2px 8px var(--LauncherCol_CardShadow);
+                    transition                           :  transform 0.2s ease, box-shadow 0.2s ease;
+                    cursor                               :  default;
+                }
+                .CARD__item:hover {
+                    transform                            :  translateY(-4px);
+                    box-shadow                           :  0 6px 20px var(--LauncherCol_CardShadowHover);
+                }
+
+                /* Card Title */
+                .CARD__title {
+                    margin                               :  0 0 10px 0;
+                    font-size                            :  1.15rem;
+                    font-weight                          :  600;
+                    color                                :  var(--LauncherCol_HeadingText);
+                }
+
+                /* Card Description */
+                .CARD__description {
+                    margin                               :  0 0 16px 0;
+                    font-size                            :  0.85rem;
+                    line-height                          :  1.55;
+                    color                                :  var(--LauncherCol_BodyText);
+                    flex                                 :  1;
+                }
+
+                /* Keyword Pills */
+                .CARD__keywords {
+                    display                              :  flex;
+                    flex-wrap                             :  wrap;
+                    gap                                  :  6px;
+                    margin-bottom                        :  18px;
+                }
+                .CARD__keyword-pill {
+                    display                              :  inline-block;
+                    padding                              :  3px 10px;
+                    font-size                            :  0.72rem;
+                    font-weight                          :  400;
+                    color                                :  var(--LauncherCol_KeywordText);
+                    background-color                     :  var(--LauncherCol_KeywordBg);
+                    border-radius                        :  12px;
+                }
+
+                /* Launch Button */
+                .CARD__launch-btn {
+                    display                              :  inline-block;
+                    padding                              :  10px 20px;
+                    font-size                            :  0.82rem;
+                    font-weight                          :  600;
+                    color                                :  var(--LauncherCol_ButtonText);
+                    background-color                     :  var(--LauncherCol_ButtonBg);
+                    border                               :  none;
+                    border-radius                        :  5px;
+                    cursor                               :  pointer;
+                    text-align                           :  center;
+                    transition                           :  background-color 0.2s ease;
+                    align-self                           :  flex-start;
+                }
+                .CARD__launch-btn:hover {
+                    background-color                     :  var(--LauncherCol_ButtonBgHover);
+                }
+
+                /* Footer Styles */
+                .FOOT__container {
+                    padding                              :  16px 24px;
+                    text-align                           :  center;
+                    font-size                            :  0.75rem;
+                    color                                :  var(--LauncherCol_FooterText);
+                    border-top                           :  1px solid var(--LauncherCol_FooterBorder);
+                }
+
+                /* Error State */
+                .ERROR__message {
+                    text-align                           :  center;
+                    padding                              :  40px 20px;
+                    color                                :  #BA5050;
+                    font-size                            :  0.9rem;
+                }
+
+                /* Responsive Adjustments */
+                @media (max-width: 680px) {
+                    .GRID__card-container {
+                        grid-template-columns            :  1fr;
+                    }
+                    .HEAD__container {
+                        padding                          :  24px 16px 12px 16px;
+                    }
+                    .HEAD__title {
+                        font-size                        :  1.4rem;
+                    }
+                    .MAIN__container {
+                        padding                          :  8px 16px 32px 16px;
+                    }
+                }
+
+            </style>
+        <!-- endregion -------------------------------------------------------- -->
+    </head>
+<!-- endregion -------------------------------------------------------- -->
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body & Page Layout                              -->
+<!-- ----------------------------------------------------------------- -->
+    <body>
+        <div class="PAGE__container">
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Page Header                                      -->
+            <!-- --------------------------------------------------------- -->
+                <header class="HEAD__container">
+                    <h1 id="js__pageHeading" class="HEAD__title"></h1>
+                    <p  id="js__pageSubHeading" class="HEAD__subtitle"></p>
+                </header>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Main Content - Card Grid                         -->
+            <!-- --------------------------------------------------------- -->
+                <main class="MAIN__container">
+                    <div id="js__cardGrid" class="GRID__card-container"></div>
+                </main>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Page Footer                                      -->
+            <!-- --------------------------------------------------------- -->
+                <footer class="FOOT__container">
+                    <span id="js__pageFooter"></span>
+                </footer>
+            <!-- endregion ------------------------------------------------ -->
+
+        </div>
+<!-- endregion ------------------------------------------------ -->
+
+
+        <!-- --------------------------------------------------------- -->
+        <!-- REGION | Application JavaScript                           -->
+        <!-- --------------------------------------------------------- -->
+            <script>
+            // -----------------------------------------------------------------------------
+            // REGION | Mini App Launcher - Front End Javascript
+            // -----------------------------------------------------------------------------
+
+                // MODULE VARIABLES | Configuration State
+                // ------------------------------------------------------------
+                const CONFIG_FILE_PATH  = "MiniApp__Index&Launcher__AppData__Config__.json";
+                // ------------------------------------------------------------
+
+
+                // HELPER FUNCTION | Build Full Launch URL From App Entry
+                // ------------------------------------------------------------
+                function buildLaunchUrl(baseUrl, appEntry) {
+                    const relativePath  = appEntry["MiniApp__RelativePath"];
+                    const launchFile    = appEntry["MiniApp__LaunchFile"];
+                    return baseUrl + "/" + relativePath + "/" + launchFile;
+                }
+                // ------------------------------------------------------------
+
+
+                // HELPER FUNCTION | Launch App Based On Config Flags
+                // ------------------------------------------------------------
+                function launchApp(baseUrl, appEntry) {
+                    const url           = buildLaunchUrl(baseUrl, appEntry);
+                    const openInWindow  = appEntry["MiniApp__LaunchInNewWindow"] === true;
+                    const openInTab     = appEntry["MiniApp__LaunchInNewTab"]    === true;
+
+                    if (openInWindow) {
+                        window.open(url, "_blank", "width=1100,height=800,menubar=no,toolbar=no,location=no,status=no");
+                    } else if (openInTab) {
+                        window.open(url, "_blank");
+                    } else {
+                        window.location.href = url;
+                    }
+                }
+                // ------------------------------------------------------------
+
+
+                // HELPER FUNCTION | Create Single Card DOM Element
+                // ------------------------------------------------------------
+                function createCardElement(baseUrl, appEntry) {
+                    const card          = document.createElement("div");
+                    card.className      = "CARD__item";
+
+                    const title         = document.createElement("h2");
+                    title.className     = "CARD__title";
+                    title.textContent   = appEntry["MiniApp__Title"];
+
+                    const desc          = document.createElement("p");
+                    desc.className      = "CARD__description";
+                    desc.textContent    = appEntry["MiniApp__Description"];
+
+                    const keywords      = document.createElement("div");
+                    keywords.className  = "CARD__keywords";
+                    const keywordList   = appEntry["MiniApp__KeyWords"] || [];
+                    keywordList.forEach(function (kw) {
+                        const pill          = document.createElement("span");
+                        pill.className      = "CARD__keyword-pill";
+                        pill.textContent    = kw;
+                        keywords.appendChild(pill);
+                    });
+
+                    const btn           = document.createElement("button");
+                    btn.className       = "CARD__launch-btn";
+                    btn.textContent     = "Launch App";
+                    btn.addEventListener("click", function () {
+                        launchApp(baseUrl, appEntry);
+                    });
+
+                    card.appendChild(title);
+                    card.appendChild(desc);
+                    card.appendChild(keywords);
+                    card.appendChild(btn);
+
+                    return card;
+                }
+                // ------------------------------------------------------------
+
+
+                // FUNCTION | Apply Page Configuration From JSON
+                // ------------------------------------------------------------
+                function applyPageConfig(pageConfig) {
+                    if (!pageConfig) return;
+
+                    document.title = pageConfig["MiniApp__PageTitle"] || "Mini Apps";
+
+                    const heading       = document.getElementById("js__pageHeading");
+                    const subHeading    = document.getElementById("js__pageSubHeading");
+                    const footer        = document.getElementById("js__pageFooter");
+                    const stylesheetEl  = document.getElementById("js__coreStylesheet");
+
+                    if (heading)     heading.textContent     = pageConfig["MiniApp__PageHeading"]    || "";
+                    if (subHeading)  subHeading.textContent   = pageConfig["MiniApp__PageSubHeading"] || "";
+                    if (footer)      footer.textContent       = pageConfig["MiniApp__PageFooterText"] || "";
+
+                    if (stylesheetEl && pageConfig["MiniApp__CoreStylesheetUrl"]) {
+                        stylesheetEl.href = pageConfig["MiniApp__CoreStylesheetUrl"];
+                    }
+                }
+                // ------------------------------------------------------------
+
+
+                // FUNCTION | Build App Cards From AppsData
+                // ------------------------------------------------------------
+                function buildAppCards(baseUrl, appsData) {
+                    const gridContainer = document.getElementById("js__cardGrid");
+                    if (!gridContainer || !appsData) return;
+
+                    const appEntries    = Object.values(appsData);
+                    appEntries.sort(function (a, b) {
+                        return (a["MiniApp__LoadOrder"] || 999) - (b["MiniApp__LoadOrder"] || 999);
+                    });
+
+                    appEntries.forEach(function (entry) {
+                        const card = createCardElement(baseUrl, entry);
+                        gridContainer.appendChild(card);
+                    });
+                }
+                // ------------------------------------------------------------
+
+
+                // FUNCTION | Fetch And Parse Config Data
+                // ------------------------------------------------------------
+                function initialiseAppLauncher() {
+                    fetch(CONFIG_FILE_PATH)
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error("Failed to load config: " + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(function (config) {
+                            const meta      = config["MiniApp__Meta"]       || {};
+                            const pageConf  = config["MiniApp__PageConfig"] || {};
+                            const appsData  = config["MiniApp__AppsData"]   || {};
+                            const baseUrl   = meta["MiniApp__BaseUrl"]      || ".";
+
+                            applyPageConfig(pageConf);
+                            buildAppCards(baseUrl, appsData);
+                        })
+                        .catch(function (err) {
+                            console.error("MiniApp Launcher Error:", err);
+                            var grid = document.getElementById("js__cardGrid");
+                            if (grid) {
+                                grid.innerHTML = '<div class="ERROR__message">Unable to load mini app data. Please check the console for details.</div>';
+                            }
+                        });
+                }
+                // ------------------------------------------------------------
+
+
+                // INITIALISE | Run On Page Load
+                // ------------------------------------------------------------
+                document.addEventListener("DOMContentLoaded", initialiseAppLauncher);
+                // ------------------------------------------------------------
+
+            // endregion -------------------------------------------------------------------
+            </script>
+        <!-- endregion -------------------------------------------------------- -->
+
+    </body>
+<!-- endregion -------------------------------------------------------- -->
+
+</html>

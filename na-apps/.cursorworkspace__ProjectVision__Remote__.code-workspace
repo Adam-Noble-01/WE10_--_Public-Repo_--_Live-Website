@@ -7,42 +7,52 @@
 	  {
         "name"        : "ProjectVision - Core App Code",
         "description" : "This is where the Noble Architecture project specific content and project config data files are stored.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/05__ProjectVision__CoreAppCode"
+        "path"        : "D:/11_RefLib__SudioRepository__RemoteSystem/NaWeb/na-apps/05__ProjectVision__CoreAppCode"
 	  },
 	  {
         "name"        : "na-project-portal",
         "description" : "This is where the Noble Architecture project specific content and project config data files are stored.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal"
+        "path"        : "D:/11_RefLib__SudioRepository__RemoteSystem/NaWeb/na-project-portal"
 	  },
-        {
+      {
         "name"        : "Assets - Common Web App Assets",
         "description" : "This is where the common web app assets are stored for the Noble Architecture projects (Admin System,PlanVision and TrueVision).",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/01__Assets__NaApps__CommonAssets"
+        "path"        : "D:/11_RefLib__SudioRepository__RemoteSystem/NaWeb/na-apps/01__Assets__NaApps__CommonAssets"
 	  },
       {
         "name"        : "Child App - Project Admin System & Document System",
         "description" : "This is the sister application code for the project documentation system for Admin such as quotation and contract documents.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode"
+        "path"        : "D:/11_RefLib__SudioRepository__RemoteSystem/NaWeb/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode"
 	  },
       {
         "name"        : "Child App - PlanVision",
         "description" : "This is the sister application code for the PlanVision project, which is used for 2D construction document presentation.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/20__PlanVision__CoreAppCode"
+        "path"        : "D:/11_RefLib__SudioRepository__RemoteSystem/NaWeb/na-apps/20__PlanVision__CoreAppCode"
 	  },
 	  {
         "name"        : "Child App - TrueVision3D",
         "description" : "This is the parent folder for the TrueVision3D project and houses the main App for each Noble Architecture project.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/30__TrueVision__CoreAppCode"
+        "path"        : "D:/11_RefLib__SudioRepository__RemoteSystem/NaWeb/na-apps/30__TrueVision__CoreAppCode"
 	  },
 	  {
         "name"        : "Mini Apps",
         "description" : "This is where the mini apps are stored for the Noble Architecture projects.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/80__MiniApps"
+        "path"        : "D:/11_RefLib__SudioRepository__RemoteSystem/NaWeb/na-apps/80__MiniApps"
 	  },
 	  {
         "name"        : "REFERENCE ONLY - ValeApps - DO NOT EDIT",
         "description" : "The is a reference only folder for the ValeApps project, do not edit this folder. it contains branches of the codebase for the ValeApps project, such as ValeVision & Whitecardopedia Project Apps ",
-        "path"        : "D:/80__External__LiveRepos/ValeCodebase/WebApps"
+        "path"        : "D:/10_CoreLib__ValeCodebase/Root_GeneralDeveloperTools"
+	  },
+	  {
+        "name"        : "SketchUp Plugins",
+        "description" : "SketchUp 2026 plugins folder.",
+        "path"        : "C:/Users/adamw/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins"
+	  },
+	  {
+        "name"        : "Web3D - Core Library",
+        "description" : "Core Web3D library reference.",
+        "path"        : "D:/06_CoreLib__Web3D"
 	  }
 	],
 	"settings": {
@@ -218,5 +228,3 @@
     "liveServer.settings.multiRootWorkspaceName": "TrueVision3D",
 	}
 }
-  
-  
