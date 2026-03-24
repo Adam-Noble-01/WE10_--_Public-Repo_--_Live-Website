@@ -10,9 +10,7 @@
         "project-phase-config": {
             "active-design-phase": "DesignPhase03",
             "available-phases": [
-                "DesignPhase01",
-                "DesignPhase02",
-                "DesignPhase03"
+                "DesignPhase01"
             ],
             "phase-last-updated": "24-Mar-2026"
         },
