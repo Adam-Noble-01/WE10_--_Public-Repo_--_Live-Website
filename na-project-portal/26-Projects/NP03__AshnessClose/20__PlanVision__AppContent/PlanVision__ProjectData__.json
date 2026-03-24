@@ -8,9 +8,11 @@
             "client-name": ""
         },
         "project-phase-config": {
-            "active-design-phase": "DesignPhase03",
+            "active-design-phase": "DesignPhase02",
             "available-phases": [
-                "DesignPhase01"
+                "DesignPhase01",
+                "DesignPhase02",
+                "DesignPhase03"
             ],
             "phase-last-updated": "24-Mar-2026"
         },
