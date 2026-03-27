@@ -8,8 +8,8 @@
             "projectDescription": "Concept Design services delivered for the initial Period style Georgian Home scheme for West Farm.",
             "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
             "clientDataStorage": "cloudflare-r2-encrypted",
-            "status": "unpaid",
-            "paidDate": null,
+            "status": "paid",
+            "paidDate": "27-Mar-2026",
             "lineItems": [
                 {
                     "description": "Mon 02-Mar-2026 - 5h 30m",
@@ -69,7 +69,7 @@
                 "grandTotal": 1200
             },
             "createdDate": "14/03/2026, 17:38:45",
-            "lastModified": "14/03/2026, 17:39:18"
+            "lastModified": "27/03/2026, 13:16:33"
         }
     ]
 }
