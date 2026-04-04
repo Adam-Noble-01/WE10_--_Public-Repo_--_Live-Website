@@ -241,7 +241,7 @@
             // ------------------------------------------------------------
             function calculateScale(state) {
                 const currentDrawingScale = state.currentDrawingScale || '1:50';
-                const currentDrawingSize = state.currentDrawingSize || 'A1';
+                const currentDrawingSize = na_NormalizeDrawingSizeKey(state.currentDrawingSize || 'A1');
                 const naturalImageWidth = state.naturalImageWidth || planImage.naturalWidth;
 
                 // Get paper size dimensions
@@ -273,6 +273,23 @@
                 console.log('[ViewControls] → metres/pixel:', scaleMetresPerPixel.toFixed(6));
 
                 return scaleMetresPerPixel;
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Normalize Drawing Size Key
+            // Accepts values like "ISO A2" and returns "A2" for PAPER_SIZES lookup
+            // ------------------------------------------------------------
+            function na_NormalizeDrawingSizeKey(sizeValue) {
+                if (!sizeValue) return 'A1';
+                const normalized = String(sizeValue).replace(/[^a-z0-9]/gi, '').toUpperCase();
+
+                const isoMatch = normalized.match(/^ISOA(\d{1,2})$/);
+                if (isoMatch) return 'A' + isoMatch[1];
+
+                const aSeriesMatch = normalized.match(/^A(\d{1,2})$/);
+                if (aSeriesMatch) return 'A' + aSeriesMatch[1];
+
+                return String(sizeValue).toUpperCase();
             }
             // ---------------------------------------------------------------
 

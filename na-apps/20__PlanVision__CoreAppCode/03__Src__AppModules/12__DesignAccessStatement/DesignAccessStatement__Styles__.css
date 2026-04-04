@@ -1,0 +1,137 @@
+/* =============================================================================
+ * NOBLE ARCHITECTURE - DESIGN ACCESS STATEMENT VIEWER STYLES
+ * =============================================================================
+ */
+
+/* #Region --------------------------------------------------------
+ * VIEWER LAYOUT | Root container and toolbar
+ * ------------------------------------------------------------- */
+
+    #design-access-statement-viewer {
+        position                         : absolute;
+        top                              : 50px;
+        left                             : 0;
+        right                            : 0;
+        bottom                           : 40px;
+        display                          : none;
+        flex-direction                   : column;
+        background                       : #f5f5f5;
+        z-index                          : 9997;
+    }
+
+    #design-access-statement-viewer.is-visible {
+        display                          : flex;
+    }
+
+    #design-access-statement-toolbar {
+        display                          : flex;
+        align-items                      : center;
+        justify-content                  : space-between;
+        gap                              : 12px;
+        padding                          : 10px 14px;
+        border-bottom                    : 1px solid var(--App_BorderLight);
+        background                       : var(--App_BgSecondary);
+    }
+
+    .na-das-toolbar-title {
+        font-size                        : 0.95rem;
+        font-weight                      : 600;
+        color                            : var(--App_BrandPrimary);
+    }
+
+    .na-das-toolbar-controls {
+        display                          : flex;
+        align-items                      : center;
+        gap                              : 8px;
+        flex-wrap                        : wrap;
+        justify-content                  : flex-end;
+    }
+
+    .na-das-control-btn {
+        border                           : 1px solid var(--App_BorderLight);
+        background                       : transparent;
+        color                            : var(--App_TextPrimary);
+        padding                          : 6px 10px;
+        font-size                        : 0.8rem;
+        cursor                           : pointer;
+        transition                       : all var(--App_TransitionFast);
+    }
+
+    .na-das-control-btn:hover {
+        background-color                 : var(--App_BgTertiary);
+    }
+
+    .na-das-control-label {
+        font-size                        : 0.78rem;
+        color                            : var(--App_TextSecondary);
+    }
+
+    .na-das-control-input {
+        width                            : 58px;
+        padding                          : 6px 6px;
+        border                           : 1px solid var(--App_BorderLight);
+        background                       : var(--App_BgSecondary);
+        color                            : var(--App_TextPrimary);
+        font-size                        : 0.8rem;
+    }
+
+    .na-das-control-page-count {
+        font-size                        : 0.78rem;
+        color                            : var(--App_TextSecondary);
+        min-width                        : 40px;
+    }
+
+/* endregion -------------------------------------------------- */
+
+/* #Region --------------------------------------------------------
+ * VIEWER CONTENT | Status line and rendered pages
+ * ------------------------------------------------------------- */
+
+    #design-access-statement-status {
+        padding                          : 8px 14px;
+        font-size                        : 0.78rem;
+        color                            : var(--App_TextSecondary);
+        border-bottom                    : 1px solid var(--App_BorderLight);
+        background                       : var(--App_BgSecondary);
+        min-height                       : 18px;
+    }
+
+    #design-access-statement-status.na-das-status--loading {
+        color                            : var(--App_TextSecondary);
+        font-style                       : italic;
+    }
+
+    #design-access-statement-status.na-das-status--error {
+        color                            : #b33a3a;
+        font-weight                      : 600;
+    }
+
+    #design-access-statement-status.na-das-status--ready {
+        color                            : #3c7a47;
+    }
+
+    #design-access-statement-canvas-host {
+        flex                             : 1;
+        overflow-y                       : auto;
+        overflow-x                       : hidden;
+        padding                          : 20px;
+        display                          : flex;
+        flex-direction                   : column;
+        gap                              : 16px;
+        align-items                      : center;
+        background                       : #f5f5f5;
+    }
+
+    .na-das-page-wrapper {
+        background                       : var(--App_BgSecondary);
+        border                           : 1px solid var(--App_BorderLight);
+        box-shadow                       : 0 2px 10px rgba(0, 0, 0, 0.12);
+        padding                          : 8px;
+    }
+
+    .na-das-page-canvas {
+        display                          : block;
+        background                       : #ffffff;
+    }
+
+/* endregion -------------------------------------------------- */

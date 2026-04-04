@@ -29,6 +29,10 @@
 // - Uses folder groups from DrawingsDataManager for grouped button display
 // - Passes grouped data to DrawingButtons.CreateGroupedDocumentButtons
 //
+// 04-Apr-2026 - Version 2.1.0
+// - Added phase-aware gating for Details & Specifications category visibility
+// - Shows specifications category only for DesignPhase03 with active specification documents
+//
 // =============================================================================
 
 // #Region ------------------------------------------------
@@ -42,7 +46,7 @@
         // STATE | Menu State Variables
         // --------------------------------------------------------
 
-            let currentMenuView                = 'main';                      // <-- 'main', 'drawings', 'specifications'
+            let currentMenuView                = 'main';                      // <-- 'main', 'drawings', 'specifications', 'design-access-statement'
             let currentDocumentTypeFilter      = null;                        // <-- 'Drawing' or 'Specification'
             let activeCategoryButton           = null;                        // <-- Currently active category button
 
@@ -79,6 +83,7 @@
             // This function is retained for init-flow compatibility
             // ------------------------------------------------------------
             const Na__Menu__SetDocumentsData = function (documents, designPhase) {
+                Na__Menu__UpdateSpecificationsCategoryVisibility(designPhase);
                 console.log('[MenuSystem] Documents data reference updated');
             };
             // ---------------------------------------------------------------
@@ -108,6 +113,7 @@
                 // Hide Drawing Register and How To Use when returning to main menu
                 hideDrawingRegister();
                 hideHowToUse();
+                hideDesignAccessStatementViewer();
 
                 console.log('[MenuSystem] Showing main menu...');
 
@@ -152,6 +158,7 @@
                 // Hide Drawing Register and How To Use if visible
                 hideDrawingRegister();
                 hideHowToUse();
+                hideDesignAccessStatementViewer();
 
                 // Hide main menu section
                 if (mainMenuSection) {
@@ -221,6 +228,7 @@
                 // Hide Drawing Register and How To Use if visible
                 hideDrawingRegister();
                 hideHowToUse();
+                hideDesignAccessStatementViewer();
 
                 // Hide main menu section
                 if (mainMenuSection) {
@@ -275,6 +283,65 @@
 
             // ---------------------------------------------------------------
 
+            // FUNCTION | Show Design Access Statement Viewer
+            // Displays dedicated PDF renderer for Sxx statement documents.
+            // ------------------------------------------------------------
+            const Na__Menu__ShowDesignAccessStatement = function () {
+                currentMenuView             = 'design-access-statement';
+                currentDocumentTypeFilter   = null;
+
+                // Set active category button
+                setActiveCategoryButton('showDesignAccessStatementBtn');
+
+                // Hide Drawing Register and How To Use if visible
+                hideDrawingRegister();
+                hideHowToUse();
+
+                // Show main menu section and hide sub-menu section
+                if (mainMenuSection) {
+                    mainMenuSection.classList.remove('hidden');
+                }
+
+                if (subMenuSection) {
+                    subMenuSection.classList.remove('visible');
+                }
+
+                if (documentSelectionArea) {
+                    documentSelectionArea.innerHTML = '';
+                }
+
+                // Hide markup toolset if it was open
+                var markupToolset = document.getElementById('markup-toolset');
+                if (markupToolset) {
+                    markupToolset.style.display = 'none';
+                }
+
+                var dataManager = window.NaPlanVision && window.NaPlanVision.DrawingsDataManager;
+                var statementDoc = dataManager
+                    ? dataManager.Na__Data__GetPrimaryDesignAccessStatementDocument()
+                    : null;
+
+                var statementViewer = window.NaPlanVision
+                    && window.NaPlanVision.DesignAccessStatement
+                    && window.NaPlanVision.DesignAccessStatement.Viewer;
+
+                if (!statementViewer) {
+                    console.warn('[MenuSystem] Design Access Statement viewer module unavailable');
+                    return;
+                }
+
+                if (statementDoc) {
+                    statementViewer.Na__Das__ShowDocument(statementDoc);
+                    console.log('[MenuSystem] Design Access Statement opened:', statementDoc['file-name']);
+                } else {
+                    statementViewer.Na__Das__ShowEmptyState(
+                        'No Design and Access Statement is available in the active design phase.'
+                    );
+                    console.log('[MenuSystem] No Design Access Statement found for active phase');
+                }
+            };
+            // ---------------------------------------------------------------
+
             // FUNCTION | Show Drawing Register
             // Shows the Drawing Register panel in the canvas area
             // ------------------------------------------------------------
@@ -284,6 +351,7 @@
 
                 // Hide How To Use if visible
                 hideHowToUse();
+                hideDesignAccessStatementViewer();
 
                 var landingPage = window.NaPlanVision && window.NaPlanVision.LandingPage;
                 if (landingPage) {
@@ -302,6 +370,7 @@
 
                 // Hide Drawing Register if visible
                 hideDrawingRegister();
+                hideDesignAccessStatementViewer();
 
                 var howToUse = window.NaPlanVision && window.NaPlanVision.HowToUse;
                 if (howToUse) {
@@ -339,6 +408,68 @@
             }
             // ---------------------------------------------------------------
 
+            // FUNCTION | Hide Design Access Statement Viewer Helper
+            // Ensures PDF statement renderer is hidden outside statement mode.
+            // ------------------------------------------------------------
+            function hideDesignAccessStatementViewer() {
+                var statementViewer = window.NaPlanVision
+                    && window.NaPlanVision.DesignAccessStatement
+                    && window.NaPlanVision.DesignAccessStatement.Viewer;
+                if (statementViewer && statementViewer.Na__Das__HideViewer) {
+                    statementViewer.Na__Das__HideViewer();
+                }
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Check if Active Phase has Specification Documents
+            // ------------------------------------------------------------
+            function Na__Menu__HasSpecificationDocumentsInPhase(designPhase) {
+                var dataManager = window.NaPlanVision && window.NaPlanVision.DrawingsDataManager;
+                if (!dataManager || !dataManager.Na__Data__GetFlatDrawingsList) {
+                    return false;
+                }
+
+                var specificationDocs = dataManager.Na__Data__GetFlatDrawingsList('Specification', designPhase) || [];
+                return specificationDocs.length > 0;
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Determine Specifications Button Visibility State
+            // ------------------------------------------------------------
+            function Na__Menu__ShouldShowSpecificationsCategory(designPhase) {
+                var dataManager = window.NaPlanVision && window.NaPlanVision.DrawingsDataManager;
+                var resolvedDesignPhase = designPhase;
+
+                if (!resolvedDesignPhase && dataManager && dataManager.Na__Data__GetCurrentDesignPhase) {
+                    resolvedDesignPhase = dataManager.Na__Data__GetCurrentDesignPhase();
+                }
+
+                if (resolvedDesignPhase !== 'DesignPhase03') {
+                    return false;
+                }
+
+                return Na__Menu__HasSpecificationDocumentsInPhase(resolvedDesignPhase);
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Update Specifications Category Button Visibility
+            // ------------------------------------------------------------
+            function Na__Menu__UpdateSpecificationsCategoryVisibility(designPhase) {
+                var specificationsBtn = document.getElementById('showSpecificationsMenuBtn');
+                if (!specificationsBtn) {
+                    return;
+                }
+
+                var shouldShowSpecifications = Na__Menu__ShouldShowSpecificationsCategory(designPhase);
+                specificationsBtn.style.display = shouldShowSpecifications ? '' : 'none';
+                specificationsBtn.setAttribute('aria-hidden', shouldShowSpecifications ? 'false' : 'true');
+
+                if (!shouldShowSpecifications && currentMenuView === 'specifications') {
+                    Na__Menu__ShowMainMenu();
+                }
+            }
+            // ---------------------------------------------------------------
+
             // FUNCTION | Initialize Menu Navigation Event Listeners
             // Attaches click handlers to category buttons
             // ------------------------------------------------------------
@@ -359,6 +490,12 @@
                 var specificationsBtn = document.getElementById('showSpecificationsMenuBtn');
                 if (specificationsBtn) {
                     specificationsBtn.addEventListener('click', Na__Menu__ShowSpecificationsMenu);
+                }
+
+                // Design & Access Statement category button
+                var designAccessStatementBtn = document.getElementById('showDesignAccessStatementBtn');
+                if (designAccessStatementBtn) {
+                    designAccessStatementBtn.addEventListener('click', Na__Menu__ShowDesignAccessStatement);
                 }
 
                 // How To Use category button
@@ -455,6 +592,7 @@
                 Na__Menu__ShowMainMenu                     : Na__Menu__ShowMainMenu,
                 Na__Menu__ShowDrawingsMenu                 : Na__Menu__ShowDrawingsMenu,
                 Na__Menu__ShowSpecificationsMenu           : Na__Menu__ShowSpecificationsMenu,
+                Na__Menu__ShowDesignAccessStatement        : Na__Menu__ShowDesignAccessStatement,
                 Na__Menu__GetCurrentMenuView               : Na__Menu__GetCurrentMenuView,
                 Na__Menu__GetCurrentDocumentTypeFilter     : Na__Menu__GetCurrentDocumentTypeFilter
             };

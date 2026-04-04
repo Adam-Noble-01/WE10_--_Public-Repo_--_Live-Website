@@ -201,7 +201,7 @@
                         var parsed   = parseDisplayName(drawing['document-name'] || '');
                         var docType  = drawing['document-type'] || '';
                         var scale    = drawing['document-scale'] || '';
-                        var size     = drawing['document-size'] || '';
+                        var size     = na_FormatDocumentSizeForDisplay(drawing['document-size'] || '');
 
                         var rowClass = (d % 2 === 0) ? 'landing-row-even' : 'landing-row-odd';
 
@@ -272,6 +272,23 @@
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;');
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Format Document Size for Register Display
+            // Ensures A-series values are shown as ISO A#
+            // ------------------------------------------------------------
+            function na_FormatDocumentSizeForDisplay(sizeValue) {
+                if (!sizeValue) return '';
+                var normalized = String(sizeValue).replace(/[^a-z0-9]/gi, '').toUpperCase();
+
+                var isoMatch = normalized.match(/^ISOA(\d{1,2})$/);
+                if (isoMatch) return 'ISO A' + isoMatch[1];
+
+                var aSeriesMatch = normalized.match(/^A(\d{1,2})$/);
+                if (aSeriesMatch) return 'ISO A' + aSeriesMatch[1];
+
+                return String(sizeValue);
             }
             // ---------------------------------------------------------------
 

@@ -63,6 +63,9 @@
 
     <!-- Load The Data Loader Modules -->
     <script src="03__Src__AppModules/04__AssetAndDataLoaders/Loader__DrawingsDataManager__.js"></script>
+
+    <!-- Version-Locked PDF Rendering Dependency -->
+    <script src="01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js"></script>
     
     <!-- Load The Document System Modules -->
     <script src="03__Src__AppModules/20__SystemModules__DocumentSystem/DocumentSystem__GeneratePdf__.js"></script>
@@ -90,6 +93,7 @@
     <!-- Load The User Interface Modules -->
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__MenuSystem__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__DrawingButtons__.js"></script>
+    <script src="03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Viewer__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__HistoricArchive__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialSystem__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialAnimations__.js"></script>
@@ -128,6 +132,7 @@
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MeasuringTools__.css">
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MeasurementToolsPanel__.css">
     <link rel="stylesheet" href="./03__Src__AppModules/09__AppLandingPage/LandingPage__Styles__.css">
+    <link rel="stylesheet" href="./03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Styles__.css">
 
     <!-- endregion ---------------------------------------- -->
 
@@ -150,7 +155,7 @@
             <div id="header">
                 <button id="toggleToolbarBtn">☰</button>
                 <span id="app-title" style="padding-left: 10px;">PlanVision
-                    <span style="font-size: 12px; color: #656565;">- Version 2.1.1 Beta</span>
+                    <span style="font-size: 12px; color: #656565;">- Version 2.2.0</span>
                 </span>
                 <img data-asset-src="NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
                     alt="Noble Architecture Logo">
@@ -229,6 +234,9 @@
                         <button class="category-button specifications-category" id="showSpecificationsMenuBtn">
                             🔧 Details & Specifications
                         </button>
+                        <button class="category-button specifications-category" id="showDesignAccessStatementBtn">
+                            📄 Design and Access Statement
+                        </button>
                         <button class="category-button help-category" id="showHowToUseBtn">
                             ❓ How to Use
                         </button>
@@ -298,6 +306,29 @@
 
             <!-- FINISH MEASUREMENT BUTTON (floating) - Injected by MeasurmentToolsSystem__Main__.js -->
             <div id="measurement-finish-host"></div>
+
+            <!-- endregion ---------------------------------------- -->
+
+            <!-- #Region ------------------------------------------ -->
+            <!-- DESIGN ACCESS STATEMENT VIEWER | Dedicated PDF Canvas Renderer       -->
+            <!-- ----- -->
+
+            <div id="design-access-statement-viewer">
+                <div id="design-access-statement-toolbar">
+                    <div class="na-das-toolbar-title">Design and Access Statement</div>
+                    <div class="na-das-toolbar-controls">
+                        <button type="button" id="naDasZoomOutBtn" class="na-das-control-btn">-</button>
+                        <button type="button" id="naDasFitWidthBtn" class="na-das-control-btn">Fit Width</button>
+                        <button type="button" id="naDasZoomInBtn" class="na-das-control-btn">+</button>
+                        <label for="naDasPageJumpInput" class="na-das-control-label">Page</label>
+                        <input id="naDasPageJumpInput" class="na-das-control-input" type="number" min="1" value="1">
+                        <span id="naDasPageCountText" class="na-das-control-page-count">/ 0</span>
+                    </div>
+                </div>
+
+                <div id="design-access-statement-status"></div>
+                <div id="design-access-statement-canvas-host"></div>
+            </div>
 
             <!-- endregion ---------------------------------------- -->
 
@@ -754,6 +785,13 @@
                         if (window.NaPlanVision.UserInterface && window.NaPlanVision.UserInterface.DrawingButtons) {
                             window.NaPlanVision.UserInterface.DrawingButtons.Na__Buttons__Initialize({
                                 loadDrawing: (drawing) => window.NaPlanVision.DrawingsCanvas.DrawingLoader.Na__Canvas__LoadDrawing(drawing)
+                            });
+                        }
+
+                        // Initialize Design & Access Statement Viewer
+                        if (window.NaPlanVision?.DesignAccessStatement?.Viewer) {
+                            window.NaPlanVision.DesignAccessStatement.Viewer.Na__Das__Initialize({
+                                workerPath: '01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js'
                             });
                         }
 

@@ -93,6 +93,66 @@
             }
             // ---------------------------------------------------------------
 
+            // FUNCTION | Format Filename Name Segment for Display
+            // Applies targeted statement-title normalization before generic parsing.
+            // ------------------------------------------------------------
+            function Na__Data__FormatFilenameNameSegmentForDisplay(segment) {
+                if (!segment) return '';
+
+                const normalizedSegment = String(segment).replace(/[^a-z0-9]/gi, '').toLowerCase();
+                if (normalizedSegment === 'designaccessstatement') {
+                    return 'Design & Access Statement';
+                }
+
+                return insertSpacesIntoPascalCase(segment);
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Check if Filename Segment is Paper Format Metadata
+            // Detects size tokens such as "IsoA2", "ISOA2", or "A2"
+            // ------------------------------------------------------------
+            function na_IsPaperFormatSegment(segment) {
+                if (!segment) return false;
+                const normalized = String(segment).replace(/[^a-z0-9]/gi, '').toUpperCase();
+                return /^ISOA\d{1,2}$/.test(normalized) || /^A\d{1,2}$/.test(normalized);
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Extract Document Code Token from Filename
+            // Example: "NP03_T02_S01__Design&AccessStatement__RevB__" -> "S01"
+            // ------------------------------------------------------------
+            function Na__Data__ExtractDocumentCodeFromFilename(filename) {
+                if (!filename) return '';
+
+                const cleaned = String(filename).replace(/_+$/, '');
+                let codePrefix = '';
+
+                if (cleaned.indexOf('_-_') !== -1) {
+                    codePrefix = cleaned.split('_-_')[0] || '';
+                } else {
+                    codePrefix = cleaned.split('__')[0] || '';
+                }
+
+                const prefixParts = codePrefix.split('_');
+                for (let i = prefixParts.length - 1; i >= 0; i--) {
+                    if (/^[A-Z]+[0-9]+$/i.test(prefixParts[i])) {
+                        return prefixParts[i].toUpperCase();
+                    }
+                }
+
+                return '';
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Check if Filename Represents Design Access Statement
+            // Detects document codes in Sxx format (S01, S02, ...).
+            // ------------------------------------------------------------
+            function Na__Data__IsDesignAccessStatementFilename(filename) {
+                const documentCode = Na__Data__ExtractDocumentCodeFromFilename(filename);
+                return /^S\d{2,}$/i.test(documentCode);
+            }
+            // ---------------------------------------------------------------
+
             // FUNCTION | Parse Filename to Extract Display Name
             // Input:  "JH03_T03_D21__TechnicalPlan__RevF__"
             // Output: "D21 - Technical Plan (Rev F)"
@@ -128,14 +188,7 @@
                 // Extract drawing code from the code prefix
                 // e.g. "JH03_T03_D21" -> code is "D21"
                 // e.g. "JH03_T03_CM10" -> code is "CM10"
-                let drawingCode = '';
-                const prefixParts = codePrefix.split('_');
-                for (let i = prefixParts.length - 1; i >= 0; i--) {
-                    if (/^[A-Z]+[0-9]+$/i.test(prefixParts[i]) && prefixParts[i].length >= 2) {
-                        drawingCode = prefixParts[i].toUpperCase();
-                        break;
-                    }
-                }
+                let drawingCode = Na__Data__ExtractDocumentCodeFromFilename(codePrefix);
 
                 // Identify revision segment (starts with "Rev")
                 let revision = '';
@@ -146,8 +199,10 @@
                     if (/^Rev/i.test(seg)) {
                         // This is a revision segment
                         revision = seg;
+                    } else if (na_IsPaperFormatSegment(seg)) {
+                        // Skip paper-size metadata in filename (size is already shown separately)
                     } else {
-                        nameParts.push(insertSpacesIntoPascalCase(seg));
+                        nameParts.push(Na__Data__FormatFilenameNameSegmentForDisplay(seg));
                     }
                 }
 
@@ -241,6 +296,7 @@
                         'file-name'       : baseFilename,
                         'document-name'   : documentName,
                         'document-type'   : resolvedDefaults['document-type'],
+                        'is-design-access-statement' : Na__Data__IsDesignAccessStatementFilename(baseFilename),
                         'document-scale'  : resolvedDefaults['document-scale'],
                         'document-size'   : resolvedDefaults['document-size'],
                         'folder-label'    : label,
@@ -472,7 +528,22 @@
                 var filtered = [];
                 for (var i = 0; i < groups.length; i++) {
                     if (groups[i]['document-type'] === documentType) {
-                        filtered.push(groups[i]);
+                        var sourceDrawings = groups[i]['drawings'] || [];
+                        var filteredDrawings = [];
+
+                        for (var d = 0; d < sourceDrawings.length; d++) {
+                            var isStatementDoc = sourceDrawings[d]['is-design-access-statement'] === true
+                                || Na__Data__IsDesignAccessStatementFilename(sourceDrawings[d]['file-name']);
+                            if (!isStatementDoc) {
+                                filteredDrawings.push(sourceDrawings[d]);
+                            }
+                        }
+
+                        if (filteredDrawings.length > 0) {
+                            var nextGroup = Object.assign({}, groups[i]);
+                            nextGroup['drawings'] = filteredDrawings;
+                            filtered.push(nextGroup);
+                        }
                     }
                 }
                 return filtered;
@@ -515,11 +586,42 @@
 
                 var filtered = [];
                 for (var i = 0; i < drawings.length; i++) {
-                    if (drawings[i]['document-type'] === documentType) {
+                    var isStatementDoc = drawings[i]['is-design-access-statement'] === true
+                        || Na__Data__IsDesignAccessStatementFilename(drawings[i]['file-name']);
+                    if (drawings[i]['document-type'] === documentType && !isStatementDoc) {
                         filtered.push(drawings[i]);
                     }
                 }
                 return filtered;
+            };
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Get Design Access Statement Documents
+            // Returns documents detected via Sxx document code pattern.
+            // ------------------------------------------------------------
+            const Na__Data__GetDesignAccessStatementDocuments = function (designPhase) {
+                const phase    = designPhase || currentDesignPhase;
+                const drawings = flatDrawingsByPhase[phase] || [];
+                const filtered = [];
+
+                for (let i = 0; i < drawings.length; i++) {
+                    const drawing = drawings[i];
+                    if (drawing['is-design-access-statement'] === true
+                        || Na__Data__IsDesignAccessStatementFilename(drawing['file-name'])) {
+                        filtered.push(drawing);
+                    }
+                }
+
+                return filtered;
+            };
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Get Primary Design Access Statement Document
+            // Returns the first statement document in current phase order.
+            // ------------------------------------------------------------
+            const Na__Data__GetPrimaryDesignAccessStatementDocument = function (designPhase) {
+                const statements = Na__Data__GetDesignAccessStatementDocuments(designPhase);
+                return statements.length > 0 ? statements[0] : null;
             };
             // ---------------------------------------------------------------
 
@@ -564,6 +666,8 @@
                 Na__Data__GetFolderGroups           : Na__Data__GetFolderGroups,
                 Na__Data__GetHistoricFolderGroups   : Na__Data__GetHistoricFolderGroups,
                 Na__Data__GetFlatDrawingsList       : Na__Data__GetFlatDrawingsList,
+                Na__Data__GetDesignAccessStatementDocuments : Na__Data__GetDesignAccessStatementDocuments,
+                Na__Data__GetPrimaryDesignAccessStatementDocument : Na__Data__GetPrimaryDesignAccessStatementDocument,
                 Na__Data__GetDataLoadSource         : Na__Data__GetDataLoadSource
             };
 

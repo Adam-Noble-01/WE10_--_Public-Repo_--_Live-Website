@@ -3,6 +3,91 @@
 
 # =============================================================================
 
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.2.0 - 04-Apr-2026
+### Added - DESIGN & ACCESS STATEMENT PDF VIEWER SYSTEM
+
+**New dedicated Design & Access Statement pipeline (Sxx documents):**
+- Added `Sxx` document detection in `Loader__DrawingsDataManager__.js` for files such as `S01`.
+- Added statement-specific accessors for fetching the primary Design & Access Statement document.
+- Statement documents now bypass the drawing PNG pipeline and open in a dedicated PDF viewer flow.
+
+**New in-app PDF renderer (no iframe/embed):**
+- Added a dedicated module and styles for a native-feeling in-app viewer:
+  - `03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Viewer__.js`
+  - `03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Styles__.css`
+- Integrated continuous page rendering to canvas using `pdf.js`.
+- Added viewer controls for zoom in/out, fit width, page jump, load state, and error handling.
+
+**Main menu integration:**
+- Added new main category button: `Design and Access Statement`.
+- Added menu routing to open the statement viewer directly from main menu.
+- Preserved existing Drawings and Specifications flows and navigation behavior.
+
+**Version-locked dependency management:**
+- Added pinned dependency assets under:
+  - `01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/`
+- Added dependency lock metadata file:
+  - `01__AppDependencies__VersionLocked/DependencyLock__PlanVisionPdfRenderer__.json`
+- Runtime now uses local version-locked PDF renderer + worker files (no CDN dependency).
+
+**Module path alignment update:**
+- Moved Design & Access Statement module prefix from `11__...` to `12__...` to avoid conflict with User Interaction series.
+- Updated all script/style wiring references accordingly.
+
+**UI cohesion refinements:**
+- Updated DAS viewer styling to align with existing PlanVision palette and control language.
+- Replaced out-of-palette bronze/brown tones with core app variables and neutral theme values.
+
+
+# -----------------------------------------------------------------------------
+
+## PlanVision - Version 2.1.5 - 04-Apr-2026
+
+### Fixed - Drawing Register Name Pollution and ISO Size Presentation
+
+Document filenames in `PlanVision__ProjectData__.json` include paper format metadata segments such as `IsoA2`. The filename parser was treating this segment as part of the human-readable document title, which caused register rows and drawing button labels to show values like `Ground Floor Plans - Iso A2`. At the same time, the register size column displayed raw `A2` rather than the preferred `ISO A2` presentation.
+
+#### Root Cause
+- `Na__Data__ParseFilename()` in `Loader__DrawingsDataManager__.js` parsed `IsoA2` as a normal name segment instead of non-title metadata
+- The parsed `document-name` is reused by both:
+  - Drawing/specification selection buttons
+  - Drawing Register table rows
+- Register `Size` column used raw `document-size` values without a display formatter
+
+#### Drawings Data Manager (`Loader__DrawingsDataManager__.js`)
+- Added `na_IsPaperFormatSegment()` helper to detect paper-size metadata segments (`IsoA2`, `ISOA2`, `A2`, etc.)
+- Updated filename parsing loop to skip detected paper-format segments when building `document-name`
+- Preserved existing drawing code extraction and revision extraction behavior
+
+#### Landing Page Register (`LandingPage__Main__.js`)
+- Added `na_FormatDocumentSizeForDisplay()` helper to normalize size display to `ISO A#`
+- Updated drawing register row rendering to pass `document-size` through the formatter before output
+- Register now displays `ISO A2` (and equivalent A-series values) in the `Size` column
+
+#### Canvas View Controls (`DrawingsCanvas__ViewControls__.js`)
+- Added defensive size normalization helper `na_NormalizeDrawingSizeKey()` in scale calculation path
+- Supports size strings like `ISO A2` by normalizing to `A2` for `PAPER_SIZES` lookup
+- Ensures measurement scale calculations remain stable if ISO-prefixed size strings enter runtime state
+
+#### Files Modified
+- `03__Src__AppModules/04__AssetAndDataLoaders/Loader__DrawingsDataManager__.js`
+- `03__Src__AppModules/09__AppLandingPage/LandingPage__Main__.js`
+- `03__Src__AppModules/05__DrawingsCanvas/DrawingsCanvas__ViewControls__.js`
+
+### Fixed - Design & Access Statement Name Spacing in Filename Parser
+
+The drawing register parser rendered the statement token `Design&AccessStatement` without spacing around the ampersand. This update applies a targeted display-name mapping for that exact token so statement rows and any parser consumers display the expected text.
+
+#### Drawings Data Manager (`Loader__DrawingsDataManager__.js`)
+- Added `Na__Data__FormatFilenameNameSegmentForDisplay()` helper in the filename parser path
+- Added exact token normalization: `Design&AccessStatement` (normalized form) -> `Design & Access Statement`
+- Preserved generic segment parsing behavior for all other names (no global ampersand normalization)
+- Preserved existing revision extraction and paper-size metadata skipping behavior
+
+#### Files Modified
+- `03__Src__AppModules/04__AssetAndDataLoaders/Loader__DrawingsDataManager__.js`
 
 # -----------------------------------------------------------------------------
 
@@ -1394,6 +1479,7 @@ Drawing Markers changed from circles (Dots At Node Points) changed to "+" Shaped
 - Button is positioned at the top of the drawing toolset (below selection tools)
 
 ---
+
 
 ### v1.9.0 (??-???-2025) - PLANNED FUTURE UPDATES
 

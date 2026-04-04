@@ -1,0 +1,19 @@
+{
+    "dependency-lock-metadata": {
+        "dependency-name": "pdfjs-dist",
+        "dependency-version": "3.11.174",
+        "dependency-source": "https://www.npmjs.com/package/pdfjs-dist/v/3.11.174",
+        "dependency-license": "Apache-2.0",
+        "locked-date": "2026-04-04",
+        "locked-by": "Cursor Agent"
+    },
+    "runtime-files": [
+        "01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js",
+        "01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js"
+    ],
+    "integration-notes": {
+        "runtime-loading-policy": "Local files only. No CDN runtime fallback.",
+        "worker-src": "01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js",
+        "consumer-module": "03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Viewer__.js"
+    }
+}
