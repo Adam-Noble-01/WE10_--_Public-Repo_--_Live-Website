@@ -27,6 +27,13 @@ build/
 out/
 public/build/
 
+# PlanVision version-locked PDF.js runtime (must be deployed to live)
+!na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/
+!na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/
+!na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/
+!na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js
+!na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js
+
 # Internal tools and private content - uncomment to prevent them from being included in GitHub
 # SN20_-_Static-Web-Applications/
 # private/
