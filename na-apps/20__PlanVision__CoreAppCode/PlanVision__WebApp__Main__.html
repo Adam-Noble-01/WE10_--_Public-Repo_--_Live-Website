@@ -65,7 +65,7 @@
     <script src="03__Src__AppModules/04__AssetAndDataLoaders/Loader__DrawingsDataManager__.js"></script>
 
     <!-- Version-Locked PDF Rendering Dependency -->
-    <script src="01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js"></script>
+    <script src="01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js?v=20260404"></script>
     
     <!-- Load The Document System Modules -->
     <script src="03__Src__AppModules/20__SystemModules__DocumentSystem/DocumentSystem__GeneratePdf__.js"></script>
@@ -93,6 +93,7 @@
     <!-- Load The User Interface Modules -->
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__MenuSystem__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__DrawingButtons__.js"></script>
+    <script src="03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Loading__.js"></script>
     <script src="03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Viewer__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__HistoricArchive__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialSystem__.js"></script>
@@ -315,7 +316,6 @@
 
             <div id="design-access-statement-viewer">
                 <div id="design-access-statement-toolbar">
-                    <div class="na-das-toolbar-title">Design and Access Statement</div>
                     <div class="na-das-toolbar-controls">
                         <button type="button" id="naDasZoomOutBtn" class="na-das-control-btn">-</button>
                         <button type="button" id="naDasFitWidthBtn" class="na-das-control-btn">Fit Width</button>
@@ -791,7 +791,7 @@
                         // Initialize Design & Access Statement Viewer
                         if (window.NaPlanVision?.DesignAccessStatement?.Viewer) {
                             window.NaPlanVision.DesignAccessStatement.Viewer.Na__Das__Initialize({
-                                workerPath: '01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js'
+                                workerPath: '01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js?v=20260404'
                             });
                         }
 

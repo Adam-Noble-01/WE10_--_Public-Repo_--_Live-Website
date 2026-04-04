@@ -48,6 +48,7 @@
             let currentScale                     = DEFAULT_SCALE;
             let currentDocument                  = null;
             let cachedWorkerPath                 = '';
+            let loadingController                = null;
 
             let domDisplayCache                  = {};
 
@@ -109,6 +110,11 @@
                 Na__Das__RestoreElementDisplayById('measurement-finish-host');
             }
 
+            function Na__Das__SetCanvasVisibility(isVisible) {
+                if (!canvasHostEl) return;
+                canvasHostEl.style.visibility = isVisible ? 'visible' : 'hidden';
+            }
+
             function Na__Das__ConfigurePdfWorker(workerPath) {
                 if (!window.pdfjsLib || !window.pdfjsLib.GlobalWorkerOptions) return;
                 if (!workerPath) return;
@@ -157,13 +163,22 @@
 
             async function Na__Das__RenderAllPages(pdfUrl) {
                 if (!window.pdfjsLib) {
-                    Na__Das__SetStatus('PDF rendering library failed to load.', 'error');
+                    if (loadingController && loadingController.Na__DasLoading__Fail) {
+                        loadingController.Na__DasLoading__Fail('PDF rendering library failed to load.');
+                    } else {
+                        Na__Das__SetStatus('PDF rendering library failed to load.', 'error');
+                    }
                     return;
                 }
 
                 const thisRenderToken = ++renderToken;
-                Na__Das__SetStatus('Loading Design and Access Statement...', 'loading');
+                Na__Das__SetCanvasVisibility(false);
                 Na__Das__ClearCanvasHost();
+                if (loadingController && loadingController.Na__DasLoading__Begin) {
+                    loadingController.Na__DasLoading__Begin('Loading Design and Access Statement...');
+                } else {
+                    Na__Das__SetStatus('Loading Design and Access Statement...', 'loading');
+                }
 
                 try {
                     const loadingTask = window.pdfjsLib.getDocument({ url: pdfUrl });
@@ -177,17 +192,30 @@
 
                     for (let pageIndex = 1; pageIndex <= pdfDocument.numPages; pageIndex++) {
                         await Na__Das__RenderPage(pageIndex, thisRenderToken);
+                        if (loadingController && loadingController.Na__DasLoading__UpdateProgress) {
+                            loadingController.Na__DasLoading__UpdateProgress(pageIndex, pdfDocument.numPages);
+                        }
                     }
 
                     if (thisRenderToken !== renderToken) return;
-                    Na__Das__SetStatus('Document ready', 'ready');
+                    Na__Das__SetCanvasVisibility(true);
+                    if (loadingController && loadingController.Na__DasLoading__Complete) {
+                        loadingController.Na__DasLoading__Complete('Document ready');
+                    } else {
+                        Na__Das__SetStatus('Document ready', 'ready');
+                    }
 
                     if (pageJumpInput) {
                         pageJumpInput.value = '1';
                     }
                 } catch (error) {
                     console.error('[DesignAccessStatementViewer] PDF render error:', error);
-                    Na__Das__SetStatus('Failed to render PDF document.', 'error');
+                    Na__Das__SetCanvasVisibility(false);
+                    if (loadingController && loadingController.Na__DasLoading__Fail) {
+                        loadingController.Na__DasLoading__Fail('Failed to render PDF document.');
+                    } else {
+                        Na__Das__SetStatus('Failed to render PDF document.', 'error');
+                    }
                 }
             }
 
@@ -286,6 +314,17 @@
                 Na__Das__ConfigurePdfWorker(workerPath);
                 Na__Das__WireControls();
                 Na__Das__SetViewerVisibility(false);
+                Na__Das__SetCanvasVisibility(true);
+
+                loadingController = window.NaPlanVision
+                    && window.NaPlanVision.DesignAccessStatement
+                    && window.NaPlanVision.DesignAccessStatement.Loading;
+
+                if (loadingController && loadingController.Na__DasLoading__Initialize) {
+                    loadingController.Na__DasLoading__Initialize({
+                        statusElement: statusEl
+                    });
+                }
 
                 console.log('[DesignAccessStatementViewer] Initialized');
             };
@@ -301,9 +340,14 @@
                 Na__Das__SetViewerVisibility(true);
 
                 if (!pdfUrl) {
-                    Na__Das__SetStatus('Design and Access Statement PDF URL is missing.', 'error');
+                    Na__Das__SetCanvasVisibility(false);
                     Na__Das__ClearCanvasHost();
                     if (pageCountText) pageCountText.textContent = '/ 0';
+                    if (loadingController && loadingController.Na__DasLoading__Fail) {
+                        loadingController.Na__DasLoading__Fail('Design and Access Statement PDF URL is missing.');
+                    } else {
+                        Na__Das__SetStatus('Design and Access Statement PDF URL is missing.', 'error');
+                    }
                     return;
                 }
 
@@ -318,15 +362,25 @@
                 currentDocument = null;
                 pdfDocument = null;
                 Na__Das__SetViewerVisibility(true);
+                Na__Das__SetCanvasVisibility(false);
                 Na__Das__ClearCanvasHost();
-                Na__Das__SetStatus(message || 'No document available.', 'error');
                 if (pageCountText) pageCountText.textContent = '/ 0';
+                if (loadingController && loadingController.Na__DasLoading__Fail) {
+                    loadingController.Na__DasLoading__Fail(message || 'No document available.');
+                } else {
+                    Na__Das__SetStatus(message || 'No document available.', 'error');
+                }
             };
 
             const Na__Das__HideViewer = function () {
                 ++renderToken;
                 Na__Das__SetViewerVisibility(false);
-                Na__Das__SetStatus('', 'ready');
+                Na__Das__SetCanvasVisibility(true);
+                if (loadingController && loadingController.Na__DasLoading__Reset) {
+                    loadingController.Na__DasLoading__Reset();
+                } else {
+                    Na__Das__SetStatus('', 'ready');
+                }
             };
 
         // endregion ----------------------------------------------
