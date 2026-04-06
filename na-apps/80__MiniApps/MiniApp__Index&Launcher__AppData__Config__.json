@@ -52,7 +52,7 @@
         },
         "MiniApp__ThermalCalcTool_02" : {
             "MiniApp__LaunchFile"        : "NA23_01_01-WebApp_-_ThermalCalcTool_-_Index.html",
-            "MiniApp__RelativePath"      : "02_MiniApps__DrawingiUtils/MiniApp__Calculator__ThermalCalcTool__U-ValueCalc",
+            "MiniApp__RelativePath"      : "02_MiniApps__DrawingUtils/MiniApp__Calculator__ThermalCalcTool__U-ValueCalc",
             "MiniApp__Title"             : "U-Value Calculator",
             "MiniApp__Description"       : "Calculate U-values for building components in compliance with ISO 6946:2017(E). Select materials from a comprehensive JSON database covering insulation, masonry, timber, and more.",
             "MiniApp__Notes"             : "Multi-file app with separate CSS, JS modules and JSON thermal data. References the NA Core Utility Stylesheet. Version 1.4.2.",
@@ -70,7 +70,7 @@
         },
         "MiniApp__ScaleAccuratePaperGen_03" : {
             "MiniApp__LaunchFile"        : "MiniApp__ScaleAccuratePaperGenerator__GeneratePdfToScale__IsoSeriesPaper__Main__.html",
-            "MiniApp__RelativePath"      : "02_MiniApps__DrawingiUtils",
+            "MiniApp__RelativePath"      : "02_MiniApps__DrawingUtils",
             "MiniApp__Title"             : "Scale Accurate Paper Generator",
             "MiniApp__Description"       : "Generate scale-accurate paper templates for ISO A-series sheets (A0 through A5) with architectural scale factors from 1:1 to 1:1250. Export as PNG or PDF with optional dimension lines.",
             "MiniApp__Notes"             : "Single-file HTML app with inline CSS and JS. Uses canvas rendering for paper preview and jsPDF for PDF export.",
@@ -83,6 +83,24 @@
                                            ],
             "MiniApp__Added"             : "17-Mar-2026",
             "MiniApp__LoadOrder"         : 3,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
+        },
+        "MiniApp__RealityCaptureOrthoToSketchUpScale_04" : {
+            "MiniApp__LaunchFile"        : "MiniApp__Converter__RealityCaptureOrthoToSketchUpScale__Main__.html",
+            "MiniApp__RelativePath"      : "03_MiniApps__SurveyingUtils",
+            "MiniApp__Title"             : "RealityCapture Ortho To SketchUp Scale",
+            "MiniApp__Description"       : "Load .rsortho metadata exported from RealityCapture, extract reconstruction dimensions, and output direct width/height millimeter values for rapid SketchUp image rescaling.",
+            "MiniApp__Notes"             : "Refactored from an all-in-one HTML utility into modular HTML/CSS/JS with dedicated parser and highlighter modules plus app config JSON.",
+            "MiniApp__KeyWords"          : [
+                                                "RealityCapture",
+                                                "Orthophoto",
+                                                "SketchUp",
+                                                "Photogrammetry",
+                                                "Surveying"
+                                           ],
+            "MiniApp__Added"             : "06-Apr-2026",
+            "MiniApp__LoadOrder"         : 4,
             "MiniApp__LaunchInNewTab"    : true,
             "MiniApp__LaunchInNewWindow" : false
         }

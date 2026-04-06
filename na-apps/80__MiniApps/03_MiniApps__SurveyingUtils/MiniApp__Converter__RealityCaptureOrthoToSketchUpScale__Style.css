@@ -1,0 +1,230 @@
+/* =============================================================================
+   NOBLE ARCHITECTURE - MINI APP - SURVEYING UTILS - STYLESHEET
+   =============================================================================
+
+   FILE    : MiniApp__Converter__RealityCaptureOrthoToSketchUpScale__Style.css
+   AUTHOR  : Adam Noble - Noble Architecture
+   PURPOSE : UI styling for RealityCapture ortho to SketchUp scale converter
+   CREATED : 06-Apr-2026
+
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   REGION | CSS Variables
+   -------------------------------------------------------------------------- */
+:root {
+    --RCO2SU_Col_PageBackground         : #0f0f0f;
+    --RCO2SU_Col_PanelBackground        : #1a1a1a;
+    --RCO2SU_Col_Border                 : #333333;
+    --RCO2SU_Col_TextPrimary            : #e0e0e0;
+    --RCO2SU_Col_TextMuted              : #888888;
+    --RCO2SU_Col_Accent                 : #00ff41;
+    --RCO2SU_Col_Error                  : #ff5555;
+    --RCO2SU_Col_XmlTag                 : #ff79c6;
+    --RCO2SU_Col_XmlAttribute           : #50fa7b;
+    --RCO2SU_Col_XmlValue               : #f1fa8c;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Base Layout
+   -------------------------------------------------------------------------- */
+html,
+body {
+    margin                              : 0;
+    padding                             : 0;
+    width                               : 100%;
+    height                              : 100%;
+    overflow                            : hidden;
+    font-family                         : "Open Sans", "Segoe UI", Arial, sans-serif;
+    background-color                    : var(--RCO2SU_Col_PageBackground);
+    color                               : var(--RCO2SU_Col_TextPrimary);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing                          : border-box;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Page Structure
+   -------------------------------------------------------------------------- */
+.RCO2SU__page-shell {
+    display                             : flex;
+    width                               : 100vw;
+    height                              : 100vh;
+}
+
+.RCO2SU__left-panel {
+    flex                                : 1 1 auto;
+    background-color                    : var(--RCO2SU_Col_PanelBackground);
+    border-right                        : 1px solid var(--RCO2SU_Col_Border);
+    padding                             : 20px;
+    overflow-y                          : auto;
+}
+
+.RCO2SU__right-panel {
+    width                               : 450px;
+    padding                             : 40px;
+    display                             : flex;
+    flex-direction                      : column;
+    gap                                 : 30px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Typography and Display Blocks
+   -------------------------------------------------------------------------- */
+.RCO2SU__panel-title {
+    margin                              : 0 0 20px 0;
+    padding-bottom                      : 10px;
+    border-bottom                       : 1px solid var(--RCO2SU_Col_Border);
+    font-size                           : 14px;
+    letter-spacing                       : 2px;
+    color                               : var(--RCO2SU_Col_TextMuted);
+}
+
+.RCO2SU__xml-display {
+    margin                              : 0;
+    white-space                         : pre-wrap;
+    word-break                          : break-word;
+    font-family                         : "Roboto Mono", "Courier New", monospace;
+    font-size                           : 13px;
+    line-height                         : 1.55;
+    color                               : #abb2bf;
+}
+
+.RCO2SU__xml-tag {
+    color                               : var(--RCO2SU_Col_XmlTag);
+}
+
+.RCO2SU__xml-attribute {
+    color                               : var(--RCO2SU_Col_XmlAttribute);
+}
+
+.RCO2SU__xml-value {
+    color                               : var(--RCO2SU_Col_XmlValue);
+    font-weight                         : 600;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Upload Zone and Buttons
+   -------------------------------------------------------------------------- */
+.RCO2SU__upload-zone {
+    display                             : flex;
+    flex-direction                      : column;
+    align-items                         : center;
+    justify-content                     : center;
+    gap                                 : 14px;
+    padding                             : 40px 20px;
+    border                              : 2px dashed var(--RCO2SU_Col_Border);
+    border-radius                       : 8px;
+    text-align                          : center;
+    cursor                              : pointer;
+    transition                          : border-color 0.25s ease;
+}
+
+.RCO2SU__upload-zone:hover,
+.RCO2SU__upload-zone.RCO2SU__drop-active {
+    border-color                        : var(--RCO2SU_Col_Accent);
+}
+
+.RCO2SU__upload-prompt {
+    margin                              : 0;
+    font-size                           : 0.9rem;
+}
+
+.RCO2SU__button {
+    border                              : none;
+    border-radius                       : 4px;
+    padding                             : 12px 24px;
+    background-color                    : var(--RCO2SU_Col_Accent);
+    color                               : #000000;
+    font-weight                         : 700;
+    text-transform                      : uppercase;
+    cursor                              : pointer;
+}
+
+.RCO2SU__file-input {
+    display                             : none;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Status and Results
+   -------------------------------------------------------------------------- */
+.RCO2SU__status-box {
+    padding                             : 15px;
+    border-left                         : 4px solid #444444;
+    border-radius                       : 4px;
+    font-size                           : 13px;
+    background-color                    : #222222;
+}
+
+.RCO2SU__status-success {
+    border-left-color                   : var(--RCO2SU_Col_Accent);
+    color                               : var(--RCO2SU_Col_Accent);
+}
+
+.RCO2SU__status-error {
+    border-left-color                   : var(--RCO2SU_Col_Error);
+    color                               : var(--RCO2SU_Col_Error);
+}
+
+.RCO2SU__results-card {
+    border                              : 1px solid var(--RCO2SU_Col_Border);
+    border-radius                       : 8px;
+    padding                             : 25px;
+    background-color                    : var(--RCO2SU_Col_PanelBackground);
+}
+
+.RCO2SU__hidden {
+    display                             : none;
+}
+
+.RCO2SU__result-title {
+    display                             : block;
+    margin-bottom                       : 15px;
+    font-size                           : 11px;
+    text-transform                      : uppercase;
+    color                               : var(--RCO2SU_Col_TextMuted);
+}
+
+.RCO2SU__result-group {
+    margin-bottom                       : 20px;
+}
+
+.RCO2SU__result-group:last-of-type {
+    margin-bottom                       : 0;
+}
+
+.RCO2SU__result-label {
+    font-size                           : 12px;
+    color                               : #aaaaaa;
+}
+
+.RCO2SU__result-value {
+    margin                              : 5px 0 0 0;
+    font-size                           : 32px;
+    color                               : var(--RCO2SU_Col_Accent);
+    font-family                         : "Roboto Mono", "Courier New", monospace;
+}
+
+.RCO2SU__unit-suffix {
+    margin-left                         : 5px;
+    font-size                           : 14px;
+    color                               : #666666;
+}
+
+.RCO2SU__hint-text {
+    margin-top                          : 20px;
+    margin-bottom                       : 0;
+    font-size                           : 12px;
+    line-height                         : 1.45;
+    color                               : #777777;
+}
+/* endregion ---------------------------------------------------------------- */
+

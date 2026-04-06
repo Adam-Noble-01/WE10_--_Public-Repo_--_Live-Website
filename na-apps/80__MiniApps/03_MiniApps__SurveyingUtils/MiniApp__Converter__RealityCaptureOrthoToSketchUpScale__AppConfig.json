@@ -1,0 +1,35 @@
+{
+    "NaMiniApp__Meta" : {
+        "NaMiniApp__AppTitle" : "RealityCapture Ortho To SketchUp Scale",
+        "NaMiniApp__Created"  : "06-Apr-2026",
+        "NaMiniApp__Version"  : "1.0.0"
+    },
+    "NaMiniApp__UiText" : {
+        "NaMiniApp__PanelTitleSource"        : "SOURCE DATA VIEW",
+        "NaMiniApp__PanelTitleControls"      : "UTILITY CONTROLS",
+        "NaMiniApp__DropZonePrompt"          : "Drop RSORTHO file here",
+        "NaMiniApp__ResultTitle"             : "SketchUp Scaling Parameters",
+        "NaMiniApp__ResultWidthLabel"        : "Target Width:",
+        "NaMiniApp__ResultHeightLabel"       : "Target Height:",
+        "NaMiniApp__HintText"                : "In SketchUp, import the image, use Tape Measure across the full width, then type the value above followed by mm and press Enter.",
+        "NaMiniApp__StatusWaitingForInput"   : "Status: Waiting for input",
+        "NaMiniApp__StatusSuccessPrefix"     : "Success:",
+        "NaMiniApp__StatusSuccessMessage"    : "RealityCapture metadata parsed correctly.",
+        "NaMiniApp__StatusErrorPrefix"       : "Error:",
+        "NaMiniApp__DefaultSourcePromptText" : "Upload an .rsortho file to begin analysis..."
+    },
+    "NaMiniApp__ParserConfig" : {
+        "NaMiniApp__WrapperRootTag"     : "Na__RealityCaptureRoot",
+        "NaMiniApp__OrthoTagName"       : "OrthoProjection",
+        "NaMiniApp__RegionTagName"      : "ReconstructionRegion",
+        "NaMiniApp__DimensionsTagName"  : "widthHeightDepth",
+        "NaMiniApp__WidthIndex"         : 0,
+        "NaMiniApp__HeightIndex"        : 2,
+        "NaMiniApp__MetersToMm"         : 1000,
+        "NaMiniApp__DecimalPlaces"      : 2
+    },
+    "NaMiniApp__AcceptedFileExtensions" : [
+        ".rsortho",
+        ".xml"
+    ]
+}

@@ -1,0 +1,92 @@
+<!-- =============================================================================
+  NOBLE ARCHITECTURE - MINI APP - SURVEYING UTILS
+  =============================================================================
+
+  FILE    : MiniApp__Converter__RealityCaptureOrthoToSketchUpScale__Main__.html
+  AUTHOR  : Adam Noble - Noble Architecture
+  PURPOSE : Convert RealityCapture ortho metadata to SketchUp scale dimensions
+  CREATED : 06-Apr-2026
+
+  DESCRIPTION:
+  - Loads .rsortho or .xml metadata exported from RealityCapture.
+  - Parses orthographic dimensions and converts meters to millimeters.
+  - Displays source XML with syntax highlighting for quick validation.
+  - Outputs direct width/height values for SketchUp tape-measure rescaling.
+
+  =========================================================================== -->
+
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head & Metadata                                 -->
+<!-- ----------------------------------------------------------------- -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>RealityCapture Ortho To SketchUp Scale</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+        <link rel="stylesheet" href="MiniApp__Converter__RealityCaptureOrthoToSketchUpScale__Style.css" />
+    </head>
+<!-- endregion -------------------------------------------------------- -->
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body & Layout                                   -->
+<!-- ----------------------------------------------------------------- -->
+    <body>
+        <div class="RCO2SU__page-shell">
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Source XML Panel                                 -->
+            <!-- --------------------------------------------------------- -->
+                <section class="RCO2SU__left-panel">
+                    <h2 id="js__panelTitleSource" class="RCO2SU__panel-title">SOURCE DATA VIEW</h2>
+                    <pre id="js__xmlDisplay" class="RCO2SU__xml-display">Upload an .rsortho file to begin analysis...</pre>
+                </section>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Controls and Outputs Panel                        -->
+            <!-- --------------------------------------------------------- -->
+                <section class="RCO2SU__right-panel">
+                    <h2 id="js__panelTitleControls" class="RCO2SU__panel-title">UTILITY CONTROLS</h2>
+
+                    <label id="js__dropZone" class="RCO2SU__upload-zone">
+                        <span id="js__dropZonePrompt" class="RCO2SU__upload-prompt">Drop RSORTHO file here</span>
+                        <button id="js__buttonSelectFile" type="button" class="RCO2SU__button">Select File</button>
+                        <input id="js__fileInput" class="RCO2SU__file-input" type="file" accept=".rsortho,.xml,text/xml" />
+                    </label>
+
+                    <div id="js__statusBox" class="RCO2SU__status-box">Status: Waiting for input</div>
+
+                    <article id="js__resultsCard" class="RCO2SU__results-card RCO2SU__hidden">
+                        <span id="js__resultTitle" class="RCO2SU__result-title">SketchUp Scaling Parameters</span>
+
+                        <div class="RCO2SU__result-group">
+                            <span id="js__labelWidth" class="RCO2SU__result-label">Target Width:</span>
+                            <div id="js__outputWidth" class="RCO2SU__result-value">0<span class="RCO2SU__unit-suffix">mm</span></div>
+                        </div>
+
+                        <div class="RCO2SU__result-group">
+                            <span id="js__labelHeight" class="RCO2SU__result-label">Target Height:</span>
+                            <div id="js__outputHeight" class="RCO2SU__result-value">0<span class="RCO2SU__unit-suffix">mm</span></div>
+                        </div>
+
+                        <p id="js__hintText" class="RCO2SU__hint-text">
+                            In SketchUp, import the image, use Tape Measure across the full width, then type the value above followed by mm and press Enter.
+                        </p>
+                    </article>
+                </section>
+            <!-- endregion ------------------------------------------------ -->
+        </div>
+
+        <script type="module" src="MiniApp__Converter__RealityCaptureOrthoToSketchUpScale__Main.js"></script>
+    </body>
+<!-- endregion -------------------------------------------------------- -->
+
+</html>
