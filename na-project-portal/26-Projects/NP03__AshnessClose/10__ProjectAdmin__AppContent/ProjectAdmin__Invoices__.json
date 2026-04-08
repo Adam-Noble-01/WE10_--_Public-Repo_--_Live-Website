@@ -58,12 +58,12 @@
             "paidDate": null,
             "lineItems": [
                 {
-                    "description": "",
-                    "itemDescription": "-> As per Quote QUO-NP03-2026-001\n",
+                    "description": "Planning Drawings",
+                    "itemDescription": "-> As per Quote QUO-NP03-2026-001\n-> Drawings produced and delivered to LPA\n",
                     "quantity": 1,
                     "unit": "item",
                     "rate": 600,
-                    "group": "Noble Architecture"
+                    "group": "Noble Architecture Design Fees"
                 },
                 {
                     "description": "Design & Access Statement",
@@ -71,7 +71,7 @@
                     "quantity": 1,
                     "unit": "item",
                     "rate": 200,
-                    "group": "Noble Architecture"
+                    "group": "Noble Architecture Design Fees"
                 },
                 {
                     "description": "Householder Planning Application Fee",
@@ -90,7 +90,7 @@
                 "grandTotal": 1348
             },
             "createdDate": "08/04/2026, 19:14:51",
-            "lastModified": "08/04/2026, 19:15:32"
+            "lastModified": "08/04/2026, 19:24:28"
         }
     ]
 }
