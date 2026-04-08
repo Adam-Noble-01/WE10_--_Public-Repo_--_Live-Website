@@ -45,6 +45,52 @@
                 "vatApplicable": false,
                 "vatRate": 0
             }
+        },
+        {
+            "invoiceRef": "INV-NP03-2026-002",
+            "invoiceDate": "08-Apr-2026",
+            "dueDate": "15-Apr-2026",
+            "projectAddress": "",
+            "projectDescription": "A loft conversion, likely a dormer loft conversion to maximise space, together with associated internal alterations to the existing dwelling, requiring concept design and the preparation and submission of a planning application.",
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "unpaid",
+            "paidDate": null,
+            "lineItems": [
+                {
+                    "description": "",
+                    "itemDescription": "-> As per Quote QUO-NP03-2026-001\n",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 600,
+                    "group": "Noble Architecture"
+                },
+                {
+                    "description": "Design & Access Statement",
+                    "itemDescription": "-> As per Quote QUO-NP03-2026-002\n-> Document produced and delivered to LPA",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 200,
+                    "group": "Noble Architecture"
+                },
+                {
+                    "description": "Householder Planning Application Fee",
+                    "itemDescription": "-> Requested by LPA on 08-Apr-2026\n-> LPA Reference Number : 26/00632/FUL",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 548,
+                    "group": "Council Pass-Through Expenses"
+                }
+            ],
+            "totals": {
+                "subtotal": 1348,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 1348
+            },
+            "createdDate": "08/04/2026, 19:14:51",
+            "lastModified": "08/04/2026, 19:15:32"
         }
     ]
 }
