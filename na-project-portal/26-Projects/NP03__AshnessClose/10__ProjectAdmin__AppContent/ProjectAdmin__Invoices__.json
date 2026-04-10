@@ -47,50 +47,50 @@
             }
         },
         {
-            "invoiceRef": "INV-NP03-2026-002",
-            "invoiceDate": "08-Apr-2026",
-            "dueDate": "15-Apr-2026",
-            "projectAddress": "",
-            "projectDescription": "A loft conversion, likely a dormer loft conversion to maximise space, together with associated internal alterations to the existing dwelling, requiring concept design and the preparation and submission of a planning application.",
-            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
             "clientDataStorage": "cloudflare-r2-encrypted",
-            "status": "unpaid",
-            "paidDate": null,
+            "createdDate": "08/04/2026, 19:14:51",
+            "dueDate": "15-Apr-2026",
+            "invoiceDate": "08-Apr-2026",
+            "invoiceRef": "INV-NP03-2026-002",
+            "lastModified": "10/04/2026, 07:19:52",
             "lineItems": [
                 {
                     "description": "Planning Drawings",
+                    "group": "Noble Architecture Design Fees",
                     "itemDescription": "-> As per Quote QUO-NP03-2026-001\n-> Drawings produced and delivered to LPA\n",
                     "quantity": 1,
-                    "unit": "item",
                     "rate": 600,
-                    "group": "Noble Architecture Design Fees"
+                    "unit": "item"
                 },
                 {
                     "description": "Design & Access Statement",
+                    "group": "Noble Architecture Design Fees",
                     "itemDescription": "-> As per Quote QUO-NP03-2026-002\n-> Document produced and delivered to LPA",
                     "quantity": 1,
-                    "unit": "item",
                     "rate": 200,
-                    "group": "Noble Architecture Design Fees"
+                    "unit": "item"
                 },
                 {
                     "description": "Householder Planning Application Fee",
+                    "group": "Council Pass-Through Expenses",
                     "itemDescription": "-> Requested by LPA on 08-Apr-2026\n-> LPA Reference Number : 26/00632/FUL",
                     "quantity": 1,
-                    "unit": "item",
                     "rate": 548,
-                    "group": "Council Pass-Through Expenses"
+                    "unit": "item"
                 }
             ],
+            "paidDate": "10-Apr-2026",
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "projectAddress": "",
+            "projectDescription": "A loft conversion, likely a dormer loft conversion to maximise space, together with associated internal alterations to the existing dwelling, requiring concept design and the preparation and submission of a planning application.",
+            "status": "paid",
             "totals": {
+                "grandTotal": 1348,
                 "subtotal": 1348,
-                "vatApplicable": false,
-                "vatRate": 0,
                 "vat": 0,
-                "grandTotal": 1348
-            },
-            "createdDate": "08/04/2026, 19:14:51",
-            "lastModified": "08/04/2026, 19:24:28"
+                "vatApplicable": false,
+                "vatRate": 0
+            }
         }
     ]
 }
