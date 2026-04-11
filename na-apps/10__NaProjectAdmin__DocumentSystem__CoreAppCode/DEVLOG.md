@@ -3,6 +3,43 @@
 
 # =============================================================================
 
+## Admin & Doc System - Version 0.7.5 - 11-Apr-2026
+
+### Fixed
+
+- **PIN Authentication Broken for Hashed PINs** - Login now correctly validates SHA-256 hashed PINs
+  - Root cause: `validatePin()` in `AppCore__Main__.js` performed a plain string comparison (`enteredPin === projectConfig.projectPin`), which always failed when the stored PIN used the `sha256:` prefix format
+  - Fix: Inline SHA-256 hash comparison using `crypto.subtle.digest` when stored PIN starts with `sha256:`
+  - Plain text PINs still supported for development use
+  - Verified: PIN "2604" correctly validates against stored hash for EB03 (The Firs)
+
+### Added
+
+- **PIN Reset Tool** - New "Reset PIN" button in Project Configuration Editor
+  - Red-styled button alongside existing "Generate Random PIN" and "Hash Current PIN"
+  - Generates a new random 4-digit PIN, immediately hashes it with SHA-256
+  - Displays the plain PIN in an alert for the admin to note before it is hashed
+  - Form marked dirty for saving after reset
+  - Workflow: confirm -> generate -> hash -> display -> save
+
+- **Unit Field Autocomplete** - Preset suggestions for the unit column in quotation and invoice editors
+  - Dropdown with three presets: Item, Hours, Free
+  - On focus: shows all presets with existing text selected for quick replacement
+  - On typing: filters to matching prefix (case-insensitive); custom text accepted if no match
+  - Keyboard navigation: ArrowDown/ArrowUp to cycle, Tab/Enter to accept, Escape to dismiss
+  - Mouse click selection supported
+  - Applied to all three editor tools consistently
+
+#### Files Modified
+
+- `03__Src__AppModules/01__AppCore/AppCore__Main__.js` - Fixed `validatePin()` to handle `sha256:` hashed PINs
+- `04__EditorTools/Editor__ProjectConfig__.html` - Added Reset PIN button and `resetPin()` function
+- `04__EditorTools/Editor__QuotationManager__.html` - Added unit autocomplete CSS, JS, and template
+- `04__EditorTools/Editor__QuotationBuilder__.html` - Added unit autocomplete CSS, JS, and template
+- `04__EditorTools/Editor__InvoiceManager__.html` - Added unit autocomplete CSS, JS, and template
+
+# =============================================================================
+
 ## Admin & Doc System - Version 0.7.4 - 14-Mar-2026
 
 ### Added
