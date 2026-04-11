@@ -1,0 +1,186 @@
+{
+    "quotations": [
+        {
+            "quotationRef": "QUO-EB03-2026-001",
+            "quotationName": "Main Quote",
+            "signatureRequired": true,
+            "quotationDate": "11-Apr-2026",
+            "projectAddress": "The Firs, Lowdham Road, Gunthorpe, NG14 7ES",
+            "projectDescription": "Single Storey Extension to rear of Existing House, First Floor Addition on top of the Existing Garage and Utility Room, upgrades to the Existing Greenhouse.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "draft",
+            "lineItems": [
+                {
+                    "description": "Initial Design Consultation",
+                    "itemDescription": "A free on-site design consultation meeting held on 11-Apr-2026",
+                    "quantity": 6,
+                    "unit": "Free",
+                    "rate": 0,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Building Survey & Travel",
+                    "itemDescription": "",
+                    "quantity": 7,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Model Existing Site Conditions",
+                    "itemDescription": "",
+                    "quantity": 24,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Prepare Design Proposal & Design Development",
+                    "itemDescription": "",
+                    "quantity": 10,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Finalisation of TrueVison Experience & Distribution",
+                    "itemDescription": "",
+                    "quantity": 6,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Coordination & Admin",
+                    "itemDescription": "",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Drawing : Introduction Page",
+                    "itemDescription": "-> Features CGI's Of Scheme.\n-> Not mandated by usually eliminates frustrating requests for material specifications, as everything can clearly be shown and described on this document. \n-> Size  = Iso A2\n\n",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Site & Block Plans",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:500 & 1:1250 \n-> Size  = Iso A2\n",
+                    "quantity": 4,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Floor Plans ",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:50 \n-> Size  = Iso A2\n",
+                    "quantity": 8,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Floor Plans ",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:50 \n-> Size  = Iso A2\n",
+                    "quantity": 8,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Elevations",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:50 \n-> Size  = Iso A2\n",
+                    "quantity": 6,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Elevations",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:50 \n-> Size  = Iso A2\n",
+                    "quantity": 6,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Coordination & Admin",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:50 \n-> Size  = Iso A2\n",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Production Of CGIs",
+                    "itemDescription": "-> Final CGI's for DA Statement & Into Page\n-> Not Manditory but boost changes greatly and reduce RFI's from LPA.",
+                    "quantity": 12,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Document :  Design & Access Statement",
+                    "itemDescription": "-> A robust and in-depth document. \n-> Forms a strong argument for the case adddressing know constraints and concerns proactively.\n-> Whilst this is not mandatory for a Householder Application, we would strongly advise on this particular application to submit one, with the project being in the green belt etc.  \n\n\n",
+                    "quantity": 16,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Managed Planning Application (See Contract)",
+                    "itemDescription": "",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 400,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Design Phase 03 - Building Regulations",
+                    "itemDescription": "-> See the building regulations contract for more details. \n-> Currently opted out due to the Main Contractor becoming the building regulations Compliance Agent. ",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 3400,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Planning Portal Fee",
+                    "itemDescription": "-> Not specifically mandatory, but in some cases it speeds up the process, and can decrease validation time.\n-> See the planning permission contract for more details, there is a section explaining this in more depth. ",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 95,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Planning Application Fee",
+                    "itemDescription": "-> See the planning permission contract for more details, there is a section explaining this in more depth. \n-> Fee Set by Local Planning Authority",
+                    "quantity": 0,
+                    "unit": "item",
+                    "rate": 528,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "OS Mapping Data",
+                    "itemDescription": "-> Required for site plan document production.\n-> See the planning permission contract for more details, there is a section explaining this in more depth. \n-> MapServe.com used for compliant CAD Data.",
+                    "quantity": 0,
+                    "unit": "item",
+                    "rate": 50,
+                    "group": "Third Party Fees - **Not Included!!"
+                }
+            ],
+            "totals": {
+                "subtotal": 2825,
+                "vatApplicable": true,
+                "vatRate": 20,
+                "vat": 565,
+                "grandTotal": 3390
+            },
+            "additionalTerms": "",
+            "createdDate": "11-Apr-2026 at 18:19",
+            "lastModified": "11-Apr-2026 at 20:10"
+        }
+    ]
+}

@@ -633,14 +633,7 @@
 
             const storedPin = projectConfig.projectPin;
 
-            // Delegate to PinLogin module when available
-            if (window.NaProjectAdmin?.PinLogin?.validatePin) {
-                return await window.NaProjectAdmin.PinLogin.validatePin(
-                    currentProject, enteredPin, storedPin
-                );
-            }
-
-            // Inline fallback: handle sha256: hashed PINs
+            // Handle sha256: hashed PINs via local Web Crypto comparison
             if (storedPin.startsWith('sha256:')) {
                 const encoder    = new TextEncoder();
                 const data       = encoder.encode(enteredPin);

@@ -108,6 +108,41 @@
         .line-items-table .col-actions {
             width: 40px;
         }
+
+        /* Unit Autocomplete */
+        .unit-autocomplete-wrapper {
+            position                     : relative;
+        }
+        .unit-autocomplete-wrapper input {
+            width                        : 100%;
+            box-sizing                   : border-box;
+        }
+        .unit-autocomplete-dropdown {
+            display                      : none;
+            position                     : absolute;
+            top                          : 100%;
+            left                         : 0;
+            right                        : 0;
+            background                   : #fff;
+            border                       : 1px solid #ccc;
+            border-top                   : none;
+            border-radius                : 0 0 4px 4px;
+            box-shadow                   : 0 4px 8px rgba(0,0,0,0.12);
+            z-index                      : 100;
+            max-height                   : 160px;
+            overflow-y                   : auto;
+        }
+        .unit-autocomplete-option {
+            padding                      : 6px 10px;
+            cursor                       : pointer;
+            font-size                    : 0.85rem;
+        }
+        .unit-autocomplete-option:hover {
+            background                   : #f0f0f0;
+        }
+        .unit-autocomplete-option--active {
+            background                   : #e8e0d8;
+        }
     </style>
 
     <!-- Load DateFormatter Module -->
@@ -699,8 +734,12 @@
                                        onchange="updateItem(${item.id}, 'quantity', parseFloat(this.value))">
                             </td>
                             <td class="col-unit">
-                                <input type="text" value="${item.unit}" 
-                                       onchange="updateItem(${item.id}, 'unit', this.value)" placeholder="item">
+                                <div class="unit-autocomplete-wrapper">
+                                    <input type="text" value="${item.unit}"
+                                           class="unit-autocomplete-input"
+                                           data-item-id="${item.id}"
+                                           placeholder="Item">
+                                </div>
                             </td>
                             <td class="col-rate">
                                 <input type="number" value="${item.rate}" min="0" step="0.01"
@@ -717,7 +756,126 @@
 
         // Attach drag-and-drop event handlers
         attachDragHandlers();
+        Na__UnitAutocomplete__AttachAll();
     }
+
+    // endregion ----------------------------------------------
+
+    // #Region ------------------------------------------------
+    // UNIT AUTOCOMPLETE | Preset Suggestions with Keyboard Nav
+    // --------------------------------------------------------
+
+    const NA_UNIT_PRESETS = ['Item', 'Hours', 'Free'];
+
+    // FUNCTION | Attach Autocomplete to All Unit Inputs
+    // ------------------------------------------------------------
+    function Na__UnitAutocomplete__AttachAll() {
+        document.querySelectorAll('.unit-autocomplete-input').forEach(input => {
+            if (input.dataset.autocompleteAttached) return;
+            input.dataset.autocompleteAttached = 'true';
+            Na__UnitAutocomplete__Attach(input);
+        });
+    }
+    // ---------------------------------------------------------------
+
+    // FUNCTION | Attach Autocomplete to a Single Unit Input
+    // ------------------------------------------------------------
+    function Na__UnitAutocomplete__Attach(input) {
+        const wrapper    = input.closest('.unit-autocomplete-wrapper');
+        const itemId     = parseInt(input.dataset.itemId, 10);
+        const dropdown   = document.createElement('div');
+        dropdown.className = 'unit-autocomplete-dropdown';
+        wrapper.appendChild(dropdown);
+
+        let activeIndex  = -1;
+        let filtered     = [];
+
+        function renderDropdown(filter) {
+            const query  = (filter || '').toLowerCase();
+            filtered     = query
+                ? NA_UNIT_PRESETS.filter(u => u.toLowerCase().startsWith(query))
+                : [...NA_UNIT_PRESETS];
+
+            if (filtered.length === 0) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            activeIndex  = 0;
+            dropdown.innerHTML = filtered.map((opt, i) =>
+                `<div class="unit-autocomplete-option${i === 0 ? ' unit-autocomplete-option--active' : ''}"
+                      data-value="${opt}">${opt}</div>`
+            ).join('');
+            dropdown.style.display = 'block';
+        }
+
+        function selectOption(value) {
+            input.value  = value;
+            dropdown.style.display = 'none';
+            updateItem(itemId, 'unit', value);
+        }
+
+        function updateActive() {
+            dropdown.querySelectorAll('.unit-autocomplete-option').forEach((el, i) => {
+                el.classList.toggle('unit-autocomplete-option--active', i === activeIndex);
+            });
+        }
+
+        input.addEventListener('focus', () => { input.select(); renderDropdown(''); });
+
+        input.addEventListener('input', () => renderDropdown(input.value));
+
+        input.addEventListener('keydown', (e) => {
+            if (dropdown.style.display === 'none' || filtered.length === 0) {
+                if (e.key === 'ArrowDown') {
+                    renderDropdown(input.value);
+                    e.preventDefault();
+                }
+                return;
+            }
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % filtered.length;
+                updateActive();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + filtered.length) % filtered.length;
+                updateActive();
+            } else if (e.key === 'Tab') {
+                if (activeIndex >= 0 && activeIndex < filtered.length) {
+                    selectOption(filtered[activeIndex]);
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (activeIndex >= 0 && activeIndex < filtered.length) {
+                    selectOption(filtered[activeIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        input.addEventListener('blur', () => {
+            setTimeout(() => {
+                dropdown.style.display = 'none';
+                if (input.value !== (lineItems.find(i => i.id === itemId)?.unit || '')) {
+                    updateItem(itemId, 'unit', input.value);
+                }
+            }, 150);
+        });
+
+        dropdown.addEventListener('mousedown', (e) => {
+            const option = e.target.closest('.unit-autocomplete-option');
+            if (option) {
+                e.preventDefault();
+                selectOption(option.dataset.value);
+            }
+        });
+    }
+    // ---------------------------------------------------------------
+
+    // endregion ----------------------------------------------
 
     // Update item property
     function updateItem(id, property, value) {
