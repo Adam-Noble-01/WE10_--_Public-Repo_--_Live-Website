@@ -302,6 +302,10 @@
         background-color           : var(--App_StatusError);
     }
 
+    .nav-menu__badge--paid {
+        background-color           : var(--App_StatusSuccess);
+    }
+
     .nav-menu__badge--dev {
         background-color           : #9c27b0;              /* Purple for dev tools */
         font-size                  : 0.65rem;

@@ -467,7 +467,7 @@
 
             if (hasOverdue) return { badge: 'Overdue', badgeClass: 'nav-menu__badge nav-menu__badge--error'   };
             if (hasDue)     return { badge: 'Due',     badgeClass: 'nav-menu__badge nav-menu__badge--warning' };
-            return null;
+            return { badge: 'Paid', badgeClass: 'nav-menu__badge nav-menu__badge--paid' };
         }
         // ---------------------------------------------------------------
 
