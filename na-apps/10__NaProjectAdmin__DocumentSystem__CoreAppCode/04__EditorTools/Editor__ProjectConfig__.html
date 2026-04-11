@@ -239,6 +239,7 @@
                 <div class="form-group">
                     <button class="btn btn--secondary" onclick="generatePin()">Generate Random PIN</button>
                     <button class="btn btn--secondary" onclick="hashPin()">Hash Current PIN</button>
+                    <button class="btn btn--secondary" onclick="resetPin()" style="background:#c0392b; color:#fff; border-color:#a93226;">Reset PIN</button>
                 </div>
 
                 <h3 class="section-heading">Document Availability</h3>
@@ -532,6 +533,27 @@
         markFormDirty();
 
         alert(`PIN "${pin}" has been hashed. Make sure to note the original PIN for client access.`);
+    }
+
+    // Reset PIN (clears existing hash, generates new PIN, hashes it)
+    async function resetPin() {
+        if (!confirm('This will replace the current PIN with a new one.\n\nContinue?')) {
+            return;
+        }
+
+        const newPin = Math.floor(1000 + Math.random() * 9000).toString();
+
+        const encoder    = new TextEncoder();
+        const data       = encoder.encode(newPin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray  = Array.from(new Uint8Array(hashBuffer));
+        const hash       = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        document.getElementById('projectPin').value = 'sha256:' + hash;
+        updatePreview();
+        markFormDirty();
+
+        alert(`New PIN: ${newPin}\n\nNote this PIN now — it cannot be recovered once this dialog is closed.\n\nThe hashed value has been set. Save the project config to apply.`);
     }
 
     // endregion ----------------------------------------------

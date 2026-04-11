@@ -285,7 +285,12 @@
             border: 2px solid #ffc107;
             border-radius: 8px;
             padding: 1rem;
-            flex-shrink: 0;
+            flex-shrink: 1;
+            min-height: 120px;
+            max-height: 50vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .special-terms-section--disabled {
@@ -301,6 +306,7 @@
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid #ffe066;
+            flex-shrink: 0;
         }
 
         .special-terms-section__title {
@@ -308,6 +314,12 @@
             font-size: 1.1rem;
             font-weight: 600;
             margin: 0;
+        }
+
+        #specialTermsEditor {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
         }
 
         .special-terms-section__empty {
@@ -572,7 +584,7 @@
             <div class="editor-panel__header">
                 <span class="editor-panel__title" id="editorTitle">Select a Contract</span>
                 <div class="editor-panel__actions">
-                    <!-- Actions will be shown when contract selected -->
+                    <button class="btn btn--primary btn--small" onclick="saveAll()" id="btnSaveEditor" style="display: none;">Save All</button>
                 </div>
             </div>
 
@@ -770,6 +782,7 @@
         document.getElementById('flaskBanner').style.display = 'block';
         document.getElementById('btnLoadProject').style.display = 'inline-block';
         document.getElementById('btnSaveProject').style.display = 'inline-block';
+        document.getElementById('btnSaveEditor').style.display = 'inline-block';
 
         // Update project path display
         const pathDisplay = document.getElementById('projectPathDisplay');

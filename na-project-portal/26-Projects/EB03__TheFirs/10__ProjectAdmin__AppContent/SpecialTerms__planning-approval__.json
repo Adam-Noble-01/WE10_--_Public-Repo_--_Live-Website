@@ -1,0 +1,19 @@
+{
+    "contractId": "planning-approval",
+    "contractName": "Planning Approval Stage",
+    "introduction": "The following special conditions apply to this contract.",
+    "lastUpdated": "2026-04-11T17:51:38.650Z",
+    "sectionTitle": "Special Terms - Planning",
+    "terms": [
+        {
+            "content": "Noble Architecture will prepare and submit the planning application based on the agreed scope. Responsibility for managing correspondence with the Local Planning Authority will transfer to the Client once the application has been validated.",
+            "id": 1,
+            "title": "Planning Application Preparation & Submission Only"
+        },
+        {
+            "content": "Where the optional agency service is appointed, this must be explicitly agreed in writing prior to submission of the planning application. Noble Architecture will then act as the Client’s agent and manage all dialogue with the Local Planning Authority, with the design fees adjusted accordingly.",
+            "id": 2,
+            "title": "Optional Agency Services - **Optional Add-On"
+        }
+    ]
+}

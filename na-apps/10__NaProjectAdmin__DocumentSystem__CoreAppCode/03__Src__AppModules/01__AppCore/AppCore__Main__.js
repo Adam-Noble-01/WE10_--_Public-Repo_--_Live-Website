@@ -631,10 +631,27 @@
                 return true;                                         // <-- No PIN = open access
             }
 
-            // For now, simple comparison
-            // In production, this should hash and compare
-            // Or validate via Cloudflare Worker
-            return enteredPin === projectConfig.projectPin;
+            const storedPin = projectConfig.projectPin;
+
+            // Delegate to PinLogin module when available
+            if (window.NaProjectAdmin?.PinLogin?.validatePin) {
+                return await window.NaProjectAdmin.PinLogin.validatePin(
+                    currentProject, enteredPin, storedPin
+                );
+            }
+
+            // Inline fallback: handle sha256: hashed PINs
+            if (storedPin.startsWith('sha256:')) {
+                const encoder    = new TextEncoder();
+                const data       = encoder.encode(enteredPin);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray  = Array.from(new Uint8Array(hashBuffer));
+                const enteredHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                return enteredHash === storedPin.replace('sha256:', '');
+            }
+
+            // Plain text comparison (development only)
+            return enteredPin === storedPin;
         }
         // ---------------------------------------------------------------
 

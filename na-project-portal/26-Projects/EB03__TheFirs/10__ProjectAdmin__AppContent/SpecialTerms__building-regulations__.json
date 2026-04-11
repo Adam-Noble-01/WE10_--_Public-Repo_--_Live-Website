@@ -1,0 +1,54 @@
+{
+    "contractId": "building-regulations",
+    "contractName": "Building Regulations Stage",
+    "introduction": "The following special conditions apply to this contract.",
+    "lastUpdated": "2026-04-11T18:16:32.381Z",
+    "sectionTitle": "Special Terms - Building Regs",
+    "terms": [
+        {
+            "content": "Following ongoing coordination between Noble Architecture and the appointed Contractor, **Sukhi Home Solutions**, it is explicitly agreed that Noble Architecture's scope of services concludes at submission of the Planning Application, unless the quotation and written appointment explicitly include \"Design Phase 03 – Building Regulations Compliance\" (or equivalent wording confirming a Building Regulations technical design stage).",
+            "id": 1,
+            "title": "Limitation of Noble Architecture's Appointment"
+        },
+        {
+            "content": "**Sukhi Home Solutions** have confirmed they will assume responsibility for all technical aspects, construction methods, coordination of technical design, and Building Regulations compliance immediately following the Planning Approval Phase. Planning drawings produced by Noble Architecture are illustrative concept documents for planning purposes only and must not be relied upon for fabrication, procurement, setting-out, or construction.",
+            "id": 2,
+            "title": "Transfer of Technical Responsibility After Planning"
+        },
+        {
+            "content": "In accordance with the Building Safety Act 2022 and the Building Regulations etc. (Amendment) (England) Regulations 2023, the statutory role of \"Principal Designer\" for Building Regulations compliance is phase-specific and attaches only to the party in control of the design work for the relevant phase. Unless Noble Architecture is specifically retained in writing for the Building Regulations technical phase, Noble Architecture's statutory role as Principal Designer automatically concludes upon submission of the Planning Application. Where the Domestic Client does not formally appoint a replacement Principal Designer in writing, the Principal Designer role transfers to the person or organisation in control of the building work (the Principal Contractor), being Sukhi Home Solutions for this project unless otherwise appointed.",
+            "id": 3,
+            "title": "Principal Designer (Building Regulations Dutyholder) Transfer"
+        },
+        {
+            "content": "Sukhi Home Solutions has elected to proceed via a Building Notice. The Client acknowledges that a Building Notice route means no detailed technical plans are pre-approved by the Council before works commence, and the Building Control Body approves work retrospectively based on site inspections. Whilst this route may be faster than a Full Plans application, it carries higher financial risk, and if an Inspector rejects a detail on-site the work may require alteration, removal, or reconstruction at the Client's or Contractor's expense. Noble Architecture accepts no liability for remedial works, abortive works, or additional costs arising from Building Control decisions made under the Building Notice route, including where the absence of pre-approval contributes to redesign or rework.",
+            "id": 4,
+            "title": "Building Notice Route (Elected by Contractor)"
+        },
+        {
+            "content": "On site it was noted that several drains run across the property. It is not the responsibility of Noble Architecture to verify if these are public or private drains. All existing drains must be assessed and relocated by the Principal Contractor as the Client has held prior discussions with the Principal Contractor regarding the relocation of these drains.",
+            "id": 5,
+            "title": "Drainage And Build Over Agreements"
+        },
+        {
+            "content": "Noble Architecture accepts no responsibility or liability for any underpinning required for the first floor extension. If underpinning is deemed necessary by the Building Inspector or an independent Structural Engineer to support the additional floor and roof weight over the existing garage it must be designed by a specialist. Noble Architecture explicitly omits all coordination regarding foundations. All such coordination must occur between the Principal Contractor or the future technical design architect handling the Building Regulations stage. Noble Architecture shall not be acting as the Lead Designer for any matters relating to foundation suitability or underpinning.\n",
+            "id": 6,
+            "title": "Existing Foundations &* Underpinning"
+        },
+        {
+            "content": "During the initial site visit Noble Architecture suggested a lightweight timber structure insulated internally for the first floor extension noting the inability to construct a cavity wall with cavity insulation above the existing solid walls of the garage and utility room. This was a high level conceptual suggestion to demonstrate a potential method for extending upwards as a timber frame base plate could comfortably affix to the existing nine inch wall. This suggestion does not constitute a technical specification. The Principal Contractor or the appointed technical architect for the Building Regulations stage holds complete responsibility for specifying the thermal performance and structural makeup of this extension.\n",
+            "id": 7,
+            "title": "Insulation & U-Value Compliance"
+        },
+        {
+            "content": "The Principal Contractor must appoint and utilise their own independent Structural Engineers. Any documentation or drawings or three dimensional models provided by Noble Architecture do not constitute a measured building survey. All appointed engineers and specialists must undertake their own site surveys and verify all key dimensions. Drawings produced by Noble Architecture are issued strictly for tendering and pricing and outlining the scope of works to specialists. Specialists fabricating or designing from planning drawings without independent site verification do so entirely at their own risk.",
+            "id": 8,
+            "title": " Structural Engineers"
+        },
+        {
+            "content": "Noble Architecture accepts no responsibility for the migration of airborne water vapour from the proposed new pool house or hot tub area into the existing dwelling. It was noted on site that airborne moisture can cause significant issues. Noble Architecture suggested that any new internal connecting doors feature substantial seals and gaskets. The Principal Contractor or the Building Regulations stage architect must specify and design a robust technical solution. This may include a dedicated air drying system or an extensive gasket network or a double sealed door arrangement to ensure no airborne moisture migration occurs that could lead to condensation or window fogging or internal black mould within the main house.",
+            "id": 9,
+            "title": "Air Handling & Condensation Risks"
+        }
+    ]
+}
