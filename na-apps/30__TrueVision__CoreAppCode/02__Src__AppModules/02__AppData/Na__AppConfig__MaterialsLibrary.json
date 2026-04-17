@@ -2,10 +2,16 @@
     "meta": {
         "fileName"        : "Na__AppConfig__MaterialsLibrary.json",
         "description"     : "Single source of truth for standard indexed materials and their PBR render settings. Used by both the SketchUp GLB exporter and the TrueVision3D WebApp renderer for dynamic material swapping.",
-        "version"         : "2.1.0",
-        "lastUpdated"     : "2026-02-23",
+        "version"         : "2.2.1",
+        "lastUpdated"     : "2026-04-17",
         "namingConvention": "Materials are identified by SketchUpName which must match the SketchUp material display_name. Format: MAT{NNN}__{Category}__{Variant}. The prefix MAT + 3 digits + __ is required for the lookup system to recognise a material as indexed.",
-        "defaults"        : "MAT001__Default is the reference template showing ALL possible keys with their default values. Other materials only need to specify keys that differ from these defaults. Omitted keys inherit the default value at render time."
+        "defaults"        : "MAT001__Default is the reference template showing ALL possible keys with their default values. Other materials only need to specify keys that differ from these defaults. Omitted keys inherit the default value at render time.",
+        "seriesNotes"     : "MAT600__ series: structural and generic metals (MAT600–MAT603). MAT604–MAT610 reserved. Ironmongery finishes from MAT611 onward (Chrome, Brass, Bronze, Satin Nickel spelling in SketchUpName: MAT614__Metal__Ironmongery__SatinNickle). MAT612–614 BaseColor values match SketchUp material RGB (v2.2.1)."
+    },
+    "ThisFile__KeyLinks": {
+        "Link__LiveWebUrl"  : "https://www.noble-architecture.com/na-apps/30__TrueVision__CoreAppCode/02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json",
+        "Path__Studio"      : "",
+        "Path__VghStation"  : "D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-apps/30__TrueVision__CoreAppCode/02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json"
     },
     "Na__AppConfig__MaterialsLibrary": {
 
@@ -102,8 +108,74 @@
                 "BaseColor"         : "rgb(180, 160, 140)",
                 "PbrRoughness"      : 0.75
             }
+        },
+
+        "MAT600__MetalSeries__": {
+            "MAT600__Metal__Generic": {
+                "SketchUpName"      : "MAT600__Metal__Generic",
+                "Description"       : "Generic metal placeholder -- neutral grey, medium roughness",
+                "BaseColor"         : "rgb(175, 178, 182)",
+                "PbrRoughness"      : 0.45,
+                "PbrMetallic"       : 0.95,
+                "EnvMapIntensity"   : 0.5
+            },
+            "MAT601__Metal__GalvanisedSteel": {
+                "SketchUpName"      : "MAT601__Metal__GalvanisedSteel",
+                "Description"       : "Galvanised steel -- silvery zinc-grey finish",
+                "BaseColor"         : "rgb(198, 202, 208)",
+                "PbrRoughness"      : 0.55,
+                "PbrMetallic"       : 0.92,
+                "EnvMapIntensity"   : 0.45
+            },
+            "MAT602__Metal__StructuralSteel": {
+                "SketchUpName"      : "MAT602__Metal__StructuralSteel",
+                "Description"       : "Structural steel -- darker mill / hot-rolled appearance",
+                "BaseColor"         : "rgb(95, 98, 102)",
+                "PbrRoughness"      : 0.68,
+                "PbrMetallic"       : 0.96,
+                "EnvMapIntensity"   : 0.35
+            },
+            "MAT603__Metal__Aluminium": {
+                "SketchUpName"      : "MAT603__Metal__Aluminium",
+                "Description"       : "Aluminium -- light grey, moderately reflective",
+                "BaseColor"         : "rgb(210, 214, 218)",
+                "PbrRoughness"      : 0.38,
+                "PbrMetallic"       : 1.0,
+                "EnvMapIntensity"   : 0.55
+            },
+            "MAT611__Metal__Ironmongery__Chrome": {
+                "SketchUpName"      : "MAT611__Metal__Ironmongery__Chrome",
+                "Description"       : "Ironmongery finish -- polished chrome",
+                "BaseColor"         : "rgb(220, 224, 228)",
+                "PbrRoughness"      : 0.12,
+                "PbrMetallic"       : 1.0,
+                "EnvMapIntensity"   : 0.85
+            },
+            "MAT612__Metal__Ironmongery__Brass": {
+                "SketchUpName"      : "MAT612__Metal__Ironmongery__Brass",
+                "Description"       : "Ironmongery finish -- brass (BaseColor matches SketchUp material RGB)",
+                "BaseColor"         : "rgb(192, 174, 138)",
+                "PbrRoughness"      : 0.28,
+                "PbrMetallic"       : 1.0,
+                "EnvMapIntensity"   : 0.5
+            },
+            "MAT613__Metal__Ironmongery__Bronze": {
+                "SketchUpName"      : "MAT613__Metal__Ironmongery__Bronze",
+                "Description"       : "Ironmongery finish -- bronze (BaseColor matches SketchUp material RGB)",
+                "BaseColor"         : "rgb(67, 61, 55)",
+                "PbrRoughness"      : 0.35,
+                "PbrMetallic"       : 1.0,
+                "EnvMapIntensity"   : 0.45
+            },
+            "MAT614__Metal__Ironmongery__SatinNickle": {
+                "SketchUpName"      : "MAT614__Metal__Ironmongery__SatinNickle",
+                "Description"       : "Ironmongery finish -- satin nickel (SketchUpName uses SatinNickle token for stable lookup; BaseColor matches SketchUp material RGB)",
+                "BaseColor"         : "rgb(170, 172, 176)",
+                "PbrRoughness"      : 0.42,
+                "PbrMetallic"       : 0.92,
+                "EnvMapIntensity"   : 0.48
+            }
         }
 
     }
 }
-
