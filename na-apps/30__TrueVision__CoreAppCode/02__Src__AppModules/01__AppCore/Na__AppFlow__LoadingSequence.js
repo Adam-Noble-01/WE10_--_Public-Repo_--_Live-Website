@@ -308,6 +308,24 @@
         };
         // ------------------------------------------------------------
 
+        // HELPER FUNCTION | Resolve Door Category Name Tokens from AppConfig
+        // ------------------------------------------------------------
+        const Na__ResolveDoorCategoryNameTokens = (doorAnimationConfig) => {
+            const defaultTokens = ['ProposedDoors'];                         // <-- Backward-compatible fallback
+            const configuredTokens = doorAnimationConfig && doorAnimationConfig['3dObject__Interaction__DoorAnimation__CategoryNameTokens'];
+            if (!Array.isArray(configuredTokens)) return defaultTokens;
+
+            const normalizedTokens = configuredTokens
+                .filter((token) => typeof token === 'string')
+                .map((token) => token.trim())
+                .filter((token) => token.length > 0);
+
+            return normalizedTokens.length > 0 ? normalizedTokens : defaultTokens;
+        };
+        // ------------------------------------------------------------
+
+        const Na__DoorAnimation__CategoryNameTokens = Na__ResolveDoorCategoryNameTokens(Na__Config__DoorAnimation);
+
         // HELPER FUNCTION | Collect Door Mesh/Linework Roots from Loaded Groups
         // ------------------------------------------------------------
         const Na__CollectDoorModelGroups = (loadedModelGroups) => {
@@ -319,7 +337,8 @@
             }
 
             loadedModelGroups.forEach((categoryGroup, categoryKey) => {
-                if (!categoryKey.includes('ProposedDoors')) return;
+                const hasDoorCategoryToken = Na__DoorAnimation__CategoryNameTokens.some((token) => categoryKey.includes(token));
+                if (!hasDoorCategoryToken) return;
 
                 const children = categoryGroup.children || [];
                 let taggedMesh = null;

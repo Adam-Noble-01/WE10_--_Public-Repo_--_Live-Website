@@ -123,7 +123,11 @@
             "3dObject__Interaction__DoorAnimation__Enabled": true,
             "3dObject__Interaction__DoorAnimation__AnimationDurationMs": 600,
             "3dObject__Interaction__DoorAnimation__DefaultRotationDeg": 90,
-            "3dObject__Interaction__DoorAnimation__ClickThresholdPx": 4
+            "3dObject__Interaction__DoorAnimation__ClickThresholdPx": 4,
+            "3dObject__Interaction__DoorAnimation__CategoryNameTokens": [
+                "ProposedDoors",
+                "ExistingDoors"
+            ]
         }
     },
     "StoreyVisibility": {

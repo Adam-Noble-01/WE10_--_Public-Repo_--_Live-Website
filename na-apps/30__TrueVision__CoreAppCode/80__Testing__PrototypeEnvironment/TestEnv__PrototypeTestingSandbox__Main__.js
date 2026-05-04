@@ -569,7 +569,14 @@
     // @delegate: ../02__Src__AppModules/25__System__3dObject__InteractionSystem/Na__DoorAnimation__FindDoorGroups.js
     // ------------------------------------------------------------
     function TestEnv__FindAllDoorModels() {
-        const { meshGroups: doorMeshGroups, lineworkGroups: doorLineworkGroups } = Na__DoorAnimation__FindDoorGroups(TestEnv__ModelGroup__Root);
+        const TestEnv__Config__DoorAnimation = TestEnv__Config['3dObject__InteractionsSystem']
+            && TestEnv__Config['3dObject__InteractionsSystem']['3dObject__Interaction__DoorAnimation'];
+        const TestEnv__DoorAnimation__CategoryNameTokens = TestEnv__Config__DoorAnimation
+            && TestEnv__Config__DoorAnimation['3dObject__Interaction__DoorAnimation__CategoryNameTokens'];
+        const { meshGroups: doorMeshGroups, lineworkGroups: doorLineworkGroups } = Na__DoorAnimation__FindDoorGroups(
+            TestEnv__ModelGroup__Root,
+            TestEnv__DoorAnimation__CategoryNameTokens
+        );
         doorMeshGroups.forEach(g     => console.log(`[TestEnv] Found door mesh model: ${g.name}`));
         doorLineworkGroups.forEach(g => console.log(`[TestEnv] Found door linework model: ${g.name}`));
         return { doorMeshGroups, doorLineworkGroups };
