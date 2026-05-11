@@ -45,6 +45,11 @@
         "path"        : "D:/80__External__LiveRepos/ValeCodebase/WebApps"
 	  },
 	  {
+        "name"        : "SketchUp |  SketchUp Plugins Codebase",
+        "description" : "This is the codebase for the SketchUp plugins for the Noble Architecture Tools, it contains the codebase for TrueVision GLB Exporter Plugin along with other SketchUp RubyScript Plugins.",
+        "path"        : "C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins"
+	  },
+	  {
         "name"        : "TEMPORARY - Master Codebase Containing All Noble Architecture Project Codebases",
         "description" : "This is a temporary folder containing the master codebase for all Noble Architecture projects. It is used to store the codebase for all Noble Architecture projects.",
         "path"        : "D:/03__MasterCodebase"

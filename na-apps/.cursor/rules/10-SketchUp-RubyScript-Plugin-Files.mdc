@@ -1,0 +1,37 @@
+---
+description: Rules and mandatory pre/post steps for creating or editing SketchUp Ruby Script Plugin files
+globs: **/*.rb
+alwaysApply: false
+---
+
+# SketchUp Ruby Script Plugin Rules
+
+## API Compliance#
+- Follow the **Official Sketchup Ruby Api 2026** exclusively.
+- The Ruby API is brittle — never invent or assume classes, methods, or constants. If unsure, consult the documentation before writing code.
+- Reference: https://ruby.sketchup.com/
+
+## Code Style
+- Match the existing coding style in any file you edit.
+- Keep all Ruby Script files **Under 600 Lines**. If a file exceeds this, split it into logically cohesive modules.
+
+## Plugins Folder
+`C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins`
+
+---
+
+## BEFORE Writing Any Code — Mandatory Steps
+
+1. **Build A Full File Tree** of the **Particular Plugin We Are Editing** Folder, including all subfolders at every depth level.
+2. **Trace Module Relationships** — the project is heavily modular; logic is spread across multiple files and levels.
+3. **Never Create A New File** without first confirming the function does not already exist elsewhere.
+4. **Map Existing Functions** relevant to the task before writing anything new.
+
+> Skipping these steps risks duplicating logic that already exists in another module.
+
+---
+
+## AFTER Writing Code — Mandatory Checks
+
+- Verify no functions have been duplicated across the codebase before delivery.
+- Confirm all API classes and methods used are valid in SketchUp Ruby API 2026.
