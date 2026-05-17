@@ -26,6 +26,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-May-2026 - Version 1.1.0
+// - Multi-panel door compatibility verified.
+// - Now activates correctly for bifold (BifoldDoor) and sliding (SlidingDoor)
+//   ADR assemblies because the underlying door registry exposes the same
+//   `rotObjectMesh` (first ROT### marker) and `state` machine for every door
+//   type. ToggleDoor cascades the unified 0..1 progress animation across all
+//   MOD panels of the assembly automatically - no proximity-side change required.
+//
 // 23-Feb-2026 - Version 1.0.0
 // - Initial implementation of proximity-based door animation trigger.
 //

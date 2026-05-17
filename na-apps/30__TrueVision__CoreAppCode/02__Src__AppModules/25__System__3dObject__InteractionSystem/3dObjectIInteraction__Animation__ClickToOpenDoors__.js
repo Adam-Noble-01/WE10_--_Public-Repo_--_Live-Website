@@ -11,17 +11,29 @@
 //
 // DESCRIPTION:
 // - Scans the loaded GLB scene graph for door assemblies (ADR prefix).
-// - Parses MOD modifier objects to extract rotation angle and door panel group.
-// - Locates ROT rotation point objects to determine hinge pivot positions.
+// - Classifies each MOD child as ROT_ONLY, ROT_MVE, MVE_ONLY, or FIXED.
+// - Builds a per-ADR panels[] array so single, bifold, and sliding doors share
+//   one animation pipeline.
+// - Locates ROT rotation point objects to determine hinge pivot positions
+//   (one ROT marker per rotating MOD, paired by index for bifold cascades).
+// - Resolves MVE axis (X/Y/Z) and signed mm magnitude to a local axis-aligned
+//   translation vector for sliding panels and bifold slave panels.
 // - Registers pointer event handlers for click detection (with orbit drag filtering).
-// - Smoothly animates door panels open/closed around the hinge pivot on Y axis.
+// - Smoothly animates every panel of a door using a unified [0..1] progress
+//   value so mixed ROT-only + ROT+MVE bifold cascades stay in lockstep.
 // - Supports mid-animation reversal and independent per-door state management.
 // - Dual model support: animates both mesh and linework models simultaneously.
 //
 // NAMING CONVENTION (Scene Graph):
-// - ADR = Door Assembly (e.g. ADR002__InternalDoor__GroundFloor__PorchToLounge)
-// - MOD = Modifier with __ROT__ tag (e.g. MOD001__ROT__90-Deg__DoorPanel)
-// - ROT = Rotation/Hinge Point (e.g. ROT001__RotationPoint__DoorHingeCentre)
+// - ADR = Door Assembly (e.g. ADR002__InternalDoor or ADR007__BifoldDoor or ADR009__SlidingDoor)
+// - MOD = Modifier object, classified by tags inside the name:
+//     * MOD###__ROT__<deg>-Deg__<tag>                                     -> ROT_ONLY (interior + bifold master)
+//     * MOD###__ROT__<deg>-Deg__MVE__<axis><signed-mm>-mm__<tag>         -> ROT_MVE  (bifold slave panels)
+//     * MOD###__MVE__<axis><signed-mm>-mm__<tag>                         -> MVE_ONLY (sliding moving leaves)
+//     * MOD###__FIXED__<tag>                                              -> FIXED   (sliding fixed leaves, never animated)
+// - ROT = Rotation/Hinge Point marker (e.g. ROT001__RotationPoint__DoorHingeCentre)
+// - MVE = Movement Track marker (e.g. MVE001__MovementPoint__SlidingPanelTrack) - informational only,
+//         the canonical MVE axis + magnitude is parsed from the MOD name.
 //
 // INTEGRATION:
 // - Requires door models exported with hierarchy preservation from SketchUp
@@ -33,6 +45,22 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-May-2026 - Version 1.3.0
+// - Bifold doors now animate at a slowed-down speed proportional to the new
+//   AppConfig key `BifoldDurationMultiplier` (default 3.0). The effective
+//   per-door duration is resolved at scan time by sniffing for ROT_MVE
+//   panels (the unambiguous bifold-slave signature) and applied for both
+//   forward and reversed animations. Single hinged doors and sliding doors
+//   retain the base AnimationDurationMs unchanged.
+//
+// 17-May-2026 - Version 1.2.0
+// - Multi-panel door support added: bifold (multi-MOD with rotation+translation
+//   cascades) and sliding (MVE-only moving leaves + FIXED leaves) now animate
+//   alongside the legacy single ROT-only interior door behaviour.
+// - Replaced angle-based animation state (currentAngleRad / animStartAngleRad)
+//   with a unified [0..1] progress so mixed ROT/MVE cascades stay synchronised.
+// - Introduced AppConfig kill-switch `MultiPanelEnabled` (default true).
+//
 // 28-Feb-2026 - Version 1.1.0
 // - Added Na__DoorAnimation__RebindModelGroups() for safe model-group switching.
 // - Door registry now refreshes against newly loaded model roots without
@@ -55,6 +83,12 @@
     import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
 
+
+    // MODULE IMPORTS | Math / Unit Conversion (mm -> Three.js units)
+    // ------------------------------------------------------------
+    import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -68,8 +102,22 @@
     const Na__DoorAnim__PREFIX_MOD             = 'MOD';                          // <-- Modifier object prefix
     const Na__DoorAnim__PREFIX_ROT             = 'ROT';                          // <-- Rotation point prefix
     const Na__DoorAnim__MOD_ROT_TAG            = '__ROT__';                      // <-- Rotation modifier tag in MOD name
+    const Na__DoorAnim__MOD_MVE_TAG            = '__MVE__';                      // <-- Translation modifier tag in MOD name
+    const Na__DoorAnim__MOD_FIXED_TAG          = '__FIXED__';                    // <-- Fixed (non-animated) modifier tag in MOD name
     const Na__DoorAnim__DEG_REGEX              = /(-?\d+)-Deg/i;                  // <-- Regex to extract degrees from MOD name (supports negative)
+    const Na__DoorAnim__MVE_REGEX              = /__MVE__([XYZ])([+\-]\d+)-mm/i; // <-- Regex to extract MVE axis + signed mm magnitude
     const Na__DoorAnim__Y_AXIS                 = new THREE.Vector3(0, 1, 0);     // <-- Vertical rotation axis (Y-up from GLB Builder export)
+    const Na__DoorAnim__X_AXIS                 = new THREE.Vector3(1, 0, 0);     // <-- Local X axis (panel slide direction in SketchUp authoring)
+    const Na__DoorAnim__Z_AXIS                 = new THREE.Vector3(0, 0, 1);     // <-- Local Z axis (depth axis after Z-up -> Y-up conjugation)
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | MOD Animation Type Tags
+    // ------------------------------------------------------------
+    const Na__DoorAnim__MOD_TYPE_ROT_ONLY      = 'ROT_ONLY';                     // <-- MOD###__ROT__<deg>-Deg__<tag>
+    const Na__DoorAnim__MOD_TYPE_ROT_MVE       = 'ROT_MVE';                      // <-- MOD###__ROT__<deg>-Deg__MVE__<axis><signed-mm>-mm__<tag>
+    const Na__DoorAnim__MOD_TYPE_MVE_ONLY      = 'MVE_ONLY';                     // <-- MOD###__MVE__<axis><signed-mm>-mm__<tag>
+    const Na__DoorAnim__MOD_TYPE_FIXED         = 'FIXED';                        // <-- MOD###__FIXED__<tag>
     // ------------------------------------------------------------
 
 
@@ -84,9 +132,11 @@
 
     // MODULE VARIABLES | Configuration Defaults (overridden by config)
     // ------------------------------------------------------------
-    let Na__DoorAnim__Config__AnimationDurationMs  = 600;                        // <-- Default animation duration
-    let Na__DoorAnim__Config__DefaultRotationDeg   = 90;                         // <-- Default rotation if parse fails
-    let Na__DoorAnim__Config__ClickThresholdPx     = 4;                          // <-- Max pointer movement for click
+    let Na__DoorAnim__Config__AnimationDurationMs       = 600;                   // <-- Base animation duration (single hinged + sliding doors)
+    let Na__DoorAnim__Config__BifoldDurationMultiplier  = 3.0;                   // <-- Bifold-only duration scaler (V1.3.0); detected via ROT_MVE panel
+    let Na__DoorAnim__Config__DefaultRotationDeg        = 90;                    // <-- Default rotation if parse fails
+    let Na__DoorAnim__Config__ClickThresholdPx          = 4;                     // <-- Max pointer movement for click
+    let Na__DoorAnim__Config__MultiPanelEnabled         = true;                  // <-- Bifold/sliding kill-switch (AppConfig source-of-truth)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -168,16 +218,223 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Find MOD Child with ROT Tag in Name
+    // HELPER FUNCTION | Classify a MOD Object by its Name
     // ------------------------------------------------------------
+    // Returns one of MOD_TYPE_ROT_ONLY | ROT_MVE | MVE_ONLY | FIXED, or null if unrecognised.
+    // Order matters: __ROT__ + __MVE__ must be checked before plain __ROT__.
+    function Na__DoorAnim__ClassifyMod(modName) {
+        if (!modName) return null;
+        const hasRot   = modName.indexOf(Na__DoorAnim__MOD_ROT_TAG)   !== -1;
+        const hasMve   = modName.indexOf(Na__DoorAnim__MOD_MVE_TAG)   !== -1;
+        const hasFixed = modName.indexOf(Na__DoorAnim__MOD_FIXED_TAG) !== -1;
+
+        if (hasRot && hasMve) return Na__DoorAnim__MOD_TYPE_ROT_MVE;             // <-- Bifold slave: rotates + slides
+        if (hasRot)           return Na__DoorAnim__MOD_TYPE_ROT_ONLY;            // <-- Interior / bifold master / hinged
+        if (hasMve)           return Na__DoorAnim__MOD_TYPE_MVE_ONLY;            // <-- Sliding moving leaf
+        if (hasFixed)         return Na__DoorAnim__MOD_TYPE_FIXED;               // <-- Sliding fixed leaf (no animation)
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Parse MVE Axis + Signed Magnitude from MOD Name
+    // ------------------------------------------------------------
+    // Returns { axis: 'X'|'Y'|'Z', signedMm: <signed integer> } or null if not present.
+    function Na__DoorAnim__ParseMveFromName(modName) {
+        const match = Na__DoorAnim__MVE_REGEX.exec(modName);
+        if (!match) return null;
+
+        const axis     = match[1].toUpperCase();                                 // <-- X | Y | Z
+        const signedMm = parseInt(match[2], 10);                                 // <-- Signed integer mm (e.g. +1200, -600)
+        if (!Number.isFinite(signedMm)) return null;
+        return { axis: axis, signedMm: signedMm };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Resolve SketchUp Axis Letter to Three.js Local Axis Vector
+    // ------------------------------------------------------------
+    // GLB exporter conjugates SketchUp Z-up to Three.js Y-up. SketchUp local X
+    // remains Three.js local X. SketchUp local Z (vertical) becomes Three.js Y.
+    // SketchUp local Y becomes Three.js -Z (handedness flip is absorbed in the
+    // node's local quaternion). For our axis-letter parsing we use the *local*
+    // axes of the parent ADR component, which the engine has already aligned.
+    function Na__DoorAnim__ResolveAxisVector(axisLetter) {
+        switch (axisLetter) {
+            case 'X': return Na__DoorAnim__X_AXIS;                               // <-- Panel slide direction (along door head)
+            case 'Y': return Na__DoorAnim__Y_AXIS;                               // <-- Vertical (rare for translation)
+            case 'Z': return Na__DoorAnim__Z_AXIS;                               // <-- Front/back depth
+            default:
+                console.warn(`[DoorAnimation] Unknown axis letter "${axisLetter}", defaulting to X`);
+                return Na__DoorAnim__X_AXIS;
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Find All Animatable MOD Children of an ADR Object
+    // ------------------------------------------------------------
+    // Returns an ordered array of { mod, type } descriptors. Used in place of
+    // the legacy Na__DoorAnim__FindModRotChild() which only ever returned the
+    // first ROT-tagged MOD. Multi-panel doors (bifold + sliding) require us to
+    // collect every MOD child so each can be animated independently.
+    //
+    // When the AppConfig kill-switch `MultiPanelEnabled` is false, only the
+    // first ROT-only MOD is returned, mirroring the pre-multi-panel behaviour.
+    function Na__DoorAnim__FindAllAnimatableMods(adrObject) {
+        const descriptors = [];
+        for (const child of adrObject.children) {
+            if (!Na__DoorAnim__NameStartsWith(child, Na__DoorAnim__PREFIX_MOD)) continue;
+            const type = Na__DoorAnim__ClassifyMod(child.name);
+            if (!type) continue;                                                 // <-- Unknown / legacy MOD pattern
+            descriptors.push({ mod: child, type: type });
+        }
+
+        if (Na__DoorAnim__Config__MultiPanelEnabled !== true) {
+            const firstRotOnly = descriptors.find((d) => d.type === Na__DoorAnim__MOD_TYPE_ROT_ONLY);
+            return firstRotOnly ? [firstRotOnly] : [];
+        }
+
+        return descriptors;
+    }
+    // ------------------------------------------------------------
+
+
+    // LEGACY HELPER FUNCTION | Find First MOD Child with ROT Tag (kept for backward compat)
+    // ------------------------------------------------------------
+    // Some external utilities still call this. Internal scanning has moved to
+    // Na__DoorAnim__FindAllAnimatableMods, but we preserve this helper to avoid
+    // breaking any tooling that imports the door animation module privately.
     function Na__DoorAnim__FindModRotChild(adrObject) {
         for (const child of adrObject.children) {
             if (Na__DoorAnim__NameStartsWith(child, Na__DoorAnim__PREFIX_MOD)
                 && child.name.includes(Na__DoorAnim__MOD_ROT_TAG)) {
-                return child;                                                    // <-- Return MOD with __ROT__ tag
+                return child;
             }
         }
-        return null;                                                             // <-- No MOD__ROT__ child found
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Detect Whether a Panel Set Belongs to a Bifold Door
+    // ------------------------------------------------------------
+    // Bifold doors are the only door type that emits ROT_MVE panels (slave
+    // leaves that simultaneously rotate AND translate along the head track).
+    // Single hinged doors emit ROT_ONLY only; sliding doors emit MVE_ONLY +
+    // FIXED only. A ROT_MVE sighting therefore unambiguously identifies a
+    // bifold assembly. V1.3.0 uses this to stretch the animation duration so
+    // the user can follow the cascade as the panels accordion-fold.
+    function Na__DoorAnim__IsBifoldDoor(panels) {
+        if (!Array.isArray(panels)) return false;
+        for (let i = 0; i < panels.length; i++) {
+            if (panels[i].type === Na__DoorAnim__MOD_TYPE_ROT_MVE) return true;
+        }
+        return false;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Resolve the Effective Animation Duration for a Door Type
+    // ------------------------------------------------------------
+    // Bifold cascades animate at AnimationDurationMs * BifoldDurationMultiplier
+    // (V1.3.0 default 3.0). Everything else uses the base AnimationDurationMs.
+    function Na__DoorAnim__ResolveEffectiveDurationMs(panels) {
+        if (!Na__DoorAnim__IsBifoldDoor(panels)) return Na__DoorAnim__Config__AnimationDurationMs;
+        const multiplier = Number.isFinite(Na__DoorAnim__Config__BifoldDurationMultiplier) && Na__DoorAnim__Config__BifoldDurationMultiplier > 0
+            ? Na__DoorAnim__Config__BifoldDurationMultiplier
+            : 1.0;
+        return Math.round(Na__DoorAnim__Config__AnimationDurationMs * multiplier);
+    }
+    // ------------------------------------------------------------
+
+
+    // SUB FUNCTION | Build a Single Panel Descriptor From a MOD Object
+    // ------------------------------------------------------------
+    // Captures everything needed to animate one panel back and forth in the
+    // 0..1 progress space used by the multi-panel applier. Type-specific
+    // fields (targetAngleRad / pivotLocalPosition / mveAxisVector / mveDistanceUnits)
+    // are populated only when relevant for the descriptor's animation type.
+    function Na__DoorAnim__BuildPanelDescriptor(adrObject, descriptor) {
+        const modObject  = descriptor.mod;
+        const type       = descriptor.type;
+
+        const panel = {
+            type               : type,
+            modObjectMesh      : modObject,
+            modObjectLinework  : null,                                           // <-- Linked later by linework scan
+            initialPosition    : modObject.position.clone(),                     // <-- MOD initial local position
+            initialQuaternion  : modObject.quaternion.clone(),                   // <-- MOD initial local quaternion
+            targetAngleRad     : 0,                                              // <-- Populated for ROT_ONLY / ROT_MVE
+            pivotLocalPosition : null,                                           // <-- Populated for ROT_ONLY / ROT_MVE
+            mveAxisVector      : null,                                           // <-- Populated for ROT_MVE / MVE_ONLY
+            mveDistanceUnits   : 0                                               // <-- Signed distance in Three.js scene units
+        };
+
+        if (type === Na__DoorAnim__MOD_TYPE_ROT_ONLY || type === Na__DoorAnim__MOD_TYPE_ROT_MVE) {
+            const targetAngleDeg = Na__DoorAnim__ParseDegreesFromName(modObject.name);
+            panel.targetAngleRad = THREE.MathUtils.degToRad(targetAngleDeg);
+
+            // Each rotating MOD is paired with the next ROT### sibling under the ADR.
+            // We search the ADR's children index-by-index so multi-MOD doors
+            // (bifold) get one ROT pivot per MOD in declaration order.
+            const rotSibling = Na__DoorAnim__FindMatchingRotSibling(adrObject, modObject);
+            if (rotSibling) {
+                panel.pivotLocalPosition = rotSibling.position.clone();
+            } else {
+                console.warn(`[DoorAnimation] No ROT sibling found for MOD "${modObject.name}" - falling back to MOD origin`);
+                panel.pivotLocalPosition = new THREE.Vector3(0, 0, 0);
+            }
+        }
+
+        if (type === Na__DoorAnim__MOD_TYPE_ROT_MVE || type === Na__DoorAnim__MOD_TYPE_MVE_ONLY) {
+            const mve = Na__DoorAnim__ParseMveFromName(modObject.name);
+            if (mve) {
+                panel.mveAxisVector    = Na__DoorAnim__ResolveAxisVector(mve.axis);
+                panel.mveDistanceUnits = Na__Math__ConvertMmToUnits(mve.signedMm);
+            } else {
+                console.warn(`[DoorAnimation] Could not parse MVE from MOD name "${modObject.name}"`);
+            }
+        }
+
+        return panel;
+    }
+    // ------------------------------------------------------------
+
+
+    // SUB FUNCTION | Find the Nth ROT### Marker Sibling for the Nth Rotating MOD
+    // ------------------------------------------------------------
+    // Bifold doors place ROT001, ROT002... markers as flat siblings of the
+    // MOD001, MOD003 (rotating) panels. Sliding doors only have a placeholder
+    // ROT001 (which is unused). This function finds the ROT marker whose
+    // *position index* among ROT siblings matches the rotating-MOD position
+    // index. That keeps the pairing deterministic regardless of authoring order.
+    function Na__DoorAnim__FindMatchingRotSibling(adrObject, modObject) {
+        const allRotSiblings    = [];
+        const rotatingModSiblings = [];
+        for (const child of adrObject.children) {
+            if (Na__DoorAnim__NameStartsWith(child, Na__DoorAnim__PREFIX_ROT)) {
+                allRotSiblings.push(child);
+                continue;
+            }
+            if (Na__DoorAnim__NameStartsWith(child, Na__DoorAnim__PREFIX_MOD)) {
+                const t = Na__DoorAnim__ClassifyMod(child.name);
+                if (t === Na__DoorAnim__MOD_TYPE_ROT_ONLY || t === Na__DoorAnim__MOD_TYPE_ROT_MVE) {
+                    rotatingModSiblings.push(child);
+                }
+            }
+        }
+
+        const modIndex = rotatingModSiblings.indexOf(modObject);
+        if (modIndex === -1) return null;
+
+        // Prefer a 1:1 positional pairing
+        if (modIndex < allRotSiblings.length) {
+            return allRotSiblings[modIndex];
+        }
+
+        // Fallback: re-use the first available ROT sibling
+        return allRotSiblings.length > 0 ? allRotSiblings[0] : null;
     }
     // ------------------------------------------------------------
 
@@ -201,54 +458,69 @@
 
                 const adrName = object.name;                                     // <-- Door assembly identifier
 
-                // Find the MOD child (rotation modifier with door panel meshes)
-                const modObject = Na__DoorAnim__FindModRotChild(object);
-                if (!modObject) {
-                    console.warn(`[DoorAnimation] ADR "${adrName}" (mesh) has no MOD__ROT__ child, skipping`);
+                // Collect every animatable MOD child (multi-panel ready)
+                const modDescriptors = Na__DoorAnim__FindAllAnimatableMods(object);
+                if (modDescriptors.length === 0) {
+                    console.warn(`[DoorAnimation] ADR "${adrName}" (mesh) has no animatable MOD children, skipping`);
                     return;
                 }
 
-                // Find the ROT child (hinge pivot point)
-                const rotObject = Na__DoorAnim__FindChildByPrefix(object, Na__DoorAnim__PREFIX_ROT);
-                if (!rotObject) {
-                    console.warn(`[DoorAnimation] ADR "${adrName}" (mesh) has no ROT child, skipping`);
-                    return;
-                }
+                // Build panel descriptors (one per MOD, including FIXED leaves)
+                const panels = modDescriptors.map((d) => Na__DoorAnim__BuildPanelDescriptor(object, d));
 
-                // Parse target rotation degrees from MOD name
-                const targetAngleDeg = Na__DoorAnim__ParseDegreesFromName(modObject.name);
-                const targetAngleRad = THREE.MathUtils.degToRad(targetAngleDeg); // <-- Convert to radians
+                // Find the *first* ROT child (used by Walk Mode proximity for distance checks).
+                // For bifold doors this is ROT001, for interior doors it is the only ROT marker.
+                const firstRotObject = Na__DoorAnim__FindChildByPrefix(object, Na__DoorAnim__PREFIX_ROT);
 
-                // Capture the MOD initial local transform (position + quaternion)
-                const initialPosition   = modObject.position.clone();            // <-- Store initial position
-                const initialQuaternion = modObject.quaternion.clone();          // <-- Store initial quaternion
+                // Resolve the primary rotating panel for backward-compat fields.
+                // (Walk Mode reads doorRecord.targetAngleRad on legacy single-door records.)
+                const primaryRotPanel = panels.find((p) =>
+                    p.type === Na__DoorAnim__MOD_TYPE_ROT_ONLY || p.type === Na__DoorAnim__MOD_TYPE_ROT_MVE
+                );
+                const targetAngleRad = primaryRotPanel ? primaryRotPanel.targetAngleRad : 0;
 
-                // Get the hinge pivot position in ADR-local space (ROT local position)
-                const pivotLocalPosition = rotObject.position.clone();           // <-- Hinge point in parent space
+                // Resolve per-door effective duration. Bifolds are slowed down
+                // by `BifoldDurationMultiplier` (V1.3.0); all other doors use
+                // the base AnimationDurationMs verbatim.
+                const isBifold              = Na__DoorAnim__IsBifoldDoor(panels);
+                const effectiveDurationMs   = Na__DoorAnim__ResolveEffectiveDurationMs(panels);
 
                 // Build door record
                 const doorRecord = {
                     adrObjectMesh      : object,                                 // <-- Door assembly Object3D (mesh)
                     adrObjectLinework  : null,                                   // <-- Door assembly Object3D (linework) - found later
                     adrName            : adrName,                                // <-- Door assembly name
-                    modObjectMesh      : modObject,                              // <-- Modifier (door panel group - mesh)
-                    modObjectLinework  : null,                                   // <-- Modifier (door panel group - linework) - found later
-                    rotObjectMesh      : rotObject,                              // <-- Rotation point (hinge - mesh)
-                    rotObjectLinework  : null,                                   // <-- Rotation point (hinge - linework) - found later
-                    targetAngleRad     : targetAngleRad,                         // <-- Target open angle (radians)
-                    initialPosition    : initialPosition,                        // <-- MOD initial local position
-                    initialQuaternion  : initialQuaternion,                      // <-- MOD initial local quaternion
-                    pivotLocalPosition : pivotLocalPosition,                     // <-- Hinge point in ADR-local space
+                    panels             : panels,                                 // <-- NEW: multi-panel descriptor array
+                    rotObjectMesh      : firstRotObject,                         // <-- First ROT (for Walk Mode proximity world position)
+                    rotObjectLinework  : null,                                   // <-- Linework first ROT (linked later)
+                    isBifold           : isBifold,                               // <-- True when any panel is ROT_MVE (V1.3.0)
+                    effectiveDurationMs: effectiveDurationMs,                    // <-- Bifold-aware base duration (V1.3.0)
+
+                    // Backward-compat fields (legacy single-door consumers)
+                    modObjectMesh      : primaryRotPanel ? primaryRotPanel.modObjectMesh : panels[0].modObjectMesh,
+                    modObjectLinework  : null,
+                    targetAngleRad     : targetAngleRad,
+                    initialPosition    : primaryRotPanel ? primaryRotPanel.initialPosition.clone() : panels[0].initialPosition.clone(),
+                    initialQuaternion  : primaryRotPanel ? primaryRotPanel.initialQuaternion.clone() : panels[0].initialQuaternion.clone(),
+                    pivotLocalPosition : primaryRotPanel ? primaryRotPanel.pivotLocalPosition.clone() : new THREE.Vector3(0, 0, 0),
+
+                    // Animation state (progress 0..1 across all panels)
                     state              : Na__DoorAnim__STATE_CLOSED,             // <-- Current door state
-                    currentAngleRad    : 0,                                      // <-- Current rotation angle (radians)
-                    animStartAngleRad  : 0,                                      // <-- Angle at animation start
-                    animEndAngleRad    : 0,                                      // <-- Target angle for current anim
+                    currentProgress    : 0,                                      // <-- Current open fraction [0..1]
+                    animStartProgress  : 0,                                      // <-- Progress at animation start
+                    animEndProgress    : 0,                                      // <-- Target progress for current anim
+                    currentAngleRad    : 0,                                      // <-- Backward-compat (mirrors progress * targetAngleRad)
+                    animStartAngleRad  : 0,                                      // <-- Backward-compat
+                    animEndAngleRad    : 0,                                      // <-- Backward-compat
                     animElapsedMs      : 0,                                      // <-- Elapsed animation time
-                    animDurationMs     : Na__DoorAnim__Config__AnimationDurationMs // <-- Animation duration
+                    animDurationMs     : effectiveDurationMs                     // <-- Per-door effective duration (V1.3.0)
                 };
 
                 Na__DoorAnim__DoorRegistry.set(adrName, doorRecord);             // <-- Register door
-                console.log(`[DoorAnimation] Registered door (mesh): "${adrName}" (${targetAngleDeg} deg)`);
+
+                const summary = panels.map((p) => p.type).join('+');
+                const tag     = isBifold ? `BIFOLD ${effectiveDurationMs}ms` : `${effectiveDurationMs}ms`;
+                console.log(`[DoorAnimation] Registered door (mesh): "${adrName}" panels=[${summary}] primary=${THREE.MathUtils.radToDeg(targetAngleRad).toFixed(0)}deg duration=${tag}`);
             });
         }
 
@@ -259,7 +531,7 @@
                     return;                                                      // <-- Skip non-ADR objects
                 }
 
-                const adrName = object.name;                                     // <-- Door assembly identifier
+                const adrName    = object.name;                                  // <-- Door assembly identifier
                 const doorRecord = Na__DoorAnim__DoorRegistry.get(adrName);      // <-- Look up existing record
 
                 if (!doorRecord) {
@@ -267,22 +539,27 @@
                     return;
                 }
 
-                // Find the MOD child (linework version)
-                const modObjectLinework = Na__DoorAnim__FindModRotChild(object);
-                if (!modObjectLinework) {
-                    console.warn(`[DoorAnimation] ADR "${adrName}" (linework) has no MOD__ROT__ child`);
-                    return;
-                }
+                // Pair each linework MOD to a panel descriptor by exact name match
+                const lineworkDescriptors = Na__DoorAnim__FindAllAnimatableMods(object);
+                lineworkDescriptors.forEach((d) => {
+                    const matchingPanel = doorRecord.panels.find((p) => p.modObjectMesh.name === d.mod.name);
+                    if (matchingPanel) {
+                        matchingPanel.modObjectLinework = d.mod;
+                    }
+                });
 
-                // Find the ROT child (linework version)
-                const rotObjectLinework = Na__DoorAnim__FindChildByPrefix(object, Na__DoorAnim__PREFIX_ROT);
+                // First ROT linework (used by Walk Mode proximity reads via rotObjectLinework if mesh missing)
+                doorRecord.adrObjectLinework  = object;                          // <-- Linework ADR
+                doorRecord.rotObjectLinework  = Na__DoorAnim__FindChildByPrefix(object, Na__DoorAnim__PREFIX_ROT);
 
-                // Link linework objects to existing door record
-                doorRecord.adrObjectLinework = object;                           // <-- Linework ADR
-                doorRecord.modObjectLinework = modObjectLinework;                // <-- Linework MOD
-                doorRecord.rotObjectLinework = rotObjectLinework;                // <-- Linework ROT (may be null)
+                // Backward-compat: link the legacy single MOD pointer if the primary
+                // rotating panel got a linework counterpart.
+                const primaryPanel = doorRecord.panels.find((p) =>
+                    p.type === Na__DoorAnim__MOD_TYPE_ROT_ONLY || p.type === Na__DoorAnim__MOD_TYPE_ROT_MVE
+                ) || doorRecord.panels[0];
+                doorRecord.modObjectLinework = primaryPanel ? primaryPanel.modObjectLinework : null;
 
-                console.log(`[DoorAnimation] Linked linework for door: "${adrName}"`);
+                console.log(`[DoorAnimation] Linked linework for door: "${adrName}" (${lineworkDescriptors.length} panel(s))`);
             });
         }
 
@@ -320,22 +597,19 @@
         const meshes = [];                                                       // <-- Array of intersectable meshes
 
         Na__DoorAnim__DoorRegistry.forEach((doorRecord) => {
-            // Collect meshes from mesh version (solid geometry)
-            if (doorRecord.modObjectMesh) {
-                doorRecord.modObjectMesh.traverse((child) => {
-                    if (child.isMesh) {
-                        meshes.push(child);                                      // <-- Add mesh to list
-                    }
-                });
-            }
-
-            // Collect meshes from linework version (edge LINES primitives)
-            if (doorRecord.modObjectLinework) {
-                doorRecord.modObjectLinework.traverse((child) => {
-                    if (child.isMesh) {
-                        meshes.push(child);                                      // <-- Add linework mesh to list
-                    }
-                });
+            // Multi-panel door: walk every panel's mesh + linework MOD subtree.
+            // Includes FIXED panels so the user can click any leaf to toggle.
+            for (const panel of doorRecord.panels) {
+                if (panel.modObjectMesh) {
+                    panel.modObjectMesh.traverse((child) => {
+                        if (child.isMesh) meshes.push(child);
+                    });
+                }
+                if (panel.modObjectLinework) {
+                    panel.modObjectLinework.traverse((child) => {
+                        if (child.isMesh) meshes.push(child);
+                    });
+                }
             }
         });
 
@@ -417,107 +691,114 @@
 
     // FUNCTION | Toggle Door Open or Closed
     // ------------------------------------------------------------
+    // Animation is driven by a unified [0..1] progress value that scales every
+    // panel's targetAngleRad / mveDistanceUnits in lockstep. This means a
+    // bifold cascade with mixed ROT-only + ROT+MVE panels still finishes its
+    // travel at exactly the same instant.
+    //
+    // V1.3.0: bifolds use `doorRecord.effectiveDurationMs` (the base duration
+    // multiplied by `BifoldDurationMultiplier`) so the cascade reads as a slow
+    // accordion fold; everything else uses the base AnimationDurationMs.
     function Na__DoorAnim__ToggleDoor(doorRecord) {
         const isCurrentlyClosed = (doorRecord.state === Na__DoorAnim__STATE_CLOSED);
         const isCurrentlyOpen   = (doorRecord.state === Na__DoorAnim__STATE_OPEN);
         const isAnimating       = (doorRecord.state === Na__DoorAnim__STATE_OPENING
                                 || doorRecord.state === Na__DoorAnim__STATE_CLOSING);
 
+        const baseDurationMs = Number.isFinite(doorRecord.effectiveDurationMs) && doorRecord.effectiveDurationMs > 0
+            ? doorRecord.effectiveDurationMs
+            : Na__DoorAnim__Config__AnimationDurationMs;
+
         if (isCurrentlyClosed) {
-            // Start opening from closed
-            doorRecord.animStartAngleRad = 0;                                    // <-- Start from closed
-            doorRecord.animEndAngleRad   = doorRecord.targetAngleRad;            // <-- Animate to open
-            doorRecord.animElapsedMs     = 0;                                    // <-- Reset timer
-            doorRecord.state             = Na__DoorAnim__STATE_OPENING;          // <-- Set state
-            console.log(`[DoorAnimation] Opening: "${doorRecord.adrName}"`);
+            doorRecord.animStartProgress = 0;
+            doorRecord.animEndProgress   = 1;
+            doorRecord.animElapsedMs     = 0;
+            doorRecord.animDurationMs    = baseDurationMs;
+            doorRecord.state             = Na__DoorAnim__STATE_OPENING;
+            console.log(`[DoorAnimation] Opening: "${doorRecord.adrName}" (${baseDurationMs}ms)`);
 
         } else if (isCurrentlyOpen) {
-            // Start closing from open
-            doorRecord.animStartAngleRad = doorRecord.targetAngleRad;            // <-- Start from open
-            doorRecord.animEndAngleRad   = 0;                                    // <-- Animate to closed
-            doorRecord.animElapsedMs     = 0;                                    // <-- Reset timer
-            doorRecord.state             = Na__DoorAnim__STATE_CLOSING;          // <-- Set state
-            console.log(`[DoorAnimation] Closing: "${doorRecord.adrName}"`);
+            doorRecord.animStartProgress = 1;
+            doorRecord.animEndProgress   = 0;
+            doorRecord.animElapsedMs     = 0;
+            doorRecord.animDurationMs    = baseDurationMs;
+            doorRecord.state             = Na__DoorAnim__STATE_CLOSING;
+            console.log(`[DoorAnimation] Closing: "${doorRecord.adrName}" (${baseDurationMs}ms)`);
 
         } else if (isAnimating) {
-            // Mid-animation reversal: reverse from current angle
-            const currentAngle = doorRecord.currentAngleRad;                     // <-- Capture current position
-
+            const currentProgress = doorRecord.currentProgress;
             if (doorRecord.state === Na__DoorAnim__STATE_OPENING) {
-                // Was opening, now close from current position
-                doorRecord.animStartAngleRad = currentAngle;                     // <-- Start from current
-                doorRecord.animEndAngleRad   = 0;                                // <-- Animate to closed
-                doorRecord.state             = Na__DoorAnim__STATE_CLOSING;      // <-- Set state
-
+                doorRecord.animStartProgress = currentProgress;
+                doorRecord.animEndProgress   = 0;
+                doorRecord.state             = Na__DoorAnim__STATE_CLOSING;
             } else {
-                // Was closing, now open from current position
-                doorRecord.animStartAngleRad = currentAngle;                     // <-- Start from current
-                doorRecord.animEndAngleRad   = doorRecord.targetAngleRad;        // <-- Animate to open
-                doorRecord.state             = Na__DoorAnim__STATE_OPENING;      // <-- Set state
+                doorRecord.animStartProgress = currentProgress;
+                doorRecord.animEndProgress   = 1;
+                doorRecord.state             = Na__DoorAnim__STATE_OPENING;
             }
 
-            // Scale duration proportional to remaining travel
-            const totalTravel    = Math.abs(doorRecord.targetAngleRad);          // <-- Full rotation range
-            const remainingTravel = Math.abs(doorRecord.animEndAngleRad - doorRecord.animStartAngleRad);
-            const durationScale  = totalTravel > 0 ? (remainingTravel / totalTravel) : 1;
-            doorRecord.animDurationMs = Na__DoorAnim__Config__AnimationDurationMs * durationScale;
-            doorRecord.animElapsedMs  = 0;                                       // <-- Reset timer
+            // Scale duration proportional to remaining progress travel
+            const remainingTravel = Math.abs(doorRecord.animEndProgress - doorRecord.animStartProgress);
+            doorRecord.animDurationMs = baseDurationMs * remainingTravel;
+            doorRecord.animElapsedMs  = 0;
 
             console.log(`[DoorAnimation] Reversed mid-animation: "${doorRecord.adrName}"`);
-
         }
 
-        Na__RenderLoop__RequestRender();                                          // <-- Wake render loop so door animation can begin
+        Na__RenderLoop__RequestRender();                                         // <-- Wake render loop so door animation can begin
     }
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Apply Rotation Around Pivot to MOD Objects (Mesh + Linework)
+    // SUB FUNCTION | Apply Rotation+Translation to a Single MOD Object
     // ------------------------------------------------------------
-    function Na__DoorAnim__ApplyPivotRotation(doorRecord, angleRad) {
-        const pivot = doorRecord.pivotLocalPosition;                             // <-- Hinge point (local)
+    // Panel-aware applier. Resets the MOD to its initial transform and then
+    // composes the rotation (around Y, around the hinge pivot) and translation
+    // (along the resolved local axis) determined by the panel descriptor.
+    function Na__DoorAnim__ApplyPanelTransform(modObject, panel, progress) {
+        if (!modObject) return;
 
-        // Build rotation quaternion around Y axis (shared by mesh and linework)
-        const rotQuat = new THREE.Quaternion().setFromAxisAngle(
-            Na__DoorAnim__Y_AXIS, angleRad                                       // <-- Rotation amount
-        );
+        // Step 1: Restore initial transform on the MOD node
+        modObject.position.copy(panel.initialPosition);
+        modObject.quaternion.copy(panel.initialQuaternion);
 
-        // Apply to MESH version (if exists)
-        if (doorRecord.modObjectMesh) {
-            const modMesh = doorRecord.modObjectMesh;                            // <-- Mesh door panel group
+        // Step 2: Apply rotation about the hinge pivot for ROT_* panels
+        if (panel.type === Na__DoorAnim__MOD_TYPE_ROT_ONLY || panel.type === Na__DoorAnim__MOD_TYPE_ROT_MVE) {
+            const angleRad = panel.targetAngleRad * progress;
+            const rotQuat  = new THREE.Quaternion().setFromAxisAngle(Na__DoorAnim__Y_AXIS, angleRad);
+            const pivot    = panel.pivotLocalPosition;
 
-            // Reset to initial transform
-            modMesh.position.copy(doorRecord.initialPosition);                   // <-- Restore initial position
-            modMesh.quaternion.copy(doorRecord.initialQuaternion);               // <-- Restore initial quaternion
-
-            // Translate so pivot is at origin, rotate, translate back
-            modMesh.position.sub(pivot);                                         // <-- Move pivot to origin
-            modMesh.position.applyQuaternion(rotQuat);                           // <-- Rotate position vector
-            modMesh.position.add(pivot);                                         // <-- Move back
-
-            // Apply rotation to orientation
-            modMesh.quaternion.premultiply(rotQuat);                             // <-- Combine rotations
+            // Pivot rotation: shift to pivot-origin, rotate, shift back, then post-multiply orientation.
+            modObject.position.sub(pivot);
+            modObject.position.applyQuaternion(rotQuat);
+            modObject.position.add(pivot);
+            modObject.quaternion.premultiply(rotQuat);
         }
 
-        // Apply to LINEWORK version (if exists)
-        if (doorRecord.modObjectLinework) {
-            const modLinework = doorRecord.modObjectLinework;                    // <-- Linework door panel group
-
-            // Linework uses same initial transform as mesh
-            modLinework.position.copy(doorRecord.initialPosition);               // <-- Restore initial position
-            modLinework.quaternion.copy(doorRecord.initialQuaternion);           // <-- Restore initial quaternion
-
-            // Translate so pivot is at origin, rotate, translate back
-            modLinework.position.sub(pivot);                                     // <-- Move pivot to origin
-            modLinework.position.applyQuaternion(rotQuat);                       // <-- Rotate position vector
-            modLinework.position.add(pivot);                                     // <-- Move back
-
-            // Apply rotation to orientation
-            modLinework.quaternion.premultiply(rotQuat);                         // <-- Combine rotations
+        // Step 3: Apply linear translation for MVE_* panels (additive on top of any rotation)
+        if (panel.type === Na__DoorAnim__MOD_TYPE_ROT_MVE || panel.type === Na__DoorAnim__MOD_TYPE_MVE_ONLY) {
+            if (panel.mveAxisVector) {
+                const distance = panel.mveDistanceUnits * progress;
+                modObject.position.addScaledVector(panel.mveAxisVector, distance);
+            }
         }
 
-        // Store current angle
-        doorRecord.currentAngleRad = angleRad;                                   // <-- Track current angle
+        // FIXED panels: no transform change (intentionally untouched).
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Apply Animation Progress to All Panels (Mesh + Linework)
+    // ------------------------------------------------------------
+    function Na__DoorAnim__ApplyAllPanels(doorRecord, progress) {
+        for (const panel of doorRecord.panels) {
+            Na__DoorAnim__ApplyPanelTransform(panel.modObjectMesh,     panel, progress);
+            Na__DoorAnim__ApplyPanelTransform(panel.modObjectLinework, panel, progress);
+        }
+
+        // Update progress + backward-compat angle for legacy Walk Mode reads
+        doorRecord.currentProgress = progress;
+        doorRecord.currentAngleRad = doorRecord.targetAngleRad * progress;
     }
     // ------------------------------------------------------------
 
@@ -529,41 +810,53 @@
         if (Na__DoorAnim__DoorRegistry.size === 0) return;                       // <-- No doors to animate
 
         Na__DoorAnim__DoorRegistry.forEach((doorRecord) => {
-            // Only process doors that are actively animating
             if (doorRecord.state !== Na__DoorAnim__STATE_OPENING
                 && doorRecord.state !== Na__DoorAnim__STATE_CLOSING) {
                 return;                                                          // <-- Skip idle doors
             }
 
-            // Advance animation timer
-            doorRecord.animElapsedMs += deltaMs;                                 // <-- Accumulate elapsed time
+            doorRecord.animElapsedMs += deltaMs;
 
-            // Calculate normalized progress [0, 1]
-            const rawT = Math.min(doorRecord.animElapsedMs / doorRecord.animDurationMs, 1.0);
-            const easedT = Na__DoorAnim__EaseInOutCubic(rawT);                   // <-- Apply easing
+            const rawT   = Math.min(doorRecord.animElapsedMs / doorRecord.animDurationMs, 1.0);
+            const easedT = Na__DoorAnim__EaseInOutCubic(rawT);
 
-            // Interpolate angle
-            const startAngle = doorRecord.animStartAngleRad;                     // <-- Animation start angle
-            const endAngle   = doorRecord.animEndAngleRad;                       // <-- Animation end angle
-            const currentAngle = startAngle + (endAngle - startAngle) * easedT;  // <-- Lerp
+            const startProgress = doorRecord.animStartProgress;
+            const endProgress   = doorRecord.animEndProgress;
+            const progress      = startProgress + (endProgress - startProgress) * easedT;
 
-            // Apply rotation to MOD object
-            Na__DoorAnim__ApplyPivotRotation(doorRecord, currentAngle);          // <-- Transform door panel
+            Na__DoorAnim__ApplyAllPanels(doorRecord, progress);                  // <-- Cascade transform across every panel
 
-            // Check if animation is complete
             if (rawT >= 1.0) {
+                const restDurationMs = Number.isFinite(doorRecord.effectiveDurationMs) && doorRecord.effectiveDurationMs > 0
+                    ? doorRecord.effectiveDurationMs
+                    : Na__DoorAnim__Config__AnimationDurationMs;
+
                 if (doorRecord.state === Na__DoorAnim__STATE_OPENING) {
-                    doorRecord.state = Na__DoorAnim__STATE_OPEN;                 // <-- Fully open
-                    doorRecord.animDurationMs = Na__DoorAnim__Config__AnimationDurationMs;
+                    doorRecord.state = Na__DoorAnim__STATE_OPEN;
+                    doorRecord.animDurationMs = restDurationMs;
                     console.log(`[DoorAnimation] Opened: "${doorRecord.adrName}"`);
 
                 } else if (doorRecord.state === Na__DoorAnim__STATE_CLOSING) {
-                    doorRecord.state = Na__DoorAnim__STATE_CLOSED;               // <-- Fully closed
-                    doorRecord.animDurationMs = Na__DoorAnim__Config__AnimationDurationMs;
+                    doorRecord.state = Na__DoorAnim__STATE_CLOSED;
+                    doorRecord.animDurationMs = restDurationMs;
                     console.log(`[DoorAnimation] Closed: "${doorRecord.adrName}"`);
                 }
             }
         });
+    }
+    // ------------------------------------------------------------
+
+
+    // LEGACY HELPER FUNCTION | Apply Single-Pivot Rotation (Backward Compatibility Wrapper)
+    // ------------------------------------------------------------
+    // Some external callers still invoke Na__DoorAnim__ApplyPivotRotation
+    // with a single radian value. We translate that into the equivalent
+    // progress fraction and re-emit through the panel-aware applier so any
+    // legacy invocation still drives all panels of a multi-panel door.
+    function Na__DoorAnim__ApplyPivotRotation(doorRecord, angleRad) {
+        const target = doorRecord.targetAngleRad;
+        const progress = (Math.abs(target) > 1e-6) ? (angleRad / target) : 0;
+        Na__DoorAnim__ApplyAllPanels(doorRecord, progress);
     }
     // ------------------------------------------------------------
 
@@ -616,11 +909,18 @@
             if (Number.isFinite(config['3dObject__Interaction__DoorAnimation__AnimationDurationMs'])) {
                 Na__DoorAnim__Config__AnimationDurationMs = config['3dObject__Interaction__DoorAnimation__AnimationDurationMs'];
             }
+            if (Number.isFinite(config['3dObject__Interaction__DoorAnimation__BifoldDurationMultiplier'])
+                && config['3dObject__Interaction__DoorAnimation__BifoldDurationMultiplier'] > 0) {
+                Na__DoorAnim__Config__BifoldDurationMultiplier = config['3dObject__Interaction__DoorAnimation__BifoldDurationMultiplier'];
+            }
             if (Number.isFinite(config['3dObject__Interaction__DoorAnimation__DefaultRotationDeg'])) {
                 Na__DoorAnim__Config__DefaultRotationDeg = config['3dObject__Interaction__DoorAnimation__DefaultRotationDeg'];
             }
             if (Number.isFinite(config['3dObject__Interaction__DoorAnimation__ClickThresholdPx'])) {
                 Na__DoorAnim__Config__ClickThresholdPx = config['3dObject__Interaction__DoorAnimation__ClickThresholdPx'];
+            }
+            if (typeof config['3dObject__Interaction__DoorAnimation__MultiPanelEnabled'] === 'boolean') {
+                Na__DoorAnim__Config__MultiPanelEnabled = config['3dObject__Interaction__DoorAnimation__MultiPanelEnabled'];
             }
         }
 

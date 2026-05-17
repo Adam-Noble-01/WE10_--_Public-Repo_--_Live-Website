@@ -229,12 +229,14 @@
     },
     "3dObject__InteractionsSystem": {
         "3dObject__Interaction__DoorAnimation": {
-            "3dObject__Interaction__DoorAnimation__Description"         : "Interactive door animation settings for click-to-open doors. Doors must be exported from SketchUp with ADR/MOD/ROT naming convention via GLB Builder v1.5.0+",
-            "3dObject__Interaction__DoorAnimation__Enabled"             : true,
-            "3dObject__Interaction__DoorAnimation__AnimationDurationMs" : 600,
-            "3dObject__Interaction__DoorAnimation__DefaultRotationDeg"  : 90,
-            "3dObject__Interaction__DoorAnimation__ClickThresholdPx"    : 4,
-            "3dObject__Interaction__DoorAnimation__CategoryNameTokens"  : [
+            "3dObject__Interaction__DoorAnimation__Description"               : "Interactive door animation settings for click-to-open doors. Single, bifold, and sliding doors are all supported via the unified ADR/MOD/ROT/MVE/FIXED naming contract emitted by the SketchUp Element Assembly Studio Pro plugin and exported through GLB Builder v1.5.0+. Animation progress drives every panel of a multi-panel ADR in lockstep.",
+            "3dObject__Interaction__DoorAnimation__Enabled"                   : true,
+            "3dObject__Interaction__DoorAnimation__AnimationDurationMs"       : 600,
+            "3dObject__Interaction__DoorAnimation__BifoldDurationMultiplier"  : 3.0,
+            "3dObject__Interaction__DoorAnimation__DefaultRotationDeg"        : 90,
+            "3dObject__Interaction__DoorAnimation__ClickThresholdPx"          : 4,
+            "3dObject__Interaction__DoorAnimation__MultiPanelEnabled"         : true,
+            "3dObject__Interaction__DoorAnimation__CategoryNameTokens"        : [
                 "ProposedDoors",
                 "ExistingDoors"
             ]
