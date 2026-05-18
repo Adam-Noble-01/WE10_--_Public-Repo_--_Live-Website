@@ -16,15 +16,28 @@
   time by detecting any `ROT_MVE` panel - sliding and single doors are
   untouched.
 - The SketchUp ExtFold layout modules (`Layout__EqualEqual`,
-  `Layout__AllOneWay`, `Layout__MasterSlaves`) now emit the V1.7.2 accordion
-  phasing contract: slaves rotate ~ ±90° (matching the master's outward swing
-  sign) with an alternating ±2° termination tilt, and translate by
+  `Layout__AllOneWay`, `Layout__MasterSlaves`) emit an accordion phasing
+  contract: slaves rotate ~ ±90° (matching the master's outward swing sign)
+  with an alternating termination tilt, and translate by
   `k * (panel_width - panel_thickness - gap)` toward the cascade jamb. This
   gives the open state a true zig-zag concertina silhouette rather than the
   previous flat-deck-of-cards stack.
 - Right-jamb masters now also swing **outward** correctly (positive sign in
   TrueVision's anticlockwise convention) - prior to V1.7.2 the right side
   could swing inward into the room.
+
+**SketchUp ExtFold V1.7.4 — 17-May-2026** (TrueVision wire contract unchanged)
+- Termination tilt raised from ±2° → ±5° so adjacent panels sit ~10° apart in
+  the open state, making the alternating zigzag clearly readable across the
+  room (the prior ±2° was too subtle and the user reported the rotation read
+  as "all the same way around").
+- Adaptive panel gap: `gap = max(50, 2*panel_w*sin(angle) + 30)` so adjacent
+  panels never physically overlap regardless of panel width. For a typical
+  800mm panel at ±5° this yields a ~170mm gap (220mm hinge spacing), giving
+  a clean accordion stack.
+- The TrueVision wire contract (`ROT__<deg>-Deg__MVE__X<signed>-mm`) is
+  unchanged - only the numeric values shifted, so no animation code change
+  was required on this side.
 
 ---
 
@@ -34,7 +47,7 @@
 - Name door assemblies with `ADR` prefix (e.g., `ADR002__InternalDoor__GroundFloor__PorchToLounge`)
 - Inside each ADR you can mix any of the following MOD types as flat siblings:
   - `MOD001__ROT__90-Deg__DoorPanel` or `MOD001__ROT__-90-Deg__DoorPanel`     — single hinged panel (interior + bifold master)
-  - `MOD003__ROT__-92-Deg__MVE__X-1140-mm__BifoldPanel`                       — bifold slave: rotates ~ ±90° AND slides toward the cascade jamb
+  - `MOD003__ROT__-95-Deg__MVE__X-580-mm__BifoldPanel`                        — bifold slave: rotates ~ ±90° (alternating ±5° tilt) AND slides toward the cascade jamb
   - `MOD002__MVE__X+1200-mm__SlidingPanel`                                     — sliding moving leaf (translation only)
   - `MOD003__FIXED__SlidingPanel`                                              — sliding fixed leaf (never animated)
 - Add one `ROT###__RotationPoint__<system>` marker per ROT/ROT_MVE panel (paired by sibling index).
@@ -217,21 +230,21 @@ SketchUp Model
 
 ### Bifold door (3-panel cascade, MasterSlaves layout)
 
-V1.7.2 of the SketchUp ExtFold layout modules emits an "accordion phasing"
-contract: every panel rotates to roughly **perpendicular** to the wall (with a
-small alternating termination tilt of ±2°) and the slaves translate toward the
-cascade jamb by `k * (panel_width - panel_thickness - gap)` so they stack at
-`panel_thickness + gap` from the previous panel - a true accordion fold rather
-than a flat deck-of-cards collapse. Slaves use ~±90° (matching the master's
-outward sign), NOT 180°.
+The SketchUp ExtFold layout modules emit an "accordion phasing" contract:
+every panel rotates to roughly **perpendicular** to the wall (with an
+alternating termination tilt of ±5° as of V1.7.4) and the slaves translate
+toward the cascade jamb by `k * (panel_width - panel_thickness - gap)` so
+they stack at `panel_thickness + gap` from the previous panel - a true
+accordion fold rather than a flat deck-of-cards collapse. Slaves use ~±90°
+(matching the master's outward sign), NOT 180°.
 
 ```
 SketchUp Model
 ├─ 25__ProposedBuilding__Doors
 │  └─ ADR007__BifoldDoor                                              ← Door assembly
-│     ├─ MOD001__ROT__-88-Deg__BifoldPanel                            ← Master (left-jamb, hinged only, swings outward)
-│     ├─ MOD002__ROT__-92-Deg__MVE__X-1140-mm__BifoldPanel            ← Slave 1 (rotates ~ -90°, slides toward LEFT jamb)
-│     ├─ MOD003__ROT__-88-Deg__MVE__X-2280-mm__BifoldPanel            ← Slave 2 (rotates ~ -90°, slides further toward LEFT jamb)
+│     ├─ MOD001__ROT__-85-Deg__BifoldPanel                            ← Master (left-jamb, hinged only, swings outward, +5° tilt)
+│     ├─ MOD002__ROT__-95-Deg__MVE__X-580-mm__BifoldPanel             ← Slave 1 (rotates ~ -90° with -5° tilt, slides toward LEFT jamb)
+│     ├─ MOD003__ROT__-85-Deg__MVE__X-1160-mm__BifoldPanel            ← Slave 2 (rotates ~ -90° with +5° tilt, slides further toward LEFT jamb)
 │     ├─ ROT001__RotationPoint__BifoldHingeCentre                     ← Pairs with MOD001
 │     ├─ ROT002__RotationPoint__BifoldHingeCentre                     ← Pairs with MOD002
 │     ├─ ROT003__RotationPoint__BifoldHingeCentre                     ← Pairs with MOD003
@@ -239,16 +252,19 @@ SketchUp Model
 │     └─ MVE002__MovementPoint__BifoldPanelTrack                      ← Informational only
 ```
 
-**Sign conventions (V1.7.2 contract):**
+**Sign conventions (V1.7.4 contract):**
 
-- Left-jamb master / left-cascade slave: `rot_degrees ≈ -90` (-88 or -92)
-- Right-jamb master / right-cascade slave: `rot_degrees ≈ +90` (+88 or +92)
-- Slaves alternate the ±2° tilt by their position from the cascade master,
-  giving the open state a zig-zag concertina silhouette
+- Left-jamb master / left-cascade slave: `rot_degrees ≈ -90` (-85 or -95)
+- Right-jamb master / right-cascade slave: `rot_degrees ≈ +90` (+85 or +95)
+- Slaves alternate the ±5° tilt by their position from the cascade master,
+  giving the open state a zig-zag concertina silhouette with ~10° between
+  adjacent panels (clearly readable across the room)
 - Slave `mve_distance_mm` for the k-th slave from the cascade master is
   `k * (panel_width - panel_thickness - gap)` with a NEGATIVE sign for left
-  cascades and a POSITIVE sign for right cascades. The default visible gap
-  between adjacent open panels is 10 mm.
+  cascades and a POSITIVE sign for right cascades. As of V1.7.4 the gap is
+  adaptive: `max(50, 2*panel_w*sin(angle) + 30)` mm so adjacent alternating
+  tilts never physically overlap (for a typical 800mm panel at ±5° this
+  yields a ~170mm gap = 220mm hinge spacing).
 
 ### Sliding door (one moving + one fixed leaf)
 
