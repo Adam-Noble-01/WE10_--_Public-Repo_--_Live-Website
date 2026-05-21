@@ -899,17 +899,34 @@ def run_r2_sync(
 
             # TrueVision sync
             if sync_truevision:
-                model_groups = discover_model_groups(project['project_path'])
+                model_groups     = discover_model_groups(project['project_path'])
+                project_data_path = (
+                    project['project_path'] / TRUEVISION_CONTENT_FOLDER / JSON_PROJECT_DATA_FILENAME
+                )
+
                 if model_groups:
-                    project_data_path = (
-                        project['project_path'] / TRUEVISION_CONTENT_FOLDER / JSON_PROJECT_DATA_FILENAME
-                    )
                     tv_ops = collect_sync_operations(
                         s3_client, bucket_name,
                         year_folder_name, project, model_groups,
                         project_data_path if project_data_path.is_file() else None
                     )
                     project_operations.extend(tv_ops)
+                elif project_data_path.is_file():
+                    # No GLBs yet -- sync the project data JSON on its own so the
+                    # TrueVision app can load the project config from CDN before
+                    # any model files have been exported.
+                    r2_key      = build_r2_key_project_data(year_folder_name, project['project_folder'])
+                    action, detail = determine_action(s3_client, bucket_name, project_data_path, r2_key)
+                    project_operations.append({
+                        'local_path'   : project_data_path,
+                        'r2_key'       : r2_key,
+                        'content_type' : CONTENT_TYPE_JSON,
+                        'action'       : action,
+                        'detail'       : detail,
+                        'size'         : project_data_path.stat().st_size,
+                        'group_id'     : '__project_data__',
+                        'filename'     : JSON_PROJECT_DATA_FILENAME,
+                    })
 
             # PlanVision sync
             if sync_planvision:

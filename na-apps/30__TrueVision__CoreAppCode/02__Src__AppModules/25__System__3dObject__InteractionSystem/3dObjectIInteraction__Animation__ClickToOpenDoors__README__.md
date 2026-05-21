@@ -35,9 +35,28 @@
   panels never physically overlap regardless of panel width. For a typical
   800mm panel at ±5° this yields a ~170mm gap (220mm hinge spacing), giving
   a clean accordion stack.
+
+**SketchUp ExtFold V1.7.6 — 18-May-2026** (TrueVision wire contract unchanged)
+- Replaced V1.7.4's uniform hinge spacing with **pair-aware alternating
+  spacing** so the open state reads as a series of true V pairs:
+  - **Within a V pair** (odd slave_pos paired with previous panel): the gap
+    is the adaptive `max(50, 2*panel_w*sin(angle) + safety)`.
+  - **Between adjacent V pairs** (even slave_pos starting a new pair): the
+    gap is a fixed `NA_ACCORDION_GAP_BETWEEN_PAIRS_MM = 10mm`, giving the
+    real-bifold knuckle-hinge gap at the head-track level.
+
+**SketchUp ExtFold V1.7.7 — 18-May-2026** (TrueVision wire contract unchanged)
+- Reduced `NA_ACCORDION_GAP_SAFETY_MM` from 30 → 10mm so the outer V vertex
+  gap at the far edges of each V pair matches the inner Λ gap at the
+  head-track. Every knuckle in the bifold now reads at a uniform 10mm,
+  matching a real-bifold concertina where every knuckle is the same width.
+- For a typical 800mm panel at ±5° tilt the within-pair gap drops from 170
+  → 150mm (hinge spacing 200mm) and the outer V vertex air gap drops from
+  30 → 10mm.
 - The TrueVision wire contract (`ROT__<deg>-Deg__MVE__X<signed>-mm`) is
-  unchanged - only the numeric values shifted, so no animation code change
-  was required on this side.
+  unchanged - only the numeric MVE values shifted. For a 4-panel × 800mm
+  left cascade, slaves now emit MVE values of **-600 / -1340 / -1940mm**
+  (vs V1.7.6's -581 / -1321 / -1901mm).
 
 ---
 
@@ -47,7 +66,7 @@
 - Name door assemblies with `ADR` prefix (e.g., `ADR002__InternalDoor__GroundFloor__PorchToLounge`)
 - Inside each ADR you can mix any of the following MOD types as flat siblings:
   - `MOD001__ROT__90-Deg__DoorPanel` or `MOD001__ROT__-90-Deg__DoorPanel`     — single hinged panel (interior + bifold master)
-  - `MOD003__ROT__-95-Deg__MVE__X-580-mm__BifoldPanel`                        — bifold slave: rotates ~ ±90° (alternating ±5° tilt) AND slides toward the cascade jamb
+  - `MOD003__ROT__-95-Deg__MVE__X-600-mm__BifoldPanel`                        — bifold slave: rotates ~ ±90° (alternating ±5° tilt) AND slides toward the cascade jamb (V1.7.7 uniform 10mm knuckles)
   - `MOD002__MVE__X+1200-mm__SlidingPanel`                                     — sliding moving leaf (translation only)
   - `MOD003__FIXED__SlidingPanel`                                              — sliding fixed leaf (never animated)
 - Add one `ROT###__RotationPoint__<system>` marker per ROT/ROT_MVE panel (paired by sibling index).
@@ -233,9 +252,12 @@ SketchUp Model
 The SketchUp ExtFold layout modules emit an "accordion phasing" contract:
 every panel rotates to roughly **perpendicular** to the wall (with an
 alternating termination tilt of ±5° as of V1.7.4) and the slaves translate
-toward the cascade jamb by `k * (panel_width - panel_thickness - gap)` so
-they stack at `panel_thickness + gap` from the previous panel - a true
-accordion fold rather than a flat deck-of-cards collapse. Slaves use ~±90°
+toward the cascade jamb so they stack as a series of V pairs. As of V1.7.6
+the per-slave hinge spacing **alternates** between an adaptive within-pair
+gap (`max(50, 2*panel_w*sin(angle)+30)` mm, ~170mm at 800mm panels and
+±5° tilt) and a fixed between-pairs gap (10mm), producing real-bifold V
+pairs with knuckle-style separation rather than a uniform deck-of-cards
+collapse. Slaves use ~±90°
 (matching the master's outward sign), NOT 180°.
 
 ```
@@ -243,8 +265,8 @@ SketchUp Model
 ├─ 25__ProposedBuilding__Doors
 │  └─ ADR007__BifoldDoor                                              ← Door assembly
 │     ├─ MOD001__ROT__-85-Deg__BifoldPanel                            ← Master (left-jamb, hinged only, swings outward, +5° tilt)
-│     ├─ MOD002__ROT__-95-Deg__MVE__X-580-mm__BifoldPanel             ← Slave 1 (rotates ~ -90° with -5° tilt, slides toward LEFT jamb)
-│     ├─ MOD003__ROT__-85-Deg__MVE__X-1160-mm__BifoldPanel            ← Slave 2 (rotates ~ -90° with +5° tilt, slides further toward LEFT jamb)
+│     ├─ MOD002__ROT__-95-Deg__MVE__X-600-mm__BifoldPanel             ← Slave 1 (paired with master in V pair 1; -5° tilt, slides toward LEFT jamb)
+│     ├─ MOD003__ROT__-85-Deg__MVE__X-1340-mm__BifoldPanel            ← Slave 2 (starts V pair 2 with 10mm gap from Slave 1; +5° tilt)
 │     ├─ ROT001__RotationPoint__BifoldHingeCentre                     ← Pairs with MOD001
 │     ├─ ROT002__RotationPoint__BifoldHingeCentre                     ← Pairs with MOD002
 │     ├─ ROT003__RotationPoint__BifoldHingeCentre                     ← Pairs with MOD003
@@ -252,7 +274,7 @@ SketchUp Model
 │     └─ MVE002__MovementPoint__BifoldPanelTrack                      ← Informational only
 ```
 
-**Sign conventions (V1.7.4 contract):**
+**Sign conventions (V1.7.7 contract):**
 
 - Left-jamb master / left-cascade slave: `rot_degrees ≈ -90` (-85 or -95)
 - Right-jamb master / right-cascade slave: `rot_degrees ≈ +90` (+85 or +95)
@@ -260,11 +282,18 @@ SketchUp Model
   giving the open state a zig-zag concertina silhouette with ~10° between
   adjacent panels (clearly readable across the room)
 - Slave `mve_distance_mm` for the k-th slave from the cascade master is
-  `k * (panel_width - panel_thickness - gap)` with a NEGATIVE sign for left
-  cascades and a POSITIVE sign for right cascades. As of V1.7.4 the gap is
-  adaptive: `max(50, 2*panel_w*sin(angle) + 30)` mm so adjacent alternating
-  tilts never physically overlap (for a typical 800mm panel at ±5° this
-  yields a ~170mm gap = 220mm hinge spacing).
+  `(k * panel_width) - cumulative_hinge_offset` with a NEGATIVE sign for left
+  cascades and a POSITIVE sign for right cascades. As of V1.7.6 the cumulative
+  hinge offset uses **pair-aware alternating gaps**, and as of V1.7.7 the
+  within-pair safety drops from 30 → 10mm so every knuckle (inner Λ and outer V)
+  is the same 10mm:
+    - For odd i in [1..k]: `gap(i) = within_pair_gap = max(50, 2*panel_w*sin(angle)+10)` mm (~150mm at 800mm panels and ±5° tilt).
+    - For even i in [1..k]: `gap(i) = NA_ACCORDION_GAP_BETWEEN_PAIRS_MM = 10mm`.
+    - `cumulative_hinge_offset = sum_{i=1..k} (panel_thickness + gap(i))`.
+
+  For a 4-panel × 800mm left cascade this gives slave MVE distances of
+  **-600 / -1340 / -1940mm** (V1.7.7), vs V1.7.6's -581 / -1321 / -1901mm
+  and V1.7.4's uniform -580 / -1160 / -1740mm.
 
 ### Sliding door (one moving + one fixed leaf)
 
