@@ -2,6 +2,25 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.2.5  -  21-May-2026
+### Site Boundaries Toggle — Conditional Layer Support
+
+**Overview**
+- Added `Site Boundaries` as a first-class toggleable model layer to match the new `08__Site__Boundaries` SketchUp tag. When a project includes `TrueVision__SiteBoundaries__*` GLBs, a "Site Boundaries" toggle button appears automatically in the Model Parts List panel between "Proposed Interior Decor" and "Landscape". Projects without boundary geometry are unaffected.
+
+**Model Loader — Load Order**
+- `"TrueVision__SiteBoundaries"` inserted into `Na__ModelCategories__LoadOrder` in `Na__ModelLoader__MultiModel.js` between `ProposedInteriorDecor` (tag 29) and `LandscapeEnvironment` (tags 07, 09), matching the tag-08 numeric position in the SSOT.
+- The existing URL parse regex `/(?:.*?__)?(TrueVision)__(.+?)__(MeshModel|LineworkModel)__\.glb/i` already captures `TrueVision__SiteBoundaries` filenames; no parser changes required.
+
+**Toggle UI — Display Name**
+- `"TrueVision__SiteBoundaries": "Site Boundaries"` added to `Na__ModelToggle__DisplayNames` in `Na__UiFeature__ModelToggle__Controls.js` at the correct position between ProposedInteriorDecor and LandscapeEnvironment.
+- Button is fully conditional — only created when boundary GLBs are present in the project's model URL list.
+
+**Files Changed**
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__MultiModel.js` — added `TrueVision__SiteBoundaries` to load order
+- `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js` — added display name
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.2.4  -  10-Mar-2026
 ### GPU Performance Overhaul — Profile Lines Pipeline Optimisation
 
