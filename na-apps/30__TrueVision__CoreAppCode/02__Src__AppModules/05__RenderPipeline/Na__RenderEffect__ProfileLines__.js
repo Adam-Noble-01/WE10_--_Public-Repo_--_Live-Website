@@ -83,12 +83,28 @@
     // ---------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Collect Visible Mesh Objects
+    // HELPER FUNCTION | Walk Parent Chain to Detect Linework Group Membership
+    // ---------------------------------------------------------------
+    function Na__IsInsideLineworkGroup(obj) {
+        let node = obj;
+        while (node) {
+            if (node.userData && node.userData.Na__ModelType === 'linework') return true; // <-- Root tagged by Na__ModelLoader__MultiModel.js
+            node = node.parent;
+        }
+        return false;
+    }
+    // ---------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Collect Visible Mesh Objects (Surface Meshes Only)
     // ---------------------------------------------------------------
     function collectMeshObjects(scene) {
         const meshObjects = [];
         scene.traverse((obj) => {
-            if (obj.isMesh) meshObjects.push(obj); // <-- Collect all visible mesh objects
+            if (!obj.isMesh)                        return;       // <-- Only real meshes are considered
+            if (obj.isLine2 || obj.isLineSegments2) return;       // <-- LineSegments2 sets isMesh=true internally; their LineMaterial must NEVER be swapped
+            if (Na__IsInsideLineworkGroup(obj))     return;       // <-- Defensive: ignore stray Mesh nodes nested inside a linework GLB root
+            meshObjects.push(obj);                                // <-- Real surface mesh; eligible for the profile-colour swap
         });
         return meshObjects;
     }
@@ -243,6 +259,8 @@
             ? config.RenderEffect__ProfileLines__EdgeWidthDistanceFar
             : PROFILE_LINES__DEFAULT_EDGE_WIDTH_DIST_FAR;
         const edgeWidthDistRange = edgeWidthDistFar - edgeWidthDistNear; // <-- Precompute denominator
+        const colorPassIncludesLinework =
+            config.RenderEffect__ProfileLines__ColorPassIncludesLinework !== false; // <-- Default ON; set to false in AppConfig for mesh-only fast-path (auto-detected profile lines lose linework colour tint)
         let cachedLineObjects = [];
         let cachedMeshObjects = [];
         let cachedOriginalMaterials = [];                                    // <-- Pre-allocated per-mesh material backup array
@@ -273,6 +291,11 @@
             cachedMeshObjects = collectMeshObjects(scene);
             cachedOriginalMaterials = new Array(cachedMeshObjects.length);    // <-- Pre-allocate to mesh count; slots reused every frame
             sceneCacheDirty = false;
+            console.log(                                                      // <-- One-shot per-rebuild diagnostic so mesh/linework regressions are visible
+                `[TrueVision3D] ProfileLines cache rebuilt: `
+                + `meshes(swap)=${cachedMeshObjects.length}, `
+                + `lines(hide)=${cachedLineObjects.length}`
+            );
         }
         // ---------------------------------------------------------------
 
@@ -315,8 +338,11 @@
             renderer.render(scene, camera);
             scene.overrideMaterial = savedOverrideMaterial;
 
-            // PASS 2 | Profile colour at half-res (meshes fallback + linework vertex colours)
-            lineObjects.forEach((obj) => { obj.visible = true; }); // <-- Restore linework for colour pass
+            // PASS 2 | Profile colour at half-res (meshes fallback + optional linework vertex colours)
+            if (colorPassIncludesLinework) {
+                lineObjects.forEach((obj) => { obj.visible = true; }); // <-- Restore linework for colour pass (full quality: auto-detected profile lines pick up SketchUp linework colours)
+            }
+            // else: linework stays hidden from PASS 1; PASS 2 renders meshes only (fastest path; profile lines take uniform fallback colour)
 
             for (let i = 0, len = meshObjects.length; i < len; i++) {
                 cachedOriginalMaterials[i] = meshObjects[i].material;        // <-- Stash into pre-allocated slot (no per-frame object creation)
@@ -326,11 +352,15 @@
             renderer.setClearColor(fallbackProfileColor, 1.0); // <-- Background pixels receive fallback colour
             renderer.setRenderTarget(profileColorRenderTarget);
             renderer.clear();
-            renderer.render(scene, camera);                    // <-- Meshes (dark fallback) + lines (vertex colours) in one depth context
+            renderer.render(scene, camera);                    // <-- Meshes (dark fallback) + lines (vertex colours, if enabled) in one depth context
             renderer.setRenderTarget(null);
 
             for (let i = 0, len = meshObjects.length; i < len; i++) {
                 meshObjects[i].material = cachedOriginalMaterials[i];        // <-- Restore original mesh materials
+            }
+
+            if (!colorPassIncludesLinework) {
+                lineObjects.forEach((obj) => { obj.visible = true; }); // <-- Restore linework so the main RenderPass and FXAA still draw them
             }
 
             renderer.setClearColor(savedClearColor, savedClearAlpha);

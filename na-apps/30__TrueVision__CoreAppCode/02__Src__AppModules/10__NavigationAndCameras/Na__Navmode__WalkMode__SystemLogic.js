@@ -70,7 +70,7 @@
     let Na__WalkMode__Config__GravityMmPerSecSq            = 9810;       // <-- Gravity acceleration (mm/s^2)
     let Na__WalkMode__Config__MaxStepHeightMm              = 350;        // <-- Max climbable step height (mm)
     let Na__WalkMode__Config__MouseSensitivity             = 0.002;      // <-- Mouse look sensitivity
-    let Na__WalkMode__Config__DoorProximityThresholdMm     = 2000;       // <-- Door proximity trigger distance (mm)
+    let Na__WalkMode__Config__DoorProximityThresholdMm     = 3000;       // <-- Door proximity trigger distance (mm)
     // ------------------------------------------------------------
 
 
@@ -134,9 +134,27 @@
 
     // MODULE VARIABLES | Collision Data
     // ------------------------------------------------------------
-    let Na__WalkMode__CollisionMeshes                      = [];         // <-- Array of meshes for collision raycasting
+    let Na__WalkMode__CollisionMeshes                      = [];         // <-- Array of meshes for collision raycasting (excludes linework + exempt helpers)
     const Na__WalkMode__Raycaster                          = new THREE.Raycaster();  // <-- Reusable raycaster
     const Na__WalkMode__RayDirection__Down                 = new THREE.Vector3(0, -1, 0);  // <-- Downward ray direction
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Reusable Scratch Vectors (Avoid Per-Frame Allocation in Hot Paths)
+    // ------------------------------------------------------------
+    const Na__WalkMode__Scratch__RayOrigin                 = new THREE.Vector3();         // <-- Reusable raycast origin
+    const Na__WalkMode__Scratch__MoveDelta                 = new THREE.Vector3();         // <-- Reusable horizontal move delta
+    const Na__WalkMode__Scratch__MoveDirection             = new THREE.Vector3();         // <-- Reusable normalised move direction
+    const Na__WalkMode__Scratch__HitNormal                 = new THREE.Vector3();         // <-- Reusable face-normal scratch
+    const Na__WalkMode__Scratch__SlideVelocity             = new THREE.Vector3();         // <-- Reusable wall-slide velocity
+    const Na__WalkMode__Scratch__ResolvedPosition          = new THREE.Vector3();         // <-- Reusable resolved position return value
+    const Na__WalkMode__Scratch__Forward                   = new THREE.Vector3();         // <-- Reusable forward vector
+    const Na__WalkMode__Scratch__Right                     = new THREE.Vector3();         // <-- Reusable right vector
+    const Na__WalkMode__Scratch__MoveVector                = new THREE.Vector3();         // <-- Reusable per-frame movement accumulator
+    const Na__WalkMode__Scratch__PreviousPosition          = new THREE.Vector3();         // <-- Reusable snapshot of capsule position before move
+    const Na__WalkMode__Scratch__ProposedPosition          = new THREE.Vector3();         // <-- Reusable proposed (unresolved) position
+    const Na__WalkMode__Scratch__UpAxis                    = new THREE.Vector3(0, 1, 0);  // <-- World-up reference axis (immutable)
+    const Na__WalkMode__Scratch__Euler                     = new THREE.Euler();           // <-- Reusable Euler for camera quaternion
     // ------------------------------------------------------------
 
 
@@ -270,6 +288,25 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Walk Parent Chain to Detect Linework Group Membership
+    // ------------------------------------------------------------
+    // Mirrors the same defensive guard used in Na__RenderEffect__ProfileLines__.js
+    // so the collision system never raycasts against any object that belongs to
+    // a linework GLB (visual decoration only - has no physical collision meaning).
+    // The tag is set in Na__ModelLoader__MultiModel.js when each linework root is
+    // attached to its category group (userData.Na__ModelType = 'linework').
+    // ------------------------------------------------------------
+    function Na__WalkMode__IsInsideLineworkGroup(object) {
+        let node = object;
+        while (node) {
+            if (node.userData && node.userData.Na__ModelType === 'linework') return true; // <-- Tagged linework root
+            node = node.parent;
+        }
+        return false;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Set Collision Meshes from Loaded Model Groups
     // ------------------------------------------------------------
     function Na__WalkMode__SetCollisionMeshes(modelGroupRoot) {
@@ -277,13 +314,22 @@
 
         if (!modelGroupRoot) return;
 
+        let rejectedFatLine     = 0;
+        let rejectedLineworkGrp = 0;
+        let rejectedExempt      = 0;
+
         modelGroupRoot.traverse((child) => {
             if (!child.isMesh) return;                                        // <-- Skip non-mesh nodes
-            if (Na__WalkMode__IsCollisionExempt(child)) return;              // <-- Skip exempted helper objects
+            if (child.isLine2 || child.isLineSegments2) { rejectedFatLine++; return; }     // <-- LineSegments2 sets isMesh=true; their template quad has no collision meaning
+            if (Na__WalkMode__IsInsideLineworkGroup(child)) { rejectedLineworkGrp++; return; } // <-- Defensive: any mesh nested inside a linework GLB root
+            if (Na__WalkMode__IsCollisionExempt(child)) { rejectedExempt++; return; }      // <-- Skip exempted helper objects (Dev cube, OrbitHelperCube)
             Na__WalkMode__CollisionMeshes.push(child);
         });
 
-        console.log(`[WalkMode] Collision meshes set: ${Na__WalkMode__CollisionMeshes.length} meshes`);
+        console.log(
+            `[WalkMode] Collision meshes set: ${Na__WalkMode__CollisionMeshes.length} meshes `
+            + `(rejected: ${rejectedFatLine} fat-lines, ${rejectedLineworkGrp} linework-grouped, ${rejectedExempt} exempt)`
+        );
     }
     // ------------------------------------------------------------
 
@@ -299,8 +345,8 @@
     function Na__WalkMode__RaycastGround(positionX, positionZ, startHeight) {
         if (Na__WalkMode__CollisionMeshes.length === 0) return null;
 
-        const rayOrigin = new THREE.Vector3(positionX, startHeight, positionZ);
-        Na__WalkMode__Raycaster.set(rayOrigin, Na__WalkMode__RayDirection__Down);
+        Na__WalkMode__Scratch__RayOrigin.set(positionX, startHeight, positionZ);                         // <-- Reused scratch (no allocation)
+        Na__WalkMode__Raycaster.set(Na__WalkMode__Scratch__RayOrigin, Na__WalkMode__RayDirection__Down); // <-- Raycaster internally copies origin/direction
         Na__WalkMode__Raycaster.far = startHeight + Na__WalkMode__Units__CapsuleHeight * 2;
 
         const intersections = Na__WalkMode__Raycaster.intersectObjects(Na__WalkMode__CollisionMeshes, false);
@@ -314,33 +360,34 @@
     // ------------------------------------------------------------
 
 
+    // MODULE VARIABLES | Pre-Computed Ground Probe Offsets (Cross Pattern)
+    // ------------------------------------------------------------
+    // Lazily populated on first DetectGroundHeight call (after units are known).
+    // Flat numeric pairs to avoid per-call object literal allocation.
+    // ------------------------------------------------------------
+    let Na__WalkMode__GroundProbeOffsetsX = null;
+    let Na__WalkMode__GroundProbeOffsetsZ = null;
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Multi-Ray Ground Detection (Cross Pattern for Stability)
     // ------------------------------------------------------------
     function Na__WalkMode__DetectGroundHeight(capsuleX, capsuleZ, currentFootY) {
-        const rayStartY = currentFootY + Na__WalkMode__Units__CapsuleHeight + Na__WalkMode__RAYCAST_DOWN_OFFSET;
-        const radius    = Na__WalkMode__Units__CapsuleRadius * 0.5;
+        if (Na__WalkMode__GroundProbeOffsetsX === null) {
+            const r = Na__WalkMode__Units__CapsuleRadius * 0.5;
+            Na__WalkMode__GroundProbeOffsetsX = [ 0,  r, -r,  0,  0 ];                                   // <-- Cross pattern: center + 4 cardinals
+            Na__WalkMode__GroundProbeOffsetsZ = [ 0,  0,  0,  r, -r ];
+        }
 
+        const rayStartY = currentFootY + Na__WalkMode__Units__CapsuleHeight + Na__WalkMode__RAYCAST_DOWN_OFFSET;
+        const offsetsX  = Na__WalkMode__GroundProbeOffsetsX;
+        const offsetsZ  = Na__WalkMode__GroundProbeOffsetsZ;
         let bestGroundY = null;
 
-        const offsets = [
-            { x: 0,       z: 0 },
-            { x: radius,  z: 0 },
-            { x: -radius, z: 0 },
-            { x: 0,       z: radius },
-            { x: 0,       z: -radius }
-        ];
-
-        for (const offset of offsets) {
-            const groundY = Na__WalkMode__RaycastGround(
-                capsuleX + offset.x,
-                capsuleZ + offset.z,
-                rayStartY
-            );
-
-            if (groundY !== null) {
-                if (bestGroundY === null || groundY > bestGroundY) {
-                    bestGroundY = groundY;
-                }
+        for (let i = 0; i < 5; i++) {
+            const groundY = Na__WalkMode__RaycastGround(capsuleX + offsetsX[i], capsuleZ + offsetsZ[i], rayStartY);
+            if (groundY !== null && (bestGroundY === null || groundY > bestGroundY)) {
+                bestGroundY = groundY;
             }
         }
 
@@ -354,6 +401,19 @@
     function Na__WalkMode__ApplyGravity(deltaSec) {
         if (Na__WalkMode__CollisionMeshes.length === 0) {
             Na__WalkMode__IsGrounded = true;
+            return;
+        }
+
+        // FAST PATH | Skip the 5-ray ground detection entirely when the player is
+        // standing still on solid ground.  Ground state cannot change without
+        // either vertical velocity (jumping/falling) or horizontal input (walking
+        // off a ledge), so re-raycasting every frame just to confirm the player
+        // is still on the floor is pure wasted GPU/CPU cost.  This collapses idle
+        // walk-mode ground checks from ~5,500 mesh tests per frame to zero.
+        if (Na__WalkMode__IsGrounded
+            && Na__WalkMode__VelocityY === 0
+            && Na__WalkMode__InputForward === 0
+            && Na__WalkMode__InputStrafe === 0) {
             return;
         }
 
@@ -417,66 +477,59 @@
     // FUNCTION | Resolve Horizontal Collisions with Stair Stepping
     // ------------------------------------------------------------
     function Na__WalkMode__ResolveHorizontalCollisions(proposedPosition, previousPosition) {
-        const moveDelta    = new THREE.Vector3().subVectors(proposedPosition, previousPosition);
+        const moveDelta = Na__WalkMode__Scratch__MoveDelta.subVectors(proposedPosition, previousPosition); // <-- Reused scratch (no allocation)
         moveDelta.y = 0;
         const moveDistance = moveDelta.length();
 
         if (moveDistance < 0.0001) return proposedPosition;
 
-        const moveDirection = moveDelta.clone().normalize();
+        const moveDirection = Na__WalkMode__Scratch__MoveDirection.copy(moveDelta).normalize();           // <-- Reused scratch (no allocation)
         const capsuleRadius = Na__WalkMode__Units__CapsuleRadius;
-        const rayDistance    = moveDistance + capsuleRadius;
+        const rayDistance   = moveDistance + capsuleRadius;
 
         const ankleHeight = Na__WalkMode__CapsulePosition.y + 0.05;
         const waistHeight = Na__WalkMode__CapsulePosition.y + Na__WalkMode__Units__CapsuleHeight * 0.5;
         const headHeight  = Na__WalkMode__CapsulePosition.y + Na__WalkMode__Units__CapsuleHeight * 0.9;
 
-        const rayHeights = [ankleHeight, waistHeight, headHeight];
-        let blocked = false;
+        const rayOrigin = Na__WalkMode__Scratch__RayOrigin;                                              // <-- Single reused origin, mutated per ray
+        let blocked         = false;
         let lowestHitHeight = Infinity;
-        let hitNormal = null;
+        let hitNormal       = null;
 
-        for (const rayHeight of rayHeights) {
-            const rayOrigin = new THREE.Vector3(previousPosition.x, rayHeight, previousPosition.z);
+        for (let i = 0; i < 3; i++) {
+            const rayHeight = (i === 0) ? ankleHeight : (i === 1) ? waistHeight : headHeight;
+            rayOrigin.set(previousPosition.x, rayHeight, previousPosition.z);
             const hit = Na__WalkMode__RaycastHorizontal(rayOrigin, moveDirection, rayDistance);
 
             if (hit && hit.distance < rayDistance) {
                 blocked = true;
                 if (rayHeight < lowestHitHeight) {
                     lowestHitHeight = rayHeight;
-                    hitNormal = hit.face ? hit.face.normal.clone() : null;
+                    hitNormal       = hit.face ? hit.face.normal : null;                                 // <-- Hold reference; cloned later only if needed
                 }
             }
         }
 
         if (!blocked) return proposedPosition;
 
-        const ankleOrigin = new THREE.Vector3(previousPosition.x, ankleHeight, previousPosition.z);
-        const ankleHit    = Na__WalkMode__RaycastHorizontal(ankleOrigin, moveDirection, rayDistance);
+        rayOrigin.set(previousPosition.x, ankleHeight, previousPosition.z);
+        const ankleHit = Na__WalkMode__RaycastHorizontal(rayOrigin, moveDirection, rayDistance);
 
         if (ankleHit && ankleHit.distance < rayDistance) {
-            const obstacleY   = ankleHit.point.y;
-            const stepHeight  = obstacleY - Na__WalkMode__CapsulePosition.y;
+            const obstacleY  = ankleHit.point.y;
+            const stepHeight = obstacleY - Na__WalkMode__CapsulePosition.y;
 
             if (stepHeight > 0 && stepHeight <= Na__WalkMode__Units__MaxStepHeight) {
-                const stepCheckOrigin = new THREE.Vector3(
-                    proposedPosition.x,
-                    Na__WalkMode__CapsulePosition.y + Na__WalkMode__Units__MaxStepHeight + Na__WalkMode__Units__CapsuleHeight,
-                    proposedPosition.z
-                );
+                const stepCheckStartY = Na__WalkMode__CapsulePosition.y + Na__WalkMode__Units__MaxStepHeight + Na__WalkMode__Units__CapsuleHeight;
                 const stepGroundY = Na__WalkMode__RaycastGround(
                     proposedPosition.x,
                     proposedPosition.z,
-                    stepCheckOrigin.y
+                    stepCheckStartY
                 );
 
                 if (stepGroundY !== null && (stepGroundY - Na__WalkMode__CapsulePosition.y) <= Na__WalkMode__Units__MaxStepHeight) {
-                    const headCheckOrigin = new THREE.Vector3(
-                        proposedPosition.x,
-                        stepGroundY + Na__WalkMode__Units__CapsuleHeight * 0.9,
-                        proposedPosition.z
-                    );
-                    const headHit = Na__WalkMode__RaycastHorizontal(headCheckOrigin, moveDirection, capsuleRadius);
+                    rayOrigin.set(proposedPosition.x, stepGroundY + Na__WalkMode__Units__CapsuleHeight * 0.9, proposedPosition.z);
+                    const headHit = Na__WalkMode__RaycastHorizontal(rayOrigin, moveDirection, capsuleRadius);
 
                     if (!headHit) {
                         proposedPosition.y = stepGroundY;
@@ -488,22 +541,21 @@
         }
 
         if (hitNormal) {
-            const worldNormal = hitNormal.normalize();
+            const worldNormal = Na__WalkMode__Scratch__HitNormal.copy(hitNormal);                        // <-- Copy into scratch; do not mutate the geometry face normal
             worldNormal.y = 0;
             worldNormal.normalize();
 
-            const slideVelocity = moveDelta.clone().sub(
-                worldNormal.multiplyScalar(moveDelta.dot(worldNormal))
-            );
+            const slideVelocity = Na__WalkMode__Scratch__SlideVelocity.copy(moveDelta)
+                .sub(worldNormal.multiplyScalar(moveDelta.dot(worldNormal)));                            // <-- Reused scratch (no allocation)
 
-            return new THREE.Vector3(
+            return Na__WalkMode__Scratch__ResolvedPosition.set(
                 previousPosition.x + slideVelocity.x,
                 proposedPosition.y,
                 previousPosition.z + slideVelocity.z
             );
         }
 
-        return new THREE.Vector3(previousPosition.x, proposedPosition.y, previousPosition.z);
+        return Na__WalkMode__Scratch__ResolvedPosition.set(previousPosition.x, proposedPosition.y, previousPosition.z);
     }
     // ------------------------------------------------------------
 
@@ -542,8 +594,8 @@
             Na__WalkMode__CapsulePosition.z
         );
 
-        const euler = new THREE.Euler(Na__WalkMode__CameraPitch, Na__WalkMode__CameraYaw, 0, 'YXZ');
-        Na__WalkMode__Camera.quaternion.setFromEuler(euler);
+        Na__WalkMode__Scratch__Euler.set(Na__WalkMode__CameraPitch, Na__WalkMode__CameraYaw, 0, 'YXZ');  // <-- Reused scratch Euler (no allocation)
+        Na__WalkMode__Camera.quaternion.setFromEuler(Na__WalkMode__Scratch__Euler);
     }
     // ------------------------------------------------------------
 
@@ -557,24 +609,30 @@
     // FUNCTION | Process Movement Input and Apply Physics
     // ------------------------------------------------------------
     function Na__WalkMode__ProcessMovement(deltaSec) {
-        const forward = new THREE.Vector3(0, 0, -1);
-        forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), Na__WalkMode__CameraYaw);
+        // FAST PATH | No input -> no movement -> no collision work
+        if (Na__WalkMode__InputForward === 0 && Na__WalkMode__InputStrafe === 0) return;
 
-        const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+        const forward = Na__WalkMode__Scratch__Forward.set(0, 0, -1)
+            .applyAxisAngle(Na__WalkMode__Scratch__UpAxis, Na__WalkMode__CameraYaw);                     // <-- Reused scratch
+
+        const right = Na__WalkMode__Scratch__Right.copy(forward)
+            .cross(Na__WalkMode__Scratch__UpAxis)
+            .normalize();                                                                                // <-- Reused scratch
 
         let speed = Na__WalkMode__Units__MovementSpeedPerSec;
         if (Na__WalkMode__InputSprint) {
             speed *= Na__WalkMode__Config__SprintMultiplier;
         }
 
-        const moveVector = new THREE.Vector3();
-        moveVector.add(forward.clone().multiplyScalar(Na__WalkMode__InputForward * speed * deltaSec));
-        moveVector.add(right.clone().multiplyScalar(Na__WalkMode__InputStrafe * speed * deltaSec));
+        const moveVector = Na__WalkMode__Scratch__MoveVector.set(0, 0, 0);                               // <-- Reused scratch (zeroed every frame)
+        moveVector.x = forward.x * Na__WalkMode__InputForward * speed * deltaSec
+                     + right.x   * Na__WalkMode__InputStrafe  * speed * deltaSec;
+        moveVector.z = forward.z * Na__WalkMode__InputForward * speed * deltaSec
+                     + right.z   * Na__WalkMode__InputStrafe  * speed * deltaSec;
 
-        if (moveVector.length() > 0) {
-            const previousPosition = Na__WalkMode__CapsulePosition.clone();
-
-            const proposedPosition = new THREE.Vector3(
+        if (moveVector.x !== 0 || moveVector.z !== 0) {
+            const previousPosition = Na__WalkMode__Scratch__PreviousPosition.copy(Na__WalkMode__CapsulePosition);   // <-- Reused scratch
+            const proposedPosition = Na__WalkMode__Scratch__ProposedPosition.set(                                  // <-- Reused scratch
                 Na__WalkMode__CapsulePosition.x + moveVector.x,
                 Na__WalkMode__CapsulePosition.y,
                 Na__WalkMode__CapsulePosition.z + moveVector.z

@@ -111,7 +111,7 @@
     function Na__UiFeature__InitializeWalkModeSystem(scene, camera, renderer, controls, walkConfig, useTouchControls) {
         Na__WalkMode__Initialize(scene, camera, renderer.domElement, walkConfig);  // <-- Init physics engine
         Na__DoorProximity__Initialize(
-            walkConfig.Navmode__WalkMode__DoorProximityThresholdMm || 2000        // <-- Door proximity threshold (mm)
+            walkConfig.Navmode__WalkMode__DoorProximityThresholdMm || 3000        // <-- Door proximity threshold (mm)
         );
 
         Na__UiFeature__WalkMode__Camera   = camera;            // <-- Store camera ref (for transition module)

@@ -95,7 +95,7 @@
             "Navmode__WalkMode__GravityMmPerSecSq": 9810,
             "Navmode__WalkMode__MaxStepHeightMm": 300,
             "Navmode__WalkMode__MouseSensitivity": 0.002,
-            "Navmode__WalkMode__DoorProximityThresholdMm": 2000
+            "Navmode__WalkMode__DoorProximityThresholdMm": 3000
         }
     },
     "Navmode__Damping": {

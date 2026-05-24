@@ -13,7 +13,7 @@
 // - When walk mode is active, doors automatically open as the player approaches.
 // - Uses the same door registry and animation system as the click-to-open doors.
 // - Checks distance between the walk mode capsule position and each door assembly.
-// - Opens doors when within the configured proximity threshold (default 2000mm).
+// - Opens doors when within the configured proximity threshold (default 3000mm).
 // - Closes doors when the player moves beyond the proximity threshold.
 // - Designed for fluid architectural walkthroughs with naturally opening doors.
 //
@@ -85,7 +85,7 @@
     // ------------------------------------------------------------
     let Na__DoorProximity__Enabled                         = false;      // <-- Proximity trigger enabled (tied to walk mode)
     let Na__DoorProximity__Initialized                     = false;      // <-- Module initialization flag
-    let Na__DoorProximity__ThresholdUnits                  = 2.0;        // <-- Proximity threshold in Three.js units (default 2000mm)
+    let Na__DoorProximity__ThresholdUnits                  = 3.0;        // <-- Proximity threshold in Three.js units (default 3000mm)
     // ------------------------------------------------------------
 
 
