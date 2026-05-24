@@ -2,11 +2,11 @@
 # =========================================================
 
 # ---------------------------------------------------------
-## TrueVision3D v2.2.6  -  24-May-2026
+## TrueVision3D v2.2.7  -  24-May-2026
 ### Walk Mode Performance Overhaul — Collision Filtering, Stationary Fast-Path, Allocation Elimination
 
 **Overview**
-- After the v2.2.5 profile-lines fix made orbit mode rapid, walk mode remained sluggish (sustained ~15 fps in a 33-category project, with 220+ `requestAnimationFrame` violation warnings and AO auto-disabling from the perf monitor).
+- After the v2.2.6 profile-lines fix made orbit mode rapid, walk mode remained sluggish (sustained ~15 fps in a 33-category project, with 220+ `requestAnimationFrame` violation warnings and AO auto-disabling from the perf monitor).
 - Root cause was the exact same `obj.isMesh === true` trap that hit the profile-lines effect: `Na__WalkMode__SetCollisionMeshes` was traversing the model graph with a bare `isMesh` filter, so every `LineSegments2` fat-line object was being added to the per-frame raycast set. The collision diagnostic now reports the rejected counts: `Collision meshes set: <N> meshes (rejected: <X> fat-lines, <Y> linework-grouped, <Z> exempt)`.
 - Compounded by the fact that ground detection re-ran 5 raycasts against the entire collision set **every single frame**, even when the player was standing perfectly still — meaning just looking around in walk mode was firing ~5,500 ray–mesh intersection tests per frame for zero gameplay value.
 - Compounded further by per-frame `new THREE.Vector3()` / `new THREE.Euler()` allocations across the ground/horizontal/movement/camera-update paths.
@@ -50,7 +50,7 @@
 - `TrueVision__DEVLOG__.md`
 
 # ---------------------------------------------------------
-## TrueVision3D v2.2.5  -  24-May-2026
+## TrueVision3D v2.2.6  -  24-May-2026
 ### Profile Lines GPU Drain — Final Fat-Line Material Swap Fix
 
 **Overview**
@@ -83,6 +83,25 @@
 **Files Changed**
 - `02__Src__AppModules/05__RenderPipeline/Na__RenderEffect__ProfileLines__.js`
 - `TrueVision__DEVLOG__.md`
+
+# ---------------------------------------------------------
+## TrueVision3D v2.2.5  -  21-May-2026
+### Site Boundaries Toggle — Conditional Layer Support
+
+**Overview**
+- Added `Site Boundaries` as a first-class toggleable model layer to match the new `08__Site__Boundaries` SketchUp tag. When a project includes `TrueVision__SiteBoundaries__*` GLBs, a "Site Boundaries" toggle button appears automatically in the Model Parts List panel between "Proposed Interior Decor" and "Landscape". Projects without boundary geometry are unaffected.
+
+**Model Loader — Load Order**
+- `"TrueVision__SiteBoundaries"` inserted into `Na__ModelCategories__LoadOrder` in `Na__ModelLoader__MultiModel.js` between `ProposedInteriorDecor` (tag 29) and `LandscapeEnvironment` (tags 07, 09), matching the tag-08 numeric position in the SSOT.
+- The existing URL parse regex `/(?:.*?__)?(TrueVision)__(.+?)__(MeshModel|LineworkModel)__\.glb/i` already captures `TrueVision__SiteBoundaries` filenames; no parser changes required.
+
+**Toggle UI — Display Name**
+- `"TrueVision__SiteBoundaries": "Site Boundaries"` added to `Na__ModelToggle__DisplayNames` in `Na__UiFeature__ModelToggle__Controls.js` at the correct position between ProposedInteriorDecor and LandscapeEnvironment.
+- Button is fully conditional — only created when boundary GLBs are present in the project's model URL list.
+
+**Files Changed**
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__MultiModel.js` — added `TrueVision__SiteBoundaries` to load order
+- `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js` — added display name
 
 # ---------------------------------------------------------
 ## TrueVision3D v2.2.4  -  10-Mar-2026

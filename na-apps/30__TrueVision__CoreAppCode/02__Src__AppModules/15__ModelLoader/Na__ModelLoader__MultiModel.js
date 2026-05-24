@@ -56,7 +56,8 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
         "TrueVision__MainBuildingModel__ProposedFixtures",   // <-- Tag 27
         "TrueVision__MainBuildingModel__ProposedFurniture",  // <-- Tag 28
         "TrueVision__MainBuildingModel__ProposedInteriorDecor", // <-- Tag 29
-        "TrueVision__LandscapeEnvironment",          // <-- Tag 07-09: Landscape & environment
+        "TrueVision__SiteBoundaries",                // <-- Tag 08: Site boundaries (fences, walls, site lines)
+        "TrueVision__LandscapeEnvironment",          // <-- Tag 07, 09: Landscape & environment
         "TrueVision__GroundFloorFurniture",          // <-- Tag 30-38: Ground floor furniture
         "TrueVision__GroundFloorDecor",              // <-- Tag 39:    Ground floor high detail
         "TrueVision__FirstFloorFurniture",           // <-- Tag 40-48: First floor furniture
