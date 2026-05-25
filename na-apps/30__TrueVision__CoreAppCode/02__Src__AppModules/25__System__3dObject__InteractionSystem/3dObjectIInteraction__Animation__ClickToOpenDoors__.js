@@ -218,6 +218,35 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Build a Readable Scene Path for Diagnostics
+    // ------------------------------------------------------------
+    function Na__DoorAnim__BuildDiagnosticPath(object, stopRoot) {
+        const pathParts = [];
+        let current = object;
+
+        while (current) {
+            pathParts.unshift(current.name || current.type || '[unnamed]');
+            if (current === stopRoot) break;
+            current = current.parent;
+        }
+
+        return pathParts.join(' > ');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | List Direct Child Names for Diagnostics
+    // ------------------------------------------------------------
+    function Na__DoorAnim__ListDirectChildNames(object) {
+        if (!object || !Array.isArray(object.children)) return '(no children)';
+
+        return object.children
+            .map((child) => child.name || child.type || '[unnamed]')
+            .join(', ');
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Classify a MOD Object by its Name
     // ------------------------------------------------------------
     // Returns one of MOD_TYPE_ROT_ONLY | ROT_MVE | MVE_ONLY | FIXED, or null if unrecognised.
@@ -461,7 +490,9 @@
                 // Collect every animatable MOD child (multi-panel ready)
                 const modDescriptors = Na__DoorAnim__FindAllAnimatableMods(object);
                 if (modDescriptors.length === 0) {
-                    console.warn(`[DoorAnimation] ADR "${adrName}" (mesh) has no animatable MOD children, skipping`);
+                    const diagnosticPath = Na__DoorAnim__BuildDiagnosticPath(object, meshGroup);
+                    const childNames     = Na__DoorAnim__ListDirectChildNames(object);
+                    console.warn(`[DoorAnimation] ADR "${adrName}" (mesh) has no animatable MOD children, skipping. Path="${diagnosticPath}". Direct children=[${childNames}]`);
                     return;
                 }
 

@@ -14,6 +14,11 @@
         "description" : "This is where the common web app assets are stored for the Noble Architecture projects (Admin System,PlanVision and TrueVision).",
         "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/01__Assets__NaApps__CommonAssets"
 	  },
+        {
+        "name"        : "SS0T | SketchUp Tag, Material & Component Data Library",
+        "description" : "All the core SketchUp entity standards standards are here and this is single source of truth for all the entity standards such as Tags, Materials, Edge Materials, Components, Etc.",
+        "path"        : "C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards"
+	  },
 	  {
         "name"        : "SketchUp Plugin - GLB Builder Utility",
         "description" : "This is the sister SketchUp plugin for the TrueVision3D project. It is used to build GLB files from SketchUp models.",
@@ -38,6 +43,11 @@
         "name"        : "Cousin App - ValeVision",
         "description" : "This is the cousin application to TrueVision3D, oit was originally a branch but developed into its own seperate application.",
         "path"        : "D:/80__External__LiveRepos/ValeCodebase/WebApps/ValeVision3D"
+	  },
+      {
+        "name"        : "SketchUp Companion Plugin |  ArchTools ElementAssembly Studio Pro",
+        "description" : "This is the SketchUp companion plugin for the ElementAssembly Studio Pro application. This plugin produces parametric Windows & Doors In SketchUp models, these assets are pre configured to work with TrueVision3D.",
+        "path"        : "C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__ArchTools__ElementAssemblyStudioPro__Modules__"
 	  }
 	],
 	"settings": {

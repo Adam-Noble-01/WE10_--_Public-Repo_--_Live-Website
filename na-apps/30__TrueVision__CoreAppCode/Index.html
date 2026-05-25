@@ -308,6 +308,26 @@
                         </div>
                     </div>
                 </li>
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naSceneInspectorToggle" aria-expanded="false">
+                        Scene Inspector
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naSceneInspectorPanel">
+                        <div class="na-scene-inspector__header">
+                            <div class="na-scene-inspector__stats" id="naSceneInspectorStats">Press Scan to analyse scene.</div>
+                            <input class="na-scene-inspector__filter" id="naSceneInspectorFilter" type="text" placeholder="Filter nodes..." />
+                            <div class="na-scene-inspector__toolbar">
+                                <button class="na-scene-inspector__toolbar-btn" id="naSceneInspectorHideAll">Hide All</button>
+                                <button class="na-scene-inspector__toolbar-btn" id="naSceneInspectorRestoreAll">Restore All</button>
+                                <button class="na-scene-inspector__toolbar-btn na-scene-inspector__toolbar-btn--toggle" id="naSceneInspectorIsolatePair" aria-pressed="false">Isolate Pair</button>
+                                <button class="na-scene-inspector__toolbar-btn" id="naSceneInspectorCopyTree">Copy Tree</button>
+                            </div>
+                            <button class="na-scene-inspector__scan-btn" id="naSceneInspectorScanBtn">Scan Scene</button>
+                        </div>
+                        <div class="na-scene-inspector__tree" id="naSceneInspectorTree" aria-label="Scene node tree"></div>
+                    </div>
+                </li>
                 <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naSaveCameraSettingsItem" style="display:none;">
                     <button class="na-dropdown-menu__button" id="naSaveCameraSettingsButton">
                         Save Camera Settings
@@ -315,6 +335,7 @@
                 </li>
             </ul>
         </details>
+        <div class="na-dev-menu__resize-handle" id="naDevMenuResizeHandle" aria-hidden="true"></div>
     </div>
     
     <!-- Toast Notification (success / error feedback) -->
@@ -341,7 +362,8 @@
     import { Na__UiFeature__InitializeCameraLensControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__CameraLens__Controls.js';
     import { Na__UiFeature__InitializeImageExportControls } from './02__Src__AppModules/30__System__ImageExport/Na__UiFeature__ImageExport__Controls.js';
     import { Na__UiFeature__InitializeSaveCameraButton } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__SaveCameraSettings.js';
-    import { Na__UiFeature__InitializeLocalhostDevMenu } from './02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__DevMenu__LocalhostOnly.js';
+    import { Na__UiFeature__InitializeLocalhostDevMenu } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__DevMenu__LocalhostOnly.js';
+    import { Na__UiFeature__InitializeSceneInspector } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__SceneInspector__Controls.js';
     import { Na__Math__ConvertMmToUnits } from './02__Src__AppModules/04__MathUtils/Na__Math__Units.js';
     import {
         Na__Scene__CreateFogPass,
@@ -874,6 +896,8 @@
     });
     Na__UiFeature__PromptToolsMenu();
     Na__UiFeature__InitializeLocalhostDevMenu();
+    // @delegate: ./02__Src__AppModules/70__System__DevTools/Na__UiFeature__SceneInspector__Controls.js
+    Na__UiFeature__InitializeSceneInspector(Na__Scene__Main);
     Na__UiFeature__InitializeSaveCameraButton(Na__Camera__Main, Na__Controls__Orbit, Na__UiFeature__ShowToast);
     // ------------------------------------------------------------
 

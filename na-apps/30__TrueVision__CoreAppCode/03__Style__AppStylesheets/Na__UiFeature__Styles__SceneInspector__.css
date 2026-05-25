@@ -1,0 +1,295 @@
+/* ================================================================= */
+/* REGION  |  Scene Inspector - Dev Tools Panel                      */
+/* ================================================================= */
+
+/* Dev Tools Menu - Resizable Left Panel */
+/* ----------------------------------------------------------------- */
+.na-dropdown-menu--dev-localhost {
+    position                           : fixed;
+    max-height                         : calc((100vh - var(--Vale_HeaderHeight) - 10px) / 1.2);
+    overflow-y                         : auto;
+}
+
+.na-dropdown-menu--dev-localhost .na-dropdown-menu__details {
+    width                              : 100%;
+    min-width                          : 290px;
+}
+
+
+/* Dev Menu Resize Handle - Bottom-Right Drag Corner */
+/* ----------------------------------------------------------------- */
+.na-dev-menu__resize-handle {
+    position                           : absolute;
+    bottom                             : 0;
+    right                              : 0;
+    width                              : 18px;
+    height                             : 18px;
+    cursor                             : se-resize;
+    z-index                            : 10;
+    opacity                            : 0.35;
+    transition                         : opacity 0.15s ease;
+    background-image                   : radial-gradient(circle, rgba(23, 43, 58, 0.6) 1px, transparent 1px);
+    background-size                    : 4px 4px;
+    background-position                : bottom 3px right 3px;
+    background-repeat                  : repeat;
+    background-clip                    : content-box;
+    padding                            : 2px;
+}
+
+.na-dev-menu__resize-handle:hover {
+    opacity                            : 0.75;
+}
+
+
+/* Inspector Header - Stats Row and Scan Button */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__header {
+    display                             : flex;
+    flex-direction                      : column;
+    gap                                 : 6px;
+    margin-bottom                       : 8px;
+}
+
+.na-scene-inspector__stats {
+    font-size                           : 0.72rem;
+    color                               : rgba(23, 43, 58, 0.55);
+    display                             : flex;
+    flex-wrap                           : wrap;
+    gap                                 : 6px;
+}
+
+.na-scene-inspector__stat-item {
+    white-space                         : nowrap;
+}
+
+.na-scene-inspector__scan-btn {
+    width                               : 100%;
+    border                              : none;
+    border-radius                       : 4px;
+    padding                             : 5px 10px;
+    background                          : #172b3a;
+    color                               : #ffffff;
+    font-family                         : 'Open Sans', sans-serif;
+    font-size                           : 0.76rem;
+    font-weight                         : 500;
+    cursor                              : pointer;
+    transition                          : background 0.15s ease;
+}
+
+.na-scene-inspector__scan-btn:hover {
+    background                          : #1e3a4f;
+}
+
+.na-scene-inspector__scan-btn:disabled {
+    opacity                             : 0.5;
+    cursor                              : not-allowed;
+}
+
+
+/* Tree Container - Scrollable */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__tree {
+    max-height                          : calc((100vh - var(--Vale_HeaderHeight) - 10px) / 1.2 - 280px);
+    overflow-y                          : auto;
+    overflow-x                          : hidden;
+    border-top                          : 1px solid rgba(23, 43, 58, 0.08);
+    padding-top                         : 6px;
+    font-size                           : 0.72rem;
+}
+
+.na-scene-inspector__tree::-webkit-scrollbar {
+    width                               : 4px;
+}
+
+.na-scene-inspector__tree::-webkit-scrollbar-thumb {
+    background                          : rgba(23, 43, 58, 0.2);
+    border-radius                       : 2px;
+}
+
+
+/* Node Row */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__row {
+    display                             : flex;
+    align-items                         : center;
+    gap                                 : 4px;
+    padding                             : 2px 0;
+    min-height                          : 20px;
+    white-space                         : nowrap;
+}
+
+.na-scene-inspector__row:hover {
+    background                          : rgba(23, 43, 58, 0.04);
+}
+
+.na-scene-inspector__indent {
+    display                             : inline-block;
+    flex-shrink                         : 0;
+}
+
+.na-scene-inspector__toggle {
+    display                             : inline-block;
+    width                               : 10px;
+    flex-shrink                         : 0;
+    font-size                           : 0.65rem;
+    color                               : rgba(23, 43, 58, 0.4);
+    user-select                         : none;
+}
+
+
+/* Visibility Dot */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__dot {
+    display                             : inline-block;
+    width                               : 6px;
+    height                              : 6px;
+    border-radius                       : 50%;
+    flex-shrink                         : 0;
+    cursor                              : pointer;
+    transition                          : background 0.15s ease;
+}
+
+.na-scene-inspector__dot:hover {
+    opacity                             : 0.65;
+}
+
+.na-scene-inspector__dot--visible {
+    background                          : #2a7d4f;
+}
+
+.na-scene-inspector__dot--hidden {
+    background                          : rgba(23, 43, 58, 0.2);
+}
+
+
+/* Type Badge */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__badge {
+    display                             : inline-block;
+    flex-shrink                         : 0;
+    padding                             : 0 4px;
+    border-radius                       : 3px;
+    font-size                           : 0.60rem;
+    font-weight                         : 600;
+    font-family                         : 'Courier New', monospace;
+    letter-spacing                      : 0.01em;
+    line-height                         : 1.5;
+}
+
+.na-scene-inspector__badge--mesh {
+    background                          : rgba(23, 43, 58, 0.14);
+    color                               : #172b3a;
+}
+
+.na-scene-inspector__badge--group {
+    background                          : rgba(23, 43, 58, 0.06);
+    color                               : rgba(23, 43, 58, 0.55);
+}
+
+.na-scene-inspector__badge--light {
+    background                          : rgba(180, 130, 40, 0.15);
+    color                               : #7a5a10;
+}
+
+.na-scene-inspector__badge--line {
+    background                          : rgba(30, 110, 110, 0.12);
+    color                               : #1a6060;
+}
+
+.na-scene-inspector__badge--camera {
+    background                          : rgba(80, 60, 140, 0.12);
+    color                               : #3a2870;
+}
+
+.na-scene-inspector__badge--other {
+    background                          : rgba(23, 43, 58, 0.06);
+    color                               : rgba(23, 43, 58, 0.45);
+}
+
+
+/* Node Name */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__name {
+    flex                                : 1;
+    min-width                           : 0;
+    overflow                            : hidden;
+    text-overflow                       : ellipsis;
+    white-space                         : nowrap;
+    color                               : #172b3a;
+    font-family                         : 'Courier New', monospace;
+    font-size                           : 0.68rem;
+}
+
+
+/* Triangle and Child Count */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__count {
+    flex-shrink                         : 0;
+    font-size                           : 0.60rem;
+    font-family                         : 'Courier New', monospace;
+    color                               : rgba(23, 43, 58, 0.4);
+    text-align                          : right;
+    margin-left                         : 2px;
+}
+
+
+/* Filter Input */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__filter {
+    width                               : 100%;
+    box-sizing                          : border-box;
+    border                              : 1px solid rgba(23, 43, 58, 0.18);
+    border-radius                       : 4px;
+    padding                             : 4px 8px;
+    background                          : rgba(23, 43, 58, 0.04);
+    color                               : #172b3a;
+    font-family                         : 'Open Sans', sans-serif;
+    font-size                           : 0.72rem;
+    outline                             : none;
+    transition                          : border-color 0.15s ease, background 0.15s ease;
+}
+
+.na-scene-inspector__filter::placeholder {
+    color                               : rgba(23, 43, 58, 0.35);
+}
+
+.na-scene-inspector__filter:focus {
+    border-color                        : rgba(23, 43, 58, 0.40);
+    background                          : rgba(23, 43, 58, 0.07);
+}
+
+
+/* Visibility Toolbar - Hide All / Restore All */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__toolbar {
+    display                             : flex;
+    gap                                 : 6px;
+}
+
+.na-scene-inspector__toolbar-btn {
+    flex                                : 1;
+    border                              : 1px solid rgba(23, 43, 58, 0.25);
+    border-radius                       : 4px;
+    padding                             : 4px 8px;
+    background                          : transparent;
+    color                               : rgba(23, 43, 58, 0.70);
+    font-family                         : 'Open Sans', sans-serif;
+    font-size                           : 0.70rem;
+    font-weight                         : 500;
+    cursor                              : pointer;
+    transition                          : background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.na-scene-inspector__toolbar-btn:hover {
+    background                          : rgba(23, 43, 58, 0.08);
+    border-color                        : rgba(23, 43, 58, 0.40);
+    color                               : #172b3a;
+}
+
+.na-scene-inspector__toolbar-btn--toggle.na-scene-inspector__toolbar-btn--active {
+    background                          : rgba(23, 43, 58, 0.14);
+    border-color                        : rgba(23, 43, 58, 0.50);
+    color                               : #172b3a;
+}
+
+/* endregion -------------------------------------------------------- */

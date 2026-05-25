@@ -80,6 +80,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
     const Na__ModelUrl__ParseRegex        = /(?:.*?__)?(TrueVision)__(.+?)__(MeshModel|LineworkModel)__\.glb/i;
     const Na__ModelUrl__StoreyParseRegex  = /(?:.*?__)?Storey__([A-Za-z]+)__([A-Za-z]+)__(MeshModel|LineworkModel)__\.glb/i;
     const Na__ModelUrl__OrbitCubeRegex    = /OrbitHelperCube__MeshModel__\.glb$/i;  // <-- Orbit helper cube detection
+    const Na__ModelLoader__OrbitHelperNameToken = 'OrbitHelperCube';        // <-- Authoritative orbit target mesh token
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -88,6 +89,14 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 // -----------------------------------------------------------------------------
 // REGION | URL Classification Functions
 // -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Build Loaded Root Group Name
+    // ------------------------------------------------------------
+    function Na__ModelLoader__BuildLoadedRootName(category, modelTypeLabel) {
+        return `${category}__${modelTypeLabel}Root`;
+    }
+    // ------------------------------------------------------------
+
 
     // HELPER FUNCTION | Parse Single Model URL Into Category and Type
     // ------------------------------------------------------------
@@ -202,6 +211,58 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Check Whether a Node Belongs to Orbit Helper Geometry
+    // ------------------------------------------------------------
+    function Na__ModelLoader__IsOrbitHelperNode(node) {
+        let current = node;
+
+        while (current) {
+            const name = current.name || '';
+            if (name.includes(Na__ModelLoader__OrbitHelperNameToken)) return true;
+            current = current.parent;
+        }
+
+        return false;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Build a Clean Orbit Helper Root
+    // ------------------------------------------------------------
+    function Na__ModelLoader__BuildOrbitHelperRoot(sourceRoot) {
+        const orbitRoot = new THREE.Group();
+        orbitRoot.name = 'OrbitHelperCube__FilteredRoot';
+
+        let includedMeshCount = 0;
+        let ignoredMeshCount  = 0;
+
+        sourceRoot.updateWorldMatrix(true, true);
+        sourceRoot.traverse((node) => {
+            if (!node.isMesh) return;
+
+            if (!Na__ModelLoader__IsOrbitHelperNode(node)) {
+                ignoredMeshCount++;
+                return;
+            }
+
+            node.updateWorldMatrix(true, false);
+            const orbitMesh = node.clone(false);
+            orbitMesh.name = node.name || 'OrbitHelperCube__Mesh';
+            orbitMesh.matrix.copy(node.matrixWorld);
+            orbitMesh.matrixAutoUpdate = false;
+            orbitRoot.add(orbitMesh);
+            includedMeshCount++;
+        });
+
+        return {
+            root              : includedMeshCount > 0 ? orbitRoot : sourceRoot,
+            includedMeshCount : includedMeshCount,
+            ignoredMeshCount  : ignoredMeshCount
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Load OrbitHelperCube GLB and Extract Center Position
     // ------------------------------------------------------------
     // Loads the OrbitHelperCube GLB file and calculates its bounding box center.
@@ -215,7 +276,15 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 
         try {
             const gltf = await loader.loadAsync(orbitCubeUrl);  // <-- Load GLB file
-            const meshRoot = gltf.scene;                      // <-- Extract scene graph
+            const orbitHelper = Na__ModelLoader__BuildOrbitHelperRoot(gltf.scene);
+            const meshRoot = orbitHelper.root;                 // <-- Extract filtered scene graph
+
+            if (orbitHelper.ignoredMeshCount > 0) {
+                console.warn(
+                    `[TrueVision3D] OrbitHelperCube GLB contained ${orbitHelper.ignoredMeshCount} non-helper mesh(es). ` +
+                    `Using ${orbitHelper.includedMeshCount} OrbitHelperCube mesh(es) for the orbit target.`
+                );
+            }
 
             // CALCULATE BOUNDING BOX CENTER
             const box = new THREE.Box3();                     // <-- Create bounding box
@@ -471,6 +540,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                         config.BaseMesh__DefaultMaterial,                // <-- Base mesh default material config
                         loader
                     );
+                    meshRoot.name = Na__ModelLoader__BuildLoadedRootName(category, 'Mesh');
                     meshRoot.userData.Na__ModelType = 'mesh';            // <-- Tag for downstream identification
                     categoryGroup.add(meshRoot);                         // <-- Add mesh to category group
                     console.log(`[TrueVision3D] Loaded Mesh: ${shortName}`);
@@ -489,6 +559,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                         loader,
                         lineResolution
                     );
+                    lineworkRoot.name = Na__ModelLoader__BuildLoadedRootName(category, 'Linework');
                     lineworkRoot.userData.Na__ModelType = 'linework';    // <-- Tag for downstream identification
                     categoryGroup.add(lineworkRoot);                     // <-- Add linework to category group
                     console.log(`[TrueVision3D] Loaded Linework: ${shortName}`);
@@ -513,6 +584,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                 if (statusCallback) statusCallback(`Loading ${shortName} Mesh...`);
                 try {
                     const meshRoot = await Na__ModelLoader__LoadSingleMesh(entry.meshUrl, config.BaseMesh__DefaultMaterial, loader);
+                    meshRoot.name = Na__ModelLoader__BuildLoadedRootName(category, 'Mesh');
                     meshRoot.userData.Na__ModelType = 'mesh';
                     categoryGroup.add(meshRoot);
                     console.log(`[TrueVision3D] Loaded Mesh (unordered): ${shortName}`);
@@ -525,6 +597,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
                 if (statusCallback) statusCallback(`Loading ${shortName} Linework...`);
                 try {
                     const lineworkRoot = await Na__ModelLoader__LoadSingleLinework(entry.lineworkUrl, config.RenderConfig__Linework, loader, lineResolution);
+                    lineworkRoot.name = Na__ModelLoader__BuildLoadedRootName(category, 'Linework');
                     lineworkRoot.userData.Na__ModelType = 'linework';
                     categoryGroup.add(lineworkRoot);
                     console.log(`[TrueVision3D] Loaded Linework (unordered): ${shortName}`);

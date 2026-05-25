@@ -2,6 +2,53 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.2.8  -  25-May-2026
+### Scene Inspector — ValeVision Dev Tools Tree Explorer Ported to TrueVision
+
+**Overview**
+- Ported the ValeVision3D nested Scene Inspector from `70__System__DevTools` into TrueVision as a localhost-only Dev Tools utility.
+- Gives developers an on-demand collapsible Three.js scene graph tree with per-node visibility control, mesh stats, filtering, bulk hide/restore, mesh/linework pair isolation, and clipboard export — without waiting for the async model loading sequence to finish.
+- No `Na__AppConfig__Main.json` changes required; behaviour is driven by module-local constants and existing render invalidation.
+
+**New Dev Tools System Folder — `70__System__DevTools`**
+- Introduced `02__Src__AppModules/70__System__DevTools/` to mirror ValeVision3D's dev-tools module layout and separate localhost developer utilities from production toggle UI in `26__System__ToggleModelElements`.
+- `Na__UiFeature__SceneInspector__Controls.js` — full Scene Inspector logic; exports `Na__UiFeature__InitializeSceneInspector(scene)`.
+- `Na__UiFeature__DevMenu__LocalhostOnly.js` — moved Dev Tools menu reveal logic here from `26__System__ToggleModelElements`; adds drag-resize handle support aligned with ValeVision.
+
+**Scene Inspector — TrueVision Adaptations**
+- Category group pattern adapted from ValeVision's `^ValeVision__\w+__\w+` to TrueVision's loader naming: `^(?:TrueVision|Storey)__\w+` so **Isolate Pair** mode correctly toggles mesh ↔ linework siblings under both standard category groups and storey-based groups from `Na__ModelLoader__MultiModel.js`.
+- Scans the live `Na__Scene__Main` on demand (Scan Scene / Rescan); default expand depth remains 3 levels.
+- Visibility dot clicks call `Na__RenderLoop__RequestRender()` after mutating `node.visible`.
+- **Hide All** / **Restore All** bulk controls snapshot visibility at scan time and restore to that state.
+- **Filter nodes…** input narrows the displayed tree by name fragment while auto-revealing ancestor groups.
+- **Copy Tree** writes concise and full plain-text reports to the clipboard.
+
+**UI Wiring — Dev Tools Menu**
+- Added Scene Inspector submenu block to `#naDevToolsMenu` in `index.html`, positioned after **Toggle Model Layers** and before **Save Camera Settings**.
+- Added `#naDevMenuResizeHandle` to the Dev Tools container for runtime panel width adjustment.
+- `index.html` import path for localhost Dev Menu updated to `70__System__DevTools/Na__UiFeature__DevMenu__LocalhostOnly.js`.
+- Scene Inspector initialised after scene creation: `Na__UiFeature__InitializeSceneInspector(Na__Scene__Main)`.
+
+**Styles**
+- New dedicated stylesheet `03__Style__AppStylesheets/Na__UiFeature__Styles__SceneInspector__.css` (`.na-scene-inspector__*` rules, wider dev panel min-width, resize handle).
+- Imported from `Na__CoreUi__Styles__Index__.css` after the dropdown/toast stylesheet.
+
+**Relationship to Existing Model Toggle**
+- **Toggle Model Layers** (flat category list) and **Scene Inspector** (full nested scene graph) are complementary — category toggles remain in `26__System__ToggleModelElements`; per-node exploration lives in the new Dev Tools module.
+
+**Verification Notes**
+- Dev Tools menu remains localhost-only via `Na__AppUtils__IsRunningOnLocalhost()`.
+- Smoke test: Dev Tools visible on localhost, Scene Inspector opens, Scan Scene renders tree + stats, existing Toggle Model Layers and Save Camera Settings entries unchanged.
+
+**Files Changed**
+- `02__Src__AppModules/70__System__DevTools/Na__UiFeature__SceneInspector__Controls.js` — new
+- `02__Src__AppModules/70__System__DevTools/Na__UiFeature__DevMenu__LocalhostOnly.js` — new
+- `03__Style__AppStylesheets/Na__UiFeature__Styles__SceneInspector__.css` — new
+- `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` — import added
+- `index.html` — Dev Tools markup, imports, Scene Inspector init
+- `TrueVision__DEVLOG__.md`
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.2.7  -  24-May-2026
 ### Walk Mode Performance Overhaul — Collision Filtering, Stationary Fast-Path, Allocation Elimination
 

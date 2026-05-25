@@ -31,6 +31,11 @@
 @import url('Na__UiFeature__Styles__DropdownAndToast__.css');
 
 
+/* Dev Tools - Scene Inspector */
+/* ----------------------------------------------------------------- */
+@import url('Na__UiFeature__Styles__SceneInspector__.css');
+
+
 /* Header Component - Vale Branding */
 /* ----------------------------------------------------------------- */
 @import url('Na__UiFeature__Styles__AppHeader__.css');
