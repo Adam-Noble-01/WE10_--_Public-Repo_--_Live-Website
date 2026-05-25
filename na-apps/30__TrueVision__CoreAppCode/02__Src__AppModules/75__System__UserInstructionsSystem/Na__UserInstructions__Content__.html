@@ -13,8 +13,23 @@
      - Standalone HTML fragment loaded by Na__UserInstructions__SystemLogic.js.
      - No <html>, <head>, or <body> tags — injected directly into the modal.
      - All classes are defined in Na__UiFeature__Styles__UserInstructions__.css.
+     - Accordion sections: Orbit Mode, Walk Mode, Fly Mode, Global Hotkeys,
+       Model Isolation Tools. All sections start expanded.
+     - Accordion toggle logic wired by Na__UserInstructions__SystemLogic.js
+       after injection via [data-na-accordion-toggle] attribute.
+
+     DEVELOPMENT LOG:
+     25-May-2026 - Version 2.3.0
+     - Added collapsible accordion sections with chevron toggle arrows.
+     - Added Fly Mode section (WASD + Q/E ascend/descend + pointer-lock mouse).
+     - Added Alt+Shift+F hotkey entry to Global Hotkeys section.
+     - Added mode icons (SVG) to each section header.
+     - Restyled: light whitecard panel, Vale dark blue header bar only.
+
+     27-Feb-2026 - Version 1.0.0
+     - Initial Release.
      - Covers Orbit Mode (PC + Touchscreen), Walk Mode (PC + Touchscreen),
-       and Global hotkeys.
+       Global Hotkeys, and Model Isolation Tools.
 
      ============================================================================= -->
 
@@ -38,56 +53,72 @@
     <!-- ============================================================ -->
     <div class="na-instructions-section">
 
-        <h3 class="na-instructions-section__title">Orbit Mode</h3>
-        <p class="na-instructions-section__intro">The default navigation mode. Rotate, pan, and zoom around the model freely.</p>
+        <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
+            <div class="na-instructions-section__title-group">
+                <svg class="na-instructions-section__mode-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <circle cx="10" cy="10" r="6.5" stroke="currentColor" stroke-width="1.7"/>
+                    <path d="M15.5 7 L17 10 L14 10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+                <span class="na-instructions-section__title-text">Orbit Mode</span>
+            </div>
+            <svg class="na-instructions-section__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <polyline points="4,7 10,13 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
 
+        <div class="na-instructions-section__body" data-na-accordion-body>
+            <div class="na-instructions-section__body-inner">
 
-        <!-- PC CONTROLS | Orbit Mode -->
-        <!-- ------------------------------------------------------------ -->
-        <div class="na-instructions-group">
-            <div class="na-instructions-group__label">PC — Mouse</div>
-            <ul class="na-instructions-list">
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Left Button + Drag</span>
-                    <span class="na-instructions-item__desc">Rotate view around model</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Right Button + Drag</span>
-                    <span class="na-instructions-item__desc">Pan camera</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Middle Button + Drag</span>
-                    <span class="na-instructions-item__desc">Pan camera</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Scroll Wheel</span>
-                    <span class="na-instructions-item__desc">Zoom in / out</span>
-                </li>
-            </ul>
+                <p class="na-instructions-section__intro">The default navigation mode. Rotate, pan, and zoom around the model freely.</p>
+
+                <!-- PC CONTROLS | Orbit Mode -->
+                <!-- ------------------------------------------------------------ -->
+                <div class="na-instructions-group">
+                    <div class="na-instructions-group__label">PC — Mouse</div>
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Left Button + Drag</span>
+                            <span class="na-instructions-item__desc">Rotate view around model</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Right Button + Drag</span>
+                            <span class="na-instructions-item__desc">Pan camera</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Middle Button + Drag</span>
+                            <span class="na-instructions-item__desc">Pan camera</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Scroll Wheel</span>
+                            <span class="na-instructions-item__desc">Zoom in / out</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- ------------------------------------------------------------ -->
+
+                <!-- TOUCHSCREEN CONTROLS | Orbit Mode -->
+                <!-- ------------------------------------------------------------ -->
+                <div class="na-instructions-group" id="naInstructionsTouchSection">
+                    <div class="na-instructions-group__label">Touchscreen</div>
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">1 Finger Drag</span>
+                            <span class="na-instructions-item__desc">Rotate view around model</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">2 Finger Drag</span>
+                            <span class="na-instructions-item__desc">Pan camera</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">2 Finger Pinch</span>
+                            <span class="na-instructions-item__desc">Zoom in / out</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- ------------------------------------------------------------ -->
+
+            </div>
         </div>
-        <!-- ------------------------------------------------------------ -->
-
-
-        <!-- TOUCHSCREEN CONTROLS | Orbit Mode -->
-        <!-- ------------------------------------------------------------ -->
-        <div class="na-instructions-group" id="naInstructionsTouchSection">
-            <div class="na-instructions-group__label">Touchscreen</div>
-            <ul class="na-instructions-list">
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">1 Finger Drag</span>
-                    <span class="na-instructions-item__desc">Rotate view around model</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">2 Finger Drag</span>
-                    <span class="na-instructions-item__desc">Pan camera</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">2 Finger Pinch</span>
-                    <span class="na-instructions-item__desc">Zoom in / out</span>
-                </li>
-            </ul>
-        </div>
-        <!-- ------------------------------------------------------------ -->
 
     </div>
     <!-- ============================================================ -->
@@ -98,82 +129,215 @@
     <!-- ============================================================ -->
     <div class="na-instructions-section">
 
-        <h3 class="na-instructions-section__title">Walk Mode</h3>
-        <p class="na-instructions-section__intro">First-person navigation inside the building. Activate using the Tools menu or the hotkey below.</p>
+        <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
+            <div class="na-instructions-section__title-group">
+                <svg class="na-instructions-section__mode-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <circle cx="10" cy="3.5" r="1.8" fill="currentColor"/>
+                    <line x1="10" y1="5.5" x2="10" y2="12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    <line x1="6.5" y1="8.5" x2="13.5" y2="8.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    <line x1="10" y1="12" x2="7.5" y2="17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    <line x1="10" y1="12" x2="12.5" y2="17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+                <span class="na-instructions-section__title-text">Walk Mode</span>
+            </div>
+            <svg class="na-instructions-section__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <polyline points="4,7 10,13 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
 
+        <div class="na-instructions-section__body" data-na-accordion-body>
+            <div class="na-instructions-section__body-inner">
 
-        <!-- PC KEYBOARD | Walk Mode -->
-        <!-- ------------------------------------------------------------ -->
-        <div class="na-instructions-group">
-            <div class="na-instructions-group__label">PC — Keyboard</div>
-            <ul class="na-instructions-list">
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">W &nbsp;/&nbsp; ↑</span>
-                    <span class="na-instructions-item__desc">Walk forward</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">S &nbsp;/&nbsp; ↓</span>
-                    <span class="na-instructions-item__desc">Walk backward</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">A &nbsp;/&nbsp; ←</span>
-                    <span class="na-instructions-item__desc">Strafe left</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">D &nbsp;/&nbsp; →</span>
-                    <span class="na-instructions-item__desc">Strafe right</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Shift</span>
-                    <span class="na-instructions-item__desc">Sprint (hold while moving)</span>
-                </li>
-            </ul>
+                <p class="na-instructions-section__intro">First-person navigation inside the building. Activate using the Tools menu or the hotkey below.</p>
+
+                <!-- PC KEYBOARD | Walk Mode -->
+                <!-- ------------------------------------------------------------ -->
+                <div class="na-instructions-group">
+                    <div class="na-instructions-group__label">PC — Keyboard</div>
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">W &nbsp;/&nbsp; ↑</span>
+                            <span class="na-instructions-item__desc">Walk forward</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">S &nbsp;/&nbsp; ↓</span>
+                            <span class="na-instructions-item__desc">Walk backward</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">A &nbsp;/&nbsp; ←</span>
+                            <span class="na-instructions-item__desc">Strafe left</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">D &nbsp;/&nbsp; →</span>
+                            <span class="na-instructions-item__desc">Strafe right</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Shift</span>
+                            <span class="na-instructions-item__desc">Sprint (hold while moving)</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- ------------------------------------------------------------ -->
+
+                <!-- PC MOUSE | Walk Mode -->
+                <!-- ------------------------------------------------------------ -->
+                <div class="na-instructions-group">
+                    <div class="na-instructions-group__label">PC — Mouse</div>
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Left Click Canvas</span>
+                            <span class="na-instructions-item__desc">Lock pointer to activate mouse look</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Move Mouse</span>
+                            <span class="na-instructions-item__desc">Look around (no button held)</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Esc</span>
+                            <span class="na-instructions-item__desc">Release pointer lock / stop mouse look</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- ------------------------------------------------------------ -->
+
+                <!-- TOUCHSCREEN | Walk Mode -->
+                <!-- ------------------------------------------------------------ -->
+                <div class="na-instructions-group">
+                    <div class="na-instructions-group__label">Touchscreen</div>
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">1 Finger Drag</span>
+                            <span class="na-instructions-item__desc">Move — forward, backward, and strafe</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">2 Finger Drag</span>
+                            <span class="na-instructions-item__desc">Look around (head rotation)</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">2 Finger Pinch</span>
+                            <span class="na-instructions-item__desc">Move forward / backward</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- ------------------------------------------------------------ -->
+
+            </div>
         </div>
-        <!-- ------------------------------------------------------------ -->
+
+    </div>
+    <!-- ============================================================ -->
 
 
-        <!-- PC MOUSE | Walk Mode -->
-        <!-- ------------------------------------------------------------ -->
-        <div class="na-instructions-group">
-            <div class="na-instructions-group__label">PC — Mouse</div>
-            <ul class="na-instructions-list">
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Left Click Canvas</span>
-                    <span class="na-instructions-item__desc">Lock pointer to activate mouse look</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Move Mouse</span>
-                    <span class="na-instructions-item__desc">Look around (no button held)</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Esc</span>
-                    <span class="na-instructions-item__desc">Release pointer lock / stop mouse look</span>
-                </li>
-            </ul>
+    <!-- ============================================================ -->
+    <!-- SECTION | Fly Mode                                           -->
+    <!-- ============================================================ -->
+    <div class="na-instructions-section">
+
+        <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
+            <div class="na-instructions-section__title-group">
+                <svg class="na-instructions-section__mode-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <line x1="10" y1="16" x2="10" y2="3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    <polyline points="5,8 10,3 15,8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="5.5" y1="12" x2="14.5" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="7" y1="15.5" x2="13" y2="15.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <span class="na-instructions-section__title-text">Fly Mode</span>
+            </div>
+            <svg class="na-instructions-section__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <polyline points="4,7 10,13 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+
+        <div class="na-instructions-section__body" data-na-accordion-body>
+            <div class="na-instructions-section__body-inner">
+
+                <p class="na-instructions-section__intro">Free-flight navigation through and around the building with no gravity or collision. Activate using the Tools menu or the hotkey below.</p>
+
+                <!-- PC KEYBOARD | Fly Mode -->
+                <!-- ------------------------------------------------------------ -->
+                <div class="na-instructions-group">
+                    <div class="na-instructions-group__label">PC — Keyboard</div>
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">W &nbsp;/&nbsp; ↑</span>
+                            <span class="na-instructions-item__desc">Fly forward</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">S &nbsp;/&nbsp; ↓</span>
+                            <span class="na-instructions-item__desc">Fly backward</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">A &nbsp;/&nbsp; ←</span>
+                            <span class="na-instructions-item__desc">Strafe left</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">D &nbsp;/&nbsp; →</span>
+                            <span class="na-instructions-item__desc">Strafe right</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">E &nbsp;/&nbsp; Space</span>
+                            <span class="na-instructions-item__desc">Ascend</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Q &nbsp;/&nbsp; C</span>
+                            <span class="na-instructions-item__desc">Descend</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Shift</span>
+                            <span class="na-instructions-item__desc">Boost speed (hold while moving)</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Alt</span>
+                            <span class="na-instructions-item__desc">Slow / precision movement</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- ------------------------------------------------------------ -->
+
+                <!-- PC MOUSE | Fly Mode -->
+                <!-- ------------------------------------------------------------ -->
+                <div class="na-instructions-group">
+                    <div class="na-instructions-group__label">PC — Mouse</div>
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Left Click Canvas</span>
+                            <span class="na-instructions-item__desc">Lock pointer to activate mouse look</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Move Mouse</span>
+                            <span class="na-instructions-item__desc">Aim direction (yaw and pitch)</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Esc</span>
+                            <span class="na-instructions-item__desc">Release pointer lock / stop mouse look</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- ------------------------------------------------------------ -->
+
+                <!-- TOUCHSCREEN | Fly Mode -->
+                <!-- ------------------------------------------------------------ -->
+                <div class="na-instructions-group">
+                    <div class="na-instructions-group__label">Touchscreen</div>
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">1 Finger Drag</span>
+                            <span class="na-instructions-item__desc">Horizontal movement (forward, backward, strafe)</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">2 Finger Drag</span>
+                            <span class="na-instructions-item__desc">Camera rotation (yaw and pitch)</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">2 Finger Pinch</span>
+                            <span class="na-instructions-item__desc">Vertical movement (spread = ascend, pinch = descend)</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- ------------------------------------------------------------ -->
+
+            </div>
         </div>
-        <!-- ------------------------------------------------------------ -->
-
-
-        <!-- TOUCHSCREEN | Walk Mode -->
-        <!-- ------------------------------------------------------------ -->
-        <div class="na-instructions-group">
-            <div class="na-instructions-group__label">Touchscreen</div>
-            <ul class="na-instructions-list">
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">1 Finger Drag</span>
-                    <span class="na-instructions-item__desc">Move — forward, backward, and strafe</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">2 Finger Drag</span>
-                    <span class="na-instructions-item__desc">Look around (head rotation)</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">2 Finger Pinch</span>
-                    <span class="na-instructions-item__desc">Move forward / backward</span>
-                </li>
-            </ul>
-        </div>
-        <!-- ------------------------------------------------------------ -->
 
     </div>
     <!-- ============================================================ -->
@@ -184,15 +348,38 @@
     <!-- ============================================================ -->
     <div class="na-instructions-section">
 
-        <h3 class="na-instructions-section__title">Global Hotkeys</h3>
+        <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
+            <div class="na-instructions-section__title-group">
+                <svg class="na-instructions-section__mode-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <rect x="2" y="5" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                    <circle cx="6.5" cy="10" r="1" fill="currentColor"/>
+                    <circle cx="10" cy="10" r="1" fill="currentColor"/>
+                    <circle cx="13.5" cy="10" r="1" fill="currentColor"/>
+                </svg>
+                <span class="na-instructions-section__title-text">Global Hotkeys</span>
+            </div>
+            <svg class="na-instructions-section__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <polyline points="4,7 10,13 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
 
-        <div class="na-instructions-group na-instructions-group--no-label">
-            <ul class="na-instructions-list">
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Alt + Shift + W</span>
-                    <span class="na-instructions-item__desc">Toggle Walk Mode / Orbit Mode</span>
-                </li>
-            </ul>
+        <div class="na-instructions-section__body" data-na-accordion-body>
+            <div class="na-instructions-section__body-inner">
+
+                <div class="na-instructions-group na-instructions-group--no-label">
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Alt + Shift + W</span>
+                            <span class="na-instructions-item__desc">Toggle Walk Mode / Orbit Mode</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Alt + Shift + F</span>
+                            <span class="na-instructions-item__desc">Toggle Fly Mode</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
         </div>
 
     </div>
@@ -204,24 +391,43 @@
     <!-- ============================================================ -->
     <div class="na-instructions-section na-instructions-section--last">
 
-        <h3 class="na-instructions-section__title">Model Isolation Tools</h3>
-        <p class="na-instructions-section__intro">Use these Tools menu options to simplify what you see. They are useful for client presentations when you want to focus on one part of the building at a time.</p>
+        <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
+            <div class="na-instructions-section__title-group">
+                <svg class="na-instructions-section__mode-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <rect x="2.5" y="13" width="15" height="3.5" rx="1" stroke="currentColor" stroke-width="1.7"/>
+                    <rect x="2.5" y="8" width="15" height="3.5" rx="1" stroke="currentColor" stroke-width="1.7"/>
+                    <rect x="2.5" y="3" width="15" height="3.5" rx="1" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="na-instructions-section__title-text">Model Isolation Tools</span>
+            </div>
+            <svg class="na-instructions-section__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <polyline points="4,7 10,13 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
 
-        <div class="na-instructions-group na-instructions-group--no-label">
-            <ul class="na-instructions-list">
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Storey Toggle</span>
-                    <span class="na-instructions-item__desc">Turn individual floors on or off in any combination. Best for custom cutaway views and comparing several levels together.</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Floor Isolate</span>
-                    <span class="na-instructions-item__desc">Shows one floor at a time. Roofs and landscape are switched off so the selected level is easier to understand in detail.</span>
-                </li>
-                <li class="na-instructions-item">
-                    <span class="na-instructions-item__key">Show Entire Building</span>
-                    <span class="na-instructions-item__desc">Resets visibility to the full building view when you are done isolating.</span>
-                </li>
-            </ul>
+        <div class="na-instructions-section__body" data-na-accordion-body>
+            <div class="na-instructions-section__body-inner">
+
+                <p class="na-instructions-section__intro">Use these Tools menu options to simplify what you see. They are useful for client presentations when you want to focus on one part of the building at a time.</p>
+
+                <div class="na-instructions-group na-instructions-group--no-label">
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Storey Toggle</span>
+                            <span class="na-instructions-item__desc">Turn individual floors on or off in any combination. Best for custom cutaway views and comparing several levels together.</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Floor Isolate</span>
+                            <span class="na-instructions-item__desc">Shows one floor at a time. Roofs and landscape are switched off so the selected level is easier to understand in detail.</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Show Entire Building</span>
+                            <span class="na-instructions-item__desc">Resets visibility to the full building view when you are done isolating.</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
         </div>
 
     </div>

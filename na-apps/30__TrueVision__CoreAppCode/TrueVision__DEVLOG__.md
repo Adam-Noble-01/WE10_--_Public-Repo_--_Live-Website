@@ -2,6 +2,74 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.3.0  -  25-May-2026
+### User Guide — Accordion Sections, Fly Mode Docs, Whitecard Restyle
+
+**Overview**
+- Restyled the User Guide modal from the Vale dark blue panel to a clean light whitecard panel, matching TrueVision's scene aesthetic.
+- Each section (Orbit, Walk, Fly, Hotkeys, Isolation Tools) is now a collapsible accordion with a chevron arrow toggle. All sections start expanded.
+- Added a Fly Mode section covering WASD + Q/E ascend/descend, pointer-lock mouse look, Alt precision, Shift boost, and touch controls.
+- Added the `Alt+Shift+F` hotkey entry to the Global Hotkeys section.
+- Added a small SVG mode icon beside each section title (orbit, walk, fly, keyboard, layers).
+
+**Changed Files**
+- `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__Content__.html` — Accordion structure, mode icons, Fly Mode section, Alt+Shift+F hotkey.
+- `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UiFeature__Styles__UserInstructions__.css` — Light whitecard modal, accordion toggle/body/chevron styles, CSS variables for colours.
+- `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__SystemLogic.js` — Added `Na__UserInstructions__InitAccordions` function; called after content injection in `Na__UserInstructions__Initialize`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.2.9  -  25-May-2026
+### Fly Mode — Free-Flight Navigation With WASD / Arrows / Mouse / Door Proximity
+
+**Overview**
+- Added a third navigation mode alongside Orbit and Walk: a free-flying camera designed for users familiar with first-person shooter / SketchUp-style fly controls.
+- Mirrors the existing Walk Mode module layout exactly so the codebase stays consistent and developers can navigate either system using the same mental model.
+- Reuses the existing door proximity system so doors open and close as the camera flies near them, matching Walk Mode behaviour.
+
+**Controls (Desktop)**
+- `W` / `ArrowUp`        → Forward
+- `S` / `ArrowDown`      → Backward
+- `A` / `ArrowLeft`      → Strafe Left
+- `D` / `ArrowRight`     → Strafe Right
+- `E` / `PageUp` / `Space` → Ascend (world Y+)
+- `Q` / `PageDown` / `C`  → Descend (world Y−)
+- `Shift`                → Boost speed multiplier
+- `Alt`                  → Slow / precision multiplier
+- `Mouse` (pointer-lock) → Yaw + pitch look (FPS-style; click canvas to lock)
+
+**Controls (Touch / Tablet)**
+- Single-finger drag → horizontal motion (forward + strafe), matching Walk Mode UX.
+- Two-finger drag    → camera rotation (yaw + pitch).
+- Two-finger pinch   → vertical motion (spread to ascend, pinch to descend).
+
+**Hotkey**
+- `Alt+Shift+F` toggles Fly Mode globally.
+
+**New Files**
+- `02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__FlyMode__SystemLogic.js` — core state, no gravity, no collision, smoothed velocity integration for drone-like glide.
+- `02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__FlyMode__DesktopControls.js` — WASD + Arrows + Q/E + Space/Ctrl + pointer-lock mouse look.
+- `02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__FlyMode__TouchScreenControls.js` — one-finger drag + two-finger rotate + pinch-to-elevate.
+- `02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeControls.js` — orchestrator (mirror of `WalkModeControls`).
+- `02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeEventListeners.js` — hotkey + button binding (mirror of `WalkModeEventListeners`).
+
+**Changed Files**
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json` — added `Navmode__Settings.Navmode__FlyMode` config block and `Global__Hotkeys__ToggleFlyMode`.
+- `02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__ModeTransition.js` — added `Na__ModeTransition__OrbitToFly` and `Na__ModeTransition__FlyToOrbit` (matches the existing repositioned-orbit-camera logic used for walk-to-orbit).
+- `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` — render loop now branches on `Na__FlyMode__IsActive()` and feeds the camera position to `Na__DoorProximity__Update`; keep-rendering predicate also includes fly mode.
+- `index.html` — Fly Mode menu button added between Walk and Orbit, tri-state mode-status repaint, mutual-exclusion handoff so toggling Fly auto-deactivates Walk (and vice versa).
+
+**Config Authority**
+- All Fly Mode behaviour is sourced from `Na__AppConfig__Main.json → Navmode__Settings.Navmode__FlyMode` (movement and vertical speeds in mm/sec, boost/slow scalars, damping factor, mouse sensitivity, keyboard rotate rate, door proximity threshold, touch sensitivities). Nothing is hardcoded outside the JSON.
+
+**Door Animation Parity**
+- Fly Mode reuses `Na__DoorProximity__Initialize` / `SetEnabled` / `Update` exactly like Walk Mode. Camera position is passed in directly (no capsule), so proximity triggers fire whenever the user flies within the configured threshold.
+
+**Verification Notes**
+- No linter errors across all new + modified files.
+- Modes are mutually exclusive: switching between Walk ⇄ Fly ⇄ Orbit always cleans up the outgoing mode before starting the incoming one so the saved orbit snapshot remains valid.
+- Render loop only spins continuously while a navigation mode that needs it (`walk-mode`, `fly-mode`, or orbit interaction) is active — the existing invalidation contract is preserved.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.2.8  -  25-May-2026
 ### Scene Inspector — ValeVision Dev Tools Tree Explorer Ported to TrueVision
 

@@ -111,7 +111,8 @@
     },
     "Global__Hotkeys": {
         "Global__Hotkeys__Description"                             : "Global keyboard shortcuts. Modifier keys joined with '+'. Evaluated in keydown handlers.",
-        "Global__Hotkeys__ToggleWalkMode"                          : "Alt+Shift+W"
+        "Global__Hotkeys__ToggleWalkMode"                          : "Alt+Shift+W",
+        "Global__Hotkeys__ToggleFlyMode"                           : "Alt+Shift+F"
     },
     "Navmode__Settings": {
         "Navmode__Settings__Description": "All navmode values are integer millimeters where noted; convert to 3D units in code.",
@@ -146,6 +147,21 @@
             "Navmode__WalkMode__DoorProximityThresholdMm"          : 3000,
             "Navmode__WalkMode__MaxEntryPitchDeg"                  : 30,
             "Navmode__WalkMode__EntryForwardNudgeMm"               : 1000
+        },
+        "Navmode__FlyMode": {
+            "Navmode__FlyMode__Description"                        : "Free-flying camera mode. No gravity, no collision. Movement is relative to the camera's current orientation so 'forward' follows where the user is looking. All distance values are integer millimeters; convert to 3D units in code.",
+            "Navmode__FlyMode__HorizontalFovDeg"                   : 60,
+            "Navmode__FlyMode__MovementSpeedMmPerSec"              : 5000,
+            "Navmode__FlyMode__VerticalSpeedMmPerSec"              : 4000,
+            "Navmode__FlyMode__BoostMultiplier"                    : 3.0,
+            "Navmode__FlyMode__SlowMultiplier"                     : 0.25,
+            "Navmode__FlyMode__MouseSensitivity"                   : 0.0018,
+            "Navmode__FlyMode__KeyboardRotateRadPerSec"            : 1.4,
+            "Navmode__FlyMode__MovementDampingFactor"              : 12.0,
+            "Navmode__FlyMode__DoorProximityEnabled"               : true,
+            "Navmode__FlyMode__DoorProximityThresholdMm"           : 3000,
+            "Navmode__FlyMode__TouchMovementScale"                 : 0.004,
+            "Navmode__FlyMode__TouchLookSensitivity"               : 0.003
         }
     },
     "Navmode__Damping": {

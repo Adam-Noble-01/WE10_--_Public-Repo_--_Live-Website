@@ -167,6 +167,12 @@
                     </button>
                 </li>
                 <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-walk-mode__toggle" id="naFlyModeToggle">
+                        <span class="na-walk-mode__label">Fly Mode</span>
+                        <span class="na-walk-mode__status" id="naFlyModeStatus">Off</span>
+                    </button>
+                </li>
+                <li class="na-dropdown-menu__item">
                     <button class="na-dropdown-menu__button na-walk-mode__toggle" id="naOrbitModeToggle">
                         <span class="na-walk-mode__label">Orbit Mode</span>
                         <span class="na-walk-mode__status" id="naOrbitModeStatus">Active</span>
@@ -372,6 +378,10 @@
     } from './02__Src__AppModules/07__Scene__EnvironmentEffects/Na__Scene__DefaultFogEffect.js';
     import { Na__UiFeature__InitializeWalkModeSystem, Na__UiFeature__ToggleWalkMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeControls.js';
     import { Na__UiFeature__InitializeWalkModeHotkey, Na__UiFeature__InitializeWalkModeToggleButton } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js';
+    import { Na__UiFeature__InitializeFlyModeSystem, Na__UiFeature__ToggleFlyMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeControls.js';
+    import { Na__UiFeature__InitializeFlyModeHotkey, Na__UiFeature__InitializeFlyModeToggleButton } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeEventListeners.js';
+    import { Na__FlyMode__IsActive } from './02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__FlyMode__SystemLogic.js';
+    import { Na__WalkMode__IsActive } from './02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__WalkMode__SystemLogic.js';
     import { Na__AppFlow__StartLoadingSequence } from './02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js';
     import { Na__UiFeature__InitializeUserInstructionsMenuItem } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UiFeature__UserInstructions__MenuItem.js';
     import { Na__UserInstructions__Initialize, Na__UserInstructions__Open } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__SystemLogic.js';
@@ -427,6 +437,9 @@
     const Na__Config__WalkMode = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__WalkMode)
         ? Na__Config__NavmodeSettings.Navmode__WalkMode
         : {};                                                                     // <-- Walk mode config (MM)
+    const Na__Config__FlyMode = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__FlyMode)
+        ? Na__Config__NavmodeSettings.Navmode__FlyMode
+        : {};                                                                     // <-- Fly mode config (MM + scalars)
     const Na__Config__GlobalHotkeys = Na__AppConfig__Data.Global__Hotkeys || {};  // <-- Global hotkeys config
     const Na__Config__MaterialsSystem = Na__AppConfig__Data.MaterialsSystem__Config || {};  // <-- Materials system config
     const Na__Config__StoreyVisibility = Na__AppConfig__Data.StoreyVisibility || {};       // <-- Storey visibility config
@@ -622,45 +635,95 @@
 // REGION | Walk Mode System Initialization
 // -----------------------------------------------------------------------------
 
-    // MODULE INITIALIZATION | Walk Mode System
+    // MODULE INITIALIZATION | Walk Mode and Fly Mode Systems
     // ------------------------------------------------------------
     // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeControls.js
     Na__UiFeature__InitializeWalkModeSystem(Na__Scene__Main, Na__Camera__Main, Na__Renderer__Main, Na__Controls__Orbit, Na__Config__WalkMode, Na__Device__UseTouchControls);
 
+    // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeControls.js
+    Na__UiFeature__InitializeFlyModeSystem(Na__Scene__Main, Na__Camera__Main, Na__Renderer__Main, Na__Controls__Orbit, Na__Config__FlyMode, Na__Device__UseTouchControls);
+
     // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js
-    const Na__WalkMode__ToggleBtn = document.getElementById('naWalkModeToggle');
-    const Na__WalkMode__StatusEl  = document.getElementById('naWalkModeStatus');
+    // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeEventListeners.js
+    const Na__WalkMode__ToggleBtn  = document.getElementById('naWalkModeToggle');
+    const Na__WalkMode__StatusEl   = document.getElementById('naWalkModeStatus');
+    const Na__FlyMode__ToggleBtn   = document.getElementById('naFlyModeToggle');
+    const Na__FlyMode__StatusEl    = document.getElementById('naFlyModeStatus');
     const Na__OrbitMode__ToggleBtn = document.getElementById('naOrbitModeToggle');
     const Na__OrbitMode__StatusEl  = document.getElementById('naOrbitModeStatus');
 
-    function Na__UiFeature__UpdateModeStatus(isWalkModeActive) {
+    // HELPER FUNCTION | Repaint Navigation Mode Status Buttons (Tri-State)
+    // ------------------------------------------------------------
+    // activeMode is one of: 'walk' | 'fly' | 'orbit'.  Only one button
+    // shows the active highlight at any time so the user can read the
+    // current mode at a glance.
+    // ------------------------------------------------------------
+    function Na__UiFeature__UpdateModeStatus(activeMode) {
+        const walkActive  = activeMode === 'walk';
+        const flyActive   = activeMode === 'fly';
+        const orbitActive = activeMode === 'orbit';
+
         if (Na__WalkMode__StatusEl) {
-            Na__WalkMode__StatusEl.textContent = isWalkModeActive ? 'Active' : 'Off';
+            Na__WalkMode__StatusEl.textContent = walkActive ? 'Active' : 'Off';
         }
         if (Na__WalkMode__ToggleBtn) {
-            Na__WalkMode__ToggleBtn.classList.toggle('na-walk-mode__toggle--active', isWalkModeActive);
+            Na__WalkMode__ToggleBtn.classList.toggle('na-walk-mode__toggle--active', walkActive);
+        }
+
+        if (Na__FlyMode__StatusEl) {
+            Na__FlyMode__StatusEl.textContent = flyActive ? 'Active' : 'Off';
+        }
+        if (Na__FlyMode__ToggleBtn) {
+            Na__FlyMode__ToggleBtn.classList.toggle('na-walk-mode__toggle--active', flyActive);
         }
 
         if (Na__OrbitMode__StatusEl) {
-            Na__OrbitMode__StatusEl.textContent = isWalkModeActive ? 'Off' : 'Active';
+            Na__OrbitMode__StatusEl.textContent = orbitActive ? 'Active' : 'Off';
         }
         if (Na__OrbitMode__ToggleBtn) {
-            Na__OrbitMode__ToggleBtn.classList.toggle('na-walk-mode__toggle--active', !isWalkModeActive);
+            Na__OrbitMode__ToggleBtn.classList.toggle('na-walk-mode__toggle--active', orbitActive);
         }
     }
 
-    const Na__WalkMode__ToggleFn  = () => Na__UiFeature__ToggleWalkMode(
-        () => Na__UiFeature__UpdateModeStatus(true),
-        () => Na__UiFeature__UpdateModeStatus(false)
-    );
-    Na__UiFeature__InitializeWalkModeHotkey(Na__WalkMode__ToggleFn);
-    Na__UiFeature__InitializeWalkModeToggleButton('naWalkModeToggle', Na__WalkMode__ToggleFn);
-    Na__UiFeature__UpdateModeStatus(false);
+    // FUNCTION | Toggle Walk Mode With Tri-State Awareness
+    // ------------------------------------------------------------
+    // Switching from Fly -> Walk requires first deactivating Fly so the
+    // saved orbit snapshot is restored before Walk captures a fresh one.
+    // ------------------------------------------------------------
+    function Na__UiFeature__WalkMode__ToggleFn() {
+        if (Na__FlyMode__IsActive()) {
+            Na__UiFeature__ToggleFlyMode(null, null);                            // <-- Tear down fly mode silently before walk takes over
+        }
+        Na__UiFeature__ToggleWalkMode(
+            () => Na__UiFeature__UpdateModeStatus('walk'),
+            () => Na__UiFeature__UpdateModeStatus('orbit')
+        );
+    }
+
+    // FUNCTION | Toggle Fly Mode With Tri-State Awareness
+    // ------------------------------------------------------------
+    function Na__UiFeature__FlyMode__ToggleFn() {
+        if (Na__WalkMode__IsActive()) {
+            Na__UiFeature__ToggleWalkMode(null, null);                           // <-- Tear down walk mode silently before fly takes over
+        }
+        Na__UiFeature__ToggleFlyMode(
+            () => Na__UiFeature__UpdateModeStatus('fly'),
+            () => Na__UiFeature__UpdateModeStatus('orbit')
+        );
+    }
+
+    Na__UiFeature__InitializeWalkModeHotkey(Na__UiFeature__WalkMode__ToggleFn);
+    Na__UiFeature__InitializeWalkModeToggleButton('naWalkModeToggle', Na__UiFeature__WalkMode__ToggleFn);
+    Na__UiFeature__InitializeFlyModeHotkey(Na__UiFeature__FlyMode__ToggleFn);
+    Na__UiFeature__InitializeFlyModeToggleButton('naFlyModeToggle', Na__UiFeature__FlyMode__ToggleFn);
+    Na__UiFeature__UpdateModeStatus('orbit');
 
     if (Na__OrbitMode__ToggleBtn) {
         Na__OrbitMode__ToggleBtn.addEventListener('click', () => {
-            if (Na__WalkMode__ToggleBtn?.classList.contains('na-walk-mode__toggle--active')) {
-                Na__WalkMode__ToggleFn();
+            if (Na__WalkMode__IsActive()) {
+                Na__UiFeature__WalkMode__ToggleFn();
+            } else if (Na__FlyMode__IsActive()) {
+                Na__UiFeature__FlyMode__ToggleFn();
             }
         });
     }

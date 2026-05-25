@@ -14,6 +14,8 @@
 // - Fetches Na__UserInstructions__Content__.html via the Fetch API and
 //   injects it into the modal container.
 // - Handles all close triggers: close button, backdrop click, Escape key.
+// - Initialises accordion sections after content injection so each
+//   [data-na-accordion-toggle] button expands/collapses its sibling body.
 // - Accepts a useTouchControls flag to scroll the touchscreen section
 //   into view on open when running on a touch device.
 //
@@ -22,6 +24,14 @@
 //   device detection in index.html.
 // - Pass Na__UserInstructions__Open as the openFn to
 //   Na__UiFeature__InitializeUserInstructionsMenuItem.
+//
+// DEVELOPMENT LOG:
+// 25-May-2026 - Version 2.3.0
+// - Added Na__UserInstructions__InitAccordions: wires accordion toggle
+//   behaviour after content injection. All sections start expanded.
+//
+// 27-Feb-2026 - Version 1.0.0
+// - Initial Release.
 //
 // =============================================================================
 
@@ -93,6 +103,33 @@
         } catch {
             modal.innerHTML = '<p class="na-user-instructions-modal__error">Could not load instructions.</p>';
         }
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Accordion Initialisation
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Wire Accordion Toggle Behaviour on Injected Content
+    // ------------------------------------------------------------
+    function Na__UserInstructions__InitAccordions(modal) {
+        const toggles = modal.querySelectorAll('[data-na-accordion-toggle]');
+
+        toggles.forEach((toggle) => {
+            const body = toggle.nextElementSibling;                              // <-- Body div immediately follows toggle button
+
+            toggle.setAttribute('aria-expanded', 'true');                        // <-- Start all sections expanded
+            body.setAttribute('aria-hidden', 'false');
+
+            toggle.addEventListener('click', () => {
+                const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', String(!isExpanded));        // <-- Flip expanded state
+                body.setAttribute('aria-hidden', String(isExpanded));             // <-- Flip hidden state
+            });
+        });
     }
     // ------------------------------------------------------------
 
@@ -187,6 +224,7 @@
         await Na__UserInstructions__LoadContent(modal);                             // <-- Fetch + inject content HTML
 
         Na__UserInstructions__AttachCloseListeners();                               // <-- Wire close button
+        Na__UserInstructions__InitAccordions(modal);                                // <-- Wire accordion sections
 
         // BACKDROP CLICK | Click outside modal closes overlay
         // ------------------------------------------------------------

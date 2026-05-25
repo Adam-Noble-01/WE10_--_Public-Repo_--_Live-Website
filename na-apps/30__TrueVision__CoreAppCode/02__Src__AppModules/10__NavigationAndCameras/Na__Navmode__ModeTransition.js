@@ -51,6 +51,15 @@
     } from './Na__Navmode__WalkMode__SystemLogic.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Fly Mode System Logic
+    // ------------------------------------------------------------
+    import {
+        Na__FlyMode__Activate,
+        Na__FlyMode__Deactivate,
+        Na__FlyMode__GetSavedOrbitState
+    } from './Na__Navmode__FlyMode__SystemLogic.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Unit Conversion
     // ------------------------------------------------------------
     import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
@@ -139,6 +148,83 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Orbit to Fly Transition
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Transition from Orbit Mode to Fly Mode
+    // ------------------------------------------------------------
+    // Fly mode does not need a pitch clamp or forward nudge because there is
+    // no ground snap to recover from - the camera simply keeps its current
+    // orientation and starts free-flying.  The activation flow is therefore
+    // a straight pass-through to the SystemLogic.
+    // ------------------------------------------------------------
+    function Na__ModeTransition__OrbitToFly(orbitControls) {
+        return Na__FlyMode__Activate(orbitControls);
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Fly to Orbit Transition
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Transition from Fly Mode to Orbit Mode
+    // ------------------------------------------------------------
+    // Uses the same "reposition orbit camera on the side of the helper cube
+    // closest to where the user ended up" logic as walk-to-orbit so the
+    // returning orbit view never snaps to a wildly different vantage point.
+    // ------------------------------------------------------------
+    function Na__ModeTransition__FlyToOrbit(camera, orbitControls) {
+        const savedState = Na__FlyMode__GetSavedOrbitState();
+        if (!savedState) {
+            return Na__FlyMode__Deactivate(orbitControls);
+        }
+
+        const savedTarget    = savedState.orbitTarget;
+        const savedCamPos    = savedState.cameraPosition;
+        const savedDistance  = savedCamPos.distanceTo(savedTarget);
+        const savedElevation = savedCamPos.y - savedTarget.y;
+
+        const flyPos = camera.position.clone();
+
+        const dirToFly = new THREE.Vector3(
+            flyPos.x - savedTarget.x,
+            0,
+            flyPos.z - savedTarget.z
+        );
+
+        if (dirToFly.lengthSq() > 0.001) {
+            dirToFly.normalize();
+        } else {
+            dirToFly.set(
+                savedCamPos.x - savedTarget.x,
+                0,
+                savedCamPos.z - savedTarget.z
+            ).normalize();
+        }
+
+        const elevationSq    = savedElevation * savedElevation;
+        const distanceSq     = savedDistance * savedDistance;
+        const horizontalDist = distanceSq > elevationSq
+            ? Math.sqrt(distanceSq - elevationSq)
+            : savedDistance;
+
+        const overridePosition = new THREE.Vector3(
+            savedTarget.x + dirToFly.x * horizontalDist,
+            savedTarget.y + savedElevation,
+            savedTarget.z + dirToFly.z * horizontalDist
+        );
+
+        return Na__FlyMode__Deactivate(orbitControls, overridePosition);
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -146,7 +232,9 @@
     // ------------------------------------------------------------
     export {
         Na__ModeTransition__OrbitToWalk,
-        Na__ModeTransition__WalkToOrbit
+        Na__ModeTransition__WalkToOrbit,
+        Na__ModeTransition__OrbitToFly,
+        Na__ModeTransition__FlyToOrbit
     };
     // ------------------------------------------------------------
 

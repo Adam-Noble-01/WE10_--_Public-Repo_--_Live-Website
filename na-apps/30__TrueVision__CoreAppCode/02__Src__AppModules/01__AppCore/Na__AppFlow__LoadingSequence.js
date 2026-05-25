@@ -143,6 +143,15 @@
     } from '../10__NavigationAndCameras/Na__Navmode__WalkMode__SystemLogic.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Fly Mode System
+    // ------------------------------------------------------------
+    import {
+        Na__FlyMode__IsActive,
+        Na__FlyMode__Update,
+        Na__FlyMode__GetCameraPosition
+    } from '../10__NavigationAndCameras/Na__Navmode__FlyMode__SystemLogic.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Door Proximity System
     // ------------------------------------------------------------
     import { Na__DoorProximity__Update } from '../25__System__3dObject__InteractionSystem/3dObjectInteraction__Animation__WalkMode__ProximityToOpenDoors__.js';
@@ -645,7 +654,10 @@
 
             if (Na__WalkMode__IsActive()) {
                 Na__WalkMode__Update(deltaMs);                               // <-- Update walk mode physics and camera
-                Na__DoorProximity__Update(Na__WalkMode__GetCapsulePosition()); // <-- Proximity door triggers
+                Na__DoorProximity__Update(Na__WalkMode__GetCapsulePosition()); // <-- Proximity door triggers (walk)
+            } else if (Na__FlyMode__IsActive()) {
+                Na__FlyMode__Update(deltaMs);                                // <-- Update fly mode camera (no gravity / no collision)
+                Na__DoorProximity__Update(Na__FlyMode__GetCameraPosition()); // <-- Proximity door triggers (fly)
             } else {
                 navigationChanged = Na__Navmode__UpdateNavigation() === true; // <-- Update orbit controls only when active
             }
@@ -669,6 +681,7 @@
             }
 
             return Na__WalkMode__IsActive()
+                || Na__FlyMode__IsActive()
                 || Na__DoorAnimation__HasActiveAnimations()
                 || Na__RenderLoop__ActiveReasons.size > 0;
         }
