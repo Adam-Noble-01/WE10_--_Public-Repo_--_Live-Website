@@ -50,7 +50,8 @@ import {
      pendingLine    : null,
      adjustStartY   : 0,
      adjustBaseSegs : 1,
-     typedBuffer    : ""
+     typedBuffer    : "",
+     redoStack      : []
  };
 
  const Na__PhotoUtils__Dom = {
@@ -68,7 +69,17 @@ import {
      Na__ActiveSegments : document.getElementById("js__activeSegments"),
      Na__ActiveLength   : document.getElementById("js__activeLength"),
      Na__LinesList      : document.getElementById("js__linesList"),
-     Na__NoLines        : document.getElementById("js__noLines")
+     Na__NoLines        : document.getElementById("js__noLines"),
+     Na__RedoButton     : document.getElementById("js__redoButton")
+ };
+
+ const Na__PhotoUtils__ViewState = {
+     zoom            : 1.0,
+     isPanning       : false,
+     panAnchorX      : 0,
+     panAnchorY      : 0,
+     panScrollOriginX: 0,
+     panScrollOriginY: 0
  };
 
 // endregion -------------------------------------------------------------------
@@ -77,13 +88,23 @@ import {
 // REGION | Canvas and Colour Helpers
 // -----------------------------------------------------------------------------
 
-// HELPER FUNCTION | Resize the canvas element to match the loaded image
+// HELPER FUNCTION | Apply current zoom level to canvas display dimensions
+// ------------------------------------------------------------
+function Na__PhotoUtils__ApplyZoom() {
+    const Na__Canvas = Na__PhotoUtils__Dom.Na__Canvas;
+    const Na__Zoom   = Na__PhotoUtils__ViewState.zoom;
+    Na__Canvas.style.width  = Math.round(Na__Canvas.width  * Na__Zoom) + "px";
+    Na__Canvas.style.height = Math.round(Na__Canvas.height * Na__Zoom) + "px";
+}
+// ------------------------------------------------------------
+
+
+// HELPER FUNCTION | Resize the canvas logical dimensions to match the loaded image
 // ------------------------------------------------------------
 function Na__PhotoUtils__SizeCanvasToImage(Na__Img) {
-    Na__PhotoUtils__Dom.Na__Canvas.width         = Na__Img.naturalWidth;
-    Na__PhotoUtils__Dom.Na__Canvas.height        = Na__Img.naturalHeight;
-    Na__PhotoUtils__Dom.Na__Canvas.style.width   = Na__Img.naturalWidth  + "px";
-    Na__PhotoUtils__Dom.Na__Canvas.style.height  = Na__Img.naturalHeight + "px";
+    Na__PhotoUtils__Dom.Na__Canvas.width  = Na__Img.naturalWidth;
+    Na__PhotoUtils__Dom.Na__Canvas.height = Na__Img.naturalHeight;
+    Na__PhotoUtils__ApplyZoom();
 }
 // ------------------------------------------------------------
 
@@ -212,6 +233,7 @@ function Na__PhotoUtils__RefreshUi() {
     Na__PhotoUtils__Dom.Na__PendingPill.classList.toggle("PLSC__pending-pill--visible", Na__State.mode === "adjusting");
     Na__PhotoUtils__Dom.Na__CommitButton.disabled = Na__State.mode !== "adjusting";
     Na__PhotoUtils__Dom.Na__CancelButton.disabled = Na__State.mode !== "adjusting" && Na__State.mode !== "drawing";
+    Na__PhotoUtils__Dom.Na__RedoButton.disabled   = !Na__State.redoStack.length;
 
     Na__PhotoUtils__Dom.Na__LinesList.innerHTML = "";
     Na__PhotoUtils__Dom.Na__NoLines.style.display = Na__State.lines.length ? "none" : "block";
@@ -257,6 +279,8 @@ function Na__PhotoUtils__OnImageLoaded(Na__Img, Na__Filename) {
     Na__PhotoUtils__State.previewLine    = null;
     Na__PhotoUtils__State.pendingLine    = null;
     Na__PhotoUtils__State.mode           = "idle";
+    Na__PhotoUtils__State.redoStack      = [];
+    Na__PhotoUtils__ViewState.zoom       = 1.0;
 
     Na__PhotoUtils__SizeCanvasToImage(Na__Img);
     Na__PhotoUtils__Dom.Na__EmptyState.style.display = "none";
@@ -384,6 +408,7 @@ function Na__PhotoUtils__CommitPendingLine() {
     Na__PhotoUtils__State.pendingLine          = null;
     Na__PhotoUtils__State.mode                 = "idle";
     Na__PhotoUtils__State.typedBuffer          = "";
+    Na__PhotoUtils__State.redoStack            = [];
 
     Na__PhotoUtils__SetStatus(Na__PhotoUtils__AppConfig.NaMiniApp__UiText.NaMiniApp__StatusCommitted);
     Na__PhotoUtils__RunRenderCycle();
@@ -437,6 +462,125 @@ function Na__PhotoUtils__SetActiveSegmentCount(Na__Value) {
 // endregion -------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
+// REGION | Undo / Redo
+// -----------------------------------------------------------------------------
+
+// FUNCTION | Undo the last committed line — moves it onto the redo stack
+// ------------------------------------------------------------
+function Na__PhotoUtils__UndoLine() {
+    if (!Na__PhotoUtils__State.lines.length) return;
+
+    const Na__RemovedLine = Na__PhotoUtils__State.lines.pop();
+    Na__PhotoUtils__State.redoStack.push(Na__RemovedLine);
+    Na__PhotoUtils__State.selectedIndex = -1;
+    Na__PhotoUtils__SetStatus(Na__PhotoUtils__AppConfig.NaMiniApp__UiText.NaMiniApp__StatusUndone);
+    Na__PhotoUtils__RunRenderCycle();
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Redo the last undone line — moves it back from the redo stack
+// ------------------------------------------------------------
+function Na__PhotoUtils__RedoLine() {
+    if (!Na__PhotoUtils__State.redoStack.length) return;
+
+    const Na__RestoredLine = Na__PhotoUtils__State.redoStack.pop();
+    Na__PhotoUtils__State.lines.push(Na__RestoredLine);
+    Na__PhotoUtils__State.selectedIndex = Na__PhotoUtils__State.lines.length - 1;
+    Na__PhotoUtils__SetStatus(Na__PhotoUtils__AppConfig.NaMiniApp__UiText.NaMiniApp__StatusRedone);
+    Na__PhotoUtils__RunRenderCycle();
+}
+// ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+// REGION | Viewport Pan and Zoom
+// -----------------------------------------------------------------------------
+
+// FUNCTION | Zoom in or out centred on the cursor position via mouse wheel
+// ------------------------------------------------------------
+function Na__PhotoUtils__HandleWheelZoom(Na__Event) {
+    Na__Event.preventDefault();
+
+    const Na__ViewCfg    = Na__PhotoUtils__AppConfig.NaMiniApp__ViewConfig;
+    const Na__Factor     = Na__Event.deltaY < 0 ? Na__ViewCfg.NaMiniApp__ZoomStep : (1 / Na__ViewCfg.NaMiniApp__ZoomStep);
+    const Na__NewZoom    = Na__PhotoUtils__ClampValue(
+        Na__PhotoUtils__ViewState.zoom * Na__Factor,
+        Na__ViewCfg.NaMiniApp__MinZoom,
+        Na__ViewCfg.NaMiniApp__MaxZoom
+    );
+
+    if (Na__NewZoom === Na__PhotoUtils__ViewState.zoom) return;
+
+    const Na__Viewport    = Na__PhotoUtils__Dom.Na__Viewport;
+    const Na__VpRect      = Na__Viewport.getBoundingClientRect();
+    const Na__CanvasRect  = Na__PhotoUtils__Dom.Na__Canvas.getBoundingClientRect();
+    const Na__MouseX      = Na__Event.clientX - Na__VpRect.left;
+    const Na__MouseY      = Na__Event.clientY - Na__VpRect.top;
+    const Na__CanvasInVpX = Na__CanvasRect.left - Na__VpRect.left;
+    const Na__CanvasInVpY = Na__CanvasRect.top  - Na__VpRect.top;
+    const Na__WorldX      = (Na__MouseX - Na__CanvasInVpX) / Na__PhotoUtils__ViewState.zoom;
+    const Na__WorldY      = (Na__MouseY - Na__CanvasInVpY) / Na__PhotoUtils__ViewState.zoom;
+    const Na__OriginX     = Na__CanvasInVpX + Na__Viewport.scrollLeft;
+    const Na__OriginY     = Na__CanvasInVpY + Na__Viewport.scrollTop;
+
+    Na__PhotoUtils__ViewState.zoom = Na__NewZoom;
+    Na__PhotoUtils__ApplyZoom();
+
+    Na__Viewport.scrollLeft = Na__OriginX - Na__MouseX + Na__WorldX * Na__NewZoom;
+    Na__Viewport.scrollTop  = Na__OriginY - Na__MouseY + Na__WorldY * Na__NewZoom;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Begin middle-mouse pan — capture pointer and record the scroll anchor
+// ------------------------------------------------------------
+function Na__PhotoUtils__BeginViewportPan(Na__Event) {
+    if (Na__Event.button !== 1) return;
+    Na__Event.preventDefault();
+
+    const Na__Viewport                           = Na__PhotoUtils__Dom.Na__Viewport;
+    Na__PhotoUtils__ViewState.isPanning          = true;
+    Na__PhotoUtils__ViewState.panAnchorX         = Na__Event.clientX;
+    Na__PhotoUtils__ViewState.panAnchorY         = Na__Event.clientY;
+    Na__PhotoUtils__ViewState.panScrollOriginX   = Na__Viewport.scrollLeft;
+    Na__PhotoUtils__ViewState.panScrollOriginY   = Na__Viewport.scrollTop;
+    Na__Viewport.setPointerCapture(Na__Event.pointerId);
+    Na__Viewport.classList.add("PLSC__viewport--panning");
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Continue middle-mouse pan — scroll the viewport relative to the anchor
+// ------------------------------------------------------------
+function Na__PhotoUtils__ContinueViewportPan(Na__Event) {
+    if (!Na__PhotoUtils__ViewState.isPanning) return;
+
+    const Na__Viewport      = Na__PhotoUtils__Dom.Na__Viewport;
+    const Na__Dx            = Na__Event.clientX - Na__PhotoUtils__ViewState.panAnchorX;
+    const Na__Dy            = Na__Event.clientY - Na__PhotoUtils__ViewState.panAnchorY;
+    Na__Viewport.scrollLeft = Na__PhotoUtils__ViewState.panScrollOriginX - Na__Dx;
+    Na__Viewport.scrollTop  = Na__PhotoUtils__ViewState.panScrollOriginY - Na__Dy;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | End middle-mouse pan — release capture and restore cursor state
+// ------------------------------------------------------------
+function Na__PhotoUtils__EndViewportPan(Na__Event) {
+    if (!Na__PhotoUtils__ViewState.isPanning) return;
+
+    const Na__Viewport = Na__PhotoUtils__Dom.Na__Viewport;
+    Na__PhotoUtils__ViewState.isPanning = false;
+    Na__Viewport.classList.remove("PLSC__viewport--panning");
+    try { Na__Viewport.releasePointerCapture(Na__Event.pointerId); } catch (_) {}
+}
+// ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
 // REGION | Keyboard Handler
 // -----------------------------------------------------------------------------
 
@@ -468,6 +612,18 @@ function Na__PhotoUtils__HandleKeyDown(Na__Event) {
         Na__State.selectedIndex = -1;
         Na__PhotoUtils__SetStatus(Na__UiText.NaMiniApp__StatusLineDeleted);
         Na__PhotoUtils__RunRenderCycle();
+        return;
+    }
+
+    if (Na__Event.ctrlKey && Na__Event.key === "z" && !Na__Event.shiftKey && !Na__IsTypingInField) {
+        Na__Event.preventDefault();
+        Na__PhotoUtils__UndoLine();
+        return;
+    }
+
+    if (Na__Event.ctrlKey && (Na__Event.key === "y" || Na__Event.key === "Y" || (Na__Event.shiftKey && (Na__Event.key === "z" || Na__Event.key === "Z"))) && !Na__IsTypingInField) {
+        Na__Event.preventDefault();
+        Na__PhotoUtils__RedoLine();
         return;
     }
 
@@ -521,6 +677,7 @@ function Na__PhotoUtils__ApplyUiTextFromConfig() {
     Na__PhotoUtils__Dom.Na__CommitButton.textContent     = Na__UiText.NaMiniApp__ButtonCommit;
     Na__PhotoUtils__Dom.Na__CancelButton.textContent     = Na__UiText.NaMiniApp__ButtonCancel;
     Na__PhotoUtils__Dom.Na__UndoButton.textContent       = Na__UiText.NaMiniApp__ButtonUndo;
+    Na__PhotoUtils__Dom.Na__RedoButton.textContent       = Na__UiText.NaMiniApp__ButtonRedo;
     Na__PhotoUtils__Dom.Na__ClearButton.textContent      = Na__UiText.NaMiniApp__ButtonClear;
     Na__PhotoUtils__Dom.Na__PendingPill.textContent      = Na__UiText.NaMiniApp__PillAdjusting;
 
@@ -536,6 +693,7 @@ function Na__PhotoUtils__RegisterEventListeners() {
     const Na__Viewport = Na__PhotoUtils__Dom.Na__Viewport;
 
     Na__Canvas.addEventListener("pointerdown", (Na__Event) => {
+        if (Na__Event.button !== 0) return;
         const Na__Point = Na__PhotoUtils__GetPointerPositionOnCanvas(Na__Event);
         if (Na__PhotoUtils__State.mode === "adjusting") {
             Na__PhotoUtils__CommitPendingLine();
@@ -573,14 +731,8 @@ function Na__PhotoUtils__RegisterEventListeners() {
 
     Na__PhotoUtils__Dom.Na__CommitButton.addEventListener("click", Na__PhotoUtils__CommitPendingLine);
     Na__PhotoUtils__Dom.Na__CancelButton.addEventListener("click", Na__PhotoUtils__CancelActiveLine);
-
-    Na__PhotoUtils__Dom.Na__UndoButton.addEventListener("click", () => {
-        if (!Na__PhotoUtils__State.lines.length) return;
-        Na__PhotoUtils__State.lines.pop();
-        Na__PhotoUtils__State.selectedIndex = -1;
-        Na__PhotoUtils__SetStatus(Na__PhotoUtils__AppConfig.NaMiniApp__UiText.NaMiniApp__StatusUndone);
-        Na__PhotoUtils__RunRenderCycle();
-    });
+    Na__PhotoUtils__Dom.Na__UndoButton.addEventListener("click",   Na__PhotoUtils__UndoLine);
+    Na__PhotoUtils__Dom.Na__RedoButton.addEventListener("click",   Na__PhotoUtils__RedoLine);
 
     Na__PhotoUtils__Dom.Na__ClearButton.addEventListener("click", () => {
         Na__PhotoUtils__State.lines         = [];
@@ -588,6 +740,7 @@ function Na__PhotoUtils__RegisterEventListeners() {
         Na__PhotoUtils__State.pendingLine   = null;
         Na__PhotoUtils__State.previewLine   = null;
         Na__PhotoUtils__State.mode          = "idle";
+        Na__PhotoUtils__State.redoStack     = [];
         const Na__UiText = Na__PhotoUtils__AppConfig.NaMiniApp__UiText;
         Na__PhotoUtils__SetStatus(Na__PhotoUtils__State.hasImage ? Na__UiText.NaMiniApp__StatusCleared : Na__UiText.NaMiniApp__StatusReady);
         Na__PhotoUtils__RunRenderCycle();
@@ -608,6 +761,12 @@ function Na__PhotoUtils__RegisterEventListeners() {
         Na__Viewport.classList.remove("PLSC__viewport--drag-active");
         Na__PhotoUtils__HandleImageDrop(Na__Event, Na__PhotoUtils__OnImageLoaded);
     });
+
+    Na__Viewport.addEventListener("pointerdown",   Na__PhotoUtils__BeginViewportPan);
+    Na__Viewport.addEventListener("pointermove",   Na__PhotoUtils__ContinueViewportPan);
+    Na__Viewport.addEventListener("pointerup",     Na__PhotoUtils__EndViewportPan);
+    Na__Viewport.addEventListener("pointercancel", Na__PhotoUtils__EndViewportPan);
+    Na__Viewport.addEventListener("wheel",         Na__PhotoUtils__HandleWheelZoom, { passive: false });
 
     window.addEventListener("paste", (Na__Event) => {
         Na__PhotoUtils__HandleClipboardPaste(Na__Event, Na__PhotoUtils__OnImageLoaded);

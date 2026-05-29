@@ -15,6 +15,7 @@
         "NaMiniApp__StatusCancelled"       : "Active line cancelled.",
         "NaMiniApp__StatusTooShort"        : "Line cancelled — too short.",
         "NaMiniApp__StatusUndone"          : "Last line removed.",
+        "NaMiniApp__StatusRedone"          : "Line restored.",
         "NaMiniApp__StatusCleared"         : "All lines cleared.",
         "NaMiniApp__StatusLineDeleted"     : "Selected line deleted.",
         "NaMiniApp__EmptyStateHeading"     : "No image loaded",
@@ -27,6 +28,7 @@
         "NaMiniApp__ButtonCommit"          : "Commit line",
         "NaMiniApp__ButtonCancel"          : "Cancel active",
         "NaMiniApp__ButtonUndo"            : "Undo",
+        "NaMiniApp__ButtonRedo"            : "Redo",
         "NaMiniApp__ButtonClear"           : "Clear",
         "NaMiniApp__ButtonSelect"          : "Select",
         "NaMiniApp__ButtonDelete"          : "Delete",
@@ -55,6 +57,12 @@
         "NaMiniApp__CanvasDefaultWidth"     : 1200,
         "NaMiniApp__CanvasDefaultHeight"    : 800,
         "NaMiniApp__CanvasBackgroundColour" : "#0d0f14"
+    },
+
+    "NaMiniApp__ViewConfig" : {
+        "NaMiniApp__MinZoom"  : 0.1,
+        "NaMiniApp__MaxZoom"  : 8.0,
+        "NaMiniApp__ZoomStep" : 1.12
     },
 
     "NaMiniApp__ColourPalette" : [
