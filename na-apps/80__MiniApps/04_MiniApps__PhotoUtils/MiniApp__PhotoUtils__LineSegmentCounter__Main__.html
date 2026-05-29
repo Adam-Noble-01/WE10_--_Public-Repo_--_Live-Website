@@ -1,0 +1,174 @@
+<!-- =============================================================================
+  NOBLE ARCHITECTURE - MINI APP - PHOTO UTILS
+  =============================================================================
+
+  FILE    : MiniApp__PhotoUtils__LineSegmentCounter__Main__.html
+  AUTHOR  : Adam Noble - Noble Architecture
+  PURPOSE : Line segment counter — draw measured lines over photographs
+  CREATED : 29-May-2026
+
+  DESCRIPTION:
+  - Load an image via file upload, clipboard paste (Ctrl+V), or drag and drop.
+  - Draw lines over the image to divide them into counted segments.
+  - Adjust segment count interactively by moving the mouse or typing a number.
+  - All processing is local — no data is sent to any server.
+
+  MODULES:
+  - MiniApp__PhotoUtils__LineSegmentCounter__Main__.js        (controller)
+  - MiniApp__PhotoUtils__LineSegmentCounter__CanvasDraw__.js  (rendering)
+  - MiniApp__PhotoUtils__LineSegmentCounter__LineUtils__.js   (math helpers)
+  - MiniApp__PhotoUtils__LineSegmentCounter__ImageLoader__.js (image acquisition)
+  - MiniApp__PhotoUtils__LineSegmentCounter__AppConfig__.json (config source)
+
+  =========================================================================== -->
+
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Line Segment Counter</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+
+        <link rel="stylesheet" href="MiniApp__PhotoUtils__LineSegmentCounter__Style__.css" />
+    </head>
+<!-- endregion -------------------------------------------------------- -->
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <body>
+        <div class="PLSC__page-shell">
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Stage (Canvas + Topbar)                          -->
+            <!-- --------------------------------------------------------- -->
+                <main class="PLSC__stage-wrap">
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Topbar                                    -->
+                    <!-- ------------------------------------------------- -->
+                        <div class="PLSC__topbar">
+                            <h1 class="PLSC__topbar-title">Line Segment Counter</h1>
+                            <div id="js__status" class="PLSC__status">Loading...</div>
+                        </div>
+                    <!-- endregion ---------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Viewport                                  -->
+                    <!-- ------------------------------------------------- -->
+                        <div id="js__viewport" class="PLSC__viewport">
+                            <div class="PLSC__canvas-shell">
+                                <canvas id="js__mainCanvas" class="PLSC__canvas" width="1200" height="800"></canvas>
+
+                                <div id="js__emptyState" class="PLSC__empty-state">
+                                    <div>
+                                        <strong class="PLSC__empty-state-heading">No image loaded</strong>
+                                        <p class="PLSC__empty-state-body">
+                                            Upload a photograph or drawing from the right panel,
+                                            paste from clipboard <span class="PLSC__kbd">Ctrl+V</span>,
+                                            or drag and drop an image onto this area.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <!-- endregion ---------------------------------------- -->
+
+                </main>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Sidebar                                          -->
+            <!-- --------------------------------------------------------- -->
+                <aside class="PLSC__side">
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Section 1 — Image                        -->
+                    <!-- ------------------------------------------------- -->
+                        <section class="PLSC__section">
+                            <h2 class="PLSC__section-title">1. Image</h2>
+
+                            <label for="js__imageUpload" class="PLSC__label">Upload image</label>
+                            <input id="js__imageUpload" type="file" accept="image/*" class="PLSC__file-input" />
+
+                            <p class="PLSC__hint">
+                                All work stays in this browser tab — no server upload.
+                                You can also paste from clipboard
+                                <span class="PLSC__kbd">Ctrl+V</span>
+                                or drag an image onto the canvas.
+                            </p>
+                        </section>
+                    <!-- endregion ---------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Section 2 — Draw and Divide              -->
+                    <!-- ------------------------------------------------- -->
+                        <section class="PLSC__section">
+                            <h2 class="PLSC__section-title">2. Draw + Divide</h2>
+
+                            <label for="js__segmentInput" class="PLSC__label">Segment count</label>
+                            <input id="js__segmentInput" type="number" min="1" max="999" step="1" value="8" class="PLSC__number-input" />
+
+                            <div class="PLSC__button-row">
+                                <button id="js__commitButton" class="PLSC__button PLSC__button--primary" disabled>Commit line</button>
+                                <button id="js__cancelButton" class="PLSC__button" disabled>Cancel active</button>
+                                <button id="js__undoButton"   class="PLSC__button">Undo</button>
+                                <button id="js__clearButton"  class="PLSC__button PLSC__button--danger">Clear</button>
+                            </div>
+
+                            <div id="js__pendingPill" class="PLSC__pending-pill">Live division mode active</div>
+
+                            <p class="PLSC__hint">
+                                Drag from point A to point B. After releasing, move the mouse to adjust
+                                segments or type a number. Click or press
+                                <span class="PLSC__kbd">Enter</span> to commit.
+                            </p>
+                            <p class="PLSC__hint">
+                                Shortcuts:
+                                <span class="PLSC__kbd">+</span> / <span class="PLSC__kbd">−</span> change segments,
+                                <span class="PLSC__kbd">Esc</span> cancels,
+                                <span class="PLSC__kbd">Delete</span> removes selected line.
+                            </p>
+
+                            <div class="PLSC__metrics-grid">
+                                <div class="PLSC__metric">
+                                    <span class="PLSC__metric-label">Active segments</span>
+                                    <strong id="js__activeSegments" class="PLSC__metric-value">-</strong>
+                                </div>
+                                <div class="PLSC__metric">
+                                    <span class="PLSC__metric-label">Active length</span>
+                                    <strong id="js__activeLength" class="PLSC__metric-value">-</strong>
+                                </div>
+                            </div>
+                        </section>
+                    <!-- endregion ---------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Section 3 — Lines Report                 -->
+                    <!-- ------------------------------------------------- -->
+                        <section class="PLSC__section">
+                            <h2 class="PLSC__section-title">3. Lines Report</h2>
+                            <div id="js__linesList" class="PLSC__lines-list"></div>
+                            <p id="js__noLines" class="PLSC__hint">No lines created yet.</p>
+                        </section>
+                    <!-- endregion ---------------------------------------- -->
+
+                </aside>
+            <!-- endregion ------------------------------------------------ -->
+
+        </div>
+
+        <script type="module" src="MiniApp__PhotoUtils__LineSegmentCounter__Main__.js"></script>
+    </body>
+<!-- endregion -------------------------------------------------------- -->
+
+</html>

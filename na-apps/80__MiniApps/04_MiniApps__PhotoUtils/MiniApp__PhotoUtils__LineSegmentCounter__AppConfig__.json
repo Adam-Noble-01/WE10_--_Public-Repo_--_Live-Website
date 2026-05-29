@@ -1,0 +1,65 @@
+{
+    "NaMiniApp__Meta" : {
+        "NaMiniApp__AppTitle"    : "Line Segment Counter",
+        "NaMiniApp__AppSubTitle" : "Photo Utils",
+        "NaMiniApp__Created"     : "29-May-2026",
+        "NaMiniApp__Version"     : "1.0.0"
+    },
+
+    "NaMiniApp__UiText" : {
+        "NaMiniApp__AppHeading"            : "Line Segment Counter",
+        "NaMiniApp__StatusReady"           : "Load an image, then draw a line over it.",
+        "NaMiniApp__StatusDrawing"         : "Drawing: drag to the end point.",
+        "NaMiniApp__StatusAdjusting"       : "Live division mode — move mouse up/down, type a number, then click or press Enter.",
+        "NaMiniApp__StatusCommitted"       : "Line committed. Draw the next line.",
+        "NaMiniApp__StatusCancelled"       : "Active line cancelled.",
+        "NaMiniApp__StatusTooShort"        : "Line cancelled — too short.",
+        "NaMiniApp__StatusUndone"          : "Last line removed.",
+        "NaMiniApp__StatusCleared"         : "All lines cleared.",
+        "NaMiniApp__StatusLineDeleted"     : "Selected line deleted.",
+        "NaMiniApp__EmptyStateHeading"     : "No image loaded",
+        "NaMiniApp__EmptyStateBody"        : "Upload a photograph or drawing, paste from clipboard (Ctrl+V), or drag and drop an image onto this area.",
+        "NaMiniApp__PanelHeadingImage"     : "1. Image",
+        "NaMiniApp__PanelHeadingDraw"      : "2. Draw + Divide",
+        "NaMiniApp__PanelHeadingReport"    : "3. Lines Report",
+        "NaMiniApp__LabelSegmentCount"     : "Segment count",
+        "NaMiniApp__LabelUpload"           : "Upload image",
+        "NaMiniApp__ButtonCommit"          : "Commit line",
+        "NaMiniApp__ButtonCancel"          : "Cancel active",
+        "NaMiniApp__ButtonUndo"            : "Undo",
+        "NaMiniApp__ButtonClear"           : "Clear",
+        "NaMiniApp__ButtonSelect"          : "Select",
+        "NaMiniApp__ButtonDelete"          : "Delete",
+        "NaMiniApp__PillAdjusting"         : "Live division mode active",
+        "NaMiniApp__HintImageInput"        : "All work stays in this browser tab — no server upload. Paste from clipboard or drag an image onto the canvas.",
+        "NaMiniApp__HintDrawing"           : "Drag from point A to point B. After releasing, move the mouse to adjust segments or type a number. Click or press Enter to commit.",
+        "NaMiniApp__HintShortcuts"         : "Shortcuts: +/− to change segments, Esc to cancel, Delete to remove selected line.",
+        "NaMiniApp__MetricLabelSegments"   : "Active segments",
+        "NaMiniApp__MetricLabelLength"     : "Active length",
+        "NaMiniApp__NoLinesHint"           : "No lines created yet.",
+        "NaMiniApp__LineCardSegSuffix"     : "seg.",
+        "NaMiniApp__LineCardLengthLabel"   : "Length:",
+        "NaMiniApp__LineCardEachLabel"     : "Each:",
+        "NaMiniApp__LineCardPointALabel"   : "A:",
+        "NaMiniApp__LineCardPointBLabel"   : "B:",
+        "NaMiniApp__LineCardPxSuffix"      : "px"
+    },
+
+    "NaMiniApp__Defaults" : {
+        "NaMiniApp__DefaultSegmentCount"    : 8,
+        "NaMiniApp__MinSegments"            : 1,
+        "NaMiniApp__MaxSegments"            : 999,
+        "NaMiniApp__MinLineLength"          : 6,
+        "NaMiniApp__AdjustDeltaPerPixel"    : 14,
+        "NaMiniApp__TypedBufferMaxLength"   : 3,
+        "NaMiniApp__CanvasDefaultWidth"     : 1200,
+        "NaMiniApp__CanvasDefaultHeight"    : 800,
+        "NaMiniApp__CanvasBackgroundColour" : "#0d0f14"
+    },
+
+    "NaMiniApp__ColourPalette" : [
+        "#ff3333", "#1e90ff", "#24d16b", "#ff9d00", "#a855f7",
+        "#00cfe8", "#f43f5e", "#84cc16", "#facc15", "#fb7185",
+        "#38bdf8", "#e879f9", "#f97316", "#14b8a6", "#c084fc"
+    ]
+}

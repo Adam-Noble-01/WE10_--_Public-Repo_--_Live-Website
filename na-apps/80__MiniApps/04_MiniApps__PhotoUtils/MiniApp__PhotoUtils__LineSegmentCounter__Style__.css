@@ -1,0 +1,454 @@
+/* =============================================================================
+   NOBLE ARCHITECTURE - PHOTO UTILS - LINE SEGMENT COUNTER - STYLESHEET
+   =============================================================================
+
+   FILE    : MiniApp__PhotoUtils__LineSegmentCounter__Style__.css
+   PURPOSE : UI styling for the line segment counter photo utility
+   CREATED : 29-May-2026
+
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   REGION | CSS Variables
+   -------------------------------------------------------------------------- */
+:root {
+    --PLSC_Col_Background        : #111318;
+    --PLSC_Col_Panel             : #191d24;
+    --PLSC_Col_PanelAlt          : #222833;
+    --PLSC_Col_TextPrimary       : #eef2f7;
+    --PLSC_Col_TextMuted         : #aab4c2;
+    --PLSC_Col_Border            : #333b49;
+    --PLSC_Col_Accent            : #5aa7ff;
+    --PLSC_Col_Danger            : #ff5c5c;
+    --PLSC_Col_Success           : #54d28a;
+    --PLSC_Col_Shadow            : rgba(0, 0, 0, 0.35);
+    --PLSC_Col_InputBackground   : #111722;
+    --PLSC_Col_CanvasBackground  : #0d0f14;
+    --PLSC_Col_TopBar             : #151922;
+    --PLSC_Col_PrimaryBg         : #17365d;
+    --PLSC_Col_PrimaryBorder     : #2e6fb7;
+    --PLSC_Col_DangerBg          : #451b1f;
+    --PLSC_Col_DangerBorder      : #8e333c;
+    --PLSC_Col_PillText          : #05130b;
+    --PLSC_Font_Body             : "Open Sans", "Segoe UI", Arial, sans-serif;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Base Reset
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing                           : border-box;
+}
+
+html,
+body {
+    margin                               : 0;
+    padding                              : 0;
+    height                               : 100%;
+    overflow                             : hidden;
+    font-family                          : var(--PLSC_Font_Body);
+    background-color                     : var(--PLSC_Col_Background);
+    color                                : var(--PLSC_Col_TextPrimary);
+    font-size                            : 14px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Page Shell and Layout Grid
+   -------------------------------------------------------------------------- */
+.PLSC__page-shell {
+    display                              : grid;
+    grid-template-columns                : minmax(0, 1fr) 360px;
+    height                               : 100vh;
+}
+
+.PLSC__stage-wrap {
+    display                              : flex;
+    flex-direction                       : column;
+    min-width                            : 0;
+    min-height                           : 0;
+    border-right                         : 1px solid var(--PLSC_Col_Border);
+}
+
+.PLSC__side {
+    background-color                     : var(--PLSC_Col_Panel);
+    overflow-y                           : auto;
+    padding                              : 14px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Topbar
+   -------------------------------------------------------------------------- */
+.PLSC__topbar {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 12px;
+    padding                              : 10px 14px;
+    border-bottom                        : 1px solid var(--PLSC_Col_Border);
+    background-color                     : var(--PLSC_Col_TopBar);
+    flex-shrink                          : 0;
+}
+
+.PLSC__topbar-title {
+    margin                               : 0;
+    font-size                            : 15px;
+    font-weight                          : 700;
+    letter-spacing                       : 0.01em;
+    white-space                          : nowrap;
+}
+
+.PLSC__status {
+    color                                : var(--PLSC_Col_TextMuted);
+    font-size                            : 13px;
+    overflow                             : hidden;
+    text-overflow                        : ellipsis;
+    white-space                          : nowrap;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Viewport and Canvas
+   -------------------------------------------------------------------------- */
+.PLSC__viewport {
+    position                             : relative;
+    min-width                            : 0;
+    min-height                           : 0;
+    flex                                 : 1;
+    overflow                             : auto;
+    background-image                     : linear-gradient(45deg,  rgba(255,255,255,0.035) 25%, transparent 25%),
+                                           linear-gradient(-45deg, rgba(255,255,255,0.035) 25%, transparent 25%),
+                                           linear-gradient(45deg,  transparent 75%, rgba(255,255,255,0.035) 75%),
+                                           linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.035) 75%);
+    background-size                      : 28px 28px;
+    background-position                  : 0 0, 0 14px, 14px -14px, -14px 0;
+    transition                           : box-shadow 0.2s ease;
+}
+
+.PLSC__viewport--drag-active {
+    box-shadow                           : inset 0 0 0 3px var(--PLSC_Col_Accent);
+}
+
+.PLSC__canvas-shell {
+    position                             : relative;
+    width                                : fit-content;
+    min-width                            : 100%;
+    min-height                           : 100%;
+    display                              : flex;
+    align-items                          : flex-start;
+    justify-content                      : flex-start;
+    padding                              : 24px;
+}
+
+.PLSC__canvas {
+    display                              : block;
+    background-color                     : var(--PLSC_Col_CanvasBackground);
+    box-shadow                           : 0 10px 32px var(--PLSC_Col_Shadow);
+    cursor                               : crosshair;
+    max-width                            : none;
+    border-radius                        : 2px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Empty State
+   -------------------------------------------------------------------------- */
+.PLSC__empty-state {
+    position                             : absolute;
+    inset                                : 24px;
+    display                              : grid;
+    place-items                          : center;
+    color                                : var(--PLSC_Col_TextMuted);
+    border                               : 1px dashed var(--PLSC_Col_Border);
+    border-radius                        : 12px;
+    text-align                           : center;
+    padding                              : 32px;
+    pointer-events                       : none;
+}
+
+.PLSC__empty-state-heading {
+    display                              : block;
+    color                                : var(--PLSC_Col_TextPrimary);
+    font-size                            : 18px;
+    font-weight                          : 700;
+    margin-bottom                        : 8px;
+}
+
+.PLSC__empty-state-body {
+    margin                               : 0;
+    font-size                            : 14px;
+    line-height                          : 1.55;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Sidebar Sections
+   -------------------------------------------------------------------------- */
+.PLSC__section {
+    background-color                     : var(--PLSC_Col_PanelAlt);
+    border                               : 1px solid var(--PLSC_Col_Border);
+    border-radius                        : 12px;
+    padding                              : 12px;
+    margin-bottom                        : 12px;
+}
+
+.PLSC__section-title {
+    margin                               : 0 0 10px 0;
+    font-size                            : 13px;
+    text-transform                       : uppercase;
+    letter-spacing                       : 0.08em;
+    color                                : var(--PLSC_Col_TextMuted);
+    font-weight                          : 800;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Form Controls
+   -------------------------------------------------------------------------- */
+.PLSC__label {
+    display                              : block;
+    color                                : var(--PLSC_Col_TextMuted);
+    font-size                            : 12px;
+    margin-bottom                        : 6px;
+}
+
+.PLSC__file-input,
+.PLSC__number-input {
+    width                                : 100%;
+    border                               : 1px solid var(--PLSC_Col_Border);
+    border-radius                        : 8px;
+    background-color                     : var(--PLSC_Col_InputBackground);
+    color                                : var(--PLSC_Col_TextPrimary);
+    padding                              : 9px 10px;
+    font                                 : inherit;
+    outline                              : none;
+}
+
+.PLSC__file-input {
+    font-size                            : 12px;
+}
+
+.PLSC__file-input:focus,
+.PLSC__number-input:focus {
+    border-color                         : var(--PLSC_Col_Accent);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Buttons
+   -------------------------------------------------------------------------- */
+.PLSC__button-row {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    gap                                  : 8px;
+    margin-top                           : 10px;
+}
+
+.PLSC__button {
+    border                               : 1px solid var(--PLSC_Col_Border);
+    border-radius                        : 9px;
+    background-color                     : var(--PLSC_Col_InputBackground);
+    color                                : var(--PLSC_Col_TextPrimary);
+    padding                              : 8px 10px;
+    font                                 : inherit;
+    font-size                            : 13px;
+    cursor                               : pointer;
+    transition                           : transform 0.05s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.PLSC__button:hover {
+    border-color                         : var(--PLSC_Col_Accent);
+}
+
+.PLSC__button:active {
+    transform                            : translateY(1px);
+}
+
+.PLSC__button--primary {
+    background-color                     : var(--PLSC_Col_PrimaryBg);
+    border-color                         : var(--PLSC_Col_PrimaryBorder);
+}
+
+.PLSC__button--danger {
+    background-color                     : var(--PLSC_Col_DangerBg);
+    border-color                         : var(--PLSC_Col_DangerBorder);
+}
+
+.PLSC__button--small {
+    padding                              : 5px 8px;
+    font-size                            : 12px;
+}
+
+.PLSC__button:disabled {
+    opacity                              : 0.5;
+    cursor                               : default;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Hints and Keyboard Tags
+   -------------------------------------------------------------------------- */
+.PLSC__hint {
+    color                                : var(--PLSC_Col_TextMuted);
+    font-size                            : 12px;
+    line-height                          : 1.45;
+    margin                               : 8px 0 0 0;
+}
+
+.PLSC__kbd {
+    display                              : inline-block;
+    border                               : 1px solid var(--PLSC_Col_Border);
+    background-color                     : #10151d;
+    border-radius                        : 4px;
+    padding                              : 1px 5px;
+    font-size                            : 11px;
+    color                                : var(--PLSC_Col_TextPrimary);
+    margin                               : 0 2px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Live Mode Pill
+   -------------------------------------------------------------------------- */
+.PLSC__pending-pill {
+    display                              : none;
+    align-items                          : center;
+    gap                                  : 7px;
+    color                                : var(--PLSC_Col_PillText);
+    background-color                     : var(--PLSC_Col_Success);
+    border-radius                        : 999px;
+    padding                              : 6px 9px;
+    font-size                            : 12px;
+    font-weight                          : 800;
+    margin-top                           : 8px;
+}
+
+.PLSC__pending-pill--visible {
+    display                              : inline-flex;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Metrics Grid
+   -------------------------------------------------------------------------- */
+.PLSC__metrics-grid {
+    display                              : grid;
+    grid-template-columns                : 1fr 1fr;
+    gap                                  : 8px;
+    margin-top                           : 8px;
+}
+
+.PLSC__metric {
+    border                               : 1px solid var(--PLSC_Col_Border);
+    border-radius                        : 10px;
+    background-color                     : rgba(0, 0, 0, 0.15);
+    padding                              : 9px;
+}
+
+.PLSC__metric-label {
+    display                              : block;
+    color                                : var(--PLSC_Col_TextMuted);
+    font-size                            : 11px;
+    margin-bottom                        : 3px;
+}
+
+.PLSC__metric-value {
+    font-size                            : 16px;
+    font-weight                          : 800;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Lines Report List
+   -------------------------------------------------------------------------- */
+.PLSC__lines-list {
+    display                              : flex;
+    flex-direction                       : column;
+    gap                                  : 8px;
+}
+
+.PLSC__line-card {
+    border                               : 1px solid var(--PLSC_Col_Border);
+    border-radius                        : 10px;
+    padding                              : 9px;
+    background-color                     : rgba(0, 0, 0, 0.12);
+    cursor                               : pointer;
+}
+
+.PLSC__line-card--selected {
+    border-color                         : var(--PLSC_Col_Accent);
+    box-shadow                           : inset 0 0 0 1px rgba(90, 167, 255, 0.35);
+}
+
+.PLSC__line-title {
+    display                              : flex;
+    align-items                          : center;
+    justify-content                      : space-between;
+    gap                                  : 8px;
+    margin-bottom                        : 6px;
+    font-size                            : 13px;
+    font-weight                          : 800;
+}
+
+.PLSC__line-title-left {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 7px;
+}
+
+.PLSC__line-swatch {
+    width                                : 13px;
+    height                               : 13px;
+    border-radius                        : 99px;
+    border                               : 1px solid rgba(255, 255, 255, 0.55);
+    flex-shrink                          : 0;
+}
+
+.PLSC__line-meta {
+    display                              : grid;
+    grid-template-columns                : 1fr 1fr;
+    gap                                  : 5px 8px;
+    color                                : var(--PLSC_Col_TextMuted);
+    font-size                            : 12px;
+}
+
+.PLSC__line-meta b {
+    color                                : var(--PLSC_Col_TextPrimary);
+    font-weight                          : 700;
+}
+
+.PLSC__line-actions {
+    display                              : flex;
+    gap                                  : 6px;
+    margin-top                           : 8px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Responsive Breakpoint
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+    body {
+        overflow                         : auto;
+    }
+
+    .PLSC__page-shell {
+        grid-template-columns            : 1fr;
+        height                           : auto;
+        min-height                       : 100vh;
+    }
+
+    .PLSC__stage-wrap {
+        height                           : 70vh;
+        border-right                     : none;
+        border-bottom                    : 1px solid var(--PLSC_Col_Border);
+    }
+
+    .PLSC__side {
+        height                           : auto;
+    }
+}
+/* endregion ---------------------------------------------------------------- */

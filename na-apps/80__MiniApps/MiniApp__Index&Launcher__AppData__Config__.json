@@ -103,6 +103,26 @@
             "MiniApp__LoadOrder"         : 4,
             "MiniApp__LaunchInNewTab"    : true,
             "MiniApp__LaunchInNewWindow" : false
+        },
+
+        "MiniApp__LineSegmentCounter_05" : {
+            "MiniApp__LaunchFile"        : "MiniApp__PhotoUtils__LineSegmentCounter__Main__.html",
+            "MiniApp__RelativePath"      : "04_MiniApps__PhotoUtils",
+            "MiniApp__Title"             : "Line Segment Counter",
+            "MiniApp__Description"       : "Draw measured lines over photographs and divide them into counted segments. Load images via file upload, clipboard paste, or drag and drop. Adjust segment divisions interactively with mouse movement or typed input.",
+            "MiniApp__Notes"             : "Refactored from the EstaViz prototype into a modular HTML/CSS/JS structure with AppConfig JSON as single source of truth. Category: PhotoUtils — first tool in an expanding photo estimation utilities collection.",
+            "MiniApp__KeyWords"          : [
+                                                "Line Counter",
+                                                "Segment",
+                                                "Photo",
+                                                "Measurement",
+                                                "Canvas",
+                                                "Estimation"
+                                           ],
+            "MiniApp__Added"             : "29-May-2026",
+            "MiniApp__LoadOrder"         : 5,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
         }
     }
 }
