@@ -18,6 +18,10 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Jun-2026 - Version 1.1.0
+// - Repositioned toast container to horizontally centred top of screen
+// - Changed entry/exit animation to vertical drop-in/out
+//
 // 08-Mar-2026 - Version 1.0.0
 // - Initial release
 //   - Toast container creation
@@ -71,11 +75,13 @@
 
                 const style = toastContainer.style;
                 style.position       = 'fixed';
-                style.top            = '20px';
-                style.right          = '20px';
+                style.top            = '24px';
+                style.left           = '50%';
+                style.transform      = 'translateX(-50%)';
                 style.zIndex         = '99999';
                 style.display        = 'flex';
                 style.flexDirection  = 'column';
+                style.alignItems     = 'center';
                 style.gap            = '8px';
                 style.pointerEvents  = 'none';
 
@@ -110,8 +116,8 @@
                 s.boxShadow       = '0 4px 12px rgba(0,0,0,0.25)';
                 s.pointerEvents   = 'auto';
                 s.opacity         = '0';
-                s.transform       = 'translateX(40px)';
-                s.transition      = 'opacity 0.3s ease, transform 0.3s ease';
+                s.transform       = 'translateY(-12px)';
+                s.transition      = 'opacity 0.25s ease, transform 0.25s ease';
                 s.background      = typeStyle.background;
                 s.color           = typeStyle.color;
                 s.borderLeft      = '4px solid ' + typeStyle.border;
@@ -121,12 +127,12 @@
 
                 requestAnimationFrame(function () {
                     toast.style.opacity   = '1';
-                    toast.style.transform = 'translateX(0)';
+                    toast.style.transform = 'translateY(0)';
                 });
 
                 setTimeout(function () {
                     toast.style.opacity   = '0';
-                    toast.style.transform = 'translateX(40px)';
+                    toast.style.transform = 'translateY(-12px)';
 
                     setTimeout(function () {
                         if (toast.parentNode) {
