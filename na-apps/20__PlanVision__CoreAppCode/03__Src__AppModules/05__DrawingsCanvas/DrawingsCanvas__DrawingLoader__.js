@@ -19,6 +19,10 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 01-Jun-2026 - Version 1.1.0
+// - Added currentDrawing state and Na__Canvas__GetCurrentDrawing() accessor
+// - Supports DocumentShareLink module for per-document URL sharing
+//
 // 09-Feb-2026 - Version 1.0.0
 // - Extracted from main HTML file
 // - Centralized drawing loading logic
@@ -44,6 +48,7 @@
             let resetViewCallback              = null;
             let isLocalDev                     = false;
             let projectFolderName              = '';
+            let currentDrawing                 = null;                        // <-- Currently loaded drawing object
 
         // endregion ----------------------------------------------
 
@@ -147,6 +152,8 @@
             // Uses CDN URL as primary source, legacy URL as fallback
             // ------------------------------------------------------------
             const Na__Canvas__LoadDrawing = async function (drawing) {
+                currentDrawing = drawing;                                     // <-- Track before async work begins
+
                 if (showLoadingCallback) {
                     showLoadingCallback();
                 }
@@ -249,6 +256,21 @@
 
         // endregion ----------------------------------------------
 
+        // #Region ------------------------------------------------
+        // ACCESSORS | Current Drawing State
+        // --------------------------------------------------------
+
+            // FUNCTION | Get Currently Loaded Drawing Object
+            // Returns the drawing object most recently passed to Na__Canvas__LoadDrawing
+            // Returns null when no drawing has been loaded yet
+            // ------------------------------------------------------------
+            const Na__Canvas__GetCurrentDrawing = function () {
+                return currentDrawing;
+            };
+            // ---------------------------------------------------------------
+
+        // endregion ----------------------------------------------
+
 
         // #Region ------------------------------------------------
         // EXPORTS | Module API
@@ -257,8 +279,9 @@
             window.NaPlanVision = window.NaPlanVision || {};
             window.NaPlanVision.DrawingsCanvas = window.NaPlanVision.DrawingsCanvas || {};
             window.NaPlanVision.DrawingsCanvas.DrawingLoader = {
-                Na__Canvas__Initialize     : Na__Canvas__Initialize,
-                Na__Canvas__LoadDrawing    : Na__Canvas__LoadDrawing
+                Na__Canvas__Initialize        : Na__Canvas__Initialize,
+                Na__Canvas__LoadDrawing       : Na__Canvas__LoadDrawing,
+                Na__Canvas__GetCurrentDrawing : Na__Canvas__GetCurrentDrawing
             };
 
             if (window.NaPlanVision.ModuleDependencyManager) {

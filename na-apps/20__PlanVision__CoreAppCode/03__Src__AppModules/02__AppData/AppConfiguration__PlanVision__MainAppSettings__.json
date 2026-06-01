@@ -1,6 +1,10 @@
 {
     "AppConfig" : {
         "Features" : {
+            "DocumentShareLink" : {
+                "enabled"     : true,
+                "description" : "Per-document share link button. Copies a URL with &doc= param to clipboard. Supports deep-link auto-open on page load."
+            },
             "MeasurmentToolsSystem" : {
                 "enabled"              : true,
                 "description"          : "Measurement tools system with per-tool enable flags.",

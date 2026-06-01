@@ -13,7 +13,7 @@
                 "DesignPhase01",
                 "DesignPhase02"
             ],
-            "phase-last-updated": "25-May-2026"
+            "phase-last-updated": "01-Jun-2026"
         },
         "project-documentation": {
             "phase-content": {
@@ -45,22 +45,13 @@
                             "document-scale": "1:50",
                             "document-size": "A2",
                             "files": [
-                                {
-                                    "filename": "BH03_T02_D01__ProjectIntroduction__IsoA2__RevA__",
-                                    "label": "D01 - Project Introduction (Rev A)"
-                                },
-                                {
-                                    "filename": "BH03_T02_D02__GaragePlansAndElevations__IsoA2__RevA__",
-                                    "label": "D02 - Garage Plans And Elevations (Rev A)"
-                                },
-                                {
-                                    "filename": "BH03_T02_D03__ProposedSitePlan__IsoA2__RevA__",
-                                    "label": "D03 - Proposed Site Plan (Rev A)"
-                                },
-                                {
-                                    "filename": "BH03_T02_D04__LocationAndBlockPlans__IsoA2__RevA__",
-                                    "label": "D04 - Location And Block Plans (Rev A)"
-                                }
+                                "BH03_T02_D01__ProjectIntroduction__IsoA2__RevB__",
+                                "BH03_T02_D02__GaragePlansAndElevations__IsoA2__RevB__",
+                                "BH03_T02_D03__ProposedSitePlan__IsoA2__RevB__",
+                                "BH03_T02_D04__LocationAndBlockPlans__IsoA2__RevB__",
+                                "BH03_T02_D05__StreetSceneElevations__IsoA2__RevB__",
+                                "BH03_T02_D06__ExistingSitePlan__IsoA2__RevB__",
+                                "BH03_T02_D07__AllGarageElevations__IsoA2__RevB__"
                             ]
                         }
                     ]

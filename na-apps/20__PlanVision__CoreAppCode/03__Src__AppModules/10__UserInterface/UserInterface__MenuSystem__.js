@@ -29,6 +29,11 @@
 // - Uses folder groups from DrawingsDataManager for grouped button display
 // - Passes grouped data to DrawingButtons.CreateGroupedDocumentButtons
 //
+// 01-Jun-2026 - Version 2.2.0
+// - Na__Menu__ShowDrawingsMenu and Na__Menu__ShowSpecificationsMenu now accept
+//   optional preferredFileName argument for deep-link document pre-selection
+// - Added Na__Menu__ActivateButtonForFileName helper for button highlighting
+//
 // 04-Apr-2026 - Version 2.1.0
 // - Added phase-aware gating for Details & Specifications category visibility
 // - Shows specifications category only for DesignPhase03 with active specification documents
@@ -144,9 +149,9 @@
 
             // FUNCTION | Show Drawings Menu - Filtered Document List
             // Displays documents where document-type === "Drawing"
-            // Shows measuring tools and markup tools
+            // Optional preferredFileName: loads that specific drawing on open
             // ------------------------------------------------------------
-            const Na__Menu__ShowDrawingsMenu = function () {
+            const Na__Menu__ShowDrawingsMenu = function (preferredFileName) {
                 currentMenuView             = 'drawings';
                 currentDocumentTypeFilter   = 'Drawing';
 
@@ -184,26 +189,27 @@
                         false
                     );
 
-                    // Auto-load first drawing
-                    var flatDrawings = dataManager.Na__Data__GetFlatDrawingsList('Drawing');
-                    if (flatDrawings && flatDrawings.length > 0) {
-                        var firstDrawing = flatDrawings[0];
+                    var flatDrawings     = dataManager.Na__Data__GetFlatDrawingsList('Drawing');
+                    var targetDrawing    = Na__Menu__FindDrawingByFileName(flatDrawings, preferredFileName)
+                                          || (flatDrawings && flatDrawings[0]);
+
+                    if (targetDrawing) {
                         var drawingLoader = window.NaPlanVision
                             && window.NaPlanVision.DrawingsCanvas
                             && window.NaPlanVision.DrawingsCanvas.DrawingLoader;
-                        
+
                         if (drawingLoader) {
-                            drawingLoader.Na__Canvas__LoadDrawing(firstDrawing);
-                            
-                            // Mark first button as active
-                            setTimeout(function() {
-                                var firstButton = documentSelectionArea.querySelector('.tool-button');
-                                if (firstButton) {
-                                    firstButton.classList.add('active');
-                                }
+                            drawingLoader.Na__Canvas__LoadDrawing(targetDrawing);
+
+                            // Highlight the matching button after DOM settles
+                            setTimeout(function () {
+                                Na__Menu__ActivateButtonForFileName(
+                                    documentSelectionArea,
+                                    targetDrawing['document-name']
+                                );
                             }, 100);
-                            
-                            console.log('[MenuSystem] Auto-loaded first drawing:', firstDrawing['document-name']);
+
+                            console.log('[MenuSystem] Loaded drawing:', targetDrawing['document-name']);
                         }
                     }
                 }
@@ -214,9 +220,9 @@
 
             // FUNCTION | Show Specifications Menu - Filtered Document List
             // Displays documents where document-type === "Specification"
-            // Shows measuring tools and markup tools
+            // Optional preferredFileName: loads that specific specification on open
             // ------------------------------------------------------------
-            const Na__Menu__ShowSpecificationsMenu = function () {
+            const Na__Menu__ShowSpecificationsMenu = function (preferredFileName) {
                 currentMenuView             = 'specifications';
                 currentDocumentTypeFilter   = 'Specification';
 
@@ -254,26 +260,27 @@
                         false
                     );
 
-                    // Auto-load first specification
-                    var flatDrawings = dataManager.Na__Data__GetFlatDrawingsList('Specification');
-                    if (flatDrawings && flatDrawings.length > 0) {
-                        var firstDrawing = flatDrawings[0];
+                    var flatDrawings     = dataManager.Na__Data__GetFlatDrawingsList('Specification');
+                    var targetDrawing    = Na__Menu__FindDrawingByFileName(flatDrawings, preferredFileName)
+                                          || (flatDrawings && flatDrawings[0]);
+
+                    if (targetDrawing) {
                         var drawingLoader = window.NaPlanVision
                             && window.NaPlanVision.DrawingsCanvas
                             && window.NaPlanVision.DrawingsCanvas.DrawingLoader;
-                        
+
                         if (drawingLoader) {
-                            drawingLoader.Na__Canvas__LoadDrawing(firstDrawing);
-                            
-                            // Mark first button as active
-                            setTimeout(function() {
-                                var firstButton = documentSelectionArea.querySelector('.tool-button');
-                                if (firstButton) {
-                                    firstButton.classList.add('active');
-                                }
+                            drawingLoader.Na__Canvas__LoadDrawing(targetDrawing);
+
+                            // Highlight the matching button after DOM settles
+                            setTimeout(function () {
+                                Na__Menu__ActivateButtonForFileName(
+                                    documentSelectionArea,
+                                    targetDrawing['document-name']
+                                );
                             }, 100);
-                            
-                            console.log('[MenuSystem] Auto-loaded first specification:', firstDrawing['document-name']);
+
+                            console.log('[MenuSystem] Loaded specification:', targetDrawing['document-name']);
                         }
                     }
                 }
@@ -385,6 +392,57 @@
         // #Region ------------------------------------------------
         // EVENT HANDLERS | Menu Navigation
         // --------------------------------------------------------
+
+            // FUNCTION | Find Drawing in Flat List by File-Name String
+            // Returns the first drawing whose file-name matches; null if not found
+            // ------------------------------------------------------------
+            function Na__Menu__FindDrawingByFileName(flatList, fileName) {
+                if (!flatList || !fileName) return null;
+
+                var target = String(fileName).trim().toLowerCase();
+
+                for (var i = 0; i < flatList.length; i++) {
+                    var name = String(flatList[i]['file-name'] || '').trim().toLowerCase();
+                    if (name === target) {
+                        return flatList[i];
+                    }
+                }
+
+                return null;
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Mark the Button Matching a Document Name as Active
+            // Scans .tool-button elements in the given container and activates
+            // the one whose textContent matches the drawing's document-name
+            // ------------------------------------------------------------
+            function Na__Menu__ActivateButtonForFileName(container, documentName) {
+                if (!container || !documentName) {
+                    // Fall back to marking the first button active
+                    var first = container && container.querySelector('.tool-button');
+                    if (first) first.classList.add('active');
+                    return;
+                }
+
+                var buttons   = container.querySelectorAll('.tool-button');
+                var targetText = String(documentName).trim();
+                var matched    = false;
+
+                buttons.forEach(function (btn) {
+                    btn.classList.remove('active');
+                    if (!matched && btn.textContent.trim() === targetText) {
+                        btn.classList.add('active');
+                        matched = true;
+                    }
+                });
+
+                // Fallback: no exact match, activate first button
+                if (!matched) {
+                    var firstBtn = container.querySelector('.tool-button');
+                    if (firstBtn) firstBtn.classList.add('active');
+                }
+            }
+            // ---------------------------------------------------------------
 
             // FUNCTION | Hide Drawing Register Helper
             // Hides the Drawing Register panel if it is visible

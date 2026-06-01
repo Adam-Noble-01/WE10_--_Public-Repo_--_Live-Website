@@ -5,6 +5,41 @@
 
 # -----------------------------------------------------------------------------
 
+## PlanVision - Version 2.3.0 - 01-Jun-2026
+### Added - DOCUMENT SHARE LINK SYSTEM
+
+**New per-document shareable URL feature:**
+- Added `AppCore__DocumentShareLink__.js` module (`NaPlanVision.DocumentShareLink`) containing:
+  - `Na__Share__ExtractDocCodeFromFilename` — extracts the short code prefix from a file-name (e.g. `BH03_T02_D01`)
+  - `Na__Share__BuildShareUrlForCode` — builds an absolute URL with `&doc=<code>` preserving all existing query params
+  - `Na__Share__CopyCurrentDocumentLink` — reads the currently displayed drawing, builds URL, copies to clipboard, toasts result
+  - `Na__Share__ResolveDrawingByDocCode` — finds a drawing object across Drawing, Specification, and Statement lists by code
+  - `Na__Share__OpenDeepLinkedDocumentIfPresent` — on page load, reads `?doc=` param and auto-opens the matching document
+
+**New Share Document Link button:**
+- Added `#shareDocLinkBtn` button to the View & Export section in the toolbar sub-menu
+- Button appears alongside `Download PDF` and `Reset View`
+- Disabled state (no drawing open) shows a friendly toast rather than silently failing
+
+**Deep-link support:**
+- Visiting a share URL (e.g. `?project=BH03&...&doc=BH03_T02_D01`) now auto-opens that drawing directly
+- Unresolvable codes fall back to the Drawing Register with a warning toast
+
+**Current drawing tracking:**
+- `DrawingsCanvas__DrawingLoader__.js` now tracks the active drawing object in `currentDrawing` state
+- New accessor `Na__Canvas__GetCurrentDrawing()` exposed on the module API
+
+**Menu system improvements:**
+- `Na__Menu__ShowDrawingsMenu` and `Na__Menu__ShowSpecificationsMenu` now accept an optional `preferredFileName` argument
+- When provided, the specified document is loaded and its button highlighted instead of defaulting to the first item
+
+**Config & housekeeping:**
+- Added `Features.DocumentShareLink.enabled` flag to `AppConfiguration__PlanVision__MainAppSettings__.json`
+- Feature is gated with strict `=== true` per configuration authority rule
+- Version bumped from 2.2.0 to 2.3.0
+
+# -----------------------------------------------------------------------------
+
 ## PlanVision - Version 2.2.0 - 04-Apr-2026
 ### Added - DESIGN & ACCESS STATEMENT PDF VIEWER SYSTEM
 

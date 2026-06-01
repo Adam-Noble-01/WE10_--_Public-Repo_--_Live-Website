@@ -54,6 +54,7 @@
     <script src="03__Src__AppModules/04__AssetAndDataLoaders/Loader__AppAssetsLoader__.js"></script>
     <script src="03__Src__AppModules/03__CommonUtils/CommonUtils__ProjectCodeValidator__.js"></script>
     <script src="03__Src__AppModules/01__AppCore/AppCore__UrlQuerySystem__.js"></script>
+    <script src="03__Src__AppModules/01__AppCore/AppCore__DocumentShareLink__.js"></script>
 
     <!-- Cloudflare CDN Loader (must load before data loaders) -->
     <script src="03__Src__AppModules/04__AssetAndDataLoaders/Loader__CloudflareCdnLoader__.js"></script>
@@ -156,7 +157,7 @@
             <div id="header">
                 <button id="toggleToolbarBtn">☰</button>
                 <span id="app-title" style="padding-left: 10px;">PlanVision
-                    <span style="font-size: 12px; color: #656565;">- Version 2.2.0</span>
+                    <span style="font-size: 12px; color: #656565;">- Version 2.3.0</span>
                 </span>
                 <img data-asset-src="NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
                     alt="Noble Architecture Logo">
@@ -281,6 +282,7 @@
                     <div class="menu_-_drawing-button-header-text">View & Export</div>
                     <button class="tool-button" id="downloadPDFBtn">Download PDF</button>
                     <button class="tool-button" id="resetViewBtn">Reset View</button>
+                    <button class="tool-button" id="shareDocLinkBtn">Share Document Link</button>
 
                     <!-- Markup Tools System - Injected when enabled via config -->
                     <div id="markup-tools-host"></div>
@@ -598,6 +600,11 @@
 
                 NaAppConfig = await loadAppConfig();
 
+                // Initialise Document Share Link module (reads feature flag from config)
+                if (window.NaPlanVision?.DocumentShareLink) {
+                    window.NaPlanVision.DocumentShareLink.Na__Share__Initialize(NaAppConfig);
+                }
+
                 const markupConfig = NaAppConfig?.AppConfig?.Features?.MarkupToolsSystem;
                 const markupEnabled = markupConfig?.enabled === true;
 
@@ -821,6 +828,12 @@
                             console.log("[Init] Drawing Register displayed as default view");
                         }
 
+                        // Open deep-linked document if ?doc= param is present in URL
+                        // Overrides the default register view when a valid doc code is found
+                        if (window.NaPlanVision?.DocumentShareLink) {
+                            window.NaPlanVision.DocumentShareLink.Na__Share__OpenDeepLinkedDocumentIfPresent();
+                        }
+
                         // Initialize How To Use section
                         if (window.NaPlanVision.HowToUse) {
                             window.NaPlanVision.HowToUse.Na__HowToUse__Initialize();
@@ -965,6 +978,15 @@
 
                 window.addEventListener("resize", () => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__OnResize());
                 document.getElementById("resetViewBtn").addEventListener("click", () => window.NaPlanVision.DrawingsCanvas.ViewControls.Na__Canvas__ResetView());
+
+                const shareBtn = document.getElementById("shareDocLinkBtn");
+                if (shareBtn) {
+                    shareBtn.addEventListener("click", () => {
+                        if (window.NaPlanVision?.DocumentShareLink) {
+                            window.NaPlanVision.DocumentShareLink.Na__Share__CopyCurrentDocumentLink();
+                        }
+                    });
+                }
 
                 // Measurement tool buttons are wired by MeasurmentToolsSystem__Main__.js
                 // Markup tool buttons are wired by MarkupToolsSystem__Main__.js

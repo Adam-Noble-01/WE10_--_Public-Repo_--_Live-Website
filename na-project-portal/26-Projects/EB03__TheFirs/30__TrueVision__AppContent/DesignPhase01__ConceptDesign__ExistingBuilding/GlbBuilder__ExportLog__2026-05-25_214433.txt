@@ -3,7 +3,7 @@
 ===============================================================================
  Model      : EB03_T00_M10__SurveyModel__Active__.skp
  Export dir : D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding
- Timestamp  : 2026-05-25_212335
+ Timestamp  : 2026-05-25_214433
  Console    : suppressed (OFF)
 -------------------------------------------------------------------------------
   No project prefix found in filename: EB03_T00_M10__SurveyModel__Active__.skp
@@ -907,7 +907,7 @@ Exporting storey series: Storey__GroundFloor__ExistingDoors...
           [DoorHandler] Mesh: Na__DoorPanel::Default (24 verts, 12 tris)
           [DoorHandler] Mesh: Na__DoorHandle::Default (4596 verts, 2360 tris)
         [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Mesh] Door assembly complete: ADR004__InteriorDoor__
       [DoorHandler/Mesh] Building door assembly: ADR008__InteriorDoor__
         [DoorHandler/Mesh] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
@@ -921,7 +921,7 @@ Exporting storey series: Storey__GroundFloor__ExistingDoors...
           [DoorHandler] Mesh: Na__DoorPanel::Default (24 verts, 12 tris)
           [DoorHandler] Mesh: Na__DoorHandle::Default (4596 verts, 2360 tris)
         [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Mesh] Door assembly complete: ADR008__InteriorDoor__
       [DoorHandler/Mesh] Building door assembly: ADR013__InteriorDoor__
         [DoorHandler/Mesh] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
@@ -935,7 +935,7 @@ Exporting storey series: Storey__GroundFloor__ExistingDoors...
           [DoorHandler] Mesh: Na__DoorPanel::Default (24 verts, 12 tris)
           [DoorHandler] Mesh: Na__DoorHandle::Default (4596 verts, 2360 tris)
         [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Mesh] Door assembly complete: ADR013__InteriorDoor__
       [DoorHandler/Mesh] Building door assembly: ADR001__InteriorDoor__
         [DoorHandler/Mesh] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
@@ -963,7 +963,7 @@ Exporting storey series: Storey__GroundFloor__ExistingDoors...
           [DoorHandler] Mesh: Na__DoorPanel::Default (24 verts, 12 tris)
           [DoorHandler] Mesh: Na__DoorHandle::Default (4596 verts, 2360 tris)
         [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Mesh] Door assembly complete: ADR002__InteriorDoor__
       [DoorHandler/Mesh] Building door assembly: ADR010__InteriorDoor__
         [DoorHandler/Mesh] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
@@ -1005,7 +1005,7 @@ Exporting storey series: Storey__GroundFloor__ExistingDoors...
           [DoorHandler] Mesh: Na__DoorPanel::Default (24 verts, 12 tris)
           [DoorHandler] Mesh: Na__DoorHandle::Default (4596 verts, 2360 tris)
         [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Mesh] Door assembly complete: ADR011__InteriorDoor__
       [DoorHandler/Mesh] Building door assembly: ADR001__ExteriorDoor__FrontDoor#1
         [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
@@ -1037,13 +1037,13 @@ Exporting storey series: Storey__GroundFloor__ExistingDoors...
         [DoorHandler/Mesh] SKIP  child='DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Mesh] Door assembly complete: ADR022__ExistingGreenhouse__Door-02
     [DoorHandler] Door assembly export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__GroundFloor__ExistingDoors__MeshModel__.glb (1923920 bytes, BIN: 1854664 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__GroundFloor__ExistingDoors__MeshModel__.glb (1923968 bytes, BIN: 1854664 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 1923920 bytes
-    Chunk 1: "JSON", Length: 69228 bytes
+    File size: 1923968 bytes
+    Chunk 1: "JSON", Length: 69276 bytes
     Chunk 2: "BIN\x00", Length: 1854664 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -1097,7 +1097,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
         [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
           [DoorHandler/Linework] Lines: 348 edges
         [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Linework] Door assembly complete: ADR004__InteriorDoor__
       [DoorHandler/Linework] Building door assembly: ADR008__InteriorDoor__
         [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
@@ -1110,7 +1110,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
         [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
           [DoorHandler/Linework] Lines: 348 edges
         [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Linework] Door assembly complete: ADR008__InteriorDoor__
       [DoorHandler/Linework] Building door assembly: ADR013__InteriorDoor__
         [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
@@ -1123,7 +1123,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
         [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
           [DoorHandler/Linework] Lines: 348 edges
         [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Linework] Door assembly complete: ADR013__InteriorDoor__
       [DoorHandler/Linework] Building door assembly: ADR001__InteriorDoor__
         [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
@@ -1149,7 +1149,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
         [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
           [DoorHandler/Linework] Lines: 300 edges
         [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Linework] Door assembly complete: ADR002__InteriorDoor__
       [DoorHandler/Linework] Building door assembly: ADR010__InteriorDoor__
         [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
@@ -1188,7 +1188,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
         [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
           [DoorHandler/Linework] Lines: 348 edges
         [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
-        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Linework] Door assembly complete: ADR011__InteriorDoor__
       [DoorHandler/Linework] Building door assembly: ADR001__ExteriorDoor__FrontDoor#1
         [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
@@ -1214,13 +1214,13 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
         [DoorHandler/Linework] SKIP  child='DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Linework] Door assembly complete: ADR022__ExistingGreenhouse__Door-02
     [DoorHandler/Linework] Door assembly linework export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__GroundFloor__ExistingDoors__LineworkModel__.glb (474040 bytes, BIN: 438984 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__GroundFloor__ExistingDoors__LineworkModel__.glb (474088 bytes, BIN: 438984 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 474040 bytes
-    Chunk 1: "JSON", Length: 35028 bytes
+    File size: 474088 bytes
+    Chunk 1: "JSON", Length: 35076 bytes
     Chunk 2: "BIN\x00", Length: 438984 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
@@ -1573,6 +1573,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
   ✓ Linework export complete
 
 === End Storey Export ===
+      Cleaned up texture cache folder
 -------------------------------------------------------------------------------
- Export complete. Elapsed: 16.9s
+ Export complete. Elapsed: 16.47s
 ===============================================================================
