@@ -2,6 +2,27 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.3.1  -  06-Jun-2026
+### Materials Library — MAT160__Generic__PlantFoliage Added
+
+**Overview**
+- Added `MAT160__Generic__PlantFoliage` to the MAT100 BasicSeries in the materials library.
+- Material is double-sided and semi-transparent to support single-plane leaf geometry without backface culling artefacts.
+- No renderer or exporter code changes were required — `IsDoubleSided` and `Transparent` flags are already handled by the existing `Na__MaterialsSystem__CreatePbrMaterial` pipeline.
+
+**Material Settings**
+- `SketchUpName` : `MAT160__Generic__PlantFoliage` (paint this name onto faces in SketchUp)
+- `BaseColor`    : `rgb(140, 150, 125)` — muted sage green
+- `Opacity`      : `0.9` — slight leaf translucency
+- `Transparent`  : `true` — enables THREE.js alpha blending
+- `IsDoubleSided`: `true` — both faces rendered; prevents invisible backsides on single-plane leaves
+- `PbrRoughness` : `0.85` — matte leaf surface
+
+**Changed Files**
+- `02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json` — v2.2.1 → v2.3.0, MAT160 entry added to MAT100__BasicSeries__.
+- `Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json` — v1.0.0 → v1.1.0, same entry synced to SketchUp DataLib so GLB exporter embeds `doubleSided: true` and `alphaMode: BLEND` into exported files automatically.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.3.0  -  25-May-2026
 ### User Guide — Accordion Sections, Fly Mode Docs, Whitecard Restyle
 
