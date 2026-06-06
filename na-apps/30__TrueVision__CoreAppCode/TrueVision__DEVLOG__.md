@@ -2,6 +2,27 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.3.3  -  06-Jun-2026
+### Scene Inspector — Instance Aggregation + Download .txt
+
+**Scene Inspector — Instance Aggregation**
+- Sibling nodes in the scene tree that share the same base name (after stripping TrueVision `_IDxxxxxxx` instancing suffixes) are now collapsed into a single aggregated row in the DOM tree.
+- The row shows the base name, a green `×N` instance count badge, and a tooltip with total triangle count. A single visibility dot toggles all instances together.
+- All underlying `nodeRef` objects are still registered in the NodeRegistry so Hide All / Restore All operate correctly on every individual node.
+- Applies to both the interactive DOM tree and the exported text log (both concise and full reports). Aggregated text lines are formatted as `Mesh 29_4004__Plant__SubComp__Leaf_1 [×2557]`.
+- Threshold is 2+ siblings with matching base name. Catches: instanced plant leaves (`_IDxxxxxxx`), chimney pots, window groups, anonymous `[unnamed]` linework segments.
+
+**Scene Inspector — Download .txt**
+- New "Download .txt" toolbar button exports the same concise + full report as a timestamped `TrueVision_SceneLog_YYYY-MM-DD_HH-MM-SS.txt` file.
+- Shares the `Na__SceneInspector__BuildReportText` helper with the existing Copy Tree button to avoid duplication.
+- Button shows "Downloaded!" feedback text for 1.5 s after triggering.
+
+**Changed Files**
+- `02__Src__AppModules/70__System__DevTools/Na__UiFeature__SceneInspector__Controls.js` — v1.1.0: aggregation region, `BuildAggregatedGroupNode`, `BuildAggregatedTextLine`, `GroupSiblingsByBaseName`, `ExtractBaseName`, `BuildReportText`, `DownloadTree`, updated `BuildDomTree`, `WalkTreeToText`, `GetDomElements`, `InitializeSceneInspector`.
+- `index.html` — Download .txt button added to scene inspector toolbar.
+- `03__Style__AppStylesheets/Na__UiFeature__Styles__SceneInspector__.css` — `na-scene-inspector__count--instances` modifier for the green ×N badge.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.3.2  -  06-Jun-2026
 ### AO Exclusion System — Plant Foliage Excluded from SSAO
 
@@ -19,8 +40,8 @@
 - Foliage is also excluded from the profile lines normal pass, so the edge-detection shader will not attempt to draw hard outlines on organic leaf geometry.
 
 **Changed Files**
-- `02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json` — v2.3.1: `AoExclude: false` added to MAT001 default template; `AoExclude: true` on MAT160.
-- `Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json` — v1.2.0: same additions synced to SketchUp DataLib.
+- `02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json` — v2.3.2: `AoExclude: false` added to MAT001 default template; `AoExclude: true` on MAT160 and MAT161.
+- `Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json` — v1.2.0: same additions synced to SketchUp DataLib (MAT161 added directly by user).
 - `02__Src__AppModules/20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js` — AO-exclusion block added to traverse; `AoExcluded` counter in log output.
 - `02__Src__AppModules/05__RenderPipeline/Na__RenderPipeline__PostProcessing__Setup.js` — `camera.layers.enable(1)` at init; `disable(1)` / `enable(1)` wrapping both depth render paths.
 

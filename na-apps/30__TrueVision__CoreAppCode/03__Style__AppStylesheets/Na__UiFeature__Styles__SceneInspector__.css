@@ -232,6 +232,17 @@
     margin-left                         : 2px;
 }
 
+/* Instance Group Count - ×N badge */
+/* ----------------------------------------------------------------- */
+.na-scene-inspector__count--instances {
+    padding                             : 0 5px;
+    border-radius                       : 3px;
+    background                          : rgba(23, 100, 58, 0.10);
+    color                               : #1a5c38;
+    font-weight                         : 600;
+    letter-spacing                      : 0.01em;
+}
+
 
 /* Filter Input */
 /* ----------------------------------------------------------------- */

@@ -2,11 +2,11 @@
     "meta": {
         "fileName"        : "Na__AppConfig__MaterialsLibrary.json",
         "description"     : "Single source of truth for standard indexed materials and their PBR render settings. Used by both the SketchUp GLB exporter and the TrueVision3D WebApp renderer for dynamic material swapping.",
-        "version"         : "2.3.1",
+        "version"         : "2.3.2",
         "lastUpdated"     : "2026-06-06",
         "namingConvention": "Materials are identified by SketchUpName which must match the SketchUp material display_name. Format: MAT{NNN}__{Category}__{Variant}. The prefix MAT + 3 digits + __ is required for the lookup system to recognise a material as indexed.",
         "defaults"        : "MAT001__Default is the reference template showing ALL possible keys with their default values. Other materials only need to specify keys that differ from these defaults. Omitted keys inherit the default value at render time.",
-        "seriesNotes"     : "MAT100__ BasicSeries: MAT160__Generic__PlantFoliage added (v2.3.0) -- double-sided, semi-transparent foliage for single-plane leaf geometry. MAT600__ series: structural and generic metals (MAT600–MAT603). MAT604–MAT610 reserved. Ironmongery finishes from MAT611 onward (Chrome, Brass, Bronze, Satin Nickel spelling in SketchUpName: MAT614__Metal__Ironmongery__SatinNickle). MAT612–614 BaseColor values match SketchUp material RGB (v2.2.1)."
+        "seriesNotes"     : "MAT100__ BasicSeries: MAT160__Generic__PlantFoliage (v2.3.0) and MAT161__Generic__PlantStem (v2.3.2) -- both AoExclude: true, plant geometry excluded from SSAO. MAT600__ series: structural and generic metals (MAT600–MAT603). MAT604–MAT610 reserved. Ironmongery finishes from MAT611 onward (Chrome, Brass, Bronze, Satin Nickel spelling in SketchUpName: MAT614__Metal__Ironmongery__SatinNickle). MAT612–614 BaseColor values match SketchUp material RGB (v2.2.1)."
     },
     "ThisFile__KeyLinks": {
         "Link__LiveWebUrl"  : "https://www.noble-architecture.com/na-apps/30__TrueVision__CoreAppCode/02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json",
@@ -81,6 +81,16 @@
                 "Transparent"       : true,
                 "IsDoubleSided"     : true,
                 "PbrRoughness"      : 0.85,
+                "AoExclude"         : true
+            },
+            "MAT161__Generic__PlantStem": {
+                "SketchUpName"      : "MAT161__Generic__PlantStem",
+                "Description"       : "Generic plant stem -- muted olive-brown, semi-gloss, double-sided for stem geometry",
+                "BaseColor"         : "rgb(216, 190, 108)",
+                "Opacity"           : 1.0,
+                "Transparent"       : false,
+                "IsDoubleSided"     : false,
+                "PbrRoughness"      : 0.90,
                 "AoExclude"         : true
             }
         },
