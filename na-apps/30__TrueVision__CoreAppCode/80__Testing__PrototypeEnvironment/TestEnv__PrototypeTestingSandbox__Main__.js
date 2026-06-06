@@ -67,9 +67,10 @@
     // ------------------------------------------------------------
 
 
-    // MODULE VARIABLES | Materials System Imports (from parent project)
+    // MODULE VARIABLES | DataLib Loader + Materials System Imports (from parent project)
     // ------------------------------------------------------------
-    import { Na__MaterialsSystem__LoadLibrary, Na__MaterialsSystem__BuildLookup } from '../02__Src__AppModules/20__System__MaterialsSystem/Na__MaterialsSystem__LibraryLoader.js';
+    import { Na__DataLib__LoadAll, Na__DataLib__GetMaterials } from '../02__Src__AppModules/01__AppCore/AppCore__DataLib__Loader.js';
+    import { Na__MaterialsSystem__BuildLookup } from '../02__Src__AppModules/20__System__MaterialsSystem/Na__MaterialsSystem__LibraryLoader.js';
     import { Na__MaterialsSystem__ApplyMaterials } from '../02__Src__AppModules/20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js';
     // ------------------------------------------------------------
 
@@ -1115,11 +1116,9 @@
 
             // REAPPLY PBR MATERIALS AFTER REFRESH
             if (TestEnv__Config__MaterialsSystem.MaterialsSystem__Config__Enabled && glbResults.length > 0) {
-                const refreshLibraryData = await Na__MaterialsSystem__LoadLibrary(
-                    TestEnv__Config__MaterialsSystem.MaterialsSystem__Config__LibraryUrl
-                );
+                const refreshLibraryData = Na__DataLib__GetMaterials();       // <-- Cached from startup; no fetch needed
                 if (refreshLibraryData) {
-                    const refreshLookupMap = Na__MaterialsSystem__BuildLookup(refreshLibraryData);
+                    const refreshLookupMap = Na__MaterialsSystem__BuildLookup(refreshLibraryData, true); // <-- forceRebuild on refresh
                     if (refreshLookupMap.size > 0) {
                         for (const child of TestEnv__ModelGroup__Root.children) {
                             await Na__MaterialsSystem__ApplyMaterials(child, refreshLookupMap, TestEnv__Config__MaterialsSystem);
@@ -1295,9 +1294,10 @@
             const glbResults = await TestEnv__LoadAllGlbFiles();             // <-- Load all local GLBs
 
             // APPLY PBR MATERIALS FROM LIBRARY (second pass - selective override)
+            // Data is sourced from the DataLib cache loaded at startup via Na__DataLib__LoadAll().
             if (TestEnv__Config__MaterialsSystem.MaterialsSystem__Config__Enabled && glbResults.length > 0) {
-                const TestEnv__MaterialsLibraryUrl  = TestEnv__Config__MaterialsSystem.MaterialsSystem__Config__LibraryUrl;
-                const TestEnv__MaterialsLibraryData = await Na__MaterialsSystem__LoadLibrary(TestEnv__MaterialsLibraryUrl);
+                await Na__DataLib__LoadAll();                                  // <-- No-op if already loaded; ensures data is ready
+                const TestEnv__MaterialsLibraryData = Na__DataLib__GetMaterials(); // <-- Cached; no fetch
 
                 if (TestEnv__MaterialsLibraryData) {
                     const TestEnv__MaterialsLookupMap = Na__MaterialsSystem__BuildLookup(TestEnv__MaterialsLibraryData);

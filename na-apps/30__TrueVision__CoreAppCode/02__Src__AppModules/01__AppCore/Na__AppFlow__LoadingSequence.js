@@ -98,9 +98,14 @@
     import { Na__UiFeature__ApplyCameraConfig } from '../11__CameraUtils/Na__UiFeature__CameraPosition__Controls.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | DataLib Loader (Single Source of Truth)
+    // ------------------------------------------------------------
+    import { Na__DataLib__LoadAll, Na__DataLib__GetMaterials } from './AppCore__DataLib__Loader.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Materials System
     // ------------------------------------------------------------
-    import { Na__MaterialsSystem__LoadLibrary, Na__MaterialsSystem__BuildLookup } from '../20__System__MaterialsSystem/Na__MaterialsSystem__LibraryLoader.js';
+    import { Na__MaterialsSystem__BuildLookup } from '../20__System__MaterialsSystem/Na__MaterialsSystem__LibraryLoader.js';
     import {
         Na__MaterialsSystem__ApplyMaterials,
         Na__MaterialsSystem__ApplyMirrorEnvironmentOverrides,
@@ -249,6 +254,11 @@
     // FUNCTION | Main Loading Sequence
     // ------------------------------------------------------------
     async function Na__AppFlow__StartLoadingSequence(context) {
+
+        // LOAD DATALIB INDEX FILES (must complete before any system reads DataLib data)
+        // ---------------------------------------------------------------
+        await Na__DataLib__LoadAll();                                         // <-- Parallel fetch of all 4 DataLib files from GitHub
+        // ---------------------------------------------------------------
 
         // DESTRUCTURE CONTEXT | Scene Instances
         // ---------------------------------------------------------------
@@ -563,9 +573,9 @@
             }
 
             // APPLY PBR MATERIALS FROM LIBRARY (second pass - selective override)
+            // Data is sourced from the DataLib cache loaded at sequence start via Na__DataLib__LoadAll().
             if (Na__Config__MaterialsSystem.MaterialsSystem__Config__Enabled && Na__LoadedModelGroups) {
-                const Na__MaterialsLibraryUrl  = Na__Config__MaterialsSystem.MaterialsSystem__Config__LibraryUrl;
-                const Na__MaterialsLibraryData = await Na__MaterialsSystem__LoadLibrary(Na__MaterialsLibraryUrl);
+                const Na__MaterialsLibraryData = Na__DataLib__GetMaterials();  // <-- Cached; no network fetch here
 
                 if (Na__MaterialsLibraryData) {
                     const Na__MaterialsLookupMap = Na__MaterialsSystem__BuildLookup(Na__MaterialsLibraryData);

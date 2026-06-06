@@ -1,18 +1,32 @@
 ---
-description: SketchUp and 3D indexed Materials must be registered in Na__AppConfig__MaterialsLibrary.json before use.
+description: SketchUp and 3D indexed Materials must be registered in Na__DataLib__CoreIndex__Materials__.json (SketchUp plugins repo — GitHub SSOT) before use.
 alwaysApply: false
 ---
 # Materials Library — Single Source Of Truth
 
+## Authoritative file (as of v2.3.3)
+
+The single source of truth for all indexed PBR materials is:
+
+**Local (SketchUp plugins folder):**
+`C:\Users\Administrator\AppData\Roaming\SketchUp\SketchUp 2026\SketchUp\Plugins\Na__Common__DataLib__CoreSuEntityStandards\Na__DataLib__CoreIndex__Materials__.json`
+
+**GitHub raw URL (fetched by TrueVision at runtime):**
+`https://raw.githubusercontent.com/Adam-Noble-01/Plugins/main/Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json`
+
+**GitHub repo:**
+`https://github.com/Adam-Noble-01/Plugins/tree/main/Na__Common__DataLib__CoreSuEntityStandards`
+
+The local `Na__AppConfig__MaterialsLibrary.json` that previously lived inside the TrueVision CoreAppCode repo has been **deleted**. Do not recreate it.
+
+TrueVision fetches this file at startup via `AppCore__DataLib__Loader.js` (`Na__DataLib__LoadAll()`). The materials data is available throughout the app via `Na__DataLib__GetMaterials()`. The root key inside the JSON is `Na__DataLib__CoreIndex__Materials`.
+
+Do **not** invent ad-hoc material names in Ruby exporters, hardware JSON, or renderer code without a matching entry in the DataLib file above.
+
+
 ## Mandatory registration
-Any **new SketchUp material name** (the material `display_name` used in SketchUp) that must participate in **indexed** PBR substitution, GLB export naming, or web-renderer lookup **must** be added to:
 
-`na-apps/30__TrueVision__CoreAppCode/02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json`
-`https://www.noble-architecture.com/na-apps/30__TrueVision__CoreAppCode/02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json`
-
-The live URL mirrors the same path under `noble-architecture.com/na-apps/...`. Cousin projects (e.g. ValeVision3D) may hold a **copy** of this file; the **authoritative** file for new entries is the NaWeb TrueVision CoreAppCode path above unless the team explicitly migrates ownership.
-
-Do **not** invent ad-hoc material names in Ruby exporters, hardware JSON, or renderer code without a matching library entry.
+Any **new SketchUp material name** (the material `display_name` used in SketchUp) that must participate in **indexed** PBR substitution, GLB export naming, or web-renderer lookup **must** be added to `Na__DataLib__CoreIndex__Materials__.json` in the SketchUp plugins repo.
 
 
 ## Naming convention
@@ -23,18 +37,18 @@ Do **not** invent ad-hoc material names in Ruby exporters, hardware JSON, or ren
 
 ## Series layout (high level)
 - **MAT000** — defaults / template  
-- **MAT100** — basic (glass, wood, mirror, etc.)  
+- **MAT010** — modeling utilities  
+- **MAT100** — basic (glass, wood, mirror, plant foliage MAT160, plant stem MAT161)  
 - **MAT300** — paint  
 - **MAT500** — timber  
-- **MAT600** — metals: generic / galvanised / structural / aluminium (**MAT600–MAT603**), **MAT604–MAT610 reserved**, ironmongery finishes from **MAT611** (Chrome, Brass, Bronze, SatinNickle token for MAT614).
+- **MAT600** — metals: generic / galvanised / structural / aluminium (**MAT600–MAT603**), **MAT604–MAT610 reserved**, ironmongery finishes from **MAT611**.
 
-New metals or ironmongery finishes: extend `MAT600__MetalSeries__` following existing keys; assign the next free code; document in `meta.seriesNotes` when adding a new band.
+New metals or ironmongery finishes: extend `MAT600__MetalSeries__` following existing keys; assign the next free code.
 
 
 ## Workflow for new materials
-1. Choose the next **MAT###** code and full `SketchUpName` string.  
-2. Add an entry under the correct series object; inherit from `MAT001__Default` behaviour — only specify keys that differ from defaults.  
-3. Create or rename the SketchUp material so its name matches `SketchUpName`.  
-4. Bump `meta.version` and `meta.lastUpdated` when the file changes.  
-5. If a mirror exists (e.g. ValeVision3D), sync the same JSON or re-copy from NaWeb.
-
+1. Choose the next **MAT###** code and full `SketchUpName` string.
+2. Add an entry to `Na__DataLib__CoreIndex__Materials__.json` under the correct series; only specify keys that differ from the `MAT001__Default` template.
+3. Create or rename the SketchUp material so its name matches `SketchUpName` exactly.
+4. Bump `meta.version` and `meta.lastUpdated` in the DataLib file.
+5. No TrueVision web-app file needs updating — `AppCore__DataLib__Loader.js` fetches from GitHub automatically.

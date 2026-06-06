@@ -110,9 +110,8 @@
         }
     },
     "MaterialsSystem__Config": {
-        "MaterialsSystem__Config__Description"         : "PBR materials swap system config for test environment. Uses shared library from parent project.",
+        "MaterialsSystem__Config__Description"         : "PBR materials swap system config for test environment. Library data is loaded at startup by AppCore__DataLib__Loader.js from the GitHub raw URL — no local library file required.",
         "MaterialsSystem__Config__Enabled"             : true,
-        "MaterialsSystem__Config__LibraryUrl"          : "../02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json",
         "MaterialsSystem__Config__FallbackToWhitecard" : true,
         "MaterialsSystem__Config__PolygonOffsetFactor" : 2,
         "MaterialsSystem__Config__PolygonOffsetUnits"  : 2
