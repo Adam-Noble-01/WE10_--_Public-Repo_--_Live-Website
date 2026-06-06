@@ -2,6 +2,41 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.3.5  -  06-Jun-2026
+### Edge Colour System — Full Parity with ValeVision3D
+
+**Overview**
+- Fixed a critical bug where SketchUp MTE edge colours exported as glTF `COLOR_0` vertex colours were being silently annihilated by an incorrect `LineMaterial.color` multiplier. All coloured linework was rendering as near-black regardless of the actual vertex colour data.
+- Ported ValeVision3D's complete linework colour infrastructure to TrueVision, including dominant colour votes, name-based colour matching, and per-mesh profile colour propagation.
+- Split colour logic out of `Na__ModelLoader__MultiModel.js` into a dedicated `Na__ModelLoader__LineworkColours__.js` module, keeping the loader file focused on loading and geometry.
+
+**Root Cause Fixed**
+- `LineMaterial.color` was set to the config fallback colour (`0x141414`, near-black) even when `vertexColors: true`. In Three.js, `LineMaterial` multiplies `material.color × vertexColor`, so a near-black multiplier collapsed every vertex colour to near-black. Fix: set `color = 0xffffff` (white, multiplicative identity) when vertex colours are present.
+
+**New Module: `Na__ModelLoader__LineworkColours__.js`**
+- `Na__ModelLoader__ExtractLineColors(geometry)` — safe `fromBufferAttribute` extraction with normalisation.
+- `Na__ModelLoader__BuildColorKey()` / `Na__ModelLoader__RegisterColorVote()` / `Na__ModelLoader__ResolveDominantColor()` — weighted vote map for dominant colour resolution.
+- `Na__ModelLoader__ResolveDominantImportedLineColor(importedColors)` — dominant colour from a flat colour array.
+- `Na__ModelLoader__FindColorByName()` + `Na__ModelLoader__ResolveProfileColorForObject()` — exact and longest-prefix name matching up the ancestor chain.
+- `Na__ModelLoader__ApplyProfileLineColoursToMeshRoot()` — propagates `Na__ProfileLineColor` userData from linework root to every paired mesh node for profile-line depth cue effects.
+
+**Updated: `Na__ModelLoader__MultiModel.js`**
+- Imports colour utilities from `Na__ModelLoader__LineworkColours__.js` with `@delegate:` pointer.
+- Extracted inline upgrade logic into `Na__ModelLoader__UpgradeLineworkRoot()`.
+- `Na__ModelLoader__LoadSingleLinework()` is now a thin loader that calls `UpgradeLineworkRoot`.
+- Node `name`, `visible`, and `userData` are now correctly preserved during fat-line upgrade.
+- `Na__ModelLoader__ApplyProfileLineColoursToMeshRoot()` called in both loops of `Na__ModelLoader__LoadAllModels()`.
+- Exports updated to include `Na__ModelLoader__UpgradeLineworkRoot` and `Na__ModelLoader__ApplyProfileLineColoursToMeshRoot`.
+
+**Updated: `Na__AppConfig__Main.json`**
+- Added `RenderEffect__ProfileLines__ColorPassIncludesLinework: true` to the `RenderEffect__ProfileLines` block. The ProfileLines module already reads this key — it was missing from the config (SSOT).
+
+**What This Enables**
+- Coloured linework from SketchUp MTE edge materials (e.g. depth cue grey series, accent colours) now displays correctly in TrueVision.
+- Auto-detected silhouette edges (Sobel profile-lines pass) now inherit the linework vertex colour at that pixel rather than collapsing to the grey fallback.
+- Per-mesh `Na__ProfileLineColor` metadata is available for future per-mesh profile colour overrides.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.3.4  -  06-Jun-2026
 ### DataLib Single Source of Truth — Local Materials Library Removed
 
