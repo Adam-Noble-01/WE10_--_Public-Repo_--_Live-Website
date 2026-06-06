@@ -2,6 +2,29 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.3.2  -  06-Jun-2026
+### AO Exclusion System — Plant Foliage Excluded from SSAO
+
+**Overview**
+- Added a material-level `AoExclude` flag to the materials library. Any material with `AoExclude: true` is excluded from both depth pre-pass render paths so the SSAO shader never accumulates occlusion on those meshes.
+- `MAT160__Generic__PlantFoliage` is the first material to use this flag.
+
+**Mechanism (Three.js Layers)**
+- During material swap (`Na__MaterialsSystem__MaterialSwap.js`), meshes whose library config has `AoExclude: true` are moved to Three.js **layer 1** (`node.layers.set(1)`) and tagged `node.userData.na_aoExclude = true`.
+- In `Na__RenderPipeline__PostProcessing__Setup.js`, `camera.layers.enable(1)` is called once at setup so layer 1 objects remain visible in the main `RenderPass`.
+- Both depth render calls (`renderDepthPrePass` and the profile-lines `renderProfileNormals` wrapper) temporarily call `camera.layers.disable(1)` before the render and `camera.layers.enable(1)` after. This is an O(1) bitmask operation — zero per-frame traversal cost.
+- Since neither depth path writes depth data for foliage pixels, the SSAO shader sees `centerDepth = 1.0` (far-plane / no geometry) for those pixels and exits the AO loop at the existing `centerDepth >= 1.0` early-return branch.
+
+**Side Effect (Bonus)**
+- Foliage is also excluded from the profile lines normal pass, so the edge-detection shader will not attempt to draw hard outlines on organic leaf geometry.
+
+**Changed Files**
+- `02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json` — v2.3.1: `AoExclude: false` added to MAT001 default template; `AoExclude: true` on MAT160.
+- `Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json` — v1.2.0: same additions synced to SketchUp DataLib.
+- `02__Src__AppModules/20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js` — AO-exclusion block added to traverse; `AoExcluded` counter in log output.
+- `02__Src__AppModules/05__RenderPipeline/Na__RenderPipeline__PostProcessing__Setup.js` — `camera.layers.enable(1)` at init; `disable(1)` / `enable(1)` wrapping both depth render paths.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.3.1  -  06-Jun-2026
 ### Materials Library — MAT160__Generic__PlantFoliage Added
 

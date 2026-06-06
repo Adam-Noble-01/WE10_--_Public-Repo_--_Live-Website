@@ -17,6 +17,10 @@
 // - If no match is found, the existing material (whitecard) is preserved.
 // - Supports optional texture URL hot-swapping from TextureMaps config.
 // - Handles IsDoubleSided, Transparent, DepthWrite, and EnvMapIntensity.
+// - AoExclude: true in the library config assigns a mesh to THREE.js layer 1
+//   and tags node.userData.na_aoExclude = true. The render pipeline disables
+//   layer 1 on the camera during depth pre-passes so the SSAO shader never
+//   receives depth data for these meshes (foliage, plants, etc.).
 //
 // =============================================================================
 
@@ -287,6 +291,7 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
         let   indexedMissing  = 0;                                            // <-- Indexed names not found in lookup map
         let   mirrorSeen      = 0;                                            // <-- Number of mirror materials encountered in traversal
         let   mirrorSwapped   = 0;                                            // <-- Number of mirror materials swapped from library
+        let   aoExcludedCount = 0;                                            // <-- Meshes assigned to AO-excluded layer 1
 
         const Na__MaterialsSystem__ResolveSwappedMaterial = (sourceMaterial) => {
             const materialName = sourceMaterial ? sourceMaterial.name : null;
@@ -339,6 +344,19 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
             } else {
                 node.material = Na__MaterialsSystem__ResolveSwappedMaterial(node.material);
             }
+
+            // AO EXCLUSION | Assign AO-exempt meshes to Three.js layer 1 so the render
+            // pipeline can temporarily blind the camera to layer 1 during depth pre-passes,
+            // preventing the SSAO shader from accumulating occlusion on foliage geometry.
+            const primaryMaterial = Array.isArray(node.material) ? node.material[0] : node.material;
+            if (primaryMaterial && Na__MaterialsSystem__IsIndexedName(primaryMaterial.name)) {
+                const matConfig = lookupMap.get(primaryMaterial.name);
+                if (matConfig && matConfig.AoExclude === true) {
+                    node.layers.set(1);                                       // <-- Layer 1 = AO-excluded; camera.layers.enable(1) in setup keeps it visible
+                    node.userData.na_aoExclude = true;                        // <-- Tag for debugging / identification
+                    aoExcludedCount++;
+                }
+            }
         });
 
         if (texturePromises.length > 0) {
@@ -346,7 +364,7 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
         }
 
         console.log(
-            `[MaterialsSystem] IndexedSeen=${indexedSeen}, Swapped=${swapCount}, IndexedMissing=${indexedMissing}, UniqueSwapped=${materialCache.size}, MirrorSeen=${mirrorSeen}, MirrorSwapped=${mirrorSwapped}`
+            `[MaterialsSystem] IndexedSeen=${indexedSeen}, Swapped=${swapCount}, IndexedMissing=${indexedMissing}, UniqueSwapped=${materialCache.size}, MirrorSeen=${mirrorSeen}, MirrorSwapped=${mirrorSwapped}, AoExcluded=${aoExcludedCount}`
         );
     }
     // ------------------------------------------------------------

@@ -98,6 +98,13 @@
         const width      = window.innerWidth * pixelRatio;
         const height     = window.innerHeight * pixelRatio;
 
+        // AO-EXCLUDED LAYER SETUP
+        // Materials with AoExclude: true in the library are moved to Three.js layer 1
+        // during the material swap pass. Enabling layer 1 here keeps them visible in the
+        // main RenderPass. Both depth pre-passes below temporarily disable layer 1 so the
+        // SSAO shader never receives depth data for foliage or other AO-excluded geometry.
+        camera.layers.enable(1);                                               // <-- Layer 1 = AO-excluded objects (visible in main render)
+
         // DEPTH PRE-PASS TARGET
         // Separate RT with a FloatType DepthTexture.  Rendered once per frame
         // BEFORE the EffectComposer to provide a clean depth texture for fog
@@ -155,10 +162,12 @@
         // equivalent depth texture, so this becomes a no-op (saving a full scene render).
         function renderDepthPrePass() {
             if (!needsSeparateDepthPrePass) return;                        // <-- Normal pass depth is shared; skip redundant render
+            camera.layers.disable(1);                                      // <-- Exclude AO-exempt meshes from depth capture
             renderer.setRenderTarget(depthPrePassTarget);
             renderer.clear();
             renderer.render(scene, camera);
             renderer.setRenderTarget(null);
+            camera.layers.enable(1);                                       // <-- Restore layer 1 visibility for main render
         }
 
         function setDepthPrePassSize(w, h) {
@@ -214,11 +223,15 @@
             return profileLinesRuntimeEnabled;
         }
 
-        // Wrapped renderProfileNormals that respects the runtime toggle
+        // Wrapped renderProfileNormals that respects the runtime toggle and excludes
+        // AO-exempt meshes (layer 1) from the normal/depth capture so the SSAO shader
+        // does not process foliage pixels from the profile-lines depth path either.
         const originalRenderProfileNormals = renderProfileNormals;
         renderProfileNormals = () => {
             if (!profileLinesRuntimeEnabled) return;
+            camera.layers.disable(1);                                      // <-- Exclude AO-exempt meshes from normals + depth capture
             originalRenderProfileNormals();
+            camera.layers.enable(1);                                       // <-- Restore layer 1 visibility for main render
         };
         
         // PASS 6 — FXAA (always last)
