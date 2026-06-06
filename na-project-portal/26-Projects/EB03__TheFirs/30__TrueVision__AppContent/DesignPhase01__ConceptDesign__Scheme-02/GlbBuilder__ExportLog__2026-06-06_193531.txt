@@ -3,7 +3,7 @@
 ===============================================================================
  Model      : EB03__ConceptSketch__Active__.skp
  Export dir : D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02
- Timestamp  : 2026-06-06_192347
+ Timestamp  : 2026-06-06_193531
  Console    : suppressed (OFF)
 -------------------------------------------------------------------------------
   Project prefix detected: 'EB03__'
@@ -641,13 +641,13 @@ Exporting storey series: EB03__Storey__SecondFloor__ProposedRoofs...
       [Instancing] Built shared mesh: AWN029__Window__#1 (260 verts, 156 tris)
       [Instancing] AWN029__Window__#1: 1 mesh -> 2 nodes
     [Instancing] Instanced mesh export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__SecondFloor__ProposedRoofs__MeshModel__.glb (51120 bytes, BIN: 42320 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__SecondFloor__ProposedRoofs__MeshModel__.glb (51124 bytes, BIN: 42320 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 51120 bytes
-    Chunk 1: "JSON", Length: 8772 bytes
+    File size: 51124 bytes
+    Chunk 1: "JSON", Length: 8776 bytes
     Chunk 2: "BIN\x00", Length: 42320 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -2154,13 +2154,13 @@ Exporting storey series: EB03__Storey__FirstFloor__ProposedFurniture...
       [Instancing] Built shared mesh: 28_21__Sub__KingBedBase__Plinth__Whitecard (104 verts, 50 tris)
       [Instancing] 28_21__Sub__KingBedBase__Plinth__Whitecard: 1 mesh -> 3 nodes
     [Instancing] Instanced mesh export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedFurniture__MeshModel__.glb (5128768 bytes, BIN: 5107292 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedFurniture__MeshModel__.glb (5128772 bytes, BIN: 5107292 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 5128768 bytes
-    Chunk 1: "JSON", Length: 21448 bytes
+    File size: 5128772 bytes
+    Chunk 1: "JSON", Length: 21452 bytes
     Chunk 2: "BIN\x00", Length: 5107292 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -2240,13 +2240,13 @@ Exporting storey series: EB03__Storey__FirstFloor__ProposedDoors...
         [DoorHandler/Mesh] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Mesh] Door assembly complete: ADR022__InteriorDoor__
     [DoorHandler] Door assembly export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedDoors__MeshModel__.glb (349240 bytes, BIN: 336352 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedDoors__MeshModel__.glb (349224 bytes, BIN: 336352 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 349240 bytes
-    Chunk 1: "JSON", Length: 12860 bytes
+    File size: 349224 bytes
+    Chunk 1: "JSON", Length: 12844 bytes
     Chunk 2: "BIN\x00", Length: 336352 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -2286,13 +2286,13 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
         [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=tag_in_exclusion_list
       [DoorHandler/Linework] Door assembly complete: ADR022__InteriorDoor__
     [DoorHandler/Linework] Door assembly linework export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedDoors__LineworkModel__.glb (53748 bytes, BIN: 46816 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedDoors__LineworkModel__.glb (53744 bytes, BIN: 46816 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 53748 bytes
-    Chunk 1: "JSON", Length: 6904 bytes
+    File size: 53744 bytes
+    Chunk 1: "JSON", Length: 6900 bytes
     Chunk 2: "BIN\x00", Length: 46816 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
@@ -2449,13 +2449,13 @@ Exporting storey series: EB03__Storey__FirstFloor__ProposedFixtures...
       [Instancing] Built shared mesh: Grohe Essencee wandkraan (4642 verts, 2718 tris)
       [Instancing] Grohe Essencee wandkraan: 1 mesh -> 2 nodes
     [Instancing] Instanced mesh export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedFixtures__MeshModel__.glb (9819688 bytes, BIN: 9740504 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedFixtures__MeshModel__.glb (9819684 bytes, BIN: 9740504 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 9819688 bytes
-    Chunk 1: "JSON", Length: 79156 bytes
+    File size: 9819684 bytes
+    Chunk 1: "JSON", Length: 79152 bytes
     Chunk 2: "BIN\x00", Length: 9740504 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -2526,13 +2526,13 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
       [Instancing] Built shared linework: Grohe Essencee wandkraan (864 edges)
       [Instancing/Linework] Grohe Essencee wandkraan: 2 nodes
     [Instancing/Linework] Instanced linework export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedFixtures__LineworkModel__.glb (606672 bytes, BIN: 557256 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ProposedFixtures__LineworkModel__.glb (606668 bytes, BIN: 557256 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 606672 bytes
-    Chunk 1: "JSON", Length: 49388 bytes
+    File size: 606668 bytes
+    Chunk 1: "JSON", Length: 49384 bytes
     Chunk 2: "BIN\x00", Length: 557256 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
@@ -2657,13 +2657,13 @@ Exporting storey series: EB03__Storey__FirstFloor__ExistingDoors...
         [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
       [DoorHandler/Mesh] Door assembly complete: ADR002__ExteriorDoor__BalconyLeftDoor__03
     [DoorHandler] Door assembly export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ExistingDoors__MeshModel__.glb (1431504 bytes, BIN: 1384520 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ExistingDoors__MeshModel__.glb (1431480 bytes, BIN: 1384520 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 1431504 bytes
-    Chunk 1: "JSON", Length: 46956 bytes
+    File size: 1431480 bytes
+    Chunk 1: "JSON", Length: 46932 bytes
     Chunk 2: "BIN\x00", Length: 1384520 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -2785,13 +2785,13 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
         [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
       [DoorHandler/Linework] Door assembly complete: ADR002__ExteriorDoor__BalconyLeftDoor__03
     [DoorHandler/Linework] Door assembly linework export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ExistingDoors__LineworkModel__.glb (432148 bytes, BIN: 405664 bytes)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__FirstFloor__ExistingDoors__LineworkModel__.glb (432160 bytes, BIN: 405664 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 432148 bytes
-    Chunk 1: "JSON", Length: 26456 bytes
+    File size: 432160 bytes
+    Chunk 1: "JSON", Length: 26468 bytes
     Chunk 2: "BIN\x00", Length: 405664 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
@@ -3144,5 +3144,5 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
 === End Storey Export ===
       Cleaned up texture cache folder
 -------------------------------------------------------------------------------
- Export complete. Elapsed: 71.08s
+ Export complete. Elapsed: 78.16s
 ===============================================================================
