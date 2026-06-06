@@ -2,6 +2,36 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.3.4  -  06-Jun-2026
+### DataLib Single Source of Truth — Local Materials Library Removed
+
+**Overview**
+- Eliminated the duplicate `Na__AppConfig__MaterialsLibrary.json` that lived inside the TrueVision source tree. The SketchUp plugins repo (`Na__Common__DataLib__CoreSuEntityStandards`) is now the single source of truth for all indexed material definitions.
+- New `AppCore__DataLib__Loader.js` module fetches all four DataLib index files in parallel from their GitHub raw URLs at startup and caches them for the session.
+- Network log confirmed all four GitHub raw URLs resolved on first load (06-Jun-2026).
+
+**New Module: `AppCore__DataLib__Loader.js`**
+- `Na__DataLib__LoadAll()` — parallel fetch of all 4 DataLib files, call once at startup.
+- `Na__DataLib__GetMaterials()` / `Na__DataLib__GetTags()` / `Na__DataLib__GetComponents()` / `Na__DataLib__GetEdgeMaterials()` — cached getters for each index.
+- `Na__DataLib__IsReady()` — boolean guard.
+- Error handling: `na-show-toast` event dispatched + rethrow on any URL failure.
+
+**DataLib URLs (hardcoded in loader):**
+- Materials: `https://raw.githubusercontent.com/Adam-Noble-01/Plugins/main/Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json`
+- Tags, Components, EdgeMaterials — same repo prefix.
+
+**Changed Files**
+- `02__Src__AppModules/01__AppCore/AppCore__DataLib__Loader.js` — new module (see above).
+- `02__Src__AppModules/20__System__MaterialsSystem/Na__MaterialsSystem__LibraryLoader.js` — v2.0.0: removed `LoadLibrary()` fetch; `BuildLookup()` updated to use `Na__DataLib__CoreIndex__Materials` root key.
+- `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` — calls `Na__DataLib__LoadAll()` at sequence start; uses `Na__DataLib__GetMaterials()` instead of local fetch.
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json` — `MaterialsSystem__Config__LibraryUrl` removed.
+- `80__Testing__PrototypeEnvironment/TestEnv__SubAppData__Config.json` — `MaterialsSystem__Config__LibraryUrl` removed.
+- `80__Testing__PrototypeEnvironment/TestEnv__PrototypeTestingSandbox__Main__.js` — both `Na__MaterialsSystem__LoadLibrary` call sites replaced with `Na__DataLib__GetMaterials()`.
+- `02__Src__AppModules/02__AppData/Na__AppConfig__MaterialsLibrary.json` — **DELETED**.
+- `Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json` — MAT161 `BaseColor` corrected to `rgb(207, 213, 207)`.
+- `.cursor/rules/30-materials-library-single-source-of-truth.mdc` — updated to reference the DataLib GitHub URL as the sole authority.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.3.3  -  06-Jun-2026
 ### Scene Inspector — Instance Aggregation + Download .txt
 
