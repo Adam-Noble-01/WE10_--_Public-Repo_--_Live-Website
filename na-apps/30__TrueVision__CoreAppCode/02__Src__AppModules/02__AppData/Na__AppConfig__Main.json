@@ -11,8 +11,8 @@
         "Scene__Default__CameraConfig__Far": 1000
     },
     "Scene__Default__LightingConfig": {
-        "Scene__Default__LightingConfig__AmbientIntensity": 2.5,
-        "Scene__Default__LightingConfig__DirectionalIntensity": 1.0
+        "Scene__Default__LightingConfig__AmbientIntensity": 2.9,
+        "Scene__Default__LightingConfig__DirectionalIntensity": 0.7
     },
     "Scene__Environment": {
         "Scene__Environment__Description"          : "HDR environment map settings. Mirror-only mode keeps the rest of the model neutral while applying reflections to the targeted mirror material.",

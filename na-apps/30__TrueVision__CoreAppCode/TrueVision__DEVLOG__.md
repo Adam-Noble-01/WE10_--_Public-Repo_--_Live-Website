@@ -2,6 +2,49 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.3.6  -  06-Jun-2026
+### Door Animation — Six-Bug Fix (Rotation Direction, Instancing, Leakage, Duplicate Code)
+
+**Overview**
+Six related bugs in the door animation pipeline have been fixed. The primary symptom was interior doors nested inside storey groups (`90__Storey__*`) opening 180° in the wrong direction. Secondary issues caused identical repeated door instances to become permanently static, open-state panel geometry to pollute GLBs, and the test-sandbox door finder to silently return empty results for storey-mode scenes.
+
+---
+
+**Bug 1 — CRITICAL (SketchUp): MOD degree ignored hinge side → left-handed doors always opened 180° wrong**
+- File: `Na__AssemblyStudio__InteriorDoorSystem__DoorAssemblyComposer__.rb`
+- `na_resolve_mod_panel_name` used two fixed constants (`-90-Deg` for outward, `+90-Deg` for inward) regardless of hinge side. These are correct only for right-handed doors; left-handed doors need opposite signs.
+- Fix: `na_resolve_mod_panel_name` now mirrors the same `base_angle × sign` formula as `na_compute_open_rotation_transform` (accounting for both `Na__DoorConfig__SwingSide` and `Na__DoorConfig__SwingDirection`). This produces the correct signed degree token for all four hinge+swing combinations.
+- Truth table:  Left+Inward→`-90`, Right+Inward→`+90`, Left+Outward→`+90`, Right+Outward→`-90`.
+- Old fixed constants renamed to `NA_GROUP_NAME_MOD_PANEL_RIGHT_OUTWARD` / `_RIGHT_INWARD` for clarity; old aliases retained.
+
+**Bug 2 — HIGH (GLB Exporter): Instancing skip-set fired before ADR check → repeat-definition doors lost animation hierarchy**
+- Files: `Na__TrueVision__GlbBuilder__EngineCore__.rb` (top-level entity loop), `Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb` (`TraverseEntities`)
+- `next if instanced_skip_set.key?(entity.object_id)` was evaluated before `Na__DoorHandler__IsDoorAssembly?`. If a door ComponentDefinition appeared more than once, the second (and any subsequent) instance was silently consumed by the instancing path, which flattens geometry into a static mesh without preserving the ADR/MOD/ROT hierarchy. Those doors became permanently static in TrueVision.
+- Fix: moved the `IsDoorAssembly?` check to before the instancing skip in both locations. Door assemblies now always bypass the instancing skip-set so every instance gets its own hierarchy node in the GLB.
+
+**Bug 3 — MEDIUM (GLB Exporter): `Na__Door__Open` missing from hardcoded exclusion fallback → open-state MODs leaked into GLB**
+- File: `Na__TrueVision__GlbBuilder__Main__.rb`
+- `ALWAYS_EXCLUDED_LAYER_NAMES` did not include `Na__Door__Open`. If the DataLib load failed at export time, or if the SketchUp model was in open-state preview mode during export, the open-state MOD (already rotated 90° by `na_compose_open_state_copy`) was written into the GLB alongside the closed-state MOD. TrueVision then found two MOD siblings with the same name, registered both as panels, and animated the already-open one past its correct open position.
+- Fix: added `"Na__Door__Open"` to `ALWAYS_EXCLUDED_LAYER_NAMES`.
+
+**Bug 4 — MEDIUM (TrueVision): `Na__DoorAnimation__FindDoorGroups.js` used wrong traversal level and never worked for storey-mode**
+- File: `Na__DoorAnimation__FindDoorGroups.js`
+- The original single-level loop checked direct children of `rootGroup` for names containing both a door token AND 'Mesh'/'Linework'. Category group names (e.g. `Storey__GroundFloor__ProposedDoors`) never contain 'Mesh'/'Linework', so both output arrays were always empty for any scene. The production app was not affected (it uses `Na__CollectDoorModelGroups` inline), but the test sandbox was silently broken.
+- Fix: rewritten as a two-level traversal: outer loop finds category groups containing a door token; inner loop reads `child.userData.Na__ModelType` to split mesh/linework roots — identical to the production `Na__CollectDoorModelGroups` logic and robust for flat and storey GLBs alike.
+
+**Bug 5 — LOW (TrueVision): Fragile index-order fallback in `Na__CollectDoorModelGroups`**
+- File: `Na__AppFlow__LoadingSequence.js`
+- `Na__CollectDoorModelGroups` fell back to `children[0]`/`children[1]` when neither child had `userData.Na__ModelType`. The tag is set on every real load path, so the fallback was unreachable dead code — but it was a correctness landmine for any future async load-order change.
+- Fix: replaced fallback with a `console.warn` that identifies the category key and skips it cleanly.
+
+**Bug 6 — LOW (TrueVision): Dead legacy exports in `ClickToOpenDoors__.js`**
+- File: `3dObjectIInteraction__Animation__ClickToOpenDoors__.js`
+- `Na__DoorAnim__FindModRotChild` and `Na__DoorAnim__ApplyPivotRotation` were exported as "backward compat" but had no known callers anywhere in the codebase. Keeping them in the export surface created confusion about whether they were part of the public API.
+- Fix: both functions removed; exports block updated with removal comments.
+
+---
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.3.5  -  06-Jun-2026
 ### Edge Colour System — Full Parity with ValeVision3D
 

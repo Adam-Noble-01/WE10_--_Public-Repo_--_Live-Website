@@ -369,14 +369,10 @@
                     if (modelType === 'linework') taggedLinework = child;
                 }
 
-                if (taggedMesh || taggedLinework) {
-                    if (taggedMesh) doorMeshGroups.push(taggedMesh);
-                    if (taggedLinework) doorLineworkGroups.push(taggedLinework);
-                } else if (children.length >= 2) {
-                    doorMeshGroups.push(children[0]);                         // <-- Mesh is always loaded first
-                    doorLineworkGroups.push(children[1]);                     // <-- Linework is always loaded second
-                } else if (children.length === 1) {
-                    doorMeshGroups.push(children[0]);                         // <-- Single child, assume mesh
+                if (taggedMesh)     doorMeshGroups.push(taggedMesh);
+                if (taggedLinework) doorLineworkGroups.push(taggedLinework);
+                if (!taggedMesh && !taggedLinework) {
+                    console.warn(`[DoorAnimation] Category "${categoryKey}" matched door token but has no tagged mesh/linework children — skipping.`);
                 }
             });
 

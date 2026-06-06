@@ -45,6 +45,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 06-Jun-2026 - Version 1.4.0
+// - Removed dead legacy exports Na__DoorAnim__FindModRotChild and
+//   Na__DoorAnim__ApplyPivotRotation. Both were superseded in v1.2.0 by
+//   FindAllAnimatableMods and the progress-based ApplyAllPanels path, but
+//   were retained as "backward compat" exports with no known callers.
+//
 // 17-May-2026 - Version 1.3.0
 // - Bifold doors now animate at a slowed-down speed proportional to the new
 //   AppConfig key `BifoldDurationMultiplier` (default 3.0). The effective
@@ -329,21 +335,6 @@
     // ------------------------------------------------------------
 
 
-    // LEGACY HELPER FUNCTION | Find First MOD Child with ROT Tag (kept for backward compat)
-    // ------------------------------------------------------------
-    // Some external utilities still call this. Internal scanning has moved to
-    // Na__DoorAnim__FindAllAnimatableMods, but we preserve this helper to avoid
-    // breaking any tooling that imports the door animation module privately.
-    function Na__DoorAnim__FindModRotChild(adrObject) {
-        for (const child of adrObject.children) {
-            if (Na__DoorAnim__NameStartsWith(child, Na__DoorAnim__PREFIX_MOD)
-                && child.name.includes(Na__DoorAnim__MOD_ROT_TAG)) {
-                return child;
-            }
-        }
-        return null;
-    }
-    // ------------------------------------------------------------
 
 
     // HELPER FUNCTION | Detect Whether a Panel Set Belongs to a Bifold Door
@@ -878,18 +869,6 @@
     // ------------------------------------------------------------
 
 
-    // LEGACY HELPER FUNCTION | Apply Single-Pivot Rotation (Backward Compatibility Wrapper)
-    // ------------------------------------------------------------
-    // Some external callers still invoke Na__DoorAnim__ApplyPivotRotation
-    // with a single radian value. We translate that into the equivalent
-    // progress fraction and re-emit through the panel-aware applier so any
-    // legacy invocation still drives all panels of a multi-panel door.
-    function Na__DoorAnim__ApplyPivotRotation(doorRecord, angleRad) {
-        const target = doorRecord.targetAngleRad;
-        const progress = (Math.abs(target) > 1e-6) ? (angleRad / target) : 0;
-        Na__DoorAnim__ApplyAllPanels(doorRecord, progress);
-    }
-    // ------------------------------------------------------------
 
 
     // FUNCTION | Check Whether Any Door Is Currently Animating
@@ -1004,6 +983,8 @@
         Na__DoorAnimation__ScanForDoors,                                         // <-- Re-scan scene graph
         Na__DoorAnim__DoorRegistry,                                              // <-- Door registry Map (for proximity system)
         Na__DoorAnim__ToggleDoor                                                 // <-- Toggle door open/close (for proximity system)
+        // Removed (v1.4.0): Na__DoorAnim__FindModRotChild — superseded by FindAllAnimatableMods
+        // Removed (v1.4.0): Na__DoorAnim__ApplyPivotRotation — superseded by ApplyAllPanels progress path
     };
     // ------------------------------------------------------------
 
