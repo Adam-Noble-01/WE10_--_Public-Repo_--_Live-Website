@@ -1,20 +1,6 @@
 {
-    "Camera__DefaultPosition": {
-        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
-        "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": 21166,
-            "Camera__DefaultPos__PosY": 1809,
-            "Camera__DefaultPos__PosZ": -39467
-        },
-        "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -3.104,
-            "Camera__DefaultRotation__RotY": 0.4849,
-            "Camera__DefaultRotation__RotZ": 3.1241
-        },
-        "Camera__DefaultMisc": {
-            "Camera__DefaultMisc__Fov": 45
-        }
-    },
+    "projectCode": "EB03",
+    "projectName": "The Firs",
     "activeGroupIndex": 0,
     "modelGroups": [
         {
@@ -26,6 +12,10 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingDoors__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingFixtures__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingFixtures__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingStairs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingStairs__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingWalls__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingWalls__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__FirstFloor__ExistingWindows__LineworkModel__.glb",
@@ -44,6 +34,8 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__GroundFloor__ExistingWalls__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__GroundFloor__ExistingWindows__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__GroundFloor__ExistingWindows__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__GroundFloor__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__GroundFloor__ProposedDoors__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__SecondFloor__ExistingRoofs__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__SecondFloor__ExistingRoofs__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/Storey__SecondFloor__ExistingWalls__LineworkModel__.glb",
@@ -201,18 +193,24 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__SecondFloor__ProposedWalls__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__Storey__SecondFloor__ProposedWalls__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__TrueVision__LandscapeEnvironment__MeshModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb"
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/EB03__TrueVision__LandscapeEnvironment__MeshModel__.glb"
             ]
         }
     ],
-    "projectCode": "EB03",
-    "projectName": "The Firs",
-    "OrbitHelperCube__Position": {
-        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
-        "OrbitHelperCube__Position__PosX": 12108,
-        "OrbitHelperCube__Position__PosY": 1162,
-        "OrbitHelperCube__Position__PosZ": -22286
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX": 21166,
+            "Camera__DefaultPos__PosY": 1809,
+            "Camera__DefaultPos__PosZ": -39467
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX": -3.104,
+            "Camera__DefaultRotation__RotY": 0.4849,
+            "Camera__DefaultRotation__RotZ": 3.1241
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov": 45
+        }
     }
 }
