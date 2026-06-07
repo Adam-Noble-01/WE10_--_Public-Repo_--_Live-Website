@@ -61,12 +61,13 @@
             "BaseMesh__DefaultMaterial__TexturedMesh__EmissiveColor": 4473924
         },
         "RenderConfig__Linework": {
-            "RenderConfig__Linework__EdgeColor"           : 1315860,
-            "RenderConfig__Linework__LineWidth"           : 0.8,
-            "RenderConfig__Linework__PolygonOffsetFactor" : -4,
-            "RenderConfig__Linework__PolygonOffsetUnits"  : -4,
-            "RenderConfig__Linework__RenderOrder"         : 999,
-            "RenderConfig__Linework__DepthBias"           : 0.00015
+            "RenderConfig__Linework__EdgeColor"                      : 1315860,
+            "RenderConfig__Linework__LineWidth"                      : 0.8,
+            "RenderConfig__Linework__PolygonOffsetFactor"            : -4,
+            "RenderConfig__Linework__PolygonOffsetUnits"             : -4,
+            "RenderConfig__Linework__RenderOrder"                    : 999,
+            "RenderConfig__Linework__DepthBias"                      : 0.00015,
+            "RenderConfig__Linework__EdgeColorLightnessReduction"    : 10
         }
     },
     "RenderEffect__ProfileLines": {
@@ -252,6 +253,7 @@
             "3dObject__Interaction__DoorAnimation__DefaultRotationDeg"        : 90,
             "3dObject__Interaction__DoorAnimation__ClickThresholdPx"          : 4,
             "3dObject__Interaction__DoorAnimation__MultiPanelEnabled"         : true,
+            "3dObject__Interaction__DoorAnimation__InteriorRotationInverted"  : true,
             "3dObject__Interaction__DoorAnimation__CategoryNameTokens"        : [
                 "ProposedDoors",
                 "ExistingDoors"

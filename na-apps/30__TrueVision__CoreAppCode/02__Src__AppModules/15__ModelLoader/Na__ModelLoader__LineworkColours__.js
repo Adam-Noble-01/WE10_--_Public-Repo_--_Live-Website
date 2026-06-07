@@ -80,6 +80,52 @@
 
 
 // #Region ---
+// REGION | Edge Colour Darkening
+// -----
+
+    // FUNCTION | Darken Extracted Vertex Colours (TrueVision Calibration Rule)
+    // ------------------------------------------------------------
+    // Applies a configurable HSL lightness reduction to all colours in a flat
+    // RGB array (the format returned by Na__ModelLoader__ExtractLineColors).
+    // This ensures SketchUp MTE edge colours, which are calibrated for the
+    // SketchUp viewport, render at the correct perceived weight in TrueVision's
+    // lit white-card environment without modifying any source data.
+    //
+    // lightnessReductionAmount: integer on 0-100 scale (e.g. 10 = reduce L by 10).
+    // Returns a new array. Returns the original array unchanged when reduction
+    // is zero, not finite, or the input array is empty/null.
+    // ------------------------------------------------------------
+    function Na__ModelLoader__DarkenExtractedColors(colorArray, lightnessReductionAmount) {
+        if (!Array.isArray(colorArray) || colorArray.length < 3) {
+            return colorArray;                                      // <-- Null or empty — nothing to darken
+        }
+        if (!Number.isFinite(lightnessReductionAmount) || lightnessReductionAmount <= 0) {
+            return colorArray;                                      // <-- No reduction configured
+        }
+
+        const reduction    = lightnessReductionAmount / 100;       // <-- Convert 0-100 scale to 0-1 for THREE HSL
+        const darkened     = colorArray.slice();                   // <-- Work on a copy; never mutate extracted source
+        const tempColor    = new THREE.Color();
+        const hsl          = {};
+
+        for (let i = 0; i < darkened.length; i += 3) {
+            tempColor.setRGB(darkened[i], darkened[i + 1], darkened[i + 2]);
+            tempColor.getHSL(hsl);
+            hsl.l = Math.max(0, hsl.l - reduction);               // <-- Clamp to 0 — can't go below absolute black
+            tempColor.setHSL(hsl.h, hsl.s, hsl.l);
+            darkened[i]     = tempColor.r;                         // <-- Write darkened channel back
+            darkened[i + 1] = tempColor.g;
+            darkened[i + 2] = tempColor.b;
+        }
+
+        return darkened;
+    }
+    // ------------------------------------------------------------
+
+// endregion ----
+
+
+// #Region ---
 // REGION | Colour Vote Infrastructure
 // -----
 
@@ -274,6 +320,7 @@
     // ------------------------------------------------------------
     export {
         Na__ModelLoader__ExtractLineColors,
+        Na__ModelLoader__DarkenExtractedColors,
         Na__ModelLoader__BuildColorKey,
         Na__ModelLoader__RegisterColorVote,
         Na__ModelLoader__ResolveDominantColor,

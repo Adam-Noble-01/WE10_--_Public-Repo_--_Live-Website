@@ -52,6 +52,7 @@
     // @delegate: ./Na__ModelLoader__LineworkColours__.js
     import {
         Na__ModelLoader__ExtractLineColors,
+        Na__ModelLoader__DarkenExtractedColors,
         Na__ModelLoader__RegisterColorVote,
         Na__ModelLoader__ResolveDominantColor,
         Na__ModelLoader__ResolveDominantImportedLineColor,
@@ -448,9 +449,12 @@
             }
         });
 
+        const lightnessReduction = lineworkConfig.RenderConfig__Linework__EdgeColorLightnessReduction; // <-- Read once per upgrade; applied per segment below
+
         nodesToReplace.forEach((node) => {
             const positions      = node.geometry.attributes.position.array;
-            const importedColors = Na__ModelLoader__ExtractLineColors(node.geometry); // <-- Safe fromBufferAttribute read
+            const rawColors      = Na__ModelLoader__ExtractLineColors(node.geometry);                      // <-- Safe fromBufferAttribute read
+            const importedColors = Na__ModelLoader__DarkenExtractedColors(rawColors, lightnessReduction); // <-- Apply TrueVision lightness calibration
             const dominantColor  = Na__ModelLoader__ResolveDominantImportedLineColor(importedColors);
 
             const fatLineGeometry = new LineSegmentsGeometry();

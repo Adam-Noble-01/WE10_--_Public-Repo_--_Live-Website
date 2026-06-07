@@ -2,6 +2,126 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.4.1  -  07-Jun-2026
+### Edge Colour Lightness Calibration
+
+**Overview**
+- SketchUp MTE edge colours are calibrated for the SketchUp viewport and render slightly too bright in TrueVision's lit white-card environment.
+- Added a configurable HSL lightness reduction applied at load time to all vertex colours extracted from linework GLBs. The source data files (SketchUp DataLib) are not modified.
+
+**Rule**
+- Lightness values from the MTE greyscale series are reduced by 10 units (0-100 scale) in TrueVision: L20→L10, L40→L30, L45→L35, etc. Accent colours darkened equivalently in HSL space. Absolute black (L0) clamped at 0 and unchanged.
+
+**Changed Files**
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__LineworkColours__.js` — new `Na__ModelLoader__DarkenExtractedColors(colorArray, lightnessReductionAmount)` function added and exported.
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__MultiModel.js` — imports and calls `Na__ModelLoader__DarkenExtractedColors` in `Na__ModelLoader__UpgradeLineworkRoot` immediately after colour extraction.
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json` — `RenderConfig__Linework__EdgeColorLightnessReduction: 10` added to `RenderConfig__Linework` (adjust to tune).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.4.0  -  06-Jun-2026
+### Edge Colour System — Full Parity with ValeVision3D
+
+**Overview**
+- Fixed a critical bug where SketchUp MTE edge colours exported as glTF `COLOR_0` vertex colours were being silently annihilated by an incorrect `LineMaterial.color` multiplier. All coloured linework was rendering as near-black regardless of the actual vertex colour data.
+- Ported ValeVision3D's complete linework colour infrastructure to TrueVision, including dominant colour votes, name-based colour matching, and per-mesh profile colour propagation.
+- Split colour logic out of `Na__ModelLoader__MultiModel.js` into `Na__ModelLoader__LineworkColours__.js`.
+
+**Root Cause Fixed**
+- `LineMaterial.color` was set to the config fallback colour (`0x141414`, near-black) even when `vertexColors: true`. In Three.js, `LineMaterial` multiplies `material.color × vertexColor`, so a near-black multiplier collapsed every vertex colour to near-black. Fix: set `color = 0xffffff` (white, multiplicative identity) when vertex colours are present.
+
+**New Module: `Na__ModelLoader__LineworkColours__.js`**
+- `Na__ModelLoader__ExtractLineColors` — safe `fromBufferAttribute` extraction.
+- `Na__ModelLoader__BuildColorKey` / `Na__ModelLoader__RegisterColorVote` / `Na__ModelLoader__ResolveDominantColor` / `Na__ModelLoader__ResolveDominantImportedLineColor` — weighted colour vote map.
+- `Na__ModelLoader__FindColorByName` + `Na__ModelLoader__ResolveProfileColorForObject` — exact and longest-prefix name matching.
+- `Na__ModelLoader__ApplyProfileLineColoursToMeshRoot` — propagates `Na__ProfileLineColor` userData to paired mesh nodes for profile-line depth cue effects.
+
+**Updated: `Na__ModelLoader__MultiModel.js`**
+- Imports colour utilities with `@delegate:` pointer.
+- `Na__ModelLoader__UpgradeLineworkRoot` extracted from inline `LoadSingleLinework`.
+- Node `name`, `visible`, and `userData` preserved during fat-line upgrade.
+- `Na__ModelLoader__ApplyProfileLineColoursToMeshRoot` called in both loops of `Na__ModelLoader__LoadAllModels`.
+- Exports updated to include `Na__ModelLoader__UpgradeLineworkRoot` and `Na__ModelLoader__ApplyProfileLineColoursToMeshRoot`.
+
+**Updated: `Na__AppConfig__Main.json`**
+- `RenderEffect__ProfileLines__ColorPassIncludesLinework: true` added — was already read by ProfileLines module, now declared in SSOT config.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.3.9  -  06-Jun-2026
+### Door Animation — Interior Doors: Sign-Convention Inversion vs Bifold
+
+**Root cause (confirmed by scene-graph diagnostics + cross-system comparison)**
+
+Per-door diagnostics proved the loaded GLB is clean: every door has `det=1`, `scale=(1,1,1)`, and TrueVision faithfully applies the signed angle baked into each MOD name. So there is no mirror and no math error in the animation engine. Bifold doors swing correctly; interior doors swing 180° inverted.
+
+The discriminator is the **sign convention used by the two SketchUp builders**:
+- The **bifold (ExtFold) system** computes its MOD rotation degrees via `na_compute_panel_rot_degrees`, and its sign was **calibrated empirically against TrueVision's actual rendered swing** — see the ExtFold AllOneWay devlog v1.7.2: *"Right-cascade master now swings OUTWARD (+90 deg) instead of into the room (-90 deg)."* They flipped the sign because they watched it open the wrong way in TV.
+- The **interior door system** (older Element Assembly Studio code) derives its MOD sign from pure SketchUp geometric logic (`na_resolve_mod_panel_name`) and was never validated against TV. It is internally self-consistent with the SketchUp swing arc, but renders inverted in TV.
+
+Same animation code, opposite real-world result — because the bifold convention already bakes in a TV compensation the interior convention lacks.
+
+**Fix: `3dObjectIInteraction__Animation__ClickToOpenDoors__.js` (v1.6.0)**
+- Added `Na__DoorAnim__ResolveInteriorInversionSign(adrObject)`: when AppConfig `3dObject__Interaction__DoorAnimation__InteriorRotationInverted` is `true` (default), doors whose ADR name contains `InteriorDoor` receive a `-1` rotation sign, landing them on the same TV-correct convention bifold uses.
+- Folded into `panel.rotationSign` alongside the existing mirror-determinant sign, applied in `ApplyPanelTransform`.
+- Bifold, sliding, and exterior doors are unaffected (name token gate).
+- **Reversible via AppConfig, no GLB re-export required** — hard-reload to test.
+
+**Config: `Na__AppConfig__Main.json`**
+- Added `3dObject__Interaction__DoorAnimation__InteriorRotationInverted: true`.
+
+**If this over-corrects** (i.e. an interior door that was previously correct now swings wrong), that proves the inversion is per-door (mismatched SwingSide/SwingDirection config in SketchUp) rather than global, and we narrow to those specific doors.
+
+---
+
+# ---------------------------------------------------------
+## TrueVision3D v2.3.8  -  06-Jun-2026
+### Door Animation — TRUE Root Cause: Mirrored Door Instances Swing Reversed
+
+**This is the actual fix for the "interior doors open 180 degrees the wrong way" bug.**
+
+The previous version notes (v2.3.6 / v2.3.7) chased the SketchUp side (MOD name angle, instancing, open-state leakage). A scene-graph log proved the exported GLB was correct: exactly one MOD per door, correct signed angle in the name (`MOD001__ROT__-90-Deg__DoorPanel`), no open-state copy. The bug was purely in TrueVision's animation.
+
+**Root Cause**
+`Na__DoorAnim__ApplyPanelTransform` rotates each MOD about the door's LOCAL `+Y` axis `(0,1,0)`. That local rotation only maps to the intended WORLD swing when the door's accumulated world transform is a proper rotation (determinant > 0).
+
+Interior doors are routinely **mirror-copied** between rooms (and/or sit under a mirrored storey container). A mirrored instance carries a **negative-determinant** world transform. A mirror converts a right-handed rotation into a left-handed one — `M · R(θ) · M⁻¹ = R(−θ)` when the mirror plane contains the vertical axis — so the fixed local `+Y` swing appears reversed in world space and the door opens 180° the wrong way.
+
+This precisely matches the observed behaviour:
+- Top-level (non-mirrored) interior doors → correct.
+- Nested / mirrored interior doors → flipped.
+- Bifold doors on the same storey (not mirrored) → correct.
+
+**Fix: `3dObjectIInteraction__Animation__ClickToOpenDoors__.js` (v1.5.0)**
+- Added `Na__DoorAnim__ResolveMirrorSign(adrObject)` — calls `updateWorldMatrix` then reads `adrObject.matrixWorld.determinant()`, returning `-1` for mirrored doors and `+1` otherwise.
+- `Na__DoorAnim__BuildPanelDescriptor` stores the result in `panel.rotationSign` (resolved once at scan time; the determinant sign is static for the door's lifetime).
+- `Na__DoorAnim__ApplyPanelTransform` multiplies the swing angle by `panel.rotationSign`, so mirrored doors swing in the intended world direction. Non-mirrored doors are unchanged.
+- MVE translation is intentionally **not** sign-corrected: a mirrored sliding/bifold panel and its track are mirrored together, so the local-space translation already lands on the correct side.
+
+**No re-export required** — this is a runtime animation fix. Hard-reload the app to pick up the new module.
+
+---
+
+# ---------------------------------------------------------
+## TrueVision3D v2.3.7  -  06-Jun-2026
+### Door Animation — Root Cause Fix: Open-State MOD Leaking Into GLB
+
+**Root Cause of "180° Flip" Bug (was misdiagnosed in v2.3.6)**
+
+The doors appeared to open 180° wrong because the GLB contained **two** MOD panels per door: the closed-state panel (correct) and the open-state authoring copy (already pre-rotated in SketchUp by the composer). TrueVision registered both as animatable panels and applied the rotation angle to both — but the open-state copy started at its pre-rotated position, so the same rotation pushed it to −180° from the correct open position, which dominated the visual result.
+
+This happened because `Na__Door__Open` was not in the DataLib's `FullyExcludedTagNames`. Our earlier hardcoded-fallback fix (v2.3.6 Bug 3) only applied when DataLib load *fails*; when DataLib loads successfully the hardcoded list is ignored entirely.
+
+**Fix: `Na__TrueVision__GlbBuilder__SpecialObject__DoorObjectHandling__.rb`**
+- Added `DOOR_OPEN_LAYER_NAME = "Na__Door__Open".freeze` constant.
+- Added an unconditional guard at the top of `Na__DoorHandler__ChildExportDecision` that immediately returns `[false, "open_state_preview_always_excluded"]` for any entity tagged `Na__Door__Open`, **before** the DataLib exclusion check and **before** the tag-visibility check. This makes the guard impossible to bypass by exporting in open-state preview mode or by DataLib configuration drift.
+
+**Cleanup: `Na__AssemblyStudio__InteriorDoorSystem__DoorAssemblyComposer__.rb`**
+- Removed the four redundant intermediate constants (`NA_GROUP_NAME_MOD_PANEL_RIGHT_OUTWARD`, `_RIGHT_INWARD`, and the over-commented aliases) introduced in v2.3.6. Restored to the original two reference constants plus the legacy alias — the dynamic `na_resolve_mod_panel_name` function already generates the correct name and the extra constants added noise.
+
+**Action required**
+Re-export the affected storey GLBs. The open-state MOD will now be silently excluded regardless of the `Na__Door__Open` tag visibility in SketchUp at export time.
+
+---
+
 ## TrueVision3D v2.3.6  -  06-Jun-2026
 ### Door Animation — Six-Bug Fix (Rotation Direction, Instancing, Leakage, Duplicate Code)
 

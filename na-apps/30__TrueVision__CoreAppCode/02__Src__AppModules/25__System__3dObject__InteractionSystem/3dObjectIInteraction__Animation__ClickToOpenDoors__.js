@@ -45,6 +45,30 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 06-Jun-2026 - Version 1.6.0
+// - Fixed interior doors swinging inverted in TV. The interior door system
+//   (Element Assembly Studio) predates the bifold system and derives its MOD
+//   rotation sign from pure SketchUp geometric logic. The bifold/sliding sign
+//   convention was later calibrated empirically against TrueVision's actual
+//   rendered swing (see ExtFold AllOneWay devlog v1.7.2 "now swings OUTWARD
+//   +90 instead of into the room -90"). Interior doors never got that
+//   calibration, so they animate 180deg inverted in TV while bifold is correct.
+//   Added Na__DoorAnim__ResolveInteriorInversionSign(): when AppConfig flag
+//   `InteriorRotationInverted` is true (default), doors whose ADR name contains
+//   'InteriorDoor' get a -1 rotation sign so they match the TV-correct bifold
+//   convention. Folded into panel.rotationSign alongside the mirror sign.
+//   Reversible via AppConfig; no GLB re-export required.
+//
+// 06-Jun-2026 - Version 1.5.0
+// - Fixed mirrored doors swinging 180 degrees the wrong way. Doors that are
+//   mirror-copied (or sit under a mirrored storey container) carry a negative-
+//   determinant world transform; the fixed local +Y rotation then reverses in
+//   world space. Added Na__DoorAnim__ResolveMirrorSign() which inspects the
+//   ADR world-matrix determinant and stores panel.rotationSign (-1 when
+//   mirrored). ApplyPanelTransform multiplies the swing angle by this sign.
+//   Non-mirrored doors are unchanged (+1). MVE translation is deliberately not
+//   sign-corrected (panel + track are mirrored together and stay consistent).
+//
 // 06-Jun-2026 - Version 1.4.0
 // - Removed dead legacy exports Na__DoorAnim__FindModRotChild and
 //   Na__DoorAnim__ApplyPivotRotation. Both were superseded in v1.2.0 by
@@ -143,6 +167,20 @@
     let Na__DoorAnim__Config__DefaultRotationDeg        = 90;                    // <-- Default rotation if parse fails
     let Na__DoorAnim__Config__ClickThresholdPx          = 4;                     // <-- Max pointer movement for click
     let Na__DoorAnim__Config__MultiPanelEnabled         = true;                  // <-- Bifold/sliding kill-switch (AppConfig source-of-truth)
+    let Na__DoorAnim__Config__InteriorRotationInverted  = true;                  // <-- V1.6.0: interior doors use legacy SU-logic sign; invert to match TV (bifold-calibrated) convention
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | Interior Door Name Token (for rotation-inversion targeting)
+    // ------------------------------------------------------------
+    // The interior door system (Element Assembly Studio) predates the bifold
+    // system and derives its MOD rotation sign from pure SketchUp geometric
+    // logic. The bifold sign convention was later calibrated empirically
+    // against what TrueVision actually renders (see ExtFold AllOneWay devlog
+    // v1.7.2). Interior doors therefore animate inverted in TV. We detect them
+    // by the ADR name token and flip their rotation sign to land on the same
+    // TV-correct convention. Exterior/bifold/sliding doors are unaffected.
+    const Na__DoorAnim__INTERIOR_DOOR_NAME_TOKEN = 'InteriorDoor';               // <-- ADR name substring identifying interior doors
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -369,6 +407,51 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Resolve Mirror Sign From a Door's World Transform
+    // ------------------------------------------------------------
+    // The animation rotates each MOD about the door's LOCAL +Y axis. That
+    // local rotation only maps to the intended WORLD swing direction when the
+    // ADR's accumulated world matrix is a proper rotation (determinant > 0).
+    //
+    // Mirrored door instances (e.g. a door modelled once and mirror-copied to
+    // the opposite room, or a mirrored storey container) carry a NEGATIVE
+    // determinant. A mirror turns right-handed rotations into left-handed ones
+    // (M · R(theta) · M^-1 = R(-theta) when the mirror plane contains the up
+    // axis), so the fixed local +Y rotation appears reversed in world space and
+    // the door swings 180 degrees the wrong way.
+    //
+    // We compensate by returning -1 for mirrored doors so the caller negates the
+    // rotation angle, restoring the intended world swing. Non-mirrored doors
+    // (determinant >= 0) return +1 and are unaffected. The determinant sign is
+    // static for the life of the door (animation never changes scale), so this
+    // is resolved once at scan time. MVE translation is intentionally NOT sign-
+    // corrected: the panel and its track are mirrored together, so the local
+    // translation already lands on the correct (mirrored) side.
+    function Na__DoorAnim__ResolveMirrorSign(adrObject) {
+        if (!adrObject) return 1;
+        adrObject.updateWorldMatrix(true, false);                                // <-- Ensure ancestor + self world matrix current
+        const determinant = adrObject.matrixWorld.determinant();                 // <-- Sign of 4x4 == sign of upper-left 3x3 for affine
+        return determinant < 0 ? -1 : 1;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Resolve Interior-Door Rotation Inversion Sign
+    // ------------------------------------------------------------
+    // Interior doors (older Element Assembly Studio system) encode their MOD
+    // rotation sign from pure SketchUp geometric logic, which renders inverted
+    // in TrueVision. The bifold/sliding systems were calibrated against TV and
+    // render correctly. When the AppConfig flag is enabled (default), interior
+    // doors get a -1 sign so they swing the correct way, matching bifold.
+    // Detection is by ADR name token so only interior doors are affected.
+    function Na__DoorAnim__ResolveInteriorInversionSign(adrObject) {
+        if (Na__DoorAnim__Config__InteriorRotationInverted !== true) return 1;
+        if (!adrObject || !adrObject.name) return 1;
+        return adrObject.name.indexOf(Na__DoorAnim__INTERIOR_DOOR_NAME_TOKEN) !== -1 ? -1 : 1;
+    }
+    // ------------------------------------------------------------
+
+
     // SUB FUNCTION | Build a Single Panel Descriptor From a MOD Object
     // ------------------------------------------------------------
     // Captures everything needed to animate one panel back and forth in the
@@ -387,6 +470,7 @@
             initialQuaternion  : modObject.quaternion.clone(),                   // <-- MOD initial local quaternion
             targetAngleRad     : 0,                                              // <-- Populated for ROT_ONLY / ROT_MVE
             pivotLocalPosition : null,                                           // <-- Populated for ROT_ONLY / ROT_MVE
+            rotationSign       : 1,                                              // <-- -1 for mirrored doors (corrects reversed swing)
             mveAxisVector      : null,                                           // <-- Populated for ROT_MVE / MVE_ONLY
             mveDistanceUnits   : 0                                               // <-- Signed distance in Three.js scene units
         };
@@ -394,6 +478,10 @@
         if (type === Na__DoorAnim__MOD_TYPE_ROT_ONLY || type === Na__DoorAnim__MOD_TYPE_ROT_MVE) {
             const targetAngleDeg = Na__DoorAnim__ParseDegreesFromName(modObject.name);
             panel.targetAngleRad = THREE.MathUtils.degToRad(targetAngleDeg);
+            // Combine mirror compensation (geometry handedness) with interior-door
+            // inversion (legacy SU-logic sign vs TV-calibrated bifold convention).
+            panel.rotationSign   = Na__DoorAnim__ResolveMirrorSign(adrObject)
+                                 * Na__DoorAnim__ResolveInteriorInversionSign(adrObject);
 
             // Each rotating MOD is paired with the next ROT### sibling under the ADR.
             // We search the ADR's children index-by-index so multi-MOD doors
@@ -786,7 +874,9 @@
 
         // Step 2: Apply rotation about the hinge pivot for ROT_* panels
         if (panel.type === Na__DoorAnim__MOD_TYPE_ROT_ONLY || panel.type === Na__DoorAnim__MOD_TYPE_ROT_MVE) {
-            const angleRad = panel.targetAngleRad * progress;
+            // rotationSign is -1 for mirrored door instances so the local +Y
+            // rotation maps to the intended world swing (see ResolveMirrorSign).
+            const angleRad = panel.targetAngleRad * progress * panel.rotationSign;
             const rotQuat  = new THREE.Quaternion().setFromAxisAngle(Na__DoorAnim__Y_AXIS, angleRad);
             const pivot    = panel.pivotLocalPosition;
 
@@ -931,6 +1021,9 @@
             }
             if (typeof config['3dObject__Interaction__DoorAnimation__MultiPanelEnabled'] === 'boolean') {
                 Na__DoorAnim__Config__MultiPanelEnabled = config['3dObject__Interaction__DoorAnimation__MultiPanelEnabled'];
+            }
+            if (typeof config['3dObject__Interaction__DoorAnimation__InteriorRotationInverted'] === 'boolean') {
+                Na__DoorAnim__Config__InteriorRotationInverted = config['3dObject__Interaction__DoorAnimation__InteriorRotationInverted'];
             }
         }
 
