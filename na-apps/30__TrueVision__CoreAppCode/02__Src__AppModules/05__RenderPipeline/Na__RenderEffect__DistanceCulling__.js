@@ -24,6 +24,13 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 07-Jun-2026 - Version 1.1.0
+// - World bounds now computed via Box3.setFromObject (+ explicit fat-line
+//   instanceStart/instanceEnd union) so deeply nested components and
+//   InstancedMesh foliage are bounded at their true world positions.
+//   Fixes leaf items popping in/out due to instance transforms not being
+//   captured by a single node matrixWorld.
+//
 // 07-Jun-2026 - Version 1.0.0
 // - Initial stable release.
 //
@@ -57,9 +64,8 @@
 
     // MODULE CONSTANTS | Scratch Objects (avoid per-frame / per-item allocation)
     // ------------------------------------------------------------
-    const Na__DistanceCulling__ScratchItemBox  = new THREE.Box3();       // <-- Reused: accumulated item world bounds
-    const Na__DistanceCulling__ScratchChildBox = new THREE.Box3();       // <-- Reused: per-child world bounds
-    const Na__DistanceCulling__ScratchPoint    = new THREE.Vector3();    // <-- Reused: per-vertex world point
+    const Na__DistanceCulling__ScratchItemBox = new THREE.Box3();        // <-- Reused: accumulated item world bounds
+    const Na__DistanceCulling__ScratchPoint   = new THREE.Vector3();     // <-- Reused: per-vertex world point
     // ------------------------------------------------------------
 
 
@@ -149,32 +155,26 @@
 
     // HELPER FUNCTION | Compute World-Space Bounds for an Item Node
     // ------------------------------------------------------------
-    // Accumulates a world-space AABB across all descendant geometry.
-    // - Fat-line LineSegments2 store endpoints in interleaved instanceStart
-    //   / instanceEnd attributes that Box3.setFromObject / boundingBox do
-    //   NOT bound reliably; those are read directly so LINEWORK is bounded.
-    // - Standard meshes use their (cheap, cached) local boundingBox.
+    // Accumulates a world-space AABB for an item and ALL its descendants.
+    // - Box3.setFromObject is used for standard meshes: it correctly walks
+    //   arbitrarily deep group/component nesting AND expands InstancedMesh
+    //   by each instance's instanceMatrix (foliage is frequently instanced,
+    //   so a single matrixWorld does NOT capture where the leaves really are).
+    // - Fat-line LineSegments2 store endpoints in interleaved instanceStart /
+    //   instanceEnd attributes that setFromObject does NOT bound; those are
+    //   added explicitly so LINEWORK items are bounded too.
     // Returns false when no measurable geometry is found. Assumes world
     // matrices are already up to date (caller bakes them per root group).
     // ------------------------------------------------------------
     function Na__DistanceCulling__ComputeWorldBounds(itemNode, outBox) {
-        outBox.makeEmpty();
+        outBox.setFromObject(itemNode);                                  // <-- Robust: deep nesting + InstancedMesh instance matrices
 
         itemNode.traverse((child) => {
             const geometry = child.geometry;
-            if (!geometry || !geometry.attributes) return;               // <-- Skip pure containers
-
-            if (geometry.attributes.instanceStart) {
-                // FAT LINE | Read interleaved segment endpoints directly
+            if (geometry && geometry.attributes && geometry.attributes.instanceStart) {
+                // FAT LINE | Read interleaved segment endpoints directly (setFromObject misses these)
                 Na__DistanceCulling__ExpandBoxByAttribute(geometry.attributes.instanceStart, child.matrixWorld, outBox);
                 Na__DistanceCulling__ExpandBoxByAttribute(geometry.attributes.instanceEnd, child.matrixWorld, outBox);
-            } else if (geometry.attributes.position) {
-                // STANDARD GEOMETRY | Use cached local boundingBox (fast path)
-                if (!geometry.boundingBox) geometry.computeBoundingBox();
-                const localBox = geometry.boundingBox;
-                if (!localBox || localBox.isEmpty()) return;
-                Na__DistanceCulling__ScratchChildBox.copy(localBox).applyMatrix4(child.matrixWorld);
-                outBox.union(Na__DistanceCulling__ScratchChildBox);
             }
         });
 

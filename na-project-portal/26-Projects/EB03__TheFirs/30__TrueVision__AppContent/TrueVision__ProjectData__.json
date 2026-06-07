@@ -2,14 +2,14 @@
     "Camera__DefaultPosition": {
         "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
         "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": 43790,
-            "Camera__DefaultPos__PosY": 23810,
-            "Camera__DefaultPos__PosZ": -47718
+            "Camera__DefaultPos__PosX": 21166,
+            "Camera__DefaultPos__PosY": 1809,
+            "Camera__DefaultPos__PosZ": -39467
         },
         "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -2.448,
-            "Camera__DefaultRotation__RotY": 0.7104,
-            "Camera__DefaultRotation__RotZ": 2.6448
+            "Camera__DefaultRotation__RotX": -3.104,
+            "Camera__DefaultRotation__RotY": 0.4849,
+            "Camera__DefaultRotation__RotZ": 3.1241
         },
         "Camera__DefaultMisc": {
             "Camera__DefaultMisc__Fov": 45
@@ -211,8 +211,8 @@
     "projectName": "The Firs",
     "OrbitHelperCube__Position": {
         "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
-        "OrbitHelperCube__Position__PosX": 14445,
-        "OrbitHelperCube__Position__PosY": 2000,
-        "OrbitHelperCube__Position__PosZ": -21485
+        "OrbitHelperCube__Position__PosX": 12108,
+        "OrbitHelperCube__Position__PosY": 1162,
+        "OrbitHelperCube__Position__PosZ": -22286
     }
 }

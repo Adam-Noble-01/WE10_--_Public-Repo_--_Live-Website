@@ -30,6 +30,19 @@
 **Note.** Linework omission requires a re-export of the model. Name-based AO covers instanced/named geometry (leaves) directly; flattened stems/branches rely on their foliage/stem material's `AoExclude` flag.
 
 # ---------------------------------------------------------
+## TrueVision3D v2.5.3  -  07-Jun-2026
+### Distance Culling — Correct Bounds for Nested + Instanced Geometry (Leaf Pop-In Fix)
+
+**Symptom.** Plant leaves popped in/out at seemingly random camera positions — their cull distance was being measured against a wrong cached centre.
+
+**Root cause.** The bounds computation transformed each node's local `boundingBox` by its `matrixWorld`. That is correct for ordinary nesting, but **wrong for `InstancedMesh`**: GLTF foliage is frequently instanced, and the per-instance `instanceMatrix` offsets are not captured by the node's single `matrixWorld`. The leaf cluster's cached centre therefore collapsed onto the base/origin instance, so the leaves appeared/disappeared relative to that wrong point.
+
+**Fix.** `Na__RenderEffect__DistanceCulling__.js` now computes item world bounds with `THREE.Box3.setFromObject(itemNode)`, which walks arbitrarily deep group/component nesting and expands `InstancedMesh` by every instance matrix. Fat-line `LineSegments2` endpoints (which `setFromObject` does not bound) are still unioned in explicitly via their `instanceStart` / `instanceEnd` attributes, so linework remains bounded too. Removed the now-unused per-child scratch box.
+
+**Changed Files**
+- `02__Src__AppModules/05__RenderPipeline/Na__RenderEffect__DistanceCulling__.js` — `ComputeWorldBounds` rewritten (setFromObject + fat-line union); module v1.1.0.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.5.2  -  07-Jun-2026
 ### Distance Culling — Linework Now Hides (Profile-Lines Pass Was Overriding It)
 
