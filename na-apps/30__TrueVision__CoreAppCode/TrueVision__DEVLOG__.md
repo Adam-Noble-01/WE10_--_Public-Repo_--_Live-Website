@@ -2,6 +2,92 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.6.0  -  07-Jun-2026
+### Plant Performance — Name-Based Pipeline Exclusions + Leaf Instance Consolidation
+
+**Problem.**
+- Adding a potted olive-tree (`29_4001__PottedPlant__Exterior__OliveTree__Dia450mm__`) seized the renderer. The cause was a draw-call explosion, not triangle count: the tree's `29_4001_10__Plant__SubComp__Leaf__Individual` component is placed **2,557 times**. Three.js GLTFLoader renders each instanced glTF node as its own draw call, and the linework upgrade created **2,557 separate `LineSegments2` fat-line objects** — all multiplied across the profile-normal and AO depth pre-passes (~7,000–10,000 draw calls/frame for one plant).
+
+**Fix — three coordinated changes (leaves + stems + branches; pot untouched).**
+1. **Linework omitted at export** (GLB Builder) for the excluded names, so no fat lines for the plant reach the renderer (biggest single win). See GLB Builder dev log.
+2. **Leaf instance consolidation** — new `Na__ModelLoader__InstanceConsolidation__.js` collapses repeated same-geometry+material mesh nodes into a single `THREE.InstancedMesh` at load (2,557 draws → 1). Generic geometry+material bucketing with a door/interactive guard (`ADR`/`MOD`/`ROT`/`Door`) so animated assemblies are never merged. Config-flagged.
+3. **AO exclusion by name** — `Na__MaterialsSystem__MaterialSwap.js` now assigns Three.js layer 1 (the existing SSAO/profile pre-pass exclusion layer) to meshes whose node or ancestor name matches the Ambient Occlusion token list, in addition to the existing material-level `AoExclude` flag.
+
+**SSOT.**
+- New `Na__DataLib__PipelineExclusions` section in the Components DataLib (`Na__DataLib__CoreIndex__Components__.json`, bumped to v1.1.0) holds two contains-matched token lists: `Na__DataLib__PipelineExclusions__AmbientOcclusion` and `Na__DataLib__PipelineExclusions__ProfileLines`. Tokens (`__Plant__SubComp__Stem`, `__Plant__SubComp__Branches`, `__Plant__SubGroup__LeavesContainer`, `__Plant__SubComp__Leaf__Individual`) generalise to any plant following the naming convention and never match `__PlantPot`.
+
+**Config.**
+- `models.RenderConfig__InstanceConsolidation` added to `Na__AppConfig__Main.json` (`Enabled`, `MinInstanceCount: 16`, `FoliageCastShadow: false`).
+
+**Changed Files**
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__InstanceConsolidation__.js` — new module.
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__MultiModel.js` — import + invoke consolidation per category mesh root.
+- `02__Src__AppModules/20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js` — name-based AO exclusion (layer 1) + helpers.
+- `02__Src__AppModules/01__AppCore/AppCore__DataLib__Loader.js` — `Na__DataLib__GetPipelineExclusions()` getter.
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json` — `RenderConfig__InstanceConsolidation` block.
+- `Na__DataLib__CoreIndex__Components__.json` (DataLib repo) — new exclusion section + version bump.
+
+**Note.** Linework omission requires a re-export of the model. Name-based AO covers instanced/named geometry (leaves) directly; flattened stems/branches rely on their foliage/stem material's `AoExclude` flag.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.5.2  -  07-Jun-2026
+### Distance Culling — Linework Now Hides (Profile-Lines Pass Was Overriding It)
+
+**Root cause (the real one).**
+- Every object is rendered twice: a Mesh model and a completely separate fat-line (`LineSegments2`) linework model. The **profile-lines render pass** (`renderProfileNormals`, run every frame inside the composer block) collects *all* `LineSegments2` in the scene, hides them for its normal pre-pass, then **restored them to a hardcoded `visible = true`**. This ran *after* `Na__DistanceCulling__Update`, so it silently un-hid every linework item the culler had just hidden — every frame. That is why only the mesh disappeared while the linework stayed.
+
+**Fix.**
+- `Na__RenderEffect__ProfileLines__.js` now **saves each line object's prior visibility** before the normal pre-pass and **restores to that saved state** (instead of forcing `true`). External per-object visibility — distance culling today, anything similar in future — is now preserved across the profile-lines pass. Mesh material swap/restore logic is unchanged.
+- Added a pre-allocated `cachedLineVisibility` backup array (sized in `rebuildSceneCache`) so the save/restore is allocation-free per frame.
+
+**Also (carried from the same investigation).**
+- `Na__RenderEffect__DistanceCulling__.js` bounds fat-line items by reading their interleaved `instanceStart` / `instanceEnd` endpoint attributes directly (these are not bounded reliably by `Box3.setFromObject` / `geometry.boundingBox`), so linework items register with correct world bounds and cull in lockstep with their mesh twins.
+
+**Changed Files**
+- `02__Src__AppModules/05__RenderPipeline/Na__RenderEffect__ProfileLines__.js` — save/restore prior line visibility instead of forcing `true`; added `cachedLineVisibility` backup array.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.5.1  -  07-Jun-2026
+### Distance Culling — Linework + Foreground-Clipping Fixes
+
+**Bug 1 — Linework was never culled (only the mesh model hid).**
+- Every item is rendered twice (a Mesh model + a paired fat-line `LineSegments2` linework model). Fat lines store their segment endpoints in interleaved `instanceStart` / `instanceEnd` attributes; neither `Box3.setFromObject()` nor `geometry.boundingBox` bounds these reliably, so linework items returned empty bounds and were silently skipped from the cull registry.
+- Fix: `Na__DistanceCulling__ComputeWorldBounds` now reads the fat-line `instanceStart` / `instanceEnd` attributes directly (via `getX/getY/getZ`, transformed by `matrixWorld`) to build the world AABB, and uses the cached local `boundingBox` only for standard mesh geometry. Linework items are now bounded and cull in lockstep with their mesh counterparts. Registration logging reports mesh vs linework item counts for verification.
+
+**Bug 2 — Items near the camera were wrongly clipped.**
+- Furniture/decor categories contain large merged-by-material meshes (e.g. `28__ProposedBuilding__FurnitureDefault`, merged `Linework`) that span an entire storey. Culling by their single centroid hid the whole merged blob — including parts right in front of the camera — until the camera neared the centroid (hence "move forward and they pop back").
+- Fix: switched from centroid culling to **nearest-point (radius-aware) culling**. Each item caches a bounding-sphere radius and a threshold of `(cullDistance + radius)^2`; an item hides only when its nearest point is beyond the cull distance. Large merged meshes stay visible while any part is near; compact distant items still cull normally.
+
+**Changed Files**
+- `02__Src__AppModules/05__RenderPipeline/Na__RenderEffect__DistanceCulling__.js` — robust world-bounds computation, per-item radius-aware squared threshold, `Update` now compares against per-item `thresholdSq`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.5.0  -  07-Jun-2026
+### Furniture / Interior-Decor Distance Culling
+
+**Overview**
+- Interior furniture and decor (pillows, chairs, beds, etc.) add a large per-frame render cost while contributing little when viewed from a distance.
+- Added a config-driven per-item distance-culling system that hides furniture and interior-decor items beyond a configurable radius from the active camera. Default ON at 15 m.
+
+**Behaviour**
+- Per individual item: each item node under a matching category's `__MeshRoot` and `__LineworkRoot` is toggled independently by radial distance from the active camera (works in orbit, walk, and fly modes).
+- Squared-distance comparison (no `sqrt`); each item's world-space centre is cached once at registry build, so the per-frame cost is a single distance check per item.
+- Runs only inside the invalidation-based render loop (camera-move frames), so idle cost is zero.
+- Sets `.visible` on individual item nodes only — never on category groups — so it composes safely with the model-toggle and storey visibility systems via the THREE.js visibility hierarchy.
+- The cull registry is rebuilt in `Na__ReinitializeModelBoundSystems`, so it stays correct after model-group switches.
+
+**New Module: `Na__RenderEffect__DistanceCulling__.js`** (`02__Src__AppModules/05__RenderPipeline/`)
+- `Na__DistanceCulling__Initialize(config)` — reads enable flag, converts `CullDistanceMm` to units, stores category tokens.
+- `Na__DistanceCulling__RegisterModelGroups(loadedGroups)` — builds the per-item registry from categories whose key matches a configured token.
+- `Na__DistanceCulling__Update(cameraWorldPos)` — toggles item visibility against the cull distance; returns whether anything changed.
+- `Na__DistanceCulling__SetEnabled(bool)` / `Na__DistanceCulling__IsEnabled()` — runtime toggle (disable restores all items to visible).
+
+**Changed Files**
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json` — new `RenderEffect__DistanceCulling` block (`Enabled`, `CullDistanceMm: 15000`, `CategoryNameTokens: ["Furniture", "InteriorDecor", "Decor"]`).
+- `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` — imports the module; initialises it from config; registers groups in `Na__ReinitializeModelBoundSystems`; calls `Na__DistanceCulling__Update` in `Na__RenderLoop__RenderFrame` before the composer render.
+- `index.html` — extracts `Na__Config__DistanceCulling` and passes it through the `configs` object to `Na__AppFlow__StartLoadingSequence`.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.4.1  -  07-Jun-2026
 ### Edge Colour Lightness Calibration
 

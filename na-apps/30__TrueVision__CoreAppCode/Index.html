@@ -431,6 +431,7 @@
     const Na__Config__NavmodeDamping = Na__AppConfig__Data.Navmode__Damping;        // <-- Navmode damping config (unitless)
     const Na__Config__ProfileLines = Na__AppConfig__Data.RenderEffect__ProfileLines || null;  // <-- Profile lines effect (enable/disable + params)
     const Na__Config__AmbientOcclusion = Na__AppConfig__Data.RenderEffect__AmbientOcclusion || null; // <-- Ambient occlusion effect (enable/disable + params)
+    const Na__Config__DistanceCulling = Na__AppConfig__Data.RenderEffect__DistanceCulling || null; // <-- Furniture/decor distance culling (enable/disable + distance + tokens)
     const Na__Config__3dObjectInteractions = Na__AppConfig__Data['3dObject__InteractionsSystem'] || {};                 // <-- 3D object interactions configuration
     const Na__Config__DoorAnimation = Na__Config__3dObjectInteractions['3dObject__Interaction__DoorAnimation'] || {};  // <-- Door animation configuration
     
@@ -955,7 +956,8 @@
             doorAnimation               : Na__Config__DoorAnimation,
             orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible,
             storeyVisibility            : Na__Config__StoreyVisibility,
-            ambientOcclusion            : Na__Config__AmbientOcclusion
+            ambientOcclusion            : Na__Config__AmbientOcclusion,
+            distanceCulling             : Na__Config__DistanceCulling
         }
     });
     Na__UiFeature__PromptToolsMenu();

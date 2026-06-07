@@ -262,6 +262,7 @@
         const colorPassIncludesLinework =
             config.RenderEffect__ProfileLines__ColorPassIncludesLinework !== false; // <-- Default ON; set to false in AppConfig for mesh-only fast-path (auto-detected profile lines lose linework colour tint)
         let cachedLineObjects = [];
+        let cachedLineVisibility = [];                                       // <-- Pre-allocated per-line visibility backup (preserves external culling)
         let cachedMeshObjects = [];
         let cachedOriginalMaterials = [];                                    // <-- Pre-allocated per-mesh material backup array
         let sceneCacheDirty = true;
@@ -288,6 +289,7 @@
         // ---------------------------------------------------------------
         function rebuildSceneCache() {
             cachedLineObjects = collectLineObjects(scene);
+            cachedLineVisibility = new Array(cachedLineObjects.length);       // <-- Pre-allocate to line count; slots reused every frame
             cachedMeshObjects = collectMeshObjects(scene);
             cachedOriginalMaterials = new Array(cachedMeshObjects.length);    // <-- Pre-allocate to mesh count; slots reused every frame
             sceneCacheDirty = false;
@@ -324,7 +326,13 @@
             const lineObjects = cachedLineObjects; // <-- Reuse cached line segment objects
             const meshObjects = cachedMeshObjects; // <-- Reuse cached mesh objects
 
-            lineObjects.forEach((obj) => { obj.visible = false; }); // <-- Hide linework for normal prepass
+            // HIDE LINEWORK FOR NORMAL PREPASS | Save each line's PRIOR visibility first.
+            // Restoring to the saved state (not a hardcoded true) preserves any external
+            // per-object visibility — e.g. distance culling — that hid a line this frame.
+            for (let i = 0, len = lineObjects.length; i < len; i++) {
+                cachedLineVisibility[i] = lineObjects[i].visible;   // <-- Stash prior (possibly culled) state
+                lineObjects[i].visible  = false;                   // <-- Hide for normal prepass
+            }
 
             const savedOverrideMaterial = scene.overrideMaterial;
             const savedClearColor       = renderer.getClearColor(new THREE.Color());
@@ -340,7 +348,9 @@
 
             // PASS 2 | Profile colour at half-res (meshes fallback + optional linework vertex colours)
             if (colorPassIncludesLinework) {
-                lineObjects.forEach((obj) => { obj.visible = true; }); // <-- Restore linework for colour pass (full quality: auto-detected profile lines pick up SketchUp linework colours)
+                for (let i = 0, len = lineObjects.length; i < len; i++) {
+                    lineObjects[i].visible = cachedLineVisibility[i]; // <-- Restore PRIOR state (culled lines stay hidden)
+                }
             }
             // else: linework stays hidden from PASS 1; PASS 2 renders meshes only (fastest path; profile lines take uniform fallback colour)
 
@@ -360,7 +370,9 @@
             }
 
             if (!colorPassIncludesLinework) {
-                lineObjects.forEach((obj) => { obj.visible = true; }); // <-- Restore linework so the main RenderPass and FXAA still draw them
+                for (let i = 0, len = lineObjects.length; i < len; i++) {
+                    lineObjects[i].visible = cachedLineVisibility[i]; // <-- Restore PRIOR state so the main RenderPass/FXAA draw only non-culled lines
+                }
             }
 
             renderer.setClearColor(savedClearColor, savedClearAlpha);

@@ -68,6 +68,12 @@
             "RenderConfig__Linework__RenderOrder"                    : 999,
             "RenderConfig__Linework__DepthBias"                      : 0.00015,
             "RenderConfig__Linework__EdgeColorLightnessReduction"    : 10
+        },
+        "RenderConfig__InstanceConsolidation": {
+            "RenderConfig__InstanceConsolidation__Description"       : "Collapses repeated mesh nodes that share the same geometry + material (e.g. thousands of instanced plant leaves) into a single THREE.InstancedMesh at load time, turning N draw calls into 1. Interactive/door assemblies are guarded out. MinInstanceCount is the threshold below which consolidation is skipped.",
+            "RenderConfig__InstanceConsolidation__Enabled"          : true,
+            "RenderConfig__InstanceConsolidation__MinInstanceCount" : 16,
+            "RenderConfig__InstanceConsolidation__FoliageCastShadow": false
         }
     },
     "RenderEffect__ProfileLines": {
@@ -97,6 +103,12 @@
         "RenderEffect__AmbientOcclusion__PerformanceMonitorStartupDelayMs" : 3000,
         "RenderEffect__AmbientOcclusion__DebugMode"        : 0
     },
+    "RenderEffect__DistanceCulling": {
+        "RenderEffect__DistanceCulling__Description"       : "Hides furniture and interior-decor items beyond CullDistanceMm from the active camera to reduce render load. Distance is integer millimeters; converted to 3D units in code. CategoryNameTokens selects which loaded GLB categories are affected (matched against category keys).",
+        "RenderEffect__DistanceCulling__Enabled"           : true,
+        "RenderEffect__DistanceCulling__CullDistanceMm"    : 25000,
+        "RenderEffect__DistanceCulling__CategoryNameTokens": ["Furniture", "InteriorDecor", "Decor"]
+    },
     "cameraLens": {
         "minFocalLengthMM": 24,
         "maxFocalLengthMM": 75,
@@ -123,7 +135,7 @@
             "Navmode__MouseControls__MovementSpeedMm"    : 50,
             "Navmode__MouseControls__ElevationSpeedMm"   : 50,
             "Navmode__MouseControls__OrbitMinDistanceMm" : 200,
-            "Navmode__MouseControls__OrbitMaxDistanceMm" : 60000,
+            "Navmode__MouseControls__OrbitMaxDistanceMm" : 45000,
             "Navmode__MouseControls__ZoomStepMm"         : 250,
             "Navmode__MouseControls__OrbitMinCameraYMm"  : 0
         },

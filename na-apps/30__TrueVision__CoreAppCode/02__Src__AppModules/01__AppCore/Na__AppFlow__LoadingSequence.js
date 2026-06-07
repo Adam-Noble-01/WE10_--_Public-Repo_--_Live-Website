@@ -192,6 +192,15 @@
     } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Distance Culling
+    // ------------------------------------------------------------
+    import {
+        Na__DistanceCulling__Initialize,
+        Na__DistanceCulling__RegisterModelGroups,
+        Na__DistanceCulling__Update
+    } from '../05__RenderPipeline/Na__RenderEffect__DistanceCulling__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -289,9 +298,12 @@
             doorAnimation               : Na__Config__DoorAnimation,
             orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible,
             storeyVisibility            : Na__Config__StoreyVisibility,
-            ambientOcclusion            : Na__Config__AmbientOcclusion
+            ambientOcclusion            : Na__Config__AmbientOcclusion,
+            distanceCulling             : Na__Config__DistanceCulling
         } = configs;
         // ---------------------------------------------------------------
+
+        Na__DistanceCulling__Initialize(Na__Config__DistanceCulling);    // <-- Configure furniture/decor distance culling (mm -> units)
 
         Na__UiFeature__UpdateStatus('Creating scene...');
         Na__Scene__SetupDefaultSceneLighting(Na__Scene__Main, Na__Config__LightingConfig, Na__Config__GroundPlane);
@@ -409,6 +421,7 @@
             }
 
             Na__WalkMode__SetCollisionMeshes(Na__ModelGroup__Root);
+            Na__DistanceCulling__RegisterModelGroups(loadedModelGroups); // <-- (Re)build furniture/decor cull registry on load + group switch
             if (Na__RenderPipeline__State && typeof Na__RenderPipeline__State.invalidateProfileLinesCache === 'function') {
                 Na__RenderPipeline__State.invalidateProfileLinesCache();     // <-- Scene graph changed, rebuild cached profile-line inputs
             }
@@ -670,6 +683,7 @@
 
             Na__DoorAnimation__Update(deltaMs);                              // <-- Update door animations
             Na__Scene__UpdateFogPassUniforms(Na__SceneEffect__FogPass, Na__Camera__Main); // <-- Update fog camera matrices
+            Na__DistanceCulling__Update(Na__Camera__Main.position);          // <-- Cull distant furniture/decor before render (camera-move only)
 
             if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
                 Na__RenderPipeline__State.updateAoUniforms(Na__Camera__Main); // <-- Update AO camera matrices

@@ -26,6 +26,7 @@
 
 import * as THREE from 'three';
 import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__LibraryLoader.js';
+import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__DataLib__Loader.js';
 
 
 // -----------------------------------------------------------------------------
@@ -255,6 +256,63 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
 
 
 // -----------------------------------------------------------------------------
+// REGION | Pipeline Exclusion Helpers
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Read Ambient-Occlusion Exclusion Tokens from DataLib
+    // ------------------------------------------------------------
+    // Returns { tokens: [...], matchMode: 'contains'|'prefix' } sourced from
+    // the Components DataLib Na__DataLib__PipelineExclusions section, or an
+    // empty token list when unavailable.
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__GetAoExclusionTokens() {
+        const exclusions = Na__DataLib__GetPipelineExclusions();
+        if (!exclusions) return { tokens: [], matchMode: 'contains' };
+
+        const aoSection = exclusions.Na__DataLib__PipelineExclusions__AmbientOcclusion;
+        const tokens    = (aoSection && Array.isArray(aoSection.Names)) ? aoSection.Names : [];
+        const matchMode = (typeof exclusions.MatchMode === 'string') ? exclusions.MatchMode : 'contains';
+        return { tokens, matchMode };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Test a Name Against Exclusion Tokens
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__NameMatchesExclusion(name, tokens, matchMode) {
+        if (!name || !tokens || tokens.length === 0) return false;
+        for (const token of tokens) {
+            if (!token) continue;
+            if (matchMode === 'contains') {
+                if (name.includes(token)) return true;
+            } else if (name.startsWith(token) || token.startsWith(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Test a Node or Any Ancestor Against Exclusion Tokens
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__NodeOrAncestorExcluded(node, tokens, matchMode) {
+        if (!tokens || tokens.length === 0) return false;
+        let current = node;
+        while (current) {
+            if (Na__MaterialsSystem__NameMatchesExclusion(current.name, tokens, matchMode)) {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Main Material Swap Function
 // -----------------------------------------------------------------------------
 
@@ -292,6 +350,9 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
         let   mirrorSeen      = 0;                                            // <-- Number of mirror materials encountered in traversal
         let   mirrorSwapped   = 0;                                            // <-- Number of mirror materials swapped from library
         let   aoExcludedCount = 0;                                            // <-- Meshes assigned to AO-excluded layer 1
+
+        const { tokens: aoExclusionTokens, matchMode: aoExclusionMatchMode }  // <-- Name-based AO exclusion list from Components DataLib
+            = Na__MaterialsSystem__GetAoExclusionTokens();
 
         const Na__MaterialsSystem__ResolveSwappedMaterial = (sourceMaterial) => {
             const materialName = sourceMaterial ? sourceMaterial.name : null;
@@ -348,14 +409,24 @@ import { Na__MaterialsSystem__IsIndexedName } from './Na__MaterialsSystem__Libra
             // AO EXCLUSION | Assign AO-exempt meshes to Three.js layer 1 so the render
             // pipeline can temporarily blind the camera to layer 1 during depth pre-passes,
             // preventing the SSAO shader from accumulating occlusion on foliage geometry.
+            // Two independent drivers: (a) material-level AoExclude flag, and
+            // (b) name-based exclusion tokens from the Components DataLib (covers
+            // stems/branches/leaves even when their material is not a foliage MAT).
+            let   na_aoExclude    = false;
             const primaryMaterial = Array.isArray(node.material) ? node.material[0] : node.material;
             if (primaryMaterial && Na__MaterialsSystem__IsIndexedName(primaryMaterial.name)) {
                 const matConfig = lookupMap.get(primaryMaterial.name);
                 if (matConfig && matConfig.AoExclude === true) {
-                    node.layers.set(1);                                       // <-- Layer 1 = AO-excluded; camera.layers.enable(1) in setup keeps it visible
-                    node.userData.na_aoExclude = true;                        // <-- Tag for debugging / identification
-                    aoExcludedCount++;
+                    na_aoExclude = true;                                      // <-- Material-driven AO exclusion
                 }
+            }
+            if (!na_aoExclude && Na__MaterialsSystem__NodeOrAncestorExcluded(node, aoExclusionTokens, aoExclusionMatchMode)) {
+                na_aoExclude = true;                                          // <-- Name-driven AO exclusion
+            }
+            if (na_aoExclude) {
+                node.layers.set(1);                                           // <-- Layer 1 = AO-excluded; camera.layers.enable(1) in setup keeps it visible
+                node.userData.na_aoExclude = true;                            // <-- Tag for debugging / identification
+                aoExcludedCount++;
             }
         });
 

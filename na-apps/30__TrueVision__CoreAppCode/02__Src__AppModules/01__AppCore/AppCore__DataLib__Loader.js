@@ -214,6 +214,21 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Get Render-Pipeline Exclusion Lists (from Components Index)
+    // ------------------------------------------------------------
+    // Returns the Na__DataLib__PipelineExclusions section (AmbientOcclusion +
+    // ProfileLines name token lists) or null when unavailable.
+    // ------------------------------------------------------------
+    function Na__DataLib__GetPipelineExclusions() {
+        if (!Na__DataLib__Cache__IsReady) {
+            console.warn('[DataLib] GetPipelineExclusions() called before LoadAll() completed.');
+        }
+        if (!Na__DataLib__Cache__Components) return null;
+        return Na__DataLib__Cache__Components.Na__DataLib__PipelineExclusions || null;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get Cached Edge Materials Index Data
     // ------------------------------------------------------------
     function Na__DataLib__GetEdgeMaterials() {
@@ -246,6 +261,7 @@
         Na__DataLib__GetMaterials,
         Na__DataLib__GetTags,
         Na__DataLib__GetComponents,
+        Na__DataLib__GetPipelineExclusions,
         Na__DataLib__GetEdgeMaterials,
         Na__DataLib__IsReady
     };

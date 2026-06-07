@@ -59,6 +59,11 @@
         Na__ModelLoader__ApplyProfileLineColoursToMeshRoot
     } from './Na__ModelLoader__LineworkColours__.js';
 
+    // @delegate: ./Na__ModelLoader__InstanceConsolidation__.js
+    import {
+        Na__ModelLoader__ConsolidateInstances
+    } from './Na__ModelLoader__InstanceConsolidation__.js';
+
 // endregion ----
 
 
@@ -607,6 +612,7 @@
                     meshRoot.name                   = Na__ModelLoader__BuildLoadedRootName(category, 'Mesh');
                     meshRoot.userData.Na__ModelType = 'mesh';      // <-- Tag for downstream identification
                     categoryGroup.add(meshRoot);
+                    Na__ModelLoader__ConsolidateInstances(meshRoot, config.RenderConfig__InstanceConsolidation); // <-- Collapse repeated meshes (e.g. leaves) into InstancedMesh
                     console.log(`[TrueVision3D] Loaded Mesh: ${shortName}`);
                 } catch (error) {
                     console.error(`[TrueVision3D] Failed to load Mesh for ${shortName}:`, error);
@@ -658,6 +664,7 @@
                     meshRoot.name                   = Na__ModelLoader__BuildLoadedRootName(category, 'Mesh');
                     meshRoot.userData.Na__ModelType = 'mesh';
                     categoryGroup.add(meshRoot);
+                    Na__ModelLoader__ConsolidateInstances(meshRoot, config.RenderConfig__InstanceConsolidation); // <-- Collapse repeated meshes (e.g. leaves) into InstancedMesh
                     console.log(`[TrueVision3D] Loaded Mesh (unordered): ${shortName}`);
                 } catch (error) {
                     console.error(`[TrueVision3D] Failed to load Mesh for ${shortName}:`, error);

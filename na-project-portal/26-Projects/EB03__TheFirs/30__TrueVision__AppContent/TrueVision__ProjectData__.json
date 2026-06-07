@@ -1,6 +1,20 @@
 {
-    "projectCode": "EB03",
-    "projectName": "The Firs",
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX": 43790,
+            "Camera__DefaultPos__PosY": 23810,
+            "Camera__DefaultPos__PosZ": -47718
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX": -2.448,
+            "Camera__DefaultRotation__RotY": 0.7104,
+            "Camera__DefaultRotation__RotZ": 2.6448
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov": 45
+        }
+    },
     "activeGroupIndex": 0,
     "modelGroups": [
         {
@@ -193,20 +207,12 @@
             ]
         }
     ],
-    "Camera__DefaultPosition": {
-        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
-        "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": 23940,
-            "Camera__DefaultPos__PosY": 1712,
-            "Camera__DefaultPos__PosZ": -40538
-        },
-        "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": 3.1298,
-            "Camera__DefaultRotation__RotY": 0.5449,
-            "Camera__DefaultRotation__RotZ": -3.1355
-        },
-        "Camera__DefaultMisc": {
-            "Camera__DefaultMisc__Fov": 45
-        }
+    "projectCode": "EB03",
+    "projectName": "The Firs",
+    "OrbitHelperCube__Position": {
+        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
+        "OrbitHelperCube__Position__PosX": 14445,
+        "OrbitHelperCube__Position__PosY": 2000,
+        "OrbitHelperCube__Position__PosZ": -21485
     }
 }
