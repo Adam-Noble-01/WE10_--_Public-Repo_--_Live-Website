@@ -31,6 +31,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 16-Jun-2026 - Version 1.2.0
+// - Wired camera-follow billboard system (SiteVegetation2D 2D vegetation).
+// - Imports Na__CameraFollow__Initialize/Update; collects mesh+linework roots from
+//   ALL loaded categories; initialises inside Na__ReinitializeModelBoundSystems
+//   (rebind-aware across model-group switches) and updates per-frame in the render loop.
+//
 // 28-Feb-2026 - Version 1.1.0
 // - Added model-group switch rebind pipeline via Na__ReinitializeModelBoundSystems.
 // - Group switching now refreshes model toggles, storey controls, door bindings,
@@ -136,6 +142,14 @@
         Na__DoorAnimation__Update,
         Na__DoorAnimation__HasActiveAnimations
     } from '../25__System__3dObject__InteractionSystem/3dObjectIInteraction__Animation__ClickToOpenDoors__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Camera Follow Billboard System
+    // ------------------------------------------------------------
+    import {
+        Na__CameraFollow__Initialize,
+        Na__CameraFollow__Update
+    } from '../25__System__3dObject__InteractionSystem/3dObjectInteraction__Animation__CameraFollowBillboards__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Walk Mode System
@@ -296,6 +310,7 @@
             modelUrls                   : Na__ModelDefaults__ModelUrls,
             materialsSystem             : Na__Config__MaterialsSystem,
             doorAnimation               : Na__Config__DoorAnimation,
+            cameraFollow                : Na__Config__CameraFollow,
             orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible,
             storeyVisibility            : Na__Config__StoreyVisibility,
             ambientOcclusion            : Na__Config__AmbientOcclusion,
@@ -392,6 +407,32 @@
         };
         // ------------------------------------------------------------
 
+        // HELPER FUNCTION | Collect Mesh/Linework Roots from ALL Loaded Categories
+        // ------------------------------------------------------------
+        // Camera-follow billboards are identified by their baked glTF extras flag,
+        // not by category, so every loaded category is scanned. The billboard
+        // module filters out non-billboard nodes during its own traverse.
+        const Na__CollectCameraFollowModelGroups = (loadedModelGroups) => {
+            const meshRoots     = [];
+            const lineworkRoots = [];
+
+            if (!loadedModelGroups || typeof loadedModelGroups.forEach !== 'function') {
+                return { meshRoots, lineworkRoots };
+            }
+
+            loadedModelGroups.forEach((categoryGroup) => {
+                const children = categoryGroup.children || [];
+                for (const child of children) {
+                    const modelType = child.userData && child.userData.Na__ModelType;
+                    if (modelType === 'mesh')     meshRoots.push(child);
+                    if (modelType === 'linework') lineworkRoots.push(child);
+                }
+            });
+
+            return { meshRoots, lineworkRoots };
+        };
+        // ------------------------------------------------------------
+
 
         // HELPER FUNCTION | Reinitialize Model-Bound Runtime Systems
         // ------------------------------------------------------------
@@ -418,6 +459,12 @@
                 } else {
                     console.log('[TrueVision3D] Door animation enabled but no door model groups found');
                 }
+            }
+
+            if (!Na__Config__CameraFollow || Na__Config__CameraFollow['3dObject__Interaction__CameraFollow__Enabled'] !== false) {
+                const { meshRoots, lineworkRoots } = Na__CollectCameraFollowModelGroups(loadedModelGroups);
+                const billboardCount = Na__CameraFollow__Initialize(meshRoots, lineworkRoots, Na__Config__CameraFollow || {}, Na__Camera__Main);
+                console.log(`[TrueVision3D] Camera-follow billboards ready (${billboardCount} registered)`);
             }
 
             Na__WalkMode__SetCollisionMeshes(Na__ModelGroup__Root);
@@ -682,6 +729,7 @@
             }
 
             Na__DoorAnimation__Update(deltaMs);                              // <-- Update door animations
+            Na__CameraFollow__Update(Na__Camera__Main);                      // <-- Rotate 2D billboards to face the camera
             Na__Scene__UpdateFogPassUniforms(Na__SceneEffect__FogPass, Na__Camera__Main); // <-- Update fog camera matrices
             Na__DistanceCulling__Update(Na__Camera__Main.position);          // <-- Cull distant furniture/decor before render (camera-move only)
 

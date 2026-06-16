@@ -97,7 +97,7 @@
 
         Na__StoreySystem__ModelRoot.traverse((obj) => {
             if (!obj || typeof obj.name !== 'string') return;
-            if (!/Landscape/i.test(obj.name)) return;
+            if (!/Landscape|SiteVegetation/i.test(obj.name)) return;
             obj.visible = visible;
         });
     }

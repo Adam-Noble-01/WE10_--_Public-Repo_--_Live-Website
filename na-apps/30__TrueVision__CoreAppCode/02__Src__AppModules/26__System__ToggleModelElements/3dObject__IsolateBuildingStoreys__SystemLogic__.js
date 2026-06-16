@@ -70,7 +70,7 @@
 
         return modelRoot.children.filter((child) => {
             const name = child && child.name ? child.name : '';
-            return /Landscape/i.test(name);
+            return /Landscape|SiteVegetation/i.test(name);
         });
     }
     // ------------------------------------------------------------

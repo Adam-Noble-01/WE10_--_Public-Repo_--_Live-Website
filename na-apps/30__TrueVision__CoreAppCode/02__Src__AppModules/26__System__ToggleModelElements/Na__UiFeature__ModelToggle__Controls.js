@@ -54,7 +54,8 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
         "TrueVision__MainBuildingModel__ProposedFurniture"     : "Proposed Furniture",
         "TrueVision__MainBuildingModel__ProposedInteriorDecor" : "Proposed Interior Decor",
         "TrueVision__SiteBoundaries"                   : "Site Boundaries",        // <-- Tag 08 (conditional: shown only when boundary GLBs exist)
-        "TrueVision__LandscapeEnvironment"             : "Landscape",              // <-- Tag 07, 09
+        "TrueVision__LandscapeEnvironment"             : "Landscape",              // <-- Tag 07
+        "TrueVision__SiteVegetation2D"                 : "Site Vegetation 2D",     // <-- Tag 09 (2D camera-follow billboards)
         "TrueVision__GroundFloorFurniture"             : "Ground Floor Furniture", // <-- Tag 30-38
         "TrueVision__GroundFloorDecor"                 : "Ground Floor Decor",     // <-- Tag 39
         "TrueVision__FirstFloorFurniture"              : "First Floor Furniture",  // <-- Tag 40-48

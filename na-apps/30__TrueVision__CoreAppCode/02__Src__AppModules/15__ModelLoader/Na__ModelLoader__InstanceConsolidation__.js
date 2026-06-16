@@ -79,6 +79,9 @@
             if (current.userData && (current.userData.na_interactive === true || current.userData.Na__DoorAssembly === true)) {
                 return true;                                        // <-- Explicit interactive flag
             }
+            if (current.userData && (current.userData.type === 'CameraFollowBillboard' || current.userData.cameraFollow === true)) {
+                return true;                                        // <-- Camera-follow billboards rotate per-instance; never merge into InstancedMesh
+            }
             const name = current.name || '';
             for (const token of Na__Consolidation__InteractiveTokens) {
                 if (name.includes(token)) {

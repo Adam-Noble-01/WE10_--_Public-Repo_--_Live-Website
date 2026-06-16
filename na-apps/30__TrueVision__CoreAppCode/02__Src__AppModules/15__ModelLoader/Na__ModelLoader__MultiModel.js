@@ -98,7 +98,8 @@
         "TrueVision__MainBuildingModel__ProposedFurniture", // <-- Tag 28
         "TrueVision__MainBuildingModel__ProposedInteriorDecor", // <-- Tag 29
         "TrueVision__SiteBoundaries",                       // <-- Tag 08: Site boundaries
-        "TrueVision__LandscapeEnvironment",                 // <-- Tag 07, 09: Landscape & environment
+        "TrueVision__LandscapeEnvironment",                 // <-- Tag 07: Landscape & environment
+        "TrueVision__SiteVegetation2D",                     // <-- Tag 09: 2D camera-follow billboard vegetation
         "TrueVision__GroundFloorFurniture",                 // <-- Tag 30-38: Ground floor furniture
         "TrueVision__GroundFloorDecor",                     // <-- Tag 39: Ground floor high detail
         "TrueVision__FirstFloorFurniture",                  // <-- Tag 40-48: First floor furniture

@@ -2,6 +2,37 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.6.1  -  16-Jun-2026
+### Camera-Follow Billboards — 2D Site Vegetation Ported from ValeVision3D
+
+**Feature.**
+- 2D billboard vegetation (`09__Site__Vegetation__2D` tag, GLB stem `TrueVision__SiteVegetation2D`) now yaw-rotates to always face the camera, mimicking SketchUp's "Always Face Camera". Mesh and linework twins rotate together around the baked `00__OriginPoint` pivot. Behaviour is driven entirely by glTF node `extras` baked by the shared SketchUp GLB Builder (`type: CameraFollowBillboard`, `pivotLocal`, `shadeFlatness`) — no Ruby changes were needed for this port.
+
+**Flat shading.**
+- Billboards opt into directional-light flattening via a per-component `shadeFlatness` (0=full directional, 1=fully flat) sourced from the Components DataLib and baked into each node's extras. An `onBeforeCompile` patch mixes the lit colour toward albedo. Models exported before the field fall back to the config `DefaultShadeFlatness` (0.85), so existing GLBs flatten without a re-export.
+
+**Detection is category-agnostic.**
+- Every loaded category is scanned for the baked billboard flag (not a name/category token), so the system is robust to which category GLB the exporter bundled the trees into.
+
+**Rebind-aware.**
+- `Na__CameraFollow__Initialize` re-scans on every call, so it rebuilds correctly through `Na__ReinitializeModelBoundSystems` model-group / design-phase switches.
+
+**Storey + consolidation integration.**
+- Floor isolation now hides/restores SiteVegetation2D alongside Landscape (`/Landscape|SiteVegetation/i`).
+- Client-side instance consolidation now guards billboards (`userData.type === 'CameraFollowBillboard'`) so repeated trees are never merged into an `InstancedMesh` (which would break per-instance rotation).
+- AO exclusion needs no code change: the shared `__SiteVegetation__` token is already in the DataLib AmbientOcclusion exclusion list consumed by the material swap.
+
+**Changed Files**
+- `02__Src__AppModules/25__System__3dObject__InteractionSystem/3dObjectInteraction__Animation__CameraFollowBillboards__.js` — new module (ported, rebind-aware).
+- `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` — import, collect-all-categories helper, init in reinit, per-frame update.
+- `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json` — `3dObject__Interaction__CameraFollowComponents` block.
+- `Index.html` — extract `Na__Config__CameraFollow`, pass `cameraFollow` in configs.
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__MultiModel.js` — `TrueVision__SiteVegetation2D` load-order slot.
+- `02__Src__AppModules/15__ModelLoader/Na__ModelLoader__InstanceConsolidation__.js` — billboard guard.
+- `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js` — display name.
+- `02__Src__AppModules/26__System__ToggleModelElements/3dObject__IsolateBuildingStoreys__SystemLogic__.js` + `3dObject__ViewBuildingStoreys__SystemLogic__.js` — hide with landscape on floor isolate.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.6.0  -  07-Jun-2026
 ### Plant Performance — Name-Based Pipeline Exclusions + Leaf Instance Consolidation
 

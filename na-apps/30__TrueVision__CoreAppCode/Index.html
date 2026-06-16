@@ -434,6 +434,7 @@
     const Na__Config__DistanceCulling = Na__AppConfig__Data.RenderEffect__DistanceCulling || null; // <-- Furniture/decor distance culling (enable/disable + distance + tokens)
     const Na__Config__3dObjectInteractions = Na__AppConfig__Data['3dObject__InteractionsSystem'] || {};                 // <-- 3D object interactions configuration
     const Na__Config__DoorAnimation = Na__Config__3dObjectInteractions['3dObject__Interaction__DoorAnimation'] || {};  // <-- Door animation configuration
+    const Na__Config__CameraFollow = Na__Config__3dObjectInteractions['3dObject__Interaction__CameraFollowComponents'] || {}; // <-- Camera-follow billboard configuration
     
     const Na__ModelDefaults__ModelUrls = Na__Config__ModelDefaults.modelUrls || [];  // <-- Default model URLs array
     const Na__Config__WalkMode = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__WalkMode)
@@ -954,6 +955,7 @@
             modelUrls                   : Na__ModelDefaults__ModelUrls,
             materialsSystem             : Na__Config__MaterialsSystem,
             doorAnimation               : Na__Config__DoorAnimation,
+            cameraFollow                : Na__Config__CameraFollow,
             orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible,
             storeyVisibility            : Na__Config__StoreyVisibility,
             ambientOcclusion            : Na__Config__AmbientOcclusion,
