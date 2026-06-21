@@ -181,3 +181,72 @@
 /* endregion ------------------------------------------------------------------- */
 
 
+/* -----------------------------------------------------------------------------
+ * REGION | Model Group Transition Overlay
+ * ----------------------------------------------------------------------------- */
+
+    /* TRANSITION OVERLAY | Full-screen container (hidden by default) */
+    /* ------------------------------------------------------------ */
+    .na-model-group-transition-overlay {
+        position                           : fixed;                        /* <-- Fixed positioning over entire viewport */
+        top                                : 0;                            /* <-- Align to top */
+        left                               : 0;                            /* <-- Align to left */
+        width                              : 100vw;                        /* <-- Full viewport width */
+        height                             : 100vh;                        /* <-- Full viewport height */
+        background-color                   : rgba(255, 255, 255, 0.92);    /* <-- Semi-transparent white */
+        display                            : none;                         /* <-- Hidden by default */
+        flex-direction                     : column;                       /* <-- Stack vertically */
+        justify-content                    : center;                       /* <-- Center vertically */
+        align-items                        : center;                       /* <-- Center horizontally */
+        z-index                            : 10001;                        /* <-- Above layout export overlay */
+        opacity                            : 0;                            /* <-- Start transparent for fade-in */
+        transition                         : opacity 0.35s ease-out;       /* <-- Smooth fade transition */
+        backdrop-filter                    : blur(4px);                    /* <-- Subtle blur behind overlay */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* TRANSITION OVERLAY VISIBLE STATE | Shown during phase switch */
+    /* ------------------------------------------------------------ */
+    .na-model-group-transition-overlay--visible {
+        display                            : flex;                         /* <-- Enable flexbox layout */
+        opacity                            : 1;                            /* <-- Fully visible */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* TRANSITION OVERLAY FADE-OUT STATE | Dismissing overlay */
+    /* ------------------------------------------------------------ */
+    .na-model-group-transition-overlay--fade-out {
+        opacity                            : 0;                            /* <-- Fade to transparent */
+        pointer-events                     : none;                         /* <-- Disable interaction during fade */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* TRANSITION OVERLAY LABEL | Primary phase name message */
+    /* ------------------------------------------------------------ */
+    .na-model-group-transition-overlay__label {
+        font-family                        : 'Open Sans', sans-serif;      /* <-- Vale standard font */
+        font-size                          : 18px;                         /* <-- Prominent size */
+        font-weight                        : 600;                          /* <-- Semibold for emphasis */
+        color                              : #172b3a;                      /* <-- Vale blue text */
+        letter-spacing                     : 0.5px;                        /* <-- Slight letter spacing */
+        text-align                         : center;                       /* <-- Center text */
+        margin                             : 0;                            /* <-- Remove default margin */
+    }
+    /* ------------------------------------------------------------ */
+
+    /* TRANSITION OVERLAY STATUS | Secondary progress sub-text */
+    /* ------------------------------------------------------------ */
+    .na-model-group-transition-overlay__status {
+        font-family                        : 'Open Sans', sans-serif;      /* <-- Vale standard font */
+        font-size                          : 14px;                         /* <-- Smaller supporting size */
+        font-weight                        : 400;                          /* <-- Regular weight */
+        color                              : #4a5560;                      /* <-- Muted grey-blue text */
+        letter-spacing                     : 0.3px;                        /* <-- Slight letter spacing */
+        text-align                         : center;                       /* <-- Center text */
+        margin                             : 8px 0 0 0;                    /* <-- Small gap above status */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+

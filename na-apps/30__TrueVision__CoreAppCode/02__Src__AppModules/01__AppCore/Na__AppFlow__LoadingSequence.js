@@ -118,6 +118,15 @@
     } from '../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Cloudflare R2 API Client (source-of-truth project data)
+    // ------------------------------------------------------------
+    import {
+        Na__CfApi__IsConfigured,
+        Na__CfApi__ReadProjectData,
+        Na__CfApi__SetLoadedProjectData
+    } from '../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | DataLib Loader (Single Source of Truth)
     // ------------------------------------------------------------
     import { Na__DataLib__LoadAll, Na__DataLib__GetMaterials } from './AppCore__DataLib__Loader.js';
@@ -193,6 +202,7 @@
     // MODULE IMPORTS | Project Loader Utilities
     // ------------------------------------------------------------
     import {
+        Na__AppUtils__IsRunningOnLocalhost,
         Na__AppUtils__GetProjectCodeFromUrl,
         Na__AppUtils__GetProjectFolderFromUrl,
         Na__AppUtils__GetYearFromUrl,
@@ -227,6 +237,27 @@
         Na__DistanceCulling__RegisterModelGroups,
         Na__DistanceCulling__Update
     } from '../05__RenderPipeline/Na__RenderEffect__DistanceCulling__.js';
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Module Constants
+// -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | Dev-Menu-Saved Project Data Keys (R2 overlay on localhost)
+    // ------------------------------------------------------------
+    // The localhost loader overlays ONLY these keys from the live R2 copy onto
+    // the full base project data, so dev edits persist while model-defining
+    // keys always come from the complete base file.
+    const Na__DevSavedKeys = [
+        'PresentationMode__SavedCameraScenes',   // <-- Saved camera scenes (Presentation Mode)
+        'Navmode__EnabledModes',                 // <-- Walk / Fly enable flags
+        'Navmode__OrbitMaxDistanceMm',           // <-- Per-project orbit zoom cap
+        'Camera__DefaultPosition',               // <-- Saved camera position / rotation / FOV
+        'OrbitHelperCube__Position'              // <-- Saved orbit target
+    ];
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -497,10 +528,26 @@
         const yearCode      = Na__AppUtils__GetYearFromUrl();
 
         if (projectCode && projectFolder) {
-            // NEW PATH | Fetch TrueVision__ProjectData__.json from CDN
+            // NEW PATH | Fetch TrueVision__ProjectData__.json (full base) then,
+            // on localhost, overlay the Dev-menu-saved keys from the live R2 copy
+            // (bypasses CDN cache) so saves persist and are visible on reload.
+            // The model-defining keys always come from the full base file, so a
+            // partial R2 copy can never break model loading; the next save
+            // re-seeds R2 with the complete merged document.
             try {
                 Na__UiFeature__UpdateStatus('Loading project data...');
-                const projectData = await Na__AppUtils__FetchTrueVisionProjectData(projectFolder, yearCode);
+                const projectData = await Na__AppUtils__FetchTrueVisionProjectData(projectFolder, yearCode); // <-- CDN (prod) or local file (dev)
+
+                if (Na__AppUtils__IsRunningOnLocalhost() && Na__CfApi__IsConfigured()) {
+                    const r2Result = await Na__CfApi__ReadProjectData();       // <-- Fresh read from R2 via worker
+                    if (r2Result.ok && !r2Result.missing && r2Result.data) {
+                        const r2Data = r2Result.data;
+                        Na__DevSavedKeys.forEach((key) => {
+                            if (r2Data[key] !== undefined) projectData[key] = r2Data[key]; // <-- Overlay dev-saved value from R2
+                        });
+                        console.log('[TrueVision3D] Overlaid Dev-menu-saved keys from R2 (localhost source of truth).');
+                    }
+                }
 
                 Na__ProjectData__Full          = projectData;                  // <-- Retain full data for nav modes + presentation scenes
                 Na__Saved__ProjectCameraConfig = projectData.Camera__DefaultPosition || null;
@@ -637,6 +684,11 @@
             Na__Controls__Orbit.maxDistance = Na__Math__ConvertMmToUnits(Na__ProjectData__Full.Navmode__OrbitMaxDistanceMm); // <-- Per-project zoom-out cap
             Na__Controls__Orbit.update();
         }
+
+        // REGISTER FULL PROJECT DATA AS THE DEV-MENU SAVE MERGE BASE
+        // Dev-menu saves merge changed keys into this object and write the whole
+        // document back to R2, so model groups / camera / etc. are never dropped.
+        Na__CfApi__SetLoadedProjectData(Na__ProjectData__Full);
 
         // CAPTURE CANONICAL CAMERA START STATE (Reset View target on the nav toolbar)
         Na__CameraStartState__CaptureStartState(Na__Camera__Main, Na__Controls__Orbit, Na__Saved__ProjectCameraConfig);

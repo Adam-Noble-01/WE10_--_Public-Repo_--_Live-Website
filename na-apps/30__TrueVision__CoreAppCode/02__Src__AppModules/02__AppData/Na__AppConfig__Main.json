@@ -10,7 +10,7 @@
         ]
     },
     "Scene__Default__CameraConfig": {
-        "Scene__Default__CameraConfig__Fov": 45,
+        "Scene__Default__CameraConfig__Fov": 40,
         "Scene__Default__CameraConfig__Near": 0.1,
         "Scene__Default__CameraConfig__Far": 1000
     },
@@ -153,8 +153,8 @@
         },
         "Navmode__WalkMode": {
             "Navmode__WalkMode__Description"                       : "First-person walk mode settings. All distance values are integer millimeters; convert to 3D units in code.",
-            "Navmode__WalkMode__EyeHeightMm"                       : 1650,
-            "Navmode__WalkMode__CapsuleHeightMm"                   : 1200,
+            "Navmode__WalkMode__EyeHeightMm"                       : 1550,
+            "Navmode__WalkMode__CapsuleHeightMm"                   : 600,
             "Navmode__WalkMode__CapsuleRadiusMm"                   : 260,
             "Navmode__WalkMode__HorizontalFovDeg"                  : 55,
             "Navmode__WalkMode__MovementSpeedMmPerSec"             : 3500,
@@ -206,7 +206,7 @@
             "Camera__DefaultRotation__RotZ"  : 0.0216
         },
         "Camera__DefaultMisc": {
-            "Camera__DefaultMisc__Fov"       : 29.8628
+            "Camera__DefaultMisc__Fov"       : 30
         }
     },
     "Dev__DeveloperMode": {
@@ -269,7 +269,7 @@
             "3dObject__Interaction__DoorAnimation__DefaultRotationDeg"        : 90,
             "3dObject__Interaction__DoorAnimation__ClickThresholdPx"          : 4,
             "3dObject__Interaction__DoorAnimation__MultiPanelEnabled"         : true,
-            "3dObject__Interaction__DoorAnimation__InteriorRotationInverted"  : true,
+            "3dObject__Interaction__DoorAnimation__InteriorRotationInverted"  : false,
             "3dObject__Interaction__DoorAnimation__CategoryNameTokens"        : [
                 "ProposedDoors",
                 "ExistingDoors"

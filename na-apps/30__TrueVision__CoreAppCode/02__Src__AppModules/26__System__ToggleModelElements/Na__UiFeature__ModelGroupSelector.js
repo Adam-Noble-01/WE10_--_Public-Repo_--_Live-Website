@@ -24,6 +24,12 @@ import {
     Na__ModelLoader__SeparateOrbitCubeUrl
 } from '../15__ModelLoader/Na__ModelLoader__MultiModel.js';
 import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
+// @delegate: ./Na__UiFeature__ModelGroupTransitionOverlay__.js
+import {
+    Na__ModelGroupTransitionOverlay__Show,
+    Na__ModelGroupTransitionOverlay__UpdateStatus,
+    Na__ModelGroupTransitionOverlay__Hide
+} from './Na__UiFeature__ModelGroupTransitionOverlay__.js';
 
 
 // -----------------------------------------------------------------------------
@@ -113,9 +119,17 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
             return;
         }
 
-        if (Na__GroupSelector__StatusCallback) {
-            Na__GroupSelector__StatusCallback(`Loading ${group.label || 'model group'}...`);
-        }
+        Na__ModelGroupTransitionOverlay__Show(group.label);                // <-- Reveal transition overlay during phase swap
+
+        // HELPER | Mirror loader progress to both the global status and the overlay
+        const Na__GroupSelector__ProgressCallback = (message, isError = false) => {
+            if (Na__GroupSelector__StatusCallback) {
+                Na__GroupSelector__StatusCallback(message, isError);
+            }
+            Na__ModelGroupTransitionOverlay__UpdateStatus(message);
+        };
+
+        Na__GroupSelector__ProgressCallback(`Loading ${group.label || 'model group'}...`);
 
         Na__GroupSelector__ClearModelRoot();
 
@@ -127,7 +141,7 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
                 Na__GroupSelector__ModelRoot,
                 Na__GroupSelector__ModelsConfig,
                 Na__GroupSelector__LineResolution,
-                Na__GroupSelector__StatusCallback
+                Na__GroupSelector__ProgressCallback
             );
 
             Na__GroupSelector__ActiveIndex = groupIndex;
@@ -140,11 +154,10 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
             console.log(`[TrueVision3D] Model group switched to: ${group.label} (index ${groupIndex})`);
         } catch (error) {
             console.error('[TrueVision3D] Failed to load model group:', error);
-            if (Na__GroupSelector__StatusCallback) {
-                Na__GroupSelector__StatusCallback('Model group load error', true);
-            }
+            Na__GroupSelector__ProgressCallback('Model group load error', true);
         }
 
+        Na__ModelGroupTransitionOverlay__Hide();                           // <-- Dismiss overlay once load resolves
         Na__GroupSelector__IsLoading = false;
         Na__GroupSelector__UpdateButtonStates(Na__GroupSelector__ActiveIndex);
     }

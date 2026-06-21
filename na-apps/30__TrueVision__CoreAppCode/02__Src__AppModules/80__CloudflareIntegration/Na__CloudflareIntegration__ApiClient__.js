@@ -78,6 +78,15 @@
     let Na__CfApi__WorkerBaseUrl = null;   // <-- e.g. https://na-truevision-api.adam-fb3.workers.dev
     // ------------------------------------------------------------
 
+    // MODULE VARIABLES | In-Memory Full Project Data (merge base for saves)
+    // ------------------------------------------------------------
+    // The loading sequence registers the full project data object the app
+    // actually loaded. Dev-menu saves merge changed keys into THIS object and
+    // write the whole document to R2, so model groups / camera / etc. are never
+    // dropped - even if R2 has no copy of the file yet (first save).
+    let Na__CfApi__LoadedProjectData = null;   // <-- Full project data the app is currently running
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -102,6 +111,22 @@
     // ------------------------------------------------------------
     function Na__CfApi__IsConfigured() {
         return Boolean(Na__CfApi__WorkerBaseUrl);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Register the Full Project Data the App Loaded (merge base)
+    // ------------------------------------------------------------
+    function Na__CfApi__SetLoadedProjectData(projectData) {
+        Na__CfApi__LoadedProjectData = (projectData && typeof projectData === 'object') ? projectData : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Get the Registered Full Project Data (or null)
+    // ------------------------------------------------------------
+    function Na__CfApi__GetLoadedProjectData() {
+        return Na__CfApi__LoadedProjectData;
     }
     // ------------------------------------------------------------
 
@@ -267,29 +292,50 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Read, Merge Top-Level Keys, and Write Back (the common save path)
+    // HELPER FUNCTION | Resolve the Full Merge Base (in-memory first, else R2)
     // ------------------------------------------------------------
-    // partialObject: { KeyName: value, ... } merged at the document root.
+    // Prefer the full project data the app actually loaded (preserves model
+    // groups / camera / everything). Only fall back to reading R2 when the app
+    // never registered loaded data (defensive).
     // ------------------------------------------------------------
-    async function Na__CfApi__MergeAndSaveKeys(partialObject) {
+    async function Na__CfApi__ResolveMergeBase() {
+        if (Na__CfApi__LoadedProjectData && typeof Na__CfApi__LoadedProjectData === 'object') {
+            return { ok: true, data: JSON.parse(JSON.stringify(Na__CfApi__LoadedProjectData)) }; // <-- Deep clone of loaded data
+        }
         const readResult = await Na__CfApi__ReadProjectData();
         if (!readResult.ok) return readResult;
-
-        const merged = { ...(readResult.data || {}), ...partialObject };     // <-- Shallow-merge changed keys at root
-        return await Na__CfApi__WriteProjectData(merged);
+        return { ok: true, data: readResult.data || {} };
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Read, Delete Top-Level Keys, and Write Back
+    // FUNCTION | Merge Top-Level Keys Into Full Data and Write Back (common save path)
+    // ------------------------------------------------------------
+    // partialObject: { KeyName: value, ... } merged at the document root.
+    // ------------------------------------------------------------
+    async function Na__CfApi__MergeAndSaveKeys(partialObject) {
+        const baseResult = await Na__CfApi__ResolveMergeBase();
+        if (!baseResult.ok) return baseResult;
+
+        const merged = { ...(baseResult.data || {}), ...partialObject };     // <-- Shallow-merge changed keys at root
+        const writeResult = await Na__CfApi__WriteProjectData(merged);
+        if (writeResult.ok) Na__CfApi__SetLoadedProjectData(merged);          // <-- Keep in-memory base current for next save
+        return writeResult;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Delete Top-Level Keys From Full Data and Write Back
     // ------------------------------------------------------------
     async function Na__CfApi__DeleteProjectKeys(keyNames) {
-        const readResult = await Na__CfApi__ReadProjectData();
-        if (!readResult.ok) return readResult;
+        const baseResult = await Na__CfApi__ResolveMergeBase();
+        if (!baseResult.ok) return baseResult;
 
-        const merged = { ...(readResult.data || {}) };
+        const merged = { ...(baseResult.data || {}) };
         (keyNames || []).forEach((name) => { delete merged[name]; });        // <-- Remove requested keys
-        return await Na__CfApi__WriteProjectData(merged);
+        const writeResult = await Na__CfApi__WriteProjectData(merged);
+        if (writeResult.ok) Na__CfApi__SetLoadedProjectData(merged);          // <-- Keep in-memory base current for next save
+        return writeResult;
     }
     // ------------------------------------------------------------
 
@@ -357,6 +403,8 @@
         Na__CfApi__Initialize,
         Na__CfApi__IsConfigured,
         Na__CfApi__GetProjectContext,
+        Na__CfApi__SetLoadedProjectData,
+        Na__CfApi__GetLoadedProjectData,
         Na__CfApi__BuildContentCdnUrl,
         Na__CfApi__ReadProjectData,
         Na__CfApi__WriteProjectData,

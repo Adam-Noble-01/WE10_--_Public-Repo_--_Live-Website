@@ -2,6 +2,45 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.7.2  -  21-Jun-2026
+### Design Phase Model Group Transition Overlay
+
+**Summary.**
+- Added a dedicated loading overlay shown while switching between design phase model groups. Large GLB model sets can take a while to swap, so the user now gets clear visual feedback (Vale branded spinner + phase label + live progress status) during the transition rather than a frozen-looking canvas.
+
+**Behaviour.**
+- New semi-transparent overlay (`#naModelGroupTransitionOverlay`) modelled on the existing layout-export overlay pattern: `--visible` / `--fade-out` class modifiers with a `transitionend` (plus 400ms fallback) teardown.
+- Reuses the shared `.loading-spinner` styling from the initial loader for visual consistency.
+- Shows on phase-switch start, mirrors each loader status message into the overlay, and fades out on both success and error.
+
+**Changed / New Files**
+- NEW `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__ModelGroupTransitionOverlay__.js` (Show / UpdateStatus / Hide control).
+- MOD `Index.html` (added `#naModelGroupTransitionOverlay` element).
+- MOD `03__Style__AppStylesheets/Na__UiFeature__Styles__LoadingOverlays__.css` (new transition overlay CSS region).
+- MOD `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__ModelGroupSelector.js` (wired overlay into `Na__GroupSelector__LoadGroup`).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.7.1  -  21-Jun-2026
+### Fix — Dev-Menu R2 Saves Now Persist and Read Back
+
+**Problem.**
+- Dev-menu saves reported success (toast + no console errors) but nothing persisted on reload. Root cause was a read/write split: saves wrote to **R2**, but on localhost the app read the **local static file** (`/na-project-portal/.../TrueVision__ProjectData__.json`), never R2 — so a refresh re-loaded the untouched local file. A latent data-loss bug also existed: when R2 had no copy yet, a save wrote a document containing only the changed keys (dropping `modelGroups`, camera, etc.).
+
+**Fix — full-document merge base.**
+- `Na__CloudflareIntegration__ApiClient__.js` now holds the full loaded project data in memory (`Na__CfApi__SetLoadedProjectData` / `GetLoadedProjectData`). `Na__CfApi__MergeAndSaveKeys` / `DeleteProjectKeys` merge changes into that complete document and write the **whole** document back to R2 (then refresh the cache). Model groups / camera / everything are preserved — no more partial writes.
+
+**Fix — localhost reads the R2 source of truth (overlay).**
+- `Na__AppFlow__LoadingSequence.js` registers the loaded full data as the save merge base, and on localhost overlays only the Dev-menu-saved keys (`Na__DevSavedKeys`: `PresentationMode__SavedCameraScenes`, `Navmode__EnabledModes`, `Navmode__OrbitMaxDistanceMm`, `Camera__DefaultPosition`, `OrbitHelperCube__Position`) from the live R2 copy (worker `/r2/read`, bypasses CDN cache) onto the full base file.
+- Overlaying (not replacing) guarantees model-defining keys always come from the complete base file, so a partial R2 file from a pre-fix save can never break model loading — and the next save re-seeds R2 with a complete merged document (self-healing). Production is unchanged (reads the full file from CDN).
+
+**Result.**
+- Confirmed working end to end: Dev-menu edits (camera, navigation modes, orbit max, presentation scenes + thumbnails) persist to R2 and are read back on reload without a GitHub push.
+
+**Changed Files**
+- `02__Src__AppModules/80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js` — in-memory full-document merge base + cache refresh on write.
+- `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` — `Na__DevSavedKeys` constant, register loaded data, localhost R2 overlay.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.7.0  -  21-Jun-2026
 ### Navigation Toolbar + Presentation Mode + Realtime R2 Dev Saves (ValeVision Parity)
 
