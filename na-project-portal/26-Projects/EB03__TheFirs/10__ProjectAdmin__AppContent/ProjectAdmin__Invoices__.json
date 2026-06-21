@@ -1,33 +1,33 @@
 {
     "invoices": [
         {
-            "invoiceRef": "INV-EB03-2026-001",
-            "invoiceDate": "10-Jun-2026",
-            "dueDate": "17-Jun-2026",
-            "projectAddress": "",
-            "projectDescription": "Concept Design Services - Single Storey Extension to rear of Existing House, First Floor Addition on top of the Existing Garage and Utility Room, upgrades to the Existing Greenhouse.",
-            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
             "clientDataStorage": "cloudflare-r2-encrypted",
-            "status": "unpaid",
-            "paidDate": null,
+            "createdDate": "10/06/2026, 07:24:07",
+            "dueDate": "17-Jun-2026",
+            "invoiceDate": "10-Jun-2026",
+            "invoiceRef": "INV-EB03-2026-001",
+            "lastModified": "21/06/2026, 12:16:26",
             "lineItems": [
                 {
                     "description": "Design Phase - 01 : Concept Design",
                     "itemDescription": "-> Stage Payment 1 of 2\n-> Next Due upon completion of Planning Permission Stage\n-> Fee as per Quote Ref: QUO-EB03-2026-001\n\nServices Rendered\n1. Initial Design Consultation\n2. Building Survey & Travel\n3. Model Existing Site Conditions\n4. Prepare Design Proposal & Design Development\n5. Finalisation of TrueVison Experience & Distribution\n6. Small round of tweaks Session 01\n7. Small round of tweaks Session 02\n8. Handover of Complete agreed Concept Revision_A\n\n\n\n\n",
                     "quantity": 1,
-                    "unit": "item",
-                    "rate": 1225
+                    "rate": 1225,
+                    "unit": "item"
                 }
             ],
+            "paidDate": "21-Jun-2026",
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "projectAddress": "",
+            "projectDescription": "Concept Design Services - Single Storey Extension to rear of Existing House, First Floor Addition on top of the Existing Garage and Utility Room, upgrades to the Existing Greenhouse.",
+            "status": "paid",
             "totals": {
+                "grandTotal": 1470,
                 "subtotal": 1225,
-                "vatApplicable": true,
-                "vatRate": 20,
                 "vat": 245,
-                "grandTotal": 1470
-            },
-            "createdDate": "10/06/2026, 07:24:07",
-            "lastModified": "10/06/2026, 07:24:07"
+                "vatApplicable": true,
+                "vatRate": 20
+            }
         }
     ]
 }
