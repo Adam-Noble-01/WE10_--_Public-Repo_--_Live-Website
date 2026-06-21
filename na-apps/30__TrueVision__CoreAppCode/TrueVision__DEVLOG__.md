@@ -2,6 +2,53 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.7.0  -  21-Jun-2026
+### Navigation Toolbar + Presentation Mode + Realtime R2 Dev Saves (ValeVision Parity)
+
+**Summary.**
+- Transplanted ValeVision3D's floating navigation toolbar, Presentation Mode scene-animation system, and full Dev-menu tooling into TrueVision3D. Dev-menu actions now persist straight to Cloudflare R2 (read back from R2 — no GitHub push required), via a new dedicated Worker.
+
+**Navigation toolbar (moved out of Tools & Settings).**
+- Orbit / Walk / Fly / Views / Reset View / Help now live in a floating bottom-centre pill toolbar (`#naNavToolbar`). The Walk/Fly/Orbit buttons were removed from the `#naToolsMenu` dropdown.
+- Contextually dynamic position: bottom-centre by default; when a project has valid `PresentationMode__SavedCameraScenes`, `body.na-presentation-mode-active` moves the toolbar to the top and the scene carousel takes the bottom slot.
+- Walk/Fly buttons reveal only when `Navmode__EnabledModes` enables them for the model (via the `na-navigation-modes-loaded` event). Reset View restores the captured project start state.
+
+**Presentation Mode (scene animation).**
+- Per-project saved camera scenes under `PresentationMode__SavedCameraScenes` in `TrueVision__ProjectData__.json`. Discrete camera snapshots with interpolated transitions (lerp position/target/FOV + quaternion slerp), a bottom thumbnail carousel, and a Views toggle button.
+
+**Realtime R2 persistence (NEW Worker).**
+- New `na-truevision-api` Worker (`80__CloudflareIntegration/CloudflareWorker/`) modelled on `na-projectadmin-api`; binds the shared `noble-architecture-cdn` bucket under the `NaProjectPortal/` prefix, exposes `/r2/read|write|list|delete` + `/health`.
+- New `Na__CloudflareIntegration__ApiClient__.js` (read-merge-write to `TrueVision__ProjectData__.json` + base64 WebP thumbnail upload).
+- Dev-menu saves (camera, navigation modes, orbit max distance, presentation scenes + thumbnails) now write to R2 via the Worker instead of localhost Flask. (Note: ValeVision itself uses Flask + GitHub static reads; the R2-write path is net-new per the brief.)
+
+**Dev menu (full parity, localhost-only).**
+- Re-pointed Save Camera Settings to R2.
+- Added Navigation Modes (Walk/Fly enable) and Orbit Max Zoom Radius (apply live / save / clear) controls.
+- Added the Presentation Scenes editor (add-from-camera, FOV/transition/easing, regenerate thumbnail, save/delete, export JSON, clear all).
+- Render-engine switch intentionally skipped (TrueVision is single-pipeline). Camera-path visualizer omitted (unwired debug overlay in ValeVision).
+
+**Assets.**
+- Copied the ValeVision navigation icon set into `01__AppAssets__TrueVision/UiIcons__MenuIcons__NavigationMenu/`.
+
+**Config.**
+- Added `CloudflareConfig.CloudflareConfig__WorkerBaseUrl` to `Na__AppConfig__Main.json` (Dev-menu Worker base URL).
+
+**Changed / New Files**
+- NEW `80__CloudflareIntegration/CloudflareWorker/` (wrangler.toml, package.json, deploy.bat, `src/CloudflareWorker__Main__.js`, `src/handlers/CloudflareHandler__R2__.js`).
+- NEW `02__Src__AppModules/80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js`.
+- NEW `02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__NavigationToolbar__Controls.js`, `Na__UiFeature__NavigationHelpPanel__Controls.js`, `Na__Camera__ProjectStartState.js`, `Na__NavigationModes__State.js`.
+- NEW `02__Src__AppModules/21__System__PresentationMode/` (`*__ProjectJson__SceneData.js`, `*__Camera__SceneTransition.js`, `*__UI__SceneCarousel.js`, `*__Thumbnail__Renderer.js`, `*__DevMenu__SceneEditor.js`).
+- NEW `03__Style__AppStylesheets/Na__UiFeature__Styles__NavigationToolbar__.css`, `Na__PresentationMode__Styles__SceneCarousel__.css`.
+- NEW `02__Src__AppModules/70__System__DevTools/Na__UiFeature__NavigationModes__DevControls.js`, `02__Src__AppModules/11__CameraUtils/Na__UiFeature__OrbitMaxDistance__DevControls.js`.
+- CHANGED `Index.html` (toolbar/help/carousel markup, dev-menu sections, orchestrator wiring, removed Tools-menu nav buttons).
+- CHANGED `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` (dispatch `na-navigation-modes-loaded` + `na-presentation-mode-scenes-loaded`, capture camera start state, apply orbit-max override).
+- CHANGED `02__Src__AppModules/11__CameraUtils/Na__UiFeature__SaveCameraSettings.js` (Flask → R2).
+- CHANGED `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json` (CloudflareConfig).
+- CHANGED `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` (new stylesheet imports).
+
+**Deployment note.** Deploy the Worker once with `wrangler deploy` from `80__CloudflareIntegration/CloudflareWorker/` (requires `wrangler login`). Update `CloudflareConfig__WorkerBaseUrl` if the deployed `workers.dev` subdomain differs from `na-truevision-api.adam-fb3.workers.dev`.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.6.1  -  16-Jun-2026
 ### Camera-Follow Billboards — 2D Site Vegetation Ported from ValeVision3D
 

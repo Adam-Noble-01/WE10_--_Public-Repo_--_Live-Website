@@ -1,0 +1,381 @@
+/* =============================================================================
+ * TRUEVISION3D - FLOATING NAVIGATION TOOLBAR & HELP PANEL STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__UiFeature__Styles__NavigationToolbar__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : Navigation Toolbar Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Bottom-centre floating navigation pill toolbar + help modal
+ * CREATED    : 21-Jun-2026
+ *
+ * DESCRIPTION:
+ * - White rounded pill toolbar fixed to the bottom centre of the viewer.
+ * - Icon + label buttons for Orbit / Walk / Fly / Views / Reset View / Help.
+ * - Active navigation mode highlighted with a soft pale blue background.
+ * - Navigation help modal with backdrop, close button, and keyboard rows.
+ *
+ * =============================================================================
+ */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Floating Navigation Toolbar - Pill Container
+ * ----------------------------------------------------------------------------- */
+
+    /* TOOLBAR CONTAINER | Bottom-centre floating pill */
+    /* ------------------------------------------------------------ */
+    .na-nav-toolbar {
+        position                           : fixed;
+        bottom                             : 26px;
+        left                               : 50%;
+        transform                          : translateX(-50%);
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 4px;
+        padding                            : 7px 11px;
+        background-color                   : #ffffff;
+        border                             : 1px solid rgba(23, 43, 58, 0.08);
+        border-radius                      : 12px;
+        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0.14);  /* <-- Subtle floating shadow */
+        z-index                            : 1002;                  /* <-- Above canvas, below toast/modals */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Floating Navigation Toolbar - Buttons
+ * ----------------------------------------------------------------------------- */
+
+    /* TOOLBAR BUTTON | Icon + label navigation button */
+    /* ------------------------------------------------------------ */
+    .na-nav-toolbar__btn {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 9px;
+        padding                            : 9px 15px;
+        border                             : none;
+        background-color                   : transparent;
+        border-radius                      : 9px;
+        cursor                             : pointer;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 0.94rem;
+        font-weight                        : 600;
+        color                              : #172b3a;               /* <-- Brand blue text */
+        white-space                        : nowrap;
+        transition                         : background-color 0.15s ease;
+        -webkit-tap-highlight-color        : transparent;
+    }
+
+    .na-nav-toolbar__btn:hover {
+        background-color                   : rgba(23, 43, 58, 0.06);  /* <-- Subtle hover tint */
+    }
+
+    .na-nav-toolbar__btn--active {
+        background-color                   : #dbe9f7;               /* <-- Soft pale blue active highlight */
+    }
+
+    .na-nav-toolbar__btn--active:hover {
+        background-color                   : #cfe2f4;               /* <-- Slightly deeper blue on active hover */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* TOOLBAR ICON | PNG icon inside each button */
+    /* ------------------------------------------------------------ */
+    .na-nav-toolbar__icon {
+        width                              : 20px;
+        height                             : 20px;
+        object-fit                         : contain;
+        pointer-events                     : none;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* RESPONSIVE | Compact icon-only toolbar on narrow screens */
+    /* ------------------------------------------------------------ */
+    @media (max-width: 560px) {
+        .na-nav-toolbar__label {
+            display                        : none;                  /* <-- Icons only on small screens */
+        }
+
+        .na-nav-toolbar__btn {
+            padding                        : 11px 13px;
+        }
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Navigation Help Panel - Modal Overlay
+ * ----------------------------------------------------------------------------- */
+
+    /* MODAL CONTAINER | Full-viewport overlay (hidden by default) */
+    /* ------------------------------------------------------------ */
+    .na-nav-help {
+        position                           : fixed;
+        inset                              : 0;
+        display                            : none;
+        align-items                        : center;
+        justify-content                    : center;
+        z-index                            : 9998;                  /* <-- Above all viewer UI, below toast */
+    }
+
+    .na-nav-help.na-nav-help--open {
+        display                            : flex;                  /* <-- Reveal modal */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* MODAL BACKDROP | Click-outside-to-close dimming layer */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__backdrop {
+        position                           : absolute;
+        inset                              : 0;
+        background-color                   : rgba(23, 43, 58, 0.45);
+        backdrop-filter                    : blur(3px);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* MODAL PANEL | White help card */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__panel {
+        position                           : relative;
+        width                              : min(550px, calc(100vw - 40px));
+        max-height                         : min(800px, calc(100vh - 80px));
+        display                            : flex;
+        flex-direction                     : column;
+        background-color                   : #ffffff;
+        border-radius                      : 12px;
+        box-shadow                         : 0 12px 40px rgba(0, 0, 0, 0.30);
+        overflow                           : hidden;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Navigation Help Panel - Header and Close Button
+ * ----------------------------------------------------------------------------- */
+
+    /* PANEL HEADER | Title bar with close button */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__header {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : space-between;
+        padding                            : 20px 25px;
+        border-bottom                      : 1px solid rgba(23, 43, 58, 0.10);
+    }
+
+    .na-nav-help__title {
+        margin                             : 0;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 1.3rem;
+        font-weight                        : 600;
+        color                              : #172b3a;
+    }
+
+    .na-nav-help__close {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        width                              : 38px;
+        height                             : 38px;
+        border                             : none;
+        border-radius                      : 50%;
+        background-color                   : rgba(23, 43, 58, 0.06);
+        color                              : #172b3a;
+        font-size                          : 1.25rem;
+        font-weight                        : 600;
+        line-height                        : 1;
+        cursor                             : pointer;
+        transition                         : background-color 0.15s ease;
+    }
+
+    .na-nav-help__close:hover {
+        background-color                   : rgba(23, 43, 58, 0.14);
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Navigation Help Panel - Instruction Content
+ * ----------------------------------------------------------------------------- */
+
+    /* PANEL CONTENT | Scrollable instructions container */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__content {
+        padding                            : 18px 25px 25px 25px;
+        overflow-y                         : auto;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HELP SECTION | Per-mode collapsible instruction group */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__section {
+        margin-bottom                      : 20px;
+    }
+
+    .na-nav-help__section:last-child {
+        margin-bottom                      : 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SECTION HEADER BUTTON | Clickable row: icon + title + fold arrow */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__section-header {
+        position                           : relative;
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 10px;
+        width                              : 100%;
+        border                             : none;
+        background                         : transparent;
+        cursor                             : pointer;
+        padding                            : 0 0 6px 0;
+        border-bottom                      : 1px solid rgba(23, 43, 58, 0.10);
+        margin-bottom                      : 12px;
+        text-align                         : left;
+        -webkit-tap-highlight-color        : transparent;
+        transition                         : opacity 0.15s ease;
+    }
+
+    .na-nav-help__section-header:hover {
+        opacity                            : 0.75;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* INSTANT TOOLTIP | "Click to expand / collapse" shown on hover */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__section-header::before {
+        content                            : 'Click to expand';
+        position                           : absolute;
+        bottom                             : calc(100% + 8px);
+        left                               : 50%;
+        transform                          : translateX(-50%);
+        padding                            : 4px 10px;
+        background-color                   : rgba(23, 43, 58, 0.82);
+        color                              : #ffffff;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 0.78rem;
+        font-weight                        : 400;
+        white-space                        : nowrap;
+        border-radius                      : 5px;
+        pointer-events                     : none;
+        opacity                            : 0;
+        transition                         : opacity 0s;
+        z-index                            : 10;
+    }
+
+    .na-nav-help__section-header:hover::before {
+        opacity                            : 1;
+    }
+
+    .na-nav-help__section:not(.na-nav-help__section--collapsed) .na-nav-help__section-header::before {
+        content                            : 'Click to collapse';
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SECTION ICON | Mode icon matching the toolbar button */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__section-icon {
+        width                              : 22px;
+        height                             : 22px;
+        object-fit                         : contain;
+        flex-shrink                        : 0;
+        pointer-events                     : none;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SECTION TITLE | Mode label text */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__section-title {
+        flex                               : 1;
+        margin                             : 0;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 1.1rem;
+        font-weight                        : 600;
+        color                              : #172b3a;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SECTION ARROW | Chevron indicating open/collapsed state */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__section-arrow {
+        flex-shrink                        : 0;
+        font-size                          : 1.1rem;
+        color                              : rgba(23, 43, 58, 0.45);
+        line-height                        : 1;
+        transition                         : transform 0.22s ease;
+        display                            : inline-block;
+    }
+
+    .na-nav-help__section--collapsed .na-nav-help__section-arrow {
+        transform                          : rotate(-90deg);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SECTION BODY | Collapsible rows container */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__section-body {
+        overflow                           : hidden;
+        max-height                         : 600px;
+        transition                         : max-height 0.25s ease, opacity 0.22s ease;
+        opacity                            : 1;
+    }
+
+    .na-nav-help__section--collapsed .na-nav-help__section-body {
+        max-height                         : 0;
+        opacity                            : 0;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HELP ROW | Key/action + description instruction row */
+    /* ------------------------------------------------------------ */
+    .na-nav-help__row {
+        display                            : flex;
+        align-items                        : flex-start;
+        gap                                : 12px;
+        margin-bottom                      : 8px;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 1.0rem;
+        line-height                        : 1.5;
+    }
+
+    .na-nav-help__key {
+        flex-shrink                        : 0;
+        min-width                          : 162px;
+        padding                            : 4px 10px;
+        border-radius                      : 4px;
+        background-color                   : rgba(23, 43, 58, 0.07);
+        color                              : #172b3a;
+        font-size                          : 0.97rem;
+        font-weight                        : 600;
+        text-align                         : center;
+    }
+
+    .na-nav-help__desc {
+        flex                               : 1;
+        color                              : #1e1e1e;
+        font-weight                        : 400;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */

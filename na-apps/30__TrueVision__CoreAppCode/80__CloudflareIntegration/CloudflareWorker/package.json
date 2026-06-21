@@ -1,0 +1,14 @@
+{
+    "name"        : "na-truevision-api",
+    "version"     : "1.0.0",
+    "description" : "TrueVision3D R2-write Cloudflare Worker (project data + presentation scene thumbnails)",
+    "private"     : true,
+    "type"        : "module",
+    "scripts": {
+        "dev"     : "wrangler dev",
+        "deploy"  : "wrangler deploy"
+    },
+    "devDependencies": {
+        "wrangler": "^3.0.0"
+    }
+}

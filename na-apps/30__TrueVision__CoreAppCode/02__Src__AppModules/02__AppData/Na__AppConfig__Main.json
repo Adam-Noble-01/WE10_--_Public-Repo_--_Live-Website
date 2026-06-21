@@ -1,4 +1,8 @@
 {
+    "CloudflareConfig": {
+        "CloudflareConfig__Description"  : "Cloudflare Worker used by the localhost Dev menu to read/write project data and presentation scene thumbnails directly to R2 (no GitHub push required).",
+        "CloudflareConfig__WorkerBaseUrl": "https://na-truevision-api.adam-fb3.workers.dev"
+    },
     "modelDefaults": {
         "modelUrls": [
             "https://cdn.noble-architecture.com/VaApps/Projects/2026/60834__Clough/Clough__Whitecard__Layer-01__BaseMeshModel__1.2.0__.glb",
@@ -17,7 +21,7 @@
     "Scene__Environment": {
         "Scene__Environment__Description"          : "HDR environment map settings. Mirror-only mode keeps the rest of the model neutral while applying reflections to the targeted mirror material.",
         "Scene__Environment__Enabled"              : true,
-        "Scene__Environment__HdriUrl"              : "./01__AppAssets__TrueVision/05__AppAssets__SkyDomes/HdriSkydome__RuralLandscape__AutumnField__SunnyDay__4k__.hdr",
+        "Scene__Environment__HdriUrl"              : "./01__AppAssets__TrueVision/05__AppAssets__SkyDomes/HdriSkydome__RuralLandscape__AutumnField__SunnyDay__OptimisedVersion__1024p__.hdr",
         "Scene__Environment__Intensity"            : 1.0,
         "Scene__Environment__ApplyToScene"         : false,
         "Scene__Environment__UseAsBackground"      : false,

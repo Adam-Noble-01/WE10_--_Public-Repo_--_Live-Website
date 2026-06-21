@@ -1,0 +1,50 @@
+# =============================================================================
+# NOBLE ARCHITECTURE - TRUEVISION3D CLOUDFLARE WORKER CONFIGURATION
+# =============================================================================
+#
+# FILE       : wrangler.toml
+# PURPOSE    : Configuration for the TrueVision3D R2-write Cloudflare Worker
+# AUTHOR     : Adam Noble - Noble Architecture
+# CREATED    : 21-Jun-2026
+#
+# DESCRIPTION:
+# - Configures the TrueVision3D Worker for deployment.
+# - Binds the shared noble-architecture-cdn R2 bucket so the Dev menu can
+#   read and write TrueVision__ProjectData__.json and Presentation Mode
+#   scene thumbnails directly to R2 (no GitHub push required).
+# - All keys are constrained to the NaProjectPortal/ prefix by the R2 handler.
+#
+# DEPLOYMENT:
+# 1. Install Wrangler : npm install -g wrangler
+# 2. Login           : wrangler login
+# 3. Deploy          : wrangler deploy   (run from this folder, or deploy.bat)
+#
+# =============================================================================
+
+name                             = "na-truevision-api"
+main                             = "src/CloudflareWorker__Main__.js"
+compatibility_date               = "2024-01-01"
+workers_dev                      = true
+
+# Account settings (shared Noble Architecture Cloudflare account)
+account_id                       = "fb32e89aeb7dce82f8391f6496ec8b34"
+
+# R2 Bucket Binding (shared CDN bucket; same one TrueVision reads from)
+[[r2_buckets]]
+binding                          = "R2_BUCKET"
+bucket_name                      = "noble-architecture-cdn"
+
+# Environment variables
+[vars]
+ENVIRONMENT                      = "development"
+CORS_ORIGIN                      = "https://www.noble-architecture.com"
+R2_PREFIX                        = "NaProjectPortal/"
+
+# Production environment overrides
+[env.production]
+workers_dev                      = false
+
+[env.production.vars]
+ENVIRONMENT                      = "production"
+CORS_ORIGIN                      = "https://www.noble-architecture.com"
+R2_PREFIX                        = "NaProjectPortal/"

@@ -104,6 +104,20 @@
     import { Na__UiFeature__ApplyCameraConfig } from '../11__CameraUtils/Na__UiFeature__CameraPosition__Controls.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Navigation Toolbar Support (Modes State + Reset View Capture)
+    // ------------------------------------------------------------
+    import { Na__NavigationModes__SetEnabledModes } from '../10__NavigationAndCameras/Na__NavigationModes__State.js';
+    import { Na__CameraStartState__CaptureStartState } from '../10__NavigationAndCameras/Na__Camera__ProjectStartState.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Presentation Mode Scene Data (Saved Camera Scenes)
+    // ------------------------------------------------------------
+    import {
+        Na__PresentationMode__ProjectJson__GetSavedCameraScenes,
+        Na__PresentationMode__ProjectJson__HasValidSavedScenes
+    } from '../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | DataLib Loader (Single Source of Truth)
     // ------------------------------------------------------------
     import { Na__DataLib__LoadAll, Na__DataLib__GetMaterials } from './AppCore__DataLib__Loader.js';
@@ -336,6 +350,7 @@
         let Na__Saved__ProjectCameraConfig = null;                           // <-- Hoisted for post-OrbitCube re-apply
         let Na__Saved__ProjectOrbitTarget  = null;                           // <-- Hoisted for post-OrbitCube re-apply
         let Na__ProjectData__AllModelGroups = null;                          // <-- Store all model groups for group selector UI
+        let Na__ProjectData__Full = null;                                    // <-- Full project data (nav modes + presentation scenes)
 
         // HELPER FUNCTION | Pick Latest Concept Group (prefer non-existing, newest at end)
         // ------------------------------------------------------------
@@ -487,6 +502,7 @@
                 Na__UiFeature__UpdateStatus('Loading project data...');
                 const projectData = await Na__AppUtils__FetchTrueVisionProjectData(projectFolder, yearCode);
 
+                Na__ProjectData__Full          = projectData;                  // <-- Retain full data for nav modes + presentation scenes
                 Na__Saved__ProjectCameraConfig = projectData.Camera__DefaultPosition || null;
                 Na__Saved__ProjectOrbitTarget  = projectData.OrbitHelperCube__Position || null;
 
@@ -507,6 +523,7 @@
                 try {
                     const legacyData = await Na__AppUtils__FetchProjectJson(projectCode);
 
+                    Na__ProjectData__Full          = legacyData;               // <-- Retain full data for nav modes + presentation scenes
                     Na__Saved__ProjectCameraConfig = legacyData.Camera__DefaultPosition
                         || legacyData.trueVision_Camera__DefaultPosition
                         || legacyData.valeVision_Camera__DefaultPosition
@@ -527,6 +544,7 @@
                 Na__UiFeature__UpdateStatus('Loading project data...');
                 const projectData = await Na__AppUtils__FetchProjectJson(projectCode);
 
+                Na__ProjectData__Full          = projectData;                  // <-- Retain full data for nav modes + presentation scenes
                 Na__Saved__ProjectCameraConfig = projectData.Camera__DefaultPosition
                     || projectData.trueVision_Camera__DefaultPosition
                     || projectData.valeVision_Camera__DefaultPosition
@@ -612,6 +630,34 @@
         }
         if (Na__FinalOrbitTargetApplied || Na__Saved__ProjectCameraConfig) {
             Na__Controls__Orbit.update();                                    // <-- Finalize controls with restored state
+        }
+
+        // APPLY PER-PROJECT ORBIT MAX DISTANCE OVERRIDE (if present in project data)
+        if (Na__ProjectData__Full && Number.isFinite(Na__ProjectData__Full.Navmode__OrbitMaxDistanceMm)) {
+            Na__Controls__Orbit.maxDistance = Na__Math__ConvertMmToUnits(Na__ProjectData__Full.Navmode__OrbitMaxDistanceMm); // <-- Per-project zoom-out cap
+            Na__Controls__Orbit.update();
+        }
+
+        // CAPTURE CANONICAL CAMERA START STATE (Reset View target on the nav toolbar)
+        Na__CameraStartState__CaptureStartState(Na__Camera__Main, Na__Controls__Orbit, Na__Saved__ProjectCameraConfig);
+
+        // RESOLVE + BROADCAST NAVIGATION MODES (reveals Walk/Fly toolbar buttons)
+        const Na__EnabledModes__Config = (Na__ProjectData__Full && Na__ProjectData__Full.Navmode__EnabledModes) || null;
+        Na__NavigationModes__SetEnabledModes(Na__EnabledModes__Config);
+        window.dispatchEvent(new CustomEvent('na-navigation-modes-loaded', {
+            detail : { enabledModes: Na__EnabledModes__Config }              // <-- Toolbar + help panel + dev checkboxes listen
+        }));
+
+        // BROADCAST PRESENTATION MODE SCENES (reveals Views button + adaptive top toolbar)
+        if (Na__ProjectData__Full && Na__PresentationMode__ProjectJson__HasValidSavedScenes(Na__ProjectData__Full)) {
+            const Na__SceneConfig = Na__PresentationMode__ProjectJson__GetSavedCameraScenes(Na__ProjectData__Full);
+            window.dispatchEvent(new CustomEvent('na-presentation-mode-scenes-loaded', {
+                detail : {
+                    sceneConfig   : Na__SceneConfig,
+                    projectFolder : projectFolder,                           // <-- Folder + year drive R2 thumbnail URL resolution
+                    year          : yearCode
+                }
+            }));
         }
 
         // LOAD ALL MODELS VIA MULTI-MODEL LOADER
