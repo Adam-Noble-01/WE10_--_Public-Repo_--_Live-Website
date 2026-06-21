@@ -56,6 +56,20 @@ DRAWING_FILE_PATTERN = re.compile(r'^.+\.(png|pdf)$', re.IGNORECASE)
 PHASE_FOLDER_PATTERN = re.compile(r'^DesignPhase\d+__(.+)$')
 SKIP_FOLDER_PREFIXES = ('.', '00__')
 
+# TrueVision Dev-menu-owned keys. These are written live to R2 by the
+# TrueVision Dev menu (Save Camera, Orbit Max, Navigation Modes, Presentation
+# Scenes). When this build script regenerates the local project data JSON it
+# must preserve any existing values for these keys so a build does not wipe
+# dev-authored settings. Keep in sync with DEV_OWNED_PROJECT_DATA_KEYS in
+# CloudflareR2__ModelSync__Main__.py and Na__DevSavedKeys in the TrueVision app.
+TRUEVISION_DEV_OWNED_KEYS = (
+    'PresentationMode__SavedCameraScenes',
+    'Navmode__EnabledModes',
+    'Navmode__OrbitMaxDistanceMm',
+    'Camera__DefaultPosition',
+    'OrbitHelperCube__Position',
+)
+
 
 # =============================================================================
 # PATH RESOLUTION
@@ -407,8 +421,11 @@ def write_truevision_project_data(project_path, data):
             pass
 
     if existing_data:
-        if 'Camera__DefaultPosition' in existing_data:
-            data['Camera__DefaultPosition'] = existing_data['Camera__DefaultPosition']
+        # Preserve all Dev-menu-owned keys (camera, orbit, nav modes, scenes)
+        # so regenerating the project data does not wipe dev-authored settings.
+        for dev_key in TRUEVISION_DEV_OWNED_KEYS:
+            if dev_key in existing_data:
+                data[dev_key] = existing_data[dev_key]
         if 'activeGroupIndex' in existing_data:
             data['activeGroupIndex'] = existing_data['activeGroupIndex']
 

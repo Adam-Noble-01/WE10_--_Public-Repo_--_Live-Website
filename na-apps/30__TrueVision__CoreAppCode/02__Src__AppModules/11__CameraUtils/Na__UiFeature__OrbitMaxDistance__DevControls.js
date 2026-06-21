@@ -63,6 +63,9 @@
 
     // MODULE CONSTANTS | DOM IDs
     // ------------------------------------------------------------
+    const Na__OrbitMaxDistance__ItemId     = 'naOrbitMaxDistanceItem';      // <-- Dev menu list item (localhost-only)
+    const Na__OrbitMaxDistance__ToggleId   = 'naOrbitMaxDistanceToggle';    // <-- Submenu open/close button
+    const Na__OrbitMaxDistance__PanelId    = 'naOrbitMaxDistancePanel';     // <-- Collapsible panel container
     const Na__OrbitMaxDistance__CurrentId  = 'naOrbitMaxDistanceCurrent';   // <-- Live effective max display
     const Na__OrbitMaxDistance__InputId    = 'naOrbitMaxDistanceInput';     // <-- Number input (mm)
     const Na__OrbitMaxDistance__ApplyBtnId = 'naOrbitMaxDistanceApply';     // <-- Apply Live button
@@ -215,6 +218,9 @@
 
         if (!Na__AppUtils__IsRunningOnLocalhost()) return;                   // <-- Hide on production
 
+        const menuItem   = document.getElementById(Na__OrbitMaxDistance__ItemId);
+        const toggleBtn  = document.getElementById(Na__OrbitMaxDistance__ToggleId);
+        const panel      = document.getElementById(Na__OrbitMaxDistance__PanelId);
         const currentEl  = document.getElementById(Na__OrbitMaxDistance__CurrentId);
         const inputEl    = document.getElementById(Na__OrbitMaxDistance__InputId);
         const applyBtn   = document.getElementById(Na__OrbitMaxDistance__ApplyBtnId);
@@ -222,6 +228,17 @@
         const clearBtn   = document.getElementById(Na__OrbitMaxDistance__ClearBtnId);
 
         if (!inputEl || !applyBtn || !saveBtn || !clearBtn) return;          // <-- Required inline controls absent
+
+        if (menuItem) menuItem.style.display = '';                           // <-- Reveal the localhost-only menu item
+
+        // Wire collapsible submenu toggle (consistent with other dev panels)
+        if (toggleBtn && panel) {
+            toggleBtn.addEventListener('click', () => {
+                const isOpen = panel.classList.contains('is-open');
+                panel.classList.toggle('is-open', !isOpen);
+                toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+            });
+        }
 
         // Pre-populate input with current effective max (mm)
         const initialCurrentMm = Na__OrbitMaxDistance__ReadCurrentMm(controls);

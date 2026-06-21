@@ -96,6 +96,24 @@ MASTER_PROJECT_INDEX_PATH          = SCRIPT_DIR / '05__AppData' / 'ProjectVision
 SKIP_FOLDER_PREFIXES               = ('.', '00__')
     # ------------------------------------------------------------
 
+    # MODULE CONSTANTS | TrueVision Dev-Owned Project Data Keys
+    # ------------------------------------------------------------
+    # These keys are written live to R2 by the TrueVision Dev menu
+    # (Save Camera, Orbit Max, Navigation Modes, Presentation Scenes).
+    # The build pipeline must NEVER clobber them: when re-uploading the
+    # project data JSON, the existing R2 values for these keys are
+    # preserved (overlaid back onto the freshly built local document).
+    # Keep this list in sync with Na__DevSavedKeys in
+    # 30__TrueVision__CoreAppCode/.../Na__AppFlow__LoadingSequence.js
+DEV_OWNED_PROJECT_DATA_KEYS        = (
+    'PresentationMode__SavedCameraScenes',     # <-- Saved camera scenes (Presentation Mode)
+    'Navmode__EnabledModes',                   # <-- Walk / Fly enable flags
+    'Navmode__OrbitMaxDistanceMm',             # <-- Per-project orbit zoom cap
+    'Camera__DefaultPosition',                 # <-- Saved camera position / rotation / FOV
+    'OrbitHelperCube__Position',               # <-- Saved orbit target
+)
+    # ------------------------------------------------------------
+
     # MODULE CONSTANTS | Content Types
     # ------------------------------------------------------------
 CONTENT_TYPE_GLB                   = 'model/gltf-binary'
@@ -214,6 +232,48 @@ def upload_to_r2(s3_client, bucket_name: str, local_path: Path, key: str, conten
         print(f"{C_RED}[ERROR] Upload failed for {key}: {type(error).__name__}: {error}{C_RESET}")
         sys.stdout.flush()
         return False
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Upload Raw Bytes to R2 (Used for Merged JSON Payloads)
+    # ------------------------------------------------------------
+def upload_bytes_to_r2(s3_client, bucket_name: str, data_bytes: bytes, key: str, content_type: str) -> bool:
+    """Upload an in-memory byte payload to Cloudflare R2 (used for merged project data)."""
+    try:
+        s3_client.put_object(
+            Bucket      = bucket_name,
+            Key         = key,
+            Body        = data_bytes,
+            ContentType = content_type,
+        )
+        return True
+    except Exception as error:
+        print(f"{C_RED}[ERROR] Upload (bytes) failed for {key}: {type(error).__name__}: {error}{C_RESET}")
+        sys.stdout.flush()
+        return False
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Fetch and Parse an Existing JSON Object from R2
+    # ------------------------------------------------------------
+def fetch_r2_json(s3_client, bucket_name: str, key: str) -> Optional[Dict]:
+    """GET an object from R2 and parse it as JSON. Returns None if absent or unparseable."""
+    try:
+        response = s3_client.get_object(Bucket=bucket_name, Key=key)
+        body     = response['Body'].read()
+        return json.loads(body.decode('utf-8'))
+    except ClientError as error:
+        error_code = error.response['Error']['Code']
+        if error_code in ('NoSuchKey', '404', '400', '403'):
+            return None
+        print(f"{C_YELLOW}[WARNING] Could not read existing R2 JSON {key}: {error}{C_RESET}")
+        return None
+    except (json.JSONDecodeError, UnicodeDecodeError) as error:
+        print(f"{C_YELLOW}[WARNING] Existing R2 JSON {key} is not valid JSON: {error}{C_RESET}")
+        return None
+    except Exception as error:
+        print(f"{C_YELLOW}[WARNING] Unexpected error reading R2 JSON {key}: {error}{C_RESET}")
+        return None
     # ------------------------------------------------------------
 
 # endregion -------------------------------------------------------------------
@@ -416,6 +476,60 @@ def determine_action(s3_client, bucket_name: str, local_path: Path, r2_key: str)
     # ------------------------------------------------------------
 
 
+    # FUNCTION | Build the TrueVision Project Data Sync Operation (Dev-Key Safe)
+    # ------------------------------------------------------------
+def build_project_data_operation(
+    s3_client, bucket_name: str,
+    year_folder_name: str, project: Dict, project_data_path: Path
+) -> Dict:
+    """Build the project-data JSON operation, preserving dev-owned keys from R2.
+
+    The freshly built local document supplies model groups, labels, project
+    metadata, etc. The existing R2 copy supplies the dev-owned keys (camera,
+    orbit, nav modes, presentation scenes) so live Dev-menu edits are never
+    overwritten by a build. The op carries pre-merged bytes to upload.
+    """
+    r2_key      = build_r2_key_project_data(year_folder_name, project['project_folder'])
+    remote_json = fetch_r2_json(s3_client, bucket_name, r2_key)
+
+    with open(project_data_path, 'r', encoding='utf-8') as fh:
+        local_data = json.load(fh)
+
+    merged        = dict(local_data)
+    dev_preserved = []
+    if remote_json:
+        for key in DEV_OWNED_PROJECT_DATA_KEYS:
+            if key in remote_json:
+                merged[key] = remote_json[key]                          # <-- Keep live dev edit from R2
+                dev_preserved.append(key)
+
+    merged_bytes = (json.dumps(merged, indent=4, ensure_ascii=False) + '\n').encode('utf-8')
+
+    if remote_json is None:
+        action = 'new'
+        detail = f"NEW ({format_size(len(merged_bytes))})"
+    elif merged != remote_json:
+        action = 'update'
+        note   = f" [preserved: {', '.join(dev_preserved)}]" if dev_preserved else ''
+        detail = f"UPDATE (local build + R2 dev keys){note}"
+    else:
+        action = 'skip'
+        detail = "SKIP (R2 already current; dev keys intact)"
+
+    return {
+        'local_path'   : project_data_path,
+        'r2_key'       : r2_key,
+        'content_type' : CONTENT_TYPE_JSON,
+        'action'       : action,
+        'detail'       : detail,
+        'size'         : len(merged_bytes),
+        'group_id'     : '__project_data__',
+        'filename'     : JSON_PROJECT_DATA_FILENAME,
+        'merged_bytes' : merged_bytes,                                  # <-- Upload these bytes, not the raw local file
+    }
+    # ------------------------------------------------------------
+
+
     # FUNCTION | Collect All Sync Operations for a Project
     # ------------------------------------------------------------
 def collect_sync_operations(
@@ -447,18 +561,9 @@ def collect_sync_operations(
             })
 
     if project_data_path and project_data_path.is_file():
-        r2_key = build_r2_key_project_data(year_folder_name, project['project_folder'])
-        action, detail = determine_action(s3_client, bucket_name, project_data_path, r2_key)
-        operations.append({
-            'local_path'   : project_data_path,
-            'r2_key'       : r2_key,
-            'content_type' : CONTENT_TYPE_JSON,
-            'action'       : action,
-            'detail'       : detail,
-            'size'         : project_data_path.stat().st_size,
-            'group_id'     : '__project_data__',
-            'filename'     : JSON_PROJECT_DATA_FILENAME,
-        })
+        operations.append(build_project_data_operation(
+            s3_client, bucket_name, year_folder_name, project, project_data_path
+        ))
 
     return operations
     # ------------------------------------------------------------
@@ -914,19 +1019,11 @@ def run_r2_sync(
                 elif project_data_path.is_file():
                     # No GLBs yet -- sync the project data JSON on its own so the
                     # TrueVision app can load the project config from CDN before
-                    # any model files have been exported.
-                    r2_key      = build_r2_key_project_data(year_folder_name, project['project_folder'])
-                    action, detail = determine_action(s3_client, bucket_name, project_data_path, r2_key)
-                    project_operations.append({
-                        'local_path'   : project_data_path,
-                        'r2_key'       : r2_key,
-                        'content_type' : CONTENT_TYPE_JSON,
-                        'action'       : action,
-                        'detail'       : detail,
-                        'size'         : project_data_path.stat().st_size,
-                        'group_id'     : '__project_data__',
-                        'filename'     : JSON_PROJECT_DATA_FILENAME,
-                    })
+                    # any model files have been exported. Dev-owned keys already
+                    # in R2 are preserved by build_project_data_operation.
+                    project_operations.append(build_project_data_operation(
+                        s3_client, bucket_name, year_folder_name, project, project_data_path
+                    ))
 
             # PlanVision sync
             if sync_planvision:
@@ -978,7 +1075,13 @@ def run_r2_sync(
         if op['action'] == 'skip':
             continue
 
-        ok = upload_to_r2(s3_client, bucket_name, op['local_path'], op['r2_key'], op['content_type'])
+        if op.get('merged_bytes') is not None:
+            ok = upload_bytes_to_r2(
+                s3_client, bucket_name, op['merged_bytes'], op['r2_key'], op['content_type']
+            )                                                            # <-- Merged JSON (dev keys preserved)
+        else:
+            ok = upload_to_r2(s3_client, bucket_name, op['local_path'], op['r2_key'], op['content_type'])
+
         if ok:
             upload_success += 1
             print(f"  {C_GREEN}[UPLOADED] {op['r2_key']}{C_RESET}")

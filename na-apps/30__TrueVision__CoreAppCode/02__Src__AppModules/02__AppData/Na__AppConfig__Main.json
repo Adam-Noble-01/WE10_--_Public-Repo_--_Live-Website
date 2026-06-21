@@ -154,21 +154,21 @@
         "Navmode__WalkMode": {
             "Navmode__WalkMode__Description"                       : "First-person walk mode settings. All distance values are integer millimeters; convert to 3D units in code.",
             "Navmode__WalkMode__EyeHeightMm"                       : 1550,
-            "Navmode__WalkMode__CapsuleHeightMm"                   : 600,
-            "Navmode__WalkMode__CapsuleRadiusMm"                   : 260,
+            "Navmode__WalkMode__CapsuleHeightMm"                   : 500,
+            "Navmode__WalkMode__CapsuleRadiusMm"                   : 240,
             "Navmode__WalkMode__HorizontalFovDeg"                  : 55,
             "Navmode__WalkMode__MovementSpeedMmPerSec"             : 3500,
             "Navmode__WalkMode__SprintMultiplier"                  : 1.8,
             "Navmode__WalkMode__GravityMmPerSecSq"                 : 9810,
-            "Navmode__WalkMode__MaxStepHeightMm"                   : 300,
+            "Navmode__WalkMode__MaxStepHeightMm"                   : 400,
             "Navmode__WalkMode__MouseSensitivity"                  : 0.002,
             "Navmode__WalkMode__DoorProximityThresholdMm"          : 3000,
             "Navmode__WalkMode__MaxEntryPitchDeg"                  : 30,
-            "Navmode__WalkMode__EntryForwardNudgeMm"               : 1000
+            "Navmode__WalkMode__EntryForwardNudgeMm"               : 7000
         },
         "Navmode__FlyMode": {
             "Navmode__FlyMode__Description"                        : "Free-flying camera mode. No gravity, no collision. Movement is relative to the camera's current orientation so 'forward' follows where the user is looking. All distance values are integer millimeters; convert to 3D units in code.",
-            "Navmode__FlyMode__HorizontalFovDeg"                   : 60,
+            "Navmode__FlyMode__HorizontalFovDeg"                   : 55,
             "Navmode__FlyMode__MovementSpeedMmPerSec"              : 5000,
             "Navmode__FlyMode__VerticalSpeedMmPerSec"              : 4000,
             "Navmode__FlyMode__BoostMultiplier"                    : 3.0,

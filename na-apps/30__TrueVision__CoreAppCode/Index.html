@@ -329,8 +329,13 @@
                     <button class="na-dropdown-menu__button" id="naSaveCameraSettingsButton">
                         Save Camera Settings
                     </button>
-                    <!-- Orbit Max Zoom Radius (per-project override, saved to R2) -->
-                    <div class="na-dropdown-menu__panel" id="naOrbitMaxDistancePanel" style="display:block;">
+                </li>
+                <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naOrbitMaxDistanceItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naOrbitMaxDistanceToggle" aria-expanded="false">
+                        Orbit Max Zoom Radius
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naOrbitMaxDistancePanel">
                         <div class="na-dropdown-menu__panel-title">Orbit Max Zoom Radius</div>
                         <div class="na-dropdown-menu__panel-row">
                             <span class="na-dropdown-menu__value">Current:</span>
