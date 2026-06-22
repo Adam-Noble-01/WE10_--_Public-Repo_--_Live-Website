@@ -102,23 +102,21 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__LandscapeEnvironment__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedFixtures__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedFixtures__MeshModel__.glb"
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb"
             ]
         }
     ],
     "Camera__DefaultPosition": {
         "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
         "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": 14344,
-            "Camera__DefaultPos__PosY": 44336,
-            "Camera__DefaultPos__PosZ": -2808
+            "Camera__DefaultPos__PosX": -7073,
+            "Camera__DefaultPos__PosY": 2749,
+            "Camera__DefaultPos__PosZ": 19758
         },
         "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -1.1845,
-            "Camera__DefaultRotation__RotY": -0.0047,
-            "Camera__DefaultRotation__RotZ": -0.0115
+            "Camera__DefaultRotation__RotX": -0.0014,
+            "Camera__DefaultRotation__RotY": -0.5517,
+            "Camera__DefaultRotation__RotZ": -0.0007
         },
         "Camera__DefaultMisc": {
             "Camera__DefaultMisc__Fov": 30
@@ -260,14 +258,14 @@
     "Navmode__OrbitMaxDistanceMm": 200000,
     "Navmode__FovOverrides": {
         "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
-        "Navmode__FovOverrides__OrbitDeg": 30,
-        "Navmode__FovOverrides__WalkDeg": 55,
-        "Navmode__FovOverrides__FlyDeg": 55
+        "Navmode__FovOverrides__OrbitDeg": 35,
+        "Navmode__FovOverrides__WalkDeg": 50,
+        "Navmode__FovOverrides__FlyDeg": 50
     },
     "OrbitHelperCube__Position": {
         "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
-        "OrbitHelperCube__Position__PosX": 14552,
-        "OrbitHelperCube__Position__PosY": 3116,
-        "OrbitHelperCube__Position__PosZ": -19575
+        "OrbitHelperCube__Position__PosX": 16252,
+        "OrbitHelperCube__Position__PosY": 2696,
+        "OrbitHelperCube__Position__PosZ": -18139
     }
 }
