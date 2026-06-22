@@ -2,6 +2,126 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.7.6  -  22-Jun-2026
+### Hotkeys System — Central Config-Driven View Mode Shortcuts
+
+Introduced a complete hotkeys system replacing the previously scattered and hardcoded `Alt+Shift+W` / `Alt+Shift+F` keyboard shortcuts. All key bindings are now defined in a single JSON config file and propagate automatically to every user-facing surface.
+
+**New keys:**
+- `1` — Switch to Orbit mode
+- `2` — Switch to Walk mode (gated by per-model enabled flag)
+- `3` — Switch to Fly mode (gated by per-model enabled flag)
+- `4` — Toggle Animation Views (saved scene carousel)
+- `0` — Reset View to project start position
+
+**Architecture:**
+- NEW `02__Src__AppModules/02__AppData/Na__AppConfig__Hotkeys.json` — single source of truth for all hotkey bindings, display labels, and reference documentation for movement/UI keys.
+- NEW `02__Src__AppModules/10__NavigationAndCameras/Na__Hotkeys__Manager.js` — single `window` keydown listener; reads keys from config; routes to action callbacks; exports `Na__Hotkeys__ApplyUiLabels` which propagates key labels to toolbar tooltips, navigation help panel rows (`data-na-hotkey-row`), and user instructions items (`data-na-hotkey-item`).
+- `Na__AppConfig__Loader.js` — added `Na__AppConfig__LoadHotkeysConfig()` to fetch the new config file.
+- `Na__UiFeature__WalkModeEventListeners.js` — `Na__UiFeature__InitializeWalkModeHotkey` deprecated (no-op). Button wiring function retained.
+- `Na__UiFeature__FlyModeEventListeners.js` — `Na__UiFeature__InitializeFlyModeHotkey` deprecated (no-op). Button wiring function retained.
+- `Na__AppConfig__Main.json` — `Global__Hotkeys` block removed; superseded by `Na__AppConfig__Hotkeys.json`.
+- `Na__UserInstructions__SystemLogic.js` — `Na__UserInstructions__Initialize` now accepts an optional `onContentLoaded(modal)` callback invoked after HTML content injection, enabling hotkey labels to be applied to the dynamically loaded overlay.
+- `Na__UserInstructions__Content__.html` — Global Hotkeys section renamed "View Mode Shortcuts"; all five actions listed with `data-na-hotkey-item` attributes populated at runtime. Walk/Fly intro text updated.
+- `Index.html` — hotkey wiring block replaced with `Na__Hotkeys__Initialize(actionMap, config)`; `Na__Hotkeys__ApplyUiLabels` called once at startup and again via `Na__UserInstructions__Initialize` callback. Navigation toolbar buttons gain hotkey-suffixed tooltips (e.g. `Orbit mode (1)`). Navigation help panel rows updated with `data-na-hotkey-row` attributes for all five actions.
+
+**Changed Files**
+- NEW `02__Src__AppModules/02__AppData/Na__AppConfig__Hotkeys.json`
+- NEW `02__Src__AppModules/10__NavigationAndCameras/Na__Hotkeys__Manager.js`
+- MOD `02__Src__AppModules/01__AppCore/Na__AppConfig__Loader.js`
+- MOD `02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js`
+- MOD `02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeEventListeners.js`
+- MOD `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json`
+- MOD `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__SystemLogic.js`
+- MOD `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__Content__.html`
+- MOD `Index.html`
+
+
+# ---------------------------------------------------------
+## TrueVision3D v2.7.5b  -  22-Jun-2026
+### Dev Menu — Per-Scene Layer Switch Timing Toggle
+
+Per-scene control over when saved model visibility is applied during animated transitions.
+
+- New dev-menu checkbox on each Presentation Mode scene: **Switch layers before camera move**.
+- Default (unchecked): layers switch **after** the camera arrives at the scene position (current behaviour).
+- When enabled: layers switch **before** the camera move begins (useful for dolls-house / isolate views).
+- Persisted per scene as `PresentationMode__Scene__ApplyVisibilityBeforeCamera` in `TrueVision__ProjectData__.json` (R2). Key omitted when false to keep JSON lean.
+
+**Changed Files**
+- MOD `02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js` (checkbox row + save).
+- MOD `02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Camera__SceneTransition.js` (respect per-scene flag).
+- MOD `03__Style__AppStylesheets/Na__PresentationMode__Styles__SceneCarousel__.css` (checkbox row styling).
+
+
+# ---------------------------------------------------------
+## TrueVision3D v2.7.5a  -  22-Jun-2026
+### Fix — Scene Visibility Restore + Natural Transition Timing
+
+Follow-up fixes to the v2.8.0 scene visibility capture, addressing two issues reported in testing.
+
+**Fix 1 — Hidden layers never restored when returning to a "show all" scene.**
+- Root cause: scene apply only re-applied the categories/storeys present in a snapshot, so any element hidden by a previous scene (or a scene with a missing/partial block) lingered as hidden.
+- `Na__PmVisibility__ApplyState` now resets to a **fully-visible baseline first** (entire building + all category groups), then applies the scene's saved state. Each scene is now authoritative and idempotent — exactly like SketchUp scene tags. A scene with no block now shows the whole model.
+- New baseline helper `Na__ModelToggle__SetAllCategoriesVisible` (exported) plus reuse of `Na__StoreySystem__ResetEntireBuilding`.
+
+**Fix 2 — Layers switched immediately on scene click (jarring).**
+- Animated transitions now apply the saved visibility **after** the camera has finished moving to the new scene position, rather than at the start. The instant (default-scene) path is unchanged.
+
+**Changed Files**
+- MOD `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js` (`SetAllCategoriesVisible` baseline helper + export).
+- MOD `02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Visibility__StateCapture.js` (reset-to-full baseline before apply).
+- MOD `02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Camera__SceneTransition.js` (apply visibility on transition complete, not start).
+
+
+# ---------------------------------------------------------
+## TrueVision3D v2.7.4  -  21-Jun-2026
+### Dev Menu — Per-Project View-Mode FOV Overrides + Scene Visibility Capture
+
+Two new Presentation/Dev-mode capabilities, both persisted per-project to R2 and preserved by the build pipeline.
+
+**Feature 1 — Default View-Mode FOV Overrides.**
+- New localhost Dev Tools panel "Default View FOVs" with Orbit / Walk / Fly degree inputs and Apply Live / Save / Clear actions.
+- Save writes a new `Navmode__FovOverrides` block to `TrueVision__ProjectData__.json` (R2), overriding the master FOV defaults in `Na__AppConfig__Main.json` on a per-project basis.
+- Apply Live: Orbit sets the main camera FOV instantly; Walk/Fly stage the override and live-update if that mode is currently active.
+- On load, `Na__AppFlow__LoadingSequence` applies the Orbit FOV to the live camera **before** the canonical Reset View capture, and stages Walk/Fly overrides for their next activation.
+- New FOV setters `Na__WalkMode__SetFovOverride` / `Na__FlyMode__SetFovOverride` added to the respective navigation system modules.
+
+**Feature 2 — Scene Model-Element Visibility Capture (SketchUp-style scene tags).**
+- Capturing / updating a Presentation Mode scene now records the on/off state of every model element (category toggles) plus storey + roof dolls-house bookkeeping into a new `PresentationMode__Scene__Visibility` block.
+- On scene apply/transition the saved visibility is restored: coarse storey/roof state first, then fine per-category visibility last (authoritative), so different scenes can show e.g. a ground-floor-only "dolls house" view.
+- Drives the EXISTING visibility systems only — no new core visibility logic. `Na__UiFeature__ModelToggle__Controls` gained `GetVisibilityState` / `ApplyVisibilityState`; storey state read via `Na__StoreySystem__GetState`.
+- Older scenes without the block remain fully backwards-compatible (apply is a no-op).
+
+**New / Changed Files**
+- NEW `02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Visibility__StateCapture.js` (capture + apply orchestrator).
+- NEW `02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js` (FOV dev panel).
+- MOD `02__Src__AppModules/26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js` (visibility get/apply API).
+- MOD `02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js` (capture on Add/Update).
+- MOD `02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Camera__SceneTransition.js` (apply on instant + animated transition).
+- MOD `02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__WalkMode__SystemLogic.js` + `…__FlyMode__SystemLogic.js` (FOV override setters).
+- MOD `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` (`Navmode__FovOverrides` dev key + load-time apply).
+- MOD `Index.html` (FOV dev menu item + init wiring).
+- MOD `na-apps/05__ProjectVision__CoreAppCode/CloudflareR2__ModelSync__Main__.py` + `ProjectVision__BuildScript__.py` (added `Navmode__FovOverrides` to dev-owned keys).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.7.3  -  21-Jun-2026
+### Build Pipeline — Mirror Live R2 Dev Config Back to Local Project Data
+
+**Problem.**
+- After running `ProjectVision__BuildScript__.bat`, the local `TrueVision__ProjectData__.json` still showed only build-generated "standard" data (model groups, camera default). Dev-menu config saved live in-app to R2 (presentation scenes, nav modes, orbit max, orbit target) was never pulled back down to the local file, so the local copy could not be read as an accurate mirror of R2.
+- Root cause: the R2 sync (`CloudflareR2__ModelSync__Main__.py`) merged R2's dev-owned keys into the document it **uploaded to R2**, but never wrote that merged document back to the **local** file.
+
+**Fix — R2 → local write-back.**
+- `build_project_data_operation` now flags `local_out_of_sync` whenever the merged document (local build + R2 dev keys) differs from the on-disk local file, and carries the dev keys it pulled (`dev_preserved`) for logging.
+- New `sync_project_data_to_local()` writes the merged bytes back to each stale local `TrueVision__ProjectData__.json`.
+- `run_r2_sync` calls it as STEP 5b — after the `--dry-run-only` guard (so pure previews never touch disk) but **before** the upload prompt and the "all up to date" early-return, so the local mirror happens even when R2 needs no upload.
+- This is a read-from-R2 convenience mirror only; saving locally still pushes nothing. The result is local and R2 staying in sync after every build.
+
+**Changed Files**
+- `na-apps/05__ProjectVision__CoreAppCode/CloudflareR2__ModelSync__Main__.py` — `local_out_of_sync`/`dev_preserved` flags, `sync_project_data_to_local()`, STEP 5b wiring.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.7.2  -  21-Jun-2026
 ### Design Phase Model Group Transition Overlay
 

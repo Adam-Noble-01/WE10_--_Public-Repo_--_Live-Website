@@ -181,7 +181,8 @@
         Na__WalkMode__IsActive,
         Na__WalkMode__Update,
         Na__WalkMode__SetCollisionMeshes,
-        Na__WalkMode__GetCapsulePosition
+        Na__WalkMode__GetCapsulePosition,
+        Na__WalkMode__SetFovOverride
     } from '../10__NavigationAndCameras/Na__Navmode__WalkMode__SystemLogic.js';
     // ------------------------------------------------------------
 
@@ -190,7 +191,8 @@
     import {
         Na__FlyMode__IsActive,
         Na__FlyMode__Update,
-        Na__FlyMode__GetCameraPosition
+        Na__FlyMode__GetCameraPosition,
+        Na__FlyMode__SetFovOverride
     } from '../10__NavigationAndCameras/Na__Navmode__FlyMode__SystemLogic.js';
     // ------------------------------------------------------------
 
@@ -255,6 +257,7 @@
         'PresentationMode__SavedCameraScenes',   // <-- Saved camera scenes (Presentation Mode)
         'Navmode__EnabledModes',                 // <-- Walk / Fly enable flags
         'Navmode__OrbitMaxDistanceMm',           // <-- Per-project orbit zoom cap
+        'Navmode__FovOverrides',                 // <-- Per-project Orbit/Walk/Fly default FOV overrides
         'Camera__DefaultPosition',               // <-- Saved camera position / rotation / FOV
         'OrbitHelperCube__Position'              // <-- Saved orbit target
     ];
@@ -683,6 +686,27 @@
         if (Na__ProjectData__Full && Number.isFinite(Na__ProjectData__Full.Navmode__OrbitMaxDistanceMm)) {
             Na__Controls__Orbit.maxDistance = Na__Math__ConvertMmToUnits(Na__ProjectData__Full.Navmode__OrbitMaxDistanceMm); // <-- Per-project zoom-out cap
             Na__Controls__Orbit.update();
+        }
+
+        // APPLY PER-PROJECT FOV OVERRIDES (Orbit live, Walk/Fly staged for activation)
+        // Orbit FOV is applied to the live camera BEFORE CaptureStartState below so
+        // the canonical Reset View state carries the per-project orbit FOV too.
+        const Na__FovOverrides = (Na__ProjectData__Full && Na__ProjectData__Full.Navmode__FovOverrides) || null;
+        if (Na__FovOverrides) {
+            const orbitFovDeg = Na__FovOverrides.Navmode__FovOverrides__OrbitDeg;
+            const walkFovDeg  = Na__FovOverrides.Navmode__FovOverrides__WalkDeg;
+            const flyFovDeg   = Na__FovOverrides.Navmode__FovOverrides__FlyDeg;
+
+            if (Number.isFinite(orbitFovDeg) && orbitFovDeg > 0) {
+                Na__Camera__Main.fov = orbitFovDeg;                          // <-- Per-project orbit/default FOV
+                Na__Camera__Main.updateProjectionMatrix();
+            }
+            if (Number.isFinite(walkFovDeg) && walkFovDeg > 0) {
+                Na__WalkMode__SetFovOverride(walkFovDeg);                    // <-- Staged for next Walk activation
+            }
+            if (Number.isFinite(flyFovDeg) && flyFovDeg > 0) {
+                Na__FlyMode__SetFovOverride(flyFovDeg);                      // <-- Staged for next Fly activation
+            }
         }
 
         // REGISTER FULL PROJECT DATA AS THE DEV-MENU SAVE MERGE BASE

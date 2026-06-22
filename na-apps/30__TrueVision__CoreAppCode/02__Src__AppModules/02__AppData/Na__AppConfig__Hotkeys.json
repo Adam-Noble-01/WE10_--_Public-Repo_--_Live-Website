@@ -1,0 +1,64 @@
+{
+    "Na__Hotkeys__Description" : "Global view-mode hotkeys for TrueVision3D. Single source of truth for all hotkey bindings. Changes here automatically propagate to the hotkey manager, toolbar tooltips, navigation help panel, and user instructions overlay.",
+
+    "Na__Hotkeys__ViewModes" : {
+
+        "Na__Hotkeys__ViewMode__Description"            : "Number keys 0-4. No modifier keys required. Keys are ignored when an input field has focus or when Ctrl/Meta/Alt is held.",
+
+        "Na__Hotkeys__ViewMode__OrbitMode"              : "1",
+        "Na__Hotkeys__ViewMode__WalkMode"               : "2",
+        "Na__Hotkeys__ViewMode__FlyMode"                : "3",
+        "Na__Hotkeys__Action__ToggleAnimationViews"     : "4",
+        "Na__Hotkeys__Action__ResetView"                : "0"
+
+    },
+
+    "Na__Hotkeys__Display__Labels" : {
+
+        "Na__Hotkeys__Display__Labels__Description" : "Human-readable action names used in help panels, tooltips, and the user instructions overlay.",
+
+        "switchToOrbit"        : "Switch to Orbit mode",
+        "switchToWalk"         : "Switch to Walk mode",
+        "switchToFly"          : "Switch to Fly mode",
+        "toggleAnimationViews" : "Toggle Animation Views",
+        "resetView"            : "Reset View"
+
+    },
+
+    "Na__Hotkeys__Movement__Reference" : {
+
+        "Na__Hotkeys__Movement__Reference__Description" : "Movement keys used within each navigation mode. Managed by the individual mode modules (Na__DefaultNavmode__MouseControls, Na__Navmode__WalkMode__DesktopControls, Na__Navmode__FlyMode__DesktopControls). Listed here for documentation only.",
+
+        "Na__Hotkeys__Movement__Orbit__Forward"         : "W / ArrowUp",
+        "Na__Hotkeys__Movement__Orbit__Backward"        : "S / ArrowDown",
+        "Na__Hotkeys__Movement__Orbit__Left"            : "A / ArrowLeft",
+        "Na__Hotkeys__Movement__Orbit__Right"           : "D / ArrowRight",
+        "Na__Hotkeys__Movement__Orbit__Up"              : "E",
+        "Na__Hotkeys__Movement__Orbit__Down"            : "Q",
+
+        "Na__Hotkeys__Movement__Walk__Forward"          : "W / ArrowUp",
+        "Na__Hotkeys__Movement__Walk__Backward"         : "S / ArrowDown",
+        "Na__Hotkeys__Movement__Walk__Left"             : "A / ArrowLeft",
+        "Na__Hotkeys__Movement__Walk__Right"            : "D / ArrowRight",
+        "Na__Hotkeys__Movement__Walk__Sprint"           : "Shift (hold)",
+
+        "Na__Hotkeys__Movement__Fly__Forward"           : "W / ArrowUp",
+        "Na__Hotkeys__Movement__Fly__Backward"          : "S / ArrowDown",
+        "Na__Hotkeys__Movement__Fly__Left"              : "A / ArrowLeft",
+        "Na__Hotkeys__Movement__Fly__Right"             : "D / ArrowRight",
+        "Na__Hotkeys__Movement__Fly__Ascend"            : "E / Space / PageUp",
+        "Na__Hotkeys__Movement__Fly__Descend"           : "Q / C / PageDown",
+        "Na__Hotkeys__Movement__Fly__Boost"             : "Shift (hold)",
+        "Na__Hotkeys__Movement__Fly__Slow"              : "Alt (hold)"
+
+    },
+
+    "Na__Hotkeys__Ui__Reference" : {
+
+        "Na__Hotkeys__Ui__Reference__Description"  : "Context-sensitive UI keys. Handled by their respective UI modules. Listed here for documentation only.",
+
+        "Na__Hotkeys__Ui__CloseOverlay"            : "Escape",
+        "Na__Hotkeys__Ui__ReleasePointerLock"      : "Escape"
+
+    }
+}

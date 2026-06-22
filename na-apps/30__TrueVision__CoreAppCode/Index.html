@@ -352,6 +352,32 @@
                         </div>
                     </div>
                 </li>
+                <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naViewModeFovItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naViewModeFovToggle" aria-expanded="false">
+                        Default View FOVs
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naViewModeFovPanel">
+                        <div class="na-dropdown-menu__panel-title">Default Camera FOVs (degrees)</div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <span class="na-dropdown-menu__value">Orbit</span>
+                            <input type="number" id="naViewModeFovOrbitInput" class="na-pm-dev__input na-pm-dev__input--short" min="5" max="120" step="0.5" />
+                        </div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <span class="na-dropdown-menu__value">Walk</span>
+                            <input type="number" id="naViewModeFovWalkInput" class="na-pm-dev__input na-pm-dev__input--short" min="5" max="120" step="0.5" />
+                        </div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <span class="na-dropdown-menu__value">Fly</span>
+                            <input type="number" id="naViewModeFovFlyInput" class="na-pm-dev__input na-pm-dev__input--short" min="5" max="120" step="0.5" />
+                        </div>
+                        <div class="na-pm-dev__actions">
+                            <button class="na-pm-dev__btn" id="naViewModeFovApply">Apply Live</button>
+                            <button class="na-pm-dev__btn na-pm-dev__btn--primary" id="naViewModeFovSave">Save</button>
+                            <button class="na-pm-dev__btn na-pm-dev__btn--danger" id="naViewModeFovClear">Clear</button>
+                        </div>
+                    </div>
+                </li>
                 <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naNavModesDevItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naNavModesDevToggle" aria-expanded="false">
                         Navigation Modes
@@ -440,6 +466,7 @@
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Left Drag / 1 Finger</span><span class="na-nav-help__desc">Rotate around the model</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Right Drag / 2 Fingers</span><span class="na-nav-help__desc">Pan the view sideways and up/down</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Scroll / Pinch</span><span class="na-nav-help__desc">Zoom in and out</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="switchToOrbit"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Switch to Orbit mode</span></div>
                     </div>
                 </div>
                 <div class="na-nav-help__section na-nav-help__section--collapsed" id="naNavHelpWalkSection" style="display:none;">
@@ -453,6 +480,7 @@
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Mouse</span><span class="na-nav-help__desc">Look around (click the view to capture the mouse)</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Shift</span><span class="na-nav-help__desc">Hold to walk faster</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Esc</span><span class="na-nav-help__desc">Release the mouse; press Orbit to exit walk mode</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="switchToWalk"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Switch to Walk mode</span></div>
                     </div>
                 </div>
                 <div class="na-nav-help__section na-nav-help__section--collapsed" id="naNavHelpFlySection" style="display:none;">
@@ -467,6 +495,7 @@
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Mouse</span><span class="na-nav-help__desc">Look around (click the view to capture the mouse)</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Shift</span><span class="na-nav-help__desc">Hold to fly faster</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Esc</span><span class="na-nav-help__desc">Release the mouse; press Orbit to exit fly mode</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="switchToFly"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Switch to Fly mode</span></div>
                     </div>
                 </div>
                 <div class="na-nav-help__section na-nav-help__section--collapsed" id="naNavHelpGeneralSection">
@@ -476,8 +505,8 @@
                         <span class="na-nav-help__section-arrow" aria-hidden="true">&#9662;</span>
                     </button>
                     <div class="na-nav-help__section-body">
-                        <div class="na-nav-help__row"><span class="na-nav-help__key">Reset View</span><span class="na-nav-help__desc">Return to the project's original starting view</span></div>
-                        <div class="na-nav-help__row"><span class="na-nav-help__key">Views</span><span class="na-nav-help__desc">Show the saved scene carousel (when available)</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="resetView"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Reset to the project's original starting view</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="toggleAnimationViews"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Toggle saved scene carousel (when available)</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Esc</span><span class="na-nav-help__desc">Closes this panel</span></div>
                     </div>
                 </div>
@@ -507,7 +536,7 @@
     import * as THREE from 'three';
     import { Na__DefaultNavmode__InitializeMouseControls } from './02__Src__AppModules/10__NavigationAndCameras/Na__DefaultNavmode__MouseControls.js';
     import { Na__DefaultNavmode__InitializeIpadControls } from './02__Src__AppModules/10__NavigationAndCameras/Na__DefaultNavmode__IpadControls.js';
-    import { Na__AppConfig__LoadConfig } from './02__Src__AppModules/01__AppCore/Na__AppConfig__Loader.js';
+    import { Na__AppConfig__LoadConfig, Na__AppConfig__LoadHotkeysConfig } from './02__Src__AppModules/01__AppCore/Na__AppConfig__Loader.js';
     import { Na__UiFeature__InitializeCameraLensControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__CameraLens__Controls.js';
     import { Na__UiFeature__InitializeImageExportControls } from './02__Src__AppModules/30__System__ImageExport/Na__UiFeature__ImageExport__Controls.js';
     import { Na__UiFeature__InitializeSaveCameraButton } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__SaveCameraSettings.js';
@@ -520,9 +549,10 @@
         Na__Scene__ApplyFogBackground
     } from './02__Src__AppModules/07__Scene__EnvironmentEffects/Na__Scene__DefaultFogEffect.js';
     import { Na__UiFeature__InitializeWalkModeSystem, Na__UiFeature__ToggleWalkMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeControls.js';
-    import { Na__UiFeature__InitializeWalkModeHotkey, Na__UiFeature__InitializeWalkModeToggleButton } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js';
+    import { Na__UiFeature__InitializeWalkModeToggleButton } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js';
     import { Na__UiFeature__InitializeFlyModeSystem, Na__UiFeature__ToggleFlyMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeControls.js';
-    import { Na__UiFeature__InitializeFlyModeHotkey, Na__UiFeature__InitializeFlyModeToggleButton } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeEventListeners.js';
+    import { Na__UiFeature__InitializeFlyModeToggleButton } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeEventListeners.js';
+    import { Na__Hotkeys__Initialize, Na__Hotkeys__ApplyUiLabels } from './02__Src__AppModules/10__NavigationAndCameras/Na__Hotkeys__Manager.js';
     import { Na__FlyMode__IsActive } from './02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__FlyMode__SystemLogic.js';
     import { Na__WalkMode__IsActive } from './02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__WalkMode__SystemLogic.js';
     import { Na__AppFlow__StartLoadingSequence } from './02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js';
@@ -530,11 +560,13 @@
     import { Na__UserInstructions__Initialize, Na__UserInstructions__Open } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__SystemLogic.js';
     import { Na__RenderLoop__RequestRender } from './02__Src__AppModules/05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     import { Na__NavigationModes__IsWalkEnabled, Na__NavigationModes__IsFlyEnabled } from './02__Src__AppModules/10__NavigationAndCameras/Na__NavigationModes__State.js';
-    import { Na__UiFeature__InitializeNavigationToolbar, Na__UiFeature__RevealNavigationToolbarModes, Na__NavToolbar__SetActiveMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__NavigationToolbar__Controls.js';
+    import { Na__UiFeature__InitializeNavigationToolbar, Na__UiFeature__RevealNavigationToolbarModes, Na__NavToolbar__SetActiveMode, Na__NavToolbar__GetActiveMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__NavigationToolbar__Controls.js';
+    import { Na__CameraStartState__ResetView } from './02__Src__AppModules/10__NavigationAndCameras/Na__Camera__ProjectStartState.js';
     import { Na__UiFeature__InitializeNavigationHelpPanel, Na__UiFeature__OpenNavigationHelpPanel } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__NavigationHelpPanel__Controls.js';
     import { Na__UiFeature__InitializeNavigationModesDevControls } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__NavigationModes__DevControls.js';
     import { Na__UiFeature__InitializeOrbitMaxDistanceDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__OrbitMaxDistance__DevControls.js';
-    import { Na__PresentationMode__UI__InitializeSceneCarousel } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
+    import { Na__UiFeature__InitializeViewModeFovDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js';
+    import { Na__PresentationMode__UI__InitializeSceneCarousel, Na__PresentationMode__UI__ToggleSceneCarousel } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
     import { Na__PresentationMode__Thumbnail__SetRenderContext } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Thumbnail__Renderer.js';
     import { Na__PresentationMode__DevMenu__InitializeSceneEditor } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js';
     import { Na__CfApi__Initialize } from './02__Src__AppModules/80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
@@ -598,7 +630,8 @@
     const Na__Config__FlyMode = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__FlyMode)
         ? Na__Config__NavmodeSettings.Navmode__FlyMode
         : {};                                                                     // <-- Fly mode config (MM + scalars)
-    const Na__Config__GlobalHotkeys = Na__AppConfig__Data.Global__Hotkeys || {};  // <-- Global hotkeys config
+    // @delegate: ./02__Src__AppModules/02__AppData/Na__AppConfig__Hotkeys.json
+    const Na__Config__Hotkeys = await Na__AppConfig__LoadHotkeysConfig();          // <-- Hotkeys config (SSOT for key bindings)
     const Na__Config__MaterialsSystem = Na__AppConfig__Data.MaterialsSystem__Config || {};  // <-- Materials system config
     const Na__Config__StoreyVisibility = Na__AppConfig__Data.StoreyVisibility || {};       // <-- Storey visibility config
     // ------------------------------------------------------------
@@ -801,8 +834,7 @@
     // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeControls.js
     Na__UiFeature__InitializeFlyModeSystem(Na__Scene__Main, Na__Camera__Main, Na__Renderer__Main, Na__Controls__Orbit, Na__Config__FlyMode, Na__Device__UseTouchControls);
 
-    // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__WalkModeEventListeners.js
-    // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__FlyModeEventListeners.js
+    // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__Hotkeys__Manager.js
     // HELPER | Walk/Fly Mutual Exclusivity Toggle Wrappers (Used by Navigation Toolbar)
     // ------------------------------------------------------------
     // 'silent-off'      : deactivates the mode if active, no UI callback (called by the
@@ -848,22 +880,44 @@
         );
     }
 
-    // HOTKEYS | Gated by per-model enabled flags (evaluated at keydown time, post-load)
+    // HOTKEYS | Central manager — keys and actions driven from Na__AppConfig__Hotkeys.json
+    // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__Hotkeys__Manager.js
     // ------------------------------------------------------------
-    Na__UiFeature__InitializeWalkModeHotkey(() => {
-        if (!Na__NavigationModes__IsWalkEnabled()) return;                       // <-- Walk not available for this model
-        Na__UiFeature__ToggleWalkMode(
-            () => Na__NavToolbar__SetActiveMode('walk'),
-            () => Na__NavToolbar__SetActiveMode('orbit')
-        );
-    });
-    Na__UiFeature__InitializeFlyModeHotkey(() => {
-        if (!Na__NavigationModes__IsFlyEnabled()) return;                        // <-- Fly not available for this model
-        Na__UiFeature__ToggleFlyMode(
-            () => Na__NavToolbar__SetActiveMode('fly'),
-            () => Na__NavToolbar__SetActiveMode('orbit')
-        );
-    });
+    Na__Hotkeys__Initialize({
+
+        switchToOrbit: () => {
+            if (Na__NavToolbar__GetActiveMode() === 'orbit') return;             // <-- Already in orbit, no-op
+            Na__UiFeature__WalkMode__ToggleFn('return-to-orbit');
+            Na__UiFeature__FlyMode__ToggleFn('return-to-orbit');
+        },
+
+        switchToWalk: () => {
+            if (!Na__NavigationModes__IsWalkEnabled()) return;                   // <-- Walk not available for this model
+            if (Na__NavToolbar__GetActiveMode() === 'walk') return;              // <-- Already in walk, no-op
+            Na__UiFeature__FlyMode__ToggleFn('silent-off');                      // <-- Silently exit fly if active
+            Na__UiFeature__WalkMode__ToggleFn();                                 // <-- Activate walk
+        },
+
+        switchToFly: () => {
+            if (!Na__NavigationModes__IsFlyEnabled()) return;                    // <-- Fly not available for this model
+            if (Na__NavToolbar__GetActiveMode() === 'fly') return;               // <-- Already in fly, no-op
+            Na__UiFeature__WalkMode__ToggleFn('silent-off');                     // <-- Silently exit walk if active
+            Na__UiFeature__FlyMode__ToggleFn();                                  // <-- Activate fly
+        },
+
+        toggleAnimationViews: () => {
+            Na__PresentationMode__UI__ToggleSceneCarousel();                     // <-- Toggle the saved scene carousel
+        },
+
+        resetView: () => {
+            Na__UiFeature__WalkMode__ToggleFn('return-to-orbit');                // <-- Exit walk first
+            Na__UiFeature__FlyMode__ToggleFn('return-to-orbit');                 // <-- Exit fly first
+            Na__CameraStartState__ResetView();                                   // <-- Restore project start state
+        }
+
+    }, Na__Config__Hotkeys);
+
+    Na__Hotkeys__ApplyUiLabels(Na__Config__Hotkeys);                             // <-- Propagate key labels to toolbar + help panel
     // ------------------------------------------------------------
 
     // SETTINGS MENU | SSAO (Shadows) Real-Time Toggle
@@ -1063,7 +1117,9 @@
 
     // MODULE INITIALIZATION | User Instructions System
     // ------------------------------------------------------------
-    await Na__UserInstructions__Initialize(Na__Device__UseTouchControls);
+    await Na__UserInstructions__Initialize(Na__Device__UseTouchControls, () => {
+        Na__Hotkeys__ApplyUiLabels(Na__Config__Hotkeys);                         // <-- Apply hotkey labels to injected user instructions content
+    });
     Na__UiFeature__InitializeUserInstructionsMenuItem(Na__UserInstructions__Open);
     // ------------------------------------------------------------
 
@@ -1176,6 +1232,20 @@
         controls             : Na__Controls__Orbit,
         defaultMaxDistanceMm : Na__OrbitMaxDefaultMm,
         showToast            : Na__UiFeature__ShowToast
+    });
+
+    // @delegate: ./02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js
+    const Na__MasterFovs = {
+        orbitDeg : (Na__Config__CameraDefault && Na__Config__CameraDefault.Camera__DefaultMisc && Number.isFinite(Na__Config__CameraDefault.Camera__DefaultMisc.Camera__DefaultMisc__Fov))
+            ? Na__Config__CameraDefault.Camera__DefaultMisc.Camera__DefaultMisc__Fov
+            : Na__Config__CameraConfig.Scene__Default__CameraConfig__Fov,    // <-- Master orbit/default FOV
+        walkDeg  : Na__Config__WalkMode ? Na__Config__WalkMode.Navmode__WalkMode__HorizontalFovDeg : undefined,  // <-- Master walk FOV
+        flyDeg   : Na__Config__FlyMode  ? Na__Config__FlyMode.Navmode__FlyMode__HorizontalFovDeg   : undefined   // <-- Master fly FOV
+    };
+    Na__UiFeature__InitializeViewModeFovDevControls({
+        camera     : Na__Camera__Main,
+        masterFovs : Na__MasterFovs,
+        showToast  : Na__UiFeature__ShowToast
     });
 
     // UPDATE DEV CHECKBOXES once project data loads (async timing)

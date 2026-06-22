@@ -97,17 +97,96 @@
     "Camera__DefaultPosition": {
         "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
         "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": -1227,
-            "Camera__DefaultPos__PosY": 6796,
-            "Camera__DefaultPos__PosZ": 20717
+            "Camera__DefaultPos__PosX": -7073,
+            "Camera__DefaultPos__PosY": 2749,
+            "Camera__DefaultPos__PosZ": 19758
         },
         "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -0.1752,
-            "Camera__DefaultRotation__RotY": -0.5459,
-            "Camera__DefaultRotation__RotZ": -0.0917
+            "Camera__DefaultRotation__RotX": -0.0014,
+            "Camera__DefaultRotation__RotY": -0.5517,
+            "Camera__DefaultRotation__RotZ": -0.0007
         },
         "Camera__DefaultMisc": {
-            "Camera__DefaultMisc__Fov": 33.3985
+            "Camera__DefaultMisc__Fov": 30
         }
+    },
+    "PresentationMode__SavedCameraScenes": {
+        "PresentationMode__SavedCameraScenes__Description": "Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition.",
+        "PresentationMode__SavedCameraScenes__Enabled": true,
+        "PresentationMode__SavedCameraScenes__ShowCarouselByDefault": true,
+        "PresentationMode__SavedCameraScenes__DefaultSceneId": "Scene_001",
+        "PresentationMode__SavedCameraScenes__Scenes": [
+            {
+                "PresentationMode__Scene__Id": "Scene_001",
+                "PresentationMode__Scene__Name": "Scene 1",
+                "PresentationMode__Scene__Order": 1,
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_001.webp",
+                "PresentationMode__Scene__LensMm": 45,
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": -7073,
+                        "Camera__DefaultPos__PosY": 2749,
+                        "Camera__DefaultPos__PosZ": 19758
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.0014,
+                        "Camera__DefaultRotation__RotY": -0.5517,
+                        "Camera__DefaultRotation__RotZ": -0.0007
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 16252,
+                    "OrbitHelperCube__Position__PosY": 2696,
+                    "OrbitHelperCube__Position__PosZ": -18139
+                }
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_002",
+                "PresentationMode__Scene__Name": "Scene 2",
+                "PresentationMode__Scene__Order": 2,
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_002.webp",
+                "PresentationMode__Scene__LensMm": 41,
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": -6290,
+                        "Camera__DefaultPos__PosY": 2942,
+                        "Camera__DefaultPos__PosZ": -57485
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -3.128,
+                        "Camera__DefaultRotation__RotY": -0.6286,
+                        "Camera__DefaultRotation__RotZ": -3.1336
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 32.9
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 20172,
+                    "OrbitHelperCube__Position__PosY": 2447,
+                    "OrbitHelperCube__Position__PosZ": -21091
+                }
+            }
+        ]
+    },
+    "Navmode__EnabledModes": {
+        "Navmode__EnabledModes__Walk": true,
+        "Navmode__EnabledModes__Fly": true
+    },
+    "Navmode__OrbitMaxDistanceMm": 200000,
+    "OrbitHelperCube__Position": {
+        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
+        "OrbitHelperCube__Position__PosX": 16252,
+        "OrbitHelperCube__Position__PosY": 2696,
+        "OrbitHelperCube__Position__PosZ": -18139
     }
 }

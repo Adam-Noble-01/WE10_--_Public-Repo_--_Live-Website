@@ -109,6 +109,7 @@ DEV_OWNED_PROJECT_DATA_KEYS        = (
     'PresentationMode__SavedCameraScenes',     # <-- Saved camera scenes (Presentation Mode)
     'Navmode__EnabledModes',                   # <-- Walk / Fly enable flags
     'Navmode__OrbitMaxDistanceMm',             # <-- Per-project orbit zoom cap
+    'Navmode__FovOverrides',                   # <-- Per-project Orbit/Walk/Fly default FOV overrides
     'Camera__DefaultPosition',                 # <-- Saved camera position / rotation / FOV
     'OrbitHelperCube__Position',               # <-- Saved orbit target
 )
@@ -505,6 +506,11 @@ def build_project_data_operation(
 
     merged_bytes = (json.dumps(merged, indent=4, ensure_ascii=False) + '\n').encode('utf-8')
 
+    # Local file is stale whenever the merged document (build + R2 dev keys)
+    # differs from what is currently on disk. This lets us mirror live in-app
+    # R2 edits back down to the local project data for easy local reading.
+    local_out_of_sync = (merged != local_data)                          # <-- Pull R2 dev keys down to local
+
     if remote_json is None:
         action = 'new'
         detail = f"NEW ({format_size(len(merged_bytes))})"
@@ -517,16 +523,53 @@ def build_project_data_operation(
         detail = "SKIP (R2 already current; dev keys intact)"
 
     return {
-        'local_path'   : project_data_path,
-        'r2_key'       : r2_key,
-        'content_type' : CONTENT_TYPE_JSON,
-        'action'       : action,
-        'detail'       : detail,
-        'size'         : len(merged_bytes),
-        'group_id'     : '__project_data__',
-        'filename'     : JSON_PROJECT_DATA_FILENAME,
-        'merged_bytes' : merged_bytes,                                  # <-- Upload these bytes, not the raw local file
+        'local_path'        : project_data_path,
+        'r2_key'            : r2_key,
+        'content_type'      : CONTENT_TYPE_JSON,
+        'action'            : action,
+        'detail'            : detail,
+        'size'              : len(merged_bytes),
+        'group_id'          : '__project_data__',
+        'filename'          : JSON_PROJECT_DATA_FILENAME,
+        'merged_bytes'      : merged_bytes,                             # <-- Upload these bytes, not the raw local file
+        'local_out_of_sync' : local_out_of_sync,                        # <-- Mirror merged JSON back to local file
+        'dev_preserved'     : dev_preserved,                            # <-- Dev keys pulled from R2 (for logging)
     }
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Mirror R2 Dev-Owned Keys Back into Local Project Data
+    # ------------------------------------------------------------
+def sync_project_data_to_local(operations: List[Dict]) -> int:
+    """Write merged project-data JSON (build + R2 dev keys) back to local disk.
+
+    Keeps the local TrueVision__ProjectData__.json in sync with R2 so a
+    developer can read the live in-app config locally. Saving locally does not
+    push anything; this is a read-from-R2 convenience mirror only. Returns the
+    number of local files updated.
+    """
+    updated = 0
+    for op in operations:
+        if op.get('group_id') != '__project_data__':
+            continue
+        if not op.get('local_out_of_sync'):
+            continue
+        merged_bytes = op.get('merged_bytes')
+        local_path   = op.get('local_path')
+        if merged_bytes is None or local_path is None:
+            continue
+
+        try:
+            with open(local_path, 'wb') as fh:
+                fh.write(merged_bytes)
+            updated += 1
+            pulled = op.get('dev_preserved') or []
+            note   = f" [pulled: {', '.join(pulled)}]" if pulled else ''
+            print(f"  {C_GREEN}[LOCAL SYNC] {local_path}{note}{C_RESET}")
+        except OSError as error:
+            print(f"  {C_RED}[LOCAL SYNC FAILED] {local_path}: {error}{C_RESET}")
+
+    return updated
     # ------------------------------------------------------------
 
 
@@ -1055,6 +1098,12 @@ def run_r2_sync(
 
     if dry_run_only:
         return 0
+
+    # STEP 5b | Mirror R2 dev-owned keys back into the local project data files
+    # so the local TrueVision__ProjectData__.json reflects live in-app edits.
+    local_synced = sync_project_data_to_local(all_operations)
+    if local_synced:
+        print(f"  {C_GREEN}[OK] Synced R2 config into {local_synced} local project data file(s).{C_RESET}\n")
 
     if not needs_upload:
         print(f"  {C_GREEN}All files are up to date. No uploads needed.{C_RESET}\n")

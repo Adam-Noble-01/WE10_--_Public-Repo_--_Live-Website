@@ -56,6 +56,13 @@
     } from './Na__PresentationMode__Camera__SceneTransition.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Model Visibility State Capture (dolls-house scenes)
+    // ------------------------------------------------------------
+    import {
+        Na__PmVisibility__CaptureState
+    } from './Na__PresentationMode__Visibility__StateCapture.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Thumbnail Renderer
     // ------------------------------------------------------------
     import { Na__PresentationMode__Thumbnail__RenderCurrentViewportToWebp } from './Na__PresentationMode__Thumbnail__Renderer.js';
@@ -100,6 +107,7 @@
     const Na__PmDev__TRANSITION_DEFAULT   = 1800;  // <-- Default transition duration
     const Na__PmDev__SENSOR_HEIGHT_MM     = 24;    // <-- Full-frame sensor height (matches cameraLens AppConfig)
     const Na__PmDev__EASING_OPTIONS       = ['easeInOutCubic', 'easeInOutQuad', 'linear']; // <-- Available easing names
+    const Na__PmDev__KEY__VISIBILITY_BEFORE_CAMERA = 'PresentationMode__Scene__ApplyVisibilityBeforeCamera'; // <-- Per-scene layer timing flag
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -324,6 +332,39 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Build the Layer-Timing Checkbox Row
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildVisibilityTimingRow(scene, onChange) {
+        const applyBefore = scene[Na__PmDev__KEY__VISIBILITY_BEFORE_CAMERA] === true; // <-- Default false = after move
+
+        const row = document.createElement('div');
+        row.className = 'na-pm-dev__row na-pm-dev__row--checkbox';
+
+        const label = document.createElement('label');
+        label.className   = 'na-pm-dev__checkbox-label';
+        label.title       = 'When enabled, model layers switch before the camera move. Default (off): switch after the move completes.';
+
+        const checkbox = document.createElement('input');
+        checkbox.type      = 'checkbox';
+        checkbox.className = 'na-pm-dev__checkbox';
+        checkbox.checked   = applyBefore;
+
+        const text = document.createElement('span');
+        text.className   = 'na-pm-dev__checkbox-text';
+        text.textContent = 'Switch layers before camera move';
+
+        checkbox.addEventListener('change', () => {
+            onChange(checkbox.checked === true);                             // <-- Persist per-scene timing preference
+        });
+
+        label.appendChild(checkbox);
+        label.appendChild(text);
+        row.appendChild(label);
+        return row;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Build a Single Scene Editor Row
     // ------------------------------------------------------------
     function Na__PmDev__BuildSceneRow(scene, rowIndex, onMutate) {
@@ -405,6 +446,15 @@
             scene.PresentationMode__Scene__TransitionEasing = newEasing;
         }));
 
+        // LAYER TIMING TOGGLE (before vs after camera move)
+        wrapper.appendChild(Na__PmDev__BuildVisibilityTimingRow(scene, (applyBefore) => {
+            if (applyBefore) {
+                scene[Na__PmDev__KEY__VISIBILITY_BEFORE_CAMERA] = true;     // <-- Switch layers at transition start
+            } else {
+                delete scene[Na__PmDev__KEY__VISIBILITY_BEFORE_CAMERA];    // <-- Omit key when default (after move)
+            }
+        }));
+
         // ACTION BUTTONS ROW
         const actionsRow = document.createElement('div');
         actionsRow.className = 'na-pm-dev__actions';
@@ -421,6 +471,8 @@
             if (!built) return;
             scene.PresentationMode__Scene__CameraPosition = { ...built.cameraPosition };
             scene.PresentationMode__Scene__OrbitHelperCubePosition = { ...built.orbitHelperCubePosition };
+            const visibility = Na__PmVisibility__CaptureState();            // <-- Capture live model element on/off state
+            if (visibility) scene.PresentationMode__Scene__Visibility = visibility;
             onMutate('save-one', scene);                                    // <-- Commit + persist immediately
         });
         actionsRow.appendChild(updateBtn);
@@ -667,6 +719,9 @@
             PresentationMode__Scene__CameraPosition        : built.cameraPosition,
             PresentationMode__Scene__OrbitHelperCubePosition: built.orbitHelperCubePosition
         };
+
+        const newSceneVisibility = Na__PmVisibility__CaptureState();        // <-- Capture model element on/off state at creation
+        if (newSceneVisibility) newScene.PresentationMode__Scene__Visibility = newSceneVisibility;
 
         // RENDER + UPLOAD THUMBNAIL FIRST so the carousel card has an image
         await Na__PmDev__RegenerateThumbnail(newScene);                     // <-- Sets ThumbnailUrl on success

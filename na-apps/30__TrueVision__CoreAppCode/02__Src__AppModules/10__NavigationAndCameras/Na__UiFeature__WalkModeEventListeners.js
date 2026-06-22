@@ -6,24 +6,30 @@
 // NAMESPACE  : Na__UiFeature
 // MODULE     : WalkModeEventListeners
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Walk mode keyboard hotkey and UI button event binding
+// PURPOSE    : Walk mode UI button event binding
 // CREATED    : 24-Feb-2026
 //
 // DESCRIPTION:
 // - Pure event-binding module with no Three.js dependencies and no state.
-// - Registers the Alt+Shift+W keyboard hotkey that toggles walk mode.
-// - Optionally wires a DOM button to the same toggle function.
-// - Both functions accept the toggle function as a parameter, keeping this
-//   module completely decoupled from the walk mode logic itself.
+// - Na__UiFeature__InitializeWalkModeToggleButton wires a DOM button to the
+//   walk mode toggle function (used in test environments).
+// - Na__UiFeature__InitializeWalkModeHotkey is retained as a no-op for
+//   backwards compatibility. Walk mode hotkeys are now managed centrally by
+//   Na__Hotkeys__Manager.js, driven from Na__AppConfig__Hotkeys.json.
+//
+// @delegate: ./Na__Hotkeys__Manager.js
 //
 // INTEGRATION:
-// - Call Na__UiFeature__InitializeWalkModeHotkey(toggleFn) after scene init.
 // - Call Na__UiFeature__InitializeWalkModeToggleButton(buttonId, toggleFn)
 //   if a UI toggle button exists in the DOM (e.g. in the test environment).
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Jun-2026 - Version 1.1.0
+// - Na__UiFeature__InitializeWalkModeHotkey deprecated (no-op). Walk hotkeys
+//   superseded by Na__Hotkeys__Manager.js + Na__AppConfig__Hotkeys.json.
+//
 // 24-Feb-2026 - Version 1.0.0
 // - Extracted walk mode hotkey listener from index.html (lines 521-529) and
 //   walk mode UI button listener from TestEnv__PrototypeTestingSandbox__Main__.js
@@ -33,18 +39,15 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | Walk Mode Hotkey Registration
+// REGION | Walk Mode Hotkey Registration (Deprecated)
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Initialize Walk Mode Hotkey Listener (Alt+Shift+W)
+    // FUNCTION | Initialize Walk Mode Hotkey Listener — DEPRECATED NO-OP
+    // Walk hotkeys are now managed by Na__Hotkeys__Manager.js.
+    // @delegate: ./Na__Hotkeys__Manager.js
     // ------------------------------------------------------------
-    function Na__UiFeature__InitializeWalkModeHotkey(toggleFn) {
-        window.addEventListener('keydown', (event) => {
-            if (event.altKey && event.shiftKey && event.key.toLowerCase() === 'w') {
-                event.preventDefault();                                        // <-- Block default browser Alt+Shift+W action
-                toggleFn();                                                    // <-- Invoke the supplied toggle function
-            }
-        });
+    function Na__UiFeature__InitializeWalkModeHotkey(_toggleFn) {
+        // Deprecated: superseded by Na__Hotkeys__Initialize in Na__Hotkeys__Manager.js
     }
     // ------------------------------------------------------------
 

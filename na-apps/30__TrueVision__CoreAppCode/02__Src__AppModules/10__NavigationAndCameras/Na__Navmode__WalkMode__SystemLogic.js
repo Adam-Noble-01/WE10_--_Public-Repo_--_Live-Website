@@ -213,6 +213,23 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Override Walk Mode FOV (Per-Project Dev Setting)
+    // ------------------------------------------------------------
+    // Applied next time Walk mode activates. If Walk mode is already active the
+    // live camera FOV is updated immediately so the dev sees the change at once.
+    // ------------------------------------------------------------
+    function Na__WalkMode__SetFovOverride(fovDeg) {
+        if (!Number.isFinite(fovDeg) || fovDeg <= 0) return;             // <-- Ignore invalid values
+        Na__WalkMode__Config__HorizontalFovDeg = fovDeg;                 // <-- Becomes the active Walk FOV
+
+        if (Na__WalkMode__IsActive() && Na__WalkMode__Camera) {
+            Na__WalkMode__Camera.fov = fovDeg;                          // <-- Live update while walking
+            Na__WalkMode__Camera.updateProjectionMatrix();
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Convert All Config MM Values to Three.js Units
     // ------------------------------------------------------------
     function Na__WalkMode__ConvertConfigToUnits() {
@@ -920,7 +937,8 @@
         Na__WalkMode__AccumulateLookInput,
         Na__WalkMode__ClampEntryPitch,
         Na__WalkMode__NudgeCapsuleForward,
-        Na__WalkMode__GetSavedOrbitState
+        Na__WalkMode__GetSavedOrbitState,
+        Na__WalkMode__SetFovOverride
     };
     // ------------------------------------------------------------
 

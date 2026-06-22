@@ -159,6 +159,23 @@
 // REGION | Configuration and Initialization
 // -----------------------------------------------------------------------------
 
+    // FUNCTION | Override Fly Mode FOV (Per-Project Dev Setting)
+    // ------------------------------------------------------------
+    // Applied next time Fly mode activates. If Fly mode is already active the
+    // live camera FOV is updated immediately so the dev sees the change at once.
+    // ------------------------------------------------------------
+    function Na__FlyMode__SetFovOverride(fovDeg) {
+        if (!Number.isFinite(fovDeg) || fovDeg <= 0) return;             // <-- Ignore invalid values
+        Na__FlyMode__Config__HorizontalFovDeg = fovDeg;                 // <-- Becomes the active Fly FOV
+
+        if (Na__FlyMode__IsActive() && Na__FlyMode__Camera) {
+            Na__FlyMode__Camera.fov = fovDeg;                          // <-- Live update while flying
+            Na__FlyMode__Camera.updateProjectionMatrix();
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Apply Config Values From AppConfig JSON
     // ------------------------------------------------------------
     function Na__FlyMode__ApplyConfig(flyConfig) {
@@ -575,7 +592,8 @@
         Na__FlyMode__SetMovementInput,
         Na__FlyMode__SetSpeedModifiers,
         Na__FlyMode__AccumulateLookInput,
-        Na__FlyMode__SetKeyboardRotateRate
+        Na__FlyMode__SetKeyboardRotateRate,
+        Na__FlyMode__SetFovOverride
     };
     // ------------------------------------------------------------
 

@@ -135,6 +135,77 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
     }
     // ---------------------------------------------------------------
 
+
+    // SUB HELPER FUNCTION | Sync a Category Button's Active Class to a Visibility State
+    // ---------------------------------------------------------------
+    function Na__ModelToggle__SyncButtonState(categoryKey, visible) {
+        const listContainer = document.getElementById(Na__ModelToggle__ListId);  // <-- Button list container
+        if (!listContainer) return;
+        const button = listContainer.querySelector(
+            `.${Na__ModelToggle__ButtonClass}[data-category="${CSS.escape(categoryKey)}"]`
+        );                                                               // <-- Locate the matching toggle button
+        if (!button) return;
+        button.classList.toggle(Na__ModelToggle__ActiveClass, visible);  // <-- Reflect the new visibility in the UI
+    }
+    // ---------------------------------------------------------------
+
+
+    // FUNCTION | Read Current Category Visibility as a Serializable Snapshot
+    // ------------------------------------------------------------
+    // Reads the LIVE group.visible flag (authoritative), so it captures the
+    // true state even when the Storey/Floor-Isolate systems mutated visibility
+    // directly without going through this module's cached flags.
+    // ------------------------------------------------------------
+    function Na__ModelToggle__GetVisibilityState() {
+        const snapshot = {};
+        Na__ModelToggle__StateMap.forEach((entry, categoryKey) => {
+            const visible = entry && entry.group ? entry.group.visible !== false : true;  // <-- Live truth from THREE.Group
+            snapshot[categoryKey] = visible;                             // <-- Stable categoryKey -> boolean
+        });
+        return snapshot;
+    }
+    // ---------------------------------------------------------------
+
+
+    // FUNCTION | Force All Loaded Categories Visible (Clean Baseline)
+    // ------------------------------------------------------------
+    // Used as a reset baseline before re-applying a saved scene snapshot, so no
+    // category left hidden by a previous scene can linger into the next one.
+    // ------------------------------------------------------------
+    function Na__ModelToggle__SetAllCategoriesVisible() {
+        Na__ModelToggle__StateMap.forEach((entry, categoryKey) => {
+            entry.visible = true;                                        // <-- Update cached flag
+            if (entry.group) entry.group.visible = true;               // <-- Show THREE.Group
+            Na__ModelToggle__SyncButtonState(categoryKey, true);       // <-- Keep dev button UI in sync
+        });
+        Na__RenderLoop__RequestRender();                                 // <-- Single frame redraw after batch reset
+    }
+    // ---------------------------------------------------------------
+
+
+    // FUNCTION | Re-Apply a Saved Category Visibility Snapshot
+    // ------------------------------------------------------------
+    // Sets each loaded category group to the saved boolean and refreshes the
+    // toggle button UI. Unknown / missing categories are ignored so older
+    // snapshots remain forwards-compatible after model changes.
+    // ------------------------------------------------------------
+    function Na__ModelToggle__ApplyVisibilityState(visibilityState) {
+        if (!visibilityState || typeof visibilityState !== 'object') return;
+
+        Object.keys(visibilityState).forEach((categoryKey) => {
+            const entry = Na__ModelToggle__StateMap.get(categoryKey);    // <-- Resolve by stable category key
+            if (!entry) return;                                          // <-- Skip categories not present this session
+
+            const visible       = visibilityState[categoryKey] !== false;
+            entry.visible       = visible;                               // <-- Update cached flag
+            if (entry.group) entry.group.visible = visible;             // <-- Apply to THREE.Group
+            Na__ModelToggle__SyncButtonState(categoryKey, visible);     // <-- Keep dev button UI in sync
+        });
+
+        Na__RenderLoop__RequestRender();                                 // <-- Single frame redraw after batch apply
+    }
+    // ---------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -236,7 +307,10 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
     // MODULE EXPORTS | Model Toggle Controls API
     // ------------------------------------------------------------
     export {
-        Na__UiFeature__InitializeModelToggleControls
+        Na__UiFeature__InitializeModelToggleControls,
+        Na__ModelToggle__GetVisibilityState,
+        Na__ModelToggle__ApplyVisibilityState,
+        Na__ModelToggle__SetAllCategoriesVisible
     };
     // ------------------------------------------------------------
 

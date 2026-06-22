@@ -148,7 +148,7 @@
         <div class="na-instructions-section__body" data-na-accordion-body>
             <div class="na-instructions-section__body-inner">
 
-                <p class="na-instructions-section__intro">First-person navigation inside the building. Activate using the Tools menu or the hotkey below.</p>
+                <p class="na-instructions-section__intro">First-person navigation inside the building. Activate using the navigation toolbar or press the Walk mode hotkey (see View Mode Shortcuts below).</p>
 
                 <!-- PC KEYBOARD | Walk Mode -->
                 <!-- ------------------------------------------------------------ -->
@@ -251,7 +251,7 @@
         <div class="na-instructions-section__body" data-na-accordion-body>
             <div class="na-instructions-section__body-inner">
 
-                <p class="na-instructions-section__intro">Free-flight navigation through and around the building with no gravity or collision. Activate using the Tools menu or the hotkey below.</p>
+                <p class="na-instructions-section__intro">Free-flight navigation through and around the building with no gravity or collision. Activate using the navigation toolbar or press the Fly mode hotkey (see View Mode Shortcuts below).</p>
 
                 <!-- PC KEYBOARD | Fly Mode -->
                 <!-- ------------------------------------------------------------ -->
@@ -344,8 +344,9 @@
 
 
     <!-- ============================================================ -->
-    <!-- SECTION | Global Hotkeys                                     -->
+    <!-- SECTION | View Mode Shortcuts                                -->
     <!-- ============================================================ -->
+    <!-- Key labels are populated at runtime by Na__Hotkeys__ApplyUiLabels from Na__AppConfig__Hotkeys.json -->
     <div class="na-instructions-section">
 
         <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
@@ -356,7 +357,7 @@
                     <circle cx="10" cy="10" r="1" fill="currentColor"/>
                     <circle cx="13.5" cy="10" r="1" fill="currentColor"/>
                 </svg>
-                <span class="na-instructions-section__title-text">Global Hotkeys</span>
+                <span class="na-instructions-section__title-text">View Mode Shortcuts</span>
             </div>
             <svg class="na-instructions-section__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <polyline points="4,7 10,13 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -368,13 +369,25 @@
 
                 <div class="na-instructions-group na-instructions-group--no-label">
                     <ul class="na-instructions-list">
-                        <li class="na-instructions-item">
-                            <span class="na-instructions-item__key">Alt + Shift + W</span>
-                            <span class="na-instructions-item__desc">Toggle Walk Mode / Orbit Mode</span>
+                        <li class="na-instructions-item" data-na-hotkey-item="switchToOrbit">
+                            <span class="na-instructions-item__key"></span>
+                            <span class="na-instructions-item__desc">Switch to Orbit mode</span>
                         </li>
-                        <li class="na-instructions-item">
-                            <span class="na-instructions-item__key">Alt + Shift + F</span>
-                            <span class="na-instructions-item__desc">Toggle Fly Mode</span>
+                        <li class="na-instructions-item" data-na-hotkey-item="switchToWalk">
+                            <span class="na-instructions-item__key"></span>
+                            <span class="na-instructions-item__desc">Switch to Walk mode</span>
+                        </li>
+                        <li class="na-instructions-item" data-na-hotkey-item="switchToFly">
+                            <span class="na-instructions-item__key"></span>
+                            <span class="na-instructions-item__desc">Switch to Fly mode</span>
+                        </li>
+                        <li class="na-instructions-item" data-na-hotkey-item="toggleAnimationViews">
+                            <span class="na-instructions-item__key"></span>
+                            <span class="na-instructions-item__desc">Toggle Animation Views</span>
+                        </li>
+                        <li class="na-instructions-item" data-na-hotkey-item="resetView">
+                            <span class="na-instructions-item__key"></span>
+                            <span class="na-instructions-item__desc">Reset View</span>
                         </li>
                     </ul>
                 </div>

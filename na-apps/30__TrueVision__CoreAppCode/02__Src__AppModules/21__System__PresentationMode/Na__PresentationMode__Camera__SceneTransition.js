@@ -59,6 +59,11 @@
     } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Model Visibility State Apply (dolls-house scenes)
+    // ------------------------------------------------------------
+    import { Na__PmVisibility__ApplyState } from './Na__PresentationMode__Visibility__StateCapture.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -71,6 +76,7 @@
     const Na__PresentationMode__RENDER_REASON    = 'presentation-transition';  // <-- Reason tag for active render loop
     const Na__PresentationMode__DEFAULT_DURATION = 1800;                       // <-- Default transition duration ms
     const Na__PresentationMode__DEFAULT_EASING   = 'easeInOutCubic';          // <-- Default easing function name
+    const Na__PresentationMode__KEY__VISIBILITY_BEFORE_CAMERA = 'PresentationMode__Scene__ApplyVisibilityBeforeCamera'; // <-- Per-scene layer timing flag
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -236,6 +242,22 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Resolve Whether Scene Applies Visibility Before Camera Move
+    // ------------------------------------------------------------
+    function Na__PresentationMode__Camera__ShouldApplyVisibilityBeforeTransition(scene) {
+        return scene?.[Na__PresentationMode__KEY__VISIBILITY_BEFORE_CAMERA] === true; // <-- Default false = after move
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Apply Saved Scene Visibility (if present)
+    // ------------------------------------------------------------
+    function Na__PresentationMode__Camera__ApplySceneVisibility(scene) {
+        Na__PmVisibility__ApplyState(scene?.PresentationMode__Scene__Visibility);      // <-- No-op when block absent
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Instantly Apply Scene Camera State (no animation)
     // ------------------------------------------------------------
     function Na__PresentationMode__Camera__ApplySceneCameraState(camera, controls, scene) {
@@ -257,6 +279,7 @@
             controls.update();
         }
 
+        Na__PresentationMode__Camera__ApplySceneVisibility(scene);                     // <-- Instant snap always applies visibility with camera
         Na__RenderLoop__RequestRender();                                                 // <-- Single frame redraw
     }
     // ------------------------------------------------------------
@@ -320,6 +343,11 @@
         const endFov       = values.fov !== null ? values.fov : startFov;
 
         const tempQuat     = new THREE.Quaternion();                          // <-- Reused scratch quaternion
+        const applyVisibilityBeforeMove = Na__PresentationMode__Camera__ShouldApplyVisibilityBeforeTransition(scene);
+
+        if (applyVisibilityBeforeMove) {
+            Na__PresentationMode__Camera__ApplySceneVisibility(scene);       // <-- Per-scene: switch layers before the move
+        }
 
         // BEGIN ACTIVE RENDERING
         Na__PresentationMode__IsTransitioning = true;
@@ -364,7 +392,12 @@
 
                 Na__RenderLoop__StopActiveRender(Na__PresentationMode__RENDER_REASON); // <-- Stop continuous rendering
                 Na__PresentationMode__IsTransitioning = false;
-                Na__RenderLoop__RequestRender();                              // <-- One final clean frame
+
+                if (!applyVisibilityBeforeMove) {
+                    Na__PresentationMode__Camera__ApplySceneVisibility(scene);       // <-- Default: switch layers once the move completes
+                }
+
+                Na__RenderLoop__RequestRender();                              // <-- One final clean frame (reflects new visibility)
 
                 if (onComplete) onComplete();                                 // <-- Notify caller
             }

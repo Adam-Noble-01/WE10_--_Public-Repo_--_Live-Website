@@ -6,24 +6,30 @@
 // NAMESPACE  : Na__UiFeature
 // MODULE     : FlyModeEventListeners
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Fly mode keyboard hotkey and UI button event binding
+// PURPOSE    : Fly mode UI button event binding
 // CREATED    : 25-May-2026
 //
 // DESCRIPTION:
 // - Pure event-binding module with no Three.js dependencies and no state.
-// - Registers the Alt+Shift+F keyboard hotkey that toggles fly mode.
-// - Wires a DOM button to the same toggle function when provided.
-// - Both functions accept the toggle function as a parameter, keeping this
-//   module completely decoupled from the fly mode logic itself.
+// - Na__UiFeature__InitializeFlyModeToggleButton wires a DOM button to the
+//   fly mode toggle function when provided.
+// - Na__UiFeature__InitializeFlyModeHotkey is retained as a no-op for
+//   backwards compatibility. Fly mode hotkeys are now managed centrally by
+//   Na__Hotkeys__Manager.js, driven from Na__AppConfig__Hotkeys.json.
+//
+// @delegate: ./Na__Hotkeys__Manager.js
 //
 // INTEGRATION:
-// - Call Na__UiFeature__InitializeFlyModeHotkey(toggleFn) after scene init.
 // - Call Na__UiFeature__InitializeFlyModeToggleButton(buttonId, toggleFn)
 //   when the menu DOM button is present.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Jun-2026 - Version 1.1.0
+// - Na__UiFeature__InitializeFlyModeHotkey deprecated (no-op). Fly hotkeys
+//   superseded by Na__Hotkeys__Manager.js + Na__AppConfig__Hotkeys.json.
+//
 // 25-May-2026 - Version 1.0.0
 // - Initial implementation mirroring the Walk Mode event listeners module.
 //
@@ -31,18 +37,15 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | Fly Mode Hotkey Registration
+// REGION | Fly Mode Hotkey Registration (Deprecated)
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Initialize Fly Mode Hotkey Listener (Alt+Shift+F)
+    // FUNCTION | Initialize Fly Mode Hotkey Listener — DEPRECATED NO-OP
+    // Fly hotkeys are now managed by Na__Hotkeys__Manager.js.
+    // @delegate: ./Na__Hotkeys__Manager.js
     // ------------------------------------------------------------
-    function Na__UiFeature__InitializeFlyModeHotkey(toggleFn) {
-        window.addEventListener('keydown', (event) => {
-            if (event.altKey && event.shiftKey && event.key.toLowerCase() === 'f') {
-                event.preventDefault();                                          // <-- Block default browser Alt+Shift+F action
-                toggleFn();                                                      // <-- Invoke the supplied toggle function
-            }
-        });
+    function Na__UiFeature__InitializeFlyModeHotkey(_toggleFn) {
+        // Deprecated: superseded by Na__Hotkeys__Initialize in Na__Hotkeys__Manager.js
     }
     // ------------------------------------------------------------
 

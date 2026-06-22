@@ -18,14 +18,22 @@
 //   [data-na-accordion-toggle] button expands/collapses its sibling body.
 // - Accepts a useTouchControls flag to scroll the touchscreen section
 //   into view on open when running on a touch device.
+// - Accepts an optional onContentLoaded(modal) callback invoked immediately
+//   after HTML content is injected, enabling callers (e.g. Na__Hotkeys__Manager)
+//   to populate dynamic content such as hotkey labels.
 //
 // INTEGRATION:
-// - Call Na__UserInstructions__Initialize(useTouchControls) once after
-//   device detection in index.html.
+// - Call Na__UserInstructions__Initialize(useTouchControls, onContentLoaded)
+//   once after device detection in index.html.
 // - Pass Na__UserInstructions__Open as the openFn to
 //   Na__UiFeature__InitializeUserInstructionsMenuItem.
 //
 // DEVELOPMENT LOG:
+// 22-Jun-2026 - Version 2.4.0
+// - Na__UserInstructions__Initialize now accepts an optional onContentLoaded
+//   callback invoked after HTML content is injected, enabling Na__Hotkeys__Manager
+//   to populate dynamic hotkey labels in the View Mode Shortcuts section.
+//
 // 25-May-2026 - Version 2.3.0
 // - Added Na__UserInstructions__InitAccordions: wires accordion toggle
 //   behaviour after content injection. All sections start expanded.
@@ -211,7 +219,7 @@
 
     // FUNCTION | Initialize User Instructions System
     // ------------------------------------------------------------
-    async function Na__UserInstructions__Initialize(useTouchControls) {
+    async function Na__UserInstructions__Initialize(useTouchControls, onContentLoaded) {
         if (Na__UserInstructions__IsInitialized) return;                            // <-- Guard: already initialized
         Na__UserInstructions__IsInitialized = true;
 
@@ -222,6 +230,8 @@
         Na__UserInstructions__Modal   = modal;
 
         await Na__UserInstructions__LoadContent(modal);                             // <-- Fetch + inject content HTML
+
+        if (typeof onContentLoaded === 'function') onContentLoaded(modal);          // <-- Notify caller (e.g. hotkey label population)
 
         Na__UserInstructions__AttachCloseListeners();                               // <-- Wire close button
         Na__UserInstructions__InitAccordions(modal);                                // <-- Wire accordion sections
