@@ -2,6 +2,36 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.7.7  -  22-Jun-2026
+### DataLib v1.4.0 — Discussion Marker Materials (MAT012–014)
+
+Three new `MAT010__ModelingUtilitySeries__` materials added to the DataLib SSOT (`Na__DataLib__CoreIndex__Materials__.json`) for flagging conceptual elements during client presentations.
+
+**New materials:**
+- `MAT012__DiscussionMarker__Red` — vivid red semi-transparent overlay (`rgb(220, 55, 55)`)
+- `MAT013__DiscussionMarker__Green` — vivid green semi-transparent overlay (`rgb(55, 200, 75)`)
+- `MAT014__DiscussionMarker__Yellow` — vivid amber-yellow semi-transparent overlay (`rgb(230, 200, 30)`)
+
+**Material properties (all three):**
+- `Opacity: 0.35`, `Transparent: true` — clearly visible but geometry beneath reads through
+- `IsDoubleSided: true` — correct for painted box volumes (no inverted-face issues)
+- `DepthWrite: false` — correct transparency sorting against other scene geometry
+- `PbrRoughness: 1.0`, `PbrMetallic: 0.0`, `EnvMapIntensity: 0.0` — fully matte, no reflections
+- `AoExclude: true` — placed on Three.js layer 1; SSAO depth pre-pass and profile lines normals pass both skip layer 1, so these volumes generate no AO halos and no profile line edges
+
+**No TrueVision code changes required.** All properties (`Transparent`, `IsDoubleSided`, `DepthWrite`, `AoExclude`) are already fully wired in `Na__MaterialsSystem__MaterialSwap.js`. The layer 1 exclusion mechanism in `Na__RenderPipeline__PostProcessing__Setup.js` covers both AO and profile lines simultaneously.
+
+**Usage workflow:**
+1. In SketchUp, paint any box/volume with `MAT012__DiscussionMarker__Red`, `__Green`, or `__Yellow`
+2. Export GLB via the GLB Builder — material name is preserved exactly
+3. Load in TrueVision — material swap pass matches the name, applies the transparent PBR material automatically
+
+**Changed Files**
+- UPDATED `Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json` — bumped to v1.4.0, added MAT012–014
+
+---
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.7.6  -  22-Jun-2026
 ### Hotkeys System — Central Config-Driven View Mode Shortcuts
 
