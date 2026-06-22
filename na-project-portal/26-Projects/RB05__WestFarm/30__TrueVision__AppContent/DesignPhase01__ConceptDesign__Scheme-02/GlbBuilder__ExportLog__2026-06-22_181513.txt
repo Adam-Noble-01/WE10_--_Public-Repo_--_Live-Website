@@ -1,0 +1,2130 @@
+===============================================================================
+ TrueVision3D GLB Builder - Export Log
+===============================================================================
+ Model      : RB05__Proposed__MainHouse__ConceptModel__Active__.skp
+ Export dir : D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02
+ Timestamp  : 2026-06-22_181513
+ Console    : suppressed (OFF)
+-------------------------------------------------------------------------------
+  Project prefix detected: 'RB05__'
+
+=== Analyzing model layers ===
+  Skipping layer '00__Standards' (tag 0 is in ignored range)
+  Found entity on layer '01__OrbitHelperCube' -> 01__OrbitHelperCube.glb
+  Found entity on layer '29__ProposedBuilding__InteriorDecor' -> TrueVision__MainBuildingModel__ProposedInteriorDecor.glb
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Skipping layer '03__Safe__SectionProfile__ThroughMainHouse' (tag 3 is in ignored range)
+  Found entity on layer '07__Landscape' -> TrueVision__LandscapeEnvironment.glb
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+  Found entity on layer '25__ProposedBuilding__Doors' -> TrueVision__MainBuildingModel__ProposedDoors.glb
+  Skipping layer '05__Mirror__Planes' (tag 5 is in ignored range)
+
+=== All layers in model ===
+  'Layer0' (24 entities)
+  '00__Standards' (1 entities)
+  '01__OrbitHelperCube' (1 entities)
+  '29__ProposedBuilding__InteriorDecor' (1 entities)
+  '05__Mirror__Planes' (11 entities)
+  '03__Safe__SectionProfile__ThroughMainHouse' (1 entities)
+  '92__Storey__SecondFloor' (1 entities)
+  '07__Landscape' (1 entities)
+  '90__Storey__GroundFloor' (1 entities)
+  '25__ProposedBuilding__Doors' (1 entities)
+=========================
+
+=== Scanning for Storey Containers ===
+  ✓ Storey container detected: '92__Storey__SecondFloor' -> Storey__SecondFloor (1)
+  ✓ Storey container detected: '90__Storey__GroundFloor' -> Storey__GroundFloor (1)
+  Found 2 storey key(s), 2 container(s)
+=== End Storey Scan ===
+
+=== Storey Mode Active ===
+Storey containers will be exported per-element, not as flat groups.
+
+=== Export Plan ===
+  RB05__01__OrbitHelperCube__MeshModel__.glb - 1 top-level entities
+  RB05__TrueVision__MainBuildingModel__ProposedInteriorDecor__MeshModel__.glb - 1 top-level entities
+  RB05__TrueVision__MainBuildingModel__ProposedInteriorDecor__LineworkModel__.glb - 1 top-level entities
+  RB05__TrueVision__LandscapeEnvironment__MeshModel__.glb - 1 top-level entities
+  RB05__TrueVision__LandscapeEnvironment__LineworkModel__.glb - 1 top-level entities
+  RB05__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb - 1 top-level entities
+  RB05__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb - 1 top-level entities
+  Organizing children of Storey__SecondFloor (1 container(s))...
+    Container 1: Group#340
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '22__ProposedBuilding__Floors' -> Storey__SecondFloor__ProposedFloors
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__SecondFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__SecondFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__SecondFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__SecondFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__SecondFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__SecondFloor__ProposedDoors
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__SecondFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__SecondFloor__ProposedFixtures
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__SecondFloor__ProposedWindows
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__SecondFloor__ProposedWalls
+    Found child on layer '22__ProposedBuilding__Floors' -> Storey__SecondFloor__ProposedFloors
+    Found child on layer '23__ProposedBuilding__Roofs' -> Storey__SecondFloor__ProposedRoofs
+  Storey__SecondFloor: 6 element group(s) found
+  RB05__Storey__SecondFloor__ProposedRoofs__MeshModel__.glb - 14 entities
+  RB05__Storey__SecondFloor__ProposedRoofs__LineworkModel__.glb - 14 entities
+  RB05__Storey__SecondFloor__ProposedWalls__MeshModel__.glb - 17 entities
+  RB05__Storey__SecondFloor__ProposedWalls__LineworkModel__.glb - 17 entities
+  RB05__Storey__SecondFloor__ProposedWindows__MeshModel__.glb - 14 entities
+  RB05__Storey__SecondFloor__ProposedWindows__LineworkModel__.glb - 14 entities
+  RB05__Storey__SecondFloor__ProposedFloors__MeshModel__.glb - 2 entities
+  RB05__Storey__SecondFloor__ProposedFloors__LineworkModel__.glb - 2 entities
+  RB05__Storey__SecondFloor__ProposedDoors__MeshModel__.glb - 6 entities
+  RB05__Storey__SecondFloor__ProposedDoors__LineworkModel__.glb - 6 entities
+  RB05__Storey__SecondFloor__ProposedFixtures__MeshModel__.glb - 2 entities
+  RB05__Storey__SecondFloor__ProposedFixtures__LineworkModel__.glb - 2 entities
+  Organizing children of Storey__GroundFloor (1 container(s))...
+    Container 1: Group#96
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '29__ProposedBuilding__InteriorDecor' -> Storey__GroundFloor__ProposedInteriorDecor
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '29__ProposedBuilding__InteriorDecor' -> Storey__GroundFloor__ProposedInteriorDecor
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '29__ProposedBuilding__InteriorDecor' -> Storey__GroundFloor__ProposedInteriorDecor
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '22__ProposedBuilding__Floors' -> Storey__GroundFloor__ProposedFloors
+    Found child on layer '26__ProposedBuilding__Staircase' -> Storey__GroundFloor__ProposedStairs
+    Found child on layer '26__ProposedBuilding__Staircase' -> Storey__GroundFloor__ProposedStairs
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '29__ProposedBuilding__InteriorDecor' -> Storey__GroundFloor__ProposedInteriorDecor
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '22__ProposedBuilding__Floors' -> Storey__GroundFloor__ProposedFloors
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '28__ProposedBuilding__Furniture' -> Storey__GroundFloor__ProposedFurniture
+    Found child on layer '28__ProposedBuilding__Furniture' -> Storey__GroundFloor__ProposedFurniture
+    Found child on layer '28__ProposedBuilding__Furniture' -> Storey__GroundFloor__ProposedFurniture
+    Found child on layer '28__ProposedBuilding__Furniture' -> Storey__GroundFloor__ProposedFurniture
+    Found child on layer '28__ProposedBuilding__Furniture' -> Storey__GroundFloor__ProposedFurniture
+    Found child on layer '28__ProposedBuilding__Furniture' -> Storey__GroundFloor__ProposedFurniture
+    Found child on layer '28__ProposedBuilding__Furniture' -> Storey__GroundFloor__ProposedFurniture
+    Found child on layer '28__ProposedBuilding__Furniture' -> Storey__GroundFloor__ProposedFurniture
+    Found child on layer '29__ProposedBuilding__InteriorDecor' -> Storey__GroundFloor__ProposedInteriorDecor
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '22__ProposedBuilding__Floors' -> Storey__GroundFloor__ProposedFloors
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '26__ProposedBuilding__Staircase' -> Storey__GroundFloor__ProposedStairs
+    Found child on layer '29__ProposedBuilding__InteriorDecor' -> Storey__GroundFloor__ProposedInteriorDecor
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '21__ProposedBuilding__Walls' -> Storey__GroundFloor__ProposedWalls
+    Found child on layer '25__ProposedBuilding__Doors' -> Storey__GroundFloor__ProposedDoors
+    Found child on layer '24__ProposedBuilding__Windows' -> Storey__GroundFloor__ProposedWindows
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+    Found child on layer '27__ProposedBuilding__Fixtures' -> Storey__GroundFloor__ProposedFixtures
+  Storey__GroundFloor: 8 element group(s) found
+  RB05__Storey__GroundFloor__ProposedDoors__MeshModel__.glb - 22 entities
+  RB05__Storey__GroundFloor__ProposedDoors__LineworkModel__.glb - 22 entities
+  RB05__Storey__GroundFloor__ProposedWindows__MeshModel__.glb - 20 entities
+  RB05__Storey__GroundFloor__ProposedWindows__LineworkModel__.glb - 20 entities
+  RB05__Storey__GroundFloor__ProposedFixtures__MeshModel__.glb - 31 entities
+  RB05__Storey__GroundFloor__ProposedFixtures__LineworkModel__.glb - 31 entities
+  RB05__Storey__GroundFloor__ProposedWalls__MeshModel__.glb - 54 entities
+  RB05__Storey__GroundFloor__ProposedWalls__LineworkModel__.glb - 54 entities
+  RB05__Storey__GroundFloor__ProposedInteriorDecor__MeshModel__.glb - 6 entities
+  RB05__Storey__GroundFloor__ProposedInteriorDecor__LineworkModel__.glb - 6 entities
+  RB05__Storey__GroundFloor__ProposedFloors__MeshModel__.glb - 3 entities
+  RB05__Storey__GroundFloor__ProposedFloors__LineworkModel__.glb - 3 entities
+  RB05__Storey__GroundFloor__ProposedStairs__MeshModel__.glb - 3 entities
+  RB05__Storey__GroundFloor__ProposedStairs__LineworkModel__.glb - 3 entities
+  RB05__Storey__GroundFloor__ProposedFurniture__MeshModel__.glb - 8 entities
+  RB05__Storey__GroundFloor__ProposedFurniture__LineworkModel__.glb - 8 entities
+=== End Export Plan ===
+
+Exporting series: RB05__01__OrbitHelperCube...
+  Using virtual flattening for non-destructive world-space export...
+  ERROR: Export failed - uninitialized constant TrueVision3D::GlbBuilderUtility::Na__MaterialLookup__GetApplyByGroupNames
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__MaterialLookupSystem__.rb:248:in `Na__MaterialLookup__IsApplyByGroupMaterial?'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__ComponentInstancing__.rb:176:in `block in Na__Instancing__RecursiveScan'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__ComponentInstancing__.rb:165:in `each'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__ComponentInstancing__.rb:165:in `Na__Instancing__RecursiveScan'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__ComponentInstancing__.rb:179:in `block in Na__Instancing__RecursiveScan'
+  ERROR: Failed to export mesh RB05__01__OrbitHelperCube__MeshModel__.glb
+  Skipping linework export for OrbitHelperCube (mesh only)
+
+Exporting series: RB05__TrueVision__MainBuildingModel__ProposedInteriorDecor...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 73 instanced placements across 13 definition(s) (16 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 4 placement(s)
+    Traversing: Group_37_ID18776295...
+      [DoorHandler] Detected door assembly: ADR016__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR015__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR012__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR013__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR014__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR011__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR010__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR017__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR018__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR019__InteriorDoor__
+      [DoorHandler] Detected door assembly: ADR020__InteriorDoor__
+    Traversal complete: 1 entities -> 18 buckets, 110807 vertices, 60014 triangles
+    [DoorHandler] 11 door assembly(ies) detected — will export with hierarchy preservation
+    [TextureEngine] State reset
+    [MaterialLookup] Loading materials library via DataLib...
+    [MaterialLookup] Materials library loaded successfully via DataLib
+    [MaterialLookup] Index built: 22 indexed materials
+    [TextureEngine] Embedded texture for 'MAT000E__Masonry__StoneworkPattern' (2321x2321, 445630 bytes)
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+    [TextureEngine] Embedded texture for 'MAT000E__RB05__FirstFloorPlan__Texture#1' (1992x1420, 310864 bytes)
+    [MaterialEngine] Enriched: MAT140__Mirror__ClearDefault
+    [TextureEngine] Embedded texture for 'MAT140__Mirror__ClearDefault' (1024x1024, 55990 bytes)
+    [MaterialEngine] Enriched: MAT615__Metal__Ironmongery__Chrome
+    [MaterialEngine] indexed-only mode: 5 material(s) exported
+    Building mesh: 21__ProposedBuilding__Walls::Default (54122 verts, 29292 tris)
+    Building mesh: 21__ProposedBuilding__Walls::MAT000E__Masonry__StoneworkPattern (506 verts, 478 tris)
+    Building mesh: 24__ProposedBuilding__Windows::Default (5538 verts, 3360 tris)
+    Building mesh: 24__ProposedBuilding__Windows::MAT101__Glass__ClearDefault (464 verts, 232 tris)
+    Building mesh: 23__ProposedBuilding__Roofs::Default (21967 verts, 12228 tris)
+    Building mesh: 23__ProposedBuilding__Roofs::MAT101__Glass__ClearDefault (176 verts, 160 tris)
+    Building mesh: 24__ProposedBuilding__Windows::Generated Image March 06, 2026 - 7_56AM (464 verts, 272 tris)
+    Building mesh: 25__ProposedBuilding__Doors::Default (138 verts, 96 tris)
+    Building mesh: 26__ProposedBuilding__Staircase::Default (234 verts, 152 tris)
+    Building mesh: 22__ProposedBuilding__Floors::Default (520 verts, 316 tris)
+    Building mesh: 29__ProposedBuilding__InteriorDecor::Default (1128 verts, 728 tris)
+    Building mesh: 22__ProposedBuilding__Floors::MAT000E__Masonry__StoneworkPattern (94 verts, 66 tris)
+    Building mesh: 22__ProposedBuilding__Floors::MAT000E__RB05__FirstFloorPlan__Texture#1 (58 verts, 58 tris)
+    Building mesh: 27__ProposedBuilding__Fixtures::MAT140__Mirror__ClearDefault (48 verts, 24 tris)
+    Building mesh: 27__ProposedBuilding__Fixtures::MAT101__Glass__ClearDefault (144 verts, 72 tris)
+    Building mesh: 27__ProposedBuilding__Fixtures::MAT615__Metal__Ironmongery__Chrome (144 verts, 80 tris)
+    Building mesh: 27__ProposedBuilding__Fixtures::Default (24966 verts, 12352 tris)
+    Building mesh: 28__ProposedBuilding__Furniture::Default (96 verts, 48 tris)
+    Total meshes built: 18
+
+    [Instancing] Building 16 shared mesh(es)...
+      [Instancing] Built shared mesh: Window__SlidingSash (1518 verts, 876 tris)
+      [Instancing] Window__SlidingSash: 1 mesh -> 8 nodes
+      [Instancing] Built shared mesh: AWN015__Window__#1 (826 verts, 492 tris)
+      [Instancing] AWN015__Window__#1: 1 mesh -> 8 nodes
+      [Instancing] Built shared mesh: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01 (11081 verts, 5090 tris)
+      [Instancing] 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: 11_2001__CutStone__Balustrade__Type-01__ (4366 verts, 2228 tris)
+      [Instancing] 11_2001__CutStone__Balustrade__Type-01__: 1 mesh -> 18 nodes
+      [Instancing] Built shared mesh: 27_4003__Bathroom__Toilet__Standard__Type-03__ (7986 verts, 3200 tris)
+      [Instancing] 27_4003__Bathroom__Toilet__Standard__Type-03__: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: 28_2003__Bedroom__Bed__KingSizeBed__Var-01__ (53372 verts, 18126 tris)
+      [Instancing] 28_2003__Bedroom__Bed__KingSizeBed__Var-01__: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: 29_21__Collection__BedroomDecor__KingBedPillows__Whitecard#1 (17484 verts, 5832 tris)
+      [Instancing] 29_21__Collection__BedroomDecor__KingBedPillows__Whitecard#1: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: 29_21__BedroomDecor__KingBed__Pillow-02__Medium__Whitecard#2 (3640 verts, 1214 tris)
+      [Instancing] 29_21__BedroomDecor__KingBed__Pillow-02__Medium__Whitecard#2: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: 29_21__BedroomDecor__KingBed__Pillow-02__Medium__Whitecard#2_Mirrored (3640 verts, 1214 tris)
+      [Instancing] 29_21__BedroomDecor__KingBed__Pillow-02__Medium__Whitecard#2 (mirrored): 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: 29_21__BedroomDecor__KingBed__Pillow-01__Large__Whitecard#2 (3640 verts, 1214 tris)
+      [Instancing] 29_21__BedroomDecor__KingBed__Pillow-01__Large__Whitecard#2: 1 mesh -> 6 nodes
+      [Instancing] Built shared mesh: 29_21__BedroomDecor__KingBed__Pillow-03__Small__Whitecard#1 (2924 verts, 976 tris)
+      [Instancing] 29_21__BedroomDecor__KingBed__Pillow-03__Small__Whitecard#1: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: 28_21__Sub__KingMattress__l2000mm_x_w1500mm_h200mm__Whitecard (1312 verts, 500 tris)
+      [Instancing] 28_21__Sub__KingMattress__l2000mm_x_w1500mm_h200mm__Whitecard: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: 28_21__Sub__KingBedBase__Plinth__Whitecard (104 verts, 50 tris)
+      [Instancing] 28_21__Sub__KingBedBase__Plinth__Whitecard: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: 28_85__Towel__BathroomTowel__Var-01__ (4996 verts, 2328 tris)
+      [Instancing] 28_85__Towel__BathroomTowel__Var-01__: 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: 28_85__Towel__BathroomTowel__Var-01___Mirrored (4996 verts, 2328 tris)
+      [Instancing] 28_85__Towel__BathroomTowel__Var-01__ (mirrored): 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: 28_85__Towel__BathroomTowel__Var-01___Mirrored (4996 verts, 2328 tris)
+      [Instancing] 28_85__Towel__BathroomTowel__Var-01__ (mirrored): 1 mesh -> 2 nodes
+    [Instancing] Instanced mesh export complete
+
+    [DoorHandler v2.2.2] Exporting 11 mesh door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Mesh] Building door assembly: ADR016__InteriorDoor__
+        [DoorHandler/Mesh] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Mesh] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Mesh] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+  ERROR: Export failed - uninitialized constant TrueVision3D::GlbBuilderUtility::Na__MaterialLookup__GetApplyByGroupNames
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__MaterialLookupSystem__.rb:248:in `Na__MaterialLookup__IsApplyByGroupMaterial?'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb:160:in `block in Na__GlbEngine__TraverseEntities'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb:113:in `each'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb:113:in `Na__GlbEngine__TraverseEntities'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__SpecialObject__DoorObjectHandling__.rb:468:in `Na__DoorHandler__ExtractChildGeometry'
+  ERROR: Failed to export mesh RB05__TrueVision__MainBuildingModel__ProposedInteriorDecor__MeshModel__.glb
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 73 instanced placements across 13 definition(s) (16 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 4 placement(s)
+    Traversing linework: Group_37_ID18776295...
+      [DoorHandler/Linework] Detected door assembly: ADR016__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR015__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR012__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR013__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR014__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR011__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR010__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR017__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR018__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR019__InteriorDoor__
+      [DoorHandler/Linework] Detected door assembly: ADR020__InteriorDoor__
+    Linework traversal complete: 1 entities -> 13109 edges
+    [DoorHandler/Linework] 11 door assembly(ies) detected — will export with hierarchy preservation
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: Window__SlidingSash (600 edges)
+      [Instancing/Linework] Window__SlidingSash: 8 nodes
+      [Instancing] Built shared linework: AWN015__Window__#1 (400 edges)
+      [Instancing/Linework] AWN015__Window__#1: 8 nodes
+      [Instancing] Built shared linework: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01 (666 edges)
+      [Instancing/Linework] 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01: 3 nodes
+      [Instancing] Built shared linework: 11_2001__CutStone__Balustrade__Type-01__ (264 edges)
+      [Instancing/Linework] 11_2001__CutStone__Balustrade__Type-01__: 18 nodes
+      [Instancing] Built shared linework: 27_4003__Bathroom__Toilet__Standard__Type-03__ (540 edges)
+      [Instancing/Linework] 27_4003__Bathroom__Toilet__Standard__Type-03__: 2 nodes
+      [Instancing] Built shared linework: 28_2003__Bedroom__Bed__KingSizeBed__Var-01__ (1609 edges)
+      [Instancing/Linework] 28_2003__Bedroom__Bed__KingSizeBed__Var-01__: 3 nodes
+      [Instancing] Built shared linework: 29_21__Collection__BedroomDecor__KingBedPillows__Whitecard#1 (536 edges)
+      [Instancing/Linework] 29_21__Collection__BedroomDecor__KingBedPillows__Whitecard#1: 3 nodes
+      [Instancing] Built shared linework: 29_21__BedroomDecor__KingBed__Pillow-02__Medium__Whitecard#2 (110 edges)
+      [Instancing/Linework] 29_21__BedroomDecor__KingBed__Pillow-02__Medium__Whitecard#2: 3 nodes
+      [Instancing] Built shared linework: 29_21__BedroomDecor__KingBed__Pillow-02__Medium__Whitecard#2_Mirrored (110 edges)
+      [Instancing/Linework] 29_21__BedroomDecor__KingBed__Pillow-02__Medium__Whitecard#2 (mirrored): 2 nodes
+      [Instancing] Built shared linework: 29_21__BedroomDecor__KingBed__Pillow-01__Large__Whitecard#2 (106 edges)
+      [Instancing/Linework] 29_21__BedroomDecor__KingBed__Pillow-01__Large__Whitecard#2: 6 nodes
+      [Instancing] Built shared linework: 29_21__BedroomDecor__KingBed__Pillow-03__Small__Whitecard#1 (104 edges)
+      [Instancing/Linework] 29_21__BedroomDecor__KingBed__Pillow-03__Small__Whitecard#1: 3 nodes
+      [Instancing/Linework] 28_21__Sub__KingMattress__l2000mm_x_w1500mm_h200mm__Whitecard: 3 nodes
+      [Instancing] Built shared linework: 28_21__Sub__KingBedBase__Plinth__Whitecard (48 edges)
+      [Instancing/Linework] 28_21__Sub__KingBedBase__Plinth__Whitecard: 3 nodes
+      [Instancing] Built shared linework: 28_85__Towel__BathroomTowel__Var-01__ (279 edges)
+      [Instancing/Linework] 28_85__Towel__BathroomTowel__Var-01__: 4 nodes
+      [Instancing] Built shared linework: 28_85__Towel__BathroomTowel__Var-01___Mirrored (279 edges)
+      [Instancing/Linework] 28_85__Towel__BathroomTowel__Var-01__ (mirrored): 2 nodes
+      [Instancing/Linework] 28_85__Towel__BathroomTowel__Var-01__ (mirrored): 2 nodes
+    [Instancing/Linework] Instanced linework export complete
+
+    [DoorHandler/Linework v2.2.2] Exporting 11 linework door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Linework] Building door assembly: ADR016__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR016__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR015__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR015__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR012__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR012__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR013__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR013__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR014__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR014__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR011__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR011__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR010__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR010__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR017__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR017__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR018__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR018__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR019__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR019__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR020__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR020__InteriorDoor__
+    [DoorHandler/Linework] Door assembly linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedInteriorDecor__LineworkModel__.glb (1474488 bytes, BIN: 1416128 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1474488 bytes
+    Chunk 1: "JSON", Length: 58332 bytes
+    Chunk 2: "BIN\x00", Length: 1416128 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: RB05__TrueVision__LandscapeEnvironment...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_13_ID18318857...
+    Traversal complete: 1 entities -> 1 buckets, 36 vertices, 20 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 07__Landscape::Default (36 verts, 20 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__LandscapeEnvironment__MeshModel__.glb (2688 bytes, BIN: 1272 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2688 bytes
+    Chunk 1: "JSON", Length: 1388 bytes
+    Chunk 2: "BIN\x00", Length: 1272 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_13_ID18318857...
+    Linework traversal complete: 1 entities -> 18 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__LandscapeEnvironment__LineworkModel__.glb (1768 bytes, BIN: 1008 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1768 bytes
+    Chunk 1: "JSON", Length: 732 bytes
+    Chunk 2: "BIN\x00", Length: 1008 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: RB05__TrueVision__MainBuildingModel__ProposedDoors...
+  Using virtual flattening for non-destructive world-space export...
+      [DoorHandler] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID23770520
+    Traversal complete: 0 entities -> 0 buckets, 0 vertices, 0 triangles
+    [DoorHandler] 1 door assembly(ies) detected — will export with hierarchy preservation
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Total meshes built: 0
+
+    [DoorHandler v2.2.2] Exporting 1 mesh door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Mesh] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (6596 verts, 3400 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Mesh] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+    [DoorHandler] Door assembly export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb (245588 bytes, BIN: 239304 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 245588 bytes
+    Chunk 1: "JSON", Length: 6256 bytes
+    Chunk 2: "BIN\x00", Length: 239304 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID23770520...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID23770520
+    Linework traversal complete: 1 entities -> 0 edges
+    [DoorHandler/Linework] 1 door assembly(ies) detected — will export with hierarchy preservation
+
+    [DoorHandler/Linework v2.2.2] Exporting 1 linework door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Linework] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1 edges
+        [DoorHandler/Linework] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1280 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Linework] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+    [DoorHandler/Linework] Door assembly linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb (82536 bytes, BIN: 77896 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 82536 bytes
+    Chunk 1: "JSON", Length: 4612 bytes
+    Chunk 2: "BIN\x00", Length: 77896 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+=== Exporting Storey-Based Models ===
+
+--- Storey__SecondFloor ---
+
+Exporting storey series: RB05__Storey__SecondFloor__ProposedRoofs...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Difference_ID22943263...
+    Traversing: Group_303_ID22963090...
+    Traversing: Group743_ID24829396...
+    Traversing: Group_55_ID24907959...
+    Traversing: Group_55_ID24907962...
+    Traversing: Group_55_ID24907965...
+    Traversing: Group_55_ID24907968...
+    Traversing: Group_55_ID24907971...
+    Traversing: Group_55_ID24907974...
+    Traversing: Group_55_ID24907977...
+    Traversing: Group_55_ID24907980...
+    Traversing: Group_55_ID24907983...
+    Traversing: Group_55_ID24907986...
+    Traversing: OuterShell_ID26924012...
+    Traversal complete: 14 entities -> 2 buckets, 4055 vertices, 2266 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 23__ProposedBuilding__Roofs::Default (4041 verts, 2260 tris)
+    Building mesh: 23__ProposedBuilding__Roofs::MAT101__Glass__ClearDefault (14 verts, 6 tris)
+    Total meshes built: 2
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedRoofs__MeshModel__.glb (146328 bytes, BIN: 143356 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 146328 bytes
+    Chunk 1: "JSON", Length: 2944 bytes
+    Chunk 2: "BIN\x00", Length: 143356 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Difference_ID22943263...
+    Traversing linework: Group_303_ID22963090...
+    Traversing linework: Group743_ID24829396...
+    Traversing linework: Group_55_ID24907959...
+    Traversing linework: Group_55_ID24907962...
+    Traversing linework: Group_55_ID24907965...
+    Traversing linework: Group_55_ID24907968...
+    Traversing linework: Group_55_ID24907971...
+    Traversing linework: Group_55_ID24907974...
+    Traversing linework: Group_55_ID24907977...
+    Traversing linework: Group_55_ID24907980...
+    Traversing linework: Group_55_ID24907983...
+    Traversing linework: Group_55_ID24907986...
+    Traversing linework: OuterShell_ID26924012...
+    Linework traversal complete: 14 entities -> 1466 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedRoofs__LineworkModel__.glb (82888 bytes, BIN: 82096 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 82888 bytes
+    Chunk 1: "JSON", Length: 764 bytes
+    Chunk 2: "BIN\x00", Length: 82096 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__SecondFloor__ProposedWalls...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: OuterShell_ID22943274...
+    Traversing: OuterShell_ID24907781...
+    Traversing: OuterShell_ID24907782...
+    Traversing: Group_54_ID24907780...
+    Traversing: Group_80_ID24907784...
+    Traversing: Group_83_ID24907783...
+    Traversing: Difference_ID24907960...
+    Traversing: Difference_ID24907963...
+    Traversing: Difference_ID24907966...
+    Traversing: Difference_ID24907969...
+    Traversing: Difference_ID24907972...
+    Traversing: Difference_ID24907975...
+    Traversing: Difference_ID24907978...
+    Traversing: Difference_ID24907981...
+    Traversing: Difference_ID24907984...
+    Traversing: Difference_ID24907987...
+    Traversing: Group_418_ID24910325...
+    Traversal complete: 17 entities -> 1 buckets, 1697 vertices, 1101 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 21__ProposedBuilding__Walls::Default (1697 verts, 1101 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedWalls__MeshModel__.glb (62412 bytes, BIN: 60912 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 62412 bytes
+    Chunk 1: "JSON", Length: 1472 bytes
+    Chunk 2: "BIN\x00", Length: 60912 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: OuterShell_ID22943274...
+    Traversing linework: OuterShell_ID24907781...
+    Traversing linework: OuterShell_ID24907782...
+    Traversing linework: Group_54_ID24907780...
+    Traversing linework: Group_80_ID24907784...
+    Traversing linework: Group_83_ID24907783...
+    Traversing linework: Difference_ID24907960...
+    Traversing linework: Difference_ID24907963...
+    Traversing linework: Difference_ID24907966...
+    Traversing linework: Difference_ID24907969...
+    Traversing linework: Difference_ID24907972...
+    Traversing linework: Difference_ID24907975...
+    Traversing linework: Difference_ID24907978...
+    Traversing linework: Difference_ID24907981...
+    Traversing linework: Difference_ID24907984...
+    Traversing linework: Difference_ID24907987...
+    Traversing linework: Group_418_ID24910325...
+    Linework traversal complete: 17 entities -> 850 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedWalls__LineworkModel__.glb (48392 bytes, BIN: 47600 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 48392 bytes
+    Chunk 1: "JSON", Length: 764 bytes
+    Chunk 2: "BIN\x00", Length: 47600 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__SecondFloor__ProposedWindows...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 8 instanced placements across 1 definition(s) (3 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 1 placement(s)
+    Traversing: Group_417_ID22943275...
+    Traversing: Group_291_ID22943276...
+    Traversing: Group_417_ID22943277...
+    Traversing: Group_417_ID22943278...
+    Traversing: AWN011__Window__LoftDormerWindows_ID24907982...
+    Traversing: AWN011__Window__LoftDormerWindows_ID24907985...
+    Traversal complete: 6 entities -> 2 buckets, 1480 vertices, 856 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 24__ProposedBuilding__Windows::Default (1128 verts, 680 tris)
+    Building mesh: 24__ProposedBuilding__Windows::MAT101__Glass__ClearDefault (352 verts, 176 tris)
+    Total meshes built: 2
+
+    [Instancing] Building 3 shared mesh(es)...
+      [Instancing] Built shared mesh: AWN011__Window__LoftDormerWindows_Mirrored (692 verts, 404 tris)
+      [Instancing] AWN011__Window__LoftDormerWindows (mirrored): 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: AWN011__Window__LoftDormerWindows_Mirrored (692 verts, 404 tris)
+      [Instancing] AWN011__Window__LoftDormerWindows (mirrored): 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: AWN011__Window__LoftDormerWindows_Mirrored (692 verts, 404 tris)
+      [Instancing] AWN011__Window__LoftDormerWindows (mirrored): 1 mesh -> 2 nodes
+    [Instancing] Instanced mesh export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedWindows__MeshModel__.glb (137160 bytes, BIN: 126200 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 137160 bytes
+    Chunk 1: "JSON", Length: 10932 bytes
+    Chunk 2: "BIN\x00", Length: 126200 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 8 instanced placements across 1 definition(s) (3 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 1 placement(s)
+    Traversing linework: Group_417_ID22943275...
+    Traversing linework: Group_291_ID22943276...
+    Traversing linework: Group_417_ID22943277...
+    Traversing linework: Group_417_ID22943278...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907958...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907961...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907964...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907967...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907970...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907973...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907976...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907979...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907982...
+    Traversing linework: AWN011__Window__LoftDormerWindows_ID24907985...
+    Linework traversal complete: 14 entities -> 744 edges
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: AWN011__Window__LoftDormerWindows_Mirrored (348 edges)
+      [Instancing/Linework] AWN011__Window__LoftDormerWindows (mirrored): 3 nodes
+      [Instancing/Linework] AWN011__Window__LoftDormerWindows (mirrored): 3 nodes
+      [Instancing/Linework] AWN011__Window__LoftDormerWindows (mirrored): 2 nodes
+    [Instancing/Linework] Instanced linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedWindows__LineworkModel__.glb (64656 bytes, BIN: 61152 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 64656 bytes
+    Chunk 1: "JSON", Length: 3476 bytes
+    Chunk 2: "BIN\x00", Length: 61152 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__SecondFloor__ProposedFloors...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_12_ID24822684...
+    Traversing: Group_466_ID26841766...
+    Traversal complete: 2 entities -> 3 buckets, 350 vertices, 230 triangles
+    [TextureEngine] State reset
+    [TextureEngine] Embedded texture for 'MAT000E__Masonry__StoneworkPattern' (2321x2321, 445630 bytes)
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 22__ProposedBuilding__Floors::MAT000E__Masonry__StoneworkPattern (48 verts, 24 tris)
+    Building mesh: 22__ProposedBuilding__Floors::Default (248 verts, 152 tris)
+    Building mesh: 22__ProposedBuilding__Floors::SecondFloor__1.2 (54 verts, 54 tris)
+    Total meshes built: 3
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedFloors__MeshModel__.glb (462624 bytes, BIN: 458212 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 462624 bytes
+    Chunk 1: "JSON", Length: 4384 bytes
+    Chunk 2: "BIN\x00", Length: 458212 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_12_ID24822684...
+    Traversing linework: Group_466_ID26841766...
+    Linework traversal complete: 2 entities -> 140 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedFloors__LineworkModel__.glb (8628 bytes, BIN: 7840 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 8628 bytes
+    Chunk 1: "JSON", Length: 760 bytes
+    Chunk 2: "BIN\x00", Length: 7840 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__SecondFloor__ProposedDoors...
+  Using virtual flattening for non-destructive world-space export...
+      [DoorHandler] Detected top-level door assembly: ADR004__InteriorDoor___ID24854385
+      [DoorHandler] Detected top-level door assembly: ADR005__InteriorDoor___ID24855148
+      [DoorHandler] Detected top-level door assembly: ADR006__InteriorDoor___ID24861999
+      [DoorHandler] Detected top-level door assembly: ADR007__InteriorDoor___ID24869613
+      [DoorHandler] Detected top-level door assembly: ADR008__InteriorDoor___ID24871068
+      [DoorHandler] Detected top-level door assembly: ADR009__InteriorDoor___ID24871790
+    Traversal complete: 0 entities -> 0 buckets, 0 vertices, 0 triangles
+    [DoorHandler] 6 door assembly(ies) detected — will export with hierarchy preservation
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Total meshes built: 0
+
+    [DoorHandler v2.2.2] Exporting 6 mesh door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Mesh] Building door assembly: ADR004__InteriorDoor__
+        [DoorHandler/Mesh] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Mesh] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Mesh] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+  ERROR: Export failed - uninitialized constant TrueVision3D::GlbBuilderUtility::Na__MaterialLookup__GetApplyByGroupNames
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__MaterialLookupSystem__.rb:248:in `Na__MaterialLookup__IsApplyByGroupMaterial?'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb:160:in `block in Na__GlbEngine__TraverseEntities'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb:113:in `each'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb:113:in `Na__GlbEngine__TraverseEntities'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__SpecialObject__DoorObjectHandling__.rb:468:in `Na__DoorHandler__ExtractChildGeometry'
+  ERROR: Failed to export mesh RB05__Storey__SecondFloor__ProposedDoors__MeshModel__.glb
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: ADR004__InteriorDoor___ID24854385...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR004__InteriorDoor___ID24854385
+    Traversing linework: ADR005__InteriorDoor___ID24855148...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR005__InteriorDoor___ID24855148
+    Traversing linework: ADR006__InteriorDoor___ID24861999...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR006__InteriorDoor___ID24861999
+    Traversing linework: ADR007__InteriorDoor___ID24869613...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR007__InteriorDoor___ID24869613
+    Traversing linework: ADR008__InteriorDoor___ID24871068...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR008__InteriorDoor___ID24871068
+    Traversing linework: ADR009__InteriorDoor___ID24871790...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR009__InteriorDoor___ID24871790
+    Linework traversal complete: 6 entities -> 0 edges
+    [DoorHandler/Linework] 6 door assembly(ies) detected — will export with hierarchy preservation
+
+    [DoorHandler/Linework v2.2.2] Exporting 6 linework door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Linework] Building door assembly: ADR004__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 332 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR004__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR005__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 332 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR005__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR006__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 332 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR006__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR007__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 332 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR007__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR008__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 332 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR008__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR009__InteriorDoor__
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 300 edges
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+      [DoorHandler/Linework] Door assembly complete: ADR009__InteriorDoor__
+    [DoorHandler/Linework] Door assembly linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedDoors__LineworkModel__.glb (129572 bytes, BIN: 117824 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 129572 bytes
+    Chunk 1: "JSON", Length: 11720 bytes
+    Chunk 2: "BIN\x00", Length: 117824 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__SecondFloor__ProposedFixtures...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_22_ID24894989...
+    Traversing: Group_41_ID24894990...
+    Traversal complete: 2 entities -> 1 buckets, 509 vertices, 256 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 27__ProposedBuilding__Fixtures::Default (509 verts, 256 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedFixtures__MeshModel__.glb (19308 bytes, BIN: 17824 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 19308 bytes
+    Chunk 1: "JSON", Length: 1456 bytes
+    Chunk 2: "BIN\x00", Length: 17824 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_22_ID24894989...
+    Traversing linework: Group_41_ID24894990...
+    Linework traversal complete: 2 entities -> 255 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedFixtures__LineworkModel__.glb (15052 bytes, BIN: 14280 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 15052 bytes
+    Chunk 1: "JSON", Length: 744 bytes
+    Chunk 2: "BIN\x00", Length: 14280 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+--- Storey__GroundFloor ---
+
+Exporting storey series: RB05__Storey__GroundFloor__ProposedDoors...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 40 instanced placements across 7 definition(s) (10 mesh group(s))
+      [DoorHandler] Detected top-level door assembly: ADR002__ExternallDoor__BespokeGeorgian__CollanadeEntrance__20_ID18948172
+      [DoorHandler] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID18772359
+      [DoorHandler] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID20530733
+      [DoorHandler] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID20530744
+      [DoorHandler] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID20530735
+      [DoorHandler] Detected top-level door assembly: ADR003__InternalDoor__LH__BespokeGeorgian__w840mm-x-h2040___ID18955551
+    Traversing: Group_94_ID18826504...
+      [DoorHandler] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID19023046
+    Traversing: Group_94_ID18781304...
+      [DoorHandler] Detected top-level door assembly: ADR001__ExteriorlDoor__LH__BespokeGeorgian__w1200mm-x-h2450___ID19316901
+      [DoorHandler] Detected top-level door assembly: ADR041__ExteriorDoor__RearDoor_ID23436023
+      [DoorHandler] Detected top-level door assembly: ADR101__InteriorDoor__GroundFloor__Sudy_ID23464439
+      [DoorHandler] Detected top-level door assembly: ADR002__InteriorDoor___ID23771419
+      [DoorHandler] Detected top-level door assembly: ADR003__InteriorDoor___ID23844199
+    Traversal complete: 2 entities -> 0 buckets, 0 vertices, 0 triangles
+    [DoorHandler] 12 door assembly(ies) detected — will export with hierarchy preservation
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Total meshes built: 0
+
+    [Instancing] Building 10 shared mesh(es)...
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+      [Instancing] Built shared mesh: Window__Rear__ArchedWindow (9448 verts, 5514 tris)
+      [Instancing] Window__Rear__ArchedWindow: 1 mesh -> 6 nodes
+      [Instancing] Built shared mesh: AWN008__Window__#1 (864 verts, 504 tris)
+      [Instancing] AWN008__Window__#1: 1 mesh -> 6 nodes
+      [Instancing] Built shared mesh: 03_22__Whitecard__DoorHandle__HandlePair_Mirrored (1136 verts, 728 tris)
+      [Instancing] 03_22__Whitecard__DoorHandle__HandlePair (mirrored): 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: 03_22__Whitecard__DoorHandle__HandlePair_Mirrored (1136 verts, 728 tris)
+      [Instancing] 03_22__Whitecard__DoorHandle__HandlePair (mirrored): 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: 03_22__Whitecard__DoorHandle__RightHandle_Mirrored (568 verts, 364 tris)
+      [Instancing] 03_22__Whitecard__DoorHandle__RightHandle (mirrored): 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: 03_22__Whitecard__DoorHandle__RightHandle_Mirrored (568 verts, 364 tris)
+      [Instancing] 03_22__Whitecard__DoorHandle__RightHandle (mirrored): 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: 03_22__Whitecard__DoorHandle__LeftHandle_Mirrored (568 verts, 364 tris)
+      [Instancing] 03_22__Whitecard__DoorHandle__LeftHandle (mirrored): 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: 03_22__Whitecard__DoorHandle__LeftHandle_Mirrored (568 verts, 364 tris)
+      [Instancing] 03_22__Whitecard__DoorHandle__LeftHandle (mirrored): 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: ADG001__ExternallDoor__CoachHouse__ArchedDoors__ (3352 verts, 2084 tris)
+      [Instancing] ADG001__ExternallDoor__CoachHouse__ArchedDoors__: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: AWN004__Window__#1 (2000 verts, 1232 tris)
+      [Instancing] AWN004__Window__#1: 1 mesh -> 2 nodes
+    [Instancing] Instanced mesh export complete
+
+    [DoorHandler v2.2.2] Exporting 12 mesh door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Mesh] Building door assembly: ADR002__ExternallDoor__BespokeGeorgian__CollanadeEntrance__20
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='SUB001__ExteriorlDoor__DoorFrame' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (48 verts, 32 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (4632 verts, 2400 tris)
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::MAT101__Glass__ClearDefault (288 verts, 144 tris)
+        [DoorHandler/Mesh] SKIP  child='Group#5' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] KEEP  child='Group#177' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (24 verts, 12 tris)
+      [DoorHandler/Mesh] Door assembly complete: ADR002__ExternallDoor__BespokeGeorgian__CollanadeEntrance__20
+      [DoorHandler/Mesh] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (6596 verts, 3400 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Mesh] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Mesh] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (6596 verts, 3400 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Mesh] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Mesh] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (6596 verts, 3400 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Mesh] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Mesh] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (6596 verts, 3400 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Mesh] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Mesh] Building door assembly: ADR003__InternalDoor__LH__BespokeGeorgian__w840mm-x-h2040__
+        [DoorHandler/Mesh] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (6596 verts, 3400 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Mesh] Door assembly complete: ADR003__InternalDoor__LH__BespokeGeorgian__w840mm-x-h2040__
+      [DoorHandler/Mesh] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (6596 verts, 3400 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (86 verts, 52 tris)
+        [DoorHandler/Mesh] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Mesh] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Mesh] Building door assembly: ADR001__ExteriorlDoor__LH__BespokeGeorgian__w1200mm-x-h2450__
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel__ExteriorDoor' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (10726 verts, 5408 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB002__InternalDoor__SidePanelPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (1484 verts, 788 tris)
+          [DoorHandler] Mesh: Layer0::MAT101__Glass__ClearDefault (24 verts, 12 tris)
+        [DoorHandler/Mesh] KEEP  child='Group#196' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (4790 verts, 2528 tris)
+        [DoorHandler/Mesh] KEEP  child='Group#203' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (1763 verts, 1157 tris)
+          [DoorHandler] Mesh: Layer0::MAT101__Glass__ClearDefault (1620 verts, 1016 tris)
+        [DoorHandler/Mesh] KEEP  child='OuterShell' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (96 verts, 60 tris)
+        [DoorHandler/Mesh] KEEP  child='SUB002__InternalDoor__SidePanelPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (1484 verts, 788 tris)
+          [DoorHandler] Mesh: Layer0::MAT101__Glass__ClearDefault (24 verts, 12 tris)
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] KEEP  child='OuterShell' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (24 verts, 12 tris)
+      [DoorHandler/Mesh] Door assembly complete: ADR001__ExteriorlDoor__LH__BespokeGeorgian__w1200mm-x-h2450__
+      [DoorHandler/Mesh] Building door assembly: ADR041__ExteriorDoor__RearDoor
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='Group#17' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (1752 verts, 1164 tris)
+        [DoorHandler/Mesh] KEEP  child='Difference' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::MAT101__Glass__ClearDefault (1766 verts, 1162 tris)
+          [DoorHandler] Mesh: Layer0::Default (4 verts, 2 tris)
+        [DoorHandler/Mesh] KEEP  child='Group#39' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (72 verts, 48 tris)
+        [DoorHandler/Mesh] KEEP  child='Group#70' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (24 verts, 12 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler] Mesh: 25__ProposedBuilding__Doors::Default (12 verts, 6 tris)
+          [DoorHandler] Mesh: Na__Door__Closed::Default (10822 verts, 5464 tris)
+      [DoorHandler/Mesh] Door assembly complete: ADR041__ExteriorDoor__RearDoor
+      [DoorHandler/Mesh] Building door assembly: ADR101__InteriorDoor__GroundFloor__Sudy
+        [DoorHandler/Mesh] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Mesh] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Mesh] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+  ERROR: Export failed - uninitialized constant TrueVision3D::GlbBuilderUtility::Na__MaterialLookup__GetApplyByGroupNames
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__MaterialLookupSystem__.rb:248:in `Na__MaterialLookup__IsApplyByGroupMaterial?'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb:160:in `block in Na__GlbEngine__TraverseEntities'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb:113:in `each'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__EngineCore__GeometryHandling__.rb:113:in `Na__GlbEngine__TraverseEntities'
+  C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__SpecialObject__DoorObjectHandling__.rb:468:in `Na__DoorHandler__ExtractChildGeometry'
+  ERROR: Failed to export mesh RB05__Storey__GroundFloor__ProposedDoors__MeshModel__.glb
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 40 instanced placements across 7 definition(s) (10 mesh group(s))
+    Traversing linework: Window__Rear__ArchedWindow_ID18772330...
+    Traversing linework: ADR002__ExternallDoor__BespokeGeorgian__CollanadeEntrance__20_ID18948172...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR002__ExternallDoor__BespokeGeorgian__CollanadeEntrance__20_ID18948172
+    Traversing linework: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID18772359...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID18772359
+    Traversing linework: Window__Rear__ArchedWindow_ID18772328...
+    Traversing linework: Window__Rear__ArchedWindow_ID18772329...
+    Traversing linework: Window__Rear__ArchedWindow_ID18772331...
+    Traversing linework: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID20530733...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID20530733
+    Traversing linework: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID20530744...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID20530744
+    Traversing linework: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID20530735...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID20530735
+    Traversing linework: ADR003__InternalDoor__LH__BespokeGeorgian__w840mm-x-h2040___ID18955551...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR003__InternalDoor__LH__BespokeGeorgian__w840mm-x-h2040___ID18955551
+    Traversing linework: Window__Rear__ArchedWindow_ID18989731...
+    Traversing linework: ADG001__ExternallDoor__CoachHouse__ArchedDoors___ID20577449...
+    Traversing linework: Window__Rear__ArchedWindow_ID18989710...
+    Traversing linework: Group_94_ID18826504...
+    Traversing linework: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID19023046...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040___1_ID19023046
+    Traversing linework: ADG001__ExternallDoor__CoachHouse__ArchedDoors___ID20576614...
+    Traversing linework: Group_94_ID18781304...
+    Traversing linework: ADR001__ExteriorlDoor__LH__BespokeGeorgian__w1200mm-x-h2450___ID19316901...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR001__ExteriorlDoor__LH__BespokeGeorgian__w1200mm-x-h2450___ID19316901
+    Traversing linework: ADR041__ExteriorDoor__RearDoor_ID23436023...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR041__ExteriorDoor__RearDoor_ID23436023
+    Traversing linework: ADR101__InteriorDoor__GroundFloor__Sudy_ID23464439...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR101__InteriorDoor__GroundFloor__Sudy_ID23464439
+    Traversing linework: ADR002__InteriorDoor___ID23771419...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR002__InteriorDoor___ID23771419
+    Traversing linework: ADR003__InteriorDoor___ID23844199...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR003__InteriorDoor___ID23844199
+    Linework traversal complete: 22 entities -> 0 edges
+    [DoorHandler/Linework] 12 door assembly(ies) detected — will export with hierarchy preservation
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: Window__Rear__ArchedWindow (2176 edges)
+      [Instancing/Linework] Window__Rear__ArchedWindow: 6 nodes
+      [Instancing] Built shared linework: AWN008__Window__#1 (432 edges)
+      [Instancing/Linework] AWN008__Window__#1: 6 nodes
+      [Instancing] Built shared linework: 03_22__Whitecard__DoorHandle__HandlePair_Mirrored (388 edges)
+      [Instancing/Linework] 03_22__Whitecard__DoorHandle__HandlePair (mirrored): 4 nodes
+      [Instancing/Linework] 03_22__Whitecard__DoorHandle__HandlePair (mirrored): 4 nodes
+      [Instancing] Built shared linework: 03_22__Whitecard__DoorHandle__RightHandle_Mirrored (194 edges)
+      [Instancing/Linework] 03_22__Whitecard__DoorHandle__RightHandle (mirrored): 4 nodes
+      [Instancing/Linework] 03_22__Whitecard__DoorHandle__RightHandle (mirrored): 4 nodes
+      [Instancing] Built shared linework: 03_22__Whitecard__DoorHandle__LeftHandle_Mirrored (194 edges)
+      [Instancing/Linework] 03_22__Whitecard__DoorHandle__LeftHandle (mirrored): 4 nodes
+      [Instancing/Linework] 03_22__Whitecard__DoorHandle__LeftHandle (mirrored): 4 nodes
+      [Instancing] Built shared linework: ADG001__ExternallDoor__CoachHouse__ArchedDoors__ (1318 edges)
+      [Instancing/Linework] ADG001__ExternallDoor__CoachHouse__ArchedDoors__: 2 nodes
+      [Instancing] Built shared linework: AWN004__Window__#1 (820 edges)
+      [Instancing/Linework] AWN004__Window__#1: 2 nodes
+    [Instancing/Linework] Instanced linework export complete
+
+    [DoorHandler/Linework v2.2.2] Exporting 12 linework door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Linework] Building door assembly: ADR002__ExternallDoor__BespokeGeorgian__CollanadeEntrance__20
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1 edges
+        [DoorHandler/Linework] KEEP  child='SUB001__ExteriorlDoor__DoorFrame' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 824 edges
+        [DoorHandler/Linework] SKIP  child='Group#5' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='Group#177' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 12 edges
+      [DoorHandler/Linework] Door assembly complete: ADR002__ExternallDoor__BespokeGeorgian__CollanadeEntrance__20
+      [DoorHandler/Linework] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1 edges
+        [DoorHandler/Linework] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1280 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Linework] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Linework] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1 edges
+        [DoorHandler/Linework] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1280 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Linework] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Linework] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1 edges
+        [DoorHandler/Linework] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1280 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Linework] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Linework] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1 edges
+        [DoorHandler/Linework] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1280 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Linework] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Linework] Building door assembly: ADR003__InternalDoor__LH__BespokeGeorgian__w840mm-x-h2040__
+        [DoorHandler/Linework] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1280 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1 edges
+        [DoorHandler/Linework] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Linework] Door assembly complete: ADR003__InternalDoor__LH__BespokeGeorgian__w840mm-x-h2040__
+      [DoorHandler/Linework] Building door assembly: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1 edges
+        [DoorHandler/Linework] KEEP  child='SUB001__InternalDoor__DoorLining' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1280 edges
+        [DoorHandler/Linework] KEEP  child='SUB003__InternalDoor__Architrave__Interior__RoomFacingSide' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 43 edges
+        [DoorHandler/Linework] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+      [DoorHandler/Linework] Door assembly complete: ADR001__InternalDoor__RH__BespokeGeorgian__w840mm-x-h2040__#1
+      [DoorHandler/Linework] Building door assembly: ADR001__ExteriorlDoor__LH__BespokeGeorgian__w1200mm-x-h2450__
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel__ExteriorDoor' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 2391 edges
+        [DoorHandler/Linework] KEEP  child='SUB002__InternalDoor__SidePanelPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 498 edges
+        [DoorHandler/Linework] KEEP  child='Group#196' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 302 edges
+        [DoorHandler/Linework] KEEP  child='Group#203' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1341 edges
+        [DoorHandler/Linework] KEEP  child='OuterShell' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 48 edges
+        [DoorHandler/Linework] KEEP  child='SUB002__InternalDoor__SidePanelPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 498 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 1 edges
+        [DoorHandler/Linework] SKIP  child='Group#103' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='OuterShell' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 12 edges
+      [DoorHandler/Linework] Door assembly complete: ADR001__ExteriorlDoor__LH__BespokeGeorgian__w1200mm-x-h2450__
+      [DoorHandler/Linework] Building door assembly: ADR041__ExteriorDoor__RearDoor
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='25__ProposedBuilding__Doors' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='Group#17' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 600 edges
+        [DoorHandler/Linework] KEEP  child='Difference' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 609 edges
+        [DoorHandler/Linework] KEEP  child='Group#39' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 36 edges
+        [DoorHandler/Linework] KEEP  child='Group#70' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 12 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 2427 edges
+      [DoorHandler/Linework] Door assembly complete: ADR041__ExteriorDoor__RearDoor
+      [DoorHandler/Linework] Building door assembly: ADR101__InteriorDoor__GroundFloor__Sudy
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR101__InteriorDoor__GroundFloor__Sudy
+      [DoorHandler/Linework] Building door assembly: ADR002__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR002__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR003__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visibility_off_at_export
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 348 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR003__InteriorDoor__
+    [DoorHandler/Linework] Door assembly linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedDoors__LineworkModel__.glb (1483544 bytes, BIN: 1417696 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1483544 bytes
+    Chunk 1: "JSON", Length: 65820 bytes
+    Chunk 2: "BIN\x00", Length: 1417696 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__GroundFloor__ProposedWindows...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 20 instanced placements across 9 definition(s) (9 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 3 placement(s)
+    Traversing: Window__GroundFloor__Collonade_ID18706498...
+    Traversing: Window__GroundFloor__Collonade_ID18706497...
+    Traversing: Group_139_ID18781291...
+    Traversing: Group_268_ID20572531...
+    Traversing: Group_268_ID20577528...
+    Traversing: Group_268_ID20577529...
+    Traversing: Group_268_ID20572532...
+    Traversing: Window__GroundFloor__HouseFascade-02_ID23549214...
+    Traversing: Group_313_ID23550152...
+    Traversing: Group_354_ID26842613...
+    Traversal complete: 10 entities -> 2 buckets, 5586 vertices, 3300 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 24__ProposedBuilding__Windows::Default (4770 verts, 2892 tris)
+    Building mesh: 24__ProposedBuilding__Windows::MAT101__Glass__ClearDefault (816 verts, 408 tris)
+    Total meshes built: 2
+
+    [Instancing] Building 9 shared mesh(es)...
+      [Instancing] Built shared mesh: Window__Front__ArchedWindow (4635 verts, 2554 tris)
+      [Instancing] Window__Front__ArchedWindow: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: AWN002__Window__#1 (192 verts, 112 tris)
+      [Instancing] AWN002__Window__#1: 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: AWN002__Window__#2 (624 verts, 360 tris)
+      [Instancing] AWN002__Window__#2: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: AWN009__Window__#2 (500 verts, 292 tris)
+      [Instancing] AWN009__Window__#2: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: AWN005__Window__#2 (500 verts, 292 tris)
+      [Instancing] AWN005__Window__#2: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: Window__SlidingSash (1518 verts, 876 tris)
+      [Instancing] Window__SlidingSash: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: AWN015__Window__#1 (826 verts, 492 tris)
+      [Instancing] AWN015__Window__#1: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: Component#1 (824 verts, 492 tris)
+      [Instancing] Component#1: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: AWN014__Window__#1 (824 verts, 492 tris)
+      [Instancing] AWN014__Window__#1: 1 mesh -> 2 nodes
+    [Instancing] Instanced mesh export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedWindows__MeshModel__.glb (594176 bytes, BIN: 568500 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 594176 bytes
+    Chunk 1: "JSON", Length: 25648 bytes
+    Chunk 2: "BIN\x00", Length: 568500 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 20 instanced placements across 9 definition(s) (9 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 3 placement(s)
+    Traversing linework: Window__Front__ArchedWindow_ID18871439...
+    Traversing linework: Window__Front__ArchedWindow_ID18871441...
+    Traversing linework: Window__GroundFloor__Collonade_ID18706498...
+    Traversing linework: Window__GroundFloor__Collonade_ID18706497...
+    Traversing linework: AWN009__Window___ID18815833...
+    Traversing linework: AWN005__Window___ID18815852...
+    Traversing linework: AWN009__Window___ID18826505...
+    Traversing linework: AWN005__Window___ID18826506...
+    Traversing linework: Group_139_ID18781291...
+    Traversing linework: Group_268_ID20572531...
+    Traversing linework: Group_268_ID20577528...
+    Traversing linework: Group_268_ID20577529...
+    Traversing linework: Group_268_ID20572532...
+    Traversing linework: Window__WestFascade__GroundFloor-02_ID23333087...
+    Traversing linework: Window__WestFascade__GroundFloor-01_ID23333086...
+    Traversing linework: Window__GroundFloor__HouseFascade-02_ID23549214...
+    Traversing linework: Component_1_ID23549224...
+    Traversing linework: Component_1_ID23549226...
+    Traversing linework: Group_313_ID23550152...
+    Traversing linework: Group_354_ID26842613...
+    Linework traversal complete: 20 entities -> 2442 edges
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: Window__Front__ArchedWindow (922 edges)
+      [Instancing/Linework] Window__Front__ArchedWindow: 2 nodes
+      [Instancing] Built shared linework: AWN002__Window__#1 (96 edges)
+      [Instancing/Linework] AWN002__Window__#1: 4 nodes
+      [Instancing] Built shared linework: AWN002__Window__#2 (312 edges)
+      [Instancing/Linework] AWN002__Window__#2: 2 nodes
+      [Instancing] Built shared linework: AWN009__Window__#2 (252 edges)
+      [Instancing/Linework] AWN009__Window__#2: 2 nodes
+      [Instancing] Built shared linework: AWN005__Window__#2 (252 edges)
+      [Instancing/Linework] AWN005__Window__#2: 2 nodes
+      [Instancing] Built shared linework: Window__SlidingSash (600 edges)
+      [Instancing/Linework] Window__SlidingSash: 2 nodes
+      [Instancing] Built shared linework: AWN015__Window__#1 (400 edges)
+      [Instancing/Linework] AWN015__Window__#1: 2 nodes
+      [Instancing] Built shared linework: Component#1 (400 edges)
+      [Instancing/Linework] Component#1: 2 nodes
+      [Instancing] Built shared linework: AWN014__Window__#1 (400 edges)
+      [Instancing/Linework] AWN014__Window__#1: 2 nodes
+    [Instancing/Linework] Instanced linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedWindows__LineworkModel__.glb (351044 bytes, BIN: 340256 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 351044 bytes
+    Chunk 1: "JSON", Length: 10760 bytes
+    Chunk 2: "BIN\x00", Length: 340256 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__GroundFloor__ProposedFixtures...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 18 instanced placements across 1 definition(s) (2 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 3 placement(s)
+    Traversing: 01__PrimitiveCube_ID18989790...
+    Traversing: 27_50__TowelRadiator__WallHuing__Type-01___ID21864031...
+    Traversing: 27_22__Bathroom__SinkWithWallHungVanityUnit__Type-01_____ID20530740...
+    Traversing: 01__PrimitiveCube_ID18973557...
+    Traversing: 01__PrimitiveCube_ID18973757...
+    Traversing: 01__PrimitiveCube_ID18989774...
+    Traversing: 01__PrimitiveCube_ID18989789...
+    Traversing: 01__PrimitiveCube_ID18989787...
+    Traversing: 01__PrimitiveCube_ID18989786...
+    Traversing: 01__PrimitiveCube_ID18989788...
+    Traversing: 01__PrimitiveCube_ID18989791...
+    Traversing: 27_40__Vanity__RectangularMirror__w600xh800___ID20530741...
+    Traversing: OuterShell_ID18989916...
+    Traversing: 01__PrimitiveCube_ID18989773...
+    Traversing: Group_3_ID18990104...
+    Traversing: 01__PrimitiveCube_ID18973592...
+    Traversing: 01__PrimitiveCube_ID18989776...
+    Traversing: 27_50__TowelRadiator__WallHuing__Type-01___ID20530739...
+    Traversing: 01__PrimitiveCube_ID18973590...
+    Traversing: 01__PrimitiveCube_ID18989775...
+    Traversing: 01__PrimitiveCube_ID18973591...
+    Traversing: Group_116_ID21864037...
+    Traversing: Group_115_ID21864040...
+    Traversing: Group_114_ID21864038...
+    Traversing: Group_117_ID21864039...
+    Traversing: 27__VanityUnit__Collection_ID20530742...
+    Traversing: 01__PrimitiveCube_ID26969996...
+    Traversing: 01__PrimitiveCube_ID26969994...
+    Traversing: 01__PrimitiveCube_ID26969995...
+    Traversing: 01__PrimitiveCube_ID26969993...
+    Traversing: 01__PrimitiveCube_ID26969997...
+    Traversal complete: 31 entities -> 2 buckets, 21954 vertices, 11594 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] Enriched: MAT140__Mirror__ClearDefault
+    [TextureEngine] Embedded texture for 'MAT140__Mirror__ClearDefault' (1024x1024, 55990 bytes)
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 27__ProposedBuilding__Fixtures::Default (21934 verts, 11584 tris)
+    Building mesh: 27__ProposedBuilding__Fixtures::MAT140__Mirror__ClearDefault (20 verts, 10 tris)
+    Total meshes built: 2
+
+    [Instancing] Building 2 shared mesh(es)...
+      [Instancing] Built shared mesh: 27__TowelRadiator__CrossRails (156 verts, 100 tris)
+      [Instancing] 27__TowelRadiator__CrossRails: 1 mesh -> 9 nodes
+      [Instancing] Built shared mesh: 27__TowelRadiator__CrossRails_Mirrored (156 verts, 100 tris)
+      [Instancing] 27__TowelRadiator__CrossRails (mirrored): 1 mesh -> 9 nodes
+    [Instancing] Instanced mesh export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedFixtures__MeshModel__.glb (849320 bytes, BIN: 839268 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 849320 bytes
+    Chunk 1: "JSON", Length: 10024 bytes
+    Chunk 2: "BIN\x00", Length: 839268 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 18 instanced placements across 1 definition(s) (2 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 3 placement(s)
+    Traversing linework: 01__PrimitiveCube_ID18989790...
+    Traversing linework: 27_50__TowelRadiator__WallHuing__Type-01___ID21864031...
+    Traversing linework: 27_22__Bathroom__SinkWithWallHungVanityUnit__Type-01_____ID20530740...
+    Traversing linework: 01__PrimitiveCube_ID18973557...
+    Traversing linework: 01__PrimitiveCube_ID18973757...
+    Traversing linework: 01__PrimitiveCube_ID18989774...
+    Traversing linework: 01__PrimitiveCube_ID18989789...
+    Traversing linework: 01__PrimitiveCube_ID18989787...
+    Traversing linework: 01__PrimitiveCube_ID18989786...
+    Traversing linework: 01__PrimitiveCube_ID18989788...
+    Traversing linework: 01__PrimitiveCube_ID18989791...
+    Traversing linework: 27_40__Vanity__RectangularMirror__w600xh800___ID20530741...
+    Traversing linework: OuterShell_ID18989916...
+    Traversing linework: 01__PrimitiveCube_ID18989773...
+    Traversing linework: Group_3_ID18990104...
+    Traversing linework: 01__PrimitiveCube_ID18973592...
+    Traversing linework: 01__PrimitiveCube_ID18989776...
+    Traversing linework: 27_50__TowelRadiator__WallHuing__Type-01___ID20530739...
+    Traversing linework: 01__PrimitiveCube_ID18973590...
+    Traversing linework: 01__PrimitiveCube_ID18989775...
+    Traversing linework: 01__PrimitiveCube_ID18973591...
+    Traversing linework: Group_116_ID21864037...
+    Traversing linework: Group_115_ID21864040...
+    Traversing linework: Group_114_ID21864038...
+    Traversing linework: Group_117_ID21864039...
+    Traversing linework: 27__VanityUnit__Collection_ID20530742...
+    Traversing linework: 01__PrimitiveCube_ID26969996...
+    Traversing linework: 01__PrimitiveCube_ID26969994...
+    Traversing linework: 01__PrimitiveCube_ID26969995...
+    Traversing linework: 01__PrimitiveCube_ID26969993...
+    Traversing linework: 01__PrimitiveCube_ID26969997...
+    Linework traversal complete: 31 entities -> 1019 edges
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: 27__TowelRadiator__CrossRails (56 edges)
+      [Instancing/Linework] 27__TowelRadiator__CrossRails: 9 nodes
+      [Instancing] Built shared linework: 27__TowelRadiator__CrossRails_Mirrored (56 edges)
+      [Instancing/Linework] 27__TowelRadiator__CrossRails (mirrored): 9 nodes
+    [Instancing/Linework] Instanced linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedFixtures__LineworkModel__.glb (70140 bytes, BIN: 63336 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 70140 bytes
+    Chunk 1: "JSON", Length: 6776 bytes
+    Chunk 2: "BIN\x00", Length: 63336 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__GroundFloor__ProposedWalls...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 23 instanced placements across 2 definition(s) (3 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 3 placement(s)
+    Traversing: OuterShell_ID18781302...
+    Traversing: OuterShell_ID18772383...
+    Traversing: OuterShell_ID18766470...
+    Traversing: OuterShell_ID18781303...
+    Traversing: Group_105_ID18772379...
+    Traversing: OuterShell_ID18766471...
+    Traversing: Group_31_ID18772333...
+    Traversing: Group_189_ID19377149...
+    Traversing: Group_125_ID19652732...
+    Traversing: Group_29_ID20530734...
+    Traversing: Group_29_ID20530732...
+    Traversing: Group_38_ID22731036...
+    Traversing: Group_290_ID20559036...
+    Traversing: OuterShell_ID22996093...
+    Traversing: OuterShell_ID18801102...
+    Traversing: OuterShell_ID18801104...
+    Traversing: OuterShell_ID18801105...
+    Traversing: OuterShell_ID18801100...
+    Traversing: OuterShell_ID18801107...
+    Traversing: OuterShell_ID18801103...
+    Traversing: OuterShell_ID18801108...
+    Traversing: OuterShell_ID18801106...
+    Traversing: OuterShell_ID18801101...
+    Traversing: Group_149_ID18803262...
+    Traversing: Group_151_ID18804506...
+    Traversing: Group_122_ID18991256...
+    Traversing: Group_155_ID18806194...
+    Traversing: Group_145_ID18807480...
+    Traversing: Difference_ID18991257...
+    Traversing: Group_330_ID22884839...
+    Traversing: Group_24_ID22909364...
+    Traversing: OuterShell_ID22910138...
+    Traversing: Group_26_ID22922045...
+    Traversing: Group_359_ID22922063...
+    Traversing: Group_144_ID23416884...
+    Traversing: Group_358_ID23416883...
+    Traversing: Group_360_ID23416889...
+    Traversing: Group_199_ID23416888...
+    Traversing: Group_358_ID23417846...
+    Traversing: Group_333_ID23423228...
+    Traversing: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01_ID23455284...
+    Traversing: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01__hALVED_ID23455288...
+    Traversing: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01__hALVED_ID23455285...
+    Traversing: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01_ID23455289...
+    Traversing: Group_350_ID23526418...
+    Traversing: Group_347_ID23526416...
+    Traversing: Group_348_ID23526417...
+    Traversing: Group_314_ID23571421...
+    Traversing: Group_363_ID23784184...
+    Traversing: Group_28_ID23784826...
+    Traversing: Group_346_ID23784828...
+    Traversing: Group_367_ID23784830...
+    Traversing: Group_378_ID23838060...
+    Traversing: Difference_ID23843029...
+    Traversal complete: 54 entities -> 2 buckets, 108148 vertices, 55186 triangles
+    [TextureEngine] State reset
+    [TextureEngine] Embedded texture for 'MAT000E__Masonry__StoneworkPattern' (2321x2321, 445630 bytes)
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 21__ProposedBuilding__Walls::Default (107166 verts, 54336 tris)
+    Building mesh: 21__ProposedBuilding__Walls::MAT000E__Masonry__StoneworkPattern (982 verts, 850 tris)
+    Total meshes built: 2
+
+    [Instancing] Building 3 shared mesh(es)...
+      [Instancing] Built shared mesh: 21_20__Column__Tuscan__Dia350mm__Base-400mm (11081 verts, 5090 tris)
+      [Instancing] 21_20__Column__Tuscan__Dia350mm__Base-400mm: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: DentilMould (210 verts, 136 tris)
+      [Instancing] DentilMould: 1 mesh -> 18 nodes
+      [Instancing] Built shared mesh: DentilMould_Mirrored (210 verts, 136 tris)
+      [Instancing] DentilMould (mirrored): 1 mesh -> 3 nodes
+    [Instancing] Instanced mesh export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedWalls__MeshModel__.glb (4975660 bytes, BIN: 4963704 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 4975660 bytes
+    Chunk 1: "JSON", Length: 11928 bytes
+    Chunk 2: "BIN\x00", Length: 4963704 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 23 instanced placements across 2 definition(s) (3 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 3 placement(s)
+    Traversing linework: OuterShell_ID18781302...
+    Traversing linework: OuterShell_ID18772383...
+    Traversing linework: OuterShell_ID18766470...
+    Traversing linework: OuterShell_ID18781303...
+    Traversing linework: Group_105_ID18772379...
+    Traversing linework: OuterShell_ID18766471...
+    Traversing linework: Group_31_ID18772333...
+    Traversing linework: Group_189_ID19377149...
+    Traversing linework: Group_125_ID19652732...
+    Traversing linework: Group_29_ID20530734...
+    Traversing linework: Group_29_ID20530732...
+    Traversing linework: Group_38_ID22731036...
+    Traversing linework: Group_290_ID20559036...
+    Traversing linework: OuterShell_ID22996093...
+    Traversing linework: OuterShell_ID18801102...
+    Traversing linework: OuterShell_ID18801104...
+    Traversing linework: OuterShell_ID18801105...
+    Traversing linework: OuterShell_ID18801100...
+    Traversing linework: OuterShell_ID18801107...
+    Traversing linework: OuterShell_ID18801103...
+    Traversing linework: OuterShell_ID18801108...
+    Traversing linework: OuterShell_ID18801106...
+    Traversing linework: OuterShell_ID18801101...
+    Traversing linework: Group_149_ID18803262...
+    Traversing linework: Group_151_ID18804506...
+    Traversing linework: Group_122_ID18991256...
+    Traversing linework: Group_155_ID18806194...
+    Traversing linework: Group_145_ID18807480...
+    Traversing linework: Difference_ID18991257...
+    Traversing linework: Group_330_ID22884839...
+    Traversing linework: Group_24_ID22909364...
+    Traversing linework: OuterShell_ID22910138...
+    Traversing linework: Group_26_ID22922045...
+    Traversing linework: Group_359_ID22922063...
+    Traversing linework: Group_144_ID23416884...
+    Traversing linework: Group_358_ID23416883...
+    Traversing linework: Group_360_ID23416889...
+    Traversing linework: Group_199_ID23416888...
+    Traversing linework: Group_358_ID23417846...
+    Traversing linework: Group_333_ID23423228...
+    Traversing linework: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01_ID23455284...
+    Traversing linework: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01__hALVED_ID23455288...
+    Traversing linework: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01__hALVED_ID23455285...
+    Traversing linework: 21_20__Column__Tuscan__Dia350mm__Base-400mm__LoggiaType-01_ID23455289...
+    Traversing linework: Group_350_ID23526418...
+    Traversing linework: Group_347_ID23526416...
+    Traversing linework: Group_348_ID23526417...
+    Traversing linework: Group_314_ID23571421...
+    Traversing linework: Group_363_ID23784184...
+    Traversing linework: Group_28_ID23784826...
+    Traversing linework: Group_346_ID23784828...
+    Traversing linework: Group_367_ID23784830...
+    Traversing linework: Group_378_ID23838060...
+    Traversing linework: Difference_ID23843029...
+    Linework traversal complete: 54 entities -> 15035 edges
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: 21_20__Column__Tuscan__Dia350mm__Base-400mm (666 edges)
+      [Instancing/Linework] 21_20__Column__Tuscan__Dia350mm__Base-400mm: 2 nodes
+      [Instancing] Built shared linework: DentilMould (94 edges)
+      [Instancing/Linework] DentilMould: 18 nodes
+      [Instancing] Built shared linework: DentilMould_Mirrored (94 edges)
+      [Instancing/Linework] DentilMould (mirrored): 3 nodes
+    [Instancing/Linework] Instanced linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedWalls__LineworkModel__.glb (897968 bytes, BIN: 889784 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 897968 bytes
+    Chunk 1: "JSON", Length: 8156 bytes
+    Chunk 2: "BIN\x00", Length: 889784 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__GroundFloor__ProposedInteriorDecor...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 16 instanced placements across 2 definition(s) (2 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 1 placement(s)
+    Traversing: Group_239_ID20530716...
+    Traversing: Group_30_ID18990143...
+    Traversing: Group_507_ID20530743...
+    Traversing: Group_120_ID23002986...
+    Traversing: Group_326_ID23559943...
+    Traversing: Group_43_ID23820508...
+    Traversal complete: 6 entities -> 1 buckets, 20543 vertices, 10704 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 29__ProposedBuilding__InteriorDecor::Default (20543 verts, 10704 tris)
+    Total meshes built: 1
+
+    [Instancing] Building 2 shared mesh(es)...
+      [Instancing] Built shared mesh: 28_85__Towel__BathroomTowel__Var-01___Mirrored (4996 verts, 2328 tris)
+      [Instancing] 28_85__Towel__BathroomTowel__Var-01__ (mirrored): 1 mesh -> 13 nodes
+      [Instancing] Built shared mesh: Pillow_Mirrored (3872 verts, 1344 tris)
+      [Instancing] Pillow (mirrored): 1 mesh -> 3 nodes
+    [Instancing] Instanced mesh export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedInteriorDecor__MeshModel__.glb (1035312 bytes, BIN: 1027408 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1035312 bytes
+    Chunk 1: "JSON", Length: 7876 bytes
+    Chunk 2: "BIN\x00", Length: 1027408 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 16 instanced placements across 2 definition(s) (2 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 1 placement(s)
+    Traversing linework: Group_239_ID20530716...
+    Traversing linework: Group_30_ID18990143...
+    Traversing linework: Group_507_ID20530743...
+    Traversing linework: Group_120_ID23002986...
+    Traversing linework: Group_326_ID23559943...
+    Traversing linework: Group_43_ID23820508...
+    Linework traversal complete: 6 entities -> 5054 edges
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: 28_85__Towel__BathroomTowel__Var-01___Mirrored (279 edges)
+      [Instancing/Linework] 28_85__Towel__BathroomTowel__Var-01__ (mirrored): 13 nodes
+      [Instancing/Linework] Pillow (mirrored): 3 nodes
+    [Instancing/Linework] Instanced linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedInteriorDecor__LineworkModel__.glb (303176 bytes, BIN: 298648 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 303176 bytes
+    Chunk 1: "JSON", Length: 4500 bytes
+    Chunk 2: "BIN\x00", Length: 298648 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__GroundFloor__ProposedFloors...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_170_ID19364896...
+    Traversing: OuterShell_ID23416979...
+    Traversing: Group_327_ID23583777...
+    Traversal complete: 3 entities -> 4 buckets, 892 vertices, 548 triangles
+    [TextureEngine] State reset
+    [TextureEngine] Embedded texture for 'MAT000E__Masonry__StoneworkPattern' (2321x2321, 445630 bytes)
+    [TextureEngine] Embedded texture for 'MAT000E__RB05__GroundFloor__Scheme-02' (6239x4581, 1479430 bytes)
+    [TextureEngine] Embedded texture for 'MAT000E__RB05__GroundFloorPlan__Texture' (2048x1686, 575989 bytes)
+    [MaterialEngine] indexed-only mode: 3 material(s) exported
+    Building mesh: 22__ProposedBuilding__Floors::Default (780 verts, 450 tris)
+    Building mesh: 22__ProposedBuilding__Floors::MAT000E__Masonry__StoneworkPattern (24 verts, 18 tris)
+    Building mesh: 22__ProposedBuilding__Floors::MAT000E__RB05__GroundFloor__Scheme-02 (18 verts, 12 tris)
+    Building mesh: 22__ProposedBuilding__Floors::MAT000E__RB05__GroundFloorPlan__Texture (70 verts, 68 tris)
+    Total meshes built: 4
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedFloors__MeshModel__.glb (2539384 bytes, BIN: 2532888 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2539384 bytes
+    Chunk 1: "JSON", Length: 6468 bytes
+    Chunk 2: "BIN\x00", Length: 2532888 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_170_ID19364896...
+    Traversing linework: OuterShell_ID23416979...
+    Traversing linework: Group_327_ID23583777...
+    Linework traversal complete: 3 entities -> 364 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedFloors__LineworkModel__.glb (21180 bytes, BIN: 20384 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 21180 bytes
+    Chunk 1: "JSON", Length: 768 bytes
+    Chunk 2: "BIN\x00", Length: 20384 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__GroundFloor__ProposedStairs...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_211_ID20565250...
+    Traversing: Group_283_ID20532802...
+    Traversing: Group_368_ID23820476...
+    Traversal complete: 3 entities -> 1 buckets, 1856 vertices, 1156 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 26__ProposedBuilding__Staircase::Default (1856 verts, 1156 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedStairs__MeshModel__.glb (67812 bytes, BIN: 66328 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 67812 bytes
+    Chunk 1: "JSON", Length: 1456 bytes
+    Chunk 2: "BIN\x00", Length: 66328 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_211_ID20565250...
+    Traversing linework: Group_283_ID20532802...
+    Traversing linework: Group_368_ID23820476...
+    Linework traversal complete: 3 entities -> 965 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedStairs__LineworkModel__.glb (54804 bytes, BIN: 54040 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 54804 bytes
+    Chunk 1: "JSON", Length: 736 bytes
+    Chunk 2: "BIN\x00", Length: 54040 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting storey series: RB05__Storey__GroundFloor__ProposedFurniture...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 16 instanced placements across 1 definition(s) (3 mesh group(s))
+    Traversing: Group_123_ID23559948...
+    Traversing: OuterShell_ID23559946...
+    Traversing: Group_106_ID23559947...
+    Traversing: Group_318_ID23559945...
+    Traversing: Group_123_ID23559941...
+    Traversing: Group_106_ID23559940...
+    Traversing: Group_325_ID23559942...
+    Traversing: Group_318_ID23559938...
+    Traversal complete: 8 entities -> 1 buckets, 4692 vertices, 3024 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 28__ProposedBuilding__Furniture::Default (4692 verts, 3024 tris)
+    Total meshes built: 1
+
+    [Instancing] Building 3 shared mesh(es)...
+      [Instancing] Built shared mesh: SUB004__InternalDoor__DoorKnob (1782 verts, 894 tris)
+      [Instancing] SUB004__InternalDoor__DoorKnob: 1 mesh -> 8 nodes
+      [Instancing] Built shared mesh: SUB004__InternalDoor__DoorKnob_Mirrored (1782 verts, 894 tris)
+      [Instancing] SUB004__InternalDoor__DoorKnob (mirrored): 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: SUB004__InternalDoor__DoorKnob_Mirrored (1782 verts, 894 tris)
+      [Instancing] SUB004__InternalDoor__DoorKnob (mirrored): 1 mesh -> 4 nodes
+    [Instancing] Instanced mesh export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedFurniture__MeshModel__.glb (364292 bytes, BIN: 355452 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 364292 bytes
+    Chunk 1: "JSON", Length: 8812 bytes
+    Chunk 2: "BIN\x00", Length: 355452 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 16 instanced placements across 1 definition(s) (3 mesh group(s))
+    Traversing linework: Group_123_ID23559948...
+    Traversing linework: OuterShell_ID23559946...
+    Traversing linework: Group_106_ID23559947...
+    Traversing linework: Group_318_ID23559945...
+    Traversing linework: Group_123_ID23559941...
+    Traversing linework: Group_106_ID23559940...
+    Traversing linework: Group_325_ID23559942...
+    Traversing linework: Group_318_ID23559938...
+    Linework traversal complete: 8 entities -> 2322 edges
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: SUB004__InternalDoor__DoorKnob (138 edges)
+      [Instancing/Linework] SUB004__InternalDoor__DoorKnob: 8 nodes
+      [Instancing] Built shared linework: SUB004__InternalDoor__DoorKnob_Mirrored (138 edges)
+      [Instancing/Linework] SUB004__InternalDoor__DoorKnob (mirrored): 4 nodes
+      [Instancing/Linework] SUB004__InternalDoor__DoorKnob (mirrored): 4 nodes
+    [Instancing/Linework] Instanced linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedFurniture__LineworkModel__.glb (151660 bytes, BIN: 145488 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 151660 bytes
+    Chunk 1: "JSON", Length: 6144 bytes
+    Chunk 2: "BIN\x00", Length: 145488 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+=== End Storey Export ===
+      Cleaned up texture cache folder
+-------------------------------------------------------------------------------
+ Export complete. Elapsed: 26.28s
+===============================================================================
