@@ -79,6 +79,10 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedWalls__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedWindows__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__GroundFloor__ProposedWindows__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedFixtures__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedFixtures__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedFloors__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedFloors__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedRoofs__LineworkModel__.glb",
@@ -89,22 +93,22 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__Storey__SecondFloor__ProposedWindows__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__LandscapeEnvironment__MeshModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedInteriorDecor__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedInteriorDecor__MeshModel__.glb"
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/RB05__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb"
             ]
         }
     ],
     "Camera__DefaultPosition": {
         "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
         "Camera__DefaultPos": {
-            "Camera__DefaultPos__PosX": -7073,
-            "Camera__DefaultPos__PosY": 2749,
-            "Camera__DefaultPos__PosZ": 19758
+            "Camera__DefaultPos__PosX": 14344,
+            "Camera__DefaultPos__PosY": 44336,
+            "Camera__DefaultPos__PosZ": -2808
         },
         "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -0.0014,
-            "Camera__DefaultRotation__RotY": -0.5517,
-            "Camera__DefaultRotation__RotZ": -0.0007
+            "Camera__DefaultRotation__RotX": -1.1845,
+            "Camera__DefaultRotation__RotY": -0.0047,
+            "Camera__DefaultRotation__RotZ": -0.0115
         },
         "Camera__DefaultMisc": {
             "Camera__DefaultMisc__Fov": 30
@@ -175,6 +179,67 @@
                     "OrbitHelperCube__Position__PosY": 2447,
                     "OrbitHelperCube__Position__PosZ": -21091
                 }
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_003",
+                "PresentationMode__Scene__Name": "Scene 3",
+                "PresentationMode__Scene__Order": 3,
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_003.webp",
+                "PresentationMode__Scene__LensMm": 45,
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 14344,
+                        "Camera__DefaultPos__PosY": 44336,
+                        "Camera__DefaultPos__PosZ": -2808
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.1845,
+                        "Camera__DefaultRotation__RotY": -0.0047,
+                        "Camera__DefaultRotation__RotZ": -0.0115
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 14552,
+                    "OrbitHelperCube__Position__PosY": 3116,
+                    "OrbitHelperCube__Position__PosZ": -19575
+                },
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
+                        "TrueVision__LandscapeEnvironment": false,
+                        "Storey__FirstFloor__ProposedDoors": false,
+                        "Storey__FirstFloor__ProposedFloors": false,
+                        "Storey__FirstFloor__ProposedRoofs": false,
+                        "Storey__FirstFloor__ProposedStairs": false,
+                        "Storey__FirstFloor__ProposedWalls": false,
+                        "Storey__FirstFloor__ProposedWindows": false,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": false,
+                        "Storey__SecondFloor__ProposedRoofs": false,
+                        "Storey__SecondFloor__ProposedWalls": false,
+                        "Storey__SecondFloor__ProposedWindows": false
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": false,
+                        "SecondFloor": false
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": false
+                }
             }
         ]
     },
@@ -183,10 +248,16 @@
         "Navmode__EnabledModes__Fly": true
     },
     "Navmode__OrbitMaxDistanceMm": 200000,
+    "Navmode__FovOverrides": {
+        "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
+        "Navmode__FovOverrides__OrbitDeg": 30,
+        "Navmode__FovOverrides__WalkDeg": 55,
+        "Navmode__FovOverrides__FlyDeg": 55
+    },
     "OrbitHelperCube__Position": {
         "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
-        "OrbitHelperCube__Position__PosX": 16252,
-        "OrbitHelperCube__Position__PosY": 2696,
-        "OrbitHelperCube__Position__PosZ": -18139
+        "OrbitHelperCube__Position__PosX": 14552,
+        "OrbitHelperCube__Position__PosY": 3116,
+        "OrbitHelperCube__Position__PosZ": -19575
     }
 }
