@@ -54,21 +54,29 @@ import { VF__SVG__FormatSVG } from '../03__SVG/VF__SVG__Serialization__.js';
             });
 
             this.eventBus.on('selection:changed', () => {
-                if (this.codeContent.style.display === 'block') this._updateCode(); // <-- Refresh code if tab visible
+                if (this._isCodeTabVisible()) this._updateCode(); // <-- Refresh code if tab visible
             });
             this.eventBus.on('layers:changed', () => {
-                if (this.codeContent.style.display === 'block') this._updateCode();
+                if (this._isCodeTabVisible()) this._updateCode();
             });
 
             this.svgCanvas.svg.addEventListener('mouseup', () => {
                 setTimeout(() => {
-                    if (this.codeContent.style.display === 'block') this._updateCode(); // <-- Debounced refresh after draw
+                    if (this._isCodeTabVisible()) this._updateCode(); // <-- Debounced refresh after draw
                 }, 50);
             });
 
             this.eventBus.on('hotkey:syncCode', () => {
-                if (this.codeContent.style.display === 'block') this._applyCodeToCanvas(); // <-- Ctrl+Shift+Enter
+                if (this._isCodeTabVisible()) this._applyCodeToCanvas(); // <-- Ctrl+Shift+Enter
             });
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | IsCodeTabVisible — Check Whether Code Tab Is Active
+        // ------------------------------------------------------------
+        _isCodeTabVisible() {
+            return this.codeContent.classList.contains('is-visible');
         }
         // ------------------------------------------------------------
 
@@ -76,26 +84,14 @@ import { VF__SVG__FormatSVG } from '../03__SVG/VF__SVG__Serialization__.js';
         // HELPER FUNCTION | OnTabClick — Switch Between Properties and Code Tabs
         // ------------------------------------------------------------
         _onTabClick(btn) {
-            this.tabBtns.forEach(b => {
-                b.classList.remove('active');
-                b.style.color        = 'var(--color-slate-500)';
-                b.style.background   = 'transparent';
-                b.style.borderBottom = '2px solid transparent';
-            });
-
+            this.tabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            btn.style.color        = 'var(--color-slate-800)';
-            btn.style.background   = 'white';
-            btn.style.borderBottom = '2px solid var(--color-blue-600)';
 
-            if (btn.dataset.target === 'props-content') {
-                this.propsContent.style.display = 'block';  // <-- Show properties tab
-                this.codeContent.style.display  = 'none';
-            } else {
-                this.propsContent.style.display = 'none';
-                this.codeContent.style.display  = 'block';  // <-- Show code tab
-                this._updateCode();                          // <-- Populate code on tab open
-            }
+            const showProps = btn.dataset.target === 'props-content';
+            this.propsContent.classList.toggle('is-hidden', !showProps);
+            this.codeContent.classList.toggle('is-visible', !showProps);
+
+            if (!showProps) this._updateCode(); // <-- Populate code on tab open
         }
         // ------------------------------------------------------------
 

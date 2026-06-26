@@ -19,6 +19,9 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.1.0
+// - Added E key shortcut for togglePointEdit action.
+//
 // 26-Jun-2026 - Version 1.0.0
 // - Initial stable release. Refactored from prototype to ValeDesignSuite conventions.
 //
@@ -36,10 +39,11 @@
         'redo'        : [{ key: 'z', ctrl: true, shift: true }, { key: 'y', ctrl: true }], // <-- Ctrl+Shift+Z or Ctrl+Y
         'delete'      : [{ key: 'Backspace' }, { key: 'Delete' }],                   // <-- Backspace or Delete
         'syncCode'    : [{ key: 'Enter', ctrl: true, shift: true }],                 // <-- Ctrl+Shift+Enter
-        'tool_select' : [{ key: 'v' }],                                              // <-- V
-        'tool_line'   : [{ key: 'l' }],                                              // <-- L
-        'tool_rect'   : [{ key: 'r' }],                                              // <-- R
-        'tool_path'   : [{ key: 'p' }],                                              // <-- P
+        'tool_select'     : [{ key: 'v' }],                                          // <-- V
+        'tool_line'       : [{ key: 'l' }],                                          // <-- L
+        'tool_rect'       : [{ key: 'r' }],                                          // <-- R
+        'tool_path'       : [{ key: 'p' }],                                          // <-- P
+        'togglePointEdit' : [{ key: 'e' }],                                          // <-- E
     };
     // ------------------------------------------------------------
 

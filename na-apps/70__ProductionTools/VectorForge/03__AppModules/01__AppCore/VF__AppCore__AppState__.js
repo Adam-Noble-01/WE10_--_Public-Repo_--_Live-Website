@@ -11,7 +11,7 @@
 //
 // DESCRIPTION:
 // - Owns the single authoritative state for the editor: layer stack, active
-//   tool name, tool instances, and canvas dimensions.
+//   tool name, tool instances, canvas dimensions, and mode flags.
 // - All modules that need to read or mutate shared state must do so through
 //   this class — never through direct module-to-module access.
 // - State changes are broadcast through the EventBus so dependent modules
@@ -20,6 +20,9 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.1.0
+// - Added pointEditMode flag for Vector Point Edit mode state.
+//
 // 26-Jun-2026 - Version 1.0.0
 // - Initial stable release. Refactored from prototype to ValeDesignSuite conventions.
 //
@@ -47,6 +50,7 @@
             this.dpi           = 96;          // <-- Pixels per inch (standard screen DPI)
             this.pxPerMm       = 96 / 25.4;  // <-- Pixel-to-millimetre conversion factor
             this.snapToGrid    = false;       // <-- Grid snap toggle state
+            this.pointEditMode = false;       // <-- Vector point edit mode toggle state
         }
         // ------------------------------------------------------------
 
