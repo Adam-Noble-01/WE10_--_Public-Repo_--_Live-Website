@@ -20,6 +20,9 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.2.0
+// - Added gridSize property (20px) so snap intervals align with dot-grid spacing.
+//
 // 26-Jun-2026 - Version 1.1.0
 // - Added pointEditMode flag for Vector Point Edit mode state.
 //
@@ -50,6 +53,7 @@
             this.dpi           = 96;          // <-- Pixels per inch (standard screen DPI)
             this.pxPerMm       = 96 / 25.4;  // <-- Pixel-to-millimetre conversion factor
             this.snapToGrid    = false;       // <-- Grid snap toggle state
+            this.gridSize      = 20;          // <-- Snap interval in px — must match dot-grid pattern spacing
             this.pointEditMode = false;       // <-- Vector point edit mode toggle state
         }
         // ------------------------------------------------------------

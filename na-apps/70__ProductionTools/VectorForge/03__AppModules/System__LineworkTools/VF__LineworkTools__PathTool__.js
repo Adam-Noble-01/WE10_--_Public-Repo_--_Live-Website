@@ -17,15 +17,22 @@
 // - Mouseup commits the path and resets draw state.
 // - Deactivation also clears any in-progress path and the accumulated points.
 // - Respects AppState.snapToGrid via SVGCanvas.getSVGPoint.
+// - Holding Shift constrains each new segment to the nearest orthogonal axis
+//   from the most recently committed point, producing H/V stair-step paths.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.1.0
+// - Shift key orthogonal axis lock added to mousemove path extension.
+//
 // 26-Jun-2026 - Version 1.0.0
 // - Initial stable release. Refactored from prototype to ValeDesignSuite conventions.
 //
 // =============================================================================
 
+
+import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__CommonUtils__OrthoConstraint__.js';
 
 // -----------------------------------------------------------------------------
 // REGION | PathTool Class
@@ -94,12 +101,28 @@
         // ------------------------------------------------------------
         _onMouseMove(e) {
             if (!this.active || !this.drawing || !this.currentPath) return;
-            const pt = this.svgCanvas.getSVGPoint(e);
-            this.points.push(pt);
+            const raw    = this.svgCanvas.getSVGPoint(e);
+            const anchor = this.points[this.points.length - 1]; // <-- Last point — ortho anchor for new segment
+            const pt     = VF__CommonUtils__ConstrainPointToOrtho(anchor.x, anchor.y, raw.x, raw.y, e.shiftKey); // <-- Constrain if Shift held
+
+            if (e.shiftKey && this.points.length >= 2) {
+                // Avoid accumulating collinear vertices: replace last point if new segment is on same axis
+                const prev   = this.points[this.points.length - 2];
+                const last   = this.points[this.points.length - 1];
+                const sameH  = (Math.abs(last.y - prev.y) < 0.01 && Math.abs(pt.y - prev.y) < 0.01); // <-- Both on same horizontal
+                const sameV  = (Math.abs(last.x - prev.x) < 0.01 && Math.abs(pt.x - prev.x) < 0.01); // <-- Both on same vertical
+                if (sameH || sameV) {
+                    this.points[this.points.length - 1] = pt; // <-- Extend existing segment
+                } else {
+                    this.points.push(pt); // <-- Axis changed — start new segment
+                }
+            } else {
+                this.points.push(pt); // <-- Freehand: accumulate all positions; or first point in ortho mode
+            }
 
             let d = `M ${this.points[0].x} ${this.points[0].y}`;
             for (let i = 1; i < this.points.length; i++) {
-                d += ` L ${this.points[i].x} ${this.points[i].y}`; // <-- Append lineto for each new point
+                d += ` L ${this.points[i].x} ${this.points[i].y}`; // <-- Append lineto for each point
             }
             this.currentPath.setAttribute('d', d);
         }

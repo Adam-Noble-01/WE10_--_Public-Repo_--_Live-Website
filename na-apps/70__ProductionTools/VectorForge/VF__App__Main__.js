@@ -14,12 +14,20 @@
 // - Constructs all core, SVG, UI, and tool module instances in dependency order.
 // - Passes shared EventBus and AppState to every module — no direct
 //   module-to-module references other than through these two shared objects.
-// - Wires the snap-grid toggle button, the point-edit toggle button,
-//   registering tools with AppState last and setting the initial 'select' tool.
+// - Wires the snap-grid toggle button (also shows/hides the dot-grid overlay),
+//   the point-edit toggle button, registering tools with AppState last and
+//   setting the initial 'select' tool.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.3.0
+// - Added PanelResizeHandle module — right panel is now drag-resizable.
+//
+// 26-Jun-2026 - Version 1.2.0
+// - Snap toggle now also calls svgCanvas.setDotGridVisible() so the dot grid
+//   shows/hides in sync with the snap state.
+//
 // 26-Jun-2026 - Version 1.1.0
 // - Added PointEditManager instantiation and point-edit toggle button wiring.
 // - pointEditMode:changed event listener updates button appearance on toggle.
@@ -43,6 +51,7 @@ import { LayersPanelUI      } from './03__AppModules/02__UI/VF__UI__LayersPanel_
 import { PropertiesPanelUI  } from './03__AppModules/02__UI/VF__UI__PropertiesPanel__.js';
 import { CodePanelUI        } from './03__AppModules/02__UI/VF__UI__CodePanel__.js';
 import { StatusBarUI        } from './03__AppModules/02__UI/VF__UI__StatusBar__.js';
+import { VF__PanelResizeHandle__Init } from './03__AppModules/02__UI/VF__UI__PanelResizeHandle__.js';
 import { ViewBoxController  } from './03__AppModules/System__Navigation/VF__Navigation__ViewBoxController__.js';
 import { LineTool           } from './03__AppModules/System__LineworkTools/VF__LineworkTools__LineTool__.js';
 import { RectangleTool      } from './03__AppModules/System__LineworkTools/VF__LineworkTools__RectangleTool__.js';
@@ -87,12 +96,16 @@ import { PathTool           } from './03__AppModules/System__LineworkTools/VF__L
             'path'   : new PathTool(appState, eventBus, svgCanvas),      // <-- Freehand path tool
         };
 
+        // RIGHT PANEL RESIZE HANDLE
+        VF__PanelResizeHandle__Init(); // <-- Attach drag-to-resize to right panel left edge
+
         // SNAP TOGGLE BUTTON
         const snapBtn = document.getElementById('snap-toggle-btn');
         snapBtn.addEventListener('click', () => {
             appState.snapToGrid = !appState.snapToGrid;
             snapBtn.textContent = appState.snapToGrid ? 'Snap: On' : 'Snap: Off';
             snapBtn.classList.toggle('active', appState.snapToGrid);
+            svgCanvas.setDotGridVisible(appState.snapToGrid); // <-- Show/hide dot-grid overlay to match snap state
         });
 
         // POINT EDIT TOGGLE BUTTON

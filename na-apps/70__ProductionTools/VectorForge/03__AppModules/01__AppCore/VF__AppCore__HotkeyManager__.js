@@ -16,10 +16,17 @@
 //   without knowing about keyboard input directly.
 // - Single-key tool shortcuts are suppressed when focus is inside an input or
 //   textarea to prevent conflicts with text editing.
+// - Implements chord-safe Ctrl-alone tap detection: tapping and releasing
+//   Control without pressing any other key emits hotkey:togglePointEdit. If
+//   the user forms a chord (Ctrl+Z, Ctrl+Y, etc.) the tap is cancelled and the
+//   chord shortcut fires normally.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.1.0
+// - Added chord-safe Ctrl-alone tap to emit hotkey:togglePointEdit on keyup.
+//
 // 26-Jun-2026 - Version 1.0.0
 // - Initial stable release. Refactored from prototype to ValeDesignSuite conventions.
 //
@@ -36,13 +43,15 @@ import { VF__DefaultKeybindings } from './VF__AppCore__Keybindings__.js';
     // ------------------------------------------------------------
     export class HotkeyManager {
 
-        // FUNCTION | Constructor — Attach Global Keydown Listener
+        // FUNCTION | Constructor — Attach Global Keydown and Keyup Listeners
         // ------------------------------------------------------------
         constructor(eventBus) {
-            this.eventBus = eventBus;                  // <-- Event bus for emitting hotkey events
-            this.bindings = VF__DefaultKeybindings;    // <-- Keybinding map from Keybindings module
+            this.eventBus         = eventBus;               // <-- Event bus for emitting hotkey events
+            this.bindings         = VF__DefaultKeybindings; // <-- Keybinding map from Keybindings module
+            this._ctrlTapPending  = false;                  // <-- True between Control keydown and keyup (no chord)
 
             window.addEventListener('keydown', (e) => this._onKeyDown(e));
+            window.addEventListener('keyup',   (e) => this._onKeyUp(e));
         }
         // ------------------------------------------------------------
 
@@ -50,8 +59,19 @@ import { VF__DefaultKeybindings } from './VF__AppCore__Keybindings__.js';
         // HELPER FUNCTION | OnKeyDown — Resolve Keydown Against Bindings and Emit
         // ------------------------------------------------------------
         _onKeyDown(e) {
-            const isInput      = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA'; // <-- Detect text input focus
-            let   matchedAction = null;
+            const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA'; // <-- Detect text input focus
+
+            // -- Ctrl-alone tap detection ------------------------------------------
+            if (e.key === 'Control' && !e.repeat) {
+                this._ctrlTapPending = true;  // <-- Mark potential Ctrl tap start
+                return;                       // <-- Don't process Control alone as a binding
+            }
+            if (this._ctrlTapPending && e.key !== 'Control') {
+                this._ctrlTapPending = false; // <-- User is forming a chord (e.g. Ctrl+Z) — cancel tap
+            }
+            // -----------------------------------------------------------------------
+
+            let matchedAction = null;
 
             for (const [action, combos] of Object.entries(this.bindings)) {
                 for (const combo of combos) {
@@ -74,6 +94,23 @@ import { VF__DefaultKeybindings } from './VF__AppCore__Keybindings__.js';
 
             e.preventDefault();
             this.eventBus.emit(`hotkey:${matchedAction}`); // <-- Dispatch to all bus subscribers
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | OnKeyUp — Fire Ctrl-Alone Tap Toggle on Clean Control Release
+        // ------------------------------------------------------------
+        _onKeyUp(e) {
+            if (e.key !== 'Control') return;
+
+            const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA'; // <-- Suppress in text inputs
+
+            if (this._ctrlTapPending && !isInput) {
+                e.preventDefault();
+                this.eventBus.emit('hotkey:togglePointEdit'); // <-- Clean Ctrl tap — toggle vertex edit mode
+            }
+
+            this._ctrlTapPending = false; // <-- Always reset on Control keyup
         }
         // ------------------------------------------------------------
 

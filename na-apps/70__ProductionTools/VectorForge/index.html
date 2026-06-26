@@ -7,6 +7,7 @@
     <meta name="author" content="Adam Noble - Noble Architecture">
     <title>VectorForge</title>
     <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+    <link rel="icon" type="image/x-icon" href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
     <link rel="stylesheet" href="./03__AppStyles/VF__StyleSheet__EditorTheme__.css">
 </head>
 <body>
@@ -24,7 +25,11 @@
         <header class="top-bar">
 
             <div class="top-bar__logo-group">
-                <div class="logo">VECTOR_FORGE v1.0</div>
+                <img
+                    class="top-bar__logo-mark"
+                    src="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg"
+                    alt="Noble Architecture">
+                <div class="logo">VectorForge | v0.2.2 - Alpha</div>
             </div>
 
             <div class="status-bar status-bar--centred" id="status-bar">
@@ -33,19 +38,11 @@
                 <span>Canvas: <span id="canvas-px">800x600 px</span> (<span id="canvas-mm">211.7x158.8 mm</span>)</span>
             </div>
 
-            <div class="top-bar__right">
-                <div class="top-bar__controls">
-                    <button id="snap-toggle-btn" class="btn btn--secondary">Snap: Off</button>
-                    <button id="point-edit-btn" class="btn btn--secondary" title="Toggle Vector Point Edit (E)">Points: Off</button>
-                    <input type="file" id="svg-upload-input" accept=".svg">
-                    <button id="upload-svg-btn" class="btn btn--primary">Upload SVG</button>
-                </div>
-                <div class="top-bar__brand">
-                    <img
-                        class="top-bar__brand-mark"
-                        src="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg"
-                        alt="Noble Architecture">
-                </div>
+            <div class="top-bar__controls">
+                <button id="snap-toggle-btn" class="btn btn--secondary">Snap: Off</button>
+                <button id="point-edit-btn" class="btn btn--secondary" title="Toggle Vector Point Edit (E / Ctrl)">Points: Off</button>
+                <input type="file" id="svg-upload-input" accept=".svg">
+                <button id="upload-svg-btn" class="btn btn--primary">Upload SVG</button>
             </div>
 
         </header>
@@ -89,7 +86,8 @@
             </main>
 
             <!-- RIGHT PANEL -->
-            <aside class="right-panel">
+            <aside class="right-panel" id="right-panel">
+                <div class="panel-resize-handle" id="panel-resize-handle"></div>
 
                 <div class="panel layers-panel" id="layers-panel">
                     <h3>Layers</h3>

@@ -22,6 +22,101 @@
 
 # =============================================================================
 
+## VectorForge | v0.2.5 | 26-Jun-2026
+
+### Right Panel — Drag-to-Resize
+
+- Added `VF__UI__PanelResizeHandle__.js` — a dedicated module that makes the right
+  panel drag-resizable via a 6 px grab strip on its left edge.
+- Panel width is clamped between 180 px and 640 px.
+- Final width persists to `localStorage` (`vf_right_panel_width`) and is restored on
+  next page load.
+- Handle highlights blue on hover and during drag; document cursor and text-selection
+  are locked for the duration of the drag to prevent flicker.
+- Updated `index.html` to add `id="right-panel"` and the `#panel-resize-handle` child element.
+- Updated `VF__StyleSheet__EditorTheme__.css` with `.panel-resize-handle` rules.
+- `VF__App__Main__.js` imports and calls `VF__PanelResizeHandle__Init()` at bootstrap.
+
+---
+
+## VectorForge | v0.2.4 | 26-Jun-2026
+
+### Shift Ortho Lock + Ctrl Vertex Edit Shortcut
+
+- **Shift — Orthogonal axis lock (Line, Path, Point Edit):**
+  - New shared utility `VF__CommonUtils__OrthoConstraint__.js` exports
+    `VF__CommonUtils__ConstrainPointToOrtho(anchorX, anchorY, cursorX, cursorY, shiftHeld)`.
+    Dominant axis (H or V from anchor) is inferred from `|dx| vs |dy|`; returns cursor
+    unchanged when Shift is not held.
+  - `VF__LineworkTools__LineTool__.js` — holding Shift during mousemove locks the live
+    preview endpoint to H or V from the start point. Shift held at the commit click also
+    constrains the final segment.
+  - `VF__LineworkTools__PathTool__.js` — holding Shift while dragging constrains each new
+    segment to H or V relative to the previous vertex. Collinear points on the same axis
+    are replaced in-place to avoid duplicate vertices; a direction change starts a new
+    stair-step segment.
+  - `VF__AppCore__PointEditManager__.js` — Shift held while dragging a handle constrains
+    to H or V. Line handles anchor to the opposite endpoint; path handles anchor to the
+    previous command's endpoint (or the next for the first M command). Rect handles are
+    excluded (Shift has no clear single-axis semantic on a corner).
+
+- **Ctrl — Chord-safe tap to toggle vertex edit mode:**
+  - `VF__AppCore__HotkeyManager__.js` now listens to `window keyup` in addition to
+    `keydown`. A `_ctrlTapPending` flag is set on Control keydown and cleared immediately
+    if any other key is pressed before keyup (detecting a chord like Ctrl+Z). On a clean
+    Control keyup with the flag still set, `hotkey:togglePointEdit` is emitted — no
+    changes to Keybindings or PointEditManager needed. Mac Cmd key is unaffected.
+  - `index.html` — `#point-edit-btn` tooltip updated to `Toggle Vector Point Edit (E / Ctrl)`.
+
+---
+
+## VectorForge | v0.2.4 | 26-Jun-2026
+
+### Dot Grid — Snap Toggle Wired + Grid/Snap Alignment
+
+- **Dot grid now starts hidden.** `snapToGrid` defaults to `false`, so `#canvas-dot-grid`
+  is created with `display:none` and only becomes visible when snap is turned on.
+- **Snap toggle shows/hides the dot grid.** The Snap button in `VF__App__Main__.js` now
+  calls `svgCanvas.setDotGridVisible(appState.snapToGrid)` after flipping the state.
+- **Snap interval aligned to dot spacing.** `AppState.gridSize` is now explicitly `20`
+  (matching the 20px dot-grid pattern), so cursor snap lands on dot positions.
+- **`ensureEditorChrome()` updated** to call `setDotGridVisible(appState.snapToGrid)`
+  after restoring, so the grid respects the current snap state after code-panel sync.
+- **`setDotGridVisible(visible)`** new public method on `SVGCanvas` that toggles
+  `display` on `#canvas-dot-grid` without removing it from the DOM.
+
+---
+
+## VectorForge | v0.2.3 | 26-Jun-2026
+
+### Dot Grid — SVG Overlay Over the Page
+
+- Moved the dot grid from a CSS `radial-gradient` on `.canvas-container` into an
+  in-SVG `<pattern>` + overlay rect (`#canvas-dot-grid`). Dots now render directly
+  over the white page and zoom/pan correctly with the canvas `viewBox`.
+- Added `_createDotGridPattern()` in `VF__SVG__Canvas__.js` — injects `<defs id="vf-editor-defs">`
+  with the `#vf-dot-grid` pattern and a `pointer-events:none` overlay rect above all layer groups.
+- Added `ensureEditorChrome()` — public helper that restores the paper rect and dot-grid
+  after any external DOM replacement (e.g. code-panel sync via Ctrl+Shift+Enter).
+- Added `_maintainOverlayOrder()` — called from `_createLayerGroup()` to ensure new layers
+  are never stacked above the dot grid or point-edit handles.
+- Updated `VF__SVG__Serialization__.js` to strip `#canvas-dot-grid`, `#vf-editor-defs`,
+  and `#vf-point-edit-overlay` so exported SVG is clean of all editor chrome.
+- Updated `VF__UI__CodePanel__.js` to call `svgCanvas.ensureEditorChrome()` after
+  code-to-canvas sync, replacing the former inline paper-rect reconstruction.
+- Removed `background-image` and `background-size` from `.canvas-container` in
+  `VF__StyleSheet__EditorTheme__.css`; solid `--color-slate-300` workspace remains.
+
+---
+
+## VectorForge | v0.2.2 | 26-Jun-2026
+
+### Header Branding
+
+- NA favicon SVG placed beside the app title on the top-left of the header bar.
+- Title updated to `VectorForge | v0.2.2 - Alpha`.
+- Removed duplicate NA mark from the top-right controls area.
+
 ## VectorForge | v0.2.1 | 26-Jun-2026
 
 ### CSS Cleanup — Remove Inline Styles from index.html

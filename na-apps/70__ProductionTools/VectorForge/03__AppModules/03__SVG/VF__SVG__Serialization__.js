@@ -11,8 +11,9 @@
 //
 // DESCRIPTION:
 // - VF__SVG__FormatSVG clones the canvas SVG, strips internal editor artefacts
-//   (canvas-paper background rect, selection highlight data attributes, style
-//   attributes), and produces well-indented SVG source.
+//   (canvas-paper background rect, dot-grid overlay, editor <defs>, point-edit
+//   overlay, selection highlight data attributes, style attributes), and produces
+//   well-indented SVG source.
 // - Attributes are sorted with xmlns, viewBox, width, height, and d first,
 //   then alphabetically. Path d values are formatted with one command per line.
 // - Used exclusively by VF__UI__CodePanel__.js to populate the code textarea.
@@ -20,6 +21,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.1.0
+// - Strip #canvas-dot-grid, #vf-editor-defs, and #vf-point-edit-overlay from
+//   export so the dot-grid overlay never appears in exported SVG markup.
+//
 // 26-Jun-2026 - Version 1.0.0
 // - Initial stable release. Refactored from prototype to ValeDesignSuite conventions.
 //   Renamed export from formatSVG to VF__SVG__FormatSVG.
@@ -60,6 +65,15 @@
         }
 
         clone.removeAttribute('style'); // <-- Remove inline style added by SVGCanvas
+
+        const dotGrid = clone.querySelector('#canvas-dot-grid');
+        if (dotGrid) dotGrid.remove();                               // <-- Remove editor dot-grid overlay
+
+        const editorDefs = clone.querySelector('#vf-editor-defs');
+        if (editorDefs) editorDefs.remove();                         // <-- Remove editor-only <defs> (dot pattern)
+
+        const ptEditOverlay = clone.querySelector('#vf-point-edit-overlay');
+        if (ptEditOverlay) ptEditOverlay.remove();                   // <-- Remove point-edit handle overlay
 
         const fallbackBg = clone.querySelector('rect[fill="#ffffff"]');
         if (fallbackBg && fallbackBg.getAttribute('width') == svgNode.getAttribute('viewBox').split(' ')[2]) {

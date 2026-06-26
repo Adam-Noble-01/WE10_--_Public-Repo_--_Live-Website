@@ -15,15 +15,22 @@
 // - A second left-click commits the line; deactivation cancels any in-progress
 //   zero-length line and removes it from the DOM.
 // - Respects AppState.snapToGrid via SVGCanvas.getSVGPoint.
+// - Holding Shift during mousemove or the commit click locks the endpoint to the
+//   nearest orthogonal axis (horizontal or vertical) from the start point.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.1.0
+// - Shift key orthogonal axis lock added to live preview and commit click.
+//
 // 26-Jun-2026 - Version 1.0.0
 // - Initial stable release. Refactored from prototype to ValeDesignSuite conventions.
 //
 // =============================================================================
 
+
+import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__CommonUtils__OrthoConstraint__.js';
 
 // -----------------------------------------------------------------------------
 // REGION | LineTool Class
@@ -87,6 +94,11 @@
                 this.currentLine.dataset.originalStroke = '#000000'; // <-- Cache for selection manager
                 this.svgCanvas.addElement(this.currentLine);
             } else {
+                const x1     = parseFloat(this.currentLine.getAttribute('x1')); // <-- Start point X
+                const y1     = parseFloat(this.currentLine.getAttribute('y1')); // <-- Start point Y
+                const commit = VF__CommonUtils__ConstrainPointToOrtho(x1, y1, pt.x, pt.y, e.shiftKey); // <-- Apply ortho lock at commit
+                this.currentLine.setAttribute('x2', commit.x);
+                this.currentLine.setAttribute('y2', commit.y);
                 this.drawing     = false; // <-- Second click commits the line
                 this.currentLine = null;
             }
@@ -98,7 +110,10 @@
         // ------------------------------------------------------------
         _onMouseMove(e) {
             if (!this.active || !this.drawing || !this.currentLine) return;
-            const pt = this.svgCanvas.getSVGPoint(e);
+            const raw = this.svgCanvas.getSVGPoint(e);
+            const x1  = parseFloat(this.currentLine.getAttribute('x1')); // <-- Start point X for ortho anchor
+            const y1  = parseFloat(this.currentLine.getAttribute('y1')); // <-- Start point Y for ortho anchor
+            const pt  = VF__CommonUtils__ConstrainPointToOrtho(x1, y1, raw.x, raw.y, e.shiftKey); // <-- Constrain if Shift held
             this.currentLine.setAttribute('x2', pt.x); // <-- Update end X
             this.currentLine.setAttribute('y2', pt.y); // <-- Update end Y
         }

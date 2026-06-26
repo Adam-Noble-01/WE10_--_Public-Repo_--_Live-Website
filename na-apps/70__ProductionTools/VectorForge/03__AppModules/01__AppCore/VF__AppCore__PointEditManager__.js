@@ -20,6 +20,10 @@
 // - Listens to selection:changed to refresh handles when selection changes.
 // - Handles mousedown on a handle → mousemove on SVG → mouseup drag sequence.
 //   Coordinates are read via svgCanvas.getSVGPoint (respects snap-to-grid).
+// - Holding Shift during a handle drag constrains movement to the nearest
+//   orthogonal axis (H or V) relative to the opposite anchor point:
+//     <line>  — anchor is the non-dragged endpoint
+//     <path>  — anchor is the previous absolute vertex in pathCommands
 // - Element type support:
 //     <line>  — two endpoint handles (x1/y1, x2/y2)
 //     <rect>  — four corner handles (TL, TR, BR, BL); all corners sync on drag
@@ -34,11 +38,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.1.0
+// - Shift key orthogonal axis lock added to line and path handle drags.
+//
 // 26-Jun-2026 - Version 1.0.0
 // - Initial stable release.
 //
 // =============================================================================
 
+
+import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__CommonUtils__OrthoConstraint__.js';
 
 // -----------------------------------------------------------------------------
 // REGION | PointEditManager Class
@@ -286,8 +295,53 @@
         // ------------------------------------------------------------
         _onSvgMouseMove(e) {
             if (!this.dragState) return;
-            const pt = this.svgCanvas.getSVGPoint(e); // <-- Converts to SVG coords, applies snap if active
+            const raw = this.svgCanvas.getSVGPoint(e); // <-- Converts to SVG coords, applies snap if active
+            const pt  = e.shiftKey ? this._resolveOrthoPoint(raw.x, raw.y) : raw; // <-- Constrain if Shift held
             this._applyHandleDrag(pt.x, pt.y);
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | ResolveOrthoPoint — Constrain Drag Position to Ortho Axis from Anchor
+        // ------------------------------------------------------------
+        _resolveOrthoPoint(newX, newY) {
+            const ds = this.dragState;
+            const el = this.editElement;
+
+            if (ds.hType === 'line') {
+                // Anchor is the opposite endpoint
+                const anchorAttr = ds.hIndex === 0 ? ['x2', 'y2'] : ['x1', 'y1']; // <-- Non-dragged endpoint attributes
+                const anchorX    = parseFloat(el.getAttribute(anchorAttr[0]));
+                const anchorY    = parseFloat(el.getAttribute(anchorAttr[1]));
+                return VF__CommonUtils__ConstrainPointToOrtho(anchorX, anchorY, newX, newY, true);
+            }
+
+            if (ds.hType === 'path') {
+                const commands = this.pathCommands;
+                const ci       = ds.ci;
+                let anchorX, anchorY;
+
+                if (ci > 0) {
+                    // Anchor is the last coordinate of the previous command
+                    const prevCmd   = commands[ci - 1];
+                    const prevCoord = prevCmd.coords[prevCmd.coords.length - 1];
+                    anchorX = prevCoord.x;
+                    anchorY = prevCoord.y;
+                } else {
+                    // First command (M) — anchor to the next command's endpoint if available
+                    const nextCmd = commands.length > 1 ? commands[1] : null;
+                    if (nextCmd && nextCmd.coords.length > 0) {
+                        const nextCoord = nextCmd.coords[nextCmd.coords.length - 1];
+                        anchorX = nextCoord.x;
+                        anchorY = nextCoord.y;
+                    } else {
+                        return { x: newX, y: newY }; // <-- No viable anchor, no constraint
+                    }
+                }
+                return VF__CommonUtils__ConstrainPointToOrtho(anchorX, anchorY, newX, newY, true);
+            }
+
+            return { x: newX, y: newY }; // <-- Rect and unknown types: no ortho constraint
         }
         // ------------------------------------------------------------
 

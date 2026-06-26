@@ -17,10 +17,16 @@
 //   applies it back to the canvas, reconstructing layers and re-syncing app state.
 // - Listens to selection:changed, layers:changed, and SVG mouseup to auto-refresh
 //   the code view whenever canvas content changes.
+// - After code-to-canvas sync, calls svgCanvas.ensureEditorChrome() to restore
+//   both the white paper rect and the dot-grid overlay in the correct DOM order.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.1.0
+// - Replaced inline paper-rect recreation with svgCanvas.ensureEditorChrome()
+//   so the dot-grid overlay is also restored after code-to-canvas sync.
+//
 // 26-Jun-2026 - Version 1.0.0
 // - Initial stable release. Refactored from prototype to ValeDesignSuite conventions.
 //   Fixed cross-module import path to VF__SVG__Serialization__.js.
@@ -174,12 +180,7 @@ import { VF__SVG__FormatSVG } from '../03__SVG/VF__SVG__Serialization__.js';
                 }
             }
 
-            const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            bg.id = 'canvas-paper';
-            bg.setAttribute('width',  this.appState.canvasWidth);
-            bg.setAttribute('height', this.appState.canvasHeight);
-            bg.setAttribute('fill',   '#ffffff');
-            this.svgCanvas.svg.insertBefore(bg, this.svgCanvas.svg.firstChild); // <-- Restore background rect
+            this.svgCanvas.ensureEditorChrome(); // <-- Restore paper rect + dot-grid overlay in correct DOM order
 
             this.eventBus.emit('layers:changed',  this.appState.layers);
             this.eventBus.emit('cursor:moved',    { x: 0, y: 0 });
