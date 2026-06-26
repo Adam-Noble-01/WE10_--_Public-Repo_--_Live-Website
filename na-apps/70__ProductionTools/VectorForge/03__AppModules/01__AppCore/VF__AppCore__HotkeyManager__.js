@@ -24,6 +24,9 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.2.0
+// - Escape (tool_select) now fires even when focus is inside an input or textarea.
+//
 // 26-Jun-2026 - Version 1.1.0
 // - Added chord-safe Ctrl-alone tap to emit hotkey:togglePointEdit on keyup.
 //
@@ -90,10 +93,20 @@ import { VF__DefaultKeybindings } from './VF__AppCore__Keybindings__.js';
 
             if (!matchedAction) return;
 
-            if (isInput && !matchedAction.includes('syncCode')) return; // <-- Allow syncCode inside inputs, suppress all others
+            if (isInput && !this._allowHotkeyInInput(matchedAction, e)) return; // <-- Suppress most shortcuts inside text fields
 
             e.preventDefault();
             this.eventBus.emit(`hotkey:${matchedAction}`); // <-- Dispatch to all bus subscribers
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | AllowHotkeyInInput — Permit Safe Shortcuts While Typing
+        // ------------------------------------------------------------
+        _allowHotkeyInInput(action, e) {
+            if (action.includes('syncCode')) return true;              // <-- Ctrl+Shift+Enter in code panel
+            if (action === 'tool_select' && e.key === 'Escape') return true; // <-- Esc always returns to select tool
+            return false;
         }
         // ------------------------------------------------------------
 

@@ -30,6 +30,11 @@
 //     <path>  — one handle per M/L/C/Q/A absolute coordinate; H and V are
 //               normalised to L during parsing; relative commands converted to
 //               absolute; bezier control points rendered as smaller handles
+// - Transform-aware: all handle coordinates are converted from element local
+//   space to SVG root space using getCTM() so handles correctly align with
+//   imported SVG elements that live inside translated/transformed <g> groups.
+//   Drag updates convert mouse coordinates back to element local space via the
+//   inverse CTM before writing to element attributes.
 // - On mouseup, the SVG element's own mouseup event fires, triggering the
 //   UndoManager's debounced snapshot automatically — no extra undo wiring needed.
 // - Emits pointEditMode:changed(bool) on the EventBus after each mode toggle
@@ -38,6 +43,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Jun-2026 - Version 1.2.0
+// - Transform-aware handle placement added via getCTM() / inverse CTM.
+//   Handles on imported SVG elements with parent <g> transforms now align
+//   correctly with the rendered shape. Drag writes back in element local space.
+//
 // 26-Jun-2026 - Version 1.1.0
 // - Shift key orthogonal axis lock added to line and path handle drags.
 //
@@ -64,14 +74,16 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
             this.eventBus      = eventBus;   // <-- Event bus reference
             this.svgCanvas     = svgCanvas;  // <-- SVG canvas reference
 
-            this.overlayGroup  = null;       // <-- SVG <g> containing all handles
-            this.editElement   = null;       // <-- The SVG element currently showing handles
-            this.handles       = [];         // <-- Array of { circle, type, ... } descriptors
-            this.dragState     = null;       // <-- Active drag operation or null
-            this.pathCommands  = null;       // <-- Parsed path commands for <path> elements
-            this._boundMove    = null;       // <-- Stored mousemove handler for cleanup
-            this._boundUp      = null;       // <-- Stored mouseup handler for cleanup
-            this._lastSelection = [];        // <-- Cached last selection:changed payload
+            this.overlayGroup    = null;     // <-- SVG <g> containing all handles
+            this.editElement     = null;     // <-- The SVG element currently showing handles
+            this.handles         = [];       // <-- Array of { circle, type, ... } descriptors
+            this.dragState       = null;     // <-- Active drag operation or null
+            this.pathCommands    = null;     // <-- Parsed path commands for <path> elements
+            this._boundMove      = null;     // <-- Stored mousemove handler for cleanup
+            this._boundUp        = null;     // <-- Stored mouseup handler for cleanup
+            this._lastSelection  = [];       // <-- Cached last selection:changed payload
+            this._editCTM        = null;     // <-- CTM: element local space → SVG root space
+            this._editCTMInverse = null;     // <-- Inverse CTM: SVG root space → element local space
 
             this._setupOverlay();
             this._bindEvents();
@@ -142,12 +154,45 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
         // ------------------------------------------------------------
 
 
-        // SUB FUNCTION | BuildHandlesFor — Dispatch to the Correct Handle Builder
+        // SUB FUNCTION | BuildHandlesFor — Capture Relative CTM and Dispatch to the Correct Handle Builder
         // ------------------------------------------------------------
         _buildHandlesFor(el, tag) {
+            // getCTM() alone returns element-local → SVG viewport (includes viewBox scaling).
+            // Dividing by the SVG root's own getScreenCTM cancels the viewBox and display
+            // scaling, leaving only the parent <g> transform chain expressed in SVG root user
+            // coordinates — the same space where circle cx/cy attributes are interpreted.
+            const svgScreenCTM  = this.svgCanvas.svg.getScreenCTM();
+            const elemScreenCTM = el.getScreenCTM();
+            this._editCTM = (svgScreenCTM && elemScreenCTM)
+                ? svgScreenCTM.inverse().multiply(elemScreenCTM) // <-- element local → SVG root user space
+                : new DOMMatrix();                               // <-- identity fallback (no transforms)
+            this._editCTMInverse = this._editCTM.inverse();     // <-- SVG root user → element local; used for drag write-back
+
             if (tag === 'line') this._buildLineHandles(el);
             if (tag === 'rect') this._buildRectHandles(el);
             if (tag === 'path') this._buildPathHandles(el);
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | ToSvgSpace — Transform a Local-Space Coordinate to SVG Root Space
+        // ------------------------------------------------------------
+        _toSvgSpace(x, y) {
+            const pt = this.svgCanvas.svg.createSVGPoint();
+            pt.x = x;
+            pt.y = y;
+            return pt.matrixTransform(this._editCTM); // <-- Apply CTM: local → root
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | ToLocalSpace — Transform an SVG Root Coordinate to Element Local Space
+        // ------------------------------------------------------------
+        _toLocalSpace(x, y) {
+            const pt = this.svgCanvas.svg.createSVGPoint();
+            pt.x = x;
+            pt.y = y;
+            return pt.matrixTransform(this._editCTMInverse); // <-- Apply inverse CTM: root → local
         }
         // ------------------------------------------------------------
 
@@ -160,7 +205,8 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
                 { x: parseFloat(el.getAttribute('x2')), y: parseFloat(el.getAttribute('y2')), index: 1 },
             ];
             pts.forEach(pt => {
-                const circle = this._makeHandle(pt.x, pt.y, false);
+                const svgPt = this._toSvgSpace(pt.x, pt.y);  // <-- Transform from element local to SVG root space
+                const circle = this._makeHandle(svgPt.x, svgPt.y, false);
                 circle.dataset.hType  = 'line';
                 circle.dataset.hIndex = pt.index;
                 this.overlayGroup.appendChild(circle);
@@ -179,14 +225,15 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
             const h = parseFloat(el.getAttribute('height') || 0);
 
             const corners = [
-                { cx: x,     cy: y,     role: 'tl' },
-                { cx: x + w, cy: y,     role: 'tr' },
-                { cx: x + w, cy: y + h, role: 'br' },
-                { cx: x,     cy: y + h, role: 'bl' },
+                { lx: x,     ly: y,     role: 'tl' },
+                { lx: x + w, ly: y,     role: 'tr' },
+                { lx: x + w, ly: y + h, role: 'br' },
+                { lx: x,     ly: y + h, role: 'bl' },
             ];
 
             corners.forEach(c => {
-                const circle = this._makeHandle(c.cx, c.cy, false);
+                const svgPt = this._toSvgSpace(c.lx, c.ly);  // <-- Transform from element local to SVG root space
+                const circle = this._makeHandle(svgPt.x, svgPt.y, false);
                 circle.dataset.hType = 'rect';
                 circle.dataset.role  = c.role;
                 this.overlayGroup.appendChild(circle);
@@ -204,7 +251,8 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
             this.pathCommands.forEach((cmd, ci) => {
                 if (!cmd.coords || cmd.coords.length === 0) return;
                 cmd.coords.forEach((coord, pi) => {
-                    const circle = this._makeHandle(coord.x, coord.y, coord.isControl);
+                    const svgPt = this._toSvgSpace(coord.x, coord.y);  // <-- Transform from element local to SVG root space
+                    const circle = this._makeHandle(svgPt.x, svgPt.y, coord.isControl);
                     circle.dataset.hType = 'path';
                     circle.dataset.ci    = ci;
                     circle.dataset.pi    = pi;
@@ -253,10 +301,12 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
                 this._boundUp   = null;
             }
 
-            this.handles      = [];
-            this.editElement  = null;
-            this.pathCommands = null;
-            this.dragState    = null;
+            this.handles         = [];
+            this.editElement     = null;
+            this.pathCommands    = null;
+            this.dragState       = null;
+            this._editCTM        = null;     // <-- Release CTM reference
+            this._editCTMInverse = null;     // <-- Release inverse CTM reference
         }
         // ------------------------------------------------------------
 
@@ -295,53 +345,8 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
         // ------------------------------------------------------------
         _onSvgMouseMove(e) {
             if (!this.dragState) return;
-            const raw = this.svgCanvas.getSVGPoint(e); // <-- Converts to SVG coords, applies snap if active
-            const pt  = e.shiftKey ? this._resolveOrthoPoint(raw.x, raw.y) : raw; // <-- Constrain if Shift held
+            const pt = this.svgCanvas.getSVGPoint(e); // <-- Converts to SVG root coords, applies snap if active
             this._applyHandleDrag(pt.x, pt.y);
-        }
-        // ------------------------------------------------------------
-
-
-        // HELPER FUNCTION | ResolveOrthoPoint — Constrain Drag Position to Ortho Axis from Anchor
-        // ------------------------------------------------------------
-        _resolveOrthoPoint(newX, newY) {
-            const ds = this.dragState;
-            const el = this.editElement;
-
-            if (ds.hType === 'line') {
-                // Anchor is the opposite endpoint
-                const anchorAttr = ds.hIndex === 0 ? ['x2', 'y2'] : ['x1', 'y1']; // <-- Non-dragged endpoint attributes
-                const anchorX    = parseFloat(el.getAttribute(anchorAttr[0]));
-                const anchorY    = parseFloat(el.getAttribute(anchorAttr[1]));
-                return VF__CommonUtils__ConstrainPointToOrtho(anchorX, anchorY, newX, newY, true);
-            }
-
-            if (ds.hType === 'path') {
-                const commands = this.pathCommands;
-                const ci       = ds.ci;
-                let anchorX, anchorY;
-
-                if (ci > 0) {
-                    // Anchor is the last coordinate of the previous command
-                    const prevCmd   = commands[ci - 1];
-                    const prevCoord = prevCmd.coords[prevCmd.coords.length - 1];
-                    anchorX = prevCoord.x;
-                    anchorY = prevCoord.y;
-                } else {
-                    // First command (M) — anchor to the next command's endpoint if available
-                    const nextCmd = commands.length > 1 ? commands[1] : null;
-                    if (nextCmd && nextCmd.coords.length > 0) {
-                        const nextCoord = nextCmd.coords[nextCmd.coords.length - 1];
-                        anchorX = nextCoord.x;
-                        anchorY = nextCoord.y;
-                    } else {
-                        return { x: newX, y: newY }; // <-- No viable anchor, no constraint
-                    }
-                }
-                return VF__CommonUtils__ConstrainPointToOrtho(anchorX, anchorY, newX, newY, true);
-            }
-
-            return { x: newX, y: newY }; // <-- Rect and unknown types: no ortho constraint
         }
         // ------------------------------------------------------------
 
@@ -372,14 +377,17 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
         // HELPER FUNCTION | DragLinePoint — Move a Line Endpoint Handle
         // ------------------------------------------------------------
         _dragLinePoint(el, index, newX, newY, circle) {
+            const local = this._toLocalSpace(newX, newY); // <-- Convert SVG root → element local space
+
             if (index === 0) {
-                el.setAttribute('x1', newX); // <-- Update start point x
-                el.setAttribute('y1', newY); // <-- Update start point y
+                el.setAttribute('x1', local.x); // <-- Update start point x in local space
+                el.setAttribute('y1', local.y); // <-- Update start point y in local space
             } else {
-                el.setAttribute('x2', newX); // <-- Update end point x
-                el.setAttribute('y2', newY); // <-- Update end point y
+                el.setAttribute('x2', local.x); // <-- Update end point x in local space
+                el.setAttribute('y2', local.y); // <-- Update end point y in local space
             }
-            circle.setAttribute('cx', newX);
+
+            circle.setAttribute('cx', newX); // <-- Handle position stays in SVG root space
             circle.setAttribute('cy', newY);
         }
         // ------------------------------------------------------------
@@ -388,18 +396,21 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
         // HELPER FUNCTION | DragRectCorner — Move a Rect Corner and Sync All Four Handles
         // ------------------------------------------------------------
         _dragRectCorner(el, role, newX, newY) {
+            const local = this._toLocalSpace(newX, newY); // <-- Convert SVG root → element local space
+
             const x  = parseFloat(el.getAttribute('x')      || 0);
             const y  = parseFloat(el.getAttribute('y')      || 0);
             const w  = parseFloat(el.getAttribute('width')  || 0);
             const h  = parseFloat(el.getAttribute('height') || 0);
 
             let nx = x, ny = y, nw = w, nh = h;
+            const lx = local.x, ly = local.y; // <-- Drag target in element local space
 
             switch (role) {
-                case 'tl': nx = newX; ny = newY; nw = (x + w) - newX; nh = (y + h) - newY; break; // <-- TL: shifts origin, shrinks/grows w+h
-                case 'tr': ny = newY; nw = newX - x; nh = (y + h) - newY;                   break; // <-- TR: only shifts y and w
-                case 'br': nw = newX - x; nh = newY - y;                                    break; // <-- BR: only changes w+h
-                case 'bl': nx = newX; nw = (x + w) - newX; nh = newY - y;                   break; // <-- BL: shifts origin x, changes h
+                case 'tl': nx = lx; ny = ly; nw = (x + w) - lx; nh = (y + h) - ly; break; // <-- TL: shifts origin, shrinks/grows w+h
+                case 'tr': ny = ly; nw = lx - x; nh = (y + h) - ly;                 break; // <-- TR: only shifts y and w
+                case 'br': nw = lx - x; nh = ly - y;                                break; // <-- BR: only changes w+h
+                case 'bl': nx = lx; nw = (x + w) - lx; nh = ly - y;                break; // <-- BL: shifts origin x, changes h
             }
 
             if (nw < 1) nw = 1; // <-- Clamp to prevent negative/zero width
@@ -410,13 +421,14 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
             el.setAttribute('width',  nw);
             el.setAttribute('height', nh);
 
-            // Recompute all four handle positions from the updated geometry
-            const updated = { tl: [nx, ny], tr: [nx+nw, ny], br: [nx+nw, ny+nh], bl: [nx, ny+nh] };
+            // Recompute all four handle positions: local corners → SVG root space via CTM
+            const localCorners = { tl: [nx, ny], tr: [nx+nw, ny], br: [nx+nw, ny+nh], bl: [nx, ny+nh] };
             this.handles.forEach(handle => {
                 if (handle.type !== 'rect') return;
-                const [hx, hy] = updated[handle.role];
-                handle.circle.setAttribute('cx', hx);
-                handle.circle.setAttribute('cy', hy);
+                const [hx, hy] = localCorners[handle.role];
+                const svgPt = this._toSvgSpace(hx, hy);         // <-- Transform local corners back to SVG root space
+                handle.circle.setAttribute('cx', svgPt.x);
+                handle.circle.setAttribute('cy', svgPt.y);
             });
         }
         // ------------------------------------------------------------
@@ -425,10 +437,11 @@ import { VF__CommonUtils__ConstrainPointToOrtho } from '../03__CommonUtils/VF__C
         // HELPER FUNCTION | DragPathPoint — Move a Single Path Point and Rebuild d
         // ------------------------------------------------------------
         _dragPathPoint(el, ci, pi, newX, newY, circle) {
-            this.pathCommands[ci].coords[pi].x = newX; // <-- Update stored coordinate
-            this.pathCommands[ci].coords[pi].y = newY;
-            el.setAttribute('d', this._buildPath(this.pathCommands)); // <-- Rebuild entire d string
-            circle.setAttribute('cx', newX);
+            const local = this._toLocalSpace(newX, newY);           // <-- Convert SVG root → element local space
+            this.pathCommands[ci].coords[pi].x = local.x;           // <-- Update stored coordinate in local space
+            this.pathCommands[ci].coords[pi].y = local.y;
+            el.setAttribute('d', this._buildPath(this.pathCommands)); // <-- Rebuild entire d string with local coords
+            circle.setAttribute('cx', newX);                         // <-- Handle position stays in SVG root space
             circle.setAttribute('cy', newY);
         }
         // ------------------------------------------------------------

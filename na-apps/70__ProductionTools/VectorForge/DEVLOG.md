@@ -22,6 +22,61 @@
 
 # =============================================================================
 
+## VectorForge | v0.2.7 | 26-Jun-2026
+
+### Select Tool — Escape Hotkey
+
+- **Select tool shortcuts** (`VF__AppCore__Keybindings__.js` → v1.2.0):
+  - `V` — activate select tool (Illustrator/Figma convention; already present).
+  - `Escape` — return to select tool from any drawing tool; works even when focus
+    is in the code textarea or a property input.
+- **HotkeyManager** (`VF__AppCore__HotkeyManager__.js` → v1.2.0):
+  - New `_allowHotkeyInInput()` helper — `Escape` for `tool_select` is no longer
+    blocked by the input-focus guard (letter tool keys remain suppressed while typing).
+- **Toolbar** — select button tooltip updated to `Select (V / Esc)`.
+
+---
+
+## VectorForge | v0.2.6 | 26-Jun-2026
+
+### SVG Import — Point Edit Handles Now Work on Imported Elements
+
+- **Transform-aware handle placement** (`VF__AppCore__PointEditManager__.js` → v1.2.0):
+  - `_buildHandlesFor` computes a *relative* CTM via
+    `svgRoot.getScreenCTM().inverse() × el.getScreenCTM()`. This cancels the
+    viewBox/display scaling (which `getCTM()` alone would include) and leaves only
+    the parent `<g>` transform chain expressed in SVG root user-coordinate units —
+    the same space where handle circle `cx`/`cy` attributes are interpreted. Using
+    raw `getCTM()` directly caused handles to appear offset/scaled because viewport
+    coordinates were being written into user-space attributes.
+  - Stored as `_editCTM` / `_editCTMInverse`.
+  - Two new helpers: `_toSvgSpace(x, y)` transforms a local-space coordinate to SVG
+    root space using the CTM; `_toLocalSpace(x, y)` applies the inverse for write-back.
+  - `_buildLineHandles`, `_buildRectHandles`, and `_buildPathHandles` all pass each
+    coordinate through `_toSvgSpace` before calling `_makeHandle`, so circle handles
+    land exactly on the rendered shape even when the path is nested inside a `<g>` with
+    a translate, rotate, or scale transform.
+  - `_dragLinePoint`, `_dragPathPoint` convert the incoming mouse position (SVG root
+    space from `getSVGPoint`) through `_toLocalSpace` before writing back to element
+    attributes, keeping geometry in the element's own coordinate space.
+  - `_dragRectCorner` converts the drag point to local space for the rect attribute
+    update, then re-transforms all four computed corners back to SVG root space to
+    correctly reposition each corner handle circle.
+  - `_clearHandles` nulls `_editCTM` / `_editCTMInverse` along with the other handle
+    state.
+
+- **Polyline/polygon normalisation at import** (`VF__SVG__UploadManager__.js` → v1.1.0):
+  - New `_normaliseImportElement(el)` helper checks if an imported top-level element is
+    `<polyline>` or `<polygon>`. If so, it converts the `points` attribute to an
+    equivalent `<path d="M x0 y0 L x1 y1 ...">` (with `Z` appended for polygons).
+    All presentation attributes (`fill`, `stroke`, `stroke-width`, `opacity`, etc.) are
+    copied across. Elements of all other tag types are returned unchanged.
+  - Applied inside `_handleSVGUpload` before each child is appended to the layer group,
+    so these element types are transparently converted at the point of import and
+    immediately editable in point-edit mode.
+
+---
+
 ## VectorForge | v0.2.5 | 26-Jun-2026
 
 ### Right Panel — Drag-to-Resize
