@@ -1,0 +1,26 @@
+{
+  "appName"      : "VectorForge",
+  "appVersion"   : "1.0.0",
+  "appAuthor"    : "Adam Noble - Noble Architecture",
+
+  "AppConfig": {
+
+    "_JsonConvention": {
+      "_Note"             : "Read before editing. This file is the single source of truth for all VectorForge configuration.",
+      "_KeyFormat"        : "Domain__SubDomain__Property — PascalCase segments, double-underscore separators.",
+      "_SectionFormat"    : "Config__Domain for all AppConfig section keys (e.g. Config__Canvas, Config__Export).",
+      "_PropertyFormat"   : "Domain__SubDomain__Property for all value keys (e.g. Canvas__DefaultWidth_Px).",
+      "_ValueRules"       : "Booleans: true / false (lowercase, unquoted). Numbers: unquoted. Strings: double-quoted.",
+      "_ColumnAlignment"  : "Align colons at a consistent column within each nesting level — two spaces before the colon.",
+      "_EditingRule"      : "Never hardcode these values in JS modules. Always read via the AppData config loader."
+    },
+
+    "Config__Canvas": {
+      "Canvas__DefaultWidth_Px"         :  800,
+      "Canvas__DefaultHeight_Px"        :  600,
+      "Canvas__SnapGrid__DefaultState"  :  false,
+      "Canvas__SnapGrid__Px"            :  10
+    }
+
+  }
+}
