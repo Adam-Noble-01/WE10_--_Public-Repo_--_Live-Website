@@ -4,7 +4,12 @@ FILE NAME |  SN10_01_-_UTIL_-_Text-To-Reader-App/SN10_01_01_-_PAGE_-_Text-To-Rea
 FILE TYPE |  INFO
 
 VERSION HISTORY
-04-Apr-2025 - Version 1.2.4 - Current Release
+06-Jul-2026 - Version 1.3.0 - Current Release
+- Added Upload Markdown / Text File feature
+- Modular file upload handler in its own script file
+- Mobile-friendly alternative to copy/paste
+
+04-Apr-2025 - Version 1.2.4
 - WhatsApp message parsing improvements
 - Accessibility enhancements
 - Mobile responsive design updates
@@ -27,8 +32,25 @@ It integrates HTML, CSS, and JavaScript into a single file to provide functional
 - Utilizes the third-party Marked.js library (via CDN) to render the cleaned or original text as HTML.
 - An output area displaying the rendered HTML.
 - Action buttons for rendering the text and clearing the input/output fields.
+- An "Upload Markdown / Text File" button that lets a user pick a local `.md`/`.markdown`/`.txt` file and loads its contents directly into the input textarea (see `SN10_01_02_-_SCRIPT_-_File-Upload-Handler.js`), avoiding copy/paste on mobile.
 - Adherence to the "RE10_20_01-_SCHEMA_-_Core-Web-Dev-Code-Conventions.txt" standard.
 - Dynamic injection of the application version (from meta tag) into the header title using the `injectVersionNote` helper function.
+
+## FILE UPLOAD MODULE
+---------------------------------------------------------------------------------------------------
+
+`SN10_01_02_-_SCRIPT_-_File-Upload-Handler.js` is a standalone, modular script loaded via `<script src="...">`
+in the page `<head>`. It owns all upload-related logic so the main page script only needs to call
+`initFileUploadHandler({ triggerButton, fileInput, targetTextarea, statusElement })` once during `initApp()`.
+
+- `fileUpload_isSupportedFile(file)` - validates the file extension is `.md`, `.markdown`, or `.txt`.
+- `fileUpload_readFileAsText(file)` - wraps the browser `FileReader` API in a Promise.
+- `fileUpload_handleFileInputChange(event, targetTextarea, statusElement)` - reads the selected file and
+  writes its text into the target textarea, dispatching an `input` event so any existing listeners react.
+- `initFileUploadHandler(config)` - wires the trigger button, hidden file input, and status element together.
+
+Unsupported file types or read failures are reported via the `#uploadFileStatus` element instead of failing
+silently. The textarea content is replaced (not appended) with the uploaded file's text.
 
 ## ISSUES & LESSONS LEARNED  
 ---------------------------------------------------------------------------------------------------
@@ -65,8 +87,13 @@ DOMContentLoaded -> initApp()
         │   └── parseWhatsAppMessages(inputText) -> cleanedText
         │   └── marked.parse(cleanedText) -> renderedHtml
         │   └── Update #output.innerHTML
-        └── #clearButton -> handleClearClick()
-            └── Clear #inputText, #output
+        ├── #clearButton -> handleClearClick()
+        │   └── Clear #inputText, #output
+        └── initFileUploadHandler() [SN10_01_02_-_SCRIPT_-_File-Upload-Handler.js]
+            └── #uploadFileButton -> #fileUploadInput.click()
+                └── #fileUploadInput (change) -> fileUpload_handleFileInputChange()
+                    └── fileUpload_readFileAsText(file) -> fileText
+                    └── Update #inputText.value, #uploadFileStatus
 
 
 ## FUTURE SCRIPT IMPROVEMENTS & IDEAS
@@ -88,6 +115,15 @@ DOMContentLoaded -> initApp()
 -
 -
 -
+
+#### UPLOAD MARKDOWN / TEXT FILE FEATURE
+06-Jul-2026 - v1.3.0
+- Added new modular file: SN10_01_02_-_SCRIPT_-_File-Upload-Handler.js.
+- Added "Upload Markdown / Text File" button, hidden file input, and status message above the input textarea.
+- Selected .md/.markdown/.txt file contents load directly into #inputText, replacing prior content.
+- Unsupported file types and read errors are reported inline via #uploadFileStatus.
+- Host page wires the feature up with a single initFileUploadHandler(...) call in initApp().
+- Bumped application version to 1.3.0.
 
 #### STYLESHEET OPTIMISATION
 08-Apr-2025 - v1.2.4

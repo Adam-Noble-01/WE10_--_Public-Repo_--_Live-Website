@@ -10,10 +10,17 @@
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="application-version" content="1.2.6">
+    <meta name="application-version" content="1.3.0">
     <title>Text To Reader Utility</title>
 
     <!-- Version Notes 
+    1.3.0 - 06-Jul-2026
+        - Added Upload Markdown / Text File feature
+          - New modular file: SN10_01_02_-_SCRIPT_-_File-Upload-Handler.js
+          - Lets users pick a local .md/.markdown/.txt file and loads it straight into the input textarea
+          - Built for mobile use, avoiding fiddly copy/paste between apps
+          - Inline status feedback for loaded filename or unsupported file type errors
+
     1.2.6 - 24-Dec-2025
         - Added CSV table rendering capability
           - Detects ```csv code blocks in input
@@ -114,11 +121,60 @@
         }
 
         /* endregion ------------------------------------------------------------------------------- */
+
+        /* -----------------------------------------------------------------------------------------
+           REGION | Upload File Styles
+           - Introduced in v1.3.0
+           ----------------------------------------------------------------------------------------- */
+
+        .UPLD__block {
+            display: flex;
+            /* <-- Lay button and status side by side */
+            align-items: center;
+            /* <-- Vertically centre content */
+            flex-wrap: wrap;
+            /* <-- Wrap on narrow mobile widths */
+            gap: 0.75em;
+            /* <-- Space between button and status */
+            margin-bottom: 0.75em;
+            /* <-- Space above the textarea */
+        }
+
+        .UPLD__button {
+            flex: 0 0 auto;
+            /* <-- Do not stretch full width */
+            width: auto;
+        }
+
+        .UPLD__status {
+            font-size: 0.85rem;
+            /* <-- Small feedback text */
+            color: rgb(90, 90, 90);
+            /* <-- Neutral status colour */
+        }
+
+        .UPLD__status--error {
+            color: rgb(178, 34, 34);
+            /* <-- Red for error feedback */
+            font-weight: 600;
+            /* <-- Emphasise errors */
+        }
+
+        /* endregion ------------------------------------------------------------------------------- */
     </style>
 
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/src/js/header-version-injector.js"></script>
+
+    <!-- 
+    ==============================================================================================
+    APP MODULE | File Upload Handler (Markdown / Text)
+    - Introduced in v1.3.0
+    - @delegate: SN10_01_02_-_SCRIPT_-_File-Upload-Handler.js
+    ==============================================================================================
+    -->
+    <script src="SN10_01_02_-_SCRIPT_-_File-Upload-Handler.js"></script>
 
     <!-- 
     ==============================================================================================
@@ -139,7 +195,7 @@
         <header class="HEAD__container">
             <nav class="HEAD__nav">
                 <span class="HEAD__title">Text To Reader Utility</span>
-                <span class="HEAD__version-note">v1.2.6</span>
+                <span class="HEAD__version-note">v1.3.0</span>
             </nav>
         </header>
 
@@ -158,6 +214,20 @@
                 <div class="FORM__block">
                     <label for="inputText" class="FORM__label">Input Text (Markdown , WhatsApp Messages or CSV
                         Blocks):</label>
+
+                    <!-- -----------------------------------------------------------------------------------------
+                       HTML | UPLOAD FILE BLOCK
+                       - Introduced in v1.3.0
+                       - @delegate: SN10_01_02_-_SCRIPT_-_File-Upload-Handler.js
+                       ----------------------------------------------------------------------------------------- -->
+                    <div class="UPLD__block">
+                        <input type="file" id="fileUploadInput" class="UPLD__input"
+                            accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
+                        <button type="button" id="uploadFileButton" class="BTTN__standard UPLD__button">Upload
+                            Markdown / Text File</button>
+                        <span id="uploadFileStatus" class="UPLD__status" role="status" aria-live="polite"></span>
+                    </div>
+
                     <textarea id="inputText" class="FORM__textarea"
                         placeholder="Paste your text (WhatsApp or Markdown) here..."></textarea>
                 </div>
@@ -201,7 +271,10 @@
             inputText: null,
             renderButton: null,
             clearButton: null,
-            output: null
+            output: null,
+            uploadFileButton: null,
+            fileUploadInput: null,
+            uploadFileStatus: null
         };
 
         // -----------------------------------------------------------------------------------------
@@ -509,6 +582,9 @@
             G_DOM_ELEMENTS.renderButton = document.getElementById('renderButton');
             G_DOM_ELEMENTS.clearButton = document.getElementById('clearButton');
             G_DOM_ELEMENTS.output = document.getElementById('output');
+            G_DOM_ELEMENTS.uploadFileButton = document.getElementById('uploadFileButton');
+            G_DOM_ELEMENTS.fileUploadInput = document.getElementById('fileUploadInput');
+            G_DOM_ELEMENTS.uploadFileStatus = document.getElementById('uploadFileStatus');
 
             // Check if all elements were found
             for (const key in G_DOM_ELEMENTS) {
@@ -522,6 +598,14 @@
             // Attach event listeners
             G_DOM_ELEMENTS.renderButton.addEventListener('click', handleRenderClick);         // <-- Render button
             G_DOM_ELEMENTS.clearButton.addEventListener('click', handleClearClick);           // <-- Clear button
+
+            // Initialise modular file upload feature (delegated to SN10_01_02 script)
+            initFileUploadHandler({
+                triggerButton: G_DOM_ELEMENTS.uploadFileButton,
+                fileInput: G_DOM_ELEMENTS.fileUploadInput,
+                targetTextarea: G_DOM_ELEMENTS.inputText,
+                statusElement: G_DOM_ELEMENTS.uploadFileStatus
+            });
         }
 
         // endregion -------------------------------------------------------------------------------
