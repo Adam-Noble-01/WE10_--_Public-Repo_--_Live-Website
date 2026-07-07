@@ -1,3 +1,5 @@
-flask
-flask-cors
-ezdxf
+flask>=3.0
+flask-cors>=4.0
+ezdxf>=1.4
+"ezdwg[dxf]>=0.9.0"
+Pillow>=11.0

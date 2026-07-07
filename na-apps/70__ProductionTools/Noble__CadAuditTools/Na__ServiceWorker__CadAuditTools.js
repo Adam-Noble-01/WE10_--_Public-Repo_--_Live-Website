@@ -34,7 +34,7 @@
 
     // MODULE CONSTANTS | Cache Versioning
     // ------------------------------------------------------------
-    const Na__SW_CACHE_NAME  = 'na-cad-audit-tools-shell-v1'; // <-- Bump version to force cache refresh
+    const Na__SW_CACHE_NAME  = 'na-cad-audit-tools-shell-v2'; // <-- Bump version to force cache refresh
     const Na__SW_APP_SHELL   = [                               // <-- Files to cache on install
         './',
         './Na__App__.html',
@@ -118,13 +118,19 @@
         event.respondWith(
             caches.match(event.request)
                 .then((cached) => {
-                    const networkFetch = fetch(event.request).then((networkResponse) => {
-                        if (networkResponse.ok) {
-                            caches.open(Na__SW_CACHE_NAME)
-                                .then((cache) => cache.put(event.request, networkResponse.clone())); // <-- Background refresh
-                        }
-                        return networkResponse;
-                    });
+                    const networkFetch = fetch(event.request)
+                        .then((networkResponse) => {
+                            if (networkResponse.ok) {
+                                caches.open(Na__SW_CACHE_NAME)
+                                    .then((cache) => cache.put(event.request, networkResponse.clone())) // <-- Background refresh
+                                    .catch(() => {});            // <-- Ignore cache-write failures (opaque/partial responses)
+                            }
+                            return networkResponse;
+                        })
+                        .catch((err) => {
+                            if (cached) return cached;           // <-- Network down — serve the stale cached copy
+                            throw err;                           // <-- No cache to fall back on — surface the failure
+                        });
                     return cached || networkFetch;               // <-- Serve from cache first; fall back to network
                 })
         );

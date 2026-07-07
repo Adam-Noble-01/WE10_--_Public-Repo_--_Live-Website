@@ -40,6 +40,7 @@
             this._cursorEl    = document.getElementById('Na__Status__CursorPos');
             this._selectedEl  = document.getElementById('Na__Status__SelectedCount');
             this._totalEl     = document.getElementById('Na__Status__TotalCount');
+            this._hintEl      = document.getElementById('Na__Status__Hint');
             this._fileChipEl  = document.getElementById('Na__App__FileChip');
 
             this._bindEventBusListeners();
@@ -59,9 +60,17 @@
             this._eventBus.on('selection:changed', (entities) => {
                 this.Na__StatusBar__SetSelectedCount(entities.length);   // <-- Update selected count
             });
-            this._eventBus.on('file:loaded', ({ fileName, entityCount }) => {
+            this._eventBus.on('file:loaded', ({ fileName }) => {
                 this.Na__StatusBar__SetFileName(fileName);               // <-- Show file name chip
+            });
+            this._eventBus.on('file:stats', ({ entityCount }) => {
                 this.Na__StatusBar__SetTotalCount(entityCount || 0);     // <-- Total entity count
+            });
+            this._eventBus.on('status:hint', ({ text }) => {
+                this.Na__StatusBar__SetHint(text);                       // <-- Tool guidance messages
+            });
+            this._eventBus.on('tool:changed', ({ tool }) => {
+                this.Na__StatusBar__SetHint(Na__StatusBar__DefaultHint(tool)); // <-- Per-tool hint on switch
             });
             this._eventBus.on('file:cleared', () => {
                 this.Na__StatusBar__Reset();
@@ -121,6 +130,16 @@
         // ------------------------------------------------------------
 
 
+        // FUNCTION | Update the Tool Hint Message
+        // ------------------------------------------------------------
+        Na__StatusBar__SetHint(text) {
+            if (this._hintEl) {
+                this._hintEl.textContent = text || '';
+            }
+        }
+        // ------------------------------------------------------------
+
+
         // FUNCTION | Reset All Status Readouts to Default State
         // ------------------------------------------------------------
         Na__StatusBar__Reset() {
@@ -128,10 +147,32 @@
             if (this._cursorEl)   this._cursorEl.textContent   = '0, 0';
             if (this._selectedEl) this._selectedEl.textContent = '0';
             if (this._totalEl)    this._totalEl.textContent    = '0';
+            if (this._hintEl)     this._hintEl.textContent     = '';
             if (this._fileChipEl) this._fileChipEl.textContent = 'No file loaded';
         }
         // ------------------------------------------------------------
 
     }
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Helper Functions
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Default Hint Text for Each Tool
+    // ------------------------------------------------------------
+    function Na__StatusBar__DefaultHint(tool) {
+        const hints = {
+            'select'      : 'Click to select · drag L→R window · drag R→L crossing · Shift adds',
+            'lasso'       : 'Sketch around geometry · start L→R window · start R→L crossing',
+            'pan'         : 'Drag to pan · scroll to zoom',
+            'dim-linear'  : 'Linear dimension — pick the first point',
+            'dim-aligned' : 'Aligned dimension — pick the first point',
+        };
+        return hints[tool] || '';
+    }
+    // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------

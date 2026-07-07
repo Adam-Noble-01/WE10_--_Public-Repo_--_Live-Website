@@ -71,6 +71,43 @@
         // ------------------------------------------------------------
 
 
+        // FUNCTION | Build the Versioned Project-Save Payload for /api/project-save
+        // ------------------------------------------------------------
+        Na__ExportSerializer__BuildProjectSavePayload(projectName) {
+            const layers = {};
+            this._appState.layers.forEach((layerData, name) => {
+                layers[name] = {
+                    hexColor    : layerData.hexColor,
+                    entityCount : layerData.entityCount,
+                    visible     : layerData.visible,
+                };
+            });
+
+            return {
+                tempDxfPath    : this._appState.tempDxfPath,            // <-- Server working DXF path
+                deletedHandles : [...this._appState.deletedHandles],    // <-- Unit handles to prune
+                projectName    : projectName,                           // <-- Project subfolder name
+                sourceFilename : this._appState.fileName,               // <-- Original upload name
+                layers         : layers,                                // <-- Layer metadata snapshot
+                dimensions     : this._appState.dimensions || [],       // <-- Annotation dimensions snapshot
+            };
+        }
+        // ------------------------------------------------------------
+
+
+        // FUNCTION | Build the DXF Download Payload for /api/export-dxf
+        // ------------------------------------------------------------
+        Na__ExportSerializer__BuildExportPayload() {
+            const outputFilename = Na__ExportSerializer__BuildOutputFilename(this._appState.fileName);
+            return {
+                tempDxfPath    : this._appState.tempDxfPath,
+                deletedHandles : [...this._appState.deletedHandles],    // <-- Empty array = full file export
+                outputFilename : outputFilename,
+            };
+        }
+        // ------------------------------------------------------------
+
+
         // FUNCTION | Return a Summary of the Current Deletion State (for UI display)
         // ------------------------------------------------------------
         Na__ExportSerializer__GetDeletionSummary() {

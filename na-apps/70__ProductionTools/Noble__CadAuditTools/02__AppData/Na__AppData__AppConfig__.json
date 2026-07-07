@@ -1,59 +1,120 @@
 {
     "_JsonConvention"                       : "All keys use PascalCase. Sections prefixed 'Config__'. Boolean flags use true/false. Paths use forward slashes.",
+    "_Purpose"                              : "Application defaults SSOT — every configurable feature reads its defaults from here. Keyboard/mouse controls live in Na__AppData__KeybindingsAndControls__.json.",
 
     "appName"                               : "Noble CAD Audit Tools",
-    "appVersion"                            : "0.1.0",
+    "appVersion"                            : "0.3.0",
     "appAuthor"                             : "Adam Noble - Noble Architecture",
     "appPort"                               : 8007,
 
     "Config__Canvas"                        : {
-        "_description"                      : "SVG canvas rendering and display defaults",
-        "Background__Color"                 : "#334155",
+        "_description"                      : "SVG canvas rendering and display defaults — ValeSpec dark theme",
+        "Background__Color"                 : "#141416",
         "Grid__Enabled"                     : false,
-        "Grid__Color"                       : "#475569",
+        "Grid__Color"                       : "#2a2a32",
         "Grid__Spacing_px"                  : 20,
-        "Entities__DefaultStrokeColor"      : "#e2e8f0",
+        "Entities__DefaultStrokeColor"      : "#e2e2e8",
         "Entities__DefaultStrokeWidth_px"   : 1,
-        "Entities__HighlightColor"          : "#60a5fa",
-        "Entities__SelectedColor"           : "#facc15",
-        "Entities__DeletedOpacity"          : 0.15
+        "Entities__HighlightColor"          : "#fff176",
+        "Entities__SelectedColor"           : "#ffffff",
+        "Entities__DeletedOpacity"          : 0.12,
+        "Entities__HitTargetWidth_px"       : 14
     },
 
     "Config__BoxSelect"                     : {
         "_description"                      : "Rubber-band selection overlay colours — Window (blue) vs Crossing (green)",
-        "Window__Fill"                      : "rgba(37, 99, 235, 0.10)",
-        "Window__Stroke"                    : "#2563eb",
+        "Window__Fill"                      : "rgba(77, 171, 247, 0.08)",
+        "Window__Stroke"                    : "#4dabf7",
         "Window__StrokeDashArray"           : "6 3",
-        "Crossing__Fill"                    : "rgba(34, 197, 94, 0.10)",
-        "Crossing__Stroke"                  : "#22c55e",
+        "Crossing__Fill"                    : "rgba(105, 219, 124, 0.08)",
+        "Crossing__Stroke"                  : "#69db7c",
         "Crossing__StrokeDashArray"         : "3 3"
     },
 
+    "Config__LassoSelect"                   : {
+        "_description"                      : "Freehand lasso selection — same direction convention as box select",
+        "Window__Fill"                      : "rgba(77, 171, 247, 0.08)",
+        "Window__Stroke"                    : "#4dabf7",
+        "Crossing__Fill"                    : "rgba(105, 219, 124, 0.08)",
+        "Crossing__Stroke"                  : "#69db7c",
+        "Path__StrokeDashArray"             : "4 3",
+        "Path__MinPointDistance_px"         : 3
+    },
+
+    "Config__Dimensions"                    : {
+        "_description"                      : "Dimension tool styling and behaviour — annotation layer, not written to DXF",
+        "Style__Color"                      : "#ff4081",
+        "Style__TextColor"                  : "#ff80ab",
+        "Style__StrokeWidth_px"             : 1,
+        "Style__TextHeight_px"              : 12,
+        "Style__TickLength_px"              : 6,
+        "Style__ExtensionOffset_px"         : 4,
+        "Style__ExtensionOvershoot_px"      : 5,
+        "Units__Suffix"                     : "mm",
+        "Units__DecimalPlaces"              : 1,
+        "Snap__Enabled"                     : true,
+        "Snap__Tolerance_px"                : 12,
+        "Snap__EndpointEnabled"             : true,
+        "Snap__MidpointEnabled"             : true,
+        "Snap__CenterEnabled"               : true,
+        "Snap__MarkerColor"                 : "#69db7c",
+        "Ortho__AxisLockRatio"              : 1.0
+    },
+
+    "Config__Navigation"                    : {
+        "_description"                      : "Pan/zoom behaviour for the ViewBoxController",
+        "Zoom__Min"                         : 0.001,
+        "Zoom__Max"                         : 1000,
+        "Zoom__WheelFactor"                 : 1.15,
+        "Zoom__ButtonStepFactor"            : 1.4,
+        "Fit__Margin_px"                    : 40
+    },
+
+    "Config__UndoRedo"                      : {
+        "_description"                      : "Undo/redo history depth and hot-cache persistence. MaxDepth is user-adjustable.",
+        "MaxDepth"                          : 50,
+        "HotCache__Enabled"                 : true,
+        "HotCache__Path"                    : "04__LocalProjectCache/03__HotCache__UndoRedoStates",
+        "HotCache__MaxFiles"                : 120
+    },
+
     "Config__DwgConversion"                 : {
-        "_description"                      : "ODA File Converter settings for DWG → DXF conversion. Set OdaConverter__ExePath to the full path of the ODAFileConverter.exe on this machine.",
+        "_description"                      : "DWG → DXF conversion. Primary: ezdwg Python library (modern DWG only). Fallback: ODA File Converter — required for legacy DWG (e.g. R12/AC1009). Leave OdaConverter__ExePath as-is: version-numbered install folders under Program Files are auto-detected. Only set it manually for a non-standard install location.",
+        "Ezdwg__OutputDxfVersion"           : "R2010",
+        "Ezdwg__TimeoutSeconds"             : 180,
         "OdaConverter__ExePath"             : "C:/Program Files/ODA/ODAFileConverter/ODAFileConverter.exe",
         "OdaConverter__OutputDxfVersion"    : "ACAD2018",
         "OdaConverter__RecurseSubfolders"   : false,
         "OdaConverter__AuditFiles"          : true
     },
 
+    "Config__Upload"                        : {
+        "_description"                      : "Upload/conversion progress overlay. Large DWGs run as a background job the browser polls for live progress. StatusPollInterval_ms controls how often the overlay refreshes the server-side stage/message.",
+        "StatusPollInterval_ms"             : 500,
+        "MinOverlayDisplay_ms"              : 400,
+        "AllowCancel"                       : true
+    },
+
     "Config__ProjectCache"                  : {
-        "_description"                      : "Local filesystem paths for temporary and saved CAD files. Paths relative to the project root.",
+        "_description"                      : "Local filesystem paths for temporary and saved CAD files. Paths relative to the project root. WorkingBackups__* governs the snapshot folder used to make Shift+Delete (physical prune of the working DXF) undoable.",
         "TempCache__Path"                   : "04__LocalProjectCache/01__TempCache__DwgToDxfConversions",
         "SavedProjects__Path"               : "04__LocalProjectCache/02__SavedProjects__AuditedDxfFiles",
         "TempCache__MaxFiles"               : 20,
-        "TempCache__AutoCleanOnStartup"     : false
+        "TempCache__AutoCleanOnStartup"     : false,
+        "WorkingBackups__Path"              : "04__LocalProjectCache/05__WorkingFileBackups",
+        "WorkingBackups__MaxFiles"          : 40
+    },
+
+    "Config__ProjectSave"                   : {
+        "_description"                      : "Versioned per-project save system. Each project gets its own subfolder containing versioned DXF + JSON metadata pairs.",
+        "Version__Format"                   : "v{:03d}",
+        "Filename__Pattern"                 : "{project}__{version}__.{ext}",
+        "Metadata__IncludeLayers"           : true,
+        "Metadata__IncludeDeletedHandles"   : true
     },
 
     "Config__Hotkeys"                       : {
-        "_description"                      : "Default keyboard shortcuts. Values are KeyboardEvent.key strings.",
-        "Tool__Pan"                         : "h",
-        "Tool__BoxWindow"                   : "w",
-        "Tool__BoxCrossing"                 : "c",
-        "View__FitAll"                      : "f",
-        "Edit__DeleteSelected"              : "Delete",
-        "Edit__Undo"                        : "z",
-        "Edit__Redo"                        : "y",
-        "Edit__SelectAll"                   : "a"
+        "_description"                      : "DEPRECATED — controls moved to Na__AppData__KeybindingsAndControls__.json. Kept for backwards compatibility only.",
+        "_movedTo"                          : "02__AppData/Na__AppData__KeybindingsAndControls__.json"
     }
 }

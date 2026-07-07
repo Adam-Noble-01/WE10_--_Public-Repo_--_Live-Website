@@ -1,0 +1,58 @@
+{
+    "_JsonConvention"                       : "Data-driven controls SSOT. Keyboard keys use HotkeyManager key-string format: lowercase, '+' separated modifiers e.g. 'ctrl+z'. Actions are EventBus suffixes emitted as 'hotkey:<action>'.",
+    "_Purpose"                              : "Single source of truth for ALL keyboard and mouse controls. Loaded at startup by Na__AppCore__Keybindings__.js. Edit this file to rebind controls — no code changes required.",
+
+    "schemaVersion"                         : "1.0.0",
+
+    "Controls__Keyboard"                    : {
+        "_description"                      : "Key string → action name. Multiple keys may map to the same action.",
+
+        "s"                                 : "tool:select",
+        "l"                                 : "tool:lasso",
+        "h"                                 : "tool:pan",
+        "d"                                 : "tool:dim-linear",
+        "shift+d"                           : "tool:dim-aligned",
+
+        "f"                                 : "view:fit",
+        "+"                                 : "view:zoom-in",
+        "="                                 : "view:zoom-in",
+        "-"                                 : "view:zoom-out",
+
+        "delete"                            : "edit:delete",
+        "backspace"                         : "edit:delete",
+        "shift+delete"                      : "edit:hard-delete",
+        "shift+backspace"                   : "edit:hard-delete",
+        "ctrl+z"                            : "edit:undo",
+        "ctrl+y"                            : "edit:redo",
+        "ctrl+shift+z"                      : "edit:redo",
+        "ctrl+a"                            : "edit:select-all",
+        "escape"                            : "edit:deselect",
+
+        "ctrl+s"                            : "file:save-project",
+        "ctrl+e"                            : "file:export-dxf"
+    },
+
+    "Controls__Mouse"                       : {
+        "_description"                      : "Mouse behaviour configuration read by Canvas and ViewBoxController.",
+        "Wheel__ZoomEnabled"                : true,
+        "Wheel__ZoomFactor"                 : 1.15,
+        "Wheel__InvertDirection"            : false,
+        "MiddleButton__PanEnabled"          : true,
+        "SpaceBar__TemporaryPanEnabled"     : true,
+        "Click__SelectTolerance_px"         : 4,
+        "Click__ShiftAddsToSelection"       : true,
+        "Drag__MinBoxSelectDistance_px"     : 4
+    },
+
+    "Controls__BoxSelectConvention"         : {
+        "_description"                      : "AutoCAD standard: drag direction determines selection mode.",
+        "LeftToRight__Mode"                 : "window",
+        "RightToLeft__Mode"                 : "crossing"
+    },
+
+    "Controls__ToolDefaults"                : {
+        "_description"                      : "Tool activated on app start and after Escape from a drawing tool.",
+        "Startup__ActiveTool"               : "select",
+        "Escape__ReturnsToTool"             : "select"
+    }
+}

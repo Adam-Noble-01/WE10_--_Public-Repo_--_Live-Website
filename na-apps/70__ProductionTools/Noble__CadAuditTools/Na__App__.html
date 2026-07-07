@@ -8,9 +8,9 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Noble CAD Audit Tools — DXF/DWG Box-Select & Cleanup">
+    <meta name="description" content="Noble CAD Audit Tools — DWG/DXF Viewer, Cleanup & Dimensioning">
     <meta name="author" content="Adam Noble - Noble Architecture">
-    <meta name="theme-color" content="#1e293b">
+    <meta name="theme-color" content="#141416">
     <title>Noble CAD Audit Tools</title>
 
     <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
@@ -29,7 +29,7 @@
 <body>
 
     <!-- ----------------------------------------------------------------- -->
-    <!-- REGION | App Root Container                                        -->
+    <!-- REGION | App Root Container - ValeSpec Grid Layout                -->
     <!-- ----------------------------------------------------------------- -->
     <div id="Na__App__Root">
 
@@ -46,13 +46,13 @@
                     </svg>
                 </div>
                 <h1 class="Na__Upload__Title">Noble CAD Audit Tools</h1>
-                <p class="Na__Upload__Subtitle">v0.1.0 — Scaffold</p>
+                <p class="Na__Upload__Subtitle">v0.3.0</p>
                 <p class="Na__Upload__Instruction">Drop a DWG or DXF file here, or click to browse</p>
                 <input type="file" id="Na__Upload__FileInput" accept=".dxf,.dwg" class="Na__Upload__HiddenInput">
                 <button id="Na__Upload__BrowseBtn" class="btn btn--primary">Open CAD File</button>
                 <p class="Na__Upload__Note">
-                    DWG files are automatically converted to DXF via ODA File Converter before loading.
-                    <br>Only DXF files are loaded directly.
+                    DWG files are converted to DXF automatically (ezdwg, with ODA File Converter fallback).
+                    <br>DXF files load directly.
                 </p>
             </div>
         </div>
@@ -60,28 +60,53 @@
 
 
         <!-- ----------------------------------------------------------------- -->
-        <!-- UI HEADER | Top Bar — Logo, File Info, Status Bar, Controls       -->
+        <!-- UI OVERLAY | Progress — upload/conversion status + cancel action  -->
+        <!-- ----------------------------------------------------------------- -->
+        <div id="Na__App__ProgressOverlay" class="Na__App__ProgressOverlay" aria-hidden="true">
+            <div class="Na__Progress__Card" role="status" aria-live="polite">
+
+                <div class="Na__Progress__Spinner" id="Na__Progress__Spinner"></div>
+
+                <h2 class="Na__Progress__Title"   id="Na__Progress__Title">Processing…</h2>
+                <p  class="Na__Progress__FileName" id="Na__Progress__FileName"></p>
+                <p  class="Na__Progress__Message"  id="Na__Progress__Message">Starting…</p>
+
+                <div class="Na__Progress__Bar" id="Na__Progress__Bar">
+                    <div class="Na__Progress__Bar__Fill" id="Na__Progress__BarFill"></div>
+                </div>
+
+                <p class="Na__Progress__Elapsed" id="Na__Progress__Elapsed">0s</p>
+
+                <button id="Na__Progress__CancelBtn" class="btn btn--ghost Na__Progress__Cancel">Cancel</button>
+
+            </div>
+        </div>
+        <!-- endregion ---- -->
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI HEADER | Top Bar — Brand, File Chip, Save/Export Controls      -->
         <!-- ----------------------------------------------------------------- -->
         <header class="top-bar" id="Na__App__TopBar">
 
-            <div class="top-bar__logo-group">
-                <img
-                    class="top-bar__logo-mark"
-                    src="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg"
-                    alt="Noble Architecture">
-                <div class="top-bar__app-title">CAD Audit Tools <span class="top-bar__version">v0.1.0</span></div>
-                <div class="top-bar__file-chip" id="Na__App__FileChip">No file loaded</div>
+            <img class="top-bar__logo" src="./01__AppAssets__CadAuditTools/Na__MainLogo__1-1-Ratio__.png" alt="Noble Architecture">
+            <div class="top-bar__brand">NOBLE CAD AUDIT TOOLS</div>
+            <div class="top-bar__divider"></div>
+            <div class="top-bar__version">v0.3.0</div>
+            <div class="top-bar__file-chip" id="Na__App__FileChip">No file loaded</div>
+
+            <div class="top-bar__spacer"></div>
+
+            <div class="top-bar__legend" id="Na__App__SelectLegend">
+                <span class="legend-item"><span class="legend-swatch legend-swatch--window"></span>L→R Window</span>
+                <span class="legend-item"><span class="legend-swatch legend-swatch--crossing"></span>R→L Crossing</span>
             </div>
 
-            <div class="status-bar status-bar--centred" id="Na__App__StatusBar">
-                <span>Zoom: <span id="Na__Status__ZoomLevel">100%</span></span>
-                <span>Cursor: <span id="Na__Status__CursorPos">0, 0</span></span>
-                <span>Selected: <span id="Na__Status__SelectedCount">0</span></span>
-                <span>Total: <span id="Na__Status__TotalCount">0</span> entities</span>
-            </div>
+            <div class="top-bar__divider"></div>
 
             <div class="top-bar__controls">
-                <button id="Na__Btn__SaveAuditedDxf" class="btn btn--primary" disabled>Save Audited DXF</button>
+                <button id="Na__Btn__ExportDxf" class="btn btn--secondary" title="Download the current DXF with deletions applied (Ctrl+E)" disabled>Export DXF</button>
+                <button id="Na__Btn__SaveProject" class="btn btn--primary" title="Save a versioned copy into the project archive (Ctrl+S)" disabled>Save Project</button>
             </div>
 
         </header>
@@ -89,84 +114,147 @@
 
 
         <!-- ----------------------------------------------------------------- -->
-        <!-- UI MAIN | Main Workspace — Toolbar, Canvas, Right Panel           -->
+        <!-- UI TOOLBAR | Left Tool Strip — Select, Lasso, Pan, Dims, View     -->
         <!-- ----------------------------------------------------------------- -->
-        <div class="main-workspace" id="Na__App__MainWorkspace">
+        <aside class="toolbar" id="Na__App__Toolbar">
 
-            <!-- TOOLBAR -->
-            <aside class="toolbar" id="Na__App__Toolbar">
+            <button data-tool="select" class="active" title="Select — click, or drag L→R window / R→L crossing (S)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M5 3l14 8-6.5 1.5L16 19l-2.5 1.5-3.5-6.5L5 17V3z"/>
+                </svg>
+            </button>
 
-                <button data-tool="pan" class="active" title="Pan (H / Space + drag)">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                              d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"/>
-                    </svg>
-                </button>
+            <button data-tool="lasso" title="Lasso Select — freehand region (L)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke-dasharray="3 2"
+                          d="M12 4c4.9 0 8.5 2 8.5 5.2 0 2.7-2.7 4.6-6.3 5.1M12 4C7.1 4 3.5 6 3.5 9.2c0 2.5 2.2 4.3 5.4 5M12 4v0M8.9 14.2c.7 2 .4 4-1.4 5.8M14.2 14.3c-1 .1-2.2.1-3.3-.1"/>
+                </svg>
+            </button>
 
-                <button data-tool="box-window" title="Window Select — left-to-right (W)">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <rect x="3" y="3" width="18" height="18" rx="1" stroke-width="1.5" stroke-dasharray="4 2"/>
-                    </svg>
-                </button>
+            <button data-tool="pan" title="Pan (H · middle-drag or Space+drag anytime)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"/>
+                </svg>
+            </button>
 
-                <button data-tool="box-crossing" title="Crossing Select — right-to-left (C)">
-                    <svg fill="none" stroke="#22c55e" viewBox="0 0 24 24">
-                        <rect x="3" y="3" width="18" height="18" rx="1" stroke-width="1.5" stroke-dasharray="2 2"/>
-                    </svg>
-                </button>
+            <div class="toolbar__divider"></div>
 
-                <div class="toolbar__divider"></div>
+            <button data-tool="dim-linear" title="Linear Dimension — ortho, axis auto-locks on placement (D)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M4 18V6m16 12V6M4 12h16M6.5 9.5L4 12l2.5 2.5m11-5L20 12l-2.5 2.5"/>
+                </svg>
+            </button>
 
-                <button data-tool="zoom-fit" title="Fit View to Drawing (F)">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                    </svg>
-                </button>
+            <button data-tool="dim-aligned" title="Aligned Dimension — any angle, true length (Shift+D)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M5 19L19 5M7.5 21.5L4 18l3.5-3.5m9-9L20 9l-3.5 3.5" transform="translate(0,-2)"/>
+                </svg>
+            </button>
 
-                <div class="toolbar__divider"></div>
+            <div class="toolbar__divider"></div>
 
-                <button id="Na__Btn__DeleteSelected" class="toolbar__btn--danger" title="Delete Selected Entities (Del / Backspace)" disabled>
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                </button>
+            <button data-action="zoom-in" title="Zoom In (+)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="7" stroke-width="1.5"/>
+                    <path stroke-linecap="round" stroke-width="1.5" d="M11 8v6M8 11h6M21 21l-4.35-4.35"/>
+                </svg>
+            </button>
 
-            </aside>
+            <button data-action="zoom-out" title="Zoom Out (-)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="7" stroke-width="1.5"/>
+                    <path stroke-linecap="round" stroke-width="1.5" d="M8 11h6M21 21l-4.35-4.35"/>
+                </svg>
+            </button>
 
-            <!-- CANVAS -->
-            <main class="canvas-container" id="Na__App__CanvasContainer">
-                <!-- Na__CadEngine__Canvas injects the SVG element here at runtime -->
-            </main>
+            <button data-action="zoom-fit" title="Fit View to Drawing (F)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </button>
 
-            <!-- RIGHT PANEL -->
-            <aside class="right-panel" id="Na__App__RightPanel">
-                <div class="panel-resize-handle" id="Na__App__PanelResizeHandle"></div>
+            <div class="toolbar__divider"></div>
 
-                <div class="panel layers-panel" id="Na__App__LayersPanel">
-                    <h3>Layers</h3>
-                    <div class="layer-list" id="Na__Layers__List">
-                        <p class="panel__empty-state">Load a file to see layers.</p>
-                    </div>
+            <button data-action="undo" title="Undo (Ctrl+Z)" disabled>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 010 11H11"/>
+                </svg>
+            </button>
+
+            <button data-action="redo" title="Redo (Ctrl+Y)" disabled>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 000 11H13"/>
+                </svg>
+            </button>
+
+            <div class="toolbar__divider"></div>
+
+            <button id="Na__Btn__DeleteSelected" class="toolbar__btn--danger" title="Delete Selected Entities (Del / Backspace)" disabled>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </button>
+
+        </aside>
+        <!-- endregion ---- -->
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI VIEWPORT | Canvas Container — SVG injected at runtime          -->
+        <!-- ----------------------------------------------------------------- -->
+        <main class="canvas-container" id="Na__App__CanvasContainer">
+            <!-- Na__CadEngine__Canvas injects the drawing SVG + overlay SVG here -->
+        </main>
+        <!-- endregion ---- -->
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI INSPECTOR | Right Panel — Layers and Properties                -->
+        <!-- ----------------------------------------------------------------- -->
+        <aside class="right-panel" id="Na__App__RightPanel">
+
+            <div class="panel layers-panel" id="Na__App__LayersPanel">
+                <h3>Layers</h3>
+                <div class="layer-list" id="Na__Layers__List">
+                    <p class="panel__empty-state">Load a file to see layers.</p>
                 </div>
+            </div>
 
-                <div class="panel properties-panel" id="Na__App__PropertiesPanel">
-                    <div class="panel-tabs">
-                        <button class="tab-btn active" data-target="Na__Props__Content">Properties</button>
-                        <button class="tab-btn" data-target="Na__Selection__Content">Selection</button>
-                    </div>
-                    <div id="Na__Props__Content" class="panel-tab-content">
-                        <p class="panel__empty-state">No entity selected.</p>
-                    </div>
-                    <div id="Na__Selection__Content" class="panel-tab-content is-hidden">
-                        <p class="panel__empty-state">No selection active.</p>
-                    </div>
+            <div class="panel properties-panel" id="Na__App__PropertiesPanel">
+                <div class="panel-tabs">
+                    <button class="tab-btn active" data-target="Na__Props__Content">Properties</button>
+                    <button class="tab-btn" data-target="Na__Selection__Content">Selection</button>
                 </div>
+                <div id="Na__Props__Content" class="panel-tab-content">
+                    <p class="panel__empty-state">No entity selected.</p>
+                </div>
+                <div id="Na__Selection__Content" class="panel-tab-content is-hidden">
+                    <p class="panel__empty-state">No selection active.</p>
+                </div>
+            </div>
 
-            </aside>
+        </aside>
+        <!-- endregion ---- -->
 
-        </div>
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI FOOTER | Status Bar — Hints and Readouts                       -->
+        <!-- ----------------------------------------------------------------- -->
+        <footer class="status-bar" id="Na__App__StatusBar">
+            <span class="status-bar__hint" id="Na__Status__Hint"></span>
+            <span><span class="status-bar__label">Zoom</span> <span id="Na__Status__ZoomLevel">100%</span></span>
+            <span><span class="status-bar__label">Cursor</span> <span id="Na__Status__CursorPos">0, 0</span></span>
+            <span><span class="status-bar__label">Selected</span> <span id="Na__Status__SelectedCount">0</span></span>
+            <span><span class="status-bar__label">Entities</span> <span id="Na__Status__TotalCount">0</span></span>
+        </footer>
         <!-- endregion ---- -->
 
 

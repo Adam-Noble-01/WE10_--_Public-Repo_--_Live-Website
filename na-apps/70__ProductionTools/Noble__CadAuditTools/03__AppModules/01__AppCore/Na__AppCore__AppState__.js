@@ -45,24 +45,29 @@
 
             // ENTITY DATA
             this.entities         = [];              // <-- All entity objects loaded from DXF (own data, NOT DOM elements)
-            this.deletedHandles   = new Set();       // <-- Set of entity handle strings marked for deletion
+            this.entityByHandle   = new Map();       // <-- Map<unitHandle, entity record> for selection resolution
+            this.deletedHandles   = new Set();       // <-- Set of unit handle strings marked for deletion
 
             // LAYER DATA
-            this.layers           = new Map();       // <-- Map<layerName, { color, visible, entityCount }>
+            this.layers           = new Map();       // <-- Map<layerName, { color, hexColor, visible, entityCount }>
             this.activeLayer      = null;            // <-- Currently focused layer (string name)
 
+            // ANNOTATIONS
+            this.dimensions       = [];              // <-- Dimension records (owned by DimensionRenderer)
+
             // CANVAS / VIEWPORT
-            this.viewTransform    = { scale: 1, x: 0, y: 0 }; // <-- SVG viewBox pan+zoom state
+            this.viewTransform    = { scale: 1, x: 0, y: 0 }; // <-- Published by ViewBoxController
 
             // TOOLS
-            this.activeTool       = 'pan';           // <-- Currently active tool ID string
+            this.activeTool       = 'select';        // <-- Currently active tool ID string
             this._tools           = {};              // <-- Registered tool instances (set via setTools())
 
             // SELECTION
-            this.selectedEntities = [];              // <-- Array of currently selected entity objects
+            this.selectedEntities = [];              // <-- Array of currently selected unit entity records
 
-            // CONFIG
+            // CONFIG + CONTROLS
             this.config           = null;            // <-- Loaded from Na__AppData__AppConfig__.json
+            this.controls         = null;            // <-- Loaded from Na__AppData__KeybindingsAndControls__.json
         }
         // ------------------------------------------------------------
 
@@ -126,9 +131,11 @@
             this.fileName         = null;
             this.tempDxfPath      = null;
             this.entities         = [];
+            this.entityByHandle   = new Map();
             this.deletedHandles   = new Set();
             this.layers           = new Map();
             this.activeLayer      = null;
+            this.dimensions       = [];
             this.selectedEntities = [];
             this.viewTransform    = { scale: 1, x: 0, y: 0 };
             this._eventBus.emit('file:cleared');    // <-- Notify all panels to reset
