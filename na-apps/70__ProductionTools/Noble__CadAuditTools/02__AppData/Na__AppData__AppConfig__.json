@@ -1,0 +1,59 @@
+{
+    "_JsonConvention"                       : "All keys use PascalCase. Sections prefixed 'Config__'. Boolean flags use true/false. Paths use forward slashes.",
+
+    "appName"                               : "Noble CAD Audit Tools",
+    "appVersion"                            : "0.1.0",
+    "appAuthor"                             : "Adam Noble - Noble Architecture",
+    "appPort"                               : 8007,
+
+    "Config__Canvas"                        : {
+        "_description"                      : "SVG canvas rendering and display defaults",
+        "Background__Color"                 : "#334155",
+        "Grid__Enabled"                     : false,
+        "Grid__Color"                       : "#475569",
+        "Grid__Spacing_px"                  : 20,
+        "Entities__DefaultStrokeColor"      : "#e2e8f0",
+        "Entities__DefaultStrokeWidth_px"   : 1,
+        "Entities__HighlightColor"          : "#60a5fa",
+        "Entities__SelectedColor"           : "#facc15",
+        "Entities__DeletedOpacity"          : 0.15
+    },
+
+    "Config__BoxSelect"                     : {
+        "_description"                      : "Rubber-band selection overlay colours — Window (blue) vs Crossing (green)",
+        "Window__Fill"                      : "rgba(37, 99, 235, 0.10)",
+        "Window__Stroke"                    : "#2563eb",
+        "Window__StrokeDashArray"           : "6 3",
+        "Crossing__Fill"                    : "rgba(34, 197, 94, 0.10)",
+        "Crossing__Stroke"                  : "#22c55e",
+        "Crossing__StrokeDashArray"         : "3 3"
+    },
+
+    "Config__DwgConversion"                 : {
+        "_description"                      : "ODA File Converter settings for DWG → DXF conversion. Set OdaConverter__ExePath to the full path of the ODAFileConverter.exe on this machine.",
+        "OdaConverter__ExePath"             : "C:/Program Files/ODA/ODAFileConverter/ODAFileConverter.exe",
+        "OdaConverter__OutputDxfVersion"    : "ACAD2018",
+        "OdaConverter__RecurseSubfolders"   : false,
+        "OdaConverter__AuditFiles"          : true
+    },
+
+    "Config__ProjectCache"                  : {
+        "_description"                      : "Local filesystem paths for temporary and saved CAD files. Paths relative to the project root.",
+        "TempCache__Path"                   : "04__LocalProjectCache/01__TempCache__DwgToDxfConversions",
+        "SavedProjects__Path"               : "04__LocalProjectCache/02__SavedProjects__AuditedDxfFiles",
+        "TempCache__MaxFiles"               : 20,
+        "TempCache__AutoCleanOnStartup"     : false
+    },
+
+    "Config__Hotkeys"                       : {
+        "_description"                      : "Default keyboard shortcuts. Values are KeyboardEvent.key strings.",
+        "Tool__Pan"                         : "h",
+        "Tool__BoxWindow"                   : "w",
+        "Tool__BoxCrossing"                 : "c",
+        "View__FitAll"                      : "f",
+        "Edit__DeleteSelected"              : "Delete",
+        "Edit__Undo"                        : "z",
+        "Edit__Redo"                        : "y",
+        "Edit__SelectAll"                   : "a"
+    }
+}

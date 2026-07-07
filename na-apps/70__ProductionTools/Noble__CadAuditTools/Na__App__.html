@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head - Meta, Title, Styles                      -->
+<!-- ----------------------------------------------------------------- -->
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Noble CAD Audit Tools — DXF/DWG Box-Select & Cleanup">
+    <meta name="author" content="Adam Noble - Noble Architecture">
+    <meta name="theme-color" content="#1e293b">
+    <title>Noble CAD Audit Tools</title>
+
+    <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+    <link rel="icon" type="image/x-icon" href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_07_-_NA_Favicon_-_ICO-h32px.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="./01__AppAssets__CadAuditTools/Na__CadAuditToolsApp__Icon__192x192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="./01__AppAssets__CadAuditTools/Na__CadAuditToolsApp__Icon__192x192.png">
+    <link rel="manifest" href="./03__AppModules/62__Feature__AppInstallability/Na__AppInstallability__Manifest.webmanifest">
+
+    <link rel="stylesheet" href="./03__AppStyles/Na__StyleSheet__EditorTheme__.css">
+
+</head>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body - Application Shell                        -->
+<!-- ----------------------------------------------------------------- -->
+<body>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | App Root Container                                        -->
+    <!-- ----------------------------------------------------------------- -->
+    <div id="Na__App__Root">
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI OVERLAY | File Upload Drop Zone — shown until a file is loaded -->
+        <!-- ----------------------------------------------------------------- -->
+        <div id="Na__App__UploadOverlay" class="Na__App__UploadOverlay--visible">
+            <div class="Na__Upload__Card">
+                <div class="Na__Upload__Icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                </div>
+                <h1 class="Na__Upload__Title">Noble CAD Audit Tools</h1>
+                <p class="Na__Upload__Subtitle">v0.1.0 — Scaffold</p>
+                <p class="Na__Upload__Instruction">Drop a DWG or DXF file here, or click to browse</p>
+                <input type="file" id="Na__Upload__FileInput" accept=".dxf,.dwg" class="Na__Upload__HiddenInput">
+                <button id="Na__Upload__BrowseBtn" class="btn btn--primary">Open CAD File</button>
+                <p class="Na__Upload__Note">
+                    DWG files are automatically converted to DXF via ODA File Converter before loading.
+                    <br>Only DXF files are loaded directly.
+                </p>
+            </div>
+        </div>
+        <!-- endregion ---- -->
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI HEADER | Top Bar — Logo, File Info, Status Bar, Controls       -->
+        <!-- ----------------------------------------------------------------- -->
+        <header class="top-bar" id="Na__App__TopBar">
+
+            <div class="top-bar__logo-group">
+                <img
+                    class="top-bar__logo-mark"
+                    src="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg"
+                    alt="Noble Architecture">
+                <div class="top-bar__app-title">CAD Audit Tools <span class="top-bar__version">v0.1.0</span></div>
+                <div class="top-bar__file-chip" id="Na__App__FileChip">No file loaded</div>
+            </div>
+
+            <div class="status-bar status-bar--centred" id="Na__App__StatusBar">
+                <span>Zoom: <span id="Na__Status__ZoomLevel">100%</span></span>
+                <span>Cursor: <span id="Na__Status__CursorPos">0, 0</span></span>
+                <span>Selected: <span id="Na__Status__SelectedCount">0</span></span>
+                <span>Total: <span id="Na__Status__TotalCount">0</span> entities</span>
+            </div>
+
+            <div class="top-bar__controls">
+                <button id="Na__Btn__SaveAuditedDxf" class="btn btn--primary" disabled>Save Audited DXF</button>
+            </div>
+
+        </header>
+        <!-- endregion ---- -->
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI MAIN | Main Workspace — Toolbar, Canvas, Right Panel           -->
+        <!-- ----------------------------------------------------------------- -->
+        <div class="main-workspace" id="Na__App__MainWorkspace">
+
+            <!-- TOOLBAR -->
+            <aside class="toolbar" id="Na__App__Toolbar">
+
+                <button data-tool="pan" class="active" title="Pan (H / Space + drag)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"/>
+                    </svg>
+                </button>
+
+                <button data-tool="box-window" title="Window Select — left-to-right (W)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="18" height="18" rx="1" stroke-width="1.5" stroke-dasharray="4 2"/>
+                    </svg>
+                </button>
+
+                <button data-tool="box-crossing" title="Crossing Select — right-to-left (C)">
+                    <svg fill="none" stroke="#22c55e" viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="18" height="18" rx="1" stroke-width="1.5" stroke-dasharray="2 2"/>
+                    </svg>
+                </button>
+
+                <div class="toolbar__divider"></div>
+
+                <button data-tool="zoom-fit" title="Fit View to Drawing (F)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                    </svg>
+                </button>
+
+                <div class="toolbar__divider"></div>
+
+                <button id="Na__Btn__DeleteSelected" class="toolbar__btn--danger" title="Delete Selected Entities (Del / Backspace)" disabled>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+
+            </aside>
+
+            <!-- CANVAS -->
+            <main class="canvas-container" id="Na__App__CanvasContainer">
+                <!-- Na__CadEngine__Canvas injects the SVG element here at runtime -->
+            </main>
+
+            <!-- RIGHT PANEL -->
+            <aside class="right-panel" id="Na__App__RightPanel">
+                <div class="panel-resize-handle" id="Na__App__PanelResizeHandle"></div>
+
+                <div class="panel layers-panel" id="Na__App__LayersPanel">
+                    <h3>Layers</h3>
+                    <div class="layer-list" id="Na__Layers__List">
+                        <p class="panel__empty-state">Load a file to see layers.</p>
+                    </div>
+                </div>
+
+                <div class="panel properties-panel" id="Na__App__PropertiesPanel">
+                    <div class="panel-tabs">
+                        <button class="tab-btn active" data-target="Na__Props__Content">Properties</button>
+                        <button class="tab-btn" data-target="Na__Selection__Content">Selection</button>
+                    </div>
+                    <div id="Na__Props__Content" class="panel-tab-content">
+                        <p class="panel__empty-state">No entity selected.</p>
+                    </div>
+                    <div id="Na__Selection__Content" class="panel-tab-content is-hidden">
+                        <p class="panel__empty-state">No selection active.</p>
+                    </div>
+                </div>
+
+            </aside>
+
+        </div>
+        <!-- endregion ---- -->
+
+
+    </div>
+    <!-- endregion ---- -->
+
+
+    <!-- ================================================================= -->
+    <!-- REGION | JavaScript Modules                                        -->
+    <!-- ================================================================= -->
+
+    <!-- App entry point (ES module — imports all other modules) -->
+    <script type="module" src="./Na__App__Main__.js"></script>
+
+    <!-- PWA Service Worker Registration (non-module, runs independently) -->
+    <script src="./03__AppModules/62__Feature__AppInstallability/Na__Feature__AppInstallability__ServiceWorkerRegistration__.js"></script>
+
+    <!-- endregion ----------------------------------------------------------------- -->
+
+
+</body>
+</html>
