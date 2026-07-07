@@ -39,6 +39,65 @@
 
 # ---------------------------------------------------------
 
+## CAD Audit Tools | v0.3.4 — 07-Jul-2026 — Open-With Opens the PWA App (Fix + Native Handlers)
+
+### Problem — right-click "Open with" opened a browser tab and the PWA was un-installable
+
+- The Windows Open-With launcher ran `shell.Run appUrl`, which handed the URL to
+  the default browser as an ordinary tab — not the app.
+- The PWA manifest lived at `03__AppModules/62__Feature__AppInstallability/`, so
+  its `start_url`/`scope` (`"./…"`) resolved **relative to that nested folder** →
+  a 404 start URL and a wrong scope. The PWA could not install/launch correctly.
+- The referenced icon assets (`01__AppAssets__CadAuditTools/…192/512.png`) did
+  not exist, breaking installability and leaving the right-click entry blank. The
+  installer also assigned a `.png` to the shell-verb `Icon`, which Windows shell
+  verbs cannot render (they need an `.ico`).
+
+### Manifest — fixed + native file/protocol handlers
+
+- `Na__AppInstallability__Manifest.webmanifest`: `start_url`/`id` → `/Na__App__.html`,
+  `scope` → `/`, icon `src` → root-absolute `/01__AppAssets__CadAuditTools/…`.
+- Added `file_handlers` (`.dxf` → `image/vnd.dxf`, `.dwg` → `image/vnd.dwg`) so an
+  installed PWA is registered by Edge/Chrome in the Windows "Open with" list.
+- Added a `web+noblecad` `protocol_handlers` deep-link entry.
+
+### Icons — generated Noble-branded asset set
+
+- New `01__AppAssets__CadAuditTools/` with `…Icon__192x192.png`, `…Icon__512x512.png`,
+  and a multi-resolution `…Icon__.ico` (16–256 px) for the shell verb.
+- Regeneratable via `01__AppAssets__CadAuditTools/Na__WinIntegration__GenerateIcons__.py`
+  (Pillow) — swap in a real source logo and re-run.
+
+### Launcher — chromeless app window (Path A, robust)
+
+- `Na__WinIntegration__OpenWith__.vbs`: new `Na__LaunchAppWindow` opens Edge then
+  Chrome with `--app="http://127.0.0.1:8007/Na__App__.html?openFile=<path>"`
+  (browser resolved via `App Paths` registry + standard install locations),
+  falling back to the default browser only if neither is found. Server
+  health-check/auto-start is unchanged, so the file loads via `/api/open-local`.
+
+### Installer — icon fix
+
+- `Na__WinIntegration__InstallOpenWith__.ps1`: ProgID `DefaultIcon` and the shell
+  verb `Icon` now use the `.ico`. Summary notes the labelled entry is the direct
+  right-click verb (the greyed row in the *Open-with submenu* is a Windows quirk
+  of script-host ProgIDs).
+
+### Frontend — installed-PWA file handler (Path B, native)
+
+- `Na__App__Main__.js`: new `Na__App__HandleLaunchQueue` consumes `window.launchQueue`;
+  a launched file handle is read and routed through the existing
+  `Na__UploadPanel__HandleFile(file)` pipeline (bytes → `/api/upload` → render).
+- Note: Path B needs the PWA installed *and* the server already running (the
+  launchQueue path does not auto-start the backend); Path A remains the dependable
+  everyday route.
+
+### Service worker
+
+- Cache bumped `v2` → `v3`; PWA icons added to the pre-cached app shell.
+
+# ---------------------------------------------------------
+
 ## CAD Audit Tools | v0.0.5 — 07-Jul-2026 — Undoable Hard Delete (Shift+Delete)
 
 ### Goal — shrink the working file to speed up very large drawings

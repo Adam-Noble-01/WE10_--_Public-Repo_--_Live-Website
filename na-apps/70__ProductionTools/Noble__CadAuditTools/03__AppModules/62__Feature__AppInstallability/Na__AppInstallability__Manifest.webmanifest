@@ -2,8 +2,9 @@
     "name"             : "Noble CAD Audit Tools",
     "short_name"       : "CAD Audit",
     "description"      : "Load DWG/DXF files and quickly box-select and delete vector entities for fast CAD cleanup.",
-    "start_url"        : "./Na__App__.html",
-    "scope"            : "./",
+    "id"               : "/Na__App__.html",
+    "start_url"        : "/Na__App__.html",
+    "scope"            : "/",
     "display"          : "standalone",
     "orientation"      : "landscape",
     "background_color" : "#1e293b",
@@ -11,16 +12,31 @@
     "lang"             : "en-GB",
     "icons"            : [
         {
-            "src"     : "../../01__AppAssets__CadAuditTools/Na__CadAuditToolsApp__Icon__192x192.png",
+            "src"     : "/01__AppAssets__CadAuditTools/Na__CadAuditToolsApp__Icon__192x192.png",
             "sizes"   : "192x192",
             "type"    : "image/png",
             "purpose" : "any"
         },
         {
-            "src"     : "../../01__AppAssets__CadAuditTools/Na__CadAuditToolsApp__Icon__512x512.png",
+            "src"     : "/01__AppAssets__CadAuditTools/Na__CadAuditToolsApp__Icon__512x512.png",
             "sizes"   : "512x512",
             "type"    : "image/png",
             "purpose" : "any maskable"
+        }
+    ],
+    "file_handlers"    : [
+        {
+            "action"  : "/Na__App__.html",
+            "accept"  : {
+                "image/vnd.dxf" : [".dxf"],
+                "image/vnd.dwg" : [".dwg"]
+            }
+        }
+    ],
+    "protocol_handlers": [
+        {
+            "protocol": "web+noblecad",
+            "url"     : "/Na__App__.html?openFile=%s"
         }
     ]
 }

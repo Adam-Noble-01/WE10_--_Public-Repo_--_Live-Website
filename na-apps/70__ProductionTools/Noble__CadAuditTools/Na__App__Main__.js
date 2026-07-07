@@ -25,6 +25,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 07-Jul-2026 - Version 0.3.4
+// - Added Na__App__HandleLaunchQueue — the installed-PWA file handler consumer.
+//   Files launched via the OS "Open with" are routed through the existing
+//   UploadPanel pipeline (bytes → /api/upload → EntityLoader).
+//
 // 07-Jul-2026 - Version 0.3.3
 // - Constructed Na__CadEngine__EntityPruner (Shift+Delete hard-delete) wired
 //   with AppState, EventBus, Canvas, SelectionManager, UndoManager, and the
@@ -148,6 +153,9 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
 
         // WINDOWS OPEN-WITH — load a file passed via ?openFile=<absolute path>
         await Na__App__HandleOpenFileParam(entityLoader, progressOverlay);
+
+        // INSTALLED-PWA FILE HANDLER — receive files launched via the OS "Open with"
+        Na__App__HandleLaunchQueue(uploadPanel);
 
     });
     // ------------------------------------------------------------
@@ -306,6 +314,26 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
             console.error('[Na__App__Main] Open-With load failed:', err);
             progressOverlay.Na__ProgressOverlay__ShowError(`Could not open file: ${err.message}`);
         }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Receive Files from the Installed-PWA File Handler (launchQueue)
+    // ------------------------------------------------------------
+    function Na__App__HandleLaunchQueue(uploadPanel) {
+        if (!('launchQueue' in window)) return;                     // <-- Chromium installed-PWA API only
+
+        window.launchQueue.setConsumer(async (launchParams) => {
+            if (!launchParams || !launchParams.files || !launchParams.files.length) return;
+
+            try {
+                const handle = launchParams.files[0];               // <-- FileSystemFileHandle for the launched file
+                const file   = await handle.getFile();              // <-- Bytes only — no disk path via this API
+                await uploadPanel.Na__UploadPanel__HandleFile(file);// <-- Reuse the upload+convert+render pipeline
+            } catch (err) {
+                console.error('[Na__App__Main] launchQueue open failed:', err);
+            }
+        });
     }
     // ------------------------------------------------------------
 

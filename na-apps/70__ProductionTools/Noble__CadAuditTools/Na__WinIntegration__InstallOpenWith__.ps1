@@ -37,7 +37,7 @@ $ErrorActionPreference = 'Stop'
 $AppDir        = Split-Path -Parent $MyInvocation.MyCommand.Path
 $OpenWithVbs   = Join-Path $AppDir 'Na__WinIntegration__OpenWith__.vbs'
 $SilentVbs     = Join-Path $AppDir 'Na__LocalServer__Silent__.vbs'
-$IconPng       = Join-Path $AppDir '01__AppAssets__CadAuditTools\Na__CadAuditToolsApp__Icon__192x192.png'
+$IconIco       = Join-Path $AppDir '01__AppAssets__CadAuditTools\Na__CadAuditToolsApp__Icon__.ico'  # <-- Shell verbs need .ico, not .png
 
 $ProgId        = 'NobleCadAuditTools.CadFile'
 $VerbName      = 'NobleCadAuditTools'
@@ -114,9 +114,9 @@ Set-ItemProperty -Path $progIdKey -Name '(Default)'         -Value 'Noble CAD Au
 Set-ItemProperty -Path $progIdKey -Name 'FriendlyTypeName'  -Value 'Noble CAD Audit Tools Drawing'
 Set-ItemProperty -Path "$progIdKey\shell\open\command" -Name '(Default)' -Value $OpenCommand
 
-if (Test-Path $IconPng) {
+if (Test-Path $IconIco) {
     New-Item -Path "$progIdKey\DefaultIcon" -Force | Out-Null
-    Set-ItemProperty -Path "$progIdKey\DefaultIcon" -Name '(Default)' -Value $IconPng
+    Set-ItemProperty -Path "$progIdKey\DefaultIcon" -Name '(Default)' -Value $IconIco
 }
 
 Write-Host "  [1/3] ProgID registered            : $ProgId" -ForegroundColor Green
@@ -139,8 +139,8 @@ foreach ($ext in $Extensions) {
     $verbKey = "HKCU:\Software\Classes\SystemFileAssociations\$ext\shell\$VerbName"
     New-Item -Path "$verbKey\command" -Force | Out-Null
     Set-ItemProperty -Path $verbKey -Name '(Default)' -Value $VerbLabel
-    if (Test-Path $IconPng) {
-        Set-ItemProperty -Path $verbKey -Name 'Icon' -Value $IconPng
+    if (Test-Path $IconIco) {
+        Set-ItemProperty -Path $verbKey -Name 'Icon' -Value $IconIco
     }
     Set-ItemProperty -Path "$verbKey\command" -Name '(Default)' -Value $OpenCommand
 
@@ -173,7 +173,10 @@ Write-Host "  [3/3] Startup shortcut installed   : $StartupLink" -ForegroundColo
 
 Write-Host ''
 Write-Host '  Done. Right-click any .dwg or .dxf file and choose' -ForegroundColor Cyan
-Write-Host "  '$VerbLabel' — or find it under 'Open with'." -ForegroundColor Cyan
+Write-Host "  '$VerbLabel' — the labelled entry with the Noble icon." -ForegroundColor Cyan
+Write-Host ''
+Write-Host '  (The row inside the "Open with" submenu may show no label — that is a' -ForegroundColor DarkGray
+Write-Host '   Windows quirk for script-host ProgIDs. Use the direct verb above.)'   -ForegroundColor DarkGray
 Write-Host ''
 Write-Host '  The server will start silently at your next login. To start it' -ForegroundColor DarkGray
 Write-Host '  silently right now, double-click: Na__LocalServer__Silent__.vbs' -ForegroundColor DarkGray

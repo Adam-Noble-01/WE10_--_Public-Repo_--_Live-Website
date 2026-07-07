@@ -22,6 +22,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 07-Jul-2026 - Version 0.3.4
+// - Bumped cache to v3 and pre-cached the PWA icon assets so installed clients
+//   pick up the fixed manifest (root-absolute scope/start_url) and icons.
+//
 // 07-Jul-2026 - Version 0.1.0
 // - Initial scaffold release.
 //
@@ -34,7 +38,7 @@
 
     // MODULE CONSTANTS | Cache Versioning
     // ------------------------------------------------------------
-    const Na__SW_CACHE_NAME  = 'na-cad-audit-tools-shell-v2'; // <-- Bump version to force cache refresh
+    const Na__SW_CACHE_NAME  = 'na-cad-audit-tools-shell-v3'; // <-- Bump version to force cache refresh
     const Na__SW_APP_SHELL   = [                               // <-- Files to cache on install
         './',
         './Na__App__.html',
@@ -59,6 +63,8 @@
         './03__AppModules/System__SelectionTools/Na__SelectionTools__BoxSelectTool__.js',
         './03__AppModules/System__Navigation/Na__Navigation__ViewBoxController__.js',
         './03__AppModules/62__Feature__AppInstallability/Na__AppInstallability__Manifest.webmanifest',
+        './01__AppAssets__CadAuditTools/Na__CadAuditToolsApp__Icon__192x192.png',
+        './01__AppAssets__CadAuditTools/Na__CadAuditToolsApp__Icon__512x512.png',
     ];
     // ------------------------------------------------------------
 

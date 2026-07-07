@@ -1,0 +1,137 @@
+{
+  "projectName": "Hanson CAD Concept",
+  "version": "v001",
+  "savedAt": "2026-07-07 11:25:09",
+  "sourceFilename": "Hanson CAD Concept.dxf",
+  "sourceDxfPath": "D:\\11_RefLib__StudioRepository__RemoteSystem\\NaWeb\\na-apps\\70__ProductionTools\\Noble__CadAuditTools\\04__LocalProjectCache\\01__TempCache__DwgToDxfConversions\\Hanson CAD Concept.dxf",
+  "deletedCount": 0,
+  "deletedHandles": [],
+  "layers": {
+    "0": {
+      "hexColor": "#ffffff",
+      "entityCount": 76,
+      "visible": true
+    },
+    "01 - Title Block": {
+      "hexColor": "#ffffff",
+      "entityCount": 0,
+      "visible": true
+    },
+    "02 - Notes & Text": {
+      "hexColor": "#505050",
+      "entityCount": 0,
+      "visible": true
+    },
+    "03 - Datum": {
+      "hexColor": "#ffaaaa",
+      "entityCount": 0,
+      "visible": true
+    },
+    "04 - Building Outline": {
+      "hexColor": "#0000ff",
+      "entityCount": 0,
+      "visible": true
+    },
+    "10 - Frame Outline": {
+      "hexColor": "#008dbd",
+      "entityCount": 0,
+      "visible": true
+    },
+    "10 - Timber Frame": {
+      "hexColor": "#008dbd",
+      "entityCount": 0,
+      "visible": true
+    },
+    "18 - Ladder Beam": {
+      "hexColor": "#ff00ff",
+      "entityCount": 2,
+      "visible": true
+    },
+    "40 - Detail Outline": {
+      "hexColor": "#008dbd",
+      "entityCount": 141,
+      "visible": true
+    },
+    "41 - Detail": {
+      "hexColor": "#ffffff",
+      "entityCount": 0,
+      "visible": true
+    },
+    "42 - Detail Hatch": {
+      "hexColor": "#ffffff",
+      "entityCount": 0,
+      "visible": true
+    },
+    "44 - Detail Text": {
+      "hexColor": "#ffffff",
+      "entityCount": 416,
+      "visible": true
+    },
+    "900 - 0.05mm Line Thickness": {
+      "hexColor": "#333333",
+      "entityCount": 0,
+      "visible": true
+    },
+    "901 - 0.10mm Line Thickness": {
+      "hexColor": "#505050",
+      "entityCount": 0,
+      "visible": true
+    },
+    "907 - 0.35mm Line Thickness": {
+      "hexColor": "#008dbd",
+      "entityCount": 0,
+      "visible": true
+    },
+    "912 - Dark Grey Lead Hatch": {
+      "hexColor": "#828282",
+      "entityCount": 0,
+      "visible": true
+    },
+    "BEAMS": {
+      "hexColor": "#ff0000",
+      "entityCount": 0,
+      "visible": true
+    },
+    "Concept": {
+      "hexColor": "#ffffff",
+      "entityCount": 0,
+      "visible": true
+    },
+    "Hatches": {
+      "hexColor": "#ffffff",
+      "entityCount": 0,
+      "visible": true
+    },
+    "House": {
+      "hexColor": "#ffffff",
+      "entityCount": 0,
+      "visible": true
+    },
+    "MView": {
+      "hexColor": "#ffffff",
+      "entityCount": 0,
+      "visible": true
+    },
+    "Map": {
+      "hexColor": "#ffffff",
+      "entityCount": 1729,
+      "visible": true
+    },
+    "Orangery": {
+      "hexColor": "#505050",
+      "entityCount": 50,
+      "visible": true
+    },
+    "PDF6_Geometry": {
+      "hexColor": "#ffffff",
+      "entityCount": 4,
+      "visible": true
+    },
+    "Site Locations": {
+      "hexColor": "#ffffff",
+      "entityCount": 0,
+      "visible": true
+    }
+  },
+  "dimensions": []
+}

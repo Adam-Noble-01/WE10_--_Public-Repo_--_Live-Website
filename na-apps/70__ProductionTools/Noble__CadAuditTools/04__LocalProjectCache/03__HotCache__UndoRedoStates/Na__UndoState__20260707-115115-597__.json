@@ -1,0 +1,50 @@
+{
+  "fileName": "TestCad__.dwg",
+  "tempDxfPath": "D:\\11_RefLib__StudioRepository__RemoteSystem\\NaWeb\\na-apps\\70__ProductionTools\\Noble__CadAuditTools\\04__LocalProjectCache\\01__TempCache__DwgToDxfConversions\\TestCad__.dxf",
+  "deletedHandles": [],
+  "dimensions": [
+    {
+      "type": "linear",
+      "p1": {
+        "x": 5002.934393325137,
+        "y": -7292.731607578462
+      },
+      "p2": {
+        "x": 9752.93439332556,
+        "y": -7292.731607578462
+      },
+      "axis": "h",
+      "linePos": -7644.3423945466575,
+      "id": "dim-1"
+    },
+    {
+      "type": "linear",
+      "p1": {
+        "x": 10197.93439332536,
+        "y": -9737.731607578462
+      },
+      "p2": {
+        "x": 13397.93439332536,
+        "y": -9737.731607578462
+      },
+      "axis": "h",
+      "linePos": -10171.658093422337,
+      "id": "dim-2"
+    },
+    {
+      "type": "linear",
+      "p1": {
+        "x": 77236.62229471104,
+        "y": 24342.091298287793
+      },
+      "p2": {
+        "x": 76506.41811868889,
+        "y": 20354.036096358395
+      },
+      "axis": "h",
+      "linePos": 9400.922031023933,
+      "id": "dim-3"
+    }
+  ],
+  "undoDepth": 3
+}

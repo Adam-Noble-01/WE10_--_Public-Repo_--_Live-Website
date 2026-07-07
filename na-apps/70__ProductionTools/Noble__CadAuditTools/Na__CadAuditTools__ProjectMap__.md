@@ -180,11 +180,13 @@ Noble__CadAuditTools/
 ## 8. Windows Integration
 
 ### 8.1 Right-click Open With
-- `InstallOpenWith__.ps1` writes HKCU (no admin) registry keys: ProgID `NobleCadAuditTools.CadFile` + `OpenWithProgids` for `.dwg`/`.dxf`.
-- Shell command → `wscript.exe Na__WinIntegration__OpenWith__.vbs "%1"`:
+- `InstallOpenWith__.ps1` writes HKCU (no admin) registry keys: ProgID `NobleCadAuditTools.CadFile` + `OpenWithProgids` for `.dwg`/`.dxf`, plus a direct `SystemFileAssociations` shell verb ("Open with Noble CAD Audit Tools") with the Noble `.ico`.
+- **Path A — VBS app window (robust default):** shell command → `wscript.exe Na__WinIntegration__OpenWith__.vbs "%1"`:
   1. Health-check `127.0.0.1:8007` — start `Na__LocalServer__Silent__.vbs` if down, wait for ready.
-  2. Open browser/PWA at `http://127.0.0.1:8007/?openFile=<encoded path>`.
-- Frontend reads `?openFile=` → GET `/api/open-local?path=` → same load path as upload.
+  2. `Na__LaunchAppWindow` opens Edge/Chrome with `--app="http://127.0.0.1:8007/Na__App__.html?openFile=<encoded path>"` (chromeless PWA-style window; default-browser fallback if neither browser is found).
+  3. Frontend reads `?openFile=` → GET `/api/open-local?path=` → same load path as upload.
+- **Path B — native installed-PWA handler:** the manifest now declares `file_handlers` (`.dxf`/`.dwg`) so Edge/Chrome register the *installed* PWA in Windows "Open with". Launched files arrive via `window.launchQueue`; `Na__App__HandleLaunchQueue` reads the handle and routes it through `Na__UploadPanel__HandleFile` → `/api/upload`. Requires the PWA installed and the server already running (this path does not auto-start the backend).
+- **Manifest fix:** `start_url`/`scope`/icon paths are now root-absolute (`/Na__App__.html`, `/`, `/01__AppAssets__CadAuditTools/…`) — previously they resolved relative to the nested manifest folder and 404'd, which broke installability.
 
 ### 8.2 Silent startup
 - `Na__LocalServer__Silent__.vbs` runs the Flask server with a hidden window (no console). Installer drops a shortcut into `shell:startup`. `AUTO_OPEN_BROWSER` suppressed in silent mode via `--silent` arg.
