@@ -3,6 +3,64 @@
 
 # ---------------------------------------------------------
 
+## CAD Audit Tools | v0.3.5 — 08-Jul-2026 — Native Export Flow, Load-File Project Manager, Stale-JS Fix
+
+### Export DXF — native folder picker + write-once-then-copy + progress (user requests 1 & 2)
+
+- The Export button no longer triggers a blind browser download. New flow:
+  1. `POST /api/export-pick` opens the **native OS Save-As explorer** so the user
+     chooses exactly where the DXF lands. The Tk dialog runs in an **isolated
+     subprocess** (`Na__LocalServer__NativeDialogs__.py`) — tkinter is not
+     thread-safe and Werkzeug serves each request on its own worker thread, so a
+     dedicated process sidesteps every "main thread is not in main loop" pitfall.
+  2. `POST /api/export-write` **writes the pruned DXF once** to the internal export
+     cache (the app's own working copy) then `shutil.copy2`s that single file to
+     the chosen destination — geometry is serialised once, then OS-copied.
+- The shared `Na__UI__ProgressOverlay` now animates through the export with staged
+  messages ("Waiting for save location…" → "Writing and copying…" → "Complete"),
+  matching the upload/convert loading graphic. Added `exporting`/`copying`/`loading`
+  stage titles.
+
+### Load File — saved-project manager modal (user request 3)
+
+- New **Load File** button + `#Na__App__ProjectManagerOverlay` modal, styled like
+  the ValeSpec Project Manager (dark table: Project · Version · Saved · Source ·
+  Removed · Open), with a live filter and Refresh. New `Na__UI__ProjectManager__.js`.
+- `/api/projects` enriched with per-version metadata (saved date, source file,
+  deleted count, dimension count) read from the JSON sidecar, newest-first.
+- New `POST /api/open-project` copies the archived DXF into the temp cache as a
+  **fresh working copy** (the saved version is never mutated by later edits),
+  parses it, and returns saved dimensions so annotations are restored on load.
+
+### Top bar cleanup (user request 4)
+
+- Removed the `L→R Window / R→L Crossing` legend from the header — the guidance
+  already lives in the status-bar hint where it belongs.
+
+### Fixes surfaced during testing
+
+- **UTF-8 stdout**: confirmed `na_force_utf8_console()` is wired in
+  `Na__LocalServer__Main__.py` — the earlier `charmap` codec crash on `→`/`—` in
+  server prints (which was killing `/api/export-*` and `/api/project-save`) came
+  from a **stale server instance** started before that fix; a restart clears it.
+- **Stale JS after edits**: the PWA service worker was cache-first
+  (stale-while-revalidate), so code changes needed two reloads to appear. Rewrote
+  `Na__ServiceWorker__CadAuditTools.js` to **network-first for app code**
+  (HTML/JS/CSS/JSON), cache-first only for icons/fonts/manifest. Cache bumped to
+  **v4**; precache list refreshed to the current module set. Edits now show on the
+  first reload.
+
+### Verification
+
+- `.claude/launch.json` added (Flask server, port 8007); server restarted via the
+  launch config.
+- End-to-end tested: `project-save` (v001 written), `export-write` (22 KB file
+  copied to destination), `open-project` (113/118 entities, 1 dimension restored,
+  fresh working copy). Load-File modal renders 6 saved projects with correct
+  metadata; opens on a single reload post-SW-fix; no console errors.
+
+# ---------------------------------------------------------
+
 ## CAD Audit Tools | v0.0.6 — 07-Jul-2026 — Fixed Shift+Delete "Not Working" (Duplicate Stale Servers)
 
 ### Symptom

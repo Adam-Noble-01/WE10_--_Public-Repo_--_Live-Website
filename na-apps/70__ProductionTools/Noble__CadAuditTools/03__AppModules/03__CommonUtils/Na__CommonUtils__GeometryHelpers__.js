@@ -298,6 +298,9 @@
                 return segs;
             }
 
+            case 'IMAGE':
+                return Na__Geom__PolylineSegments(g.corners, true);      // <-- Four quad edges (selectable frame)
+
             case 'TEXT':
             case 'MTEXT':
             case 'INSERT':
@@ -489,6 +492,15 @@
                 snaps.push({ x: g.cx, y: g.cy, kind: 'center' });
                 break;
 
+            case 'IMAGE': {
+                const c = g.corners || [];
+                c.forEach((v) => snaps.push({ x: v.x, y: v.y, kind: 'endpoint' })); // <-- Corner snaps
+                if (c.length >= 3) {
+                    snaps.push({ x: (c[0].x + c[2].x) / 2, y: (c[0].y + c[2].y) / 2, kind: 'center' });
+                }
+                break;
+            }
+
             case 'TEXT':
             case 'MTEXT':
             case 'INSERT':
@@ -548,6 +560,10 @@
                 if (allVerts.length === 0) return null;
                 return Na__Geom__BoundsFromPoints(allVerts);
             }
+
+            case 'IMAGE':
+                if (!g.corners || g.corners.length === 0) return null;
+                return Na__Geom__BoundsFromPoints(g.corners);            // <-- Envelope of the four image corners
 
             case 'ELLIPSE': {
                 // Approximate with the outer bounding box of rx/ry

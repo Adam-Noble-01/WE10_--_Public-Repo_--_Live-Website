@@ -29,7 +29,8 @@
         "escape"                            : "edit:deselect",
 
         "ctrl+s"                            : "file:save-project",
-        "ctrl+e"                            : "file:export-dxf"
+        "ctrl+e"                            : "file:export-dxf",
+        "ctrl+o"                            : "file:load"
     },
 
     "Controls__Mouse"                       : {

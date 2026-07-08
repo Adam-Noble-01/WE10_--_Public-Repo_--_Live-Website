@@ -62,6 +62,7 @@ import { Na__UI__PropertiesPanel         } from './03__AppModules/02__UI/Na__UI_
 import { Na__UI__StatusBar               } from './03__AppModules/02__UI/Na__UI__StatusBar__.js';
 import { Na__UI__UploadPanel             } from './03__AppModules/02__UI/Na__UI__UploadPanel__.js';
 import { Na__UI__ProgressOverlay         } from './03__AppModules/02__UI/Na__UI__ProgressOverlay__.js';
+import { Na__UI__ProjectManager          } from './03__AppModules/02__UI/Na__UI__ProjectManager__.js';
 import { Na__Navigation__ViewBoxController   } from './03__AppModules/System__Navigation/Na__Navigation__ViewBoxController__.js';
 import { Na__SelectionTools__BoxSelectTool   } from './03__AppModules/System__SelectionTools/Na__SelectionTools__BoxSelectTool__.js';
 import { Na__SelectionTools__LassoSelectTool } from './03__AppModules/System__SelectionTools/Na__SelectionTools__LassoSelectTool__.js';
@@ -146,9 +147,13 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
             }
         });
 
+        // PROJECT MANAGER — Load File modal (saved-project archive table)
+        const projectManager = new Na__UI__ProjectManager(appState, eventBus, entityLoader, progressOverlay);
+
         // HEADER BUTTONS
         Na__App__WireSaveProjectButton(appState, eventBus, exportSerializer);
-        Na__App__WireExportDxfButton(appState, eventBus, exportSerializer);
+        Na__App__WireExportDxfButton(appState, eventBus, exportSerializer, progressOverlay);
+        Na__App__WireLoadFileButton(eventBus, projectManager);
         Na__App__WireDeleteButton(eventBus, selectionManager);
 
         // WINDOWS OPEN-WITH — load a file passed via ?openFile=<absolute path>
@@ -207,42 +212,58 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Wire the Export DXF Button (Browser Download)
+    // HELPER FUNCTION | Wire the Export DXF Button (Native Save-As + Copy)
     // ------------------------------------------------------------
-    function Na__App__WireExportDxfButton(appState, eventBus, exportSerializer) {
+    function Na__App__WireExportDxfButton(appState, eventBus, exportSerializer, progressOverlay) {
         const exportBtn = document.getElementById('Na__Btn__ExportDxf');
+        let   isExporting = false;                                       // <-- Re-entrancy guard
 
         const runExport = async () => {
-            if (!appState.fileLoaded) return;                            // <-- Guard: no file loaded
+            if (!appState.fileLoaded || isExporting) return;             // <-- Guard: no file / already running
+            isExporting = true;
 
             const payload = exportSerializer.Na__ExportSerializer__BuildExportPayload();
 
+            // Progress overlay: animated, staged, non-cancellable (it's quick)
+            progressOverlay.Na__ProgressOverlay__Show(payload.outputFilename, 'Exporting DXF…', { allowCancel: false });
+            progressOverlay.Na__ProgressOverlay__Update({ stage: 'exporting', message: 'Waiting for save location…', percent: null });
+
             try {
-                const response = await fetch('/api/export-dxf', {
+                // 1) NATIVE SAVE-AS DIALOG — user chooses the destination folder/name
+                const pickRes = await fetch('/api/export-pick', {
                     method  : 'POST',
                     headers : { 'Content-Type': 'application/json' },
-                    body    : JSON.stringify(payload),
+                    body    : JSON.stringify({ defaultName: payload.outputFilename }),
                 });
-                if (!response.ok) {
-                    const err = await response.json().catch(() => ({ error: `Server returned ${response.status}` }));
-                    throw new Error(err.error);
+                const pick = await pickRes.json();
+                if (!pickRes.ok) throw new Error(pick.error || `Server returned ${pickRes.status}`);
+
+                if (pick.status === 'cancelled') {                       // <-- User dismissed the dialog
+                    progressOverlay.Na__ProgressOverlay__Hide();
+                    eventBus.emit('status:hint', { text: 'Export cancelled' });
+                    return;
                 }
 
-                const blob = await response.blob();                      // <-- Pruned DXF file content
-                const url  = URL.createObjectURL(blob);
-                const a    = document.createElement('a');
-                a.href     = url;
-                a.download = payload.outputFilename;
-                document.body.appendChild(a);
-                a.click();                                               // <-- Trigger browser download
-                a.remove();
-                URL.revokeObjectURL(url);
+                // 2) WRITE ONCE + COPY — server writes the internal copy, then OS-copies it across
+                progressOverlay.Na__ProgressOverlay__Update({ stage: 'copying', message: 'Writing the DXF and copying it to your chosen folder…', percent: 65 });
+                const writeRes = await fetch('/api/export-write', {
+                    method  : 'POST',
+                    headers : { 'Content-Type': 'application/json' },
+                    body    : JSON.stringify({ ...payload, destPath: pick.destPath }),
+                });
+                const writeOut = await writeRes.json();
+                if (!writeRes.ok) throw new Error(writeOut.error || `Server returned ${writeRes.status}`);
 
-                eventBus.emit('status:hint', { text: `Exported ${payload.outputFilename}` });
+                progressOverlay.Na__ProgressOverlay__Update({ stage: 'done', message: 'Export complete', percent: 100 });
+                await Na__App__Delay(450);                               // <-- Let the 100% state register visually
+                progressOverlay.Na__ProgressOverlay__Hide();
+                eventBus.emit('status:hint', { text: `Exported to ${writeOut.destPath}` });
 
             } catch (err) {
                 console.error('[Na__App__Main] Export failed:', err);
-                alert(`Export failed: ${err.message}`);
+                progressOverlay.Na__ProgressOverlay__ShowError(`Export failed: ${err.message}`);
+            } finally {
+                isExporting = false;
             }
         };
 
@@ -250,6 +271,27 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
         eventBus.on('hotkey:file:export-dxf', runExport);                // <-- Ctrl+E from keybindings JSON
         eventBus.on('file:loaded', () => { if (exportBtn) exportBtn.disabled = false; });
         eventBus.on('file:cleared', () => { if (exportBtn) exportBtn.disabled = true; });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Wire the Load File Button (Open Project Manager)
+    // ------------------------------------------------------------
+    function Na__App__WireLoadFileButton(eventBus, projectManager) {
+        const loadBtn = document.getElementById('Na__Btn__LoadFile');
+
+        const openManager = () => projectManager.Na__ProjectManager__Open();
+
+        if (loadBtn) loadBtn.addEventListener('click', openManager);
+        eventBus.on('hotkey:file:load', openManager);                    // <-- Ctrl+O from keybindings JSON
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Await a Fixed Delay (ms)
+    // ------------------------------------------------------------
+    function Na__App__Delay(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));       // <-- Small pauses for progress UX beats
     }
     // ------------------------------------------------------------
 

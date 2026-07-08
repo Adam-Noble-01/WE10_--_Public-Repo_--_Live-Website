@@ -53,6 +53,7 @@
 
 import os
 import time
+import shutil
 import threading
 
 try:
@@ -63,17 +64,23 @@ except ImportError:
 from Na__LocalServer__AppSetup__      import app                                        # <-- Flask app instance from AppSetup
 from Na__LocalServer__Config__        import ALLOWED_EXTENSIONS                         # <-- Valid file extensions
 from Na__LocalServer__DwgConversion__ import na_convert_dwg_to_dxf                      # <-- DWG → DXF converter
-from Na__LocalServer__DxfEngine__     import na_parse_dxf_to_entity_json, na_prune_and_save_dxf  # <-- DXF parse and save
+from Na__LocalServer__DxfEngine__     import (
+    na_parse_dxf_to_entity_json,                                                         # <-- Non-interactive DXF parse
+    na_parse_dxf_with_image_decision,                                                    # <-- Parse with embedded-image prompt hook
+    na_prune_and_save_dxf,                                                               # <-- Prune-and-save
+)
 from Na__LocalServer__ProjectCache__  import (
     na_save_upload_to_temp_cache,                                                        # <-- Cache path helpers
     na_get_save_path,
     na_get_project_version_paths,
     na_list_saved_projects,
+    na_open_project_working_copy,                                                        # <-- Load a saved project
     na_write_hot_cache_state,
     na_sanitise_filename,
     na_create_working_backup,                                                            # <-- Hard-delete backup/restore
     na_restore_working_backup,
 )
+from Na__LocalServer__NativeDialogs__  import na_pick_save_path                          # <-- Native OS Save-As picker
 from Na__LocalServer__JobManager__    import (
     na_create_job,                                                                       # <-- Background job registry
     na_update_job,
@@ -83,6 +90,9 @@ from Na__LocalServer__JobManager__    import (
     na_get_cancel_event,
     na_is_cancelled,
     na_get_job_public,
+    na_request_decision,                                                                  # <-- Pause a job to ask the user
+    na_provide_decision,                                                                  # <-- Deliver the user's answer
+    na_wait_for_decision,                                                                 # <-- Block the worker for the answer
 )
 
 
@@ -96,7 +106,7 @@ def na_route_health():
     return jsonify({
         'status'  : 'ok',
         'app'     : 'Noble CAD Audit Tools',
-        'version' : '0.3.0',
+        'version' : '0.4.0',
     })
 
 # endregion -------------------------------------------------------------------
@@ -106,7 +116,8 @@ def na_route_health():
 # REGION | Shared File-Load Pipeline
 # -----------------------------------------------------------------------------
 
-def na_load_cad_file_to_entity_json(file_path, display_filename, progress_cb=None, cancel_event=None):
+def na_load_cad_file_to_entity_json(file_path, display_filename, progress_cb=None, cancel_event=None,
+                                    decision_cb=None, image_action='keep'):
     """
     Shared pipeline: DWG conversion (if needed) → DXF parse → entity JSON.
 
@@ -116,6 +127,10 @@ def na_load_cad_file_to_entity_json(file_path, display_filename, progress_cb=Non
         progress_cb      (func) : Optional callback(stage, message, percent) for
                                   live progress reporting to a background job.
         cancel_event            : Optional threading.Event signalling cancellation.
+        decision_cb      (func) : Optional callback(images)->'keep'|'purge'|None used
+                                  when the DXF contains raster images. None = cancel.
+        image_action     (str)  : Default action when no decision_cb is supplied
+                                  ('keep' renders images; 'purge' strips them).
 
     Returns:
         tuple(dict | None, str, int): (payload, error message, http status).
@@ -140,7 +155,11 @@ def na_load_cad_file_to_entity_json(file_path, display_filename, progress_cb=Non
         return None, '__cancelled__', 499                               # <-- Bail before the expensive parse
 
     report('parsing', 'Parsing DXF entities…', None)
-    entity_data = na_parse_dxf_to_entity_json(file_path)                # <-- dict with entities, layers, counts
+    entity_data, parse_status = na_parse_dxf_with_image_decision(       # <-- Resilient parse + image prompt hook
+        file_path, decision_cb=decision_cb, default_action=image_action
+    )
+    if parse_status == 'cancelled':
+        return None, '__cancelled__', 499                               # <-- User declined at the image prompt
 
     entity_data['filename'] = display_filename                          # <-- Source filename for UI display
     entity_data['tempPath'] = file_path                                 # <-- Working DXF path for save/export
@@ -159,13 +178,27 @@ def _na_run_upload_job(job_id, temp_path, display_filename):
     def progress(stage, message, percent=None):
         na_update_job(job_id, stage=stage, message=message, percent=percent)
 
+    def decision(images):
+        # Pause the job and let the frontend choose how to handle embedded images.
+        na_request_decision(job_id, 'image-decision', {
+            'imageCount' : len(images),
+            'images'     : images[:20],                                 # <-- Cap the payload for huge files
+        })
+        return na_wait_for_decision(job_id, cancel_event)               # <-- 'keep' | 'purge' | None (cancel/timeout)
+
     try:
         payload, error, _status = na_load_cad_file_to_entity_json(
-            temp_path, display_filename, progress_cb=progress, cancel_event=cancel_event
+            temp_path, display_filename, progress_cb=progress,
+            cancel_event=cancel_event, decision_cb=decision
         )
 
         if na_is_cancelled(job_id) or error == '__cancelled__':
-            return                                                      # <-- Job already flagged cancelled
+            # A '__cancelled__' with no user cancel flagged means the image
+            # decision timed out — surface that instead of hanging on the poll.
+            if error == '__cancelled__' and not na_is_cancelled(job_id):
+                na_fail_job(job_id, 'Timed out waiting for your choice about embedded images. '
+                                    'Please load the file again.')
+            return                                                      # <-- Otherwise the user cancelled — stay quiet
 
         if payload is None:
             na_fail_job(job_id, error)
@@ -260,6 +293,32 @@ def na_route_upload_cancel(job_id):
     if na_cancel_job(job_id):
         return jsonify({'status': 'cancelled', 'jobId': job_id})
     return jsonify({'error': 'Unknown or expired job'}), 404
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
+# REGION | Upload Decision Route — Answer a Mid-Job Prompt (Embedded Images)
+# -----------------------------------------------------------------------------
+
+@app.route('/api/upload-decision/<job_id>', methods=['POST'])
+def na_route_upload_decision(job_id):
+    """
+    Deliver the user's answer to a paused upload job that is 'awaiting-decision'.
+    Currently used for the embedded-image prompt.
+
+    Expects JSON body: { action: 'keep' | 'purge' }
+    Returns: { status: 'accepted', action } on success.
+    """
+    payload = request.get_json(silent=True) or {}
+    action  = payload.get('action')
+
+    if action not in ('keep', 'purge'):
+        return jsonify({'error': 'action must be "keep" or "purge"'}), 400
+
+    if na_provide_decision(job_id, action):
+        return jsonify({'status': 'accepted', 'action': action, 'jobId': job_id})
+    return jsonify({'error': 'Unknown or expired job, or it is not awaiting a decision'}), 404
 
 # endregion -------------------------------------------------------------------
 
@@ -463,6 +522,137 @@ def na_route_export_dxf():
     except Exception as err:
         print(f"[Na__ApiRoutes] Error during export: {err}")
         return jsonify({'error': f'Export failed: {str(err)}'}), 500
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
+# REGION | Export-to-Folder Route — Native Save-As Picker + Write-Once + Copy
+# -----------------------------------------------------------------------------
+
+@app.route('/api/export-pick', methods=['POST'])
+def na_route_export_pick():
+    """
+    Open the native OS "Save As" file explorer so the user picks where the
+    exported DXF should go. Returns the chosen absolute path, or a cancelled
+    status if the dialog was dismissed.
+
+    Expects JSON body: { defaultName }
+    Returns: { status: 'picked', destPath } | { status: 'cancelled' }
+    """
+    payload      = request.get_json(silent=True) or {}
+    default_name = na_sanitise_filename(payload.get('defaultName', 'drawing__export.dxf'))
+
+    try:
+        chosen = na_pick_save_path(default_name=default_name, title='Export DXF As')
+        if not chosen:
+            return jsonify({'status': 'cancelled'})
+        return jsonify({'status': 'picked', 'destPath': chosen})
+
+    except Exception as err:
+        print(f"[Na__ApiRoutes] Error opening save dialog: {err}")
+        return jsonify({'error': f'Could not open save dialog: {str(err)}'}), 500
+
+
+@app.route('/api/export-write', methods=['POST'])
+def na_route_export_write():
+    """
+    Write the pruned DXF ONCE to the internal export cache (the app's own working
+    copy), then OS-copy that single file to the user's chosen destination — so
+    the geometry is only serialised once and simply copied to its final home.
+
+    Expects JSON body: { tempDxfPath, deletedHandles[], outputFilename, destPath }
+    Returns: { status: 'exported', savedPath, destPath }
+    """
+    payload = request.get_json(silent=True)
+
+    if not payload:
+        return jsonify({'error': 'Request body must be JSON'}), 400
+
+    temp_dxf_path   = payload.get('tempDxfPath')
+    deleted_handles = payload.get('deletedHandles', [])
+    dest_path       = payload.get('destPath')
+    output_filename = na_sanitise_filename(payload.get('outputFilename', 'drawing__export.dxf'))
+
+    if not temp_dxf_path:
+        return jsonify({'error': 'tempDxfPath is required'}), 400
+    if not dest_path:
+        return jsonify({'error': 'destPath is required'}), 400
+    if not os.path.isfile(temp_dxf_path):
+        return jsonify({'error': f'Source DXF not found at: {temp_dxf_path}'}), 404
+
+    try:
+        # WRITE ONCE — internal export copy the app keeps alongside the working DXF
+        export_path = temp_dxf_path.rsplit('.', 1)[0] + '__export.dxf'
+        na_prune_and_save_dxf(temp_dxf_path, deleted_handles, export_path)
+
+        # COPY — hand the single written file to the user's chosen location
+        dest_dir = os.path.dirname(dest_path)
+        if dest_dir:
+            os.makedirs(dest_dir, exist_ok=True)
+        shutil.copy2(export_path, dest_path)                            # <-- OS copy, no second serialise
+
+        print(f"[Na__ApiRoutes] Exported DXF -> {dest_path}")
+        return jsonify({
+            'status'    : 'exported',
+            'savedPath' : export_path,
+            'destPath'  : dest_path,
+            'pruned'    : len(deleted_handles),
+        })
+
+    except Exception as err:
+        print(f"[Na__ApiRoutes] Error during export-write: {err}")
+        return jsonify({'error': f'Export failed: {str(err)}'}), 500
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
+# REGION | Open-Project Route — Load a Saved Project as a Fresh Working Copy
+# -----------------------------------------------------------------------------
+
+@app.route('/api/open-project', methods=['POST'])
+def na_route_open_project():
+    """
+    Open a saved project version. The archived DXF is copied into the temp cache
+    as a fresh working file (so later edits never mutate the archive), then parsed
+    to entity JSON. The sidecar metadata (dimensions, project name) rides along so
+    the frontend can restore annotations.
+
+    Expects JSON body: { project, version }
+    Returns: entity JSON + { projectName, version, dimensions }
+    """
+    payload = request.get_json(silent=True)
+
+    if not payload:
+        return jsonify({'error': 'Request body must be JSON'}), 400
+
+    project_name  = payload.get('project')
+    version_label = payload.get('version')
+
+    if not project_name or not version_label:
+        return jsonify({'error': 'project and version are required'}), 400
+
+    opened = na_open_project_working_copy(project_name, version_label)
+    if opened is None:
+        return jsonify({'error': f'Saved project not found: {project_name} {version_label}'}), 404
+
+    try:
+        payload_out, error, status = na_load_cad_file_to_entity_json(
+            opened['workingPath'], opened['filename']
+        )
+        if payload_out is None:
+            return jsonify({'error': error}), status
+
+        metadata = opened.get('metadata', {}) or {}
+        payload_out['projectName'] = metadata.get('projectName', project_name)  # <-- For the file chip / re-save
+        payload_out['version']     = metadata.get('version', version_label)
+        payload_out['dimensions']  = metadata.get('dimensions', [])             # <-- Frontend restores annotations
+        return jsonify(payload_out)
+
+    except Exception as err:
+        print(f"[Na__ApiRoutes] Error during open-project: {err}")
+        return jsonify({'error': f'Open project failed: {str(err)}'}), 500
 
 # endregion -------------------------------------------------------------------
 

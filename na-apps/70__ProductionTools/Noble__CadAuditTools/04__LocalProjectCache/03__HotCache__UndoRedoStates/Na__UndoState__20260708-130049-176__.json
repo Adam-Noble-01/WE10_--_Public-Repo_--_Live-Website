@@ -1,0 +1,22 @@
+{
+  "fileName": "CAD ingles__audited__SchemeOnly__StrippedDown__.dwg",
+  "tempDxfPath": "D:\\11_RefLib__StudioRepository__RemoteSystem\\NaWeb\\na-apps\\70__ProductionTools\\Noble__CadAuditTools\\04__LocalProjectCache\\01__TempCache__DwgToDxfConversions\\CAD ingles__audited__SchemeOnly__StrippedDown__.dxf",
+  "deletedHandles": [],
+  "dimensions": [
+    {
+      "type": "linear",
+      "p1": {
+        "x": -556.6307686299609,
+        "y": 3464.232574154342
+      },
+      "p2": {
+        "x": 5955.369231370039,
+        "y": 5887.185688595263
+      },
+      "axis": "h",
+      "linePos": 2751.749436127605,
+      "id": "dim-1"
+    }
+  ],
+  "undoDepth": 1
+}

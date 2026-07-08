@@ -208,6 +208,9 @@
                 'parsing'    : 'Parsing entities…',
                 'finalising' : 'Finalising…',
                 'rendering'  : 'Rendering drawing…',
+                'exporting'  : 'Exporting DXF…',
+                'copying'    : 'Copying to destination…',
+                'loading'    : 'Loading project…',
                 'done'       : 'Complete',
             };
             return titles[stage] || 'Processing…';

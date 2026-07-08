@@ -114,6 +114,13 @@
             // FIT VIEW TO DRAWING
             this._eventBus.emit('view:fit');                             // <-- Fit canvas to loaded drawing bounds
 
+            // EMBEDDED-IMAGE OUTCOME HINT — status feedback for purge/keep choice
+            if (data.imagesPurged > 0) {
+                this._eventBus.emit('status:hint', { text: `${data.imagesPurged} embedded image(s) purged before load` });
+            } else if (data.imagesKept > 0) {
+                this._eventBus.emit('status:hint', { text: `${data.imagesKept} embedded image(s) kept and rendered` });
+            }
+
             console.log(`[Na__EntityLoader] Load complete — ${data.entities.length} entities, ${layersMap.size} layers`);
         }
         // ------------------------------------------------------------

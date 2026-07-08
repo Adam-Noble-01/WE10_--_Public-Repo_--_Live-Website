@@ -154,10 +154,14 @@ def na_get_project_version_paths(project_name):
 
 def na_list_saved_projects():
     """
-    Enumerate saved projects and their versions.
+    Enumerate saved projects and their versions, enriched with metadata read
+    from each version's JSON sidecar (saved date, source file, deleted count).
 
     Returns:
-        list[dict]: [ { name, versions: [ { label, dxfFile, jsonFile } ] } ]
+        list[dict]: [ { name, versions: [ {
+            label, dxfFile, jsonFile, dxfPath, savedAt, sourceFilename,
+            deletedCount, dimensionCount
+        } ] } ]  — versions sorted newest-first.
     """
     save_dir = _resolve_save_dir()
     if not os.path.isdir(save_dir):
@@ -175,18 +179,118 @@ def na_list_saved_projects():
             if not match:
                 continue
             label = f"v{int(match.group(1)):03d}"
-            slot  = versions.setdefault(label, {'label': label, 'dxfFile': None, 'jsonFile': None})
+            slot  = versions.setdefault(label, {
+                'label'    : label,
+                'number'   : int(match.group(1)),
+                'dxfFile'  : None,
+                'jsonFile' : None,
+                'dxfPath'  : None,
+            })
+            full_path = os.path.join(project_dir, filename)
             if filename.lower().endswith('.dxf'):
                 slot['dxfFile'] = filename
+                slot['dxfPath'] = full_path
             elif filename.lower().endswith('.json'):
                 slot['jsonFile'] = filename
 
+        # Enrich each version with sidecar metadata
+        for slot in versions.values():
+            meta = _read_version_metadata(project_dir, slot['jsonFile'])
+            slot['savedAt']        = meta.get('savedAt', '')
+            slot['sourceFilename'] = meta.get('sourceFilename', '')
+            slot['deletedCount']   = meta.get('deletedCount', 0)
+            slot['dimensionCount'] = len(meta.get('dimensions', []) or [])
+
+        version_list = sorted(versions.values(), key=lambda v: v['number'], reverse=True)  # <-- Newest first
+
         projects.append({
-            'name'     : entry,
-            'versions' : list(versions.values()),
+            'name'         : entry,
+            'versionCount' : len(version_list),
+            'versions'     : version_list,
         })
 
     return projects
+
+
+def na_resolve_project_version_dxf(project_name, version_label):
+    """
+    Resolve the absolute DXF path for a specific saved project version,
+    guarding against path traversal (result must live under the save dir).
+
+    Args:
+        project_name  (str): Saved project folder name.
+        version_label (str): Version label, e.g. 'v003' (or bare '3').
+
+    Returns:
+        str | None: Absolute DXF path if it exists inside the save dir, else None.
+    """
+    save_dir     = _resolve_save_dir()
+    safe_project = na_sanitise_project_name(project_name)
+    project_dir  = os.path.join(save_dir, safe_project)
+
+    if not os.path.isdir(project_dir):
+        return None
+
+    match = re.search(r'(\d+)', str(version_label or ''))               # <-- Accept 'v003', '003', or '3'
+    if not match:
+        return None
+    number = int(match.group(1))
+
+    for filename in os.listdir(project_dir):
+        m = _VERSION_PATTERN.search(filename)
+        if m and int(m.group(1)) == number and filename.lower().endswith('.dxf'):
+            candidate = os.path.abspath(os.path.join(project_dir, filename))
+            if candidate.startswith(os.path.abspath(save_dir) + os.sep):  # <-- Traversal guard
+                return candidate
+    return None
+
+
+def na_open_project_working_copy(project_name, version_label):
+    """
+    Copy a saved project version's DXF into the temp cache as a FRESH working
+    file, so edits made after opening a project never mutate the archived
+    version. Also returns the sidecar metadata (dimensions to restore, etc.).
+
+    Args:
+        project_name  (str): Saved project folder name.
+        version_label (str): Version label, e.g. 'v003'.
+
+    Returns:
+        dict | None: { workingPath, filename, metadata } or None if not found.
+    """
+    dxf_path = na_resolve_project_version_dxf(project_name, version_label)
+    if not dxf_path:
+        return None
+
+    safe_project = na_sanitise_project_name(project_name)
+    match        = re.search(r'(\d+)', str(version_label or ''))
+    label        = f"v{int(match.group(1)):03d}" if match else 'v001'
+    filename     = f"{safe_project}__{label}.dxf"                        # <-- Display + working file name
+
+    cache_dir    = _resolve_temp_cache_dir()
+    os.makedirs(cache_dir, exist_ok=True)
+    working_path = os.path.join(cache_dir, filename)
+
+    shutil.copy2(dxf_path, working_path)                                # <-- Fresh working copy — archive stays intact
+    print(f"[Na__ProjectCache] Opened project working copy: {filename}")
+
+    # Load the sidecar metadata (dimensions to restore on the frontend)
+    project_dir = os.path.dirname(dxf_path)
+    json_name   = os.path.splitext(os.path.basename(dxf_path))[0] + '.json'
+    metadata    = _read_version_metadata(project_dir, json_name)
+
+    return {'workingPath': working_path, 'filename': filename, 'metadata': metadata}
+
+
+def _read_version_metadata(project_dir, json_filename):
+    """Read a version's JSON sidecar, returning {} on any error."""
+    if not json_filename:
+        return {}
+    try:
+        with open(os.path.join(project_dir, json_filename), 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return {}
 
 # endregion -------------------------------------------------------------------
 

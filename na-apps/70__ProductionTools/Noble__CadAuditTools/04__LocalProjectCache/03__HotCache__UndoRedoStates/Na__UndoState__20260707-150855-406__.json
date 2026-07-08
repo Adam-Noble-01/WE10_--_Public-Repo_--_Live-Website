@@ -1,0 +1,51 @@
+{
+  "fileName": "CAD__Test__StandardBuilding__0.1.0.__.dxf",
+  "tempDxfPath": "D:\\11_RefLib__StudioRepository__RemoteSystem\\NaWeb\\na-apps\\70__ProductionTools\\Noble__CadAuditTools\\04__LocalProjectCache\\01__TempCache__DwgToDxfConversions\\CAD__Test__StandardBuilding__0.1.0.__.dxf",
+  "deletedHandles": [
+    "670"
+  ],
+  "dimensions": [
+    {
+      "type": "linear",
+      "p1": {
+        "x": 2749.921219606457,
+        "y": 820.3650150569614
+      },
+      "p2": {
+        "x": 4734.403219606536,
+        "y": 820.3650150569614
+      },
+      "axis": "h",
+      "linePos": 293.0535666763635,
+      "id": "dim-1"
+    },
+    {
+      "type": "linear",
+      "p1": {
+        "x": 4734.403219606536,
+        "y": 820.3650150569614
+      },
+      "p2": {
+        "x": 4728.88521960657,
+        "y": 2010.365015056962
+      },
+      "axis": "v",
+      "linePos": 5089.006136560164,
+      "id": "dim-2"
+    },
+    {
+      "type": "aligned",
+      "p1": {
+        "x": -4716.301096392026,
+        "y": 1540.501322128221
+      },
+      "p2": {
+        "x": -2795.783096392073,
+        "y": 600.7876382118559
+      },
+      "offset": 1467.9035627416947,
+      "id": "dim-3"
+    }
+  ],
+  "undoDepth": 4
+}

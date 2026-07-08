@@ -22,6 +22,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 08-Jul-2026 - Version 0.4.0
+// - Embedded-image prompt: when the server pauses a job at 'awaiting-decision'
+//   (the DXF contains raster images) the poller raises a modal asking whether to
+//   Purge & Load, Keep Images, or Cancel, then POSTs the choice to
+//   /api/upload-decision/<jobId> and resumes polling.
+//
 // 07-Jul-2026 - Version 0.3.1
 // - Reworked upload to a background-job model: XHR upload with live upload %,
 //   then polls /api/upload-status for server-side convert/parse progress via
@@ -51,10 +57,18 @@
             this._fileInputEl = document.getElementById('Na__Upload__FileInput');
             this._browseBtnEl = document.getElementById('Na__Upload__BrowseBtn');
 
+            // EMBEDDED-IMAGE DECISION MODAL
+            this._imgOverlayEl = document.getElementById('Na__App__ImageDecisionOverlay');
+            this._imgCountEl   = document.getElementById('Na__ImageDecision__Count');
+            this._imgKeepBtn   = document.getElementById('Na__ImageDecision__KeepBtn');
+            this._imgPurgeBtn  = document.getElementById('Na__ImageDecision__PurgeBtn');
+            this._imgCancelBtn = document.getElementById('Na__ImageDecision__CancelBtn');
+
             // ACTIVE-JOB STATE — tracks the in-flight upload for cancellation
-            this._activeXhr   = null;                                // <-- Current upload XHR (abortable)
-            this._activeJobId = null;                                // <-- Server job id being polled
-            this._cancelled   = false;                               // <-- True once the user cancels
+            this._activeXhr    = null;                               // <-- Current upload XHR (abortable)
+            this._activeJobId  = null;                               // <-- Server job id being polled
+            this._cancelled    = false;                              // <-- True once the user cancels
+            this._decisionOpen = false;                             // <-- Guards against a duplicate image prompt
 
             if (this._overlayEl) {
                 this._bindDragDropHandlers();
@@ -252,6 +266,17 @@
                     percent : job.percent,
                 });
 
+                if (job.status === 'awaiting-decision') {
+                    const action = await this._promptImageDecision(job.meta?.imageCount || 0);
+                    if (this._cancelled) return;
+                    if (action === 'cancel') {
+                        this._cancelActiveJob();                               // <-- Abort the paused job on the server
+                        return;
+                    }
+                    await this._sendImageDecision(jobId, action);             // <-- POST keep/purge → server resumes
+                    continue;                                                  // <-- Keep polling for the result
+                }
+
                 if (job.status === 'done') {
                     await this._finishLoad(job.result);                        // <-- Render + hide overlay
                     return;
@@ -309,6 +334,87 @@
         // ------------------------------------------------------------
         _sleep(ms) {
             return new Promise((resolve) => window.setTimeout(resolve, ms));
+        }
+        // ------------------------------------------------------------
+
+
+        // SUB FUNCTION | Prompt the User to Purge or Keep Embedded Images
+        // ------------------------------------------------------------
+        _promptImageDecision(imageCount) {
+            return new Promise((resolve) => {
+                if (this._decisionOpen || !this._imgOverlayEl) {
+                    resolve('cancel');                                    // <-- Guard: no modal / already open
+                    return;
+                }
+                this._decisionOpen = true;
+                this._showImageDecision(imageCount);
+
+                const cleanup = () => {
+                    this._imgKeepBtn?.removeEventListener('click', onKeep);
+                    this._imgPurgeBtn?.removeEventListener('click', onPurge);
+                    this._imgCancelBtn?.removeEventListener('click', onCancel);
+                    document.removeEventListener('keydown', onKey, true);
+                    this._hideImageDecision();
+                    this._decisionOpen = false;
+                };
+                const finish   = (choice) => { cleanup(); resolve(choice); };
+                const onKeep    = () => finish('keep');
+                const onPurge   = () => finish('purge');
+                const onCancel  = () => finish('cancel');
+                const onKey     = (e) => {
+                    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); onCancel(); }
+                };
+
+                this._imgKeepBtn?.addEventListener('click', onKeep);
+                this._imgPurgeBtn?.addEventListener('click', onPurge);
+                this._imgCancelBtn?.addEventListener('click', onCancel);
+                document.addEventListener('keydown', onKey, true);        // <-- Capture Esc before global hotkeys
+            });
+        }
+        // ------------------------------------------------------------
+
+
+        // SUB FUNCTION | POST the User's Image Decision and Resume the Job
+        // ------------------------------------------------------------
+        async _sendImageDecision(jobId, action) {
+            const response = await fetch(`/api/upload-decision/${jobId}`, {
+                method  : 'POST',
+                headers : { 'Content-Type': 'application/json' },
+                body    : JSON.stringify({ action }),
+            });
+            if (!response.ok) {
+                let msg = `Server returned ${response.status}`;
+                try { const body = await response.json(); if (body.error) msg = body.error; } catch { /* keep default */ }
+                throw new Error(msg);
+            }
+            this._progressOverlay.Na__ProgressOverlay__Update({
+                stage   : 'parsing',
+                message : action === 'purge' ? 'Purging images and parsing…' : 'Parsing entities (keeping images)…',
+                percent : null,
+            });
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Show the Image Decision Modal
+        // ------------------------------------------------------------
+        _showImageDecision(imageCount) {
+            if (this._imgCountEl) this._imgCountEl.textContent = String(imageCount || 0);
+            if (this._imgOverlayEl) {
+                this._imgOverlayEl.classList.add('is-visible');
+                this._imgOverlayEl.setAttribute('aria-hidden', 'false');
+            }
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Hide the Image Decision Modal
+        // ------------------------------------------------------------
+        _hideImageDecision() {
+            if (this._imgOverlayEl) {
+                this._imgOverlayEl.classList.remove('is-visible');
+                this._imgOverlayEl.setAttribute('aria-hidden', 'true');
+            }
         }
         // ------------------------------------------------------------
 

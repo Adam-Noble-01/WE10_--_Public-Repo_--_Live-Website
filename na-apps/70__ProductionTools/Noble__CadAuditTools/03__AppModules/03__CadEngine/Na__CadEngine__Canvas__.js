@@ -417,6 +417,7 @@ const _SVG_NS  = 'http://www.w3.org/2000/svg';                         // <-- SV
             case 'MTEXT':      return Na__CadRender__Text(entity);
             case 'INSERT':     return Na__CadRender__Insert(entity);
             case 'POINT':      return Na__CadRender__Point(entity);
+            case 'IMAGE':      return Na__CadRender__Image(entity);
             default:           return null;
         }
     }
@@ -654,6 +655,67 @@ const _SVG_NS  = 'http://www.w3.org/2000/svg';                         // <-- SV
         el.setAttribute('fill',   entity.hexColor || '#e2e2e8');
         el.setAttribute('stroke', 'none');
         return el;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Render IMAGE Entity — Raster When Available, Else a Frame
+    // ------------------------------------------------------------
+    function Na__CadRender__Image(entity) {
+        const g = entity.geometry;
+        const c = g && g.corners;
+        if (!c || c.length < 4) return null;
+
+        const [p0, p1, p2, p3] = c;                                     // <-- LL, LR, UR, UL (model space)
+
+        // KEPT RASTER — map the unit image box onto the model quad via an affine
+        // matrix (raster top-left → P3, top-right → P2, bottom-left → P0). This
+        // reproduces the DXF rotation/scale and keeps the picture upright inside
+        // the parent flip group without a separate local flip.
+        if (g.present && g.href) {
+            const a  = p2.x - p3.x, b = p2.y - p3.y;                    // <-- Image X axis in model space
+            const cX = p0.x - p3.x, d = p0.y - p3.y;                    // <-- Image Y axis in model space
+            const el = document.createElementNS(_SVG_NS, 'image');
+            el.setAttributeNS('http://www.w3.org/1999/xlink', 'href', g.href); // <-- Legacy UA fallback
+            el.setAttribute('href',   g.href);
+            el.setAttribute('x',      0);
+            el.setAttribute('y',      0);
+            el.setAttribute('width',  1);
+            el.setAttribute('height', 1);
+            el.setAttribute('preserveAspectRatio', 'none');            // <-- Quad already encodes true aspect
+            el.setAttribute('transform', `matrix(${a} ${b} ${cX} ${d} ${p3.x} ${p3.y})`);
+            return el;
+        }
+
+        // MISSING RASTER — dashed placeholder frame + centred filename label so the
+        // image's position and extent stay visible and selectable.
+        const groupEl = document.createElementNS(_SVG_NS, 'g');
+        const frame   = document.createElementNS(_SVG_NS, 'polygon');
+        frame.setAttribute('points', c.map(v => `${v.x},${v.y}`).join(' '));
+        frame.setAttribute('fill',           entity.hexColor || '#a78bfa');
+        frame.setAttribute('fill-opacity',   '0.06');
+        frame.setAttribute('stroke',         entity.hexColor || '#a78bfa');
+        frame.setAttribute('stroke-width',   '1');
+        frame.setAttribute('stroke-dasharray', '5 4');
+        frame.setAttribute('vector-effect',  'non-scaling-stroke');
+        groupEl.appendChild(frame);
+
+        const cx    = (p0.x + p2.x) / 2;                                // <-- Quad centroid
+        const cy    = (p0.y + p2.y) / 2;
+        const span  = Math.min(g.widthUnits || 0, g.heightUnits || 0) || 10;
+        const label = document.createElementNS(_SVG_NS, 'text');
+        label.setAttribute('transform', `translate(${cx},${cy}) scale(1,-1)`); // <-- Local un-flip for upright text
+        label.setAttribute('x', 0);
+        label.setAttribute('y', 0);
+        label.setAttribute('font-size',        Math.max(0.5, span * 0.1));
+        label.setAttribute('fill',             entity.hexColor || '#a78bfa');
+        label.setAttribute('stroke',           'none');
+        label.setAttribute('text-anchor',      'middle');
+        label.setAttribute('dominant-baseline','middle');
+        label.setAttribute('font-family',      'Segoe UI, system-ui, sans-serif');
+        label.textContent = `⊞ ${g.name || 'image'}`;
+        groupEl.appendChild(label);
+        return groupEl;
     }
     // ------------------------------------------------------------
 

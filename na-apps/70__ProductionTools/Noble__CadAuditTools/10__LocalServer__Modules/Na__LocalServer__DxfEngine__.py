@@ -39,6 +39,16 @@
 # -----------------------------------------------------------------------------
 #
 # DEVELOPMENT LOG:
+# 08-Jul-2026 - Version 0.4.0
+# - RESILIENT READ: na_read_dxf_document() tries the strict loader, then falls
+#   back to ezdxf.recover for files other apps produced (embedded images, minor
+#   structural quirks) that previously threw and rendered an EMPTY canvas.
+# - EMBEDDED IMAGES: na_scan_doc_for_images / na_strip_images_from_doc plus a new
+#   na_parse_dxf_with_image_decision(decision_cb, default_action) flow. On detect,
+#   the caller can prompt the user to PURGE the images (removed + working file
+#   re-saved) or KEEP them (IMAGE entities serialised to a corner quad + pixel
+#   data URI, or a labelled placeholder frame when the raster is unavailable).
+#
 # 07-Jul-2026 - Version 0.3.0
 # - INSERT block references exploded to real geometry (recursive, capped).
 # - Added HATCH (boundary paths) and SOLID serialisation.
@@ -58,6 +68,8 @@
 
 import os
 import math
+import base64
+import mimetypes
 
 try:
     import ezdxf
@@ -65,6 +77,10 @@ try:
 except ImportError:
     _EZDXF_AVAILABLE = False
     print("[Na__DxfEngine] WARNING: ezdxf is not installed. Run: pip install ezdxf")
+
+# Cap for embedding a referenced raster image as a base64 data URI (keep path).
+# Larger images fall back to a labelled placeholder frame so the payload stays sane.
+_IMAGE_EMBED_MAX_BYTES = 12 * 1024 * 1024                                # <-- 12 MB per image ceiling
 
 
 # #region ---------------------------------------------------------------------
@@ -154,76 +170,332 @@ _ACI_FALLBACK = '#a0a0a0'                                               # <-- Fa
 
 
 # #region ---------------------------------------------------------------------
-# REGION | DXF Parsing — DXF File to Entity JSON
+# REGION | Resilient Document Reader
 # -----------------------------------------------------------------------------
 
-def na_parse_dxf_to_entity_json(dxf_path):
+def na_read_dxf_document(dxf_path):
     """
-    Parse a DXF file and return a dict of entities and layer metadata.
+    Open a DXF resiliently.
+
+    ezdxf.readfile() is strict — it raises DXFStructureError on files that other
+    applications produce with minor structural quirks (a very common trait of
+    drawings that carry raster IMAGE / IMAGEDEF data). That exception used to be
+    swallowed into an empty response, so the canvas loaded blank. Here we fall
+    back to ezdxf.recover, the tolerant loader built exactly for foreign files.
 
     Args:
         dxf_path (str): Absolute path to a DXF file.
 
     Returns:
-        dict: {
-            entityCount : int,
-            layers      : { layerName: { color: str, hexColor: str, entityCount: int, visible: bool } },
-            entities    : [ { handle, type, layer, color, hexColor, linetype, geometry }, ... ]
+        ezdxf.document.Drawing
+
+    Raises:
+        Exception if even the recover loader cannot open the file.
+    """
+    try:
+        return ezdxf.readfile(dxf_path)                                 # <-- Fast path for well-formed files
+    except Exception as strict_err:
+        print(f"[Na__DxfEngine] Strict read failed ({strict_err}); retrying in recover mode…")
+        from ezdxf import recover
+        doc, auditor = recover.readfile(dxf_path)                       # <-- Tolerant loader for foreign DXF
+        if auditor.has_errors:
+            print(f"[Na__DxfEngine] Recover salvaged the file with {len(auditor.errors)} unresolved error(s)")
+        return doc
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
+# REGION | Embedded Image Detection, Purge, and Serialisation
+# -----------------------------------------------------------------------------
+
+def na_scan_doc_for_images(doc):
+    """
+    Return a lightweight list of the raster IMAGE entities in modelspace.
+
+    Returns:
+        list[dict]: [ { handle: str, name: str }, ... ]  (empty if none)
+    """
+    images = []
+    try:
+        for img in doc.modelspace().query('IMAGE'):
+            name = ''
+            try:
+                idef = img.image_def
+                if idef is not None:
+                    name = os.path.basename((idef.dxf.get('filename', '') or '').replace('\\', '/'))
+            except Exception:
+                name = ''
+            images.append({'handle': img.dxf.handle, 'name': name or 'image'})
+    except Exception as err:
+        print(f"[Na__DxfEngine] Image scan error: {err}")
+    return images
+
+
+def na_strip_images_from_doc(doc):
+    """
+    Delete every raster IMAGE entity from modelspace (the PURGE choice).
+
+    Orphaned IMAGEDEF objects are intentionally left in the OBJECTS table —
+    removing them by hand risks leaving dangling reactors and an invalid file;
+    they are harmless and cost nothing once no IMAGE references them.
+
+    Returns:
+        int: number of IMAGE entities removed.
+    """
+    msp    = doc.modelspace()
+    images = list(msp.query('IMAGE'))
+    for img in images:
+        try:
+            msp.delete_entity(img)
+        except Exception as err:
+            print(f"[Na__DxfEngine] Could not delete image {img.dxf.handle}: {err}")
+    if images:
+        print(f"[Na__DxfEngine] Purged {len(images)} embedded image(s) from modelspace")
+    return len(images)
+
+
+def na_serialize_image(entity, layer_colors, dxf_dir):
+    """
+    Serialise a raster IMAGE entity to a corner-quad geometry record (KEEP choice).
+
+    The IMAGE stores a lower-left insertion point plus per-pixel U/V vectors and a
+    pixel size; from those we derive the four model-space corners (which handle
+    rotation and non-uniform scaling for free). When the referenced raster can be
+    located on disk it is embedded as a base64 data URI; otherwise the frontend
+    draws a labelled placeholder frame at the correct position and size.
+
+    Returns:
+        dict | None
+    """
+    try:
+        insert = entity.dxf.insert                                      # <-- Lower-left corner (model space)
+        u_px   = entity.dxf.u_pixel                                     # <-- One-pixel vector along image X
+        v_px   = entity.dxf.v_pixel                                     # <-- One-pixel vector along image Y
+        size   = entity.dxf.image_size                                  # <-- (width_px, height_px)
+
+        px_w = float(size[0])
+        px_h = float(size[1])
+        wx, wy = u_px[0] * px_w, u_px[1] * px_w                         # <-- Full width vector
+        hx, hy = v_px[0] * px_h, v_px[1] * px_h                         # <-- Full height vector
+
+        ox, oy = insert[0], insert[1]
+        corners = [
+            {'x': ox,           'y': oy},                               # <-- P0 lower-left
+            {'x': ox + wx,      'y': oy + wy},                          # <-- P1 lower-right
+            {'x': ox + wx + hx, 'y': oy + wy + hy},                     # <-- P2 upper-right
+            {'x': ox + hx,      'y': oy + hy},                          # <-- P3 upper-left
+        ]
+
+        name, href = na_resolve_image_data(entity, dxf_dir)
+
+        layer     = entity.dxf.get('layer',    '0')
+        color_aci = entity.dxf.get('color',    256)
+        hex_color = na_resolve_hex_color(color_aci, layer, layer_colors)
+
+        return {
+            'handle'   : entity.dxf.handle,
+            'type'     : 'IMAGE',
+            'layer'    : layer,
+            'color'    : color_aci,
+            'hexColor' : hex_color,                                     # <-- Placeholder frame / label colour
+            'linetype' : entity.dxf.get('linetype', 'BYLAYER'),
+            'geometry' : {
+                'corners'     : corners,
+                'widthUnits'  : math.hypot(wx, wy),
+                'heightUnits' : math.hypot(hx, hy),
+                'pxWidth'     : px_w,
+                'pxHeight'    : px_h,
+                'name'        : name,
+                'href'        : href,                                   # <-- data URI or None
+                'present'     : href is not None,                       # <-- False → draw placeholder frame
+            },
         }
+    except Exception as err:
+        print(f"[Na__DxfEngine] Image serialisation error for {getattr(entity.dxf, 'handle', '?')}: {err}")
+        return None
+
+
+def na_resolve_image_data(entity, dxf_dir):
+    """
+    Resolve an IMAGE's raster to (display_name, data_uri_or_None).
+
+    Tries the IMAGEDEF filename as an absolute path, then alongside the DXF, then
+    just its basename beside the DXF. Anything larger than the embed ceiling, or
+    not found, resolves to (name, None) so the frontend shows a placeholder.
+    """
+    filename = ''
+    try:
+        idef = entity.image_def
+        if idef is not None:
+            filename = idef.dxf.get('filename', '') or ''
+    except Exception:
+        filename = ''
+
+    normalised = filename.replace('\\', '/')
+    name       = os.path.basename(normalised) if normalised else 'image'
+
+    candidates = []
+    if normalised:
+        if os.path.isabs(normalised):
+            candidates.append(normalised)                              # <-- Authoring-machine absolute path
+        candidates.append(os.path.join(dxf_dir, os.path.basename(normalised)))  # <-- Beside the DXF (common)
+        candidates.append(os.path.join(dxf_dir, normalised))          # <-- Relative reference preserved
+
+    for path in candidates:
+        try:
+            if path and os.path.isfile(path) and os.path.getsize(path) <= _IMAGE_EMBED_MAX_BYTES:
+                mime = mimetypes.guess_type(path)[0] or 'image/png'
+                with open(path, 'rb') as handle:
+                    encoded = base64.b64encode(handle.read()).decode('ascii')
+                return name, f"data:{mime};base64,{encoded}"
+        except Exception:
+            continue                                                   # <-- Try the next candidate path
+
+    return name, None
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
+# REGION | DXF Parsing — DXF File to Entity JSON
+# -----------------------------------------------------------------------------
+
+def na_serialise_doc_to_payload(doc, dxf_path, image_action='keep'):
+    """
+    Walk an already-open DXF document's modelspace and build the entity/layer
+    payload. INSERTs are exploded to real geometry; raster IMAGEs are serialised
+    only when image_action == 'keep' (a 'purge' run has already removed them).
+
+    Returns:
+        dict: { entityCount, layers, entities }
+    """
+    msp      = doc.modelspace()
+    entities = []
+    layers   = {}
+    dxf_dir  = os.path.dirname(dxf_path) if dxf_path else ''
+
+    layer_colors = na_build_layer_color_table(doc)                      # <-- ACI and hex colours per layer
+
+    def na_register_layer(layer_name):
+        if layer_name not in layers:
+            aci      = layer_colors.get(layer_name, {}).get('aci', 7)
+            hex_col  = layer_colors.get(layer_name, {}).get('hex', '#ffffff')
+            visible  = layer_colors.get(layer_name, {}).get('visible', True)
+            layers[layer_name] = {
+                'color'       : aci,                                    # <-- ACI index for reference
+                'hexColor'    : hex_col,                                # <-- Resolved hex for frontend display
+                'entityCount' : 0,
+                'visible'     : visible,
+            }
+        layers[layer_name]['entityCount'] += 1
+
+    # Serialise each modelspace entity — INSERTs explode, IMAGEs become quads
+    for entity in msp:
+        etype = entity.dxftype()
+
+        if etype == 'IMAGE':
+            if image_action == 'purge':
+                continue                                               # <-- Already stripped; guard for safety
+            image_record = na_serialize_image(entity, layer_colors, dxf_dir)
+            if image_record:
+                entities.append(image_record)
+                na_register_layer(image_record['layer'])
+            continue
+
+        if etype == 'INSERT':
+            insert_record, children = na_explode_insert(entity, layer_colors)
+            if insert_record:
+                entities.append(insert_record)
+                na_register_layer(insert_record['layer'])
+                entities.extend(children)                               # <-- Children carry parentHandle
+            continue
+
+        serialised = na_serialize_entity(entity, layer_colors)
+        if serialised:
+            entities.append(serialised)
+            na_register_layer(serialised['layer'])
+
+    print(f"[Na__DxfEngine] Parsed {len(entities)} entities across {len(layers)} layers")
+    return {
+        'entityCount' : len(entities),
+        'layers'      : layers,
+        'entities'    : entities,
+    }
+
+
+def na_parse_dxf_with_image_decision(dxf_path, decision_cb=None, default_action='keep'):
+    """
+    Resilient parse with an optional embedded-image decision hook.
+
+    Flow:
+      1. Open the document (strict → recover fallback).
+      2. Scan modelspace for raster IMAGE entities.
+      3. If images exist and a decision_cb is supplied, call it with the image
+         list and honour the returned action:
+             'purge' → delete the images, re-save the working DXF, then serialise
+             'keep'  → serialise the images as corner quads
+             None    → the user cancelled; return (None, 'cancelled')
+         With no decision_cb, default_action is used non-interactively.
+
+    Returns:
+        tuple(dict | None, str): (payload, status) where status is 'ok' or 'cancelled'.
+        The payload carries imageCount / imagesKept / imagesPurged for the UI.
     """
     if not _EZDXF_AVAILABLE:
-        return na_empty_response("ezdxf not installed")
+        return na_empty_response("ezdxf not installed"), 'ok'
 
     if not os.path.isfile(dxf_path):
-        return na_empty_response(f"DXF file not found: {dxf_path}")
+        return na_empty_response(f"DXF file not found: {dxf_path}"), 'ok'
 
     try:
-        doc      = ezdxf.readfile(dxf_path)
-        msp      = doc.modelspace()
-        entities = []
-        layers   = {}
+        doc = na_read_dxf_document(dxf_path)                            # <-- Resilient open (recover fallback)
+    except Exception as err:
+        print(f"[Na__DxfEngine] Read error (strict + recover both failed): {err}")
+        return na_empty_response(str(err)), 'ok'
 
-        # Build layer colour table from the DXF layer table
-        layer_colors = na_build_layer_color_table(doc)                  # <-- ACI and hex colours per layer
+    try:
+        images = na_scan_doc_for_images(doc)
+        action = default_action
 
-        def na_register_layer(layer_name):
-            if layer_name not in layers:
-                aci      = layer_colors.get(layer_name, {}).get('aci', 7)
-                hex_col  = layer_colors.get(layer_name, {}).get('hex', '#ffffff')
-                visible  = layer_colors.get(layer_name, {}).get('visible', True)
-                layers[layer_name] = {
-                    'color'       : aci,                                # <-- ACI index for reference
-                    'hexColor'    : hex_col,                            # <-- Resolved hex for frontend display
-                    'entityCount' : 0,
-                    'visible'     : visible,
-                }
-            layers[layer_name]['entityCount'] += 1
+        if images and decision_cb is not None:
+            action = decision_cb(images)                               # <-- May block awaiting the user
+            if action is None:
+                return None, 'cancelled'                               # <-- User cancelled the load
+        if action not in ('keep', 'purge'):
+            action = 'keep'                                            # <-- Safe non-destructive default
 
-        # Serialise each modelspace entity — INSERTs are exploded to children
-        for entity in msp:
-            if entity.dxftype() == 'INSERT':
-                insert_record, children = na_explode_insert(entity, layer_colors)
-                if insert_record:
-                    entities.append(insert_record)
-                    na_register_layer(insert_record['layer'])
-                    entities.extend(children)                            # <-- Children carry parentHandle
-                continue
+        purged = 0
+        if action == 'purge' and images:
+            try:
+                purged = na_strip_images_from_doc(doc)
+                doc.saveas(dxf_path)                                   # <-- Persist the cleaned working file
+            except Exception as err:
+                print(f"[Na__DxfEngine] Image purge/save failed (continuing): {err}")
 
-            serialised = na_serialize_entity(entity, layer_colors)
-            if serialised:
-                entities.append(serialised)
-                na_register_layer(serialised['layer'])
-
-        print(f"[Na__DxfEngine] Parsed {len(entities)} entities across {len(layers)} layers")
-        return {
-            'entityCount' : len(entities),
-            'layers'      : layers,
-            'entities'    : entities,
-        }
+        payload = na_serialise_doc_to_payload(doc, dxf_path, image_action=action)
+        payload['imageCount']   = len(images)                          # <-- Total images detected in the file
+        payload['imagesKept']   = 0 if action == 'purge' else len(images)
+        payload['imagesPurged'] = purged
+        return payload, 'ok'
 
     except Exception as err:
         print(f"[Na__DxfEngine] Parse error: {err}")
-        return na_empty_response(str(err))
+        return na_empty_response(str(err)), 'ok'
+
+
+def na_parse_dxf_to_entity_json(dxf_path, image_action='keep'):
+    """
+    Backward-compatible parse entry point (non-interactive). Delegates to
+    na_parse_dxf_with_image_decision with no decision hook.
+
+    Returns:
+        dict: { entityCount, layers, entities, imageCount, imagesKept, imagesPurged }
+    """
+    payload, _status = na_parse_dxf_with_image_decision(
+        dxf_path, decision_cb=None, default_action=image_action
+    )
+    return payload if payload is not None else na_empty_response("parse produced no payload")
 
 # endregion -------------------------------------------------------------------
 
@@ -251,7 +523,7 @@ def na_prune_and_save_dxf(source_dxf_path, deleted_handles, output_path):
     if not _EZDXF_AVAILABLE:
         raise RuntimeError("ezdxf is not installed — cannot prune DXF")
 
-    doc                = ezdxf.readfile(source_dxf_path)
+    doc                = na_read_dxf_document(source_dxf_path)          # <-- Resilient open (recover fallback)
     msp                = doc.modelspace()
     handles_to_delete  = set(deleted_handles)                           # <-- O(1) membership test
 
