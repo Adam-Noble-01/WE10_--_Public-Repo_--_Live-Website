@@ -464,9 +464,12 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
         const roughnessOverride = Number.isFinite(options.roughnessOverride) ? options.roughnessOverride : null;
 
         let mirrorMatchedCount = 0;
+        const processedMaterials = new Set();                                 // <-- Ensures each material instance is only boosted once, even when shared across many meshes
 
         const applyToMaterial = (material) => {
             if (!material || material.name !== targetMaterialName) return;
+            if (processedMaterials.has(material)) return;                     // <-- Skip: already processed (shared instance hit by another mesh)
+            processedMaterials.add(material);
 
             material.envMap = envMapTexture;
             material.envMapIntensity = envIntensity;
@@ -514,9 +517,12 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
         const envIntensity = Number.isFinite(options.envMapIntensity) ? options.envMapIntensity : 0.3;
         const brightnessMultiplier = Number.isFinite(options.brightnessMultiplier) ? options.brightnessMultiplier : 1.0;
         let glassMatchedCount = 0;
+        const processedMaterials = new Set();                                 // <-- Ensures each material instance is only darkened once, even when shared across many meshes (e.g. door leaves sharing one cached glass material)
 
         const applyToMaterial = (material) => {
             if (!material || material.name !== targetMaterialName) return;
+            if (processedMaterials.has(material)) return;                     // <-- Skip: already processed (shared instance hit by another mesh)
+            processedMaterials.add(material);
 
             material.envMap = envMapTexture;
             material.envMapIntensity = envIntensity;
