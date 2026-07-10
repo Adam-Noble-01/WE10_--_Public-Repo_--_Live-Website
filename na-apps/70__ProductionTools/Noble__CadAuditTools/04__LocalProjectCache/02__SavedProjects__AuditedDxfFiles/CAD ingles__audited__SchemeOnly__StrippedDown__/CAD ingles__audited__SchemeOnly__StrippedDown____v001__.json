@@ -1,0 +1,17 @@
+{
+  "projectName": "CAD ingles__audited__SchemeOnly__StrippedDown__",
+  "version": "v001",
+  "savedAt": "2026-07-08 13:08:03",
+  "sourceFilename": "CAD ingles__audited__SchemeOnly__StrippedDown__.dwg",
+  "sourceDxfPath": "D:\\11_RefLib__StudioRepository__RemoteSystem\\NaWeb\\na-apps\\70__ProductionTools\\Noble__CadAuditTools\\04__LocalProjectCache\\01__TempCache__DwgToDxfConversions\\CAD ingles__audited__SchemeOnly__StrippedDown__.dxf",
+  "deletedCount": 0,
+  "deletedHandles": [],
+  "layers": {
+    "0": {
+      "hexColor": "#ffffff",
+      "entityCount": 18239,
+      "visible": true
+    }
+  },
+  "dimensions": []
+}

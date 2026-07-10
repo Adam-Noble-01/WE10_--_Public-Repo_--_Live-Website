@@ -79,3 +79,4 @@ assets-archive/*
 
 # Ignore the WE10_--_Public-Repo_--_Live-Website.code-workspace file
 WE10_--_Public-Repo_--_Live-Website.code-workspace
+/na-apps/70__ProductionTools/Noble__CadAuditTools/04__LocalProjectCache/03__HotCache__UndoRedoStates

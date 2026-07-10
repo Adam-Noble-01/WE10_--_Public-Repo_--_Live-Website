@@ -118,11 +118,18 @@
     },
     "3dObject__InteractionsSystem": {
         "3dObject__Interaction__DoorAnimation": {
-            "3dObject__Interaction__DoorAnimation__Description": "Interactive door animation settings for click-to-open doors. Inherits from main app, test environment enabled by default.",
+            "3dObject__Interaction__DoorAnimation__Description": "Interactive door animation settings for click and Walk proximity. ExteriorDoubleDoor test ADRs use independent leaves; all other ADRs remain lockstep.",
             "3dObject__Interaction__DoorAnimation__Enabled": true,
             "3dObject__Interaction__DoorAnimation__AnimationDurationMs": 600,
+            "3dObject__Interaction__DoorAnimation__BifoldDurationMultiplier": 3.0,
             "3dObject__Interaction__DoorAnimation__DefaultRotationDeg": 90,
             "3dObject__Interaction__DoorAnimation__ClickThresholdPx": 4,
+            "3dObject__Interaction__DoorAnimation__MultiPanelEnabled": true,
+            "3dObject__Interaction__DoorAnimation__InteriorRotationInverted": false,
+            "3dObject__Interaction__DoorAnimation__IndependentPanelsEnabled": true,
+            "3dObject__Interaction__DoorAnimation__IndependentPanelAdrNameTokens": [
+                "ExteriorDoubleDoor"
+            ],
             "3dObject__Interaction__DoorAnimation__CategoryNameTokens": [
                 "ProposedDoors",
                 "ExistingDoors"

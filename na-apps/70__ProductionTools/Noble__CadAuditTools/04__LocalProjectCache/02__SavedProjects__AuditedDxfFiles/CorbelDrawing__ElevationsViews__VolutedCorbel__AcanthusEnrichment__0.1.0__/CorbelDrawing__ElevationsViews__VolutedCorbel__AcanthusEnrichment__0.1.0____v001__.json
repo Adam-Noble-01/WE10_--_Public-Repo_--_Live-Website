@@ -1,0 +1,17 @@
+{
+  "projectName": "CorbelDrawing__ElevationsViews__VolutedCorbel__AcanthusEnrichment__0.1.0__",
+  "version": "v001",
+  "savedAt": "2026-07-09 10:20:09",
+  "sourceFilename": "CorbelDrawing__ElevationsViews__VolutedCorbel__AcanthusEnrichment__0.1.0__.dwg",
+  "sourceDxfPath": "D:\\11_RefLib__StudioRepository__RemoteSystem\\NaWeb\\na-apps\\70__ProductionTools\\Noble__CadAuditTools\\04__LocalProjectCache\\01__TempCache__DwgToDxfConversions\\CorbelDrawing__ElevationsViews__VolutedCorbel__AcanthusEnrichment__0.1.0__.dxf",
+  "deletedCount": 0,
+  "deletedHandles": [],
+  "layers": {
+    "0": {
+      "hexColor": "#ffffff",
+      "entityCount": 9310,
+      "visible": true
+    }
+  },
+  "dimensions": []
+}

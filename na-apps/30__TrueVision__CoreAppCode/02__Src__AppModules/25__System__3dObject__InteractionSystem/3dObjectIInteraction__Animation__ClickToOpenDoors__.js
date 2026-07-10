@@ -19,9 +19,9 @@
 // - Resolves MVE axis (X/Y/Z) and signed mm magnitude to a local axis-aligned
 //   translation vector for sliding panels and bifold slave panels.
 // - Registers pointer event handlers for click detection (with orbit drag filtering).
-// - Smoothly animates every panel of a door using a unified [0..1] progress
-//   value so mixed ROT-only + ROT+MVE bifold cascades stay in lockstep.
-// - Supports mid-animation reversal and independent per-door state management.
+// - Smoothly animates every lockstep door using a unified [0..1] progress value
+//   while explicitly configured ExteriorDoubleDoor ADRs use per-panel progress.
+// - Supports mid-animation reversal at door or independent-panel level.
 // - Dual model support: animates both mesh and linework models simultaneously.
 //
 // NAMING CONVENTION (Scene Graph):
@@ -45,6 +45,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 10-Jul-2026 - Version 1.7.0
+// - Added config-gated independent panel animation for ADR names containing an
+//   approved token (default: ExteriorDoubleDoor). Existing interior, bifold,
+//   sliding, and unknown ADRs remain lockstep.
+// - Added nearest-MOD hit resolution, per-panel animation state/reversal, and
+//   ADR-level compatibility aliases sourced from the primary panel.
+//
 // 06-Jun-2026 - Version 1.6.0
 // - Fixed interior doors swinging inverted in TV. The interior door system
 //   (Element Assembly Studio) predates the bifold system and derives its MOD
@@ -168,6 +175,8 @@
     let Na__DoorAnim__Config__ClickThresholdPx          = 4;                     // <-- Max pointer movement for click
     let Na__DoorAnim__Config__MultiPanelEnabled         = true;                  // <-- Bifold/sliding kill-switch (AppConfig source-of-truth)
     let Na__DoorAnim__Config__InteriorRotationInverted  = true;                  // <-- V1.6.0: interior doors use legacy SU-logic sign; invert to match TV (bifold-calibrated) convention
+    let Na__DoorAnim__Config__IndependentPanelsEnabled  = true;                  // <-- Exterior-double independent-panel kill-switch
+    let Na__DoorAnim__Config__IndependentPanelAdrNameTokens = ['ExteriorDoubleDoor']; // <-- Explicit ADR tokens allowed to animate independently
     // ------------------------------------------------------------
 
 
@@ -181,6 +190,10 @@
     // by the ADR name token and flip their rotation sign to land on the same
     // TV-correct convention. Exterior/bifold/sliding doors are unaffected.
     const Na__DoorAnim__INTERIOR_DOOR_NAME_TOKEN = 'InteriorDoor';               // <-- ADR name substring identifying interior doors
+    const Na__DoorAnim__BIFOLD_DOOR_NAME_TOKEN   = 'BifoldDoor';                 // <-- Explicit lockstep product token
+    const Na__DoorAnim__SLIDING_DOOR_NAME_TOKEN  = 'SlidingDoor';                // <-- Explicit lockstep product token
+    const Na__DoorAnim__COUPLING_LOCKSTEP        = 'LOCKSTEP';                   // <-- Whole ADR shares one state/progress
+    const Na__DoorAnim__COUPLING_INDEPENDENT     = 'INDEPENDENT';                // <-- Each animatable MOD owns state/progress
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -393,6 +406,44 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Check ADR Name for a Configured Token
+    // ------------------------------------------------------------
+    function Na__DoorAnim__AdrNameContainsToken(adrName, tokens) {
+        if (typeof adrName !== 'string' || !Array.isArray(tokens)) return false;
+        return tokens.some((token) => typeof token === 'string' && token.length > 0 && adrName.indexOf(token) !== -1);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Resolve Door Panel Coupling Mode
+    // ------------------------------------------------------------
+    // Classification is deliberately explicit and backward compatible:
+    // configured exterior-double token first, then every known/legacy shape
+    // falls back to lockstep. Two ROT_ONLY panels alone never imply independence.
+    function Na__DoorAnim__ResolveCouplingMode(adrName, panels) {
+        const hasIndependentToken = Na__DoorAnim__AdrNameContainsToken(
+            adrName,
+            Na__DoorAnim__Config__IndependentPanelAdrNameTokens
+        );
+
+        if (Na__DoorAnim__Config__IndependentPanelsEnabled === true && hasIndependentToken) {
+            return Na__DoorAnim__COUPLING_INDEPENDENT;
+        }
+        if (Na__DoorAnim__IsBifoldDoor(panels)) return Na__DoorAnim__COUPLING_LOCKSTEP;
+        if (Na__DoorAnim__AdrNameContainsToken(adrName, [Na__DoorAnim__INTERIOR_DOOR_NAME_TOKEN])) {
+            return Na__DoorAnim__COUPLING_LOCKSTEP;
+        }
+        if (Na__DoorAnim__AdrNameContainsToken(adrName, [Na__DoorAnim__BIFOLD_DOOR_NAME_TOKEN])) {
+            return Na__DoorAnim__COUPLING_LOCKSTEP;
+        }
+        if (Na__DoorAnim__AdrNameContainsToken(adrName, [Na__DoorAnim__SLIDING_DOOR_NAME_TOKEN])) {
+            return Na__DoorAnim__COUPLING_LOCKSTEP;
+        }
+        return Na__DoorAnim__COUPLING_LOCKSTEP;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Resolve the Effective Animation Duration for a Door Type
     // ------------------------------------------------------------
     // Bifold cascades animate at AnimationDurationMs * BifoldDurationMultiplier
@@ -466,13 +517,22 @@
             type               : type,
             modObjectMesh      : modObject,
             modObjectLinework  : null,                                           // <-- Linked later by linework scan
+            rotObjectMesh      : null,                                           // <-- Matching ROT marker used by independent proximity
+            rotObjectLinework  : null,                                           // <-- Matching linework ROT marker
             initialPosition    : modObject.position.clone(),                     // <-- MOD initial local position
             initialQuaternion  : modObject.quaternion.clone(),                   // <-- MOD initial local quaternion
             targetAngleRad     : 0,                                              // <-- Populated for ROT_ONLY / ROT_MVE
             pivotLocalPosition : null,                                           // <-- Populated for ROT_ONLY / ROT_MVE
             rotationSign       : 1,                                              // <-- -1 for mirrored doors (corrects reversed swing)
             mveAxisVector      : null,                                           // <-- Populated for ROT_MVE / MVE_ONLY
-            mveDistanceUnits   : 0                                               // <-- Signed distance in Three.js scene units
+            mveDistanceUnits   : 0,                                              // <-- Signed distance in Three.js scene units
+            state              : Na__DoorAnim__STATE_CLOSED,                    // <-- Independent-panel state
+            currentProgress    : 0,                                              // <-- Independent open fraction [0..1]
+            animStartProgress  : 0,                                              // <-- Independent animation start
+            animEndProgress    : 0,                                              // <-- Independent animation target
+            animElapsedMs      : 0,                                              // <-- Independent elapsed animation time
+            animDurationMs     : Na__DoorAnim__Config__AnimationDurationMs,      // <-- Independent effective duration
+            proximityIsNear    : false                                           // <-- Per-panel Walk/Fly proximity state
         };
 
         if (type === Na__DoorAnim__MOD_TYPE_ROT_ONLY || type === Na__DoorAnim__MOD_TYPE_ROT_MVE) {
@@ -488,6 +548,7 @@
             // (bifold) get one ROT pivot per MOD in declaration order.
             const rotSibling = Na__DoorAnim__FindMatchingRotSibling(adrObject, modObject);
             if (rotSibling) {
+                panel.rotObjectMesh = rotSibling;
                 panel.pivotLocalPosition = rotSibling.position.clone();
             } else {
                 console.warn(`[DoorAnimation] No ROT sibling found for MOD "${modObject.name}" - falling back to MOD origin`);
@@ -594,6 +655,12 @@
                 // the base AnimationDurationMs verbatim.
                 const isBifold              = Na__DoorAnim__IsBifoldDoor(panels);
                 const effectiveDurationMs   = Na__DoorAnim__ResolveEffectiveDurationMs(panels);
+                const couplingMode          = Na__DoorAnim__ResolveCouplingMode(adrName, panels);
+                const isIndependentPanels   = couplingMode === Na__DoorAnim__COUPLING_INDEPENDENT;
+
+                panels.forEach((panel) => {
+                    panel.animDurationMs = effectiveDurationMs;
+                });
 
                 // Build door record
                 const doorRecord = {
@@ -605,6 +672,9 @@
                     rotObjectLinework  : null,                                   // <-- Linework first ROT (linked later)
                     isBifold           : isBifold,                               // <-- True when any panel is ROT_MVE (V1.3.0)
                     effectiveDurationMs: effectiveDurationMs,                    // <-- Bifold-aware base duration (V1.3.0)
+                    couplingMode       : couplingMode,                           // <-- LOCKSTEP unless explicit configured ADR token matches
+                    isIndependentPanels: isIndependentPanels,                   // <-- Compatibility-friendly boolean alias
+                    legacyPrimaryPanel : primaryRotPanel || panels[0],           // <-- Source for ADR-level compatibility state aliases
 
                     // Backward-compat fields (legacy single-door consumers)
                     modObjectMesh      : primaryRotPanel ? primaryRotPanel.modObjectMesh : panels[0].modObjectMesh,
@@ -630,7 +700,7 @@
 
                 const summary = panels.map((p) => p.type).join('+');
                 const tag     = isBifold ? `BIFOLD ${effectiveDurationMs}ms` : `${effectiveDurationMs}ms`;
-                console.log(`[DoorAnimation] Registered door (mesh): "${adrName}" panels=[${summary}] primary=${THREE.MathUtils.radToDeg(targetAngleRad).toFixed(0)}deg duration=${tag}`);
+                console.log(`[DoorAnimation] Registered door (mesh): "${adrName}" panels=[${summary}] coupling=${couplingMode} primary=${THREE.MathUtils.radToDeg(targetAngleRad).toFixed(0)}deg duration=${tag}`);
             });
         }
 
@@ -655,6 +725,7 @@
                     const matchingPanel = doorRecord.panels.find((p) => p.modObjectMesh.name === d.mod.name);
                     if (matchingPanel) {
                         matchingPanel.modObjectLinework = d.mod;
+                        matchingPanel.rotObjectLinework = Na__DoorAnim__FindMatchingRotSibling(object, d.mod);
                     }
                 });
 
@@ -697,6 +768,44 @@
         }
 
         return null;                                                             // <-- No ADR ancestor found
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Walk Up Scene Graph to Find Nearest MOD Ancestor
+    // ------------------------------------------------------------
+    function Na__DoorAnim__FindNearestModAncestor(object) {
+        let current = object;
+
+        while (current) {
+            if (Na__DoorAnim__NameStartsWith(current, Na__DoorAnim__PREFIX_MOD)) {
+                return current;
+            }
+            if (Na__DoorAnim__NameStartsWith(current, Na__DoorAnim__PREFIX_ADR)) {
+                return null;
+            }
+            current = current.parent;
+        }
+
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Resolve Raycast Hit to a Registered Panel Descriptor
+    // ------------------------------------------------------------
+    function Na__DoorAnim__ResolveHitPanel(doorRecord, hitObject) {
+        if (!doorRecord || !Array.isArray(doorRecord.panels)) return null;
+
+        const modAncestor = Na__DoorAnim__FindNearestModAncestor(hitObject);
+        if (!modAncestor) return null;
+
+        return doorRecord.panels.find((panel) =>
+            panel.modObjectMesh === modAncestor
+            || panel.modObjectLinework === modAncestor
+            || (panel.modObjectMesh && panel.modObjectMesh.name === modAncestor.name)
+            || (panel.modObjectLinework && panel.modObjectLinework.name === modAncestor.name)
+        ) || null;
     }
     // ------------------------------------------------------------
 
@@ -778,7 +887,15 @@
         const doorRecord = Na__DoorAnim__DoorRegistry.get(adrObject.name);
         if (!doorRecord) return;                                                 // <-- Not in registry
 
-        Na__DoorAnim__ToggleDoor(doorRecord);                                    // <-- Toggle open/close
+        if (doorRecord.isIndependentPanels === true) {
+            const hitPanel = Na__DoorAnim__ResolveHitPanel(doorRecord, hitObject);
+            if (hitPanel) {
+                Na__DoorAnim__TogglePanel(doorRecord, hitPanel);                  // <-- Exterior double: only clicked MOD
+                return;
+            }
+        }
+
+        Na__DoorAnim__ToggleDoor(doorRecord);                                    // <-- Lockstep fallback / legacy toggle
     }
     // ------------------------------------------------------------
 
@@ -799,6 +916,76 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Check Whether an Animation State Is Active
+    // ------------------------------------------------------------
+    function Na__DoorAnim__IsAnimatingState(state) {
+        return state === Na__DoorAnim__STATE_OPENING || state === Na__DoorAnim__STATE_CLOSING;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Resolve Opposite Target Progress for a Toggle
+    // ------------------------------------------------------------
+    function Na__DoorAnim__ResolveToggleEndProgress(animationTarget) {
+        if (animationTarget.state === Na__DoorAnim__STATE_CLOSED) return 1;
+        if (animationTarget.state === Na__DoorAnim__STATE_OPEN) return 0;
+        if (animationTarget.state === Na__DoorAnim__STATE_OPENING) return 0;
+        if (animationTarget.state === Na__DoorAnim__STATE_CLOSING) return 1;
+        return animationTarget.currentProgress >= 0.5 ? 0 : 1;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Start or Reverse One Animation State Target
+    // ------------------------------------------------------------
+    function Na__DoorAnim__AnimateTargetToProgress(animationTarget, endProgress, baseDurationMs) {
+        const startProgress = Number.isFinite(animationTarget.currentProgress)
+            ? animationTarget.currentProgress
+            : 0;
+        const remainingTravel = Math.abs(endProgress - startProgress);
+
+        animationTarget.animStartProgress = startProgress;
+        animationTarget.animEndProgress   = endProgress;
+        animationTarget.animElapsedMs     = 0;
+        animationTarget.animDurationMs    = baseDurationMs * remainingTravel;
+        animationTarget.state             = endProgress === 1
+            ? Na__DoorAnim__STATE_OPENING
+            : Na__DoorAnim__STATE_CLOSING;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Toggle One Animation State Target
+    // ------------------------------------------------------------
+    function Na__DoorAnim__ToggleAnimationTarget(animationTarget, baseDurationMs) {
+        const endProgress = Na__DoorAnim__ResolveToggleEndProgress(animationTarget);
+        Na__DoorAnim__AnimateTargetToProgress(animationTarget, endProgress, baseDurationMs);
+        return endProgress;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Synchronize ADR-Level Legacy State Aliases
+    // ------------------------------------------------------------
+    function Na__DoorAnim__SyncLegacyDoorState(doorRecord) {
+        if (!doorRecord || doorRecord.isIndependentPanels !== true) return;
+
+        const primaryPanel = doorRecord.legacyPrimaryPanel || doorRecord.panels[0];
+        if (!primaryPanel) return;
+
+        doorRecord.state             = primaryPanel.state;
+        doorRecord.currentProgress   = primaryPanel.currentProgress;
+        doorRecord.animStartProgress = primaryPanel.animStartProgress;
+        doorRecord.animEndProgress   = primaryPanel.animEndProgress;
+        doorRecord.animElapsedMs     = primaryPanel.animElapsedMs;
+        doorRecord.animDurationMs    = primaryPanel.animDurationMs;
+        doorRecord.currentAngleRad   = doorRecord.targetAngleRad * primaryPanel.currentProgress;
+        doorRecord.animStartAngleRad = doorRecord.targetAngleRad * primaryPanel.animStartProgress;
+        doorRecord.animEndAngleRad   = doorRecord.targetAngleRad * primaryPanel.animEndProgress;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Toggle Door Open or Closed
     // ------------------------------------------------------------
     // Animation is driven by a unified [0..1] progress value that scales every
@@ -810,52 +997,52 @@
     // multiplied by `BifoldDurationMultiplier`) so the cascade reads as a slow
     // accordion fold; everything else uses the base AnimationDurationMs.
     function Na__DoorAnim__ToggleDoor(doorRecord) {
-        const isCurrentlyClosed = (doorRecord.state === Na__DoorAnim__STATE_CLOSED);
-        const isCurrentlyOpen   = (doorRecord.state === Na__DoorAnim__STATE_OPEN);
-        const isAnimating       = (doorRecord.state === Na__DoorAnim__STATE_OPENING
-                                || doorRecord.state === Na__DoorAnim__STATE_CLOSING);
-
         const baseDurationMs = Number.isFinite(doorRecord.effectiveDurationMs) && doorRecord.effectiveDurationMs > 0
             ? doorRecord.effectiveDurationMs
             : Na__DoorAnim__Config__AnimationDurationMs;
 
-        if (isCurrentlyClosed) {
-            doorRecord.animStartProgress = 0;
-            doorRecord.animEndProgress   = 1;
-            doorRecord.animElapsedMs     = 0;
-            doorRecord.animDurationMs    = baseDurationMs;
-            doorRecord.state             = Na__DoorAnim__STATE_OPENING;
-            console.log(`[DoorAnimation] Opening: "${doorRecord.adrName}" (${baseDurationMs}ms)`);
-
-        } else if (isCurrentlyOpen) {
-            doorRecord.animStartProgress = 1;
-            doorRecord.animEndProgress   = 0;
-            doorRecord.animElapsedMs     = 0;
-            doorRecord.animDurationMs    = baseDurationMs;
-            doorRecord.state             = Na__DoorAnim__STATE_CLOSING;
-            console.log(`[DoorAnimation] Closing: "${doorRecord.adrName}" (${baseDurationMs}ms)`);
-
-        } else if (isAnimating) {
-            const currentProgress = doorRecord.currentProgress;
-            if (doorRecord.state === Na__DoorAnim__STATE_OPENING) {
-                doorRecord.animStartProgress = currentProgress;
-                doorRecord.animEndProgress   = 0;
-                doorRecord.state             = Na__DoorAnim__STATE_CLOSING;
-            } else {
-                doorRecord.animStartProgress = currentProgress;
-                doorRecord.animEndProgress   = 1;
-                doorRecord.state             = Na__DoorAnim__STATE_OPENING;
-            }
-
-            // Scale duration proportional to remaining progress travel
-            const remainingTravel = Math.abs(doorRecord.animEndProgress - doorRecord.animStartProgress);
-            doorRecord.animDurationMs = baseDurationMs * remainingTravel;
-            doorRecord.animElapsedMs  = 0;
-
-            console.log(`[DoorAnimation] Reversed mid-animation: "${doorRecord.adrName}"`);
+        if (doorRecord.isIndependentPanels === true) {
+            const endProgress = Na__DoorAnim__ResolveToggleEndProgress(doorRecord);
+            doorRecord.panels.forEach((panel) => {
+                if (panel.type !== Na__DoorAnim__MOD_TYPE_FIXED) {
+                    Na__DoorAnim__AnimateTargetToProgress(panel, endProgress, baseDurationMs);
+                }
+            });
+            Na__DoorAnim__SyncLegacyDoorState(doorRecord);
+            console.log(`[DoorAnimation] ${endProgress === 1 ? 'Opening' : 'Closing'} all independent panels: "${doorRecord.adrName}"`);
+        } else {
+            const wasAnimating = Na__DoorAnim__IsAnimatingState(doorRecord.state);
+            const endProgress  = Na__DoorAnim__ToggleAnimationTarget(doorRecord, baseDurationMs);
+            const actionLabel  = wasAnimating
+                ? 'Reversed mid-animation'
+                : (endProgress === 1 ? 'Opening' : 'Closing');
+            console.log(`[DoorAnimation] ${actionLabel}: "${doorRecord.adrName}" (${baseDurationMs}ms)`);
         }
 
         Na__RenderLoop__RequestRender();                                         // <-- Wake render loop so door animation can begin
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Toggle One Independently Coupled Door Panel
+    // ------------------------------------------------------------
+    function Na__DoorAnim__TogglePanel(doorRecord, panel) {
+        if (!doorRecord || !panel || doorRecord.isIndependentPanels !== true) return false;
+        if (!doorRecord.panels.includes(panel) || panel.type === Na__DoorAnim__MOD_TYPE_FIXED) return false;
+
+        const baseDurationMs = Number.isFinite(doorRecord.effectiveDurationMs) && doorRecord.effectiveDurationMs > 0
+            ? doorRecord.effectiveDurationMs
+            : Na__DoorAnim__Config__AnimationDurationMs;
+        const wasAnimating = Na__DoorAnim__IsAnimatingState(panel.state);
+        const endProgress  = Na__DoorAnim__ToggleAnimationTarget(panel, baseDurationMs);
+        const actionLabel  = wasAnimating
+            ? 'Reversed panel mid-animation'
+            : (endProgress === 1 ? 'Opening panel' : 'Closing panel');
+
+        Na__DoorAnim__SyncLegacyDoorState(doorRecord);
+        Na__RenderLoop__RequestRender();
+        console.log(`[DoorAnimation] ${actionLabel}: "${doorRecord.adrName}" / "${panel.modObjectMesh.name}"`);
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -915,6 +1102,68 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Advance One Animation State by a Frame Delta
+    // ------------------------------------------------------------
+    function Na__DoorAnim__AdvanceAnimationState(animationTarget, deltaMs) {
+        animationTarget.animElapsedMs += deltaMs;
+
+        const durationMs = Number.isFinite(animationTarget.animDurationMs) && animationTarget.animDurationMs > 0
+            ? animationTarget.animDurationMs
+            : 0;
+        const rawT   = durationMs > 0 ? Math.min(animationTarget.animElapsedMs / durationMs, 1.0) : 1.0;
+        const easedT = Na__DoorAnim__EaseInOutCubic(rawT);
+        const progress = animationTarget.animStartProgress
+            + (animationTarget.animEndProgress - animationTarget.animStartProgress) * easedT;
+
+        animationTarget.currentProgress = progress;
+        return { rawT: rawT, progress: progress };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Complete One Animation State
+    // ------------------------------------------------------------
+    function Na__DoorAnim__CompleteAnimationState(animationTarget, restDurationMs) {
+        if (animationTarget.state === Na__DoorAnim__STATE_OPENING) {
+            animationTarget.state = Na__DoorAnim__STATE_OPEN;
+        } else if (animationTarget.state === Na__DoorAnim__STATE_CLOSING) {
+            animationTarget.state = Na__DoorAnim__STATE_CLOSED;
+        }
+        animationTarget.currentProgress = animationTarget.animEndProgress;
+        animationTarget.animDurationMs  = restDurationMs;
+    }
+    // ------------------------------------------------------------
+
+
+    // SUB FUNCTION | Update Independently Coupled Panels for One Door
+    // ------------------------------------------------------------
+    function Na__DoorAnim__UpdateIndependentPanels(doorRecord, deltaMs) {
+        let updatedPanelCount = 0;
+        const restDurationMs = Number.isFinite(doorRecord.effectiveDurationMs) && doorRecord.effectiveDurationMs > 0
+            ? doorRecord.effectiveDurationMs
+            : Na__DoorAnim__Config__AnimationDurationMs;
+
+        doorRecord.panels.forEach((panel) => {
+            if (!Na__DoorAnim__IsAnimatingState(panel.state)) return;
+
+            const frame = Na__DoorAnim__AdvanceAnimationState(panel, deltaMs);
+            Na__DoorAnim__ApplyPanelTransform(panel.modObjectMesh, panel, frame.progress);
+            Na__DoorAnim__ApplyPanelTransform(panel.modObjectLinework, panel, frame.progress);
+            updatedPanelCount++;
+
+            if (frame.rawT >= 1.0) {
+                Na__DoorAnim__CompleteAnimationState(panel, restDurationMs);
+                console.log(`[DoorAnimation] Panel ${panel.state === Na__DoorAnim__STATE_OPEN ? 'opened' : 'closed'}: "${doorRecord.adrName}" / "${panel.modObjectMesh.name}"`);
+            }
+        });
+
+        if (updatedPanelCount > 0) {
+            Na__DoorAnim__SyncLegacyDoorState(doorRecord);
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Update All Door Animations (called per frame)
     // ------------------------------------------------------------
     function Na__DoorAnimation__Update(deltaMs) {
@@ -922,37 +1171,24 @@
         if (Na__DoorAnim__DoorRegistry.size === 0) return;                       // <-- No doors to animate
 
         Na__DoorAnim__DoorRegistry.forEach((doorRecord) => {
-            if (doorRecord.state !== Na__DoorAnim__STATE_OPENING
-                && doorRecord.state !== Na__DoorAnim__STATE_CLOSING) {
+            if (doorRecord.isIndependentPanels === true) {
+                Na__DoorAnim__UpdateIndependentPanels(doorRecord, deltaMs);
+                return;
+            }
+
+            if (!Na__DoorAnim__IsAnimatingState(doorRecord.state)) {
                 return;                                                          // <-- Skip idle doors
             }
 
-            doorRecord.animElapsedMs += deltaMs;
+            const frame = Na__DoorAnim__AdvanceAnimationState(doorRecord, deltaMs);
+            Na__DoorAnim__ApplyAllPanels(doorRecord, frame.progress);             // <-- Cascade transform across every panel
 
-            const rawT   = Math.min(doorRecord.animElapsedMs / doorRecord.animDurationMs, 1.0);
-            const easedT = Na__DoorAnim__EaseInOutCubic(rawT);
-
-            const startProgress = doorRecord.animStartProgress;
-            const endProgress   = doorRecord.animEndProgress;
-            const progress      = startProgress + (endProgress - startProgress) * easedT;
-
-            Na__DoorAnim__ApplyAllPanels(doorRecord, progress);                  // <-- Cascade transform across every panel
-
-            if (rawT >= 1.0) {
+            if (frame.rawT >= 1.0) {
                 const restDurationMs = Number.isFinite(doorRecord.effectiveDurationMs) && doorRecord.effectiveDurationMs > 0
                     ? doorRecord.effectiveDurationMs
                     : Na__DoorAnim__Config__AnimationDurationMs;
-
-                if (doorRecord.state === Na__DoorAnim__STATE_OPENING) {
-                    doorRecord.state = Na__DoorAnim__STATE_OPEN;
-                    doorRecord.animDurationMs = restDurationMs;
-                    console.log(`[DoorAnimation] Opened: "${doorRecord.adrName}"`);
-
-                } else if (doorRecord.state === Na__DoorAnim__STATE_CLOSING) {
-                    doorRecord.state = Na__DoorAnim__STATE_CLOSED;
-                    doorRecord.animDurationMs = restDurationMs;
-                    console.log(`[DoorAnimation] Closed: "${doorRecord.adrName}"`);
-                }
+                Na__DoorAnim__CompleteAnimationState(doorRecord, restDurationMs);
+                console.log(`[DoorAnimation] ${doorRecord.state === Na__DoorAnim__STATE_OPEN ? 'Opened' : 'Closed'}: "${doorRecord.adrName}"`);
             }
         });
     }
@@ -967,7 +1203,11 @@
         let hasActiveAnimations = false;
 
         Na__DoorAnim__DoorRegistry.forEach((doorRecord) => {
-            if (doorRecord.state === Na__DoorAnim__STATE_OPENING || doorRecord.state === Na__DoorAnim__STATE_CLOSING) {
+            if (doorRecord.isIndependentPanels === true) {
+                if (doorRecord.panels.some((panel) => Na__DoorAnim__IsAnimatingState(panel.state))) {
+                    hasActiveAnimations = true;
+                }
+            } else if (Na__DoorAnim__IsAnimatingState(doorRecord.state)) {
                 hasActiveAnimations = true;
             }
         });
@@ -1025,6 +1265,18 @@
             if (typeof config['3dObject__Interaction__DoorAnimation__InteriorRotationInverted'] === 'boolean') {
                 Na__DoorAnim__Config__InteriorRotationInverted = config['3dObject__Interaction__DoorAnimation__InteriorRotationInverted'];
             }
+            if (typeof config['3dObject__Interaction__DoorAnimation__IndependentPanelsEnabled'] === 'boolean') {
+                Na__DoorAnim__Config__IndependentPanelsEnabled = config['3dObject__Interaction__DoorAnimation__IndependentPanelsEnabled'];
+            }
+            if (Array.isArray(config['3dObject__Interaction__DoorAnimation__IndependentPanelAdrNameTokens'])) {
+                const normalizedTokens = config['3dObject__Interaction__DoorAnimation__IndependentPanelAdrNameTokens']
+                    .filter((token) => typeof token === 'string')
+                    .map((token) => token.trim())
+                    .filter((token) => token.length > 0);
+                if (normalizedTokens.length > 0) {
+                    Na__DoorAnim__Config__IndependentPanelAdrNameTokens = normalizedTokens;
+                }
+            }
         }
 
         // Scan scene graph for door assemblies (both mesh and linework)
@@ -1075,7 +1327,8 @@
         Na__DoorAnimation__HasActiveAnimations,                                  // <-- True while any door animation is running
         Na__DoorAnimation__ScanForDoors,                                         // <-- Re-scan scene graph
         Na__DoorAnim__DoorRegistry,                                              // <-- Door registry Map (for proximity system)
-        Na__DoorAnim__ToggleDoor                                                 // <-- Toggle door open/close (for proximity system)
+        Na__DoorAnim__ToggleDoor,                                                // <-- Toggle whole door open/close (legacy + external callers)
+        Na__DoorAnim__TogglePanel                                                // <-- Toggle one panel on explicitly independent ADRs
         // Removed (v1.4.0): Na__DoorAnim__FindModRotChild — superseded by FindAllAnimatableMods
         // Removed (v1.4.0): Na__DoorAnim__ApplyPivotRotation — superseded by ApplyAllPanels progress path
     };

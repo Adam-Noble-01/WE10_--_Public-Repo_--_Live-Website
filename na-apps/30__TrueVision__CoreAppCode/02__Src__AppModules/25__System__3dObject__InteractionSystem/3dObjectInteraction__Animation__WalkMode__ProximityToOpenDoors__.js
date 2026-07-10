@@ -12,9 +12,10 @@
 // DESCRIPTION:
 // - When walk mode is active, doors automatically open as the player approaches.
 // - Uses the same door registry and animation system as the click-to-open doors.
-// - Checks distance between the walk mode capsule position and each door assembly.
+// - Checks distance between the walk/fly position and each door assembly.
 // - Opens doors when within the configured proximity threshold (default 3000mm).
 // - Closes doors when the player moves beyond the proximity threshold.
+// - ExteriorDoubleDoor ADRs open only their nearest ROT-linked leaf.
 // - Designed for fluid architectural walkthroughs with naturally opening doors.
 //
 // INTEGRATION:
@@ -26,6 +27,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 10-Jul-2026 - Version 1.2.0
+// - Added independent ExteriorDoubleDoor proximity handling. Distance is
+//   measured to each panel's paired ROT marker and only the nearest eligible
+//   leaf is opened; proximity state is retained separately per panel.
+//
 // 17-May-2026 - Version 1.1.0
 // - Multi-panel door compatibility verified.
 // - Now activates correctly for bifold (BifoldDoor) and sliding (SlidingDoor)
@@ -55,7 +61,8 @@
     import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
     import {
         Na__DoorAnim__DoorRegistry,
-        Na__DoorAnim__ToggleDoor
+        Na__DoorAnim__ToggleDoor,
+        Na__DoorAnim__TogglePanel
     } from './3dObjectIInteraction__Animation__ClickToOpenDoors__.js';
     // ------------------------------------------------------------
 
@@ -72,6 +79,7 @@
     const Na__DoorProximity__STATE_OPEN                    = 'OPEN';     // <-- Door is fully open
     const Na__DoorProximity__STATE_OPENING                 = 'OPENING';  // <-- Door is animating open
     const Na__DoorProximity__STATE_CLOSING                 = 'CLOSING';  // <-- Door is animating closed
+    const Na__DoorProximity__MOD_TYPE_FIXED                = 'FIXED';    // <-- Static panel; never proximity animated
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -152,6 +160,97 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Resolve a Panel's ROT Marker World Position
+    // ------------------------------------------------------------
+    function Na__DoorProximity__GetPanelRotWorldPosition(panel) {
+        const rotObject = panel && (panel.rotObjectMesh || panel.rotObjectLinework);
+        if (!rotObject) return null;
+
+        rotObject.getWorldPosition(Na__DoorProximity__TempDoorWorldPos);
+        return Na__DoorProximity__TempDoorWorldPos;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Calculate Horizontal Distance in Scene Units
+    // ------------------------------------------------------------
+    function Na__DoorProximity__CalculatePlanarDistance(positionA, positionB) {
+        const dx = positionA.x - positionB.x;
+        const dz = positionA.z - positionB.z;
+        return Math.sqrt(dx * dx + dz * dz);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Check Whether a Panel Can Use ROT Proximity
+    // ------------------------------------------------------------
+    function Na__DoorProximity__IsPanelEligible(panel) {
+        if (!panel || panel.type === Na__DoorProximity__MOD_TYPE_FIXED) return false;
+        return Boolean(panel.rotObjectMesh || panel.rotObjectLinework);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Find Nearest Eligible Panel by ROT Position
+    // ------------------------------------------------------------
+    function Na__DoorProximity__FindNearestPanel(doorRecord, capsulePositionUnits) {
+        let nearestPanel    = null;
+        let nearestDistance = Infinity;
+
+        doorRecord.panels.forEach((panel) => {
+            if (!Na__DoorProximity__IsPanelEligible(panel)) return;
+
+            const panelWorldPos = Na__DoorProximity__GetPanelRotWorldPosition(panel);
+            if (!panelWorldPos) return;
+
+            const distance = Na__DoorProximity__CalculatePlanarDistance(capsulePositionUnits, panelWorldPos);
+            if (distance < nearestDistance) {
+                nearestPanel    = panel;
+                nearestDistance = distance;
+            }
+        });
+
+        return { panel: nearestPanel, distance: nearestDistance };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Apply Desired Independent Panel Proximity State
+    // ------------------------------------------------------------
+    function Na__DoorProximity__ApplyPanelNearState(doorRecord, panel, shouldBeNear) {
+        panel.proximityIsNear = shouldBeNear;
+
+        if (shouldBeNear) {
+            if (panel.state === Na__DoorProximity__STATE_CLOSED
+                || panel.state === Na__DoorProximity__STATE_CLOSING) {
+                Na__DoorAnim__TogglePanel(doorRecord, panel);
+            }
+            return;
+        }
+
+        if (panel.state === Na__DoorProximity__STATE_OPEN
+            || panel.state === Na__DoorProximity__STATE_OPENING) {
+            Na__DoorAnim__TogglePanel(doorRecord, panel);
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // SUB FUNCTION | Update Nearest-Leaf Proximity for an Independent Door
+    // ------------------------------------------------------------
+    function Na__DoorProximity__UpdateIndependentDoor(doorRecord, capsulePositionUnits, threshold) {
+        const nearest = Na__DoorProximity__FindNearestPanel(doorRecord, capsulePositionUnits);
+        const nearestIsInsideThreshold = nearest.panel && nearest.distance < threshold;
+
+        doorRecord.panels.forEach((panel) => {
+            if (!Na__DoorProximity__IsPanelEligible(panel)) return;
+            const shouldBeNear = nearestIsInsideThreshold && panel === nearest.panel;
+            Na__DoorProximity__ApplyPanelNearState(doorRecord, panel, shouldBeNear);
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Update Proximity Check for All Doors (Called Every Frame)
     // ------------------------------------------------------------
     function Na__DoorProximity__Update(capsulePositionUnits) {
@@ -163,12 +262,15 @@
         const threshold = Na__DoorProximity__ThresholdUnits;
 
         Na__DoorAnim__DoorRegistry.forEach((doorRecord) => {
+            if (doorRecord.isIndependentPanels === true) {
+                Na__DoorProximity__UpdateIndependentDoor(doorRecord, capsulePositionUnits, threshold);
+                return;
+            }
+
             const doorWorldPos = Na__DoorProximity__GetDoorWorldPosition(doorRecord);
             if (!doorWorldPos) return;
 
-            const dx       = capsulePositionUnits.x - doorWorldPos.x;
-            const dz       = capsulePositionUnits.z - doorWorldPos.z;
-            const distance = Math.sqrt(dx * dx + dz * dz);
+            const distance = Na__DoorProximity__CalculatePlanarDistance(capsulePositionUnits, doorWorldPos);
 
             if (distance < threshold) {
                 if (doorRecord.state === Na__DoorProximity__STATE_CLOSED) {

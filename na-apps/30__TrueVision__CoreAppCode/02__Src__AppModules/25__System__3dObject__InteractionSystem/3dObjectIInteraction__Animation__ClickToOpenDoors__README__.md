@@ -4,11 +4,22 @@
 **Feature:** Click-to-Open Door Animation for TrueVision3D  
 **Created:** 14-Feb-2026  
 **Author:** Adam Noble - Noble Architecture  
-**Module Version:** 1.3.0 (17-May-2026 — accordion phasing contract + bifold duration multiplier)
+**Module Version:** 1.7.0 (10-Jul-2026 — independent Exterior Double Door leaves)
 
 ---
 
 ## Recent Changes
+
+**V1.7.0 — 10-Jul-2026**
+- ADR names containing a configured independent token (default
+  `ExteriorDoubleDoor`) now own animation state per MOD panel. Clicking either
+  leaf resolves the nearest MOD ancestor and animates only that leaf.
+- Walk/Fly proximity measures each independent leaf from its paired ROT world
+  position, opens only the nearest leaf, and tracks near/far state per leaf.
+- `InteriorDoor`, `BifoldDoor`, `SlidingDoor`, and unknown legacy ADR names
+  remain lockstep. Two `ROT_ONLY` panels do not imply independence.
+- Added `IndependentPanelsEnabled` as an emergency lockstep kill-switch and
+  `IndependentPanelAdrNameTokens` as the explicit classification allow-list.
 
 **V1.3.0 — 17-May-2026**
 - Bifold doors animate ~3× slower than single/sliding doors via the new
@@ -65,7 +76,7 @@
 **1. Model Setup in SketchUp:**
 - Name door assemblies with `ADR` prefix (e.g., `ADR002__InternalDoor__GroundFloor__PorchToLounge`)
 - Inside each ADR you can mix any of the following MOD types as flat siblings:
-  - `MOD001__ROT__90-Deg__DoorPanel` or `MOD001__ROT__-90-Deg__DoorPanel`     — single hinged panel (interior + bifold master)
+  - `MOD001__ROT__90-Deg__DoorPanel` or `MOD001__ROT__-90-Deg__DoorPanel`     — hinged panel (interior, exterior double, or bifold master)
   - `MOD003__ROT__-95-Deg__MVE__X-600-mm__BifoldPanel`                        — bifold slave: rotates ~ ±90° (alternating ±5° tilt) AND slides toward the cascade jamb (V1.7.7 uniform 10mm knuckles)
   - `MOD002__MVE__X+1200-mm__SlidingPanel`                                     — sliding moving leaf (translation only)
   - `MOD003__FIXED__SlidingPanel`                                              — sliding fixed leaf (never animated)
@@ -103,6 +114,10 @@
             "3dObject__Interaction__DoorAnimation__DefaultRotationDeg"        : 90,
             "3dObject__Interaction__DoorAnimation__ClickThresholdPx"          : 4,
             "3dObject__Interaction__DoorAnimation__MultiPanelEnabled"         : true,
+            "3dObject__Interaction__DoorAnimation__IndependentPanelsEnabled" : true,
+            "3dObject__Interaction__DoorAnimation__IndependentPanelAdrNameTokens": [
+                "ExteriorDoubleDoor"
+            ],
             "3dObject__Interaction__DoorAnimation__CategoryNameTokens"        : [
                 "ProposedDoors",
                 "ExistingDoors"
@@ -113,6 +128,15 @@
 ```
 
 `MultiPanelEnabled` is a kill-switch. When set to `false`, the scanner ignores every MOD type except the legacy `ROT_ONLY` pattern, reverting bifold and sliding doors to a static (non-animated) state. Useful for emergency rollback if a multi-panel cascade misbehaves on a specific deployment; in normal operation, leave it `true`.
+
+`IndependentPanelsEnabled` is the independent-leaf kill-switch. Set it to
+`false` to return every ADR, including Exterior Double Doors, to the established
+whole-door lockstep path without changing the exported GLB.
+
+`IndependentPanelAdrNameTokens` is an explicit allow-list matched against the
+ADR node name. The default `["ExteriorDoubleDoor"]` is intentionally narrow:
+independence is never inferred from panel count or from two `ROT_ONLY` nodes,
+because Interior Double Doors share that structure and must stay lockstep.
 
 `BifoldDurationMultiplier` (V1.3.0+) scales the animation duration **only** for bifold doors so the accordion fold reads as a deliberate concertina rather than a snap. Detected at scan time by the presence of any `ROT_MVE` panel - sliding doors (`MVE_ONLY` + `FIXED`) and single hinged doors (`ROT_ONLY`) are unaffected. Default `3.0` (i.e. `600ms * 3 = 1800ms`).
 
@@ -178,7 +202,8 @@ function Na__RenderLoop__Animate() {
 
 ### ADR (Door Assembly)
 - **Format:** `ADR###__[Description]`
-- **Example:** `ADR002__InternalDoor`, `ADR007__BifoldDoor`, `ADR009__SlidingDoor`
+- **Example:** `ADR002__InteriorDoor`, `ADR007__BifoldDoor`, `ADR009__SlidingDoor`,
+  `ADR010__ExteriorDoubleDoor__`
 - **Purpose:** Top-level container for the door assembly. Every MOD/ROT/MVE marker
   lives as a flat sibling under the ADR component definition.
 - **3-Digit Code:** Globally unique identifier (001-099); allocator scans every
@@ -193,7 +218,7 @@ priority order (`__ROT__` + `__MVE__` is checked before plain `__ROT__`).
 
 | Pattern                                                                   | Type      | Used by                              |
 |---------------------------------------------------------------------------|-----------|--------------------------------------|
-| `MOD###__ROT__<deg>-Deg__<tag>`                                           | ROT_ONLY  | Interior door, bifold master/hinged  |
+| `MOD###__ROT__<deg>-Deg__<tag>`                                           | ROT_ONLY  | Interior/exterior-double hinged leaf, bifold master |
 | `MOD###__ROT__<deg>-Deg__MVE__<axis><signed-mm>-mm__<tag>`                | ROT_MVE   | Bifold slave (rotates + slides)      |
 | `MOD###__MVE__<axis><signed-mm>-mm__<tag>`                                | MVE_ONLY  | Sliding moving leaf                  |
 | `MOD###__FIXED__<tag>`                                                    | FIXED     | Sliding fixed leaf (no animation)    |
@@ -247,6 +272,22 @@ SketchUp Model
 │     └─ ROT001__RotationPoint__DoorHingeCentre ← Hinge pivot
 ```
 
+### Exterior Double Door (independent leaves)
+
+```
+SketchUp Model
+├─ 25__ProposedBuilding__Doors
+│  └─ ADR010__ExteriorDoubleDoor__
+│     ├─ MOD001__ROT__-90-Deg__ExteriorDoubleDoorPanel
+│     ├─ ROT001__RotationPoint__ExteriorDoubleDoorHingeCentre
+│     ├─ MOD002__ROT__90-Deg__ExteriorDoubleDoorPanel
+│     └─ ROT002__RotationPoint__ExteriorDoubleDoorHingeCentre
+```
+
+The ADR token selects independent coupling. MOD001 and MOD002 retain separate
+state/progress and pair with ROT001 and ROT002 by rotating-sibling index.
+Do not add `MVE` tokens to exterior-double leaves.
+
 ### Bifold door (3-panel cascade, MasterSlaves layout)
 
 The SketchUp ExtFold layout modules emit an "accordion phasing" contract:
@@ -257,8 +298,7 @@ the per-slave hinge spacing **alternates** between an adaptive within-pair
 gap (`max(50, 2*panel_w*sin(angle)+30)` mm, ~170mm at 800mm panels and
 ±5° tilt) and a fixed between-pairs gap (10mm), producing real-bifold V
 pairs with knuckle-style separation rather than a uniform deck-of-cards
-collapse. Slaves use ~±90°
-(matching the master's outward sign), NOT 180°.
+collapse. Slaves use ~±90° (matching the master's outward sign), NOT 180°.
 
 ```
 SketchUp Model
@@ -346,7 +386,9 @@ M_gltf = Z_UP_TO_Y_UP * M_sketchup * inv(Z_UP_TO_Y_UP)
 - Threshold: 4px movement (configurable)
 - Raycasts against every panel's mesh + linework (FIXED leaves are still
   click-targets so the user can tap them to toggle the rest of the door)
-- Walks up scene graph to find ADR ancestor
+- Walks up scene graph to find ADR and nearest MOD ancestors
+- Lockstep ADRs toggle the whole door; independent ADRs toggle only the
+  resolved mesh/linework panel descriptor
 
 ### Animation
 - Smooth ease-in-out cubic interpolation driven by a unified `[0..1]` progress
@@ -360,6 +402,8 @@ M_gltf = Z_UP_TO_Y_UP * M_sketchup * inv(Z_UP_TO_Y_UP)
        `progress * mveDistanceUnits`
 - Mid-animation reversal scales duration proportional to the remaining progress
 - Animates both mesh and linework MOD objects simultaneously
+- Independent Exterior Double Door leaves run the same transform/easing path
+  with separate `state`, `currentProgress`, start/end progress, and timing fields
 
 ### Effective Animation Duration (V1.3.0+)
 Bifold doors animate slower than single hinged or sliding doors so the
@@ -379,9 +423,10 @@ accordion fold reads as deliberate, mechanical motion rather than a snap.
 - `CLOSED` → `OPENING` → `OPEN` → `CLOSING` → `CLOSED`
 - Supports clicking during animation to reverse direction
 - Duration scales proportionally for partial reversals
-- Walk-Mode proximity reuses the same `state` machine - the proximity module
-  calls `Na__DoorAnim__ToggleDoor` and the multi-panel applier cascades
-  automatically across every panel of the ADR
+- Lockstep Walk/Fly proximity calls `Na__DoorAnim__ToggleDoor`.
+- Independent Walk/Fly proximity calls `Na__DoorAnim__TogglePanel` only for the
+  nearest eligible ROT-linked leaf. The ADR-level legacy state fields remain
+  aliases of the primary panel for older consumers.
 
 ---
 
@@ -431,6 +476,8 @@ Initializes the door animation system.
 - `3dObject__Interaction__DoorAnimation__DefaultRotationDeg` (number) - Fallback rotation angle
 - `3dObject__Interaction__DoorAnimation__ClickThresholdPx` (number) - Click detection threshold
 - `3dObject__Interaction__DoorAnimation__MultiPanelEnabled` (boolean) - Kill-switch for ROT_MVE/MVE_ONLY/FIXED panel parsing
+- `3dObject__Interaction__DoorAnimation__IndependentPanelsEnabled` (boolean) - Kill-switch returning all ADRs to lockstep
+- `3dObject__Interaction__DoorAnimation__IndependentPanelAdrNameTokens` (string[]) - Explicit ADR tokens allowed to animate per panel
 
 ---
 
@@ -446,6 +493,12 @@ Updates all door animations. Call every frame in render loop.
 ### `Na__DoorAnimation__ScanForDoors()`
 
 Re-scans scene graph for door assemblies. Useful for dynamically loaded models.
+
+### `Na__DoorAnim__TogglePanel(doorRecord, panel)`
+
+Toggles one panel only when `doorRecord.isIndependentPanels === true`. Returns
+`true` when an eligible panel animation was started/reversed, otherwise `false`.
+External whole-door callers should continue using `Na__DoorAnim__ToggleDoor`.
 
 ---
 
@@ -501,6 +554,9 @@ Re-scans scene graph for door assemblies. Useful for dynamically loaded models.
 
 **Test Environment:**
 - `80__Testing__PrototypeEnvironment/` - Imports from main app for testing new features
+- Place matching mesh/linework GLBs containing an `ExteriorDoubleDoor` ADR in
+  `TestEnv__GlbFiles`, then verify left click, right click, rapid reversal,
+  nearest-leaf Walk proximity, and kill-switch fallback.
 
 ---
 
@@ -522,6 +578,14 @@ Re-scans scene graph for door assemblies. Useful for dynamically loaded models.
 ---
 
 ## Version History
+
+**Version 1.7.0** (10-Jul-2026)
+- Explicit token-based independent Exterior Double Door coupling.
+- Per-panel click state, progress, timing, easing, and mid-animation reversal.
+- Nearest-MOD hit resolution shared by mesh and linework branches.
+- Nearest-ROT Walk/Fly proximity with per-leaf near/far state.
+- ADR-level compatibility aliases retained; active-render checks inspect
+  independent panel states.
 
 **Version 1.4.0** (17-May-2026)
 - Multi-panel door pipeline: bifold (multi-MOD with rotation+translation

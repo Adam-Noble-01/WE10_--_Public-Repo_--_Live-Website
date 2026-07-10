@@ -65,6 +65,26 @@ TrueVision3D/  # Main project folder (1 LEVEL UP FROM THIS FOLDER)
 - All modules related to the base render engine PC controls are passed through from the established TrueVision3D engine scripts.
 
 # ---------------------------------------------------------
+## Exterior Double Door Animation Test Matrix
+
+Place matching door mesh and linework GLBs in `TestEnv__GlbFiles`. The exterior
+double-door ADR must contain `ExteriorDoubleDoor` and expose two flat
+`MOD###__ROT__...` leaves with paired `ROT###` siblings.
+
+1. Click MOD001 and confirm only the left leaf moves in mesh and linework.
+2. Click MOD002 and confirm only the right leaf moves.
+3. Reverse each leaf during opening and closing; motion must continue smoothly
+   from its current progress.
+4. Enter Walk mode near each hinge in turn; only the nearest leaf should open.
+5. Move across the centreline; the prior leaf should close while the newly
+   nearest leaf opens.
+6. Confirm `InteriorDoor`, `BifoldDoor`, `SlidingDoor`, and an unknown ADR still
+   animate in whole-door lockstep.
+7. Set `IndependentPanelsEnabled` to `false` in
+   `TestEnv__SubAppData__Config.json`; both exterior-double leaves must return
+   to lockstep without changing the GLB.
+
+# ---------------------------------------------------------
 
 ## Development Workflow
 - Rapidly prototype and test new features in isolation without affecting the main TrueVision3D application.

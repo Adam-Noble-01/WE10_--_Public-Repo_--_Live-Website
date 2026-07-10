@@ -2,6 +2,43 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.7.8  -  10-Jul-2026
+### Exterior Double Doors — Independent Leaf Animation
+
+Added explicit independent animation for exterior double-door ADRs while
+preserving the established lockstep behavior for every existing product.
+
+**Classification and compatibility:**
+- `ADR` names containing `ExteriorDoubleDoor` are independently coupled when
+  `IndependentPanelsEnabled` is true.
+- Bifold `ROT_MVE` structures, `InteriorDoor`, `BifoldDoor`, `SlidingDoor`, and
+  unknown legacy ADRs remain lockstep. Two `ROT_ONLY` panels alone never opt in.
+- ADR-level state/progress/timing fields remain compatibility aliases of the
+  primary panel. External whole-door callers retain `Na__DoorAnim__ToggleDoor`.
+
+**Interaction and proximity:**
+- Raycast hits resolve through the nearest MOD ancestor, pairing mesh and
+  linework branches to one panel descriptor.
+- Each independent panel owns state, progress, timing, easing, and
+  mid-animation reversal.
+- Walk/Fly proximity measures paired ROT world positions and opens only the
+  nearest eligible leaf, with near/far state tracked per panel.
+
+**Configuration and testing:**
+- Added `IndependentPanelsEnabled` and
+  `IndependentPanelAdrNameTokens: ["ExteriorDoubleDoor"]` to production and
+  prototype-sandbox config.
+- Updated door-animation technical documentation and the sandbox test matrix.
+
+**Changed Files**
+- MOD `02__Src__AppModules/25__System__3dObject__InteractionSystem/3dObjectIInteraction__Animation__ClickToOpenDoors__.js`
+- MOD `02__Src__AppModules/25__System__3dObject__InteractionSystem/3dObjectInteraction__Animation__WalkMode__ProximityToOpenDoors__.js`
+- MOD `02__Src__AppModules/25__System__3dObject__InteractionSystem/3dObjectIInteraction__Animation__ClickToOpenDoors__README__.md`
+- MOD `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json`
+- MOD `80__Testing__PrototypeEnvironment/TestEnv__SubAppData__Config.json`
+- MOD `80__Testing__PrototypeEnvironment/TestEnv__README__.md`
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.7.7  -  22-Jun-2026
 ### DataLib v1.4.0 — Discussion Marker Materials (MAT012–014)
 

@@ -257,7 +257,7 @@
     },
     "3dObject__InteractionsSystem": {
         "3dObject__Interaction__DoorAnimation": {
-            "3dObject__Interaction__DoorAnimation__Description"               : "Interactive door animation settings for click-to-open doors. Single, bifold, and sliding doors are all supported via the unified ADR/MOD/ROT/MVE/FIXED naming contract emitted by the SketchUp Element Assembly Studio Pro plugin and exported through GLB Builder v1.5.0+. Animation progress drives every panel of a multi-panel ADR in lockstep.",
+            "3dObject__Interaction__DoorAnimation__Description"               : "Interactive door animation settings for click and Walk/Fly proximity. Explicitly token-matched exterior-double ADRs animate per leaf; interior, bifold, sliding, and unknown ADRs retain the unified lockstep pipeline.",
             "3dObject__Interaction__DoorAnimation__Enabled"                   : true,
             "3dObject__Interaction__DoorAnimation__AnimationDurationMs"       : 600,
             "3dObject__Interaction__DoorAnimation__BifoldDurationMultiplier"  : 3.0,
@@ -265,6 +265,10 @@
             "3dObject__Interaction__DoorAnimation__ClickThresholdPx"          : 4,
             "3dObject__Interaction__DoorAnimation__MultiPanelEnabled"         : true,
             "3dObject__Interaction__DoorAnimation__InteriorRotationInverted"  : false,
+            "3dObject__Interaction__DoorAnimation__IndependentPanelsEnabled"  : true,
+            "3dObject__Interaction__DoorAnimation__IndependentPanelAdrNameTokens": [
+                "ExteriorDoubleDoor"
+            ],
             "3dObject__Interaction__DoorAnimation__CategoryNameTokens"        : [
                 "ProposedDoors",
                 "ExistingDoors"
