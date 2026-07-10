@@ -75,12 +75,18 @@ double-door ADR must contain `ExteriorDoubleDoor` and expose two flat
 2. Click MOD002 and confirm only the right leaf moves.
 3. Reverse each leaf during opening and closing; motion must continue smoothly
    from its current progress.
-4. Enter Walk mode near each hinge in turn; only the nearest leaf should open.
-5. Move across the centreline; the prior leaf should close while the newly
-   nearest leaf opens.
-6. Confirm `InteriorDoor`, `BifoldDoor`, `SlidingDoor`, and an unknown ADR still
+4. Enter Walk or Fly mode near either hinge; both unfixed leaves should open
+   together while orbit-mode clicks remain individual.
+5. Move beyond the proximity threshold; both leaves should close together.
+6. Orbit-open only one leaf, then enter proximity; the closed leaf should join
+   it without the open leaf reversing. Retreating should close both.
+7. Enter proximity, retreat before opening completes, and confirm both leaves
+   reverse smoothly without a progress jump.
+8. Test an ExteriorDoubleDoor with one FIXED panel; only the nearest eligible
+   moving panel should respond to Walk/Fly proximity.
+9. Confirm `InteriorDoor`, `BifoldDoor`, `SlidingDoor`, and an unknown ADR still
    animate in whole-door lockstep.
-7. Set `IndependentPanelsEnabled` to `false` in
+10. Set `IndependentPanelsEnabled` to `false` in
    `TestEnv__SubAppData__Config.json`; both exterior-double leaves must return
    to lockstep without changing the GLB.
 

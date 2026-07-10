@@ -15,7 +15,8 @@
   `ExteriorDoubleDoor`) now own animation state per MOD panel. Clicking either
   leaf resolves the nearest MOD ancestor and animates only that leaf.
 - Walk/Fly proximity measures each independent leaf from its paired ROT world
-  position, opens only the nearest leaf, and tracks near/far state per leaf.
+  position. Unfixed two-leaf pairs open/close together; orbit clicks remain
+  independent. Assemblies with a FIXED leaf retain nearest-leaf sensor behavior.
 - `InteriorDoor`, `BifoldDoor`, `SlidingDoor`, and unknown legacy ADR names
   remain lockstep. Two `ROT_ONLY` panels do not imply independence.
 - Added `IndependentPanelsEnabled` as an emergency lockstep kill-switch and
@@ -424,8 +425,9 @@ accordion fold reads as deliberate, mechanical motion rather than a snap.
 - Supports clicking during animation to reverse direction
 - Duration scales proportionally for partial reversals
 - Lockstep Walk/Fly proximity calls `Na__DoorAnim__ToggleDoor`.
-- Independent Walk/Fly proximity calls `Na__DoorAnim__TogglePanel` only for the
-  nearest eligible ROT-linked leaf. The ADR-level legacy state fields remain
+- Independent Walk/Fly proximity applies one shared near-state to both panels
+  of an unfixed two-leaf pair. Assemblies containing FIXED panels retain the
+  nearest eligible ROT-linked leaf path. ADR-level legacy state fields remain
   aliases of the primary panel for older consumers.
 
 ---
@@ -556,7 +558,7 @@ External whole-door callers should continue using `Na__DoorAnim__ToggleDoor`.
 - `80__Testing__PrototypeEnvironment/` - Imports from main app for testing new features
 - Place matching mesh/linework GLBs containing an `ExteriorDoubleDoor` ADR in
   `TestEnv__GlbFiles`, then verify left click, right click, rapid reversal,
-  nearest-leaf Walk proximity, and kill-switch fallback.
+  coupled-pair Walk/Fly proximity, and kill-switch fallback.
 
 ---
 
@@ -583,7 +585,8 @@ External whole-door callers should continue using `Na__DoorAnim__ToggleDoor`.
 - Explicit token-based independent Exterior Double Door coupling.
 - Per-panel click state, progress, timing, easing, and mid-animation reversal.
 - Nearest-MOD hit resolution shared by mesh and linework branches.
-- Nearest-ROT Walk/Fly proximity with per-leaf near/far state.
+- Coupled-pair Walk/Fly proximity for unfixed two-leaf Exterior Double Doors;
+  nearest-eligible-leaf behavior when a FIXED panel exists.
 - ADR-level compatibility aliases retained; active-render checks inspect
   independent panel states.
 

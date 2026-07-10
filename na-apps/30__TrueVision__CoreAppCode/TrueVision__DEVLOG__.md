@@ -21,8 +21,9 @@ preserving the established lockstep behavior for every existing product.
   linework branches to one panel descriptor.
 - Each independent panel owns state, progress, timing, easing, and
   mid-animation reversal.
-- Walk/Fly proximity measures paired ROT world positions and opens only the
-  nearest eligible leaf, with near/far state tracked per panel.
+- Walk/Fly proximity measures paired ROT world positions and applies one
+  near/far state to both leaves of an unfixed pair. Orbit clicks remain
+  independent; assemblies containing a FIXED leaf retain nearest-leaf behavior.
 
 **Configuration and testing:**
 - Added `IndependentPanelsEnabled` and
