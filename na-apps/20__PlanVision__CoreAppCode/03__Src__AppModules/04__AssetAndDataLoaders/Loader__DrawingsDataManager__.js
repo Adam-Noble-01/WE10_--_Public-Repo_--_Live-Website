@@ -48,6 +48,7 @@
             let currentDesignPhase             = null;
             let projectPhaseConfig             = null;
             let projectDetails                 = null;
+            let designAccessStatementConfig    = null;
             let jsonConfigUrl                  = null;
             let projectBaseUrl                 = null;
             let cdnDataUrl                     = null;
@@ -437,6 +438,13 @@
                         console.log('[DrawingsDataManager] Project details loaded:', projectDetails['project-name-nickname']);
                     }
 
+                    // Extract and store the design-access-statement object (HTML statement route)
+                    if (data['na-project-data-library']['design-access-statement']) {
+                        designAccessStatementConfig = data['na-project-data-library']['design-access-statement'];
+                        console.log('[DrawingsDataManager] Design & Access Statement config loaded:',
+                            designAccessStatementConfig['das-html-file'] || '(no html file)');
+                    }
+
                     // Extract and store project phase configuration from JSON
                     if (data['na-project-data-library']['project-phase-config']) {
                         projectPhaseConfig = data['na-project-data-library']['project-phase-config'];
@@ -596,6 +604,15 @@
             };
             // ---------------------------------------------------------------
 
+            // FUNCTION | Get Design Access Statement Config Object
+            // Returns the design-access-statement object from the project JSON
+            // (HTML route links, image inventory) or null when not present.
+            // ------------------------------------------------------------
+            const Na__Data__GetDesignAccessStatementConfig = function () {
+                return designAccessStatementConfig;
+            };
+            // ---------------------------------------------------------------
+
             // FUNCTION | Get Design Access Statement Documents
             // Returns documents detected via Sxx document code pattern.
             // ------------------------------------------------------------
@@ -666,6 +683,7 @@
                 Na__Data__GetFolderGroups           : Na__Data__GetFolderGroups,
                 Na__Data__GetHistoricFolderGroups   : Na__Data__GetHistoricFolderGroups,
                 Na__Data__GetFlatDrawingsList       : Na__Data__GetFlatDrawingsList,
+                Na__Data__GetDesignAccessStatementConfig : Na__Data__GetDesignAccessStatementConfig,
                 Na__Data__GetDesignAccessStatementDocuments : Na__Data__GetDesignAccessStatementDocuments,
                 Na__Data__GetPrimaryDesignAccessStatementDocument : Na__Data__GetPrimaryDesignAccessStatementDocument,
                 Na__Data__GetDataLoadSource         : Na__Data__GetDataLoadSource

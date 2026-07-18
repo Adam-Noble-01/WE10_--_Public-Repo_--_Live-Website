@@ -96,6 +96,7 @@
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__DrawingButtons__.js"></script>
     <script src="03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Loading__.js"></script>
     <script src="03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Viewer__.js"></script>
+    <script src="03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__HtmlViewer__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__HistoricArchive__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialSystem__.js"></script>
     <script src="03__Src__AppModules/10__UserInterface/UserInterface__TutorialAnimations__.js"></script>
@@ -135,6 +136,7 @@
     <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__MeasurementToolsPanel__.css">
     <link rel="stylesheet" href="./03__Src__AppModules/09__AppLandingPage/LandingPage__Styles__.css">
     <link rel="stylesheet" href="./03__Src__AppModules/12__DesignAccessStatement/DesignAccessStatement__Styles__.css">
+    <link rel="stylesheet" href="./04__Style__AppStylesheets/StyleSheet__DesignAccessStatement__.css">
 
     <!-- endregion ---------------------------------------- -->
 
@@ -157,7 +159,7 @@
             <div id="header">
                 <button id="toggleToolbarBtn">☰</button>
                 <span id="app-title" style="padding-left: 10px;">PlanVision
-                    <span style="font-size: 12px; color: #656565;">- Version 2.3.0</span>
+                    <span style="font-size: 12px; color: #656565;">- Version 2.4.0</span>
                 </span>
                 <img data-asset-src="NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
                     alt="Noble Architecture Logo">
@@ -328,8 +330,19 @@
                     </div>
                 </div>
 
+                <!-- HTML STATEMENT TOOLBAR - Shown when the crisp HTML route is active -->
+                <div id="design-access-statement-html-toolbar">
+                    <div class="na-das-toolbar-controls">
+                        <button type="button" id="naDasHtmlDownloadBtn" class="na-das-control-btn">Download PDF</button>
+                        <button type="button" id="naDasHtmlShareBtn" class="na-das-control-btn">Share Document Link</button>
+                    </div>
+                </div>
+
                 <div id="design-access-statement-status"></div>
                 <div id="design-access-statement-canvas-host"></div>
+
+                <!-- HTML STATEMENT HOST - Endless-scroll A4 document injected by HtmlViewer -->
+                <div id="design-access-statement-html-host"></div>
             </div>
 
             <!-- endregion ---------------------------------------- -->
@@ -800,6 +813,11 @@
                             window.NaPlanVision.DesignAccessStatement.Viewer.Na__Das__Initialize({
                                 workerPath: '01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js?v=20260404'
                             });
+                        }
+
+                        // Initialize Design & Access Statement HTML Viewer (primary crisp route)
+                        if (window.NaPlanVision?.DesignAccessStatement?.HtmlViewer) {
+                            window.NaPlanVision.DesignAccessStatement.HtmlViewer.Na__DasHtml__Initialize();
                         }
 
                         // Initialize Historic Archive

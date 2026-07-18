@@ -9,6 +9,7 @@
 #   --Project--{CODE}              Sync all files for a specific project
 #   --Project--{CODE}--TV          Sync only TrueVision for a project
 #   --Project--{CODE}--PV          Sync only PlanVision for a project
+#   --Project--{CODE}--DAS         Sync only the Design & Access Statement
 #   --purge {CODE}                 Purge GLB files for a project
 #   --Help / --Instructions        Show usage guide
 #
@@ -56,6 +57,7 @@ function Show-Help {
     Write-Host '  --Project--{CODE}              Sync all files for a specific project' -ForegroundColor Green
     Write-Host '  --Project--{CODE}--TV          Sync only TrueVision for a project' -ForegroundColor Green
     Write-Host '  --Project--{CODE}--PV          Sync only PlanVision for a project' -ForegroundColor Green
+    Write-Host '  --Project--{CODE}--DAS         Sync only the Design & Access Statement' -ForegroundColor Green
     Write-Host '  --purge {CODE}                 Purge GLB files from R2 for a project' -ForegroundColor Green
     Write-Host '  --Help / --Instructions        Show this usage guide' -ForegroundColor Green
     Write-Host ''
@@ -64,8 +66,10 @@ function Show-Help {
     Write-Host '  --project {CODE}               Same as --Project--{CODE}' -ForegroundColor Gray
     Write-Host '  --project {CODE} --tv          Same as --Project--{CODE}--TV' -ForegroundColor Gray
     Write-Host '  --project {CODE} --pv          Same as --Project--{CODE}--PV' -ForegroundColor Gray
+    Write-Host '  --project {CODE} --das         Same as --Project--{CODE}--DAS' -ForegroundColor Gray
     Write-Host '  --TrueVision / --truevision    Same as --tv' -ForegroundColor Gray
     Write-Host '  --PlanVision / --planvision    Same as --pv' -ForegroundColor Gray
+    Write-Host '  --DesignStatement / --Das      Same as --das' -ForegroundColor Gray
     Write-Host ''
     Write-Host '  EXAMPLES:' -ForegroundColor Yellow
     Write-Host ''
@@ -126,12 +130,13 @@ function Show-InteractiveMenu {
     Write-Host '  [2]  Sync a SPECIFIC project     (TrueVision + PlanVision)' -ForegroundColor Green
     Write-Host '  [3]  Sync a SPECIFIC project     (TrueVision only)' -ForegroundColor Green
     Write-Host '  [4]  Sync a SPECIFIC project     (PlanVision only)' -ForegroundColor Green
-    Write-Host '  [5]  Purge GLB files for a project' -ForegroundColor Yellow
-    Write-Host '  [6]  Show help / instructions' -ForegroundColor Gray
+    Write-Host '  [5]  Sync a SPECIFIC project     (Design & Access Statement only)' -ForegroundColor Green
+    Write-Host '  [6]  Purge GLB files for a project' -ForegroundColor Yellow
+    Write-Host '  [7]  Show help / instructions' -ForegroundColor Gray
     Write-Host '  [0]  Exit' -ForegroundColor Gray
     Write-Host ''
 
-    $choice = Read-Host '  Enter choice (0-6)'
+    $choice = Read-Host '  Enter choice (0-7)'
     return $choice.Trim()
 }
 
@@ -224,6 +229,10 @@ for ($i = 0; $i -lt $ExtraArgs.Count; $i++) {
         $syncFilter = 'pv'
         continue
     }
+    if ($arg -in '--das', '--DAS', '--Das', '--DesignStatement', '--designstatement', '--das-only') {
+        $syncFilter = 'das'
+        continue
+    }
 
     if ($arg -match '^--[Pp]roject--([A-Za-z]{2}\d{2})--(TV|tv|TrueVision|truevision)$') {
         $projectCode = $Matches[1].ToUpper()
@@ -235,6 +244,12 @@ for ($i = 0; $i -lt $ExtraArgs.Count; $i++) {
         $projectCode = $Matches[1].ToUpper()
         $mode = 'project'
         $syncFilter = 'pv'
+        continue
+    }
+    if ($arg -match '^--[Pp]roject--([A-Za-z]{2}\d{2})--(DAS|das|Das|DesignStatement|designstatement)$') {
+        $projectCode = $Matches[1].ToUpper()
+        $mode = 'project'
+        $syncFilter = 'das'
         continue
     }
     if ($arg -match '^--[Pp]roject--([A-Za-z]{2}\d{2})$') {
@@ -295,6 +310,17 @@ if ($interactive) {
             $syncFilter = 'pv'
         }
         '5' {
+            $projectCode = Prompt-ProjectCode
+            if (-not $projectCode) {
+                Write-Host '  [CANCEL] Operation cancelled.' -ForegroundColor Red
+                Write-Host ''
+                Read-Host 'Press Enter to close this window'
+                exit 0
+            }
+            $mode = 'project'
+            $syncFilter = 'das'
+        }
+        '6' {
             $purgeCode = Prompt-ProjectCode
             if (-not $purgeCode) {
                 Write-Host '  [CANCEL] Operation cancelled.' -ForegroundColor Red
@@ -304,7 +330,7 @@ if ($interactive) {
             }
             $isPurge = $true
         }
-        '6' {
+        '7' {
             Show-Help
             Read-Host 'Press Enter to close this window'
             exit 0
@@ -352,6 +378,9 @@ if ($LASTEXITCODE -ne 0) { $missing += 'boto3' }
 python -c 'import dotenv' 2>$null
 if ($LASTEXITCODE -ne 0) { $missing += 'python-dotenv' }
 
+python -c 'import markdown' 2>$null
+if ($LASTEXITCODE -ne 0) { $missing += 'markdown' }
+
 if ($missing.Count -gt 0) {
     Write-Host "[INSTALL] Installing missing packages: $($missing -join ', ')" -ForegroundColor Yellow
     python -m pip install $missing --quiet
@@ -362,7 +391,7 @@ if ($missing.Count -gt 0) {
     }
     Write-Host '[OK] Dependencies installed' -ForegroundColor Green
 } else {
-    Write-Host '[OK] All dependencies present (boto3, python-dotenv)' -ForegroundColor Green
+    Write-Host '[OK] All dependencies present (boto3, python-dotenv, markdown)' -ForegroundColor Green
 }
 
 Write-Host ''
@@ -403,6 +432,7 @@ if (-not $interactive -and $mode -eq 'project' -and $projectCode) {
         $filterLabel = switch ($syncFilter) {
             'tv'    { 'TrueVision only' }
             'pv'    { 'PlanVision only' }
+            'das'   { 'Design & Access Statement only' }
             default { 'TrueVision + PlanVision' }
         }
         Write-Host "  [SYNC]    $filterLabel" -ForegroundColor Gray
@@ -431,6 +461,7 @@ $modeSummary = switch ($mode) {
 $filterSummary = switch ($syncFilter) {
     'tv'    { ' (TrueVision only)' }
     'pv'    { ' (PlanVision only)' }
+    'das'   { ' (Design & Access Statement only)' }
     default { ' (TrueVision + PlanVision)' }
 }
 Write-Host "  MODE: $modeSummary$filterSummary" -ForegroundColor Cyan
@@ -475,6 +506,8 @@ if ($syncFilter -eq 'tv') {
     $r2Args += '--tv-only'
 } elseif ($syncFilter -eq 'pv') {
     $r2Args += '--pv-only'
+} elseif ($syncFilter -eq 'das') {
+    $r2Args += '--das-only'
 }
 
 # Pass through --dry-run-only if present in original args

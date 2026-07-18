@@ -30,6 +30,8 @@ import argparse
 from pathlib import Path
 from datetime import datetime, timezone
 
+from ProjectVision__DasBuilder__ import is_das_folder, run_das_builds
+
 
 # =============================================================================
 # CONSTANTS
@@ -504,7 +506,7 @@ def discover_planvision_folder(dir_path, depth=0, max_depth=3):
         entry_path = os.path.join(dir_path, entry)
         if not os.path.isdir(entry_path):
             continue
-        if any(entry.startswith(p) for p in SKIP_FOLDER_PREFIXES):
+        if any(entry.startswith(p) for p in SKIP_FOLDER_PREFIXES) or is_das_folder(entry):
             continue
 
         sub_entries = discover_planvision_folder(entry_path, depth + 1, max_depth)
@@ -559,7 +561,7 @@ def discover_planvision_phases(project_path):
             sub_path = os.path.join(entry_path, sub_entry)
 
             if os.path.isdir(sub_path):
-                if any(sub_entry.startswith(p) for p in SKIP_FOLDER_PREFIXES):
+                if any(sub_entry.startswith(p) for p in SKIP_FOLDER_PREFIXES) or is_das_folder(sub_entry):
                     continue
                 content = discover_planvision_folder(sub_path, depth=1)
                 label = parse_folder_label(sub_entry)
@@ -649,6 +651,10 @@ def merge_planvision_existing_data(new_data, existing_data):
                 'project-description', 'client-name'):
         if old_details.get(key):
             new_details[key] = old_details[key]
+
+    # Preserve the design-access-statement object (owned by the DAS builder)
+    if old_lib.get('design-access-statement'):
+        new_lib['design-access-statement'] = old_lib['design-access-statement']
 
     old_phase_cfg = old_lib.get('project-phase-config', {})
     new_phase_cfg = new_lib.get('project-phase-config', {})
@@ -976,6 +982,9 @@ def main():
 
     if pv_generated_count > 0:
         print(f'\n  [INFO] Generated PlanVision__ProjectData__.json for {pv_generated_count} project(s)')
+
+    # BUILD DESIGN & ACCESS STATEMENTS (markdown relink -> HTML + JSON DAS object)
+    run_das_builds(target_projects, dry_run=args.dry_run_check)
 
     print_summary(all_projects, warnings)
     return 0

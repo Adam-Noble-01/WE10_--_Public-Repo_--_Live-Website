@@ -90,6 +90,8 @@ TRUEVISION_CONTENT_FOLDER          = '30__TrueVision__AppContent'
 PLANVISION_CONTENT_FOLDER          = '20__PlanVision__AppContent'
 GLB_FILE_PATTERN                   = re.compile(r'^.+\.glb$', re.IGNORECASE)
 PLANVISION_FILE_PATTERN            = re.compile(r'^.+\.(png|pdf|json)$', re.IGNORECASE)
+DAS_FOLDER_PATTERN                 = re.compile(r'^\d{2}__DesignState?ment$', re.IGNORECASE)
+DAS_FILE_PATTERN                   = re.compile(r'^.+\.(png|jpg|jpeg|webp|svg|gif|pdf|md|html|json)$', re.IGNORECASE)
 JSON_PROJECT_DATA_FILENAME         = 'TrueVision__ProjectData__.json'
 PLANVISION_DATA_FILENAME           = 'PlanVision__ProjectData__.json'
 MASTER_PROJECT_INDEX_PATH          = SCRIPT_DIR / '05__AppData' / 'ProjectVision__MasterProjectIndex__Core__.json'
@@ -381,8 +383,15 @@ def parse_group_label(group_id: str) -> str:
 
     # FUNCTION | Discover PlanVision Content Files Recursively
     # ------------------------------------------------------------
-def discover_planvision_content(project_path: Path) -> List[Dict]:
-    """Walk 20__PlanVision__AppContent/ and collect all PNG, PDF, and JSON files."""
+def discover_planvision_content(project_path: Path, das_only: bool = False) -> List[Dict]:
+    """Walk 20__PlanVision__AppContent/ and collect all syncable content files.
+
+    Standard folders sync PNG, PDF, and JSON files. Design & Access Statement
+    folders (NN__DesignStatment) use the wider DAS pattern so markdown, HTML,
+    and all statement image formats mirror to R2 exactly as they sit locally.
+    With das_only=True only statement-folder files plus the PlanVision project
+    data JSON (which carries the design-access-statement object) are returned.
+    """
     pv_content_path = project_path / PLANVISION_CONTENT_FOLDER
     files = []
 
@@ -391,11 +400,16 @@ def discover_planvision_content(project_path: Path) -> List[Dict]:
 
     for root_path, dirs, filenames in os.walk(pv_content_path):
         dirs[:] = [d for d in dirs if not any(d.startswith(p) for p in SKIP_FOLDER_PREFIXES)]
-        root = Path(root_path)
+        root          = Path(root_path)
+        relative_root = root.relative_to(pv_content_path)
+        in_das_folder = any(DAS_FOLDER_PATTERN.match(part) for part in relative_root.parts)
 
         for fname in sorted(filenames):
-            if not PLANVISION_FILE_PATTERN.match(fname):
+            file_pattern = DAS_FILE_PATTERN if in_das_folder else PLANVISION_FILE_PATTERN
+            if not file_pattern.match(fname):
                 continue
+            if das_only and not in_das_folder and fname != PLANVISION_DATA_FILENAME:
+                continue                                                 # <-- DAS-only mode still syncs the PV data JSON
 
             local_path = root / fname
             relative   = local_path.relative_to(pv_content_path)
@@ -622,6 +636,13 @@ def resolve_content_type(filename: str) -> str:
         '.pdf'  : CONTENT_TYPE_PDF,
         '.json' : CONTENT_TYPE_JSON,
         '.glb'  : CONTENT_TYPE_GLB,
+        '.jpg'  : 'image/jpeg',
+        '.jpeg' : 'image/jpeg',
+        '.webp' : 'image/webp',
+        '.svg'  : 'image/svg+xml',
+        '.gif'  : 'image/gif',
+        '.md'   : 'text/markdown',
+        '.html' : 'text/html',
     }.get(ext, 'application/octet-stream')
     # ------------------------------------------------------------
 
@@ -986,6 +1007,7 @@ def run_r2_sync(
     auto_confirm_upload: bool = False,
     sync_truevision: bool = True,
     sync_planvision: bool = True,
+    das_only: bool = False,
 ):
     """Execute the full R2 sync pipeline. Called by the build script or CLI."""
 
@@ -1070,7 +1092,7 @@ def run_r2_sync(
 
             # PlanVision sync
             if sync_planvision:
-                pv_files = discover_planvision_content(project['project_path'])
+                pv_files = discover_planvision_content(project['project_path'], das_only=das_only)
                 if pv_files:
                     pv_ops = collect_planvision_sync_operations(
                         s3_client, bucket_name,
@@ -1263,6 +1285,12 @@ if __name__ == '__main__':
         help='Sync only PlanVision files (PNG + PDF + PlanVision JSON).',
     )
     parser.add_argument(
+        '--das-only', '--designstatement-only', '--DAS',
+        dest='das_only',
+        action='store_true',
+        help='Sync only Design & Access Statement files (MD + HTML + images + PlanVision JSON).',
+    )
+    parser.add_argument(
         '--all',
         dest='sync_all',
         action='store_true',
@@ -1281,7 +1309,7 @@ if __name__ == '__main__':
         print(INSTRUCTIONS_TEXT)
         raise SystemExit(0)
 
-    sync_tv = not args.pv_only
+    sync_tv = not (args.pv_only or args.das_only)
     sync_pv = not args.tv_only
 
     try:
@@ -1293,6 +1321,7 @@ if __name__ == '__main__':
                 dry_run_only=args.dry_run_only,
                 sync_truevision=sync_tv,
                 sync_planvision=sync_pv,
+                das_only=args.das_only,
             )
     except Exception as error:
         import traceback

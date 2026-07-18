@@ -5,6 +5,34 @@
 
 # -----------------------------------------------------------------------------
 
+## PlanVision - Version 2.3.1 - 18-Jul-2026
+### Added - DESIGN & ACCESS STATEMENT HTML ROUTE (CRISP MARKDOWN-BUILT STATEMENTS)
+
+**New HTML-first statement display (PDF route retained as fallback):**
+- Added `DesignAccessStatement__HtmlViewer__.js` module (`NaPlanVision.DesignAccessStatement.HtmlViewer`) containing:
+  - `Na__DasHtml__ShowStatement` — fetches the builder-generated statement HTML (CDN first, live site fallback, local portal fallback in local dev) and injects it as an endless-scroll A4 document with crisp, selectable text
+  - `Na__DasHtml__ResolveImageSources` — rewrites statement image links from the `design-access-statement` object in `PlanVision__ProjectData__.json` (single source of truth for CDN links) with a CDN → live → local fallback chain
+  - `Na__DasHtml__DownloadPdf` — bakes a pageless A4 PDF from the rendered HTML in the browser (html2canvas + jsPDF, pinned versions lazy-loaded on demand), mirroring the Py_PdfUtils HtmlToPagelessPdfConverter approach
+- `Na__Menu__ShowDesignAccessStatement` now prefers the HTML route and cascades: HTML -> DAS-object PDF link -> legacy Sxx PDF document -> empty state
+
+**New common statement stylesheet (single source of truth):**
+- Added `04__Style__AppStylesheets/StyleSheet__DesignAccessStatement__.css` — refactored from the Typora authoring theme `01-na-diary-view-a4.css`, scoped under `.na_das_document`
+- Used by BOTH the in-app viewer and every standalone generated statement HTML, so a style tweak here updates all statements at once
+
+**Data schema:**
+- New `design-access-statement` object in `PlanVision__ProjectData__.json` (written by `ProjectVision__DasBuilder__.py`): enable flag, folder locations, markdown/HTML/PDF filenames, CDN + live URL set, and bundled image inventory
+- `Loader__DrawingsDataManager__.js` exposes it via `Na__Data__GetDesignAccessStatementConfig()`
+
+**Share link:**
+- New `DAS` share code: `&doc=DAS` deep-links straight into the statement view
+- `Na__Share__CopyStatementLink` added; the toolbar share button and the statement-view Share button both produce the DAS link when the statement is open
+
+**UI:**
+- New statement toolbar (Download PDF + Share Document Link) and `#design-access-statement-html-host` swap in for the PDF.js controls when HTML mode is active (`.na-das-mode--html`)
+- Version bumped from 2.3.0 to 2.4.0
+
+# -----------------------------------------------------------------------------
+
 ## PlanVision - Version 2.3.0 - 01-Jun-2026
 ### Added - DOCUMENT SHARE LINK SYSTEM
 

@@ -1,33 +1,31 @@
 {
     "na-project-data-library": {
-
         "project-details": {
-            "project-name"                  : "Example Project Structure",
-            "project-name-nickname"         : "Example Project",
-            "project-address"               : "123 Example Street, Nottingham, NG1 1AA",
-            "project-description"           : "This is an example project demonstrating the full PlanVision data structure. It includes multiple design phases, folder-organised drawings and specifications.",
-            "client-name"                   : "Example Client"
+            "project-name": "Example Project Structure",
+            "project-name-nickname": "Example Project",
+            "project-address": "123 Example Street, Nottingham, NG1 1AA",
+            "project-description": "This is an example project demonstrating the full PlanVision data structure. It includes multiple design phases, folder-organised drawings and specifications.",
+            "client-name": "Example Client"
         },
-
         "project-phase-config": {
-            "active-design-phase"           : "DesignPhase02",
-            "available-phases"              : ["DesignPhase01", "DesignPhase02"],
-            "phase-last-updated"            : "27-Feb-2026"
+            "active-design-phase": "DesignPhase02",
+            "available-phases": [
+                "DesignPhase01",
+                "DesignPhase02"
+            ],
+            "phase-last-updated": "27-Feb-2026"
         },
-
         "project-documentation": {
-
             "phase-content": {
-
                 "DesignPhase01": {
-                    "phase-folder"          : "DesignPhase01__ConceptDesign__Content",
+                    "phase-folder": "DesignPhase01__ConceptDesign__Content",
                     "folder-structure": [
                         {
-                            "label"             : "Floor Plans",
-                            "document-type"     : "Drawing",
-                            "document-scale"    : "1:50",
-                            "document-size"     : "A2",
-                            "files"             : [
+                            "label": "Floor Plans",
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
                                 "AA00_T01_D01__ExistingGroundFloorPlan__RevA__",
                                 "AA00_T01_D02__ExistingFirstFloorPlan__RevA__",
                                 "AA00_T01_D03__ProposedGroundFloorPlan__RevA__",
@@ -35,11 +33,11 @@
                             ]
                         },
                         {
-                            "label"             : "Elevations",
-                            "document-type"     : "Drawing",
-                            "document-scale"    : "1:50",
-                            "document-size"     : "A2",
-                            "files"             : [
+                            "label": "Elevations",
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
                                 "AA00_T01_D10__ExistingFrontElevation__RevA__",
                                 "AA00_T01_D11__ExistingRearElevation__RevA__",
                                 "AA00_T01_D12__ProposedFrontElevation__RevA__",
@@ -48,16 +46,15 @@
                         }
                     ]
                 },
-
                 "DesignPhase02": {
-                    "phase-folder"          : "DesignPhase02__PlanningApproval__Content",
+                    "phase-folder": "DesignPhase02__PlanningApproval__Content",
                     "folder-structure": [
                         {
-                            "label"             : "Plans",
-                            "document-type"     : "Drawing",
-                            "document-scale"    : "1:50",
-                            "document-size"     : "A2",
-                            "files"             : [
+                            "label": "Plans",
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
                                 "AA00_T02_D01__ExistingGroundFloorPlan__RevB__",
                                 "AA00_T02_D02__ExistingFirstFloorPlan__RevB__",
                                 "AA00_T02_D03__ProposedGroundFloorPlan__RevB__",
@@ -65,11 +62,11 @@
                             ]
                         },
                         {
-                            "label"             : "Elevations",
-                            "document-type"     : "Drawing",
-                            "document-scale"    : "1:50",
-                            "document-size"     : "A2",
-                            "files"             : [
+                            "label": "Elevations",
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
                                 "AA00_T02_D10__ExistingFrontElevation__RevB__",
                                 "AA00_T02_D11__ExistingRearElevation__RevB__",
                                 "AA00_T02_D12__ProposedFrontElevation__RevB__",
@@ -77,29 +74,52 @@
                             ]
                         },
                         {
-                            "label"             : "Site Plans",
-                            "document-type"     : "Drawing",
-                            "document-scale"    : "1:1250",
-                            "document-size"     : "A2",
-                            "files"             : [
+                            "label": "Site Plans",
+                            "document-type": "Drawing",
+                            "document-scale": "1:1250",
+                            "document-size": "A2",
+                            "files": [
                                 "AA00_T02_D20__LocationPlan__RevB__",
                                 "AA00_T02_D21__SitePlan__RevB__"
                             ]
                         },
                         {
-                            "label"             : "Specifications",
-                            "document-type"     : "Specification",
-                            "document-scale"    : "N/A",
-                            "document-size"     : "A4",
-                            "files"             : [
+                            "label": "Specifications",
+                            "document-type": "Specification",
+                            "document-scale": "N/A",
+                            "document-size": "A4",
+                            "files": [
                                 "AA00_T02_S01__DesignAndAccessStatement__RevA__"
                             ]
                         }
                     ]
                 }
-
+            }
+        },
+        "design-access-statement": {
+            "das-enabled": true,
+            "das-document-title": "AA00 - Example Design & Access Statement",
+            "das-phase-folder": "DesignPhase02__PlanningApproval__Content",
+            "das-statement-folder": "02__DesignStatment",
+            "das-markdown-file": "AA00__DesignAndAccessStatement__.md",
+            "das-html-file": "AA00__DesignAndAccessStatement__.html",
+            "das-pdf-file": null,
+            "das-last-built": "18-Jul-2026",
+            "das-document-links": {
+                "das-base-url--cdn": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/AA00__ExampleProjectStructure/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment",
+                "das-base-url--live": "https://www.noble-architecture.com/na-project-portal/26-Projects/AA00__ExampleProjectStructure/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment",
+                "das-html-url--cdn": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/AA00__ExampleProjectStructure/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment/AA00__DesignAndAccessStatement__.html",
+                "das-html-url--live": "https://www.noble-architecture.com/na-project-portal/26-Projects/AA00__ExampleProjectStructure/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment/AA00__DesignAndAccessStatement__.html",
+                "das-pdf-url--cdn": null,
+                "das-pdf-url--live": null
+            },
+            "das-image-files": {
+                "das-image-folder": "01__Statement__ImageFiles",
+                "das-images": [
+                    "Fig01__SiteLocationPlan__.png",
+                    "Fig02__ProposedFrontElevation__.png"
+                ]
             }
         }
-
     }
 }

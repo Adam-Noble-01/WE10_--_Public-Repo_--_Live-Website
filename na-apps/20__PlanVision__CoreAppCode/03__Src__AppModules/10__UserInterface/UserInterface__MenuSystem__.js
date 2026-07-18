@@ -324,10 +324,37 @@
                 }
 
                 var dataManager = window.NaPlanVision && window.NaPlanVision.DrawingsDataManager;
-                var statementDoc = dataManager
-                    ? dataManager.Na__Data__GetPrimaryDesignAccessStatementDocument()
+                var dasConfig   = dataManager && dataManager.Na__Data__GetDesignAccessStatementConfig
+                    ? dataManager.Na__Data__GetDesignAccessStatementConfig()
                     : null;
 
+                var htmlViewer = window.NaPlanVision
+                    && window.NaPlanVision.DesignAccessStatement
+                    && window.NaPlanVision.DesignAccessStatement.HtmlViewer;
+
+                // PRIMARY ROUTE | Crisp HTML statement built from markdown
+                // Falls back to the established PDF route if the fetch fails.
+                if (htmlViewer && htmlViewer.Na__DasHtml__IsAvailable(dasConfig)) {
+                    htmlViewer.Na__DasHtml__ShowStatement(dasConfig)
+                        .then(function () {
+                            console.log('[MenuSystem] Design Access Statement opened (HTML route)');
+                        })
+                        .catch(function () {
+                            console.warn('[MenuSystem] HTML route failed - falling back to PDF route');
+                            htmlViewer.Na__DasHtml__HideViewer();
+                            Na__Menu__ShowDesignAccessStatementPdfFallback(dataManager, dasConfig);
+                        });
+                    return;
+                }
+
+                Na__Menu__ShowDesignAccessStatementPdfFallback(dataManager, dasConfig);
+            };
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Show Design Access Statement via the PDF Fallback Route
+            // Order: DAS-object PDF link, then legacy Sxx document, then empty state.
+            // ------------------------------------------------------------
+            function Na__Menu__ShowDesignAccessStatementPdfFallback(dataManager, dasConfig) {
                 var statementViewer = window.NaPlanVision
                     && window.NaPlanVision.DesignAccessStatement
                     && window.NaPlanVision.DesignAccessStatement.Viewer;
@@ -336,6 +363,23 @@
                     console.warn('[MenuSystem] Design Access Statement viewer module unavailable');
                     return;
                 }
+
+                var dasLinks  = dasConfig ? (dasConfig['das-document-links'] || {}) : {};
+                var dasPdfUrl = dasLinks['das-pdf-url--cdn'] || dasLinks['das-pdf-url--live'];
+
+                if (dasPdfUrl) {
+                    statementViewer.Na__Das__ShowDocument({
+                        'file-name'      : dasConfig['das-pdf-file'] || 'DesignAndAccessStatement',
+                        'document-name'  : dasConfig['das-document-title'] || 'Design & Access Statement',
+                        'document-links' : { 'pdf--github-link-url': dasPdfUrl }
+                    });
+                    console.log('[MenuSystem] Design Access Statement opened (DAS-object PDF route)');
+                    return;
+                }
+
+                var statementDoc = dataManager
+                    ? dataManager.Na__Data__GetPrimaryDesignAccessStatementDocument()
+                    : null;
 
                 if (statementDoc) {
                     statementViewer.Na__Das__ShowDocument(statementDoc);
@@ -346,7 +390,7 @@
                     );
                     console.log('[MenuSystem] No Design Access Statement found for active phase');
                 }
-            };
+            }
             // ---------------------------------------------------------------
 
             // FUNCTION | Show Drawing Register
@@ -475,6 +519,13 @@
                     && window.NaPlanVision.DesignAccessStatement.Viewer;
                 if (statementViewer && statementViewer.Na__Das__HideViewer) {
                     statementViewer.Na__Das__HideViewer();
+                }
+
+                var htmlViewer = window.NaPlanVision
+                    && window.NaPlanVision.DesignAccessStatement
+                    && window.NaPlanVision.DesignAccessStatement.HtmlViewer;
+                if (htmlViewer && htmlViewer.Na__DasHtml__HideViewer) {
+                    htmlViewer.Na__DasHtml__HideViewer();
                 }
             }
             // ---------------------------------------------------------------

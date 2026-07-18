@@ -142,3 +142,47 @@
     }
 
 /* endregion -------------------------------------------------- */
+
+/* #Region --------------------------------------------------------
+ * HTML STATEMENT MODE | Crisp markdown-built statement (primary route)
+ * -------------------------------------------------------------
+ * The viewer root carries .na-das-mode--html when the HTML route is
+ * active: the PDF.js toolbar and canvas host are swapped out for the
+ * endless-scroll A4 document host styled by the common statement
+ * stylesheet (StyleSheet__DesignAccessStatement__.css).
+ * ------------------------------------------------------------- */
+
+    #design-access-statement-html-toolbar {
+        display                          : none;
+        align-items                      : center;
+        justify-content                  : center;
+        gap                              : 12px;
+        padding                          : 10px 14px;
+        border-bottom                    : 1px solid var(--App_BorderLight);
+        background                       : var(--App_BgSecondary);
+    }
+
+    #design-access-statement-html-host {
+        display                          : none;
+        flex                             : 1;
+        overflow-y                       : auto;
+        overflow-x                       : hidden;
+        padding                          : 0 12px;
+        background                       : #fafafa;
+        -webkit-overflow-scrolling       : touch;
+    }
+
+    #design-access-statement-viewer.na-das-mode--html #design-access-statement-html-toolbar {
+        display                          : flex;
+    }
+
+    #design-access-statement-viewer.na-das-mode--html #design-access-statement-html-host {
+        display                          : block;
+    }
+
+    #design-access-statement-viewer.na-das-mode--html #design-access-statement-toolbar,
+    #design-access-statement-viewer.na-das-mode--html #design-access-statement-canvas-host {
+        display                          : none;
+    }
+
+/* endregion -------------------------------------------------- */

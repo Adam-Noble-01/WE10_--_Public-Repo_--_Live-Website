@@ -1,0 +1,463 @@
+/* region[col01]---------------------------------------------------------------------------------------------------- */
+/* ----------------------------- |  Noble Architecture Design & Access Statement Theme  | --------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/* DATE CREATED  |  18/07/2026                                                                                       */
+/*                                                                                                                   */
+/* PURPOSE                                                                                                           */
+/* - Master document stylesheet for ALL Design & Access Statements rendered via the Markdown -> HTML route           */
+/* - Refactored from the Typora authoring theme "01-na-diary-view-a4.css" so statements authored in Typora           */
+/*   look identical online, simulating an endless-scroll A4 document                                                 */
+/* - Single source of truth: linked by the PlanVision in-app viewer AND every generated standalone statement HTML    */
+/* - Editor-only Typora rules (CodeMirror preview, meta-block focus states) are intentionally omitted                */
+/*                                                                                                                   */
+/* SCOPING                                                                                                           */
+/* - .na_das_page       : Page canvas wrapper (standalone HTML body class)                                           */
+/* - .na_das_document   : A4 paper container (replaces Typora #write) - all content rules scope beneath this         */
+/*                                                                                                                   */
+/* VERSION TRACKER                                                                                                   */
+/* 1.0.0 | 18/07/2026 | Initial refactor from Typora theme v2.1.1                                                    */
+/*                                                                                                                   */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col02]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------ |  Section 02  –  Company Font Faces  | ------------------------------------ */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+@font-face {
+    font-family     :    'Open Sans';
+    font-style      :    normal;
+    font-weight     :    300;
+    src             :    url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Light__.ttf') format('truetype');
+    font-display    :    swap;
+}
+
+@font-face {
+    font-family     :    'Open Sans';
+    font-style      :    normal;
+    font-weight     :    400;
+    src             :    url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf') format('truetype');
+    font-display    :    swap;
+}
+
+@font-face {
+    font-family     :    'Open Sans';
+    font-style      :    normal;
+    font-weight     :    500;
+    src             :    url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Medium__.ttf') format('truetype');
+    font-display    :    swap;
+}
+
+@font-face {
+    font-family     :    'Open Sans';
+    font-style      :    normal;
+    font-weight     :    600;
+    src             :    url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__SemiBold__.ttf') format('truetype');
+    font-display    :    swap;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col03]---------------------------------------------------------------------------------------------------- */
+/* --------------------------------- |  Section 03  –  Canvas & Page Settings  | ----------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.na_das_page {                              /* <--- Background canvas (standalone body) */
+    margin              :    0;
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    background-color    :    #fafafa;
+}
+
+.na_das_document {                          /* <--- Paper space object (was Typora #write) */
+    margin-top          :    10.00mm;
+    margin-bottom       :    10.00mm;
+    margin-left         :    auto;
+    margin-right        :    auto;
+    padding-top         :    10.00mm;       /* <--- Padding: top       */
+    padding-bottom      :    20.00mm;       /* <--- Padding: bottom    */
+    padding-left        :    11.00mm;       /* <--- Padding: left      */
+    padding-right       :    11.00mm;       /* <--- Padding: right     */
+    width               :    100%;
+    max-width           :    210.00mm;      /* <--- Limit the width to A4 size */
+    background-color    :    #ffffff;
+    box-shadow          :    00.00mm 00.00mm 02.00mm rgba(0, 0, 0, 0.495);
+    box-sizing          :    border-box;
+    word-wrap           :    break-word;    /* <--- Ensure text breaks inside the container */
+    overflow-wrap       :    break-word;    /* <--- Compatibility for older browsers        */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col04]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------- |  Section 04  –  Standard Text Styles  | --------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.na_das_document p {                        /* <--- Paragraphs */
+    color               :    #3c3c3c;
+    margin-top          :    00.00mm;
+    margin-bottom       :    03.50mm;
+    margin-left         :    00.00mm;
+    margin-right        :    00.00mm;
+    line-height         :    1.40;
+    font-size           :    10.00pt;
+    word-wrap           :    break-word;
+    overflow-wrap       :    break-word;    /* <--- Legacy support */
+    word-break          :    break-word;    /* <--- Ensures long words break */
+}
+
+.na_das_document b,
+.na_das_document strong {                   /* <--- Global style for bold text */
+    font-weight         :    500;
+    color               :    #555041;
+    font-family         :    "Open Sans", sans-serif;
+}
+
+.na_das_document i,
+.na_das_document em {                       /* <--- Global style for italic text */
+    font-style          :    italic;
+    color               :    #646464;
+    font-size           :    08.00pt;
+    font-family         :    "Open Sans", sans-serif;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col05]---------------------------------------------------------------------------------------------------- */
+/* --------------------------------------- |  Section 05  –  Heading Styles  | ------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.na_das_document h1,
+.na_das_document h2,
+.na_das_document h3,
+.na_das_document h4,
+.na_das_document h5,
+.na_das_document h6 {
+    margin-right        :    00.00mm;
+    margin-left         :    00.00mm;
+}
+
+.na_das_document h1 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    20.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.00;
+    margin-top          :    08.00mm;
+    margin-bottom       :    03.00mm;
+}
+
+.na_das_document h2 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    16.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.40;
+    margin-top          :    06.00mm;
+    margin-bottom       :    02.00mm;
+}
+
+.na_das_document h3 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    12.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.40;
+    margin-top          :    05.00mm;
+    margin-bottom       :    02.00mm;
+}
+
+.na_das_document h4 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.00;
+    margin-top          :    07.00mm;
+    margin-bottom       :   -02.00mm;
+}
+
+/* SPECIAL HEADING – Heading Level 5 */
+/* This level is used where zero gap is required between header and next element */
+/* Example: Table Headings */
+
+.na_das_document h5 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    11.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.00;
+    margin-top          :    05.00mm;
+    margin-bottom       :   -02.00mm;
+}
+
+/* SPECIAL HEADING – Heading Level 6 */
+/* Used for subheadings or supporting strap-lines to create subtle subtext under main titles */
+
+.na_das_document h6 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    color               :    #787878;
+    font-weight         :    200;           /* <--- Light weight for H6 elements */
+    margin-top          :    02.00mm;
+    margin-bottom       :   -02.00mm;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col06]---------------------------------------------------------------------------------------------------- */
+/* -------------------------------- |  Section 06  –  Bullet List (Unordered) Styles  | ---------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.na_das_document ul {                       /* <--- Unordered Bullet Lists */
+    padding-left        :    03.00mm;
+    list-style-type     :    none;
+    counter-reset       :    square-counter;
+    line-height         :    1.40;
+}
+
+.na_das_document ul li {
+    padding-left        :    00.50mm;
+    position            :    relative;
+    line-height         :    1.40;
+}
+
+.na_das_document ul li::before {
+    content             :    counter(square-counter, square) "    ";
+    counter-increment   :    square-counter;
+    color               :    #7d7869;
+    font-size           :    06.00pt;
+    position            :    absolute;
+    left                :   -03.00mm;
+    top                 :    1.10em;
+    transform           :    translateY(-50%);
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col07]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------- |  Section 07  –  Numbered List (Ordered) Styles  | ----------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.na_das_document ol {
+    list-style-type     :    none;
+    padding-left        :    07.00mm;
+    font-size           :    11.00pt;
+    line-height         :    1.50;
+    margin-bottom       :    05.00mm;
+    counter-reset       :    item;
+}
+
+.na_das_document ol li {
+    padding-left        :    05.00mm;
+    margin-bottom       :    02.00mm;
+    position            :    relative;
+}
+
+.na_das_document ol > li::before {
+    content             :    counter(item) ". ";
+    counter-increment   :    item;
+    position            :    absolute;
+    left                :   -07.00mm;
+    top                 :    00.00mm;
+}
+
+.na_das_document ol ol {
+    padding-left        :    07.00mm;
+    counter-reset       :    subitem;
+}
+
+.na_das_document ol ol > li::before {
+    content             :    counter(item) "." counter(subitem) " ";
+    counter-increment   :    subitem;
+    position            :    absolute;
+    left                :   -07.00mm;
+    top                 :    00.00mm;
+}
+
+.na_das_document ol ol ol {
+    padding-left        :    07.00mm;
+    counter-reset       :    subsubitem;
+}
+
+.na_das_document ol ol ol > li::before {
+    content             :    counter(item) "." counter(subitem) "." counter(subsubitem) " ";
+    counter-increment   :    subsubitem;
+    position            :    absolute;
+    left                :   -07.00mm;
+    top                 :    00.00mm;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col08]---------------------------------------------------------------------------------------------------- */
+/* ----------------------------------------- |  Section 08  –  Table Styles  | ------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.na_das_document table {
+    width               :    100%;
+    border-collapse     :    collapse;
+    margin-top          :    00.00mm;
+    margin-bottom       :    02.00mm;
+}
+
+.na_das_document th,
+.na_das_document td {
+    padding-top         :    01.25mm;
+    padding-bottom      :    01.25mm;
+    padding-left        :    01.00mm;
+    padding-right       :    01.00mm;
+    font-size           :    09.00pt;
+    line-height         :    1.20;
+}
+
+.na_das_document th {
+    height              :    08.00mm;
+    background-color    :    #f5f5f5;
+    font-size           :    11.00pt;
+    text-align          :    left;
+    font-weight         :    500;
+    color               :    #555041;
+}
+
+.na_das_document td {
+    background-color    :    inherit;
+}
+
+.na_das_document tr:nth-child(even) {
+    background-color    :    #fafafa;
+}
+
+.na_das_document td:first-child,
+.na_das_document th:first-child {
+    white-space         :    normal;        /* <--- Ensure natural text wrapping */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col09]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------ |  Section 09  –  Special Elements Styles  | ------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.na_das_document hr {
+    border              :    none;
+    border-top          :    00.26mm solid #b4b4b4;
+    margin-top          :    07.50mm;
+    margin-bottom       :    07.50mm;
+    opacity             :    0.5;
+}
+
+.na_das_document mark {
+    padding             :    00.85mm;
+    margin-top          :    01.50mm;
+    background          :    url("https://s2.svgbox.net/pen-brushes.svg?ic=brush-9&color=hsl(54,100%,80%)") !important;
+    background-size     :    cover;
+    color               :    #0f1f55;
+    border-radius       :    00.50em;
+    line-height         :    1.25em;
+}
+
+.na_das_document a {
+    color               :    #3c3c3c;
+    text-decoration     :    none;
+    font-size           :    08.00pt;
+}
+
+.na_das_document a:visited {
+    color               :    #3c3c3c;
+}
+
+.na_das_document a:hover {
+    color               :    #6ea8c2;
+    text-decoration     :    underline;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col02]---------------------------------------------------------------------------------------------------- */
+/*-------------------------- |  Section 10  –  Custom Noble Arch Document Classes  | --------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.na_das_document .na_doc_header_info {        /* <--- Class: Standard Document Header Section For Noble Architecture Docs */
+    display           :    flex;
+    flex-direction    :    column;            /* <--- This: Stacks children div elements vertically        */
+    align-items       :    flex-start;        /* <--- This: Aligns the items to the start of the container */
+    font-size         :    12.00pt;
+    margin-top        :    10.00mm;
+    margin-bottom     :    05.00mm;
+}
+
+.na_das_document .na_doc_header_info_bold {
+    font-size         :    12.00pt;
+    font-weight       :       500;
+}
+
+.na_das_document .na_doc_header_info_pipe_divider {
+    margin-top        :    01.00mm;
+    margin-bottom     :    01.00mm;
+    margin-left       :    02.00mm;        /* <--- This: Adjusts spacing left of the pipe_divider   */
+    margin-right      :    02.00mm;        /* <--- This: Adjusts spacing right of the pipe_divider  */
+    font-size         :    10.00pt;
+    vertical-align    :    middle;         /* <--- Aligns the pipe_divider vertically               */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col03]---------------------------------------------------------------------------------------------------- */
+/*---------------------------- |  Section 11  –  Code Block Style Configuration  | ----------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.na_das_document pre {                        /* <--- Fenced code blocks (was Typora .md-fences) */
+    background-color    :    #f4f4f4;        /* <--- This: Sets Code Block Background Colour     */
+    color               :    #202930;        /* <--- This: Sets Code Block Text Colour           */
+    font-size           :    06.50pt;        /* <--- This: Sets Text Size                        */
+    border              :    none;           /* <--- This: Sets Code Block Style Rendered        */
+    font-family         :    "Courier New", Courier, monospace;
+    padding-top         :    02.00mm;
+    padding-bottom      :    02.00mm;
+    padding-left        :    02.00mm;
+    padding-right       :    02.00mm;
+    overflow-x          :    auto;           /* <--- Long code lines scroll rather than overflow */
+    border-radius       :    5px;
+}
+
+.na_das_document pre code {
+    background-color    :    transparent;
+    font-family         :    "Courier New", Courier, monospace;
+    font-size           :    06.50pt;
+    line-height         :    1.15;
+}
+
+.na_das_document code {                       /* <--- Inline code spans */
+    background-color    :    #f4f4f4;
+    color               :    #202930;
+    font-family         :    "Courier New", Courier, monospace;
+    font-size           :    08.00pt;
+    padding             :    00.50mm;
+    border-radius       :    3px;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col04]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------ |  Section 12  –  Statement Image Styles  | -------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/* NEW SECTION - Not in the Typora theme; required so statement figures render correctly in the browser              */
+
+.na_das_document img {
+    display             :    block;
+    max-width           :    100%;           /* <--- Never overflow the A4 paper width           */
+    height              :    auto;
+    margin-top          :    03.00mm;
+    margin-bottom       :    03.00mm;
+    margin-left         :    auto;
+    margin-right        :    auto;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col10]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------- |  Section 13  –  END OF STYLE SHEET  | ----------------------------------- */
+/* endregion-------------------------------------------------------------------------------------------------------- */

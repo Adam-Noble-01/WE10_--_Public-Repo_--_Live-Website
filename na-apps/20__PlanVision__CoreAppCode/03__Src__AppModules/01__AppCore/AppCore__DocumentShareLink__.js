@@ -38,6 +38,7 @@
         // --------------------------------------------------------
 
             const NaDocQueryKey__Default = 'doc';                             // <-- URL param key for drawing code
+            const NaDasDocCode__Default  = 'DAS';                             // <-- Share code for the Design & Access Statement
 
         // endregion ----------------------------------------------
 
@@ -154,11 +155,43 @@
         // PUBLIC API | Share Current Document Link
         // --------------------------------------------------------
 
+            // FUNCTION | Copy Share URL for the Design & Access Statement
+            // Builds a &doc=DAS deep link that auto-opens the statement view
+            // ------------------------------------------------------------
+            const Na__Share__CopyStatementLink = function () {
+                if (!featureEnabled) return;
+
+                const toast    = window.NaPlanVision && window.NaPlanVision.ToastNotification;
+                const shareUrl = Na__Share__BuildShareUrlForCode(NaDasDocCode__Default);
+
+                Na__Share__CopyTextToClipboard(shareUrl)
+                    .then(function () {
+                        console.log('[DocumentShareLink] Statement link copied:', shareUrl);
+                        if (toast) {
+                            toast.Na__Toast__Show('Design & Access Statement link copied to clipboard.', 'success', 3500);
+                        }
+                    })
+                    .catch(function (err) {
+                        console.error('[DocumentShareLink] Clipboard copy failed:', err);
+                        if (toast) {
+                            toast.Na__Toast__Show('Could not copy to clipboard — please copy the URL manually.', 'warning', 5000);
+                        }
+                    });
+            };
+            // ---------------------------------------------------------------
+
             // FUNCTION | Copy Share URL for Currently Displayed Drawing
-            // Guards when no drawing is loaded or feature is disabled
+            // Guards when no drawing is loaded or feature is disabled.
+            // Delegates to the statement link when the DAS view is open.
             // ------------------------------------------------------------
             const Na__Share__CopyCurrentDocumentLink = function () {
                 if (!featureEnabled) return;
+
+                const dasViewerRoot = document.getElementById('design-access-statement-viewer');
+                if (dasViewerRoot && dasViewerRoot.classList.contains('is-visible')) {
+                    Na__Share__CopyStatementLink();
+                    return;
+                }
 
                 const drawingLoader = window.NaPlanVision
                     && window.NaPlanVision.DrawingsCanvas
@@ -238,6 +271,11 @@
 
                 const normalised = docCode.trim().toUpperCase();
 
+                // Dedicated DAS share code resolves straight to the statement view
+                if (normalised === NaDasDocCode__Default) {
+                    return { drawing: null, type: 'DesignAccessStatement' };
+                }
+
                 const types = ['Drawing', 'Specification'];
 
                 for (var t = 0; t < types.length; t++) {
@@ -307,7 +345,9 @@
                     return;
                 }
 
-                console.log('[DocumentShareLink] Resolved drawing:', resolved.drawing['file-name'], '(type:', resolved.type + ')');
+                console.log('[DocumentShareLink] Resolved drawing:',
+                    resolved.drawing ? resolved.drawing['file-name'] : NaDasDocCode__Default,
+                    '(type:', resolved.type + ')');
 
                 const menuSystem = window.NaPlanVision
                     && window.NaPlanVision.UserInterface
@@ -342,6 +382,7 @@
                 Na__Share__ExtractDocCodeFromFilename       : Na__Share__ExtractDocCodeFromFilename,
                 Na__Share__BuildShareUrlForCode             : Na__Share__BuildShareUrlForCode,
                 Na__Share__CopyCurrentDocumentLink          : Na__Share__CopyCurrentDocumentLink,
+                Na__Share__CopyStatementLink                : Na__Share__CopyStatementLink,
                 Na__Share__ResolveDrawingByDocCode          : Na__Share__ResolveDrawingByDocCode,
                 Na__Share__OpenDeepLinkedDocumentIfPresent  : Na__Share__OpenDeepLinkedDocumentIfPresent
             };
