@@ -1,0 +1,51 @@
+{
+    "na-project-data-library": {
+        "project-details": {
+            "project-name": "The Firs",
+            "project-name-nickname": "The Firs",
+            "project-address": "",
+            "project-description": "",
+            "client-name": ""
+        },
+        "project-phase-config": {
+            "active-design-phase": "DesignPhase02",
+            "available-phases": [
+                "DesignPhase02"
+            ],
+            "phase-last-updated": "19-Jul-2026"
+        },
+        "project-documentation": {
+            "phase-content": {
+                "DesignPhase02": {
+                    "phase-folder": "DesignPhase02__PlanningApproval__Content",
+                    "folder-structure": [
+                        {
+                            "label": "Planning Approval",
+                            "label-override": false,
+                            "document-type": "Drawing",
+                            "document-scale": "1:50",
+                            "document-size": "A2",
+                            "files": [
+                                "EB03_T02_D01__ProjectIntroduction__IsoA1__RevA__",
+                                "EB03_T02_D02__ExistingSiteLocationAndBlockPlan__IsoA1__RevA__",
+                                "EB03_T02_D03__ProposedSiteLocationAndBlockPlan__IsoA1__RevA__",
+                                "EB03_T02_D04__WestElevation__IsoA1__RevA__",
+                                "EB03_T02_D05__EastElevation__IsoA1__RevA__",
+                                "EB03_T02_D06__SouthElevation__IsoA1__RevA__",
+                                "EB03_T02_D07__NorthElevation__IsoA1__RevA__",
+                                "EB03_T02_D08__FrontElevation__IsoA1__RevA__",
+                                "EB03_T02_D09__RearElevation__IsoA1__RevA__",
+                                "EB03_T02_D10__ProposedGroundFloorPlan__IsoA1__RevA__",
+                                "EB03_T02_D11__ProposedFirstFloorPlan__IsoA1__RevA__",
+                                "EB03_T02_D12__ProposedRoofPlan__IsoA1__RevA__",
+                                "EB03_T02_D13__ExistingGroundFloorPlan__IsoA1__RevA__",
+                                "EB03_T02_D14__ExistingFirstFloorPlan__IsoA1__RevA__",
+                                "EB03_T02_D15__ExistingRoofPlan__IsoA1__RevA__"
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
