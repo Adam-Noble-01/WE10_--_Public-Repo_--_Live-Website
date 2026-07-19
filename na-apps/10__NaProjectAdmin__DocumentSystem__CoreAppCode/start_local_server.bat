@@ -32,7 +32,7 @@ if %ERRORLEVEL% neq 0 (
     echo.
 )
 
-echo Starting Flask server on http://localhost:8080
+echo Starting Flask server on http://localhost:8081
 echo Default project: JS01 (John Smith)
 echo.
 echo Command line options:

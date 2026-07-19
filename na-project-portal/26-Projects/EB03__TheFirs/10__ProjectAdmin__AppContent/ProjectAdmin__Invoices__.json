@@ -28,6 +28,78 @@
                 "vatApplicable": true,
                 "vatRate": 20
             }
+        },
+        {
+            "invoiceRef": "INV-EB03-2026-002",
+            "invoiceDate": "19-Jul-2026",
+            "dueDate": "26-Jul-2026",
+            "projectAddress": "",
+            "projectDescription": "Single Storey Extension to rear of Existing House, First Floor Addition on top of the Existing Garage and Utility Room, upgrades to the Existing Greenhouse.",
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "unpaid",
+            "paidDate": null,
+            "lineItems": [
+                {
+                    "description": "Design Phase - 02 : Planning Approval",
+                    "itemDescription": "-> Stage Payment 2 of 2\n-> This is the final invoice for Design Services.\n  -> A Separate pass-through invoice will be sent to recoup third party fees.\n-> Fee as per Quote Ref: QUO-EB03-2026-001\n\nServices Rendered\n1. Introduction Page\n2. Site & Block Plans\n3. Existing Floor Plans\n4. Proposed Floor Plans\n5. Existing Elevations\n6. Proposed Elevations\n7. Production Of CGIs\n8. Design & Access Statement\n9. Coordination & Admin\n\n\n\n\n",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 1600
+                }
+            ],
+            "totals": {
+                "subtotal": 1600,
+                "vatApplicable": true,
+                "vatRate": 20,
+                "vat": 320,
+                "grandTotal": 1920
+            },
+            "createdDate": "19/07/2026, 15:04:43",
+            "lastModified": "19/07/2026, 15:09:06"
+        },
+        {
+            "invoiceRef": "INV-EB03-2026-003",
+            "invoiceDate": "19-Jul-2026",
+            "dueDate": "26-Jul-2026",
+            "projectAddress": "",
+            "projectDescription": "Single Storey Extension to rear of Existing House, First Floor Addition on top of the Existing Garage and Utility Room, upgrades to the Existing Greenhouse.",
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "unpaid",
+            "paidDate": null,
+            "lineItems": [
+                {
+                    "description": "Householder Planning Application Fee",
+                    "itemDescription": "\n-> Fee set by local authority.\n-> Planning Portal service charge: £548.00 - Confirmed 19-Jul-2026.\n-> Noble Architecture agreed to collect the fees on your behalf to pay the council.",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 548
+                },
+                {
+                    "description": "Planning Portal Fee",
+                    "itemDescription": "-> Client confirmed she would like to use the additional Planning Portal Service.\n-> Planning Portal service charge: £91.02 - Confirmed 19-Jul-2026\n",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 91
+                },
+                {
+                    "description": "OS Mapping Data",
+                    "itemDescription": "-> 1 Hectare of CAD data purched\n-> Purchased from MapServe on 29-Jun-2026\n-> £42 Paid ",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 42
+                }
+            ],
+            "totals": {
+                "subtotal": 681,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 681
+            },
+            "createdDate": "19/07/2026, 15:16:06",
+            "lastModified": "19/07/2026, 15:16:47"
         }
     ]
 }

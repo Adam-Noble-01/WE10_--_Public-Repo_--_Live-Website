@@ -86,7 +86,7 @@ except ImportError:
 # -----
 
 # Server Settings
-PORT                     = 8080                                      # <-- Default port
+PORT                     = 8081                                      # <-- Default port (8080 avoided - commonly taken by NVIDIA Broadcast etc.)
 HOST                     = '127.0.0.1'                               # <-- Localhost only
 DEBUG_MODE               = False                                     # <-- Flask debug mode
 
@@ -946,8 +946,8 @@ def parse_arguments():
     parser.add_argument(
         '--port', '-p',
         type=int,
-        default=8080,
-        help='Port to run server on (default: 8080)'
+        default=8081,
+        help='Port to run server on (default: 8081)'
     )
     
     parser.add_argument(
