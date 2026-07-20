@@ -12,7 +12,7 @@
 - Added `DesignAccessStatement__HtmlViewer__.js` module (`NaPlanVision.DesignAccessStatement.HtmlViewer`) containing:
   - `Na__DasHtml__ShowStatement` — fetches the builder-generated statement HTML (CDN first, live site fallback, local portal fallback in local dev) and injects it as an endless-scroll A4 document with crisp, selectable text
   - `Na__DasHtml__ResolveImageSources` — rewrites statement image links from the `design-access-statement` object in `PlanVision__ProjectData__.json` (single source of truth for CDN links) with a CDN → live → local fallback chain
-  - `Na__DasHtml__DownloadPdf` — bakes a pageless A4 PDF from the rendered HTML in the browser (html2canvas + jsPDF, pinned versions lazy-loaded on demand), mirroring the Py_PdfUtils HtmlToPagelessPdfConverter approach
+  - `Na__DasHtml__DownloadPdf` — bakes a pageless-style A4 PDF from the rendered HTML in the browser (html2canvas + jsPDF, pinned versions lazy-loaded on demand). The document is captured in canvas-safe tiles from an off-screen clone and assembled onto sequential tall pages, each up to the 14399pt PDF format cap, at FULL A4 width — long statements span a few ~5m pages instead of being downscaled illegibly (improves on the Py_PdfUtils single-page approach, which also hit browser canvas limits)
 - `Na__Menu__ShowDesignAccessStatement` now prefers the HTML route and cascades: HTML -> DAS-object PDF link -> legacy Sxx PDF document -> empty state
 
 **New common statement stylesheet (single source of truth):**

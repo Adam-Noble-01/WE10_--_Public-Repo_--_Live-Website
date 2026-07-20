@@ -41,9 +41,16 @@
 
             const HTML_MODE_CLASS                = 'na-das-mode--html';
             const A4_WIDTH_PT                    = 210 / 25.4 * 72;               // <-- 210mm in points
-            const PDF_MAX_PAGE_PT                = 14399;                         // <-- Practical single dimension cap
-            const PDF_RASTER_SCALE               = 2;                             // <-- Rasterisation quality multiplier
-            const PDF_JPEG_QUALITY               = 0.95;
+            const PDF_MAX_PAGE_PT                = 14399;                         // <-- PDF format cap per page dimension
+            const PDF_TILE_CSS_HEIGHT            = 4000;                          // <-- Capture tile height (CSS px); keeps every canvas well under browser limits
+
+            // Export quality presets: 'full' for archive/print quality, 'compact'
+            // renders at lower resolution with stronger JPEG compression for a
+            // much smaller file suited to emailing and portal upload limits.
+            const PDF_EXPORT_PRESETS             = {
+                'full'    : { rasterScale: 2.00, jpegQuality: 0.92, fileSuffix: '' },
+                'compact' : { rasterScale: 1.25, jpegQuality: 0.75, fileSuffix: '__Compact' }
+            };
 
             // Pinned render/export libraries, lazy-loaded only when Download PDF is pressed
             const HTML2CANVAS_LIB_URL            = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
@@ -59,6 +66,7 @@
             let htmlHostEl                       = null;
             let htmlToolbarEl                    = null;
             let downloadBtn                      = null;
+            let downloadCompactBtn               = null;
             let shareBtn                         = null;
 
             let loadingController                = null;
@@ -268,14 +276,48 @@
             }
             // ---------------------------------------------------------------
 
-            // FUNCTION | Generate and Download the Pageless A4 PDF
-            // Mirrors Py_PdfUtils__HtmlToPagelessPdfConverter: the document is
-            // rasterised at full height, then embedded on a single very tall
-            // PDF page at A4 width (endless-scroll reading, print-safe cap).
+            // HELPER FUNCTION | Build the Off-Screen Capture Stage
+            // The live document sits inside a scrollable host, so it is cloned
+            // into a fixed-width stage at the page origin. Tiles are captured
+            // by cropping the stage with overflow:hidden + a negative margin.
             // ------------------------------------------------------------
-            async function Na__DasHtml__DownloadPdf() {
+            function Na__DasHtml__BuildCaptureStage(documentEl) {
+                const docWidthCss = documentEl.offsetWidth;
+
+                const stage                 = document.createElement('div');
+                stage.style.position        = 'absolute';
+                stage.style.top             = '0';
+                stage.style.left            = '-10000px';                          // <-- Off-screen but fully rendered
+                stage.style.width           = docWidthCss + 'px';
+                stage.style.overflow        = 'hidden';
+                stage.style.backgroundColor = '#ffffff';
+
+                const inner = documentEl.cloneNode(true);
+                inner.style.margin    = '0';                                       // <-- Content must start at stage origin for tile maths
+                inner.style.boxShadow = 'none';                                    // <-- No paper shadow bleed in the print capture
+                inner.style.width     = docWidthCss + 'px';
+                inner.style.maxWidth  = docWidthCss + 'px';
+
+                stage.appendChild(inner);
+                document.body.appendChild(stage);
+
+                return { stage: stage, inner: inner, docWidthCss: docWidthCss };
+            }
+            // ---------------------------------------------------------------
+
+            // FUNCTION | Generate and Download the Pageless A4 PDF
+            // Endless-scroll output at FULL A4 width: the document is captured
+            // in canvas-safe tiles and assembled onto sequential very tall PDF
+            // pages, each up to the 14399pt PDF format cap (about five metres
+            // of continuous scroll per page). Long statements therefore span a
+            // handful of tall pages instead of being downscaled to fit one.
+            // presetKey selects 'full' (default) or 'compact' export quality.
+            // ------------------------------------------------------------
+            async function Na__DasHtml__DownloadPdf(presetKey) {
                 if (exportInProgress || !currentDasConfig || !htmlHostEl) return;
 
+                const preset     = PDF_EXPORT_PRESETS[presetKey] || PDF_EXPORT_PRESETS['full'];
+                const activeBtn  = (presetKey === 'compact') ? downloadCompactBtn : downloadBtn;
                 const documentEl = htmlHostEl.querySelector('.na_das_document');
                 const toast      = window.NaPlanVision && window.NaPlanVision.ToastNotification;
 
@@ -285,42 +327,84 @@
                 }
 
                 exportInProgress = true;
-                if (downloadBtn) downloadBtn.disabled = true;
-                if (toast) toast.Na__Toast__Show('Preparing PDF download… this can take a moment.', 'info', 4000);
+                const activeBtnLabel = activeBtn ? activeBtn.textContent : '';
+                if (downloadBtn) downloadBtn.disabled = true;                      // <-- Lock both buttons for the duration
+                if (downloadCompactBtn) downloadCompactBtn.disabled = true;
+                if (toast) toast.Na__Toast__Show('Preparing PDF download… this can take a minute for long statements.', 'info', 5000);
+
+                let captureStage = null;
 
                 try {
                     await Na__DasHtml__LoadScriptOnce(HTML2CANVAS_LIB_URL);
                     await Na__DasHtml__LoadScriptOnce(JSPDF_LIB_URL);
 
-                    const rasterCanvas = await window.html2canvas(documentEl, {
-                        scale           : PDF_RASTER_SCALE,
-                        useCORS         : true,
-                        backgroundColor : '#ffffff',
-                        logging         : false
-                    });
+                    captureStage = Na__DasHtml__BuildCaptureStage(documentEl);
+                    const docWidthCss  = captureStage.docWidthCss;
+                    const docHeightCss = captureStage.inner.offsetHeight;
+                    const ptPerCssPx   = A4_WIDTH_PT / docWidthCss;
 
-                    // Scale the raster onto a single A4-width pageless PDF page
-                    let drawWidthPt  = A4_WIDTH_PT;
-                    let drawHeightPt = rasterCanvas.height * (drawWidthPt / rasterCanvas.width);
-
-                    if (drawHeightPt > PDF_MAX_PAGE_PT) {
-                        const downscale = PDF_MAX_PAGE_PT / drawHeightPt;          // <-- Cap page height at viewer limits
-                        drawWidthPt  *= downscale;
-                        drawHeightPt  = PDF_MAX_PAGE_PT;
+                    // Group the document into tall pages capped at the PDF limit
+                    const pageMaxCss = Math.floor(PDF_MAX_PAGE_PT / ptPerCssPx);
+                    const pageHeightsCss = [];
+                    for (let offset = 0; offset < docHeightCss; offset += pageMaxCss) {
+                        pageHeightsCss.push(Math.min(pageMaxCss, docHeightCss - offset));
                     }
 
                     const JsPdfConstructor = window.jspdf.jsPDF;
                     const pdfDocument = new JsPdfConstructor({
                         orientation : 'portrait',
                         unit        : 'pt',
-                        format      : [drawWidthPt, drawHeightPt]
+                        format      : [A4_WIDTH_PT, pageHeightsCss[0] * ptPerCssPx],
+                        compress    : true
                     });
 
-                    const jpegData = rasterCanvas.toDataURL('image/jpeg', PDF_JPEG_QUALITY);
-                    pdfDocument.addImage(jpegData, 'JPEG', 0, 0, drawWidthPt, drawHeightPt);
+                    let pageStartCss = 0;
+                    const totalTiles = Math.ceil(docHeightCss / PDF_TILE_CSS_HEIGHT);
+                    let doneTiles    = 0;
+
+                    for (let pageIndex = 0; pageIndex < pageHeightsCss.length; pageIndex++) {
+                        const pageCss = pageHeightsCss[pageIndex];
+                        if (pageIndex > 0) {
+                            pdfDocument.addPage([A4_WIDTH_PT, pageCss * ptPerCssPx]);
+                        }
+
+                        // Capture this page as a run of canvas-safe tiles
+                        for (let tileTopCss = 0; tileTopCss < pageCss; tileTopCss += PDF_TILE_CSS_HEIGHT) {
+                            const tileCss = Math.min(PDF_TILE_CSS_HEIGHT, pageCss - tileTopCss);
+
+                            captureStage.stage.style.height          = tileCss + 'px';
+                            captureStage.inner.style.marginTop       = '-' + (pageStartCss + tileTopCss) + 'px';
+
+                            const tileCanvas = await window.html2canvas(captureStage.stage, {
+                                scale           : preset.rasterScale,
+                                useCORS         : true,
+                                backgroundColor : '#ffffff',
+                                logging         : false,
+                                windowWidth     : docWidthCss
+                            });
+
+                            if (!tileCanvas.width || !tileCanvas.height) {
+                                throw new Error('Tile capture produced an empty canvas');
+                            }
+
+                            pdfDocument.addImage(
+                                tileCanvas.toDataURL('image/jpeg', preset.jpegQuality), 'JPEG',
+                                0, tileTopCss * ptPerCssPx,
+                                A4_WIDTH_PT, tileCss * ptPerCssPx
+                            );
+
+                            doneTiles += 1;
+                            if (activeBtn) {
+                                activeBtn.textContent = 'Preparing PDF… ' +
+                                    Math.round((doneTiles / totalTiles) * 100) + '%';
+                            }
+                        }
+
+                        pageStartCss += pageCss;
+                    }
 
                     const documentTitle = currentDasConfig['das-document-title'] || 'Design-and-Access-Statement';
-                    pdfDocument.save(documentTitle.replace(/[^A-Za-z0-9&_-]+/g, '-') + '.pdf');
+                    pdfDocument.save(documentTitle.replace(/[^A-Za-z0-9&_-]+/g, '-') + preset.fileSuffix + '.pdf');
 
                     if (toast) toast.Na__Toast__Show('PDF downloaded.', 'success', 3000);
                 } catch (error) {
@@ -329,8 +413,13 @@
                         toast.Na__Toast__Show('PDF export failed — please try again.', 'warning', 5000);
                     }
                 } finally {
+                    if (captureStage && captureStage.stage && captureStage.stage.parentNode) {
+                        captureStage.stage.parentNode.removeChild(captureStage.stage);
+                    }
                     exportInProgress = false;
                     if (downloadBtn) downloadBtn.disabled = false;
+                    if (downloadCompactBtn) downloadCompactBtn.disabled = false;
+                    if (activeBtn) activeBtn.textContent = activeBtnLabel;
                 }
             }
             // ---------------------------------------------------------------
@@ -343,7 +432,15 @@
 
             function Na__DasHtml__WireControls() {
                 if (downloadBtn) {
-                    downloadBtn.addEventListener('click', Na__DasHtml__DownloadPdf);
+                    downloadBtn.addEventListener('click', function () {
+                        Na__DasHtml__DownloadPdf('full');
+                    });
+                }
+
+                if (downloadCompactBtn) {
+                    downloadCompactBtn.addEventListener('click', function () {
+                        Na__DasHtml__DownloadPdf('compact');
+                    });
                 }
 
                 if (shareBtn) {
@@ -365,11 +462,12 @@
             // FUNCTION | Initialize the HTML Viewer Module
             // ------------------------------------------------------------
             const Na__DasHtml__Initialize = function () {
-                viewerRoot    = document.getElementById('design-access-statement-viewer');
-                htmlHostEl    = document.getElementById('design-access-statement-html-host');
-                htmlToolbarEl = document.getElementById('design-access-statement-html-toolbar');
-                downloadBtn   = document.getElementById('naDasHtmlDownloadBtn');
-                shareBtn      = document.getElementById('naDasHtmlShareBtn');
+                viewerRoot         = document.getElementById('design-access-statement-viewer');
+                htmlHostEl         = document.getElementById('design-access-statement-html-host');
+                htmlToolbarEl      = document.getElementById('design-access-statement-html-toolbar');
+                downloadBtn        = document.getElementById('naDasHtmlDownloadBtn');
+                downloadCompactBtn = document.getElementById('naDasHtmlDownloadCompactBtn');
+                shareBtn           = document.getElementById('naDasHtmlShareBtn');
 
                 loadingController = window.NaPlanVision
                     && window.NaPlanVision.DesignAccessStatement
