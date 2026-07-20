@@ -51,6 +51,9 @@ R2_BASE_PREFIX                     = 'NaProjectPortal'
 PLANVISION_CONTENT_FOLDER          = '20__PlanVision__AppContent'
 PLANVISION_DATA_FILENAME           = 'PlanVision__ProjectData__.json'
 DAS_IMAGE_FOLDER                   = '01__Statement__ImageFiles'
+SITE_ASSETS_ROOT                   = os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), '..', '..', 'assets'
+))                                                                  # <-- Site-wide brand assets (company logo etc.)
 DAS_COMMON_STYLESHEET_URL          = (
     f'{LIVE_DOMAIN}/na-apps/20__PlanVision__CoreAppCode'
     f'/04__Style__AppStylesheets/StyleSheet__DesignAccessStatement__.css'
@@ -155,34 +158,80 @@ def build_relative_image_link(filename):
     # ------------------------------------------------------------
 
 
-    # HELPER FUNCTION | Ensure a Referenced Image Exists in the Image Folder
+    # HELPER FUNCTION | Locate the Best Source File for a Referenced Image
     # ------------------------------------------------------------
-def ensure_image_bundled(link_target, filename, das_path, md_dir, report):
-    """Check the image folder for the file; copy from the original path if needed.
+def find_image_source(filename, link_target, das_path, md_dir):
+    """Search all known locations for the referenced image (name match, newest wins).
 
-    Returns True when the image is present in 01__Statement__ImageFiles after
-    this call, False when it could not be located anywhere.
+    Search order:
+    1. The statement image folder subtree (root + working subfolders such as
+       03__FinalImages; archive folders ignored; newest match wins)
+    2. The original production link target (absolute or markdown-relative)
+    3. The site-wide brand assets library (company logo etc.)
     """
-    image_dir   = os.path.join(das_path, DAS_IMAGE_FOLDER)
-    bundled     = os.path.join(image_dir, filename)
+    image_dir  = os.path.join(das_path, DAS_IMAGE_FOLDER)
+    target     = filename.lower()
+    candidates = []
 
-    if os.path.isfile(bundled):
-        return True
+    if os.path.isdir(image_dir):
+        for root, dirs, files in os.walk(image_dir):
+            dirs[:] = sorted(d for d in dirs
+                             if not any(d.startswith(p) for p in SKIP_FOLDER_PREFIXES))
+            for f in files:
+                if f.lower() == target:
+                    candidates.append(os.path.join(root, f))
 
-    # Attempt recovery from the original (production machine) link target
+    if candidates:
+        return max(candidates, key=lambda p: os.path.getmtime(p))     # <-- Newest copy anywhere in the subtree
+
     raw_path = unquote(link_target.strip().strip('<>'))
     raw_path = re.sub(r'\s+"[^"]*"$', '', raw_path)
-    source_candidates = [raw_path, os.path.join(md_dir, raw_path)]
-
-    for candidate in source_candidates:
+    for candidate in (raw_path, os.path.join(md_dir, raw_path)):
         if candidate and os.path.isfile(candidate):
-            os.makedirs(image_dir, exist_ok=True)
-            shutil.copy2(candidate, bundled)
-            report['copied'].append(filename)
-            return True
+            return candidate
 
-    report['missing'].append(filename)
-    return False
+    if os.path.isdir(SITE_ASSETS_ROOT):
+        for root, _dirs, files in os.walk(SITE_ASSETS_ROOT):
+            for f in files:
+                if f.lower() == target:
+                    return os.path.join(root, f)
+
+    return None
+    # ------------------------------------------------------------
+
+
+    # HELPER FUNCTION | Ensure a Referenced Image Exists in the Image Folder Root
+    # ------------------------------------------------------------
+def ensure_image_bundled(link_target, filename, das_path, md_dir, report):
+    """Bundle the referenced image at the image folder root (exact linked name).
+
+    The bundled copy is refreshed whenever a newer source is found, so pushing
+    an updated figure into a working subfolder and rebuilding overwrites the
+    live copy rather than duplicating it. Returns True when the image is
+    present in 01__Statement__ImageFiles after this call.
+    """
+    image_dir = os.path.join(das_path, DAS_IMAGE_FOLDER)
+    bundled   = os.path.join(image_dir, filename)
+
+    source = find_image_source(filename, link_target, das_path, md_dir)
+
+    if source is None:
+        if os.path.isfile(bundled):
+            return True                                               # <-- Already bundled; no other source known
+        report['missing'].append(filename)
+        return False
+
+    if os.path.isfile(bundled):
+        if (not os.path.samefile(source, bundled)
+                and os.path.getmtime(source) > os.path.getmtime(bundled)):
+            shutil.copy2(source, bundled)                             # <-- Newer source found: refresh the live copy
+            report['refreshed'].append(filename)
+        return True
+
+    os.makedirs(image_dir, exist_ok=True)
+    shutil.copy2(source, bundled)
+    report['copied'].append(filename)
+    return True
     # ------------------------------------------------------------
 
 
@@ -434,7 +483,7 @@ def build_das_for_project(project_path, year_folder_name, project_folder,
     with open(md_path, 'r', encoding='utf-8-sig') as f:
         original_text = f.read()
 
-    report   = {'relinked': [], 'copied': [], 'missing': []}
+    report   = {'relinked': [], 'copied': [], 'refreshed': [], 'missing': []}
     resolved = resolve_markdown_image_links(original_text, das_path, os.path.dirname(md_path), report)
 
     if resolved != original_text:
@@ -444,6 +493,8 @@ def build_das_for_project(project_path, year_folder_name, project_folder,
 
     if report['copied']:
         print(f'  [BUNDLED] Copied {len(report["copied"])} image(s) into {DAS_IMAGE_FOLDER}/')
+    if report['refreshed']:
+        print(f'  [REFRESHED] Updated {len(report["refreshed"])} bundled image(s) from newer sources')
     for missing in report['missing']:
         print(f'  [WARNING] Statement image not found anywhere: {missing}')
 

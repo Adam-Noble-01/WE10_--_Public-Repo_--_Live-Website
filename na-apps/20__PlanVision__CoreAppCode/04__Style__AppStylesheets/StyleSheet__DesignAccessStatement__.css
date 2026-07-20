@@ -176,7 +176,7 @@
     font-weight         :    500;
     line-height         :    1.00;
     margin-top          :    07.00mm;
-    margin-bottom       :   -02.00mm;
+    margin-bottom       :    01.50mm;       /* <--- Typora used -02.00mm; browsers have no base p top margin so that overlapped */
 }
 
 /* SPECIAL HEADING – Heading Level 5 */
@@ -190,7 +190,7 @@
     font-weight         :    500;
     line-height         :    1.00;
     margin-top          :    05.00mm;
-    margin-bottom       :   -02.00mm;
+    margin-bottom       :    01.00mm;       /* <--- Kept tight above tables; -02.00mm overlapped in the browser */
 }
 
 /* SPECIAL HEADING – Heading Level 6 */
@@ -202,7 +202,7 @@
     color               :    #787878;
     font-weight         :    200;           /* <--- Light weight for H6 elements */
     margin-top          :    02.00mm;
-    margin-bottom       :   -02.00mm;
+    margin-bottom       :    01.00mm;       /* <--- Typora used -02.00mm; positive value prevents strapline overlap */
 }
 
 /* endregion-------------------------------------------------------------------------------------------------------- */

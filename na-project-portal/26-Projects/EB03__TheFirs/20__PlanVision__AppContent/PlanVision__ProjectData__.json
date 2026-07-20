@@ -12,7 +12,7 @@
             "available-phases": [
                 "DesignPhase02"
             ],
-            "phase-last-updated": "19-Jul-2026"
+            "phase-last-updated": "20-Jul-2026"
         },
         "project-documentation": {
             "phase-content": {
@@ -45,6 +45,48 @@
                         }
                     ]
                 }
+            }
+        },
+        "design-access-statement": {
+            "das-enabled": true,
+            "das-document-title": "EB03 - Design & Access Statement",
+            "das-phase-folder": "DesignPhase02__PlanningApproval__Content",
+            "das-statement-folder": "02__DesignStatment",
+            "das-markdown-file": "EB03_T02_S01__Design&AccessStatement__.md",
+            "das-html-file": "EB03_T02_S01__Design&AccessStatement__.html",
+            "das-pdf-file": null,
+            "das-last-built": "20-Jul-2026",
+            "das-document-links": {
+                "das-base-url--cdn": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment",
+                "das-base-url--live": "https://www.noble-architecture.com/na-project-portal/26-Projects/EB03__TheFirs/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment",
+                "das-html-url--cdn": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment/EB03_T02_S01__Design%26AccessStatement__.html",
+                "das-html-url--live": "https://www.noble-architecture.com/na-project-portal/26-Projects/EB03__TheFirs/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment/EB03_T02_S01__Design%26AccessStatement__.html",
+                "das-pdf-url--cdn": null,
+                "das-pdf-url--live": null
+            },
+            "das-image-files": {
+                "das-image-folder": "01__Statement__ImageFiles",
+                "das-images": [
+                    "02_02__SitePhoto__DroneShot__NoDevelopmentAccrossRoad__.png",
+                    "02__SitePhoto__DroneShot__FullSite.png",
+                    "03_01__HerritageMap__.png",
+                    "03_02__FloorZoneMap__.png",
+                    "03_05__GreenBelt__Map__.png",
+                    "04_04__AngleOutbuildings__Markup__.png",
+                    "10__FloorArea__CAD__53.65m2__.PNG",
+                    "11__FloorArea__DronePhotoMarkup__53.65m2__.png",
+                    "12__FloorArea__PlanVision__55.41m2__.PNG",
+                    "14_01__Site__Parking__.png",
+                    "21__Cgi__FrontView-01__Existing__.png",
+                    "22__Cgi__FrontView-01__Proposed__.png",
+                    "31__Cgi__RearView-01__Existing__.png",
+                    "32__Cgi__RearView-01__Proposed__.png",
+                    "41__PointCloudScan__AerialLidarSurvey__.png",
+                    "42__SitePlan__GroundConditionPoints__.jpg",
+                    "45__SitePlan__MassingCodes__.jpg",
+                    "IMG##__3dPointcloudScan__.png",
+                    "NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png"
+                ]
             }
         }
     }
