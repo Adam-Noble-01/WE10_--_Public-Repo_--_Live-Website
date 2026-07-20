@@ -512,7 +512,7 @@ The existing and proposed conditions are illustrated below for both the Front (W
 
 
 <img
-  src="01__Statement__ImageFiles/22__Cgi__FrontView-01__Proposed__.png"
+  src="01__Statement__ImageFiles/22__Cgi__FrontView-01__Proposed__2.0__.png"
   style="
     display: block;
     width: 95%;
@@ -540,7 +540,7 @@ The existing and proposed conditions are illustrated below for both the Front (W
 ​		**Fig 5.3  -**  Existing Rear Elevation (East Elevation) of the Application Site
 
 <img
-  src="01__Statement__ImageFiles/32__Cgi__RearView-01__Proposed__.png"
+  src="01__Statement__ImageFiles/32__Cgi__RearView-01__Proposed__2.0__.png"
   style="
     display: block;
     width: 95%;
@@ -808,7 +808,7 @@ The table below collates the published record the local decisions and the site i
 | **Terrace elevation above the floodplain; Nov 2000 outcome** | Approx. 2.5 m; the Gunthorpe terraces remained largely dry   | BGS Sheet 126 memoir (Howard et al., 2009)                   |
 | **Overburden cap on the terrace gravels**                    | Generally under 1 m                                          | Spenceley (1971), cited in the BGS memoir                    |
 | **On-site trial pit GC01**                                   | Gravelly, sandy loam to approx. 650 mm; no impenetrable stratum encountered | Site soil investigation, Section 8.0 of this statement       |
-| **On-site trial pit GC02**                                   | Gravelly, sandy loam to approx. 450 mm; no impenetrable stratum encountered | Site soil investigation, Section 8.0 of this statement       |
+| **On-site trial pit GC02**                                   | Gravelly, sandy loam to approx. 550 mm; no impenetrable stratum encountered | Site soil investigation, Section 8.0 of this statement       |
 | **SFRA classification, river terrace gravels**               | "Uncertain"; local intrusive testing against river levels required | NSDC SFRA Level 1, paragraph 4.10.3                          |
 | **SFRA classification, Mercia Mudstone**                     | Non-aquifer; little to no soakaway potential                 | NSDC SFRA Level 1, paragraph 4.10.4                          |
 | **Accepted finished floor level standard on this corridor**  | 300 mm above the 1-in-100-year level plus 30% climate change allowance, or no lower than existing, whichever is higher | 20/00889/FUL, 17 Gunthorpe Road, Lowdham, condition 04       |
@@ -1279,7 +1279,7 @@ Taken together the two platforms give the local planning authority an unusually 
 
 ### 19.0 |  Conclusion
 
-This statement closes by recording plainly what the application before the council actually asks for. It asks for a modest and carefully differentiated additions to an established family dwelling. It creates no new dwelling and no annexe. It adds not a single bedroom and the property remains a four bedroom single family C3 dwellinghouse. Its entire new ground floor footprint measures **53.65 square metres** against the **235.96 square metres** of built form already standing which is well under a quarter of it and that footprint falls almost wholly upon the existing paved terrace already enclosed on three sides by development. Not a single square meter of lawn is taken. Not a single planting bed is lost. Not a single tree is felled and the one ornamental cherry affected is lifted and replanted within the same garden. The rear lawn the paddock and the open farmland across Lowdham Road are left entirely untouched. That is the full extent of the ask.
+This statement closes by recording plainly what the application before the council actually asks for. It asks for modest and carefully differentiated additions to an established family dwelling. It creates no new dwelling and no annexe. It adds not a single bedroom and the property remains a four bedroom single family C3 dwellinghouse. Its entire new ground floor footprint measures **53.65 square metres** against the **235.96 square metres** of built form already standing which is well under a quarter of it and that footprint falls almost wholly upon the existing paved terrace already enclosed on three sides by development. Not a single square meter of lawn is taken. Not a single planting bed is lost. Not a single tree is felled and the one ornamental cherry affected is lifted and replanted within the same garden. The rear lawn the paddock and the open farmland across Lowdham Road are left entirely untouched. That is the full extent of the ask.
 
 Against that modest ask stands an evidential record of a depth rarely assembled for a householder application. The site was captured by aerial LiDAR and full photogrammetric reconstruction before a single line was drawn. The ground was physically opened and tested at two locations voluntarily and ahead of any request. The new footprint was not estimated but computed within the CAD survey model then overlaid photographically upon the site as it stands today and checked again through a second and entirely independent measurement platform with all three media in agreement at Section 10.0. Every drawing in the pack can be opened measured and interrogated by the assessing officer through the PlanVision / TrueVision 3D platform at any point of the determination. The principle recorded at Section 17.2 can therefore be restated here as the character of the entire submission. Nothing is asserted that cannot be checked.
 
@@ -1317,6 +1317,21 @@ Section 38(6) of the Planning and Compulsory Purchase Act 2004 requires that thi
 
 
 
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 04.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
 ## Supplementary Drawing Notes
 
 This section consolidates the notes embedded throughout the formal planning drawing pack. These annotations have been compiled here to provide the planning officer with an accessible and comprehensive reference guide detailing the specific design intentions and technical considerations of the proposal. Providing these notes in a centralised location ensures efficient navigation and clarity regarding the overall design strategy.
@@ -1339,7 +1354,7 @@ This section consolidates the notes embedded throughout the formal planning draw
 
 ##### Project Overview And Site Context
 
-This overview summarises the more comprehensive Design and Access Statement prepared in support of a householder planning application at The Firs on Lowdham Road in Gunthorpe. The fundamental driver for this proposal is the evolving needs of the applicant's family directly reflecting the growing necessity for multi generational living as the national cost of elderly care continues to rise. The applicant's parents are advancing in years and within the next year or two they will move into The Firs so that the daily support they increasingly require can be provided by their own family within a single household. The first floor is reconfigured around that need. The fourth bedroom which presently serves as a playroom sits directly at the head of the single straight staircase and becomes an accessible bedroom suite reached entirely on the level with the stair already reviewed for the future retrofit of a stairlift. The existing master en suite transfers to the parents' suite and is re provided together with a dressing room within a new subservient cat slide roof formed over the existing garage which is the sole reason any part of the scheme rises above single storey. At ground floor a calm single storey extension knits together the existing built elements of the rear elevation to create the open plan family accommodation this larger household will depend upon and a new garden room replaces the redundant and derelict greenhouse on materially the same footprint. The number of bedrooms remains entirely unchanged at four and there is no intensification of use. To protect the garden and the openness of the Green Belt the applicants consciously discounted both a ground floor extension into the lawn and a larger first floor extension and every element of the settled scheme works over ground that is already built upon. The entire new ground floor footprint measures just 53.65 square metres against 235.96 square metres of existing built form and it falls almost wholly upon the existing paved terrace with no lawn and no planting bed taken anywhere. The property is a substantial early twentieth century Tudoresque dwelling standing within an exceptionally generous plot on the settlement side of Lowdham Road. A tall established hedge subdivides the kept garden from a large grass paddock with a private tennis court and the paddock is left entirely untouched. Open arable farmland faces the site across the road so not a single dwelling stands opposite. The site is not within a conservation area. No Tree Preservation Order applies to the site or anywhere on Lowdham Road and not a single tree is felled. The site is washed over by the Derby and Nottingham Green Belt and lies within Flood Zones 2 and 3 and both designations have been treated as first order design constraints from the very outset rather than as hurdles to be argued away after the event. The generous existing off street parking and vehicular access are fully retained and the landscaping strategy increases the planted and permeable proportion of the site.
+This overview summarises the more comprehensive Design and Access Statement prepared in support of a householder planning application at The Firs on Lowdham Road in Gunthorpe. The fundamental driver for this proposal is the evolving needs of the applicant's family directly reflecting the growing necessity for multi generational living as the national cost of elderly care continues to rise. The applicant's parents are advancing in years and within the next year or two they will move into The Firs so that the daily support they increasingly require can be provided by their own family within a single household. The first floor is reconfigured around that need. The fourth bedroom which presently serves as a playroom sits directly at the head of the single straight staircase and becomes an accessible bedroom suite reached entirely on the level with the stair already reviewed for the future retrofit of a stairlift. The existing master en suite transfers to the parents' suite and is re provided together with a dressing room within a new subservient cat slide roof formed over the existing garage which is the sole reason any part of the scheme rises above single storey. At ground floor a calm single storey extension knits together the existing built elements of the rear elevation to create the open plan family accommodation this larger household will depend upon and a new garden room replaces the redundant and derelict greenhouse on materially the same footprint. The number of bedrooms remains entirely unchanged at four and there is no intensification of use. To protect the garden and the openness of the Green Belt the applicants consciously discounted both a ground floor extension into the lawn and a larger first floor extension and every element of the settled scheme works over ground that is already built upon. The entire new ground floor footprint measures just 53.65 square metres against 235.96 square metres of existing built form and it falls almost wholly upon the existing paved terrace with no lawn and no planting bed taken anywhere. The property is a substantial early twentieth century Tudoresque dwelling standing within an exceptionally generous plot on the settlement side of Lowdham Road. A tall established hedge subdivides the kept garden from a large grass paddock with a private tennis court and the paddock is left entirely untouched. Open arable farmland faces the site across the road so not a single dwelling stands opposite. The site is not within a conservation area. No Tree Preservation Order applies to the site or anywhere on Lowdham Road and not a single tree is felled. The site is washed over by the Derby and Nottingham Green Belt and lies within Flood Zone 3 and both designations have been treated as first order design constraints from the very outset rather than as hurdles to be argued away after the event. The generous existing off street parking and vehicular access are fully retained and the landscaping strategy increases the planted and permeable proportion of the site.
 
 
 
@@ -1380,9 +1395,11 @@ The following notes relate to the proposed scheme as a whole and broadly define 
 
 This note identifies the two-storey side extension, the only element of the proposal that rises above single storey. New accommodation is formed above the footprint of the existing garage within a new pitched cat-slide roof finished in plain clay tiles to match the main house, lit by two modest dormers. The front-facing appearance is deliberately traditional so that the wing matches in with the existing style and character of the host dwelling, and the cat-slide form sweeps the roof low over the retained garage door, softening the front massing so that the wing reads principally as quiet tiled roof rather than as wall. The new ridge is held below the main ridge; on the front elevation the roof plane is stepped down and broken away from the main roofline so that the original dwelling remains the dominant structure, while on the rear the new plane aligns with the existing roof. The wing consequently reads as a smaller and more recessive mass than the flat-roofed garage box it replaces. Internally, the new roof volume contains the re-provided master en suite and a dressing room; this accommodation releases the existing en suite to the adjacent fourth bedroom, which becomes the accessible bedroom suite for the applicant's ageing parents, as set out at Sections 4.5 and 14.2 of the Design and Access Statement and recorded at notes FF01 to FF06. All structural elements are subject to the provisions of note ST02.
 
+
 ##### DV02 |  Single Storey Rear Extension
 
 This note identifies the single-storey rear extension, the connective mass of the scheme. It occupies the ground between the existing built elements of the rear elevation and links to the retained octagonal bay through a fully glazed link that reads as a recessive, transparent joint. The extension carries a parapet-concealed warm flat roof held well below the eaves of the two-storey host, lit by a three-part arrangement of Korniche roof lanterns chosen for their exceptionally slim, almost frameless profile. Walls are finished in through-coloured monocouche render with three sets of black aluminium bi-folding doors opening onto the upper terrace. The form is deliberately different from DV01: where the side extension is pitched, tiled and traditional because it addresses the street, the rear extension is flat, crisp and contemporary because it addresses only the private garden, in accordance with the two-part appearance strategy at Section 5.0 of the Design and Access Statement.
+
 
 ##### DV03 |  Garden Room
 
@@ -1639,7 +1656,7 @@ The Northern Elevation forms the side of the property facing the neighbouring dw
 
 
 
-##### NE01 |  No New Openings To The Northern Side Elevation
+##### EN01 |  No New Openings To The Northern Side Elevation
 
 The two-storey side extension (mass DV01) rises over the existing garage footprint alongside this boundary, and the treatment of this elevation has therefore been governed by the protection of the neighbouring dwelling's privacy. No new side-facing windows are introduced at any level on this elevation, or indeed anywhere on the proposal. First-floor side windows were actively considered during the design process and were advised against by both the architect and the planning consultant precisely because they would have introduced a new and direct line of sight towards the neighbouring dwelling; that advice was accepted by the applicant in full. The new work presents to this side as quiet rendered wall and tiled roof plane only, and the existing side-facing windows of the dwelling are retained unchanged. The complete privacy assessment is set out at Section 7.0 of the Design and Access Statement.
 
@@ -1686,6 +1703,7 @@ Above the parapet line a roof lantern reads as no more than a slim, almost frame
 The long north-facing roof of the garden room is finished in dark standing seam metal to match its walls, laid as a single low plane whose fine, consistent seam rhythm and concealed fixings give the neighbouring outlook a calm and orderly surface in place of the existing greenhouse glazing. The roof is kept deliberately low, rising only marginally above its eaves and set down further still with the falling ground, so that from the neighbouring side the entire structure reads as little more than a quiet garden wall beneath a slender metal roof. The material and its rationale are recorded at notes DV03 and ES08, and the finish is a high quality, durable and low maintenance system appropriate to a garden building in this position.
 
 
+
 ##### EN09 |  The Quietest Face Of The Scheme
 
 Taken together this elevation is deliberately the quietest face of the proposal. The neighbouring dwelling sees retained and unchanged openings on the host, matched plain clay tiles on the new roof, soft-toned monocouche render on the new walls, and the dark recessive flank of the garden room, all in accordance with the materials strategy tabled at Section 5.2 of the Design and Access Statement. Every design decision on this side, from the windowless garden room to the unbroken roof plane and the rejected first-floor side windows, was taken with the amenity of the adjoining occupier in mind, and the elevation demonstrates that the scheme grows substantially in accommodation while presenting almost nothing new to its closest neighbour.
@@ -1711,41 +1729,49 @@ The following notes apply to the existing conditions drawings, including the exi
 
 
 
-##### EX01 |  Basis And Purpose Of The Measured Survey
-
-The existing conditions plans are derived from a measured building survey undertaken to RICS-aligned standards and commissioned expressly and exclusively as a means of supporting a statutory householder planning application. The level of measured accuracy and detail is proportionate to that purpose and to no other. The survey data is supplemented by the high precision LiDAR terrain capture and the photogrammetric orthographic mapping described at Sections 17.1 and 17.2 of the Design and Access Statement, which together provide an independently verifiable record of the site as existing. These drawings must be read in conjunction with the standing General Notes at the end of this schedule.
-
-##### EX02 |  Not For Construction, Fabrication Or Procurement
-
-These existing conditions drawings are strictly not fit for construction purposes, fabrication, procurement, joinery or steelwork ordering, kitchen or sanitaryware setting out, or Building Regulations approval. No dimension shall be scaled from these drawings. Any party requiring dimensions for fabrication or ordering of any kind, including without limitation the principal contractor, subcontractors, steel fabricators, joinery manufacturers and window and door suppliers, must take and rely upon their own site measurements.
-
-##### EX03 |  Contractor Verification Of All Dimensions
-
-The appointed principal contractor is solely responsible for verifying all dimensions, levels, openings and existing boundary conditions on site prior to the commencement of any fabrication, ordering of materials or construction works. Any discrepancy found between these drawings and the physical site must be reported immediately to Noble Architecture and the client before proceeding. The contractor must not scale from these drawings for any purpose.
-
-##### EX04 |  Concealed Structure Not Surveyed Or Opened Up
-
-The survey is non-intrusive and no opening up of the existing fabric has been undertaken. Wall constructions, lintel provisions, floor build-ups, roof structures and foundations are therefore not recorded and must not be assumed. The existing beams indicated at markers EB01, EB02 and EB03 are recorded from visible downstands and finishes only; their sizes, conditions, bearings and load paths are unknown. A destructive structural survey and a full structural design by a qualified structural engineer are required before any structural works, in accordance with notes ST02 and ST03.
-
-##### EX05 |  Services And Drainage Not Traced
-
-Existing mechanical, electrical and plumbing services, together with below-ground drainage runs, have not been traced and are not recorded on these drawings. Where any sanitaryware, appliance or service position is shown it is indicative of surface-visible fittings only. The contractor must locate, trace and verify all services and drainage on site prior to any works, must undertake a CCTV drainage survey where below-ground connections are to be made or altered, and must protect all live services throughout the construction period.
-
-##### EX06 |  Existing Greenhouse Recorded Prior To Removal
+##### EX01 |  Existing Greenhouse Recorded Prior To Removal
 
 The greenhouse shown to the east of the dwelling is recorded as existing and is earmarked for removal under the proposals. It is a derelict single-glazed structure long out of horticultural use, as set out at Section 1.0 of the Design and Access Statement, and its footprint is re-used by the proposed garden room (notes GF06 and ES01). Its inclusion on this plan records the existing developed footprint relied upon in the Green Belt case at Section 11.0 of the Design and Access Statement.
 
-##### EX07 |  Existing First Floor Arrangement
+
+##### EX02 |  Existing First Floor Arrangement
 
 The first floor is recorded as existing with four bedrooms, a family bathroom and a single en suite serving Bedroom 1. Bedroom 4 presently serves as a games room and playroom and contains the redundant chimney breast whose external stack was removed above the roof line many years ago. An internal step guards the approach to two of the bedrooms beyond the landing, while Bedroom 4 alone is reached entirely on the level from the head of the single straight staircase flight. These recorded characteristics underpin the accessible first floor reconfiguration described at Section 4.5 of the Design and Access Statement and at notes FF01 to FF06.
+
+#### EX03 |  Concealed Structure Not Surveyed Or Opened Up
+
+The survey is non-intrusive and no opening up of the existing fabric has been undertaken. Wall constructions, lintel provisions, floor build-ups, roof structures and foundations are therefore not recorded and must not be assumed. The existing beams indicated at markers EB01, EB02 and EB03 are recorded from visible downstands and finishes only; their sizes, conditions, bearings and load paths are unknown. A destructive structural survey and a full structural design by a qualified structural engineer are required before any structural works, in accordance with notes ST02 and ST03.
+
+
+##### EX04 |  Basis And Purpose Of The Measured Survey
+
+The existing conditions plans are derived from a measured building survey undertaken to RICS-aligned standards and commissioned expressly and exclusively as a means of supporting a statutory householder planning application. The level of measured accuracy and detail is proportionate to that purpose and to no other. The survey data is supplemented by the high precision LiDAR terrain capture and the photogrammetric orthographic mapping described at Sections 17.1 and 17.2 of the Design and Access Statement, which together provide an independently verifiable record of the site as existing. These drawings must be read in conjunction with the standing General Notes at the end of this schedule.
+
+
+##### EX05 |  Not For Construction, Fabrication Or Procurement
+
+These existing conditions drawings are strictly not fit for construction purposes, fabrication, procurement, joinery or steelwork ordering, kitchen or sanitaryware setting out, or Building Regulations approval. No dimension shall be scaled from these drawings. Any party requiring dimensions for fabrication or ordering of any kind, including without limitation the principal contractor, subcontractors, steel fabricators, joinery manufacturers and window and door suppliers, must take and rely upon their own site measurements.
+
+
+##### EX06 |  Contractor Verification Of All Dimensions
+
+The appointed principal contractor is solely responsible for verifying all dimensions, levels, openings and existing boundary conditions on site prior to the commencement of any fabrication, ordering of materials or construction works. Any discrepancy found between these drawings and the physical site must be reported immediately to Noble Architecture and the client before proceeding. The contractor must not scale from these drawings for any purpose.
+
+
+##### EX07 |  Services And Drainage Not Traced
+
+Existing mechanical, electrical and plumbing services, together with below-ground drainage runs, have not been traced and are not recorded on these drawings. Where any sanitaryware, appliance or service position is shown it is indicative of surface-visible fittings only. The contractor must locate, trace and verify all services and drainage on site prior to any works, must undertake a CCTV drainage survey where below-ground connections are to be made or altered, and must protect all live services throughout the construction period.
+
 
 ##### EX08 |  Boundaries, Gardens And Site Features Indicative
 
 Beyond the footprint of the measured buildings, garden features, planting, tree canopies, hard landscaping edges and boundary lines are shown indicatively, derived from the photogrammetric orthographic mapping and licensed mapping data described at Section 17.2 of the Design and Access Statement. The drawings do not constitute a legal boundary survey, no title investigation has been undertaken by Noble Architecture, and legal boundaries must be confirmed against the registered title wherever they are material to any works.
 
+
 ##### EX09 |  Levels And Datums
 
-Levels shown on the existing conditions drawings are relative to the ground floor finished level (GFFL) datum. Site levels in metres AOD are to be appended on completion of the topographical survey, and the flood-related level commitments of the scheme are recorded at Sections 9.2 and 9.3 of the Design and Access Statement. [TO CONFIRM: append surveyed AOD levels once the topographical survey is complete.]
+Levels shown on the existing conditions drawings are relative to the ground floor finished level (GFFL) datum. Site levels in metres AOD are to be appended on completion of the topographical survey, and the flood-related level commitments of the scheme are recorded at Sections 9.2 and 9.3 of the Design and Access Statement. 
+
 
 ##### EX10 |  Survey Markers On The Existing Plans
 
@@ -1837,6 +1863,7 @@ The BM series markers on the proposed plan record the new beams anticipated by t
 
 BM01 is the principal large-span beam and BM02 the shorter-span beam; together they open up the back of the house into the new extension (note GF02). BM03 is the atrium wall beam serving the new internal openings at notes GF04 and GF05. BM04 spans the garden room folding doors, and BM05, BM06 and BM07 span the three bi-folding door openings serving the kitchen area, the casual dining area and the casual lounge area respectively on the rear elevation of the extension. All positions are indicative only: final sizes, bearings, padstones and connection details rest entirely with the appointed engineer.
 
+
 ##### ST05 |  Ring Beams, Roof Lantern Trimmers, Wind Posts And Ancillary Structure
 
 Noble Architecture recognises that the structural scheme may additionally require ring beams, roof lantern trimmer arrangements, wind posts, additional columns and other ancillary structural elements, particularly given the spans of the open plan area and the extent of glazed openings. 
@@ -1926,9 +1953,11 @@ The following notes relate to the proposed roof plan and record each roof type w
 The pitched roof of the host dwelling is retained unchanged, with its dark red plain clay tiles to the front planes, its later interlocking tiles to the rear plane, and its chimneys all kept exactly as existing. The existing roof-mounted solar array is retained undisturbed on the rear plane, and the aligned run-through created by the new wing roof deliberately preserves the least visually intrusive location for its future extension, as recorded at note EE10. The only interaction between the new work and this roof is the resolved junction with the new cat-slide roof recorded at note RF02.
 
 
+
 ##### RF02 |  New Cat Slide Roof Over The Garage Wing
 
 The new pitched cat-slide roof over the remodelled garage wing (mass DV01) is finished in plain clay tiles to match the main house. Its ridge is held below the main ridge; on the front the roof plane is stepped down and broken away from the main roofline so that the host dwelling remains dominant in the street scene (note EW01), while on the rear the plane runs through in line with the existing roof so that the addition reads as one continuous, unobtrusive surface (note EE09). The junction details, valleys and any box gutter arrangement against the existing roof must be designed and weathered by the contractor in full compliance with current Building Regulations.
+
 
 
 ##### RF03 |  Dormer Window Roofs
@@ -1936,9 +1965,11 @@ The new pitched cat-slide roof over the remodelled garage wing (mass DV01) is fi
 The two modest dormers sit low within the new cat-slide plane so that they read as incidents in the roof rather than as competing features. Each carries its own small pitched roof finished to match the main roof, with cheeks in a grey lead-effect material and white UPVC windows matching the front window palette, as recorded at note EW04. Both dormers face the front only, and no rooflights or openings of any kind are introduced on the north-facing roof plane towards the neighbouring dwelling (note EN05).
 
 
+
 ##### RF04 |  Warm Flat Roof To The Rear Extension
 
 The single-storey rear extension (mass DV02) carries a parapet-concealed warm flat roof held well below the first-floor windows of the host dwelling. The membrane specification is unknown at this stage and is likely to be an EPDM or GRP system at the discretion of the building contractor, laid to adequate falls with internal or concealed outlets so that the parapet line remains clean on every elevation. The roof is deliberately free of plant, flues and clutter, in direct contrast to the exposed felt roof it replaces, and its three glazed openings are trimmed in accordance with note ST05.
+
 
 
 ##### RF05 |  Korniche Roof Lanterns
@@ -1946,9 +1977,11 @@ The single-storey rear extension (mass DV02) carries a parapet-concealed warm fl
 The three roof lanterns to the rear extension are the Korniche system, selected deliberately for its exceptionally slim, almost frameless sightlines. They sit low above the parapet line so that from the garden they read only as slim glazed profiles, introducing no competing roof forms (notes EE04 and EN07), while flooding the open plan space below with daylight. Trimmer arrangements and fixings are subject to note ST05 and the manufacturer's requirements.
 
 
+
 ##### RF06 |  Glazed Link Roof
 
 The junction between the retained octagonal bay and the new extension is roofed with the fully glazed link recorded at note EE05. The glazed roof reads as a recessive, transparent joint between old and new, preserves the legibility of the bay and its retained tiled turret roof as original features, and must be specified with self-cleaning glass units and concealed framing consistent with the quality of the adjoining Korniche lanterns.
+
 
 
 ##### RF07 |  Standing Seam Roof To The Garden Room
@@ -1956,9 +1989,11 @@ The junction between the retained octagonal bay and the new extension is roofed 
 The garden room (mass DV03) carries a low dark standing seam metal roof continuous with its wall cladding, laid as a single quiet plane whose fine seam rhythm and concealed fixings give the structure its distinct identity as a separate garden building (notes ES08 and EN08). The roof is kept deliberately low, rising only marginally above its eaves and set down further with the falling ground, so that it presents the quietest possible surface to the neighbouring dwelling and to the garden alike.
 
 
+
 ##### RF08 |  Rainwater Disposal From All Roofs
 
 Rainwater goods across the scheme are finished in black to match the fascia and window palette. All new roofs discharge via concealed or discreet outlets and downpipes into the surface water strategy of the site: runoff is conveyed to the co-slot threshold drainage and onward into the buried lateral soakaway network beneath the planting beds, in accordance with notes DR01 and DR02 and the drainage strategy at Section 9.5 of the Design and Access Statement. No new connection to any public sewer is proposed for surface water, and final falls, outlet positions and pipe sizing must be designed in full compliance with current Building Regulations.
+
 
 <div style="
     text-align      : center;
