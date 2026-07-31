@@ -1,0 +1,17 @@
+{
+  "projectName": "VolutedCorbels__2dProjections",
+  "version": "v001",
+  "savedAt": "2026-07-14 09:49:15",
+  "sourceFilename": "10__ExportszVolutedCorbels__2dProjections__45Deg-Plus-22.5Deg__1.2.0__.dwg",
+  "sourceDxfPath": "D:\\11_RefLib__StudioRepository__RemoteSystem\\NaWeb\\na-apps\\70__ProductionTools\\Noble__CadAuditTools\\04__LocalProjectCache\\01__TempCache__DwgToDxfConversions\\10__ExportszVolutedCorbels__2dProjections__45Deg-Plus-22.5Deg__1.2.0__.dxf",
+  "deletedCount": 0,
+  "deletedHandles": [],
+  "layers": {
+    "0": {
+      "hexColor": "#ffffff",
+      "entityCount": 24994,
+      "visible": true
+    }
+  },
+  "dimensions": []
+}
