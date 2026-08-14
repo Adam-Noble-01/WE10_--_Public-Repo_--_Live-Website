@@ -71,6 +71,36 @@
     // MODULE VARIABLES | Pointer Lock State
     // ------------------------------------------------------------
     let Na__WalkModeDesktop__PointerLocked                 = false;      // <-- Pointer lock active
+
+    // ------------------------------------------------------------
+    // LOOK MODE DEFAULT | Changed 14-Aug-2026 - Adam Noble
+    // ------------------------------------------------------------
+    // TEMPORARY ROLLOUT. On trial as the new default rather than settled, and
+    // deliberately written so it can be put back in one line.
+    //
+    // Ported across from ValeVision3D, which shares this navigation system.
+    //
+    // Walk mode originally held Pointer Lock: the cursor vanished and every
+    // scrap of mouse movement turned the camera. That is the right feel for a
+    // game, but it fights this app the moment anything shares the screen with
+    // the viewport. Reaching for the Image Export panel, the Tools menu or the
+    // Dev menu dragged the view on the way there, so the shot you had framed
+    // was gone before the pointer reached the button.
+    //
+    // Drag look turns the camera only while the left mouse button is held. The
+    // cursor stays visible and usable, which is what makes walk and fly based
+    // image exports genuinely practical: frame the viewpoint, then reach for
+    // the export controls without the framing shifting between composing the
+    // shot and clicking Download. That was the deciding reason for making it
+    // the default.
+    //
+    // TO REVERT: swap the two declarations below. Nothing else needs touching.
+    // Every pointer-lock path is still present and gated on this one flag.
+    // ------------------------------------------------------------
+    // let Na__WalkModeDesktop__DragLookEnabled            = false;      // <-- ORIGINAL: pointer lock, hidden cursor, free look
+    let Na__WalkModeDesktop__DragLookEnabled               = true;       // <-- CURRENT : left-click drag to look
+    let Na__WalkModeDesktop__IsDragLooking                 = false;      // <-- Left button currently held
+    let Na__WalkModeDesktop__DragPointerId                 = null;       // <-- Pointer that owns the look drag
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -135,7 +165,14 @@
     // HELPER FUNCTION | Handle Mouse Movement (Pointer Lock Active)
     // ------------------------------------------------------------
     function Na__WalkModeDesktop__OnMouseMove(event) {
-        if (!Na__WalkModeDesktop__PointerLocked) return;
+        // Which gate applies depends on the look mode. movementX/Y is a plain
+        // MouseEvent property and is populated with or without pointer lock, so
+        // the delta maths below is identical either way.
+        const shouldLook = Na__WalkModeDesktop__DragLookEnabled
+            ? Na__WalkModeDesktop__IsDragLooking
+            : Na__WalkModeDesktop__PointerLocked;
+
+        if (!shouldLook) return;
 
         const yawDelta   = event.movementX * Na__WalkModeDesktop__MouseSensitivity;
         const pitchDelta = event.movementY * Na__WalkModeDesktop__MouseSensitivity;
@@ -161,10 +198,71 @@
     // ------------------------------------------------------------
     function Na__WalkModeDesktop__OnCanvasClick() {
         if (!Na__WalkModeDesktop__Active) return;
+        if (Na__WalkModeDesktop__DragLookEnabled) return;                 // <-- Drag look never grabs the pointer
         if (Na__WalkModeDesktop__PointerLocked) return;
 
         if (Na__WalkModeDesktop__DomElement && Na__WalkModeDesktop__DomElement.requestPointerLock) {
             Na__WalkModeDesktop__DomElement.requestPointerLock();
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Begin a Look Drag
+    // ------------------------------------------------------------
+    function Na__WalkModeDesktop__OnDragLookStart(event) {
+        if (!Na__WalkModeDesktop__Active)          return;
+        if (!Na__WalkModeDesktop__DragLookEnabled) return;
+        if (event.button !== 0)                    return;                // <-- Left button only
+
+        Na__WalkModeDesktop__IsDragLooking = true;
+        Na__WalkModeDesktop__DragPointerId = event.pointerId;
+
+        // Capture so a fast drag that leaves the canvas keeps turning the view
+        // rather than stopping dead at the edge.
+        if (Na__WalkModeDesktop__DomElement && Na__WalkModeDesktop__DomElement.setPointerCapture) {
+            try { Na__WalkModeDesktop__DomElement.setPointerCapture(event.pointerId); } catch (captureError) { /* not capturable */ }
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | End a Look Drag
+    // ------------------------------------------------------------
+    function Na__WalkModeDesktop__OnDragLookEnd(event) {
+        if (!Na__WalkModeDesktop__IsDragLooking) return;
+        if (event && Na__WalkModeDesktop__DragPointerId !== null
+            && event.pointerId !== Na__WalkModeDesktop__DragPointerId) return;
+
+        Na__WalkModeDesktop__IsDragLooking = false;
+
+        if (event && Na__WalkModeDesktop__DomElement && Na__WalkModeDesktop__DomElement.releasePointerCapture) {
+            try { Na__WalkModeDesktop__DomElement.releasePointerCapture(event.pointerId); } catch (releaseError) { /* already released */ }
+        }
+        Na__WalkModeDesktop__DragPointerId = null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Switch Between Pointer Lock and Drag Look
+    // ------------------------------------------------------------
+    // Kept so the look mode can be driven at runtime if a panel ever needs it.
+    // Safe to call whether or not walk mode is active, and safe to repeat.
+    // ------------------------------------------------------------
+    function Na__WalkModeDesktop__SetDragLookEnabled(enabled) {
+        const next = !!enabled;
+        if (next === Na__WalkModeDesktop__DragLookEnabled) return;
+
+        Na__WalkModeDesktop__DragLookEnabled = next;
+
+        if (next) {
+            if (document.pointerLockElement) document.exitPointerLock();
+            Na__WalkModeDesktop__PointerLocked = false;
+        } else {
+            // Going back to pointer lock needs a user gesture, so the existing
+            // click-to-lock handler re-acquires it on the next canvas click.
+            Na__WalkModeDesktop__IsDragLooking = false;
+            Na__WalkModeDesktop__DragPointerId = null;
         }
     }
     // ------------------------------------------------------------
@@ -197,7 +295,11 @@
         document.addEventListener('pointerlockchange', Na__WalkModeDesktop__OnPointerLockChange);
         domElement.addEventListener('click', Na__WalkModeDesktop__OnCanvasClick);
 
-        if (domElement.requestPointerLock) {
+        domElement.addEventListener('pointerdown',   Na__WalkModeDesktop__OnDragLookStart);
+        window.addEventListener('pointerup',         Na__WalkModeDesktop__OnDragLookEnd);
+        window.addEventListener('pointercancel',     Na__WalkModeDesktop__OnDragLookEnd);
+
+        if (!Na__WalkModeDesktop__DragLookEnabled && domElement.requestPointerLock) {
             domElement.requestPointerLock();
         }
 
@@ -219,7 +321,13 @@
 
         if (Na__WalkModeDesktop__DomElement) {
             Na__WalkModeDesktop__DomElement.removeEventListener('click', Na__WalkModeDesktop__OnCanvasClick);
+            Na__WalkModeDesktop__DomElement.removeEventListener('pointerdown', Na__WalkModeDesktop__OnDragLookStart);
         }
+        window.removeEventListener('pointerup',     Na__WalkModeDesktop__OnDragLookEnd);
+        window.removeEventListener('pointercancel', Na__WalkModeDesktop__OnDragLookEnd);
+
+        Na__WalkModeDesktop__IsDragLooking = false;
+        Na__WalkModeDesktop__DragPointerId = null;
 
         if (document.pointerLockElement) {
             document.exitPointerLock();
@@ -247,7 +355,8 @@
     // ------------------------------------------------------------
     export {
         Na__WalkModeDesktop__Activate,
-        Na__WalkModeDesktop__Deactivate
+        Na__WalkModeDesktop__Deactivate,
+        Na__WalkModeDesktop__SetDragLookEnabled
     };
     // ------------------------------------------------------------
 
