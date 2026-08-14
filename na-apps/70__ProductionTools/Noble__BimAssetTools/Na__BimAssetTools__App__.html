@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head - Meta, Title, Styles                      -->
+<!-- ----------------------------------------------------------------- -->
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="theme-color" content="#1b2430">
+    <title>Noble BIM Asset Tools | Viewer, Auditor and GLB Converter</title>
+
+    <!-- Single Stylesheet -->
+    <link rel="stylesheet" href="03__AppStyles/Na__StyleSheet__BimAssetTools__.css">
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | Version-Locked Vendor Import Map                         -->
+    <!-- ----------------------------------------------------------------- -->
+    <!-- Bare specifiers resolve to the locked set in                              -->
+    <!-- 04__Src__Dependencies__VersionLocked. A browser cannot read an import map -->
+    <!-- from JSON, so this block must mirror the importMap section of             -->
+    <!-- Na__Dependencies__ImportMap__Index__.json, which is the SSOT.             -->
+    <!-- Declared before any module script: the three.js addons themselves import  -->
+    <!-- from the bare 'three' specifier.                                          -->
+    <!-- occt-import-js is deliberately absent - it is a UMD classic script loaded  -->
+    <!-- on demand by Na__CadLoader__OcctBridge__, not an ES module.                -->
+    <!-- @delegate: 04__Src__Dependencies__VersionLocked/Na__Dependencies__ImportMap__Index__.json -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three"         : "./04__Src__Dependencies__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+            "three/addons/" : "./04__Src__Dependencies__VersionLocked/01__Vendor__ThreeJs__v0.184.0/examples/jsm/",
+            "web-ifc"       : "./04__Src__Dependencies__VersionLocked/02__Vendor__WebIfc__v0.0.77/web-ifc-api.js"
+        }
+    }
+    </script>
+    <!-- endregion ----------------------------------------------------------------- -->
+
+</head>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body - Application Shell                        -->
+<!-- ----------------------------------------------------------------- -->
+<body>
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | Application Header                                       -->
+    <!-- ----------------------------------------------------------------- -->
+    <header class="na-header">
+        <div class="na-header__brand">
+            <h1 class="na-header__title">BIM Asset Tools</h1>
+            <span class="na-header__subtitle">Noble Architecture</span>
+        </div>
+        <div class="na-header__meta">
+            <span id="Na__App__Version" class="na-header__version"></span>
+        </div>
+    </header>
+    <!-- endregion ----------------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | Main Layout - Sidebar, Viewport, Inspector                -->
+    <!-- ----------------------------------------------------------------- -->
+    <main class="na-layout">
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- PANEL | Left Sidebar - Ingest and Asset List                       -->
+        <!-- ----------------------------------------------------------------- -->
+        <aside class="na-sidebar">
+
+            <div id="Na__App__DropZone" class="na-dropzone">
+                <p class="na-dropzone__prompt">Drop files or a folder</p>
+                <p class="na-dropzone__hint">IFC · STEP · IGES · GLB · OBJ · STL · PLY · 3DS · DAE · FBX · RFA · RVT</p>
+                <label class="na-dropzone__picker">
+                    <input type="file" id="Na__App__FilePicker" multiple hidden>
+                    <span class="na-button na-button--subtle">Choose files</span>
+                </label>
+            </div>
+
+            <div class="na-sidebar__section">
+                <h2 class="na-sidebar__heading">Assets</h2>
+                <div id="Na__App__AssetList" class="na-asset-list"></div>
+            </div>
+
+        </aside>
+        <!-- ----------------------------------------------------------------- -->
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- PANEL | Centre - 3D Viewport and Its Toolbar                       -->
+        <!-- ----------------------------------------------------------------- -->
+        <section class="na-viewport">
+
+            <div class="na-toolbar">
+                <div id="Na__App__DisplayModes" class="na-toolbar__group"></div>
+
+                <div class="na-toolbar__group">
+                    <button type="button" id="Na__App__FrameButton" class="na-button na-button--subtle" title="Zoom to fit the active asset">Frame</button>
+                    <label class="na-toolbar__toggle" title="Show the 1 m reference grid">
+                        <input type="checkbox" id="Na__App__GridToggle" checked>
+                        <span>Grid</span>
+                    </label>
+                </div>
+
+                <div class="na-toolbar__spacer"></div>
+
+                <div class="na-toolbar__group">
+                    <!-- Shown only when the local server reports a converter is present. -->
+                    <button type="button" id="Na__App__ConvertButton" class="na-button na-button--convert" title="Convert this Revit file to IFC with the local converter, then load it" hidden>Convert to IFC</button>
+                    <button type="button" id="Na__App__ExportButton" class="na-button na-button--primary" title="Write a dimensionally verified GLB in metres">Export GLB</button>
+                </div>
+            </div>
+
+            <div id="Na__App__ViewportHost" class="na-viewport__canvas"></div>
+
+            <div id="Na__App__Status" class="na-status"></div>
+
+        </section>
+        <!-- ----------------------------------------------------------------- -->
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- PANEL | Right - Inspector and Audit Report                         -->
+        <!-- ----------------------------------------------------------------- -->
+        <aside id="Na__App__Inspector" class="na-inspector"></aside>
+        <!-- ----------------------------------------------------------------- -->
+
+
+    </main>
+    <!-- endregion ----------------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION | Application Entry Point                                   -->
+    <!-- ----------------------------------------------------------------- -->
+    <!-- The only script tag. Every other module is reached through this      -->
+    <!-- module's import graph, so load order lives in code rather than in a  -->
+    <!-- hand-maintained list of script tags.                                 -->
+    <script type="module" src="03__AppModules/01__AppCore/Na__AppCore__Init__.mjs"></script>
+    <!-- endregion ----------------------------------------------------------------- -->
+
+
+</body>
+<!-- endregion ----------------------------------------------------------------- -->
+
+</html>

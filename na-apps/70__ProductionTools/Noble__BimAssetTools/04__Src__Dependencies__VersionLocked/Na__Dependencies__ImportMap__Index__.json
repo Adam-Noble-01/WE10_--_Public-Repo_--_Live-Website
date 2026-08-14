@@ -1,0 +1,60 @@
+{
+    "Na__Dependencies__ImportMap__Index__": {
+        "description"           : "Browser import-map targets for all version-locked vendor libraries. Paths are relative to Na__BimAssetTools__App__.html (project root). This file is the SSOT for the import map declared inline in the HTML shell; a browser cannot read an import map from JSON, so the two must be kept in sync by hand.",
+        "lockedSetDate"         : "14-Aug-2026",
+        "coordinatedSetNote"    : "three is pinned to 0.184.0 to match Vale Lantern Designer so GLB export behaviour is identical across both apps. web-ifc and occt-import-js are independent of that pin and of each other, but each is paired with its own .wasm binary and the two must always move together as a folder.",
+
+        "vendors": {
+            "01__Vendor__ThreeJs__v0.184.0": {
+                "npmName"       : "three",
+                "version"       : "0.184.0",
+                "revision"      : "184",
+                "licence"       : "MIT",
+                "entry"         : "./04__Src__Dependencies__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+                "addons"        : "./04__Src__Dependencies__VersionLocked/01__Vendor__ThreeJs__v0.184.0/examples/jsm/",
+                "matchedWith"   : "Vale Lantern Designer 04__Src__Dependencies__VersionLocked/01__Vendor__ThreeJs__v0.184.0"
+            },
+            "02__Vendor__WebIfc__v0.0.77": {
+                "npmName"       : "web-ifc",
+                "version"       : "0.0.77",
+                "licence"       : "MPL-2.0",
+                "moduleFormat"  : "esm",
+                "entry"         : "./04__Src__Dependencies__VersionLocked/02__Vendor__WebIfc__v0.0.77/web-ifc-api.js",
+                "wasmDirectory" : "./04__Src__Dependencies__VersionLocked/02__Vendor__WebIfc__v0.0.77/",
+                "wasmSetBy"     : "Na__IfcLoader__Engine__.js calls SetWasmPath(wasmDirectory, true) before Init().",
+                "unusedArtefact": "web-ifc-mt.wasm is the SharedArrayBuffer multi-threaded build. Vendored but never loaded; it would require COOP/COEP cross-origin isolation headers.",
+                "coordinatedSet": false
+            },
+            "03__Vendor__OcctImportJs__v0.0.23": {
+                "npmName"       : "occt-import-js",
+                "version"       : "0.0.23",
+                "licence"       : "LGPL-2.1",
+                "moduleFormat"  : "umd-classic-script",
+                "globalName"    : "occtimportjs",
+                "entry"         : "./04__Src__Dependencies__VersionLocked/03__Vendor__OcctImportJs__v0.0.23/occt-import-js.js",
+                "wasmDirectory" : "./04__Src__Dependencies__VersionLocked/03__Vendor__OcctImportJs__v0.0.23/",
+                "notInImportMap": "UMD classic script loaded via a plain <script src> tag, not a bare ES module specifier. Consumed as window.occtimportjs by Na__CadLoader__OcctBridge__.js. Same handling pattern as jsPDF in Vale Lantern Designer.",
+                "coordinatedSet": false
+            },
+            "04__Vendor__DdcRvt2Ifc__v18.1.0": {
+                "toolName"      : "DataDrivenConstruction RVT2IFC Converter",
+                "version"       : "18.1.0",
+                "moduleFormat"  : "native-windows-executable",
+                "entry"         : "./04__Src__Dependencies__VersionLocked/04__Vendor__DdcRvt2Ifc__v18.1.0/DDC_REVIT2IFC_CONVERTER/RVT2IFCconverter.exe",
+                "commandLine"   : "RVT2IFCconverter.exe \"<input.rvt>\" \"<output.ifc>\" [mode=custom Param=Value ...]",
+                "outputSchema"  : "IFC4 Reference View, millimetres",
+                "invokedBy"     : "10__LocalServer__Modules/Na__LocalServer__RevitConvert__.py",
+                "notInImportMap": "A native executable, not a browser module. Invoked by the local Python server on behalf of the page, because a browser cannot and should not be able to launch a process. The page reaches it over the /api/convert routes.",
+                "gitIgnored"    : true,
+                "gitIgnoredNote": "720 MB, of which 689 MB is the ODA SDK in datadrivenlibs. Kept on disk but excluded from source control. The server falls back to the studio copy under D:/02_CoreLib__SketchUp when this folder is absent, and reports revitConversion:false if neither resolves.",
+                "coordinatedSet": false
+            }
+        },
+
+        "importMap": {
+            "three"          : "./04__Src__Dependencies__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+            "three/addons/"  : "./04__Src__Dependencies__VersionLocked/01__Vendor__ThreeJs__v0.184.0/examples/jsm/",
+            "web-ifc"        : "./04__Src__Dependencies__VersionLocked/02__Vendor__WebIfc__v0.0.77/web-ifc-api.js"
+        }
+    }
+}

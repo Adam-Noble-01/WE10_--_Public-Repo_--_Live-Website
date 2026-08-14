@@ -1,0 +1,102 @@
+{
+    "Na__AppData__AppConfig__": {
+        "description"       : "Runtime configuration for Noble BIM Asset Tools. Loaded once at boot by Na__AppCore__ConfigLoader__.js and exposed read-only through Na__AppCore__AppState__.js.",
+        "appName"           : "Noble BIM Asset Tools",
+        "appShortName"      : "BIM Asset Tools",
+        "appVersion"        : "0.2.0",
+        "appAuthor"         : "Adam Noble - Noble Architecture",
+        "schemaVersion"     : "1.0.0",
+        "lastUpdated"       : "14-Aug-2026",
+
+        "tolerances": {
+            "description"               : "All linear tolerances are in millimetres, the internal working unit.",
+            "weldVertexTolerance"       : 0.001,
+            "weldVertexToleranceNote"   : "Vertices closer than this are treated as coincident when checking for open edges. One micron - tight enough not to weld real detail, loose enough to absorb float32 noise.",
+            "degenerateTriangleArea"    : 0.0001,
+            "degenerateTriangleNote"    : "Triangles with an area below this in square millimetres are reported as degenerate slivers.",
+            "originDistanceWarning"     : 100000.0,
+            "originDistanceWarningNote" : "100 metres. Geometry sitting further than this from the world origin loses float32 precision and is flagged. Common with georeferenced UK Revit exports carrying Ordnance Survey National Grid coordinates.",
+            "originDistanceCritical"    : 1000000.0,
+            "originDistanceCriticalNote": "1 kilometre. Past this, single-precision rounding is visible at millimetre scale and re-centring is strongly advised before export.",
+            "exportVerifyTolerance"     : 0.01,
+            "exportVerifyToleranceNote" : "Maximum permitted bounding-box drift in millimetres between the source model and the re-read exported GLB. Anything larger fails the export verification."
+        },
+
+        "occtTessellation": {
+            "description"           : "Controls how OpenCascade converts true BREP surfaces into triangles. Lower deflection means more triangles and a closer fit to the real surface.",
+            "linearDeflection"      : 0.1,
+            "linearDeflectionNote"  : "Maximum chordal deviation in millimetres between the tessellated facet and the true surface. 0.1 mm is well inside architectural tolerance.",
+            "angularDeflection"     : 0.5,
+            "angularDeflectionNote" : "Maximum angular deviation in radians across a curved span.",
+            "presets": {
+                "coarse"    : { "linearDeflection": 1.0,  "angularDeflection": 0.8 },
+                "standard"  : { "linearDeflection": 0.1,  "angularDeflection": 0.5 },
+                "fine"      : { "linearDeflection": 0.01, "angularDeflection": 0.2 }
+            }
+        },
+
+        "viewer": {
+            "backgroundColour"      : "#1b2430",
+            "gridColour"            : "#2f3d4d",
+            "gridMajorColour"       : "#41546a",
+            "gridSpacingMm"         : 1000,
+            "gridExtentMm"          : 50000,
+            "cameraFovDegrees"      : 35,
+            "cameraNearMm"          : 1,
+            "cameraFarMm"           : 5000000,
+            "cameraFovNote"         : "A narrow 35 degree field of view keeps orthographic-like proportions, which reads better for component inspection than a wide lens.",
+            "defaultDisplayMode"    : "shaded",
+            "displayModes"          : ["shaded", "shadedEdges", "wireframe", "normals", "xray"],
+            "frameOnLoadPadding"    : 1.25
+        },
+
+        "materials": {
+            "defaultColour"         : "#b8c2cc",
+            "defaultRoughness"      : 0.55,
+            "defaultMetalness"      : 0.0,
+            "edgeColour"            : "#0d141c",
+            "selectionColour"       : "#ffb454",
+            "backFaceColour"        : "#c2564b",
+            "backFaceColourNote"    : "Reversed faces render in this red so inverted normals are obvious on sight, which matters because SketchUp imports them reversed too."
+        },
+
+        "glbExport": {
+            "sourceUnit"            : "millimetre",
+            "targetUnit"            : "metre",
+            "scaleFactor"           : 0.001,
+            "bakeScaleIntoVertices" : true,
+            "bakeScaleNote"         : "The unit conversion is baked into vertex positions rather than left on a node transform. Some importers silently drop node scale, and a dropped scale is a 1000x error that is easy to miss on an isolated component.",
+            "upAxis"                : "Y",
+            "upAxisNote"            : "glTF fixes +Y as up. Source BIM content is Z-up, so a single -90 degree rotation about X is applied at export and recorded in the report.",
+            "useDracoCompression"   : false,
+            "useDracoNote"          : "Deliberately off. Draco is lossy for vertex positions at default quantisation and this tool exists to preserve dimensional accuracy.",
+            "embedTextures"         : true,
+            "truncateDecimals"      : false,
+            "verifyAfterExport"     : true
+        },
+
+        "audit": {
+            "runAutomaticallyOnLoad": true,
+            "checks": [
+                { "id": "triangleCount",     "label": "Triangle and vertex count",      "severity": "info" },
+                { "id": "boundingBox",       "label": "Bounding box dimensions",        "severity": "info" },
+                { "id": "originDistance",    "label": "Distance from world origin",     "severity": "warning" },
+                { "id": "degenerateFaces",   "label": "Degenerate and sliver triangles","severity": "warning" },
+                { "id": "openEdges",         "label": "Open edges and non-manifold",    "severity": "warning" },
+                { "id": "reversedFaces",     "label": "Inverted face normals",          "severity": "warning" },
+                { "id": "materialInventory", "label": "Materials and textures",         "severity": "info" },
+                { "id": "nodeDepth",         "label": "Hierarchy depth and node count", "severity": "info" },
+                { "id": "nonUniformScale",   "label": "Non-uniform node scaling",       "severity": "warning" },
+                { "id": "duplicateVertices", "label": "Unwelded duplicate vertices",    "severity": "info" }
+            ]
+        },
+
+        "ingest": {
+            "maxFileSizeMb"         : 512,
+            "maxFileSizeNote"       : "Guard against a browser tab running out of memory. IFC parsing peaks at roughly four times the file size in RAM.",
+            "acceptFolderDrop"      : true,
+            "recurseSubfolders"     : true,
+            "maxFilesPerBatch"      : 500
+        }
+    }
+}

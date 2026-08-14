@@ -1,0 +1,573 @@
+/* =============================================================================
+   NOBLE BIM ASSET TOOLS | STYLESHEET
+   =============================================================================
+
+   FILE       : Na__StyleSheet__BimAssetTools__.css
+   NAMESPACE  : Na__BimAssetTools
+   AUTHOR     : Adam Noble - Noble Architecture
+   PURPOSE    : Complete presentation layer for the BIM asset viewer and auditor
+   CREATED    : 14-Aug-2026
+
+   DESCRIPTION:
+   - A dark technical interface. The viewport background is a desaturated slate so
+     that a grey component reads clearly against it without the surroundings
+     tinting the perceived colour of the asset.
+   - The verdict and severity colours are the only saturated ones in the palette,
+     so a defect draws the eye before anything else on the page does.
+
+   ============================================================================= */
+
+/* =============================================================================
+   REGION | Design Tokens
+   ============================================================================= */
+
+:root {
+
+    /* SURFACES | Layered from deepest to highest */
+    --na-surface-base       :  #141c26;
+    --na-surface-panel      :  #1b2430;
+    --na-surface-raised     :  #22303f;
+    --na-surface-hover      :  #2a3b4d;
+    --na-viewport-bg        :  #1b2430;
+
+    /* BORDERS */
+    --na-border-subtle      :  #2a3948;
+    --na-border-strong      :  #3a4d61;
+
+    /* TEXT */
+    --na-text-primary       :  #e3eaf2;
+    --na-text-secondary     :  #93a5b8;
+    --na-text-muted         :  #64778c;
+
+    /* ACCENT | Noble blue */
+    --na-accent             :  #4a90c4;
+    --na-accent-hover       :  #5aa3d8;
+    --na-accent-contrast    :  #0d151d;
+
+    /* SEVERITY | The only saturated colours in the palette */
+    --na-pass               :  #4caf7d;
+    --na-info               :  #6f8fa8;
+    --na-warning            :  #d9a441;
+    --na-critical           :  #c2564b;
+
+    /* TYPOGRAPHY */
+    --na-font-ui            :  "Segoe UI", system-ui, -apple-system, sans-serif;
+    --na-font-mono          :  "Cascadia Mono", "Consolas", "SF Mono", monospace;
+    --na-size-xs            :  11px;
+    --na-size-sm            :  12px;
+    --na-size-md            :  13px;
+    --na-size-lg            :  15px;
+
+    /* METRICS */
+    --na-sidebar-width      :  290px;
+    --na-inspector-width    :  380px;
+    --na-header-height      :  46px;
+    --na-radius             :  4px;
+    --na-gap                :  10px;
+}
+
+/* endregion ----------------------------------------------------------------- */
+
+
+/* =============================================================================
+   REGION | Base Layout
+   ============================================================================= */
+
+* { box-sizing: border-box; }
+
+html, body {
+    height           :  100%;
+    margin           :  0;
+    padding          :  0;
+    overflow         :  hidden;                     /* The panels scroll, never the page */
+}
+
+body {
+    background-color :  var(--na-surface-base);
+    color            :  var(--na-text-primary);
+    font-family      :  var(--na-font-ui);
+    font-size        :  var(--na-size-md);
+    display          :  flex;
+    flex-direction   :  column;
+}
+
+/* HEADER ------------------------------------------------------------------- */
+
+.na-header {
+    height           :  var(--na-header-height);
+    flex             :  0 0 auto;
+    display          :  flex;
+    align-items      :  center;
+    justify-content  :  space-between;
+    padding          :  0 16px;
+    background-color :  var(--na-surface-panel);
+    border-bottom    :  1px solid var(--na-border-subtle);
+}
+
+.na-header__brand    { display: flex; align-items: baseline; gap: 10px; }
+.na-header__title    { font-size: var(--na-size-lg); font-weight: 600; margin: 0; letter-spacing: 0.2px; }
+.na-header__subtitle { font-size: var(--na-size-sm); color: var(--na-text-muted); }
+.na-header__version  { font-family: var(--na-font-mono); font-size: var(--na-size-xs); color: var(--na-text-muted); }
+
+/* THREE COLUMN LAYOUT ------------------------------------------------------ */
+
+.na-layout {
+    flex             :  1 1 auto;
+    display          :  grid;
+    grid-template-columns: var(--na-sidebar-width) 1fr var(--na-inspector-width);
+    min-height       :  0;                          /* Lets the grid children scroll rather than stretching the page */
+}
+
+/* endregion ----------------------------------------------------------------- */
+
+
+/* =============================================================================
+   REGION | Sidebar and Ingest
+   ============================================================================= */
+
+.na-sidebar {
+    background-color :  var(--na-surface-panel);
+    border-right     :  1px solid var(--na-border-subtle);
+    display          :  flex;
+    flex-direction   :  column;
+    min-height       :  0;
+}
+
+.na-sidebar__section { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+
+.na-sidebar__heading {
+    font-size        :  var(--na-size-xs);
+    font-weight      :  600;
+    text-transform   :  uppercase;
+    letter-spacing   :  0.9px;
+    color            :  var(--na-text-muted);
+    margin           :  0;
+    padding          :  12px 14px 8px;
+}
+
+/* DROP ZONE ---------------------------------------------------------------- */
+
+.na-dropzone {
+    margin           :  12px;
+    padding          :  20px 14px;
+    border           :  1.5px dashed var(--na-border-strong);
+    border-radius    :  var(--na-radius);
+    text-align       :  center;
+    transition       :  background-color 120ms ease, border-color 120ms ease;
+}
+
+.na-dropzone--active {
+    border-color     :  var(--na-accent);
+    background-color :  rgba(74, 144, 196, 0.10);
+}
+
+.na-dropzone__prompt { margin: 0 0 6px; font-weight: 600; }
+
+.na-dropzone__hint {
+    margin           :  0 0 12px;
+    font-size        :  var(--na-size-xs);
+    color            :  var(--na-text-muted);
+    line-height      :  1.6;
+}
+
+.na-dropzone__picker { cursor: pointer; }
+
+/* ASSET LIST --------------------------------------------------------------- */
+
+.na-asset-list {
+    flex             :  1 1 auto;
+    overflow-y       :  auto;
+    padding          :  0 8px 12px;
+}
+
+.na-asset-list__empty {
+    color            :  var(--na-text-muted);
+    font-size        :  var(--na-size-sm);
+    padding          :  8px 6px;
+    line-height      :  1.5;
+}
+
+.na-asset-row {
+    display          :  flex;
+    align-items      :  center;
+    gap              :  9px;
+    width            :  100%;
+    padding          :  7px 8px;
+    margin-bottom    :  2px;
+    background       :  transparent;
+    border           :  1px solid transparent;
+    border-radius    :  var(--na-radius);
+    color            :  inherit;
+    font             :  inherit;
+    text-align       :  left;
+    cursor           :  pointer;
+}
+
+.na-asset-row:hover        { background-color: var(--na-surface-hover); }
+.na-asset-row--active      { background-color: var(--na-surface-raised); border-color: var(--na-accent); }
+
+.na-asset-row__text        { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+.na-asset-row__name {
+    font-size        :  var(--na-size-sm);
+    font-weight      :  500;
+    white-space      :  nowrap;
+    overflow         :  hidden;
+    text-overflow    :  ellipsis;                   /* File names here are long and highly abbreviated already */
+}
+
+.na-asset-row__meta {
+    font-size        :  var(--na-size-xs);
+    color            :  var(--na-text-muted);
+    font-family      :  var(--na-font-mono);
+    white-space      :  nowrap;
+    overflow         :  hidden;
+    text-overflow    :  ellipsis;
+}
+
+.na-asset-row__meta--error { color: var(--na-critical); }
+
+.na-asset-row__remove {
+    flex             :  0 0 auto;
+    width            :  18px;
+    height           :  18px;
+    line-height      :  16px;
+    text-align       :  center;
+    border-radius    :  3px;
+    color            :  var(--na-text-muted);
+    font-size        :  15px;
+    opacity          :  0;
+}
+
+.na-asset-row:hover .na-asset-row__remove          { opacity: 1; }
+.na-asset-row__remove:hover                        { background-color: var(--na-critical); color: #fff; }
+
+/* VERDICT DOT -------------------------------------------------------------- */
+
+.na-verdict-dot {
+    flex             :  0 0 auto;
+    width            :  9px;
+    height           :  9px;
+    border-radius    :  50%;
+    background-color :  var(--na-text-muted);
+}
+
+.na-verdict-dot--clean     { background-color: var(--na-pass); }
+.na-verdict-dot--usable    { background-color: var(--na-info); }
+.na-verdict-dot--poor      { background-color: var(--na-warning); }
+.na-verdict-dot--critical  { background-color: var(--na-critical); }
+.na-verdict-dot--auditOnly { background-color: var(--na-accent); }
+.na-verdict-dot--loading   { background-color: var(--na-accent); animation: na-pulse 1s ease-in-out infinite; }
+
+@keyframes na-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+
+/* endregion ----------------------------------------------------------------- */
+
+
+/* =============================================================================
+   REGION | Viewport and Toolbar
+   ============================================================================= */
+
+.na-viewport {
+    display          :  flex;
+    flex-direction   :  column;
+    min-width        :  0;
+    min-height       :  0;
+    background-color :  var(--na-viewport-bg);
+}
+
+.na-viewport__canvas { flex: 1 1 auto; min-height: 0; position: relative; }
+.na-viewport__canvas canvas { display: block; width: 100%; height: 100%; }
+
+.na-toolbar {
+    flex             :  0 0 auto;
+    display          :  flex;
+    align-items      :  center;
+    gap              :  14px;
+    padding          :  7px 12px;
+    background-color :  var(--na-surface-panel);
+    border-bottom    :  1px solid var(--na-border-subtle);
+}
+
+.na-toolbar__group   { display: flex; align-items: center; gap: 5px; }
+.na-toolbar__spacer  { flex: 1 1 auto; }
+
+.na-toolbar__toggle {
+    display          :  flex;
+    align-items      :  center;
+    gap              :  5px;
+    font-size        :  var(--na-size-sm);
+    color            :  var(--na-text-secondary);
+    cursor           :  pointer;
+    user-select      :  none;
+}
+
+/* BUTTONS ------------------------------------------------------------------ */
+
+.na-button {
+    display          :  inline-block;
+    padding          :  5px 12px;
+    border           :  1px solid var(--na-border-strong);
+    border-radius    :  var(--na-radius);
+    background-color :  var(--na-surface-raised);
+    color            :  var(--na-text-primary);
+    font-family      :  inherit;
+    font-size        :  var(--na-size-sm);
+    cursor           :  pointer;
+    transition       :  background-color 120ms ease;
+}
+
+.na-button:hover                { background-color: var(--na-surface-hover); }
+.na-button:disabled             { opacity: 0.45; cursor: not-allowed; }
+.na-button--subtle              { background-color: transparent; }
+.na-button--primary             { background-color: var(--na-accent); border-color: var(--na-accent); color: var(--na-accent-contrast); font-weight: 600; }
+.na-button--primary:hover       { background-color: var(--na-accent-hover); }
+
+/* Convert sits beside Export but is a different kind of act - it reaches out to
+   the local converter rather than writing a file - so it takes the warm accent. */
+.na-button--convert             { background-color: var(--na-warning); border-color: var(--na-warning); color: var(--na-accent-contrast); font-weight: 600; }
+.na-button--convert:hover       { background-color: #e8b558; }
+.na-button[hidden]              { display: none; }
+
+.na-mode-button {
+    padding          :  4px 10px;
+    border           :  1px solid var(--na-border-subtle);
+    border-radius    :  var(--na-radius);
+    background-color :  transparent;
+    color            :  var(--na-text-secondary);
+    font-family      :  inherit;
+    font-size        :  var(--na-size-sm);
+    cursor           :  pointer;
+}
+
+.na-mode-button:hover           { background-color: var(--na-surface-hover); color: var(--na-text-primary); }
+.na-mode-button--active         { background-color: var(--na-surface-raised); border-color: var(--na-accent); color: var(--na-text-primary); }
+
+/* STATUS LINE -------------------------------------------------------------- */
+
+.na-status {
+    flex             :  0 0 auto;
+    min-height       :  26px;
+    padding          :  5px 12px;
+    font-family      :  var(--na-font-mono);
+    font-size        :  var(--na-size-xs);
+    line-height      :  1.5;
+    color            :  var(--na-text-secondary);
+    background-color :  var(--na-surface-panel);
+    border-top       :  1px solid var(--na-border-subtle);
+}
+
+.na-status--success { color: var(--na-pass); }
+.na-status--warning { color: var(--na-warning); }
+.na-status--error   { color: var(--na-critical); }
+
+/* endregion ----------------------------------------------------------------- */
+
+
+/* =============================================================================
+   REGION | Inspector Panel
+   ============================================================================= */
+
+.na-inspector {
+    background-color :  var(--na-surface-panel);
+    border-left      :  1px solid var(--na-border-subtle);
+    overflow-y       :  auto;
+    padding          :  12px;
+    min-height       :  0;
+}
+
+.na-inspector__empty { color: var(--na-text-muted); font-size: var(--na-size-sm); padding: 6px 2px; }
+.na-inspector__error { color: var(--na-critical); font-size: var(--na-size-sm); line-height: 1.6; margin: 0; }
+
+.na-inspector__section { margin-bottom: 18px; }
+
+.na-inspector__section-title {
+    font-size        :  var(--na-size-xs);
+    font-weight      :  600;
+    text-transform   :  uppercase;
+    letter-spacing   :  0.9px;
+    color            :  var(--na-text-muted);
+    margin           :  0 0 8px;
+    padding-bottom   :  5px;
+    border-bottom    :  1px solid var(--na-border-subtle);
+}
+
+.na-inspector__row {
+    display          :  flex;
+    justify-content  :  space-between;
+    align-items      :  baseline;
+    gap              :  10px;
+    padding          :  3px 0;
+    font-size        :  var(--na-size-sm);
+}
+
+.na-inspector__label { color: var(--na-text-secondary); flex: 0 0 auto; }
+
+.na-inspector__value {
+    font-family      :  var(--na-font-mono);
+    font-size        :  var(--na-size-xs);
+    text-align       :  right;
+    word-break       :  break-word;
+}
+
+.na-inspector__value--good { color: var(--na-pass); }
+.na-inspector__value--warn { color: var(--na-warning); }
+
+.na-inspector__note {
+    font-size        :  var(--na-size-xs);
+    color            :  var(--na-text-muted);
+    line-height      :  1.6;
+    margin           :  6px 0 0;
+    word-break       :  break-word;
+}
+
+.na-inspector__preview { margin: 0 0 12px; text-align: center; }
+
+.na-inspector__preview img {
+    max-width        :  128px;
+    height           :  auto;
+    border           :  1px solid var(--na-border-subtle);
+    border-radius    :  var(--na-radius);
+    background-color :  var(--na-surface-base);
+    image-rendering  :  pixelated;                  /* A 128px thumbnail stays crisp rather than being smeared */
+}
+
+.na-inspector__preview figcaption {
+    font-size        :  var(--na-size-xs);
+    color            :  var(--na-text-muted);
+    margin-top       :  5px;
+}
+
+/* VERDICT BANNER ----------------------------------------------------------- */
+
+.na-verdict {
+    display          :  flex;
+    align-items      :  baseline;
+    justify-content  :  space-between;
+    gap              :  10px;
+    padding          :  8px 10px;
+    margin-bottom    :  10px;
+    border-radius    :  var(--na-radius);
+    border-left      :  3px solid var(--na-info);
+    background-color :  var(--na-surface-raised);
+    font-size        :  var(--na-size-sm);
+}
+
+.na-verdict strong  { letter-spacing: 0.8px; }
+.na-verdict span    { color: var(--na-text-secondary); font-size: var(--na-size-xs); }
+
+.na-verdict--clean    { border-left-color: var(--na-pass);     color: var(--na-pass); }
+.na-verdict--usable   { border-left-color: var(--na-info);     color: var(--na-text-primary); }
+.na-verdict--poor     { border-left-color: var(--na-warning);  color: var(--na-warning); }
+.na-verdict--critical { border-left-color: var(--na-critical); color: var(--na-critical); }
+
+/* FINDINGS ----------------------------------------------------------------- */
+
+.na-finding {
+    padding          :  6px 9px;
+    margin-bottom    :  4px;
+    border-left      :  2px solid var(--na-border-strong);
+    border-radius    :  0 var(--na-radius) var(--na-radius) 0;
+    background-color :  rgba(255, 255, 255, 0.02);
+}
+
+.na-finding--pass     { border-left-color: var(--na-pass); }
+.na-finding--info     { border-left-color: var(--na-info); }
+.na-finding--warning  { border-left-color: var(--na-warning); }
+.na-finding--critical { border-left-color: var(--na-critical); background-color: rgba(194, 86, 75, 0.08); }
+
+.na-finding__head    { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.na-finding__label   { font-size: var(--na-size-sm); }
+
+.na-finding__value {
+    font-family      :  var(--na-font-mono);
+    font-size        :  var(--na-size-xs);
+    color            :  var(--na-text-primary);
+    text-align       :  right;
+}
+
+.na-finding__detail {
+    font-size        :  var(--na-size-xs);
+    color            :  var(--na-text-muted);
+    line-height      :  1.6;
+    margin           :  4px 0 0;
+}
+
+/* WARNING LIST ------------------------------------------------------------- */
+
+.na-warning-list {
+    margin           :  0;
+    padding-left     :  16px;
+    font-size        :  var(--na-size-xs);
+    color            :  var(--na-text-secondary);
+    line-height      :  1.65;
+}
+
+.na-warning-list li { margin-bottom: 6px; }
+
+/* SCHEDULE TABLE ----------------------------------------------------------- */
+
+.na-table-scroll {
+    overflow-x       :  auto;                       /* Parameter tables are wide; the panel must never scroll the page */
+    border           :  1px solid var(--na-border-subtle);
+    border-radius    :  var(--na-radius);
+}
+
+.na-schedule-table {
+    border-collapse  :  collapse;
+    width            :  100%;
+    font-family      :  var(--na-font-mono);
+    font-size        :  var(--na-size-xs);
+    white-space      :  nowrap;
+}
+
+.na-schedule-table th,
+.na-schedule-table td {
+    padding          :  5px 8px;
+    text-align       :  right;
+    border-bottom    :  1px solid var(--na-border-subtle);
+}
+
+.na-schedule-table th {
+    position         :  sticky;
+    top              :  0;
+    background-color :  var(--na-surface-raised);
+    color            :  var(--na-text-secondary);
+    font-weight      :  600;
+    text-align       :  right;
+}
+
+.na-schedule-table__type  { text-align: left !important; color: var(--na-text-primary); font-weight: 600; }
+.na-schedule-table__unit  { color: var(--na-text-muted); font-weight: 400; }
+.na-schedule-table__empty { color: var(--na-text-muted); }
+.na-schedule-table tbody tr:hover { background-color: var(--na-surface-hover); }
+
+/* endregion ----------------------------------------------------------------- */
+
+
+/* =============================================================================
+   REGION | Boot Failure Banner
+   ============================================================================= */
+
+.na-boot-error {
+    padding          :  12px 16px;
+    background-color :  var(--na-critical);
+    color            :  #fff;
+    font-family      :  var(--na-font-mono);
+    font-size        :  var(--na-size-sm);
+    line-height      :  1.6;
+}
+
+/* endregion ----------------------------------------------------------------- */
+
+
+/* =============================================================================
+   REGION | Scrollbars
+   ============================================================================= */
+
+::-webkit-scrollbar               { width: 10px; height: 10px; }
+::-webkit-scrollbar-track         { background: var(--na-surface-base); }
+::-webkit-scrollbar-thumb         { background: var(--na-border-strong); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover   { background: var(--na-text-muted); }
+
+/* endregion ----------------------------------------------------------------- */

@@ -1,0 +1,14 @@
+{
+  "name": "noble-bim-asset-tools",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Noble Architecture - BIM Asset Viewer, Auditor and GLB Converter",
+  "author": "Adam Noble - Noble Architecture",
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "occt-import-js": "0.0.23",
+    "three": "0.184.0",
+    "web-ifc": "0.0.77"
+  }
+}

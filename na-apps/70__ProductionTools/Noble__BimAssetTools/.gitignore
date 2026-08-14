@@ -1,0 +1,64 @@
+# =============================================================================
+# NOBLE BIM ASSET TOOLS - GIT IGNORE
+# =============================================================================
+
+# Node dependency install tree (lockfile is committed; install with npm ci)
+node_modules/
+
+# Python bytecode from the local server
+__pycache__/
+*.pyc
+
+# Local runtime / user scratch (keep folder, ignore generated noise)
+05__LocalUserData/**
+!05__LocalUserData/.gitkeep
+
+# Converted output written by the GLB exporter during local testing
+60__AppTesting/__ConvertedOutput/**
+!60__AppTesting/__ConvertedOutput/.gitkeep
+
+# Test fixtures are licensed vendor downloads, kept locally only
+60__AppTesting/__Fixtures/**
+!60__AppTesting/__Fixtures/.gitkeep
+
+# Source BIM assets are never committed - they are large, licensed vendor
+# downloads. Drop them anywhere outside the repo and load them via the app.
+*.rfa
+*.rvt
+*.ifc
+*.step
+*.stp
+*.iges
+*.igs
+
+# -----------------------------------------------------------------------------
+# DDC RVT2IFC converter - DELIBERATELY NOT COMMITTED. Two reasons:
+#
+#   1. LICENCE. It bundles LibXL, whose terms state redistribution is
+#      "prohibited unless expressly permitted by the EULA", and Open Design
+#      Alliance software under a separate agreement. Committing it to a
+#      repository - public or private - would be redistributing it.
+#
+#   2. SIZE. 720 MB, of which 689 MB is the ODA SDK in datadrivenlibs,
+#      including one 80 MB file. GitHub warns above 50 MB per file.
+#
+# Nothing breaks without it. Revit files still load and show their parameter
+# schedule, thumbnail and version data; only conversion to geometry is
+# unavailable, and the Convert button does not appear.
+#
+# To enable conversion on a machine, obtain the converter from
+# DataDrivenConstruction and place it at:
+#   04__Src__Dependencies__VersionLocked/04__Vendor__DdcRvt2Ifc__v18.1.0/
+#     DDC_REVIT2IFC_CONVERTER/RVT2IFCconverter.exe
+#
+# The server checks that path first, then falls back to the studio copy under
+# D:/02_CoreLib__SketchUp/30__Software__3dSoftware__Tools&Utils/
+# Run Na__Setup__VerifyDependencies__.py to see which one was found.
+# -----------------------------------------------------------------------------
+04__Src__Dependencies__VersionLocked/04__Vendor__DdcRvt2Ifc__v18.1.0/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+.npm/

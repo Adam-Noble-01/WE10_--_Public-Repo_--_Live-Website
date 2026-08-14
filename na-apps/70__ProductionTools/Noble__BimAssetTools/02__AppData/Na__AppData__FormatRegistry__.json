@@ -1,0 +1,157 @@
+{
+    "Na__AppData__FormatRegistry__": {
+        "description"       : "Single source of truth for every file extension the application recognises, which loader route handles it, and whether that route can produce geometry. The FileIngest router reads this; nothing else hard-codes an extension list.",
+        "schemaVersion"     : "1.0.0",
+        "lastUpdated"       : "14-Aug-2026",
+
+        "routeNotes": {
+            "ifc"       : "web-ifc WASM. Real BIM route - carries declared units, GUIDs, property sets and spatial structure.",
+            "occt"      : "occt-import-js WASM (OpenCascade). True BREP solids tessellated on load at a controllable linear deflection.",
+            "three"     : "Stock three.js addon loaders. Mesh formats only - no reliable unit declaration in most of them.",
+            "revitAudit": "In-house OLE2/CFBF reader. Metadata only. Autodesk RFA/RVT geometry is proprietary and cannot be extracted by any open-source library."
+        },
+
+        "unitPolicy": {
+            "internalWorkingUnit"   : "millimetre",
+            "rationale"             : "UK architectural practice works in millimetres and the source BIM content declares millimetres. Every loader converts to mm exactly once, records the factor it applied, and the viewer never rescales again.",
+            "glbExportUnit"         : "metre",
+            "glbRationale"          : "The glTF 2.0 specification fixes linear distance units at metres. Export applies a single mm to m conversion and then verifies the written file measures the same as the source."
+        },
+
+        "formats": [
+            {
+                "extensions"    : [".ifc"],
+                "label"         : "IFC - Industry Foundation Classes",
+                "route"         : "ifc",
+                "geometry"      : true,
+                "unitsDeclared" : true,
+                "notes"         : "IFC2x3, IFC4 and IFC4x3 all supported. Unit factor is read from IFCUNITASSIGNMENT, never assumed."
+            },
+            {
+                "extensions"    : [".ifcxml"],
+                "label"         : "IFC XML",
+                "route"         : "ifc",
+                "geometry"      : true,
+                "unitsDeclared" : true,
+                "notes"         : "Handled by the same engine. Rare in practice."
+            },
+            {
+                "extensions"    : [".step", ".stp"],
+                "label"         : "STEP - ISO 10303 AP203/AP214/AP242",
+                "route"         : "occt",
+                "geometry"      : true,
+                "unitsDeclared" : true,
+                "notes"         : "Manufacturer part downloads are usually STEP. OpenCascade reads the declared unit from the file header."
+            },
+            {
+                "extensions"    : [".iges", ".igs"],
+                "label"         : "IGES",
+                "route"         : "occt",
+                "geometry"      : true,
+                "unitsDeclared" : true,
+                "notes"         : "Older surface exchange format. Frequently produces open shells - the audit panel will flag them."
+            },
+            {
+                "extensions"    : [".brep", ".brp"],
+                "label"         : "OpenCascade BREP",
+                "route"         : "occt",
+                "geometry"      : true,
+                "unitsDeclared" : false,
+                "notes"         : "Unitless native OpenCascade format. Assumed millimetres; the user must confirm."
+            },
+            {
+                "extensions"    : [".glb", ".gltf"],
+                "label"         : "glTF 2.0 / GLB",
+                "route"         : "three",
+                "geometry"      : true,
+                "unitsDeclared" : true,
+                "assumedUnit"   : "metre",
+                "notes"         : "Specification fixes units at metres, so the assumption is safe and is applied as a 1000x conversion into mm."
+            },
+            {
+                "extensions"    : [".obj"],
+                "label"         : "Wavefront OBJ",
+                "route"         : "three",
+                "geometry"      : true,
+                "unitsDeclared" : false,
+                "assumedUnit"   : "millimetre",
+                "notes"         : "No unit declaration exists in the format. The unit override control must be used if the guess is wrong."
+            },
+            {
+                "extensions"    : [".stl"],
+                "label"         : "STL - Stereolithography",
+                "route"         : "three",
+                "geometry"      : true,
+                "unitsDeclared" : false,
+                "assumedUnit"   : "millimetre",
+                "notes"         : "No units, no materials, no shared vertices. Almost always millimetres in practice."
+            },
+            {
+                "extensions"    : [".ply"],
+                "label"         : "PLY - Stanford Polygon",
+                "route"         : "three",
+                "geometry"      : true,
+                "unitsDeclared" : false,
+                "assumedUnit"   : "millimetre"
+            },
+            {
+                "extensions"    : [".3ds"],
+                "label"         : "Autodesk 3DS",
+                "route"         : "three",
+                "geometry"      : true,
+                "unitsDeclared" : false,
+                "assumedUnit"   : "millimetre",
+                "notes"         : "Legacy format with a hard 16-bit vertex limit per mesh. Large models arrive pre-split."
+            },
+            {
+                "extensions"    : [".dae"],
+                "label"         : "COLLADA",
+                "route"         : "three",
+                "geometry"      : true,
+                "unitsDeclared" : true,
+                "notes"         : "Declares a unit scale in its asset block, which the loader honours."
+            },
+            {
+                "extensions"    : [".fbx"],
+                "label"         : "Autodesk FBX",
+                "route"         : "three",
+                "geometry"      : true,
+                "unitsDeclared"  : true,
+                "assumedUnit"   : "centimetre",
+                "notes"         : "FBX defaults to centimetres. The loader reads the UnitScaleFactor header where present."
+            },
+            {
+                "extensions"    : [".rfa"],
+                "label"         : "Revit Family",
+                "route"         : "revitAudit",
+                "geometry"      : false,
+                "unitsDeclared" : true,
+                "notes"         : "Audit only. Reads the PartAtom parameter schedule, BasicFileInfo and the embedded preview thumbnail. Geometry requires conversion to IFC first."
+            },
+            {
+                "extensions"    : [".rvt"],
+                "label"         : "Revit Project",
+                "route"         : "revitAudit",
+                "geometry"      : false,
+                "unitsDeclared" : true,
+                "notes"         : "Audit only. Project files rarely carry a PartAtom stream, so usually only version info and the preview are recoverable."
+            },
+            {
+                "extensions"    : [".rte", ".rft"],
+                "label"         : "Revit Template",
+                "route"         : "revitAudit",
+                "geometry"      : false,
+                "unitsDeclared" : false,
+                "notes"         : "Audit only. Same container format as RFA/RVT."
+            }
+        ],
+
+        "revitConversionRoute": {
+            "summary"       : "Autodesk RFA and RVT geometry is not readable by any open-source library. Convert to IFC first, then load the IFC here.",
+            "converterPath" : "D:\\02_CoreLib__SketchUp\\30__Software__3dSoftware__Tools&Utils\\3dTool__Tool__RevitToIfc__Converter\\DDC_Converter_Revit2IFC_v05032026\\DDC_REVIT2IFC_CONVERTER\\RVT2IFCconverter.exe",
+            "converterName" : "DataDrivenConstruction RVT2IFC Converter 18.1.0",
+            "converterNote" : "Runs without Revit installed. Confirmed to produce IFC4 Reference View V1.2 in millimetres. Handles .rvt project files; .rfa family files may need opening in Revit and exporting, as the converter targets project documents.",
+            "recommendedSchema" : "IFC4 Reference View"
+        }
+    }
+}
