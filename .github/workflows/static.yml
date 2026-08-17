@@ -33,10 +33,26 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      # GitHub Pages enforces a 1 GB limit on the published site. The repository
+      # is ~3.1 GB, which caused deployments to fail with a 503 at the deploy step.
+      # These three groups are never served from Pages, so they are pruned from the
+      # checkout before upload. Nothing is removed from the repository itself.
+      #   - GLB models      : TrueVision loads these from cdn.noble-architecture.com (R2)
+      #   - CAD audit cache : local working cache for the desktop CadAuditTools app
+      #   - Archive zips    : superseded app versions and dev asset bundles
+      - name: Prune assets not served from Pages
+        run: |
+          echo "Size before prune: $(du -sh . | cut -f1)"
+          find . -path ./.git -prune -o -type f -name '*.glb' -print -delete | wc -l | xargs echo "  GLB removed:"
+          rm -rf ./na-apps/70__ProductionTools/Noble__CadAuditTools/04__LocalProjectCache
+          find . -path ./.git -prune -o -type f -name '*.zip' -print -delete | wc -l | xargs echo "  ZIP removed:"
+          echo "Size after prune:  $(du -sh . | cut -f1)"
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
+          # Upload the pruned repository
           path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
