@@ -132,8 +132,13 @@
 
             const addr = cloudflareData.clientAddress || {};
             const addressParts = [];
-            if (addr.houseNameNo) addressParts.push(addr.houseNameNo);
-            if (addr.street) addressParts.push(addr.street);
+            if (addr.houseNameNo && addr.street) {                        // <-- House number and street share a line
+                addressParts.push(`${addr.houseNameNo} ${addr.street}`);
+            } else if (addr.houseNameNo) {
+                addressParts.push(addr.houseNameNo);
+            } else if (addr.street) {
+                addressParts.push(addr.street);
+            }
             if (addr.district) addressParts.push(addr.district);
             if (addr.county) addressParts.push(addr.county);
             if (addr.postcode) addressParts.push(addr.postcode);

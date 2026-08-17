@@ -21,7 +21,7 @@
                 {
                     "description": "Measured Building Survey & Travel",
                     "itemDescription": "1. Full measured building survey of BOTH the Ground Floor and First Floor.\n2. Both floors are required because the internal wall removals will need new beams, and the Structural Engineer must establish what bears onto the walls being altered.\n3. Includes travel to and from site.",
-                    "quantity": 8,
+                    "quantity": 6,
                     "unit": "Hours",
                     "rate": 25,
                     "group": "Design Phase - 01 : Concept Design"
@@ -37,7 +37,7 @@
                 {
                     "description": "Model Existing Site Conditions",
                     "itemDescription": "1. Full three dimensional model of the existing property, both floors.\n2. Forms the base model for all subsequent design work and for the TrueVision experience.",
-                    "quantity": 9,
+                    "quantity": 11,
                     "unit": "Hours",
                     "rate": 25,
                     "group": "Design Phase - 01 : Concept Design"
@@ -117,7 +117,7 @@
                 {
                     "description": "Drawing : Proposed Elevations",
                     "itemDescription": "1. Mandatory Drawing Required by LPA.\n2. Scale = 1:50\n3. Size  = Iso A2",
-                    "quantity": 3,
+                    "quantity": 4,
                     "unit": "Hours",
                     "rate": 25,
                     "group": "Design Phase - 02 : Planning Approval"
@@ -159,7 +159,7 @@
                     "itemDescription": "1. See the Building Regulations contract for more details.\n2. Currently opted out due to the Main Contractor becoming the Building Regulations Compliance Agent.",
                     "quantity": 0,
                     "unit": "Optional",
-                    "rate": 3400,
+                    "rate": 1600,
                     "group": "Additional Extras : **For Discussion & Consideration!!"
                 },
                 {
@@ -188,15 +188,15 @@
                 }
             ],
             "totals": {
-                "subtotal": 1625,
+                "subtotal": 1650,
                 "vatApplicable": true,
                 "vatRate": 20,
-                "vat": 325,
-                "grandTotal": 1950
+                "vat": 330.0,
+                "grandTotal": 1980.0
             },
             "additionalTerms": "",
             "createdDate": "17-Aug-2026 at 17:15",
-            "lastModified": "17-Aug-2026 at 18:05"
+            "lastModified": "17-Aug-2026 at 18:40"
         }
     ]
 }
