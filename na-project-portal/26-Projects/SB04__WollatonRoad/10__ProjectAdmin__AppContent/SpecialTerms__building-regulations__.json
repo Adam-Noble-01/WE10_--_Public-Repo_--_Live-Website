@@ -1,0 +1,49 @@
+{
+    "contractId": "building-regulations",
+    "contractName": "Building Regulations Stage",
+    "sectionTitle": "Special Terms - Building Regs",
+    "introduction": "The following special conditions apply specifically to this project and supplement the standard terms.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Limitation of Noble Architecture's Appointment",
+            "content": "Following ongoing coordination between Noble Architecture and the appointed Contractor, **Sukhi Home Solutions**, it is explicitly agreed that Noble Architecture's scope of services concludes at submission of the Planning Application, or at the point the works are confirmed as proceeding under Permitted Development, unless the quotation and written appointment explicitly include \"Design Phase 03 – Building Regulations Compliance\" (or equivalent wording confirming a Building Regulations technical design stage)."
+        },
+        {
+            "id": 2,
+            "title": "Transfer of Technical Responsibility After Planning",
+            "content": "**Sukhi Home Solutions** have confirmed they will assume responsibility for all technical aspects, construction methods, coordination of technical design, and Building Regulations compliance immediately following the Planning Approval Phase. Planning drawings produced by Noble Architecture are illustrative concept documents for planning purposes only and must not be relied upon for fabrication, procurement, setting-out, or construction."
+        },
+        {
+            "id": 3,
+            "title": "Principal Designer (Building Regulations Dutyholder) Transfer",
+            "content": "In accordance with the Building Safety Act 2022 and the Building Regulations etc. (Amendment) (England) Regulations 2023, the statutory role of \"Principal Designer\" for Building Regulations compliance is phase-specific and attaches only to the party in control of the design work for the relevant phase. Unless Noble Architecture is specifically retained in writing for the Building Regulations technical phase, Noble Architecture's statutory role as Principal Designer automatically concludes upon submission of the Planning Application. Where the Domestic Client does not formally appoint a replacement Principal Designer in writing, the Principal Designer role transfers to the person or organisation in control of the building work (the Principal Contractor), being Sukhi Home Solutions for this project unless otherwise appointed."
+        },
+        {
+            "id": 4,
+            "title": "Structural Alterations, Wall Removals And New Beams",
+            "content": "The proposals involve the removal or substantial widening of an internal wall within the existing Lounge, together with the opening up of the existing rear elevation to form the new extension. These alterations will require new structural beams, and the loads carried by the affected walls, including first floor walls and floor structure bearing onto them, must be established and designed by others. Noble Architecture accepts no responsibility or liability for the specification, sizing, bearing design, or temporary works associated with any structural alteration. All such design and coordination is the responsibility of the Principal Contractor and their appointed Structural Engineer."
+        },
+        {
+            "id": 5,
+            "title": "Structural Engineers And Independent Site Verification",
+            "content": "The Principal Contractor must appoint and utilise their own independent Structural Engineers. Any documentation, drawings, three dimensional models, laser scan data, or drone survey imagery provided by Noble Architecture does not constitute a measured building survey for structural purposes. All appointed engineers and specialists must undertake their own site surveys and verify all key dimensions and existing structural arrangements. Drawings produced by Noble Architecture are issued strictly for planning, tendering and pricing, and for outlining the scope of works to specialists. Specialists fabricating or designing from planning drawings without independent site verification do so entirely at their own risk."
+        },
+        {
+            "id": 6,
+            "title": "Building Notice Route (Elected by Contractor)",
+            "content": "Sukhi Home Solutions has elected to proceed via a Building Notice. The Client acknowledges that a Building Notice route means no detailed technical plans are pre-approved by the Council before works commence, and the Building Control Body approves work retrospectively based on site inspections. Whilst this route may be faster than a Full Plans application, it carries higher financial risk, and if an Inspector rejects a detail on-site the work may require alteration, removal, or reconstruction at the Client's or Contractor's expense. Noble Architecture accepts no liability for remedial works, abortive works, or additional costs arising from Building Control decisions made under the Building Notice route, including where the absence of pre-approval contributes to redesign or rework."
+        },
+        {
+            "id": 7,
+            "title": "Occupation During Construction",
+            "content": "The Client has indicated a wish to remain living in the property throughout the construction works. Noble Architecture accepts no responsibility for the sequencing, phasing, temporary protection, dust and noise mitigation, or the provision of temporary kitchen, bathroom or welfare arrangements during the works. All matters relating to safe occupation of the property during construction, including any decision that the property must be vacated, rest with the Principal Contractor and the Client."
+        },
+        {
+            "id": 8,
+            "title": "Re-Engagement of Noble Architecture for Full Plans or Technical Package",
+            "content": "If the Client or Contractor later requires a Full Plans application or Building Regulations technical design package (including detailed cross-sections, thermal details, and pre-approval submissions), this is a new instruction. It will be subject to a fresh quotation, quotations are valid for 30 days, and the Client acknowledges Noble Architecture typically requires a minimum lead time of 6 weeks before commencing new technical drawing work. The Client must factor this into the construction programme to avoid delays."
+        }
+    ],
+    "lastUpdated": "17-Aug-2026 at 17:10"
+}

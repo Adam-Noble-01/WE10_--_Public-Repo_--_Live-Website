@@ -1,0 +1,29 @@
+{
+    "contractId": "planning-approval",
+    "contractName": "Planning Approval Stage",
+    "sectionTitle": "Special Terms - Planning",
+    "introduction": "The following special conditions apply specifically to this project and supplement the standard terms.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Planning Route Not Yet Determined",
+            "content": "At the date of this quotation it has not been established whether the proposed works will proceed under Permitted Development or will require a Householder Planning Application. This will be confirmed once the layout and extension footprint are fixed, as the depth of the extension and its relationship to the existing rear elevation determine which route is available. The fees quoted assume a single route is pursued. Should the Client instruct Noble Architecture to prepare documentation for one route and subsequently change to the other, any resulting additional drawing or documentation work will be quoted separately and agreed in writing before it is undertaken."
+        },
+        {
+            "id": 2,
+            "title": "Planning Application Preparation & Submission Only",
+            "content": "Noble Architecture will prepare and submit the planning application based on the agreed scope. Noble Architecture's responsibility for coordination and correspondence with the Local Planning Authority concludes at the point the application is confirmed as validated, the application goes live, and the Local Planning Authority issues the application reference number. Responsibility for managing all subsequent correspondence with the Local Planning Authority transfers to the Client at that point."
+        },
+        {
+            "id": 3,
+            "title": "Optional Agency Services - **Optional Add-On",
+            "content": "Where the optional agency service is appointed, this must be explicitly agreed in writing prior to submission of the planning application. Noble Architecture will then act as the Client's agent and manage all dialogue with the Local Planning Authority, with the design fees adjusted accordingly."
+        },
+        {
+            "id": 4,
+            "title": "Local Planning Authority",
+            "content": "The Local Planning Authority for this property is Nottingham City Council. Application fees, validation requirements and determination periods are set by the Local Planning Authority and are outside Noble Architecture's control. All statutory fees are treated as pass-through expenses and are not included within the quoted design fees."
+        }
+    ],
+    "lastUpdated": "17-Aug-2026 at 17:10"
+}

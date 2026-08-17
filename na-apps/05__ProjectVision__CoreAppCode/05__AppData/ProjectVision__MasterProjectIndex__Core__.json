@@ -132,6 +132,17 @@
                 "planVision": false,
                 "trueVision": false
             }
+        },
+        "SB04": {
+            "projectCode": "SB04",
+            "projectName": "Wollaton Road",
+            "projectFolder": "SB04__WollatonRoad",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
+                "trueVision": false
+            }
         }
     }
 }

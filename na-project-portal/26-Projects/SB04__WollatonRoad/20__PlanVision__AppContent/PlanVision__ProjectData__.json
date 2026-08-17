@@ -1,0 +1,29 @@
+{
+    "na-project-data-library": {
+        "project-details": {
+            "project-name": "Wollaton Road",
+            "project-name-nickname": "Wollaton Road",
+            "project-address": "",
+            "project-description": "",
+            "client-name": ""
+        },
+        "project-phase-config": {
+            "active-design-phase": "DesignPhase01",
+            "available-phases": [
+                "DesignPhase01"
+            ],
+            "phase-last-updated": "17-Aug-2026"
+        },
+        "project-documentation": {
+            "phase-content": {
+                "DesignPhase01": {
+                    "phase-folder": "DesignPhase01__ConceptDesign__Content",
+                    "folder-structure": []
+                }
+            }
+        },
+        "design-access-statement": {
+            "das-enabled": false
+        }
+    }
+}

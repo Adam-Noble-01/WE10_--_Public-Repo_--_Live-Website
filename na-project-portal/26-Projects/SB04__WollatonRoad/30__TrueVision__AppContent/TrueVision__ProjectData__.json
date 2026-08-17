@@ -1,0 +1,25 @@
+{
+    "projectCode": "SB04",
+    "projectName": "Wollaton Road",
+    "activeGroupIndex": 0,
+    "modelGroups": [],
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX": 12000,
+            "Camera__DefaultPos__PosY": 4000,
+            "Camera__DefaultPos__PosZ": 14000
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX": -0.07,
+            "Camera__DefaultRotation__RotY": 0.33,
+            "Camera__DefaultRotation__RotZ": 0.02
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov": 45
+        }
+    },
+    "Navmode__EnabledModes": {
+        "Navmode__EnabledModes__Walk": true,
+        "Navmode__EnabledModes__Fly": true
+    }
+}

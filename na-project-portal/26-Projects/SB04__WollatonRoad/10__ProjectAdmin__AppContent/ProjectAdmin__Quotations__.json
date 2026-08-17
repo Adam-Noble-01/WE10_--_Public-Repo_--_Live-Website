@@ -1,0 +1,202 @@
+{
+    "quotations": [
+        {
+            "quotationRef": "QUO-SB04-2026-001",
+            "quotationName": "Main Quote",
+            "signatureRequired": true,
+            "quotationDate": "17-Aug-2026",
+            "projectAddress": "273 Wollaton Road, Nottingham, NG8 1FS",
+            "projectDescription": "Single Storey Rear Extension creating an enlarged Kitchen and a new Dining Room, Internal Alterations to the existing Lounge and Dining Room, and refurbishment of the First Floor Bathroom and En-Suite.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "draft",
+            "lineItems": [
+                {
+                    "description": "Initial Design Consultation",
+                    "itemDescription": "-> A free, no obligation on-site design consultation meeting.\n-> Includes discussion of the brief, the proposed extension footprint, and the available planning routes.",
+                    "quantity": 6,
+                    "unit": "Free",
+                    "rate": 0,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Measured Building Survey & Travel",
+                    "itemDescription": "-> Full measured building survey of BOTH the Ground Floor and First Floor.\n-> Both floors are required because the internal wall removals will need new beams, and the Structural Engineer must establish what bears onto the walls being altered.\n-> Includes travel to and from site.",
+                    "quantity": 8,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Laser Scan Registration & Drone Image Processing",
+                    "itemDescription": "-> Processing of the laser scan data and drone image set already captured on site.\n-> Scan registration and photogrammetry alignment to produce an accurate base for the existing conditions model.",
+                    "quantity": 3,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Model Existing Site Conditions",
+                    "itemDescription": "-> Full three dimensional model of the existing property, both floors.\n-> Forms the base model for all subsequent design work and for the TrueVision experience.",
+                    "quantity": 9,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Prepare Design Proposal & Design Development",
+                    "itemDescription": "-> Development of the rear extension design, including the relationship to the existing Bay Window and the retained half of the building.\n-> Massing, roof form and rear elevation glazing studies.",
+                    "quantity": 10,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Internal Layout Development : Kitchen, Dining & Living",
+                    "itemDescription": "-> Development of the enlarged Kitchen layout, retaining the hob and cooker on the existing wall as requested.\n-> Island layout and circulation testing to maximise food preparation space and provide breakfast seating.\n-> Testing of the internal glazed sliding door position between the Lounge and existing Dining Room.\n-> Assessment of whether a casual seating and television area can be accommodated within the extension.",
+                    "quantity": 5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Finalisation of TrueVision Experience & Distribution",
+                    "itemDescription": "-> Preparation and issue of the interactive 3D TrueVision model, allowing the proposals to be walked through online.\n-> Distribution via the Noble Architecture Project Portal.",
+                    "quantity": 5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Coordination & Admin",
+                    "itemDescription": "-> Coordination with the Client and with the appointed Contractor.\n-> Project administration for the Concept Design stage.",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Drawing : Introduction Page",
+                    "itemDescription": "-> Features CGI's Of Scheme.\n-> Not mandated but usually eliminates frustrating requests for material specifications, as everything can clearly be shown and described on this document.\n-> Size  = Iso A2",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Site & Block Plans",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:500 & 1:1250\n-> Size  = Iso A2",
+                    "quantity": 3,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Floor Plans",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:50\n-> Size  = Iso A2",
+                    "quantity": 4,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Floor Plans",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:50\n-> Size  = Iso A2",
+                    "quantity": 4,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Elevations",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:50\n-> Size  = Iso A2",
+                    "quantity": 3,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Elevations",
+                    "itemDescription": "-> Mandatory Drawing Required by LPA.\n-> Scale = 1:50\n-> Size  = Iso A2",
+                    "quantity": 3,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Production Of CGIs",
+                    "itemDescription": "-> Final CGI's for the Introduction Page.\n-> Not mandatory but boosts chances greatly and reduces RFI's from the LPA.",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Coordination & Admin",
+                    "itemDescription": "-> Submission coordination and project administration for the Planning Approval stage.\n-> Noble Architecture's coordination with the Local Planning Authority concludes once the application is validated and the reference number is issued. See the Planning Approval contract.",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Managed Planning Application (See Contract)",
+                    "itemDescription": "-> Optional agency service. Noble Architecture acts as your agent and manages all dialogue with the Local Planning Authority beyond validation.\n-> Must be agreed in writing before the application is submitted.\n-> See the Planning Approval contract for more details.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 400,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Document :  Design & Access Statement",
+                    "itemDescription": "-> A robust and in-depth document forming a strong argument for the case, addressing known constraints and concerns proactively.\n-> Not mandatory for a Householder Application and not currently anticipated to be required for this site.\n-> Included here for consideration should the planning route or LPA feedback make one advisable.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 400,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Design Phase 03 - Building Regulations",
+                    "itemDescription": "-> See the Building Regulations contract for more details.\n-> Currently opted out due to the Main Contractor becoming the Building Regulations Compliance Agent.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 3400,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Planning Portal Fee",
+                    "itemDescription": "-> Not specifically mandatory, but in some cases it speeds up the process and can decrease validation time.\n-> Planning Portal upload service charge, currently £70.83 + VAT (£85.00).\n-> See the Planning Approval contract for more details.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 85,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Householder Planning Application Fee",
+                    "itemDescription": "-> Fee set by Government and collected by the Local Planning Authority, being Nottingham City Council.\n-> Only payable if the works require a Householder Planning Application rather than proceeding under Permitted Development.\n-> 2026 fee, subject to annual indexation.\n-> See the Planning Approval contract for more details.",
+                    "quantity": 0,
+                    "unit": "item",
+                    "rate": 548,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "OS Mapping Data",
+                    "itemDescription": "-> Required for site plan and block plan document production.\n-> MapServe.com used for compliant CAD Data.\n-> Cost varies with the area of data purchased.\n-> See the Planning Approval contract for more details.",
+                    "quantity": 0,
+                    "unit": "item",
+                    "rate": 50,
+                    "group": "Third Party Fees - **Not Included!!"
+                }
+            ],
+            "totals": {
+                "subtotal": 1625,
+                "vatApplicable": true,
+                "vatRate": 20,
+                "vat": 325,
+                "grandTotal": 1950
+            },
+            "additionalTerms": "",
+            "createdDate": "17-Aug-2026 at 17:15",
+            "lastModified": "17-Aug-2026 at 17:30"
+        }
+    ]
+}
