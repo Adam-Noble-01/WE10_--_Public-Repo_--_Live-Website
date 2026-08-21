@@ -26,6 +26,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Aug-2026 - Version 0.2.0
+// - Added Na__ExportSerializer__BuildSketchUpExportPayload — stripAnnotations
+//   payload for the Export to SketchUp button (filename suffix __sketchup.dxf).
+// - Na__ExportSerializer__BuildOutputFilename takes a variant suffix.
+//
 // 07-Jul-2026 - Version 0.1.0
 // - Initial scaffold release.
 //
@@ -108,6 +113,20 @@
         // ------------------------------------------------------------
 
 
+        // FUNCTION | Build the SketchUp Export Payload for /api/export-write
+        // ------------------------------------------------------------
+        Na__ExportSerializer__BuildSketchUpExportPayload() {
+            const outputFilename = Na__ExportSerializer__BuildSketchUpFilename(this._appState.fileName);
+            return {
+                tempDxfPath      : this._appState.tempDxfPath,
+                deletedHandles   : [...this._appState.deletedHandles],
+                outputFilename   : outputFilename,
+                stripAnnotations : true,                                // <-- Server drops text/dim/leader/hatch etc.
+            };
+        }
+        // ------------------------------------------------------------
+
+
         // FUNCTION | Return a Summary of the Current Deletion State (for UI display)
         // ------------------------------------------------------------
         Na__ExportSerializer__GetDeletionSummary() {
@@ -130,11 +149,20 @@
 
     // HELPER FUNCTION | Derive an Output Filename from the Source Filename
     // ------------------------------------------------------------
-    function Na__ExportSerializer__BuildOutputFilename(sourceFilename) {
-        if (!sourceFilename) return 'drawing__audited.dxf';
+    function Na__ExportSerializer__BuildOutputFilename(sourceFilename, suffix = 'audited') {
+        if (!sourceFilename) return `drawing__${suffix}.dxf`;
 
         const baseName = sourceFilename.replace(/\.[^/.]+$/, '');        // <-- Strip extension
-        return `${baseName}__audited.dxf`;                               // <-- Append audit suffix
+        return `${baseName}__${suffix}.dxf`;                             // <-- Append variant suffix
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Derive the SketchUp Export Filename (Studio Prefix Convention)
+    // ------------------------------------------------------------
+    function Na__ExportSerializer__BuildSketchUpFilename(sourceFilename) {
+        const baseName = (sourceFilename || 'drawing').replace(/\.[^/.]+$/, '');
+        return `Audited__SketchUpExport__${baseName}__.dxf`;             // <-- Prefix + trailing __ per studio naming
     }
     // ------------------------------------------------------------
 

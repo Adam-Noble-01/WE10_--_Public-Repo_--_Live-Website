@@ -34,10 +34,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Aug-2026 - Version 0.2.0
+// - Status-bar hint when the server excluded a standards-library region from the
+//   import (standardsRegions / standardsSkipped on the payload).
+//
 // 07-Jul-2026 - Version 0.1.0
 // - Initial scaffold release — state population wired, SVG rendering stubbed.
 //
 // =============================================================================
+
+import { Na__CommonUtils__SpatialIndex } from '../03__CommonUtils/Na__CommonUtils__SpatialIndex__.js';
 
 
 // -----------------------------------------------------------------------------
@@ -80,6 +86,12 @@
             });
             this._appState.entityByHandle = byHandle;
 
+            // BUILD SPATIAL INDEX — selection and hit-testing query this instead
+            // of scanning every entity in the drawing on each interaction
+            const spatialIndex = new Na__CommonUtils__SpatialIndex();
+            spatialIndex.Na__SpatialIndex__Build(data.entities);
+            this._appState.spatialIndex = spatialIndex;
+
             // POPULATE LAYERS MAP — hexColor is resolved server-side by the DxfEngine
             const layersMap = new Map();
             if (data.layers) {
@@ -113,6 +125,15 @@
 
             // FIT VIEW TO DRAWING
             this._eventBus.emit('view:fit');                             // <-- Fit canvas to loaded drawing bounds
+
+            // STANDARDS REGION HINT — confirms the standards library was skipped
+            if (data.standardsSkipped > 0) {
+                const regionCount = (data.standardsRegions || []).length;
+                const regionLabel = regionCount > 1 ? `${regionCount} standards regions` : 'Standards region';
+                this._eventBus.emit('status:hint', {
+                    text : `${regionLabel} ignored — ${data.standardsSkipped} entities skipped on import`
+                });
+            }
 
             // EMBEDDED-IMAGE OUTCOME HINT — status feedback for purge/keep choice
             if (data.imagesPurged > 0) {

@@ -25,6 +25,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Aug-2026 - Version 0.4.4
+// - Start-screen "Open Existing Project" button wired to the same handler as
+//   the header Load File button / Ctrl+O (raises the saved-project browser).
+//
+// 19-Aug-2026 - Version 0.4.2
+// - Added Na__App__WireImportCadButton — header "Import CAD File" button
+//   (Ctrl+I) opens the native DWG/DXF picker via the UploadPanel at any time.
+//
 // 07-Jul-2026 - Version 0.3.4
 // - Added Na__App__HandleLaunchQueue — the installed-PWA file handler consumer.
 //   Files launched via the OS "Open with" are routed through the existing
@@ -153,6 +161,7 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
         // HEADER BUTTONS
         Na__App__WireSaveProjectButton(appState, eventBus, exportSerializer);
         Na__App__WireExportDxfButton(appState, eventBus, exportSerializer, progressOverlay);
+        Na__App__WireImportCadButton(eventBus, uploadPanel);
         Na__App__WireLoadFileButton(eventBus, projectManager);
         Na__App__WireDeleteButton(eventBus, selectionManager);
 
@@ -212,20 +221,19 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Wire the Export DXF Button (Native Save-As + Copy)
+    // HELPER FUNCTION | Wire the Export DXF Buttons (Native Save-As + Copy)
     // ------------------------------------------------------------
     function Na__App__WireExportDxfButton(appState, eventBus, exportSerializer, progressOverlay) {
-        const exportBtn = document.getElementById('Na__Btn__ExportDxf');
-        let   isExporting = false;                                       // <-- Re-entrancy guard
+        const exportBtn   = document.getElementById('Na__Btn__ExportDxf');
+        const sketchUpBtn = document.getElementById('Na__Btn__ExportSketchUp');
+        let   isExporting = false;                                       // <-- Shared guard: one export at a time
 
-        const runExport = async () => {
+        const runExportFlow = async (payload, overlayLabel) => {
             if (!appState.fileLoaded || isExporting) return;             // <-- Guard: no file / already running
             isExporting = true;
 
-            const payload = exportSerializer.Na__ExportSerializer__BuildExportPayload();
-
             // Progress overlay: animated, staged, non-cancellable (it's quick)
-            progressOverlay.Na__ProgressOverlay__Show(payload.outputFilename, 'Exporting DXF…', { allowCancel: false });
+            progressOverlay.Na__ProgressOverlay__Show(payload.outputFilename, overlayLabel, { allowCancel: false });
             progressOverlay.Na__ProgressOverlay__Update({ stage: 'exporting', message: 'Waiting for save location…', percent: null });
 
             try {
@@ -257,7 +265,12 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
                 progressOverlay.Na__ProgressOverlay__Update({ stage: 'done', message: 'Export complete', percent: 100 });
                 await Na__App__Delay(450);                               // <-- Let the 100% state register visually
                 progressOverlay.Na__ProgressOverlay__Hide();
-                eventBus.emit('status:hint', { text: `Exported to ${writeOut.destPath}` });
+                const exportBits = [`${writeOut.fileSizeMb ?? '?'} MB`, `${writeOut.entityCount ?? '?'} entities`];
+                if (writeOut.standardsRemoved > 0) exportBits.push(`${writeOut.standardsRemoved} standards excluded`);
+                if (writeOut.annotationsStripped > 0) exportBits.push(`${writeOut.annotationsStripped} annotations stripped`);
+                const skippedTotal = Object.values(writeOut.skippedTypes || {}).reduce((a, b) => a + b, 0);
+                if (skippedTotal > 0) exportBits.push(`${skippedTotal} unsupported skipped`);
+                eventBus.emit('status:hint', { text: `Exported to ${writeOut.destPath} (${exportBits.join(', ')})` });
 
             } catch (err) {
                 console.error('[Na__App__Main] Export failed:', err);
@@ -267,22 +280,44 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
             }
         };
 
-        if (exportBtn) exportBtn.addEventListener('click', runExport);
-        eventBus.on('hotkey:file:export-dxf', runExport);                // <-- Ctrl+E from keybindings JSON
-        eventBus.on('file:loaded', () => { if (exportBtn) exportBtn.disabled = false; });
-        eventBus.on('file:cleared', () => { if (exportBtn) exportBtn.disabled = true; });
+        const runExport = () => runExportFlow(
+            exportSerializer.Na__ExportSerializer__BuildExportPayload(), 'Exporting DXF…');
+        const runSketchUpExport = () => runExportFlow(
+            exportSerializer.Na__ExportSerializer__BuildSketchUpExportPayload(), 'Exporting SketchUp DXF…');
+
+        if (exportBtn)   exportBtn.addEventListener('click', runExport);
+        if (sketchUpBtn) sketchUpBtn.addEventListener('click', runSketchUpExport);
+        eventBus.on('hotkey:file:export-dxf',      runExport);           // <-- Ctrl+E from keybindings JSON
+        eventBus.on('hotkey:file:export-sketchup', runSketchUpExport);   // <-- Ctrl+Shift+E from keybindings JSON
+        eventBus.on('file:loaded',  () => { [exportBtn, sketchUpBtn].forEach((b) => { if (b) b.disabled = false; }); });
+        eventBus.on('file:cleared', () => { [exportBtn, sketchUpBtn].forEach((b) => { if (b) b.disabled = true; }); });
     }
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Wire the Load File Button (Open Project Manager)
+    // HELPER FUNCTION | Wire the Import CAD File Button (Native DWG/DXF Picker)
+    // ------------------------------------------------------------
+    function Na__App__WireImportCadButton(eventBus, uploadPanel) {
+        const importBtn = document.getElementById('Na__Btn__ImportCad');
+
+        const openPicker = () => uploadPanel.Na__UploadPanel__OpenFilePicker();
+
+        if (importBtn) importBtn.addEventListener('click', openPicker);
+        eventBus.on('hotkey:file:import-cad', openPicker);               // <-- Ctrl+I from keybindings JSON
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Wire the Load File Buttons (Open Project Manager)
     // ------------------------------------------------------------
     function Na__App__WireLoadFileButton(eventBus, projectManager) {
-        const loadBtn = document.getElementById('Na__Btn__LoadFile');
+        const loadBtn        = document.getElementById('Na__Btn__LoadFile');
+        const overlayOpenBtn = document.getElementById('Na__Upload__OpenProjectBtn');
 
         const openManager = () => projectManager.Na__ProjectManager__Open();
 
-        if (loadBtn) loadBtn.addEventListener('click', openManager);
+        if (loadBtn)        loadBtn.addEventListener('click', openManager);
+        if (overlayOpenBtn) overlayOpenBtn.addEventListener('click', openManager); // <-- Start-screen "Open Existing Project"
         eventBus.on('hotkey:file:load', openManager);                    // <-- Ctrl+O from keybindings JSON
     }
     // ------------------------------------------------------------

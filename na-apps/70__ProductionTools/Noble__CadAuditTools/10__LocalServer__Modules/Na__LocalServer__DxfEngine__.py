@@ -25,6 +25,13 @@
 #     a synthetic handle "<parent>:<n>". Deleting the parent handle prunes the
 #     whole block reference from the DXF in one operation.
 #
+# - STANDARDS REGION EXCLUSION:
+#     Before anything is serialised, Na__LocalServer__StandardsRegion__ scans for
+#     the studio standards-library marker border (three nested rectangles offset
+#     ~100mm apart in RGB 250,215,0). Every entity that falls inside it is
+#     skipped outright — INSERTs are rejected on their insertion point so the
+#     expensive explosion never runs for standards content.
+#
 # - na_prune_and_save_dxf(source_dxf_path, deleted_handles, output_path):
 #     Re-opens the DXF with ezdxf, deletes all entities whose handles appear in
 #     the deleted_handles set, then saves the result to output_path.
@@ -39,6 +46,46 @@
 # -----------------------------------------------------------------------------
 #
 # DEVELOPMENT LOG:
+# 21-Aug-2026 - Version 0.5.2
+# - THE ACTUAL SKETCHUP KILLER FOUND (proven by live import bisection in
+#   SketchUp 2026): the Importer copies LAYER table entries verbatim,
+#   including the SOURCE document's plot-style (390), material (347), and 348
+#   object handles — objects that are never imported, so the copied entries
+#   dangle. AutoCAD/ezdxf/ODA ignore that; SketchUp rejects the entire file.
+#   _na_sanitise_imported_layer_entries() now discards those attribs after
+#   finalize; ezdxf re-emits its own valid defaults on save. Verified: the
+#   identical failing file imports cleanly with only this change.
+# - Empty-block INSERT cleanup: inserts whose definition ends up empty (block
+#   content the Importer could not copy, or annotation-only blocks emptied by
+#   the SketchUp strip) are dropped and the empty definitions purged — they
+#   rendered nothing and showed up in SketchUp's summary as ignored X-Refs.
+#
+# 21-Aug-2026 - Version 0.5.1
+# - SKETCHUP IMPORT REGRESSION FIXED: the 0.5.0 clean rebuild shipped every
+#   DIMENSION with an EMPTY anonymous geometry block reference (group 2) and no
+#   *D blocks at all — ezdxf 1.4's Importer binds copied entities without firing
+#   Dimension.post_bind_hook(), so the virtual block content was silently
+#   dropped. SketchUp's ODA-based importer rejects the whole file on those
+#   dangling references. The export now fires the hook by hand for every
+#   imported dimension and runs a final out_doc.audit() so an invalid entity
+#   can never ship again.
+# - SKETCHUP EXPORT MODE: na_export_audited_dxf(strip_annotations=True) removes
+#   annotation/markup entities (TEXT, MTEXT, DIMENSION, LEADER, hatches, etc. —
+#   Config__DxfExport.SketchUpStrip__EntityTypes) from modelspace AND from
+#   every surviving block definition, producing a geometry-only DXF for clean
+#   SketchUp imports.
+#
+# 19-Aug-2026 - Version 0.5.0
+# - STANDARDS REGION EXCLUSION: na_serialise_doc_to_payload now detects the
+#   standards-library marker border first and drops every entity inside it —
+#   nothing from that region is parsed, exploded, serialised, or sent to the
+#   client. Payload gains standardsRegions / standardsSkipped for the UI.
+# - na_explode_insert re-tests exploded children against the regions so a block
+#   whose base point sits outside the border still has its standards geometry
+#   filtered out; an INSERT left with nothing but filtered children is dropped.
+# - Entity colour resolution extracted to na_entity_hex_color() so the standards
+#   detector and the serialiser resolve display colour through one code path.
+#
 # 08-Jul-2026 - Version 0.4.0
 # - RESILIENT READ: na_read_dxf_document() tries the strict loader, then falls
 #   back to ezdxf.recover for files other apps produced (embedded images, minor
@@ -67,9 +114,20 @@
 # =============================================================================
 
 import os
+import json
+import gzip
 import math
 import base64
+import hashlib
 import mimetypes
+
+from Na__LocalServer__StandardsRegion__ import (
+    na_load_standards_settings,                                          # <-- Config__StandardsRegion settings
+    na_detect_standards_regions,                                         # <-- Marker-border detection
+    na_entity_in_regions,                                                # <-- Per-entity containment test
+    na_extent_in_regions,                                                # <-- Per-extent containment test (exploded children)
+    na_entity_extent,                                                    # <-- Cheap 2D extent, no flattening
+)
 
 try:
     import ezdxf
@@ -81,6 +139,155 @@ except ImportError:
 # Cap for embedding a referenced raster image as a base64 data URI (keep path).
 # Larger images fall back to a labelled placeholder frame so the payload stays sane.
 _IMAGE_EMBED_MAX_BYTES = 12 * 1024 * 1024                                # <-- 12 MB per image ceiling
+
+
+# #region ---------------------------------------------------------------------
+# REGION | Entity Payload Trimming
+# -----------------------------------------------------------------------------
+
+# A large drawing serialises to tens of megabytes of JSON, and every byte is
+# built by the server, pushed over HTTP, and re-parsed by the browser. Two
+# cheap, lossless-in-practice reductions:
+#
+#   ROUNDING — ezdxf hands back full double precision, so a coordinate
+#   serialises as "12345.678901234567" (18 chars) when the drawing is in
+#   millimetres and nobody can see past the third decimal. Rounding to 3dp is
+#   sub-micron on a mm drawing and roughly halves the length of every number.
+#
+#   DEFAULT OMISSION — see na_serialize_entity: color/linetype are dropped when
+#   they hold their BYLAYER defaults.
+#
+# Both are data-driven from Config__EntityPayload.
+
+def _na_load_payload_settings():
+    """Read Config__EntityPayload once at import time (defaults if absent)."""
+    try:
+        import json as _json
+        with open(_PAYLOAD_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            section = _json.load(f).get('Config__EntityPayload', {}) or {}
+    except Exception:
+        section = {}
+    try:
+        places = int(section.get('Coordinates__DecimalPlaces', 3))
+    except Exception:
+        places = 3
+    omit  = bool(section.get('OmitDefaultColorAndLinetype', True))
+    cache = bool(section.get('Cache__ReuseParsedPayload', True))
+    return places, omit, cache
+
+
+_PAYLOAD_CONFIG_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    '02__AppData', 'Na__AppData__AppConfig__.json'
+)
+
+_PAYLOAD_DECIMALS, _PAYLOAD_OMIT_DEFAULTS, _PAYLOAD_CACHE_ENABLED = _na_load_payload_settings()
+_PAYLOAD_CACHE_SUFFIX  = '.na-payload.json.gz'                           # <-- Parsed-payload cache beside the working DXF
+_PAYLOAD_CACHE_VERSION = 'v3'                                            # <-- v3: MTEXT/TEXT plain_text + rotation                                            # <-- In the cache key: a code fix that changes what
+                                                                         #     the payload contains must bump this, or files
+                                                                         #     cached by the old code would be served as-is
+
+
+def na_payload_cache_path(dxf_path):
+    """Path of the parsed-payload cache sitting beside a working DXF."""
+    return dxf_path + _PAYLOAD_CACHE_SUFFIX
+
+
+def _na_payload_cache_key(dxf_path):
+    """
+    Identity of a parse result: the DXF's own size and mtime, plus a digest of
+    every setting that changes what the payload contains. Editing the working
+    file, or changing the standards/payload config, invalidates the cache.
+    """
+    stat = os.stat(dxf_path)
+    signature = '|'.join([
+        _PAYLOAD_CACHE_VERSION,                                          # <-- Bump on any code change to payload semantics
+        str(_PAYLOAD_DECIMALS),
+        str(_PAYLOAD_OMIT_DEFAULTS),
+        repr(sorted(na_load_standards_settings().items())),
+    ])
+    digest = hashlib.blake2b(signature.encode('utf-8'), digest_size=8).hexdigest()
+    return f"{stat.st_size}|{stat.st_mtime_ns}|{digest}"
+
+
+def na_read_payload_cache(dxf_path):
+    """
+    Return a previously parsed payload for this exact working DXF, or None.
+
+    Parsing a large DXF costs minutes — reading back a gzipped payload costs
+    seconds — so a re-import of an unchanged file skips ezdxf, block explosion,
+    and serialisation entirely.
+    """
+    if not _PAYLOAD_CACHE_ENABLED:
+        return None
+
+    cache_path = na_payload_cache_path(dxf_path)
+    if not os.path.isfile(cache_path):
+        return None
+
+    try:
+        with gzip.open(cache_path, 'rt', encoding='utf-8') as f:
+            record = json.load(f)
+        if record.get('key') != _na_payload_cache_key(dxf_path):
+            return None                                                  # <-- File or settings changed since caching
+        payload = record.get('payload')
+        if not isinstance(payload, dict) or 'entities' not in payload:
+            return None
+    except Exception as err:
+        print(f"[Na__DxfEngine] Payload cache unreadable, reparsing: {err}")
+        return None
+
+    print(f"[Na__DxfEngine] Reusing cached parse — {payload.get('entityCount', 0)} entities, no DXF read")
+    return payload
+
+
+def na_write_payload_cache(dxf_path, payload):
+    """
+    Store a parsed payload beside its working DXF.
+
+    Skipped for drawings carrying embedded images: those take an interactive
+    keep/purge decision on load, and serving a cached payload would silently
+    reuse an earlier answer instead of asking.
+    """
+    if not _PAYLOAD_CACHE_ENABLED:
+        return
+    if payload.get('imageCount', 0):
+        return                                                           # <-- Interactive image decision must still run
+
+    cache_path = na_payload_cache_path(dxf_path)
+    try:
+        record = {'key': _na_payload_cache_key(dxf_path), 'payload': payload}
+        with gzip.open(cache_path, 'wt', encoding='utf-8', compresslevel=1) as f:
+            json.dump(record, f)
+        size_mb = os.path.getsize(cache_path) / (1024 * 1024)
+        print(f"[Na__DxfEngine] Parsed payload cached ({size_mb:.1f} MB) — reload will skip the DXF parse")
+    except Exception as err:
+        print(f"[Na__DxfEngine] Could not write payload cache (harmless): {err}")
+        try:
+            os.remove(cache_path)                                        # <-- Never leave a half-written cache behind
+        except Exception:
+            pass
+
+
+def na_round_geometry(value):
+    """
+    Recursively round every float in a geometry structure to the configured
+    decimal places. Ints, strings, and bools pass through untouched.
+
+    A negative Coordinates__DecimalPlaces disables rounding entirely.
+    """
+    if _PAYLOAD_DECIMALS < 0:
+        return value                                                     # <-- Rounding disabled in config
+
+    if isinstance(value, float):
+        return round(value, _PAYLOAD_DECIMALS)
+    if isinstance(value, dict):
+        return {k: na_round_geometry(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [na_round_geometry(v) for v in value]
+    return value
+
+# endregion -------------------------------------------------------------------
 
 
 # #region ---------------------------------------------------------------------
@@ -367,8 +574,11 @@ def na_serialise_doc_to_payload(doc, dxf_path, image_action='keep'):
     payload. INSERTs are exploded to real geometry; raster IMAGEs are serialised
     only when image_action == 'keep' (a 'purge' run has already removed them).
 
+    Anything sitting inside a detected standards-library region is skipped before
+    any serialisation work happens — that content never reaches the payload.
+
     Returns:
-        dict: { entityCount, layers, entities }
+        dict: { entityCount, layers, entities, standardsRegions, standardsSkipped }
     """
     msp      = doc.modelspace()
     entities = []
@@ -376,6 +586,12 @@ def na_serialise_doc_to_payload(doc, dxf_path, image_action='keep'):
     dxf_dir  = os.path.dirname(dxf_path) if dxf_path else ''
 
     layer_colors = na_build_layer_color_table(doc)                      # <-- ACI and hex colours per layer
+
+    # STANDARDS REGION SCAN — one cheap pass before any expensive parsing
+    standards_regions = na_detect_standards_regions(
+        doc, lambda ent: na_entity_hex_color(ent, layer_colors)         # <-- Shared display-colour resolution
+    )
+    standards_skipped = 0
 
     def na_register_layer(layer_name):
         if layer_name not in layers:
@@ -394,6 +610,11 @@ def na_serialise_doc_to_payload(doc, dxf_path, image_action='keep'):
     for entity in msp:
         etype = entity.dxftype()
 
+        # STANDARDS GATE — first test of every loop, before any parsing work
+        if standards_regions and na_entity_in_regions(entity, standards_regions):
+            standards_skipped += 1
+            continue                                                   # <-- Inside the standards border: does not exist
+
         if etype == 'IMAGE':
             if image_action == 'purge':
                 continue                                               # <-- Already stripped; guard for safety
@@ -404,7 +625,12 @@ def na_serialise_doc_to_payload(doc, dxf_path, image_action='keep'):
             continue
 
         if etype == 'INSERT':
-            insert_record, children = na_explode_insert(entity, layer_colors)
+            insert_record, children, dropped = na_explode_insert(
+                entity, layer_colors, standards_regions
+            )
+            standards_skipped += dropped
+            if insert_record and dropped and not children:
+                continue                                               # <-- Every child was standards content — drop the INSERT too
             if insert_record:
                 entities.append(insert_record)
                 na_register_layer(insert_record['layer'])
@@ -416,11 +642,17 @@ def na_serialise_doc_to_payload(doc, dxf_path, image_action='keep'):
             entities.append(serialised)
             na_register_layer(serialised['layer'])
 
+    if standards_regions:
+        print(f"[Na__DxfEngine] Standards region(s): {len(standards_regions)} — "
+              f"{standards_skipped} entities excluded from the import")
+
     print(f"[Na__DxfEngine] Parsed {len(entities)} entities across {len(layers)} layers")
     return {
-        'entityCount' : len(entities),
-        'layers'      : layers,
-        'entities'    : entities,
+        'entityCount'      : len(entities),
+        'layers'           : layers,
+        'entities'         : entities,
+        'standardsRegions' : standards_regions,                         # <-- Detected marker-border bounds (may be empty)
+        'standardsSkipped' : standards_skipped,                         # <-- Entities never imported from those regions
     }
 
 
@@ -447,6 +679,11 @@ def na_parse_dxf_with_image_decision(dxf_path, decision_cb=None, default_action=
 
     if not os.path.isfile(dxf_path):
         return na_empty_response(f"DXF file not found: {dxf_path}"), 'ok'
+
+    cached = na_read_payload_cache(dxf_path)                            # <-- Unchanged file: skip the whole parse
+    if cached is not None:
+        na_warm_doc_cache_async(dxf_path)                               # <-- Pre-parse in background so Export is warm
+        return cached, 'ok'
 
     try:
         doc = na_read_dxf_document(dxf_path)                            # <-- Resilient open (recover fallback)
@@ -477,6 +714,8 @@ def na_parse_dxf_with_image_decision(dxf_path, decision_cb=None, default_action=
         payload['imageCount']   = len(images)                          # <-- Total images detected in the file
         payload['imagesKept']   = 0 if action == 'purge' else len(images)
         payload['imagesPurged'] = purged
+        na_write_payload_cache(dxf_path, payload)                       # <-- Next load of this file is near-instant
+        na_stash_parsed_doc(dxf_path, doc)                              # <-- First export skips the file read too
         return payload, 'ok'
 
     except Exception as err:
@@ -496,6 +735,487 @@ def na_parse_dxf_to_entity_json(dxf_path, image_action='keep'):
         dxf_path, decision_cb=None, default_action=image_action
     )
     return payload if payload is not None else na_empty_response("parse produced no payload")
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
+# REGION | Parsed-Document RAM Cache — Export Without Re-Reading the File
+# -----------------------------------------------------------------------------
+
+# Parsing the working DXF is the dominant export cost (~16s on a 111 MB file),
+# and the server already paid it once at import. This single-slot cache keeps
+# the most recently parsed document in memory, fingerprinted by the file's
+# size+mtime, so an export can reuse it instead of re-reading the file.
+# RAM cost is real (~6-7x file size; measured 712 MB for a 111 MB DXF), so
+# files above SourceCache__MaxFileMb are never pinned.
+#
+# The export path never mutates the cached document — survivors are FILTERED
+# into the fresh output document via Importer.import_entities() — so the slot
+# stays valid across any number of exports. Any in-place rewrite of the working
+# file (hard delete, image purge) changes the fingerprint and the slot simply
+# misses. Single slot only: one drawing is worked on at a time, and holding
+# multiple parsed 100 MB documents would be a memory liability.
+
+import threading as _threading
+
+_DOC_CACHE      = {'key': None, 'path': None, 'doc': None}              # <-- Single most-recent parsed document
+_DOC_CACHE_LOCK = _threading.Lock()
+
+
+def _na_doc_cache_settings():
+    """Read Config__DxfExport source-cache settings (defaults: on, 512 MB cap)."""
+    try:
+        with open(_PAYLOAD_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            section = json.load(f).get('Config__DxfExport', {}) or {}
+    except Exception:
+        section = {}
+    enabled = bool(section.get('SourceCache__Enabled', True))
+    try:
+        max_mb = float(section.get('SourceCache__MaxFileMb', 256))
+    except Exception:
+        max_mb = 256.0
+    return enabled, max_mb
+
+
+def _na_doc_fingerprint(dxf_path):
+    """Cheap identity of the on-disk working file (size + mtime)."""
+    stat = os.stat(dxf_path)
+    return f"{os.path.abspath(dxf_path)}|{stat.st_size}|{stat.st_mtime_ns}"
+
+
+def na_stash_parsed_doc(dxf_path, doc):
+    """
+    Offer a freshly parsed document to the RAM slot. Call ONLY when the document
+    matches the file on disk exactly (straight after a parse, or after the parse
+    path itself re-saved the file).
+    """
+    enabled, max_mb = _na_doc_cache_settings()
+    if not enabled:
+        return
+    try:
+        if os.path.getsize(dxf_path) > max_mb * 1024 * 1024:
+            return                                                       # <-- Too large to pin in memory
+        key = _na_doc_fingerprint(dxf_path)
+    except OSError:
+        return
+    with _DOC_CACHE_LOCK:
+        _DOC_CACHE['key']  = key
+        _DOC_CACHE['path'] = os.path.abspath(dxf_path)
+        _DOC_CACHE['doc']  = doc
+    print(f"[Na__DxfEngine] Parsed document cached in RAM — exports skip the file read")
+
+
+def na_get_cached_doc(dxf_path):
+    """Return the cached document if it still matches the file on disk, else None."""
+    enabled, _max_mb = _na_doc_cache_settings()
+    if not enabled:
+        return None
+    try:
+        key = _na_doc_fingerprint(dxf_path)
+    except OSError:
+        return None
+    with _DOC_CACHE_LOCK:
+        if _DOC_CACHE['key'] == key and _DOC_CACHE['doc'] is not None:
+            return _DOC_CACHE['doc']
+    return None
+
+
+_DOC_WARM_INFLIGHT = set()                                               # <-- Paths with a warm parse already running
+
+
+def na_warm_doc_cache_async(dxf_path):
+    """
+    Parse the document on a background thread and stash it in the RAM slot.
+
+    Called when an import is served from the payload cache: the import returns
+    instantly WITHOUT parsing, which used to leave the slot cold — so the first
+    export after a server restart (or after switching drawings) paid the full
+    file read. Warming in the background means the document is ready by the
+    time the user has looked at the drawing and reached for Export.
+    """
+    enabled, max_mb = _na_doc_cache_settings()
+    if not enabled:
+        return
+    try:
+        if os.path.getsize(dxf_path) > max_mb * 1024 * 1024:
+            return                                                       # <-- Too large to pin in memory
+    except OSError:
+        return
+    if na_get_cached_doc(dxf_path) is not None:
+        return                                                           # <-- Already warm for this exact file state
+
+    path_key = os.path.abspath(dxf_path)
+    with _DOC_CACHE_LOCK:
+        if path_key in _DOC_WARM_INFLIGHT:
+            return                                                       # <-- A warm parse is already running
+        _DOC_WARM_INFLIGHT.add(path_key)
+
+    def _na_warm_worker():
+        try:
+            print(f"[Na__DxfEngine] Warming document cache in background: {os.path.basename(dxf_path)}")
+            doc = na_read_dxf_document(dxf_path)
+            na_stash_parsed_doc(dxf_path, doc)
+        except Exception as err:
+            print(f"[Na__DxfEngine] Background warm failed (export will parse on demand): {err}")
+        finally:
+            with _DOC_CACHE_LOCK:
+                _DOC_WARM_INFLIGHT.discard(path_key)
+
+    _threading.Thread(target=_na_warm_worker, daemon=True, name='NaDocWarm').start()
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
+# REGION | DXF Export — Audited, Standards-Free, Rebuilt Clean
+# -----------------------------------------------------------------------------
+
+# The working DXF carries everything the source file had: the full standards
+# library (~94% of a typical studio drawing) plus thousands of block definitions
+# nothing references once that content is gone. na_prune_and_save_dxf() only
+# removes the user's deleted handles, so an export used to re-write the whole
+# 100 MB file even when the viewer showed a few thousand scheme entities.
+#
+# The export path now:
+#   1. Deletes the user's soft-deleted handles (as before).
+#   2. Deletes everything inside the standards marker border — same detection
+#      as import, so the export matches what the viewer shows.
+#   3. REBUILDS the drawing into a fresh document via ezdxf's Importer, which
+#      copies only the surviving entities plus the resources they actually
+#      reference (block definitions, layers, linetypes, text/dim styles).
+#      Deleting unused blocks in place was tried and abandoned: dynamic-block
+#      extension dictionaries and dead blocks referencing each other keep
+#      thousands of definitions "referenced" (measured 30.8 MB vs 5.6 MB).
+#
+# MEASURED on Test-01__PurgeCad: 106 MB / 30s  →  5.6 MB / 21s, audit-clean.
+#
+# TRADE-OFFS of the rebuild (all config-gated, see Config__DxfExport):
+#   - Modelspace only — paperspace layouts are not carried into the export.
+#   - DIMASSOC objects are dropped → dimensions become non-associative.
+#   - Types the Importer cannot copy (REGION, MULTILEADER) are skipped and
+#     REPORTED in the result rather than silently lost.
+# Set RebuildCleanDocument=false to fall back to writing the full document.
+
+_EXPORT_HEADER_VARS = (
+    '$INSUNITS', '$MEASUREMENT', '$LUNITS', '$AUNITS', '$LTSCALE',
+    '$EXTMIN', '$EXTMAX', '$LIMMIN', '$LIMMAX', '$DIMSCALE',
+)                                                                        # <-- Header vars a receiver needs to interpret the file
+
+_EXPORT_STRIP_DEFAULTS = (
+    'TEXT', 'MTEXT', 'DIMENSION', 'LEADER', 'MULTILEADER', 'MLEADER',
+    'ATTDEF', 'ATTRIB', 'TOLERANCE', 'ACAD_TABLE', 'WIPEOUT', 'POINT',
+    'HATCH',
+)                                                                        # <-- Annotation/markup types the SketchUp export removes
+
+
+def _na_load_export_settings():
+    """Read Config__DxfExport (defaults: both behaviours on)."""
+    try:
+        with open(_PAYLOAD_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            section = json.load(f).get('Config__DxfExport', {}) or {}
+    except Exception:
+        section = {}
+    strip_types = section.get('SketchUpStrip__EntityTypes', None)
+    if not isinstance(strip_types, list) or not strip_types:
+        strip_types = list(_EXPORT_STRIP_DEFAULTS)
+    return {
+        'exclude_standards' : bool(section.get('ExcludeStandardsRegion',  True)),
+        'rebuild_clean'     : bool(section.get('RebuildCleanDocument',    True)),
+        'strip_types'       : {str(t).upper() for t in strip_types},
+    }
+
+
+def _na_strip_annotations_from_blocks(doc, strip_types):
+    """
+    Purge annotation entities from every REAL block definition in a document
+    (layout pseudo-blocks are skipped — modelspace is handled by the survivor
+    filter). Blocks arrive via surviving INSERTs, and furniture/symbol blocks
+    routinely carry their own labels — "strip ANY text" has to reach inside.
+
+    Returns:
+        int: number of entities removed from block definitions.
+    """
+    removed = 0
+    for block in doc.blocks:
+        if getattr(block.block_record, 'is_any_layout', False):
+            continue                                                     # <-- *Model_Space / *Paper_Space content is the layout itself
+        victims = [e for e in block if e.dxftype() in strip_types]
+        for entity in victims:
+            try:
+                block.delete_entity(entity)
+                removed += 1
+            except Exception as err:
+                print(f"[Na__DxfEngine] Could not strip {entity.dxftype()} from block '{block.name}': {err}")
+    return removed
+
+
+def _na_sanitise_imported_layer_entries(out_doc):
+    """
+    Discard dangling object-pointer attributes from Importer-copied LAYER
+    table entries.
+
+    The Importer copies layer records verbatim — including the SOURCE
+    document's plot-style handle (group 390), material handle (347), and the
+    rarely-used 348 pointer. Those objects are never imported, so in the
+    rebuilt document the handles point at nothing. AutoCAD-family readers and
+    ezdxf ignore the dangle; SketchUp 2026's DXF importer follows the pointers
+    and rejects the ENTIRE file with a bare "Import Failed".
+
+    Bisected empirically on a failing export (21-Aug-2026): the identical file
+    imports cleanly into SketchUp once these attribs are dropped. ezdxf simply
+    omits the optional groups on save, which every tested reader accepts.
+
+    Returns:
+        int: number of layer entries cleaned.
+    """
+    cleaned = 0
+    for layer in out_doc.layers:
+        dirty = False
+        for attrib in ('plotstyle_handle', 'material_handle', 'unknown1'):
+            if layer.dxf.hasattr(attrib):
+                layer.dxf.discard(attrib)
+                dirty = True
+        if dirty:
+            cleaned += 1
+    return cleaned
+
+
+def _na_drop_empty_block_inserts(out_doc):
+    """
+    Remove INSERTs that reference an EMPTY block definition, then purge those
+    empty definitions.
+
+    A block can end up empty two ways: the Importer drops content it cannot
+    copy (REGION etc.), and the SketchUp strip removes annotation-only content.
+    The leftover INSERT renders nothing anywhere, and SketchUp flags it as an
+    ignored X-Ref in its import summary — noise that reads like data loss.
+
+    Returns:
+        tuple(int, int): (inserts removed, empty block definitions purged)
+    """
+    layout_names = {'*Model_Space', '*Paper_Space'}
+    empty_blocks = {b.name for b in out_doc.blocks
+                    if not getattr(b.block_record, 'is_any_layout', False)
+                    and b.name not in layout_names
+                    and len(b) == 0}
+    if not empty_blocks:
+        return 0, 0
+
+    inserts_removed = 0
+    spaces = [out_doc.modelspace()]
+    spaces.extend(b for b in out_doc.blocks
+                  if not getattr(b.block_record, 'is_any_layout', False))
+    for space in spaces:
+        for ins in list(space.query('INSERT')):
+            if ins.dxf.get('name', '') in empty_blocks:
+                try:
+                    space.delete_entity(ins)
+                    inserts_removed += 1
+                except Exception as err:
+                    print(f"[Na__DxfEngine] Could not drop empty-block INSERT {ins.dxf.handle}: {err}")
+
+    blocks_purged = 0
+    for name in empty_blocks:
+        try:
+            out_doc.blocks.delete_block(name, safe=True)                 # <-- safe=True refuses if still referenced
+            blocks_purged += 1
+        except Exception:
+            pass                                                         # <-- Still referenced somewhere — leave it
+    return inserts_removed, blocks_purged
+
+
+def _na_repair_dimension_geometry_blocks(out_doc):
+    """
+    Rebuild the anonymous *D geometry block of every DIMENSION the Importer
+    copied into out_doc.
+
+    EZDXF 1.4 GAP: Dimension.copy() discards the geometry block reference and
+    stashes the block's content on the copy as virtual_block_content, expecting
+    post_bind_hook() to recreate a real *D block when the copy is bound to a
+    document. The Importer binds copies via entitydb.add()/add_entity(), which
+    never fires that hook — so every exported DIMENSION arrived with group 2
+    empty and no *D blocks. That violates the DXF spec (group 2 is required)
+    and ODA-based importers (SketchUp) reject the entire file on it.
+
+    Returns:
+        int: number of dimensions whose geometry block was rebuilt.
+    """
+    repaired = 0
+    spaces   = [out_doc.modelspace()]
+    spaces.extend(b for b in out_doc.blocks
+                  if not getattr(b.block_record, 'is_any_layout', False))  # <-- Dims nested in imported blocks break the same way
+    for space in spaces:
+        for dim in space.query('DIMENSION'):
+            if getattr(dim, 'virtual_block_content', None):
+                dim.post_bind_hook()                                     # <-- Creates the *D block, sets dim.dxf.geometry
+                repaired += 1
+    return repaired
+
+
+def na_export_audited_dxf(source_dxf_path, deleted_handles, output_path, strip_annotations=False):
+    """
+    Write the audited drawing to output_path: user deletions applied, standards
+    region excluded, and the document rebuilt clean so the export contains only
+    what the drawing actually uses.
+
+    Args:
+        strip_annotations (bool): SketchUp mode — additionally remove every
+            annotation/markup entity (Config__DxfExport.SketchUpStrip__EntityTypes;
+            text, dimensions, leaders, hatches, …) from modelspace and from all
+            surviving block definitions, leaving a geometry-only file.
+
+    Returns:
+        dict: { userPruned, standardsRemoved, regionCount, entityCount,
+                rebuilt, skippedTypes, fileSizeMb,
+                annotationsStripped, dimBlocksRepaired, auditFixes }
+    """
+    if not _EZDXF_AVAILABLE:
+        raise RuntimeError("ezdxf is not installed — cannot export DXF")
+
+    settings    = _na_load_export_settings()
+    strip_types = settings['strip_types'] if strip_annotations else frozenset()
+
+    # SOURCE DOCUMENT — reuse the in-RAM parse when it still matches the file.
+    # The filter-based rebuild below never mutates it, so the slot survives the
+    # export and every later export of the same working file skips the read.
+    doc = na_get_cached_doc(source_dxf_path)
+    if doc is None:
+        doc = na_read_dxf_document(source_dxf_path)                      # <-- Resilient open (recover fallback)
+        na_stash_parsed_doc(source_dxf_path, doc)
+    else:
+        print("[Na__DxfEngine] Export using in-RAM document — file read skipped")
+    msp = doc.modelspace()
+
+    # EXCLUSION SETS — computed against the UNTOUCHED source document
+    handles_to_delete = set(deleted_handles)
+
+    regions      = []
+    region_count = 0
+    if settings['exclude_standards']:
+        layer_colors = na_build_layer_color_table(doc)
+        regions      = na_detect_standards_regions(
+            doc, lambda ent: na_entity_hex_color(ent, layer_colors)
+        )
+        region_count = len(regions)
+
+    # SURVIVOR FILTER — one pass, no deletions, source document unchanged
+    survivors            = []
+    user_pruned          = 0
+    standards_removed    = 0
+    annotations_stripped = 0
+    for entity in msp:
+        if entity.dxf.handle in handles_to_delete:
+            user_pruned += 1
+            continue
+        if regions and na_entity_in_regions(entity, regions):
+            standards_removed += 1
+            continue
+        if strip_types and entity.dxftype() in strip_types:
+            annotations_stripped += 1                                    # <-- SketchUp mode: annotation never reaches the output
+            continue
+        survivors.append(entity)
+
+    rebuilt             = False
+    skipped_types       = {}
+    out_doc             = None
+    dim_blocks_repaired = 0
+
+    if settings['rebuild_clean']:
+        try:
+            from ezdxf.addons import Importer                            # <-- Lazy: only the export path needs it
+
+            before = {}
+            for entity in survivors:
+                etype = entity.dxftype()
+                before[etype] = before.get(etype, 0) + 1
+
+            out_doc  = ezdxf.new(dxfversion=doc.dxfversion)
+            importer = Importer(doc, out_doc)
+            importer.import_entities(survivors, out_doc.modelspace())    # <-- Copies survivors; source doc untouched
+            importer.finalize()                                          # <-- Pulls in required blocks/layers/styles only
+
+            dim_blocks_repaired = _na_repair_dimension_geometry_blocks(out_doc)  # <-- Importer never fires post_bind_hook (SketchUp killer #1)
+            layers_cleaned      = _na_sanitise_imported_layer_entries(out_doc)   # <-- Copied layers carry dangling handles (SketchUp killer #2)
+            if layers_cleaned:
+                print(f"[Na__DxfEngine] Sanitised {layers_cleaned} imported layer entr(y/ies) — dangling plot-style/material handles dropped")
+
+            for var in _EXPORT_HEADER_VARS:
+                try:
+                    if var in doc.header:
+                        out_doc.header[var] = doc.header[var]
+                except Exception:
+                    pass
+
+            after = {}
+            for entity in out_doc.modelspace():
+                etype = entity.dxftype()
+                after[etype] = after.get(etype, 0) + 1
+            skipped_types = {t: n - after.get(t, 0) for t, n in before.items()
+                             if n - after.get(t, 0) > 0}                 # <-- Importer-unsupported types (e.g. REGION)
+            rebuilt = True
+        except Exception as err:
+            print(f"[Na__DxfEngine] Clean rebuild failed ({err}) — exporting full document instead")
+            out_doc = None
+
+    if out_doc is None:
+        # FALLBACK — full-document write. This path MUTATES a document, so it
+        # works on its own fresh parse and never touches the RAM-cached copy.
+        out_doc = na_read_dxf_document(source_dxf_path)
+        out_msp = out_doc.modelspace()
+        victims = [e for e in out_msp
+                   if e.dxf.handle in handles_to_delete
+                   or (regions and na_entity_in_regions(e, regions))
+                   or (strip_types and e.dxftype() in strip_types)]
+        for entity in victims:
+            out_msp.delete_entity(entity)
+
+    if strip_types:
+        stripped_in_blocks = _na_strip_annotations_from_blocks(out_doc, strip_types)
+        annotations_stripped += stripped_in_blocks                       # <-- Labels inside furniture/symbol blocks count too
+
+    empty_inserts_dropped, _empty_blocks_purged = _na_drop_empty_block_inserts(out_doc)
+    if empty_inserts_dropped:
+        print(f"[Na__DxfEngine] Dropped {empty_inserts_dropped} INSERT(s) of empty block definitions")
+
+    audit_fixes = 0
+    if rebuilt:
+        # SAFETY NET — the rebuilt document is small, so a full audit is cheap.
+        # Anything irreparable (e.g. a dimension whose geometry block could not
+        # be recovered) is removed here rather than shipped to a strict importer.
+        # The fallback full-fat document is left as-is: it keeps the source
+        # structure that receivers already accepted, and auditing 100+ MB is slow.
+        try:
+            auditor     = out_doc.audit()
+            audit_fixes = len(auditor.fixes)
+            if audit_fixes:
+                print(f"[Na__DxfEngine] Export audit applied {audit_fixes} automatic fix(es)")
+        except Exception as err:
+            print(f"[Na__DxfEngine] Export audit skipped ({err})")
+
+    os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+    out_doc.saveas(output_path)
+
+    stats = {
+        'userPruned'          : user_pruned,
+        'standardsRemoved'    : standards_removed,
+        'regionCount'         : region_count,
+        'entityCount'         : len(out_doc.modelspace()),
+        'rebuilt'             : rebuilt,
+        'skippedTypes'        : skipped_types,
+        'fileSizeMb'          : round(os.path.getsize(output_path) / (1024 * 1024), 2),
+        'annotationsStripped' : annotations_stripped,
+        'dimBlocksRepaired'   : dim_blocks_repaired,
+        'emptyInsertsDropped' : empty_inserts_dropped,
+        'auditFixes'          : audit_fixes,
+    }
+    print(f"[Na__DxfEngine] Export written — {stats['entityCount']} entities, "
+          f"{stats['fileSizeMb']} MB (user pruned {stats['userPruned']}, "
+          f"standards removed {stats['standardsRemoved']}, rebuilt={rebuilt}, "
+          f"dim blocks repaired {dim_blocks_repaired}, "
+          f"annotations stripped {annotations_stripped}, "
+          f"skipped={skipped_types or 'none'})")
+    return stats
 
 # endregion -------------------------------------------------------------------
 
@@ -555,20 +1275,27 @@ _INSERT_MAX_CHILDREN   = 5000                                            # <-- P
 _INSERT_MAX_DEPTH      = 4                                               # <-- Nested block recursion limit
 
 
-def na_explode_insert(insert_entity, layer_colors):
+def na_explode_insert(insert_entity, layer_colors, standards_regions=None):
     """
     Explode an INSERT (block reference) into display geometry via ezdxf
     virtual_entities(). Children carry parentHandle = the INSERT handle so the
     frontend selects/deletes the whole block reference as one unit.
 
+    Any exploded child landing inside a standards region is discarded here. The
+    caller already rejected inserts whose base point sits inside the border, so
+    this only catches the awkward case of a block placed outside the border but
+    drawing its content inside it.
+
     Returns:
-        tuple(dict | None, list[dict]): (INSERT record, exploded child records)
+        tuple(dict | None, list[dict], int):
+            (INSERT record, exploded child records, children dropped as standards)
     """
     parent = na_serialize_entity(insert_entity, layer_colors)
     if parent is None:
-        return None, []
+        return None, [], 0
 
     children = []
+    dropped  = [0]                                                       # <-- Children discarded as standards content
     counter  = [0]                                                       # <-- Mutable counter shared across recursion
 
     def na_walk(entity, depth):
@@ -587,6 +1314,10 @@ def na_explode_insert(insert_entity, layer_colors):
                 na_walk(child, depth + 1)                                # <-- Recurse into nested blocks
                 continue
 
+            if standards_regions and na_extent_in_regions(na_entity_extent(child), standards_regions):
+                dropped[0] += 1
+                continue                                                 # <-- Block geometry drawn inside the standards border
+
             serialised = na_serialize_entity(child, layer_colors)
             if serialised:
                 counter[0] += 1
@@ -597,7 +1328,7 @@ def na_explode_insert(insert_entity, layer_colors):
     na_walk(insert_entity, 1)
 
     parent['childCount'] = len(children)                                 # <-- Frontend skips crosshair when > 0
-    return parent, children
+    return parent, children, dropped[0]
 
 # endregion -------------------------------------------------------------------
 
@@ -622,28 +1353,29 @@ def na_serialize_entity(entity, layer_colors):
     layer       = entity.dxf.get('layer',    '0')
     color_aci   = entity.dxf.get('color',    256)                       # <-- 256 = BYLAYER
     linetype    = entity.dxf.get('linetype', 'BYLAYER')
-
-    # Resolve display colour: true colour (RGB) wins, then BYLAYER/ACI resolution
-    true_color = entity.dxf.get('true_color', None)
-    if true_color is not None:
-        hex_color = f"#{true_color & 0xFFFFFF:06x}"                     # <-- 24-bit RGB packed int → hex
-    else:
-        hex_color = na_resolve_hex_color(color_aci, layer, layer_colors)
+    hex_color   = na_entity_hex_color(entity, layer_colors)             # <-- Shared display-colour resolution
 
     base = {
         'handle'   : handle,
         'type'     : entity_type,
         'layer'    : layer,
-        'color'    : color_aci,
         'hexColor' : hex_color,                                         # <-- Pre-resolved hex for frontend
-        'linetype' : linetype,
     }
+
+    # PAYLOAD TRIM — color/linetype are read only by the Properties panel, which
+    # already falls back to 'BYLAYER' when absent. On a real drawing the vast
+    # majority of entities are BYLAYER, so omitting the defaults removes two
+    # keys from most of the payload for no loss of information.
+    if not _PAYLOAD_OMIT_DEFAULTS or color_aci != 256:
+        base['color'] = color_aci
+    if not _PAYLOAD_OMIT_DEFAULTS or linetype != 'BYLAYER':
+        base['linetype'] = linetype
 
     geometry = na_extract_geometry(entity, entity_type)
     if geometry is None:
         return None                                                     # <-- Unsupported or degenerate entity
 
-    base['geometry'] = geometry
+    base['geometry'] = na_round_geometry(geometry)
     return base
 
 
@@ -699,22 +1431,32 @@ def na_extract_geometry(entity, entity_type):
             }
 
         if entity_type == 'TEXT':
+            try:
+                text = entity.plain_text()                             # <-- Strips %%u / %%d control codes
+            except Exception:
+                text = entity.dxf.get('text', '')
             return {
                 'x'        : entity.dxf.insert.x,
                 'y'        : entity.dxf.insert.y,
-                'text'     : entity.dxf.get('text',     ''),
+                'text'     : text,
                 'height'   : entity.dxf.get('height',    2.5),
                 'rotation' : entity.dxf.get('rotation',  0.0),
             }
 
         if entity_type == 'MTEXT':
-            # entity.text strips formatting codes; entity.dxf.text has raw codes
-            plain_text = entity.text if hasattr(entity, 'text') else entity.dxf.get('text', '')
+            # plain_text() is the METHOD that strips inline codes ({\L...}, \P);
+            # the .text ATTRIBUTE is the raw string — using it leaked formatting
+            # codes into the canvas and inflated text hit boxes to match.
+            try:
+                text = entity.plain_text()                             # <-- Codes stripped, paragraphs become '\n'
+            except Exception:
+                text = entity.dxf.get('text', '')
             return {
-                'x'      : entity.dxf.insert.x,
-                'y'      : entity.dxf.insert.y,
-                'text'   : plain_text,
-                'height' : entity.dxf.get('char_height', 2.5),
+                'x'        : entity.dxf.insert.x,
+                'y'        : entity.dxf.insert.y,
+                'text'     : text,
+                'height'   : entity.dxf.get('char_height', 2.5),
+                'rotation' : entity.dxf.get('rotation',    0.0),       # <-- MTEXT rotates too — was never serialised
             }
 
         if entity_type == 'INSERT':
@@ -818,11 +1560,37 @@ def na_hatch_path_vertices(path):
     if hasattr(path, 'edges'):                                           # <-- EdgePath
         for edge in path.edges:
             edge_type = getattr(edge, 'type', None)
-            type_name = getattr(edge_type, 'name', str(edge_type))
-            if 'LINE' in str(type_name).upper():
-                vertices.append({'x': edge.start[0], 'y': edge.start[1]})
-                vertices.append({'x': edge.end[0],   'y': edge.end[1]})
-            elif 'ARC' in str(type_name).upper():
+            type_name = str(getattr(edge_type, 'name', str(edge_type))).upper()
+
+            # ORDER MATTERS: 'SPLINE' contains the substring 'LINE', so spline
+            # edges MUST be tested first or they hit the line handler and throw
+            # ('SplineEdge' has no .start), silently dropping the whole hatch.
+            if 'SPLINE' in type_name:
+                pts = (list(getattr(edge, 'fit_points', None) or ())
+                       or list(getattr(edge, 'control_points', None) or ()))
+                for p in pts:                                            # <-- Polyline approximation of the curve
+                    vertices.append({'x': p[0], 'y': p[1]})
+            elif 'ELLIPSE' in type_name:
+                try:
+                    cx, cy = edge.center[0], edge.center[1]
+                    mx, my = edge.major_axis[0], edge.major_axis[1]
+                    rx     = math.hypot(mx, my)
+                    ry     = rx * edge.ratio
+                    rot    = math.atan2(my, mx)
+                    a0     = getattr(edge, 'start_param', 0.0)
+                    a1     = getattr(edge, 'end_param', 2 * math.pi)
+                    if a1 <= a0:
+                        a1 += 2 * math.pi
+                    steps = max(4, int((a1 - a0) / (2 * math.pi) * 32))
+                    for i in range(steps + 1):
+                        t  = a0 + (a1 - a0) * i / steps
+                        ex = rx * math.cos(t)
+                        ey = ry * math.sin(t)
+                        vertices.append({'x': cx + ex * math.cos(rot) - ey * math.sin(rot),
+                                         'y': cy + ex * math.sin(rot) + ey * math.cos(rot)})
+                except Exception:
+                    continue
+            elif 'ARC' in type_name:
                 try:
                     cx, cy  = edge.center[0], edge.center[1]
                     r       = edge.radius
@@ -836,6 +1604,9 @@ def na_hatch_path_vertices(path):
                         vertices.append({'x': cx + r * math.cos(a), 'y': cy + r * math.sin(a)})
                 except Exception:
                     continue
+            elif 'LINE' in type_name:
+                vertices.append({'x': edge.start[0], 'y': edge.start[1]})
+                vertices.append({'x': edge.end[0],   'y': edge.end[1]})
     return vertices
 
 
@@ -859,6 +1630,23 @@ def na_build_layer_color_table(doc):
             'visible' : visible,
         }
     return table
+
+
+def na_entity_hex_color(entity, layer_colors):
+    """
+    Resolve an entity's DISPLAY colour to a '#rrggbb' string.
+
+    True colour (RGB) wins, otherwise the ACI value is resolved through the
+    BYLAYER/BYBLOCK rules. Single code path shared by the serialiser and the
+    standards-region marker scan so both agree on what colour an entity is.
+    """
+    true_color = entity.dxf.get('true_color', None)
+    if true_color is not None:
+        return f"#{true_color & 0xFFFFFF:06x}"                          # <-- 24-bit RGB packed int → hex
+
+    layer     = entity.dxf.get('layer', '0')
+    color_aci = entity.dxf.get('color', 256)                            # <-- 256 = BYLAYER
+    return na_resolve_hex_color(color_aci, layer, layer_colors)
 
 
 def na_resolve_hex_color(color_aci, layer_name, layer_colors):
@@ -887,9 +1675,11 @@ def na_empty_response(reason=''):
     if reason:
         print(f"[Na__DxfEngine] Empty response — reason: {reason}")
     return {
-        'entityCount' : 0,
-        'layers'      : {},
-        'entities'    : [],
+        'entityCount'      : 0,
+        'layers'           : {},
+        'entities'         : [],
+        'standardsRegions' : [],
+        'standardsSkipped' : 0,
     }
 
 # endregion -------------------------------------------------------------------

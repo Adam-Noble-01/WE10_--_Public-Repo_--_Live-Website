@@ -49,7 +49,7 @@
 
     // MODULE CONSTANTS | Cache Versioning
     // ------------------------------------------------------------
-    const Na__SW_CACHE_NAME  = 'na-cad-audit-tools-shell-v5'; // <-- Bump version to force cache refresh
+    const Na__SW_CACHE_NAME  = 'na-cad-audit-tools-shell-v6'; // <-- Bump version to force cache refresh
     const Na__SW_APP_SHELL   = [                               // <-- Offline fallback set (network-first serves these live)
         './',
         './Na__App__.html',

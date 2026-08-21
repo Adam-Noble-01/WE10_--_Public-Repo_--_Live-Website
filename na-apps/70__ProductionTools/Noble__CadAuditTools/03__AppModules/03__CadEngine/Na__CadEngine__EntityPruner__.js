@@ -225,6 +225,7 @@
             });
 
             this._appState.entities = kept;
+            this._rebuildSpatialIndex();                                 // <-- Model changed: index must follow
 
             unitHandles.forEach((handle) => {
                 this._appState.entityByHandle.delete(handle);
@@ -245,6 +246,16 @@
                     this._appState.entityByHandle.set(record.handle, record); // <-- Only units are indexed by handle
                 }
             });
+            this._rebuildSpatialIndex();                                 // <-- Model changed: index must follow
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Rebuild the Selection Spatial Index After a Model Change
+        // ------------------------------------------------------------
+        _rebuildSpatialIndex() {
+            const index = this._appState.spatialIndex;
+            if (index) index.Na__SpatialIndex__Build(this._appState.entities);
         }
         // ------------------------------------------------------------
 

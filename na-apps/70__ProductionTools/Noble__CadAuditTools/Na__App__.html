@@ -46,10 +46,13 @@
                     </svg>
                 </div>
                 <h1 class="Na__Upload__Title">Noble CAD Audit Tools</h1>
-                <p class="Na__Upload__Subtitle">v0.4.0</p>
+                <p class="Na__Upload__Subtitle">v0.4.5</p>
                 <p class="Na__Upload__Instruction">Drop a DWG or DXF file here, or click to browse</p>
                 <input type="file" id="Na__Upload__FileInput" accept=".dxf,.dwg" class="Na__Upload__HiddenInput">
-                <button id="Na__Upload__BrowseBtn" class="btn btn--primary">Open CAD File</button>
+                <div class="Na__Upload__Actions">
+                    <button id="Na__Upload__BrowseBtn" class="btn btn--primary">Open CAD File</button>
+                    <button id="Na__Upload__OpenProjectBtn" class="btn btn--secondary" title="Browse saved projects from the archive (Ctrl+O)">Open Existing Project</button>
+                </div>
                 <p class="Na__Upload__Note">
                     DWG files are converted to DXF automatically (ezdwg, with ODA File Converter fallback).
                     <br>DXF files load directly.
@@ -103,6 +106,14 @@
 
                 <div class="Na__ProjectManager__TableScroll">
                     <table class="Na__ProjectManager__Table">
+                        <colgroup>
+                            <col>                                     <!-- Project — takes the remaining width -->
+                            <col class="Na__ColW__Version">
+                            <col class="Na__ColW__Saved">
+                            <col class="Na__ColW__Source">
+                            <col class="Na__ColW__Num">
+                            <col class="Na__ColW__Action">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>Project</th>
@@ -173,14 +184,16 @@
             <img class="top-bar__logo" src="./01__AppAssets__CadAuditTools/Na__MainLogo__1-1-Ratio__.png" alt="Noble Architecture">
             <div class="top-bar__brand">NOBLE CAD AUDIT TOOLS</div>
             <div class="top-bar__divider"></div>
-            <div class="top-bar__version">v0.4.0</div>
+            <div class="top-bar__version">v0.4.5</div>
             <div class="top-bar__file-chip" id="Na__App__FileChip">No file loaded</div>
 
             <div class="top-bar__spacer"></div>
 
             <div class="top-bar__controls">
+                <button id="Na__Btn__ImportCad" class="btn btn--secondary" title="Import a DWG or DXF file from disk (Ctrl+I)">Import CAD File</button>
                 <button id="Na__Btn__LoadFile" class="btn btn--secondary" title="Open a saved project from the archive (Ctrl+O)">Load File</button>
                 <button id="Na__Btn__ExportDxf" class="btn btn--secondary" title="Export the current DXF to a folder you choose (Ctrl+E)" disabled>Export DXF</button>
+                <button id="Na__Btn__ExportSketchUp" class="btn btn--secondary" title="Export a geometry-only DXF for SketchUp — text, dimensions, leaders and hatches stripped (Ctrl+Shift+E)" disabled>Export to SketchUp</button>
                 <button id="Na__Btn__SaveProject" class="btn btn--primary" title="Save a versioned copy into the project archive (Ctrl+S)" disabled>Save Project</button>
             </div>
 

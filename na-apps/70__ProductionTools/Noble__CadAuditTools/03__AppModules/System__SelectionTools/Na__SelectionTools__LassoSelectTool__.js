@@ -151,7 +151,15 @@ const _SVG_NS = 'http://www.w3.org/2000/svg';
             const windowRejected  = new Set();
             const crossingMatched = new Set();
 
-            entities.forEach((entity) => {
+            // SPATIAL INDEX — narrow to entities near the lasso's bounding box,
+            // widening to whole units for window mode (see BoxSelectTool).
+            const index = this._appState.spatialIndex;
+            let scanSet = index ? index.Na__SpatialIndex__QueryRect(polyBBox) : null;
+            if (scanSet && mode === 'window') {
+                scanSet = index.Na__SpatialIndex__ExpandToWholeUnits(scanSet);
+            }
+
+            (scanSet || entities).forEach((entity) => {
                 const unitHandle = entity.parentHandle || entity.handle;
                 if (deleted.has(unitHandle)) return;
                 if (entity.type === 'INSERT' && (entity.childCount || 0) > 0) return; // <-- Parent tested via children

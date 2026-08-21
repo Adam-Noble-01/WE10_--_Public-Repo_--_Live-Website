@@ -3,7 +3,7 @@
     "_Purpose"                              : "Application defaults SSOT — every configurable feature reads its defaults from here. Keyboard/mouse controls live in Na__AppData__KeybindingsAndControls__.json.",
 
     "appName"                               : "Noble CAD Audit Tools",
-    "appVersion"                            : "0.3.0",
+    "appVersion"                            : "0.4.8",
     "appAuthor"                             : "Adam Noble - Noble Architecture",
     "appPort"                               : 8007,
 
@@ -85,7 +85,44 @@
         "OdaConverter__ExePath"             : "C:/Program Files/ODA/ODAFileConverter/ODAFileConverter.exe",
         "OdaConverter__OutputDxfVersion"    : "ACAD2018",
         "OdaConverter__RecurseSubfolders"   : false,
-        "OdaConverter__AuditFiles"          : true
+        "OdaConverter__AuditFiles"          : false,
+        "Cache__ReuseConvertedDxf"          : true
+    },
+
+    "Config__StandardsRegion"               : {
+        "_description"                      : "Standards-library exclusion on import. The studio CAD template fences its concept-design standards block with THREE nested rectangles, each offset ~100mm from the next, drawn in RGB 250,215,0. When that border is found, every entity inside it is skipped before parsing/explosion — it never reaches the canvas and never slows the load. No border found = nothing excluded. All distances are DRAWING UNITS (mm assumed).",
+        "Enabled"                           : true,
+        "Marker__ColorRgb"                  : [250, 215, 0],
+        "Marker__ColorTolerance"            : 8,
+        "Marker__MaxSegments"               : 50000,
+        "Ring__MinCount"                    : 3,
+        "Ring__MinOffset_mm"                : 95,
+        "Ring__MaxOffset_mm"                : 105,
+        "Ring__JoinTolerance_mm"            : 1.0,
+        "Region__ContainmentPad_mm"         : 1.0,
+        "Region__MinSize_mm"                : 500
+    },
+
+    "Config__EntityPayload"                 : {
+        "_description"                      : "Entity JSON payload size controls. A large drawing serialises to tens of MB of JSON that the server builds, HTTP ships, and the browser re-parses. Coordinates are rounded (3dp is sub-micron on a mm drawing; set -1 to disable), BYLAYER color/linetype are omitted since the Properties panel already defaults to BYLAYER when absent, and JSON responses are gzipped. Purely transport-level — nothing is lost from the working DXF.",
+        "Coordinates__DecimalPlaces"        : 3,
+        "OmitDefaultColorAndLinetype"       : true,
+        "Cache__ReuseParsedPayload"         : true,
+        "Response__GzipEnabled"             : true,
+        "Response__GzipMinBytes"            : 4096
+    },
+
+    "Config__DxfExport"                     : {
+        "_description"                      : "Export DXF behaviour. ExcludeStandardsRegion removes everything inside the standards marker border so the export matches the viewer (respects Config__StandardsRegion.Enabled). RebuildCleanDocument re-imports survivors into a fresh document so unused block definitions are left behind (measured 106 MB to 5.6 MB) - trade-offs: modelspace only, dimensions become non-associative, and entity types ezdxf cannot rebuild (REGION, MULTILEADER) are skipped and reported. Set false to export the full-fat document instead. SketchUpStrip__EntityTypes is the annotation/markup list the Export to SketchUp button removes - from modelspace AND from inside every surviving block definition.",
+        "ExcludeStandardsRegion"            : true,
+        "RebuildCleanDocument"              : true,
+        "SourceCache__Enabled"              : true,
+        "SourceCache__MaxFileMb"            : 256,
+        "SketchUpStrip__EntityTypes"        : [
+            "TEXT", "MTEXT", "DIMENSION", "LEADER", "MULTILEADER", "MLEADER",
+            "ATTDEF", "ATTRIB", "TOLERANCE", "ACAD_TABLE", "WIPEOUT", "POINT",
+            "HATCH"
+        ]
     },
 
     "Config__Upload"                        : {

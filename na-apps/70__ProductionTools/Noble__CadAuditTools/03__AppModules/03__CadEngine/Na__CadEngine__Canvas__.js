@@ -245,7 +245,14 @@ const _SVG_NS  = 'http://www.w3.org/2000/svg';                         // <-- SV
             let bestUnit = null;
             let bestDist = tolerance;
 
-            for (const entity of entities) {
+            // SPATIAL INDEX — only entities near the click are worth testing.
+            // Falls back to the full entity array if the index is unavailable.
+            const index      = this._appState.spatialIndex;
+            const candidates = index
+                ? index.Na__SpatialIndex__QueryPoint(dxfPoint.x, dxfPoint.y, tolerance)
+                : null;
+
+            for (const entity of (candidates || entities)) {
                 const unitHandle = entity.parentHandle || entity.handle;
                 if (deleted.has(unitHandle)) continue;                   // <-- Skip deleted units
                 if (entity.type === 'INSERT' && (entity.childCount || 0) > 0) continue; // <-- Parent tested via children
@@ -608,7 +615,21 @@ const _SVG_NS  = 'http://www.w3.org/2000/svg';                         // <-- SV
         el.setAttribute('stroke',    'none');
         el.setAttribute('font-family', 'Segoe UI, system-ui, sans-serif');
 
-        el.textContent = g.text || '';
+        // MULTILINE — MTEXT paragraphs arrive as '\n'; one tspan per line,
+        // successive lines stepping downward (local +y = down after the flip)
+        const lines = String(g.text || '').split('\n');
+        if (lines.length === 1) {
+            el.textContent = lines[0];
+        } else {
+            const lineH = (g.height || 2.5) * 1.4;                       // <-- Keep in sync with the bbox estimate
+            lines.forEach((line, i) => {
+                const tspan = document.createElementNS(_SVG_NS, 'tspan');
+                tspan.setAttribute('x', 0);
+                tspan.setAttribute('y', i * lineH);
+                tspan.textContent = line;
+                el.appendChild(tspan);
+            });
+        }
         return el;
     }
     // ------------------------------------------------------------

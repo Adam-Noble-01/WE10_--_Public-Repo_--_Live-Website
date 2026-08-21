@@ -30,6 +30,23 @@
 # -----------------------------------------------------------------------------
 #
 # DEVELOPMENT LOG:
+# 19-Aug-2026 - Version 0.5.0
+# - OdaConverter__AuditFiles and OdaConverter__RecurseSubfolders are now READ.
+#   Both were config keys that na_load_conversion_settings never returned, so
+#   the ODA command line hardcoded audit=1 — a full repair pass on every
+#   fallback conversion, unskippable. Audit now defaults OFF; turn it back on
+#   if a legacy DWG will not convert cleanly.
+#
+# 19-Aug-2026 - Version 0.4.0
+# - CONVERSION CACHE: an identical DWG converted earlier is now reused instead
+#   of reconverting, which previously cost the full multi-minute conversion on
+#   every re-import of the same drawing. Keyed on the DWG's CONTENT (the upload
+#   rewrites the file each time, so mtime cannot be used) plus the target DXF
+#   versions, and additionally on the converted DXF's own size/mtime so an
+#   in-place edit of the working file (image purge, hard delete) forces a fresh
+#   conversion rather than handing back a pruned file.
+#   Disable with Config__DwgConversion.Cache__ReuseConvertedDxf = false.
+#
 # 07-Jul-2026 - Version 0.3.0
 # - ezdwg conversion moved to an isolated subprocess with configurable timeout.
 # - Conversion functions now return (path, error) tuples for precise UI errors.
@@ -49,6 +66,7 @@ import glob
 import json
 import time
 import shutil
+import hashlib
 import subprocess
 
 
@@ -118,6 +136,9 @@ _DEFAULT_ODA_PATH   = r'C:\Program Files\ODA\ODAFileConverter\ODAFileConverter.e
 _DEFAULT_ODA_VER    = 'ACAD2018'                                         # <-- Target DXF version for ODA fallback
 _DEFAULT_EZDWG_VER  = 'R2010'                                            # <-- ezdwg DXF output version
 _DEFAULT_TIMEOUT_S  = 180                                                # <-- Watchdog timeout for conversion subprocess
+_DEFAULT_REUSE_DXF  = True                                               # <-- Reuse an identical earlier conversion instead of redoing it
+_DEFAULT_ODA_AUDIT  = False                                              # <-- ODA audit/repair pass — real time cost, off unless a file needs it
+_DEFAULT_ODA_RECURSE = False                                             # <-- ODA subfolder recursion (scratch input folder holds one file)
 _CONFIG_PATH        = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     '02__AppData', 'Na__AppData__AppConfig__.json'
@@ -149,16 +170,24 @@ def na_convert_dwg_to_dxf(dwg_path, cancel_event=None):
     settings = na_load_conversion_settings()
     errors   = []
 
+    # CACHE CHECK — an identical DWG converted earlier is reused as-is
+    cached = na_find_cached_conversion(dwg_path, settings)
+    if cached:
+        print(f"[Na__DwgConversion] Reusing cached conversion: {os.path.basename(cached)}")
+        return cached, ''                                               # <-- Skips the whole converter subprocess
+
     try:
         # ATTEMPT 1 — ezdwg in isolated subprocess
         dxf_path, err = na_convert_dwg_via_ezdwg(dwg_path, settings, cancel_event)
         if dxf_path:
+            na_record_conversion_fingerprint(dwg_path, dxf_path, settings)
             return dxf_path, ''
         errors.append(f"ezdwg: {err}")
 
         # ATTEMPT 2 — ODA File Converter fallback
         dxf_path, err = na_convert_dwg_via_oda(dwg_path, settings, cancel_event)
         if dxf_path:
+            na_record_conversion_fingerprint(dwg_path, dxf_path, settings)
             return dxf_path, ''
         errors.append(f"ODA: {err}")
 
@@ -174,6 +203,108 @@ def na_convert_dwg_to_dxf(dwg_path, cancel_event=None):
 
 
 # #region ---------------------------------------------------------------------
+# REGION | Conversion Cache — Reuse an Identical Earlier Conversion
+# -----------------------------------------------------------------------------
+
+# Converting a large DWG costs minutes, and the temp cache holds the uploaded
+# DWG at a fixed path — so re-uploading the same drawing used to pay the full
+# conversion again. The upload rewrites the DWG each time, which makes file
+# mtimes useless here; the cache is therefore keyed on the DWG's CONTENT.
+#
+# Alongside every converted DXF we drop a JSON sidecar recording:
+#   source — the DWG's content digest, byte size, and target DXF versions
+#   output — the converted DXF's own size and mtime as written
+#
+# BOTH must still match to reuse the cache. The source half catches a different
+# or edited DWG and a config change. The output half matters just as much: the
+# converted DXF IS the app's working file, and the image-purge and hard-delete
+# flows rewrite it in place. Without that check, re-uploading a DWG would hand
+# back a previously pruned working file instead of a clean import.
+
+_FINGERPRINT_SUFFIX = '.na-src.json'                                     # <-- Sidecar written beside the converted DXF
+_HASH_CHUNK_BYTES   = 1024 * 1024                                        # <-- 1 MB streaming read, constant memory
+
+
+def na_find_cached_conversion(dwg_path, settings):
+    """
+    Return the path of a previously converted DXF that still matches this exact
+    source DWG, the current conversion settings, and its own recorded output
+    state — or None when there is no usable cache.
+    """
+    if not settings['reuse_converted_dxf']:
+        return None                                                      # <-- Cache disabled in config
+
+    dxf_path     = na_conversion_output_path(dwg_path)
+    sidecar_path = dxf_path + _FINGERPRINT_SUFFIX
+
+    if not (os.path.isfile(dxf_path) and os.path.isfile(sidecar_path)):
+        return None
+    try:
+        with open(sidecar_path, 'r', encoding='utf-8') as f:
+            recorded = json.load(f)
+    except Exception:
+        return None
+
+    if recorded.get('source') != na_source_fingerprint(dwg_path, settings):
+        return None                                                      # <-- Different DWG, or settings changed
+    if recorded.get('output') != na_output_fingerprint(dxf_path):
+        print("[Na__DwgConversion] Working DXF changed since conversion — reconverting")
+        return None                                                      # <-- Working file was edited in place
+
+    return dxf_path
+
+
+def na_record_conversion_fingerprint(dwg_path, dxf_path, settings):
+    """Write the sidecar that lets a later upload of the same DWG reuse this DXF."""
+    if not settings['reuse_converted_dxf']:
+        return
+    try:
+        payload = {
+            'source' : na_source_fingerprint(dwg_path, settings),
+            'output' : na_output_fingerprint(dxf_path),
+        }
+        with open(dxf_path + _FINGERPRINT_SUFFIX, 'w', encoding='utf-8') as f:
+            json.dump(payload, f)
+    except Exception as err:
+        print(f"[Na__DwgConversion] Could not record conversion fingerprint (harmless): {err}")
+
+
+def na_source_fingerprint(dwg_path, settings):
+    """
+    Cache key for a source DWG: content digest, byte size, and the target DXF
+    versions. The upload rewrites the DWG on every import, so mtime is useless
+    here — the digest is what makes "same drawing again" detectable.
+    """
+    digest = hashlib.blake2b(digest_size=16)
+    size   = 0
+    with open(dwg_path, 'rb') as f:
+        while True:
+            chunk = f.read(_HASH_CHUNK_BYTES)
+            if not chunk:
+                break
+            size += len(chunk)
+            digest.update(chunk)
+    return f"{digest.hexdigest()}|{size}|{settings['ezdwg_dxf_version']}|{settings['oda_dxf_version']}"
+
+
+def na_output_fingerprint(dxf_path):
+    """
+    Cheap identity of the converted DXF as it was written. Any in-place edit to
+    the working file (image purge, hard delete) changes this and invalidates the
+    cache — no hashing, so it stays free even on a 100 MB DXF.
+    """
+    stat = os.stat(dxf_path)
+    return f"{stat.st_size}|{stat.st_mtime_ns}"
+
+
+def na_conversion_output_path(dwg_path):
+    """The DXF path a conversion of this DWG writes to (both converters agree on this)."""
+    return os.path.splitext(dwg_path)[0] + '.dxf'
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
 # REGION | ezdwg Conversion (Isolated Subprocess + Watchdog Timeout)
 # -----------------------------------------------------------------------------
 
@@ -184,7 +315,7 @@ def na_convert_dwg_via_ezdwg(dwg_path, settings, cancel_event=None):
 
     Raises Na__DwgConversion__Cancelled if the cancel event fires.
     """
-    output_path = os.path.splitext(dwg_path)[0] + '.dxf'                # <-- Output DXF alongside source DWG
+    output_path = na_conversion_output_path(dwg_path)                   # <-- Output DXF alongside source DWG
     timeout_s   = settings['ezdwg_timeout_s']
     dxf_version = settings['ezdwg_dxf_version']
 
@@ -266,8 +397,8 @@ def na_convert_dwg_via_oda(dwg_path, settings, cancel_event=None):
         output_folder,
         dxf_version,
         'DXF',
-        '0',                                                             # <-- No recursion into subfolders
-        '1',                                                             # <-- Audit/repair files on conversion
+        '1' if settings['oda_recurse']     else '0',                     # <-- Recurse into subfolders
+        '1' if settings['oda_audit_files'] else '0',                     # <-- Audit/repair pass (slow — off by default)
     ]
 
     try:
@@ -292,7 +423,7 @@ def na_convert_dwg_via_oda(dwg_path, settings, cancel_event=None):
         detail = f" (exit {returncode}: {stderr_tail})" if stderr_tail else f" (exit {returncode})"
         return None, f"ODA ran but produced no output file{detail}"
 
-    final_path = os.path.splitext(dwg_path)[0] + '.dxf'                  # <-- Relocate beside source, matching ezdwg convention
+    final_path = na_conversion_output_path(dwg_path)                     # <-- Relocate beside source, matching ezdwg convention
     try:
         if os.path.isfile(final_path):
             os.remove(final_path)                                       # <-- Overwrite any stale conversion
@@ -381,6 +512,9 @@ def na_load_conversion_settings():
         'ezdwg_timeout_s'   : dwg_config.get('Ezdwg__TimeoutSeconds',           _DEFAULT_TIMEOUT_S),
         'oda_exe_path'      : dwg_config.get('OdaConverter__ExePath',           _DEFAULT_ODA_PATH),
         'oda_dxf_version'   : dwg_config.get('OdaConverter__OutputDxfVersion',  _DEFAULT_ODA_VER),
+        'reuse_converted_dxf': bool(dwg_config.get('Cache__ReuseConvertedDxf', _DEFAULT_REUSE_DXF)),
+        'oda_audit_files'   : bool(dwg_config.get('OdaConverter__AuditFiles',       _DEFAULT_ODA_AUDIT)),
+        'oda_recurse'       : bool(dwg_config.get('OdaConverter__RecurseSubfolders', _DEFAULT_ODA_RECURSE)),
     }
 
 # endregion -------------------------------------------------------------------

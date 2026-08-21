@@ -80,8 +80,9 @@
         'escape'     : 'edit:deselect',       // <-- Esc → clear selection / cancel tool action
 
         // File
-        'ctrl+s'     : 'file:save-project',   // <-- Ctrl+S → versioned project save
-        'ctrl+e'     : 'file:export-dxf',     // <-- Ctrl+E → download current DXF
+        'ctrl+s'       : 'file:save-project',   // <-- Ctrl+S → versioned project save
+        'ctrl+e'       : 'file:export-dxf',     // <-- Ctrl+E → download current DXF
+        'ctrl+shift+e' : 'file:export-sketchup', // <-- Ctrl+Shift+E → stripped SketchUp export
 
     };
     // ------------------------------------------------------------

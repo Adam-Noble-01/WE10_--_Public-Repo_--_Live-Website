@@ -47,6 +47,7 @@
             this.entities         = [];              // <-- All entity objects loaded from DXF (own data, NOT DOM elements)
             this.entityByHandle   = new Map();       // <-- Map<unitHandle, entity record> for selection resolution
             this.deletedHandles   = new Set();       // <-- Set of unit handle strings marked for deletion
+            this.spatialIndex     = null;            // <-- Uniform grid over entities (selection/hit-test acceleration)
 
             // LAYER DATA
             this.layers           = new Map();       // <-- Map<layerName, { color, hexColor, visible, entityCount }>

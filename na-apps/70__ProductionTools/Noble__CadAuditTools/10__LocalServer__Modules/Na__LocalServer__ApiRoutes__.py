@@ -68,6 +68,7 @@ from Na__LocalServer__DxfEngine__     import (
     na_parse_dxf_to_entity_json,                                                         # <-- Non-interactive DXF parse
     na_parse_dxf_with_image_decision,                                                    # <-- Parse with embedded-image prompt hook
     na_prune_and_save_dxf,                                                               # <-- Prune-and-save
+    na_export_audited_dxf,                                                               # <-- Audited export: standards excluded + clean rebuild
 )
 from Na__LocalServer__ProjectCache__  import (
     na_save_upload_to_temp_cache,                                                        # <-- Cache path helpers
@@ -106,7 +107,7 @@ def na_route_health():
     return jsonify({
         'status'  : 'ok',
         'app'     : 'Noble CAD Audit Tools',
-        'version' : '0.4.0',
+        'version' : '0.4.8',
     })
 
 # endregion -------------------------------------------------------------------
@@ -561,7 +562,12 @@ def na_route_export_write():
     copy), then OS-copy that single file to the user's chosen destination — so
     the geometry is only serialised once and simply copied to its final home.
 
-    Expects JSON body: { tempDxfPath, deletedHandles[], outputFilename, destPath }
+    stripAnnotations: true switches the write into SketchUp mode — text,
+    dimensions, leaders, hatches, and the rest of the configured annotation
+    types are removed from the export (see Config__DxfExport).
+
+    Expects JSON body: { tempDxfPath, deletedHandles[], outputFilename, destPath,
+                         stripAnnotations? }
     Returns: { status: 'exported', savedPath, destPath }
     """
     payload = request.get_json(silent=True)
@@ -569,10 +575,11 @@ def na_route_export_write():
     if not payload:
         return jsonify({'error': 'Request body must be JSON'}), 400
 
-    temp_dxf_path   = payload.get('tempDxfPath')
-    deleted_handles = payload.get('deletedHandles', [])
-    dest_path       = payload.get('destPath')
-    output_filename = na_sanitise_filename(payload.get('outputFilename', 'drawing__export.dxf'))
+    temp_dxf_path     = payload.get('tempDxfPath')
+    deleted_handles   = payload.get('deletedHandles', [])
+    dest_path         = payload.get('destPath')
+    strip_annotations = bool(payload.get('stripAnnotations', False))
+    output_filename   = na_sanitise_filename(payload.get('outputFilename', 'drawing__export.dxf'))
 
     if not temp_dxf_path:
         return jsonify({'error': 'tempDxfPath is required'}), 400
@@ -582,9 +589,13 @@ def na_route_export_write():
         return jsonify({'error': f'Source DXF not found at: {temp_dxf_path}'}), 404
 
     try:
-        # WRITE ONCE — internal export copy the app keeps alongside the working DXF
-        export_path = temp_dxf_path.rsplit('.', 1)[0] + '__export.dxf'
-        na_prune_and_save_dxf(temp_dxf_path, deleted_handles, export_path)
+        # WRITE ONCE — audited export (user deletions + standards exclusion +
+        # clean rebuild) into a scratch file beside the working DXF, so a failed
+        # write can never leave a partial file at the user's chosen destination
+        scratch_suffix = '__export-su.dxf' if strip_annotations else '__export.dxf'
+        export_path    = temp_dxf_path.rsplit('.', 1)[0] + scratch_suffix
+        stats = na_export_audited_dxf(temp_dxf_path, deleted_handles, export_path,
+                                      strip_annotations=strip_annotations)
 
         # COPY — hand the single written file to the user's chosen location
         dest_dir = os.path.dirname(dest_path)
@@ -592,12 +603,24 @@ def na_route_export_write():
             os.makedirs(dest_dir, exist_ok=True)
         shutil.copy2(export_path, dest_path)                            # <-- OS copy, no second serialise
 
-        print(f"[Na__ApiRoutes] Exported DXF -> {dest_path}")
+        try:
+            os.remove(export_path)                                      # <-- Scratch copy served its purpose — the
+        except Exception:                                               #     temp cache was hoarding 100 MB per export
+            pass
+
+        print(f"[Na__ApiRoutes] Exported DXF -> {dest_path} ({stats['fileSizeMb']} MB, "
+              f"stripAnnotations={strip_annotations})")
         return jsonify({
-            'status'    : 'exported',
-            'savedPath' : export_path,
-            'destPath'  : dest_path,
-            'pruned'    : len(deleted_handles),
+            'status'              : 'exported',
+            'destPath'            : dest_path,
+            'pruned'              : stats['userPruned'],
+            'standardsRemoved'    : stats['standardsRemoved'],
+            'entityCount'         : stats['entityCount'],
+            'fileSizeMb'          : stats['fileSizeMb'],
+            'skippedTypes'        : stats['skippedTypes'],              # <-- e.g. { REGION: 17 } — types ezdxf cannot rebuild
+            'annotationsStripped' : stats['annotationsStripped'],       # <-- SketchUp mode: text/dim/leader/etc removed
+            'dimBlocksRepaired'   : stats['dimBlocksRepaired'],         # <-- *D geometry blocks rebuilt after the Importer
+            'emptyInsertsDropped' : stats['emptyInsertsDropped'],       # <-- INSERTs of empty block definitions removed
         })
 
     except Exception as err:

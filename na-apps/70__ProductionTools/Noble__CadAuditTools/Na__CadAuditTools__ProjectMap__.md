@@ -62,7 +62,8 @@ Noble__CadAuditTools/
 │   │   └── Na__CadEngine__ExportSerializer__.js      ← Save/export payload builder                  [UPGRADED]
 │   │
 │   ├── 03__CommonUtils/
-│   │   └── Na__CommonUtils__GeometryHelpers__.js     ← Rect/polygon/segment hit tests, snapping     [UPGRADED]
+│   │   ├── Na__CommonUtils__GeometryHelpers__.js     ← Rect/polygon/segment hit tests, snapping     [UPGRADED]
+│   │   └── Na__CommonUtils__SpatialIndex__.js        ← Uniform grid — selection/hit-test speedup    [NEW]
 │   │
 │   ├── System__Navigation/
 │   │   └── Na__Navigation__ViewBoxController__.js    ← Pan / wheel-zoom / fit / zoom in-out         [UPGRADED]
@@ -96,6 +97,7 @@ Noble__CadAuditTools/
     ├── Na__LocalServer__ApiRoutes__.py               ← All API routes                               [EXTENDED]
     ├── Na__LocalServer__DwgConversion__.py           ← ezdwg primary + ODA fallback, hardened       [FIXED]
     ├── Na__LocalServer__DxfEngine__.py               ← ezdxf parse / prune / save (complete)
+    ├── Na__LocalServer__StandardsRegion__.py         ← Standards-border detect + import exclusion   [NEW]
     └── Na__LocalServer__ProjectCache__.py            ← Cache paths + project versioning             [EXTENDED]
 ```
 
@@ -160,6 +162,65 @@ Noble__CadAuditTools/
 - Default 50 steps (`Config__UndoRedo.MaxDepth`), covers deletions and dimension add/remove.
 - Every action snapshot also POSTed to `03__HotCache__UndoRedoStates/` (JSON, fire-and-forget, folder trimmed to `HotCache__MaxFiles`) so a session can be recovered after an accidental reload.
 
+### 5.6 Standards Region Exclusion (import filter)
+- Studio concept drawings fence their **Concept Design Standards** library with a
+  template border: **3 nested rectangles, each offset ~100mm, in RGB(250,215,0)**.
+- On import, `Na__LocalServer__StandardsRegion__` finds that border and the
+  DxfEngine **skips every entity inside it** — never parsed, never exploded,
+  never serialised, never rendered. INSERTs are rejected on their insertion
+  point so `virtual_entities()` never runs for standards blocks (this is where
+  the load-time saving comes from); exploded children are re-tested as a
+  backstop for blocks placed outside the border that draw content inside it.
+- Detection is strict on purpose — 3-deep nesting **and** all four edge gaps in
+  95mm–105mm — so an unrelated yellow rectangle can never trigger it. No border
+  found = nothing excluded.
+- Rings are recovered two ways: a closed marker polyline that is already a
+  rectangle is a ring outright (never merged with anything), and only genuinely
+  loose linework goes through endpoint grouping, qualifying on **edge coverage**.
+  The template's caption box shares a corner with the innermost ring, so any
+  merge-based approach fuses the two and loses the ring.
+- The working DXF on disk is untouched (Shift+Delete remains the physical
+  prune), and **Save Project archives still carry the standards** — but
+  **Export DXF excludes them and rebuilds a clean document** via ezdxf Importer
+  (measured 106 MB → 5.4 MB), so the exported file matches the viewer. See
+  `Config__DxfExport` for the off-switches and trade-offs (modelspace only,
+  non-associative dims, unsupported types reported). The rebuild repairs two
+  ezdxf-Importer gaps before saving: it fires `Dimension.post_bind_hook()` for
+  every imported dimension (the Importer never does, shipping dims with no `*D`
+  geometry block — spec-invalid), and it discards the dangling plot-style /
+  material handles the Importer copies onto LAYER table entries — the attribute
+  SketchUp 2026 actually rejects whole files over (proven by live import
+  bisection). INSERTs of empty block definitions are dropped, and the output is
+  audited before it is written.
+- **Export to SketchUp** (Ctrl+Shift+E, `<name>__sketchup.dxf`) is the same
+  audited export with `stripAnnotations`: every type in
+  `Config__DxfExport.SketchUpStrip__EntityTypes` (text, dims, leaders, hatches,
+  points, …) is removed from modelspace and from inside every surviving block
+  definition, leaving a geometry-only file for clean SketchUp imports.
+- Thresholds are data-driven from `Config__StandardsRegion`; `Enabled: false`
+  turns it off. Status bar reports the skipped count after each load.
+
+---
+
+
+### 5.7 Import Performance Architecture
+- **Conversion cache** — identical DWG reuses its earlier DXF (content digest +
+  target versions + the converted file's own size/mtime).
+- **Parsed-payload cache** — after a successful parse the payload is stored
+  gzipped beside the working DXF, keyed on that DXF's size/mtime plus a digest
+  of every setting affecting payload content. A reload of an unchanged file
+  skips ezdxf, block explosion and serialisation entirely. Not used for drawings
+  with embedded images (they need the interactive keep/purge decision).
+- **Payload trimming** — coordinates rounded to 3dp, BYLAYER `color`/`linetype`
+  omitted, JSON responses gzipped (~42x on entity data).
+- **Spatial index** — uniform grid over entity bboxes; click/box/lasso selection
+  query it instead of scanning the drawing. Window mode expands candidates to
+  whole units so a partly-outside unit is still correctly rejected.
+- **Binary DXF was measured and rejected**: 37% smaller but 33% slower to read
+  in ezdxf, whose cost is entity construction rather than tag parsing.
+- **Not yet addressed**: one SVG DOM node per entity — the remaining first-load
+  cost and the reason pan/zoom stays heavy on very large drawings.
+
 ---
 
 ## 6. Data-Driven Configuration
@@ -171,6 +232,7 @@ Noble__CadAuditTools/
 
 ## 7. DWG → DXF Conversion Strategy (fix for current failure)
 
+0. **Cache first:** an identical DWG converted earlier is reused via a JSON sidecar keyed on the DWG's content digest + target DXF versions + the converted file's own size/mtime (so an in-place edit of the working DXF forces a fresh conversion). Re-imports skip the converter entirely.
 1. **Primary:** `ezdwg` 0.9.0 (installed) — API verified against the real library, run with a watchdog timeout so a bad DWG can't hang the upload route.
 2. **Fallback:** ODA File Converter subprocess if installed (path from config).
 3. **Failure:** clear JSON error naming which converters were tried and what to install.

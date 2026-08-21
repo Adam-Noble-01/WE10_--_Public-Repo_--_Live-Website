@@ -11,8 +11,8 @@
 //
 // DESCRIPTION:
 // - Controls the #Na__App__UploadOverlay element (visible until a file is loaded).
-// - Handles three upload entry points: drag-and-drop, file input browse, and
-//   (future) paste-from-clipboard.
+// - Handles the upload entry points: drag-and-drop, file input browse, the
+//   header "Import CAD File" button, and (future) paste-from-clipboard.
 // - POSTs the selected file to Flask /api/upload.
 // - On success, delegates to EntityLoader.Na__EntityLoader__LoadFromServerResponse()
 //   which parses the returned entity JSON and populates the canvas.
@@ -22,6 +22,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Aug-2026 - Version 0.4.2
+// - Added Na__UploadPanel__OpenFilePicker() — public entry point for the new
+//   header "Import CAD File" button (and Ctrl+I) to raise the native picker
+//   at any time, including after a file is already loaded.
+//
 // 08-Jul-2026 - Version 0.4.0
 // - Embedded-image prompt: when the server pauses a job at 'awaiting-decision'
 //   (the DXF contains raster images) the poller raises a modal asking whether to
@@ -436,6 +441,16 @@
                 this._overlayEl.classList.add('Na__App__UploadOverlay--visible');    // <-- Show overlay
                 if (this._fileInputEl) this._fileInputEl.value = '';                // <-- Clear previous file
             }
+        }
+        // ------------------------------------------------------------
+
+
+        // FUNCTION | Open the Native File Picker (Header Import Button / Ctrl+I)
+        // ------------------------------------------------------------
+        Na__UploadPanel__OpenFilePicker() {
+            if (!this._fileInputEl) return;
+            this._fileInputEl.value = '';                                           // <-- Allow re-importing the same file
+            this._fileInputEl.click();                                              // <-- Change handler runs HandleFile
         }
         // ------------------------------------------------------------
 

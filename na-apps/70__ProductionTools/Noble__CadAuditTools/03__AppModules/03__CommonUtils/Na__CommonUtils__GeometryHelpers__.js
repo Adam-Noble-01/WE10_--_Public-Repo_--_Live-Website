@@ -579,14 +579,19 @@
 
             case 'TEXT':
             case 'MTEXT': {
-                // Use insertion point + approximate extent from height and text length
+                // Approximate extent from height and the LONGEST LINE — the text
+                // may be multiline ('\n' from MTEXT paragraphs). Sizing from the
+                // full string length used to produce enormous phantom hit boxes
+                // for note blocks, which hijacked selection anywhere near them.
                 if (g.x == null || g.y == null) return null;
-                const textW = (g.text ? g.text.length : 1) * (g.height ?? 2.5) * 0.6;
-                const textH = g.height ?? 2.5;
+                const textH  = g.height ?? 2.5;
+                const lines  = String(g.text ?? '').split('\n');
+                const maxLen = lines.reduce((m, l) => Math.max(m, l.length), 1);
+                const lineH  = textH * 1.4;                              // <-- Matches the renderer's line spacing
                 return {
                     minX : g.x,
-                    minY : g.y,
-                    maxX : g.x + textW,
+                    minY : g.y - (lines.length - 1) * lineH,             // <-- Extra lines render downward
+                    maxX : g.x + maxLen * textH * 0.6,
                     maxY : g.y + textH,
                 };
             }

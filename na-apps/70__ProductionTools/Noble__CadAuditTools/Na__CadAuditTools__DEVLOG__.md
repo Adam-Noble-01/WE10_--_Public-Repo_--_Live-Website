@@ -3,6 +3,486 @@
 
 # ---------------------------------------------------------
 
+## CAD Audit Tools | v0.4.8 — 21-Aug-2026 — The Real SketchUp Killer: Copied Layer Handles
+
+The v0.4.6 dimension-block repair was necessary (the dims were genuinely
+spec-invalid) but it was NOT what SketchUp was rejecting: a regenerated,
+audit-clean export still failed. Found by brute-force bisection — variant
+files import-tested live in SketchUp 2026 itself:
+
+- Same file, real `$EXTMIN/$EXTMAX` → still fails (extents irrelevant)
+- Same file minus the INSERT → still fails
+- Same content ODA-round-tripped to DWG → imports (content fine)
+- Same file, everything moved to layer `0` → imports
+- Same file, layer table entries rebuilt fresh → imports
+- **Same file, ONLY the copied layer entries' pointer attribs discarded →
+  imports** ← the killer, isolated to three group codes
+
+Root cause: ezdxf's Importer copies LAYER table entries verbatim — including
+the SOURCE document's plot-style handle (group 390), material handle (347),
+and 348. Those objects are never imported, so in the rebuilt export the
+handles point at nothing. AutoCAD-family readers, ezdxf, and even the ODA
+converter shrug at the dangle; SketchUp 2026 resolves the pointers and
+rejects the ENTIRE file with its bare "Import Failed" dialog.
+
+Fix: `_na_sanitise_imported_layer_entries()` discards those attribs on every
+layer after `importer.finalize()`; ezdxf then re-emits its own valid defaults
+(pointing at the new document's placeholder + Global material) at save time.
+Verified end-to-end: the previously failing Negretti exports (SketchUp-strip
+AND full audited) now import into SketchUp 2026 cleanly — 1,244 lines, 134
+arcs, 13 circles, 44 polylines on their proper layers.
+
+Also: INSERTs whose block definition ends up EMPTY (content the Importer
+could not copy, or annotation-only blocks emptied by the SketchUp strip) are
+now dropped and the empty definitions purged — they rendered nothing and
+appeared in SketchUp's import summary as an ignored "X-Ref", which read like
+data loss. Export stats gain `emptyInsertsDropped`.
+
+# ---------------------------------------------------------
+
+## CAD Audit Tools | v0.4.7 — 21-Aug-2026 — Saved Projects: Open Button Was Off-Screen
+
+Saved Projects listed every project and version but offered no visible way to
+open one. The Open buttons were being rendered all along — they were simply
+scrolled out of sight. `Na__ProjectManager__Table` ran on `table-layout: auto`
+with no width cap on the Project column, and studio project names use `__`
+separators with no spaces, so they cannot wrap: the longest name
+(`CorbelDrawing__ElevationsViews__VolutedCorbel__AcanthusEnrichment__0.1.0__`)
+forced that one column to 477px. Measured in the live app, the table's
+scrollWidth was 1017px inside an 860px card, pushing Removed and the Open
+column ~160px past the right edge. `.Na__ProjectManager__TableScroll` sets
+only `overflow-y: auto`, and CSS promotes the other axis from `visible` to
+`auto`, so the overflow hid behind a horizontal scrollbar nobody looks for.
+
+Fix: the table is now `table-layout: fixed` driven by a `<colgroup>` (Version
+78px, Saved 152px, Source 200px, Removed 84px, Action 96px; Project takes the
+remainder), so column widths no longer depend on content length. Project and
+Source cells clip with an ellipsis and carry the full string as a `title`
+tooltip, the Saved timestamp no longer wraps to three lines, the card widened
+860px → 940px, and `overflow-x: hidden` guarantees the Action column can never
+be scrolled out of reach again. Rows also respond to double-click as a second
+route to open, matching normal file-browser behaviour.
+
+Verified in the running app: horizontal overflow 0px, all 15 Open buttons
+on-screen at full width down to a 720px card, and opening CAD Negretti v001
+loaded 1,437 entities with status “Opened CAD Negretti v001”. The backend
+(`/api/projects`, `/api/open-project`) was never at fault.
+
+# ---------------------------------------------------------
+
+## CAD Audit Tools | v0.4.6 — 21-Aug-2026 — SketchUp Import Fixed + Export to SketchUp Button
+
+Exports stopped importing into SketchUp after the clean-rebuild update. Root
+cause: ezdxf 1.4's `Dimension.copy()` discards the anonymous `*D` geometry
+block reference and stashes the block's content on the copy, expecting
+`post_bind_hook()` to rebuild a real block when the copy is bound — but the
+Importer addon binds copies via `entitydb.add()`/`add_entity()`, which never
+fires that hook. Every exported DIMENSION therefore shipped with group 2
+EMPTY and zero `*D` blocks (the Hamilton export: 4,399 of them, confirmed by
+`ezdxf.audit` as 4,399 × UNDEFINED_BLOCK). That violates the DXF spec, and
+SketchUp's ODA-based importer rejects the whole file on it. AutoCAD-family
+viewers regenerate dimension graphics from the definition, which is why the
+break only surfaced in SketchUp.
+
+Fix in `na_export_audited_dxf`: after `importer.finalize()` the export now
+fires `post_bind_hook()` by hand for every imported dimension (modelspace and
+nested block definitions), rebuilding all `*D` blocks, then runs a final
+`out_doc.audit()` so an irreparable entity is removed rather than shipped.
+Verified on the failing drawing: 4,399/4,399 dim blocks rebuilt, strict
+reload + audit clean (was 3 MB broken → 12.94 MB valid; the missing bulk WAS
+the dimension geometry).
+
+NEW — Export to SketchUp button (Ctrl+Shift+E, default filename
+`Audited__SketchUpExport__<name>__.dxf` per studio prefix convention): same
+audited export, plus every annotation/markup entity stripped — TEXT, MTEXT,
+DIMENSION, LEADER, MULTILEADER, ATTDEF/ATTRIB, TOLERANCE, ACAD_TABLE,
+WIPEOUT, POINT, HATCH — from modelspace AND from inside every surviving block
+definition (furniture blocks carry their own labels). List is configurable
+via `Config__DxfExport.SketchUpStrip__EntityTypes`. `/api/export-write` gains
+`stripAnnotations`; stats/status report `annotationsStripped` and
+`dimBlocksRepaired`. Measured on the Hamilton concept: 7,432 → 1,644 entities
+(5,793 annotations stripped), 0.42 MB, geometry-only, audit clean.
+
+# ---------------------------------------------------------
+
+## CAD Audit Tools | v0.4.5 — 19-Aug-2026 — Background Doc Warming
+
+Cold exports kept coming back: the RAM document cache is a single slot, so a
+server restart empties it and importing a DIFFERENT drawing evicts it — the
+next export of anything else paid the full ~16s file read again. Imports served
+from the payload cache (the instant ones) never parsed at all, so they never
+warmed the slot either.
+
+`na_warm_doc_cache_async()`: a payload-cache-hit import now kicks off a
+background daemon thread that parses the file and fills the slot — by the time
+the drawing has been looked at, Export is warm (~3s). Guarded by an in-flight
+set (no duplicate parses), the 256 MB file cap, and the existing fingerprint
+check. Measured: cached import 0.02s → warm complete ~15s later → export 2.6s.
+
+Also performed a full cache purge (payload caches, conversion sidecars,
+__pycache__, and 114 MB of stale July `__export.dxf` leftovers). NOTE: purging
+conversion sidecars means the next import of each DWG reconverts once.
+
+# ---------------------------------------------------------
+
+## CAD Audit Tools | v0.4.4 — 19-Aug-2026 — MTEXT Codes Stripped + Sane Text Hit Boxes
+
+Titles rendered as `{\LScheme 1 - AE - 13/08/2026}` and note blocks hijacked
+selection anywhere near them. Two halves of one bug:
+
+- **Server**: the MTEXT serialiser used the `.text` ATTRIBUTE believing it
+  strips inline codes — that is `plain_text()`, a METHOD. Raw `{\L…}` /
+  `\P` codes leaked to the canvas. Both MTEXT and TEXT now serialise via
+  `plain_text()` (guarded), MTEXT paragraphs arrive as real newlines, and MTEXT
+  finally carries its `rotation` (never serialised before). Payload cache
+  bumped v2→v3 so stale text re-parses.
+- **Frontend**: the text hit box was `full-string-length × height × 0.6` —
+  computed from the raw multi-paragraph string with codes, producing one
+  enormous phantom rectangle whose outline the click hit-test measured
+  distance to. Now sized from the LONGEST LINE, with per-line vertical extent
+  matching the renderer. Renderer gained real multiline output (one tspan per
+  '
+' line, 1.4× line spacing, kept in sync with the bbox estimate).
+
+### Open Existing Project — start-screen button (user request)
+
+The start-up drop card now pairs **Open CAD File** with an **Open Existing
+Project** button that raises the same saved-project browser as the header's
+Load File / Ctrl+O — the modal already stacks above the upload overlay
+(z-index 220 vs 100), and `Na__ProjectManager__Open()` has no loaded-file
+dependency, so it works from a cold start. The two buttons sit side by side
+in a new `.Na__Upload__Actions` flex row (which cancels the card's
+auto-centre margin on `.btn`). Wired inside `Na__App__WireLoadFileButton`
+so all three entry points share one handler.
+
+# ---------------------------------------------------------
+
+## CAD Audit Tools | v0.4.3 — 19-Aug-2026 — Warm Exports: 30s → 3s
+
+**Export via the API: 15.6s cold → 3.0s warm (6x). After a fresh import the
+first export is already warm.**
+
+### Why export was still ~30s
+
+Every export re-opened the full 111 MB working DXF from disk — a ~16s ezdxf
+parse — even though the server had already parsed that exact file at import.
+(Exporting the viewer's entity JSON directly was considered and rejected: it is
+deliberately lossy — blocks exploded, splines flattened, hatch patterns
+dropped, coordinates rounded — so a DXF built from it would be degraded.)
+
+### Parsed-document RAM cache
+
+Single-slot cache of the most recently parsed document, fingerprinted by the
+file's size+mtime:
+
+- **Stashed** after any full parse — at import (cold payload path) and at a
+  cold export — so the expensive read is only ever paid once per file state.
+- **Export never mutates it**: survivors are FILTERED into the fresh output
+  document via `Importer.import_entities()` instead of deleting from the
+  source, so the slot stays valid across unlimited exports. Verified: two
+  consecutive exports byte-identical; export with 5 user deletions correctly
+  5 entities smaller; a bare mtime touch invalidates the slot.
+- The full-document fallback path (RebuildCleanDocument=false) mutates, so it
+  parses its own fresh copy and never touches the cached one.
+- RAM cost is real: ~6–7x file size (measured 712 MB for the 111 MB DXF), so
+  the slot is capped at `SourceCache__MaxFileMb` (256) and holds ONE document.
+  `SourceCache__Enabled: false` disables it.
+
+### Spline-edge fix reached the region detector
+
+The v0.4.2 SplineEdge fix also applies to standards containment:
+spline-edged hatches inside the border previously crashed the extent test and
+fell through as "import as normal" — 208 additional standards entities are now
+correctly excluded (181,510 total on Test-01; export 4.26 MB, 10,733 entities).
+
+# ---------------------------------------------------------
+
+## CAD Audit Tools | v0.4.2 — 19-Aug-2026 — Launcher Reset by Default + Spline-Edge Hatch Fix
+
+### The .bat "stopped working"
+
+v0.4.1's port guard made a held port refuse by default, with `-r` to take over
+— but the launcher's primary use is DOUBLE-CLICK, which cannot pass flags. So
+while any instance was alive, every double-click printed the refusal banner and
+sat at `pause`, where the first keystroke closed the window ("typing closes the
+console"). `Na__LocalServer__Main__.bat` now passes `-r` itself: double-click =
+kill whatever holds port 8007, start fresh on current code. **This is now THE
+way to restart the server.** The bare `python Na__LocalServer__Main__.py` keeps
+the protective refusal for scripted launches; the login VBS is unchanged.
+Verified headless: deps check → killed the old PID → reclaimed → served.
+
+### Spline-edge hatches were silently dropped
+
+Live-log find during the bat test (Test-04 upload): ~80 HATCH entities failed
+with `'SplineEdge' object has no attribute 'start'` and vanished from the
+viewer. Cause: edge-type dispatch used substring checks and `'LINE' in
+'SPLINE'` is TRUE, so spline boundary edges hit the straight-line handler.
+Fixed in BOTH edge walkers (`na_hatch_path_vertices` in the DxfEngine and
+`na_hatch_extent` in the StandardsRegion detector): SPLINE tested first and
+approximated from fit/control points, plus a proper ELLIPSE-edge branch
+(param-sampled, rotated) that previously fell through silently. Verified:
+spline / arc / ellipse edged hatches all extract geometry + extents.
+`_PAYLOAD_CACHE_VERSION` bumped v1→v2 so payloads cached with missing hatches
+re-parse instead of being served stale.
+
+### Import CAD File — header button (user request)
+
+New **Import CAD File** button in the top bar (first in the controls group,
+left of Load File) + `Ctrl+I`. Until now a DWG/DXF could only be imported via
+the start-up drop overlay — once a file was open the only routes to a new
+import were Open-With or a page reload. The button calls the new
+`Na__UploadPanel__OpenFilePicker()` (clears the input value first so the same
+file can be re-imported) and reuses the whole existing pipeline: native picker
+→ `/api/upload` → progress overlay → image decision → render. Importing while
+a drawing is open replaces it (EntityLoader clears state on load). Binding
+added to the keybindings JSON SSOT as `ctrl+i → file:import-cad`.
+
+# ---------------------------------------------------------
+
+## CAD Audit Tools | v0.4.1 — 19-Aug-2026 — Export Fixed: 106 MB → 5.4 MB
+
+**Export of the audited Test-01 drawing: 106 MB → 5.35 MB, audit-clean, and it
+round-trips back into the app with exactly the entities the viewer shows
+(4,915 / 9 layers).**
+
+### Why the export was 100 MB when the viewer showed a few boxes
+
+Three compounding causes, all measured:
+
+1. **Standards content was still in the export.** The exclusion is an import
+   filter — the working DXF on disk keeps all 181,302 standards entities, and
+   `na_prune_and_save_dxf` removed only the user's soft-deleted handles before
+   re-writing everything. 106 MB, 13.4s write.
+2. **4,505 of 4,518 block definitions were orphaned.** After standards pruning
+   only ~5 blocks are referenced by surviving INSERTs, but the BLOCKS section
+   (3.5M lines) was written out wholesale.
+3. **The internal `__export.dxf` scratch copy was never deleted** — the temp
+   cache was hoarding 215 MB of stale exports.
+
+### What was tried and rejected
+
+- **In-place block purge via INSERT-graph analysis** — crashed `saveas`:
+  DIMSTYLE table entries hold handle references to arrowhead blocks
+  (`_Oblique`, `Inset Gutter Detail$1$_Oblique`), which no INSERT references.
+- **In-place purge via `ezdxf.blkrefs.BlockReferenceCounter`** — safe (saved,
+  reopened, audit-clean) but only reached **30.8 MB**: dynamic-block extension
+  dictionaries and dead standards blocks referencing each other keep ~4,400
+  definitions "referenced" forever.
+
+### What shipped — rebuild instead of purge
+
+`na_export_audited_dxf()` in the DxfEngine:
+
+1. Delete the user's soft-deleted handles (as before).
+2. Delete everything inside the standards marker border — same detection as
+   import, so **the export matches the viewer**.
+3. Rebuild into a **fresh document** via `ezdxf.addons.Importer`
+   (`import_modelspace` + `finalize`), which copies only surviving entities
+   plus resources they actually reference. Key header vars ($INSUNITS,
+   $MEASUREMENT, $EXTMIN/MAX, …) are carried over.
+4. `/api/export-write` deletes the scratch `__export.dxf` after the OS-copy.
+
+Measured: parse 16s + standards sweep 4s + rebuild 0.6s + write 0.5s ≈ 21s
+server-side (28s end-to-end via the API), 5.35 MB out.
+
+### Trade-offs (config-gated in new `Config__DxfExport`)
+
+- Rebuild is **modelspace only** — paperspace layouts are not carried over.
+- DIMASSOC objects are dropped → dimensions become **non-associative**.
+- Types the Importer cannot copy are skipped and **reported**, not silent:
+  on Test-01 that was 17 REGION (ACIS solids the viewer never rendered) and
+  5 MULTILEADER. Counts are returned in the response and shown in the
+  status-bar hint.
+- `RebuildCleanDocument: false` → full-fat document write (standards exclusion
+  still applies); `ExcludeStandardsRegion: false` → old behaviour entirely.
+
+Save Project is **unchanged** — the versioned archive still carries the full
+working file. Say the word if it should get the same treatment.
+
+# ---------------------------------------------------------
+
+## CAD Audit Tools | v0.4.0 — 19-Aug-2026 — Standards Region Exclusion + Import Performance
+
+**Result on `Test-01__PurgeCad` (21 MB DWG): 230,923 → 4,915 entities, 43 → 9
+layers, 181,302 entities never imported. Repeat load of the same file: 341 ms.**
+
+---
+
+### 1. The feature — standards library is ignored on import
+
+Every studio concept drawing carries the **Concept Design Standards** library:
+wall build-ups, window and door panels, hardware, cills, trees, cars, spec
+notes. It is never wanted in an audit and it is the heaviest part of the file to
+parse, explode and render — on the test file it is **94% of the drawing**.
+
+The studio CAD template already fences it with a machine-readable marker:
+**three nested rectangles, each offset ~100mm, in RGB(250, 215, 0)**.
+
+New module `Na__LocalServer__StandardsRegion__.py`:
+
+1. **Marker scan** — one cheap pass over modelspace collecting only LINE /
+   LWPOLYLINE / POLYLINE whose resolved display colour matches the marker RGB
+   (+/-8 per channel for converter drift). True colour, BYLAYER layer colour and
+   plain ACI all resolve through the same path the serialiser uses.
+2. **Ring recovery** — two independent routes (see section 2 for why).
+3. **Nesting validation** — rings chained largest-to-smallest; a chain qualifies
+   only at **3 deep AND all four edge gaps within 95-105mm**. That double
+   condition is what stops an unrelated yellow rectangle triggering it.
+4. **Region** = outermost ring's bbox, padded 1mm so the rings self-exclude.
+
+`Na__LocalServer__DxfEngine__.py` runs detection **before** the serialisation
+loop and tests every entity as the loop's first statement. Contained entities
+are skipped outright — not parsed, not serialised, not counted in any layer.
+
+**INSERTs are rejected on their insertion point**, so `virtual_entities()` never
+runs for standards blocks — that is where the load-time saving comes from, since
+the library is almost entirely block references. `na_explode_insert()` also
+re-tests exploded children as a backstop for a block placed outside the border
+that draws content inside it; an INSERT left with nothing but filtered children
+is dropped too.
+
+Fail-safe: no qualifying border = nothing excluded, import behaves as before.
+`Config__StandardsRegion.Enabled: false` turns it off.
+
+---
+
+### 2. The bug that made v1 detect nothing
+
+First implementation found **zero** regions on real drawings. Cause, read
+straight out of the file:
+
+| | bbox | gap |
+|---|---|---|
+| ring 1 | (0, 0) -> (125000, 95000) | — |
+| ring 2 | (100, 100) -> (124900, 94900) | 100 |
+| ring 3 | (200, 200) -> (124800, 94800) | 100 |
+| caption box | (200, 92800) -> (14300, 94800) | — |
+
+The template's "Concept Design / Standards" caption box has its corner at
+**(200, 94800)** — the *same point* as ring 3's top-left corner. Ring assembly
+grouped marker segments into connected components by shared endpoints, so it
+welded caption and ring 3 into one 8-segment blob whose total length ran 7.3%
+over its bounding-box perimeter. That failed the 5% "clean rectangle" test, ring
+3 was discarded, and 2 rings is below the 3 required — so no region at all.
+
+**Fix — two independent recovery routes:**
+
+- **DIRECT**: a closed marker polyline whose vertices *are* the four corners of
+  its own bounding box is a ring outright and contributes **no** segments to the
+  grouping pool. It can never be fused with anything. Normal template case, now
+  exact.
+- **LOOSE**: only genuinely loose linework (borders drawn as four separate
+  LINEs, open polyline chains) goes through connectivity grouping, and a
+  component qualifies on **edge coverage** — all four bbox edges fully traced by
+  segments lying along them — rather than total length. Extra interior segments,
+  duplicated linework and shapes touching a corner are ignored, not fatal.
+
+Verified against the real coordinates: 3 rings -> 1 region, offsets [100, 100].
+Also verified for a border drawn entirely as loose LINEs, and a mixed case.
+Confirmed it does **not** trigger on: 2 rings, 3 rings at 50mm offsets, a lone
+yellow rectangle, or no marker colour.
+
+---
+
+### 3. Import performance
+
+Baseline: 21 MB DWG -> 111 MB ASCII DXF (~3 min conversion), then a full ezdxf
+parse, then ~60 MB of JSON, then one SVG DOM node per entity.
+
+**Conversion cache.** `na_convert_dwg_to_dxf` computed a deterministic output
+path then unconditionally re-ran the converter — every re-import paid the full
+3 minutes again. Each converted DXF now gets a JSON sidecar
+(`<name>.dxf.na-src.json`) recording the DWG's **content digest** + size +
+target DXF versions, plus the converted DXF's own size/mtime. Content not mtime:
+the upload rewrites the DWG at a fixed path every import, so mtime is always
+"now" and would never hit. The output half is not optional — the converted DXF
+*is* the working file, and image-purge and hard-delete rewrite it in place;
+without that check a re-upload would hand back a previously pruned file.
+
+**Parsed-payload cache.** After a successful parse the payload is stored gzipped
+beside the working DXF (`<name>.dxf.na-payload.json.gz`), keyed on that DXF's
+size + mtime plus a digest of every setting affecting payload content, and a
+`_PAYLOAD_CACHE_VERSION` constant so a future code change to payload semantics
+can invalidate old caches. A reload of an unchanged file skips ezdxf, block
+explosion and serialisation entirely. Not used for drawings with embedded
+images — those need the interactive keep/purge decision.
+
+**Payload trimming — new `Config__EntityPayload`:**
+- Coordinates rounded to 3dp (`12345.678901234567` -> `12345.679`) — sub-micron
+  on a mm drawing, halves the length of every number. `-1` disables.
+- `color` / `linetype` dropped when BYLAYER. Only the Properties panel reads
+  them and it already defaults to `'BYLAYER'` when absent.
+- gzip `after_request` on JSON only, never on `direct_passthrough` downloads.
+  **Measured 42x** on entity-shaped JSON.
+
+**ODA audit flag.** `OdaConverter__AuditFiles` and
+`OdaConverter__RecurseSubfolders` were config keys `na_load_conversion_settings()`
+never returned, so the ODA command line hardcoded `audit=1` — a full repair pass
+on every fallback conversion, unskippable. Both now read; **audit defaults to
+`false`**. Turn it back on if a legacy DWG will not convert cleanly.
+
+**Spatial index — `Na__CommonUtils__SpatialIndex__.js`.** Click / box / lasso
+select each walked **every** entity on every interaction. Uniform grid (~256
+cells across the drawing), built once in EntityLoader, rebuilt by EntityPruner
+after hard delete/undo. Entities spanning more than 64 cells go to an
+always-considered oversized list rather than bloating every cell.
+
+Window mode needs care: a unit is only "fully enclosed" if none of its parts
+sits outside — including parts the rectangle never touched, which a naive query
+would never visit. `Na__SpatialIndex__ExpandToWholeUnits()` widens candidates
+from "parts near the rectangle" to "all parts of the units near the rectangle"
+via a unitHandle -> parts map. Validated against brute force over 600 randomised
+window/crossing queries on a 5,201-entity fixture with multi-part blocks and a
+drawing-spanning border: **identical results on all 600**, 69x fewer entities
+examined, zero point-query misses. Every consumer falls back to a full scan if
+the index is unavailable.
+
+**Binary DXF — measured and rejected.** ezdxf 1.4.3, 60,000-entity document:
+
+| format | size | write | read |
+|---|---|---|---|
+| ASCII | 10.1 MB | 1.30s | 1.62s |
+| binary | 6.4 MB | 1.48s | **2.15s** |
+
+37% smaller but **33% slower to read** — ezdxf's cost is entity object
+construction, not tag text parsing. Adopting it would have made imports worse.
+The parsed-payload cache achieves what it was meant to achieve instead.
+
+---
+
+### 4. Not a deletion
+
+Standards content is *ignored on import*, not removed. The working DXF on disk
+is untouched, so Save/Export still carry it. Shift+Delete remains the way to
+physically prune.
+
+---
+
+### Still outstanding
+
+**One SVG DOM node per entity** is the remaining first-load cost and the reason
+pan/zoom stays heavy on very large drawings. Moving to Canvas 2D rendering is a
+genuine rewrite of the render layer — 11 per-type renderers plus selection
+highlight, layer visibility, hard-delete removal and the dimension overlay all
+currently work through the DOM. Worth doing as its own focused change.
+
+Also open: `na_collect_and_drop_result` defined but never called (a finished job
+holds its full payload until the stale sweep); layer visibility toggling via a
+whole-tree `querySelectorAll`; `TempCache__MaxFiles` dead so the temp cache is
+never trimmed.
+
+---
+
+### Server port guard (side fix)
+
+`Na__LocalServer__Main__.py` gained a single-instance guard and a `-r` /
+`--reset` flag — a held port now refuses loudly naming the owning PID, or with
+`-r` kills the owner and takes the port. Detection probes with
+`SO_EXCLUSIVEADDRUSE` because Werkzeug binds `SO_REUSEADDR`, which let second
+instances bind successfully while never receiving a request.
+
+# ---------------------------------------------------------
+
 ## CAD Audit Tools | v0.3.5 — 08-Jul-2026 — Native Export Flow, Load-File Project Manager, Stale-JS Fix
 
 ### Export DXF — native folder picker + write-once-then-copy + progress (user requests 1 & 2)

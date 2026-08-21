@@ -26,10 +26,12 @@
 
 import os
 import sys
+import gzip
+import json
 import webbrowser
 
 try:
-    from flask import Flask, send_file, send_from_directory
+    from flask import Flask, send_file, send_from_directory, request
     from flask_cors import CORS
 except ImportError:
     print("\n" + "=" * 70)
@@ -42,6 +44,22 @@ except ImportError:
     sys.exit(1)
 
 from Na__LocalServer__Config__ import PORT, HOST, APP_DIR, INDEX_FILENAME, MAX_UPLOAD_MB  # <-- Config SSOT
+
+
+def _na_load_gzip_settings():
+    """Read Config__EntityPayload response-compression settings (defaults if absent)."""
+    try:
+        path = os.path.join(APP_DIR, '02__AppData', 'Na__AppData__AppConfig__.json')
+        with open(path, 'r', encoding='utf-8') as f:
+            section = json.load(f).get('Config__EntityPayload', {}) or {}
+    except Exception:
+        section = {}
+    enabled = bool(section.get('Response__GzipEnabled', True))
+    try:
+        min_bytes = int(section.get('Response__GzipMinBytes', 4096))
+    except Exception:
+        min_bytes = 4096
+    return enabled, min_bytes
 
 
 # #region ---------------------------------------------------------------------
@@ -58,6 +76,53 @@ CORS(app, resources={
         "allow_headers" : ["Content-Type"]
     }
 })
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
+# REGION | Response Compression
+# -----------------------------------------------------------------------------
+
+# The entity payload for a large drawing is tens of megabytes of JSON — highly
+# repetitive text that gzips to a small fraction of its size. Even over
+# localhost that trades a little CPU for a much smaller body to hand to the
+# browser and JSON.parse. Only JSON is compressed: DXF downloads go out through
+# send_file in passthrough mode and must not be touched.
+
+_GZIP_ENABLED, _GZIP_MIN_BYTES = _na_load_gzip_settings()
+
+
+@app.after_request
+def na_compress_json_response(response):
+    """Gzip large JSON responses when the client advertises support."""
+    if not _GZIP_ENABLED:
+        return response
+    if response.direct_passthrough:
+        return response                                              # <-- Streamed file download — leave alone
+    if response.status_code < 200 or response.status_code >= 300:
+        return response
+    if 'application/json' not in (response.content_type or ''):
+        return response
+    if response.headers.get('Content-Encoding'):
+        return response                                              # <-- Already encoded
+    if 'gzip' not in (request.headers.get('Accept-Encoding', '') or '').lower():
+        return response
+    if response.content_length is not None and response.content_length < _GZIP_MIN_BYTES:
+        return response                                              # <-- Too small to be worth it
+
+    try:
+        payload = response.get_data()
+    except Exception:
+        return response
+    if len(payload) < _GZIP_MIN_BYTES:
+        return response
+
+    response.set_data(gzip.compress(payload, compresslevel=1))       # <-- Level 1: fastest, still ~10x on JSON
+    response.headers['Content-Encoding'] = 'gzip'
+    response.headers['Content-Length']   = response.content_length
+    response.headers.add('Vary', 'Accept-Encoding')
+    return response
 
 # endregion -------------------------------------------------------------------
 

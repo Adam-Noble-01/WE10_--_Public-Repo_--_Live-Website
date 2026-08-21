@@ -27,6 +27,11 @@
 // 08-Jul-2026 - Version 0.3.5
 // - Initial release — saved-project browser + open-as-working-copy.
 //
+// 21-Aug-2026 - Version 0.4.7
+// - Project / Source cells now carry a title tooltip, since both clip to an
+//   ellipsis under the new fixed table layout (long Na__ names cannot wrap).
+// - Rows respond to double-click as a second route to open a version.
+//
 // =============================================================================
 
 
@@ -181,11 +186,14 @@
             if (this._emptyEl) this._emptyEl.style.display = 'none';
 
             this._tableBodyEl.innerHTML = rows.map((r) => `
-                <tr>
-                    <td class="Na__Cell__Project">${Na__ProjectManager__Escape(r.project)}</td>
+                <tr class="Na__ProjectManager__Row"
+                    data-project="${Na__ProjectManager__Escape(r.project)}"
+                    data-version="${Na__ProjectManager__Escape(r.version)}"
+                    title="Double-click to open ${Na__ProjectManager__Escape(r.project)} ${Na__ProjectManager__Escape(r.version)}">
+                    <td class="Na__Cell__Project" title="${Na__ProjectManager__Escape(r.project)}">${Na__ProjectManager__Escape(r.project)}</td>
                     <td class="Na__Cell__Version">${Na__ProjectManager__Escape(r.version)}</td>
-                    <td>${Na__ProjectManager__Escape(r.savedAt || '—')}</td>
-                    <td class="Na__Cell__Source">${Na__ProjectManager__Escape(r.sourceFilename || '—')}</td>
+                    <td class="Na__Cell__Saved">${Na__ProjectManager__Escape(r.savedAt || '—')}</td>
+                    <td class="Na__Cell__Source" title="${Na__ProjectManager__Escape(r.sourceFilename || '—')}">${Na__ProjectManager__Escape(r.sourceFilename || '—')}</td>
                     <td class="Na__Col__Num">${r.deletedCount ?? 0}</td>
                     <td class="Na__Col__Action">
                         <button class="btn btn--primary Na__ProjectManager__OpenBtn"
@@ -196,8 +204,15 @@
             `).join('');
 
             this._tableBodyEl.querySelectorAll('.Na__ProjectManager__OpenBtn').forEach((btn) => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();                             // <-- Do not double-fire via the row handler
                     this.Na__ProjectManager__OpenProject(btn.dataset.project, btn.dataset.version);
+                });
+            });
+
+            this._tableBodyEl.querySelectorAll('.Na__ProjectManager__Row').forEach((row) => {
+                row.addEventListener('dblclick', () => {             // <-- Row double-click mirrors the Open button
+                    this.Na__ProjectManager__OpenProject(row.dataset.project, row.dataset.version);
                 });
             });
         }
