@@ -1,0 +1,137 @@
+<!-- =============================================================================
+  NOBLE ARCHITECTURE - MINI APP - AI UTILS
+  =============================================================================
+
+  FILE    : MiniApp__AiUtils__PromptLibrary__Main__.html
+  AUTHOR  : Adam Noble - Noble Architecture
+  PURPOSE : AI Prompt Library - store, search, compose and copy working prompts
+  CREATED : 26-Aug-2026
+
+  DESCRIPTION:
+  - Every prompt is a standalone JSON record held in 02__AppData/03__PromptRecords.
+  - Job specific values are written into the prompt body as {{TokenName}} and
+    become form fields on the compose pane - type once, fill every occurrence.
+  - Search, keyword chips and category filters narrow the library instantly.
+  - Runs as a static site today. When the Raspberry Pi prompt server arrives,
+    point NaMiniApp__ApiBaseUrl at it and reads and writes move over to the API
+    with no code change - queued local edits replay automatically.
+
+  MODULES:
+  - 01__AppModules/MiniApp__AiUtils__PromptLibrary__Main__.js          (controller)
+  - 01__AppModules/MiniApp__AiUtils__PromptLibrary__DataStore__.js     (data access)
+  - 01__AppModules/MiniApp__AiUtils__PromptLibrary__SearchEngine__.js  (search)
+  - 01__AppModules/MiniApp__AiUtils__PromptLibrary__PromptCompose__.js (tokens)
+  - 01__AppModules/MiniApp__AiUtils__PromptLibrary__UiRender__.js      (rendering)
+  - 01__AppModules/MiniApp__AiUtils__PromptLibrary__PromptEditor__.js  (editor)
+  - MiniApp__AiUtils__PromptLibrary__AppConfig__.json                  (config source)
+
+  =========================================================================== -->
+
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>AI Prompt Library</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+
+        <link rel="stylesheet" href="MiniApp__AiUtils__PromptLibrary__Style__.css" />
+    </head>
+<!-- endregion -------------------------------------------------------- -->
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <body>
+        <div class="AIPL__page-shell">
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Topbar                                           -->
+            <!-- --------------------------------------------------------- -->
+                <header id="js__toolbar" class="AIPL__topbar">
+                    <h1 id="js__appTitle" class="AIPL__topbar-title">AI Prompt Library</h1>
+
+                    <span id="js__connectionPill" class="AIPL__status-pill AIPL__status-pill--local">Local mode</span>
+
+                    <div class="AIPL__topbar-actions">
+                        <button type="button" class="AIPL__button AIPL__button--primary" data-na-action="new-prompt">New Prompt</button>
+                        <button type="button" class="AIPL__button" data-na-action="toggle-archived" title="Show archived prompts in the results">Archived</button>
+                        <button type="button" class="AIPL__button" data-na-action="export-changed" title="Download only the records edited in this browser">Export Changes</button>
+                        <button type="button" class="AIPL__button" data-na-action="export-bundle" title="Download the whole library as one bundle">Export Library</button>
+                        <button type="button" class="AIPL__button" data-na-action="import-bundle" title="Merge an exported bundle back in">Import</button>
+                        <button type="button" class="AIPL__button" data-na-action="sync-server" title="Push locally held changes to the prompt server">Sync</button>
+                        <button type="button" class="AIPL__button AIPL__button--ghost" data-na-action="toggle-shortcuts" title="Keyboard shortcuts">?</button>
+                    </div>
+
+                    <div id="js__shortcutPanel" class="AIPL__shortcut-panel"></div>
+                </header>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Three Column Body                                -->
+            <!-- --------------------------------------------------------- -->
+                <div class="AIPL__body-grid">
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Navigation Rail                          -->
+                    <!-- ------------------------------------------------- -->
+                        <aside id="js__rail" class="AIPL__rail"></aside>
+                    <!-- endregion ---------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Search And Results Column                -->
+                    <!-- ------------------------------------------------- -->
+                        <section class="AIPL__results-column">
+
+                            <div class="AIPL__search-bar">
+                                <input id="js__searchInput" type="search" class="AIPL__search-input"
+                                       placeholder="Search prompts" autocomplete="off" spellcheck="false" />
+                                <select id="js__sortSelect" class="AIPL__field-input AIPL__field-input--compact"></select>
+                            </div>
+
+                            <div id="js__viewTabs" class="AIPL__tabs">
+                                <button type="button" class="AIPL__tab AIPL__tab--active" data-na-view="Prompts">Prompts</button>
+                                <button type="button" class="AIPL__tab" data-na-view="Snippets">Snippet Blocks</button>
+                                <span id="js__resultCount" class="AIPL__result-count">0 prompts</span>
+                            </div>
+
+                            <div id="js__activeFilters" class="AIPL__active-filters"></div>
+
+                            <div id="js__resultList"   class="AIPL__result-list"></div>
+                            <div id="js__snippetPanel" class="AIPL__snippet-panel AIPL__hidden"></div>
+
+                        </section>
+                    <!-- endregion ---------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Detail And Compose Pane                  -->
+                    <!-- ------------------------------------------------- -->
+                        <section id="js__detailPane" class="AIPL__detail"></section>
+                    <!-- endregion ---------------------------------------- -->
+
+                </div>
+            <!-- endregion ------------------------------------------------ -->
+
+        </div>
+
+        <!-- ------------------------------------------------------------- -->
+        <!-- REGION | Overlays                                             -->
+        <!-- ------------------------------------------------------------- -->
+            <div id="js__modal" class="AIPL__modal"></div>
+            <div id="js__toast" class="AIPL__toast"></div>
+            <input id="js__importFile" type="file" accept="application/json,.json" class="AIPL__hidden-input" />
+        <!-- endregion ---------------------------------------------------- -->
+
+        <script type="module" src="01__AppModules/MiniApp__AiUtils__PromptLibrary__Main__.js"></script>
+    </body>
+<!-- endregion -------------------------------------------------------- -->
+
+</html>

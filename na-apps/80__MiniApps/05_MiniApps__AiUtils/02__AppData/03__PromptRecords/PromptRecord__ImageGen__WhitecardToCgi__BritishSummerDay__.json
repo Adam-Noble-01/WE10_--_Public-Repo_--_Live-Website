@@ -1,0 +1,72 @@
+{
+    "PromptRecord__Meta" : {
+        "PromptRecord__Id"           : "prompt__imagegen__whitecard-to-cgi__british-summer-day",
+        "PromptRecord__Title"        : "Whitecard To CGI - British Summer Day",
+        "PromptRecord__Summary"      : "Dresses a fixed whitecard or existing shot into a photoreal British summer day without altering any geometry. Materials are supplied per job.",
+        "PromptRecord__Category"     : "ImageGeneration",
+        "PromptRecord__SubCategory"  : "WhitecardToCgi",
+        "PromptRecord__ModelTargets" : [
+                                           "NanoBanana",
+                                           "ChatGptImage"
+                                       ],
+        "PromptRecord__KeyWords"     : [
+                                           "Whitecard",
+                                           "CGI",
+                                           "Photoreal",
+                                           "Summer",
+                                           "DSLR",
+                                           "Georgian",
+                                           "Geometry Lock",
+                                           "Materials"
+                                       ],
+        "PromptRecord__Status"       : "Active",
+        "PromptRecord__Favourite"    : true,
+        "PromptRecord__Version"      : "1.0.0",
+        "PromptRecord__Created"      : "26-Aug-2026",
+        "PromptRecord__Updated"      : "26-Aug-2026",
+        "PromptRecord__Author"       : "Adam Noble"
+    },
+
+
+    "PromptRecord__Body" : {
+        "PromptRecord__PromptText" : [
+            "Convert this to a beautiful British summer day. Do not make up any new details. You must render this exact shot. You're not adding any new details to the building, literally just making it look like a highly realistic summer day, indistinguishable from a high-quality DSLR professionally taken photograph taken by a professional architecture photographer of this {{BuildingDescription}}.",
+            "",
+            "BUILDING MATERIALS",
+            "{{BuildingMaterials}}"
+        ]
+    },
+
+
+    "PromptRecord__Variables" : [
+        {
+            "Variable__Token"        : "BuildingDescription",
+            "Variable__Label"        : "Building description",
+            "Variable__InputType"    : "Text",
+            "Variable__Required"     : true,
+            "Variable__DefaultValue" : "beautiful English Georgian house",
+            "Variable__Placeholder"  : "e.g. beautiful English Georgian house",
+            "Variable__HelpText"     : "Short descriptive phrase for the subject building. The default reproduces the original proven wording exactly.",
+            "Variable__OmitLineIfEmpty" : false,
+            "Variable__Options"      : []
+        },
+        {
+            "Variable__Token"        : "BuildingMaterials",
+            "Variable__Label"        : "Building materials",
+            "Variable__InputType"    : "TextArea",
+            "Variable__Required"     : true,
+            "Variable__DefaultValue" : "",
+            "Variable__Placeholder"  : "e.g. Red multi stock brick to ground floor, white painted timber sash windows, natural slate roof, limestone cills and heads, black cast iron rainwater goods.",
+            "Variable__HelpText"     : "List the actual specified materials for this job. One line per element reads best.",
+            "Variable__OmitLineIfEmpty" : false,
+            "Variable__Options"      : []
+        }
+    ],
+
+
+    "PromptRecord__Usage" : {
+        "PromptRecord__CopyCount" : 0,
+        "PromptRecord__LastUsed"  : null,
+        "PromptRecord__Notes"     : "Original working prompt used the placeholder token DYNAMIC_USER_ENTERS_INTO_FORM under the BUILDING MATERIALS heading. That is now the BuildingMaterials variable. The BuildingDescription variable defaults to the original wording, so composing without touching the form returns the proven prompt verbatim. Feed the whitecard image alongside this prompt - the prompt alone does nothing."
+    }
+}

@@ -1,0 +1,77 @@
+{
+    "SnippetLibrary__Meta" : {
+        "SnippetLibrary__FileName"    : "PromptLibrary__SnippetLibrary__.json",
+        "SnippetLibrary__FileType"    : "Application Data - Reusable Prompt Blocks",
+        "SnippetLibrary__FileAuthor"  : "Adam Noble - Noble Architecture",
+        "SnippetLibrary__Created"     : "26-Aug-2026",
+        "SnippetLibrary__Version"     : "1.0.0",
+        "SnippetLibrary__Description" : "Reusable blocks of prompt text that get bolted onto many different prompts - geometry lock clauses, negative constraint lists, material schedules and house style statements. Snippets can be copied on their own or inserted into a prompt while editing it."
+    },
+
+
+    "SnippetLibrary__Schema__Template" : {
+        "Snippet__Title"       : "Human readable snippet title",
+        "Snippet__Description" : "What this block does and when to bolt it on.",
+        "Snippet__KeyWords"    : [ "Keyword01", "Keyword02" ],
+        "Snippet__LoadOrder"   : 1,
+        "Snippet__Text"        : [
+            "Snippet body stored as an array of lines, same convention as the prompt records.",
+            "Double brace tokens are allowed here too and are picked up when the snippet is inserted into a prompt."
+        ]
+    },
+
+
+    "SnippetLibrary__Snippets" : {
+        "BuildingMaterials__ScheduleBlock" : {
+            "Snippet__Title"       : "Building Materials Schedule Block",
+            "Snippet__Description" : "Standard heading and variable slot for the per job material specification. Drop this at the foot of any image prompt that needs real materials.",
+            "Snippet__KeyWords"    : [ "Materials", "Specification", "Image Generation", "Variable" ],
+            "Snippet__LoadOrder"   : 1,
+            "Snippet__Text"        : [
+                "BUILDING MATERIALS",
+                "{{BuildingMaterials}}"
+            ]
+        },
+
+        "GeometryLock__PreserveExactly" : {
+            "Snippet__Title"       : "Geometry Lock - Preserve Source Exactly",
+            "Snippet__Description" : "Hard constraint clause that stops a model redesigning the building. Use on every whitecard conversion.",
+            "Snippet__KeyWords"    : [ "Geometry Lock", "Whitecard", "Constraint", "Preserve" ],
+            "Snippet__LoadOrder"   : 2,
+            "Snippet__Text"        : [
+                "Treat the input image as fixed source geometry: preserve the building design, massing, dimensions, proportions, roof forms, openings, architectural details, landscaping, camera position, perspective, composition and crop exactly. Trace and enhance the existing model; do not reinterpret, redesign, simplify or add anything."
+            ]
+        },
+
+        "NegativeConstraints__ArchitecturalInkDrawing" : {
+            "Snippet__Title"       : "Negative Constraints - Architectural Ink Drawing",
+            "Snippet__Description" : "The proven exclusion list for high-key monochrome line work output.",
+            "Snippet__KeyWords"    : [ "Negative Prompt", "Ink Drawing", "Monochrome", "Constraint" ],
+            "Snippet__LoadOrder"   : 3,
+            "Snippet__Text"        : [
+                "ENSURE NONE OF THE FOLLOWING",
+                "No colour, beige paper, watercolour, photorealistic materials, dramatic lighting, heavy shadows, ambient-occlusion render, thick outlines, loose sketch marks, smudging, painterly texture, cartoon styling, blueprint graphics, people, vehicles, text or additional architecture. Preserve the original image exactly; change only its graphic rendering style."
+            ]
+        },
+
+        "PhotographyBrief__DslrArchitectural" : {
+            "Snippet__Title"       : "Photography Brief - DSLR Architectural",
+            "Snippet__Description" : "Camera and quality framing that pushes output towards a professionally shot architectural photograph rather than a render.",
+            "Snippet__KeyWords"    : [ "DSLR", "Photography", "Photoreal", "Camera" ],
+            "Snippet__LoadOrder"   : 4,
+            "Snippet__Text"        : [
+                "The result must be indistinguishable from a high-quality DSLR photograph taken by a professional architecture photographer. Natural optics, correct vertical perspective, no lens distortion, no HDR halos and no over-sharpening."
+            ]
+        },
+
+        "NoInvention__DoNotAddDetail" : {
+            "Snippet__Title"       : "No Invention - Do Not Add Detail",
+            "Snippet__Description" : "Blunt one-liner that stops models embellishing a scheme with details that were never designed.",
+            "Snippet__KeyWords"    : [ "Constraint", "No Invention", "Accuracy" ],
+            "Snippet__LoadOrder"   : 5,
+            "Snippet__Text"        : [
+                "Do not make up any new details. You must render this exact shot. You are not adding any new details to the building."
+            ]
+        }
+    }
+}

@@ -1,0 +1,55 @@
+{
+    "PromptRecord__Meta" : {
+        "PromptRecord__Id"           : "prompt__imagegen__presentation-graphics__monochrome-ink-drawing",
+        "PromptRecord__Title"        : "Whitecard To Monochrome Ink Presentation Drawing",
+        "PromptRecord__Summary"      : "Traces a SketchUp whitecard into a crisp high-key black and white architectural ink illustration. Geometry, camera and crop are locked - only the graphic style changes.",
+        "PromptRecord__Category"     : "ImageGeneration",
+        "PromptRecord__SubCategory"  : "PresentationGraphics",
+        "PromptRecord__ModelTargets" : [
+                                           "NanoBanana",
+                                           "ChatGptImage"
+                                       ],
+        "PromptRecord__KeyWords"     : [
+                                           "Whitecard",
+                                           "Ink Drawing",
+                                           "Monochrome",
+                                           "Line Work",
+                                           "Presentation",
+                                           "SketchUp",
+                                           "Geometry Lock",
+                                           "Etching"
+                                       ],
+        "PromptRecord__Status"       : "Active",
+        "PromptRecord__Favourite"    : true,
+        "PromptRecord__Version"      : "1.0.0",
+        "PromptRecord__Created"      : "26-Aug-2026",
+        "PromptRecord__Updated"      : "26-Aug-2026",
+        "PromptRecord__Author"       : "Adam Noble"
+    },
+
+
+    "PromptRecord__Body" : {
+        "PromptRecord__PromptText" : [
+            "Convert the supplied SketchUp whitecard into a highly refined monochrome architectural presentation drawing. Treat the input image as fixed source geometry: preserve the building design, massing, dimensions, proportions, roof forms, openings, architectural details, landscaping, camera position, perspective, composition and crop exactly. Trace and enhance the existing model; do not reinterpret, redesign, simplify or add anything.",
+            "",
+            "Render as a crisp digital architectural ink illustration on a pure white background. Use precise, extremely fine black and charcoal-grey linework with a clear hierarchy: stronger lines around primary silhouettes and openings, medium lines for architectural components, and very fine lines for masonry joints, roof courses, glazing bars, mouldings and surface detail. Keep walls and roofs predominantly white, defined through linework rather than tonal fill.",
+            "",
+            "Add only restrained pale-grey detailing: subtle brick and stone coursing, delicate roof lines, lightly shaded window glass, faint reflections, minimal recess shading and exceptionally soft contact shadows. Windows may be slightly darker to provide depth, while remaining transparent and finely detailed. Draw grass, shrubs and trees as delicate etched architectural vegetation using sparse fine strokes, never dense or photorealistic foliage.",
+            "",
+            "The finished image should resemble a premium British architect’s hand-finished digital perspective: elegant, controlled, technical, clean and extremely detailed, with the delicacy of an engraved pen-and-ink drawing. High-key white appearance, generous negative space and almost no broad grey shading.",
+            "",
+            "ENSURE NONE OF THE FOLLOWING",
+            "No colour, beige paper, watercolour, photorealistic materials, dramatic lighting, heavy shadows, ambient-occlusion render, thick outlines, loose sketch marks, smudging, painterly texture, cartoon styling, blueprint graphics, people, vehicles, text or additional architecture. Preserve the original image exactly; change only its graphic rendering style."
+        ]
+    },
+
+
+    "PromptRecord__Variables" : [],
+
+
+    "PromptRecord__Usage" : {
+        "PromptRecord__CopyCount" : 0,
+        "PromptRecord__LastUsed"  : null,
+        "PromptRecord__Notes"     : "Held verbatim with no variables - this one works as written and job specifics are carried by the supplied image rather than the text. The final paragraph is also stored separately as the NegativeConstraints__ArchitecturalInkDrawing snippet block if it needs bolting onto another prompt."
+    }
+}

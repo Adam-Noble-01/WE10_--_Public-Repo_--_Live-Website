@@ -1,0 +1,133 @@
+{
+    "PromptRecord__Meta" : {
+        "PromptRecord__Id"           : "prompt__imagegen__whitecard-image__isolated-object-whitecard-with-dimensions",
+        "PromptRecord__Title"        : "Isolated Object Whitecard With Dimensions",
+        "PromptRecord__Summary"      : "Rebuilds a single component from reference photographs as an isolated SketchUp style whitecard on a square canvas, titled and dimensioned. Built for feeding into image-to-3D reconstruction.",
+        "PromptRecord__Category"     : "ImageGeneration",
+        "PromptRecord__SubCategory"  : "WhitecardImage",
+        "PromptRecord__ModelTargets" : [
+                                           "NanoBanana",
+                                           "ChatGptImage"
+                                       ],
+        "PromptRecord__KeyWords"     : [
+                                           "Whitecard",
+                                           "Object Reconstruction",
+                                           "Image To 3D",
+                                           "Dimensions",
+                                           "Isolated Object",
+                                           "Square Canvas",
+                                           "SketchUp",
+                                           "Component"
+                                       ],
+        "PromptRecord__Status"       : "Active",
+        "PromptRecord__Favourite"    : true,
+        "PromptRecord__Version"      : "1.0.0",
+        "PromptRecord__Created"      : "26-Aug-2026",
+        "PromptRecord__Updated"      : "26-Aug-2026",
+        "PromptRecord__Author"       : "Adam Noble"
+    },
+
+
+    "PromptRecord__Body" : {
+        "PromptRecord__PromptText" : [
+            "Use the supplied reference image(s) as the sole design source. Reconstruct the referenced object as one complete, isolated 3D model, preserving its defining proportions, geometry, construction and decorative details. Remove all surrounding architecture, scenery and unrelated objects. Infer obscured or unseen parts conservatively so the result appears symmetrical, buildable and physically coherent; do not invent unnecessary ornament.",
+            "OBJECT: {{ObjectName}}",
+            "DESCRIPTION: {{ObjectDescription}}",
+            "OVERALL HEIGHT: {{OverallHeight}}",
+            "OVERALL WIDTH: {{OverallWidth}}",
+            "OVERALL DEPTH/PROJECTION: {{OverallDepth}}",
+            "Present the object in a clear front three-quarter view showing its front, one side, depth, top, underside and any rear mounting components. Use mild perspective rather than a dramatic wide-angle view. Centre the complete object within an exact 1:1 square canvas, occupying approximately 70% of the image, with generous space around every edge.",
+            "Render it as a clean, high-quality SketchUp-style architectural whitecard model. Use one uniform matte off-white material throughout. Any glass, translucent, reflective or transparent elements must instead appear as completely opaque, solid off-white surfaces. Retain their frames, divisions and physical thickness so the geometry remains readable. Use no textures, colours, grain, reflections, transparency, glow, patina or photorealistic materials.",
+            "Use a seamless white background, soft upper-left studio lighting, subtle ambient occlusion within joints, restrained pale-grey edge definition and a very faint neutral contact shadow. The result should resemble a professionally modelled mid-poly architectural component, optimised for image-to-3D reconstruction.",
+            "At the top, add this exact centred title in bold uppercase dark-grey sans-serif lettering:",
+            "“{{ObjectTitle}}”",
+            "Directly below, add the smaller subtitle:",
+            "“INDICATIVE DIMENSIONS”",
+            "Add thin, precise mid-grey architectural dimension lines outside the object without crossing or obscuring it:",
+            "",
+            "* Overall height vertically on the left: “{{OverallHeight}}”",
+            "* Overall width horizontally below: “{{OverallWidth}}”",
+            "* Overall depth or wall projection diagonally on the right: “{{OverallDepth}} PROJECTION”",
+            "",
+            "Keep all titles, dimensions, extension lines, arrowheads and the full object entirely within the square frame. Typography must be crisp, correctly spelled and professionally aligned.",
+            "Do not include walls, floors, buildings, people, scenery, reference markings, red circles, borders, logos, legends, extra text or watermarks. Do not crop the object or annotations. Output one object only."
+        ]
+    },
+
+
+    "PromptRecord__Variables" : [
+        {
+            "Variable__Token"        : "ObjectName",
+            "Variable__Label"        : "Object name",
+            "Variable__InputType"    : "Text",
+            "Variable__Required"     : true,
+            "Variable__DefaultValue" : "",
+            "Variable__Placeholder"  : "e.g. Victorian cast iron rainwater hopper",
+            "Variable__HelpText"     : "Plain name of the single component being reconstructed.",
+            "Variable__OmitLineIfEmpty" : false,
+            "Variable__Options"      : []
+        },
+        {
+            "Variable__Token"        : "ObjectDescription",
+            "Variable__Label"        : "Object type, context and important features",
+            "Variable__InputType"    : "TextArea",
+            "Variable__Required"     : true,
+            "Variable__DefaultValue" : "",
+            "Variable__Placeholder"  : "e.g. Wall mounted cast iron hopper head serving a 100mm downpipe. Moulded top rim, tapered box body, decorative front panel with raised beading. Two rear lugs for wall fixing.",
+            "Variable__HelpText"     : "What it is, where it sits, and the details that must survive the rebuild.",
+            "Variable__OmitLineIfEmpty" : false,
+            "Variable__Options"      : []
+        },
+        {
+            "Variable__Token"        : "OverallHeight",
+            "Variable__Label"        : "Overall height",
+            "Variable__InputType"    : "Text",
+            "Variable__Required"     : true,
+            "Variable__DefaultValue" : "",
+            "Variable__Placeholder"  : "e.g. 420mm",
+            "Variable__HelpText"     : "Typed once - fills both the specification block and the left hand dimension line.",
+            "Variable__OmitLineIfEmpty" : false,
+            "Variable__Options"      : []
+        },
+        {
+            "Variable__Token"        : "OverallWidth",
+            "Variable__Label"        : "Overall width",
+            "Variable__InputType"    : "Text",
+            "Variable__Required"     : true,
+            "Variable__DefaultValue" : "",
+            "Variable__Placeholder"  : "e.g. 300mm",
+            "Variable__HelpText"     : "Typed once - fills both the specification block and the lower dimension line.",
+            "Variable__OmitLineIfEmpty" : false,
+            "Variable__Options"      : []
+        },
+        {
+            "Variable__Token"        : "OverallDepth",
+            "Variable__Label"        : "Overall depth or wall projection",
+            "Variable__InputType"    : "Text",
+            "Variable__Required"     : true,
+            "Variable__DefaultValue" : "",
+            "Variable__Placeholder"  : "e.g. 180mm",
+            "Variable__HelpText"     : "Typed once - fills both the specification block and the right hand diagonal dimension line.",
+            "Variable__OmitLineIfEmpty" : false,
+            "Variable__Options"      : []
+        },
+        {
+            "Variable__Token"        : "ObjectTitle",
+            "Variable__Label"        : "Drawing title",
+            "Variable__InputType"    : "Text",
+            "Variable__Required"     : true,
+            "Variable__DefaultValue" : "",
+            "Variable__Placeholder"  : "e.g. CAST IRON HOPPER HEAD",
+            "Variable__HelpText"     : "Rendered as the bold uppercase title across the top of the square canvas. Type it in capitals.",
+            "Variable__OmitLineIfEmpty" : false,
+            "Variable__Options"      : []
+        }
+    ],
+
+
+    "PromptRecord__Usage" : {
+        "PromptRecord__CopyCount" : 0,
+        "PromptRecord__LastUsed"  : null,
+        "PromptRecord__Notes"     : "Original working prompt marked its job specific slots with hash placeholders such as #OBJECT NAME and #HEIGHT IN MM. Those are now form fields. The three dimension values each appear twice in the body - once in the specification block and once on the dimension line - and both are filled from a single entry. Supply the reference photographs alongside this prompt."
+    }
+}

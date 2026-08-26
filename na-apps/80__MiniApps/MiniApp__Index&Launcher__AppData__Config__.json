@@ -123,6 +123,26 @@
             "MiniApp__LoadOrder"         : 5,
             "MiniApp__LaunchInNewTab"    : true,
             "MiniApp__LaunchInNewWindow" : false
+        },
+
+        "MiniApp__AiPromptLibrary_06" : {
+            "MiniApp__LaunchFile"        : "MiniApp__AiUtils__PromptLibrary__Main__.html",
+            "MiniApp__RelativePath"      : "05_MiniApps__AiUtils",
+            "MiniApp__Title"             : "AI Prompt Library",
+            "MiniApp__Description"       : "Store, search and compose the AI prompts that actually work. Every prompt is a standalone JSON record with job specific values held as form fields, so the proven wording stays fixed and only the per job details get typed. Fast search with keyword, model and favourite filters, one click copy to clipboard, and reusable snippet blocks.",
+            "MiniApp__Notes"             : "Category: AiUtils - first tool in the AI utilities collection. Modular HTML/CSS/JS with a data store abstraction that runs off static JSON files today and switches to the Raspberry Pi prompt server API by pointing NaMiniApp__ApiBaseUrl at it. Local edits are held in browser storage and journalled as pending operations ready to replay to the server.",
+            "MiniApp__KeyWords"          : [
+                                                "AI Prompts",
+                                                "Prompt Library",
+                                                "Templates",
+                                                "Image Generation",
+                                                "Search",
+                                                "Clipboard"
+                                           ],
+            "MiniApp__Added"             : "26-Aug-2026",
+            "MiniApp__LoadOrder"         : 6,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
         }
     }
 }

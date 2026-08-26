@@ -1,5 +1,5 @@
 {
-    "buildTimestamp": "2026-07-20T21:16:06.334326+00:00",
+    "buildTimestamp": "2026-08-24T10:48:07.366417+00:00",
     "projects": {
         "GA06": {
             "projectCode": "GA06",
@@ -122,21 +122,21 @@
                 "trueVision": true
             }
         },
-        "TS01": {
-            "projectCode": "TS01",
-            "projectName": "Test Project",
-            "projectFolder": "TS01__TestProject",
-            "projectYear": "26",
-            "subApps": {
-                "projectAdmin": true,
-                "planVision": false,
-                "trueVision": false
-            }
-        },
         "SB04": {
             "projectCode": "SB04",
             "projectName": "Wollaton Road",
             "projectFolder": "SB04__WollatonRoad",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": true,
+                "trueVision": true
+            }
+        },
+        "TS01": {
+            "projectCode": "TS01",
+            "projectName": "Test Project",
+            "projectFolder": "TS01__TestProject",
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,

@@ -1,0 +1,1270 @@
+/* =============================================================================
+   NOBLE ARCHITECTURE - AI UTILS - PROMPT LIBRARY - STYLESHEET
+   =============================================================================
+
+   FILE    : MiniApp__AiUtils__PromptLibrary__Style__.css
+   AUTHOR  : Adam Noble - Noble Architecture
+   PURPOSE : UI styling for the AI prompt library mini app
+   CREATED : 26-Aug-2026
+
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   REGION | CSS Variables
+   -------------------------------------------------------------------------- */
+:root {
+    /* Surfaces - anchored on the Noble Architecture core utility grey scale */
+    --AIPL_Col_Background         : #f0f0f0;
+    --AIPL_Col_Rail               : #f7f6f3;
+    --AIPL_Col_Panel              : #ffffff;
+    --AIPL_Col_PanelAlt           : #f5f4f1;
+    --AIPL_Col_PanelRaised        : #e8e6e1;
+    --AIPL_Col_TopBar             : #ffffff;
+    --AIPL_Col_InputBackground    : #ffffff;
+    --AIPL_Col_CodeBackground     : #fbfaf7;
+
+    /* Text */
+    --AIPL_Col_TextPrimary        : #2e2b25;
+    --AIPL_Col_TextMuted          : #5f5a51;
+    --AIPL_Col_TextFaint          : #6f6a60;
+    --AIPL_Col_OnAccent           : #ffffff;
+
+    /* Lines */
+    --AIPL_Col_Border             : #d9d6d0;
+    --AIPL_Col_BorderStrong       : #b6b1a7;
+
+    /* Brand accent - Noble Architecture olive */
+    --AIPL_Col_Accent             : #555041;
+    --AIPL_Col_AccentDeep         : #403c30;
+    --AIPL_Col_AccentSoft         : rgba(85, 80, 65, 0.10);
+
+    /* Status */
+    --AIPL_Col_Success            : #2f7a45;
+    --AIPL_Col_SuccessSoft        : rgba(47, 122, 69, 0.10);
+    --AIPL_Col_Danger             : #b04545;
+    --AIPL_Col_DangerBg           : #fbeaea;
+    --AIPL_Col_DangerSoft         : rgba(176, 69, 69, 0.10);
+    --AIPL_Col_Warning            : #8a6516;
+    --AIPL_Col_WarningBg          : #fdf3d8;
+    --AIPL_Col_WarningSoft        : rgba(138, 101, 22, 0.12);
+
+    /* Overlays and furniture */
+    --AIPL_Col_Scrim              : rgba(46, 43, 37, 0.42);
+    --AIPL_Col_Shadow             : rgba(60, 55, 45, 0.16);
+    --AIPL_Col_ScrollThumb        : #c9c5bd;
+    --AIPL_Col_ScrollThumbHover   : #aea9a0;
+
+    --AIPL_Font_Body              : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --AIPL_Font_Mono              : "Cascadia Mono", "Consolas", "Courier New", monospace;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Base Reset
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing                           : border-box;
+}
+
+html,
+body {
+    margin                               : 0;
+    padding                              : 0;
+    height                               : 100%;
+    overflow                             : hidden;
+    font-family                          : var(--AIPL_Font_Body);
+    background-color                     : var(--AIPL_Col_Background);
+    color                                : var(--AIPL_Col_TextPrimary);
+    font-size                            : 14px;
+}
+
+::-webkit-scrollbar {
+    width                                : 10px;
+    height                               : 10px;
+}
+
+::-webkit-scrollbar-track {
+    background                           : transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color                     : var(--AIPL_Col_ScrollThumb);
+    border-radius                        : 5px;
+    border                               : 2px solid var(--AIPL_Col_Background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color                     : var(--AIPL_Col_ScrollThumbHover);
+}
+
+.AIPL__hidden {
+    display                              : none !important;
+}
+
+.AIPL__hidden-input {
+    position                             : fixed;
+    top                                  : -1000px;
+    opacity                              : 0;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Page Shell And Layout Grid
+   -------------------------------------------------------------------------- */
+.AIPL__page-shell {
+    display                              : flex;
+    flex-direction                       : column;
+    height                               : 100vh;
+}
+
+.AIPL__body-grid {
+    display                              : grid;
+    grid-template-columns                : 260px minmax(340px, 0.9fr) minmax(0, 1.35fr);
+    flex                                 : 1;
+    min-height                           : 0;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Topbar
+   -------------------------------------------------------------------------- */
+.AIPL__topbar {
+    position                             : relative;
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 12px;
+    padding                              : 10px 14px;
+    border-bottom                        : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_TopBar);
+    flex-shrink                          : 0;
+}
+
+.AIPL__topbar-title {
+    margin                               : 0;
+    font-size                            : 15px;
+    font-weight                          : 700;
+    letter-spacing                       : 0.02em;
+    white-space                          : nowrap;
+    color                                : var(--AIPL_Col_Accent);
+}
+
+.AIPL__topbar-actions {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 6px;
+    margin-left                          : auto;
+    flex-wrap                            : wrap;
+}
+
+.AIPL__status-pill {
+    padding                              : 3px 10px;
+    border-radius                        : 999px;
+    font-size                            : 11px;
+    font-weight                          : 600;
+    letter-spacing                       : 0.02em;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    white-space                          : nowrap;
+}
+
+.AIPL__status-pill--local {
+    color                                : var(--AIPL_Col_TextMuted);
+    background-color                     : var(--AIPL_Col_PanelAlt);
+}
+
+.AIPL__status-pill--server {
+    color                                : var(--AIPL_Col_Success);
+    border-color                         : var(--AIPL_Col_Success);
+    background-color                     : var(--AIPL_Col_SuccessSoft);
+}
+
+.AIPL__status-pill--pending {
+    color                                : var(--AIPL_Col_Warning);
+    border-color                         : var(--AIPL_Col_Warning);
+    background-color                     : var(--AIPL_Col_WarningBg);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Buttons And Inputs
+   -------------------------------------------------------------------------- */
+.AIPL__button {
+    padding                              : 6px 12px;
+    border-radius                        : 4px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_PanelAlt);
+    color                                : var(--AIPL_Col_TextPrimary);
+    font-family                          : var(--AIPL_Font_Body);
+    font-size                            : 12px;
+    font-weight                          : 600;
+    cursor                               : pointer;
+    transition                           : background-color 0.15s ease, border-color 0.15s ease;
+    white-space                          : nowrap;
+}
+
+.AIPL__button:hover {
+    background-color                     : var(--AIPL_Col_PanelRaised);
+    border-color                         : var(--AIPL_Col_AccentDeep);
+}
+
+.AIPL__button--primary {
+    background-color                     : var(--AIPL_Col_Accent);
+    border-color                         : var(--AIPL_Col_AccentDeep);
+    color                                : var(--AIPL_Col_OnAccent);
+}
+
+.AIPL__button--primary:hover {
+    background-color                     : var(--AIPL_Col_AccentDeep);
+    border-color                         : var(--AIPL_Col_AccentDeep);
+}
+
+.AIPL__button--danger {
+    color                                : var(--AIPL_Col_Danger);
+    border-color                         : var(--AIPL_Col_Danger);
+    background-color                     : var(--AIPL_Col_DangerSoft);
+}
+
+.AIPL__button--danger:hover {
+    background-color                     : var(--AIPL_Col_DangerBg);
+    border-color                         : var(--AIPL_Col_Danger);
+}
+
+.AIPL__button--ghost {
+    background-color                     : transparent;
+    min-width                            : 30px;
+}
+
+.AIPL__button--small {
+    padding                              : 4px 9px;
+    font-size                            : 11px;
+}
+
+.AIPL__button--toggled {
+    background-color                     : var(--AIPL_Col_AccentSoft);
+    border-color                         : var(--AIPL_Col_AccentDeep);
+    color                                : var(--AIPL_Col_Accent);
+}
+
+.AIPL__icon-button {
+    width                                : 26px;
+    height                               : 26px;
+    display                              : inline-flex;
+    align-items                          : center;
+    justify-content                      : center;
+    border-radius                        : 4px;
+    border                               : 1px solid transparent;
+    background-color                     : transparent;
+    color                                : var(--AIPL_Col_TextMuted);
+    font-size                            : 15px;
+    line-height                          : 1;
+    cursor                               : pointer;
+    transition                           : background-color 0.15s ease, color 0.15s ease;
+}
+
+.AIPL__icon-button:hover {
+    background-color                     : var(--AIPL_Col_PanelRaised);
+    color                                : var(--AIPL_Col_Accent);
+}
+
+.AIPL__icon-button--starred {
+    color                                : var(--AIPL_Col_Accent);
+}
+
+.AIPL__icon-button--large {
+    width                                : 32px;
+    height                               : 32px;
+    font-size                            : 19px;
+}
+
+.AIPL__icon-button--danger:hover {
+    color                                : var(--AIPL_Col_Danger);
+}
+
+.AIPL__link-button {
+    background                           : none;
+    border                               : none;
+    padding                              : 2px 4px;
+    color                                : var(--AIPL_Col_TextMuted);
+    font-family                          : var(--AIPL_Font_Body);
+    font-size                            : 11px;
+    text-decoration                      : underline;
+    cursor                               : pointer;
+}
+
+.AIPL__link-button:hover {
+    color                                : var(--AIPL_Col_Accent);
+}
+
+.AIPL__field-input {
+    width                                : 100%;
+    padding                              : 7px 9px;
+    border-radius                        : 4px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_InputBackground);
+    color                                : var(--AIPL_Col_TextPrimary);
+    font-family                          : var(--AIPL_Font_Body);
+    font-size                            : 13px;
+    outline                              : none;
+    transition                           : border-color 0.15s ease;
+}
+
+.AIPL__field-input:focus {
+    border-color                         : var(--AIPL_Col_Accent);
+}
+
+.AIPL__field-input--area {
+    resize                               : vertical;
+    line-height                          : 1.55;
+}
+
+.AIPL__field-input--body {
+    font-family                          : var(--AIPL_Font_Mono);
+    font-size                            : 12.5px;
+    line-height                          : 1.6;
+    resize                               : vertical;
+}
+
+.AIPL__field-input--compact {
+    width                                : auto;
+    min-width                            : 130px;
+    padding                              : 6px 8px;
+    font-size                            : 12px;
+}
+
+.AIPL__field-input--token {
+    font-family                          : var(--AIPL_Font_Mono);
+    max-width                            : 190px;
+}
+
+.AIPL__field-input--type {
+    max-width                            : 160px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Keyboard Shortcut Panel
+   -------------------------------------------------------------------------- */
+.AIPL__shortcut-panel {
+    display                              : none;
+    position                             : absolute;
+    top                                  : calc(100% + 6px);
+    right                                : 14px;
+    z-index                              : 40;
+    width                                : 320px;
+    padding                              : 12px 14px;
+    border-radius                        : 6px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_PanelAlt);
+    box-shadow                           : 0 12px 32px var(--AIPL_Col_Shadow);
+}
+
+.AIPL__shortcut-panel--open {
+    display                              : block;
+}
+
+.AIPL__shortcut-row {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 10px;
+    padding                              : 4px 0;
+    font-size                            : 12px;
+    color                                : var(--AIPL_Col_TextMuted);
+}
+
+.AIPL__kbd {
+    display                              : inline-block;
+    min-width                            : 96px;
+    padding                              : 2px 6px;
+    border-radius                        : 3px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_InputBackground);
+    color                                : var(--AIPL_Col_TextPrimary);
+    font-family                          : var(--AIPL_Font_Mono);
+    font-size                            : 11px;
+    text-align                           : center;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Navigation Rail
+   -------------------------------------------------------------------------- */
+.AIPL__rail {
+    background-color                     : var(--AIPL_Col_Rail);
+    border-right                         : 1px solid var(--AIPL_Col_Border);
+    overflow-y                           : auto;
+    padding                              : 12px 10px 24px 10px;
+}
+
+.AIPL__rail-section {
+    margin-bottom                        : 20px;
+}
+
+.AIPL__rail-heading {
+    margin                               : 0 0 8px 4px;
+    font-size                            : 10.5px;
+    font-weight                          : 700;
+    letter-spacing                       : 0.14em;
+    text-transform                       : uppercase;
+    color                                : var(--AIPL_Col_TextFaint);
+}
+
+.AIPL__rail-row {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 8px;
+    width                                : 100%;
+    padding                              : 6px 8px;
+    margin-bottom                        : 1px;
+    border                               : none;
+    border-radius                        : 4px;
+    background-color                     : transparent;
+    color                                : var(--AIPL_Col_TextMuted);
+    font-family                          : var(--AIPL_Font_Body);
+    font-size                            : 12.5px;
+    text-align                           : left;
+    cursor                               : pointer;
+    transition                           : background-color 0.12s ease, color 0.12s ease;
+}
+
+.AIPL__rail-row:hover {
+    background-color                     : var(--AIPL_Col_PanelAlt);
+    color                                : var(--AIPL_Col_TextPrimary);
+}
+
+.AIPL__rail-row--active {
+    background-color                     : var(--AIPL_Col_AccentSoft);
+    color                                : var(--AIPL_Col_Accent);
+    font-weight                          : 600;
+}
+
+.AIPL__rail-row--category {
+    margin-top                           : 3px;
+    font-weight                          : 600;
+    color                                : var(--AIPL_Col_TextPrimary);
+}
+
+.AIPL__rail-row--sub {
+    padding-left                         : 22px;
+    font-size                            : 12px;
+}
+
+.AIPL__rail-row--empty {
+    opacity                              : 0.45;
+}
+
+.AIPL__rail-row-label {
+    flex                                 : 1;
+    overflow                             : hidden;
+    text-overflow                        : ellipsis;
+    white-space                          : nowrap;
+}
+
+.AIPL__rail-glyph {
+    font-size                            : 9px;
+    font-weight                          : 800;
+    letter-spacing                       : 0.06em;
+    width                                : 24px;
+}
+
+.AIPL__rail-count {
+    font-size                            : 10.5px;
+    color                                : var(--AIPL_Col_TextFaint);
+    font-variant-numeric                 : tabular-nums;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Keyword Chips
+   -------------------------------------------------------------------------- */
+.AIPL__chip-cloud {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    gap                                  : 4px;
+    padding                              : 0 2px;
+}
+
+.AIPL__chip {
+    display                              : inline-flex;
+    align-items                          : center;
+    gap                                  : 4px;
+    padding                              : 3px 7px;
+    border-radius                        : 3px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_PanelAlt);
+    color                                : var(--AIPL_Col_TextMuted);
+    font-family                          : var(--AIPL_Font_Body);
+    font-size                            : 10.5px;
+    cursor                               : pointer;
+    transition                           : all 0.12s ease;
+}
+
+.AIPL__chip:hover {
+    border-color                         : var(--AIPL_Col_AccentDeep);
+    color                                : var(--AIPL_Col_TextPrimary);
+}
+
+.AIPL__chip--active {
+    background-color                     : var(--AIPL_Col_AccentSoft);
+    border-color                         : var(--AIPL_Col_Accent);
+    color                                : var(--AIPL_Col_Accent);
+}
+
+.AIPL__chip-count {
+    color                                : var(--AIPL_Col_TextFaint);
+    font-variant-numeric                 : tabular-nums;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Search And Results Column
+   -------------------------------------------------------------------------- */
+.AIPL__results-column {
+    display                              : flex;
+    flex-direction                       : column;
+    min-width                            : 0;
+    min-height                           : 0;
+    border-right                         : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_Background);
+}
+
+.AIPL__search-bar {
+    display                              : flex;
+    gap                                  : 8px;
+    padding                              : 12px 12px 8px 12px;
+    flex-shrink                          : 0;
+}
+
+.AIPL__search-input {
+    flex                                 : 1;
+    min-width                            : 0;
+    padding                              : 9px 11px;
+    border-radius                        : 4px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_InputBackground);
+    color                                : var(--AIPL_Col_TextPrimary);
+    font-family                          : var(--AIPL_Font_Body);
+    font-size                            : 13.5px;
+    outline                              : none;
+}
+
+.AIPL__search-input:focus {
+    border-color                         : var(--AIPL_Col_Accent);
+}
+
+.AIPL__tabs {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 4px;
+    padding                              : 0 12px 8px 12px;
+    border-bottom                        : 1px solid var(--AIPL_Col_Border);
+    flex-shrink                          : 0;
+}
+
+.AIPL__tab {
+    padding                              : 5px 10px;
+    border                               : none;
+    border-bottom                        : 2px solid transparent;
+    background-color                     : transparent;
+    color                                : var(--AIPL_Col_TextMuted);
+    font-family                          : var(--AIPL_Font_Body);
+    font-size                            : 12px;
+    font-weight                          : 600;
+    cursor                               : pointer;
+}
+
+.AIPL__tab:hover {
+    color                                : var(--AIPL_Col_TextPrimary);
+}
+
+.AIPL__tab--active {
+    color                                : var(--AIPL_Col_Accent);
+    border-bottom-color                  : var(--AIPL_Col_Accent);
+}
+
+.AIPL__result-count {
+    margin-left                          : auto;
+    font-size                            : 11px;
+    color                                : var(--AIPL_Col_TextFaint);
+    font-variant-numeric                 : tabular-nums;
+}
+
+.AIPL__active-filters {
+    display                              : none;
+    flex-wrap                            : wrap;
+    align-items                          : center;
+    gap                                  : 5px;
+    padding                              : 8px 12px 0 12px;
+    flex-shrink                          : 0;
+}
+
+.AIPL__active-filters--visible {
+    display                              : flex;
+}
+
+.AIPL__filter-chip {
+    display                              : inline-flex;
+    align-items                          : center;
+    gap                                  : 5px;
+    padding                              : 3px 7px;
+    border-radius                        : 3px;
+    border                               : 1px solid var(--AIPL_Col_AccentDeep);
+    background-color                     : var(--AIPL_Col_AccentSoft);
+    color                                : var(--AIPL_Col_Accent);
+    font-family                          : var(--AIPL_Font_Body);
+    font-size                            : 10.5px;
+    cursor                               : pointer;
+}
+
+.AIPL__filter-chip-x {
+    font-size                            : 13px;
+    line-height                          : 1;
+    opacity                              : 0.7;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Result Cards
+   -------------------------------------------------------------------------- */
+.AIPL__result-list,
+.AIPL__snippet-panel {
+    flex                                 : 1;
+    min-height                           : 0;
+    overflow-y                           : auto;
+    padding                              : 10px 12px 24px 12px;
+}
+
+.AIPL__card {
+    padding                              : 10px 11px;
+    margin-bottom                        : 7px;
+    border-radius                        : 5px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    border-left                          : 3px solid transparent;
+    background-color                     : var(--AIPL_Col_Panel);
+    cursor                               : pointer;
+    outline                              : none;
+    transition                           : border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.AIPL__card:hover,
+.AIPL__card:focus-visible {
+    border-color                         : var(--AIPL_Col_BorderStrong);
+    box-shadow                           : 0 1px 4px var(--AIPL_Col_Shadow);
+}
+
+/* Selection reads as raised, not recessed - the card stays the lightest
+   surface in the column and gains the accent bar plus a lift shadow      */
+.AIPL__card--active {
+    border-color                         : var(--AIPL_Col_BorderStrong);
+    border-left-color                    : var(--AIPL_Col_Accent);
+    box-shadow                           : 0 2px 8px var(--AIPL_Col_Shadow);
+}
+
+.AIPL__card-head {
+    display                              : flex;
+    align-items                          : flex-start;
+    gap                                  : 8px;
+}
+
+.AIPL__card-title {
+    flex                                 : 1;
+    margin                               : 0;
+    font-size                            : 13.5px;
+    font-weight                          : 700;
+    line-height                          : 1.35;
+    color                                : var(--AIPL_Col_TextPrimary);
+}
+
+.AIPL__card-actions {
+    display                              : flex;
+    gap                                  : 2px;
+    flex-shrink                          : 0;
+}
+
+.AIPL__card-meta {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    gap                                  : 4px;
+    margin-top                           : 6px;
+}
+
+.AIPL__pill {
+    padding                              : 2px 7px;
+    border-radius                        : 999px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    font-size                            : 10px;
+    font-weight                          : 600;
+    letter-spacing                       : 0.01em;
+    white-space                          : nowrap;
+    color                                : var(--AIPL_Col_TextMuted);
+}
+
+.AIPL__pill--status {
+    color                                : var(--AIPL_Col_Warning);
+    border-color                         : var(--AIPL_Col_Warning);
+    background-color                     : var(--AIPL_Col_WarningBg);
+}
+
+.AIPL__pill--variable {
+    color                                : var(--AIPL_Col_Success);
+    border-color                         : var(--AIPL_Col_Success);
+    background-color                     : var(--AIPL_Col_SuccessSoft);
+}
+
+.AIPL__pill--usage {
+    color                                : var(--AIPL_Col_TextFaint);
+}
+
+.AIPL__pill--model {
+    color                                : var(--AIPL_Col_Accent);
+    border-color                         : var(--AIPL_Col_AccentDeep);
+    font-family                          : var(--AIPL_Font_Mono);
+}
+
+.AIPL__card-preview {
+    margin                               : 7px 0 0 0;
+    font-size                            : 12px;
+    line-height                          : 1.5;
+    color                                : var(--AIPL_Col_TextMuted);
+}
+
+.AIPL__card-keywords {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    gap                                  : 4px;
+    margin-top                           : 7px;
+}
+
+.AIPL__keyword {
+    padding                              : 1px 6px;
+    border-radius                        : 3px;
+    background-color                     : var(--AIPL_Col_PanelRaised);
+    color                                : var(--AIPL_Col_TextMuted);
+    font-size                            : 10px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Snippet Cards
+   -------------------------------------------------------------------------- */
+.AIPL__snippet {
+    padding                              : 10px 11px;
+    margin-bottom                        : 8px;
+    border-radius                        : 5px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_Panel);
+}
+
+.AIPL__snippet-head {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 8px;
+}
+
+.AIPL__snippet-title {
+    flex                                 : 1;
+    margin                               : 0;
+    font-size                            : 12.5px;
+    font-weight                          : 700;
+}
+
+.AIPL__snippet-description {
+    margin                               : 5px 0 7px 0;
+    font-size                            : 11.5px;
+    line-height                          : 1.5;
+    color                                : var(--AIPL_Col_TextMuted);
+}
+
+.AIPL__snippet-preview {
+    margin                               : 0;
+    padding                              : 8px 9px;
+    border-radius                        : 4px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_CodeBackground);
+    color                                : var(--AIPL_Col_TextMuted);
+    font-family                          : var(--AIPL_Font_Mono);
+    font-size                            : 11px;
+    line-height                          : 1.55;
+    white-space                          : pre-wrap;
+    word-break                           : break-word;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Detail And Compose Pane
+   -------------------------------------------------------------------------- */
+.AIPL__detail {
+    min-width                            : 0;
+    min-height                           : 0;
+    overflow-y                           : auto;
+    padding                              : 16px 20px 40px 20px;
+    background-color                     : var(--AIPL_Col_Background);
+}
+
+.AIPL__detail-head {
+    padding-bottom                       : 14px;
+    border-bottom                        : 1px solid var(--AIPL_Col_Border);
+}
+
+.AIPL__detail-breadcrumb {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    align-items                          : center;
+    gap                                  : 6px;
+    font-size                            : 11px;
+    font-weight                          : 600;
+    letter-spacing                       : 0.03em;
+    text-transform                       : uppercase;
+    color                                : var(--AIPL_Col_TextFaint);
+}
+
+.AIPL__breadcrumb-sep {
+    opacity                              : 0.4;
+}
+
+.AIPL__detail-title-row {
+    display                              : flex;
+    align-items                          : flex-start;
+    gap                                  : 10px;
+    margin-top                           : 6px;
+}
+
+.AIPL__detail-title {
+    flex                                 : 1;
+    margin                               : 0;
+    font-size                            : 21px;
+    font-weight                          : 700;
+    line-height                          : 1.25;
+}
+
+.AIPL__detail-summary {
+    margin                               : 8px 0 0 0;
+    font-size                            : 13px;
+    line-height                          : 1.6;
+    color                                : var(--AIPL_Col_TextMuted);
+    max-width                            : 80ch;
+}
+
+.AIPL__detail-toolbar {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    gap                                  : 6px;
+    margin-top                           : 14px;
+}
+
+.AIPL__detail-chips {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    gap                                  : 4px;
+    margin-top                           : 12px;
+}
+
+.AIPL__detail-section {
+    margin-top                           : 20px;
+}
+
+.AIPL__section-head {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 10px;
+    margin-bottom                        : 10px;
+}
+
+.AIPL__section-actions {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 6px;
+    margin-left                          : auto;
+}
+
+.AIPL__section-title {
+    margin                               : 0;
+    font-size                            : 11px;
+    font-weight                          : 700;
+    letter-spacing                       : 0.14em;
+    text-transform                       : uppercase;
+    color                                : var(--AIPL_Col_TextFaint);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Job Specific Fields
+   -------------------------------------------------------------------------- */
+.AIPL__field-grid {
+    display                              : grid;
+    grid-template-columns                : repeat(auto-fit, minmax(260px, 1fr));
+    gap                                  : 12px;
+}
+
+.AIPL__field {
+    padding                              : 10px 11px;
+    border-radius                        : 5px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    border-left                          : 3px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_Panel);
+}
+
+.AIPL__field--missing {
+    border-left-color                    : var(--AIPL_Col_Warning);
+}
+
+.AIPL__field--orphan {
+    border-left-color                    : var(--AIPL_Col_Danger);
+    opacity                              : 0.75;
+}
+
+.AIPL__field-label {
+    display                              : flex;
+    align-items                          : center;
+    flex-wrap                            : wrap;
+    gap                                  : 6px;
+    margin-bottom                        : 6px;
+    font-size                            : 12px;
+    font-weight                          : 600;
+    color                                : var(--AIPL_Col_TextPrimary);
+}
+
+.AIPL__field-required {
+    padding                              : 1px 5px;
+    border-radius                        : 3px;
+    background-color                     : var(--AIPL_Col_WarningBg);
+    color                                : var(--AIPL_Col_Warning);
+    font-size                            : 9.5px;
+    font-weight                          : 700;
+    letter-spacing                       : 0.06em;
+    text-transform                       : uppercase;
+}
+
+.AIPL__field-warning {
+    padding                              : 1px 5px;
+    border-radius                        : 3px;
+    background-color                     : var(--AIPL_Col_DangerBg);
+    color                                : var(--AIPL_Col_Danger);
+    font-size                            : 9.5px;
+    font-weight                          : 700;
+    letter-spacing                       : 0.06em;
+    text-transform                       : uppercase;
+}
+
+.AIPL__field-help {
+    margin                               : 6px 0 0 0;
+    font-size                            : 11px;
+    line-height                          : 1.5;
+    color                                : var(--AIPL_Col_TextFaint);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Composed Output
+   -------------------------------------------------------------------------- */
+.AIPL__compose-status {
+    margin-left                          : auto;
+    font-size                            : 11px;
+    font-weight                          : 600;
+}
+
+.AIPL__compose-status--ready {
+    color                                : var(--AIPL_Col_Success);
+}
+
+.AIPL__compose-status--waiting {
+    color                                : var(--AIPL_Col_Warning);
+}
+
+.AIPL__composed-output {
+    margin                               : 0;
+    padding                              : 14px 16px;
+    border-radius                        : 5px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_CodeBackground);
+    color                                : var(--AIPL_Col_TextPrimary);
+    font-family                          : var(--AIPL_Font_Mono);
+    font-size                            : 12.5px;
+    line-height                          : 1.7;
+    white-space                          : pre-wrap;
+    word-break                           : break-word;
+    max-height                           : 46vh;
+    overflow-y                           : auto;
+}
+
+.AIPL__token-gap {
+    padding                              : 0 3px;
+    border-radius                        : 3px;
+    background-color                     : var(--AIPL_Col_WarningBg);
+    box-shadow                           : inset 0 0 0 1px var(--AIPL_Col_WarningSoft);
+    color                                : var(--AIPL_Col_Warning);
+    font-weight                          : 700;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Notes And Stats
+   -------------------------------------------------------------------------- */
+.AIPL__detail-notes {
+    margin                               : 0;
+    font-size                            : 12.5px;
+    line-height                          : 1.65;
+    color                                : var(--AIPL_Col_TextMuted);
+    max-width                            : 90ch;
+}
+
+.AIPL__detail-stats {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    gap                                  : 16px;
+    margin-top                           : 12px;
+    padding-top                          : 10px;
+    border-top                           : 1px solid var(--AIPL_Col_Border);
+    font-size                            : 11px;
+    color                                : var(--AIPL_Col_TextFaint);
+}
+
+.AIPL__detail-stats strong {
+    color                                : var(--AIPL_Col_TextMuted);
+}
+
+.AIPL__detail-id {
+    margin-left                          : auto;
+    font-family                          : var(--AIPL_Font_Mono);
+    font-size                            : 10px;
+    opacity                              : 0.6;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Empty States And Toast
+   -------------------------------------------------------------------------- */
+.AIPL__empty-block {
+    padding                              : 28px 20px;
+    text-align                           : center;
+    color                                : var(--AIPL_Col_TextMuted);
+}
+
+.AIPL__empty-block--detail {
+    display                              : flex;
+    flex-direction                       : column;
+    align-items                          : center;
+    justify-content                      : center;
+    height                               : 70%;
+}
+
+.AIPL__empty-heading {
+    display                              : block;
+    margin-bottom                        : 8px;
+    font-size                            : 14px;
+    color                                : var(--AIPL_Col_TextPrimary);
+}
+
+.AIPL__empty-body {
+    margin                               : 0 auto;
+    max-width                            : 46ch;
+    font-size                            : 12.5px;
+    line-height                          : 1.6;
+}
+
+.AIPL__toast {
+    position                             : fixed;
+    right                                : 18px;
+    bottom                               : 18px;
+    z-index                              : 90;
+    padding                              : 10px 16px;
+    border-radius                        : 5px;
+    border                               : 1px solid var(--AIPL_Col_AccentDeep);
+    background-color                     : var(--AIPL_Col_Accent);
+    color                                : var(--AIPL_Col_OnAccent);
+    font-size                            : 12.5px;
+    font-weight                          : 600;
+    box-shadow                           : 0 10px 30px var(--AIPL_Col_Shadow);
+    opacity                              : 0;
+    transform                            : translateY(10px);
+    pointer-events                       : none;
+    transition                           : opacity 0.18s ease, transform 0.18s ease;
+}
+
+.AIPL__toast--visible {
+    opacity                              : 1;
+    transform                            : translateY(0);
+}
+
+.AIPL__toast--error {
+    border-color                         : var(--AIPL_Col_Danger);
+    background-color                     : var(--AIPL_Col_Danger);
+    color                                : var(--AIPL_Col_OnAccent);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Editor Modal
+   -------------------------------------------------------------------------- */
+.AIPL__modal {
+    display                              : none;
+    position                             : fixed;
+    inset                                : 0;
+    z-index                              : 70;
+}
+
+.AIPL__modal--open {
+    display                              : block;
+}
+
+.AIPL__modal-backdrop {
+    position                             : absolute;
+    inset                                : 0;
+    background-color                     : var(--AIPL_Col_Scrim);
+}
+
+.AIPL__modal-panel {
+    position                             : relative;
+    display                              : flex;
+    flex-direction                       : column;
+    width                                : min(1080px, calc(100vw - 60px));
+    max-height                           : calc(100vh - 60px);
+    margin                               : 30px auto;
+    border-radius                        : 7px;
+    border                               : 1px solid var(--AIPL_Col_BorderStrong);
+    background-color                     : var(--AIPL_Col_Panel);
+    box-shadow                           : 0 24px 60px var(--AIPL_Col_Shadow);
+    overflow                             : hidden;
+}
+
+.AIPL__modal-head {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 10px;
+    padding                              : 12px 16px;
+    border-bottom                        : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_PanelAlt);
+    flex-shrink                          : 0;
+}
+
+.AIPL__modal-title {
+    flex                                 : 1;
+    margin                               : 0;
+    font-size                            : 14px;
+    font-weight                          : 700;
+    color                                : var(--AIPL_Col_Accent);
+}
+
+.AIPL__modal-body {
+    flex                                 : 1;
+    min-height                           : 0;
+    overflow-y                           : auto;
+    padding                              : 16px;
+}
+
+.AIPL__modal-foot {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 12px;
+    padding                              : 12px 16px;
+    border-top                           : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_PanelAlt);
+    flex-shrink                          : 0;
+}
+
+.AIPL__modal-foot-actions {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 8px;
+    margin-left                          : auto;
+}
+
+.AIPL__editor-error {
+    font-size                            : 12px;
+    font-weight                          : 600;
+    color                                : var(--AIPL_Col_Danger);
+}
+
+.AIPL__editor-grid {
+    display                              : grid;
+    grid-template-columns                : repeat(auto-fit, minmax(220px, 1fr));
+    gap                                  : 12px;
+}
+
+.AIPL__editor-field--wide {
+    grid-column                          : 1 / -1;
+}
+
+.AIPL__editor-section {
+    margin-top                           : 20px;
+    padding-top                          : 16px;
+    border-top                           : 1px solid var(--AIPL_Col_Border);
+}
+
+.AIPL__check-grid {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    gap                                  : 6px 16px;
+    padding                              : 6px 0;
+}
+
+.AIPL__check-item {
+    display                              : inline-flex;
+    align-items                          : center;
+    gap                                  : 6px;
+    font-size                            : 12px;
+    color                                : var(--AIPL_Col_TextMuted);
+    cursor                               : pointer;
+}
+
+.AIPL__check-item--inline {
+    white-space                          : nowrap;
+    font-size                            : 11px;
+}
+
+.AIPL__check-item input {
+    accent-color                         : var(--AIPL_Col_Accent);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Editor Variable Rows
+   -------------------------------------------------------------------------- */
+.AIPL__variable-list {
+    display                              : flex;
+    flex-direction                       : column;
+    gap                                  : 8px;
+}
+
+.AIPL__variable-row {
+    padding                              : 10px 11px;
+    border-radius                        : 5px;
+    border                               : 1px solid var(--AIPL_Col_Border);
+    background-color                     : var(--AIPL_Col_PanelAlt);
+}
+
+.AIPL__variable-row-head {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    align-items                          : center;
+    gap                                  : 8px;
+}
+
+.AIPL__variable-row-body {
+    display                              : grid;
+    grid-template-columns                : repeat(auto-fit, minmax(200px, 1fr));
+    gap                                  : 6px;
+    margin-top                           : 8px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Narrow Viewport Adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 1500px) {
+    .AIPL__body-grid {
+        grid-template-columns            : 230px minmax(300px, 0.9fr) minmax(0, 1.2fr);
+    }
+}
+
+@media (max-width: 1200px) {
+    .AIPL__body-grid {
+        grid-template-columns            : 200px minmax(0, 1fr);
+    }
+
+    .AIPL__detail {
+        grid-column                      : 1 / -1;
+        border-top                       : 1px solid var(--AIPL_Col_Border);
+    }
+}
+/* endregion ---------------------------------------------------------------- */

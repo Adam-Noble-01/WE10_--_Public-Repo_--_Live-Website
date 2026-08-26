@@ -1,0 +1,145 @@
+{
+    "NaMiniApp__Meta" : {
+        "NaMiniApp__AppTitle"    : "AI Prompt Library",
+        "NaMiniApp__AppSubTitle" : "AI Utils",
+        "NaMiniApp__Created"     : "26-Aug-2026",
+        "NaMiniApp__Version"     : "1.0.0"
+    },
+
+
+    "NaMiniApp__DataSources" : {
+        "NaMiniApp__TaxonomyFile"     : "./02__AppData/PromptLibrary__TaxonomyIndex__.json",
+        "NaMiniApp__PromptIndexFile"  : "./02__AppData/PromptLibrary__PromptIndex__.json",
+        "NaMiniApp__SnippetFile"      : "./02__AppData/PromptLibrary__SnippetLibrary__.json",
+        "NaMiniApp__PromptRecordPath" : "./02__AppData/03__PromptRecords/"
+    },
+
+
+    "NaMiniApp__ServerConfig" : {
+        "NaMiniApp__ConnectionMode"   : "StaticOnly",
+        "NaMiniApp__ApiBaseUrl"       : "http://noble-pi.local:8090/api/v1",
+        "NaMiniApp__ApiHealthPath"    : "/health",
+        "NaMiniApp__ApiPromptsPath"   : "/prompts",
+        "NaMiniApp__ApiSnippetsPath"  : "/snippets",
+        "NaMiniApp__ApiTaxonomyPath"  : "/taxonomy",
+        "NaMiniApp__ApiTimeoutMs"     : 2500,
+        "NaMiniApp__ApiAuthHeader"    : "",
+        "NaMiniApp__ApiAuthToken"     : "",
+        "NaMiniApp__Notes"            : "ConnectionMode accepts Auto, StaticOnly or ApiOnly. It ships as StaticOnly because the Raspberry Pi prompt server does not exist yet - that skips the boot health check and keeps the console clean. When the Pi is up, point ApiBaseUrl at it and change this one value to Auto: the app will then probe the server on boot, read and write against it, and replay any changes still queued in browser storage. Auto still falls back to the static data files whenever the server does not answer, so it is safe to leave set. Nothing in the app modules needs changing."
+    },
+
+
+    "NaMiniApp__StorageKeys" : {
+        "NaMiniApp__OverlayKey"    : "NaAiPromptLibrary__LocalOverlay__v1",
+        "NaMiniApp__UiStateKey"    : "NaAiPromptLibrary__UiState__v1",
+        "NaMiniApp__OverlayFormat" : 1
+    },
+
+
+    "NaMiniApp__Defaults" : {
+        "NaMiniApp__DefaultSortMode"        : "Relevance",
+        "NaMiniApp__DefaultCategoryFilter"  : "All",
+        "NaMiniApp__ShowArchivedByDefault"  : false,
+        "NaMiniApp__SnippetPreviewLength"   : 190,
+        "NaMiniApp__SearchDebounceMs"       : 90,
+        "NaMiniApp__ToastDurationMs"        : 2200,
+        "NaMiniApp__MaxRecentPrompts"       : 8,
+        "NaMiniApp__UnfilledTokenBehaviour" : "KeepToken",
+        "NaMiniApp__NewPromptDefaults"      : {
+            "PromptRecord__Category"    : "ImageGeneration",
+            "PromptRecord__SubCategory" : "WhitecardToCgi",
+            "PromptRecord__Status"      : "Draft",
+            "PromptRecord__Author"      : "Adam Noble"
+        }
+    },
+
+
+    "NaMiniApp__SearchWeights" : {
+        "NaMiniApp__WeightTitle"       : 12,
+        "NaMiniApp__WeightKeyword"     : 8,
+        "NaMiniApp__WeightSummary"     : 5,
+        "NaMiniApp__WeightCategory"    : 4,
+        "NaMiniApp__WeightVariable"    : 3,
+        "NaMiniApp__WeightBody"        : 1,
+        "NaMiniApp__BonusExactWord"    : 6,
+        "NaMiniApp__BonusPrefixMatch"  : 3,
+        "NaMiniApp__BonusFavourite"    : 2
+    },
+
+
+    "NaMiniApp__UiText" : {
+        "NaMiniApp__AppHeading"            : "AI Prompt Library",
+        "NaMiniApp__SearchPlaceholder"     : "Search prompts   -   #keyword   @model   !fav",
+        "NaMiniApp__StatusReady"           : "Library loaded.",
+        "NaMiniApp__StatusLoading"         : "Loading prompt library...",
+        "NaMiniApp__StatusNoResults"       : "No prompts match this search.",
+        "NaMiniApp__StatusCopiedComposed"  : "Composed prompt copied to clipboard.",
+        "NaMiniApp__StatusCopiedRaw"       : "Raw prompt template copied to clipboard.",
+        "NaMiniApp__StatusCopiedSnippet"   : "Snippet copied to clipboard.",
+        "NaMiniApp__StatusCopyFailed"      : "Clipboard copy failed - select the text and copy manually.",
+        "NaMiniApp__StatusSaved"           : "Prompt saved.",
+        "NaMiniApp__StatusDeleted"         : "Prompt deleted.",
+        "NaMiniApp__StatusDuplicated"      : "Prompt duplicated - edit and save the copy.",
+        "NaMiniApp__StatusExported"        : "Record JSON downloaded.",
+        "NaMiniApp__StatusBundleExported"  : "Library bundle downloaded.",
+        "NaMiniApp__StatusImported"        : "Library bundle imported.",
+        "NaMiniApp__StatusMissingRequired" : "Fill the required job fields before copying.",
+        "NaMiniApp__ModeLocalLabel"        : "Local mode",
+        "NaMiniApp__ModeLocalHint"         : "Edits are held in this browser only. Export changed records and commit them to the repo.",
+        "NaMiniApp__ModeServerLabel"       : "Server connected",
+        "NaMiniApp__ModeServerHint"        : "Reading and writing against the prompt server.",
+        "NaMiniApp__EmptyDetailHeading"    : "No prompt selected",
+        "NaMiniApp__EmptyDetailBody"       : "Pick a prompt from the list, or press Ctrl + K to jump straight to search.",
+        "NaMiniApp__EmptyListHeading"      : "Nothing here yet",
+        "NaMiniApp__EmptyListBody"         : "This section has no prompts. Press Alt + N to write the first one.",
+        "NaMiniApp__RailHeadingLibrary"    : "Library",
+        "NaMiniApp__RailHeadingCategories" : "Categories",
+        "NaMiniApp__RailHeadingKeywords"   : "Keywords",
+        "NaMiniApp__RailHeadingSnippets"   : "Snippet Blocks",
+        "NaMiniApp__DetailHeadingJob"      : "Job Specifics",
+        "NaMiniApp__DetailHeadingOutput"   : "Composed Output",
+        "NaMiniApp__DetailHeadingNotes"    : "Working Notes",
+        "NaMiniApp__ButtonCopyComposed"    : "Copy Prompt",
+        "NaMiniApp__ButtonCopyRaw"         : "Copy Raw Template",
+        "NaMiniApp__ButtonNewPrompt"       : "New Prompt",
+        "NaMiniApp__ButtonEdit"            : "Edit",
+        "NaMiniApp__ButtonDuplicate"       : "Duplicate",
+        "NaMiniApp__ButtonDelete"          : "Delete",
+        "NaMiniApp__ButtonDownloadRecord"  : "Download JSON",
+        "NaMiniApp__ButtonExportBundle"    : "Export Library",
+        "NaMiniApp__ButtonImportBundle"    : "Import",
+        "NaMiniApp__ButtonSave"            : "Save Prompt",
+        "NaMiniApp__ButtonCancel"          : "Cancel",
+        "NaMiniApp__ButtonResetFields"     : "Reset To Defaults",
+        "NaMiniApp__ButtonScanTokens"      : "Scan Body For Tokens",
+        "NaMiniApp__ConfirmDelete"         : "Delete this prompt? In local mode this only removes it from this browser - the file on disk stays until you remove it from the repo.",
+        "NaMiniApp__LabelAllPrompts"       : "All Prompts",
+        "NaMiniApp__LabelFavourites"       : "Favourites",
+        "NaMiniApp__LabelRecent"           : "Recently Used",
+        "NaMiniApp__LabelDrafts"           : "Drafts",
+        "NaMiniApp__LabelArchived"         : "Archived",
+        "NaMiniApp__LabelPendingChanges"   : "unsynced change",
+        "NaMiniApp__LabelPendingChangesPl" : "unsynced changes"
+    },
+
+
+    "NaMiniApp__SortModes" : {
+        "Relevance"    : { "SortMode__Title" : "Best Match",       "SortMode__LoadOrder" : 1 },
+        "RecentlyUsed" : { "SortMode__Title" : "Recently Used",    "SortMode__LoadOrder" : 2 },
+        "MostUsed"     : { "SortMode__Title" : "Most Used",        "SortMode__LoadOrder" : 3 },
+        "Updated"      : { "SortMode__Title" : "Recently Updated", "SortMode__LoadOrder" : 4 },
+        "Alphabetical" : { "SortMode__Title" : "A to Z",           "SortMode__LoadOrder" : 5 }
+    },
+
+
+    "NaMiniApp__KeyboardShortcuts" : [
+        { "Shortcut__Keys" : "Ctrl + K",     "Shortcut__Action" : "Jump to search"                     },
+        { "Shortcut__Keys" : "Arrow Up / Down", "Shortcut__Action" : "Move through the result list"    },
+        { "Shortcut__Keys" : "Enter",        "Shortcut__Action" : "Open the highlighted prompt"        },
+        { "Shortcut__Keys" : "Ctrl + Enter", "Shortcut__Action" : "Copy the composed prompt"           },
+        { "Shortcut__Keys" : "Alt + N",      "Shortcut__Action" : "New prompt"                         },
+        { "Shortcut__Keys" : "Alt + E",      "Shortcut__Action" : "Edit the open prompt"               },
+        { "Shortcut__Keys" : "Alt + F",      "Shortcut__Action" : "Toggle favourite on the open prompt" },
+        { "Shortcut__Keys" : "Escape",       "Shortcut__Action" : "Close the editor or clear search"   }
+    ]
+}

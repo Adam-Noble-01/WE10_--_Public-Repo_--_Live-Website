@@ -1,0 +1,72 @@
+{
+    "PromptIndex__Meta" : {
+        "PromptIndex__FileName"    : "PromptLibrary__PromptIndex__.json",
+        "PromptIndex__FileType"    : "Application Data - Prompt Record Manifest",
+        "PromptIndex__FileAuthor"  : "Adam Noble - Noble Architecture",
+        "PromptIndex__Created"     : "26-Aug-2026",
+        "PromptIndex__Version"     : "1.0.0",
+        "PromptIndex__RecordPath"  : "03__PromptRecords",
+        "PromptIndex__Description" : "Manifest of every prompt record file held on disk. Each prompt is a standalone JSON object in its own file so records can be added, edited and version controlled individually. The app loads this manifest first, then fetches each listed record file. Add a new prompt by dropping the record file into the record path folder and adding one entry below."
+    },
+
+
+    "PromptIndex__RecordSchema__Template" : {
+        "PromptRecord__Meta" : {
+            "PromptRecord__Id"           : "prompt__category__subcategory__short-name",
+            "PromptRecord__Title"        : "Human readable prompt title",
+            "PromptRecord__Summary"      : "One or two sentences describing what this prompt does and when to reach for it.",
+            "PromptRecord__Category"     : "Category key taken from PromptLibrary__TaxonomyIndex__.json",
+            "PromptRecord__SubCategory"  : "Sub category key taken from the parent category in the taxonomy file",
+            "PromptRecord__ModelTargets" : [ "Model target keys from the taxonomy file" ],
+            "PromptRecord__KeyWords"     : [ "Keyword01", "Keyword02", "Keyword03" ],
+            "PromptRecord__Status"       : "Active | Draft | Archived",
+            "PromptRecord__Favourite"    : false,
+            "PromptRecord__Version"      : "1.0.0",
+            "PromptRecord__Created"      : "DD-Mmm-YYYY",
+            "PromptRecord__Updated"      : "DD-Mmm-YYYY",
+            "PromptRecord__Author"       : "Adam Noble"
+        },
+        "PromptRecord__Body" : {
+            "PromptRecord__PromptText" : [
+                "The prompt body is stored as an array of lines so it stays readable and diff friendly in git.",
+                "An empty string produces a blank line.",
+                "Job specific values are written as double brace tokens such as {{VariableToken}} and are declared below.",
+                "A plain string is also accepted here if a single line prompt is all that is needed."
+            ]
+        },
+        "PromptRecord__Variables" : [
+            {
+                "Variable__Token"           : "VariableToken",
+                "Variable__Label"           : "Field label shown on the compose form",
+                "Variable__InputType"       : "Text | TextArea | Select | Number | Toggle",
+                "Variable__Required"        : true,
+                "Variable__DefaultValue"    : "Pre-filled value - use the proven original wording so an untouched form composes the known good prompt",
+                "Variable__Placeholder"     : "Greyed hint text shown in the empty field",
+                "Variable__HelpText"        : "Short note shown under the field",
+                "Variable__OmitLineIfEmpty" : false,
+                "Variable__Options"         : [ "Only used by the Select input type" ]
+            }
+        ],
+        "PromptRecord__Usage" : {
+            "PromptRecord__CopyCount" : 0,
+            "PromptRecord__LastUsed"  : null,
+            "PromptRecord__Notes"     : "Working notes - what it is good at, what it fails at, which model gave the best result."
+        }
+    },
+
+
+    "PromptIndex__Records" : {
+        "prompt__imagegen__whitecard-to-cgi__british-summer-day" : {
+            "Record__FileName"  : "PromptRecord__ImageGen__WhitecardToCgi__BritishSummerDay__.json",
+            "Record__LoadOrder" : 1
+        },
+        "prompt__imagegen__presentation-graphics__monochrome-ink-drawing" : {
+            "Record__FileName"  : "PromptRecord__ImageGen__PresentationGraphics__MonochromeInkDrawing__.json",
+            "Record__LoadOrder" : 2
+        },
+        "prompt__imagegen__whitecard-image__isolated-object-whitecard-with-dimensions" : {
+            "Record__FileName"  : "PromptRecord__ImageGen__WhitecardImage__IsolatedObjectWhitecardWithDimensions__.json",
+            "Record__LoadOrder" : 3
+        }
+    }
+}

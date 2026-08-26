@@ -1,0 +1,260 @@
+{
+    "PromptLibrary__Meta" : {
+        "PromptLibrary__FileName"    : "PromptLibrary__TaxonomyIndex__.json",
+        "PromptLibrary__FileType"    : "Application Data - Taxonomy Definition",
+        "PromptLibrary__FileAuthor"  : "Adam Noble - Noble Architecture",
+        "PromptLibrary__Created"     : "26-Aug-2026",
+        "PromptLibrary__Version"     : "1.0.0",
+        "PromptLibrary__Description" : "Single source of truth for the prompt library taxonomy. Defines every category, sub category, model target, status type and variable input type used by the AI Prompt Library mini app. Editing this file changes the navigation rail, the editor dropdowns and the filter chips. Nothing is hard coded in the application modules."
+    },
+
+
+    "PromptLibrary__Categories" : {
+        "ImageGeneration" : {
+            "Category__Title"         : "Image Generation",
+            "Category__ShortTitle"    : "Images",
+            "Category__Glyph"         : "IMG",
+            "Category__Description"   : "Prompts that produce or transform still imagery - visualisations, concept work, whitecard conversions and presentation graphics.",
+            "Category__AccentColour"  : "#2f6f9f",
+            "Category__LoadOrder"     : 1,
+            "Category__SubCategories" : {
+                "WhitecardImage" : {
+                    "SubCategory__Title"       : "Whitecard Image",
+                    "SubCategory__Description" : "Clean untextured massing and whitecard studies straight out of SketchUp.",
+                    "SubCategory__LoadOrder"   : 1
+                },
+                "ConceptImageGeneration" : {
+                    "SubCategory__Title"       : "Concept Image Generation",
+                    "SubCategory__Description" : "Early stage exploratory imagery generated from a written brief rather than existing geometry.",
+                    "SubCategory__LoadOrder"   : 2
+                },
+                "CgiGeneration" : {
+                    "SubCategory__Title"       : "CGI Generation",
+                    "SubCategory__Description" : "Full photorealistic CGI output intended for client presentation and planning submissions.",
+                    "SubCategory__LoadOrder"   : 3
+                },
+                "WhitecardToCgi" : {
+                    "SubCategory__Title"       : "Whitecard To CGI",
+                    "SubCategory__Description" : "Conversion prompts that take a fixed whitecard render and dress it into a photorealistic image without altering the geometry.",
+                    "SubCategory__LoadOrder"   : 4
+                },
+                "PresentationGraphics" : {
+                    "SubCategory__Title"       : "Presentation Graphics",
+                    "SubCategory__Description" : "Line drawings, ink illustrations, watercolour washes and other stylised presentation treatments.",
+                    "SubCategory__LoadOrder"   : 5
+                },
+                "InteriorVisualisation" : {
+                    "SubCategory__Title"       : "Interior Visualisation",
+                    "SubCategory__Description" : "Internal room views, material studies and furnished interior imagery.",
+                    "SubCategory__LoadOrder"   : 6
+                },
+                "SiteContextAndLandscape" : {
+                    "SubCategory__Title"       : "Site Context And Landscape",
+                    "SubCategory__Description" : "Landscaping, planting, boundary treatment and wider site context imagery.",
+                    "SubCategory__LoadOrder"   : 7
+                },
+                "ImageRepairAndUpscale" : {
+                    "SubCategory__Title"       : "Image Repair And Upscale",
+                    "SubCategory__Description" : "Clean up, upscale, de-noise and correction passes over existing imagery.",
+                    "SubCategory__LoadOrder"   : 8
+                }
+            }
+        },
+
+        "TextRefinement" : {
+            "Category__Title"         : "Text Refinement And Editing",
+            "Category__ShortTitle"    : "Text",
+            "Category__Glyph"         : "TXT",
+            "Category__Description"   : "Prompts that rewrite, tighten, proof and restructure written material - client letters, planning statements and design narratives.",
+            "Category__AccentColour"  : "#8a6d2a",
+            "Category__LoadOrder"     : 2,
+            "Category__SubCategories" : {
+                "ClientCorrespondence" : {
+                    "SubCategory__Title"       : "Client Correspondence",
+                    "SubCategory__Description" : "Emails, letters, fee proposals and general client facing writing.",
+                    "SubCategory__LoadOrder"   : 1
+                },
+                "PlanningStatements" : {
+                    "SubCategory__Title"       : "Planning Statements",
+                    "SubCategory__Description" : "Design and access statements, heritage statements and planning justification text.",
+                    "SubCategory__LoadOrder"   : 2
+                },
+                "ProofreadAndTighten" : {
+                    "SubCategory__Title"       : "Proofread And Tighten",
+                    "SubCategory__Description" : "Grammar, clarity and concision passes that keep the original voice intact.",
+                    "SubCategory__LoadOrder"   : 3
+                },
+                "ToneAndStyleRewrite" : {
+                    "SubCategory__Title"       : "Tone And Style Rewrite",
+                    "SubCategory__Description" : "Shift register, formality or house style without changing the underlying facts.",
+                    "SubCategory__LoadOrder"   : 4
+                },
+                "SummariseAndExtract" : {
+                    "SubCategory__Title"       : "Summarise And Extract",
+                    "SubCategory__Description" : "Condense long documents, pull out actions, and structure unstructured notes.",
+                    "SubCategory__LoadOrder"   : 5
+                }
+            }
+        },
+
+        "VideoEditing" : {
+            "Category__Title"         : "Video Editing",
+            "Category__ShortTitle"    : "Video",
+            "Category__Glyph"         : "VID",
+            "Category__Description"   : "Prompts covering moving image work - walkthrough animation, shot direction, voiceover scripting and post production.",
+            "Category__AccentColour"  : "#6b4fa0",
+            "Category__LoadOrder"     : 3,
+            "Category__SubCategories" : {
+                "WalkthroughAnimation" : {
+                    "SubCategory__Title"       : "Walkthrough Animation",
+                    "SubCategory__Description" : "Camera moves, fly throughs and animated presentation sequences.",
+                    "SubCategory__LoadOrder"   : 1
+                },
+                "ShotDirection" : {
+                    "SubCategory__Title"       : "Shot Direction",
+                    "SubCategory__Description" : "Shot lists, framing instruction and scene by scene direction.",
+                    "SubCategory__LoadOrder"   : 2
+                },
+                "VoiceoverAndScript" : {
+                    "SubCategory__Title"       : "Voiceover And Script",
+                    "SubCategory__Description" : "Narration scripts, timing notes and presenter copy.",
+                    "SubCategory__LoadOrder"   : 3
+                },
+                "PostProcessing" : {
+                    "SubCategory__Title"       : "Post Processing",
+                    "SubCategory__Description" : "Colour grading, transitions, titling and final polish instructions.",
+                    "SubCategory__LoadOrder"   : 4
+                }
+            }
+        },
+
+        "CodeAndAutomation" : {
+            "Category__Title"         : "Code And Automation",
+            "Category__ShortTitle"    : "Code",
+            "Category__Glyph"         : "DEV",
+            "Category__Description"   : "Prompts used when building web apps, SketchUp plugins and data tooling.",
+            "Category__AccentColour"  : "#2f7a55",
+            "Category__LoadOrder"     : 4,
+            "Category__SubCategories" : {
+                "AppScaffolding" : {
+                    "SubCategory__Title"       : "App Scaffolding",
+                    "SubCategory__Description" : "New app skeletons built to the Noble Architecture module and naming conventions.",
+                    "SubCategory__LoadOrder"   : 1
+                },
+                "RefactorAndReview" : {
+                    "SubCategory__Title"       : "Refactor And Review",
+                    "SubCategory__Description" : "Code review, tidy up and restructuring passes over existing modules.",
+                    "SubCategory__LoadOrder"   : 2
+                },
+                "SketchUpRubyPlugins" : {
+                    "SubCategory__Title"       : "SketchUp Ruby Plugins",
+                    "SubCategory__Description" : "Ruby extension work against the SketchUp API.",
+                    "SubCategory__LoadOrder"   : 3
+                },
+                "DataAndJsonTransforms" : {
+                    "SubCategory__Title"       : "Data And JSON Transforms",
+                    "SubCategory__Description" : "Reshaping project data files, schema work and bulk data edits.",
+                    "SubCategory__LoadOrder"   : 4
+                }
+            }
+        },
+
+        "ResearchAndAnalysis" : {
+            "Category__Title"         : "Research And Analysis",
+            "Category__ShortTitle"    : "Research",
+            "Category__Glyph"         : "RES",
+            "Category__Description"   : "Prompts for investigation work - regulations, products, precedent and comparative analysis.",
+            "Category__AccentColour"  : "#a35545",
+            "Category__LoadOrder"     : 5,
+            "Category__SubCategories" : {
+                "BuildingRegsAndPlanning" : {
+                    "SubCategory__Title"       : "Building Regs And Planning",
+                    "SubCategory__Description" : "Approved Document interrogation, planning policy and permitted development questions.",
+                    "SubCategory__LoadOrder"   : 1
+                },
+                "ProductAndMaterialResearch" : {
+                    "SubCategory__Title"       : "Product And Material Research",
+                    "SubCategory__Description" : "Specification comparison, product sourcing and material performance checks.",
+                    "SubCategory__LoadOrder"   : 2
+                },
+                "PrecedentAndCaseStudy" : {
+                    "SubCategory__Title"       : "Precedent And Case Study",
+                    "SubCategory__Description" : "Comparable schemes, appeal decisions and design precedent gathering.",
+                    "SubCategory__LoadOrder"   : 3
+                }
+            }
+        }
+    },
+
+
+    "PromptLibrary__ModelTargets" : {
+        "NanoBanana" : {
+            "ModelTarget__Title"       : "Nano Banana",
+            "ModelTarget__Description" : "Google image generation and editing model.",
+            "ModelTarget__LoadOrder"   : 1
+        },
+        "ChatGptImage" : {
+            "ModelTarget__Title"       : "ChatGPT Image",
+            "ModelTarget__Description" : "OpenAI image generation inside ChatGPT.",
+            "ModelTarget__LoadOrder"   : 2
+        },
+        "Midjourney" : {
+            "ModelTarget__Title"       : "Midjourney",
+            "ModelTarget__Description" : "Midjourney image generation service.",
+            "ModelTarget__LoadOrder"   : 3
+        },
+        "Claude" : {
+            "ModelTarget__Title"       : "Claude",
+            "ModelTarget__Description" : "Anthropic Claude - text, code and document work.",
+            "ModelTarget__LoadOrder"   : 4
+        },
+        "ChatGptText" : {
+            "ModelTarget__Title"       : "ChatGPT Text",
+            "ModelTarget__Description" : "OpenAI ChatGPT for written and analytical work.",
+            "ModelTarget__LoadOrder"   : 5
+        },
+        "Veo" : {
+            "ModelTarget__Title"       : "Veo",
+            "ModelTarget__Description" : "Google Veo video generation.",
+            "ModelTarget__LoadOrder"   : 6
+        },
+        "Sora" : {
+            "ModelTarget__Title"       : "Sora",
+            "ModelTarget__Description" : "OpenAI Sora video generation.",
+            "ModelTarget__LoadOrder"   : 7
+        },
+        "ModelAgnostic" : {
+            "ModelTarget__Title"       : "Model Agnostic",
+            "ModelTarget__Description" : "Works acceptably across any capable model.",
+            "ModelTarget__LoadOrder"   : 8
+        }
+    },
+
+
+    "PromptLibrary__StatusTypes" : {
+        "Active" : {
+            "StatusType__Title"       : "Active",
+            "StatusType__Description" : "Proven prompt in regular working use.",
+            "StatusType__Colour"      : "#2f7a45"
+        },
+        "Draft" : {
+            "StatusType__Title"       : "Draft",
+            "StatusType__Description" : "Work in progress - not yet trusted for client output.",
+            "StatusType__Colour"      : "#8a6516"
+        },
+        "Archived" : {
+            "StatusType__Title"       : "Archived",
+            "StatusType__Description" : "Superseded but retained for reference. Hidden from default searches.",
+            "StatusType__Colour"      : "#6b7280"
+        }
+    },
+
+
+    "PromptLibrary__VariableInputTypes" : {
+        "Text"     : { "InputType__Title" : "Single Line Text", "InputType__Description" : "Short free text entry."                           },
+        "TextArea" : { "InputType__Title" : "Multi Line Text",  "InputType__Description" : "Long form free text entry across several lines."  },
+        "Select"   : { "InputType__Title" : "Preset Choice",    "InputType__Description" : "Pick one value from a defined option list."       },
+        "Number"   : { "InputType__Title" : "Number",           "InputType__Description" : "Numeric entry only."                              },
+        "Toggle"   : { "InputType__Title" : "On Or Off",        "InputType__Description" : "Boolean switch resolving to one of two strings."  }
+    }
+}
