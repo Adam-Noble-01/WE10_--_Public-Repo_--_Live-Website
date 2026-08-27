@@ -30,6 +30,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Aug-2026 - Per-Scene Navigation Modes
+// - A scene may declare PresentationMode__Scene__NavigationMode as orbit,
+//   walk or fly.  The camera is released to orbit before the move (preserving
+//   the live framing so the transition still starts where the viewer was),
+//   then the declared mode is entered once the camera arrives.
+// - An absent key means "keep the viewer's current mode", which is how every
+//   scene authored before this change behaves.
+//
 // 21-Jun-2026 - Version 1.0.0
 // - Ported from ValeVision3D as part of the Presentation Mode transplant.
 //

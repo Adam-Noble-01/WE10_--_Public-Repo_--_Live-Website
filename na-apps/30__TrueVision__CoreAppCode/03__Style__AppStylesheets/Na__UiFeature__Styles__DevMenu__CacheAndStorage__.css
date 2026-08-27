@@ -1,0 +1,87 @@
+/* =============================================================================
+ * TRUEVISION3D - DEV MENU CACHE AND STORAGE PANEL STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__UiFeature__Styles__DevMenu__CacheAndStorage__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : Dev Menu - Cache and Storage Panel Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Readout, explanatory notes and divider for the dev cache panel
+ * CREATED    : 27-Aug-2026
+ *
+ * DESCRIPTION:
+ * - Styles the localhost-only "Cache & Storage" panel in the Dev Tools menu.
+ * - Buttons reuse the existing .na-pm-dev__btn family, so only the readout
+ *   line, the note paragraphs and a panel divider are defined here.
+ * - The divider is defined here because TrueVision has no equivalent of
+ *   ValeVision's .na-dropdown-menu__panel-divider.
+ *
+ * DEVELOPMENT LOG:
+ * 27-Aug-2026 - Version 1.0.0
+ * - Initial Release.
+ *
+ * =============================================================================
+ */
+
+
+/* #Region ---
+ * REGION | Storage Readout
+ * ----- */
+
+    /* READOUT | Monospace count line: caches, workers, cookies, storage, dbs */
+    /* ------------------------------------------------------------ */
+    .na-cache-dev__readout {
+        padding                            : 7px 9px;
+        border                             : 1px solid #e2e6ea;
+        border-radius                      : 5px;
+        background                         : #f7f9fb;
+        font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+        font-size                          : 0.72rem;
+        line-height                        : 1.5;
+        color                              : #3d4a57;
+        word-break                         : break-word;   /* <-- Never widen the dropdown panel */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Explanatory Notes and Divider
+ * ----- */
+
+    /* NOTE | Short description above each action button */
+    /* ------------------------------------------------------------ */
+    .na-cache-dev__note {
+        margin                             : 10px 0 0 0;
+        font-size                          : 0.72rem;
+        line-height                        : 1.5;
+        color                              : #6b7a8a;
+    }
+
+    .na-cache-dev__note strong {
+        color                              : #172b3a;
+        font-weight                        : 600;
+    }
+
+    .na-cache-dev__note--quiet {
+        margin-top                         : 12px;
+        padding-top                        : 10px;
+        border-top                         : 1px solid #eef0f2;
+        font-size                          : 0.68rem;
+        font-style                         : italic;
+        color                              : #94a3b1;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* DIVIDER | Section rule inside a dropdown panel */
+    /* ------------------------------------------------------------ */
+    .na-dropdown-menu__panel-divider {
+        border                             : none;
+        border-top                         : 1px solid #e8eaed;
+        margin                             : 12px 0 10px 0;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */

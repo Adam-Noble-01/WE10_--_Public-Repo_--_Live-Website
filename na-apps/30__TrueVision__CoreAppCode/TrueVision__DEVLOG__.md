@@ -2,6 +2,54 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.8.1  -  27-Aug-2026
+### Dev Menu - Cache & Storage Reset Panel
+
+New localhost-only `Cache & Storage` panel at the bottom of the Dev Tools menu,
+so busting the PWA cache no longer needs the DevTools Application tab or a
+console one-liner.
+
+**Two actions, separated by how much they destroy:**
+- `Bust Caches` - drops the service worker caches and registrations, then
+  reloads. The everyday "am I actually running my latest edit" button.
+  Cookies and saved app state are left alone. Delegates to the PWA registrar's
+  `clearCache()` so that teardown has one implementation.
+- `Full Reset` - the above plus cookies, localStorage, sessionStorage and
+  IndexedDB, for testing as a brand new visitor. Two-step confirm (the button
+  re-labels to `Click again to confirm` and disarms itself after 4s).
+
+**Live readout:**
+- One line showing caches, workers, cookies, local keys, session keys and
+  IndexedDB databases, refreshed when the panel opens and on demand, so it is
+  obvious whether a reset actually changed anything.
+- A note explains that caches reappearing after a reset is expected - the
+  worker re-registers on the reload and re-fetches them from the network.
+
+**Cookie clearing:**
+- A cookie is only deleted by re-setting it with an EXACTLY matching path and
+  domain, so the sweep covers every ancestor path both with and without its
+  trailing slash, against the host with and without a leading dot. A cookie on
+  `/na-apps/30__TrueVision__CoreAppCode/` is not cleared by expiring the same
+  path without the slash - that case was found in testing and fixed.
+- HttpOnly cookies are invisible to script and cannot be cleared here.
+
+**Robustness:**
+- Every storage API is independently guarded; one blocked or unsupported API
+  never prevents the rest of the reset from running.
+- IndexedDB enumeration is feature-detected (`indexedDB.databases` is absent
+  in Firefox); deletion resolves on error and on blocked so an open connection
+  elsewhere cannot hang the reset.
+- The panel is inert if its markup is absent, and the markup sits inside the
+  Dev Tools menu that `Na__UiFeature__DevMenu__LocalhostOnly.js` hides off
+  localhost - so it can never reach a client.
+
+**Changed Files**
+- NEW `02__Src__AppModules/70__System__DevTools/Na__UiFeature__DevMenu__CacheAndStorage__Controls.js`
+- NEW `03__Style__AppStylesheets/Na__UiFeature__Styles__DevMenu__CacheAndStorage__.css`
+- MOD `Index.html` - Cache & Storage dev panel markup, import, initialisation
+- MOD `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` - stylesheet import
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.9.0  -  27-Aug-2026
 ### PWA Installability - One Installable App Per Project
 

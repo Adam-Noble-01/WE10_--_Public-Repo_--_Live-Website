@@ -36,6 +36,11 @@
 @import url('Na__UiFeature__Styles__SceneInspector__.css');
 
 
+/* Dev Tools - Cache & Storage Panel (localhost only) */
+/* ----------------------------------------------------------------- */
+@import url('Na__UiFeature__Styles__DevMenu__CacheAndStorage__.css');
+
+
 /* Header Component - Vale Branding */
 /* ----------------------------------------------------------------- */
 @import url('Na__UiFeature__Styles__AppHeader__.css');

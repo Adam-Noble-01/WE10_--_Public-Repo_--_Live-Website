@@ -13,9 +13,14 @@
 // DESCRIPTION:
 // - Gated behind Na__AppUtils__IsRunningOnLocalhost(); invisible on hosted builds.
 // - Renders a scene list inside the static #naPmDevEditorPanel container.
-// - Per-scene controls: Name, Order, FOV slider with live lens-mm readout,
-//   Transition Time slider, Easing dropdown, Update From Camera, Regenerate
-//   Thumbnail, Save Scene, Delete Scene.
+// - Per-scene controls: Name, FOV slider with live lens-mm readout,
+//   Transition Time slider, Update From Camera, Regenerate Thumbnail,
+//   Save Scene, Delete Scene.
+// - Per-scene reordering: drag the grip handle, or use the up/down arrows in
+//   the row header, or type a position in Advanced. Order is rewritten as a
+//   clean 1..N sequence after every move and saved immediately.
+// - Per-scene Advanced section (collapsed by default): Position, Navigation
+//   Mode, Easing, and layer-switch timing.
 // - Global controls: Add New Scene From Camera, Export JSON, Save All To
 //   Project, Clear All Scenes.
 // - Saving writes the PresentationMode__SavedCameraScenes block straight to R2
@@ -33,6 +38,15 @@
 // 21-Jun-2026 - Version 1.0.0
 // - Ported from ValeVision3D. Persistence rewired from localhost Flask to the
 //   Cloudflare R2 API client (Na__CfApi__*).
+//
+// 27-Aug-2026 - Version 1.1.0
+// - Added scene reordering: drag handle, up/down arrows, and a Position field.
+//   Order is normalised to 1..N on every render and after every move.
+// - Added a per-scene collapsible Advanced section and moved Position, Easing
+//   and layer-switch timing into it alongside the new Navigation Mode toggles.
+// - Added per-scene Navigation Mode (Keep / Orbit / Walk / Fly). Keep is the
+//   absent-key default, so scenes authored before this release are unchanged.
+//   New scenes and Update Camera capture the live mode automatically.
 //
 // =============================================================================
 
@@ -324,6 +338,73 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Clear Any Drop-Indicator Classes From a Row
+    // ------------------------------------------------------------
+    function Na__PmDev__ClearDropIndicators(row) {
+        row.classList.remove('is-drop-before', 'is-drop-after');
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Attach Drag-and-Drop Reorder Handlers to a Scene Row
+    // ------------------------------------------------------------
+    // The row is only draggable while the grip handle is held (see the header
+    // builder), otherwise dragging a slider or selecting text in the name
+    // field would start a drag instead.
+    // ------------------------------------------------------------
+    function Na__PmDev__AttachSceneRowDragHandlers(row) {
+        const sceneId = row.dataset.sceneId;
+
+        row.addEventListener('dragstart', (event) => {
+            Na__PmDev__DragSceneId = sceneId;
+            row.classList.add('is-dragging');
+            if (event.dataTransfer) {
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', sceneId);          // <-- Firefox needs payload data to start a drag
+            }
+        });
+
+        row.addEventListener('dragend', () => {
+            Na__PmDev__DragSceneId = null;
+            row.classList.remove('is-dragging');
+            row.draggable = false;                                           // <-- Re-arm: handle must be grabbed again
+            const panel = document.getElementById('naPmDevEditorPanel');
+            if (panel) {
+                panel.querySelectorAll('.na-pm-dev__scene-row')
+                     .forEach(Na__PmDev__ClearDropIndicators);               // <-- Clear any stale indicator
+            }
+        });
+
+        row.addEventListener('dragover', (event) => {
+            if (!Na__PmDev__DragSceneId || Na__PmDev__DragSceneId === sceneId) return;
+            event.preventDefault();                                          // <-- Required to allow a drop
+            if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+
+            const bounds    = row.getBoundingClientRect();
+            const placeAfter = (event.clientY - bounds.top) > (bounds.height / 2); // <-- Lower half = insert below
+            row.classList.toggle('is-drop-before', !placeAfter);
+            row.classList.toggle('is-drop-after',   placeAfter);
+        });
+
+        row.addEventListener('dragleave', () => Na__PmDev__ClearDropIndicators(row));
+
+        row.addEventListener('drop', (event) => {
+            if (!Na__PmDev__DragSceneId || Na__PmDev__DragSceneId === sceneId) return;
+            event.preventDefault();
+
+            const bounds     = row.getBoundingClientRect();
+            const placeAfter = (event.clientY - bounds.top) > (bounds.height / 2);
+            const draggedId  = Na__PmDev__DragSceneId;
+
+            Na__PmDev__ClearDropIndicators(row);
+            Na__PmDev__DragSceneId = null;
+
+            Na__PmDev__HandleSceneDrop(draggedId, sceneId, placeAfter);      // <-- Reorder, renumber, save, rebuild
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Reorder via Drag and Drop Between Two Scene Rows
     // ------------------------------------------------------------
     async function Na__PmDev__HandleSceneDrop(dragSceneId, targetSceneId, placeAfter) {
@@ -578,7 +659,7 @@
         // DRAG HANDLE | Only the handle arms dragging, so sliders stay usable
         const dragHandle = document.createElement('span');
         dragHandle.className   = 'na-pm-dev__drag-handle';
-        dragHandle.textContent = '≡';                                  // <-- Grip glyph (identical-to sign)
+        dragHandle.textContent = '\u2261';                                  // <-- Grip glyph (identical-to sign)
         dragHandle.title       = 'Drag to reorder this scene';
         dragHandle.setAttribute('aria-hidden', 'true');
         dragHandle.addEventListener('mousedown', () => { wrapper.draggable = true;  });
@@ -594,7 +675,7 @@
         const moveUpBtn = document.createElement('button');
         moveUpBtn.type        = 'button';
         moveUpBtn.className   = 'na-pm-dev__reorder-btn';
-        moveUpBtn.textContent = '▲';
+        moveUpBtn.textContent = '\u25B2';
         moveUpBtn.title       = 'Move this scene one position earlier';
         moveUpBtn.disabled    = rowIndex === 0;                             // <-- Already first
         moveUpBtn.addEventListener('click', () => Na__PmDev__MoveSceneByOffset(sceneId, -1));
@@ -603,7 +684,7 @@
         const moveDownBtn = document.createElement('button');
         moveDownBtn.type        = 'button';
         moveDownBtn.className   = 'na-pm-dev__reorder-btn';
-        moveDownBtn.textContent = '▼';
+        moveDownBtn.textContent = '\u25BC';
         moveDownBtn.title       = 'Move this scene one position later';
         moveDownBtn.disabled    = rowIndex === rowCount - 1;                // <-- Already last
         moveDownBtn.addEventListener('click', () => Na__PmDev__MoveSceneByOffset(sceneId, 1));
@@ -651,19 +732,95 @@
             scene.PresentationMode__Scene__TransitionTimeToNextSceneMs = newMs;
         }));
 
+        // ADVANCED SECTION | Collapsed by default to keep each row readable
+        // ------------------------------------------------------------
+        // Holds the settings that are set once and rarely revisited: exact
+        // position, navigation mode, easing curve and layer-switch timing.
+        // Open/closed state is remembered across panel rebuilds so a reorder
+        // or a save does not collapse the section the user is working in.
+        // ------------------------------------------------------------
+        const advanced = document.createElement('div');
+        advanced.className = 'na-pm-dev__advanced';
+
+        const advancedToggle = document.createElement('button');
+        advancedToggle.type      = 'button';
+        advancedToggle.className = 'na-pm-dev__advanced-toggle';
+
+        const advancedBody = document.createElement('div');
+        advancedBody.className = 'na-pm-dev__advanced-body';
+
+        const isAdvancedOpen = Na__PmDev__AdvancedOpenIds.has(sceneId);
+        advancedBody.classList.toggle('is-open', isAdvancedOpen);
+        advancedToggle.setAttribute('aria-expanded', String(isAdvancedOpen));
+        advancedToggle.innerHTML = `Advanced <span class="na-pm-dev__advanced-arrow">&#9662;</span>`;
+
+        advancedToggle.addEventListener('click', () => {
+            const willOpen = !advancedBody.classList.contains('is-open');
+            advancedBody.classList.toggle('is-open', willOpen);
+            advancedToggle.setAttribute('aria-expanded', String(willOpen));
+            if (willOpen) {
+                Na__PmDev__AdvancedOpenIds.add(sceneId);                    // <-- Remember across rebuilds
+            } else {
+                Na__PmDev__AdvancedOpenIds.delete(sceneId);
+            }
+        });
+
+        // POSITION INPUT | Type an exact slot for long scene lists
+        const orderRow = document.createElement('div');
+        orderRow.className = 'na-pm-dev__row';
+        const orderLabel = document.createElement('label');
+        orderLabel.textContent = 'Position';
+        orderLabel.className = 'na-pm-dev__label';
+        const orderInput = document.createElement('input');
+        orderInput.type      = 'number';
+        orderInput.className = 'na-pm-dev__input na-pm-dev__input--short';
+        orderInput.min       = 1;
+        orderInput.max       = rowCount;
+        orderInput.value     = rowIndex + 1;                                // <-- Always the visible #N, never a stale sparse Order
+        orderInput.title     = 'Type a position to move this scene there';
+        orderInput.addEventListener('change', () => {
+            const requested = parseInt(orderInput.value, 10);
+            if (!Number.isFinite(requested)) {
+                orderInput.value = rowIndex + 1;                            // <-- Reject junk, restore displayed position
+                return;
+            }
+            const clamped = Math.max(1, Math.min(requested, rowCount));
+            if (clamped === rowIndex + 1) {
+                orderInput.value = clamped;                                 // <-- No move needed, just tidy the field
+                return;
+            }
+            Na__PmDev__MoveSceneToPosition(sceneId, clamped);               // <-- Reorder, renumber, save, rebuild
+        });
+        orderRow.appendChild(orderLabel);
+        orderRow.appendChild(orderInput);
+        advancedBody.appendChild(orderRow);
+
+        // NAVIGATION MODE TOGGLES
+        advancedBody.appendChild(Na__PmDev__BuildNavigationModeRow(scene, (newMode) => {
+            if (newMode === 'keep') {
+                delete scene[Na__PmDev__KEY__NAVIGATION_MODE];              // <-- Omit key when leaving the viewer's mode alone
+            } else {
+                scene[Na__PmDev__KEY__NAVIGATION_MODE] = newMode;
+            }
+        }));
+
         // EASING DROPDOWN
-        wrapper.appendChild(Na__PmDev__BuildEasingRow(scene, (newEasing) => {
+        advancedBody.appendChild(Na__PmDev__BuildEasingRow(scene, (newEasing) => {
             scene.PresentationMode__Scene__TransitionEasing = newEasing;
         }));
 
         // LAYER TIMING TOGGLE (before vs after camera move)
-        wrapper.appendChild(Na__PmDev__BuildVisibilityTimingRow(scene, (applyBefore) => {
+        advancedBody.appendChild(Na__PmDev__BuildVisibilityTimingRow(scene, (applyBefore) => {
             if (applyBefore) {
                 scene[Na__PmDev__KEY__VISIBILITY_BEFORE_CAMERA] = true;     // <-- Switch layers at transition start
             } else {
                 delete scene[Na__PmDev__KEY__VISIBILITY_BEFORE_CAMERA];    // <-- Omit key when default (after move)
             }
         }));
+
+        advanced.appendChild(advancedToggle);
+        advanced.appendChild(advancedBody);
+        wrapper.appendChild(advanced);
 
         // ACTION BUTTONS ROW
         const actionsRow = document.createElement('div');
@@ -683,7 +840,11 @@
             scene.PresentationMode__Scene__OrbitHelperCubePosition = { ...built.orbitHelperCubePosition };
             const visibility = Na__PmVisibility__CaptureState();            // <-- Capture live model element on/off state
             if (visibility) scene.PresentationMode__Scene__Visibility = visibility;
-            onMutate('save-one', scene);                                    // <-- Commit + persist immediately
+
+            const liveMode = Na__NavigationModes__GetActiveMode();          // <-- Recapture the mode the view was framed in
+            if (liveMode) scene[Na__PmDev__KEY__NAVIGATION_MODE] = liveMode;
+
+            onMutate('save-one', scene);                                    // <-- Commit + persist; commit re-renders the panel
         });
         actionsRow.appendChild(updateBtn);
 
@@ -805,7 +966,11 @@
 
         panel.innerHTML = '';                                                // <-- Clear and rebuild
 
-        Na__PmDev__WorkingScenes = Na__PmDev__GetWorkingScenes();
+        // SORT ONCE INTO THE WORKING ARRAY so array index == displayed position.
+        // Every reorder operation below works on array position, so the array
+        // and the panel must agree before any row is built.
+        Na__PmDev__WorkingScenes = Na__PmDev__SortScenesByOrder(Na__PmDev__GetWorkingScenes());
+        Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);            // <-- Collapse sparse/legacy orders to 1..N
 
         if (Na__PmDev__WorkingScenes.length === 0) {
             const empty = document.createElement('p');
@@ -813,18 +978,17 @@
             empty.textContent = 'No scenes defined. Add a scene below.';
             panel.appendChild(empty);
         } else {
-            const sorted = [...Na__PmDev__WorkingScenes].sort((a, b) =>
-                ((a.PresentationMode__Scene__Order ?? 999) - (b.PresentationMode__Scene__Order ?? 999))
-            );
+            const rowCount = Na__PmDev__WorkingScenes.length;
 
-            sorted.forEach((scene, index) => {
-                const row = Na__PmDev__BuildSceneRow(scene, index, async (action, targetScene) => {
+            Na__PmDev__WorkingScenes.forEach((scene, index) => {
+                const row = Na__PmDev__BuildSceneRow(scene, index, rowCount, async (action, targetScene) => {
                     if (action === 'delete') {
                         const ok = window.confirm(`Delete scene "${targetScene.PresentationMode__Scene__Name}"?`);
                         if (!ok) return;
                         Na__PmDev__WorkingScenes = Na__PmDev__WorkingScenes.filter(
                             s => s.PresentationMode__Scene__Id !== targetScene.PresentationMode__Scene__Id
                         );
+                        Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes); // <-- Close the gap left by the deleted scene
                         Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
                         await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
                         Na__PmDev__RenderEditorPanel();                     // <-- Rebuild panel after delete
@@ -833,6 +997,7 @@
                         await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
                     }
                 });
+                Na__PmDev__AttachSceneRowDragHandlers(row);                 // <-- Drag-to-reorder wiring
                 panel.appendChild(row);
             });
         }
@@ -932,6 +1097,9 @@
 
         const newSceneVisibility = Na__PmVisibility__CaptureState();        // <-- Capture model element on/off state at creation
         if (newSceneVisibility) newScene.PresentationMode__Scene__Visibility = newSceneVisibility;
+
+        const liveNavMode = Na__NavigationModes__GetActiveMode();           // <-- A scene framed in walk mode is a walk scene
+        if (liveNavMode) newScene[Na__PmDev__KEY__NAVIGATION_MODE] = liveNavMode;
 
         // RENDER + UPLOAD THUMBNAIL FIRST so the carousel card has an image
         await Na__PmDev__RegenerateThumbnail(newScene);                     // <-- Sets ThumbnailUrl on success

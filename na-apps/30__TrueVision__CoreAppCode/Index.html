@@ -461,6 +461,43 @@
                         <!-- Scene rows generated dynamically by Na__PresentationMode__DevMenu__SceneEditor.js -->
                     </div>
                 </li>
+                <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naCacheStorageDevItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naCacheStorageDevToggle" aria-expanded="false">
+                        Cache &amp; Storage
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naCacheStorageDevPanel">
+                        <div class="na-dropdown-menu__panel-title">Currently Stored</div>
+                        <div class="na-cache-dev__readout" id="naCacheStorageDevReadout">Reading...</div>
+                        <div class="na-pm-dev__actions">
+                            <button class="na-pm-dev__btn" id="naCacheStorageDevRefresh" type="button">Refresh</button>
+                        </div>
+
+                        <hr class="na-dropdown-menu__panel-divider" />
+
+                        <div class="na-dropdown-menu__panel-title">Reset For Testing</div>
+                        <p class="na-cache-dev__note">
+                            <strong>Bust Caches</strong> drops the service worker caches and registrations, then reloads.
+                            Use it when an edit is not showing up.
+                        </p>
+                        <div class="na-pm-dev__actions">
+                            <button class="na-pm-dev__btn na-pm-dev__btn--primary" id="naCacheStorageDevBust" type="button">Bust Caches</button>
+                        </div>
+
+                        <p class="na-cache-dev__note">
+                            <strong>Full Reset</strong> also clears cookies, local &amp; session storage and IndexedDB,
+                            so the next load behaves like a brand new visitor. Needs two clicks.
+                        </p>
+                        <div class="na-pm-dev__actions">
+                            <button class="na-pm-dev__btn na-pm-dev__btn--danger" id="naCacheStorageDevReset" type="button">Full Reset</button>
+                        </div>
+
+                        <p class="na-cache-dev__note na-cache-dev__note--quiet">
+                            After either action the page reloads and the service worker re-registers,
+                            so seeing caches listed again is expected &mdash; they are freshly fetched, not stale.
+                        </p>
+                    </div>
+                </li>
             </ul>
         </details>
         <div class="na-dev-menu__resize-handle" id="naDevMenuResizeHandle" aria-hidden="true"></div>
@@ -627,6 +664,7 @@
     import { Na__UiFeature__InitializeSaveCameraButton } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__SaveCameraSettings.js';
     import { Na__UiFeature__InitializeLocalhostDevMenu } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__DevMenu__LocalhostOnly.js';
     import { Na__UiFeature__InitializeSceneInspector } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__SceneInspector__Controls.js';
+    import { Na__UiFeature__InitializeCacheAndStorageDevControls } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__DevMenu__CacheAndStorage__Controls.js';
     import { Na__Math__ConvertMmToUnits } from './02__Src__AppModules/04__MathUtils/Na__Math__Units.js';
     import {
         Na__Scene__CreateFogPass,
@@ -1304,6 +1342,8 @@
     Na__UiFeature__InitializeLocalhostDevMenu();
     // @delegate: ./02__Src__AppModules/70__System__DevTools/Na__UiFeature__SceneInspector__Controls.js
     Na__UiFeature__InitializeSceneInspector(Na__Scene__Main);
+    // @delegate: ./02__Src__AppModules/70__System__DevTools/Na__UiFeature__DevMenu__CacheAndStorage__Controls.js
+    Na__UiFeature__InitializeCacheAndStorageDevControls();                       // <-- Localhost-only cache bust / full reset
     Na__UiFeature__InitializeSaveCameraButton(Na__Camera__Main, Na__Controls__Orbit, Na__UiFeature__ShowToast);
     // ------------------------------------------------------------
 

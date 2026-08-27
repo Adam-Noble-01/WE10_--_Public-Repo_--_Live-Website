@@ -242,7 +242,57 @@
     }
 
     .na-pm-dev__scene-header {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 6px;
         margin-bottom                      : 6px;
+    }
+
+    .na-pm-dev__scene-title {
+        flex                               : 1;
+        min-width                          : 0;
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        white-space                        : nowrap;
+    }
+
+    .na-pm-dev__drag-handle {
+        flex-shrink                        : 0;
+        padding                            : 0 4px;
+        font-size                          : 0.95rem;
+        line-height                        : 1;
+        color                              : #9aa3ad;
+        cursor                             : grab;
+        user-select                        : none;
+    }
+
+    .na-pm-dev__drag-handle:active {
+        cursor                             : grabbing;
+        color                              : #1a7fc4;
+    }
+
+    .na-pm-dev__reorder-btn {
+        flex-shrink                        : 0;
+        width                              : 22px;
+        height                             : 22px;
+        padding                            : 0;
+        font-size                          : 0.6rem;
+        line-height                        : 1;
+        border                             : 1px solid #ccc;
+        border-radius                      : 4px;
+        background                         : #f4f6f8;
+        color                              : #444;
+        cursor                             : pointer;
+        transition                         : background 0.14s;
+    }
+
+    .na-pm-dev__reorder-btn:hover:not(:disabled) {
+        background                         : #e8edf3;
+    }
+
+    .na-pm-dev__reorder-btn:disabled {
+        opacity                            : 0.35;
+        cursor                             : default;
     }
 
     .na-pm-dev__row {
@@ -375,6 +425,130 @@
 
     .na-pm-dev__checkbox-text {
         line-height                        : 1.3;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dev Menu Scene Editor - Drag Reorder Feedback
+ * ----- */
+
+    .na-pm-dev__scene-row.is-dragging {
+        opacity                            : 0.45;
+    }
+
+    /* Inset shadows rather than borders so the indicator never shifts layout */
+    .na-pm-dev__scene-row.is-drop-before {
+        box-shadow                         : inset 0 2px 0 0 #1a7fc4;
+    }
+
+    .na-pm-dev__scene-row.is-drop-after {
+        box-shadow                         : inset 0 -2px 0 0 #1a7fc4;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dev Menu Scene Editor - Advanced Section
+ * ----- */
+
+    .na-pm-dev__advanced {
+        margin-top                         : 8px;
+    }
+
+    .na-pm-dev__advanced-toggle {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 5px;
+        width                              : 100%;
+        padding                            : 3px 0;
+        font-size                          : 0.74rem;
+        color                              : #6b7480;
+        text-align                         : left;
+        background                         : none;
+        border                             : none;
+        cursor                             : pointer;
+    }
+
+    .na-pm-dev__advanced-toggle:hover {
+        color                              : #1a7fc4;
+    }
+
+    .na-pm-dev__advanced-arrow {
+        display                            : inline-block;
+        font-size                          : 0.7rem;
+        transition                         : transform 0.15s;
+    }
+
+    .na-pm-dev__advanced-toggle[aria-expanded="true"] .na-pm-dev__advanced-arrow {
+        transform                          : rotate(180deg);
+    }
+
+    .na-pm-dev__advanced-body {
+        display                            : none;
+        padding                            : 8px 0 2px 8px;
+        border-left                        : 2px solid #e8eaed;
+    }
+
+    .na-pm-dev__advanced-body.is-open {
+        display                            : block;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dev Menu Scene Editor - Segmented Toggle Group
+ * ----- */
+
+    .na-pm-dev__toggle-group {
+        display                            : flex;
+        flex                               : 1;
+        gap                                : 0;
+    }
+
+    .na-pm-dev__toggle {
+        flex                               : 1;
+        padding                            : 3px 6px;
+        font-size                          : 0.72rem;
+        border                             : 1px solid #ccc;
+        border-right-width                 : 0;
+        background                         : #f4f6f8;
+        color                              : #444;
+        cursor                             : pointer;
+        transition                         : background 0.14s, color 0.14s;
+    }
+
+    .na-pm-dev__toggle:first-child {
+        border-radius                      : 4px 0 0 4px;
+    }
+
+    .na-pm-dev__toggle:last-child {
+        border-right-width                 : 1px;
+        border-radius                      : 0 4px 4px 0;
+    }
+
+    .na-pm-dev__toggle:hover:not(:disabled):not(.is-active) {
+        background                         : #e8edf3;
+    }
+
+    .na-pm-dev__toggle.is-active {
+        background                         : #1a7fc4;
+        border-color                       : #1a7fc4;
+        color                              : #ffffff;
+    }
+
+    /* Keep the active segment's right edge visible against its neighbour */
+    .na-pm-dev__toggle.is-active + .na-pm-dev__toggle {
+        border-left-color                  : #1a7fc4;
+    }
+
+    .na-pm-dev__toggle--disabled,
+    .na-pm-dev__toggle:disabled {
+        opacity                            : 0.4;
+        cursor                             : not-allowed;
     }
 
 /* endregion ---- */
