@@ -2,6 +2,109 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.9.0  -  27-Aug-2026
+### PWA Installability - One Installable App Per Project
+
+TrueVision is now installable as a proper app on phones, tablets and desktops.
+The install is unique PER PROJECT: each client installs their own scheme, with
+its own icon, its own name and a launch URL that opens straight into their own
+model. A device can hold several of them side by side without collision.
+
+Ported from the ValeVision3D / Whitecardopedia install stack, with the manifest
+made dynamic and the prompt restyled to the Noble Architecture house style.
+
+**Per-project identity - the part that is genuinely new:**
+- TrueVision serves every client from one codebase and selects the project from
+  the URL query, so a single static `.webmanifest` would have installed one
+  generic app for everybody, launching at a project-less URL.
+- `TrueVision__Pwa__Manifest__Builder__.js` therefore builds the manifest in
+  memory at boot and injects it as a `data:application/manifest+json` link,
+  stamped with the project from the URL:
+  ```
+  id / start_url  ->  .../Index.html?project=RB05&project-folder=RB05__WestFarm&year=26
+  name            ->  "West Farm - TrueVision 3D"
+  short_name      ->  "West Farm"          (the home-screen label)
+  ```
+- Because `id` differs per project, the browser treats each project as a
+  separate app. Two projects installed on one iPad do not overwrite each other.
+- The readable name is derived synchronously from the project folder
+  (`RB05__WestFarm` -> `West Farm`) so it is in place before the browser
+  evaluates installability; `TrueVision__ProjectData__.json` refines it later if
+  it carries a better one.
+- Every URL inside the manifest is absolute, because a `data:` URL has no base
+  to resolve relative paths against. `TrueVision__Pwa__Url__Constructor__.js` is
+  the single place those are built.
+- `TrueVision__Pwa__Manifest__Fallback__.webmanifest` is the static safety net,
+  used if scripting is unavailable or a CSP `manifest-src` rule blocks the
+  inline form. It installs, it just loses the per-project identity.
+
+**Platform coverage:**
+- Chromium (Chrome / Edge / Opera / Samsung Internet, desktop and Android) gets
+  a compact bottom bar and the real `beforeinstallprompt` flow - one tap.
+- iOS and iPadOS Safari get an instruction card, with the Share button
+  described in the right place for the device (bottom on iPhone, top on iPad).
+  Getting that wrong is the usual reason a client gives up.
+- macOS Safari gets File > Add to Dock.
+- iOS Chrome / Edge / Firefox are told plainly that only Safari can install, and
+  offered a Copy Link button carrying the canonical project URL.
+- Firefox Android is pointed at its own menu; Firefox desktop is told it cannot
+  install rather than being sent hunting for a menu entry that does not exist.
+
+**Prompt behaviour:**
+- Styled to match the `Better in Full Screen` card: white panel, dark blue
+  header bar, soft backdrop blur, Open Sans.
+- Sequenced to stay out of the way. It waits for `na-app-scene-ready`, then a
+  6 s settle, then refuses to render while the full screen card or the User
+  Guide is open, polling until they close. Waiting on another modal does not
+  eat the retry budget, so a client reading the full screen card slowly does
+  not lose the install offer.
+- The bar MEASURES the bottom of the viewport and sits clear of the Presentation
+  Mode scene carousel and the navigation toolbar, re-measuring when the carousel
+  is toggled or the window resizes.
+- Dismissal policy differs by environment on purpose:
+  - LIVE - the offer returns on every fresh visit. Clients rarely install the
+    first time they are asked; the second visit is when it lands. `Not Now`
+    only silences it for that page load.
+  - LOCALHOST - dismissing stores a one week suppression, so development
+    reloads are not interrupted, but the prompt still resurfaces on its own
+    often enough to confirm it works. Clear it early from the console with
+    `TrueVision__Pwa__ResetInstallPrompt()`.
+- An actual install always wins: once installed for a project, that project
+  never offers again.
+- `Tools & Settings > Install App` is the deliberate route back to the prompt,
+  and always shows it whatever the suppression state says. Hidden inside an
+  already installed app.
+
+**Service worker:**
+- `Na__Pwa__ServiceWorker__.js` sits at the app root because GitHub Pages
+  cannot send `Service-Worker-Allowed`, so the script's location IS its scope.
+  DO NOT MOVE IT - moving it silently breaks install on every Chromium browser.
+- Four buckets: shell (stale-while-revalidate), project data (network-first,
+  `cache: 'no-store'` so a stale disk-cached copy can never be written back as
+  fresh), models (network-first with a 4 s slow-network grace, LRU capped at
+  80), and version-pinned vendor modules from esm.sh (cache-first).
+- Deliberately NOT precaching the full module graph. TrueVision has around a
+  hundred modules that move constantly and a hand-maintained precache list
+  would be wrong within a week. Only the boot-critical handful is precached;
+  the rest populates on first visit, which is what makes the second visit fast.
+- Bump `PWA_SW_VERSION_TOKEN` in the SW logic to force-evict every bucket.
+- Console recovery: `TrueVision__Pwa__ClearCache()` and
+  `TrueVision__Pwa__PurgeApp()`.
+
+**Changed Files**
+- NEW `Na__Pwa__ServiceWorker__.js` - SW stub at app root for maximum scope
+- NEW `02__Src__AppModules/62__Feature__AppInstallability/` - 15 modules:
+  URL constructor, project context, manifest builder, fallback manifest,
+  platform detector, session state, prompt UI, five platform handlers,
+  install controller, service worker registrar and logic
+- NEW `03__Style__AppStylesheets/Na__UiFeature__Styles__PwaInstallability__.css`
+- MOD `Index.html` - manifest link, Apple meta tags, PWA script loading,
+  `Install App` menu row and its wiring
+- MOD `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` - stylesheet import
+- MOD `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` -
+  refines the installable app name from the loaded project data
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.8.0  -  27-Aug-2026
 ### Full Screen Mode - Menu Toggle and Startup Invitation
 
@@ -27,9 +130,11 @@ once the model has finished loading.
   Escape on desktop, the Tools & Settings row on tablets and phones.
 - The Fullscreen API only accepts a real user gesture, so the card carries the
   click the browser requires; the app can never switch itself over.
-- Dismissed via `Go Full Screen`, `Not Now`, the backdrop, or Escape. Once
-  dismissed it is suppressed for the rest of the browser session, so a refresh
-  mid-review does not nag. A fresh visit offers it again.
+- Dismissed via `Go Full Screen`, `Not Now`, the backdrop, or Escape. The
+  dismissal applies to that page load only - the card is offered on every app
+  open, a reload included. Remembering a dismissal was tried and reverted: a
+  stray Escape press silenced the invitation for the whole tab session with no
+  way to bring it back.
 - Card height is capped against the dynamic viewport with the body scrolling,
   so the action buttons stay reachable on landscape phones.
 

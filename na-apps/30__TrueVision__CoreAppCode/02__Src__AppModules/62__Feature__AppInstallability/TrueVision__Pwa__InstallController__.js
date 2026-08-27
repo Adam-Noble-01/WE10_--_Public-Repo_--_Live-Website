@@ -47,8 +47,9 @@
     const CONTROLLER_SCENE_READY_EVENT      = 'na-app-scene-ready';                                                                 // <-- Fired once the model is on screen
     const CONTROLLER_SCENE_READY_TIMEOUT_MS = 45000;                                                                                // <-- Offer anyway if the model never loads
     const CONTROLLER_SETTLE_DELAY_MS        = 6000;                                                                                 // <-- Breathing room after the full screen card
-    const CONTROLLER_RETRY_INTERVAL_MS      = 2000;                                                                                 // <-- Retry cadence while blocked
-    const CONTROLLER_MAX_RETRY_ATTEMPTS     = 15;                                                                                   // <-- Cap on retry attempts (30 s of polling)
+    const CONTROLLER_RETRY_INTERVAL_MS      = 2000;                                                                                 // <-- Retry cadence
+    const CONTROLLER_MAX_RETRY_ATTEMPTS     = 15;                                                                                   // <-- Real attempts, i.e. 30 s of warm-up grace
+    const CONTROLLER_MAX_BLOCKED_POLLS      = 90;                                                                                   // <-- Extra polls while another modal is open (3 min)
     // ------------------------------------------------------------
 
 
@@ -155,7 +156,18 @@
 
     // HELPER FUNCTION | Attempt to Trigger the Handler, Retrying if Blocked
     // ---------------------------------------------------------------
-    function TrueVision__Pwa__InstallController__AttemptShow(remainingAttempts) {
+    // Two separate budgets, because the two reasons for retrying are not the
+    // same thing:
+    //   remainingAttempts - real tries. Chromium may not have fired
+    //                       beforeinstallprompt yet, so a few goes are needed.
+    //   remainingBlocked  - polls burned purely waiting for another modal to
+    //                       close. A client reading the full screen card must
+    //                       not lose the install offer just because they took
+    //                       their time over it, so these do not eat the real
+    //                       attempts. Still capped, so this can never poll on
+    //                       forever.
+    // ---------------------------------------------------------------
+    function TrueVision__Pwa__InstallController__AttemptShow(remainingAttempts, remainingBlockedPolls) {
         const activeHandler = TrueVision__Pwa__InstallController__ActiveHandler;                                                    // <-- Snapshot the active handler
         if (!activeHandler) return;                                                                                                 // <-- No handler, nothing to do
 
@@ -166,17 +178,24 @@
             return;                                                                                                                 // <-- Snoozed or installed, stay quiet
         }
 
-        const isBlocked     = TrueVision__Pwa__InstallController__IsBlockedByOtherUi();                                             // <-- Another modal in the way
+        if (TrueVision__Pwa__InstallController__IsBlockedByOtherUi()) {                                                             // <-- Another modal holds the screen
+            if (remainingBlockedPolls <= 0) return;                                                                                 // <-- Waited long enough, give up quietly
+            setTimeout(
+                () => TrueVision__Pwa__InstallController__AttemptShow(remainingAttempts, remainingBlockedPolls - 1),                 // <-- Poll again, real budget untouched
+                CONTROLLER_RETRY_INTERVAL_MS
+            );
+            return;
+        }
 
-        if (!isBlocked && typeof activeHandler.requestShow === 'function') {
+        if (typeof activeHandler.requestShow === 'function') {
             activeHandler.requestShow();                                                                                            // <-- Ask the handler to render
         }
 
         const promptVisible = window.TrueVision__Pwa__PromptUi && window.TrueVision__Pwa__PromptUi.isVisible();                     // <-- Did anything actually appear
-        if (promptVisible || remainingAttempts <= 0) return;                                                                        // <-- Done, or out of attempts
+        if (promptVisible || remainingAttempts <= 0) return;                                                                        // <-- Done, or out of real attempts
 
-        setTimeout(                                                                                                                 // <-- Retry: modal still open, or Chromium
-            () => TrueVision__Pwa__InstallController__AttemptShow(remainingAttempts - 1),                                            //     has not fired beforeinstallprompt yet
+        setTimeout(                                                                                                                 // <-- Retry: the browser may still be warming
+            () => TrueVision__Pwa__InstallController__AttemptShow(remainingAttempts - 1, remainingBlockedPolls),                     //     up towards beforeinstallprompt
             CONTROLLER_RETRY_INTERVAL_MS
         );
     }
@@ -195,7 +214,7 @@
             if (hasFired) return;                                                                                                   // <-- Already started
             hasFired = true;
             setTimeout(
-                () => TrueVision__Pwa__InstallController__AttemptShow(CONTROLLER_MAX_RETRY_ATTEMPTS),                                 // <-- Begin attempting after the settle delay
+                () => TrueVision__Pwa__InstallController__AttemptShow(CONTROLLER_MAX_RETRY_ATTEMPTS, CONTROLLER_MAX_BLOCKED_POLLS),  // <-- Begin attempting after the settle delay
                 CONTROLLER_SETTLE_DELAY_MS
             );
         };

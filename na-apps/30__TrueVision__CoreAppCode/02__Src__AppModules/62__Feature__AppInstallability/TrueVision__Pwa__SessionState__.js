@@ -10,21 +10,42 @@
 // CREATED    : 27-Aug-2026
 //
 // DESCRIPTION:
-// - Stores dismissal counts and snooze deadlines in localStorage so a client
-//   is never nagged on every visit.
+// - Decides whether the install prompt is allowed to appear, and remembers
+//   what the user already told us.
+//
+// - THE DISMISSAL POLICY IS DELIBERATELY DIFFERENT BY ENVIRONMENT:
+//
+//     LIVE SITE  - the offer comes back on every fresh visit. Clients rarely
+//                  install the first time they are asked; they look at their
+//                  model, come back a week later, and that second visit is
+//                  when it lands. "Not Now" therefore only silences the
+//                  prompt for the rest of that page load.
+//
+//     LOCALHOST  - dismissing stores a one week suppression. During
+//                  development the app is reloaded dozens of times a day and
+//                  a prompt on every single boot would be unbearable. A week
+//                  is long enough to stay out of the way, short enough that
+//                  the prompt resurfaces on its own and gets eyeballed
+//                  occasionally to confirm it still works.
+//                  Clear it early with TrueVision__Pwa__ResetInstallPrompt().
+//
 // - State is namespaced PER PROJECT as well as per platform. Declining the
 //   install on one project must not silence the offer on a different project,
 //   because each project is a separate installed app with its own icon.
 //     state.perProject["26-RB05__WestFarm"].perPlatform["chromium-android"]
-// - Snooze ladder (1 min -> 1 hr -> 1 day -> 1 wk -> 1 mo) escalates with each
-//   dismissal, so a first accidental dismissal is quickly recoverable while a
-//   client who genuinely is not interested is left alone.
+// - An actual install always wins on both environments: once the app has been
+//   installed for a project, that project never offers again.
 // - Falls back to in-memory storage when localStorage is unavailable (private
 //   mode, sandboxed iframes) so the app never throws.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Aug-2026 - Version 1.1.0
+// - Replaced the escalating snooze ladder with the environment-driven policy
+//   described above: always re-offer on the live site, suppress for a week on
+//   localhost.
+//
 // 27-Aug-2026 - Version 1.0.0
 // - Initial release, ported from the ValeVision3D / Whitecardopedia PWA stack
 //   with the storage schema re-shaped around per-project namespacing.
@@ -45,15 +66,10 @@
     // ------------------------------------------------------------
 
 
-    // MODULE CONSTANTS | Snooze Ladder (milliseconds)
+    // MODULE CONSTANTS | Dismissal Suppression Windows (milliseconds)
     // ------------------------------------------------------------
-    const SESSION_STATE_SNOOZE_LADDER_MS    = [                                                                                     // <-- Exponential snooze schedule
-        60 * 1000,                                                                                                                  // <-- 1st dismissal: 1 minute
-        60 * 60 * 1000,                                                                                                             // <-- 2nd dismissal: 1 hour
-        24 * 60 * 60 * 1000,                                                                                                        // <-- 3rd dismissal: 1 day
-        7 * 24 * 60 * 60 * 1000,                                                                                                    // <-- 4th dismissal: 1 week
-        30 * 24 * 60 * 60 * 1000                                                                                                    // <-- 5th and beyond: 1 month
-    ];
+    const SESSION_STATE_DEV_SNOOZE_MS       = 7 * 24 * 60 * 60 * 1000;                                                              // <-- Localhost: one week of quiet after a dismissal
+    const SESSION_STATE_LIVE_SNOOZE_MS      = 0;                                                                                    // <-- Live site: this page load only, then offer again
     // ------------------------------------------------------------
 
 
@@ -70,6 +86,17 @@
     // matter how many times they previously said "Not Now".
     // ------------------------------------------------------------
     let TrueVision__Pwa__SessionState__ManualOverrideActive = false;                                                                // <-- True only inside a manual request
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Page-Load Dismissal Flag
+    // ------------------------------------------------------------
+    // Set when the user dismisses the prompt, cleared by the next page load
+    // because it lives in memory. This is what stops the live site re-opening
+    // the prompt in the same session while still offering it again on the next
+    // visit.
+    // ------------------------------------------------------------
+    let TrueVision__Pwa__SessionState__DismissedThisPageLoad = false;                                                               // <-- Reset by any reload
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -203,11 +230,27 @@
 // REGION | Public API
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Get the Snooze Duration for a Dismissal Count
+    // FUNCTION | Report Whether This Is a Development Environment
     // ------------------------------------------------------------
-    function TrueVision__Pwa__SessionState__GetSnoozeDurationMs(dismissalCount) {
-        const safeIndex     = Math.max(0, Math.min(SESSION_STATE_SNOOZE_LADDER_MS.length - 1, dismissalCount - 1));                 // <-- Clamp to the ladder bounds
-        return SESSION_STATE_SNOOZE_LADDER_MS[safeIndex];                                                                           // <-- Return the ladder entry
+    function TrueVision__Pwa__SessionState__IsDevEnvironment() {
+        const urlHelper     = window.TrueVision__Pwa__Url || null;                                                                  // <-- Absolute URL helper
+        if (urlHelper && typeof urlHelper.isLocalhost === 'function') return urlHelper.isLocalhost();                               // <-- Authoritative answer
+
+        const hostname      = (window.location && window.location.hostname) || '';                                                  // <-- Fallback probe
+        return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
+    }
+    // ---------------------------------------------------------------
+
+
+    // FUNCTION | Get the Suppression Window a Dismissal Should Apply
+    // ------------------------------------------------------------
+    // One week on localhost, nothing on the live site. See the environment
+    // policy note in this file's header for why the two differ.
+    // ------------------------------------------------------------
+    function TrueVision__Pwa__SessionState__GetSnoozeDurationMs() {
+        return TrueVision__Pwa__SessionState__IsDevEnvironment()
+            ? SESSION_STATE_DEV_SNOOZE_MS                                                                                           // <-- Localhost: a week of quiet
+            : SESSION_STATE_LIVE_SNOOZE_MS;                                                                                         // <-- Live: back again next visit
     }
     // ---------------------------------------------------------------
 
@@ -239,24 +282,27 @@
         const nowEpochMs    = Date.now();                                                                                           // <-- Current time
 
         if (snapshot.installCompletedAt) return true;                                                                               // <-- This project is already installed
+        if (TrueVision__Pwa__SessionState__DismissedThisPageLoad) return true;                                                       // <-- Already said no during this page load
         if (snapshot.globalSuppressUntil && nowEpochMs < snapshot.globalSuppressUntil) return true;                                  // <-- Global suppression active
-        if (snapshot.snoozeUntil && nowEpochMs < snapshot.snoozeUntil) return true;                                                  // <-- Per-platform snooze active
+        if (snapshot.snoozeUntil && nowEpochMs < snapshot.snoozeUntil) return true;                                                  // <-- Localhost week-long snooze active
 
         return false;                                                                                                               // <-- Free to prompt
     }
     // ---------------------------------------------------------------
 
 
-    // FUNCTION | Record a Dismissal and Advance the Snooze Ladder
+    // FUNCTION | Record a Dismissal and Apply the Environment's Policy
     // ------------------------------------------------------------
     function TrueVision__Pwa__SessionState__RecordDismissal(platformId) {
+        TrueVision__Pwa__SessionState__DismissedThisPageLoad = true;                                                                // <-- Quiet for the rest of this page load
+
         const stateObject       = TrueVision__Pwa__SessionState__ReadRawState();                                                    // <-- Load the full state
         const projectEntry      = TrueVision__Pwa__SessionState__ReadProjectEntry(stateObject);                                     // <-- Narrow to this project
         const previousEntry     = projectEntry.perPlatform[platformId] || { dismissCount: 0, snoozeUntil: null };                    // <-- Existing platform entry
 
         const nextDismissCount  = Number(previousEntry.dismissCount || 0) + 1;                                                      // <-- Increment the count
-        const snoozeDurationMs  = TrueVision__Pwa__SessionState__GetSnoozeDurationMs(nextDismissCount);                              // <-- Look up the ladder duration
-        const nextSnoozeUntil   = Date.now() + snoozeDurationMs;                                                                    // <-- Compute the next deadline
+        const snoozeDurationMs  = TrueVision__Pwa__SessionState__GetSnoozeDurationMs();                                              // <-- Environment-driven window
+        const nextSnoozeUntil   = snoozeDurationMs > 0 ? Date.now() + snoozeDurationMs : null;                                      // <-- Live site persists no deadline at all
 
         projectEntry.perPlatform[platformId] = {                                                                                    // <-- Update the platform entry
             dismissCount    : nextDismissCount,
@@ -295,6 +341,7 @@
     // FUNCTION | Reset State for the Active Project (Diagnostic)
     // ------------------------------------------------------------
     function TrueVision__Pwa__SessionState__ResetProject() {
+        TrueVision__Pwa__SessionState__DismissedThisPageLoad = false;                                                               // <-- Lift the page-load quiet period
         const stateObject   = TrueVision__Pwa__SessionState__ReadRawState();                                                        // <-- Load the full state
         const projectKey    = TrueVision__Pwa__SessionState__GetProjectKey();                                                       // <-- Active project namespace
 
@@ -309,6 +356,7 @@
     // FUNCTION | Reset Every Project (Diagnostic / Reinstall Flow)
     // ------------------------------------------------------------
     function TrueVision__Pwa__SessionState__ResetAll() {
+        TrueVision__Pwa__SessionState__DismissedThisPageLoad = false;                                                               // <-- Lift the page-load quiet period
         TrueVision__Pwa__SessionState__WriteRawState(TrueVision__Pwa__SessionState__BuildEmptyState());                              // <-- Replace with a clean state
     }
     // ---------------------------------------------------------------
@@ -345,7 +393,20 @@
             suppressGlobally        : TrueVision__Pwa__SessionState__SuppressGlobally,
             resetProject            : TrueVision__Pwa__SessionState__ResetProject,
             resetAll                : TrueVision__Pwa__SessionState__ResetAll,
-            setManualOverride       : TrueVision__Pwa__SessionState__SetManualOverride
+            setManualOverride       : TrueVision__Pwa__SessionState__SetManualOverride,
+            isDevEnvironment        : TrueVision__Pwa__SessionState__IsDevEnvironment,
+            getSnoozeDurationMs     : TrueVision__Pwa__SessionState__GetSnoozeDurationMs
+        };
+
+        // CONSOLE SHORTCUT | Clear the localhost week-long snooze on demand
+        // ------------------------------------------------------------
+        // Type TrueVision__Pwa__ResetInstallPrompt() in the console to make
+        // the prompt come back immediately during development.
+        // ------------------------------------------------------------
+        window.TrueVision__Pwa__ResetInstallPrompt = function () {
+            TrueVision__Pwa__SessionState__ResetAll();                                                                              // <-- Wipe every project's prompt state
+            console.log('[TrueVision3D PWA] Install prompt state cleared - reload to see the prompt again.');
+            return 'cleared';
         };
     }
     // ---------------------------------------------------------------

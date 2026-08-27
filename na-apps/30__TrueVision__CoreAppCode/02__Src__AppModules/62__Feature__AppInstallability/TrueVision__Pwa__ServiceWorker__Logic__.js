@@ -79,6 +79,19 @@
     // ------------------------------------------------------------
 
 
+    // MODULE CONSTANTS | Development Environment Detection
+    // ------------------------------------------------------------
+    // On localhost the shell strategy switches from stale-while-revalidate to
+    // network-first. Stale-while-revalidate is exactly right in production -
+    // instant load, refresh in the background - but during development it
+    // serves the PREVIOUS save of every edited module and only picks the new
+    // one up on a second reload. That wastes far more time than the cache
+    // saves, and quietly makes you debug code you already fixed.
+    // ------------------------------------------------------------
+    const PWA_SW_IS_DEV_ENVIRONMENT         = ['localhost', '127.0.0.1', '0.0.0.0'].indexOf(self.location.hostname) !== -1;         // <-- True on the local dev server
+    // ------------------------------------------------------------
+
+
     // MODULE CONSTANTS | Boot-Critical Precache List (relative to scope)
     // ------------------------------------------------------------
     const PWA_SW_SHELL_PRECACHE_RELATIVE    = [                                                                                     // <-- Best-effort; a miss never fails install
@@ -369,7 +382,9 @@
         }
 
         if (classification === 'shell') {
-            fetchEvent.respondWith(TrueVision__Pwa__ServiceWorker__Logic__StaleWhileRevalidate(request, PWA_SW_CACHE_NAME_SHELL));  // <-- Fast, with a background refresh
+            fetchEvent.respondWith(PWA_SW_IS_DEV_ENVIRONMENT
+                ? TrueVision__Pwa__ServiceWorker__Logic__NetworkFirst(request, PWA_SW_CACHE_NAME_SHELL)                             // <-- Dev: edits show on the first reload
+                : TrueVision__Pwa__ServiceWorker__Logic__StaleWhileRevalidate(request, PWA_SW_CACHE_NAME_SHELL));                   // <-- Live: fast, with a background refresh
             return;
         }
     });

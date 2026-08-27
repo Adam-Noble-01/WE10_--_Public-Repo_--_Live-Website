@@ -270,6 +270,35 @@
 // REGION | Private UI Helpers
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Refine the Installable App Name from Project Data
+    // ------------------------------------------------------------
+    // The PWA manifest is built at boot from the project folder in the URL,
+    // long before this data arrives, so "RB05__WestFarm" already reads as
+    // "West Farm". Where the project data carries a better name, this hands it
+    // over and the manifest is rebuilt, which browsers pick up on their next
+    // installability evaluation. Entirely best-effort: the PWA modules are
+    // optional and the app must boot identically without them.
+    // @delegate: ../62__Feature__AppInstallability/
+    // ------------------------------------------------------------
+    function Na__AppFlow__RefinePwaProjectName(projectData) {
+        try {
+            const contextModule  = window.TrueVision__Pwa__ProjectContext;    // <-- PWA project context
+            const manifestModule = window.TrueVision__Pwa__Manifest;          // <-- PWA manifest builder
+            if (!contextModule || !manifestModule) return;                    // <-- PWA modules not loaded
+
+            const projectName    = projectData && projectData.projectName;    // <-- e.g. "WestFarm"
+            if (!projectName) return;                                         // <-- Nothing better to offer
+
+            if (contextModule.setProjectDataName(projectName)) {
+                manifestModule.refresh();                                     // <-- Name changed, rebuild the manifest
+            }
+        } catch (error) {
+            console.warn('[TrueVision3D] PWA project name refinement skipped:', error);
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Update Status Display
     // ------------------------------------------------------------
     function Na__UiFeature__UpdateStatus(message, isError = false) {
@@ -558,6 +587,8 @@
                 Na__Saved__ProjectCameraConfig = projectData.Camera__DefaultPosition || null;
                 Na__Saved__ProjectOrbitTarget  = projectData.OrbitHelperCube__Position || null;
 
+                Na__AppFlow__RefinePwaProjectName(projectData);                // <-- Name the installable app after the project
+
                 if (Na__AppUtils__HasModelGroups(projectData)) {
                     Na__ProjectData__AllModelGroups = projectData.modelGroups;
                     const activeIndex = Na__ResolvePreferredModelGroupIndex(projectData.modelGroups);
@@ -602,6 +633,8 @@
                     || projectData.valeVision_Camera__DefaultPosition
                     || null;
                 Na__Saved__ProjectOrbitTarget  = projectData.OrbitHelperCube__Position || null;
+
+                Na__AppFlow__RefinePwaProjectName(projectData);                // <-- Name the installable app after the project
 
                 const projectUrls = Na__AppUtils__ExtractModelUrls(projectData);
                 if (projectUrls.length > 0) {

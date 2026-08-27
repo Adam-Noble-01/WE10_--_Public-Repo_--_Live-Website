@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__UiFeature
 // MODULE     : FullscreenMode - Startup Prompt
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : One-time invitation card recommending full screen on app open
+// PURPOSE    : Invitation card recommending full screen on each app open
 // CREATED    : 27-Aug-2026
 //
 // DESCRIPTION:
@@ -20,8 +20,9 @@
 // - The card states plainly, before the user commits, that full screen can be
 //   left at any time with Escape or from Tools & Settings > Full Screen, which
 //   is the route touch-screen users need since they have no Escape key.
-// - Suppressed for the rest of the browser session once dismissed, so a
-//   refresh mid-review does not nag. A fresh visit offers it again.
+// - Offered once per app open, which includes a page reload. Dismissing it is
+//   deliberately not remembered: a stray Escape press would otherwise silence
+//   the invitation for the whole tab session with no way to get it back.
 // - Never shown where element full screen is unsupported (Safari on iPhone)
 //   or where the viewer is already running full screen.
 //
@@ -34,6 +35,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Aug-2026 - Version 1.1.0
+// - Removed sessionStorage dismissal suppression. The card now appears on
+//   every app open as originally specified; a dismissal applies only to the
+//   current page load.
+//
 // 27-Aug-2026 - Version 1.0.0
 // - Initial Release.
 //
@@ -59,10 +65,9 @@
 // REGION | Module Constants
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Storage Key and Timings
+    // MODULE CONSTANTS | Timings
     // ------------------------------------------------------------
-    const Na__FsPrompt__SessionKey    = 'naTrueVision__FullscreenPrompt__Dismissed'; // <-- Session suppression flag
-    const Na__FsPrompt__RevealDelayMs = 700;                                         // <-- Let the canvas fade in first
+    const Na__FsPrompt__RevealDelayMs = 700;    // <-- Let the canvas fade in first
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | DOM Element IDs
@@ -86,36 +91,6 @@
     let Na__FsPrompt__EscapeListener = null;    // <-- Stored Escape keydown handler
     let Na__FsPrompt__IsInitialized  = false;   // <-- Guard against double init
     let Na__FsPrompt__HasBeenShown   = false;   // <-- Guard against re-showing within one page load
-    // ------------------------------------------------------------
-
-// endregion -------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-// REGION | Session Suppression
-// -----------------------------------------------------------------------------
-
-    // HELPER FUNCTION | Read the Session Dismissal Flag
-    // ------------------------------------------------------------
-    function Na__FsPrompt__WasDismissedThisSession() {
-        try {
-            return sessionStorage.getItem(Na__FsPrompt__SessionKey) === 'true';
-        } catch {
-            return false;                                                    // <-- Storage blocked (private mode); offer anyway
-        }
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | Write the Session Dismissal Flag
-    // ------------------------------------------------------------
-    function Na__FsPrompt__MarkDismissedThisSession() {
-        try {
-            sessionStorage.setItem(Na__FsPrompt__SessionKey, 'true');
-        } catch {
-            /* Storage blocked - the in-page guard still prevents a re-show */
-        }
-    }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -200,7 +175,6 @@
         if (!Na__FsPrompt__Overlay) return;
 
         Na__FsPrompt__Overlay.classList.remove('is-open');                   // <-- Fade out
-        Na__FsPrompt__MarkDismissedThisSession();                            // <-- Do not offer again this session
 
         if (Na__FsPrompt__EscapeListener) {
             document.removeEventListener('keydown', Na__FsPrompt__EscapeListener);
@@ -234,7 +208,6 @@
         if (Na__FsPrompt__HasBeenShown)                    return;           // <-- Already offered on this page load
         if (!Na__UiFeature__FullscreenMode__IsSupported()) return;           // <-- Browser cannot do element full screen
         if (Na__UiFeature__FullscreenMode__IsActive())     return;           // <-- Already full screen; nothing to offer
-        if (Na__FsPrompt__WasDismissedThisSession())       return;           // <-- User already said no this session
 
         Na__FsPrompt__HasBeenShown = true;
 

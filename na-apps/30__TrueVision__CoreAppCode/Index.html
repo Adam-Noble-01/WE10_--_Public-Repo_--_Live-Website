@@ -647,6 +647,7 @@
     import { Na__UiFeature__FullscreenMode__Prompt__Initialize, Na__UiFeature__FullscreenMode__Prompt__Show } from './02__Src__AppModules/76__System__FullscreenMode/Na__UiFeature__FullscreenMode__Prompt.js';
     import { Na__RenderLoop__RequestRender } from './02__Src__AppModules/05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     import { Na__NavigationModes__IsWalkEnabled, Na__NavigationModes__IsFlyEnabled } from './02__Src__AppModules/10__NavigationAndCameras/Na__NavigationModes__State.js';
+    import { Na__NavigationModes__RegisterModeSwitcher } from './02__Src__AppModules/10__NavigationAndCameras/Na__NavigationModes__Switcher.js';
     import { Na__UiFeature__InitializeNavigationToolbar, Na__UiFeature__RevealNavigationToolbarModes, Na__NavToolbar__SetActiveMode, Na__NavToolbar__GetActiveMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__NavigationToolbar__Controls.js';
     import { Na__CameraStartState__ResetView } from './02__Src__AppModules/10__NavigationAndCameras/Na__Camera__ProjectStartState.js';
     import { Na__UiFeature__InitializeNavigationHelpPanel, Na__UiFeature__OpenNavigationHelpPanel } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__NavigationHelpPanel__Controls.js';
@@ -967,6 +968,30 @@
         );
     }
 
+    // MODE SWITCHER | Expose the Toggle Wrappers to Non-Toolbar Callers
+    // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__NavigationModes__Switcher.js
+    // ------------------------------------------------------------
+    // Presentation Mode scenes can declare the navigation mode they should be
+    // viewed in.  Registering the same wrappers the hotkeys use keeps the
+    // mutual-exclusivity and toolbar-highlight behaviour identical no matter
+    // what triggered the switch.
+    // ------------------------------------------------------------
+    Na__NavigationModes__RegisterModeSwitcher({
+        getActiveMode : () => Na__NavToolbar__GetActiveMode(),               // <-- Current mode for no-op checks
+        toOrbit       : () => {
+            Na__UiFeature__WalkMode__ToggleFn('return-to-orbit');            // <-- Exit walk if active
+            Na__UiFeature__FlyMode__ToggleFn('return-to-orbit');             // <-- Exit fly if active
+        },
+        toWalk        : () => {
+            Na__UiFeature__FlyMode__ToggleFn('silent-off');                  // <-- Silently exit fly if active
+            Na__UiFeature__WalkMode__ToggleFn();                             // <-- Activate walk
+        },
+        toFly         : () => {
+            Na__UiFeature__WalkMode__ToggleFn('silent-off');                 // <-- Silently exit walk if active
+            Na__UiFeature__FlyMode__ToggleFn();                              // <-- Activate fly
+        }
+    });
+
     // HOTKEYS | Central manager — keys and actions driven from Na__AppConfig__Hotkeys.json
     // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__Hotkeys__Manager.js
     // ------------------------------------------------------------
@@ -1220,6 +1245,30 @@
     window.addEventListener('na-app-scene-ready', () => {
         Na__UiFeature__FullscreenMode__Prompt__Show();                           // <-- Offer full screen once the model is on screen
     }, { once: true });
+    // ------------------------------------------------------------
+
+
+    // MODULE INITIALIZATION | PWA Install App Menu Row
+    // ------------------------------------------------------------
+    // @delegate: ./02__Src__AppModules/62__Feature__AppInstallability/
+    // The install offer also appears on its own a few seconds after the model
+    // loads. This row is the deliberate route for a client who dismissed it
+    // and later changed their mind. Hidden inside an already installed app,
+    // where there is nothing left to install.
+    // ------------------------------------------------------------
+    const Na__PwaInstallItem   = document.getElementById('naPwaInstallItem');
+    const Na__PwaInstallButton = document.getElementById('naPwaInstallToggle');
+
+    if (Na__PwaInstallItem && Na__PwaInstallButton && window.TrueVision__Pwa__InstallController) {
+        if (window.TrueVision__Pwa__InstallController.isInstallOfferRelevant()) {
+            Na__PwaInstallItem.style.display = '';                               // <-- Reveal the row
+            Na__PwaInstallButton.addEventListener('click', () => {
+                const toolsMenu = document.getElementById('naToolsMenu');
+                if (toolsMenu) toolsMenu.removeAttribute('open');                // <-- Close the menu behind the card
+                window.TrueVision__Pwa__InstallController.requestShow();         // <-- Always shows, whatever the snooze says
+            });
+        }
+    }
     // ------------------------------------------------------------
 
 

@@ -83,10 +83,28 @@
     // ------------------------------------------------------------
 
 
+    // MODULE CONSTANTS | Bottom Bar Clearance
+    // ------------------------------------------------------------
+    // The bar shares the bottom of the viewport with the floating navigation
+    // toolbar and, in Presentation Mode, the scene carousel. Both are fixed
+    // and both can appear or disappear at runtime, so the bar's offset is
+    // MEASURED rather than hard-coded: it always sits clear of whatever is
+    // actually down there right now.
+    // ------------------------------------------------------------
+    const PROMPT_UI_BAR_BASE_GAP_PX     = 24;                                                                                       // <-- Gap from the viewport edge when nothing is below
+    const PROMPT_UI_BAR_STACK_GAP_PX    = 14;                                                                                       // <-- Gap left between the bar and the UI below it
+    const PROMPT_UI_BOTTOM_UI_SELECTORS = [                                                                                         // <-- Bottom-anchored UI the bar must clear
+        '.na-pm-carousel--visible',                                                                                                 // <-- Presentation Mode scene carousel
+        '.na-nav-toolbar'                                                                                                           // <-- Floating navigation toolbar
+    ];
+    // ------------------------------------------------------------
+
+
     // MODULE VARIABLES | Active Mount State
     // ------------------------------------------------------------
     let TrueVision__Pwa__PromptUi__ActiveRootElement     = null;                                                                    // <-- Active root element handle
     let TrueVision__Pwa__PromptUi__ActiveEscapeListener  = null;                                                                    // <-- Stored Escape keydown handler
+    let TrueVision__Pwa__PromptUi__ActiveRepositionHook  = null;                                                                    // <-- Stored bar reposition handler
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -214,6 +232,52 @@
     // ---------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Measure How Much of the Bottom Edge Is Already Taken
+    // ---------------------------------------------------------------
+    // Returns the height, from the bottom of the viewport upwards, occupied by
+    // any visible bottom-anchored app UI. Elements that have been moved to the
+    // top of the screen (the toolbar does exactly this in Presentation Mode)
+    // are ignored, so the bar drops back down when the bottom edge frees up.
+    // ---------------------------------------------------------------
+    function TrueVision__Pwa__PromptUi__MeasureBottomUiHeight() {
+        let occupiedHeight  = 0;                                                                                                    // <-- Tallest intrusion found so far
+        const viewportHeight = window.innerHeight;                                                                                  // <-- Snapshot once
+
+        PROMPT_UI_BOTTOM_UI_SELECTORS.forEach((selector) => {
+            document.querySelectorAll(selector).forEach((element) => {
+                const elementRect = element.getBoundingClientRect();                                                                // <-- Live geometry
+                if (elementRect.height <= 0 || elementRect.width <= 0) return;                                                      // <-- Hidden or collapsed
+                if (elementRect.top < viewportHeight * 0.5) return;                                                                 // <-- Sitting up top, not our problem
+
+                const intrusion = viewportHeight - elementRect.top;                                                                 // <-- How far up from the bottom it reaches
+                if (intrusion > occupiedHeight) occupiedHeight = intrusion;                                                         // <-- Keep the tallest
+            });
+        });
+
+        return occupiedHeight;                                                                                                      // <-- 0 when the bottom edge is clear
+    }
+    // ---------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Place the Bar Clear of the Bottom-Anchored App UI
+    // ---------------------------------------------------------------
+    function TrueVision__Pwa__PromptUi__PositionBar() {
+        const rootElement   = TrueVision__Pwa__PromptUi__ActiveRootElement;                                                         // <-- Active root
+        if (!rootElement) return;                                                                                                   // <-- Nothing mounted
+
+        const barElement    = rootElement.querySelector(`.${CLASS_BAR}`);                                                           // <-- Bar panel
+        if (!barElement) return;                                                                                                    // <-- Card variant, nothing to place
+
+        const occupiedHeight = TrueVision__Pwa__PromptUi__MeasureBottomUiHeight();                                                  // <-- Measure the bottom edge
+        const bottomOffset   = occupiedHeight > 0
+            ? Math.round(occupiedHeight + PROMPT_UI_BAR_STACK_GAP_PX)                                                               // <-- Stack above the carousel / toolbar
+            : PROMPT_UI_BAR_BASE_GAP_PX;                                                                                            // <-- Bottom edge is clear
+
+        barElement.style.bottom = `${bottomOffset}px`;                                                                              // <-- Apply, overriding the CSS default
+    }
+    // ---------------------------------------------------------------
+
+
     // HELPER FUNCTION | Build the Compact Bottom Bar Layout
     // ---------------------------------------------------------------
     function TrueVision__Pwa__PromptUi__BuildBarLayout(promptConfig, dismissCallback) {
@@ -282,7 +346,27 @@
         };
         document.addEventListener('keydown', TrueVision__Pwa__PromptUi__ActiveEscapeListener);
 
-        requestAnimationFrame(() => rootElement.classList.add(CLASS_ROOT_OPEN));                                                    // <-- Trigger the fade-in transition
+        // FADE IN | Force a reflow, then flip the class synchronously.
+        // ------------------------------------------------------------
+        // requestAnimationFrame is the usual trick here, but it does not fire
+        // in a background or non-compositing tab, which would leave the prompt
+        // mounted at opacity 0 and inert. Reading offsetWidth commits the
+        // starting styles, so adding the class immediately still animates.
+        // ------------------------------------------------------------
+        TrueVision__Pwa__PromptUi__PositionBar();                                                                                   // <-- Clear the carousel / toolbar before revealing
+
+        void rootElement.offsetWidth;                                                                                               // <-- Commit the initial styles
+        rootElement.classList.add(CLASS_ROOT_OPEN);                                                                                 // <-- Trigger the fade-in transition
+
+        // KEEP CLEAR | The carousel can appear, vanish or reflow underneath us
+        // ------------------------------------------------------------
+        if (variantToken === PROMPT_UI_VARIANT_BAR) {
+            TrueVision__Pwa__PromptUi__ActiveRepositionHook = () => TrueVision__Pwa__PromptUi__PositionBar();
+            window.addEventListener('resize', TrueVision__Pwa__PromptUi__ActiveRepositionHook);                                     // <-- Rotation and window resize
+            window.addEventListener('na-presentation-views-btn-state', TrueVision__Pwa__PromptUi__ActiveRepositionHook);            // <-- Carousel toggled from the Views button
+            window.addEventListener('na-presentation-mode-scenes-loaded', TrueVision__Pwa__PromptUi__ActiveRepositionHook);         // <-- Carousel appears with a new model group
+            window.addEventListener('na-presentation-mode-scenes-cleared', TrueVision__Pwa__PromptUi__ActiveRepositionHook);        // <-- Carousel removed with the scenes
+        }
 
         const primaryButton     = document.getElementById('naPwaInstallPromptPrimary');                                             // <-- Keyboard users land on the CTA
         if (primaryButton) primaryButton.focus();
@@ -298,6 +382,14 @@
         if (TrueVision__Pwa__PromptUi__ActiveEscapeListener) {
             document.removeEventListener('keydown', TrueVision__Pwa__PromptUi__ActiveEscapeListener);                                // <-- Release the Escape handler
             TrueVision__Pwa__PromptUi__ActiveEscapeListener = null;
+        }
+
+        if (TrueVision__Pwa__PromptUi__ActiveRepositionHook) {
+            window.removeEventListener('resize', TrueVision__Pwa__PromptUi__ActiveRepositionHook);                                   // <-- Release the reposition handlers
+            window.removeEventListener('na-presentation-views-btn-state', TrueVision__Pwa__PromptUi__ActiveRepositionHook);
+            window.removeEventListener('na-presentation-mode-scenes-loaded', TrueVision__Pwa__PromptUi__ActiveRepositionHook);
+            window.removeEventListener('na-presentation-mode-scenes-cleared', TrueVision__Pwa__PromptUi__ActiveRepositionHook);
+            TrueVision__Pwa__PromptUi__ActiveRepositionHook = null;
         }
 
         const existingRoot      = document.getElementById(PROMPT_UI_ROOT_ID);                                                       // <-- Look up the live root

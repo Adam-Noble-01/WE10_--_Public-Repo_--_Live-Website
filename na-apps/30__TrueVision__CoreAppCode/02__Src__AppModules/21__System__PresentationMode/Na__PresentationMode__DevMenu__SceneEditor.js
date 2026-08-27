@@ -90,6 +90,14 @@
     import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Navigation Mode Queries (per-scene mode authoring)
+    // ------------------------------------------------------------
+    import {
+        Na__NavigationModes__GetActiveMode,
+        Na__NavigationModes__IsModeAvailable
+    } from '../10__NavigationAndCameras/Na__NavigationModes__Switcher.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -108,6 +116,22 @@
     const Na__PmDev__SENSOR_HEIGHT_MM     = 24;    // <-- Full-frame sensor height (matches cameraLens AppConfig)
     const Na__PmDev__EASING_OPTIONS       = ['easeInOutCubic', 'easeInOutQuad', 'linear']; // <-- Available easing names
     const Na__PmDev__KEY__VISIBILITY_BEFORE_CAMERA = 'PresentationMode__Scene__ApplyVisibilityBeforeCamera'; // <-- Per-scene layer timing flag
+    const Na__PmDev__KEY__NAVIGATION_MODE          = 'PresentationMode__Scene__NavigationMode';             // <-- Per-scene navigation mode
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | Per-Scene Navigation Mode Options
+    // ------------------------------------------------------------
+    // 'keep' is the absent-key state: the viewer stays in whatever mode they
+    // were already using.  Every scene authored before this feature existed
+    // resolves to 'keep', so older projects behave exactly as they did.
+    // ------------------------------------------------------------
+    const Na__PmDev__NAV_MODE_OPTIONS = [
+        { value : 'keep',  label : 'Keep',  title : 'Leave the viewer in whatever navigation mode they are already using' },
+        { value : 'orbit', label : 'Orbit', title : 'Force orbit mode when this scene is shown' },
+        { value : 'walk',  label : 'Walk',  title : 'Enter walk mode at this scene position once the camera arrives' },
+        { value : 'fly',   label : 'Fly',   title : 'Enter fly mode at this scene position once the camera arrives' }
+    ];
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -123,6 +147,13 @@
     let Na__PmDev__Controls      = null;  // <-- Live controls reference
     let Na__PmDev__ShowToast     = null;  // <-- Toast notification helper
     let Na__PmDev__WorkingScenes = [];    // <-- Single shared editable scenes array (rows mutate these objects)
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Reorder and Panel UI State
+    // ------------------------------------------------------------
+    let Na__PmDev__DragSceneId       = null;         // <-- Scene id currently being dragged, null when idle
+    const Na__PmDev__AdvancedOpenIds = new Set();    // <-- Scene ids whose Advanced section is expanded (survives re-render)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -206,6 +237,107 @@
         } else {
             window.dispatchEvent(new CustomEvent('na-presentation-mode-scenes-cleared')); // <-- Restore bottom-toolbar layout
         }
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Scene Reordering
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Sort a Scenes Array by Order Field (ascending)
+    // ------------------------------------------------------------
+    function Na__PmDev__SortScenesByOrder(scenes) {
+        return scenes.sort((a, b) =>
+            ((a.PresentationMode__Scene__Order ?? 999) - (b.PresentationMode__Scene__Order ?? 999))
+        );
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Rewrite Order Fields to Match Array Position (1..N)
+    // ------------------------------------------------------------
+    // The carousel plays scenes sorted by Order, so array position is only
+    // meaningful once it has been written back out as a clean 1..N sequence.
+    // This also tidies legacy projects that used sparse orders like 10/20/30.
+    // ------------------------------------------------------------
+    function Na__PmDev__NormaliseSceneOrder(scenes) {
+        scenes.forEach((scene, index) => {
+            scene.PresentationMode__Scene__Order = index + 1;                // <-- Contiguous, 1-based, matches the visible #N
+        });
+        return scenes;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Move a Scene to a New Position in the Working Array
+    // ------------------------------------------------------------
+    function Na__PmDev__MoveSceneToIndex(sceneId, targetIndex) {
+        const fromIndex = Na__PmDev__WorkingScenes.findIndex(s => s.PresentationMode__Scene__Id === sceneId);
+        if (fromIndex === -1) return false;                                  // <-- Unknown scene
+
+        const bounded = Math.max(0, Math.min(targetIndex, Na__PmDev__WorkingScenes.length - 1));
+        if (bounded === fromIndex) return false;                             // <-- Already in position, nothing to do
+
+        const [moved] = Na__PmDev__WorkingScenes.splice(fromIndex, 1);       // <-- Lift the row out
+        Na__PmDev__WorkingScenes.splice(bounded, 0, moved);                  // <-- Drop it back in at the target slot
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Persist a Reorder to the Live Config, the Panel and R2
+    // ------------------------------------------------------------
+    async function Na__PmDev__CommitReorder() {
+        const ordered = Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes); // <-- Renumber before anything reads Order
+
+        Na__PmDev__CommitWorkingScenes(ordered);                             // <-- Update config + refresh the carousel
+        Na__PmDev__RenderEditorPanel();                                      // <-- Rebuild rows in the new order
+        await Na__PmDev__SaveToR2(ordered);                                  // <-- Auto-persist, matching delete/save-one
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Move a Scene Up or Down by One Position
+    // ------------------------------------------------------------
+    async function Na__PmDev__MoveSceneByOffset(sceneId, offset) {
+        const fromIndex = Na__PmDev__WorkingScenes.findIndex(s => s.PresentationMode__Scene__Id === sceneId);
+        if (fromIndex === -1) return;
+
+        const targetIndex = fromIndex + offset;
+        if (targetIndex < 0 || targetIndex > Na__PmDev__WorkingScenes.length - 1) return; // <-- Already at an end
+
+        if (!Na__PmDev__MoveSceneToIndex(sceneId, targetIndex)) return;
+        await Na__PmDev__CommitReorder();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Move a Scene to an Explicit 1-Based Position
+    // ------------------------------------------------------------
+    async function Na__PmDev__MoveSceneToPosition(sceneId, position) {
+        if (!Na__PmDev__MoveSceneToIndex(sceneId, position - 1)) return;     // <-- Convert to zero-based index
+        await Na__PmDev__CommitReorder();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Reorder via Drag and Drop Between Two Scene Rows
+    // ------------------------------------------------------------
+    async function Na__PmDev__HandleSceneDrop(dragSceneId, targetSceneId, placeAfter) {
+        if (!dragSceneId || dragSceneId === targetSceneId) return;           // <-- Dropped on itself
+
+        const fromIndex   = Na__PmDev__WorkingScenes.findIndex(s => s.PresentationMode__Scene__Id === dragSceneId);
+        const targetIndex = Na__PmDev__WorkingScenes.findIndex(s => s.PresentationMode__Scene__Id === targetSceneId);
+        if (fromIndex === -1 || targetIndex === -1) return;
+
+        const insertAt   = placeAfter ? targetIndex + 1 : targetIndex;       // <-- Slot in the pre-move array
+        const finalIndex = fromIndex < insertAt ? insertAt - 1 : insertAt;   // <-- Compensate for lifting the row out first
+
+        if (!Na__PmDev__MoveSceneToIndex(dragSceneId, finalIndex)) return;
+        await Na__PmDev__CommitReorder();
     }
     // ------------------------------------------------------------
 
@@ -332,6 +464,71 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Build the Per-Scene Navigation Mode Toggle Row
+    // ------------------------------------------------------------
+    // Rendered as a segmented button group rather than a dropdown so the four
+    // states read at a glance.  Modes the loaded model does not enable are
+    // shown disabled rather than hidden, so the authoring UI stays stable
+    // across projects and explains why a mode is unavailable.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildNavigationModeRow(scene, onChange) {
+        const currentMode = scene[Na__PmDev__KEY__NAVIGATION_MODE] || 'keep'; // <-- Absent key = keep viewer's current mode
+
+        const row = document.createElement('div');
+        row.className = 'na-pm-dev__row';
+
+        const label = document.createElement('label');
+        label.className   = 'na-pm-dev__label';
+        label.textContent = 'Nav Mode';
+
+        const group = document.createElement('div');
+        group.className = 'na-pm-dev__toggle-group';
+        group.setAttribute('role', 'group');
+
+        const buttons = [];
+
+        Na__PmDev__NAV_MODE_OPTIONS.forEach((opt) => {
+            const btn = document.createElement('button');
+            btn.type        = 'button';
+            btn.className   = 'na-pm-dev__toggle';
+            btn.textContent = opt.label;
+            btn.dataset.mode = opt.value;
+
+            const isUnavailable = (opt.value === 'walk' || opt.value === 'fly')
+                && !Na__NavigationModes__IsModeAvailable(opt.value);          // <-- Not enabled for this model
+
+            if (isUnavailable) {
+                btn.disabled = true;
+                btn.title    = `${opt.label} mode is not enabled for this model.`;
+                btn.classList.add('na-pm-dev__toggle--disabled');
+            } else {
+                btn.title = opt.title;
+            }
+
+            const isActive = opt.value === currentMode;
+            btn.classList.toggle('is-active', isActive);
+            btn.setAttribute('aria-pressed', String(isActive));
+
+            btn.addEventListener('click', () => {
+                buttons.forEach((other) => {
+                    const nowActive = other === btn;
+                    other.classList.toggle('is-active', nowActive);
+                    other.setAttribute('aria-pressed', String(nowActive));
+                });
+                onChange(opt.value);
+            });
+
+            buttons.push(btn);
+            group.appendChild(btn);
+        });
+
+        row.appendChild(label);
+        row.appendChild(group);
+        return row;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Build the Layer-Timing Checkbox Row
     // ------------------------------------------------------------
     function Na__PmDev__BuildVisibilityTimingRow(scene, onChange) {
@@ -367,20 +564,51 @@
 
     // FUNCTION | Build a Single Scene Editor Row
     // ------------------------------------------------------------
-    function Na__PmDev__BuildSceneRow(scene, rowIndex, onMutate) {
+    function Na__PmDev__BuildSceneRow(scene, rowIndex, rowCount, onMutate) {
         const sceneId = scene.PresentationMode__Scene__Id;
 
         const wrapper = document.createElement('div');
         wrapper.className    = 'na-pm-dev__scene-row';
         wrapper.dataset.sceneId = sceneId;
 
-        // SCENE HEADER
+        // SCENE HEADER | Drag Handle + Position Title + Move Up/Down
         const header = document.createElement('div');
         header.className = 'na-pm-dev__scene-header';
 
+        // DRAG HANDLE | Only the handle arms dragging, so sliders stay usable
+        const dragHandle = document.createElement('span');
+        dragHandle.className   = 'na-pm-dev__drag-handle';
+        dragHandle.textContent = '≡';                                  // <-- Grip glyph (identical-to sign)
+        dragHandle.title       = 'Drag to reorder this scene';
+        dragHandle.setAttribute('aria-hidden', 'true');
+        dragHandle.addEventListener('mousedown', () => { wrapper.draggable = true;  });
+        dragHandle.addEventListener('mouseup',   () => { wrapper.draggable = false; });
+        header.appendChild(dragHandle);
+
         const titleEl = document.createElement('strong');
+        titleEl.className   = 'na-pm-dev__scene-title';
         titleEl.textContent = `#${rowIndex + 1} - ${scene.PresentationMode__Scene__Name || sceneId}`;
         header.appendChild(titleEl);
+
+        // MOVE UP / MOVE DOWN | Keyboard-reachable alternative to dragging
+        const moveUpBtn = document.createElement('button');
+        moveUpBtn.type        = 'button';
+        moveUpBtn.className   = 'na-pm-dev__reorder-btn';
+        moveUpBtn.textContent = '▲';
+        moveUpBtn.title       = 'Move this scene one position earlier';
+        moveUpBtn.disabled    = rowIndex === 0;                             // <-- Already first
+        moveUpBtn.addEventListener('click', () => Na__PmDev__MoveSceneByOffset(sceneId, -1));
+        header.appendChild(moveUpBtn);
+
+        const moveDownBtn = document.createElement('button');
+        moveDownBtn.type        = 'button';
+        moveDownBtn.className   = 'na-pm-dev__reorder-btn';
+        moveDownBtn.textContent = '▼';
+        moveDownBtn.title       = 'Move this scene one position later';
+        moveDownBtn.disabled    = rowIndex === rowCount - 1;                // <-- Already last
+        moveDownBtn.addEventListener('click', () => Na__PmDev__MoveSceneByOffset(sceneId, 1));
+        header.appendChild(moveDownBtn);
+
         wrapper.appendChild(header);
 
         // NAME INPUT
@@ -400,24 +628,6 @@
         nameRow.appendChild(nameLabel);
         nameRow.appendChild(nameInput);
         wrapper.appendChild(nameRow);
-
-        // ORDER INPUT
-        const orderRow = document.createElement('div');
-        orderRow.className = 'na-pm-dev__row';
-        const orderLabel = document.createElement('label');
-        orderLabel.textContent = 'Order';
-        orderLabel.className = 'na-pm-dev__label';
-        const orderInput = document.createElement('input');
-        orderInput.type      = 'number';
-        orderInput.className = 'na-pm-dev__input na-pm-dev__input--short';
-        orderInput.value     = Number.isFinite(scene.PresentationMode__Scene__Order) ? scene.PresentationMode__Scene__Order : rowIndex + 1;
-        orderInput.addEventListener('change', () => {
-            const v = parseInt(orderInput.value, 10);
-            scene.PresentationMode__Scene__Order = Number.isFinite(v) ? v : rowIndex + 1;
-        });
-        orderRow.appendChild(orderLabel);
-        orderRow.appendChild(orderInput);
-        wrapper.appendChild(orderRow);
 
         // FOV SLIDER
         wrapper.appendChild(Na__PmDev__BuildFovRow(scene, (newFov) => {

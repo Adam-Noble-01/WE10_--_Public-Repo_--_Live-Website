@@ -64,6 +64,15 @@
     import { Na__PmVisibility__ApplyState } from './Na__PresentationMode__Visibility__StateCapture.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Programmatic Navigation Mode Switching (per-scene modes)
+    // ------------------------------------------------------------
+    import {
+        Na__NavigationModes__GetActiveMode,
+        Na__NavigationModes__IsModeAvailable,
+        Na__NavigationModes__SwitchToMode
+    } from '../10__NavigationAndCameras/Na__NavigationModes__Switcher.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -77,6 +86,7 @@
     const Na__PresentationMode__DEFAULT_DURATION = 1800;                       // <-- Default transition duration ms
     const Na__PresentationMode__DEFAULT_EASING   = 'easeInOutCubic';          // <-- Default easing function name
     const Na__PresentationMode__KEY__VISIBILITY_BEFORE_CAMERA = 'PresentationMode__Scene__ApplyVisibilityBeforeCamera'; // <-- Per-scene layer timing flag
+    const Na__PresentationMode__KEY__NAVIGATION_MODE          = 'PresentationMode__Scene__NavigationMode';             // <-- Per-scene navigation mode (orbit/walk/fly)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -258,6 +268,48 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Resolve the Navigation Mode a Scene Should Be Viewed In
+    // ------------------------------------------------------------
+    // Returns null when the scene does not declare a mode.  Null means "keep
+    // whatever mode the viewer is already in", which is how every scene saved
+    // before this feature existed behaves - so older projects are unaffected.
+    // A declared-but-unavailable mode (e.g. walk on a model with walk disabled)
+    // also resolves to null rather than forcing an invalid switch.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene) {
+        const requested = scene?.[Na__PresentationMode__KEY__NAVIGATION_MODE];
+        if (!requested) return null;                                                   // <-- Key absent / empty = keep current mode
+        if (!Na__NavigationModes__IsModeAvailable(requested)) return null;             // <-- Not permitted on this model
+        return requested;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Drop to Orbit Before Moving the Camera for a Scene
+    // ------------------------------------------------------------
+    // Walk and fly own the camera while active - walk in particular ground-snaps
+    // and runs capsule physics every frame, which would fight both an instant
+    // snap and an animated move.  Dropping to orbit first hands the camera back
+    // so the scene position can be applied cleanly; the target mode is then
+    // re-activated once the camera has arrived.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__Camera__ReleaseCameraToOrbit(targetMode) {
+        if (targetMode === null) return false;                                         // <-- Scene declares no mode, leave viewer alone
+        if (Na__NavigationModes__GetActiveMode() === 'orbit') return false;             // <-- Already free
+        return Na__NavigationModes__SwitchToMode('orbit');                             // <-- Exit walk/fly, camera is free again
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Activate the Scene's Navigation Mode Once the Camera Has Arrived
+    // ------------------------------------------------------------
+    function Na__PresentationMode__Camera__ApplySceneNavigationMode(targetMode) {
+        if (targetMode === null || targetMode === 'orbit') return;                     // <-- Nothing to do; orbit is the released state
+        Na__NavigationModes__SwitchToMode(targetMode);                                 // <-- Enter walk/fly at the scene position
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Instantly Apply Scene Camera State (no animation)
     // ------------------------------------------------------------
     function Na__PresentationMode__Camera__ApplySceneCameraState(camera, controls, scene) {
@@ -265,6 +317,9 @@
 
         const values = Na__PresentationMode__Camera__ParseSceneToRuntimeValues(scene);
         if (!values) return;
+
+        const targetNavMode = Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene);
+        Na__PresentationMode__Camera__ReleaseCameraToOrbit(targetNavMode);             // <-- Hand the camera back from walk/fly before snapping
 
         camera.position.set(values.position.x, values.position.y, values.position.z);  // <-- Snap position
         camera.rotation.set(values.rotation.x, values.rotation.y, values.rotation.z);  // <-- Snap rotation
@@ -280,6 +335,7 @@
         }
 
         Na__PresentationMode__Camera__ApplySceneVisibility(scene);                     // <-- Instant snap always applies visibility with camera
+        Na__PresentationMode__Camera__ApplySceneNavigationMode(targetNavMode);         // <-- Enter the scene's walk/fly mode at the new position
         Na__RenderLoop__RequestRender();                                                 // <-- Single frame redraw
     }
     // ------------------------------------------------------------
@@ -327,6 +383,32 @@
         // CANCEL ANY IN-FLIGHT TRANSITION FIRST
         Na__PresentationMode__Camera__CancelCurrentTransition();
         const myTransitionId = Na__PresentationMode__TransitionId;            // <-- Snapshot id for this transition
+
+        // RELEASE THE CAMERA FROM WALK/FLY BEFORE ANIMATING
+        // Exiting walk/fly repositions the camera to its stored orbit vantage
+        // point, which would make the move start from somewhere the viewer was
+        // never looking.  Preserve the live framing across the release so the
+        // transition still begins exactly where the viewer currently stands.
+        const targetNavMode = Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene);
+
+        if (targetNavMode !== null) {
+            const preservedPos    = camera.position.clone();
+            const preservedQuat   = new THREE.Quaternion().setFromEuler(camera.rotation);
+            const preservedFov    = camera.fov;
+            const preservedTarget = controls ? controls.target.clone() : null;
+
+            if (Na__PresentationMode__Camera__ReleaseCameraToOrbit(targetNavMode)) {
+                camera.position.copy(preservedPos);                           // <-- Undo the release reposition
+                camera.setRotationFromQuaternion(preservedQuat);
+                camera.fov = preservedFov;
+                camera.updateProjectionMatrix();
+
+                if (controls && preservedTarget) {
+                    controls.target.copy(preservedTarget);
+                    controls.update();
+                }
+            }
+        }
 
         // CAPTURE START STATE FROM LIVE CAMERA
         const startPos     = camera.position.clone();
@@ -396,6 +478,8 @@
                 if (!applyVisibilityBeforeMove) {
                     Na__PresentationMode__Camera__ApplySceneVisibility(scene);       // <-- Default: switch layers once the move completes
                 }
+
+                Na__PresentationMode__Camera__ApplySceneNavigationMode(targetNavMode); // <-- Enter the scene's walk/fly mode on arrival
 
                 Na__RenderLoop__RequestRender();                              // <-- One final clean frame (reflects new visibility)
 
