@@ -52,6 +52,7 @@
     // ------------------------------------------------------------
     const Na__CacheDev__ItemId          = 'naCacheStorageDevItem';        // <-- Dev menu list item
     const Na__CacheDev__ToggleId        = 'naCacheStorageDevToggle';      // <-- Submenu toggle button
+    const Na__CacheDev__PanelId         = 'naCacheStorageDevPanel';       // <-- Collapsible submenu panel
     const Na__CacheDev__ReadoutId       = 'naCacheStorageDevReadout';     // <-- Live "what is stored" readout
     const Na__CacheDev__RefreshBtnId    = 'naCacheStorageDevRefresh';     // <-- Re-read the readout
     const Na__CacheDev__BustBtnId       = 'naCacheStorageDevBust';        // <-- Caches + workers, then reload
@@ -379,12 +380,19 @@
         wire(Na__CacheDev__BustBtnId,    Na__CacheDev__HandleBustClick);
         wire(Na__CacheDev__ResetBtnId,   Na__CacheDev__HandleResetClick);
 
-        // READOUT | Refresh whenever the submenu is opened
+        // SUBMENU OPEN/CLOSE | Each dev panel wires its own toggle; there is no
+        // shared handler, so this panel must do it too or it never opens.
         // ------------------------------------------------------------
         const toggle = document.getElementById(Na__CacheDev__ToggleId);
-        if (toggle) {
+        const panel  = document.getElementById(Na__CacheDev__PanelId);
+
+        if (toggle && panel) {
             toggle.addEventListener('click', () => {
-                window.setTimeout(Na__CacheDev__RefreshReadout, 0);              // <-- After the panel's own open handler runs
+                const isOpen = panel.classList.contains('is-open');
+                panel.classList.toggle('is-open', !isOpen);
+                toggle.setAttribute('aria-expanded', String(!isOpen));
+
+                if (!isOpen) Na__CacheDev__RefreshReadout();                     // <-- Re-read only when opening
             });
         }
 

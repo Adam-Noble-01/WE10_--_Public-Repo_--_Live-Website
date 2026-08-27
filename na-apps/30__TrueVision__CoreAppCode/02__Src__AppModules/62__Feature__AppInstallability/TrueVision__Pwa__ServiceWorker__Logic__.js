@@ -36,6 +36,13 @@
 // - Initial release, ported from the ValeVision3D / Whitecardopedia PWA stack
 //   and retuned for TrueVision's asset mix.
 //
+// 27-Aug-2026 - Version 1.0.1
+// - Fixed regenerated Presentation Mode scene thumbnails appearing stale on the
+//   live site. Scene_00N.webp is overwritten in place by "Regen Thumb", but the
+//   generic .webp shell-asset pattern routed it to stale-while-revalidate, so
+//   the previous image was served and the new one only appeared on a second
+//   reload. Scene thumbnails are now classified as data (network-first).
+//
 // =============================================================================
 
 (function () {
@@ -46,7 +53,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-08-27-1';                                                                       // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-08-27-2';                                                                       // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
@@ -64,6 +71,7 @@
     const PWA_SW_PATTERN_DATA_JSON          = /\.json(\?.*)?$/i;                                                                    // <-- Project data and app config
     const PWA_SW_PATTERN_HTML               = /\.html?(\?.*)?$/i;                                                                   // <-- HTML documents
     const PWA_SW_PATTERN_SHELL_ASSET        = /\.(css|js|mjs|webmanifest|ico|png|jpe?g|svg|webp|woff2?)(\?.*)?$/i;                   // <-- App shell assets
+    const PWA_SW_PATTERN_SCENE_THUMBNAIL    = /\/PresentationMode\/Thumbnails\/[^/]+\.webp(\?.*)?$/i;                                // <-- Per-project scene thumbnails (mutable, fixed filenames)
     // ------------------------------------------------------------
 
 
@@ -144,6 +152,14 @@
         if (requestUrl.indexOf(PWA_SW_REMOTE_ORIGIN_ESM) === 0) return 'vendor';                                                    // <-- Version-pinned third-party module
         if (PWA_SW_PATTERN_MODEL_GLB.test(requestUrl)) return 'model';                                                              // <-- 3D model GLB / GLTF
         if (PWA_SW_PATTERN_HDRI.test(requestUrl)) return 'hdri';                                                                    // <-- HDR environment map
+
+        // Scene thumbnails must be tested BEFORE the shell-asset pattern, which
+        // also matches .webp. They are mutable content under a fixed filename -
+        // "Regen Thumb" overwrites Scene_00N.webp in place - so the shell's
+        // stale-while-revalidate strategy would serve the previous image and
+        // only pick the new one up on a second reload. Treat them as data.
+        if (PWA_SW_PATTERN_SCENE_THUMBNAIL.test(requestUrl)) return 'data';                                                         // <-- Regenerated thumbnails must never go stale
+
         if (PWA_SW_PATTERN_DATA_JSON.test(requestUrl)) return 'data';                                                               // <-- Project data or app config
         if (PWA_SW_PATTERN_HTML.test(requestUrl)) return 'html';                                                                    // <-- HTML document
         if (PWA_SW_PATTERN_SHELL_ASSET.test(requestUrl)) return 'shell';                                                            // <-- App shell asset
