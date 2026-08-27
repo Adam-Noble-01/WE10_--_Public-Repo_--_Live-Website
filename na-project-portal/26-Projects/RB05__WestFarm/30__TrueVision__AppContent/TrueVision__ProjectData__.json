@@ -7,7 +7,6 @@
             "groupId": "DesignPhase01__ConceptDesign__Scheme-01",
             "label": "Concept Design - Scheme-01",
             "modelUrls": [
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__01__OrbitHelperCube__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedDoors__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedDoors__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__FirstFloor__ProposedFixtures__LineworkModel__.glb",
@@ -59,7 +58,11 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__LandscapeEnvironment__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb"
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedStairs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedStairs__MeshModel__.glb"
             ]
         }
     ],

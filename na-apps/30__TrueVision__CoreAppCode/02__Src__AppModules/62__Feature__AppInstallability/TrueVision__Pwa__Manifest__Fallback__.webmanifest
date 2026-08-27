@@ -1,0 +1,45 @@
+{
+    "name": "TrueVision 3D - Noble Architecture",
+    "short_name": "TrueVision 3D",
+    "description": "Explore Noble Architecture designs in full 3D. Walk through the model, look around from any angle and see the scheme as it will be built.",
+    "categories": ["business", "productivity", "utilities"],
+    "lang": "en-GB",
+    "dir": "ltr",
+    "start_url": "../../Index.html",
+    "scope": "../../",
+    "display": "standalone",
+    "display_override": ["standalone", "minimal-ui", "browser"],
+    "orientation": "any",
+    "theme_color": "#172b3a",
+    "background_color": "#ffffff",
+    "prefer_related_applications": false,
+    "launch_handler": {
+        "client_mode": "navigate-existing"
+    },
+    "icons": [
+        {
+            "src": "../../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "../../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "../../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h512px.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "../../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h512px.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

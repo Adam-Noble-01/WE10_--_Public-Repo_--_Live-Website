@@ -312,6 +312,8 @@
         if (loadingIndicator) {
             loadingIndicator.style.display = 'none';
         }
+
+        window.dispatchEvent(new CustomEvent('na-app-scene-ready'));         // <-- Model is loaded and visible; post-load UI may appear
     }
     // ------------------------------------------------------------
 

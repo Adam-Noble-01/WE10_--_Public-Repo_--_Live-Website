@@ -10,12 +10,43 @@
     <!-- ----------------------------------------------------------------- -->
     
     <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
-    <link rel="apple-touch-icon" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <link rel="apple-touch-icon" sizes="192x192" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png">
     <meta name="theme-color" content="#172b3a">
-    
+
     <!-- endregion -------------------------------------------------------- -->
-    
-    
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  PWA INSTALLABILITY | Per-Project App Manifest          -->
+    <!-- ----------------------------------------------------------------- -->
+    <!--
+        TrueVision serves every client from one codebase and picks the project
+        out of the URL query string. The manifest therefore has to be built at
+        runtime so each project installs as its OWN app, with its own name,
+        its own icon and a launch URL that opens straight into that project.
+
+        These three scripts are BLOCKING and must stay in <head>. They inject
+        the per-project manifest link before the browser evaluates whether the
+        page is installable. The static link below is only the fallback the
+        builder replaces, and the safety net if scripting is unavailable.
+
+        @delegate: ./02__Src__AppModules/62__Feature__AppInstallability/
+    -->
+
+    <link rel="manifest" href="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Manifest__Fallback__.webmanifest">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TrueVision 3D">
+    <meta name="application-name" content="TrueVision 3D">
+
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Url__Constructor__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__ProjectContext__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Manifest__Builder__.js"></script>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
     <!-- ----------------------------------------------------------------- -->
     <!-- REGION  |  Three.js Import Map                                    -->
     <!-- ----------------------------------------------------------------- -->
@@ -268,6 +299,11 @@
                         User Guide
                     </button>
                 </li>
+                <li class="na-dropdown-menu__item" id="naPwaInstallItem" style="display:none;">
+                    <button class="na-dropdown-menu__button" id="naPwaInstallToggle">
+                        Install App
+                    </button>
+                </li>
                 <li class="na-dropdown-menu__item">
                     <button class="na-dropdown-menu__button na-walk-mode__toggle na-walk-mode__toggle--active" id="naSsaoToggle">
                         <span class="na-walk-mode__label">Shadows</span>
@@ -278,6 +314,26 @@
                     <button class="na-dropdown-menu__button na-walk-mode__toggle na-walk-mode__toggle--active" id="naProfileLinesToggle">
                         <span class="na-walk-mode__label">Profile Lines</span>
                         <span class="na-walk-mode__status" id="naProfileLinesStatus">ON</span>
+                    </button>
+                </li>
+                <li class="na-dropdown-menu__item" id="naFullscreenItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-walk-mode__toggle" id="naFullscreenToggle" type="button" aria-pressed="false" title="Fill the whole screen with the model">
+                        <span class="na-walk-mode__label na-fullscreen-toggle__label-group">
+                            <svg class="na-fullscreen-toggle__icon na-fullscreen-toggle__icon--enter" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <polyline points="7.5,2.5 2.5,2.5 2.5,7.5"       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="12.5,2.5 17.5,2.5 17.5,7.5"    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="17.5,12.5 17.5,17.5 12.5,17.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="7.5,17.5 2.5,17.5 2.5,12.5"    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg class="na-fullscreen-toggle__icon na-fullscreen-toggle__icon--exit" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <polyline points="2.5,7.5 7.5,7.5 7.5,2.5"       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="17.5,7.5 12.5,7.5 12.5,2.5"    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="12.5,17.5 12.5,12.5 17.5,12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="7.5,17.5 7.5,12.5 2.5,12.5"    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Full Screen</span>
+                        </span>
+                        <span class="na-walk-mode__status" id="naFullscreenStatus">OFF</span>
                     </button>
                 </li>
             </ul>
@@ -518,10 +574,39 @@
     
     <!-- Toast Notification (success / error feedback) -->
     <div class="na-toast" id="naToastNotification"></div>
-    
+
     <!-- endregion -------------------------------------------------------- -->
-    
-    
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  PWA Installability | Prompt, Handlers, Service Worker  -->
+    <!-- ----------------------------------------------------------------- -->
+    <!--
+        Classic (non-module) scripts loaded ahead of the application module so
+        the beforeinstallprompt listener and the service worker registration
+        are in place before the heavy Three.js graph starts loading.
+
+        Load order matters: detector and state, then the prompt UI, then the
+        handlers that use it, then the controller that picks between them.
+
+        @delegate: ./02__Src__AppModules/62__Feature__AppInstallability/
+    -->
+
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__PlatformDetector__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__SessionState__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__PromptUi__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Handler__Chromium__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Handler__IosSafari__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Handler__IosNonSafari__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Handler__MacSafari__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Handler__GenericManual__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Handler__InstalledStandalone__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__InstallController__.js"></script>
+    <script src="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Registrar__.js"></script>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
     <!-- ----------------------------------------------------------------- -->
     <!-- REGION  |  Three.js Application Logic                             -->
     <!-- ----------------------------------------------------------------- -->
@@ -558,6 +643,8 @@
     import { Na__AppFlow__StartLoadingSequence } from './02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js';
     import { Na__UiFeature__InitializeUserInstructionsMenuItem } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UiFeature__UserInstructions__MenuItem.js';
     import { Na__UserInstructions__Initialize, Na__UserInstructions__Open } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__SystemLogic.js';
+    import { Na__UiFeature__FullscreenMode__Initialize, Na__UiFeature__FullscreenMode__Enter } from './02__Src__AppModules/76__System__FullscreenMode/Na__UiFeature__FullscreenMode__SystemLogic.js';
+    import { Na__UiFeature__FullscreenMode__Prompt__Initialize, Na__UiFeature__FullscreenMode__Prompt__Show } from './02__Src__AppModules/76__System__FullscreenMode/Na__UiFeature__FullscreenMode__Prompt.js';
     import { Na__RenderLoop__RequestRender } from './02__Src__AppModules/05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     import { Na__NavigationModes__IsWalkEnabled, Na__NavigationModes__IsFlyEnabled } from './02__Src__AppModules/10__NavigationAndCameras/Na__NavigationModes__State.js';
     import { Na__UiFeature__InitializeNavigationToolbar, Na__UiFeature__RevealNavigationToolbarModes, Na__NavToolbar__SetActiveMode, Na__NavToolbar__GetActiveMode } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__NavigationToolbar__Controls.js';
@@ -1121,6 +1208,18 @@
         Na__Hotkeys__ApplyUiLabels(Na__Config__Hotkeys);                         // <-- Apply hotkey labels to injected user instructions content
     });
     Na__UiFeature__InitializeUserInstructionsMenuItem(Na__UserInstructions__Open);
+    // ------------------------------------------------------------
+
+
+    // MODULE INITIALIZATION | Full Screen Mode + Startup Invitation
+    // ------------------------------------------------------------
+    // @delegate: ./02__Src__AppModules/76__System__FullscreenMode/
+    Na__UiFeature__FullscreenMode__Initialize();                                 // <-- Wires the Tools menu Full Screen toggle
+    Na__UiFeature__FullscreenMode__Prompt__Initialize(Na__UiFeature__FullscreenMode__Enter);
+
+    window.addEventListener('na-app-scene-ready', () => {
+        Na__UiFeature__FullscreenMode__Prompt__Show();                           // <-- Offer full screen once the model is on screen
+    }, { once: true });
     // ------------------------------------------------------------
 
 

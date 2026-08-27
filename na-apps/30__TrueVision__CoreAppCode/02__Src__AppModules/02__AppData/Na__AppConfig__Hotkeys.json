@@ -58,7 +58,8 @@
         "Na__Hotkeys__Ui__Reference__Description"  : "Context-sensitive UI keys. Handled by their respective UI modules. Listed here for documentation only.",
 
         "Na__Hotkeys__Ui__CloseOverlay"            : "Escape",
-        "Na__Hotkeys__Ui__ReleasePointerLock"      : "Escape"
+        "Na__Hotkeys__Ui__ReleasePointerLock"      : "Escape",
+        "Na__Hotkeys__Ui__ExitFullscreen"          : "Escape"
 
     }
 }

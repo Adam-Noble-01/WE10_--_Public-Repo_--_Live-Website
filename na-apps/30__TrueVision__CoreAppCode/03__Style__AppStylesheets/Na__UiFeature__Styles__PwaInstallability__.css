@@ -1,0 +1,430 @@
+/* =============================================================================
+ * TRUEVISION3D - PWA INSTALL PROMPT STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__UiFeature__Styles__PwaInstallability__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : PWA Install Prompt Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Install prompt card and bar, in the Noble Architecture style
+ * CREATED    : 27-Aug-2026
+ *
+ * DESCRIPTION:
+ * - Deliberately mirrors the "Better in Full Screen" invitation card so the
+ *   two client-facing prompts read as one family: white panel, Noble
+ *   Architecture dark blue header bar, soft backdrop blur, Open Sans.
+ * - Two layouts share the tokens:
+ *     card - centred modal, used wherever the client has steps to follow
+ *     bar  - compact bottom bar, used on Chromium where one tap installs
+ * - Sits one level below the full screen card in the stacking order, and is
+ *   hidden outright inside an already installed app.
+ *
+ * DEVELOPMENT LOG:
+ * 27-Aug-2026 - Version 1.0.0
+ * - Initial Release.
+ *
+ * =============================================================================
+ */
+
+
+/* #Region ---
+ * REGION | CSS Variables
+ * ----- */
+
+    :root {
+        --UiPwaInstall_CardBg            : #ffffff;                 /* <-- Whitecard panel */
+        --UiPwaInstall_HeaderBg          : #172b3a;                 /* <-- Noble Architecture dark blue header bar */
+        --UiPwaInstall_HeaderText        : #ffffff;                 /* <-- White text on the dark header */
+        --UiPwaInstall_TextPrimary       : #1c2229;                 /* <-- Primary body text */
+        --UiPwaInstall_TextSecondary     : #6b7a8a;                 /* <-- Supporting body text */
+        --UiPwaInstall_PanelBg           : #f2f5f8;                 /* <-- Step panel background */
+        --UiPwaInstall_PanelBorder       : rgba(23, 43, 58, 0.10);  /* <-- Step panel border */
+        --UiPwaInstall_AccentBlue        : #172b3a;                 /* <-- Primary action button */
+        --UiPwaInstall_AccentBlueHover   : #24425a;                 /* <-- Primary action button hover */
+        --UiPwaInstall_Backdrop          : rgba(23, 43, 58, 0.62);  /* <-- Dimming backdrop */
+        --UiPwaInstall_BarShadow         : 0 12px 34px rgba(23, 43, 58, 0.28),
+                                           0 0 0 1px rgba(0, 0, 0, 0.06);  /* <-- Floating bar shadow */
+        --UiPwaInstall_ZIndex            : 9996;                    /* <-- Just below the full screen card (9997) */
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Root Container
+ * ----- */
+
+    /* ROOT | Full-viewport container, transparent to clicks until opened */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install {
+        position                           : fixed;
+        inset                              : 0;
+        z-index                            : var(--UiPwaInstall_ZIndex);
+        font-family                        : 'Open Sans', sans-serif;
+        color                              : var(--UiPwaInstall_TextPrimary);
+        opacity                            : 0;
+        pointer-events                     : none;
+        transition                         : opacity 0.28s ease;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* ROOT OPEN STATE | Fade in and enable interaction */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install.is-open {
+        opacity                            : 1;
+    }
+
+    .na-pwa-install--card.is-open {
+        pointer-events                     : all;                   /* <-- Card variant is modal */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* CARD LAYOUT | Centre the panel in the viewport */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install--card {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        padding                            : 20px;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Card Variant
+ * ----- */
+
+    /* BACKDROP | Dimming layer behind the card */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install__backdrop {
+        position                           : fixed;
+        inset                              : 0;
+        background-color                   : var(--UiPwaInstall_Backdrop);
+        backdrop-filter                    : blur(3px);
+        -webkit-backdrop-filter            : blur(3px);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* CARD | Centred white panel */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install__card {
+        position                           : relative;
+        width                              : 100%;
+        max-width                          : 480px;
+        max-height                         : calc(100vh - 40px);
+        display                            : flex;
+        flex-direction                     : column;
+        background-color                   : var(--UiPwaInstall_CardBg);
+        border-radius                      : 12px;
+        box-shadow                         : 0 16px 48px rgba(0, 0, 0, 0.30),
+                                             0 0 0 1px rgba(0, 0, 0, 0.06);
+        overflow                           : hidden;
+        transform                          : translateY(12px);
+        transition                         : transform 0.28s ease;
+    }
+
+    .na-pwa-install.is-open .na-pwa-install__card {
+        transform                          : translateY(0);         /* <-- Settle into position */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* CARD HEADER | Dark blue title bar */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install__header {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 10px;
+        flex-shrink                        : 0;
+        padding                            : 16px 20px;
+        background-color                   : var(--UiPwaInstall_HeaderBg);
+    }
+
+    .na-pwa-install__header-icon {
+        width                              : 20px;
+        height                             : 20px;
+        flex-shrink                        : 0;
+        color                              : var(--UiPwaInstall_HeaderText);
+    }
+
+    .na-pwa-install__title {
+        margin                             : 0;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 1rem;
+        font-weight                        : 600;
+        letter-spacing                     : 0.03em;
+        text-transform                     : uppercase;
+        color                              : var(--UiPwaInstall_HeaderText);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* CARD BODY | Icon, message and step panel */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install__body {
+        padding                            : 22px 24px 4px 24px;
+        overflow-y                         : auto;                  /* <-- Long step lists scroll inside the card */
+    }
+
+    .na-pwa-install__card .na-pwa-install__app-icon {
+        display                            : block;
+        width                              : 56px;
+        height                             : 56px;
+        margin                             : 0 auto 14px auto;
+        border-radius                      : 12px;
+        object-fit                         : contain;
+    }
+
+    .na-pwa-install__lead {
+        margin                             : 0 0 10px 0;
+        font-size                          : 1.02rem;
+        font-weight                        : 600;
+        line-height                        : 1.45;
+        color                              : var(--UiPwaInstall_TextPrimary);
+    }
+
+    .na-pwa-install__text {
+        margin                             : 0 0 16px 0;
+        font-size                          : 0.94rem;
+        font-weight                        : 400;
+        line-height                        : 1.55;
+        color                              : var(--UiPwaInstall_TextSecondary);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* STEP PANEL | Numbered install instructions */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install__steps {
+        display                            : flex;
+        flex-direction                     : column;
+        gap                                : 10px;
+        padding                            : 13px 15px;
+        background-color                   : var(--UiPwaInstall_PanelBg);
+        border                             : 1px solid var(--UiPwaInstall_PanelBorder);
+        border-radius                      : 8px;
+    }
+
+    .na-pwa-install__steps-title {
+        margin                             : 0;
+        font-size                          : 0.74rem;
+        font-weight                        : 600;
+        letter-spacing                     : 0.06em;
+        text-transform                     : uppercase;
+        color                              : var(--UiPwaInstall_TextSecondary);
+    }
+
+    .na-pwa-install__step-row {
+        display                            : flex;
+        align-items                        : flex-start;
+        gap                                : 10px;
+        font-size                          : 0.9rem;
+        line-height                        : 1.5;
+        color                              : var(--UiPwaInstall_TextPrimary);
+    }
+
+    .na-pwa-install__step-number {
+        flex                               : 0 0 22px;
+        width                              : 22px;
+        height                             : 22px;
+        margin-top                         : 1px;
+        border-radius                      : 50%;
+        background-color                   : var(--UiPwaInstall_AccentBlue);
+        color                              : var(--UiPwaInstall_HeaderText);
+        font-size                          : 0.76rem;
+        font-weight                        : 600;
+        display                            : inline-flex;
+        align-items                        : center;
+        justify-content                    : center;
+    }
+
+    .na-pwa-install__step-text {
+        flex                               : 1 1 auto;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Bar Variant
+ * ----- */
+
+    /* BAR | Compact floating panel pinned to the bottom of the viewport */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install__bar {
+        position                           : fixed;
+        left                               : 50%;
+        bottom                             : max(24px, env(safe-area-inset-bottom, 0px));
+        transform                          : translateX(-50%);
+        width                              : calc(100% - 32px);
+        max-width                          : 560px;
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 14px;
+        padding                            : 14px 16px;
+        background-color                   : var(--UiPwaInstall_CardBg);
+        border-radius                      : 12px;
+        box-shadow                         : var(--UiPwaInstall_BarShadow);
+        pointer-events                     : all;                   /* <-- Bar is interactive, page behind stays usable */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* BAR CONTENT | Icon and text column */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install__bar .na-pwa-install__app-icon {
+        width                              : 40px;
+        height                             : 40px;
+        flex                               : 0 0 auto;
+        border-radius                      : 9px;
+        object-fit                         : contain;
+    }
+
+    .na-pwa-install__bar-text {
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+        display                            : flex;
+        flex-direction                     : column;
+        gap                                : 3px;
+    }
+
+    .na-pwa-install__bar-title {
+        font-size                          : 0.94rem;
+        font-weight                        : 600;
+        line-height                        : 1.3;
+        color                              : var(--UiPwaInstall_TextPrimary);
+    }
+
+    .na-pwa-install__bar-body {
+        font-size                          : 0.82rem;
+        font-weight                        : 400;
+        line-height                        : 1.4;
+        color                              : var(--UiPwaInstall_TextSecondary);
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Action Buttons
+ * ----- */
+
+    /* ACTIONS | Button row */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install__actions {
+        display                            : flex;
+        gap                                : 10px;
+        flex-shrink                        : 0;
+    }
+
+    .na-pwa-install__card .na-pwa-install__actions {
+        padding                            : 20px 24px 22px 24px;
+    }
+
+    .na-pwa-install__card .na-pwa-install__btn {
+        flex                               : 1;
+    }
+
+    .na-pwa-install__btn {
+        padding                            : 12px 16px;
+        border                             : 1px solid transparent;
+        border-radius                      : 8px;
+        cursor                             : pointer;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 0.94rem;
+        font-weight                        : 600;
+        white-space                        : nowrap;
+        transition                         : background-color 0.15s ease, color 0.15s ease;
+        -webkit-tap-highlight-color        : transparent;
+    }
+
+    .na-pwa-install__bar .na-pwa-install__btn {
+        padding                            : 10px 14px;
+        font-size                          : 0.88rem;
+    }
+
+    .na-pwa-install__btn--primary {
+        background-color                   : var(--UiPwaInstall_AccentBlue);
+        color                              : #ffffff;
+    }
+
+    .na-pwa-install__btn--primary:hover {
+        background-color                   : var(--UiPwaInstall_AccentBlueHover);
+    }
+
+    .na-pwa-install__btn--secondary {
+        background-color                   : transparent;
+        border-color                       : var(--UiPwaInstall_PanelBorder);
+        color                              : var(--UiPwaInstall_TextSecondary);
+    }
+
+    .na-pwa-install__btn--secondary:hover {
+        background-color                   : var(--UiPwaInstall_PanelBg);
+        color                              : var(--UiPwaInstall_TextPrimary);
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Responsive and Display Mode Rules
+ * ----- */
+
+    /* NARROW SCREENS | Stack the card actions, wrap the bar */
+    /* ------------------------------------------------------------ */
+    @media (max-width: 420px) {
+        .na-pwa-install__card .na-pwa-install__actions {
+            flex-direction                 : column-reverse;        /* <-- Primary action stays on top */
+        }
+
+        .na-pwa-install__bar {
+            flex-wrap                      : wrap;
+            padding                        : 12px;
+            gap                            : 10px;
+        }
+
+        .na-pwa-install__bar .na-pwa-install__actions {
+            width                          : 100%;
+        }
+
+        .na-pwa-install__bar .na-pwa-install__btn {
+            flex                           : 1;
+        }
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* SHORT SCREENS | Keep the header and actions reachable */
+    /* ------------------------------------------------------------ */
+    @media (max-height: 620px) {
+        .na-pwa-install__card .na-pwa-install__app-icon {
+            width                          : 40px;
+            height                         : 40px;
+            margin-bottom                  : 10px;
+        }
+
+        .na-pwa-install__body {
+            padding-top                    : 16px;
+        }
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* INSTALLED APP | Never offer an install from inside the installed app */
+    /* ------------------------------------------------------------ */
+    @media (display-mode: standalone), (display-mode: minimal-ui), (display-mode: fullscreen), (display-mode: window-controls-overlay) {
+        .na-pwa-install {
+            display                        : none;
+        }
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */

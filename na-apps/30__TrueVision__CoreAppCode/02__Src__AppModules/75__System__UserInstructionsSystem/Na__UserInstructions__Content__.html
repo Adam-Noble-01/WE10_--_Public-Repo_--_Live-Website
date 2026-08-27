@@ -14,11 +14,15 @@
      - No <html>, <head>, or <body> tags — injected directly into the modal.
      - All classes are defined in Na__UiFeature__Styles__UserInstructions__.css.
      - Accordion sections: Orbit Mode, Walk Mode, Fly Mode, Global Hotkeys,
-       Model Isolation Tools. All sections start expanded.
+       Model Isolation Tools, Full Screen. All sections start expanded.
      - Accordion toggle logic wired by Na__UserInstructions__SystemLogic.js
        after injection via [data-na-accordion-toggle] attribute.
 
      DEVELOPMENT LOG:
+     27-Aug-2026 - Version 2.4.0
+     - Added Full Screen section covering the Tools menu toggle, the Escape
+       key, and the touchscreen route out of full screen.
+
      25-May-2026 - Version 2.3.0
      - Added collapsible accordion sections with chevron toggle arrows.
      - Added Fly Mode section (WASD + Q/E ascend/descend + pointer-lock mouse).
@@ -402,7 +406,7 @@
     <!-- ============================================================ -->
     <!-- SECTION | Model Isolation Tools                              -->
     <!-- ============================================================ -->
-    <div class="na-instructions-section na-instructions-section--last">
+    <div class="na-instructions-section">
 
         <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
             <div class="na-instructions-section__title-group">
@@ -436,6 +440,55 @@
                         <li class="na-instructions-item">
                             <span class="na-instructions-item__key">Show Entire Building</span>
                             <span class="na-instructions-item__desc">Resets visibility to the full building view when you are done isolating.</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- ============================================================ -->
+
+
+    <!-- ============================================================ -->
+    <!-- SECTION | Full Screen                                        -->
+    <!-- ============================================================ -->
+    <div class="na-instructions-section na-instructions-section--last">
+
+        <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
+            <div class="na-instructions-section__title-group">
+                <svg class="na-instructions-section__mode-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <polyline points="7.5,2.5 2.5,2.5 2.5,7.5"       stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="12.5,2.5 17.5,2.5 17.5,7.5"    stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="17.5,12.5 17.5,17.5 12.5,17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="7.5,17.5 2.5,17.5 2.5,12.5"    stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="na-instructions-section__title-text">Full Screen</span>
+            </div>
+            <svg class="na-instructions-section__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <polyline points="4,7 10,13 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+
+        <div class="na-instructions-section__body" data-na-accordion-body>
+            <div class="na-instructions-section__body-inner">
+
+                <p class="na-instructions-section__intro">Full screen hides the browser toolbars and address bar so the model fills the whole display. It is the best way to view a design, and you can switch it off again at any time.</p>
+
+                <div class="na-instructions-group na-instructions-group--no-label">
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Full Screen</span>
+                            <span class="na-instructions-item__desc">Found in the Tools &amp; Settings menu. Select it to go full screen, and select it again to come back out. The badge next to it reads ON while full screen is active.</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Escape</span>
+                            <span class="na-instructions-item__desc">Leaves full screen instantly at any time. In Walk or Fly mode the first press releases the mouse cursor, so press it a second time to return to the normal browser window.</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Touchscreen</span>
+                            <span class="na-instructions-item__desc">Tablets and phones have no Escape key, so use the Full Screen option in the Tools &amp; Settings menu to switch it off. The menu stays available while full screen is active.</span>
                         </li>
                     </ul>
                 </div>

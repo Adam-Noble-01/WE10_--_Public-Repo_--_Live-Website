@@ -2,6 +2,58 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.8.0  -  27-Aug-2026
+### Full Screen Mode - Menu Toggle and Startup Invitation
+
+Full screen is now a first-class viewing mode. A toggle sits at the bottom of
+the Tools & Settings menu, and a single invitation card recommends full screen
+once the model has finished loading.
+
+**Tools & Settings toggle:**
+- New `Full Screen` row below `Profile Lines`, following the same
+  `na-walk-mode__toggle` pattern as `Shadows` and `Profile Lines`.
+- The ON/OFF badge, the active highlight, `aria-pressed` and the tooltip are
+  all driven from the browser `fullscreenchange` event rather than from the
+  click, so the row stays correct however the user leaves full screen -
+  including the Escape key, which is never intercepted.
+- The expand/collapse arrow icon swaps with the state, so the row reads
+  correctly in both directions.
+- This row is the route out of full screen for touch-screen devices, which
+  have no Escape key.
+
+**Startup invitation:**
+- `Better in Full Screen` card fades in 700 ms after `na-app-scene-ready`,
+  explaining the benefit and - before the user commits - how to leave again:
+  Escape on desktop, the Tools & Settings row on tablets and phones.
+- The Fullscreen API only accepts a real user gesture, so the card carries the
+  click the browser requires; the app can never switch itself over.
+- Dismissed via `Go Full Screen`, `Not Now`, the backdrop, or Escape. Once
+  dismissed it is suppressed for the rest of the browser session, so a refresh
+  mid-review does not nag. A fresh visit offers it again.
+- Card height is capped against the dynamic viewport with the body scrolling,
+  so the action buttons stay reachable on landscape phones.
+
+**Compatibility and rendering:**
+- Feature-detected. Where element full screen is unavailable - notably Safari
+  on iPhone, which only supports it for video - the menu row is hidden and the
+  card is never built, rather than offering a dead control.
+- Every state change forces a `resize` after the viewport settles, so the
+  renderer, composer, depth pre-pass, AO, profile lines and FXAA render targets
+  all pick up the new dimensions. Browsers fire `resize` themselves on a full
+  screen transition but the timing is inconsistent.
+- `na-fullscreen-state-changed` is dispatched for any module that needs it.
+
+**Changed Files**
+- NEW `02__Src__AppModules/76__System__FullscreenMode/Na__UiFeature__FullscreenMode__SystemLogic.js`
+- NEW `02__Src__AppModules/76__System__FullscreenMode/Na__UiFeature__FullscreenMode__Prompt.js`
+- NEW `02__Src__AppModules/76__System__FullscreenMode/Na__UiFeature__Styles__FullscreenMode__.css`
+- MOD `Index.html` - Full Screen menu row, module imports, initialisation
+- MOD `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` - stylesheet import
+- MOD `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` - dispatches `na-app-scene-ready`
+- MOD `02__Src__AppModules/02__AppData/Na__AppConfig__Hotkeys.json` - documents Escape as the full screen exit
+- MOD `02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__Content__.html` - Full Screen User Guide section
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.7.8  -  10-Jul-2026
 ### Exterior Double Doors — Independent Leaf Animation
 

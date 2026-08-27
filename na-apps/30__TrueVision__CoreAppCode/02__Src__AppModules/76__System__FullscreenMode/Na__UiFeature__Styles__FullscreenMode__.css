@@ -1,0 +1,350 @@
+/* =============================================================================
+ * TRUEVISION3D - FULL SCREEN MODE STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__UiFeature__Styles__FullscreenMode__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : Full Screen Mode Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Startup full screen invitation card + menu toggle icon states
+ * CREATED    : 27-Aug-2026
+ *
+ * DESCRIPTION:
+ * - Styles the one-time "Better in Full Screen" invitation shown after the
+ *   model finishes loading.
+ * - Matches the User Guide modal language: Vale dark blue header bar on a
+ *   white card, soft backdrop blur, centred in the viewport.
+ * - Provides the enter / exit icon swap used by the Tools menu toggle so the
+ *   menu row reads correctly in both states.
+ *
+ * DEVELOPMENT LOG:
+ * 27-Aug-2026 - Version 1.0.0
+ * - Initial Release.
+ *
+ * =============================================================================
+ */
+
+
+/* #Region ---
+ * REGION | CSS Variables
+ * ----- */
+
+    :root {
+        --UiFullscreen_CardBg           : #ffffff;                 /* <-- Whitecard panel */
+        --UiFullscreen_HeaderBg         : #172b3a;                 /* <-- Vale dark blue header bar */
+        --UiFullscreen_HeaderText       : #ffffff;                 /* <-- White text on dark header */
+        --UiFullscreen_TextPrimary      : #1c2229;                 /* <-- Primary body text */
+        --UiFullscreen_TextSecondary    : #6b7a8a;                 /* <-- Supporting body text */
+        --UiFullscreen_HintBg           : #f2f5f8;                 /* <-- Exit hint panel background */
+        --UiFullscreen_HintBorder       : rgba(23, 43, 58, 0.10);  /* <-- Exit hint panel border */
+        --UiFullscreen_KeyBadgeBg       : #eef0f4;                 /* <-- Escape key badge background */
+        --UiFullscreen_KeyBadgeBorder   : rgba(0, 0, 0, 0.16);     /* <-- Escape key badge border */
+        --UiFullscreen_AccentBlue       : #172b3a;                 /* <-- Primary action button */
+        --UiFullscreen_AccentBlueHover  : #24425a;                 /* <-- Primary action button hover */
+        --UiFullscreen_Backdrop         : rgba(23, 43, 58, 0.62);  /* <-- Dimming backdrop */
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Invitation Overlay Backdrop
+ * ----- */
+
+    /* OVERLAY | Full-viewport backdrop container */
+    /* ------------------------------------------------------------ */
+    .na-fullscreen-prompt {
+        position                           : fixed;
+        inset                              : 0;
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        padding                            : 20px;
+        background-color                   : var(--UiFullscreen_Backdrop);
+        backdrop-filter                    : blur(3px);
+        z-index                            : 9997;                 /* <-- Above viewer UI, below loading overlays */
+        opacity                            : 0;
+        pointer-events                     : none;
+        transition                         : opacity 0.28s ease;
+    }
+    /* ------------------------------------------------------------ */
+
+    /* OVERLAY OPEN STATE | Fade in and enable interaction */
+    /* ------------------------------------------------------------ */
+    .na-fullscreen-prompt.is-open {
+        opacity                            : 1;
+        pointer-events                     : all;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Invitation Card
+ * ----- */
+
+    /* CARD | Centred white invitation panel */
+    /* ------------------------------------------------------------ */
+    .na-fullscreen-prompt__card {
+        position                           : relative;
+        width                              : 100%;
+        max-width                          : 480px;
+        max-height                         : calc(100vh - 40px);    /* <-- Never taller than the overlay content box */
+        max-height                         : calc(100dvh - 40px);   /* <-- Dynamic viewport: excludes mobile browser chrome */
+        display                            : flex;
+        flex-direction                     : column;
+        background-color                   : var(--UiFullscreen_CardBg);
+        border-radius                      : 12px;
+        box-shadow                         : 0 16px 48px rgba(0, 0, 0, 0.30),
+                                             0 0 0 1px rgba(0, 0, 0, 0.06);
+        overflow                           : hidden;
+        transform                          : translateY(12px);
+        transition                         : transform 0.28s ease;
+    }
+
+    .na-fullscreen-prompt.is-open .na-fullscreen-prompt__card {
+        transform                          : translateY(0);        /* <-- Settle into position */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* CARD HEADER | Vale dark blue title bar */
+    /* ------------------------------------------------------------ */
+    .na-fullscreen-prompt__header {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 10px;
+        padding                            : 16px 20px;
+        background-color                   : var(--UiFullscreen_HeaderBg);
+        flex-shrink                        : 0;                     /* <-- Header never compresses */
+    }
+
+    .na-fullscreen-prompt__header-icon {
+        width                              : 20px;
+        height                             : 20px;
+        flex-shrink                        : 0;
+        color                              : var(--UiFullscreen_HeaderText);
+    }
+
+    .na-fullscreen-prompt__title {
+        margin                             : 0;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 1rem;
+        font-weight                        : 600;
+        letter-spacing                     : 0.03em;
+        text-transform                     : uppercase;
+        color                              : var(--UiFullscreen_HeaderText);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* CARD BODY | Message and exit hint */
+    /* ------------------------------------------------------------ */
+    .na-fullscreen-prompt__body {
+        flex                               : 1 1 auto;
+        min-height                         : 0;                     /* <-- Allow the flex item to shrink below content height */
+        overflow-y                         : auto;                  /* <-- Message scrolls on short screens (landscape phones) */
+        padding                            : 22px 24px 4px 24px;
+        font-family                        : 'Open Sans', sans-serif;
+    }
+
+    .na-fullscreen-prompt__lead {
+        margin                             : 0 0 10px 0;
+        font-size                          : 1.02rem;
+        font-weight                        : 600;
+        line-height                        : 1.45;
+        color                              : var(--UiFullscreen_TextPrimary);
+    }
+
+    .na-fullscreen-prompt__text {
+        margin                             : 0 0 16px 0;
+        font-size                          : 0.94rem;
+        font-weight                        : 400;
+        line-height                        : 1.55;
+        color                              : var(--UiFullscreen_TextSecondary);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* EXIT HINT | How to leave full screen at any time */
+    /* ------------------------------------------------------------ */
+    .na-fullscreen-prompt__hint {
+        display                            : flex;
+        flex-direction                     : column;
+        gap                                : 9px;
+        padding                            : 13px 15px;
+        background-color                   : var(--UiFullscreen_HintBg);
+        border                             : 1px solid var(--UiFullscreen_HintBorder);
+        border-radius                      : 8px;
+    }
+
+    .na-fullscreen-prompt__hint-title {
+        margin                             : 0;
+        font-size                          : 0.74rem;
+        font-weight                        : 600;
+        letter-spacing                     : 0.06em;
+        text-transform                     : uppercase;
+        color                              : var(--UiFullscreen_TextSecondary);
+    }
+
+    .na-fullscreen-prompt__hint-row {
+        display                            : flex;
+        align-items                        : baseline;
+        gap                                : 10px;
+        font-size                          : 0.9rem;
+        line-height                        : 1.5;
+        color                              : var(--UiFullscreen_TextPrimary);
+    }
+
+    .na-fullscreen-prompt__key {
+        flex-shrink                        : 0;
+        padding                            : 3px 9px;
+        border-radius                      : 4px;
+        background-color                   : var(--UiFullscreen_KeyBadgeBg);
+        border                             : 1px solid var(--UiFullscreen_KeyBadgeBorder);
+        border-bottom-width                : 2px;                  /* <-- Physical key feel */
+        font-size                          : 0.8rem;
+        font-weight                        : 600;
+        white-space                        : nowrap;
+        text-align                         : center;
+        color                              : var(--UiFullscreen_TextPrimary);
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Invitation Card Actions
+ * ----- */
+
+    /* ACTIONS | Button row */
+    /* ------------------------------------------------------------ */
+    .na-fullscreen-prompt__actions {
+        display                            : flex;
+        gap                                : 10px;
+        padding                            : 20px 24px 22px 24px;
+        flex-shrink                        : 0;                     /* <-- Buttons stay reachable without scrolling */
+    }
+
+    .na-fullscreen-prompt__btn {
+        flex                               : 1;
+        padding                            : 12px 16px;
+        border                             : 1px solid transparent;
+        border-radius                      : 8px;
+        cursor                             : pointer;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 0.94rem;
+        font-weight                        : 600;
+        transition                         : background-color 0.15s ease, color 0.15s ease;
+        -webkit-tap-highlight-color        : transparent;
+    }
+
+    .na-fullscreen-prompt__btn--primary {
+        background-color                   : var(--UiFullscreen_AccentBlue);
+        color                              : #ffffff;
+    }
+
+    .na-fullscreen-prompt__btn--primary:hover {
+        background-color                   : var(--UiFullscreen_AccentBlueHover);
+    }
+
+    .na-fullscreen-prompt__btn--secondary {
+        background-color                   : transparent;
+        border-color                       : var(--UiFullscreen_HintBorder);
+        color                              : var(--UiFullscreen_TextSecondary);
+    }
+
+    .na-fullscreen-prompt__btn--secondary:hover {
+        background-color                   : var(--UiFullscreen_HintBg);
+        color                              : var(--UiFullscreen_TextPrimary);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* RESPONSIVE | Stack actions on very narrow screens */
+    /* ------------------------------------------------------------ */
+    @media (max-width: 420px) {
+        .na-fullscreen-prompt__actions {
+            flex-direction                 : column-reverse;       /* <-- Primary action stays on top */
+        }
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* RESPONSIVE | Tighten spacing on short viewports (landscape phones) */
+    /* ------------------------------------------------------------ */
+    @media (max-height: 560px) {
+        .na-fullscreen-prompt {
+            padding                        : 12px;
+        }
+
+        .na-fullscreen-prompt__card {
+            max-height                     : calc(100vh - 24px);
+            max-height                     : calc(100dvh - 24px);  /* <-- Dynamic viewport fallback pattern as above */
+        }
+
+        .na-fullscreen-prompt__header {
+            padding                        : 11px 20px;
+        }
+
+        .na-fullscreen-prompt__body {
+            padding                        : 16px 24px 2px 24px;
+        }
+
+        .na-fullscreen-prompt__text {
+            margin-bottom                  : 13px;
+        }
+
+        .na-fullscreen-prompt__actions {
+            padding                        : 14px 24px 16px 24px;
+        }
+
+        .na-fullscreen-prompt__btn {
+            padding                        : 10px 16px;
+        }
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Tools Menu Toggle Row
+ * ----- */
+
+    /* MENU ROW LABEL | Icon + text label inside the Tools menu button */
+    /* ------------------------------------------------------------ */
+    .na-fullscreen-toggle__label-group {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+    }
+
+    .na-fullscreen-toggle__icon {
+        width                              : 15px;
+        height                             : 15px;
+        flex-shrink                        : 0;
+        color                              : currentColor;
+        pointer-events                     : none;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* ICON SWAP | Expand arrows when windowed, collapse arrows when full screen */
+    /* ------------------------------------------------------------ */
+    .na-fullscreen-toggle__icon--exit {
+        display                            : none;                 /* <-- Hidden until full screen is active */
+    }
+
+    .na-walk-mode__toggle--active .na-fullscreen-toggle__icon--enter {
+        display                            : none;
+    }
+
+    .na-walk-mode__toggle--active .na-fullscreen-toggle__icon--exit {
+        display                            : block;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
