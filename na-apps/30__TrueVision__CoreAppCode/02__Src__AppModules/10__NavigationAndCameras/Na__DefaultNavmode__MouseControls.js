@@ -164,7 +164,10 @@
             const accelerationFactor = extraTicks > 0 ? Math.pow(1.05, extraTicks) : 1;
             const acceleratedZoomStep = zoomStepUnits * accelerationFactor;
             
-            Na__DefaultNavmode__ApplyZoomStep(camera, controls, zoomDirection, acceleratedZoomStep, minDistanceUnits, maxDistanceUnits);
+            // Read the LIVE control limits rather than the boot-time consts, so that
+            // per-project R2 overrides and the Dev Tools "Apply Live" button actually
+            // move the wheel-zoom cap. Unset limits stay Infinity and are ignored.
+            Na__DefaultNavmode__ApplyZoomStep(camera, controls, zoomDirection, acceleratedZoomStep, controls.minDistance, controls.maxDistance);
         };
         // ------------------------------------------------------------
         

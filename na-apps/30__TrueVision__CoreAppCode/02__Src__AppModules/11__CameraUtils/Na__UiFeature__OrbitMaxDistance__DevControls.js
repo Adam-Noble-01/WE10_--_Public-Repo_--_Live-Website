@@ -114,6 +114,19 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Sync the Input Field to the Live Effective Cap
+    // ------------------------------------------------------------
+    // Stands down permanently once the field has been typed in, so an in-flight
+    // edit is never overwritten by a late-arriving project override.
+    function Na__OrbitMaxDistance__SyncInputFromControls(controls, inputEl) {
+        if (!inputEl || inputEl.dataset.naUserEdited === 'true') return;
+        const currentMm = Na__OrbitMaxDistance__ReadCurrentMm(controls);
+        if (!Number.isFinite(currentMm)) return;
+        inputEl.value = Math.round(currentMm);                              // <-- Mirror the live cap (mm)
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Apply a Max Distance (Mm) to the Controls Live
     // ------------------------------------------------------------
     function Na__OrbitMaxDistance__SetControlsMaxMm(controls, mmValue) {
@@ -237,14 +250,30 @@
                 const isOpen = panel.classList.contains('is-open');
                 panel.classList.toggle('is-open', !isOpen);
                 toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+                if (!isOpen) {
+                    Na__OrbitMaxDistance__SyncInputFromControls(controls, inputEl);  // <-- Opening: show the live cap
+                }
             });
         }
 
         // Pre-populate input with current effective max (mm)
-        const initialCurrentMm = Na__OrbitMaxDistance__ReadCurrentMm(controls);
-        if (Number.isFinite(initialCurrentMm)) {
-            inputEl.value = Math.round(initialCurrentMm);
-        }
+        // This module initialises synchronously during boot, while the project
+        // data fetch and R2 overlay are still in flight, so the value read here
+        // is only the per-device default. The sync helper re-reads the live cap
+        // when the project override lands and whenever the panel is reopened.
+        Na__OrbitMaxDistance__SyncInputFromControls(controls, inputEl);
+
+        inputEl.addEventListener('input', () => {
+            inputEl.dataset.naUserEdited = 'true';                           // <-- Typed value now wins over auto-sync
+        });
+
+        // The loading sequence applies Navmode__OrbitMaxDistanceMm to the
+        // controls immediately before broadcasting this event, so it is the
+        // earliest reliable point at which the per-project cap is readable.
+        window.addEventListener('na-navigation-modes-loaded', () => {
+            Na__OrbitMaxDistance__SyncInputFromControls(controls, inputEl);   // <-- Project override has landed
+            Na__OrbitMaxDistance__RefreshDisplay(controls, currentEl);
+        });
 
         Na__OrbitMaxDistance__RefreshDisplay(controls, currentEl);
 
