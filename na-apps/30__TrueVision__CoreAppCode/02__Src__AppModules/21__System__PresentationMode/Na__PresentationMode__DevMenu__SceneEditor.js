@@ -209,7 +209,6 @@
         return {
             PresentationMode__SavedCameraScenes__Description : 'Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition.',
             PresentationMode__SavedCameraScenes__Enabled                 : true,
-            PresentationMode__SavedCameraScenes__ShowCarouselByDefault   : true,
             PresentationMode__SavedCameraScenes__DefaultSceneId          : scenes[0]?.PresentationMode__Scene__Id || null,
             PresentationMode__SavedCameraScenes__Scenes                  : scenes
         };

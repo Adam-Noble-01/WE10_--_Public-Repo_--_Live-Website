@@ -12,7 +12,7 @@
             "available-phases": [
                 "DesignPhase02"
             ],
-            "phase-last-updated": "27-Aug-2026"
+            "phase-last-updated": "29-Aug-2026"
         },
         "project-documentation": {
             "phase-content": {
@@ -55,7 +55,7 @@
             "das-markdown-file": "EB03_T02_S01__Design&AccessStatement__.md",
             "das-html-file": "EB03_T02_S01__Design&AccessStatement__.html",
             "das-pdf-file": null,
-            "das-last-built": "27-Aug-2026",
+            "das-last-built": "29-Aug-2026",
             "das-document-links": {
                 "das-base-url--cdn": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/EB03__TheFirs/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment",
                 "das-base-url--live": "https://www.noble-architecture.com/na-project-portal/26-Projects/EB03__TheFirs/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment",

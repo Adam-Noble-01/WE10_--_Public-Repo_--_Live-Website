@@ -46,7 +46,6 @@
         'switchToOrbit',
         'switchToWalk',
         'switchToFly',
-        'toggleAnimationViews',
         'resetView'
     ];
 
@@ -54,7 +53,6 @@
         switchToOrbit          : 'Na__Hotkeys__ViewMode__OrbitMode',
         switchToWalk           : 'Na__Hotkeys__ViewMode__WalkMode',
         switchToFly            : 'Na__Hotkeys__ViewMode__FlyMode',
-        toggleAnimationViews   : 'Na__Hotkeys__Action__ToggleAnimationViews',
         resetView              : 'Na__Hotkeys__Action__ResetView'
     };
 
@@ -62,7 +60,6 @@
         switchToOrbit          : 'naNavToolbarOrbitBtn',
         switchToWalk           : 'naNavToolbarWalkBtn',
         switchToFly            : 'naNavToolbarFlyBtn',
-        toggleAnimationViews   : 'naNavToolbarViewsBtn',
         resetView              : 'naNavToolbarResetBtn'
     };
     // ------------------------------------------------------------

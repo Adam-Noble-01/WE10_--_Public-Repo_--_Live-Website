@@ -66,7 +66,18 @@
         const movementSpeedUnits = Na__Math__ConvertMmToUnits(config.movementSpeedMm);
         const elevationSpeedUnits = Na__Math__ConvertMmToUnits(config.elevationSpeedMm);
         const minDistanceUnits = Number.isFinite(config.minDistanceMm) ? Na__Math__ConvertMmToUnits(config.minDistanceMm) : null;
-        const maxDistanceUnits = Number.isFinite(config.maxDistanceMm) ? Na__Math__ConvertMmToUnits(config.maxDistanceMm) : null;
+
+        // TOUCH BONUS MULTIPLIER | Extra orbit zoom-out allowance on touch devices
+        // so portrait phone/tablet screens can pull back far enough to frame the
+        // whole model. Matches ValeVision3D (default 1.0 = no bonus).
+        const maxDistanceMultiplier = (Number.isFinite(config.maxDistanceMultiplier) && config.maxDistanceMultiplier > 0)
+            ? config.maxDistanceMultiplier
+            : 1;
+        const effectiveMaxDistanceMm = Number.isFinite(config.maxDistanceMm)
+            ? config.maxDistanceMm * maxDistanceMultiplier
+            : null;
+
+        const maxDistanceUnits = Number.isFinite(effectiveMaxDistanceMm) ? Na__Math__ConvertMmToUnits(effectiveMaxDistanceMm) : null;
         const minCameraYUnits  = Number.isFinite(config.minCameraYMm)  ? Na__Math__ConvertMmToUnits(config.minCameraYMm)  : null;
         
         if (Number.isFinite(minDistanceUnits)) {

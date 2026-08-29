@@ -57,7 +57,9 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__SecondFloor__ProposedWindows__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__Storey__SecondFloor__ProposedWindows__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__LandscapeEnvironment__MeshModel__.glb"
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__LandscapeEnvironment__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb"
             ]
         }
     ],
@@ -114,9 +116,76 @@
                 }
             },
             {
+                "PresentationMode__Scene__Id": "Scene_008",
+                "PresentationMode__Scene__Name": "West Fascade",
+                "PresentationMode__Scene__Order": 2,
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_008.webp",
+                "PresentationMode__Scene__LensMm": 45,
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": -28435,
+                        "Camera__DefaultPos__PosY": 3219,
+                        "Camera__DefaultPos__PosZ": -23231
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -2.1695,
+                        "Camera__DefaultRotation__RotY": -1.5623,
+                        "Camera__DefaultRotation__RotZ": -2.1695
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 16064,
+                    "OrbitHelperCube__Position__PosY": 2906,
+                    "OrbitHelperCube__Position__PosZ": -23018
+                },
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedDoors": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedFloors": true,
+                        "Storey__SecondFloor__ProposedFurniture": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "orbit"
+            },
+            {
                 "PresentationMode__Scene__Id": "Scene_002",
                 "PresentationMode__Scene__Name": "Rear",
-                "PresentationMode__Scene__Order": 2,
+                "PresentationMode__Scene__Order": 3,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_002.webp",
                 "PresentationMode__Scene__LensMm": 41,
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
@@ -146,7 +215,7 @@
             {
                 "PresentationMode__Scene__Id": "Scene_003",
                 "PresentationMode__Scene__Name": "Ground Floor",
-                "PresentationMode__Scene__Order": 3,
+                "PresentationMode__Scene__Order": 4,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_003.webp",
                 "PresentationMode__Scene__LensMm": 45,
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
@@ -207,7 +276,7 @@
             {
                 "PresentationMode__Scene__Id": "Scene_004",
                 "PresentationMode__Scene__Name": "First Floor",
-                "PresentationMode__Scene__Order": 4,
+                "PresentationMode__Scene__Order": 5,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_004.webp",
                 "PresentationMode__Scene__LensMm": 45,
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
@@ -274,7 +343,7 @@
             {
                 "PresentationMode__Scene__Id": "Scene_005",
                 "PresentationMode__Scene__Name": "Kitchen Exterior",
-                "PresentationMode__Scene__Order": 5,
+                "PresentationMode__Scene__Order": 6,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_005.webp",
                 "PresentationMode__Scene__LensMm": 38,
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
@@ -343,7 +412,7 @@
             {
                 "PresentationMode__Scene__Id": "Scene_006",
                 "PresentationMode__Scene__Name": "Kitchen Interior 1",
-                "PresentationMode__Scene__Order": 6,
+                "PresentationMode__Scene__Order": 7,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_006.webp",
                 "PresentationMode__Scene__LensMm": 26,
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
@@ -413,7 +482,7 @@
             {
                 "PresentationMode__Scene__Id": "Scene_007",
                 "PresentationMode__Scene__Name": "Kitchen Interior 2",
-                "PresentationMode__Scene__Order": 7,
+                "PresentationMode__Scene__Order": 8,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_007.webp",
                 "PresentationMode__Scene__LensMm": 26,
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
@@ -486,7 +555,7 @@
         "Navmode__EnabledModes__Walk": true,
         "Navmode__EnabledModes__Fly": true
     },
-    "Navmode__OrbitMaxDistanceMm": 175000,
+    "Navmode__OrbitMaxDistanceMm": 70000,
     "Navmode__FovOverrides": {
         "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
         "Navmode__FovOverrides__OrbitDeg": 40,

@@ -521,10 +521,6 @@
             <img class="na-nav-toolbar__icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__NavigationMenu/Icon__NavigationMenu__FlyMode__.png" alt="" />
             <span class="na-nav-toolbar__label">Fly</span>
         </button>
-        <button class="na-nav-toolbar__btn" id="naNavToolbarViewsBtn" type="button" aria-pressed="false" title="Toggle saved scene carousel" style="display:none;">
-            <img class="na-nav-toolbar__icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__NavigationMenu/Icon__NavigationMenu__ResetView__.png" alt="" />
-            <span class="na-nav-toolbar__label">Views</span>
-        </button>
         <button class="na-nav-toolbar__btn" id="naNavToolbarResetBtn" type="button" title="Reset view to project start position">
             <img class="na-nav-toolbar__icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__NavigationMenu/Icon__NavigationMenu__ResetView__.png" alt="" />
             <span class="na-nav-toolbar__label">Reset View</span>
@@ -532,6 +528,16 @@
         <button class="na-nav-toolbar__btn" id="naNavToolbarHelpBtn" type="button" title="Navigation help">
             <img class="na-nav-toolbar__icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__NavigationMenu/Icon__NavigationMenu__OpenNavHelpPanel__.png" alt="" />
             <span class="na-nav-toolbar__label">Help</span>
+        </button>
+        <!-- Mobile-only (<=768px): divider + hamburger swap the toolbar for the Tools & Settings menu -->
+        <span class="na-nav-toolbar__divider" aria-hidden="true"></span>
+        <button class="na-nav-toolbar__btn na-nav-toolbar__btn--menu" id="naNavToolbarMenuBtn" type="button" title="Tools &amp; Settings" aria-expanded="false" aria-controls="naToolsMenu">
+            <svg class="na-nav-toolbar__menu-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <line x1="3" y1="5"  x2="17" y2="5"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="15" x2="17" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="na-nav-toolbar__label">Menu</span>
         </button>
     </nav>
 
@@ -599,7 +605,6 @@
                     </button>
                     <div class="na-nav-help__section-body">
                         <div class="na-nav-help__row" data-na-hotkey-row="resetView"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Reset to the project's original starting view</span></div>
-                        <div class="na-nav-help__row" data-na-hotkey-row="toggleAnimationViews"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Toggle saved scene carousel (when available)</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Esc</span><span class="na-nav-help__desc">Closes this panel</span></div>
                     </div>
                 </div>
@@ -692,7 +697,7 @@
     import { Na__UiFeature__InitializeNavigationModesDevControls } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__NavigationModes__DevControls.js';
     import { Na__UiFeature__InitializeOrbitMaxDistanceDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__OrbitMaxDistance__DevControls.js';
     import { Na__UiFeature__InitializeViewModeFovDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js';
-    import { Na__PresentationMode__UI__InitializeSceneCarousel, Na__PresentationMode__UI__ToggleSceneCarousel } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
+    import { Na__PresentationMode__UI__InitializeSceneCarousel } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
     import { Na__PresentationMode__Thumbnail__SetRenderContext } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Thumbnail__Renderer.js';
     import { Na__PresentationMode__DevMenu__InitializeSceneEditor } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js';
     import { Na__CfApi__Initialize } from './02__Src__AppModules/80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
@@ -900,6 +905,7 @@
             elevationSpeedMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__ElevationSpeedMm,  // <-- Vertical navigation speed (mm)
             minDistanceMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMinDistanceMm,   // <-- Orbit zoom in (mm)
             maxDistanceMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMaxDistanceMm,   // <-- Orbit zoom out (mm)
+            maxDistanceMultiplier: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMaxDistanceMultiplier, // <-- Touch bonus multiplier (extra zoom-out so portrait screens can frame the whole model)
             minCameraYMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMinCameraYMm      // <-- Camera floor guard (mm)
         }
         : {
@@ -1055,10 +1061,6 @@
             Na__UiFeature__FlyMode__ToggleFn();                                  // <-- Activate fly
         },
 
-        toggleAnimationViews: () => {
-            Na__PresentationMode__UI__ToggleSceneCarousel();                     // <-- Toggle the saved scene carousel
-        },
-
         resetView: () => {
             Na__UiFeature__WalkMode__ToggleFn('return-to-orbit');                // <-- Exit walk first
             Na__UiFeature__FlyMode__ToggleFn('return-to-orbit');                 // <-- Exit fly first
@@ -1211,8 +1213,10 @@
     function Na__UiFeature__PromptToolsMenu() {
         const menu = document.getElementById('naToolsMenu');
         if (!menu) return;
+        const menuContainer = menu.closest('.na-dropdown-menu');
+        if (menuContainer && getComputedStyle(menuContainer).display === 'none') return;  // <-- Mobile swap active: menu lives behind the toolbar hamburger, no teaser
         const closeAnimationDurationMs = 240;
-        
+
         menu.setAttribute('open', 'open');
         setTimeout(() => {
             menu.classList.add('na-dropdown-menu__details--closing');
@@ -1379,27 +1383,6 @@
         Na__UiFeature__ShowToast
     );
 
-    // VIEWS BUTTON | Toggle the scene carousel + reflect active state
-    const Na__PmViewsBtn = document.getElementById('naNavToolbarViewsBtn');
-    if (Na__PmViewsBtn) {
-        Na__PmViewsBtn.addEventListener('click', () => {
-            window.dispatchEvent(new CustomEvent('na-presentation-carousel-toggle')); // <-- Carousel module listens
-        });
-        window.addEventListener('na-presentation-views-btn-state', (event) => {
-            const active = event.detail && event.detail.active;
-            Na__PmViewsBtn.classList.toggle('na-nav-toolbar__btn--active', active === true);
-        });
-        window.addEventListener('na-presentation-mode-scenes-loaded', () => {
-            Na__PmViewsBtn.style.display = '';                  // <-- Reveal Views button once scenes exist
-        });
-        window.addEventListener('na-presentation-mode-scenes-cleared', () => {
-            Na__PmViewsBtn.style.display = 'none';              // <-- Hide Views button when no scenes
-            Na__PmViewsBtn.classList.remove('na-nav-toolbar__btn--active');
-        });
-    }
-    // ------------------------------------------------------------
-
-
     // DEV MENU | Navigation Modes + Orbit Max Distance (localhost-only, save to R2)
     // ------------------------------------------------------------
     // @delegate: ./02__Src__AppModules/70__System__DevTools/Na__UiFeature__NavigationModes__DevControls.js
@@ -1413,8 +1396,12 @@
     });
 
     // @delegate: ./02__Src__AppModules/11__CameraUtils/Na__UiFeature__OrbitMaxDistance__DevControls.js
+    const Na__OrbitMaxTouchMultiplier = (Number.isFinite(Na__Navmode__ConfigIpad.Navmode__IpadControls__OrbitMaxDistanceMultiplier)
+        && Na__Navmode__ConfigIpad.Navmode__IpadControls__OrbitMaxDistanceMultiplier > 0)
+        ? Na__Navmode__ConfigIpad.Navmode__IpadControls__OrbitMaxDistanceMultiplier
+        : 1;                                                     // <-- Touch bonus multiplier (default 1.0 = no bonus)
     const Na__OrbitMaxDefaultMm = Na__Device__UseTouchControls
-        ? Na__Navmode__ConfigIpad.Navmode__IpadControls__OrbitMaxDistanceMm
+        ? Na__Navmode__ConfigIpad.Navmode__IpadControls__OrbitMaxDistanceMm * Na__OrbitMaxTouchMultiplier
         : Na__Navmode__ConfigMouse.Navmode__MouseControls__OrbitMaxDistanceMm;
     Na__UiFeature__InitializeOrbitMaxDistanceDevControls({
         controls             : Na__Controls__Orbit,

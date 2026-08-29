@@ -43,6 +43,22 @@
     font-family                        : 'Open Sans', sans-serif;
     transform                          : scale(1.2);
     transform-origin                   : top right;
+    /* Inactive fade: collapsed menu is 50% translucent when idle.
+       Recipe ported verbatim from ValeVision3D.                     */
+    opacity                            : 0.5;
+    transition                         : opacity 0.3s ease;
+}
+
+/* Fully opaque on hover, focus, or when the menu is expanded (open) */
+.na-dropdown-menu:hover,
+.na-dropdown-menu:focus-within,
+.na-dropdown-menu .na-dropdown-menu__details[open] {
+    opacity                            : 1;
+}
+
+/* Force full opacity on the entire menu when any details element is open */
+.na-dropdown-menu:has(.na-dropdown-menu__details[open]) {
+    opacity                            : 1;
 }
 
 .na-dropdown-menu--dev-localhost {
@@ -55,8 +71,49 @@
     background                          : rgba(255, 255, 255, 0.95);
     border                              : 1px solid rgba(0, 0, 0, 0.12);
     border-radius                       : 6px;
-    box-shadow                          : 0 6px 18px rgba(0, 0, 0, 0.15);
+    box-shadow                          : 0 6px 18px rgba(0, 0, 0, 0);        /* <-- Shadow hidden while idle */
+    transition                          : box-shadow 0.3s ease;               /* <-- Shadow fades with the menu opacity */
     min-width                           : 220px;
+}
+
+/* Shadow animates in on the same wake states that restore full opacity */
+.na-dropdown-menu:hover .na-dropdown-menu__details,
+.na-dropdown-menu:focus-within .na-dropdown-menu__details,
+.na-dropdown-menu .na-dropdown-menu__details[open] {
+    box-shadow                          : 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile Swap - Toolbar Hamburger Summons the Tools Menu (<=768px) */
+/* ----------------------------------------------------------------- */
+/* On narrow screens the standalone Tools & Settings trigger and the
+   navigation toolbar cannot both fit on the top row, so the trigger is
+   hidden and the toolbar gains a hamburger button instead. Pressing it
+   swaps the toolbar out and drops this menu down in the same row;
+   folding the menu back up swaps the toolbar back in. Wiring lives in
+   Na__UiFeature__NavigationToolbar__Controls.js.                     */
+@media (max-width: 768px) {
+    .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) {
+        display                        : none;                    /* <-- Hidden until the hamburger summons it */
+        top                            : calc(var(--Vale_HeaderHeight) + 14px);  /* <-- Same row the nav toolbar occupies */
+        right                          : 12px;
+    }
+
+    body.na-mobile-tools-open .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) {
+        display                        : block;                   /* <-- Swapped in while the menu is open */
+        opacity                        : 1;                       /* <-- Never idle-faded while swapped in */
+    }
+
+    /* Scale-aware viewport clamp so the open menu never runs off screen */
+    .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) .na-dropdown-menu__details {
+        max-height                     : calc((100vh - var(--Vale_HeaderHeight) - 28px) / 1.2);
+        overflow-y                     : auto;
+    }
+
+    /* Dev Tools (localhost only) drops below the toolbar row so the two
+       never stack on a narrow dev window; clients never see this menu.   */
+    .na-dropdown-menu--dev-localhost {
+        top                            : calc(var(--Vale_HeaderHeight) + 82px);
+    }
 }
 
 .na-dropdown-menu__details--camera-open {

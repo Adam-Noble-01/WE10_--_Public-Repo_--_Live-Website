@@ -363,7 +363,6 @@
         if (variantToken === PROMPT_UI_VARIANT_BAR) {
             TrueVision__Pwa__PromptUi__ActiveRepositionHook = () => TrueVision__Pwa__PromptUi__PositionBar();
             window.addEventListener('resize', TrueVision__Pwa__PromptUi__ActiveRepositionHook);                                     // <-- Rotation and window resize
-            window.addEventListener('na-presentation-views-btn-state', TrueVision__Pwa__PromptUi__ActiveRepositionHook);            // <-- Carousel toggled from the Views button
             window.addEventListener('na-presentation-mode-scenes-loaded', TrueVision__Pwa__PromptUi__ActiveRepositionHook);         // <-- Carousel appears with a new model group
             window.addEventListener('na-presentation-mode-scenes-cleared', TrueVision__Pwa__PromptUi__ActiveRepositionHook);        // <-- Carousel removed with the scenes
         }
@@ -386,7 +385,6 @@
 
         if (TrueVision__Pwa__PromptUi__ActiveRepositionHook) {
             window.removeEventListener('resize', TrueVision__Pwa__PromptUi__ActiveRepositionHook);                                   // <-- Release the reposition handlers
-            window.removeEventListener('na-presentation-views-btn-state', TrueVision__Pwa__PromptUi__ActiveRepositionHook);
             window.removeEventListener('na-presentation-mode-scenes-loaded', TrueVision__Pwa__PromptUi__ActiveRepositionHook);
             window.removeEventListener('na-presentation-mode-scenes-cleared', TrueVision__Pwa__PromptUi__ActiveRepositionHook);
             TrueVision__Pwa__PromptUi__ActiveRepositionHook = null;

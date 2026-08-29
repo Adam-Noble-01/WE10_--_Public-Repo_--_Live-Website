@@ -19,9 +19,13 @@
 //   active highlight ring.
 // - Previous / Next chevron buttons step through scenes by Order.
 // - Clicking a thumbnail card triggers an animated camera transition.
-// - The Views button in the navigation toolbar toggles carousel visibility;
-//   this module dispatches 'na-presentation-views-btn-state' so the toolbar
-//   can update button active state.
+// - The carousel has no user-facing toggle: it is always shown while the
+//   loaded project has valid saved scenes (it is everyone's primary quick
+//   transition tool) and hidden only when the scenes are cleared.
+// - Idle fade: like the other menus the carousel rests at 50% opacity. Any
+//   tap, swipe or click flashes the na-pm-carousel--wake class, holding it
+//   opaque long enough to cover the 1.8s scene camera flight before the CSS
+//   fades it back out. Hover and keyboard focus wake it via pure CSS.
 // - na-presentation-mode-active class on <body> drives the CSS layout switch.
 //
 // INTEGRATION:
@@ -76,7 +80,8 @@
     // ------------------------------------------------------------
     const Na__PresentationMode__UI__ACTIVE_BODY_CLASS  = 'na-presentation-mode-active'; // <-- Body class that drives top-toolbar layout
     const Na__PresentationMode__UI__CAROUSEL_ID        = 'naPresentationCarousel';      // <-- Root carousel container id
-    const Na__PresentationMode__UI__VIEWS_STATE_EVENT  = 'na-presentation-views-btn-state'; // <-- Event to sync Views button
+    const Na__PresentationMode__UI__WAKE_CLASS         = 'na-pm-carousel--wake';        // <-- Short-lived opaque flash while the carousel is in use
+    const Na__PresentationMode__UI__WakeHoldMs         = 2600;                          // <-- Opaque hold: covers the 1.8s camera flight plus a beat
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -88,10 +93,10 @@
 
     // MODULE VARIABLES | Carousel Runtime State
     // ------------------------------------------------------------
-    let Na__PresentationMode__UI__Camera        = null;   // <-- Live Three.js PerspectiveCamera reference
-    let Na__PresentationMode__UI__Controls      = null;   // <-- Live OrbitControls reference
-    let Na__PresentationMode__UI__IsVisible     = false;  // <-- Whether the carousel is currently shown
-    let Na__PresentationMode__UI__IsInitialized = false;  // <-- Guard against double initialization
+    let Na__PresentationMode__UI__Camera          = null;   // <-- Live Three.js PerspectiveCamera reference
+    let Na__PresentationMode__UI__Controls        = null;   // <-- Live OrbitControls reference
+    let Na__PresentationMode__UI__IsInitialized   = false;  // <-- Guard against double initialization
+    let Na__PresentationMode__UI__WakeTimerHandle = null;   // <-- Pending carousel wake-flash timeout (or null)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -314,22 +319,53 @@
 // REGION | Carousel Visibility
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Toggle Carousel Visibility
+    // FUNCTION | Briefly Wake the Carousel so It Reads Opaque While In Use
     // ------------------------------------------------------------
-    function Na__PresentationMode__UI__ToggleSceneCarousel(forceVisible) {
+    // Hover and keyboard focus are pure CSS. This flash covers everything
+    // CSS cannot see on a touchscreen: taps, swipes of the card strip, and
+    // the camera flight after picking a scene. Each interaction restarts
+    // the hold, so the carousel only fades back out once it is left alone.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__FlashCarouselWake() {
         const container = document.getElementById(Na__PresentationMode__UI__CAROUSEL_ID);
         if (!container) return;
 
-        const targetVisible = typeof forceVisible === 'boolean'
-            ? forceVisible
-            : !Na__PresentationMode__UI__IsVisible;                         // <-- Toggle if no explicit value
+        container.classList.add(Na__PresentationMode__UI__WAKE_CLASS);       // <-- Opaque + shadow via CSS
 
-        Na__PresentationMode__UI__IsVisible = targetVisible;
-        container.classList.toggle('na-pm-carousel--visible', targetVisible);
+        if (Na__PresentationMode__UI__WakeTimerHandle !== null) {
+            clearTimeout(Na__PresentationMode__UI__WakeTimerHandle);         // <-- Restart any pending fade-out
+        }
 
-        window.dispatchEvent(new CustomEvent(Na__PresentationMode__UI__VIEWS_STATE_EVENT, {
-            detail : { active : targetVisible }
-        }));
+        Na__PresentationMode__UI__WakeTimerHandle = setTimeout(() => {
+            Na__PresentationMode__UI__WakeTimerHandle = null;
+            container.classList.remove(Na__PresentationMode__UI__WAKE_CLASS); // <-- Fade back to idle (0.3s CSS)
+        }, Na__PresentationMode__UI__WakeHoldMs);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Show or Hide the Carousel
+    // ------------------------------------------------------------
+    // No user-facing toggle exists any more: the carousel always shows while
+    // valid saved scenes are loaded, and hides only when they are cleared.
+    // Revealing flashes the wake class, so the carousel appears fully opaque
+    // (announcing itself), holds, then fades to its translucent idle state.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__SetCarouselVisible(visible) {
+        const container = document.getElementById(Na__PresentationMode__UI__CAROUSEL_ID);
+        if (!container) return;
+
+        container.classList.toggle('na-pm-carousel--visible', visible === true);
+
+        if (visible === true) {
+            Na__PresentationMode__UI__FlashCarouselWake();                   // <-- Arrive opaque, then fade out to idle
+        } else {
+            if (Na__PresentationMode__UI__WakeTimerHandle !== null) {
+                clearTimeout(Na__PresentationMode__UI__WakeTimerHandle);     // <-- Cancel any pending fade-out
+                Na__PresentationMode__UI__WakeTimerHandle = null;
+            }
+            container.classList.remove(Na__PresentationMode__UI__WAKE_CLASS); // <-- Reset wake state while hidden
+        }
     }
     // ------------------------------------------------------------
 
@@ -349,10 +385,18 @@
         Na__PresentationMode__UI__Camera   = camera;                       // <-- Store for transition calls
         Na__PresentationMode__UI__Controls = controls;
 
-        // LISTEN FOR VIEWS BUTTON TOGGLE from navigation toolbar
-        window.addEventListener('na-presentation-carousel-toggle', () => {
-            Na__PresentationMode__UI__ToggleSceneCarousel();               // <-- Views button was clicked
-        });
+        // WAKE ON INTERACTION | Delegated on the persistent container element
+        // ------------------------------------------------------------
+        // pointerdown catches taps, clicks and the start of a swipe; the
+        // capture-phase scroll listener catches the card strip's momentum
+        // scrolling (scroll does not bubble, but it does capture). The
+        // container survives re-renders, so these are wired exactly once.
+        // ------------------------------------------------------------
+        const Na__CarouselContainer = document.getElementById(Na__PresentationMode__UI__CAROUSEL_ID);
+        if (Na__CarouselContainer) {
+            Na__CarouselContainer.addEventListener('pointerdown', Na__PresentationMode__UI__FlashCarouselWake);
+            Na__CarouselContainer.addEventListener('scroll', Na__PresentationMode__UI__FlashCarouselWake, true);
+        }
 
         // LISTEN FOR SCENES LOADED from loading sequence OR live dev-editor edits
         window.addEventListener('na-presentation-mode-scenes-loaded', (event) => {
@@ -381,16 +425,15 @@
             // SWITCH TO ADAPTIVE LAYOUT
             Na__PresentationMode__UI__ApplyAdaptiveLayout(true);
 
-            // SHOW CAROUSEL IF CONFIGURED
-            const showByDefault = sceneConfig.PresentationMode__SavedCameraScenes__ShowCarouselByDefault;
-            Na__PresentationMode__UI__ToggleSceneCarousel(showByDefault === true);
+            // SHOW CAROUSEL | Always visible while valid scenes are loaded
+            Na__PresentationMode__UI__SetCarouselVisible(true);
 
             console.log('[TrueVision3D] Presentation Mode carousel initialized.');
         });
 
         // LISTEN FOR SCENES CLEARED (dev editor removed all scenes)
         window.addEventListener('na-presentation-mode-scenes-cleared', () => {
-            Na__PresentationMode__UI__ToggleSceneCarousel(false);            // <-- Hide carousel
+            Na__PresentationMode__UI__SetCarouselVisible(false);             // <-- Hide carousel
             Na__PresentationMode__UI__ApplyAdaptiveLayout(false);            // <-- Restore bottom-centre toolbar layout
         });
     }
@@ -408,7 +451,6 @@
     export {
         Na__PresentationMode__UI__InitializeSceneCarousel,
         Na__PresentationMode__UI__RenderSceneCarousel,
-        Na__PresentationMode__UI__ToggleSceneCarousel,
         Na__PresentationMode__UI__SetActiveScene,
         Na__PresentationMode__UI__ApplyAdaptiveLayout
     };

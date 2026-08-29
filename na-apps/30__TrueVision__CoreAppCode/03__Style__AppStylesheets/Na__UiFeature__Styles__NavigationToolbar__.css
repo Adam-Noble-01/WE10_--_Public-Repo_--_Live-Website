@@ -94,6 +94,34 @@
     /* ------------------------------------------------------------ */
 
 
+    /* TOOLBAR DIVIDER | Vertical separator ahead of the hamburger button */
+    /* ------------------------------------------------------------ */
+    .na-nav-toolbar__divider {
+        display                            : none;                  /* <-- Mobile-only (revealed <=768px) */
+        width                              : 1px;
+        height                             : 24px;
+        background-color                   : rgba(23, 43, 58, 0.18);
+        flex-shrink                        : 0;
+        margin                             : 0 3px;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HAMBURGER BUTTON | Swaps the toolbar for the Tools & Settings menu */
+    /* ------------------------------------------------------------ */
+    .na-nav-toolbar__btn--menu {
+        display                            : none;                  /* <-- Mobile-only (revealed <=768px) */
+    }
+
+    .na-nav-toolbar__menu-icon {
+        width                              : 20px;
+        height                             : 20px;
+        flex-shrink                        : 0;
+        pointer-events                     : none;
+    }
+    /* ------------------------------------------------------------ */
+
+
     /* RESPONSIVE | Compact icon-only toolbar on narrow screens */
     /* ------------------------------------------------------------ */
     @media (max-width: 560px) {
@@ -103,6 +131,29 @@
 
         .na-nav-toolbar__btn {
             padding                        : 11px 13px;
+        }
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* RESPONSIVE | Mobile Menu Swap (<=768px) */
+    /* ------------------------------------------------------------ */
+    /* The standalone Tools & Settings trigger is hidden at this width
+       (see Na__UiFeature__Styles__DropdownAndToast__.css). The toolbar
+       gains a divider + hamburger; pressing it hides the toolbar and
+       drops the Tools & Settings menu into the same space. Folding the
+       menu back up brings the toolbar back.                          */
+    @media (max-width: 768px) {
+        .na-nav-toolbar__divider {
+            display                        : block;                 /* <-- Reveal the separator */
+        }
+
+        .na-nav-toolbar__btn--menu {
+            display                        : flex;                  /* <-- Reveal the hamburger */
+        }
+
+        body.na-mobile-tools-open .na-nav-toolbar {
+            display                        : none;                  /* <-- Toolbar yields its space to the menu */
         }
     }
     /* ------------------------------------------------------------ */

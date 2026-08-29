@@ -3,12 +3,11 @@
 
     "Na__Hotkeys__ViewModes" : {
 
-        "Na__Hotkeys__ViewMode__Description"            : "Number keys 0-4. No modifier keys required. Keys are ignored when an input field has focus or when Ctrl/Meta/Alt is held.",
+        "Na__Hotkeys__ViewMode__Description"            : "Number keys 0-3. No modifier keys required. Keys are ignored when an input field has focus or when Ctrl/Meta/Alt is held.",
 
         "Na__Hotkeys__ViewMode__OrbitMode"              : "1",
         "Na__Hotkeys__ViewMode__WalkMode"               : "2",
         "Na__Hotkeys__ViewMode__FlyMode"                : "3",
-        "Na__Hotkeys__Action__ToggleAnimationViews"     : "4",
         "Na__Hotkeys__Action__ResetView"                : "0"
 
     },
@@ -20,7 +19,6 @@
         "switchToOrbit"        : "Switch to Orbit mode",
         "switchToWalk"         : "Switch to Walk mode",
         "switchToFly"          : "Switch to Fly mode",
-        "toggleAnimationViews" : "Toggle Animation Views",
         "resetView"            : "Reset View"
 
     },

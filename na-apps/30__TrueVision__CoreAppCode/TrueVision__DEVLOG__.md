@@ -2,6 +2,85 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.9.0  -  29-Aug-2026
+### Mobile UI Overhaul - Menu Transparency, Portrait Menu Swap, Views Button Retired
+
+**Overview**
+- Streamlined the mobile / portrait experience: the two top-row menus no
+  longer overlap, the header no longer dominates a phone screen, and the
+  menus adopt the ValeVision3D idle-fade so more of the model shows through
+  around the edges. The confusing carousel toggle ("Views" button, which
+  shared the Reset View icon) is gone entirely.
+
+**Menu Transparency (ValeVision3D recipe, ported verbatim)**
+- Tools & Settings menu, Dev Tools menu and the navigation toolbar now idle
+  at 50% opacity with their drop shadows hidden, waking to full opacity +
+  shadow over `0.3s ease` on hover, keyboard focus, or while open/in use.
+- The scene carousel gets the same idle fade with a sensible fade-out: any
+  tap, swipe or click flashes `na-pm-carousel--wake`, holding it opaque for
+  2.6s (covering the 1.8s scene camera flight) before fading back; each
+  interaction restarts the hold, so it only fades out once left alone.
+  Keyboard focus wakes it via `:has(:focus-visible)` rather than
+  `:focus-within`, so an ordinary tap never pins it opaque on touch screens;
+  the `:has()` selector sits in its own rule so browsers without support
+  drop only the keyboard wake, never the hover/tap wake. On reveal the
+  carousel arrives opaque, holds, then fades to idle - announcing itself
+  without staying in the way of the model.
+- Replaced the dead `na-nav-toolbar--inactive` hook (CSS existed but no JS
+  ever applied it) with the proven ValeVision recipe in
+  `Na__PresentationMode__Styles__SceneCarousel__.css`.
+- Ported the 1s `na-nav-toolbar--wake` flash to
+  `Na__UiFeature__NavigationToolbar__Controls.js`: hotkey-driven mode changes
+  (which CSS hover cannot see) hold the toolbar opaque for a moment so the
+  moved highlight registers, then let it fade back. Boot never flashes.
+
+**Mobile Header (<=600px)**
+- Header scales down 20% (60px -> 48px via `--Vale_HeaderHeight`, cascading
+  to canvas, overlays and menu offsets automatically), logo 42px -> 33.6px,
+  and the "TrueVision 3D" title reduces 24px -> 18px (it stays visible,
+  unlike ValeVision which hides its title).
+
+**Portrait / Narrow-Screen Menu Swap (<=768px)**
+- The standalone Tools & Settings trigger is hidden; the navigation toolbar
+  gains a vertical divider + hamburger button on its far right instead.
+- Pressing the hamburger hides the toolbar and drops the regular Tools &
+  Settings menu into the same top row (`body.na-mobile-tools-open`); folding
+  the menu back up restores the toolbar. Both share one space, so the old
+  toolbar/menu overlap in portrait presentation layouts cannot occur.
+- The boot "teaser" auto-open of the Tools menu is skipped while the menu is
+  swapped out behind the hamburger.
+- Open menu gains a scale-aware viewport height clamp so it scrolls rather
+  than running off short phone screens.
+
+**Views Button Retired (carousel now always shows)**
+- The saved-scene carousel is everyone's primary quick-transition tool, so it
+  now always shows whenever the loaded project has valid saved scenes, and
+  hides only when the scenes are cleared. The toolbar toggle button, its "4"
+  hotkey, the `na-presentation-carousel-toggle` /
+  `na-presentation-views-btn-state` events, and the
+  `PresentationMode__SavedCameraScenes__ShowCarouselByDefault` flag are all
+  removed (the flag remains harmlessly ignored in older project JSONs).
+- Cleaned every reference: `Index.html` button + wiring + help row, hotkeys
+  manager maps, hotkeys config JSON, user instructions overlay row, PWA
+  install-bar reposition hooks, and the dev scene editor default config.
+
+**Touch Zoom Allowance (ported from ValeVision3D)**
+- New `Navmode__IpadControls__OrbitMaxDistanceMultiplier : 2.5` in
+  `Na__AppConfig__Main.json`, applied in `Na__DefaultNavmode__IpadControls.js`:
+  touch devices get 50,000mm x 2.5 = 125,000mm orbit zoom-out so portrait
+  screens can pull back far enough to frame the whole model. Desktop is
+  unchanged; a per-project `Navmode__OrbitMaxDistanceMm` override still
+  applies equally to both and does not stack with the bonus (ValeVision
+  behaviour).
+- The Dev menu "Orbit Max Zoom Radius" default now reports the multiplied
+  effective cap on touch devices.
+
+**Fixes**
+- `body.na-presentation-mode-active .na-nav-toolbar` referenced the
+  undefined `--Na_HeaderHeight` token (silent 54px fallback); now uses
+  `--Vale_HeaderHeight`, so the top toolbar sits correctly below the header.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.8.1  -  27-Aug-2026
 ### Dev Menu - Cache & Storage Reset Panel
 

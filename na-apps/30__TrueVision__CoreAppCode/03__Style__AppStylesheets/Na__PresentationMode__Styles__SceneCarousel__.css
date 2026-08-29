@@ -175,7 +175,7 @@
        The carousel at the bottom fills the vacated area.                     */
     body.na-presentation-mode-active .na-nav-toolbar {
         bottom                             : auto;
-        top                                : calc(var(--Na_HeaderHeight, 54px) + 14px);  /* below header */
+        top                                : calc(var(--Vale_HeaderHeight, 60px) + 14px);  /* below header */
         left                               : 50%;
         transform                          : translateX(-50%);
     }
@@ -187,18 +187,54 @@
  * REGION | Inactive Toolbar Opacity Fade
  * ----- */
 
+    /* Idle by default, exactly like the Tools & Settings menu: pure CSS
+       hover/focus response with no JS timer lag. The --wake class is a
+       short-lived flash applied by NavigationToolbar Controls only for
+       hotkey-driven mode changes, which CSS hover cannot see.
+       Recipe ported verbatim from ValeVision3D.                          */
     .na-nav-toolbar {
-        opacity                            : 1;
-        transition                         : opacity 0.3s ease;
-    }
-
-    .na-nav-toolbar.na-nav-toolbar--inactive {
-        opacity                            : 0.78;           /* slight fade when idle      */
+        opacity                            : 0.5;            /* 50% idle default */
+        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0);      /* shadow hidden while idle */
+        transition                         : opacity 0.3s ease, box-shadow 0.3s ease;  /* same fade as the other menus */
     }
 
     .na-nav-toolbar:hover,
-    .na-nav-toolbar:focus-within {
+    .na-nav-toolbar:focus-within,
+    .na-nav-toolbar.na-nav-toolbar--wake {
         opacity                            : 1;              /* fully opaque on interaction */
+        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0.14);   /* shadow animates in with the opacity */
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Inactive Carousel Opacity Fade
+ * ----- */
+
+    /* Same idle recipe as the toolbar and menus. Taps, swipes and clicks get
+       a JS wake flash (na-pm-carousel--wake, see SceneCarousel.js) that holds
+       the carousel opaque through the scene camera flight, then lets it fade
+       back out. Keyboard focus holds it opaque via :focus-visible - unlike
+       :focus-within this does NOT pin it opaque after an ordinary tap, so
+       the fade-out always happens on touch devices.                       */
+    .na-pm-carousel {
+        opacity                            : 0.5;            /* 50% idle default */
+        box-shadow                         : 0 4px 24px rgba(0, 0, 0, 0);      /* shadow hidden while idle */
+        transition                         : opacity 0.3s ease, box-shadow 0.3s ease;  /* same fade as the other menus */
+    }
+
+    .na-pm-carousel:hover,
+    .na-pm-carousel.na-pm-carousel--wake {
+        opacity                            : 1;              /* fully opaque while in use */
+        box-shadow                         : 0 4px 24px rgba(0, 0, 0, 0.14);   /* shadow animates in with the opacity */
+    }
+
+    /* Keyboard focus wake kept as its own rule: browsers without :has()
+       support drop only this selector, never the hover/wake rule above.  */
+    .na-pm-carousel:has(:focus-visible) {
+        opacity                            : 1;              /* fully opaque while keyboard-focused */
+        box-shadow                         : 0 4px 24px rgba(0, 0, 0, 0.14);
     }
 
 /* endregion ---- */

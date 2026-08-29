@@ -139,12 +139,13 @@
             "Navmode__MouseControls__OrbitMinCameraYMm"  : 0
         },
         "Navmode__IpadControls": {
-            "Navmode__IpadControls__EnableWASD"          : false,
-            "Navmode__IpadControls__MovementSpeedMm"     : 50,
-            "Navmode__IpadControls__ElevationSpeedMm"    : 50,
-            "Navmode__IpadControls__OrbitMinDistanceMm"  : 200,
-            "Navmode__IpadControls__OrbitMaxDistanceMm"  : 50000,
-            "Navmode__IpadControls__OrbitMinCameraYMm"   : 0
+            "Navmode__IpadControls__EnableWASD"                 : false,
+            "Navmode__IpadControls__MovementSpeedMm"            : 50,
+            "Navmode__IpadControls__ElevationSpeedMm"           : 50,
+            "Navmode__IpadControls__OrbitMinDistanceMm"         : 200,
+            "Navmode__IpadControls__OrbitMaxDistanceMm"         : 50000,
+            "Navmode__IpadControls__OrbitMaxDistanceMultiplier" : 2.5,
+            "Navmode__IpadControls__OrbitMinCameraYMm"          : 0
         },
         "Navmode__WalkMode": {
             "Navmode__WalkMode__Description"                       : "First-person walk mode settings. All distance values are integer millimeters; convert to 3D units in code.",
