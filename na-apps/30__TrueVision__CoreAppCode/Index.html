@@ -701,6 +701,7 @@
     import { Na__PresentationMode__Thumbnail__SetRenderContext } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Thumbnail__Renderer.js';
     import { Na__PresentationMode__DevMenu__InitializeSceneEditor } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js';
     import { Na__CfApi__Initialize } from './02__Src__AppModules/80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
+    import { Na__ContextMenu__Initialize } from './02__Src__AppModules/27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -1342,6 +1343,14 @@
             distanceCulling             : Na__Config__DistanceCulling
         }
     });
+    // CONTEXT MENU SYSTEM | Custom right-click menu (Orbit mode, desktop mouse)
+    // ------------------------------------------------------------
+    // @delegate: ./02__Src__AppModules/27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js
+    // Safe to fire before models finish loading: the hit resolver reads the live
+    // model root each time, and the gesture guard is a passive observer.
+    Na__ContextMenu__Initialize(Na__Camera__Main, Na__ModelGroup__Root, Na__Renderer__Main.domElement);
+    // ------------------------------------------------------------
+
     Na__UiFeature__PromptToolsMenu();
     Na__UiFeature__InitializeLocalhostDevMenu();
     // @delegate: ./02__Src__AppModules/70__System__DevTools/Na__UiFeature__SceneInspector__Controls.js

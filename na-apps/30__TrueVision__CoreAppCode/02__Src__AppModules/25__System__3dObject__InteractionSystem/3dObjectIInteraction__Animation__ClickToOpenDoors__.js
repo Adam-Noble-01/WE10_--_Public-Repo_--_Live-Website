@@ -45,6 +45,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 30-Aug-2026 - Version 1.8.0
+// - Click detection is now LEFT BUTTON ONLY. The handlers previously bound
+//   pointerdown/pointerup with no button check, so a stationary right-click
+//   toggled a door as well. The right button belongs to the Orbit pan gesture
+//   and now to the Context Menu System, which surfaces Open / Close Door as a
+//   menu row instead. Left-click behaviour is unchanged.
+// - Exported Na__DoorAnim__FindAdrAncestor and Na__DoorAnim__ResolveHitPanel so
+//   the Context Menu System can resolve a hit to a door without duplicating the
+//   ancestor-walk logic, plus a new read-only Na__DoorAnim__IsDoorOpen() used to
+//   label the menu row Open or Close. No behavioural change to animation.
+//
 // 10-Jul-2026 - Version 1.7.0
 // - Added config-gated independent panel animation for ADR names containing an
 //   approved token (default: ExteriorDoubleDoor). Existing interior, bifold,
@@ -810,6 +821,24 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Read Whether a Door (or One Panel) Reads as Open
+    // ------------------------------------------------------------
+    // Progress-based rather than state-based so a door caught mid-animation
+    // still answers sensibly. Used by the Context Menu System to label its
+    // Open / Close row. Read-only - it never mutates the record.
+    // ------------------------------------------------------------
+    function Na__DoorAnim__IsDoorOpen(doorRecordOrPanel) {
+        if (!doorRecordOrPanel) return false;
+
+        const progress = doorRecordOrPanel.currentProgress;
+        if (Number.isFinite(progress)) return progress > 0.5;                    // <-- Past halfway counts as open
+
+        return doorRecordOrPanel.state === Na__DoorAnim__STATE_OPEN
+            || doorRecordOrPanel.state === Na__DoorAnim__STATE_OPENING;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Collect All Meshes from Both Mesh and Linework Door Models
     // ------------------------------------------------------------
     function Na__DoorAnim__CollectDoorMeshes() {
@@ -839,7 +868,17 @@
 
     // SUB FUNCTION | Handle Pointer Down Event
     // ------------------------------------------------------------
+    // LEFT BUTTON ONLY (v1.5.0). The right button is the Orbit pan gesture and
+    // is owned by the Context Menu System, which offers Open/Close Door as a
+    // menu row instead. Without this gate a stationary right-click would both
+    // toggle the door AND open a menu already labelled for the opposite state.
+    // ------------------------------------------------------------
     function Na__DoorAnim__OnPointerDown(event) {
+        if (event.button !== 0) {                                                // <-- Non-left press cancels any pending click
+            Na__DoorAnim__PointerIsDown = false;
+            return;
+        }
+
         Na__DoorAnim__PointerDownX = event.clientX;                              // <-- Record pointer X
         Na__DoorAnim__PointerDownY = event.clientY;                              // <-- Record pointer Y
         Na__DoorAnim__PointerIsDown = true;                                      // <-- Mark pointer as pressed
@@ -850,6 +889,7 @@
     // SUB FUNCTION | Handle Pointer Up Event (Click Detection)
     // ------------------------------------------------------------
     function Na__DoorAnim__OnPointerUp(event) {
+        if (event.button !== 0) return;                                          // <-- Left button only (see OnPointerDown)
         if (!Na__DoorAnim__PointerIsDown) return;                                // <-- Ignore if no prior pointerdown
         Na__DoorAnim__PointerIsDown = false;                                     // <-- Reset pointer state
 
@@ -1328,7 +1368,10 @@
         Na__DoorAnimation__ScanForDoors,                                         // <-- Re-scan scene graph
         Na__DoorAnim__DoorRegistry,                                              // <-- Door registry Map (for proximity system)
         Na__DoorAnim__ToggleDoor,                                                // <-- Toggle whole door open/close (legacy + external callers)
-        Na__DoorAnim__TogglePanel                                                // <-- Toggle one panel on explicitly independent ADRs
+        Na__DoorAnim__TogglePanel,                                               // <-- Toggle one panel on explicitly independent ADRs
+        Na__DoorAnim__FindAdrAncestor,                                           // <-- Walk a raycast hit up to its ADR (Context Menu System)
+        Na__DoorAnim__ResolveHitPanel,                                           // <-- Resolve a raycast hit to one panel (Context Menu System)
+        Na__DoorAnim__IsDoorOpen                                                 // <-- Read-only open/closed query for menu labelling
         // Removed (v1.4.0): Na__DoorAnim__FindModRotChild — superseded by FindAllAnimatableMods
         // Removed (v1.4.0): Na__DoorAnim__ApplyPivotRotation — superseded by ApplyAllPanels progress path
     };

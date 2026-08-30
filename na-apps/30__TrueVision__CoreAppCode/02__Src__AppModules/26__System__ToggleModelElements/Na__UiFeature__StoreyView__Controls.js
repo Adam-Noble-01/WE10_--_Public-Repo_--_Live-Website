@@ -72,6 +72,7 @@
     // MODULE VARIABLES | Listener Guards
     // ------------------------------------------------------------
     let Na__StoreyView__SubmenuWired = false;                                  // <-- Prevent duplicate submenu handlers on re-init
+    let Na__StoreyView__SyncWired    = false;                                  // <-- Prevent duplicate external-change listeners
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -263,6 +264,17 @@
                 panel.classList.toggle('is-open', !isOpen);
             });
             Na__StoreyView__SubmenuWired = true;
+        }
+
+        // KEEP IN STEP WITH THE RIGHT-CLICK CONTEXT MENU
+        // ------------------------------------
+        // The context menu mutates the same storey visibility state, so these
+        // buttons must refresh when a floor is isolated or restored from there.
+        if (!Na__StoreyView__SyncWired) {
+            window.addEventListener('na-context-menu-visibility-changed', () => {
+                Na__StoreyView__UpdateButtonStates();
+            });
+            Na__StoreyView__SyncWired = true;
         }
 
         console.log(`[TrueVision3D] Storey view controls initialized`);

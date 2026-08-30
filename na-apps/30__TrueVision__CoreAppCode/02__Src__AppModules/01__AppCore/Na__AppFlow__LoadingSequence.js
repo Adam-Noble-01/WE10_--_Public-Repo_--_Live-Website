@@ -157,6 +157,11 @@
     import { Na__UiFeature__InitializeStoreyIsolateControls } from '../26__System__ToggleModelElements/Na__UiFeature__StoreyIsolate__Controls.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Context Menu System
+    // ------------------------------------------------------------
+    import { Na__ContextMenu__ResetForModelChange } from '../27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Door Animation System
     // ------------------------------------------------------------
     import {
@@ -517,6 +522,7 @@
         // HELPER FUNCTION | Reinitialize Model-Bound Runtime Systems
         // ------------------------------------------------------------
         const Na__ReinitializeModelBoundSystems = (loadedModelGroups) => {
+            Na__ContextMenu__ResetForModelChange();                          // <-- Old isolation/hidden set refers to replaced groups
             Na__UiFeature__InitializeModelToggleControls(loadedModelGroups);
             Na__UiFeature__InitializeStoreyViewControls(Na__ModelGroup__Root, Na__Config__StoreyVisibility || {});
             Na__UiFeature__InitializeStoreyIsolateControls();

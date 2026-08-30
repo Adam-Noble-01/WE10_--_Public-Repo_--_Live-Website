@@ -1,0 +1,76 @@
+{
+    "ContextMenu__Description" : "Custom right-click context menu system for TrueVision3D. Desktop mouse only, Orbit mode only. The gesture guard is deliberately strict because the right mouse button is the Orbit pan gesture - any pointer travel beyond MaxTravelPx latches the menu off for that entire press, so panning can never be interrupted by a menu.",
+    "ContextMenu__Enabled"     : true,
+
+    "ContextMenu__Gesture" : {
+        "ContextMenu__Gesture__Description"      : "Right-click qualification rules. MaxTravelPx is the total pointer travel (px, either axis) tolerated between pointerdown and the contextmenu event; exceeding it disarms the menu for that press and it cannot re-arm even if the pointer returns to the origin. MaxHoldMs of 0 disables the hold-time check entirely.",
+        "ContextMenu__Gesture__MaxTravelPx"      : 3,
+        "ContextMenu__Gesture__MaxHoldMs"        : 0,
+        "ContextMenu__Gesture__MouseOnly"        : true,
+        "ContextMenu__Gesture__ArmedNavModes"    : ["orbit"]
+    },
+
+    "ContextMenu__Picking" : {
+        "ContextMenu__Picking__Description"            : "Raycast rules for resolving which model element was right-clicked. Linework roots are excluded because fat lines (LineSegments2) extend THREE.Mesh and would otherwise win the hit test over the solid geometry behind them.",
+        "ContextMenu__Picking__IgnoreLinework"         : true,
+        "ContextMenu__Picking__IgnoreCategoryNameTokens": ["OrbitHelperCube"]
+    },
+
+    "ContextMenu__Ui" : {
+        "ContextMenu__Ui__Description"              : "Menu presentation. Offsets and padding are CSS pixels. The menu is positioned at the pointer and clamped inside the viewport.",
+        "ContextMenu__Ui__PointerOffsetPx"          : 2,
+        "ContextMenu__Ui__ViewportEdgePaddingPx"    : 8,
+        "ContextMenu__Ui__MinWidthPx"               : 240,
+        "ContextMenu__Ui__ShowToastOnAction"        : false
+    },
+
+    "ContextMenu__Sections" : {
+        "ContextMenu__Sections__Description"                   : "Per-section master switches. Sections are contributed by registered provider modules and render in ascending order value. Object-interaction sections sit above the model-visibility sections, separated by a rule.",
+        "ContextMenu__Sections__ObjectInteraction__Enabled"    : true,
+        "ContextMenu__Sections__ModelVisibility__Enabled"      : true,
+        "ContextMenu__Sections__ObjectInteraction__Order"      : 10,
+        "ContextMenu__Sections__ModelVisibility__Order"        : 20
+    },
+
+    "ContextMenu__ElementDisplayNames" : {
+        "ContextMenu__ElementDisplayNames__Description" : "Element-type key to menu label. Keys are the element portion of a category name (Storey__GroundFloor__ProposedWalls -> ProposedWalls). Anything not listed falls back to an auto-generated CamelCase split.",
+
+        "ProposedWalls"          : "Walls",
+        "ProposedFloors"         : "Floors",
+        "ProposedRoofs"          : "Roofs",
+        "ProposedWindows"        : "Windows",
+        "ProposedDoors"          : "Doors",
+        "ProposedStairs"         : "Staircase",
+        "ProposedFixtures"       : "Fixtures",
+        "ProposedFurniture"      : "Furniture",
+        "ProposedInteriorDecor"  : "Interior Decor",
+
+        "ExistingWalls"          : "Existing Walls",
+        "ExistingFloors"         : "Existing Floors",
+        "ExistingRoofs"          : "Existing Roofs",
+        "ExistingWindows"        : "Existing Windows",
+        "ExistingDoors"          : "Existing Doors",
+        "ExistingStairs"         : "Existing Staircase",
+        "ExistingFixtures"       : "Existing Fixtures",
+        "ExistingFurniture"      : "Existing Furniture",
+        "ExistingInteriorDecor"  : "Existing Interior Decor",
+
+        "LandscapeEnvironment"   : "Landscape",
+        "SiteBoundaries"         : "Site Boundaries",
+        "SiteVegetation2D"       : "Site Vegetation",
+        "Vegetation"             : "Vegetation",
+        "SceneContextual"        : "Scene Context"
+    },
+
+    "ContextMenu__Labels" : {
+        "ContextMenu__Labels__Description"        : "Menu row wording. {element} and {floor} are substituted at render time. IsolateFloor names the whole storey in the label rather than in a scope tag, because it switches an entire floor level on rather than acting on the element that was clicked; it also sits in its own divided group for the same reason.",
+        "ContextMenu__Labels__ShowEntireBuilding" : "Show Entire Building",
+        "ContextMenu__Labels__ShowAllHidden"      : "Show All Hidden Elements",
+        "ContextMenu__Labels__IsolateFloor"       : "View {floor}",
+        "ContextMenu__Labels__IsolateElement"     : "Isolate {element}",
+        "ContextMenu__Labels__HideElement"        : "Hide {element}",
+        "ContextMenu__Labels__ScopeAllFloors"     : "All Floors",
+        "ContextMenu__Labels__OpenDoor"           : "Open Door",
+        "ContextMenu__Labels__CloseDoor"          : "Close Door"
+    }
+}

@@ -59,6 +59,7 @@
     // MODULE VARIABLES | Listener Guards
     // ------------------------------------------------------------
     let Na__StoreyIsolate__SubmenuWired = false;                               // <-- Prevent duplicate submenu handlers on re-init
+    let Na__StoreyIsolate__SyncWired    = false;                               // <-- Prevent duplicate external-change listeners
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -212,6 +213,17 @@
                 panel.classList.toggle('is-open', !isOpen);
             });
             Na__StoreyIsolate__SubmenuWired = true;
+        }
+
+        // KEEP IN STEP WITH THE RIGHT-CLICK CONTEXT MENU
+        // ------------------------------------
+        // The context menu drives the same isolate system, so this panel's dots
+        // must refresh when a floor is isolated from there instead of here.
+        if (!Na__StoreyIsolate__SyncWired) {
+            window.addEventListener('na-context-menu-visibility-changed', () => {
+                Na__StoreyIsolate__UpdateButtonStates();
+            });
+            Na__StoreyIsolate__SyncWired = true;
         }
 
         console.log('[TrueVision3D] Storey isolate controls initialized');

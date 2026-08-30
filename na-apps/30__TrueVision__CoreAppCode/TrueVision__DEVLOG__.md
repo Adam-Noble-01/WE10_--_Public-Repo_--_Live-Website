@@ -2,6 +2,110 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.10.0  -  30-Aug-2026
+### Right-Click Context Menu System - Isolate Floor, Isolate Element, Hide Element
+
+**Overview**
+- New `27__System__ContextMenuSystem` module. Right-click any part of the
+  building on a PC and get a contextual menu that knows what was clicked:
+  isolate the floor it sits on, isolate or hide that element type on that floor
+  or across the whole building, and open or close a door. Menu styling follows
+  the Tools & Settings dropdown so the two read as one family - a title, a
+  horizontal rule, then the rows.
+- Deliberately built as a general context menu rather than a floor-isolate
+  shortcut. Sections are contributed by registered provider modules, so future
+  interactive assets add a menu presence by writing one file and registering it;
+  the menu itself never changes. Doors are the reference implementation.
+
+**The pan guard (the whole point of the exercise)**
+- The right mouse button is the Orbit pan gesture, and it stays untouched. The
+  guard is a pure observer: it never calls preventDefault or stopPropagation on
+  any pointer event and never touches OrbitControls, so the event stream
+  OrbitControls receives is byte-for-byte what it received before. The only
+  preventDefault in the system is on `contextmenu`, and only while a menu is
+  actually opening.
+- It is a LATCH, not a comparison. Once pointer travel passes
+  `MaxTravelPx` (default 3, configurable) the press is disqualified for good -
+  returning the pointer to its exact origin cannot re-arm it, so a pan that ends
+  where it started still suppresses the menu. Only a fresh right-button
+  pointerdown arms a new press.
+- Anything ambiguous disarms it too: a second mouse button, a wheel tick, window
+  blur, a tab switch, a key press, a pointer cancel, or the wrong nav mode.
+- Verified against West Farm (RB05): stationary click and 2px tremor open;
+  4px, 5px, 10px, 60px, 120px and an 80px-out-and-back round trip all suppress;
+  a real right-drag pans the camera normally with no menu; touch and pen
+  pointers are rejected; Walk and Fly are rejected.
+
+**Menu behaviour**
+- Orbit mode only, desktop mouse only. Right-clicking empty space (sky, ground,
+  a gap) opens nothing at all - identical to the previous behaviour.
+- The whole-storey row is deliberately the odd one out: named after the floor
+  itself (`View Ground Floor`, no scope tag) and sitting alone between two
+  rules, because it switches an entire floor level on rather than acting on the
+  element that was right-clicked. Every row below it acts on the element.
+- One isolation at a time, replaced when a new one is chosen, plus an
+  independent hidden set that survives isolating and un-isolating. Restore rows
+  (`Show Entire Building`, `Show All Hidden Elements`) sit at the TOP of the
+  menu and appear only when they would do something, so the user can never get
+  stuck. A row representing the current state renders with the green state dot
+  and toggles itself off when clicked - a second way out.
+- The `All Floors` rows appear only when the element type actually exists on
+  more than one storey, otherwise they would duplicate the floor row.
+
+**Owns no visibility logic**
+- Orchestrates the three existing systems in the same two-pass order
+  `Na__PresentationMode__Visibility__StateCapture.js` uses: coarse storey
+  baseline via `Na__StoreySystem__` / `Na__StoreyIsolate__`, then the
+  authoritative per-category pass via `Na__ModelToggle__ApplyVisibilityState()`.
+  Routing the fine pass through the model-toggle registry (rather than poking
+  `group.visible`) keeps its cached flags, its Dev-menu buttons and the
+  Presentation Mode scene capture correct for free - saved scenes pick up
+  context-menu changes with no extra work.
+- `Isolate Floor` delegates to the existing `Na__StoreyIsolate__` call, so it is
+  identical to the Tools menu Floor Isolate button. The two entry points must
+  not diverge.
+- Actions broadcast `na-context-menu-visibility-changed`; the Tools menu Floor
+  Isolate and Storey Toggle panels now listen for it, so the two UIs cannot
+  disagree about which floor is isolated.
+
+**Door animation system - v1.8.0 (`ClickToOpenDoors`)**
+- Click detection is now LEFT BUTTON ONLY. The handlers previously bound
+  pointerdown/pointerup with no button check, so a stationary right-click
+  toggled a door as well - a latent bug that would have made the new menu open a
+  door and then offer a row labelled for the opposite state. Left-click
+  behaviour is unchanged.
+- Exported `Na__DoorAnim__FindAdrAncestor` and `Na__DoorAnim__ResolveHitPanel`
+  so the context menu can resolve a hit to a door without duplicating the
+  ancestor walk, plus a new read-only `Na__DoorAnim__IsDoorOpen()` used to label
+  the row Open or Close. No behavioural change to the animation itself.
+
+**Menu dismissal (a trap worth recording)**
+- The "click outside closes the menu" listener is bound on `window` in the
+  CAPTURE phase so the menu closes before anything downstream reacts. That
+  ordering means a press on the menu itself reaches the dismissal handler
+  first, tearing the menu down on `pointerdown` so no row's `click` ever fires -
+  every row silently did nothing. A bubble-phase `stopPropagation` on the menu
+  root cannot fix it; it runs too late. The handler now tests whether the event
+  target sits inside the menu and bails out. Any future global dismissal
+  listener needs the same test.
+
+**Picking correctness**
+- Linework roots are excluded from the ray. Fat lines are `LineSegments2`, which
+  extends `THREE.Mesh`, so an edge would otherwise beat the solid face behind it
+  and every hit would resolve to the outline rather than the wall.
+- Invisible geometry is filtered manually. `THREE.Raycaster` does not test
+  `object.visible`, so a hidden storey would otherwise stay pickable straight
+  through the model in front of it. Every candidate hit has its full ancestor
+  chain checked before it is accepted.
+
+**Config**
+- Own config file in the new system folder, matching the `22__InvoiceSystem`
+  pattern: `Na__ContextMenuSystem__AppConfig__.json`, loaded relative to the
+  module's own URL so the system is self-contained. Covers gesture thresholds,
+  picking rules, section enable flags and order, element display names and all
+  row wording.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.9.0  -  29-Aug-2026
 ### Mobile UI Overhaul - Menu Transparency, Portrait Menu Swap, Views Button Retired
 

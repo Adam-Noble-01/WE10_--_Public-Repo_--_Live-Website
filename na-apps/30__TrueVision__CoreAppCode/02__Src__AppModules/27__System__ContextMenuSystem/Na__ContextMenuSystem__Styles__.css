@@ -1,0 +1,157 @@
+/* ================================================================= */
+/* REGION  |  Context Menu System - Floating Right-Click Menu        */
+/* ================================================================= */
+/*
+ * FILE    : Na__ContextMenuSystem__Styles__.css
+ * AUTHOR  : Adam Noble - Noble Architecture
+ * PURPOSE : Styling for the custom right-click context menu
+ * CREATED : 30-Aug-2026
+ *
+ * Deliberately mirrors the Tools & Settings dropdown so the two read as one
+ * family: same white panel, same border and radius, same ink colour, same
+ * Open Sans face. The dropdown renders at transform: scale(1.2), so the type
+ * sizes here are pre-multiplied to match its on-screen size rather than its
+ * declared size - 0.85rem x 1.2 lands at roughly 1rem.
+ *
+ * The menu is positioned in JS at the pointer and clamped to the viewport, so
+ * left/top are set inline. Everything else lives here.
+ */
+/* ================================================================= */
+
+
+/* Menu Container */
+/* ----------------------------------------------------------------- */
+.na-context-menu {
+    position                           : fixed;
+    left                               : 0;
+    top                                : 0;
+    z-index                            : 2500;                        /* <-- Above menus and carousel, below full-screen overlays */
+    display                            : none;
+    min-width                          : 240px;
+    max-width                          : 340px;
+    padding                            : 8px 0 8px 0;
+    background                         : rgba(255, 255, 255, 0.97);
+    border                             : 1px solid rgba(0, 0, 0, 0.12);
+    border-radius                      : 6px;
+    box-shadow                         : 0 6px 18px rgba(0, 0, 0, 0.18);
+    font-family                        : 'Open Sans', sans-serif;
+    color                              : #172b3a;
+    user-select                        : none;
+    -webkit-user-select                : none;
+}
+
+.na-context-menu.is-open {
+    display                            : block;
+}
+
+
+/* Menu Title */
+/* ----------------------------------------------------------------- */
+.na-context-menu__title {
+    padding                            : 2px 14px 8px 14px;
+    font-size                          : 0.9rem;
+    font-weight                        : 600;
+    color                              : #172b3a;
+    white-space                        : nowrap;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+}
+
+
+/* Horizontal Rule - Between Title and Sections, and Between Groups */
+/* ----------------------------------------------------------------- */
+.na-context-menu__rule {
+    height                             : 1px;
+    margin                             : 6px 0;
+    background                         : rgba(23, 43, 58, 0.12);
+}
+
+
+/* Row Group Wrapper */
+/* ----------------------------------------------------------------- */
+.na-context-menu__group {
+    display                            : flex;
+    flex-direction                     : column;
+}
+
+
+/* Menu Row */
+/* ----------------------------------------------------------------- */
+.na-context-menu__row {
+    width                              : 100%;
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    padding                            : 7px 14px;
+    border                             : none;
+    background                         : transparent;
+    text-align                         : left;
+    font-family                        : 'Open Sans', sans-serif;
+    font-size                          : 0.95rem;
+    font-weight                        : 400;
+    color                              : #172b3a;
+    cursor                             : pointer;
+    transition                         : background 0.12s ease;
+}
+
+.na-context-menu__row:hover {
+    background                         : rgba(23, 43, 58, 0.08);
+}
+
+.na-context-menu__row:focus-visible {
+    outline                            : 2px solid rgba(23, 43, 58, 0.35);
+    outline-offset                     : -2px;
+}
+
+
+/* Active Row - Represents the Current Isolation State */
+/* ----------------------------------------------------------------- */
+.na-context-menu__row--active {
+    font-weight                        : 600;
+    background                         : rgba(23, 43, 58, 0.05);
+}
+
+
+/* State Dot - Only Rendered Visible on Active Rows */
+/* ----------------------------------------------------------------- */
+/* The dot element is always present so every label starts at the same x
+   position, whether or not the row carries state.                     */
+.na-context-menu__dot {
+    display                            : inline-block;
+    width                              : 8px;
+    height                             : 8px;
+    border-radius                      : 50%;
+    flex-shrink                        : 0;
+    background                         : transparent;
+}
+
+.na-context-menu__row--active .na-context-menu__dot {
+    background                         : #2a7d4f;                     /* <-- Same green as the storey isolate panel */
+}
+
+
+/* Row Label */
+/* ----------------------------------------------------------------- */
+.na-context-menu__label {
+    flex                               : 1;
+    white-space                        : nowrap;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+}
+
+
+/* Row Meta - Scope Tag Sitting Right-Aligned (e.g. "Ground Floor") */
+/* ----------------------------------------------------------------- */
+.na-context-menu__meta {
+    flex-shrink                        : 0;
+    font-size                          : 0.8rem;
+    font-weight                        : 400;
+    color                              : rgba(23, 43, 58, 0.55);
+    white-space                        : nowrap;
+}
+
+.na-context-menu__row--active .na-context-menu__meta {
+    color                              : rgba(23, 43, 58, 0.75);
+}
+
+/* endregion -------------------------------------------------------- */
