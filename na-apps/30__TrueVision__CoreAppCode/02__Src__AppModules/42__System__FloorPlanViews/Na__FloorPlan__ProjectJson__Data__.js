@@ -74,6 +74,7 @@
     const Na__FpData__SCENE_PLAN_ID_KEY = 'PresentationMode__Scene__FloorPlanId';
     const Na__FpData__SCENE_ID_KEY      = 'PresentationMode__Scene__Id';
     const Na__FpData__SCENES_KEY        = 'PresentationMode__SavedCameraScenes__Scenes';
+    const Na__FpData__CLIENT_DIMS_KEY   = 'PresentationMode__SavedCameraScenes__ClientDimensionsEnabled';
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | Floor Plan Record Field Names
@@ -433,6 +434,36 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Public API - Client Measuring Grant
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | May Clients Measure on This Project?
+    // ------------------------------------------------------------
+    // Nested inside the PresentationMode block like everything else here, so
+    // the grant rides the existing R2 dev-key path and needs no new top-level
+    // key. Absent reads as OFF: a project nobody has considered never exposes
+    // the tool.
+    // ------------------------------------------------------------
+    function Na__FpData__GetClientDimensionsEnabled(sceneConfig) {
+        if (!sceneConfig || typeof sceneConfig !== 'object') return false;
+        return sceneConfig[Na__FpData__CLIENT_DIMS_KEY] === true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Grant or Withhold Client Measuring for This Project
+    // ------------------------------------------------------------
+    function Na__FpData__SetClientDimensionsEnabled(sceneConfig, enabled) {
+        if (!sceneConfig || typeof sceneConfig !== 'object') return false;
+        sceneConfig[Na__FpData__CLIENT_DIMS_KEY] = (enabled === true);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Public API - Annotations Storage
 // -----------------------------------------------------------------------------
 
@@ -487,6 +518,8 @@
         Na__FpData__RenumberOrder,
         Na__FpData__LinkPlanToScene,
         Na__FpData__FindSceneForPlan,
+        Na__FpData__GetClientDimensionsEnabled,
+        Na__FpData__SetClientDimensionsEnabled,
         Na__FpData__GetAnnotations,
         Na__FpData__SetAnnotations
     };

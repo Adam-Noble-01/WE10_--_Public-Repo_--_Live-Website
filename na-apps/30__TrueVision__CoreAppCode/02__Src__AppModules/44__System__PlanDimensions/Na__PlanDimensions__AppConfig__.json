@@ -64,6 +64,32 @@
         "PlanDimensions__AxisLock__GuideDashPattern": "6 5"
     },
 
+    "PlanDimensions__ClientMode__Config": {
+        "PlanDimensions__ClientMode__Description": "Client-facing measuring in the live app. It runs on exactly the same dimensioning engine as the developer tool - there is no second implementation - and differs only in three gated behaviours: every client dimension is forced to the client colour, they are held in an ephemeral session list that is never written to project data, and the developer-authored dimensions are read-only to a client so an issued drawing cannot be altered from the browser. Access is granted per project from the Dev menu and is off unless switched on.",
+        "PlanDimensions__ClientMode__EnabledByDefault": false,
+        "PlanDimensions__ClientMode__Color": "#d2333c",
+        "PlanDimensions__ClientMode__LockColor": true,
+        "PlanDimensions__ClientMode__AllowDelete": true,
+        "PlanDimensions__ClientMode__AllowUndo": true,
+        "PlanDimensions__ClientMode__RequireDisclaimer": true,
+        "PlanDimensions__ClientMode__DisclaimerOncePerSession": true
+    },
+
+    "PlanDimensions__Disclaimer__Config": {
+        "PlanDimensions__Disclaimer__Description": "The notice a client must accept before measuring. Shown once per session by default. Body is an array of paragraphs so the wording can be revised without touching code.",
+        "PlanDimensions__Disclaimer__Title": "Before you measure",
+        "PlanDimensions__Disclaimer__Body": [
+            "This tool gives you a quick, indicative measurement taken directly from the 3D model on screen.",
+            "The model is a design visualisation. It is not a measured survey, and it is not derived from the issued construction drawings. Figures taken here may differ from those drawings and from what is built on site.",
+            "Please do not use these measurements for ordering materials, fabrication, setting out, pricing, or any other construction decision. Always work from the current issued drawings and from a site survey.",
+            "Noble Architecture accepts no responsibility or liability for any reliance placed on measurements taken with this tool."
+        ],
+        "PlanDimensions__Disclaimer__FooterNote": "Your measurements appear in red, are visible only to you, and are not saved.",
+        "PlanDimensions__Disclaimer__AcceptLabel": "I understand - let me measure",
+        "PlanDimensions__Disclaimer__DeclineLabel": "Cancel",
+        "PlanDimensions__Disclaimer__AriaLabel": "Measuring tool disclaimer"
+    },
+
     "PlanDimensions__Crosshair__Config": {
         "PlanDimensions__Crosshair__Description": "Full-width and full-height dotted lines tracking the cursor while a dimension is being placed. They exist to make a corner easy to hit: the eye lines the crosshair up with the wall face rather than judging the cursor tip against the drawing. Deliberately faint and thin so they read as an aid and never compete with the drawing or with the axis lock guide, which is stronger and coloured.",
         "PlanDimensions__Crosshair__Enabled": true,
@@ -104,7 +130,17 @@
         "PlanDimensions__Labels__NoSelectionHint": "Select a dimension, or add a new one.",
         "PlanDimensions__Labels__OrthoOnMessage": "Ortho mode on - dimensions are forced square.",
         "PlanDimensions__Labels__OrthoOffMessage": "Ortho mode off - diagonals allowed.",
-        "PlanDimensions__Labels__ShortcutsHint": "D new, O ortho, Ctrl+Z undo, Ctrl+Y redo, Del removes."
+        "PlanDimensions__Labels__ShortcutsHint": "D new, O ortho, Ctrl+Z undo, Ctrl+Y redo, Del removes.",
+        "PlanDimensions__Labels__ClientBarAriaLabel": "Measuring tool",
+        "PlanDimensions__Labels__ClientMeasureLabel": "Measure",
+        "PlanDimensions__Labels__ClientCancelLabel": "Cancel",
+        "PlanDimensions__Labels__ClientUndoLabel": "Undo",
+        "PlanDimensions__Labels__ClientClearLabel": "Clear all",
+        "PlanDimensions__Labels__ClientPlaceHint": "Click the start point, then the end point.",
+        "PlanDimensions__Labels__ClientEmptyHint": "Indicative only - measurements are not saved.",
+        "PlanDimensions__Labels__ClientCountHint": "Indicative only - your measurements clear when you leave.",
+        "PlanDimensions__Labels__ClientToggleLabel": "Let clients measure",
+        "PlanDimensions__Labels__ClientToggleHint": "Adds a red measuring tool to the live app for this project. Client measurements are never saved and cannot alter the ones you place."
     },
 
     "PlanDimensions__Interaction__Config": {

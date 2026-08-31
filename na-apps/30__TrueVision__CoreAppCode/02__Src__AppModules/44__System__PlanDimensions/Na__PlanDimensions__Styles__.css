@@ -245,3 +245,196 @@
     /* ------------------------------------------------------------ */
 
 /* endregion ---- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Read-Only Dimensions                                   */
+/* ----------------------------------------------------------------- */
+
+    /* ISSUED DIMENSIONS, SEEN BY A CLIENT | Still fully visible, just not
+       interactive. Deliberately NOT dimmed: these are the authoritative
+       figures and must never read as secondary to a visitor's own scratch
+       measurements. The cursor is the only tell. */
+    /* ------------------------------------------------------------ */
+    .na-plan-dim__item.is-readonly {
+        cursor                             : default;
+        pointer-events                     : none;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Client Measuring Bar                                   */
+/* ----------------------------------------------------------------- */
+
+    /* Top centre, in the same place as the developer annotation toolbar and
+       measured from the same header variable, so the measuring controls sit
+       where the tool controls always sit.
+
+       The two bars never coexist - the client bar mounts only in the
+       non-developer branch and the annotation toolbar only in the developer
+       one - so sharing the position is safe. It was previously pinned to the
+       bottom, where it collided with the scene carousel and its group pill. */
+    /* ------------------------------------------------------------ */
+    .na-plan-dim__client-bar {
+        position                           : absolute;
+        top                                : calc(var(--Vale_HeaderHeight, 60px) + 18px);
+        left                               : 50%;
+        transform                          : translateX(-50%);
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+        padding                            : 8px 12px;
+        border                             : 1px solid rgba(0, 0, 0, 0.08);
+        border-radius                      : 8px;
+        background-color                   : rgba(255, 255, 255, 0.95);
+        box-shadow                         : 0 2px 12px rgba(0, 0, 0, 0.14);
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 12px;
+        color                              : #323232;
+        z-index                            : 41;
+        pointer-events                     : auto;
+    }
+
+    .na-plan-dim__client-btn {
+        padding                            : 5px 12px;
+        border                             : 1px solid rgba(0, 0, 0, 0.14);
+        border-radius                      : 5px;
+        background-color                   : #ffffff;
+        font-family                        : inherit;
+        font-size                          : 12px;
+        color                              : #323232;
+        cursor                             : pointer;
+        transition                         : background-color 120ms ease, border-color 120ms ease;
+    }
+
+    .na-plan-dim__client-btn:hover:not(:disabled) {
+        background-color                   : #faf2f2;
+        border-color                       : rgba(210, 51, 60, 0.45);
+    }
+
+    .na-plan-dim__client-btn:disabled {
+        opacity                            : 0.45;
+        cursor                             : not-allowed;
+    }
+
+    /* Primary and active both carry the client red, so the control that
+       creates red measurements is itself unmistakably red. */
+    .na-plan-dim__client-btn--primary,
+    .na-plan-dim__client-btn.is-active {
+        background-color                   : #d2333c;
+        border-color                       : #d2333c;
+        color                              : #ffffff;
+    }
+
+    .na-plan-dim__client-btn--primary:hover:not(:disabled),
+    .na-plan-dim__client-btn.is-active:hover:not(:disabled) {
+        background-color                   : #e04751;
+        border-color                       : #e04751;
+    }
+
+    .na-plan-dim__client-note {
+        color                              : #6b6b6b;
+        white-space                        : nowrap;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Measuring Disclaimer Modal                             */
+/* ----------------------------------------------------------------- */
+
+    /* Covers the whole viewport, header included, because it gates the
+       tool rather than merely informing about it. */
+    /* ------------------------------------------------------------ */
+    .na-plan-dim__disclaimer {
+        position                           : fixed;
+        inset                              : 0;
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        padding                            : 24px;
+        background-color                   : rgba(20, 20, 20, 0.55);
+        z-index                            : 9000;
+    }
+
+    .na-plan-dim__disclaimer-panel {
+        width                              : 100%;
+        max-width                          : 560px;
+        max-height                         : 82vh;
+        overflow-y                         : auto;
+        padding                            : 26px 28px 22px;
+        border-radius                      : 10px;
+        border-top                         : 4px solid #d2333c;   /* Ties the notice to the red it governs */
+        background-color                   : #ffffff;
+        box-shadow                         : 0 12px 40px rgba(0, 0, 0, 0.3);
+        font-family                        : 'Open Sans', sans-serif;
+        color                              : #323232;
+    }
+
+    .na-plan-dim__disclaimer-title {
+        margin                             : 0 0 14px;
+        font-size                          : 19px;
+        font-weight                        : 600;
+        line-height                        : 1.3;
+    }
+
+    .na-plan-dim__disclaimer-text {
+        margin                             : 0 0 12px;
+        font-size                          : 14px;
+        font-weight                        : 300;
+        line-height                        : 1.62;
+    }
+
+    .na-plan-dim__disclaimer-note {
+        margin                             : 16px 0 0;
+        padding                            : 10px 12px;
+        border-radius                      : 6px;
+        background-color                   : #f6f6f6;
+        font-size                          : 13px;
+        font-weight                        : 400;
+        line-height                        : 1.5;
+        color                              : #4a4a4a;
+    }
+
+    .na-plan-dim__disclaimer-actions {
+        display                            : flex;
+        justify-content                    : flex-end;
+        gap                                : 10px;
+        margin-top                         : 22px;
+    }
+
+    .na-plan-dim__disclaimer-actions .na-plan-dim__client-btn {
+        padding                            : 8px 16px;
+        font-size                          : 13px;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Narrow Viewports                                       */
+/* ----------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+    .na-plan-dim__client-bar {
+        gap                                : 6px;
+        padding                            : 7px 9px;
+    }
+
+    /* The hint is the first thing worth losing on a phone. */
+    .na-plan-dim__client-note {
+        display                            : none;
+    }
+
+    .na-plan-dim__disclaimer-panel {
+        padding                            : 20px 18px 18px;
+    }
+}
+
+/* endregion ---- */

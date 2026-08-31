@@ -78,6 +78,8 @@
     const Na__PlanDim__EDIT_BLOCK   = 'PlanDimensions__Editing__Config';
     const Na__PlanDim__LABELS_BLOCK = 'PlanDimensions__Labels__Config';
     const Na__PlanDim__CROSS_BLOCK  = 'PlanDimensions__Crosshair__Config';
+    const Na__PlanDim__CLIENT_BLOCK = 'PlanDimensions__ClientMode__Config';
+    const Na__PlanDim__DISC_BLOCK   = 'PlanDimensions__Disclaimer__Config';
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | Record Field Names
@@ -94,6 +96,34 @@
     const Na__PlanDim__F_COLOR    = 'Dimension__Color';
     const Na__PlanDim__F_TERM     = 'Dimension__Terminator';
     const Na__PlanDim__F_OVERRIDE = 'Dimension__OverrideText';
+    const Na__PlanDim__F_AUTHOR   = 'Dimension__Author';
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Plan Record Storage Field
+    // ------------------------------------------------------------
+    // Deliberately mirrors FloorPlan__Annotations. Accessed here rather than
+    // through Na__FloorPlan__ProjectJson__Data__ so the dimensioning system
+    // adds nothing to that module's surface.
+    // ------------------------------------------------------------
+    // MODULE CONSTANTS | Who Authored a Dimension
+    // ------------------------------------------------------------
+    // The single flag that separates an issued dimension from a client's own
+    // scratch measurement. It rides on the record, so any code that can see a
+    // record can tell which it is without consulting global state.
+    // ------------------------------------------------------------
+    const Na__PlanDim__AUTHOR_DEV    = 'dev';
+    const Na__PlanDim__AUTHOR_CLIENT = 'client';
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Separate Id Space for Client Measurements
+    // ------------------------------------------------------------
+    // Ids are integers allocated per array, and client measurements live in a
+    // DIFFERENT array from the issued ones - so both would otherwise start at
+    // 1 and collide the moment the overlay renders them together. Client ids
+    // start above this base, which keeps the two spaces disjoint without the
+    // two arrays needing to know about each other.
+    // ------------------------------------------------------------
+    const Na__PlanDim__CLIENT_ID_BASE = 1000000;
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | Plan Record Storage Field
@@ -179,6 +209,17 @@
     // ------------------------------------------------------------
     let Na__PlanDim__Config = null;      // <-- Parsed AppConfig document (or null before Load)
     let Na__PlanDim__NewDefaults = null; // <-- Live defaults for the NEXT dimension (seeded from config)
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | Authoring Mode and the Ephemeral Client List
+    // ------------------------------------------------------------
+    // Client measurements are held in THIS array and nowhere else. It is never
+    // attached to a floor plan record, so there is no code path by which a
+    // client dimension can reach project data or R2 - it cannot be saved by
+    // accident because there is nothing to save it into.
+    // ------------------------------------------------------------
+    let Na__PlanDim__AuthoringMode        = Na__PlanDim__AUTHOR_DEV;
+    const Na__PlanDim__SessionDimensions  = [];
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -509,7 +550,7 @@
     // dimension 1 is correct, because a plan's markup is independent.
     // ------------------------------------------------------------
     function Na__PlanDim__NextId(dimensionArray) {
-        let highest = 0;
+        let highest = Na__PlanDim__IsClientAuthoring() ? Na__PlanDim__CLIENT_ID_BASE : 0;
         if (Array.isArray(dimensionArray)) {
             for (let i = 0; i < dimensionArray.length; i++) {
                 const id = dimensionArray[i] && dimensionArray[i][Na__PlanDim__F_ID];
@@ -532,6 +573,7 @@
 
         const defaults = Na__PlanDim__GetNewDefaults();                      // <-- What the preview just showed
         const opts     = options || {};
+        const client   = Na__PlanDim__IsClientAuthoring();
 
         const record = {};
         record[Na__PlanDim__F_ID]      = Na__PlanDim__NextId(dimensionArray);
@@ -544,7 +586,14 @@
         record[Na__PlanDim__F_SIZE]    = Number.isFinite(opts.sizeMm)   ? opts.sizeMm   : defaults.sizeMm;
         record[Na__PlanDim__F_WEIGHT]  = Na__PlanDim__CoerceWeight(
             opts.fontWeight !== undefined ? opts.fontWeight : defaults.fontWeight);
-        record[Na__PlanDim__F_COLOR]   = (typeof opts.color === 'string') ? opts.color : defaults.color;
+        // CLIENT MEASUREMENTS ARE ALWAYS THE CLIENT COLOUR. Forced here rather
+        // than defaulted, so a client dimension can never be made to look like
+        // an issued one - not by config, not by a stale default, not by a
+        // caller passing a colour in.
+        record[Na__PlanDim__F_COLOR]   = (client && Na__PlanDim__GetClientModeSetup().lockColor)
+            ? Na__PlanDim__GetClientModeSetup().color
+            : ((typeof opts.color === 'string') ? opts.color : defaults.color);
+        record[Na__PlanDim__F_AUTHOR]  = client ? Na__PlanDim__AUTHOR_CLIENT : Na__PlanDim__AUTHOR_DEV;
         record[Na__PlanDim__F_TERM]    = (typeof opts.terminator === 'string') ? opts.terminator : defaults.terminator;
 
         dimensionArray.push(record);
@@ -564,10 +613,11 @@
         if (!Na__PlanDim__NewDefaults) {
             const lineSetup = Na__PlanDim__GetLineSetup();
             const textSetup = Na__PlanDim__GetTextSetup();
+            const clientSetup = Na__PlanDim__GetClientModeSetup();
             Na__PlanDim__NewDefaults = {
                 sizeMm     : textSetup.defaultSizeMm,
                 fontWeight : textSetup.defaultWeight,
-                color      : lineSetup.defaultColor,
+                color      : Na__PlanDim__IsClientAuthoring() ? clientSetup.color : lineSetup.defaultColor,
                 terminator : lineSetup.terminator,
                 offsetMm   : lineSetup.defaultOffsetMm
             };
@@ -597,6 +647,9 @@
             const weight = Na__PlanDim__CoerceWeight(patch.fontWeight);
             if (weight !== current.fontWeight) { current.fontWeight = weight; changed = true; }
         }
+        if (Na__PlanDim__IsClientAuthoring() && Na__PlanDim__GetClientModeSetup().lockColor) {
+            delete patch.color;                                              // <-- Client colour is not theirs to change
+        }
         if (typeof patch.color === 'string' && patch.color !== current.color) {
             current.color = patch.color;
             changed = true;
@@ -606,6 +659,79 @@
             changed = true;
         }
         return changed;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set Who Is Currently Authoring
+    // ------------------------------------------------------------
+    // Switching to client mode also clears any leftover session measurements,
+    // so a client never inherits the previous visitor's scratch work.
+    // ------------------------------------------------------------
+    function Na__PlanDim__SetAuthoringMode(mode) {
+        const next = (mode === Na__PlanDim__AUTHOR_CLIENT)
+            ? Na__PlanDim__AUTHOR_CLIENT
+            : Na__PlanDim__AUTHOR_DEV;
+
+        if (next === Na__PlanDim__AuthoringMode) return false;
+
+        Na__PlanDim__AuthoringMode = next;
+        Na__PlanDim__NewDefaults   = null;                                   // <-- Re-seed so the client colour applies
+        Na__PlanDim__ClearSessionDimensions();
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Who Is Currently Authoring?
+    // ------------------------------------------------------------
+    function Na__PlanDim__GetAuthoringMode() {
+        return Na__PlanDim__AuthoringMode;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is the Client Doing the Authoring?
+    // ------------------------------------------------------------
+    function Na__PlanDim__IsClientAuthoring() {
+        return Na__PlanDim__AuthoringMode === Na__PlanDim__AUTHOR_CLIENT;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Ephemeral List Client Measurements Live In
+    // ------------------------------------------------------------
+    // A stable module-level array so the overlay, the editor and the undo
+    // history can all bind to the same reference for the whole session.
+    // ------------------------------------------------------------
+    function Na__PlanDim__GetSessionDimensions() {
+        return Na__PlanDim__SessionDimensions;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Discard Every Client Measurement
+    // ------------------------------------------------------------
+    // Mutates in place - the overlay and history hold this reference.
+    // ------------------------------------------------------------
+    function Na__PlanDim__ClearSessionDimensions() {
+        Na__PlanDim__SessionDimensions.length = 0;
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | May the Current Author Edit This Record?
+    // ------------------------------------------------------------
+    // A client may only touch their own measurements. This is what stops an
+    // issued dimension being dragged, restyled or deleted from a browser, and
+    // it is enforced on the RECORD rather than on which array it came from, so
+    // no future refactor of the storage can quietly lose the rule.
+    // ------------------------------------------------------------
+    function Na__PlanDim__IsRecordEditable(record) {
+        if (!record) return false;
+        if (!Na__PlanDim__IsClientAuthoring()) return true;                  // <-- The developer may edit anything
+        return record[Na__PlanDim__F_AUTHOR] === Na__PlanDim__AUTHOR_CLIENT;
     }
     // ------------------------------------------------------------
 
@@ -758,6 +884,38 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Read the Client Mode Setup
+    // ------------------------------------------------------------
+    function Na__PlanDim__GetClientModeSetup() {
+        return {
+            enabledByDefault  : Na__PlanDim__Val(Na__PlanDim__CLIENT_BLOCK, 'PlanDimensions__ClientMode__EnabledByDefault', false) === true,
+            color             : Na__PlanDim__Val(Na__PlanDim__CLIENT_BLOCK, 'PlanDimensions__ClientMode__Color', '#d2333c'),
+            lockColor         : Na__PlanDim__Val(Na__PlanDim__CLIENT_BLOCK, 'PlanDimensions__ClientMode__LockColor', true) !== false,
+            allowDelete       : Na__PlanDim__Val(Na__PlanDim__CLIENT_BLOCK, 'PlanDimensions__ClientMode__AllowDelete', true) !== false,
+            allowUndo         : Na__PlanDim__Val(Na__PlanDim__CLIENT_BLOCK, 'PlanDimensions__ClientMode__AllowUndo', true) !== false,
+            requireDisclaimer : Na__PlanDim__Val(Na__PlanDim__CLIENT_BLOCK, 'PlanDimensions__ClientMode__RequireDisclaimer', true) !== false,
+            disclaimerOnce    : Na__PlanDim__Val(Na__PlanDim__CLIENT_BLOCK, 'PlanDimensions__ClientMode__DisclaimerOncePerSession', true) !== false
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read the Disclaimer Wording
+    // ------------------------------------------------------------
+    function Na__PlanDim__GetDisclaimerSetup() {
+        const body = Na__PlanDim__Val(Na__PlanDim__DISC_BLOCK, 'PlanDimensions__Disclaimer__Body', []);
+        return {
+            title        : Na__PlanDim__Val(Na__PlanDim__DISC_BLOCK, 'PlanDimensions__Disclaimer__Title', 'Before you measure'),
+            body         : Array.isArray(body) ? body : [],
+            footerNote   : Na__PlanDim__Val(Na__PlanDim__DISC_BLOCK, 'PlanDimensions__Disclaimer__FooterNote', ''),
+            acceptLabel  : Na__PlanDim__Val(Na__PlanDim__DISC_BLOCK, 'PlanDimensions__Disclaimer__AcceptLabel', 'I understand'),
+            declineLabel : Na__PlanDim__Val(Na__PlanDim__DISC_BLOCK, 'PlanDimensions__Disclaimer__DeclineLabel', 'Cancel'),
+            ariaLabel    : Na__PlanDim__Val(Na__PlanDim__DISC_BLOCK, 'PlanDimensions__Disclaimer__AriaLabel', 'Measuring tool disclaimer')
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Read One Toolbar Label by Key Suffix
     // ------------------------------------------------------------
     function Na__PlanDim__GetLabel(keySuffix, fallback) {
@@ -799,6 +957,17 @@
         Na__PlanDim__GetEditingSetup,
         Na__PlanDim__GetLabel,
         Na__PlanDim__GetCrosshairSetup,
+        Na__PlanDim__GetClientModeSetup,
+        Na__PlanDim__GetDisclaimerSetup,
+        Na__PlanDim__AUTHOR_DEV,
+        Na__PlanDim__AUTHOR_CLIENT,
+        Na__PlanDim__F_AUTHOR,
+        Na__PlanDim__SetAuthoringMode,
+        Na__PlanDim__GetAuthoringMode,
+        Na__PlanDim__IsClientAuthoring,
+        Na__PlanDim__GetSessionDimensions,
+        Na__PlanDim__ClearSessionDimensions,
+        Na__PlanDim__IsRecordEditable,
         Na__PlanDim__GetNewDefaults,
         Na__PlanDim__SetNewDefaults,
         Na__PlanDim__GetPlanDimensions,

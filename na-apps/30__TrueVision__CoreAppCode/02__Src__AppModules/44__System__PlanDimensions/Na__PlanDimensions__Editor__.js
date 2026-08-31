@@ -125,7 +125,9 @@
     import {
         Na__PlanDim__GetEditingSetup,
         Na__PlanDim__GetNewDefaults,
-        Na__PlanDim__GetLayerSetup
+        Na__PlanDim__GetLayerSetup,
+        Na__PlanDim__IsRecordEditable,
+        Na__PlanDim__IsClientAuthoring
     } from './Na__PlanDimensions__Data__.js';
     import {
         Na__PlanDimCross__MoveTo,
@@ -176,6 +178,7 @@
     let Na__PlanDimEdit__Dimensions = null;   // <-- LIVE array off the plan record
     let Na__PlanDimEdit__OnChanged  = null;   // <-- Host callback for unsaved-change tracking
     let Na__PlanDimEdit__CutHeightMm = 0;     // <-- Plan cut height, handed to the vertex editor
+    let Na__PlanDimEdit__PlacementGate = null; // <-- Must pass before placement arms (client disclaimer)
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Placement and Selection State
@@ -336,9 +339,43 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Arm the Two-Click Placement
+    // FUNCTION | Arm the Two-Click Placement, Honouring Any Gate
+    // ------------------------------------------------------------
+    // THE GATE IS WHY THIS IS SPLIT IN TWO. Client measuring must not begin
+    // until the disclaimer has been accepted, and placement can be started
+    // from the toolbar, the client bar or the D hotkey. Routing every one of
+    // them through here - and letting the gate arm the tool itself once the
+    // notice is agreed - means a new entry point cannot accidentally bypass
+    // the notice, because arming is simply not reachable any other way.
     // ------------------------------------------------------------
     function Na__PlanDimEdit__BeginPlacement() {
+        if (!Na__PlanDimEdit__Enabled) return false;
+
+        if (typeof Na__PlanDimEdit__PlacementGate === 'function') {
+            return Na__PlanDimEdit__PlacementGate() === true;
+        }
+        return Na__PlanDimEdit__ArmPlacement();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Register a Gate That Must Pass Before Placement Arms
+    // ------------------------------------------------------------
+    // The gate is responsible for calling ArmPlacement once it is satisfied.
+    // Passing null removes it, which is what the developer path does.
+    // ------------------------------------------------------------
+    function Na__PlanDimEdit__SetPlacementGate(fn) {
+        Na__PlanDimEdit__PlacementGate = (typeof fn === 'function') ? fn : null;
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Arm Placement Outright, Bypassing the Gate
+    // ------------------------------------------------------------
+    // Only the gate itself should call this.
+    // ------------------------------------------------------------
+    function Na__PlanDimEdit__ArmPlacement() {
         if (!Na__PlanDimEdit__Enabled) return false;
 
         Na__PlanDimEdit__State          = Na__PlanDimEdit__AWAITING_START;
@@ -366,6 +403,14 @@
         if (Na__PlanDimEdit__Canvas) {
             Na__PlanDimEdit__Canvas.classList.remove(Na__PlanDimEdit__PLACING_CLASS);
         }
+
+        // STANDING DOWN IS A STATE CHANGE, so it has to be announced. Without
+        // this the toolbars kept showing Cancel and "click the start point"
+        // after a dimension had already been completed - the second click
+        // notified BEFORE this ran, so the only refresh they got still read
+        // as mid-placement. Announcing here covers finishing a dimension,
+        // Escape, and the Cancel button alike.
+        Na__PlanDimEdit__NotifyChanged();
         return true;
     }
     // ------------------------------------------------------------
@@ -524,6 +569,17 @@
     // ------------------------------------------------------------
     function Na__PlanDimEdit__AttachNode(groupElement, record) {
         if (!groupElement || !record) return;
+
+        // ISSUED DIMENSIONS ARE READ-ONLY TO A CLIENT. Enforced once, here,
+        // by simply not wiring any interaction onto the node - so there is no
+        // handler that could later be reached by a path that forgot to check.
+        // The node still renders; it just cannot be selected, dragged,
+        // restyled or deleted from a browser.
+        if (!Na__PlanDim__IsRecordEditable(record)) {
+            groupElement.classList.add('is-readonly');
+            groupElement.setAttribute('pointer-events', 'none');
+            return;
+        }
 
         groupElement.addEventListener('pointerdown', (event) => {
             if (!Na__PlanDimEdit__Enabled) return;
@@ -693,6 +749,7 @@
     // ------------------------------------------------------------
     function Na__PlanDimEdit__DeleteSelected() {
         if (Na__PlanDimEdit__SelectedId === null) return false;
+        if (!Na__PlanDim__IsRecordEditable(Na__PlanDimEdit__GetSelectedRecord())) return false;
 
         // Deleting the dimension whose vertices are open would strand the
         // handles over nothing, so close that first.
@@ -720,6 +777,7 @@
     function Na__PlanDimEdit__NudgeSelectedOffset(direction) {
         const record = Na__PlanDimEdit__GetSelectedRecord();
         if (!record) return false;
+        if (!Na__PlanDim__IsRecordEditable(record)) return false;
 
         const setup   = Na__PlanDim__GetLineSetup();
         const current = Number.isFinite(record[Na__PlanDim__F_OFFSET])
@@ -788,8 +846,9 @@
         Na__PlanDimVert__Exit();                                             // <-- Handles must never outlive the plan
         Na__PlanDimAxis__Reset();
 
-        Na__PlanDimEdit__Enabled      = false;
-        Na__PlanDimEdit__Canvas       = null;
+        Na__PlanDimEdit__Enabled       = false;
+        Na__PlanDimEdit__PlacementGate = null;
+        Na__PlanDimEdit__Canvas        = null;
         Na__PlanDimEdit__Dimensions   = null;
         Na__PlanDimEdit__OnChanged    = null;
         Na__PlanDimEdit__State        = Na__PlanDimEdit__IDLE;
@@ -810,6 +869,14 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Is a Client Doing the Authoring?
+    // ------------------------------------------------------------
+    function Na__PlanDimEdit__IsClientMode() {
+        return Na__PlanDim__IsClientAuthoring();
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -823,8 +890,11 @@
         Na__PlanDimEdit__Enable,
         Na__PlanDimEdit__Disable,
         Na__PlanDimEdit__IsEnabled,
+        Na__PlanDimEdit__IsClientMode,
         Na__PlanDimEdit__AttachNode,
         Na__PlanDimEdit__BeginPlacement,
+        Na__PlanDimEdit__ArmPlacement,
+        Na__PlanDimEdit__SetPlacementGate,
         Na__PlanDimEdit__CancelPlacement,
         Na__PlanDimEdit__IsPlacing,
         Na__PlanDimEdit__GetSelectedId,

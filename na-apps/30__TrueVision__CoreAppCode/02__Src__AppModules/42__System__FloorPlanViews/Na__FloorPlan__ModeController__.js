@@ -159,6 +159,20 @@
         Na__PlanDimVert__Sync,
         Na__PlanDimVert__Dispose
     } from '../44__System__PlanDimensions/Na__PlanDimensions__VertexEditor__.js';
+    import {
+        Na__PlanDim__GetSessionDimensions,
+        Na__PlanDim__SetAuthoringMode,
+        Na__PlanDim__AUTHOR_DEV
+    } from '../44__System__PlanDimensions/Na__PlanDimensions__Data__.js';
+    import {
+        Na__PlanDimClient__SetAllowed,
+        Na__PlanDimClient__IsAllowed,
+        Na__PlanDimClient__Mount,
+        Na__PlanDimClient__Refresh,
+        Na__PlanDimClient__Unmount,
+        Na__PlanDimClient__Dispose
+    } from '../44__System__PlanDimensions/Na__PlanDimensions__ClientMode__.js';
+    import { Na__FpData__GetClientDimensionsEnabled } from './Na__FloorPlan__ProjectJson__Data__.js';
     // ------------------------------------------------------------
     import {
         Na__PlanAnnoLayer__Mount,
@@ -408,6 +422,12 @@
     // HELPER FUNCTION | Mount the Annotation Layer for a Plan
     // ------------------------------------------------------------
     function Na__FpMode__MountAnnotations(plan) {
+        // Read the per-project grant before anything mounts, so the client
+        // branch below knows whether it exists at all.
+        Na__PlanDimClient__SetAllowed(
+            Na__FpData__GetClientDimensionsEnabled(Na__PresentationMode__ProjectJson__GetActiveConfig())
+        );
+
         // ONE array reference is shared by the layer, the history stack and the
         // floor plan record that gets saved. Resolved once here so all three can
         // never end up bound to different copies.
@@ -433,14 +453,51 @@
 
         Na__PlanDimGrid__EstablishPlane(Na__FpMode__ModelRoot, cutHeightMm - dimLayerCfg.planeOffsetMm);
 
+        // The client branch needs interaction wired too - onto their OWN
+        // records only, which the editor decides per record rather than here.
+        const clientMayMeasure = Na__PlanDimClient__IsAllowed();
+
         Na__PlanDimLayer__Mount({
-            hostElement   : Na__FpMode__Canvas,
-            dimensions    : dimensions,
-            cutHeightMm   : cutHeightMm,
-            onNodeCreated : Na__FpMode__EditMode ? Na__PlanDimEdit__AttachNode : null
+            hostElement       : Na__FpMode__Canvas,
+            dimensions        : dimensions,
+            sessionDimensions : Na__PlanDim__GetSessionDimensions(),
+            cutHeightMm       : cutHeightMm,
+            onNodeCreated     : (Na__FpMode__EditMode || clientMayMeasure)
+                ? Na__PlanDimEdit__AttachNode
+                : null
         });
 
-        if (!Na__FpMode__EditMode) return;
+        // CLIENT PATH | The same engine, bound to the ephemeral session list
+        // and gated behind the disclaimer. Nothing here can reach plan data:
+        // the array it writes into is not attached to any plan record.
+        if (!Na__FpMode__EditMode) {
+            if (!clientMayMeasure) return;
+
+            Na__PlanDimClient__Mount({
+                hostElement : Na__FpMode__Canvas.parentElement || document.body,
+                onChanged   : () => Na__PlanDimLayer__Sync()
+            });
+
+            const sessionList = Na__PlanDim__GetSessionDimensions();
+            // The bar reads its labels from the tool state, so every change
+            // has to reach it - otherwise Measure stays stuck on Cancel once
+            // a dimension completes.
+            const refreshClient = () => {
+                Na__PlanDimLayer__Sync();
+                Na__PlanDimClient__Refresh();
+            };
+
+            Na__PlanDimEdit__Enable({
+                canvas      : Na__FpMode__Canvas,
+                dimensions  : sessionList,
+                cutHeightMm : cutHeightMm,
+                onChanged   : refreshClient
+            });
+            Na__PlanDimHist__Begin(sessionList);
+            Na__PlanDimAxis__Configure(null);
+            Na__PlanDimKeys__Attach({ onAction: refreshClient });
+            return;
+        }
 
         Na__PlanDimEdit__Enable({
             canvas      : Na__FpMode__Canvas,
@@ -492,6 +549,8 @@
     // HELPER FUNCTION | Tear Down the Annotation Layer
     // ------------------------------------------------------------
     function Na__FpMode__UnmountAnnotations() {
+        Na__PlanDimClient__Unmount();                                            // <-- Session measurements are discarded here
+        Na__PlanDim__SetAuthoringMode(Na__PlanDim__AUTHOR_DEV);
         Na__PlanAnnoKeys__Detach();                                              // <-- Shortcuts must never outlive the plan they edit
         Na__PlanAnnoHist__End();
         Na__PlanAnnoBar__Unmount();
@@ -501,6 +560,7 @@
         Na__PlanDimHist__End();
         Na__PlanDimVert__Dispose();
         Na__PlanDimAxis__Dispose();
+        Na__PlanDimClient__Dispose();
         Na__PlanDimEdit__Disable();
         Na__PlanDimLayer__Unmount();
         Na__PlanDimGrid__Dispose();                                              // <-- Plane belonged to the plan that is closing

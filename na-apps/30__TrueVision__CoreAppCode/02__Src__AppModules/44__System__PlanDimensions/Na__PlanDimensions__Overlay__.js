@@ -130,6 +130,7 @@
     let Na__PlanDimLayer__Root       = null;    // <-- The <svg> element
     let Na__PlanDimLayer__HostEl     = null;    // <-- Render canvas the layer tracks
     let Na__PlanDimLayer__Dimensions = null;    // <-- LIVE array off the plan record
+    let Na__PlanDimLayer__Session    = null;    // <-- LIVE ephemeral client measurements (never saved)
     let Na__PlanDimLayer__CutHeightMm = 0;      // <-- Plane height the dimensions sit at
     let Na__PlanDimLayer__OnNodeCreated = null; // <-- Editor hook, attached per node
     const Na__PlanDimLayer__Nodes    = new Map(); // <-- id -> { group, parts... }
@@ -316,6 +317,26 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Every Record the Layer Should Draw, From Both Lists
+    // ------------------------------------------------------------
+    // Issued dimensions come from the plan record; client measurements come
+    // from the ephemeral session list. They are DRAWN together and stored
+    // apart - which is what lets a client measure over an issued drawing
+    // without any possibility of their work reaching project data.
+    //
+    // Client ids sit above Na__PlanDim__CLIENT_ID_BASE, so the two id spaces
+    // cannot collide in the node map even though each array numbers itself.
+    // ------------------------------------------------------------
+    function Na__PlanDimLayer__AllRecords() {
+        const issued  = Na__PlanDim__ReadAll(Na__PlanDimLayer__Dimensions);
+        const session = Na__PlanDimLayer__Session
+            ? Na__PlanDim__ReadAll(Na__PlanDimLayer__Session)
+            : [];
+        return session.length ? issued.concat(session) : issued;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Rebuild Every Node From the Bound Array
     // ------------------------------------------------------------
     // Called on mount and whenever a dimension is added or removed. Per-frame
@@ -327,7 +348,7 @@
         Na__PlanDimLayer__Root.textContent = '';                             // <-- Drop every previous node
         Na__PlanDimLayer__Nodes.clear();
 
-        const records = Na__PlanDim__ReadAll(Na__PlanDimLayer__Dimensions);
+        const records = Na__PlanDimLayer__AllRecords();
         for (let i = 0; i < records.length; i++) {
             const record = records[i];
             const parts  = Na__PlanDimLayer__BuildNode(record);
@@ -407,7 +428,7 @@
         const strokePx = Math.max(mmToPx(lineSetup.strokeWidthMm), 0.6);     // <-- Never thinner than a visible hairline
         const tickPx   = mmToPx(lineSetup.tickLengthMm);
 
-        const records = Na__PlanDim__ReadAll(Na__PlanDimLayer__Dimensions);
+        const records = Na__PlanDimLayer__AllRecords();
 
         for (let i = 0; i < records.length; i++) {
             const record = records[i];
@@ -509,6 +530,7 @@
 
         Na__PlanDimLayer__HostEl        = context.hostElement;
         Na__PlanDimLayer__Dimensions    = Array.isArray(context.dimensions) ? context.dimensions : [];
+        Na__PlanDimLayer__Session       = Array.isArray(context.sessionDimensions) ? context.sessionDimensions : null;
         Na__PlanDimLayer__CutHeightMm   = Number.isFinite(context.cutHeightMm) ? context.cutHeightMm : 0;
         Na__PlanDimLayer__OnNodeCreated = (typeof context.onNodeCreated === 'function') ? context.onNodeCreated : null;
 
@@ -561,6 +583,14 @@
     function Na__PlanDimLayer__SetCutHeightMm(cutHeightMm) {
         if (!Number.isFinite(cutHeightMm)) return;
         Na__PlanDimLayer__CutHeightMm = cutHeightMm;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Get the Bound Dimension Array
+    // ------------------------------------------------------------
+    function Na__PlanDimLayer__GetSessionDimensions() {
+        return Na__PlanDimLayer__Session;
     }
     // ------------------------------------------------------------
 
@@ -680,6 +710,8 @@
         Na__PlanDimLayer__SyncLayerBox,
         Na__PlanDimLayer__SetCutHeightMm,
         Na__PlanDimLayer__GetDimensions,
+        Na__PlanDimLayer__GetSessionDimensions,
+        Na__PlanDimLayer__AllRecords,
         Na__PlanDimLayer__GetHost,
         Na__PlanDimLayer__GetRoot,
         Na__PlanDimLayer__ScreenToWorldMm,

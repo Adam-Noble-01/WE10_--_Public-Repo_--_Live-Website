@@ -74,6 +74,8 @@
     // @delegate: ./Na__FloorPlan__ModeController__.js
     // ------------------------------------------------------------
     import {
+        Na__FpData__GetClientDimensionsEnabled,
+        Na__FpData__SetClientDimensionsEnabled,
         Na__FpData__GetFloorPlans,
         Na__FpData__GetCutHeightMm,
         Na__FpData__CreatePlan,
@@ -112,6 +114,14 @@
     import {
         Na__SectionCut__SetPlaneHeightMm
     } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Client Measuring Grant
+    // ------------------------------------------------------------
+    // @delegate: ../44__System__PlanDimensions/Na__PlanDimensions__ClientMode__.js
+    // ------------------------------------------------------------
+    import { Na__PlanDimClient__SetAllowed } from '../44__System__PlanDimensions/Na__PlanDimensions__ClientMode__.js';
+    import { Na__PlanDim__GetLabel } from '../44__System__PlanDimensions/Na__PlanDimensions__Data__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -396,6 +406,58 @@
 // REGION | Panel Render
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Build the Client Measuring Toggle
+    // ------------------------------------------------------------
+    // The gate for the live app. Off unless switched on, and stored inside the
+    // PresentationMode block so it rides the same R2 save as everything else
+    // in this panel - there is no separate save to remember.
+    // ------------------------------------------------------------
+    function Na__FpDev__BuildClientDimensionsToggle() {
+        const config = Na__FpDev__GetConfig();
+
+        const row = document.createElement('div');
+        row.className = 'na-dropdown-menu__panel-row na-dropdown-menu__panel-row--toggle';
+
+        const label = document.createElement('span');
+        label.className   = 'na-dropdown-menu__panel-title';
+        label.textContent = Na__PlanDim__GetLabel('ClientToggleLabel', 'Let clients measure');
+
+        const check = document.createElement('input');
+        check.type      = 'checkbox';
+        check.className = 'na-dropdown-menu__checkbox';
+        check.checked   = Na__FpData__GetClientDimensionsEnabled(config);
+        check.title     = Na__PlanDim__GetLabel(
+            'ClientToggleHint',
+            'Adds a red measuring tool to the live app for this project.'
+        );
+
+        check.addEventListener('change', () => {
+            Na__FpData__SetClientDimensionsEnabled(config, check.checked);
+            Na__PlanDimClient__SetAllowed(check.checked);                        // <-- Applies without a reload
+            Na__FpDev__Render();
+        });
+
+        row.appendChild(label);
+        row.appendChild(check);
+        return row;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Build the Explanatory Note Under the Toggle
+    // ------------------------------------------------------------
+    function Na__FpDev__BuildClientDimensionsNote() {
+        const note = document.createElement('p');
+        note.className   = 'na-fp-dev__empty';
+        note.textContent = Na__PlanDim__GetLabel(
+            'ClientToggleHint',
+            'Adds a red measuring tool to the live app for this project.'
+        );
+        return note;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Rebuild the Whole Floor Plan Panel
     // ------------------------------------------------------------
     function Na__FpDev__Render() {
@@ -439,6 +501,15 @@
             Na__FpDev__SeedFromStoreys
         ));
         Na__FpDev__Panel.appendChild(actions);
+
+        // CLIENT MEASURING | Sits with the plan tools it governs, and above
+        // Save because it is saved by the same button.
+        const clientTitle = document.createElement('div');
+        clientTitle.className   = 'na-dropdown-menu__panel-title';
+        clientTitle.textContent = 'Live App';
+        Na__FpDev__Panel.appendChild(clientTitle);
+        Na__FpDev__Panel.appendChild(Na__FpDev__BuildClientDimensionsToggle());
+        Na__FpDev__Panel.appendChild(Na__FpDev__BuildClientDimensionsNote());
 
         const saveActions = document.createElement('div');
         saveActions.className = 'na-pm-dev__actions';

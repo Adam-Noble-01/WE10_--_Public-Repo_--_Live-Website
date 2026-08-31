@@ -2,6 +2,100 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.17.0  -  31-Aug-2026
+### Client Measuring - The Same Dimension Engine, Gated for the Live App
+
+**Overview**
+- Clients can now measure the model themselves in the live app, using the tool
+  built for the Dev menu rather than a copy of it. Their measurements are red,
+  ephemeral, and cannot touch the dimensions we issue.
+- Access is granted per project from a **Let clients measure** toggle in the Dev
+  menu Floor Plans panel. Off unless switched on, so a project nobody has
+  considered never exposes the tool.
+
+**ONE ENGINE, THREE GATED DIFFERENCES**
+- This was the design constraint and it drove everything else. There is no
+  second dimensioning implementation: snapping, axis constraints, ortho mode,
+  the crosshair, vertex editing and undo are the same code on both sides, so a
+  change to how dimensions behave reaches the live app for free.
+- Exactly three things differ, and each is enforced in ONE place:
+    1. THE DISCLAIMER, enforced by a placement gate in the editor.
+    2. THE COLOUR, forced in Na__PlanDim__Create rather than defaulted.
+    3. THE STORAGE, an ephemeral session array that no plan record points at.
+
+**The disclaimer is a gate, not a notice**
+- Placement can be armed from the toolbar, the client bar or the D hotkey.
+  Rather than checking in three places, Na__PlanDimEdit__BeginPlacement now
+  consults a registered gate and the private ArmPlacement is the only thing
+  that actually arms. Client mode registers the gate; the gate shows the modal
+  and arms only from its accept callback.
+- That means a NEW entry point added later cannot bypass the notice by
+  forgetting a check - arming is not reachable any other way.
+- Wording lives entirely in AppConfig as an array of paragraphs and is set with
+  textContent, never innerHTML, so it can be revised without touching code and
+  cannot inject markup. Escape and the backdrop both DECLINE; neither is ever a
+  silent accept. Focus is trapped while open and returned on close.
+
+**Client measurements cannot be saved, structurally**
+- They live in a module-level session array that is never attached to a floor
+  plan record. The save path writes the PresentationMode block; the session
+  array is not in it, so there is nothing to write. Verified by tracing every
+  use of GetSessionDimensions: the overlay renders it, the editor and history
+  bind to it, and one label counts it. Nothing else sees it.
+- Na__PlanDim__SetPlanDimensions - the only function that could attach an array
+  to a plan record - has no callers at all.
+- The session is cleared on unmount, so one visitor never inherits another's.
+
+**Issued dimensions are read-only to a client**
+- Enforced by NOT WIRING interaction onto a record the current author may not
+  edit, rather than by checking inside each handler. There is no handler that a
+  future path could reach without the check, because there is no handler.
+- Deliberately not dimmed in the styling: these are the authoritative figures
+  and must never read as secondary to a visitor's own scratch measurements.
+
+**Two id spaces**
+- Ids are integers allocated per array, and client measurements live in a
+  different array from the issued ones - so both would have started at 1 and
+  collided the moment the overlay drew them together. Client ids start above
+  CLIENT_ID_BASE, which keeps the spaces disjoint without either array needing
+  to know about the other. This was caught while wiring, not in testing.
+
+**Where the toggle is stored**
+- Nested inside PresentationMode__SavedCameraScenes as
+  ...__ClientDimensionsEnabled, so it rides the existing R2 dev-key path and
+  needs no change to the three dev-owned key lists. Absent reads as OFF.
+- Saved by the existing Save Floor Plans button; there is no second save.
+
+**Client bar placement**
+- Top centre, in the same place as the developer annotation toolbar and
+  measured from the same header variable. It was first pinned to the bottom,
+  where it landed straight on top of the scene carousel and its group pill.
+- The two bars never coexist - the client bar mounts only in the non-developer
+  branch and the annotation toolbar only in the developer one - so sharing one
+  position is safe rather than a collision waiting to happen.
+
+**Fix - the tool button stayed on Cancel after a dimension completed**
+- Na__PlanDimEdit__CancelPlacement changed the state without announcing it. The
+  second click notified BEFORE standing the tool down, so the only refresh the
+  toolbars received still read as mid-placement: Measure stayed on Cancel and
+  the hint still said "click the start point" over a finished dimension.
+- CancelPlacement now notifies, which covers finishing a dimension, Escape and
+  the Cancel button alike, and fixes the developer + Add Dimension button too -
+  it had the same stale active state for the same reason.
+- The client branch also passed an onChanged that only synced the layer and
+  never refreshed its own bar. Both now go through one refresh.
+
+**Verification**
+- 21 modules parse, 142-file import graph resolves, zero cycles, no undefined
+  calls, config JSON valid, history 20/20 and focus arbiter 12/12 still green.
+- The isolation invariant is proven STATICALLY by tracing, not by running.
+  Nothing here has been exercised in a browser: the modal has not been seen,
+  no client measurement has been taken, and the read-only rule has not been
+  tested against a real pointer.
+
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.16.2  -  31-Aug-2026
 ### Fixes - Preview Matches the Result, Plus a Placement Crosshair
 
