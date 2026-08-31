@@ -2,6 +2,602 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.16.2  -  31-Aug-2026
+### Fixes - Preview Matches the Result, Plus a Placement Crosshair
+
+**1 | Previewed text was tiny, then leapt to full size on the second click**
+- The preview text carried a fixed `font-size: 12px` in CSS while the
+  committed dimension sized itself in real millimetres through the camera
+  scale. At plan zoom that is a large jump, and the author had no way to judge
+  the result from the preview.
+- Both now run through one mm-to-pixel conversion. The preview also takes its
+  colour, weight and line stroke from the same values the dimension will be
+  created with, so the preview is an honest picture of the result rather than a
+  differently-styled placeholder.
+
+**2 | Dimension style is now pre-configurable**
+- New live NEW-dimension defaults, seeded from AppConfig and editable from the
+  toolbar: a text size field in millimetres and a colour swatch. They apply to
+  the next dimension drawn AND to the selected one, so the control never
+  appears to do nothing.
+- `Na__PlanDim__Create` reads these rather than raw config, which is what makes
+  what-you-preview-is-what-you-get true rather than approximately true.
+
+**3 | Placement crosshair**
+- Full-width and full-height dotted lines tracking the cursor while a dimension
+  is being placed, at half opacity and hairline width, so a corner can be lined
+  up by eye instead of judged against a bare cursor tip.
+- Deliberately faint and neutral: the axis lock guide is the stronger coloured
+  line and has to stay the thing that draws the eye. A crosshair competing with
+  it would make the constraint harder to see, not easier.
+- It tracks the RAW pointer rather than the snapped point. The snap is 5 mm, so
+  at any usable zoom the two are within a pixel, and following the pointer keeps
+  the crosshair smooth instead of stepping across grid boundaries.
+- Drawn first among the layer children, so dimensions, the axis guide and the
+  vertex handles all paint over it.
+
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+## TrueVision3D v2.16.1  -  31-Aug-2026
+### Fixes - Dimension Undo, and the Preview Now Obeys the Constraint
+
+**Two bugs from v2.16.0, both reported from live use.**
+
+**1 | Dimension undo and redo did nothing**
+- The markup focus arbiter granted EXCLUSIVE ownership of Ctrl+Z, Ctrl+Y and
+  Delete to whichever layer was touched last. That was wrong. If focus was
+  stale - sitting on annotations from an earlier click - or had never been
+  claimed at all, NEITHER layer would handle the key and undo silently did
+  nothing.
+- The rule is now FIRST REFUSAL. The focused layer is offered the keystroke
+  first; if it cannot act (nothing selected, nothing left on its stack) the key
+  falls through to whichever layer can. The intuition is unchanged - the thing
+  you were just working on is the thing Ctrl+Z undoes - but the key can no
+  longer fall into a gap between the two layers.
+- Layers now register capability probes (canUndo / canRedo / canDelete) rather
+  than the arbiter reaching into them, so it stays dependency-free.
+- The annotation hotkeys were never wired to the arbiter at all, only the
+  dimension ones. Both are wired now. Before this, `stopPropagation` did not
+  stop the sibling listener on the same node - that needs
+  `stopImmediatePropagation` - so both handlers fired and a single Ctrl+Z
+  stepped BOTH undo stacks.
+- The toolbar Delete button now makes the same arbiter call the Delete key
+  makes, so the button and the key cannot diverge.
+- Proven by a Node test of the arbiter: 12 cases including stale focus, tie
+  breaking, exactly-one-handler, detach, and a probe that throws.
+
+**2 | The placement preview ignored the axis constraint**
+- The rubber band was drawn from the raw pointer position while the committed
+  span was already constrained. So with an axis locked, the guide line showed
+  one thing, the preview showed another, and only on the second click did the
+  dimension snap square. The preview was actively contradicting the guide.
+- It now draws to `span.start` and `span.end` - the RESOLVED world points, with
+  the off-axis component already collapsed - projected back to screen through a
+  new `Na__PlanDimLayer__WorldToScreenMm`.
+- The committed dimension was always constrained correctly; only the preview
+  was wrong. That matches the report exactly: the line was visible and helpful,
+  but the dimension being dragged out did not follow it.
+
+**A near miss worth recording**
+- The first version of that fix called `Na__PlanDimLayer__GetSize()`, which does
+  not exist - the helper is `GetViewportSize`. Syntax checks and the import
+  graph both passed it happily, because it is a runtime failure, not a parse
+  error.
+- Added a sweep that flags any `Na__*` call in these systems that is neither
+  defined locally nor imported. It catches exactly this class of slip, and it
+  now runs clean across all four markup systems.
+
+**Verification**
+- 20/20 on the snapshot history unit test, 12/12 on the focus arbiter test,
+  139-file import graph resolves, zero cycles, no unused imports, no undefined
+  calls. Still not run against a live model.
+
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+## TrueVision3D v2.16.0  -  31-Aug-2026
+### Dimension Constraints - Ortho Mode, Axis Locks, Vertex Editing, Undo
+
+> Extends the dimension tool shipped in v2.15.0. Authored in a parallel session
+> to that work, so some of the files below are edits to it rather than new ones.
+
+**Overview**
+- The dimension tool measured accurately but every pick was free to wander a few
+  degrees off square. This is the taming: a persistent ortho mode, Shift to
+  constrain while held, SketchUp Layout style arrow key axis locks with a
+  visible guide, full select / delete / undo / redo, and double-click editing of
+  a placed dimension's two end points.
+- New modules: `Na__PlanDimensions__AxisLock__`, `__VertexEditor__`,
+  `__Hotkeys__`, `__History__`, plus a shared
+  `Na__AppUtils__SnapshotHistory` and a `Na__FloorPlan__MarkupFocus__` arbiter.
+
+**The constraint priority order is the whole design**
+- From strongest to weakest: an ARROW KEY lock, then SHIFT, then ORTHO MODE,
+  then the ALT override, then the automatic near-square tolerance the tool
+  already had. A weaker rule can never overturn a stronger one, which is what
+  stops two active constraints fighting each other.
+- Left / Right lock the X axis, Up / Down lock the sheet Y axis - world Z on a
+  plan. Pressing the same direction again releases it, as SketchUp does, so one
+  key both applies and cancels the lock.
+- A locked axis draws a faint dotted guide through the anchor point across the
+  whole sheet: red for X, green for sheet Y, matching SketchUp's axis colours.
+  Both colours are config values. The guide is deliberately tied to the ARROW
+  KEY lock only - during Shift or ortho the axis flips as the drag crosses the
+  diagonal, and a guide flickering between horizontal and vertical would be
+  noise rather than information.
+
+**SHIFT NOW CONSTRAINS RATHER THAN RELEASES - a behaviour change**
+- Shift previously overrode the automatic axis lock to allow a diagonal. It now
+  constrains to whichever direction the drag is dominated by. The override moved
+  to Alt, and `Interaction__AxisLockOverrideKey` was changed from "Shift" to
+  "Alt" to match.
+- This inverts what the tool did yesterday. It was requested, and Shift-to-
+  constrain is what a SketchUp user's hands already expect, but anyone who
+  learned the old behaviour will find Shift doing the opposite.
+- The toolbar hint said "hold Shift for an aligned dimension" and would have
+  taught the wrong habit, so it now reports whichever constraint is actually
+  holding the pick.
+
+**Vertex editing**
+- Double-clicking a placed dimension puts an X marker on each end. Either can be
+  dragged; the endpoint setter rounds through the same 5 mm grid the original
+  placement used, so a corrected vertex lands on exactly the coordinates a fresh
+  one would rather than drifting half a step off the wall.
+- THE CONSTRAINTS ARE THE SAME ONES, ANCHORED DIFFERENTLY. Dragging the start
+  vertex constrains against the END vertex and vice versa, so "grab the start and
+  pull it square with the other end" works: the fixed end is the origin the axis
+  lock, Shift and ortho all measure from, exactly as the first click is during
+  placement.
+- The visible X is two thin strokes but the pointer target is a much larger
+  invisible circle, because an X drawn at handle size is close to impossible to
+  grab reliably.
+
+**Two undo stacks, one implementation, and an arbiter between them**
+- The annotation history mechanics moved to `Na__AppUtils__SnapshotHistory`, a
+  factory returning independent instances. Annotations and dimensions each hold
+  one, so undo behaves identically in both because there is only one
+  implementation of it, while a Ctrl+Z in one can never step the other's stack.
+- The annotation module keeps its public API unchanged; it is now a thin wrapper.
+- THE ARRAY IS STILL MUTATED IN PLACE, NEVER REPLACED - the overlay and the plan
+  record that saves to R2 both hold live references, and assigning a fresh array
+  on undo would leave them pointing at a stale copy while the next save quietly
+  wrote the pre-undo state.
+- `Na__FloorPlan__MarkupFocus__` decides which layer owns a shared keystroke.
+  Both markup systems bind Ctrl+Z, Ctrl+Y and Delete; without arbitration one
+  Delete would remove a room name AND a dimension, which destroys work silently
+  and is near impossible to diagnose afterwards. The rule is last touched wins.
+  Keys belonging to only one layer - the arrow locks, the ortho toggle, copy and
+  paste - are not arbitrated at all and stay live regardless.
+- The toolbar Delete button now routes through the same arbiter as the Delete
+  key, so the button and the key can never disagree about what they act on.
+
+**Interactions collapse to one undo step**
+- Placing, deleting, an offset drag and a vertex drag are each exactly one
+  undoable step. Drags take a baseline on pointer down and commit it only if
+  something actually moved, so a click that never dragged leaves no entry.
+- The first click of a double click arms an offset drag; opening vertex editing
+  discards that pending baseline, so entering the editor never leaves a phantom
+  step behind.
+
+**Escape unwinds one layer at a time**
+- Vertex editing, then an axis lock, then a placement, then the selection - one
+  press each, rather than throwing away all four states at once. The editor's own
+  Escape handler was removed because this supersedes it and two handlers would
+  double-fire.
+- Arrow keys are always claimed while dimensioning even when they change nothing,
+  because letting them through would scroll the page out from under the drawing.
+
+**Not verified against a running model**
+- Syntax, the full 139-file import graph, cycle checks and dead-code sweeps all
+  pass. Nothing here has been run: no dimension has been drawn, no vertex
+  dragged, and the axis guide has never been seen on screen.
+
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+## TrueVision3D v2.15.0  -  31-Aug-2026
+### Plan Dimensioning - Measured Dimensions on a 5 mm Snap Grid
+
+**Overview**
+- Floor plans can now be dimensioned. In a plan's Annotate mode a new
+  **+ Add Dimension** button arms a two-click placement: click the start, click
+  the end, and a proper dimension line is drawn with extension lines,
+  terminators and the measured figure. A live preview between the two clicks
+  shows the span already snapped and already squared, so the author commits to
+  a number they have read rather than to a cursor position.
+- New module set in `44__System__PlanDimensions`: the snap grid and working
+  plane, the data model, the SVG overlay, the placement editor, its AppConfig
+  and its own stylesheet.
+
+**The snap grid is anchored at the WORLD ORIGIN, not the model bounds**
+- This is the decision the whole system rests on. Anchoring the grid to the
+  model's bounding box looks tidier and is wrong: the box moves the moment a
+  model is re-exported with a different amount of site or planting around it,
+  and every stored dimension would then silently land half a step off the wall
+  it was measured against. A world-origin grid reproduces across re-exports,
+  across model groups and across projects.
+- The model IS measured, but for EXTENT rather than origin. `EstablishPlane`
+  runs `Box3.setFromObject` over the model root, pads the footprint by the
+  configured margin and keeps that as the region a pick may land in, so a
+  stray click out in empty space is rejected instead of being stored as a
+  400 m dimension. With no model loaded it stays permissive rather than
+  refusing every pick.
+- "Plane" is meant literally as well as descriptively: the descriptor carries
+  a real `THREE.Plane` at the dimension height, so a future raycast picker or
+  an image exporter has the actual surface rather than loose numbers.
+
+**Length is derived, never stored**
+- A record holds two endpoints, an axis lock and an offset. It does NOT hold
+  its length - that is recomputed from the endpoints on every read and every
+  frame. Storing a measured figure next to the geometry that produces it is
+  how drawings end up lying: the two drift apart the moment anything is
+  edited, and the number is the half everyone trusts. Derived-on-read cannot
+  drift, and a dragged endpoint updates its own figure with no refresh call.
+- Endpoints are re-snapped on normalise, so a hand-edited JSON figure is
+  pulled back onto the current grid rather than rendering out of step with
+  every other dimension on the same sheet.
+
+**Where the data lives**
+- Dimensions ride inside each plan record as `FloorPlan__Dimensions`, exactly
+  as that plan's annotations ride in `FloorPlan__Annotations`. Plans already
+  nest inside `PresentationMode__SavedCameraScenes`, which is on all three
+  dev-owned key lists, so dimensions inherit the existing R2 overlay /
+  build-preserve / sync-preserve path. No new top-level key, and none of the
+  three lists needed touching - the v2.11.0 lesson applied rather than
+  relearned.
+- The per-plan array is accessed from the dimensioning module's own data
+  layer rather than through `Na__FloorPlan__ProjectJson__Data__`, so the
+  feature adds nothing to that module's surface.
+
+**Geometry is built in world millimetres, then projected**
+- Extension lines, the offset dimension line and the terminators are all
+  computed as world points on the plan plane and only then pushed through the
+  plan camera. Building them in screen space would be less code and would put
+  the offset at a fixed pixel distance, so the whole dimension would slide
+  across the wall it belongs to the moment the plan was zoomed.
+- Terminators are the deliberate exception and ARE sized in screen space: an
+  arrowhead is a drafting glyph of fixed drawn size, like one on a printed
+  sheet, not a world-space object.
+- SVG rather than Three.js geometry, for the same reason the annotation text
+  is DOM: strokes stay hairline-crisp at every zoom, the value renders in real
+  Open Sans, and hit-testing comes free. Scene geometry would alias against
+  the linework it is measuring and would have to fight the section cut for
+  depth.
+
+**Axis lock**
+- Decided in SCREEN space. A pick within the pixel tolerance of horizontal or
+  vertical is straightened onto that axis, because a plan dimension three
+  pixels off square is virtually always meant to be square. Holding Shift
+  places a true aligned dimension. Aligned lengths are irrational, so the
+  reported figure is rounded onto the same 5 mm grid - otherwise one dimension
+  on the sheet would carry a precision none of the others do.
+
+**What was and was not verified**
+- Verified against the live app: snapping lands ON the grid with a worst-case
+  error of 2.4996 mm across 4000 samples, which is the stated "within 5 mm".
+  Axis lock collapses a 37 mm drift to a clean 3000. A 3-4-5 pick reports
+  exactly 5000; a 1414.214 diagonal reports 1415. Same-cell and 900 m picks
+  are both refused. Moving an endpoint to 5003 stores 5005 and the figure
+  follows it.
+- Drawn geometry was measured back out of the DOM and is dimensionally exact:
+  a 10 m span, a 750 mm offset, an 800 mm extension, a 15 mm stroke and 220 mm
+  text all render at precisely those sizes, and world/screen round-trips to
+  the same point. Span and offset still read true from zoom 0.1 through 4.
+- Known and deliberate: below roughly 0.5x zoom the stroke stops being scale-
+  true because it hits a 0.6 px hairline floor. Without that floor the
+  linework would vanish when zoomed out. Standard CAD behaviour, but it does
+  mean stroke width is not measurable at low zoom.
+- NOT verified: placement against a real project's plan. The two-click flow,
+  offset dragging and the toolbar button were exercised through their module
+  APIs, not by clicking a loaded model, because localhost has no worker and
+  the project GLBs are CDN-hosted. That needs a run against a live project.
+
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+## TrueVision3D v2.14.0  -  31-Aug-2026
+### Floor Plan Annotations - Copy, Paste, Undo, Redo and Delete
+
+> Builds directly on v2.12.0 (Floor Plan Builder), not on v2.13.0. The two were
+> authored in parallel sessions; this one landed last, hence the version.
+
+**Overview**
+- Marking up a floor plan gains keyboard shortcuts: Ctrl+C copies the selected
+  label, Ctrl+V pastes it, Ctrl+Z undoes, Ctrl+Y redoes, and Delete or
+  Backspace removes the selection.
+- Two new modules in `43__System__PlanAnnotations`:
+  `Na__PlanAnnotations__History__.js` (the undo stack) and
+  `Na__PlanAnnotations__Hotkeys__.js` (key binding and the clipboard).
+- Every shortcut is bound only while annotation editing is on and unbound the
+  moment it is switched off. None of it is ever live in the ordinary 3D app.
+
+**Why these are NOT in Na__Hotkeys__Manager**
+- That module owns unmodified global view-switching keys and returns early
+  whenever Ctrl, Meta or Alt is held. Every shortcut here is Ctrl-modified and
+  scoped to one editing context, so registering them there would have meant
+  widening a global module to answer for a local concern and changing the guard
+  that keeps it predictable. A scoped attach/detach handler was the honest fit,
+  matching how Na__FloorPlan__PlanNavigation__ binds and unbinds.
+
+**Undo is snapshot based, and the array is mutated in place**
+- A plan carries a handful of small text records, so deep-copying the whole
+  array per edit costs nothing and removes an entire class of bug: there is no
+  inverse operation to get wrong.
+- THE ARRAY IS MUTATED IN PLACE, NEVER REPLACED. The overlay holds a live
+  reference to it and so does the floor plan record that gets saved to R2.
+  Assigning a fresh array on undo would have left both pointing at a stale copy
+  and the next save would have quietly written the pre-undo state - the kind of
+  failure that looks like it worked until someone reopens the project.
+- Restores push new object instances, which is safe because nothing holds a
+  reference to an individual annotation: the overlay keys its nodes by id, and
+  selection and editing both track ids rather than objects.
+
+**Edits that span time do not each become an undo step**
+- A drag, a text edit and dragging the size field all take a baseline when the
+  interaction starts and commit it only if something actually changed. Opening
+  a label and pressing Escape leaves no history entry, a click that never moved
+  leaves none, and a size adjustment collapses into ONE undo step instead of one
+  per input event - which is what makes undo usable rather than a slow rewind.
+- The toolbar size field keeps live feedback on every keystroke but commits on
+  change and blur; the weight selector is atomic and commits immediately.
+
+**The clipboard is internal, not the OS clipboard**
+- Reading the system clipboard needs async permission prompts and would fight
+  with text the author copied from somewhere else. An in-app buffer makes
+  "copy this label, paste it" behave exactly as expected.
+- Repeated pastes cascade by the configured offset rather than stacking on one
+  spot, so pasting four room names gives four visible labels instead of one
+  apparent label with three hidden underneath it.
+- The clipboard deliberately survives leaving a plan, so a label copied on the
+  ground floor can be pasted onto the first floor. History does not - it is
+  bound per plan and cleared on mount, because one plan undo stack has no
+  meaning over another plan markup.
+
+**Which keystrokes get swallowed, and which do not**
+- Undo, redo, paste and Delete are claimed whether or not they did anything.
+  Letting Ctrl+Z through once the stack is empty would rip the browser own edit
+  history, and Backspace would navigate the page back and lose unsaved markup.
+- Ctrl+C is deliberately NOT claimed when no label is selected, so a copy the
+  author intended for text elsewhere on the page still works.
+- Every shortcut stands down while the in-situ label editor is open or focus is
+  in the toolbar or Dev menu fields, so Ctrl+C and Ctrl+V while typing a room
+  name are the browser own text copy and paste, which is what is meant then.
+
+**Also in this pass**
+- Removed `Na__FpCam__UnprojectScreenToPlane` from the plan camera. It was
+  written in the first pass for annotation dragging and then superseded by the
+  simpler centre-offset conversion the overlay actually uses - under a parallel
+  projection one screen pixel is a constant number of scene units, so no
+  unproject is needed at all. Dead on arrival; now gone.
+
+**Still not verified against a running model**
+- As with v2.12.0, none of this has been run. Syntax, the full module import
+  graph and cycle checks all pass, but no keystroke has been pressed in anger.
+
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+## TrueVision3D v2.13.0  -  31-Aug-2026
+### Asset Cull Distance - Per-Model Control Over Furniture Draw Distance
+
+**Overview**
+- The furniture / interior-decor distance culling that has been running since
+  v1.0.0 of the effect was tuned once, globally, in AppConfig. Every project
+  got 25 m whether it was a two-room flat or a farmhouse. There was no way to
+  see what the distance was without reading the console, and no way to change
+  it for one model without changing it for all of them.
+- Dev Tools now carries an **Asset Cull Distance** section: current distance,
+  where that distance came from, a live count of registered and currently
+  culled items, and Apply Live / Save / Clear against the project.
+- It sits under a divider inside the existing **Orbit Max Zoom Radius** panel
+  rather than as its own menu item. Both settings answer the same question -
+  how far out does this model still read - and they get tuned together.
+
+**Where the data lives (the trap this had to avoid)**
+- The override is a new TOP-LEVEL key, `RenderEffect__AssetCullDistanceMm`, in
+  the project's `TrueVision__ProjectData__.json`. Millimetres, integer.
+- v2.11.0 nested Presentation Mode groups inside an existing key specifically
+  to dodge the three-list problem. This feature could not: a scalar distance
+  has no existing key to hide inside. So all three dev-owned key lists were
+  edited in lockstep, which is the whole reason that warning was written down:
+  - `Na__DevSavedKeys` in `Na__AppFlow__LoadingSequence.js` (R2 overlay on localhost)
+  - `DEV_OWNED_PROJECT_DATA_KEYS` in `CloudflareR2__ModelSync__Main__.py` (sync preserve)
+  - `TRUEVISION_DEV_OWNED_KEYS` in `ProjectVision__BuildScript__.py` (build preserve)
+- Miss any one of those and a ProjectVision build or a model sync silently
+  resets the project's cull distance back to the AppConfig default. All three
+  were verified to carry the key before this was called done.
+- Saving is the same path every other dev-menu setting uses: one
+  `Na__CfApi__MergeAndSaveKeys` call writing the whole merged document back.
+
+**Engine change - the distance is now retunable in place**
+- `Na__RenderEffect__DistanceCulling__.js` goes to 1.2.0. The cull distance
+  used to be baked into each registry entry's `thresholdSq` at registration
+  time, so changing it meant re-registering every item and re-measuring every
+  bounding box.
+- Each entry now caches the bounding radius it was measured with, so
+  `SetCullDistanceMm` walks the registry and recomputes thresholds only. No
+  geometry is touched, which is what makes Apply Live feel instant on a model
+  with thousands of registered items.
+- `GetStats` reports enable state, distance and live registered / culled counts
+  and backs the readout. Its `culledCount` counts entries currently flagged
+  not-visible, so an item hidden by the context menu or an isolate counts too -
+  it reads as "hidden right now", not strictly "hidden by distance".
+
+**Ordering**
+- The loading sequence applies the project override AFTER project data lands
+  and BEFORE the models load, so `RegisterModelGroups` builds the registry
+  against the project distance from the very first frame rather than building
+  at the AppConfig default and being corrected afterwards.
+- `Initialize` (AppConfig) runs earlier still and is never re-called, so the
+  override survives a model-group switch: the switch rebuilds the registry
+  using the distance already in module state.
+- Apply Live drives `Update(camera.position)` directly before requesting a
+  render, because the cull pass is camera-move-gated. Without that, a change
+  made while the camera sat still would not show until the user orbited.
+
+**What was and was not verified**
+- Verified on localhost: the section renders under the divider, the readout
+  populates, Apply Live retunes a live registry, and invalid input (zero,
+  negative, NaN) is refused with the distance left untouched. The threshold
+  recomputation was checked against a synthetic furniture group at known
+  distances - items flip visible/culled at exactly the expected thresholds as
+  the distance is moved up and down and back.
+- NOT verified: the R2 save / clear round-trip, and the behaviour against a
+  real project's furniture. Localhost has no worker and the project GLBs are
+  CDN-hosted, so the save path only got as far as confirming its no-project
+  guards fire cleanly. Both need a run against a live project.
+
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+## TrueVision3D v2.12.0  -  31-Aug-2026
+### Floor Plan Builder - Live Section Cuts, 2D Plan Mode, Room Annotations
+
+**Overview**
+- Developer mode gains a Floor Plans section. Add a plan, name it, set its
+  floor level, and the app cuts the model live and shows it as a true 2D
+  parallel projection looking straight down. Each plan becomes a scene card in
+  the Floor Plans group, so a viewer cycles ground / first / second floor from
+  the carousel exactly like any other saved view.
+- Each plan carries its own text annotations - room names - pinned to world
+  positions so they stay planted over the right room as the drawing is panned.
+- Three new systems, none of them folded into existing files:
+  `41__System__SectionCutEngine`, `42__System__FloorPlanViews`,
+  `43__System__PlanAnnotations`, each with its own AppConfig JSON.
+
+**The cut engine is ported, not reinvented**
+- `Na__SectionCut__CapGeometry__.js` is a verbatim port of the ValeVision3D
+  cross section cap engine (14-Jul-2026 v1.0.0). The algorithm is untouched -
+  only the header, the helper userData flag and the console prefix changed.
+  That is the piece that makes a sliced wall read as solid poche instead of a
+  hollow shell, and it had no business being rewritten.
+- What was NOT ported: face-click placement, the draggable plane gizmo, flip,
+  placement modes and the multi-plane Tools-menu UX. A floor plan shows one
+  storey, so the engine cuts with exactly ONE plane at a time and the
+  cross-clipping ValeVision needs is absent by design.
+- `Na__RenderEffect__SectionClipping__State.js` came across to
+  `05__RenderPipeline` because the profile-line pass renders with override
+  materials, which bypass per-mesh `clippingPlanes`. Without it the linework
+  keeps drawing the roof the cut has already removed.
+- The clip array instance is MUTATED, never replaced. Model materials hold a
+  reference to it, so dragging the floor-level slider only changes
+  `plane.constant` - no scene re-traversal, which is what keeps it smooth.
+
+**Floor level and cut height are two different numbers**
+- The slider sets the FLOOR DATUM (0 = model ground floor, -5m to +20m). The
+  cut is taken CutOffsetAboveDatumMm above it, default 1200mm - the standard
+  architectural cut height. A plan left at datum 0 therefore slices the walls
+  rather than skimming the slab, which is what makes it a plan at all.
+- Both numbers show in the Dev row readout together, because confusing them is
+  the fastest way to author a plan that cuts the wrong part of the building.
+- Seed From Model Storeys reads the storeys `Na__StoreySystem__` already detects
+  from GLB names and measures each floor level from that storey's own geometry,
+  so a two-storey house is two correct plans in one click.
+
+**Where the data lives (the part that could have gone badly)**
+- Floor plans are nested INSIDE the existing
+  `PresentationMode__SavedCameraScenes` block, under `...__FloorPlans`, with a
+  per-scene `...__Scene__FloorPlanId`, and annotations nested inside each plan.
+- Same constraint as the scene groups work. The dev-owned top-level key list is
+  duplicated in THREE files that must agree - `Na__DevSavedKeys` in
+  `Na__AppFlow__LoadingSequence.js`, `DEV_OWNED_PROJECT_DATA_KEYS` in
+  `CloudflareR2__ModelSync__Main__.py`, and `TRUEVISION_DEV_OWNED_KEYS` in
+  `ProjectVision__BuildScript__.py`. Nesting inside a key already on all three
+  means floor plans ride the existing R2 overlay, build-preserve and merge-save
+  path with NONE of those lists touched. A new top-level key would have needed
+  all three edited in lockstep, and missing one would have let a ProjectVision
+  build silently wipe every floor plan and every room name with it.
+- Saving is one `Na__CfApi__MergeAndSaveKeys` call writing the whole block, the
+  same path every other dev-menu save uses.
+
+**Every plan scene carries a real camera block**
+- `Na__PresentationMode__ProjectJson__IsValidScene` rejects a scene without
+  finite camera coordinates. A plan scene without one would have been silently
+  filtered out of the carousel and simply never appeared. Each plan scene
+  therefore stores its genuine top-down pose, built by
+  `Na__FloorPlan__Framing__`, which is also the single place the model centre
+  and approach height are worked out for the flight and the preview.
+
+**Scene group placement**
+- A group named "Floor Plans" wins; failing that the configured id (Group_004);
+  failing that the first enabled group, which on a default project is
+  Exterior 3D Views. A matched group that is switched OFF is switched ON,
+  because a plan filed into a hidden group would never reach the carousel.
+- A project with no groups at all gets the default set seeded first. Creating a
+  floor plan is precisely the moment grouping starts to matter - the project now
+  has two kinds of scene - so it is the one place seeding is right rather than
+  a surprise.
+
+**Transitions**
+- Into plan mode: the cut is applied FIRST, so the cap geometry is built while
+  the viewer is stationary rather than hitching at the end, and the building is
+  already sliced as the camera rises over it. The perspective camera then eases
+  up to a top-down pose framed to roughly match what the ortho view will show -
+  that match is what stops the projection swap from jumping - and only then does
+  the projection change. The easing is the carousel's own transition, driven
+  with a synthesised pose, so plan flights feel identical to scene flights.
+- Between two plans: an instant flip, shipped at 0ms. They are drawing pages;
+  animating between two top-down parallel views reads as jarring. Raising
+  Transition__BetweenPlansMs above 0 is available if buffering ever needs
+  softening, and the annotation layer already carries the fade path for it.
+- Out of plan mode: annotations are removed outright BEFORE the camera moves,
+  so no label ever slides across the screen with the view.
+
+**Render loop: plan mode is checked first, not last**
+- `Na__RenderLoop__RenderFrame` asks `Na__FloorPlanMode__GetActiveCamera()`
+  before anything else. A non-null answer short-circuits the entire 3D frame:
+  walk/fly physics, orbit updates, door proximity, billboard facing, fog
+  uniforms and distance culling are all meaningless on a drawing.
+- Distance culling in particular MUST NOT run - it hides furniture beyond a
+  radius of the 3D camera, and a floor plan has to show everything on the
+  storey. It is switched off on entry (which restores anything already culled)
+  and put back exactly as it was on exit.
+- Orbit controls are disabled while a plan is displayed. They listen on the
+  same canvas as the plan pan handler; left enabled they would rotate the
+  perspective camera underneath the drawing on every drag, so leaving plan mode
+  would land somewhere the viewer never chose. The two cannot share a pointer.
+- The composer is bypassed entirely in plan mode. Fog, SSAO and the Sobel pass
+  all shade a plan like a surface, which is exactly wrong for a drawing.
+
+**Annotations are DOM, not Three.js**
+- The layer is an HTML overlay above the canvas. Real DOM text gives true
+  Open Sans rendering at every zoom, an in-situ editor that is just a
+  contenteditable, and drag handling for free - none of which a canvas-textured
+  plane in the scene could match.
+- Positions and text sizes are stored in real millimetres, so labels scale with
+  the drawing the way CAD text does and stay planted when the plan is reopened.
+  Weights are restricted to the three Open Sans faces the app already loads
+  (300 / 400 / 600); anything else is snapped to the nearest, because a
+  browser-synthesised weight reads as a different typeface.
+- The canvas is NOT flush with the viewport - it starts below the app header -
+  so the layer is positioned from the canvas's own offset box and every pointer
+  coordinate is converted out of viewport space before use. Skipping either
+  would displace every label by the header height.
+- Double-click edits in place, Enter commits, Escape reverts, and a label
+  emptied on commit is deleted rather than left invisible.
+
+**Carousel routing without a dependency cycle**
+- The carousel gained `Na__PresentationMode__UI__SetSceneNavigationOverride`.
+  The floor plan controller registers a router with it, so a plan scene card
+  switches into 2D and an ordinary scene chosen while in plan mode leaves plan
+  mode and flies down to it. The import points one way only - the carousel
+  never imports the floor plan system - so no cycle is introduced. Card click
+  and the prev/next stepper now share one navigation path and cannot diverge.
+
+**Not in this version**
+- Dimensions. Text annotations only, as scoped.
+- The 2D render styling pass. Plan mode currently renders flat and unshaded via
+  the direct path; tuning line weights and hatching for a drawing look is the
+  next piece of work, and the engine's appearance API is already config-backed
+  and live-settable for it.
+- Nothing here has been run against a model yet. The whole feature was written
+  to be verified on a real project, and the Boolean cut in particular has not
+  been seen rendering.
+
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.11.0  -  31-Aug-2026
 ### Presentation Mode Scene Groups - Named Sets Above The Carousel
 

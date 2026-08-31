@@ -108,7 +108,7 @@
         "RenderEffect__AmbientOcclusion__DebugMode"        : 0
     },
     "RenderEffect__DistanceCulling": {
-        "RenderEffect__DistanceCulling__Description"       : "Hides furniture and interior-decor items beyond CullDistanceMm from the active camera to reduce render load. Distance is integer millimeters; converted to 3D units in code. CategoryNameTokens selects which loaded GLB categories are affected (matched against category keys).",
+        "RenderEffect__DistanceCulling__Description"       : "Hides furniture and interior-decor items beyond CullDistanceMm from the active camera to reduce render load. Distance is integer millimeters; converted to 3D units in code. CategoryNameTokens selects which loaded GLB categories are affected (matched against category keys). CullDistanceMm is the global default only - a per-model override is stored as RenderEffect__AssetCullDistanceMm in that project TrueVision__ProjectData__.json, set via Dev Tools > Orbit Max Zoom Radius > Asset Cull Distance.",
         "RenderEffect__DistanceCulling__Enabled"           : true,
         "RenderEffect__DistanceCulling__CullDistanceMm"    : 25000,
         "RenderEffect__DistanceCulling__CategoryNameTokens": ["Furniture", "InteriorDecor", "Decor"]

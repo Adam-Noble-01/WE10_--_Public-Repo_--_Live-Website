@@ -42,6 +42,20 @@
     }
     /* ------------------------------------------------------------ */
 
+    /* WITHDRAWN | 2D floor plan mode takes the canvas for its own toolbar */
+    /* ------------------------------------------------------------ */
+    /* Floor plans are presentation-mode scenes, so the rule in
+       Na__PresentationMode__Styles__SceneCarousel__.css has already moved this
+       toolbar to the top of the canvas - straight onto the Plan Annotations
+       bar, and above it in the stacking order. Orbit / Walk / Fly are
+       meaningless in an orthographic plan, so the toolbar withdraws entirely
+       for the duration. Doubled class keeps this ahead of the single-class
+       base rule above regardless of stylesheet import order.              */
+    .na-nav-toolbar.na-nav-toolbar--hidden {
+        display                            : none;               /* <-- Toolbar yields the canvas to the plan annotation bar */
+    }
+    /* ------------------------------------------------------------ */
+
 /* endregion ------------------------------------------------------------------- */
 
 

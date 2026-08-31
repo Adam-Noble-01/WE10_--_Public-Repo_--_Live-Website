@@ -111,6 +111,7 @@ DEV_OWNED_PROJECT_DATA_KEYS        = (
     'PresentationMode__SavedCameraScenes',     # <-- Saved camera scenes (Presentation Mode)
     'Navmode__EnabledModes',                   # <-- Walk / Fly enable flags
     'Navmode__OrbitMaxDistanceMm',             # <-- Per-project orbit zoom cap
+    'RenderEffect__AssetCullDistanceMm',       # <-- Per-project furniture / decor cull distance
     'Navmode__FovOverrides',                   # <-- Per-project Orbit/Walk/Fly default FOV overrides
     'Camera__DefaultPosition',                 # <-- Saved camera position / rotation / FOV
     'OrbitHelperCube__Position',               # <-- Saved orbit target

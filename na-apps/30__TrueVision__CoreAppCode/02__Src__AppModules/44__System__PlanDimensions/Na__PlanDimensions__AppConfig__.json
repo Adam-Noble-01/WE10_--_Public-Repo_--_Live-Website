@@ -1,0 +1,119 @@
+{
+    "PlanDimensions__Description": "Configuration for the floor plan dimensioning layer - the measured dimension lines drawn over a plan cut. Dimensions are stored per floor plan inside the project's TrueVision__ProjectData__.json, nested within PresentationMode__SavedCameraScenes alongside that plan's annotations, so they ride the existing R2 dev-key sync path and need no new top-level key. All distance values are integer millimetres.",
+
+    "PlanDimensions__Enabled": true,
+
+    "PlanDimensions__Grid__Config": {
+        "PlanDimensions__Grid__Description": "The theoretical XY snap grid every dimension endpoint is rounded onto. The grid is anchored at the world origin, NOT at the model bounds, so the same wall snaps to the same coordinate no matter what else is loaded or how the model is re-exported. SnapStepMm 5 means an endpoint lands within 2.5 mm of where it was clicked, which is the stated 'within 5 mm' tolerance. MeasurementSnapMm rounds the reported length too, so an aligned (diagonal) dimension does not report an unroundable figure.",
+        "PlanDimensions__Grid__SnapStepMm": 5,
+        "PlanDimensions__Grid__MeasurementSnapMm": 5,
+        "PlanDimensions__Grid__OriginXMm": 0,
+        "PlanDimensions__Grid__OriginZMm": 0,
+        "PlanDimensions__Grid__PlaneMarginMm": 5000,
+        "PlanDimensions__Grid__MaxSpanMm": 500000,
+        "PlanDimensions__Grid__MinSpanMm": 5
+    },
+
+    "PlanDimensions__Line__Config": {
+        "PlanDimensions__Line__Description": "Appearance of a placed dimension. Sizes are real millimetres and are converted to pixels through the plan camera's units-per-pixel, so a dimension scales with the drawing the way CAD linework does. DefaultOffsetMm is the perpendicular distance the dimension line is pushed off the measured baseline; a positive value offsets to the left of the start-to-end direction.",
+        "PlanDimensions__Line__DefaultOffsetMm": 750,
+        "PlanDimensions__Line__OffsetStepMm": 50,
+        "PlanDimensions__Line__MinOffsetMm": -20000,
+        "PlanDimensions__Line__MaxOffsetMm": 20000,
+        "PlanDimensions__Line__ExtensionOvershootMm": 150,
+        "PlanDimensions__Line__ExtensionGapMm": 100,
+        "PlanDimensions__Line__TickLengthMm": 200,
+        "PlanDimensions__Line__StrokeWidthMm": 15,
+        "PlanDimensions__Line__DefaultColor": "#323232",
+        "PlanDimensions__Line__TerminatorStyle": "tick",
+        "PlanDimensions__Line__AllowedTerminatorStyles": ["tick", "arrow", "dot"]
+    },
+
+    "PlanDimensions__Text__Config": {
+        "PlanDimensions__Text__Description": "The measured value drawn on the dimension line. DefaultSizeMm and the line DefaultColor seed the live NEW-dimension defaults, which the toolbar can then change; the placement preview renders from those live values so a previewed dimension looks exactly like the one that gets created. Weights map to the three Open Sans faces the app already loads from CDN: 300 Light, 400 Regular, 600 SemiBold. Units suffix is appended to the rounded millimetre figure; set to an empty string for a bare number.",
+        "PlanDimensions__Text__DefaultSizeMm": 220,
+        "PlanDimensions__Text__MinSizeMm": 50,
+        "PlanDimensions__Text__MaxSizeMm": 2000,
+        "PlanDimensions__Text__SizeStepMm": 25,
+        "PlanDimensions__Text__DefaultFontWeight": 400,
+        "PlanDimensions__Text__AllowedFontWeights": [300, 400, 600],
+        "PlanDimensions__Text__FontFamily": "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "PlanDimensions__Text__UnitsSuffix": "",
+        "PlanDimensions__Text__ThousandsSeparator": true,
+        "PlanDimensions__Text__GapAroundTextMm": 120
+    },
+
+    "PlanDimensions__Layer__Config": {
+        "PlanDimensions__Layer__Description": "The dimension layer is an SVG overlay above the canvas and below the annotation text layer, not Three.js geometry. Vector strokes stay crisp at every zoom and hit-testing comes free. MinRenderedPx hides a dimension that has zoomed too small to read rather than drawing an unreadable smudge.",
+        "PlanDimensions__Layer__PlaneOffsetBelowCameraMm": 60,
+        "PlanDimensions__Layer__MinRenderedPx": 6,
+        "PlanDimensions__Layer__MaxRenderedPx": 400,
+        "PlanDimensions__Layer__ZIndex": 39
+    },
+
+    "PlanDimensions__AxisLock__Config": {
+        "PlanDimensions__AxisLock__Description": "SketchUp Layout style direction constraint. Ortho mode is a persistent toggle that refuses to produce a diagonal at all - every dimension is forced onto the nearer axis. Holding Shift constrains to whichever direction the drag is currently dominated by, and releasing it frees the pick again. The arrow keys set an explicit lock that outranks both: Left or Right locks the X axis, Up or Down locks the sheet Y axis, which is world Z on a plan. Pressing the same direction again releases it. A faint dotted guide is drawn along whatever axis is locked so the constraint is never invisible.",
+        "PlanDimensions__AxisLock__OrthoModeDefault": false,
+        "PlanDimensions__AxisLock__ShiftConstrainsToDrag": true,
+        "PlanDimensions__AxisLock__ArrowKeyLockEnabled": true,
+        "PlanDimensions__AxisLock__GuideEnabled": true,
+        "PlanDimensions__AxisLock__GuideColorX": "#d2333c",
+        "PlanDimensions__AxisLock__GuideColorZ": "#2f9e44",
+        "PlanDimensions__AxisLock__GuideOpacity": 0.55,
+        "PlanDimensions__AxisLock__GuideStrokePx": 1.25,
+        "PlanDimensions__AxisLock__GuideDashPattern": "6 5"
+    },
+
+    "PlanDimensions__Crosshair__Config": {
+        "PlanDimensions__Crosshair__Description": "Full-width and full-height dotted lines tracking the cursor while a dimension is being placed. They exist to make a corner easy to hit: the eye lines the crosshair up with the wall face rather than judging the cursor tip against the drawing. Deliberately faint and thin so they read as an aid and never compete with the drawing or with the axis lock guide, which is stronger and coloured.",
+        "PlanDimensions__Crosshair__Enabled": true,
+        "PlanDimensions__Crosshair__Color": "#323232",
+        "PlanDimensions__Crosshair__Opacity": 0.5,
+        "PlanDimensions__Crosshair__StrokePx": 0.75,
+        "PlanDimensions__Crosshair__DashPattern": "3 4",
+        "PlanDimensions__Crosshair__ShowBeforeFirstClick": true
+    },
+
+    "PlanDimensions__Editing__Config": {
+        "PlanDimensions__Editing__Description": "Selection, deletion, undo and post-placement vertex editing. Double-clicking a placed dimension reveals an X marker at each end which can be dragged; every vertex drag lands on the same snap grid as the original placement, so a vertex moves in whole grid steps and never lands between them. The same axis constraints apply to a vertex drag as to a first placement. Keys are matched case-insensitively against KeyboardEvent.key.",
+        "PlanDimensions__Editing__UndoDepth": 50,
+        "PlanDimensions__Editing__DoubleClickToEditVertices": true,
+        "PlanDimensions__Editing__VertexHandleSizePx": 9,
+        "PlanDimensions__Editing__VertexHandleStrokePx": 1.8,
+        "PlanDimensions__Editing__VertexHandleColor": "#2e7d4f",
+        "PlanDimensions__Editing__VertexHandleActiveColor": "#d2333c",
+        "PlanDimensions__Editing__VertexHitRadiusPx": 14,
+        "PlanDimensions__Editing__DeleteKeys": ["Delete", "Backspace"],
+        "PlanDimensions__Editing__UndoKey": "z",
+        "PlanDimensions__Editing__RedoKey": "y",
+        "PlanDimensions__Editing__OrthoToggleKey": "o",
+        "PlanDimensions__Editing__PlaceKey": "d"
+    },
+
+    "PlanDimensions__Labels__Config": {
+        "PlanDimensions__Labels__Description": "Wording for the dimension toolbar shown while a plan is being dimensioned in developer mode.",
+        "PlanDimensions__Labels__ToolbarTitle": "Dimensions",
+        "PlanDimensions__Labels__AddLabel": "+ Dimension",
+        "PlanDimensions__Labels__OrthoLabel": "Ortho",
+        "PlanDimensions__Labels__DeleteLabel": "Delete",
+        "PlanDimensions__Labels__DoneLabel": "Done",
+        "PlanDimensions__Labels__PlaceHint": "Click the start point, then the end point.",
+        "PlanDimensions__Labels__ConstrainHint": "Arrow keys lock an axis, Shift constrains to the drag.",
+        "PlanDimensions__Labels__SelectedHint": "Drag to offset, double-click to edit the ends.",
+        "PlanDimensions__Labels__VertexHint": "Drag a vertex. Arrow keys lock an axis, Escape finishes.",
+        "PlanDimensions__Labels__NoSelectionHint": "Select a dimension, or add a new one.",
+        "PlanDimensions__Labels__OrthoOnMessage": "Ortho mode on - dimensions are forced square.",
+        "PlanDimensions__Labels__OrthoOffMessage": "Ortho mode off - diagonals allowed.",
+        "PlanDimensions__Labels__ShortcutsHint": "D new, O ortho, Ctrl+Z undo, Ctrl+Y redo, Del removes."
+    },
+
+    "PlanDimensions__Interaction__Config": {
+        "PlanDimensions__Interaction__Description": "Placement is two clicks: the first sets the start point, the second the end. Both land on the snap grid. AxisLockTolerancePx decides when a nearly-horizontal or nearly-vertical pick is straightened onto the axis; hold the override key (Alt) to place a true aligned dimension instead. NOTE: Shift no longer overrides - it now CONSTRAINS to the drag direction, per the AxisLock block, so the override moved to Alt. DragThresholdPx stops a shaky click being read as a drag.",
+        "PlanDimensions__Interaction__DragThresholdPx": 3,
+        "PlanDimensions__Interaction__AxisLockEnabled": true,
+        "PlanDimensions__Interaction__AxisLockTolerancePx": 12,
+        "PlanDimensions__Interaction__AxisLockOverrideKey": "Alt",
+        "PlanDimensions__Interaction__ShowSnapPreview": true,
+        "PlanDimensions__Interaction__CancelKeys": ["Escape"]
+    }
+}

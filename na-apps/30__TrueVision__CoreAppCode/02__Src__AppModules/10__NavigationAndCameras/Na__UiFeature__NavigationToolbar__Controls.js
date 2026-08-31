@@ -35,6 +35,10 @@
 //   'na-navigation-mode-changed' CustomEvent for other interested modules.
 // - Reset View exits Walk/Fly (return-to-orbit) then restores the canonical
 //   project start state via Na__Camera__ProjectStartState.js.
+// - The whole toolbar hides for the duration of 2D floor plan mode, driven by
+//   the 'na-floorplan-mode-changed' broadcast. Orbit / Walk / Fly are
+//   meaningless in an orthographic plan, and the toolbar would otherwise sit
+//   on top of the Plan Annotations bar.
 //
 // INTEGRATION:
 // - Call Na__UiFeature__InitializeNavigationToolbar(options) from Index.html.
@@ -43,6 +47,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 31-Aug-2026 - Version 1.1.0
+// - Toolbar now hides itself for the whole of 2D floor plan mode, so the Plan
+//   Annotations bar has the top of the canvas to itself.
+//
 // 21-Jun-2026 - Version 1.0.0
 // - Ported from ValeVision3D. Supersedes the Tools-menu Walk/Fly/Orbit buttons.
 //
@@ -82,7 +90,10 @@
     const Na__NavToolbar__ActiveClass  = 'na-nav-toolbar__btn--active';      // <-- Pale blue active highlight
     const Na__NavToolbar__WakeClass    = 'na-nav-toolbar--wake';             // <-- Short-lived opaque flash (hotkey mode changes)
     const Na__NavToolbar__MobileToolsOpenClass = 'na-mobile-tools-open';     // <-- Body class: toolbar swapped out for the Tools menu
+    const Na__NavToolbar__HiddenClass  = 'na-nav-toolbar--hidden';           // <-- Toolbar withdrawn entirely (2D plan mode)
     const NA__NAV_MODE_CHANGED_EVENT   = 'na-navigation-mode-changed';       // <-- Dispatched on every mode change
+    const NA__FLOORPLAN_MODE_CHANGED_EVENT = 'na-floorplan-mode-changed';    // <-- Broadcast by the floor plan mode controller
+    const Na__NavToolbar__FloorPlanIdleState = 'idle';                       // <-- Floor plan state meaning "ordinary 3D"
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | Wake Flash Tuning
@@ -113,6 +124,20 @@
 // -----------------------------------------------------------------------------
 // REGION | Active Mode Display
 // -----------------------------------------------------------------------------
+
+    // FUNCTION | Withdraw or Restore the Whole Toolbar
+    // ------------------------------------------------------------
+    // Used by 2D floor plan mode, which needs the top of the canvas for its
+    // own annotation bar. Distinct from the mobile Tools swap, which hides the
+    // toolbar via a body class so the menu can take the same row.
+    // ------------------------------------------------------------
+    function Na__NavToolbar__SetHidden(hidden) {
+        const toolbar = document.getElementById(Na__NavToolbar__ContainerId);
+        if (!toolbar) return;
+        toolbar.classList.toggle(Na__NavToolbar__HiddenClass, hidden === true);
+    }
+    // ------------------------------------------------------------
+
 
     // FUNCTION | Briefly Wake the Toolbar so a Mode Change is Visible
     // ------------------------------------------------------------
@@ -322,6 +347,26 @@
                 Boolean(modes.Navmode__EnabledModes__Fly)                    // <-- Fly enabled for this model
             );
         }, { once: true });
+
+        // FLOOR PLAN MODE | Toolbar yields the canvas to the Plan Annotations bar
+        // ------------------------------------------------------------
+        // Floor plans are presentation-mode scenes, so by the time a plan opens
+        // body.na-presentation-mode-active has already moved this toolbar from
+        // the bottom of the canvas to the top - landing it directly over the
+        // Plan Annotations bar, and above it in the stacking order.
+        // Orbit / Walk / Fly mean nothing in an orthographic 2D plan, so the
+        // toolbar withdraws for the whole of plan mode rather than being
+        // nudged aside. Any non-idle state counts, so it goes as the transition
+        // starts instead of flashing over the annotation bar while a plan
+        // loads, and comes back only once the view is fully returned to 3D.
+        // ------------------------------------------------------------
+        window.addEventListener(NA__FLOORPLAN_MODE_CHANGED_EVENT, (event) => {
+            const detail = event.detail || {};
+            const inPlanMode = (typeof detail.state === 'string')
+                ? detail.state !== Na__NavToolbar__FloorPlanIdleState         // <-- entering / plan / leaving all hide
+                : detail.isPlan === true;                                     // <-- Fallback if the detail shape changes
+            Na__NavToolbar__SetHidden(inPlanMode);
+        });
 
         // Pointer hover / keyboard focus wake is pure CSS - no listeners needed.
         // WakeEnabled stays false until after this call so boot never flashes.

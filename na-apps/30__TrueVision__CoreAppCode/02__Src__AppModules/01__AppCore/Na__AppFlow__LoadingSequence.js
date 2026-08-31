@@ -162,6 +162,26 @@
     import { Na__ContextMenu__ResetForModelChange } from '../27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Section Cut Engine and 2D Floor Plan Mode
+    // ------------------------------------------------------------
+    // Plan mode owns the view outright while a floor plan is displayed: the
+    // render loop asks it for a camera each frame and, when it answers, draws
+    // flat instead of running the composer.
+    // @delegate: ../41__System__SectionCutEngine/Na__SectionCut__Engine__.js
+    // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js
+    // ------------------------------------------------------------
+    import {
+        Na__SectionCut__RenderOverlay,
+        Na__SectionCut__HandleResize,
+        Na__SectionCut__SetModelRoot
+    } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
+    import {
+        Na__FloorPlanMode__GetActiveCamera,
+        Na__FloorPlanMode__SyncFrame,
+        Na__FloorPlanMode__HandleResize
+    } from '../42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Door Animation System
     // ------------------------------------------------------------
     import {
@@ -242,7 +262,8 @@
     import {
         Na__DistanceCulling__Initialize,
         Na__DistanceCulling__RegisterModelGroups,
-        Na__DistanceCulling__Update
+        Na__DistanceCulling__Update,
+        Na__DistanceCulling__SetCullDistanceMm
     } from '../05__RenderPipeline/Na__RenderEffect__DistanceCulling__.js';
     // ------------------------------------------------------------
 
@@ -262,6 +283,7 @@
         'PresentationMode__SavedCameraScenes',   // <-- Saved camera scenes (Presentation Mode)
         'Navmode__EnabledModes',                 // <-- Walk / Fly enable flags
         'Navmode__OrbitMaxDistanceMm',           // <-- Per-project orbit zoom cap
+        'RenderEffect__AssetCullDistanceMm',     // <-- Per-project furniture / decor cull distance
         'Navmode__FovOverrides',                 // <-- Per-project Orbit/Walk/Fly default FOV overrides
         'Camera__DefaultPosition',               // <-- Saved camera position / rotation / FOV
         'OrbitHelperCube__Position'              // <-- Saved orbit target
@@ -555,6 +577,7 @@
 
             Na__WalkMode__SetCollisionMeshes(Na__ModelGroup__Root);
             Na__DistanceCulling__RegisterModelGroups(loadedModelGroups); // <-- (Re)build furniture/decor cull registry on load + group switch
+            Na__SectionCut__SetModelRoot(Na__ModelGroup__Root);          // <-- Fresh materials need the clip planes re-applied, then caps rebuilt
             if (Na__RenderPipeline__State && typeof Na__RenderPipeline__State.invalidateProfileLinesCache === 'function') {
                 Na__RenderPipeline__State.invalidateProfileLinesCache();     // <-- Scene graph changed, rebuild cached profile-line inputs
             }
@@ -729,6 +752,17 @@
             Na__Controls__Orbit.update();
         }
 
+        // APPLY PER-PROJECT ASSET CULL DISTANCE OVERRIDE (if present in project data)
+        // Runs ahead of the model load below, so RegisterModelGroups builds the
+        // cull registry against the project distance rather than the AppConfig
+        // default. Ignored when culling is disabled in AppConfig.
+        if (Na__ProjectData__Full && Number.isFinite(Na__ProjectData__Full.RenderEffect__AssetCullDistanceMm)) {
+            const Na__ProjectCullDistanceMm = Na__ProjectData__Full.RenderEffect__AssetCullDistanceMm;
+            if (Na__DistanceCulling__SetCullDistanceMm(Na__ProjectCullDistanceMm)) {
+                console.log(`[TrueVision3D] Asset cull distance override applied: ${Na__ProjectCullDistanceMm}mm (project data).`);
+            }
+        }
+
         // APPLY PER-PROJECT FOV OVERRIDES (Orbit live, Walk/Fly staged for activation)
         // Orbit FOV is applied to the live camera BEFORE CaptureStartState below so
         // the canonical Reset View state carries the per-project orbit FOV too.
@@ -879,6 +913,22 @@
         let Na__RenderLoop__OrbitTrailingFrames = 0;
 
         function Na__RenderLoop__RenderFrame(deltaMs) {
+            // FLOOR PLAN MODE | A parallel top-down drawing, not a 3D view.
+            // Checked FIRST so none of the 3D per-frame work runs: walk/fly
+            // physics, orbit updates, door proximity, billboard facing, fog
+            // uniforms and distance culling are all meaningless on a drawing,
+            // and culling in particular would hide furniture the plan must show.
+            // The composer is bypassed too - fog, SSAO and the Sobel pass shade
+            // a plan like a surface, which is exactly wrong. A flat render plus
+            // the section overlay leaves the poche and profile lines on their own.
+            const Na__FloorPlan__Camera = Na__FloorPlanMode__GetActiveCamera();
+            if (Na__FloorPlan__Camera) {
+                Na__Renderer__Main.render(Na__Scene__Main, Na__FloorPlan__Camera);
+                Na__SectionCut__RenderOverlay(Na__FloorPlan__Camera);        // <-- Cut fills and profile outlines
+                Na__FloorPlanMode__SyncFrame();                              // <-- Reproject the annotation text onto the new view
+                return Na__RenderLoop__ActiveReasons.size > 0;               // <-- Only pan/zoom keeps frames coming
+            }
+
             let navigationChanged = false;
 
             if (Na__WalkMode__IsActive()) {
@@ -904,6 +954,7 @@
                 Na__RenderPipeline__State.renderDepthPrePass();              // <-- Populate depth texture for fog + AO (no-op when profile lines provide it)
                 Na__RenderPipeline__State.renderProfileNormals();            // <-- Update profile lines
                 Na__RenderComposer__Main.render();                           // <-- Render with post-processing
+                Na__SectionCut__RenderOverlay(Na__Camera__Main);             // <-- Section fills sit on top, free of post-processing
             }
 
             if (Na__RenderLoop__OrbitTrailingFrames > 0) {
@@ -973,6 +1024,8 @@
             }
 
             Na__LineResolution__Screen.set(width, height);
+            Na__SectionCut__HandleResize(width, height);                     // <-- Fat-line resolution for the cut profiles
+            Na__FloorPlanMode__HandleResize(width, height);                  // <-- Ortho frustum aspect + annotation reprojection
             Na__RenderLoop__RequestRenderOnce();
         });
     }

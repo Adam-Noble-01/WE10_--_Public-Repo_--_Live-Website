@@ -13,6 +13,9 @@
 // - Per-item distance culling for furniture and interior-decor categories.
 // - Reads enable flag, cull distance (mm -> units), and category tokens from
 //   AppConfig (RenderEffect__DistanceCulling), passed in at initialise time.
+// - The cull distance is retunable at runtime (SetCullDistanceMm) so a
+//   per-project override and the Dev Tools panel can change it on a live
+//   registry without reloading the model.
 // - Registers individual item nodes from each matching category group's
 //   MeshRoot and LineworkRoot, caching each item's world-space centre once.
 // - Per frame (camera-move only) toggles each item's .visible based on radial
@@ -24,6 +27,13 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 31-Aug-2026 - Version 1.2.0
+// - Cull distance is now mutable at runtime via SetCullDistanceMm. Each
+//   registry entry caches its bounding radius, so retuning the distance
+//   recomputes thresholds in place rather than forcing a re-registration.
+// - GetStats reports enable state, distance and live registered / culled
+//   counts, backing the Dev Tools "Asset Cull Distance" readout.
+//
 // 07-Jun-2026 - Version 1.1.0
 // - World bounds now computed via Box3.setFromObject (+ explicit fat-line
 //   instanceStart/instanceEnd union) so deeply nested components and
@@ -57,8 +67,9 @@
     // ------------------------------------------------------------
     let Na__DistanceCulling__Enabled          = false;                   // <-- Master enable flag (from config)
     let Na__DistanceCulling__CullDistanceUnits = 0;                      // <-- Cull distance in 3D units
+    let Na__DistanceCulling__CullDistanceMm   = 0;                       // <-- Cull distance in mm (source of truth for UI + persistence)
     let Na__DistanceCulling__CategoryTokens   = [];                      // <-- Category-key tokens to match
-    let Na__DistanceCulling__Registry         = [];                      // <-- [{ node, centre:Vector3, thresholdSq }, ...]
+    let Na__DistanceCulling__Registry         = [];                      // <-- [{ node, centre:Vector3, radius, thresholdSq }, ...]
     // ------------------------------------------------------------
 
 
@@ -87,7 +98,9 @@
         Na__DistanceCulling__Registry = [];                              // <-- Reset registry on (re)init
 
         if (!config || config.RenderEffect__DistanceCulling__Enabled !== true) {
-            Na__DistanceCulling__Enabled = false;                        // <-- Strict equality per AppConfig authority
+            Na__DistanceCulling__Enabled           = false;              // <-- Strict equality per AppConfig authority
+            Na__DistanceCulling__CullDistanceMm    = 0;                  // <-- Nothing meaningful for the Dev Tools readout
+            Na__DistanceCulling__CullDistanceUnits = 0;
             console.log('[TrueVision3D] Distance culling disabled (config).');
             return;
         }
@@ -106,6 +119,7 @@
 
         Na__DistanceCulling__Enabled           = true;
         Na__DistanceCulling__CullDistanceUnits = cullDistanceUnits;      // <-- Per-item threshold adds the item radius (nearest-point cull)
+        Na__DistanceCulling__CullDistanceMm    = cullDistanceMm;         // <-- Retained for the Dev Tools readout and per-project override
         Na__DistanceCulling__CategoryTokens    = configuredTokens.length > 0
             ? configuredTokens
             : Na__DistanceCulling__DefaultTokens;
@@ -123,6 +137,19 @@
 // #Region ---
 // REGION | Registry Building
 // -----
+
+    // HELPER FUNCTION | Squared Nearest-Point Threshold for an Item Radius
+    // ------------------------------------------------------------
+    // Nearest-point culling: an item is hidden only once (distance - radius)
+    // exceeds the cull distance, so a large merged mesh stays visible while
+    // any part of it is still close to the camera.
+    // ------------------------------------------------------------
+    function Na__DistanceCulling__ComputeThresholdSq(radius) {
+        const threshold = Na__DistanceCulling__CullDistanceUnits + radius;
+        return threshold * threshold;
+    }
+    // ------------------------------------------------------------
+
 
     // HELPER FUNCTION | Check Whether a Category Key Matches a Cull Token
     // ------------------------------------------------------------
@@ -206,13 +233,12 @@
             Na__DistanceCulling__ScratchItemBox.getCenter(centre);       // <-- World-space centre
 
             // RADIUS | Bounding-sphere radius of the AABB (corner-to-centre).
-            // Nearest-point culling: hide only when (distance - radius) > cullDistance,
-            // i.e. distanceSq > (cullDistance + radius)^2. Large merged meshes that
-            // span the storey therefore stay visible while any part is near the camera.
+            // Cached on the entry so a runtime cull-distance change only has to
+            // recompute the threshold, never re-measure the geometry.
             const radius      = Na__DistanceCulling__ScratchItemBox.min.distanceTo(Na__DistanceCulling__ScratchItemBox.max) * 0.5;
-            const thresholdSq = (Na__DistanceCulling__CullDistanceUnits + radius) * (Na__DistanceCulling__CullDistanceUnits + radius);
+            const thresholdSq = Na__DistanceCulling__ComputeThresholdSq(radius);
 
-            Na__DistanceCulling__Registry.push({ node: itemNode, centre: centre, thresholdSq: thresholdSq });
+            Na__DistanceCulling__Registry.push({ node: itemNode, centre: centre, radius: radius, thresholdSq: thresholdSq });
             registered++;
         }
 
@@ -334,6 +360,72 @@
 
 
 // #Region ---
+// REGION | Runtime Distance Control
+// -----
+
+    // FUNCTION | Retune the Cull Distance at Runtime (Mm)
+    // ------------------------------------------------------------
+    // Applies a new cull distance to an already-built registry in place: every
+    // entry keeps its cached bounding radius, so only the squared threshold is
+    // recomputed (no geometry is re-measured). Safe to call before the registry
+    // exists - the value is then picked up by the next RegisterModelGroups
+    // pass - and safe to call again after a model-group switch.
+    //
+    // Visibility flags are NOT touched here; the caller drives the next
+    // Update(cameraWorldPos) pass so items settle against the live camera.
+    // Returns false when the value is not a usable positive distance.
+    // ------------------------------------------------------------
+    function Na__DistanceCulling__SetCullDistanceMm(cullDistanceMm) {
+        if (!Number.isFinite(cullDistanceMm) || cullDistanceMm <= 0) return false;
+
+        Na__DistanceCulling__CullDistanceMm    = cullDistanceMm;
+        Na__DistanceCulling__CullDistanceUnits = Na__Math__ConvertMmToUnits(cullDistanceMm);
+
+        for (const entry of Na__DistanceCulling__Registry) {
+            entry.thresholdSq = Na__DistanceCulling__ComputeThresholdSq(entry.radius);  // <-- Radius cached at registration
+        }
+
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Report the Active Cull Distance (Mm)
+    // ------------------------------------------------------------
+    // Returns 0 when culling is disabled by AppConfig.
+    // ------------------------------------------------------------
+    function Na__DistanceCulling__GetCullDistanceMm() {
+        return Na__DistanceCulling__CullDistanceMm;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Snapshot Culling State for the Dev Tools Readout
+    // ------------------------------------------------------------
+    // culledCount counts registered items currently flagged not-visible. Other
+    // systems (context-menu hide, isolate) can also clear an item's .visible,
+    // so treat it as "hidden right now", not strictly "hidden by distance".
+    // ------------------------------------------------------------
+    function Na__DistanceCulling__GetStats() {
+        let culledCount = 0;
+        for (const entry of Na__DistanceCulling__Registry) {
+            if (entry.node.visible === false) culledCount++;
+        }
+
+        return {
+            enabled         : Na__DistanceCulling__Enabled,
+            cullDistanceMm  : Na__DistanceCulling__CullDistanceMm,
+            registeredCount : Na__DistanceCulling__Registry.length,
+            culledCount     : culledCount,
+            categoryTokens  : Na__DistanceCulling__CategoryTokens.slice()   // <-- Copy; callers must not mutate module state
+        };
+    }
+    // ------------------------------------------------------------
+
+// endregion ----
+
+
+// #Region ---
 // REGION | Module Exports
 // -----
 
@@ -344,7 +436,10 @@
         Na__DistanceCulling__RegisterModelGroups,
         Na__DistanceCulling__Update,
         Na__DistanceCulling__SetEnabled,
-        Na__DistanceCulling__IsEnabled
+        Na__DistanceCulling__IsEnabled,
+        Na__DistanceCulling__SetCullDistanceMm,
+        Na__DistanceCulling__GetCullDistanceMm,
+        Na__DistanceCulling__GetStats
     };
     // ------------------------------------------------------------
 

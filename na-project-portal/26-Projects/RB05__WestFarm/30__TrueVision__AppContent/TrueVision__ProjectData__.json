@@ -89,7 +89,7 @@
         "PresentationMode__SavedCameraScenes__Scenes": [
             {
                 "PresentationMode__Scene__Id": "Scene_001",
-                "PresentationMode__Scene__Name": "Front",
+                "PresentationMode__Scene__Name": "South Facade - Front Facing",
                 "PresentationMode__Scene__Order": 1,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_001.webp",
                 "PresentationMode__Scene__LensMm": 45,
@@ -115,11 +115,12 @@
                     "OrbitHelperCube__Position__PosX": 16252,
                     "OrbitHelperCube__Position__PosY": 2696,
                     "OrbitHelperCube__Position__PosZ": -18139
-                }
+                },
+                "PresentationMode__Scene__GroupId": "Group_001"
             },
             {
                 "PresentationMode__Scene__Id": "Scene_008",
-                "PresentationMode__Scene__Name": "West Fascade",
+                "PresentationMode__Scene__Name": "West Facade - Side Facing",
                 "PresentationMode__Scene__Order": 2,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_008.webp",
                 "PresentationMode__Scene__LensMm": 45,
@@ -182,11 +183,12 @@
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
-                "PresentationMode__Scene__NavigationMode": "orbit"
+                "PresentationMode__Scene__NavigationMode": "orbit",
+                "PresentationMode__Scene__GroupId": "Group_001"
             },
             {
                 "PresentationMode__Scene__Id": "Scene_002",
-                "PresentationMode__Scene__Name": "Rear",
+                "PresentationMode__Scene__Name": "North Facade - Rear Facing",
                 "PresentationMode__Scene__Order": 3,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_002.webp",
                 "PresentationMode__Scene__LensMm": 41,
@@ -212,140 +214,13 @@
                     "OrbitHelperCube__Position__PosX": 20172,
                     "OrbitHelperCube__Position__PosY": 2447,
                     "OrbitHelperCube__Position__PosZ": -21091
-                }
-            },
-            {
-                "PresentationMode__Scene__Id": "Scene_003",
-                "PresentationMode__Scene__Name": "Ground Floor",
-                "PresentationMode__Scene__Order": 4,
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_003.webp",
-                "PresentationMode__Scene__LensMm": 45,
-                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
-                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
-                "PresentationMode__Scene__CameraPosition": {
-                    "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 14344,
-                        "Camera__DefaultPos__PosY": 44336,
-                        "Camera__DefaultPos__PosZ": -2808
-                    },
-                    "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": -1.1845,
-                        "Camera__DefaultRotation__RotY": -0.0047,
-                        "Camera__DefaultRotation__RotZ": -0.0115
-                    },
-                    "Camera__DefaultMisc": {
-                        "Camera__DefaultMisc__Fov": 30
-                    }
                 },
-                "PresentationMode__Scene__OrbitHelperCubePosition": {
-                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 14552,
-                    "OrbitHelperCube__Position__PosY": 3116,
-                    "OrbitHelperCube__Position__PosZ": -19575
-                },
-                "PresentationMode__Scene__Visibility": {
-                    "PresentationMode__Scene__Visibility__Categories": {
-                        "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": false,
-                        "Storey__FirstFloor__ProposedDoors": false,
-                        "Storey__FirstFloor__ProposedFloors": false,
-                        "Storey__FirstFloor__ProposedRoofs": false,
-                        "Storey__FirstFloor__ProposedStairs": false,
-                        "Storey__FirstFloor__ProposedWalls": false,
-                        "Storey__FirstFloor__ProposedWindows": false,
-                        "Storey__GroundFloor__ProposedDoors": true,
-                        "Storey__GroundFloor__ProposedFixtures": true,
-                        "Storey__GroundFloor__ProposedFloors": true,
-                        "Storey__GroundFloor__ProposedFurniture": true,
-                        "Storey__GroundFloor__ProposedInteriorDecor": true,
-                        "Storey__GroundFloor__ProposedStairs": true,
-                        "Storey__GroundFloor__ProposedWalls": true,
-                        "Storey__GroundFloor__ProposedWindows": true,
-                        "Storey__SecondFloor__ProposedFloors": false,
-                        "Storey__SecondFloor__ProposedRoofs": false,
-                        "Storey__SecondFloor__ProposedWalls": false,
-                        "Storey__SecondFloor__ProposedWindows": false
-                    },
-                    "PresentationMode__Scene__Visibility__HasStoreys": true,
-                    "PresentationMode__Scene__Visibility__Storeys": {
-                        "GroundFloor": true,
-                        "FirstFloor": false,
-                        "SecondFloor": false
-                    },
-                    "PresentationMode__Scene__Visibility__RoofVisible": false
-                }
-            },
-            {
-                "PresentationMode__Scene__Id": "Scene_004",
-                "PresentationMode__Scene__Name": "First Floor",
-                "PresentationMode__Scene__Order": 5,
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_004.webp",
-                "PresentationMode__Scene__LensMm": 45,
-                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
-                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
-                "PresentationMode__Scene__CameraPosition": {
-                    "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 1640,
-                        "Camera__DefaultPos__PosY": 42261,
-                        "Camera__DefaultPos__PosZ": -348
-                    },
-                    "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": -1.0821,
-                        "Camera__DefaultRotation__RotY": -0.2054,
-                        "Camera__DefaultRotation__RotZ": -0.3663
-                    },
-                    "Camera__DefaultMisc": {
-                        "Camera__DefaultMisc__Fov": 30
-                    }
-                },
-                "PresentationMode__Scene__OrbitHelperCubePosition": {
-                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 10820,
-                    "OrbitHelperCube__Position__PosY": 3365,
-                    "OrbitHelperCube__Position__PosZ": -21031
-                },
-                "PresentationMode__Scene__Visibility": {
-                    "PresentationMode__Scene__Visibility__Categories": {
-                        "TrueVision__MainBuildingModel__ProposedDoors": true,
-                        "TrueVision__LandscapeEnvironment": true,
-                        "Storey__FirstFloor__ProposedDoors": true,
-                        "Storey__FirstFloor__ProposedFixtures": true,
-                        "Storey__FirstFloor__ProposedFloors": true,
-                        "Storey__FirstFloor__ProposedFurniture": true,
-                        "Storey__FirstFloor__ProposedInteriorDecor": true,
-                        "Storey__FirstFloor__ProposedRoofs": true,
-                        "Storey__FirstFloor__ProposedStairs": true,
-                        "Storey__FirstFloor__ProposedWalls": true,
-                        "Storey__FirstFloor__ProposedWindows": true,
-                        "Storey__GroundFloor__ProposedDoors": true,
-                        "Storey__GroundFloor__ProposedFixtures": true,
-                        "Storey__GroundFloor__ProposedFloors": true,
-                        "Storey__GroundFloor__ProposedFurniture": true,
-                        "Storey__GroundFloor__ProposedInteriorDecor": true,
-                        "Storey__GroundFloor__ProposedStairs": true,
-                        "Storey__GroundFloor__ProposedWalls": true,
-                        "Storey__GroundFloor__ProposedWindows": true,
-                        "Storey__SecondFloor__ProposedDoors": false,
-                        "Storey__SecondFloor__ProposedFixtures": false,
-                        "Storey__SecondFloor__ProposedFloors": false,
-                        "Storey__SecondFloor__ProposedFurniture": false,
-                        "Storey__SecondFloor__ProposedRoofs": false,
-                        "Storey__SecondFloor__ProposedWalls": false,
-                        "Storey__SecondFloor__ProposedWindows": false
-                    },
-                    "PresentationMode__Scene__Visibility__HasStoreys": true,
-                    "PresentationMode__Scene__Visibility__Storeys": {
-                        "GroundFloor": true,
-                        "FirstFloor": true,
-                        "SecondFloor": false
-                    },
-                    "PresentationMode__Scene__Visibility__RoofVisible": true
-                }
+                "PresentationMode__Scene__GroupId": "Group_001"
             },
             {
                 "PresentationMode__Scene__Id": "Scene_005",
                 "PresentationMode__Scene__Name": "Kitchen Exterior",
-                "PresentationMode__Scene__Order": 6,
+                "PresentationMode__Scene__Order": 4,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_005.webp",
                 "PresentationMode__Scene__LensMm": 38,
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
@@ -409,12 +284,13 @@
                         "SecondFloor": true
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
-                }
+                },
+                "PresentationMode__Scene__GroupId": "Group_001"
             },
             {
                 "PresentationMode__Scene__Id": "Scene_006",
-                "PresentationMode__Scene__Name": "Kitchen Interior 1",
-                "PresentationMode__Scene__Order": 7,
+                "PresentationMode__Scene__Name": "Kitchen - View 01",
+                "PresentationMode__Scene__Order": 1,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_006.webp",
                 "PresentationMode__Scene__LensMm": 26,
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
@@ -479,12 +355,13 @@
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
-                "PresentationMode__Scene__NavigationMode": "fly"
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__GroupId": "Group_002"
             },
             {
                 "PresentationMode__Scene__Id": "Scene_007",
-                "PresentationMode__Scene__Name": "Kitchen Interior 2",
-                "PresentationMode__Scene__Order": 8,
+                "PresentationMode__Scene__Name": "Kitchen - View 02",
+                "PresentationMode__Scene__Order": 2,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_007.webp",
                 "PresentationMode__Scene__LensMm": 26,
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
@@ -496,9 +373,9 @@
                         "Camera__DefaultPos__PosZ": -24634
                     },
                     "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": 0.0142,
-                        "Camera__DefaultRotation__RotY": 0.058,
-                        "Camera__DefaultRotation__RotZ": -0.0008
+                        "Camera__DefaultRotation__RotX": -0.0092,
+                        "Camera__DefaultRotation__RotY": 0.0148,
+                        "Camera__DefaultRotation__RotZ": 0.0001
                     },
                     "Camera__DefaultMisc": {
                         "Camera__DefaultMisc__Fov": 50
@@ -512,14 +389,84 @@
                 },
                 "PresentationMode__Scene__Visibility": {
                     "PresentationMode__Scene__Visibility__Categories": {
-                        "TrueVision__MainBuildingModel__ProposedRoofs": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
-                        "TrueVision__MainBuildingModel__ProposedStairs": true,
                         "TrueVision__LandscapeEnvironment": true,
                         "Storey__FirstFloor__ProposedDoors": true,
                         "Storey__FirstFloor__ProposedFixtures": true,
                         "Storey__FirstFloor__ProposedFloors": true,
                         "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedDoors": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedFloors": true,
+                        "Storey__SecondFloor__ProposedFurniture": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__GroupId": "Group_002"
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_009",
+                "PresentationMode__Scene__Name": "Colonnade Entrance",
+                "PresentationMode__Scene__Order": 3,
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_009.webp",
+                "PresentationMode__Scene__LensMm": 26,
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 35045,
+                        "Camera__DefaultPos__PosY": 1337,
+                        "Camera__DefaultPos__PosZ": -24201
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": 1.678,
+                        "Camera__DefaultRotation__RotY": 1.556,
+                        "Camera__DefaultRotation__RotZ": -1.678
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 50
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 17220,
+                    "OrbitHelperCube__Position__PosY": 1404,
+                    "OrbitHelperCube__Position__PosZ": -23724
+                },
+                "PresentationMode__Scene__GroupId": "Group_002",
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__MainBuildingModel__ProposedDoors": true,
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
                         "Storey__FirstFloor__ProposedRoofs": true,
                         "Storey__FirstFloor__ProposedStairs": true,
                         "Storey__FirstFloor__ProposedWalls": true,
@@ -550,6 +497,306 @@
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
                 "PresentationMode__Scene__NavigationMode": "fly"
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_003",
+                "PresentationMode__Scene__Name": "Ground Floor",
+                "PresentationMode__Scene__Order": 1,
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_003.webp",
+                "PresentationMode__Scene__LensMm": 45,
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 14344,
+                        "Camera__DefaultPos__PosY": 44336,
+                        "Camera__DefaultPos__PosZ": -2808
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.1845,
+                        "Camera__DefaultRotation__RotY": -0.0047,
+                        "Camera__DefaultRotation__RotZ": -0.0115
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 14552,
+                    "OrbitHelperCube__Position__PosY": 3116,
+                    "OrbitHelperCube__Position__PosZ": -19575
+                },
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
+                        "TrueVision__LandscapeEnvironment": false,
+                        "Storey__FirstFloor__ProposedDoors": false,
+                        "Storey__FirstFloor__ProposedFloors": false,
+                        "Storey__FirstFloor__ProposedRoofs": false,
+                        "Storey__FirstFloor__ProposedStairs": false,
+                        "Storey__FirstFloor__ProposedWalls": false,
+                        "Storey__FirstFloor__ProposedWindows": false,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": false,
+                        "Storey__SecondFloor__ProposedRoofs": false,
+                        "Storey__SecondFloor__ProposedWalls": false,
+                        "Storey__SecondFloor__ProposedWindows": false
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": false,
+                        "SecondFloor": false
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": false
+                },
+                "PresentationMode__Scene__GroupId": "Group_003"
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_004",
+                "PresentationMode__Scene__Name": "First Floor",
+                "PresentationMode__Scene__Order": 2,
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_004.webp",
+                "PresentationMode__Scene__LensMm": 45,
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 1640,
+                        "Camera__DefaultPos__PosY": 42261,
+                        "Camera__DefaultPos__PosZ": -348
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.0821,
+                        "Camera__DefaultRotation__RotY": -0.2054,
+                        "Camera__DefaultRotation__RotZ": -0.3663
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 10820,
+                    "OrbitHelperCube__Position__PosY": 3365,
+                    "OrbitHelperCube__Position__PosZ": -21031
+                },
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__MainBuildingModel__ProposedDoors": true,
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedDoors": false,
+                        "Storey__SecondFloor__ProposedFixtures": false,
+                        "Storey__SecondFloor__ProposedFloors": false,
+                        "Storey__SecondFloor__ProposedFurniture": false,
+                        "Storey__SecondFloor__ProposedRoofs": false,
+                        "Storey__SecondFloor__ProposedWalls": false,
+                        "Storey__SecondFloor__ProposedWindows": false
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": false
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__GroupId": "Group_003"
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_010",
+                "PresentationMode__Scene__Name": "Ground Floor Plan",
+                "PresentationMode__Scene__Order": 1,
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 20000,
+                        "Camera__DefaultPos__PosY": 158746,
+                        "Camera__DefaultPos__PosZ": -20000
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.5707963267948966,
+                        "Camera__DefaultRotation__RotY": 0,
+                        "Camera__DefaultRotation__RotZ": 0
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Floor plan cut centre. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 20000,
+                    "OrbitHelperCube__Position__PosY": 2000,
+                    "OrbitHelperCube__Position__PosZ": -20000
+                },
+                "PresentationMode__Scene__GroupId": "Group_004",
+                "PresentationMode__Scene__FloorPlanId": "FloorPlan_001"
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_011",
+                "PresentationMode__Scene__Name": "First Floor Plan",
+                "PresentationMode__Scene__Order": 2,
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 20000,
+                        "Camera__DefaultPos__PosY": 162946,
+                        "Camera__DefaultPos__PosZ": -20000
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.5707963267948966,
+                        "Camera__DefaultRotation__RotY": 0,
+                        "Camera__DefaultRotation__RotZ": 0
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Floor plan cut centre. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 20000,
+                    "OrbitHelperCube__Position__PosY": 6200,
+                    "OrbitHelperCube__Position__PosZ": -20000
+                },
+                "PresentationMode__Scene__GroupId": "Group_004",
+                "PresentationMode__Scene__FloorPlanId": "FloorPlan_002"
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_012",
+                "PresentationMode__Scene__Name": "Second Floor Plan",
+                "PresentationMode__Scene__Order": 3,
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 20000,
+                        "Camera__DefaultPos__PosY": 165346,
+                        "Camera__DefaultPos__PosZ": -20000
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.5707963267948966,
+                        "Camera__DefaultRotation__RotY": 0,
+                        "Camera__DefaultRotation__RotZ": 0
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Floor plan cut centre. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 20000,
+                    "OrbitHelperCube__Position__PosY": 8600,
+                    "OrbitHelperCube__Position__PosZ": -20000
+                },
+                "PresentationMode__Scene__GroupId": "Group_004",
+                "PresentationMode__Scene__FloorPlanId": "FloorPlan_003"
+            }
+        ],
+        "PresentationMode__SavedCameraScenes__Groups": [
+            {
+                "PresentationMode__Group__Id": "Group_001",
+                "PresentationMode__Group__Name": "Exterior 3D Views",
+                "PresentationMode__Group__Order": 1,
+                "PresentationMode__Group__Enabled": true
+            },
+            {
+                "PresentationMode__Group__Id": "Group_002",
+                "PresentationMode__Group__Name": "Interior 3D Views",
+                "PresentationMode__Group__Order": 2,
+                "PresentationMode__Group__Enabled": true
+            },
+            {
+                "PresentationMode__Group__Id": "Group_003",
+                "PresentationMode__Group__Name": "Dollhouse View",
+                "PresentationMode__Group__Order": 3,
+                "PresentationMode__Group__Enabled": true
+            },
+            {
+                "PresentationMode__Group__Id": "Group_004",
+                "PresentationMode__Group__Name": "Floor Plans",
+                "PresentationMode__Group__Order": 4,
+                "PresentationMode__Group__Enabled": true
+            }
+        ],
+        "PresentationMode__SavedCameraScenes__FloorPlans": [
+            {
+                "FloorPlan__Id": "FloorPlan_001",
+                "FloorPlan__Name": "Ground Floor Plan",
+                "FloorPlan__Order": 1,
+                "FloorPlan__Enabled": true,
+                "FloorPlan__FloorDatumMm": 0,
+                "FloorPlan__CutOffsetMm": 2000,
+                "FloorPlan__ViewDepthMm": null,
+                "FloorPlan__SceneId": "Scene_010",
+                "FloorPlan__Annotations": [
+                    {
+                        "Annotation__Id": "Anno_001",
+                        "Annotation__Text": "Atrium",
+                        "Annotation__PosXMm": 13216,
+                        "Annotation__PosZMm": -19576,
+                        "Annotation__SizeMm": 300,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Color": "#323232"
+                    }
+                ],
+                "FloorPlan__CameraZoom": 2.475963176294813,
+                "FloorPlan__CameraTargetMm": {
+                    "PosX": 23159,
+                    "PosZ": -24993
+                }
+            },
+            {
+                "FloorPlan__Id": "FloorPlan_002",
+                "FloorPlan__Name": "First Floor Plan",
+                "FloorPlan__Order": 2,
+                "FloorPlan__Enabled": true,
+                "FloorPlan__FloorDatumMm": 0,
+                "FloorPlan__CutOffsetMm": 6200,
+                "FloorPlan__ViewDepthMm": null,
+                "FloorPlan__SceneId": "Scene_011",
+                "FloorPlan__Annotations": [],
+                "FloorPlan__CameraZoom": 2.7730787574501923,
+                "FloorPlan__CameraTargetMm": {
+                    "PosX": 17892,
+                    "PosZ": -22707
+                }
+            },
+            {
+                "FloorPlan__Id": "FloorPlan_003",
+                "FloorPlan__Name": "Second Floor Plan",
+                "FloorPlan__Order": 3,
+                "FloorPlan__Enabled": true,
+                "FloorPlan__FloorDatumMm": 0,
+                "FloorPlan__CutOffsetMm": 8600,
+                "FloorPlan__ViewDepthMm": null,
+                "FloorPlan__SceneId": "Scene_012",
+                "FloorPlan__Annotations": [],
+                "FloorPlan__CameraZoom": 3.8959759925469806,
+                "FloorPlan__CameraTargetMm": {
+                    "PosX": 18117,
+                    "PosZ": -22846
+                }
             }
         ]
     },
@@ -558,6 +805,7 @@
         "Navmode__EnabledModes__Fly": true
     },
     "Navmode__OrbitMaxDistanceMm": 70000,
+    "RenderEffect__AssetCullDistanceMm": 35000,
     "Navmode__FovOverrides": {
         "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
         "Navmode__FovOverrides__OrbitDeg": 40,

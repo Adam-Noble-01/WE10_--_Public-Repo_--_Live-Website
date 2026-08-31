@@ -1,0 +1,74 @@
+{
+    "FloorPlanViews__Description": "Configuration for the Floor Plan Views system - the developer-authored 2D plan cuts built on top of the section cut engine. Per-project floor plan definitions live in the project's own TrueVision__ProjectData__.json, nested inside PresentationMode__SavedCameraScenes so they ride the existing R2 dev-key sync path. All distance values are integer millimetres and are converted to Three.js units in code.",
+
+    "FloorPlanViews__Enabled": true,
+
+    "FloorPlanViews__Datum__Config": {
+        "FloorPlanViews__Datum__Description": "The floor datum slider. 0 is the universal ground floor level of the model. The cut itself is taken CutOffsetAboveDatumMm above the datum, which is why a plan set at datum 0 still shows walls in section rather than a bare slab.",
+        "FloorPlanViews__Datum__DefaultMm": 0,
+        "FloorPlanViews__Datum__MinMm": -5000,
+        "FloorPlanViews__Datum__MaxMm": 20000,
+        "FloorPlanViews__Datum__StepMm": 50,
+        "FloorPlanViews__Datum__CutOffsetAboveDatumMm": 1200,
+        "FloorPlanViews__Datum__CutOffsetMinMm": 100,
+        "FloorPlanViews__Datum__CutOffsetMaxMm": 3000,
+        "FloorPlanViews__Datum__ViewDepthDefaultMm": null
+    },
+
+    "FloorPlanViews__Camera__Config": {
+        "FloorPlanViews__Camera__Description": "Orthographic top-down camera for plan mode. The camera sits a short distance above the cut plane looking straight down. With an orthographic projection this distance does not affect scale, only the near plane, so it stays small deliberately.",
+        "FloorPlanViews__Camera__HeightAboveCutMm": 100,
+        "FloorPlanViews__Camera__NearMm": 10,
+        "FloorPlanViews__Camera__FarMm": 500000,
+        "FloorPlanViews__Camera__FramingMarginMm": 2000,
+        "FloorPlanViews__Camera__DefaultZoom": 1.0,
+        "FloorPlanViews__Camera__MinZoom": 0.1,
+        "FloorPlanViews__Camera__MaxZoom": 20.0
+    },
+
+    "FloorPlanViews__Navigation__Config": {
+        "FloorPlanViews__Navigation__Description": "Pan and zoom only. Plan mode locks rotation entirely: dragging moves the camera across the world X/Z ground plane, and the wheel or pinch changes orthographic zoom.",
+        "FloorPlanViews__Navigation__ZoomStepFactor": 1.12,
+        "FloorPlanViews__Navigation__InvertWheel": false,
+        "FloorPlanViews__Navigation__PanButton": 0,
+        "FloorPlanViews__Navigation__EnableTouchPan": true,
+        "FloorPlanViews__Navigation__EnableTouchPinchZoom": true
+    },
+
+    "FloorPlanViews__Transition__Config": {
+        "FloorPlanViews__Transition__Description": "Camera transitions. Moving between two plans is an instant flip by design - the views are drawing pages, and animating between two top-down orthographic views reads as jarring rather than pleasant. Entering and leaving plan mode keeps the eased 3D camera move.",
+        "FloorPlanViews__Transition__IntoPlanMs": 1400,
+        "FloorPlanViews__Transition__OutOfPlanMs": 1400,
+        "FloorPlanViews__Transition__BetweenPlansMs": 0,
+        "FloorPlanViews__Transition__Easing": "easeInOutCubic",
+        "FloorPlanViews__Transition__AnnotationFadeMs": 220
+    },
+
+    "FloorPlanViews__SceneGroup__Config": {
+        "FloorPlanViews__SceneGroup__Description": "Where a newly created floor plan scene is filed. The system looks for an existing group by name first, then by id. If neither is present it falls back to the first enabled group, which is normally Exterior 3D Views. A matched group that is switched off is switched on automatically, because a plan filed into a hidden group would never appear in the carousel.",
+        "FloorPlanViews__SceneGroup__TargetGroupName": "Floor Plans",
+        "FloorPlanViews__SceneGroup__TargetGroupId": "Group_004",
+        "FloorPlanViews__SceneGroup__AutoEnableTargetGroup": true
+    },
+
+    "FloorPlanViews__Labels__Config": {
+        "FloorPlanViews__Labels__Description": "User-facing wording for the Dev menu floor plan editor. Floor plan names themselves are per-project and authored here by the developer.",
+        "FloorPlanViews__Labels__SectionTitle": "Floor Plans",
+        "FloorPlanViews__Labels__AddPlanLabel": "+ Add Floor Plan",
+        "FloorPlanViews__Labels__SeedFromStoreysLabel": "Seed From Model Storeys",
+        "FloorPlanViews__Labels__NewPlanNameFormat": "Floor Plan {index}",
+        "FloorPlanViews__Labels__DatumFieldLabel": "Floor level",
+        "FloorPlanViews__Labels__CutOffsetFieldLabel": "Cut above floor",
+        "FloorPlanViews__Labels__ViewDepthFieldLabel": "View depth",
+        "FloorPlanViews__Labels__ViewDepthPlaceholder": "Full",
+        "FloorPlanViews__Labels__PreviewLabel": "Preview",
+        "FloorPlanViews__Labels__ExitPreviewLabel": "Exit Preview",
+        "FloorPlanViews__Labels__AnnotateLabel": "Annotate",
+        "FloorPlanViews__Labels__DeletePlanPrompt": "Delete the floor plan \"{name}\"? Its scene and annotations go with it.",
+        "FloorPlanViews__Labels__SaveLabel": "Save Floor Plans",
+        "FloorPlanViews__Labels__SavedMessage": "Floor plans saved to R2.",
+        "FloorPlanViews__Labels__SaveFailedMessage": "Floor plan save failed - see console.",
+        "FloorPlanViews__Labels__NoModelMessage": "Load a model before adding floor plans.",
+        "FloorPlanViews__Labels__NoStoreysMessage": "No named storeys detected in this model."
+    }
+}

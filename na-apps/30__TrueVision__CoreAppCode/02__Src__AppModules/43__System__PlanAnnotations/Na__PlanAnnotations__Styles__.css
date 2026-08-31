@@ -1,0 +1,279 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Plan Annotations Layer Styles          */
+/* ================================================================= */
+/*
+ * FILE    : Na__PlanAnnotations__Styles__.css
+ * MODULE  : Plan Annotations - Overlay and Toolbar
+ * AUTHOR  : Adam Noble - Noble Architecture
+ * CREATED : 31-Aug-2026
+ *
+ * The annotation layer is a DOM overlay above the render canvas, not
+ * Three.js geometry. Positions and font sizes are written inline by
+ * Na__PlanAnnotations__Overlay__ every frame; this sheet owns only the
+ * look and the interaction affordances.
+ *
+ * The layer itself never takes pointer events, so panning the plan works
+ * everywhere between the labels. Individual labels take them back only
+ * while editing is enabled.
+ */
+/* ================================================================= */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Overlay Container                                      */
+/* ----------------------------------------------------------------- */
+
+.na-plan-anno__layer {
+    position                           : absolute;                    /* <-- Sits over the canvas, follows its box */
+    /* top / left / width / height are written inline by the overlay module
+       from the canvas's own offset box. The canvas is NOT flush with the
+       viewport - it starts below the app header - so `inset: 0` here would
+       displace every label by the header height. */
+    overflow                           : hidden;                      /* <-- Labels panned off-plan never add scrollbars */
+    pointer-events                     : none;                        /* <-- Pan the plan between the labels */
+    z-index                            : 20;
+    opacity                            : 1;
+    contain                            : layout paint;                /* <-- Label moves never reflow the page behind */
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Label Items                                            */
+/* ----------------------------------------------------------------- */
+
+.na-plan-anno__item {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    white-space                        : nowrap;                      /* <-- A room name is one line, never wrapped */
+    line-height                        : 1.15;
+    letter-spacing                     : 0.01em;
+    pointer-events                     : none;                        /* <-- Re-enabled only when editing is on */
+    user-select                        : none;
+    transform-origin                   : center center;
+    padding                            : 0.08em 0.25em;
+    border-radius                      : 0.15em;
+    border                             : 1px solid transparent;       /* <-- Reserved now so selection never shifts the text */
+    /* font-family, font-size, font-weight, color and transform are all
+       written inline per frame by the overlay module. */
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Editable States (developer mode only)                  */
+/* ----------------------------------------------------------------- */
+
+.na-plan-anno__item--editable {
+    pointer-events                     : auto;                        /* <-- Now clickable and draggable */
+    cursor                             : move;
+}
+
+.na-plan-anno__item--editable:hover {
+    border-color                       : rgba(90, 158, 111, 0.55);
+    background-color                   : rgba(255, 255, 255, 0.35);
+}
+
+.na-plan-anno__item--selected {
+    border-color                       : rgba(46, 125, 79, 0.9);
+    background-color                   : rgba(255, 255, 255, 0.55);
+}
+
+.na-plan-anno__item--editing {
+    cursor                             : text;
+    outline                            : none;                        /* <-- The border below is the focus affordance */
+    border-color                       : rgba(46, 125, 79, 1);
+    background-color                   : rgba(255, 255, 255, 0.85);
+    user-select                        : text;
+}
+
+/* Placement mode: the next canvas click drops a label */
+.na-plan-anno__placing {
+    cursor                             : crosshair;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Annotation Toolbar                                     */
+/* ----------------------------------------------------------------- */
+
+/* Mounted into #root, which starts at the viewport top BEHIND the header,
+   so the offset is measured from the header rather than hard-coded. */
+.na-plan-anno__toolbar {
+    position                           : absolute;
+    top                                : calc(var(--Vale_HeaderHeight, 60px) + 18px);
+    left                               : 50%;
+    transform                          : translateX(-50%);
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 10px;
+    padding                            : 8px 12px;
+    border-radius                      : 8px;
+    border                             : 1px solid rgba(0, 0, 0, 0.08);
+    background-color                   : rgba(255, 255, 255, 0.94);
+    box-shadow                         : 0 2px 12px rgba(0, 0, 0, 0.14);
+    font-family                        : 'Open Sans', sans-serif;
+    font-size                          : 12px;
+    color                              : #323232;
+    z-index                            : 40;                          /* <-- Above the annotation layer */
+    pointer-events                     : auto;
+}
+
+.na-plan-anno__toolbar[hidden] {
+    display                            : none;
+}
+
+.na-plan-anno__toolbar-title {
+    font-weight                        : 600;
+    margin-right                       : 2px;
+    white-space                        : nowrap;
+}
+
+.na-plan-anno__toolbar-divider {
+    width                              : 1px;
+    align-self                         : stretch;
+    background-color                   : rgba(0, 0, 0, 0.10);
+}
+
+.na-plan-anno__toolbar-hint {
+    color                              : #6b6b6b;
+    white-space                        : nowrap;
+}
+
+.na-plan-anno__toolbar-field {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 5px;
+    white-space                        : nowrap;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Toolbar Controls                                       */
+/* ----------------------------------------------------------------- */
+
+.na-plan-anno__btn {
+    padding                            : 5px 10px;
+    border                             : 1px solid rgba(0, 0, 0, 0.14);
+    border-radius                      : 5px;
+    background-color                   : #ffffff;
+    font-family                        : inherit;
+    font-size                          : 12px;
+    color                              : #323232;
+    cursor                             : pointer;
+    transition                         : background-color 120ms ease, border-color 120ms ease;
+}
+
+.na-plan-anno__btn:hover:not(:disabled) {
+    background-color                   : #f2f6f3;
+    border-color                       : rgba(46, 125, 79, 0.5);
+}
+
+.na-plan-anno__btn:disabled {
+    opacity                            : 0.45;
+    cursor                             : not-allowed;
+}
+
+.na-plan-anno__btn--primary {
+    background-color                   : #2e7d4f;
+    border-color                       : #2e7d4f;
+    color                              : #ffffff;
+}
+
+.na-plan-anno__btn--primary:hover:not(:disabled) {
+    background-color                   : #3a9260;
+    border-color                       : #3a9260;
+}
+
+.na-plan-anno__btn--active {
+    background-color                   : #2e7d4f;
+    border-color                       : #2e7d4f;
+    color                              : #ffffff;
+}
+
+.na-plan-anno__btn--danger {
+    border-color                       : rgba(170, 60, 60, 0.5);
+    color                              : #aa3c3c;
+}
+
+.na-plan-anno__btn--danger:hover:not(:disabled) {
+    background-color                   : #fbf1f1;
+}
+
+.na-plan-anno__input {
+    width                              : 68px;
+    padding                            : 4px 6px;
+    border                             : 1px solid rgba(0, 0, 0, 0.14);
+    border-radius                      : 5px;
+    font-family                        : inherit;
+    font-size                          : 12px;
+    color                              : #323232;
+}
+
+/* Colour swatch for the dimension pre-configuration. Native colour inputs
+   carry heavy default chrome, so the padding is stripped back to leave a
+   plain square of colour that reads as a swatch rather than a form field. */
+.na-plan-anno__swatch {
+    width                              : 26px;
+    height                             : 24px;
+    padding                            : 1px;
+    border                             : 1px solid rgba(0, 0, 0, 0.14);
+    border-radius                      : 5px;
+    background-color                   : #ffffff;
+    cursor                             : pointer;
+}
+
+.na-plan-anno__swatch::-webkit-color-swatch-wrapper {
+    padding                            : 0;
+}
+
+.na-plan-anno__swatch::-webkit-color-swatch {
+    border                             : none;
+    border-radius                      : 3px;
+}
+
+.na-plan-anno__select {
+    padding                            : 4px 6px;
+    border                             : 1px solid rgba(0, 0, 0, 0.14);
+    border-radius                      : 5px;
+    background-color                   : #ffffff;
+    font-family                        : inherit;
+    font-size                          : 12px;
+    color                              : #323232;
+    cursor                             : pointer;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Narrow Viewports                                       */
+/* ----------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+    .na-plan-anno__toolbar {
+        gap                            : 7px;
+        padding                        : 7px 9px;
+        font-size                      : 11px;
+    }
+
+    /* The hint and the title are the first things worth losing when the
+       bar would otherwise run off a phone screen. */
+    .na-plan-anno__toolbar-hint,
+    .na-plan-anno__toolbar-title {
+        display                        : none;
+    }
+
+    .na-plan-anno__input {
+        width                          : 56px;
+    }
+}
+
+/* endregion ------------------------------------------------------- */

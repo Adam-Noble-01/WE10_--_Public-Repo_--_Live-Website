@@ -383,12 +383,40 @@
 // REGION | User Interaction Handlers
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Handle Thumbnail Card Click
+    // MODULE VARIABLES | Optional Scene Navigation Override
     // ------------------------------------------------------------
-    function Na__PresentationMode__UI__HandleCardClick(sceneId) {
-        const config    = Na__PresentationMode__ProjectJson__GetActiveConfig();
-        const scene     = Na__PresentationMode__ProjectJson__GetSceneById(config, sceneId);
-        if (!scene) return;
+    // The floor plan system registers a router here so a plan scene switches
+    // into 2D plan mode instead of flying the perspective camera to a pose it
+    // could never read correctly. Registration points INWARD - the floor plan
+    // system imports this module, never the reverse - so there is no cycle.
+    // ------------------------------------------------------------
+    let Na__PresentationMode__UI__NavigationOverride = null;
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Register a Scene Navigation Override
+    // ------------------------------------------------------------
+    // fn(scene) returns true when it has taken ownership of the navigation.
+    // Returning false falls through to the ordinary camera transition.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__SetSceneNavigationOverride(fn) {
+        Na__PresentationMode__UI__NavigationOverride = (typeof fn === 'function') ? fn : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Navigate to One Scene, Honouring Any Override
+    // ------------------------------------------------------------
+    // The single place a scene is travelled to, so the card click and the
+    // prev/next stepper can never diverge in how they handle plan scenes.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__NavigateToScene(scene, sceneId) {
+        if (Na__PresentationMode__UI__NavigationOverride) {
+            if (Na__PresentationMode__UI__NavigationOverride(scene) === true) {
+                Na__PresentationMode__UI__SetActiveScene(sceneId);           // <-- Override owns the view; still highlight the card
+                return;
+            }
+        }
 
         Na__PresentationMode__Camera__AnimateToScene(
             Na__PresentationMode__UI__Camera,
@@ -398,6 +426,18 @@
         );
 
         Na__PresentationMode__UI__SetActiveScene(sceneId);                  // <-- Update highlight immediately
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Handle Thumbnail Card Click
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__HandleCardClick(sceneId) {
+        const config    = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const scene     = Na__PresentationMode__ProjectJson__GetSceneById(config, sceneId);
+        if (!scene) return;
+
+        Na__PresentationMode__UI__NavigateToScene(scene, sceneId);
     }
     // ------------------------------------------------------------
 
@@ -418,14 +458,7 @@
             Na__PresentationMode__UI__SwitchToGroup(step.groupId);           // <-- No-op when staying in the same group
         }
 
-        Na__PresentationMode__Camera__AnimateToScene(
-            Na__PresentationMode__UI__Camera,
-            Na__PresentationMode__UI__Controls,
-            targetScene,
-            { onComplete : () => Na__PresentationMode__UI__SetActiveScene(sceneId) }
-        );
-
-        Na__PresentationMode__UI__SetActiveScene(sceneId);                   // <-- Update highlight immediately
+        Na__PresentationMode__UI__NavigateToScene(targetScene, sceneId);
     }
     // ------------------------------------------------------------
 
@@ -623,6 +656,7 @@
         Na__PresentationMode__UI__InitializeSceneCarousel,
         Na__PresentationMode__UI__RenderSceneCarousel,
         Na__PresentationMode__UI__SetActiveScene,
+        Na__PresentationMode__UI__SetSceneNavigationOverride,
         Na__PresentationMode__UI__ApplyAdaptiveLayout
     };
     // ------------------------------------------------------------

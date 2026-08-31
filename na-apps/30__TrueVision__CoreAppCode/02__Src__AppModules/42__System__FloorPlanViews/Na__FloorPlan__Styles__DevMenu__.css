@@ -1,0 +1,106 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Floor Plan Dev Menu Styles             */
+/* ================================================================= */
+/*
+ * FILE    : Na__FloorPlan__Styles__DevMenu__.css
+ * MODULE  : Floor Plan Views - Dev Menu Editor
+ * AUTHOR  : Adam Noble - Noble Architecture
+ * CREATED : 31-Aug-2026
+ *
+ * Styles the localhost-only Floor Plans section of the Dev menu. The
+ * buttons, inputs and panel rows reuse the existing na-pm-dev and
+ * na-dropdown-menu classes; only the pieces with no existing equivalent
+ * are defined here - the plan row card, the floor datum slider and its
+ * cut-height readout.
+ */
+/* ================================================================= */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Plan Row Card                                          */
+/* ----------------------------------------------------------------- */
+
+.na-fp-dev__row {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 6px;
+    padding                            : 9px 10px;
+    margin-bottom                      : 8px;
+    border                             : 1px solid rgba(0, 0, 0, 0.10);
+    border-left                        : 3px solid transparent;       /* <-- Reserved so the active state never shifts the card */
+    border-radius                      : 6px;
+    background-color                   : rgba(0, 0, 0, 0.02);
+}
+
+/* The plan currently previewed in the viewport */
+.na-fp-dev__row--active {
+    border-left-color                  : #2e7d4f;
+    background-color                   : rgba(46, 125, 79, 0.06);
+}
+
+.na-fp-dev__name {
+    width                              : 100%;
+    font-weight                        : 600;
+}
+
+.na-fp-dev__empty {
+    margin                             : 6px 0 10px;
+    font-size                          : 12px;
+    line-height                        : 1.45;
+    color                              : #6b6b6b;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Floor Datum Slider                                     */
+/* ----------------------------------------------------------------- */
+
+.na-fp-dev__slider-row {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 9px;
+}
+
+.na-fp-dev__slider {
+    flex                               : 1 1 auto;
+    min-width                          : 0;                           /* <-- Lets the flex child shrink inside the panel */
+    accent-color                       : #2e7d4f;
+    cursor                             : pointer;
+}
+
+/* Shows the floor level AND the resulting cut height together - they are
+   two different numbers and confusing them mis-authors the plan. */
+.na-fp-dev__readout {
+    flex                               : 0 0 auto;
+    min-width                          : 150px;
+    text-align                         : right;
+    font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+    font-size                          : 11px;
+    color                              : #4a4a4a;
+    white-space                        : nowrap;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Narrow Dev Panels                                      */
+/* ----------------------------------------------------------------- */
+
+@media (max-width: 520px) {
+    /* Stack the slider above its readout rather than squeezing both. */
+    .na-fp-dev__slider-row {
+        flex-direction                 : column;
+        align-items                    : stretch;
+        gap                            : 4px;
+    }
+
+    .na-fp-dev__readout {
+        min-width                      : 0;
+        text-align                     : left;
+    }
+}
+
+/* endregion ------------------------------------------------------- */

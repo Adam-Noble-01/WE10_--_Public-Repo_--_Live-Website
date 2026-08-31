@@ -10,22 +10,20 @@
 // CREATED    : 31-Aug-2026
 //
 // DESCRIPTION:
-// - Owns a registry of named cut planes. Exactly ONE plane cuts at a time: a
-//   floor plan shows one storey, so there is never a need for the multi-plane
-//   cross-clipping the ValeVision cross section tool performs.
+// - This module answers "what gets CUT"; Na__SectionCut__CapMeshes__ answers
+//   "what gets DRAWN". It owns the plane registry, the live clipping plane
+//   array and the public API the floor plan system drives.
+// - Exactly ONE plane cuts at a time. A floor plan shows one storey, so the
+//   multi-plane cross-clipping the ValeVision cross section tool performs is
+//   not needed here and is deliberately absent.
 // - The active plane is applied to every model material as a THREE clipping
 //   plane (renderer.localClippingEnabled), so the half-space above the cut
 //   disappears from the model, its shadows and the profile-line passes.
-// - Each plane owns a cap fill mesh (real triangulated geometry from
-//   Na__SectionCut__CapGeometry__) and a fat-line profile outline. Together
-//   these make a sliced wall read as solid poche rather than a hollow shell,
-//   which is the whole reason this engine drives the plans.
-// - Caps and outlines live in a SEPARATE overlay scene drawn after the
-//   composer finishes, so fog, SSAO and the Sobel profile pass never touch
-//   them. In plan mode the composer is bypassed entirely and the overlay is
-//   drawn straight after a flat direct render.
-// - Orientation-agnostic: it takes any THREE.Plane. The Floor Plan Views
-//   system drives it with horizontal planes; nothing here assumes a plan.
+// - The clip array instance is MUTATED, never replaced. Materials hold a
+//   reference to it, so moving a datum only changes plane.constant - no scene
+//   re-traversal, which is what keeps slider dragging smooth on a full house.
+// - The public API is deliberately plan-shaped: callers give a cut height in
+//   millimetres rather than constructing a THREE.Plane themselves.
 //
 // INTEGRATION:
 // - Na__SectionCut__Initialize() is called once from Index.html after the
@@ -49,12 +47,9 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Three.js Core and Fat Lines
+    // MODULE IMPORTS | Three.js Core
     // ------------------------------------------------------------
     import * as THREE from 'three';
-    import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
-    import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
-    import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Render Loop and Shared Clipping State
@@ -77,11 +72,27 @@
     import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
     // ------------------------------------------------------------
 
-    // MODULE IMPORTS | Cap Geometry Engine
+    // MODULE IMPORTS | Cap Meshes, Overlay Scene and Config State
     // ------------------------------------------------------------
-    // @delegate: ./Na__SectionCut__CapGeometry__.js
+    // @delegate: ./Na__SectionCut__CapMeshes__.js
+    // @delegate: ./Na__SectionCut__ConfigState__.js
     // ------------------------------------------------------------
-    import { Na__SectCap__ComputeSectionGeometry } from './Na__SectionCut__CapGeometry__.js';
+    import {
+        Na__SectMesh__EnsureOverlayScene,
+        Na__SectMesh__BuildMeshes,
+        Na__SectMesh__DisposeMeshes,
+        Na__SectMesh__HideMeshes,
+        Na__SectMesh__RepaintAll,
+        Na__SectMesh__HandleResize,
+        Na__SectMesh__RecomputeCaps,
+        Na__SectMesh__RenderOverlay
+    } from './Na__SectionCut__CapMeshes__.js';
+    import {
+        Na__SectCutCfg__Load,
+        Na__SectCutCfg__DragThrottleMs,
+        Na__SectCutCfg__GetAppearance,
+        Na__SectCutCfg__SetAppearance
+    } from './Na__SectionCut__ConfigState__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -91,22 +102,16 @@
 // REGION | Module Constants
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Config Location and Fallback Values
+    // MODULE CONSTANTS | Plan Cut Plane Normal
     // ------------------------------------------------------------
-    // Fallbacks mirror the shipped config exactly. They only ever apply if
-    // the JSON fetch fails, in which case cuts still work and simply use the
-    // default grey poche rather than silently doing nothing.
+    // Points DOWN, so the KEPT half-space is everything below the cut - which
+    // is exactly what a floor plan shows. With this normal a plane at world
+    // height h has constant h, because distanceToPoint(p) = -p.y + h is
+    // positive (kept) whenever p.y sits below h.
     // ------------------------------------------------------------
-    const Na__SectCut__ConfigUrl        = new URL('./Na__SectionCut__Engine__AppConfig__.json', import.meta.url);
-    const Na__SectCut__FB_FillColor     = '#f0f0f0';   // <-- Cut fill (poche) colour
-    const Na__SectCut__FB_LineColor     = '#323232';   // <-- Profile outline colour
-    const Na__SectCut__FB_LineWidthPx   = 2.0;         // <-- Profile outline width in screen pixels
-    const Na__SectCut__FB_CapOffsetMm   = 0.6;         // <-- Fill nudge into the removed half-space (kills z-fighting)
-    const Na__SectCut__FB_LineOffsetMm  = 1.4;         // <-- Outline sits just proud of the fill
-    const Na__SectCut__FB_WeldTolMm     = 0.25;        // <-- Endpoint weld grid
-    const Na__SectCut__FB_MinLoopAreaM2 = 0.0004;      // <-- Sliver loop rejection threshold
-    const Na__SectCut__FB_MaxSegments   = 250000;      // <-- Hard safety cap per recompute
-    const Na__SectCut__FB_ThrottleMs    = 90;          // <-- Cap rebuild throttle while a datum slider moves
+    const Na__SectCut__PLAN_NORMAL_X = 0;
+    const Na__SectCut__PLAN_NORMAL_Y = -1;
+    const Na__SectCut__PLAN_NORMAL_Z = 0;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -124,176 +129,18 @@
     let Na__SectCut__Initialized  = false;  // <-- Guard so every public call is a safe no-op before init
     // ------------------------------------------------------------
 
-    // MODULE VARIABLES | Overlay Scene and Plane Registry
+    // MODULE VARIABLES | Plane Registry and Live Clip List
     // ------------------------------------------------------------
-    let Na__SectCut__OverlayScene = null;                 // <-- Separate scene: caps/outlines skip post-processing
-    let Na__SectCut__CapRoot      = null;                 // <-- Group holding every cap + outline mesh
-    const Na__SectCut__Planes     = new Map();            // <-- id -> plane record
-    let Na__SectCut__ActiveId     = null;                 // <-- Id of the single cutting plane (null = no cut)
-    const Na__SectCut__ClipList   = [];                   // <-- LIVE array handed to materials; mutated in place, never replaced
+    const Na__SectCut__Planes   = new Map();   // <-- id -> plane record
+    let   Na__SectCut__ActiveId = null;        // <-- Id of the single cutting plane (null = no cut)
+    const Na__SectCut__ClipList = [];          // <-- LIVE array handed to materials; mutated in place, never replaced
     // ------------------------------------------------------------
 
-    // MODULE VARIABLES | Appearance and Tuning (config-backed)
+    // MODULE VARIABLES | Config Load Promise and Drag Throttle
     // ------------------------------------------------------------
-    let Na__SectCut__Config      = null;
-    let Na__SectCut__FillColor   = Na__SectCut__FB_FillColor;
-    let Na__SectCut__LineColor   = Na__SectCut__FB_LineColor;
-    let Na__SectCut__LineWidthPx = Na__SectCut__FB_LineWidthPx;
-    let Na__SectCut__LoadPromise = null;                  // <-- In-flight config fetch, so it happens exactly once
-    // ------------------------------------------------------------
-
-    // MODULE VARIABLES | Throttled Recompute While a Datum Slider Is Dragged
-    // ------------------------------------------------------------
-    let Na__SectCut__ThrottleTimer   = null;
-    let Na__SectCut__ThrottlePending = null;              // <-- Id awaiting a trailing recompute
-    // ------------------------------------------------------------
-
-// endregion -------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-// REGION | Config Access
-// -----------------------------------------------------------------------------
-
-    // HELPER FUNCTION | Read One Config Value With a Fallback
-    // ------------------------------------------------------------
-    function Na__SectCut__CfgVal(blockKey, valueKey, fallback) {
-        if (!Na__SectCut__Config) return fallback;
-        const block = Na__SectCut__Config[blockKey];
-        if (!block || typeof block !== 'object') return fallback;
-        const value = block[valueKey];
-        return (value === undefined || value === null) ? fallback : value;
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | Fetch and Parse the Config File Once
-    // ------------------------------------------------------------
-    async function Na__SectCut__FetchConfig() {
-        try {
-            const response = await fetch(Na__SectCut__ConfigUrl);
-            if (!response.ok) {
-                console.warn('[TrueVision3D] Section cut config fetch failed (' + response.status + ') - using built-in defaults.');
-                return false;
-            }
-            Na__SectCut__Config = await response.json();
-            Na__SectCut__FillColor   = Na__SectCut__CfgVal('SectionCut__Appearance__Config', 'SectionCut__Appearance__FillColor',   Na__SectCut__FillColor);
-            Na__SectCut__LineColor   = Na__SectCut__CfgVal('SectionCut__Appearance__Config', 'SectionCut__Appearance__LineColor',   Na__SectCut__LineColor);
-            Na__SectCut__LineWidthPx = Na__SectCut__CfgVal('SectionCut__Appearance__Config', 'SectionCut__Appearance__LineWidthPx', Na__SectCut__LineWidthPx);
-            Na__SectCut__ApplyAppearanceToExistingMeshes();                      // <-- Planes created before the fetch settled
-            return true;
-        } catch (error) {
-            console.warn('[TrueVision3D] Section cut config unreadable - using built-in defaults.', error);
-            return false;
-        }
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | Resolve Tuning Values in Scene Units
-    // ------------------------------------------------------------
-    function Na__SectCut__CapOffsetUnits() {
-        return Na__Math__ConvertMmToUnits(Na__SectCut__CfgVal('SectionCut__Appearance__Config', 'SectionCut__Appearance__CapOffsetMm', Na__SectCut__FB_CapOffsetMm));
-    }
-    function Na__SectCut__LineOffsetUnits() {
-        return Na__Math__ConvertMmToUnits(Na__SectCut__CfgVal('SectionCut__Appearance__Config', 'SectionCut__Appearance__LineOffsetMm', Na__SectCut__FB_LineOffsetMm));
-    }
-    function Na__SectCut__WeldTolUnits() {
-        return Na__Math__ConvertMmToUnits(Na__SectCut__CfgVal('SectionCut__Update__Config', 'SectionCut__Update__WeldToleranceMm', Na__SectCut__FB_WeldTolMm));
-    }
-    function Na__SectCut__MinLoopArea() {
-        return Na__SectCut__CfgVal('SectionCut__Update__Config', 'SectionCut__Update__MinLoopAreaM2', Na__SectCut__FB_MinLoopAreaM2);
-    }
-    function Na__SectCut__MaxSegments() {
-        return Na__SectCut__CfgVal('SectionCut__Update__Config', 'SectionCut__Update__MaxCrossingSegments', Na__SectCut__FB_MaxSegments);
-    }
-    function Na__SectCut__DragThrottleMs() {
-        return Na__SectCut__CfgVal('SectionCut__Update__Config', 'SectionCut__Update__DragRecomputeMs', Na__SectCut__FB_ThrottleMs);
-    }
-    // ------------------------------------------------------------
-
-// endregion -------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-// REGION | Overlay Scene and Mesh Construction
-// -----------------------------------------------------------------------------
-
-    // HELPER FUNCTION | Ensure the Overlay Scene and Cap Root Exist
-    // ------------------------------------------------------------
-    function Na__SectCut__EnsureOverlayScene() {
-        if (!Na__SectCut__OverlayScene) {
-            Na__SectCut__OverlayScene = new THREE.Scene();                       // <-- No background or fog: composited colour survives underneath
-            Na__SectCut__OverlayScene.name = 'Na__SectionCut__OverlayScene';
-        }
-        if (!Na__SectCut__CapRoot) {
-            Na__SectCut__CapRoot = new THREE.Group();
-            Na__SectCut__CapRoot.name = 'Na__SectionCut__CapRoot';
-            Na__SectCut__CapRoot.userData.naSectionCutHelper = true;             // <-- Never let the cap engine cut its own output
-            Na__SectCut__OverlayScene.add(Na__SectCut__CapRoot);
-        }
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | Build the Cap Fill and Profile Outline Meshes for a Plane
-    // ------------------------------------------------------------
-    function Na__SectCut__BuildMeshes(id) {
-        const capMaterial = new THREE.MeshBasicMaterial({
-            color : new THREE.Color(Na__SectCut__FillColor),
-            side  : THREE.DoubleSide,
-            fog   : false
-        });
-        const capMesh = new THREE.Mesh(new THREE.BufferGeometry(), capMaterial);
-        capMesh.name    = 'Na__SectionCut__CapFill__' + id;
-        capMesh.userData.naSectionCutHelper = true;
-        capMesh.renderOrder = 1;
-        capMesh.visible = false;
-
-        const outlineMaterial = new LineMaterial({
-            color      : new THREE.Color(Na__SectCut__LineColor).getHex(),
-            linewidth  : Na__SectCut__LineWidthPx,
-            worldUnits : false
-        });
-        outlineMaterial.resolution.set(window.innerWidth, window.innerHeight);
-        const outlineMesh = new LineSegments2(new LineSegmentsGeometry(), outlineMaterial);
-        outlineMesh.name    = 'Na__SectionCut__CapOutline__' + id;
-        outlineMesh.userData.naSectionCutHelper = true;
-        outlineMesh.renderOrder = 2;
-        outlineMesh.visible = false;
-
-        Na__SectCut__CapRoot.add(capMesh);
-        Na__SectCut__CapRoot.add(outlineMesh);
-        return { capMesh, outlineMesh };
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | Push Current Appearance Onto Every Existing Mesh
-    // ------------------------------------------------------------
-    function Na__SectCut__ApplyAppearanceToExistingMeshes() {
-        Na__SectCut__Planes.forEach((record) => {
-            record.capMesh.material.color.set(Na__SectCut__FillColor);
-            record.outlineMesh.material.color.set(new THREE.Color(Na__SectCut__LineColor).getHex());
-            record.outlineMesh.material.linewidth = Na__SectCut__LineWidthPx;
-        });
-        Na__RenderLoop__RequestRender();
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | Offset Cap and Outline Off the Cut Plane
-    // ------------------------------------------------------------
-    // Both are nudged into the REMOVED half-space so they never z-fight with
-    // the geometry they cap, with the outline sitting proud of the fill so
-    // the profile always reads on top of the poche.
-    // ------------------------------------------------------------
-    function Na__SectCut__UpdateMeshOffsets(record) {
-        record.capMesh.position.copy(record.plane.normal)
-            .multiplyScalar(-Na__SectCut__CapOffsetUnits());
-        record.outlineMesh.position.copy(record.plane.normal)
-            .multiplyScalar(-Na__SectCut__LineOffsetUnits());
-    }
+    let Na__SectCut__LoadPromise     = null;   // <-- One-time config load, so init can be awaited
+    let Na__SectCut__ThrottleTimer   = null;   // <-- Active throttle window while a datum slider moves
+    let Na__SectCut__ThrottlePending = null;   // <-- Id awaiting the trailing recompute
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -302,27 +149,6 @@
 // -----------------------------------------------------------------------------
 // REGION | Clipping Plane Application
 // -----------------------------------------------------------------------------
-
-    // HELPER FUNCTION | Rebuild the Live Clip List From the Active Plane
-    // ------------------------------------------------------------
-    // The array instance is MUTATED, never replaced. Every model material
-    // already holds a reference to it, so moving a datum only has to change
-    // plane.constant - no scene re-traversal, which is what keeps slider
-    // dragging smooth on a full house model.
-    // ------------------------------------------------------------
-    function Na__SectCut__SyncClipList() {
-        Na__SectCut__ClipList.length = 0;
-
-        const record = Na__SectCut__ActiveId ? Na__SectCut__Planes.get(Na__SectCut__ActiveId) : null;
-        if (record && record.enabled) {
-            Na__SectCut__ClipList.push(record.plane);
-            if (record.backPlane) Na__SectCut__ClipList.push(record.backPlane);   // <-- Optional view depth below the cut
-        }
-
-        Na__SectCut__ApplyClippingToModel();
-    }
-    // ------------------------------------------------------------
-
 
     // FUNCTION | Apply the Live Clip List to Every Model Material
     // ------------------------------------------------------------
@@ -351,8 +177,8 @@
     // ------------------------------------------------------------
     // A second parallel plane with the opposite normal, offset into the kept
     // half-space. Only needed when a model has no floor slabs - without it an
-    // upper-storey plan shows the storey below bleeding through. null = the
-    // normal infinite half-space cut.
+    // upper-storey plan shows the storey below bleeding through. null gives
+    // the normal infinite half-space cut.
     // ------------------------------------------------------------
     function Na__SectCut__UpdateBackPlane(record) {
         const depth = record.depthUnits;
@@ -364,6 +190,22 @@
         const planePos = -record.plane.constant;                                 // <-- Position of the primary along its own normal
         record.backPlane.normal.copy(record.plane.normal).negate();              // <-- Kept side faces back toward the primary
         record.backPlane.constant = planePos + depth;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Rebuild the Live Clip List From the Active Plane
+    // ------------------------------------------------------------
+    function Na__SectCut__SyncClipList() {
+        Na__SectCut__ClipList.length = 0;                                        // <-- Mutate: materials keep their reference
+
+        const record = Na__SectCut__ActiveId ? Na__SectCut__Planes.get(Na__SectCut__ActiveId) : null;
+        if (record && record.enabled) {
+            Na__SectCut__ClipList.push(record.plane);
+            if (record.backPlane) Na__SectCut__ClipList.push(record.backPlane);  // <-- Optional view depth below the cut
+        }
+
+        Na__SectCut__ApplyClippingToModel();
     }
     // ------------------------------------------------------------
 
@@ -382,62 +224,23 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | Cap Geometry Recomputation
+// REGION | Cap Recomputation Scheduling
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Recompute Cap Fill and Profile Outline for One Plane
+    // HELPER FUNCTION | Recompute One Plane's Caps If It Is the Active Cut
+    // ------------------------------------------------------------
+    // A plane that is not the active cut contributes nothing to the view, so
+    // it is hidden rather than recomputed and never costs anything.
     // ------------------------------------------------------------
     function Na__SectCut__RecomputeCaps(id) {
         const record = Na__SectCut__Planes.get(id);
         if (!record || !Na__SectCut__ModelRoot) return;
 
-        // A plane that is not the active cut contributes nothing to the view,
-        // so it never pays for a recompute.
         if (!record.enabled || id !== Na__SectCut__ActiveId) {
-            record.capMesh.visible     = false;
-            record.outlineMesh.visible = false;
+            Na__SectMesh__HideMeshes(record);
             return;
         }
-
-        const result = Na__SectCap__ComputeSectionGeometry(Na__SectCut__ModelRoot, record.plane, {
-            weldToleranceUnits : Na__SectCut__WeldTolUnits(),
-            minLoopAreaUnits2  : Na__SectCut__MinLoopArea(),
-            maxSegments        : Na__SectCut__MaxSegments()
-        });
-
-        // CAP FILL | Swap in the freshly triangulated geometry
-        const oldCapGeometry = record.capMesh.geometry;
-        if (result.capPositions) {
-            const capGeometry = new THREE.BufferGeometry();
-            capGeometry.setAttribute('position', new THREE.BufferAttribute(result.capPositions, 3));
-            capGeometry.computeVertexNormals();                                  // <-- Flat normals for the profile-lines normal pass
-            record.capMesh.geometry = capGeometry;
-            record.capMesh.visible  = true;
-        } else {
-            record.capMesh.geometry = new THREE.BufferGeometry();
-            record.capMesh.visible  = false;                                     // <-- Plane sits outside the model: nothing to fill
-        }
-        if (oldCapGeometry) oldCapGeometry.dispose();
-
-        // PROFILE OUTLINE | Fat line segments around every cut island
-        const oldOutlineGeometry = record.outlineMesh.geometry;
-        if (result.outlinePositions) {
-            const outlineGeometry = new LineSegmentsGeometry();
-            outlineGeometry.setPositions(result.outlinePositions);
-            record.outlineMesh.geometry = outlineGeometry;
-            record.outlineMesh.visible  = true;
-        } else {
-            record.outlineMesh.geometry = new LineSegmentsGeometry();
-            record.outlineMesh.visible  = false;
-        }
-        if (oldOutlineGeometry) oldOutlineGeometry.dispose();
-
-        Na__SectCut__UpdateMeshOffsets(record);
-
-        if (result.aborted) {
-            console.warn('[TrueVision3D] Section cut recompute aborted - model exceeds the live segment budget; the clip plane is still cutting.');
-        }
-        Na__RenderLoop__RequestRender();
+        Na__SectMesh__RecomputeCaps(record, Na__SectCut__ModelRoot);
     }
     // ------------------------------------------------------------
 
@@ -460,7 +263,7 @@
             const pending = Na__SectCut__ThrottlePending;
             Na__SectCut__ThrottlePending = null;
             if (pending !== null) Na__SectCut__RecomputeCaps(pending);            // <-- Land on the final datum
-        }, Na__SectCut__DragThrottleMs());
+        }, Na__SectCutCfg__DragThrottleMs());
     }
     // ------------------------------------------------------------
 
@@ -481,21 +284,22 @@
         if (!Na__SectCut__Initialized || !id) return false;
         if (!Number.isFinite(cutHeightMm)) return false;
 
-        Na__SectCut__EnsureOverlayScene();
+        Na__SectMesh__EnsureOverlayScene();
 
         const heightUnits = Na__Math__ConvertMmToUnits(cutHeightMm);
-        const depthUnits  = Number.isFinite(depthMm) && depthMm > 0
+        const depthUnits  = (Number.isFinite(depthMm) && depthMm > 0)
             ? Na__Math__ConvertMmToUnits(depthMm)
             : null;
 
         let record = Na__SectCut__Planes.get(id);
         if (!record) {
-            const meshes = Na__SectCut__BuildMeshes(id);
+            const meshes = Na__SectMesh__BuildMeshes(id);
             record = {
                 id          : id,
-                // Normal points DOWN, so the kept half-space is below the cut.
-                // distanceToPoint(p) = -p.y + h, positive (kept) when p.y < h.
-                plane       : new THREE.Plane(new THREE.Vector3(0, -1, 0), heightUnits),
+                plane       : new THREE.Plane(
+                    new THREE.Vector3(Na__SectCut__PLAN_NORMAL_X, Na__SectCut__PLAN_NORMAL_Y, Na__SectCut__PLAN_NORMAL_Z),
+                    heightUnits
+                ),
                 backPlane   : null,
                 depthUnits  : depthUnits,
                 capMesh     : meshes.capMesh,
@@ -504,14 +308,14 @@
             };
             Na__SectCut__Planes.set(id, record);
         } else {
-            record.plane.normal.set(0, -1, 0);
+            record.plane.normal.set(Na__SectCut__PLAN_NORMAL_X, Na__SectCut__PLAN_NORMAL_Y, Na__SectCut__PLAN_NORMAL_Z);
             record.plane.constant = heightUnits;                                 // <-- Mutated in place: materials keep their reference
             record.depthUnits     = depthUnits;
         }
 
         Na__SectCut__UpdateBackPlane(record);
         Na__SectCut__SyncClipList();
-        Na__SectCut__UpdateMeshOffsets(record);
+        if (id === Na__SectCut__ActiveId) Na__SectCut__RecomputeCaps(id);
         return true;
     }
     // ------------------------------------------------------------
@@ -553,11 +357,7 @@
 
         // Hide the outgoing plane's visuals before the new cut is applied.
         if (previousId && previousId !== id) {
-            const previous = Na__SectCut__Planes.get(previousId);
-            if (previous) {
-                previous.capMesh.visible     = false;
-                previous.outlineMesh.visible = false;
-            }
+            Na__SectMesh__HideMeshes(Na__SectCut__Planes.get(previousId));
         }
 
         Na__SectCut__SyncClipList();
@@ -577,14 +377,9 @@
 
         if (Na__SectCut__ActiveId === id) Na__SectCut__ActiveId = null;
 
-        Na__SectCut__CapRoot.remove(record.capMesh);
-        Na__SectCut__CapRoot.remove(record.outlineMesh);
-        if (record.capMesh.geometry)      record.capMesh.geometry.dispose();
-        if (record.capMesh.material)      record.capMesh.material.dispose();
-        if (record.outlineMesh.geometry)  record.outlineMesh.geometry.dispose();
-        if (record.outlineMesh.material)  record.outlineMesh.material.dispose();
-
+        Na__SectMesh__DisposeMeshes(record);
         Na__SectCut__Planes.delete(id);
+
         Na__SectCut__SyncClipList();
         Na__SectCut__InvalidateProfileCache();
         Na__RenderLoop__RequestRender();
@@ -623,23 +418,12 @@
 
     // FUNCTION | Draw the Section Overlay After the Main Render
     // ------------------------------------------------------------
-    // Renders the overlay scene straight onto the already-composited colour
-    // buffer: autoClear off and no background, so the model image survives
-    // underneath. Only depth is cleared, so caps and profiles always sit on
-    // top of the geometry they belong to.
+    // No active cut means nothing to draw, so this costs nothing in the
+    // ordinary 3D case where no floor plan is showing.
     // ------------------------------------------------------------
     function Na__SectionCut__RenderOverlay(camera) {
-        if (!Na__SectCut__Renderer || !Na__SectCut__OverlayScene || !camera) return;
-        if (!Na__SectCut__ActiveId) return;                                      // <-- No cut: nothing to draw, zero cost
-
-        const savedAutoClear = Na__SectCut__Renderer.autoClear;
-
-        Na__SectCut__Renderer.autoClear = false;
-        Na__SectCut__Renderer.setRenderTarget(null);                             // <-- Draw straight to the screen
-        Na__SectCut__Renderer.clearDepth();                                      // <-- Fresh depth: fills sit on the composited image
-        Na__SectCut__Renderer.render(Na__SectCut__OverlayScene, camera);
-
-        Na__SectCut__Renderer.autoClear = savedAutoClear;
+        if (!Na__SectCut__ActiveId) return;
+        Na__SectMesh__RenderOverlay(Na__SectCut__Renderer, camera);
     }
     // ------------------------------------------------------------
 
@@ -647,11 +431,7 @@
     // FUNCTION | Update Fat-Line Resolution After a Viewport Resize
     // ------------------------------------------------------------
     function Na__SectionCut__HandleResize(width, height) {
-        Na__SectCut__Planes.forEach((record) => {
-            if (record.outlineMesh.material && record.outlineMesh.material.resolution) {
-                record.outlineMesh.material.resolution.set(width, height);
-            }
-        });
+        Na__SectMesh__HandleResize(Na__SectCut__Planes, width, height);
     }
     // ------------------------------------------------------------
 
@@ -672,7 +452,7 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | Public API - State Queries
+// REGION | Public API - State Queries and Appearance
 // -----------------------------------------------------------------------------
 
     // FUNCTION | Is a Cut Currently Active?
@@ -691,14 +471,10 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Get the Current Appearance Settings
+    // FUNCTION | Get the Current Cut Appearance
     // ------------------------------------------------------------
     function Na__SectionCut__GetAppearance() {
-        return {
-            fillColor   : Na__SectCut__FillColor,
-            lineColor   : Na__SectCut__LineColor,
-            lineWidthPx : Na__SectCut__LineWidthPx
-        };
+        return Na__SectCutCfg__GetAppearance();
     }
     // ------------------------------------------------------------
 
@@ -706,11 +482,9 @@
     // FUNCTION | Override the Cut Appearance Live
     // ------------------------------------------------------------
     function Na__SectionCut__SetAppearance(appearance) {
-        if (!appearance || typeof appearance !== 'object') return;
-        if (typeof appearance.fillColor === 'string')   Na__SectCut__FillColor   = appearance.fillColor;
-        if (typeof appearance.lineColor === 'string')   Na__SectCut__LineColor   = appearance.lineColor;
-        if (Number.isFinite(appearance.lineWidthPx))    Na__SectCut__LineWidthPx = appearance.lineWidthPx;
-        Na__SectCut__ApplyAppearanceToExistingMeshes();
+        if (Na__SectCutCfg__SetAppearance(appearance)) {
+            Na__SectMesh__RepaintAll(Na__SectCut__Planes);                       // <-- Only repaint when something actually changed
+        }
     }
     // ------------------------------------------------------------
 
@@ -733,19 +507,24 @@
         }
 
         Na__SectCut__Renderer    = context.renderer;
-        Na__SectCut__ModelRoot   = context.modelRoot  || null;
+        Na__SectCut__ModelRoot   = context.modelRoot   || null;
         Na__SectCut__PipelineRef = context.pipelineRef || null;
         Na__SectCut__Initialized = true;
 
         Na__SectCut__Renderer.localClippingEnabled = true;                       // <-- Zero cost until a plane exists
 
-        Na__SectCut__EnsureOverlayScene();
+        Na__SectMesh__EnsureOverlayScene();
 
         // SHARED STATE | Profile-line override passes follow this same array
         Na__SectionClipping__SetPlanes(Na__SectCut__ClipList);
         Na__SectionClipping__SetOverlayRenderer(Na__SectionCut__RenderOverlay);
 
-        if (!Na__SectCut__LoadPromise) Na__SectCut__LoadPromise = Na__SectCut__FetchConfig();
+        // Meshes built before the fetch settles are repainted by the callback.
+        if (!Na__SectCut__LoadPromise) {
+            Na__SectCut__LoadPromise = Na__SectCutCfg__Load(
+                () => Na__SectMesh__RepaintAll(Na__SectCut__Planes)
+            );
+        }
         return Na__SectCut__LoadPromise;
     }
     // ------------------------------------------------------------

@@ -406,6 +406,32 @@
                             <button class="na-pm-dev__btn na-pm-dev__btn--primary" id="naOrbitMaxDistanceSave">Save</button>
                             <button class="na-pm-dev__btn na-pm-dev__btn--danger" id="naOrbitMaxDistanceClear">Clear</button>
                         </div>
+
+                        <hr class="na-dropdown-menu__panel-divider" />
+
+                        <div id="naAssetCullDistanceSection" style="display:none;">
+                            <div class="na-dropdown-menu__panel-title">Asset Cull Distance</div>
+                            <div class="na-dropdown-menu__panel-row">
+                                <span class="na-dropdown-menu__value">Current:</span>
+                                <span class="na-dropdown-menu__value" id="naAssetCullDistanceCurrent">-</span>
+                            </div>
+                            <div class="na-dropdown-menu__panel-row">
+                                <span class="na-dropdown-menu__value">Source:</span>
+                                <span class="na-dropdown-menu__value" id="naAssetCullDistanceSource">-</span>
+                            </div>
+                            <div class="na-dropdown-menu__panel-row">
+                                <span class="na-dropdown-menu__value" id="naAssetCullDistanceStats">-</span>
+                            </div>
+                            <div class="na-dropdown-menu__panel-row">
+                                <input type="number" id="naAssetCullDistanceInput" class="na-pm-dev__input na-pm-dev__input--short" min="1000" step="1000" />
+                                <span class="na-dropdown-menu__value">mm</span>
+                            </div>
+                            <div class="na-pm-dev__actions">
+                                <button class="na-pm-dev__btn" id="naAssetCullDistanceApply">Apply Live</button>
+                                <button class="na-pm-dev__btn na-pm-dev__btn--primary" id="naAssetCullDistanceSave">Save</button>
+                                <button class="na-pm-dev__btn na-pm-dev__btn--danger" id="naAssetCullDistanceClear">Clear</button>
+                            </div>
+                        </div>
                     </div>
                 </li>
                 <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naViewModeFovItem" style="display:none;">
@@ -459,6 +485,15 @@
                     </button>
                     <div class="na-dropdown-menu__panel na-pm-dev__panel" id="naPmDevEditorPanel">
                         <!-- Scene rows generated dynamically by Na__PresentationMode__DevMenu__SceneEditor.js -->
+                    </div>
+                </li>
+                <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naFloorPlanDevItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naFloorPlanDevToggle" aria-expanded="false">
+                        Floor Plans
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel na-pm-dev__panel" id="naFloorPlanDevPanel">
+                        <!-- Plan rows generated dynamically by Na__FloorPlan__DevMenu__Editor__.js -->
                     </div>
                 </li>
                 <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naCacheStorageDevItem" style="display:none;">
@@ -696,6 +731,7 @@
     import { Na__UiFeature__InitializeNavigationHelpPanel, Na__UiFeature__OpenNavigationHelpPanel } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__NavigationHelpPanel__Controls.js';
     import { Na__UiFeature__InitializeNavigationModesDevControls } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__NavigationModes__DevControls.js';
     import { Na__UiFeature__InitializeOrbitMaxDistanceDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__OrbitMaxDistance__DevControls.js';
+    import { Na__UiFeature__InitializeAssetCullDistanceDevControls } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__AssetCullDistance__DevControls.js';
     import { Na__UiFeature__InitializeViewModeFovDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js';
     import { Na__PresentationMode__UI__InitializeSceneCarousel } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
     import { Na__PresentationMode__UI__InitializeSceneGroupSelector } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneGroupSelector__.js';
@@ -703,6 +739,9 @@
     import { Na__PresentationMode__DevMenu__InitializeSceneEditor } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js';
     import { Na__CfApi__Initialize } from './02__Src__AppModules/80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
     import { Na__ContextMenu__Initialize } from './02__Src__AppModules/27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js';
+    import { Na__SectionCut__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
+    import { Na__FloorPlanMode__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
+    import { Na__FloorPlan__DevMenu__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__DevMenu__Editor__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -1394,6 +1433,35 @@
         Na__UiFeature__ShowToast
     );
 
+    // FLOOR PLAN BUILDER | Section Cut Engine, 2D Plan Mode, Dev Editor
+    // ------------------------------------------------------------
+    // The cut engine is initialised unconditionally - it costs nothing until a
+    // plane exists, and switching on localClippingEnabled up front avoids a
+    // shader recompile on the first cut. The plan mode controller then loads
+    // its own config, and only mounts the localhost Dev section when the
+    // feature is switched on there.
+    // @delegate: ./02__Src__AppModules/41__System__SectionCutEngine/
+    // @delegate: ./02__Src__AppModules/42__System__FloorPlanViews/
+    Na__SectionCut__Initialize({
+        renderer    : Na__Renderer__Main,
+        modelRoot   : Na__ModelGroup__Root,
+        pipelineRef : Na__AppFlow__PipelineRef
+    });
+
+    Na__FloorPlanMode__Initialize({
+        camera    : Na__Camera__Main,
+        controls  : Na__Controls__Orbit,
+        canvas    : Na__Renderer__Main.domElement,
+        modelRoot : Na__ModelGroup__Root
+    }).then((enabled) => {
+        if (!enabled) return;                                   // <-- Feature off in config: no Dev section at all
+        Na__FloorPlan__DevMenu__Initialize({
+            modelRoot : Na__ModelGroup__Root,
+            camera    : Na__Camera__Main,
+            showToast : Na__UiFeature__ShowToast
+        });
+    });
+
     // DEV MENU | Navigation Modes + Orbit Max Distance (localhost-only, save to R2)
     // ------------------------------------------------------------
     // @delegate: ./02__Src__AppModules/70__System__DevTools/Na__UiFeature__NavigationModes__DevControls.js
@@ -1418,6 +1486,20 @@
         controls             : Na__Controls__Orbit,
         defaultMaxDistanceMm : Na__OrbitMaxDefaultMm,
         showToast            : Na__UiFeature__ShowToast
+    });
+
+    // @delegate: ./02__Src__AppModules/70__System__DevTools/Na__UiFeature__AssetCullDistance__DevControls.js
+    // Sits under a divider inside the Orbit Max Zoom Radius panel; the default
+    // it restores on Clear is the AppConfig distance, matching the culling
+    // engine's own fallback when the config key is absent.
+    const Na__AssetCullDefaultMm = (Na__Config__DistanceCulling
+        && Number.isFinite(Na__Config__DistanceCulling.RenderEffect__DistanceCulling__CullDistanceMm))
+        ? Na__Config__DistanceCulling.RenderEffect__DistanceCulling__CullDistanceMm
+        : 15000;                                                 // <-- Engine fallback (15 m)
+    Na__UiFeature__InitializeAssetCullDistanceDevControls({
+        camera                : Na__Camera__Main,
+        defaultCullDistanceMm : Na__AssetCullDefaultMm,
+        showToast             : Na__UiFeature__ShowToast
     });
 
     // @delegate: ./02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js

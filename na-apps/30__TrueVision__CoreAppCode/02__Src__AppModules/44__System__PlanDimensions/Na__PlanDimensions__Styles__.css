@@ -1,0 +1,247 @@
+/* =============================================================================
+ * TRUEVISION3D - PLAN DIMENSIONS - STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__PlanDimensions__Styles__.css
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The SVG dimension layer, its strokes, text and placement preview
+ * CREATED    : 31-Aug-2026
+ *
+ * DESCRIPTION:
+ * - The layer is an absolutely positioned SVG matched to the render canvas box
+ *   by Na__PlanDimensions__Overlay__. Only the box lives here; the overlay owns
+ *   top/left/width/height because those track the canvas at runtime.
+ * - Stroke colours and widths are written as presentation attributes by the
+ *   overlay, not set here, because they are real drawing properties that scale
+ *   with zoom. This file styles only what does NOT vary per dimension.
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * DEVELOPMENT LOG:
+ * 31-Aug-2026 - Version 1.0.0
+ * - Initial implementation for the Floor Plan Builder dimensioning system.
+ *
+ * =============================================================================
+ */
+
+
+/* #Region ---
+ * REGION | Layer Container
+ * ----- */
+
+    /* CONTAINER | Sits over the canvas, below the annotation text layer */
+    /* ------------------------------------------------------------ */
+    /* Pointer events are off on the container so panning the plan still works
+       everywhere between the dimensions; each hit line switches them back on. */
+    .na-plan-dim__layer {
+        position                           : absolute;
+        pointer-events                     : none;
+        overflow                           : visible;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dimension Strokes
+ * ----- */
+
+    /* STROKES | Shared linework properties */
+    /* ------------------------------------------------------------ */
+    /* Colour and stroke-width are presentation attributes written per frame by
+       the overlay, so they are deliberately absent here.                     */
+    .na-plan-dim__ext,
+    .na-plan-dim__line,
+    .na-plan-dim__term {
+        stroke-linecap                     : round;
+        stroke-linejoin                    : round;
+        vector-effect                      : non-scaling-stroke;
+        pointer-events                     : none;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* EXTENSION LINES | Slightly lighter than the dimension line itself */
+    /* ------------------------------------------------------------ */
+    .na-plan-dim__ext {
+        opacity                            : 0.7;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HIT AREA | Wide invisible stroke so a hairline can still be grabbed */
+    /* ------------------------------------------------------------ */
+    .na-plan-dim__hit {
+        stroke                             : transparent;
+        stroke-width                       : 14;          /* <-- Screen pixels, deliberately generous */
+        stroke-linecap                     : round;
+        fill                               : none;
+        pointer-events                     : stroke;      /* <-- Only the stroke catches, not its bounding box */
+        cursor                             : grab;
+    }
+
+    .na-plan-dim__hit:active {
+        cursor                             : grabbing;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Measured Value
+ * ----- */
+
+    /* TEXT | The figure on the dimension line */
+    /* ------------------------------------------------------------ */
+    /* Font size, weight, family and fill are written per frame by the overlay
+       because they scale with the drawing. The paint-order stroke gives the
+       figure a thin halo so it stays readable where it crosses linework.    */
+    .na-plan-dim__text {
+        paint-order                        : stroke fill;
+        stroke                             : #ffffff;
+        stroke-width                       : 3px;
+        stroke-linejoin                    : round;
+        pointer-events                     : none;
+        user-select                        : none;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Selection
+ * ----- */
+
+    /* SELECTED | Pale blue highlight, matching the app's active-state colour */
+    /* ------------------------------------------------------------ */
+    .na-plan-dim__item.is-selected .na-plan-dim__line,
+    .na-plan-dim__item.is-selected .na-plan-dim__term {
+        stroke                             : #2f7fd1 !important;   /* <-- Overrides the per-frame presentation attribute */
+    }
+
+    .na-plan-dim__item.is-selected .na-plan-dim__ext {
+        stroke                             : #2f7fd1 !important;
+        opacity                            : 0.9;
+    }
+
+    .na-plan-dim__item.is-selected .na-plan-dim__text {
+        fill                               : #2f7fd1 !important;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Placement Preview
+ * ----- */
+
+    /* PREVIEW | The rubber band between the first and second click */
+    /* ------------------------------------------------------------ */
+    /* Dashed and blue so it never reads as a placed dimension. Fixed screen
+       widths are correct here: this is a transient guide, not drawing content
+       that has to scale with the sheet.                                     */
+    .na-plan-dim__preview-line {
+        /* stroke is written inline from the live defaults */
+        stroke-width                       : 1.5;
+        stroke-dasharray                   : 6 4;
+        pointer-events                     : none;
+    }
+
+    .na-plan-dim__preview-text {
+        font-family                        : 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        text-anchor                        : middle;
+        /* fill, font-size and font-weight are written inline per frame from
+           the live new-dimension defaults, so the preview is drawn at the size
+           and colour the dimension will actually be created at. A fixed
+           font-size here was what made the number leap on the second click. */
+        paint-order                        : stroke fill;
+        stroke                             : #ffffff;
+        stroke-width                       : 3px;
+        stroke-linejoin                    : round;
+        pointer-events                     : none;
+        user-select                        : none;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* PLACING | Crosshair while a dimension is being picked */
+    /* ------------------------------------------------------------ */
+    canvas.na-plan-dim--placing {
+        cursor                             : crosshair;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Axis Constraint Guide                                  */
+/* ----------------------------------------------------------------- */
+
+    /* GUIDE | The dotted line showing which axis a pick is locked to.
+       Stroke colour, dash pattern, width and opacity are all written
+       inline by Na__PlanDimensions__AxisLock__ from its config block, so
+       only the things that must never be overridden live here. */
+    /* ------------------------------------------------------------ */
+    .na-plan-dim__axis-guide {
+        pointer-events                     : none;   /* Never intercept a pick */
+        shape-rendering                    : crispEdges;
+        stroke-linecap                     : butt;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Vertex Handles                                         */
+/* ----------------------------------------------------------------- */
+
+    /* HANDLES | Revealed by double-clicking a placed dimension. The X
+       marks are two crossing strokes; the pointer target is a much larger
+       invisible circle behind them, because an X drawn at handle size is
+       far too thin to grab reliably. */
+    /* ------------------------------------------------------------ */
+    .na-plan-dim__vertices {
+        pointer-events                     : none;   /* Only the handles themselves take events */
+    }
+
+    .na-plan-dim__vertex {
+        pointer-events                     : auto;
+        cursor                             : move;
+    }
+
+    .na-plan-dim__vertex:hover line {
+        stroke-width                       : 2.6px;  /* Thickens on approach so the grab point is obvious */
+    }
+
+    /* Dragging suppresses the hover thickening so the marker does not
+       appear to jump the moment it is grabbed. */
+    .na-plan-dim__vertex.is-dragging line {
+        stroke-width                       : 2.2px;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Placement Crosshair                                    */
+/* ----------------------------------------------------------------- */
+
+    /* CROSSHAIR | Full-span dotted lines tracking the cursor while a
+       dimension is being placed, to make a corner easy to line up on.
+       Stroke, dash, width and opacity are written inline from config;
+       only what must never be overridden lives here. */
+    /* ------------------------------------------------------------ */
+    .na-plan-dim__crosshair {
+        pointer-events                     : none;   /* Never intercept a pick */
+        shape-rendering                    : crispEdges;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ---- */

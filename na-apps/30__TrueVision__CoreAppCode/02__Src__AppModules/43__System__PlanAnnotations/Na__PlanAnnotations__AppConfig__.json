@@ -1,0 +1,71 @@
+{
+    "PlanAnnotations__Description": "Configuration for the floor plan annotation layer - the text markup that sits over a plan cut. Annotations are stored per floor plan inside the project's TrueVision__ProjectData__.json, nested within PresentationMode__SavedCameraScenes, so they ride the existing R2 dev-key sync path. Text size is expressed in real millimetres so labels scale with the drawing exactly as CAD text does. All distance values are integer millimetres.",
+
+    "PlanAnnotations__Enabled": true,
+
+    "PlanAnnotations__Text__Config": {
+        "PlanAnnotations__Text__Description": "Default appearance of a newly placed annotation. Weights map to the three Open Sans faces the app already loads from CDN: 300 Light, 400 Regular, 600 SemiBold. No other weight will render correctly.",
+        "PlanAnnotations__Text__DefaultText": "Room Name",
+        "PlanAnnotations__Text__DefaultSizeMm": 300,
+        "PlanAnnotations__Text__MinSizeMm": 50,
+        "PlanAnnotations__Text__MaxSizeMm": 2000,
+        "PlanAnnotations__Text__SizeStepMm": 25,
+        "PlanAnnotations__Text__DefaultFontWeight": 400,
+        "PlanAnnotations__Text__AllowedFontWeights": [300, 400, 600],
+        "PlanAnnotations__Text__FontWeightLabels": {
+            "300": "Open Sans Light",
+            "400": "Open Sans Regular",
+            "600": "Open Sans SemiBold"
+        },
+        "PlanAnnotations__Text__DefaultColor": "#323232",
+        "PlanAnnotations__Text__FontFamily": "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "PlanAnnotations__Text__MaxCharacters": 120
+    },
+
+    "PlanAnnotations__Layer__Config": {
+        "PlanAnnotations__Layer__Description": "The annotation layer is a DOM overlay above the canvas, not Three.js geometry. PlaneOffsetBelowCameraMm records the notional height the layer represents between the camera and the cut, so a future canvas-plane renderer for image export can reproduce the same placement. MinRenderedPx hides labels that have zoomed too small to read rather than drawing unreadable specks.",
+        "PlanAnnotations__Layer__PlaneOffsetBelowCameraMm": 50,
+        "PlanAnnotations__Layer__MinRenderedPx": 5,
+        "PlanAnnotations__Layer__MaxRenderedPx": 400,
+        "PlanAnnotations__Layer__FadeMs": 220
+    },
+
+    "PlanAnnotations__Interaction__Config": {
+        "PlanAnnotations__Interaction__Description": "Editing behaviour. A single click and drag moves a label; a double click opens the in-situ editor. DragThresholdPx stops a slightly shaky click from being read as a drag and nudging the label.",
+        "PlanAnnotations__Interaction__DragThresholdPx": 3,
+        "PlanAnnotations__Interaction__DoubleClickToEdit": true,
+        "PlanAnnotations__Interaction__SelectOnPlace": true,
+        "PlanAnnotations__Interaction__DeleteEmptyOnCommit": true,
+        "PlanAnnotations__Interaction__CommitKeys": ["Enter"],
+        "PlanAnnotations__Interaction__CancelKeys": ["Escape"]
+    },
+
+    "PlanAnnotations__Hotkeys__Config": {
+        "PlanAnnotations__Hotkeys__Description": "Keyboard shortcuts available while a floor plan is being marked up. These are scoped to annotation editing and are bound only while it is on - they are deliberately NOT registered with the global Na__Hotkeys__Manager, which handles unmodified view-switching keys and ignores Ctrl combinations by design. Key values are matched case-insensitively against KeyboardEvent.key.",
+        "PlanAnnotations__Hotkeys__Enabled": true,
+        "PlanAnnotations__Hotkeys__CopyKey": "c",
+        "PlanAnnotations__Hotkeys__PasteKey": "v",
+        "PlanAnnotations__Hotkeys__UndoKey": "z",
+        "PlanAnnotations__Hotkeys__RedoKey": "y",
+        "PlanAnnotations__Hotkeys__DeleteKeys": ["Delete", "Backspace"],
+        "PlanAnnotations__Hotkeys__UndoDepth": 50,
+        "PlanAnnotations__Hotkeys__PasteOffsetMm": 300,
+        "PlanAnnotations__Hotkeys__PasteOffsetsEachRepeat": true
+    },
+
+    "PlanAnnotations__Labels__Config": {
+        "PlanAnnotations__Labels__Description": "Wording for the annotation toolbar shown while a plan is being marked up in developer mode.",
+        "PlanAnnotations__Labels__ToolbarTitle": "Plan Annotations",
+        "PlanAnnotations__Labels__AddLabel": "+ Add Text",
+        "PlanAnnotations__Labels__DeleteLabel": "Delete",
+        "PlanAnnotations__Labels__DoneLabel": "Done",
+        "PlanAnnotations__Labels__SizeLabel": "Size",
+        "PlanAnnotations__Labels__WeightLabel": "Weight",
+        "PlanAnnotations__Labels__PlaceHint": "Click the plan to place the label.",
+        "PlanAnnotations__Labels__EditHint": "Double-click to edit, drag to move.",
+        "PlanAnnotations__Labels__NoSelectionHint": "Select a label to change its size or weight.",
+        "PlanAnnotations__Labels__CopiedMessage": "Label copied.",
+        "PlanAnnotations__Labels__NothingToPasteHint": "Nothing copied yet.",
+        "PlanAnnotations__Labels__ShortcutsHint": "Ctrl+C copy, Ctrl+V paste, Ctrl+Z undo, Ctrl+Y redo, Del removes."
+    }
+}

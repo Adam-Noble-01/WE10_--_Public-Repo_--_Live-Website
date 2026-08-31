@@ -68,6 +68,7 @@ TRUEVISION_DEV_OWNED_KEYS = (
     'PresentationMode__SavedCameraScenes',
     'Navmode__EnabledModes',
     'Navmode__OrbitMaxDistanceMm',
+    'RenderEffect__AssetCullDistanceMm',
     'Navmode__FovOverrides',
     'Camera__DefaultPosition',
     'OrbitHelperCube__Position',
