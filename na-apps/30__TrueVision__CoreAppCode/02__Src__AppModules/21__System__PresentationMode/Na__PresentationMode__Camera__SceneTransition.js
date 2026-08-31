@@ -109,6 +109,7 @@
     const Na__PresentationMode__DEFAULT_EASING   = 'easeInOutCubic';          // <-- Default easing function name
     const Na__PresentationMode__KEY__VISIBILITY_BEFORE_CAMERA = 'PresentationMode__Scene__ApplyVisibilityBeforeCamera'; // <-- Per-scene layer timing flag
     const Na__PresentationMode__KEY__NAVIGATION_MODE          = 'PresentationMode__Scene__NavigationMode';             // <-- Per-scene navigation mode (orbit/walk/fly)
+    const Na__PresentationMode__FREELOOK_TARGET_DISTANCE_UNITS = 5;                                                    // <-- Orbit target placed 5m along a walk/fly scene's own look axis
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -337,6 +338,44 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Is This a Free-Look Scene? (walk or fly)
+    // ------------------------------------------------------------
+    function Na__PresentationMode__Camera__IsFreeLookMode(targetMode) {
+        return targetMode === 'walk' || targetMode === 'fly';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Place the Orbit Target Along the Camera's Own Look Axis
+    // ------------------------------------------------------------
+    // OrbitControls.update() re-aims the camera at controls.target every time
+    // it runs, so whatever rotation was just written is immediately replaced by
+    // "look at the target". For an ORBIT scene that is harmless: the saved
+    // rotation was itself a look-at-target rotation, so the two agree.
+    //
+    // For a WALK or FLY scene they do not agree at all. The saved rotation is a
+    // free-look direction, while the saved orbit target falls back to the
+    // project's shared orbit helper cube - every free-look scene in a project
+    // tends to carry the same one. The camera therefore arrived in the right
+    // place but swung round to face that shared point, and walk/fly then seeded
+    // its yaw and pitch from that wrong orientation.
+    //
+    // Rather than skip controls.update() (which would leave OrbitControls'
+    // internal spherical state stale and make the view jump the next time the
+    // viewer orbits), this puts the target on the camera's own forward axis.
+    // update() then resolves to the rotation we actually want, and OrbitControls
+    // is left correctly framed for whenever the viewer returns to orbit.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__Camera__PlaceLookAheadTarget(position, quaternion, outTarget) {
+        return outTarget
+            .set(0, 0, -1)                                                             // <-- Camera forward in local space
+            .applyQuaternion(quaternion)
+            .multiplyScalar(Na__PresentationMode__FREELOOK_TARGET_DISTANCE_UNITS)
+            .add(position);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Activate the Scene's Navigation Mode Once the Camera Has Arrived
     // ------------------------------------------------------------
     // Orbit needs no action: the release above already left the camera there,
@@ -368,9 +407,18 @@
             camera.updateProjectionMatrix();                                             // <-- Rebuild projection after FOV change
         }
 
-        if (controls && values.target) {
-            controls.target.set(values.target.x, values.target.y, values.target.z);    // <-- Snap orbit target
-            controls.update();
+        if (controls) {
+            if (Na__PresentationMode__Camera__IsFreeLookMode(targetNavMode)) {
+                Na__PresentationMode__Camera__PlaceLookAheadTarget(              // <-- Keep the scene's own free-look rotation
+                    camera.position,
+                    new THREE.Quaternion().setFromEuler(camera.rotation),
+                    controls.target
+                );
+                controls.update();
+            } else if (values.target) {
+                controls.target.set(values.target.x, values.target.y, values.target.z); // <-- Snap orbit target
+                controls.update();
+            }
         }
 
         Na__PresentationMode__Camera__ApplySceneVisibility(scene);                     // <-- Instant snap always applies visibility with camera
@@ -468,6 +516,7 @@
         const endFov       = values.fov !== null ? values.fov : startFov;
 
         const tempQuat     = new THREE.Quaternion();                          // <-- Reused scratch quaternion
+        const isFreeLookScene = Na__PresentationMode__Camera__IsFreeLookMode(targetNavMode); // <-- Scene's own rotation is authoritative
         const applyVisibilityBeforeMove = Na__PresentationMode__Camera__ShouldApplyVisibilityBeforeTransition(scene);
 
         if (applyVisibilityBeforeMove) {
@@ -498,8 +547,12 @@
             camera.updateProjectionMatrix();                                  // <-- Rebuild projection each frame
 
             if (controls) {
-                controls.target.lerpVectors(startTarget, endTarget, t);
-                controls.update();
+                if (isFreeLookScene) {
+                    Na__PresentationMode__Camera__PlaceLookAheadTarget(camera.position, tempQuat, controls.target);
+                } else {
+                    controls.target.lerpVectors(startTarget, endTarget, t);
+                }
+                controls.update();                                            // <-- Re-aims at target; the target now agrees with the rotation
             }
 
             if (rawT < 1) {
@@ -511,8 +564,12 @@
                 camera.updateProjectionMatrix();
 
                 if (controls) {
-                    controls.target.copy(endTarget);
-                    controls.update();
+                    if (isFreeLookScene) {
+                        Na__PresentationMode__Camera__PlaceLookAheadTarget(endPos, endQuat, controls.target);
+                    } else {
+                        controls.target.copy(endTarget);
+                    }
+                    controls.update();                                        // <-- Must leave the exact saved rotation intact
                 }
 
                 Na__RenderLoop__StopActiveRender(Na__PresentationMode__RENDER_REASON); // <-- Stop continuous rendering

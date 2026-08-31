@@ -1,0 +1,22 @@
+{
+    "SectionCut__Engine__Description": "Configuration for the section cut engine - the boolean cut-and-fill layer ported from the ValeVision3D cross section tool. This module owns clipping planes, cap fill meshes and profile outlines only. It knows nothing about floor plans; the Floor Plan Views system drives it with horizontal planes. All distance values are integer millimetres and are converted to Three.js units in code.",
+
+    "SectionCut__Engine__Enabled": true,
+
+    "SectionCut__Appearance__Config": {
+        "SectionCut__Appearance__Description": "Cut fill and profile line appearance. The fill is the solid poche you see where a wall is sliced; the line is the outline drawn around each cut island.",
+        "SectionCut__Appearance__FillColor": "#f0f0f0",
+        "SectionCut__Appearance__LineColor": "#323232",
+        "SectionCut__Appearance__LineWidthPx": 2.0,
+        "SectionCut__Appearance__CapOffsetMm": 0.6,
+        "SectionCut__Appearance__LineOffsetMm": 1.4
+    },
+
+    "SectionCut__Update__Config": {
+        "SectionCut__Update__Description": "Live update tuning. DragRecomputeMs throttles the cap rebuild while a datum slider is being dragged; the remaining values are geometry weld and filter tolerances passed straight to the cap geometry engine.",
+        "SectionCut__Update__DragRecomputeMs": 90,
+        "SectionCut__Update__WeldToleranceMm": 0.25,
+        "SectionCut__Update__MinLoopAreaM2": 0.0004,
+        "SectionCut__Update__MaxCrossingSegments": 250000
+    }
+}

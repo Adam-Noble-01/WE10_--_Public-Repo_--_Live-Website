@@ -537,21 +537,6 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Get the Fallback Group Name for Display Elsewhere
-    // ------------------------------------------------------------
-    // Used by the per-scene dropdown to label the "inherit the default" option
-    // with the name the scene would actually land in.
-    // ------------------------------------------------------------
-    function Na__PresentationMode__DevMenu__GetFallbackGroupName(config) {
-        const fallbackId = Na__PresentationMode__SceneGroups__GetFallbackGroupId(config);
-        if (!fallbackId) return '';
-
-        const group = Na__PresentationMode__SceneGroups__GetGroups(config)
-            .find(g => g[Na__PmGroupDev__GROUP_ID_KEY] === fallbackId);
-        return group ? (group[Na__PmGroupDev__GROUP_NAME_KEY] || '') : '';
-    }
-    // ------------------------------------------------------------
-
 // endregion -------------------------------------------------------------------
 
 
@@ -563,7 +548,6 @@
     // ------------------------------------------------------------
     export {
         Na__PresentationMode__DevMenu__RenderGroupEditor,
-        Na__PresentationMode__DevMenu__GetFallbackGroupName,
         Na__PmGroupDev__CHANGED_EVENT as Na__PresentationMode__DevMenu__GROUPS_CHANGED_EVENT
     };
     // ------------------------------------------------------------

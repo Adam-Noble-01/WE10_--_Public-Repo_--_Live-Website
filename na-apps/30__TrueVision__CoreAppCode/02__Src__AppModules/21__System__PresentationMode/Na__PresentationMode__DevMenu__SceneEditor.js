@@ -45,7 +45,7 @@
 // - Added a per-scene collapsible Advanced section and moved Position, Easing
 //   and layer-switch timing into it alongside the new Navigation Mode toggles.
 // - Added per-scene Navigation Mode (Orbit / Walk / Fly). Orbit is the
-//   absent-key default. New scenes and Update Camera capture the live mode
+//   absent-key default. Add Scene and Update Scene capture the live mode
 //   automatically, storing nothing when that mode is orbit.
 //   (The original release offered a fourth "Keep" option meaning "stay in
 //   whatever mode the viewer is in". It was removed on 31-Aug-2026 - see the
@@ -92,7 +92,6 @@
     // ------------------------------------------------------------
     import {
         Na__PresentationMode__DevMenu__RenderGroupEditor,
-        Na__PresentationMode__DevMenu__GetFallbackGroupName,
         Na__PresentationMode__DevMenu__GROUPS_CHANGED_EVENT
     } from './Na__PresentationMode__DevMenu__GroupEditor__.js';
     // ------------------------------------------------------------
@@ -389,7 +388,7 @@
 
         Na__PmDev__CommitWorkingScenes(ordered);                             // <-- Update config + refresh the carousel
         Na__PmDev__RenderEditorPanel();                                      // <-- Rebuild rows in the new order
-        await Na__PmDev__SaveToR2(ordered);                                  // <-- Auto-persist, matching delete/save-one
+        await Na__PmDev__SaveToR2(ordered);                                  // <-- Auto-persist, matching every other row action
     }
     // ------------------------------------------------------------
 
@@ -995,51 +994,34 @@
         const actionsRow = document.createElement('div');
         actionsRow.className = 'na-pm-dev__actions';
 
-        // UPDATE FROM CAMERA
+        // UPDATE SCENE | One button, the SketchUp "update scene" gesture
+        // ------------------------------------------------------------
+        // Recaptures everything the live viewport currently shows - camera
+        // pose, FOV, model-element visibility, navigation mode - re-renders the
+        // thumbnail, then commits and writes to R2. This replaced three
+        // separate buttons (Update Camera / Regen Thumb / Save Scene) that
+        // between them made a single "I have reframed this view" edit into a
+        // three-press ritual, with every ordering of those presses saving a
+        // slightly different subset.
+        // ------------------------------------------------------------
         const updateBtn = document.createElement('button');
         updateBtn.type        = 'button';
-        updateBtn.className   = 'na-pm-dev__btn';
-        updateBtn.textContent = 'Update Camera';
-        updateBtn.title       = 'Overwrite this scene with the current camera position/rotation/FOV';
-        updateBtn.addEventListener('click', () => {
-            if (!Na__PmDev__Camera) return;
-            const built = Na__PresentationMode__Camera__BuildSceneCameraJson(Na__PmDev__Camera, Na__PmDev__Controls);
-            if (!built) return;
-            scene.PresentationMode__Scene__CameraPosition = { ...built.cameraPosition };
-            scene.PresentationMode__Scene__OrbitHelperCubePosition = { ...built.orbitHelperCubePosition };
-            const visibility = Na__PmVisibility__CaptureState();            // <-- Capture live model element on/off state
-            if (visibility) scene.PresentationMode__Scene__Visibility = visibility;
-
-            const liveMode = Na__NavigationModes__GetActiveMode();          // <-- Recapture the mode the view was framed in
-            if (liveMode === 'walk' || liveMode === 'fly') {
-                scene[Na__PmDev__KEY__NAVIGATION_MODE] = liveMode;
-            } else {
-                delete scene[Na__PmDev__KEY__NAVIGATION_MODE];              // <-- Orbit is the absent-key default; keep the JSON clean
+        updateBtn.className   = 'na-pm-dev__btn na-pm-dev__btn--primary';
+        updateBtn.textContent = 'Update Scene';
+        updateBtn.title       = 'Recapture the live view into this scene - camera, FOV, layers, navigation mode and thumbnail - then save';
+        updateBtn.addEventListener('click', async () => {
+            if (updateBtn.disabled) return;
+            updateBtn.disabled    = true;                                   // <-- Thumbnail render + upload is async; block a double press
+            updateBtn.textContent = 'Updating...';
+            try {
+                await Na__PmDev__CaptureLiveViewIntoScene(scene);           // <-- Camera + visibility + nav mode + thumbnail
+                await onMutate('update', scene);                            // <-- Normalise, commit, save to R2, rebuild panel
+            } finally {
+                updateBtn.disabled    = false;                              // <-- Panel usually rebuilds over this; safe either way
+                updateBtn.textContent = 'Update Scene';
             }
-
-            onMutate('save-one', scene);                                    // <-- Commit + persist; commit re-renders the panel
         });
         actionsRow.appendChild(updateBtn);
-
-        // THUMBNAIL
-        const thumbBtn = document.createElement('button');
-        thumbBtn.type        = 'button';
-        thumbBtn.className   = 'na-pm-dev__btn';
-        thumbBtn.textContent = 'Regen Thumb';
-        thumbBtn.title       = 'Render the current viewport as a WebP thumbnail for this scene';
-        thumbBtn.addEventListener('click', async () => {
-            await Na__PmDev__RegenerateThumbnail(scene);                    // <-- Render + upload WebP to R2
-            onMutate('save-one', scene);                                    // <-- Persist updated ThumbnailUrl + refresh carousel
-        });
-        actionsRow.appendChild(thumbBtn);
-
-        // SAVE THIS SCENE
-        const saveBtn = document.createElement('button');
-        saveBtn.type        = 'button';
-        saveBtn.className   = 'na-pm-dev__btn na-pm-dev__btn--primary';
-        saveBtn.textContent = 'Save Scene';
-        saveBtn.addEventListener('click', () => onMutate('save-one', scene));
-        actionsRow.appendChild(saveBtn);
 
         // DELETE
         const deleteBtn = document.createElement('button');
@@ -1084,6 +1066,61 @@
             console.error('[TrueVision3D] Thumbnail regeneration error:', error);
             if (Na__PmDev__ShowToast) Na__PmDev__ShowToast('Thumbnail error - see console.', true);
         }
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Live View Capture
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Record the Live Navigation Mode Onto a Scene
+    // ------------------------------------------------------------
+    // Orbit is the absent-key default, so only walk and fly are ever stored.
+    // Deleting rather than writing 'orbit' keeps the project JSON clean and
+    // keeps one single meaning for "no key".
+    // ------------------------------------------------------------
+    function Na__PmDev__CaptureLiveNavigationMode(scene) {
+        const liveMode = Na__NavigationModes__GetActiveMode();
+        if (liveMode === 'walk' || liveMode === 'fly') {
+            scene[Na__PmDev__KEY__NAVIGATION_MODE] = liveMode;
+        } else {
+            delete scene[Na__PmDev__KEY__NAVIGATION_MODE];
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Capture Everything the Live Viewport Shows Into a Scene
+    // ------------------------------------------------------------
+    // The single definition of "what a scene is a snapshot of": camera pose and
+    // FOV, the derived lens mm, model-element visibility, navigation mode, and
+    // the thumbnail. Shared by Update Scene and Add Scene From Camera so the
+    // two can never drift into capturing different subsets - which is exactly
+    // what happened while three separate buttons each owned part of it.
+    //
+    // Does NOT commit or save; the caller owns persistence.
+    // ------------------------------------------------------------
+    async function Na__PmDev__CaptureLiveViewIntoScene(scene) {
+        if (!Na__PmDev__Camera) return false;
+
+        const built = Na__PresentationMode__Camera__BuildSceneCameraJson(Na__PmDev__Camera, Na__PmDev__Controls);
+        if (!built) return false;
+
+        scene.PresentationMode__Scene__CameraPosition          = { ...built.cameraPosition };
+        scene.PresentationMode__Scene__OrbitHelperCubePosition = { ...built.orbitHelperCubePosition };
+        scene.PresentationMode__Scene__LensMm                  = Math.round(
+            Na__PmDev__FovToFocalMm(Na__PmDev__Camera.fov));                 // <-- Keep the lens readout in step with the captured FOV
+
+        const visibility = Na__PmVisibility__CaptureState();                 // <-- Live model element on/off state
+        if (visibility) scene.PresentationMode__Scene__Visibility = visibility;
+
+        Na__PmDev__CaptureLiveNavigationMode(scene);                         // <-- A view framed in fly is a fly scene
+
+        await Na__PmDev__RegenerateThumbnail(scene);                         // <-- Render + upload WebP, sets ThumbnailUrl
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -1259,26 +1296,27 @@
         Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);            // <-- Collapse to a clean 1..N inside each group
 
         // ONE MUTATION HANDLER shared by every row
+        // ------------------------------------------------------------
+        // Every action ends the same way - renumber, commit, write to R2,
+        // rebuild - so that tail lives in exactly one place. Only the mutation
+        // itself differs. 'update' arrives with the scene already recaptured by
+        // Na__PmDev__CaptureLiveViewIntoScene.
+        // ------------------------------------------------------------
         const Na__PmDev__HandleRowMutation = async (action, targetScene) => {
             if (action === 'delete') {
                 const ok = window.confirm(`Delete scene "${targetScene.PresentationMode__Scene__Name}"?`);
                 if (!ok) return;
                 Na__PmDev__WorkingScenes = Na__PmDev__WorkingScenes.filter(
                     s => s.PresentationMode__Scene__Id !== targetScene.PresentationMode__Scene__Id
-                );
-                Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);    // <-- Close the gap left by the deleted scene
-                Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
-                await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
-                Na__PmDev__RenderEditorPanel();                              // <-- Rebuild panel after delete
-            } else if (action === 'regroup') {
-                Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);    // <-- Renumbers the group it left AND the one it joined
-                Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
-                await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
-                Na__PmDev__RenderEditorPanel();                              // <-- Row physically moves to its new group's block
-            } else if (action === 'save-one') {
-                Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
-                await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
+                );                                                           // <-- Normalise below closes the gap it leaves
+            } else if (action !== 'update' && action !== 'regroup') {
+                return;                                                      // <-- Unknown action, do nothing
             }
+
+            Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);        // <-- Renumber 1..N inside each affected group
+            Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);        // <-- Refresh carousel + selector bar
+            await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
+            Na__PmDev__RenderEditorPanel();                                  // <-- Rows may have moved between group blocks
         };
 
         if (Na__PmDev__WorkingScenes.length === 0) {
@@ -1363,24 +1401,16 @@
         const existing   = Na__PmDev__WorkingScenes;                        // <-- Shared array (preserves in-row edits)
         const sceneId    = Na__PmDev__GetNextSceneId(existing);             // <-- Auto Scene_001, Scene_002 ...
         const nextNum    = existing.length + 1;
-        const maxOrder   = existing.reduce((max, s) => Math.max(max, s.PresentationMode__Scene__Order ?? 0), 0);
 
-        const built      = Na__PresentationMode__Camera__BuildSceneCameraJson(Na__PmDev__Camera, Na__PmDev__Controls);
-        if (!built) return;
-
-        const currentFov = parseFloat(Na__PmDev__Camera.fov.toFixed(4));
-        const lensMm     = Math.round(Na__PmDev__FovToFocalMm(currentFov));
-
+        // The scene's own fields. Everything captured FROM the live viewport is
+        // left to Na__PmDev__CaptureLiveViewIntoScene below, so adding a scene
+        // and updating one capture an identical set.
         const newScene   = {
             PresentationMode__Scene__Id                    : sceneId,
             PresentationMode__Scene__Name                  : `Scene ${nextNum}`,
-            PresentationMode__Scene__Order                 : maxOrder + 1,
             PresentationMode__Scene__ThumbnailUrl          : `PresentationMode/Thumbnails/${sceneId}.webp`,
-            PresentationMode__Scene__LensMm                : lensMm,
             PresentationMode__Scene__TransitionTimeToNextSceneMs : Na__PmDev__TRANSITION_DEFAULT,
-            PresentationMode__Scene__TransitionEasing      : 'easeInOutCubic',
-            PresentationMode__Scene__CameraPosition        : built.cameraPosition,
-            PresentationMode__Scene__OrbitHelperCubePosition: built.orbitHelperCubePosition
+            PresentationMode__Scene__TransitionEasing      : 'easeInOutCubic'
         };
 
         // GROUP | A new scene joins the group the carousel is currently showing
@@ -1394,16 +1424,9 @@
             || Na__PresentationMode__SceneGroups__GetFallbackGroupId(Na__ActiveConfig);
         if (Na__NewSceneGroup) newScene.PresentationMode__Scene__GroupId = Na__NewSceneGroup;
 
-        const newSceneVisibility = Na__PmVisibility__CaptureState();        // <-- Capture model element on/off state at creation
-        if (newSceneVisibility) newScene.PresentationMode__Scene__Visibility = newSceneVisibility;
-
-        const liveNavMode = Na__NavigationModes__GetActiveMode();           // <-- A scene framed in walk mode is a walk scene
-        if (liveNavMode === 'walk' || liveNavMode === 'fly') {
-            newScene[Na__PmDev__KEY__NAVIGATION_MODE] = liveNavMode;        // <-- Orbit is the absent-key default, so it stores nothing
-        }
-
-        // RENDER + UPLOAD THUMBNAIL FIRST so the carousel card has an image
-        await Na__PmDev__RegenerateThumbnail(newScene);                     // <-- Sets ThumbnailUrl on success
+        // CAPTURE THE LIVE VIEW | camera, FOV, lens, layers, nav mode, thumbnail
+        const captured = await Na__PmDev__CaptureLiveViewIntoScene(newScene);
+        if (!captured) return;                                              // <-- No camera or no pose; nothing to add
 
         Na__PmDev__WorkingScenes = [...existing, newScene];                 // <-- Append to shared array
         Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);           // <-- Give it a correct 1..N slot inside ITS group
