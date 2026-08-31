@@ -2,6 +2,158 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.11.0  -  31-Aug-2026
+### Presentation Mode Scene Groups - Named Sets Above The Carousel
+
+**Overview**
+- Saved scenes can now be split into named groups (Exterior 3D Views, Interior
+  3D Views, Dollhouse View, Floor Plans, or whatever a job needs). The carousel
+  shows one group at a time and a small pill above its top-left corner names the
+  group, counts them, and opens the list. On West Farm this takes the strip from
+  eight cramped cards to three, and stops the run from exterior views straight
+  into dolls-house plans that made the old strip so hard to read.
+- Group names are per-project and renameable, so an interiors job renames
+  "Exterior 3D Views" rather than needing a new group invented for it.
+- New modules in `21__System__PresentationMode`: a data layer
+  (`SceneGroups__Data__`), the selector bar (`UI__SceneGroupSelector__`), the
+  Dev group editor (`DevMenu__GroupEditor__`), its own AppConfig JSON and its
+  own stylesheet. The feature is not folded into the existing carousel or dev
+  UI files.
+
+**Where the data lives (the part that could have gone badly)**
+- Groups are nested INSIDE the existing `PresentationMode__SavedCameraScenes`
+  block, under `...__Groups`, with a per-scene `...__Scene__GroupId`.
+- That was the whole design constraint. The dev-owned top-level key list is
+  duplicated in THREE files that must agree - `Na__DevSavedKeys` in
+  `Na__AppFlow__LoadingSequence.js`, `DEV_OWNED_PROJECT_DATA_KEYS` in
+  `CloudflareR2__ModelSync__Main__.py`, and `TRUEVISION_DEV_OWNED_KEYS` in
+  `ProjectVision__BuildScript__.py`. Nesting inside a key already on all three
+  lists means groups ride the existing R2 overlay, build-preserve and
+  merge-save path with none of those lists touched. A new top-level key would
+  have needed all three edited in lockstep, and missing one would have let a
+  ProjectVision build silently wipe every group.
+- Saving is unchanged: one `Na__CfApi__MergeAndSaveKeys` call writing the whole
+  block. Groups ride along inside the same config object the scenes do.
+
+**Scene Order is now per-group**
+- `PresentationMode__Scene__Order` restarts at 1 inside each group, so playback
+  order is `(Group__Order, Scene__Order)` and never `Scene__Order` alone.
+- Existing projects need no migration. A project with no `__Groups` array reads
+  as ungrouped: the bar never mounts, every scene shows, and the order is the
+  plain `Scene__Order` sort it always was. Verified live against RB05 before
+  any group was defined - eight cards, no bar, byte-identical behaviour.
+- Orders are only rewritten when the author actually assigns scenes to groups
+  and saves. Opening the Dev menu seeds the default four groups IN MEMORY only,
+  so merely looking at a project is never an edit.
+
+**Nothing can vanish from the carousel**
+- A scene naming a missing or switched-off group falls back to the first
+  enabled group rather than disappearing.
+- Because Order restarts per group, two scenes from different groups can both
+  hold Order 1 - so fallback arrivals would interleave with the scenes already
+  there and produce an unpredictable sequence. `GetScenesInGroup` sorts on a
+  membership rank first (natives, then arrivals clustered by origin group) and
+  only then on Order. The Dev menu reassigns and renumbers before it lets a
+  group be switched off, so this only bites hand-edited JSON, but it makes that
+  case deterministic rather than merely non-destructive.
+- At least one group must always stay enabled; the last one cannot be switched
+  off or deleted.
+
+**Cycling rolls into the next group**
+- Running off the end of a group with the next chevron continues into the first
+  scene of the next group and relabels the bar mid-flight; the very end wraps
+  back to the very start. The changing group name is the nudge that tells a
+  viewer there is more here than the set they started in.
+- Picking a group from the dropdown re-aims the strip WITHOUT moving the
+  camera - browsing is not travelling, and an unrequested camera flight on
+  every group change would be disorienting mid-presentation. The next chevron
+  then enters that group at its first scene rather than resuming an off-screen
+  position the viewer can no longer see.
+
+**The fade is coupled structurally, not by timers**
+- The bar is a DOM child of `.na-pm-carousel`, so it inherits that element's
+  single opacity transition: the 50% idle rest, the hover wake, the 2.6s
+  post-transition wake hold and the keyboard-focus wake all apply to it with no
+  duplicated timers and no way for the two to drift apart. The bar sets no
+  opacity of its own. The existing pointerdown and capture-phase scroll wake
+  listeners are on the container, so touching the bar wakes the assembly free.
+- Because of that, the carousel render clears only its OWN children and leaves
+  the bar standing, so neither module depends on whose event listener runs
+  first. The selector also catches up if scenes somehow arrive before its
+  config loads.
+- `#naPmSceneGroupBar` added to the PWA install bar's bottom-UI clearance list:
+  the pill overhangs the carousel's top edge so it reaches higher than the
+  carousel rect the bar was measuring.
+
+**Navigation mode on arrival - an undeclared scene now means ORBIT**
+- Separate bug, older than this work, but grouping made it obvious: cycling out
+  of a fly-mode kitchen interior into the dolls-house views left you stuck in
+  fly, in a camera view pointing at nothing.
+- `PresentationMode__Scene__NavigationMode` being absent used to mean "keep the
+  viewer's mode". It now means orbit, and the camera is released from walk/fly
+  on EVERY transition rather than only when a mode was declared. Skipping that
+  release was the real damage: walk/fly kept ownership of the camera for the
+  whole flight, rewriting `camera.position` from its own state every frame
+  (walk rebuilds it from a capsule that never moved) and discarding the
+  transition's writes - so the view stayed put while the UI reported arrival.
+- The Dev toggle drops its fourth `Keep` option; Orbit is now the absent-key
+  default and stores nothing. `Update Camera` and new scenes only record a mode
+  when it is walk or fly. Legacy scenes holding the literal `'keep'` fail the
+  availability check and resolve to orbit, so no project data needs migrating.
+- Verified on RB05: orbit across the exteriors, fly honoured at both kitchen
+  interiors, orbit restored at Ground Floor where it previously stayed in fly.
+
+**Dev menu**
+- Collapsible `Scene Groups` section at the top of the Presentation Scenes
+  panel: enable toggle, editable name, scene count, reorder arrows and delete
+  per group, plus Add Group. Group order is the order the carousel cycles
+  through them, so those arrows are a playback control.
+- The scene list below is clustered under group headings, and the `#N` on each
+  row is the scene's position within ITS group. Each row gains a `Group`
+  dropdown listing only ENABLED groups - which is what makes "a scene assigned
+  to a switched-off group" impossible to author rather than something the
+  viewer has to be defended against.
+- Each group's scene rows FOLD, closed by default, so the panel opens as a
+  short list of group names instead of every scene on the project expanded at
+  once. Open state is remembered across panel rebuilds - a reorder rebuilds the
+  panel, and collapsing the group being worked in would make the arrows
+  unusable.
+- Scene counts read "4 Views" / "1 View" / "No views" rather than a bare
+  number, in the carousel dropdown, the group rows and the list headings. A
+  lone digit beside a group name read as a position in an ordered list.
+
+**Reorder bug caught in review**
+- `NormaliseOrderWithinGroups` sorted by the existing Order before renumbering.
+  Every reorder works by splicing the working array and then calling that to
+  write the new positions out - so it read back the pre-move sequence and
+  silently undid the move, while the save still fired and reported success to
+  R2. Array position is the intent; it now walks the array exactly as given.
+  Callers that want a sorted starting point sort first, which the panel render
+  already did.
+- Regression test added and confirmed to fail against the old code.
+- Reordering (arrows, drag, Position field) is confined to a scene's own group;
+  the dropdown is the only way to move between groups. A cross-group drag is
+  refused outright rather than silently pinned to the group edge, which would
+  have read as a broken drag.
+- The group editor never saves for itself. It mutates the shared live config
+  and raises `na-presentation-groups-changed`; the scene editor owns the single
+  normalise -> commit -> write-to-R2 path and answers that event. Groups and
+  scenes live in the same JSON block, so one writer is the only way the two can
+  never disagree about what was written.
+
+**Verified**
+- 31 data-layer assertions against the real RB05 project JSON: legacy
+  passthrough, seeding, per-group renumbering, groups-first playback order,
+  cross-group cycling in both directions including both wraps, the
+  fallback-safety cases, and reorder survival through a full render cycle.
+- Live in the browser on RB05: ungrouped passthrough, filtering 8 cards to 3,
+  the bar relabelling as cycling crossed each boundary, dropdown selection
+  leaving the camera parked, dismissal by outside press and Escape (with the
+  containment bail-out from the v2.10.0 context menu trap), the Dev panel's
+  group section and per-scene dropdowns, and the mobile scale-down at 375px.
+  No group data was written to R2 or to the repo during testing.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.10.0  -  30-Aug-2026
 ### Right-Click Context Menu System - Isolate Floor, Isolate Element, Hide Element
 

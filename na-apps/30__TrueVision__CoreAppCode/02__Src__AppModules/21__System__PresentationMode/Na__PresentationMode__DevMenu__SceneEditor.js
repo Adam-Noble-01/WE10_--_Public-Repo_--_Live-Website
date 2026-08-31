@@ -44,9 +44,12 @@
 //   Order is normalised to 1..N on every render and after every move.
 // - Added a per-scene collapsible Advanced section and moved Position, Easing
 //   and layer-switch timing into it alongside the new Navigation Mode toggles.
-// - Added per-scene Navigation Mode (Keep / Orbit / Walk / Fly). Keep is the
-//   absent-key default, so scenes authored before this release are unchanged.
-//   New scenes and Update Camera capture the live mode automatically.
+// - Added per-scene Navigation Mode (Orbit / Walk / Fly). Orbit is the
+//   absent-key default. New scenes and Update Camera capture the live mode
+//   automatically, storing nothing when that mode is orbit.
+//   (The original release offered a fourth "Keep" option meaning "stay in
+//   whatever mode the viewer is in". It was removed on 31-Aug-2026 - see the
+//   dev log in Na__PresentationMode__Camera__SceneTransition.js.)
 //
 // =============================================================================
 
@@ -61,6 +64,37 @@
         Na__PresentationMode__ProjectJson__GetActiveConfig,
         Na__PresentationMode__ProjectJson__SetActiveConfig
     } from './Na__PresentationMode__ProjectJson__SceneData.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Scene Group Data Layer
+    // ------------------------------------------------------------
+    // @delegate: ./Na__PresentationMode__SceneGroups__Data__.js
+    // ------------------------------------------------------------
+    import {
+        Na__PresentationMode__SceneGroups__IsEnabled,
+        Na__PresentationMode__SceneGroups__FormatViewCount,
+        Na__PresentationMode__SceneGroups__GetDefaultGroups,
+        Na__PresentationMode__SceneGroups__GetEnabledGroups,
+        Na__PresentationMode__SceneGroups__GetFallbackGroupId,
+        Na__PresentationMode__SceneGroups__GetActiveGroupId,
+        Na__PresentationMode__SceneGroups__ResolveSceneGroupId,
+        Na__PresentationMode__SceneGroups__SortScenesForPlayback,
+        Na__PresentationMode__SceneGroups__NormaliseOrderWithinGroups
+    } from './Na__PresentationMode__SceneGroups__Data__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Dev Menu Group Editor (rendered at the top of this panel)
+    // ------------------------------------------------------------
+    // One-directional: the group editor never imports this module. It mutates
+    // the shared live config and raises GROUPS_CHANGED_EVENT, which this module
+    // answers with the single normalise -> commit -> save-to-R2 path.
+    // @delegate: ./Na__PresentationMode__DevMenu__GroupEditor__.js
+    // ------------------------------------------------------------
+    import {
+        Na__PresentationMode__DevMenu__RenderGroupEditor,
+        Na__PresentationMode__DevMenu__GetFallbackGroupName,
+        Na__PresentationMode__DevMenu__GROUPS_CHANGED_EVENT
+    } from './Na__PresentationMode__DevMenu__GroupEditor__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Camera Scene Transition (capture + build)
@@ -136,13 +170,15 @@
 
     // MODULE CONSTANTS | Per-Scene Navigation Mode Options
     // ------------------------------------------------------------
-    // 'keep' is the absent-key state: the viewer stays in whatever mode they
-    // were already using.  Every scene authored before this feature existed
-    // resolves to 'keep', so older projects behave exactly as they did.
+    // 'orbit' is the absent-key state, so a scene that has never been given a
+    // mode shows Orbit selected and stores nothing. There is deliberately no
+    // 'Keep' option any more: it used to mean "stay in whatever mode you are
+    // in", which stranded viewers in walk/fly after an interior scene and left
+    // walk/fly fighting the camera transition for the whole flight.
+    // @delegate: ./Na__PresentationMode__Camera__SceneTransition.js
     // ------------------------------------------------------------
     const Na__PmDev__NAV_MODE_OPTIONS = [
-        { value : 'keep',  label : 'Keep',  title : 'Leave the viewer in whatever navigation mode they are already using' },
-        { value : 'orbit', label : 'Orbit', title : 'Force orbit mode when this scene is shown' },
+        { value : 'orbit', label : 'Orbit', title : 'Return to orbit for this scene (the default for any scene with no mode set)' },
         { value : 'walk',  label : 'Walk',  title : 'Enter walk mode at this scene position once the camera arrives' },
         { value : 'fly',   label : 'Fly',   title : 'Enter fly mode at this scene position once the camera arrives' }
     ];
@@ -168,6 +204,7 @@
     // ------------------------------------------------------------
     let Na__PmDev__DragSceneId       = null;         // <-- Scene id currently being dragged, null when idle
     const Na__PmDev__AdvancedOpenIds = new Set();    // <-- Scene ids whose Advanced section is expanded (survives re-render)
+    const Na__PmDev__OpenGroupIds    = new Set();    // <-- Group ids whose scene list is unfolded; empty = all folded on open
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -205,11 +242,16 @@
 
     // HELPER FUNCTION | Build a Fresh Default Config Block (first scene added)
     // ------------------------------------------------------------
+    // The Groups array is seeded from this system's own AppConfig defaults, so
+    // a brand-new project starts with the four named groups present and only
+    // the first switched on - which is what makes the selector bar stay hidden
+    // until a second group is deliberately enabled.
     function Na__PmDev__BuildDefaultConfig(scenes) {
         return {
-            PresentationMode__SavedCameraScenes__Description : 'Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition.',
+            PresentationMode__SavedCameraScenes__Description : 'Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition. Scenes are split into named Groups; Scene Order restarts at 1 within each group.',
             PresentationMode__SavedCameraScenes__Enabled                 : true,
             PresentationMode__SavedCameraScenes__DefaultSceneId          : scenes[0]?.PresentationMode__Scene__Id || null,
+            PresentationMode__SavedCameraScenes__Groups                  : Na__PresentationMode__SceneGroups__GetDefaultGroups(),
             PresentationMode__SavedCameraScenes__Scenes                  : scenes
         };
     }
@@ -260,38 +302,77 @@
 // REGION | Scene Reordering
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Sort a Scenes Array by Order Field (ascending)
+    // HELPER FUNCTION | Sort a Scenes Array Into Playback Order
+    // ------------------------------------------------------------
+    // Groups first, then Scene Order within each group, so the panel's row
+    // sequence matches the carousel's exactly and array position stays a
+    // meaningful thing to reorder against.
     // ------------------------------------------------------------
     function Na__PmDev__SortScenesByOrder(scenes) {
-        return scenes.sort((a, b) =>
-            ((a.PresentationMode__Scene__Order ?? 999) - (b.PresentationMode__Scene__Order ?? 999))
-        );
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        return Na__PresentationMode__SceneGroups__SortScenesForPlayback(scenes, config);
     }
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Rewrite Order Fields to Match Array Position (1..N)
+    // HELPER FUNCTION | Rewrite Order Fields to a Clean 1..N Within Each Group
     // ------------------------------------------------------------
-    // The carousel plays scenes sorted by Order, so array position is only
-    // meaningful once it has been written back out as a clean 1..N sequence.
-    // This also tidies legacy projects that used sparse orders like 10/20/30.
+    // Scene Order restarts at 1 inside every group, so the carousel's per-group
+    // strip reads 1..N and cross-group cycling walks (Group Order, Scene Order).
+    // Also writes an explicit GroupId onto every scene, so what reaches the
+    // project JSON is fully resolved rather than depending on the runtime
+    // fallback. Tidies legacy projects that used sparse orders like 10/20/30.
     // ------------------------------------------------------------
     function Na__PmDev__NormaliseSceneOrder(scenes) {
-        scenes.forEach((scene, index) => {
-            scene.PresentationMode__Scene__Order = index + 1;                // <-- Contiguous, 1-based, matches the visible #N
-        });
-        return scenes;
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        return Na__PresentationMode__SceneGroups__NormaliseOrderWithinGroups(scenes, config);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Get the Contiguous Array Slice One Group Occupies
+    // ------------------------------------------------------------
+    // The working array is held in playback order, so a group's scenes always
+    // sit in one unbroken run. Returns { start, end } inclusive, or null when
+    // the project is ungrouped.
+    // ------------------------------------------------------------
+    function Na__PmDev__GetGroupSliceBounds(sceneId) {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        if (!Na__PresentationMode__SceneGroups__IsEnabled()) return null;
+        if (!Na__PresentationMode__SceneGroups__GetFallbackGroupId(config)) return null; // <-- Ungrouped project
+
+        const scene = Na__PmDev__WorkingScenes.find(s => s.PresentationMode__Scene__Id === sceneId);
+        if (!scene) return null;
+
+        const groupId = Na__PresentationMode__SceneGroups__ResolveSceneGroupId(scene, config);
+        const indices = Na__PmDev__WorkingScenes.reduce((acc, candidate, index) => {
+            if (Na__PresentationMode__SceneGroups__ResolveSceneGroupId(candidate, config) === groupId) acc.push(index);
+            return acc;
+        }, []);
+
+        if (indices.length === 0) return null;
+        return { start : indices[0], end : indices[indices.length - 1] };
     }
     // ------------------------------------------------------------
 
 
     // HELPER FUNCTION | Move a Scene to a New Position in the Working Array
     // ------------------------------------------------------------
+    // Movement is confined to the scene's own group. Reordering and regrouping
+    // are deliberately separate controls: the arrows, the drag handle and the
+    // Position field all reorder WITHIN a group, and the Group dropdown is the
+    // one and only way to move a scene between groups. Letting a drag land in
+    // a neighbouring group's run would be ambiguous at every boundary.
+    // ------------------------------------------------------------
     function Na__PmDev__MoveSceneToIndex(sceneId, targetIndex) {
         const fromIndex = Na__PmDev__WorkingScenes.findIndex(s => s.PresentationMode__Scene__Id === sceneId);
         if (fromIndex === -1) return false;                                  // <-- Unknown scene
 
-        const bounded = Math.max(0, Math.min(targetIndex, Na__PmDev__WorkingScenes.length - 1));
+        const slice   = Na__PmDev__GetGroupSliceBounds(sceneId);
+        const lowest  = slice ? slice.start : 0;
+        const highest = slice ? slice.end   : Na__PmDev__WorkingScenes.length - 1;
+
+        const bounded = Math.max(lowest, Math.min(targetIndex, highest));    // <-- Clamp inside the group's own run
         if (bounded === fromIndex) return false;                             // <-- Already in position, nothing to do
 
         const [moved] = Na__PmDev__WorkingScenes.splice(fromIndex, 1);       // <-- Lift the row out
@@ -328,11 +409,34 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Move a Scene to an Explicit 1-Based Position
+    // FUNCTION | Move a Scene to an Explicit 1-Based Position Within Its Group
+    // ------------------------------------------------------------
+    // The Position field counts from 1 inside the scene's own group, matching
+    // the #N in the row header and the Order written to the project JSON, so it
+    // is offset by where that group's run starts in the working array.
     // ------------------------------------------------------------
     async function Na__PmDev__MoveSceneToPosition(sceneId, position) {
-        if (!Na__PmDev__MoveSceneToIndex(sceneId, position - 1)) return;     // <-- Convert to zero-based index
+        const slice       = Na__PmDev__GetGroupSliceBounds(sceneId);
+        const groupOffset = slice ? slice.start : 0;                         // <-- Where this group's run begins
+        if (!Na__PmDev__MoveSceneToIndex(sceneId, groupOffset + position - 1)) return; // <-- Convert to zero-based index
         await Na__PmDev__CommitReorder();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Do Two Scenes Resolve Into the Same Group?
+    // ------------------------------------------------------------
+    function Na__PmDev__AreScenesInSameGroup(sceneIdA, sceneIdB) {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        if (!Na__PresentationMode__SceneGroups__IsEnabled()) return true;    // <-- Ungrouped: every row is a valid target
+        if (!Na__PresentationMode__SceneGroups__GetFallbackGroupId(config)) return true;
+
+        const sceneA = Na__PmDev__WorkingScenes.find(s => s.PresentationMode__Scene__Id === sceneIdA);
+        const sceneB = Na__PmDev__WorkingScenes.find(s => s.PresentationMode__Scene__Id === sceneIdB);
+        if (!sceneA || !sceneB) return false;
+
+        return Na__PresentationMode__SceneGroups__ResolveSceneGroupId(sceneA, config)
+            === Na__PresentationMode__SceneGroups__ResolveSceneGroupId(sceneB, config);
     }
     // ------------------------------------------------------------
 
@@ -376,6 +480,7 @@
 
         row.addEventListener('dragover', (event) => {
             if (!Na__PmDev__DragSceneId || Na__PmDev__DragSceneId === sceneId) return;
+            if (!Na__PmDev__AreScenesInSameGroup(Na__PmDev__DragSceneId, sceneId)) return; // <-- No indicator across groups
             event.preventDefault();                                          // <-- Required to allow a drop
             if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
 
@@ -412,6 +517,12 @@
         const fromIndex   = Na__PmDev__WorkingScenes.findIndex(s => s.PresentationMode__Scene__Id === dragSceneId);
         const targetIndex = Na__PmDev__WorkingScenes.findIndex(s => s.PresentationMode__Scene__Id === targetSceneId);
         if (fromIndex === -1 || targetIndex === -1) return;
+
+        // GUARD | Dragging is a within-group reorder; use the Group dropdown to
+        // move a scene between groups. Without this the clamp in
+        // MoveSceneToIndex would silently pin the row to its own group edge,
+        // which reads as a broken drag rather than a refused one.
+        if (!Na__PmDev__AreScenesInSameGroup(dragSceneId, targetSceneId)) return;
 
         const insertAt   = placeAfter ? targetIndex + 1 : targetIndex;       // <-- Slot in the pre-move array
         const finalIndex = fromIndex < insertAt ? insertAt - 1 : insertAt;   // <-- Compensate for lifting the row out first
@@ -544,6 +655,55 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Build the Per-Scene Group Dropdown Row
+    // ------------------------------------------------------------
+    // Lists only ENABLED groups, which is what makes "a scene assigned to a
+    // switched-off group" impossible to author rather than something the
+    // viewer has to be protected from at runtime. A scene that has never been
+    // assigned shows the group it currently falls back into, so the dropdown
+    // always tells the truth about where the scene actually is.
+    //
+    // Returns null when the project has no groups, so an ungrouped project's
+    // rows look exactly as they did before this feature existed.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildGroupRow(scene, onChange) {
+        if (!Na__PresentationMode__SceneGroups__IsEnabled()) return null;
+
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const groups = Na__PresentationMode__SceneGroups__GetEnabledGroups(config);
+        if (groups.length === 0) return null;                                // <-- Ungrouped project
+
+        const currentGroupId = Na__PresentationMode__SceneGroups__ResolveSceneGroupId(scene, config);
+
+        const row = document.createElement('div');
+        row.className = 'na-pm-dev__row';
+
+        const label = document.createElement('label');
+        label.className   = 'na-pm-dev__label';
+        label.textContent = 'Group';
+
+        const select = document.createElement('select');
+        select.className = 'na-pm-dev__select';
+        select.title     = 'Which group of the carousel this scene appears in';
+
+        groups.forEach((group) => {
+            const groupId  = group.PresentationMode__Group__Id;
+            const option   = document.createElement('option');
+            option.value   = groupId;
+            option.text    = group.PresentationMode__Group__Name || groupId;
+            option.selected = groupId === currentGroupId;
+            select.appendChild(option);
+        });
+
+        select.addEventListener('change', () => onChange(select.value));
+
+        row.appendChild(label);
+        row.appendChild(select);
+        return row;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Build the Per-Scene Navigation Mode Toggle Row
     // ------------------------------------------------------------
     // Rendered as a segmented button group rather than a dropdown so the four
@@ -552,7 +712,8 @@
     // across projects and explains why a mode is unavailable.
     // ------------------------------------------------------------
     function Na__PmDev__BuildNavigationModeRow(scene, onChange) {
-        const currentMode = scene[Na__PmDev__KEY__NAVIGATION_MODE] || 'keep'; // <-- Absent key = keep viewer's current mode
+        const stored      = scene[Na__PmDev__KEY__NAVIGATION_MODE];
+        const currentMode = (stored === 'walk' || stored === 'fly') ? stored : 'orbit'; // <-- Absent key, or legacy 'keep', reads as orbit
 
         const row = document.createElement('div');
         row.className = 'na-pm-dev__row';
@@ -709,6 +870,15 @@
         nameRow.appendChild(nameInput);
         wrapper.appendChild(nameRow);
 
+        // GROUP DROPDOWN | Sits in the main body, not Advanced: which group a
+        // scene belongs to is a primary authoring decision on a large model,
+        // and it is the only control that moves a scene between groups.
+        const groupRow = Na__PmDev__BuildGroupRow(scene, (newGroupId) => {
+            scene.PresentationMode__Scene__GroupId = newGroupId;             // <-- Explicit assignment
+            onMutate('regroup', scene);                                      // <-- Renumbers both groups, persists, rebuilds
+        });
+        if (groupRow) wrapper.appendChild(groupRow);
+
         // FOV SLIDER
         wrapper.appendChild(Na__PmDev__BuildFovRow(scene, (newFov) => {
             if (!scene.PresentationMode__Scene__CameraPosition) {
@@ -796,8 +966,8 @@
 
         // NAVIGATION MODE TOGGLES
         advancedBody.appendChild(Na__PmDev__BuildNavigationModeRow(scene, (newMode) => {
-            if (newMode === 'keep') {
-                delete scene[Na__PmDev__KEY__NAVIGATION_MODE];              // <-- Omit key when leaving the viewer's mode alone
+            if (newMode === 'orbit') {
+                delete scene[Na__PmDev__KEY__NAVIGATION_MODE];              // <-- Omit key when orbit; absent already means orbit
             } else {
                 scene[Na__PmDev__KEY__NAVIGATION_MODE] = newMode;
             }
@@ -841,7 +1011,11 @@
             if (visibility) scene.PresentationMode__Scene__Visibility = visibility;
 
             const liveMode = Na__NavigationModes__GetActiveMode();          // <-- Recapture the mode the view was framed in
-            if (liveMode) scene[Na__PmDev__KEY__NAVIGATION_MODE] = liveMode;
+            if (liveMode === 'walk' || liveMode === 'fly') {
+                scene[Na__PmDev__KEY__NAVIGATION_MODE] = liveMode;
+            } else {
+                delete scene[Na__PmDev__KEY__NAVIGATION_MODE];              // <-- Orbit is the absent-key default; keep the JSON clean
+            }
 
             onMutate('save-one', scene);                                    // <-- Commit + persist; commit re-renders the panel
         });
@@ -957,6 +1131,106 @@
 // REGION | Editor Panel Render
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Build a Collapsible Group Heading for the Scene List
+    // ------------------------------------------------------------
+    // The heading is the fold control for its group. Groups start folded, so
+    // the panel opens as a short list of group names rather than every scene on
+    // the project expanded at once - on a model with twenty-plus views the
+    // unfolded panel was unusable to navigate.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildGroupHeading(groupName, sceneCount, isOpen) {
+        const heading = document.createElement('button');
+        heading.type      = 'button';
+        heading.className = 'na-pm-dev__group-heading';
+        heading.setAttribute('aria-expanded', String(isOpen));
+
+        const arrow = document.createElement('span');
+        arrow.className = 'na-pm-dev__group-heading-arrow';
+        arrow.innerHTML = '&#9662;';                                          // <-- Rotates via CSS on aria-expanded
+        arrow.setAttribute('aria-hidden', 'true');
+        heading.appendChild(arrow);
+
+        const nameEl = document.createElement('span');
+        nameEl.className   = 'na-pm-dev__group-heading-name';
+        nameEl.textContent = groupName;
+        heading.appendChild(nameEl);
+
+        const countEl = document.createElement('span');
+        countEl.className   = 'na-pm-dev__group-heading-count';
+        countEl.textContent = Na__PresentationMode__SceneGroups__FormatViewCount(sceneCount);
+        heading.appendChild(countEl);
+
+        return heading;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Render the Scene Rows, Clustered Under Their Group Headings
+    // ------------------------------------------------------------
+    // The displayed #N is the scene's position WITHIN its group, matching the
+    // per-group Order that is written to the project JSON and the position the
+    // carousel shows. Reorder arrows disable at each group's own edges, since
+    // reordering never crosses a group boundary.
+    //
+    // An ungrouped project falls through to one flat, unheaded list numbered
+    // 1..N, exactly as the panel looked before this feature existed.
+    // ------------------------------------------------------------
+    function Na__PmDev__RenderSceneRowsGroupedByGroup(panel, onMutate) {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const groups = Na__PresentationMode__SceneGroups__IsEnabled()
+            ? Na__PresentationMode__SceneGroups__GetEnabledGroups(config)
+            : [];
+
+        const appendRow = (container, scene, indexInGroup, countInGroup) => {
+            const row = Na__PmDev__BuildSceneRow(scene, indexInGroup, countInGroup, onMutate);
+            Na__PmDev__AttachSceneRowDragHandlers(row);                      // <-- Drag-to-reorder wiring
+            container.appendChild(row);
+        };
+
+        // UNGROUPED PROJECT | One flat list, legacy behaviour
+        if (groups.length === 0) {
+            const rowCount = Na__PmDev__WorkingScenes.length;
+            Na__PmDev__WorkingScenes.forEach((scene, index) => appendRow(panel, scene, index, rowCount));
+            return;
+        }
+
+        // GROUPED PROJECT | A fold-down heading, then that group's own run of rows
+        groups.forEach((group) => {
+            const groupId = group.PresentationMode__Group__Id;
+            const inGroup = Na__PmDev__WorkingScenes.filter(scene =>
+                Na__PresentationMode__SceneGroups__ResolveSceneGroupId(scene, config) === groupId
+            );
+
+            const isOpen  = Na__PmDev__OpenGroupIds.has(groupId);            // <-- Folded unless the author opened it
+            const heading = Na__PmDev__BuildGroupHeading(
+                group.PresentationMode__Group__Name || groupId,
+                inGroup.length,
+                isOpen
+            );
+
+            const body = document.createElement('div');
+            body.className = 'na-pm-dev__group-scenes';
+            body.classList.toggle('is-open', isOpen);
+
+            heading.addEventListener('click', () => {
+                const willOpen = !body.classList.contains('is-open');
+                body.classList.toggle('is-open', willOpen);
+                heading.setAttribute('aria-expanded', String(willOpen));
+                if (willOpen) {
+                    Na__PmDev__OpenGroupIds.add(groupId);                    // <-- Survives the rebuild after a reorder or save
+                } else {
+                    Na__PmDev__OpenGroupIds.delete(groupId);
+                }
+            });
+
+            panel.appendChild(heading);
+            inGroup.forEach((scene, index) => appendRow(body, scene, index, inGroup.length));
+            panel.appendChild(body);
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Rebuild the Entire Scene Editor Panel
     // ------------------------------------------------------------
     function Na__PmDev__RenderEditorPanel() {
@@ -965,11 +1239,47 @@
 
         panel.innerHTML = '';                                                // <-- Clear and rebuild
 
+        // SCENE GROUPS SECTION | Collapsible, at the very top of this panel
+        // ------------------------------------------------------------
+        // The group editor owns everything inside this container. It mutates
+        // the shared live config and raises its changed event, which this
+        // module answers below with the one normalise -> commit -> save path.
+        // @delegate: ./Na__PresentationMode__DevMenu__GroupEditor__.js
+        // ------------------------------------------------------------
+        const groupContainer = document.createElement('div');
+        groupContainer.className = 'na-pm-dev__group-container';
+        panel.appendChild(groupContainer);
+        Na__PresentationMode__DevMenu__RenderGroupEditor(groupContainer, Na__PmDev__ShowToast);
+
         // SORT ONCE INTO THE WORKING ARRAY so array index == displayed position.
         // Every reorder operation below works on array position, so the array
-        // and the panel must agree before any row is built.
+        // and the panel must agree before any row is built. The sort is
+        // group-aware, so a group's scenes always form one unbroken run.
         Na__PmDev__WorkingScenes = Na__PmDev__SortScenesByOrder(Na__PmDev__GetWorkingScenes());
-        Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);            // <-- Collapse sparse/legacy orders to 1..N
+        Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);            // <-- Collapse to a clean 1..N inside each group
+
+        // ONE MUTATION HANDLER shared by every row
+        const Na__PmDev__HandleRowMutation = async (action, targetScene) => {
+            if (action === 'delete') {
+                const ok = window.confirm(`Delete scene "${targetScene.PresentationMode__Scene__Name}"?`);
+                if (!ok) return;
+                Na__PmDev__WorkingScenes = Na__PmDev__WorkingScenes.filter(
+                    s => s.PresentationMode__Scene__Id !== targetScene.PresentationMode__Scene__Id
+                );
+                Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);    // <-- Close the gap left by the deleted scene
+                Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
+                await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
+                Na__PmDev__RenderEditorPanel();                              // <-- Rebuild panel after delete
+            } else if (action === 'regroup') {
+                Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);    // <-- Renumbers the group it left AND the one it joined
+                Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
+                await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
+                Na__PmDev__RenderEditorPanel();                              // <-- Row physically moves to its new group's block
+            } else if (action === 'save-one') {
+                Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
+                await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
+            }
+        };
 
         if (Na__PmDev__WorkingScenes.length === 0) {
             const empty = document.createElement('p');
@@ -977,28 +1287,7 @@
             empty.textContent = 'No scenes defined. Add a scene below.';
             panel.appendChild(empty);
         } else {
-            const rowCount = Na__PmDev__WorkingScenes.length;
-
-            Na__PmDev__WorkingScenes.forEach((scene, index) => {
-                const row = Na__PmDev__BuildSceneRow(scene, index, rowCount, async (action, targetScene) => {
-                    if (action === 'delete') {
-                        const ok = window.confirm(`Delete scene "${targetScene.PresentationMode__Scene__Name}"?`);
-                        if (!ok) return;
-                        Na__PmDev__WorkingScenes = Na__PmDev__WorkingScenes.filter(
-                            s => s.PresentationMode__Scene__Id !== targetScene.PresentationMode__Scene__Id
-                        );
-                        Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes); // <-- Close the gap left by the deleted scene
-                        Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
-                        await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
-                        Na__PmDev__RenderEditorPanel();                     // <-- Rebuild panel after delete
-                    } else if (action === 'save-one') {
-                        Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
-                        await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
-                    }
-                });
-                Na__PmDev__AttachSceneRowDragHandlers(row);                 // <-- Drag-to-reorder wiring
-                panel.appendChild(row);
-            });
+            Na__PmDev__RenderSceneRowsGroupedByGroup(panel, Na__PmDev__HandleRowMutation);
         }
 
         // GLOBAL ACTION BUTTONS
@@ -1094,16 +1383,30 @@
             PresentationMode__Scene__OrbitHelperCubePosition: built.orbitHelperCubePosition
         };
 
+        // GROUP | A new scene joins the group the carousel is currently showing
+        // ------------------------------------------------------------
+        // You frame a kitchen view while browsing Interior 3D Views and that is
+        // where it lands, rather than dropping into Exterior and needing to be
+        // moved. Falls back to the first enabled group when nothing is active.
+        // ------------------------------------------------------------
+        const Na__ActiveConfig  = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const Na__NewSceneGroup = Na__PresentationMode__SceneGroups__GetActiveGroupId()
+            || Na__PresentationMode__SceneGroups__GetFallbackGroupId(Na__ActiveConfig);
+        if (Na__NewSceneGroup) newScene.PresentationMode__Scene__GroupId = Na__NewSceneGroup;
+
         const newSceneVisibility = Na__PmVisibility__CaptureState();        // <-- Capture model element on/off state at creation
         if (newSceneVisibility) newScene.PresentationMode__Scene__Visibility = newSceneVisibility;
 
         const liveNavMode = Na__NavigationModes__GetActiveMode();           // <-- A scene framed in walk mode is a walk scene
-        if (liveNavMode) newScene[Na__PmDev__KEY__NAVIGATION_MODE] = liveNavMode;
+        if (liveNavMode === 'walk' || liveNavMode === 'fly') {
+            newScene[Na__PmDev__KEY__NAVIGATION_MODE] = liveNavMode;        // <-- Orbit is the absent-key default, so it stores nothing
+        }
 
         // RENDER + UPLOAD THUMBNAIL FIRST so the carousel card has an image
         await Na__PmDev__RegenerateThumbnail(newScene);                     // <-- Sets ThumbnailUrl on success
 
         Na__PmDev__WorkingScenes = [...existing, newScene];                 // <-- Append to shared array
+        Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);           // <-- Give it a correct 1..N slot inside ITS group
         Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);          // <-- Updates config + live UI refresh
 
         const saved = await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes); // <-- Auto-persist to R2
@@ -1186,6 +1489,24 @@
             if (panel.classList.contains('is-open')) {
                 Na__PmDev__RenderEditorPanel();                            // <-- Refresh if panel already open
             }
+        });
+
+        // PERSIST WHEN THE GROUP EDITOR CHANGES SOMETHING
+        // ------------------------------------------------------------
+        // The group editor mutates the shared live config and raises this
+        // event rather than saving for itself. Groups and scenes live in the
+        // same project JSON block, so routing both through this one path keeps
+        // a single implementation of normalise -> commit -> write to R2 and
+        // guarantees a group edit and a scene edit can never disagree about
+        // what was written.
+        // @delegate: ./Na__PresentationMode__DevMenu__GroupEditor__.js
+        // ------------------------------------------------------------
+        window.addEventListener(Na__PresentationMode__DevMenu__GROUPS_CHANGED_EVENT, async () => {
+            Na__PmDev__WorkingScenes = Na__PmDev__SortScenesByOrder(Na__PmDev__GetWorkingScenes()); // <-- Re-read: groups may have moved scenes
+            Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);      // <-- Renumber inside each group
+            Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);      // <-- Refresh carousel + selector bar
+            await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);           // <-- Groups ride along inside the same config object
+            Na__PmDev__RenderEditorPanel();                                // <-- Rebuild rows under their new headings
         });
 
         console.log('[TrueVision3D] Presentation Mode Dev Editor initialized.');

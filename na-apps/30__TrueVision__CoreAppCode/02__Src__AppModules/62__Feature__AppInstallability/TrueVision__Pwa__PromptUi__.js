@@ -95,6 +95,7 @@
     const PROMPT_UI_BAR_STACK_GAP_PX    = 14;                                                                                       // <-- Gap left between the bar and the UI below it
     const PROMPT_UI_BOTTOM_UI_SELECTORS = [                                                                                         // <-- Bottom-anchored UI the bar must clear
         '.na-pm-carousel--visible',                                                                                                 // <-- Presentation Mode scene carousel
+        '#naPmSceneGroupBar',                                                                                                       // <-- Scene group pill; overhangs the carousel's top edge so it reaches higher
         '.na-nav-toolbar'                                                                                                           // <-- Floating navigation toolbar
     ];
     // ------------------------------------------------------------

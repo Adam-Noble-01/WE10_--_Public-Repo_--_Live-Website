@@ -698,6 +698,7 @@
     import { Na__UiFeature__InitializeOrbitMaxDistanceDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__OrbitMaxDistance__DevControls.js';
     import { Na__UiFeature__InitializeViewModeFovDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js';
     import { Na__PresentationMode__UI__InitializeSceneCarousel } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
+    import { Na__PresentationMode__UI__InitializeSceneGroupSelector } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneGroupSelector__.js';
     import { Na__PresentationMode__Thumbnail__SetRenderContext } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Thumbnail__Renderer.js';
     import { Na__PresentationMode__DevMenu__InitializeSceneEditor } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js';
     import { Na__CfApi__Initialize } from './02__Src__AppModules/80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
@@ -1380,6 +1381,7 @@
     // ------------------------------------------------------------
     // @delegate: ./02__Src__AppModules/21__System__PresentationMode/
     Na__PresentationMode__UI__InitializeSceneCarousel(Na__Camera__Main, Na__Controls__Orbit);
+    Na__PresentationMode__UI__InitializeSceneGroupSelector();               // <-- Loads its own config, then mounts inside the carousel
     Na__PresentationMode__Thumbnail__SetRenderContext(
         Na__Renderer__Main,
         Na__Scene__Main,

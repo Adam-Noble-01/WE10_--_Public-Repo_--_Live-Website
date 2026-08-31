@@ -69,6 +69,24 @@
     } from './Na__PresentationMode__Camera__SceneTransition.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Scene Group Data Layer
+    // ------------------------------------------------------------
+    // @delegate: ./Na__PresentationMode__SceneGroups__Data__.js
+    // ------------------------------------------------------------
+    import {
+        Na__PresentationMode__SceneGroups__IsEnabled,
+        Na__PresentationMode__SceneGroups__GetLabels,
+        Na__PresentationMode__SceneGroups__GetEnabledGroups,
+        Na__PresentationMode__SceneGroups__GetScenesInGroup,
+        Na__PresentationMode__SceneGroups__ResolveSceneGroupId,
+        Na__PresentationMode__SceneGroups__GetGroupEdgeScene,
+        Na__PresentationMode__SceneGroups__GetAdjacentScene,
+        Na__PresentationMode__SceneGroups__SetActiveGroupId,
+        Na__PresentationMode__SceneGroups__GetActiveGroupId,
+        Na__PresentationMode__SceneGroups__ResolveOpeningGroupId
+    } from './Na__PresentationMode__SceneGroups__Data__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -82,6 +100,8 @@
     const Na__PresentationMode__UI__CAROUSEL_ID        = 'naPresentationCarousel';      // <-- Root carousel container id
     const Na__PresentationMode__UI__WAKE_CLASS         = 'na-pm-carousel--wake';        // <-- Short-lived opaque flash while the carousel is in use
     const Na__PresentationMode__UI__WakeHoldMs         = 2600;                          // <-- Opaque hold: covers the 1.8s camera flight plus a beat
+    const Na__PresentationMode__UI__GROUP_EVENT        = 'na-presentation-group-changed'; // <-- Shared with the group selector bar
+    const Na__PresentationMode__UI__GROUP_BAR_ID       = 'naPmSceneGroupBar';           // <-- Sibling element this module must not destroy
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -97,6 +117,7 @@
     let Na__PresentationMode__UI__Controls        = null;   // <-- Live OrbitControls reference
     let Na__PresentationMode__UI__IsInitialized   = false;  // <-- Guard against double initialization
     let Na__PresentationMode__UI__WakeTimerHandle = null;   // <-- Pending carousel wake-flash timeout (or null)
+    let Na__PresentationMode__UI__RenderedGroupId = null;   // <-- Group the strip currently shows; skips redundant rebuilds
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -160,16 +181,66 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Render the Placeholder for a Group With No Scenes Yet
+    // ------------------------------------------------------------
+    // The selector bar is re-mounted into this same container by its own
+    // module, so the viewer always keeps a way back out of an empty group.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__RenderEmptyGroupMessage(container) {
+        const labels  = Na__PresentationMode__SceneGroups__GetLabels();
+        const message = document.createElement('div');
+        message.className   = 'na-pm-carousel__empty-group';
+        message.textContent = labels.SceneGroups__Labels__EmptyGroupMessage || 'No scenes in this group yet.';
+        container.appendChild(message);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Get the Scenes the Strip Should Currently Display
+    // ------------------------------------------------------------
+    // With grouping active the strip shows only the active group's scenes -
+    // that is the whole point of the feature, and what stops a project with
+    // twenty views from producing an unreadable twenty-card strip. With
+    // grouping unavailable or the project ungrouped, every scene is shown, so
+    // the carousel behaves exactly as it did before this feature landed.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__GetVisibleScenes() {
+        const allScenes = Na__PresentationMode__ProjectJson__GetSortedScenes();
+        if (!Na__PresentationMode__SceneGroups__IsEnabled()) return allScenes;
+
+        const config  = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const groupId = Na__PresentationMode__SceneGroups__GetActiveGroupId();
+        if (!groupId) return allScenes;                                      // <-- Ungrouped project
+
+        return Na__PresentationMode__SceneGroups__GetScenesInGroup(allScenes, config, groupId);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Render the Full Carousel into #naPresentationCarousel
+    // ------------------------------------------------------------
+    // The group selector bar is a child of this same container (it mounts
+    // there so it inherits the carousel's single opacity transition, which is
+    // what keeps the two fading in perfect unison). This render therefore
+    // clears only ITS OWN children and leaves the bar standing, so the two
+    // modules never depend on which one's event listener happens to run first.
+    // @delegate: ./Na__PresentationMode__UI__SceneGroupSelector__.js
     // ------------------------------------------------------------
     function Na__PresentationMode__UI__RenderSceneCarousel() {
         const container = document.getElementById(Na__PresentationMode__UI__CAROUSEL_ID);
         if (!container) return;
 
-        container.innerHTML = '';                                            // <-- Clear any existing carousel
+        Array.from(container.children).forEach((child) => {
+            if (child.id !== Na__PresentationMode__UI__GROUP_BAR_ID) child.remove(); // <-- Clear the strip, keep the bar
+        });
 
-        const scenes      = Na__PresentationMode__ProjectJson__GetSortedScenes();
-        if (scenes.length === 0) return;
+        Na__PresentationMode__UI__RenderedGroupId = Na__PresentationMode__SceneGroups__GetActiveGroupId();
+
+        const scenes      = Na__PresentationMode__UI__GetVisibleScenes();
+        if (scenes.length === 0) {
+            Na__PresentationMode__UI__RenderEmptyGroupMessage(container);    // <-- Group exists but holds nothing yet
+            return;
+        }
 
         const activeId    = Na__PresentationMode__ProjectJson__GetActiveSceneId();
 
@@ -234,18 +305,74 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Switch Which Group the Strip Is Showing
+    // ------------------------------------------------------------
+    // Called when the chevrons walk off the end of a group and continue into
+    // the next one. Rebuilding the strip mid-flight is deliberate: the viewer
+    // sees the group name change and the thumbnails swap while the camera is
+    // still travelling, which is the cue that there is more here than the set
+    // they started in.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__SwitchToGroup(groupId) {
+        if (!groupId || groupId === Na__PresentationMode__SceneGroups__GetActiveGroupId()) return;
+
+        Na__PresentationMode__SceneGroups__SetActiveGroupId(groupId);        // <-- Shared state both UI modules read
+        Na__PresentationMode__UI__RenderSceneCarousel();                     // <-- Rebuild the strip for the new group
+
+        window.dispatchEvent(new CustomEvent(Na__PresentationMode__UI__GROUP_EVENT, {
+            detail : { groupId : groupId, source : 'carousel' }              // <-- Selector bar relabels itself
+        }));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Get Scene Adjacent to the Active Scene by Offset
     // ------------------------------------------------------------
+    // Returns { scene, groupId } so the caller knows whether stepping has
+    // crossed into a different group. Three cases:
+    //
+    //  1. Grouping unavailable or project ungrouped - flat wrap over every
+    //     scene, exactly the pre-groups behaviour.
+    //  2. The active scene sits OUTSIDE the displayed group - which happens
+    //     after the viewer re-aims the strip with the dropdown, since that
+    //     deliberately leaves the camera parked. Stepping then enters the
+    //     displayed group at its own edge rather than resuming a position the
+    //     viewer can no longer see.
+    //  3. Normal case - step through the (group, scene) playback order, which
+    //     rolls into the next group at a group boundary and wraps around the
+    //     whole project at the very end.
+    // ------------------------------------------------------------
     function Na__PresentationMode__UI__GetAdjacentScene(offset) {
-        const scenes  = Na__PresentationMode__ProjectJson__GetSortedScenes();
+        const scenes = Na__PresentationMode__ProjectJson__GetSortedScenes();
         if (scenes.length === 0) return null;
 
-        const activeId    = Na__PresentationMode__ProjectJson__GetActiveSceneId();
-        const currentIdx  = scenes.findIndex(s => s.PresentationMode__Scene__Id === activeId);
-        const baseIdx     = currentIdx >= 0 ? currentIdx : 0;
-        const nextIdx     = (baseIdx + offset + scenes.length) % scenes.length; // <-- Wrap around
+        const config        = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const activeId      = Na__PresentationMode__ProjectJson__GetActiveSceneId();
+        const activeGroupId = Na__PresentationMode__SceneGroups__GetActiveGroupId();
 
-        return scenes[nextIdx] || null;
+        // CASE 1 | No grouping in play
+        if (!Na__PresentationMode__SceneGroups__IsEnabled() || !activeGroupId) {
+            const currentIdx = scenes.findIndex(s => s.PresentationMode__Scene__Id === activeId);
+            const baseIdx    = currentIdx >= 0 ? currentIdx : 0;
+            const nextIdx    = (baseIdx + offset + scenes.length) % scenes.length; // <-- Wrap around
+            const scene      = scenes[nextIdx];
+            return scene ? { scene : scene, groupId : null } : null;
+        }
+
+        // CASE 2 | Camera is parked in a group the strip is no longer showing
+        const activeScene   = scenes.find(s => s.PresentationMode__Scene__Id === activeId) || null;
+        const activeSceneGroup = activeScene
+            ? Na__PresentationMode__SceneGroups__ResolveSceneGroupId(activeScene, config)
+            : null;
+
+        if (activeSceneGroup !== activeGroupId) {
+            const edge  = offset >= 0 ? 'first' : 'last';                    // <-- Enter the group from the matching end
+            const scene = Na__PresentationMode__SceneGroups__GetGroupEdgeScene(scenes, config, activeGroupId, edge);
+            return scene ? { scene : scene, groupId : activeGroupId } : null;
+        }
+
+        // CASE 3 | Ordinary step, crossing group boundaries as it goes
+        return Na__PresentationMode__SceneGroups__GetAdjacentScene(scenes, config, activeId, offset);
     }
     // ------------------------------------------------------------
 
@@ -275,21 +402,38 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Handle Previous Button Click
+    // FUNCTION | Step One Scene in Either Direction
     // ------------------------------------------------------------
-    function Na__PresentationMode__UI__HandlePrevClick() {
-        const prevScene = Na__PresentationMode__UI__GetAdjacentScene(-1);
-        if (!prevScene) return;
+    // The group is switched BEFORE the highlight is set, so the card the
+    // highlight is looking for already exists in the freshly rebuilt strip.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__StepScene(offset) {
+        const step = Na__PresentationMode__UI__GetAdjacentScene(offset);
+        if (!step || !step.scene) return;
 
-        const sceneId = prevScene.PresentationMode__Scene__Id;
+        const targetScene = step.scene;
+        const sceneId     = targetScene.PresentationMode__Scene__Id;
+
+        if (step.groupId) {
+            Na__PresentationMode__UI__SwitchToGroup(step.groupId);           // <-- No-op when staying in the same group
+        }
+
         Na__PresentationMode__Camera__AnimateToScene(
             Na__PresentationMode__UI__Camera,
             Na__PresentationMode__UI__Controls,
-            prevScene,
+            targetScene,
             { onComplete : () => Na__PresentationMode__UI__SetActiveScene(sceneId) }
         );
 
-        Na__PresentationMode__UI__SetActiveScene(sceneId);
+        Na__PresentationMode__UI__SetActiveScene(sceneId);                   // <-- Update highlight immediately
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Handle Previous Button Click
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__HandlePrevClick() {
+        Na__PresentationMode__UI__StepScene(-1);
     }
     // ------------------------------------------------------------
 
@@ -297,18 +441,7 @@
     // FUNCTION | Handle Next Button Click
     // ------------------------------------------------------------
     function Na__PresentationMode__UI__HandleNextClick() {
-        const nextScene = Na__PresentationMode__UI__GetAdjacentScene(1);
-        if (!nextScene) return;
-
-        const sceneId = nextScene.PresentationMode__Scene__Id;
-        Na__PresentationMode__Camera__AnimateToScene(
-            Na__PresentationMode__UI__Camera,
-            Na__PresentationMode__UI__Controls,
-            nextScene,
-            { onComplete : () => Na__PresentationMode__UI__SetActiveScene(sceneId) }
-        );
-
-        Na__PresentationMode__UI__SetActiveScene(sceneId);
+        Na__PresentationMode__UI__StepScene(1);
     }
     // ------------------------------------------------------------
 
@@ -412,6 +545,26 @@
 
             // SET DEFAULT SCENE
             const defaultScene = Na__PresentationMode__ProjectJson__GetDefaultScene(sceneConfig);
+
+            // RESOLVE OPENING GROUP | The group holding the default scene, so
+            // the opening camera position always has its own thumbnail visible
+            // and highlighted rather than sitting in a group nobody can see.
+            //
+            // A still-valid selection is kept, because this same event is
+            // re-dispatched on every dev-editor edit: resolving unconditionally
+            // would yank the author back to the first group each time they
+            // renamed a scene. It only re-resolves when the current selection
+            // has gone (fresh load, or the group was deleted or switched off).
+            const Na__CurrentGroupId = Na__PresentationMode__SceneGroups__GetActiveGroupId();
+            const Na__GroupStillValid = Na__PresentationMode__SceneGroups__GetEnabledGroups(sceneConfig)
+                .some(group => group.PresentationMode__Group__Id === Na__CurrentGroupId);
+
+            if (!Na__GroupStillValid) {
+                Na__PresentationMode__SceneGroups__SetActiveGroupId(
+                    Na__PresentationMode__SceneGroups__ResolveOpeningGroupId(defaultScene, sceneConfig)
+                );
+            }
+
             if (defaultScene) {
                 Na__PresentationMode__ProjectJson__SetActiveSceneId(defaultScene.PresentationMode__Scene__Id);
                 if (!skipCameraApply) {
@@ -435,6 +588,24 @@
         window.addEventListener('na-presentation-mode-scenes-cleared', () => {
             Na__PresentationMode__UI__SetCarouselVisible(false);             // <-- Hide carousel
             Na__PresentationMode__UI__ApplyAdaptiveLayout(false);            // <-- Restore bottom-centre toolbar layout
+            Na__PresentationMode__SceneGroups__SetActiveGroupId(null);       // <-- Drop the stale selection
+            Na__PresentationMode__UI__RenderedGroupId = null;
+        });
+
+        // LISTEN FOR A GROUP CHANGE raised by the selector bar
+        // ------------------------------------------------------------
+        // The camera deliberately does NOT move: re-aiming what you are
+        // browsing is not the same as travelling somewhere. Only the strip is
+        // rebuilt, and only when the group has actually changed - the guard
+        // stops the carousel rebuilding (and losing its scroll position) in
+        // response to a change it raised itself.
+        // ------------------------------------------------------------
+        window.addEventListener(Na__PresentationMode__UI__GROUP_EVENT, (event) => {
+            const detail = event.detail || {};
+            if (detail.source === 'carousel') return;                        // <-- This module raised it; already rendered
+            if (detail.groupId === Na__PresentationMode__UI__RenderedGroupId) return;
+
+            Na__PresentationMode__UI__RenderSceneCarousel();                 // <-- Rebuild the strip for the chosen group
         });
     }
     // ------------------------------------------------------------

@@ -1,0 +1,62 @@
+{
+    "PresentationMode__SceneGroups__Description": "Configuration for the Presentation Mode scene grouping system. Holds the default group set seeded into a project that has none, plus the behaviour flags for the floating group selector that sits above the scene carousel. Per-project group definitions live in the project's own TrueVision__ProjectData__.json, nested inside PresentationMode__SavedCameraScenes.",
+
+    "PresentationMode__SceneGroups__Enabled": true,
+
+    "PresentationMode__SceneGroups__Behaviour": {
+        "SceneGroups__Behaviour__Description": "Runtime behaviour of the group selector bar and the carousel filtering it drives.",
+        "SceneGroups__Behaviour__HideBarWhenSingleGroup": true,
+        "SceneGroups__Behaviour__CycleAcrossGroups": true,
+        "SceneGroups__Behaviour__ShowGroupCounter": true,
+        "SceneGroups__Behaviour__CloseDropdownOnSelect": true
+    },
+
+    "PresentationMode__SceneGroups__Labels": {
+        "SceneGroups__Labels__Description": "All user-facing wording for the group selector bar. Group names themselves are per-project and authored in the Dev menu.",
+        "SceneGroups__Labels__BarAriaLabel": "Scene group selector",
+        "SceneGroups__Labels__DropdownAriaLabel": "Choose a scene group",
+        "SceneGroups__Labels__CounterFormat": "{index} of {total}",
+        "SceneGroups__Labels__ViewCountFormat": "{count} Views",
+        "SceneGroups__Labels__ViewCountFormatSingular": "{count} View",
+        "SceneGroups__Labels__ViewCountFormatZero": "No views",
+        "SceneGroups__Labels__EmptyGroupMessage": "No scenes in this group yet."
+    },
+
+    "PresentationMode__SceneGroups__DevMenu": {
+        "SceneGroups__DevMenu__Description": "Wording used by the localhost-only group editor nested at the top of the Dev menu Presentation Scenes panel.",
+        "SceneGroups__DevMenu__SectionTitle": "Scene Groups",
+        "SceneGroups__DevMenu__AddGroupLabel": "+ Add Group",
+        "SceneGroups__DevMenu__UnassignedLabel": "Unassigned",
+        "SceneGroups__DevMenu__DisableWithScenesPrompt": "\"{group}\" still has {count} scene(s). Switching it off will move them to \"{fallback}\". Continue?",
+        "SceneGroups__DevMenu__DeleteWithScenesPrompt": "Delete \"{group}\"? Its {count} scene(s) will move to \"{fallback}\".",
+        "SceneGroups__DevMenu__DeleteEmptyPrompt": "Delete the group \"{group}\"?",
+        "SceneGroups__DevMenu__LastGroupBlockedMessage": "At least one scene group must stay enabled."
+    },
+
+    "PresentationMode__SceneGroups__DefaultGroups": [
+        {
+            "PresentationMode__Group__Id": "Group_001",
+            "PresentationMode__Group__Name": "Exterior 3D Views",
+            "PresentationMode__Group__Order": 1,
+            "PresentationMode__Group__Enabled": true
+        },
+        {
+            "PresentationMode__Group__Id": "Group_002",
+            "PresentationMode__Group__Name": "Interior 3D Views",
+            "PresentationMode__Group__Order": 2,
+            "PresentationMode__Group__Enabled": false
+        },
+        {
+            "PresentationMode__Group__Id": "Group_003",
+            "PresentationMode__Group__Name": "Dollhouse View",
+            "PresentationMode__Group__Order": 3,
+            "PresentationMode__Group__Enabled": false
+        },
+        {
+            "PresentationMode__Group__Id": "Group_004",
+            "PresentationMode__Group__Name": "Floor Plans",
+            "PresentationMode__Group__Order": 4,
+            "PresentationMode__Group__Enabled": false
+        }
+    ]
+}

@@ -45,6 +45,19 @@
     import { Na__AppUtils__IsRunningOnLocalhost } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Scene Group Ordering
+    // ------------------------------------------------------------
+    // Scene Order is per-group (it restarts at 1 inside every group), so the
+    // playback sequence is (Group Order, then Scene Order) and can no longer be
+    // derived from Scene Order alone. The groups module is a leaf - it imports
+    // nothing back from here - so this dependency stays one-directional.
+    // @delegate: ./Na__PresentationMode__SceneGroups__Data__.js
+    // ------------------------------------------------------------
+    import {
+        Na__PresentationMode__SceneGroups__SortScenesForPlayback
+    } from './Na__PresentationMode__SceneGroups__Data__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -145,15 +158,16 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Sort Scenes Array by Order Field (ascending)
+    // FUNCTION | Sort Scenes Array Into Playback Order
     // ------------------------------------------------------------
-    function Na__PresentationMode__ProjectJson__SortScenesByOrder(scenes) {
+    // Groups first, then Scene Order within each group. When the project
+    // defines no groups this degrades to a plain Scene Order sort, so a project
+    // authored before grouping existed orders exactly as it always did.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__ProjectJson__SortScenesByOrder(scenes, config) {
         if (!Array.isArray(scenes)) return [];
-        return [...scenes].sort((a, b) => {
-            const orderA = Number.isFinite(a.PresentationMode__Scene__Order) ? a.PresentationMode__Scene__Order : 999;
-            const orderB = Number.isFinite(b.PresentationMode__Scene__Order) ? b.PresentationMode__Scene__Order : 999;
-            return orderA - orderB;                                          // <-- Ascending order
-        });
+        const sceneConfig = config || Na__PresentationMode__ActiveConfig;
+        return Na__PresentationMode__SceneGroups__SortScenesForPlayback(scenes, sceneConfig);
     }
     // ------------------------------------------------------------
 
@@ -164,7 +178,8 @@
         if (!config) return null;
 
         const sorted = Na__PresentationMode__ProjectJson__SortScenesByOrder(
-            Na__PresentationMode__ProjectJson__FilterValidScenes(config[Na__PresentationMode__SCENES_KEY])
+            Na__PresentationMode__ProjectJson__FilterValidScenes(config[Na__PresentationMode__SCENES_KEY]),
+            config                                                           // <-- Explicit: may run before SetActiveConfig
         );
         if (sorted.length === 0) return null;
 
@@ -260,13 +275,17 @@
 
     // FUNCTION | Get Sorted Valid Scenes from Active Config
     // ------------------------------------------------------------
+    // Returns EVERY valid scene across every enabled group, in playback order.
+    // Callers that want only what the carousel is currently showing filter this
+    // through Na__PresentationMode__SceneGroups__GetScenesInGroup.
+    // ------------------------------------------------------------
     function Na__PresentationMode__ProjectJson__GetSortedScenes() {
         if (!Na__PresentationMode__ActiveConfig) return [];
 
         const scenes = Na__PresentationMode__ProjectJson__FilterValidScenes(
             Na__PresentationMode__ActiveConfig[Na__PresentationMode__SCENES_KEY]
         );
-        return Na__PresentationMode__ProjectJson__SortScenesByOrder(scenes); // <-- Pre-sorted, pre-filtered
+        return Na__PresentationMode__ProjectJson__SortScenesByOrder(scenes, Na__PresentationMode__ActiveConfig); // <-- Pre-sorted, pre-filtered
     }
     // ------------------------------------------------------------
 

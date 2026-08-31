@@ -30,13 +30,27 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 31-Aug-2026 - Undeclared Scenes Now Resolve To Orbit
+// - An absent PresentationMode__Scene__NavigationMode used to mean "keep the
+//   viewer's current mode". It now means ORBIT, and the camera is released
+//   from walk/fly on EVERY transition rather than only when a mode was
+//   declared. Two bugs, one cause:
+//     1. Stepping into a walk/fly scene stranded the viewer there - every
+//        undeclared scene after it kept that mode, so cycling back out to an
+//        exterior or dolls-house view never handed the camera back.
+//     2. Skipping the release left walk/fly owning the camera for the whole
+//        flight. It rewrote camera.position from its own state every frame
+//        (walk rebuilds it from a capsule that never moved) and discarded the
+//        transition's writes, so the view stayed put while the UI reported it
+//        had arrived - the "looking at nothing" symptom.
+// - The legacy literal value 'keep' is not a valid mode name, so it fails the
+//   availability check and resolves to orbit too. No project data migration.
+//
 // 27-Aug-2026 - Per-Scene Navigation Modes
 // - A scene may declare PresentationMode__Scene__NavigationMode as orbit,
 //   walk or fly.  The camera is released to orbit before the move (preserving
 //   the live framing so the transition still starts where the viewer was),
 //   then the declared mode is entered once the camera arrives.
-// - An absent key means "keep the viewer's current mode", which is how every
-//   scene authored before this change behaves.
 //
 // 21-Jun-2026 - Version 1.0.0
 // - Ported from ValeVision3D as part of the Presentation Mode transplant.
@@ -278,16 +292,28 @@
 
     // HELPER FUNCTION | Resolve the Navigation Mode a Scene Should Be Viewed In
     // ------------------------------------------------------------
-    // Returns null when the scene does not declare a mode.  Null means "keep
-    // whatever mode the viewer is already in", which is how every scene saved
-    // before this feature existed behaves - so older projects are unaffected.
+    // An undeclared scene resolves to ORBIT, not to "keep whatever the viewer
+    // is already in".  That was the old behaviour and it was broken in both
+    // directions:
+    //
+    //  - It left the viewer stranded. Step into a walk or fly scene and every
+    //    undeclared scene after it kept you in that mode, so cycling out of an
+    //    interior and back to an exterior or dolls-house view never handed the
+    //    camera back.
+    //  - Worse, it never released the camera at all (see the caller below), so
+    //    walk/fly kept re-deriving camera.position from its own state every
+    //    frame while the transition was lerping the same property. Walk wins
+    //    that fight - it rebuilds the camera from a capsule that never moved -
+    //    so the view stayed put while the UI reported it had arrived.
+    //
     // A declared-but-unavailable mode (e.g. walk on a model with walk disabled)
-    // also resolves to null rather than forcing an invalid switch.
+    // also resolves to orbit rather than forcing an invalid switch. So does the
+    // legacy literal value 'keep', which is not a valid mode name.
     // ------------------------------------------------------------
     function Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene) {
         const requested = scene?.[Na__PresentationMode__KEY__NAVIGATION_MODE];
-        if (!requested) return null;                                                   // <-- Key absent / empty = keep current mode
-        if (!Na__NavigationModes__IsModeAvailable(requested)) return null;             // <-- Not permitted on this model
+        if (!requested) return 'orbit';                                                // <-- Key absent / empty = orbit
+        if (!Na__NavigationModes__IsModeAvailable(requested)) return 'orbit';          // <-- Not permitted on this model, or legacy 'keep'
         return requested;
     }
     // ------------------------------------------------------------
@@ -300,9 +326,11 @@
     // snap and an animated move.  Dropping to orbit first hands the camera back
     // so the scene position can be applied cleanly; the target mode is then
     // re-activated once the camera has arrived.
+    //
+    // This now runs for EVERY scene transition, because every scene resolves to
+    // a concrete mode. Releasing is what makes the camera actually movable.
     // ------------------------------------------------------------
-    function Na__PresentationMode__Camera__ReleaseCameraToOrbit(targetMode) {
-        if (targetMode === null) return false;                                         // <-- Scene declares no mode, leave viewer alone
+    function Na__PresentationMode__Camera__ReleaseCameraToOrbit() {
         if (Na__NavigationModes__GetActiveMode() === 'orbit') return false;             // <-- Already free
         return Na__NavigationModes__SwitchToMode('orbit');                             // <-- Exit walk/fly, camera is free again
     }
@@ -311,8 +339,11 @@
 
     // HELPER FUNCTION | Activate the Scene's Navigation Mode Once the Camera Has Arrived
     // ------------------------------------------------------------
+    // Orbit needs no action: the release above already left the camera there,
+    // which is exactly why an undeclared scene now reliably lands in orbit.
+    // ------------------------------------------------------------
     function Na__PresentationMode__Camera__ApplySceneNavigationMode(targetMode) {
-        if (targetMode === null || targetMode === 'orbit') return;                     // <-- Nothing to do; orbit is the released state
+        if (!targetMode || targetMode === 'orbit') return;                             // <-- Nothing to do; orbit is the released state
         Na__NavigationModes__SwitchToMode(targetMode);                                 // <-- Enter walk/fly at the scene position
     }
     // ------------------------------------------------------------
@@ -327,7 +358,7 @@
         if (!values) return;
 
         const targetNavMode = Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene);
-        Na__PresentationMode__Camera__ReleaseCameraToOrbit(targetNavMode);             // <-- Hand the camera back from walk/fly before snapping
+        Na__PresentationMode__Camera__ReleaseCameraToOrbit();                          // <-- Hand the camera back from walk/fly before snapping
 
         camera.position.set(values.position.x, values.position.y, values.position.z);  // <-- Snap position
         camera.rotation.set(values.rotation.x, values.rotation.y, values.rotation.z);  // <-- Snap rotation
@@ -399,13 +430,17 @@
         // transition still begins exactly where the viewer currently stands.
         const targetNavMode = Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene);
 
-        if (targetNavMode !== null) {
+        // Unconditional. Previously this was skipped whenever the scene declared
+        // no mode, which left walk/fly still owning the camera for the whole
+        // flight - it rewrote camera.position from its own state every frame and
+        // simply discarded the transition's writes.
+        {
             const preservedPos    = camera.position.clone();
             const preservedQuat   = new THREE.Quaternion().setFromEuler(camera.rotation);
             const preservedFov    = camera.fov;
             const preservedTarget = controls ? controls.target.clone() : null;
 
-            if (Na__PresentationMode__Camera__ReleaseCameraToOrbit(targetNavMode)) {
+            if (Na__PresentationMode__Camera__ReleaseCameraToOrbit()) {
                 camera.position.copy(preservedPos);                           // <-- Undo the release reposition
                 camera.setRotationFromQuaternion(preservedQuat);
                 camera.fov = preservedFov;
