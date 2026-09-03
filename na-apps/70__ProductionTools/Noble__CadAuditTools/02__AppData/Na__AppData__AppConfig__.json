@@ -3,7 +3,7 @@
     "_Purpose"                              : "Application defaults SSOT — every configurable feature reads its defaults from here. Keyboard/mouse controls live in Na__AppData__KeybindingsAndControls__.json.",
 
     "appName"                               : "Noble CAD Audit Tools",
-    "appVersion"                            : "0.4.8",
+    "appVersion"                            : "0.5.0",
     "appAuthor"                             : "Adam Noble - Noble Architecture",
     "appPort"                               : 8007,
 
@@ -130,6 +130,15 @@
         "StatusPollInterval_ms"             : 500,
         "MinOverlayDisplay_ms"              : 400,
         "AllowCancel"                       : true
+    },
+
+    "Config__Connection"                    : {
+        "_description"                      : "Local server reachability watchdog. The app polls Health__Endpoint on an interval; after Failure__ThresholdCount consecutive failures it declares the server disconnected and shows the offline banner. Network actions pre-flight against this state so a save can never fail silently.",
+        "Health__Endpoint"                  : "/api/health",
+        "Poll__IntervalMs"                  : 5000,
+        "Poll__TimeoutMs"                   : 4000,
+        "Failure__ThresholdCount"           : 2,
+        "Recheck__OnWindowFocus"            : true
     },
 
     "Config__ProjectCache"                  : {

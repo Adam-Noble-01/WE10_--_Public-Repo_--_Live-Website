@@ -29,6 +29,13 @@
 # -----------------------------------------------------------------------------
 #
 # DEVELOPMENT LOG:
+# 01-Sep-2026 - Version 0.5.0
+# - na_get_project_version_paths() now claims its version atomically via
+#   O_CREAT|O_EXCL, so concurrent saves can never write to the same archive
+#   path. Previously two overlapping saves both resolved to the same __vNNN__
+#   and interleaved their writes into one truncated DXF.
+# - na_list_saved_projects() reports created/saved epochs for table sorting.
+#
 # 07-Jul-2026 - Version 0.3.3
 # - Added working-file backup/restore helpers for undoable hard-delete.
 #
@@ -46,6 +53,7 @@ import json
 import time
 import shutil
 import uuid
+import threading
 
 
 # #region ---------------------------------------------------------------------
@@ -114,42 +122,74 @@ def na_get_save_path(output_filename):
 # -----------------------------------------------------------------------------
 
 _VERSION_PATTERN = re.compile(r'__v(\d{3})__')                           # <-- Matches __vNNN__ in filenames
+_VERSION_CLAIM_LOCK = threading.Lock()                                   # <-- Serialises version allocation
+_VERSION_CLAIM_MAX_ATTEMPTS = 999                                        # <-- Ceiling on the claim retry loop
 
 
 def na_get_project_version_paths(project_name):
     """
-    Resolve the next-version DXF + JSON save paths for a named project.
+    Claim the next-version DXF + JSON save paths for a named project.
 
     Creates 02__SavedProjects__AuditedDxfFiles/<ProjectName>/ if missing and
     scans existing files for __vNNN__ to auto-increment the version number.
+
+    The claim is ATOMIC. Scanning for the highest version and then writing to
+    version+1 is a read-modify-write, and Flask serves this route threaded, so
+    two saves fired seconds apart (or one impatient double-click) could both
+    scan an empty folder, both decide "v001", and both stream a multi-hundred-MB
+    DXF into the SAME path — producing a truncated archive that still returned
+    HTTP 200. The version is therefore reserved by creating the DXF file with
+    O_CREAT|O_EXCL: exactly one caller can win a given number, and a loser
+    simply retries with the next one. A process-level lock keeps threads in this
+    same interpreter from spinning through the loop unnecessarily.
 
     Args:
         project_name (str): User-facing project name (sanitised here).
 
     Returns:
         dict: { projectDir, version, versionLabel, dxfPath, jsonPath }
+
+    Raises:
+        RuntimeError: if no free version number could be claimed.
     """
     safe_project = na_sanitise_project_name(project_name)
     project_dir  = os.path.join(_resolve_save_dir(), safe_project)
     os.makedirs(project_dir, exist_ok=True)                              # <-- Ensure project subfolder exists
 
-    max_version = 0
-    for filename in os.listdir(project_dir):
-        match = _VERSION_PATTERN.search(filename)
-        if match:
-            max_version = max(max_version, int(match.group(1)))
+    with _VERSION_CLAIM_LOCK:
+        max_version = 0
+        for filename in os.listdir(project_dir):
+            match = _VERSION_PATTERN.search(filename)
+            if match:
+                max_version = max(max_version, int(match.group(1)))
 
-    version       = max_version + 1                                      # <-- Auto-increment from highest found
-    version_label = f"v{version:03d}"
-    base_name     = f"{safe_project}__{version_label}__"
+        version = max_version + 1                                        # <-- Auto-increment from highest found
 
-    return {
-        'projectDir'   : project_dir,
-        'version'      : version,
-        'versionLabel' : version_label,
-        'dxfPath'      : os.path.join(project_dir, base_name + '.dxf'),
-        'jsonPath'     : os.path.join(project_dir, base_name + '.json'),
-    }
+        for _ in range(_VERSION_CLAIM_MAX_ATTEMPTS):
+            version_label = f"v{version:03d}"
+            base_name     = f"{safe_project}__{version_label}__"
+            dxf_path      = os.path.join(project_dir, base_name + '.dxf')
+
+            try:
+                fd = os.open(dxf_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)  # <-- Reserve the slot or fail
+                os.close(fd)
+            except FileExistsError:
+                version += 1                                             # <-- Another writer took it; step past
+                continue
+
+            print(f"[Na__ProjectCache] Claimed version {version_label} for {safe_project}")
+            return {
+                'projectDir'   : project_dir,
+                'version'      : version,
+                'versionLabel' : version_label,
+                'dxfPath'      : dxf_path,
+                'jsonPath'     : os.path.join(project_dir, base_name + '.json'),
+            }
+
+    raise RuntimeError(
+        f"Could not claim a free version number for '{safe_project}' "
+        f"after {_VERSION_CLAIM_MAX_ATTEMPTS} attempts."
+    )
 
 
 def na_list_saved_projects():
@@ -157,10 +197,16 @@ def na_list_saved_projects():
     Enumerate saved projects and their versions, enriched with metadata read
     from each version's JSON sidecar (saved date, source file, deleted count).
 
+    Every version also carries sortable epoch timestamps alongside the display
+    strings, plus the PROJECT-level creation date (the earliest save across all
+    of that project's versions), so the frontend table can order on any column
+    without re-parsing formatted dates.
+
     Returns:
-        list[dict]: [ { name, versions: [ {
-            label, dxfFile, jsonFile, dxfPath, savedAt, sourceFilename,
-            deletedCount, dimensionCount
+        list[dict]: [ { name, createdAt, createdAtEpoch, versions: [ {
+            label, dxfFile, jsonFile, dxfPath, savedAt, savedAtEpoch,
+            createdAt, createdAtEpoch, sourceFilename, deletedCount,
+            dimensionCount
         } ] } ]  — versions sorted newest-first.
     """
     save_dir = _resolve_save_dir()
@@ -196,17 +242,33 @@ def na_list_saved_projects():
         # Enrich each version with sidecar metadata
         for slot in versions.values():
             meta = _read_version_metadata(project_dir, slot['jsonFile'])
-            slot['savedAt']        = meta.get('savedAt', '')
             slot['sourceFilename'] = meta.get('sourceFilename', '')
             slot['deletedCount']   = meta.get('deletedCount', 0)
             slot['dimensionCount'] = len(meta.get('dimensions', []) or [])
 
+            epoch = _parse_timestamp(meta.get('savedAt', ''))            # <-- Sidecar date is authoritative
+            if epoch is None:
+                epoch = _file_mtime(slot['dxfPath'])                     # <-- Pre-sidecar saves fall back to the DXF
+            slot['savedAtEpoch'] = epoch
+            slot['savedAt']      = meta.get('savedAt', '') or _format_timestamp(epoch)
+
         version_list = sorted(versions.values(), key=lambda v: v['number'], reverse=True)  # <-- Newest first
 
+        created_epoch = _earliest_epoch(version_list)                    # <-- First version saved = project birth
+        if created_epoch is None:
+            created_epoch = _file_mtime(project_dir)                     # <-- Otherwise the folder's own date
+        created_display = _format_timestamp(created_epoch)
+
+        for slot in version_list:
+            slot['createdAt']      = created_display                     # <-- Same on every row of a project
+            slot['createdAtEpoch'] = created_epoch
+
         projects.append({
-            'name'         : entry,
-            'versionCount' : len(version_list),
-            'versions'     : version_list,
+            'name'           : entry,
+            'versionCount'   : len(version_list),
+            'createdAt'      : created_display,
+            'createdAtEpoch' : created_epoch,
+            'versions'       : version_list,
         })
 
     return projects
@@ -425,6 +487,47 @@ def na_sanitise_project_name(project_name):
     if not safe:
         safe = 'UntitledProject'
     return safe
+
+
+# --- Timestamp Helpers | Saved / Created Dates for the Project Table ---------
+
+_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'                                  # <-- Sortable as plain text too
+
+
+def _parse_timestamp(text):
+    """Parse a '%Y-%m-%d %H:%M:%S' sidecar date to epoch seconds, or None."""
+    if not text:
+        return None
+    try:
+        return time.mktime(time.strptime(str(text), _TIMESTAMP_FORMAT))
+    except Exception:
+        return None
+
+
+def _format_timestamp(epoch):
+    """Render epoch seconds as a display date, or '' when unknown."""
+    if epoch is None:
+        return ''
+    try:
+        return time.strftime(_TIMESTAMP_FORMAT, time.localtime(epoch))
+    except Exception:
+        return ''
+
+
+def _file_mtime(path):
+    """Modified time of a file or folder as epoch seconds, or None."""
+    if not path:
+        return None
+    try:
+        return os.path.getmtime(path)
+    except Exception:
+        return None
+
+
+def _earliest_epoch(version_list):
+    """Oldest known save across a project's versions, or None if none dated."""
+    stamps = [v.get('savedAtEpoch') for v in version_list if v.get('savedAtEpoch')]
+    return min(stamps) if stamps else None
 
 
 def _resolve_temp_cache_dir():

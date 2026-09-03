@@ -47,13 +47,16 @@ Noble__CadAuditTools/
 │   │   ├── Na__AppCore__Keybindings__.js             ← Loads JSON bindings, merges defaults         [UPGRADED]
 │   │   ├── Na__AppCore__HotkeyManager__.js           ← keydown → "hotkey:<action>" events (complete)
 │   │   ├── Na__AppCore__SelectionManager__.js        ← Selection state + click select               [UPGRADED]
-│   │   └── Na__AppCore__UndoManager__.js             ← 50-step undo/redo + hot-cache persist        [UPGRADED]
+│   │   ├── Na__AppCore__UndoManager__.js             ← 50-step undo/redo + hot-cache persist        [UPGRADED]
+│   │   └── Na__AppCore__ConnectionMonitor__.js       ← Server health watchdog + save preflight      [NEW]
 │   │
 │   ├── 02__UI/
 │   │   ├── Na__UI__Toolbar__.js                      ← Tool strip incl. lasso/dims/export           [UPGRADED]
 │   │   ├── Na__UI__LayersPanel__.js                  ← Layer list + visibility eye toggles          [UPGRADED]
 │   │   ├── Na__UI__PropertiesPanel__.js              ← Entity inspector + selection summary         [UPGRADED]
 │   │   ├── Na__UI__StatusBar__.js                    ← Zoom / cursor / counts readouts              [UPGRADED]
+│   │   ├── Na__UI__ProjectManager__.js               ← Saved-project table, sortable columns        [UPGRADED]
+│   │   ├── Na__UI__ProgressOverlay__.js              ← Shared job progress modal (complete)
 │   │   └── Na__UI__UploadPanel__.js                  ← Drop/browse upload (complete)
 │   │
 │   ├── 03__CadEngine/
@@ -133,6 +136,7 @@ Noble__CadAuditTools/
 | `zoom:changed` / `cursor:moved` | ViewBoxController / Canvas | StatusBar |
 | `hotkey:<action>` | HotkeyManager | Everything (data-driven from JSON) |
 | `undo:applied` / `redo:applied` | UndoManager | StatusBar |
+| `connection:lost` / `connection:restored` | ConnectionMonitor | Connection banner, StatusBar |
 
 ---
 

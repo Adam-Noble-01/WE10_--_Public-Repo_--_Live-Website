@@ -25,6 +25,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 01-Sep-2026 - Version 0.5.0
+// - Constructs Na__AppCore__ConnectionMonitor and wires the connection banner,
+//   so a dead local server is announced instead of swallowing write requests.
+// - Save Project now matches the Export DXF flow: a re-entrancy guard, a
+//   progress overlay for the duration of the write, a connection preflight,
+//   and a visible success/failure result. Previously a save on a large drawing
+//   looked like nothing had happened, which invited repeat clicks.
+//
 // 19-Aug-2026 - Version 0.4.4
 // - Start-screen "Open Existing Project" button wired to the same handler as
 //   the header Load File button / Ctrl+O (raises the saved-project browser).
@@ -60,6 +68,7 @@ import { Na__Keybindings__LoadControls,
          Na__Keybindings__ExtractKeyboardMap } from './03__AppModules/01__AppCore/Na__AppCore__Keybindings__.js';
 import { Na__AppCore__SelectionManager   } from './03__AppModules/01__AppCore/Na__AppCore__SelectionManager__.js';
 import { Na__AppCore__UndoManager        } from './03__AppModules/01__AppCore/Na__AppCore__UndoManager__.js';
+import { Na__AppCore__ConnectionMonitor } from './03__AppModules/01__AppCore/Na__AppCore__ConnectionMonitor__.js';
 import { Na__CadEngine__Canvas           } from './03__AppModules/03__CadEngine/Na__CadEngine__Canvas__.js';
 import { Na__CadEngine__EntityLoader     } from './03__AppModules/03__CadEngine/Na__CadEngine__EntityLoader__.js';
 import { Na__CadEngine__ExportSerializer } from './03__AppModules/03__CadEngine/Na__CadEngine__ExportSerializer__.js';
@@ -95,6 +104,8 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
         // LOAD CONFIG SSOT + DATA-DRIVEN CONTROLS BEFORE ANYTHING READS THEM
         await appState.Na__AppState__LoadConfig();                   // <-- 02__AppData/Na__AppData__AppConfig__.json
         appState.controls = await Na__Keybindings__LoadControls();   // <-- 02__AppData/Na__AppData__KeybindingsAndControls__.json
+
+        Na__App__StampVersionLabels(appState);                       // <-- Config is the version SSOT, not the markup
 
         const hotkeyMgr = new Na__AppCore__HotkeyManager(
             eventBus,
@@ -158,8 +169,16 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
         // PROJECT MANAGER — Load File modal (saved-project archive table)
         const projectManager = new Na__UI__ProjectManager(appState, eventBus, entityLoader, progressOverlay);
 
+        // CONNECTION WATCHDOG — must exist before any button can issue a request
+        const connectionMonitor = new Na__AppCore__ConnectionMonitor(
+            eventBus,
+            appState.config?.Config__Connection || {}
+        );
+        Na__App__WireConnectionBanner(eventBus, connectionMonitor);
+        connectionMonitor.Na__ConnectionMonitor__Start();
+
         // HEADER BUTTONS
-        Na__App__WireSaveProjectButton(appState, eventBus, exportSerializer);
+        Na__App__WireSaveProjectButton(appState, eventBus, exportSerializer, progressOverlay, connectionMonitor);
         Na__App__WireExportDxfButton(appState, eventBus, exportSerializer, progressOverlay);
         Na__App__WireImportCadButton(eventBus, uploadPanel);
         Na__App__WireLoadFileButton(eventBus, projectManager);
@@ -183,19 +202,42 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
 
     // HELPER FUNCTION | Wire the Save Project Button (Versioned Save)
     // ------------------------------------------------------------
-    function Na__App__WireSaveProjectButton(appState, eventBus, exportSerializer) {
-        const saveBtn = document.getElementById('Na__Btn__SaveProject');
+    //           Mirrors the Export DXF flow deliberately. A project save copies
+    //           the whole working DXF server-side — on a large drawing that is
+    //           several seconds of silence, so it MUST show progress and MUST
+    //           refuse to run twice at once. Without either, the save looks like
+    //           it did nothing and the user clicks again, which previously wrote
+    //           a second archived version behind their back.
+    // ------------------------------------------------------------
+    function Na__App__WireSaveProjectButton(appState, eventBus, exportSerializer, progressOverlay, connectionMonitor) {
+        const saveBtn  = document.getElementById('Na__Btn__SaveProject');
+        let   isSaving = false;                                          // <-- Guard: one save at a time
 
         const runSave = async () => {
-            if (!appState.fileLoaded) return;                            // <-- Guard: no file loaded
+            if (!appState.fileLoaded || isSaving) return;                // <-- No file, or already saving
 
             const defaultName = (appState.fileName || 'UntitledProject').replace(/\.[^/.]+$/, '');
             const projectName = window.prompt('Save project as:', defaultName);
             if (!projectName) return;                                    // <-- User cancelled
 
-            const payload = exportSerializer.Na__ExportSerializer__BuildProjectSavePayload(projectName);
+            isSaving = true;
+            if (saveBtn) saveBtn.disabled = true;                        // <-- Visibly unavailable while writing
+
+            progressOverlay.Na__ProgressOverlay__Show(projectName, 'Saving project…', { allowCancel: false });
 
             try {
+                // 1) PREFLIGHT — never fire a large write into a dead socket
+                progressOverlay.Na__ProgressOverlay__Update({ stage: 'checking', message: 'Checking server connection…', percent: null });
+
+                const link = await connectionMonitor.Na__ConnectionMonitor__Preflight();
+                if (!link.ok) {
+                    throw new Error(`${link.reason} Your work has NOT been saved — leave this drawing open, restart the local server, then save again.`);
+                }
+
+                // 2) WRITE — server prunes and copies the working DXF into the archive
+                progressOverlay.Na__ProgressOverlay__Update({ stage: 'saving', message: 'Writing versioned copy to the archive…', percent: null });
+
+                const payload  = exportSerializer.Na__ExportSerializer__BuildProjectSavePayload(projectName);
                 const response = await fetch('/api/project-save', {
                     method  : 'POST',
                     headers : { 'Content-Type': 'application/json' },
@@ -204,19 +246,93 @@ import { Na__DimensionTools__AlignedDimensionTool } from './03__AppModules/Syste
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error || `Server returned ${response.status}`);
 
+                // 3) CONFIRM — hold the success on screen briefly so it cannot be missed
+                progressOverlay.Na__ProgressOverlay__Update({
+                    stage   : 'complete',
+                    message : `Saved as ${result.projectName} ${result.version}`,
+                    percent : 100,
+                });
                 eventBus.emit('status:hint', { text: `Saved ${result.projectName} ${result.version} (${result.pruned} entities pruned)` });
                 console.log('[Na__App__Main] Project saved:', result);
 
+                setTimeout(() => progressOverlay.Na__ProgressOverlay__Hide(), 1100);
+
             } catch (err) {
                 console.error('[Na__App__Main] Project save failed:', err);
-                alert(`Project save failed: ${err.message}`);
+                progressOverlay.Na__ProgressOverlay__ShowError(err.message, 'Project save failed');
+
+            } finally {
+                isSaving = false;
+                if (saveBtn) saveBtn.disabled = !appState.fileLoaded;    // <-- Restore against real state, not blindly
             }
         };
 
         if (saveBtn) saveBtn.addEventListener('click', runSave);
         eventBus.on('hotkey:file:save-project', runSave);                // <-- Ctrl+S from keybindings JSON
-        eventBus.on('file:loaded', () => { if (saveBtn) saveBtn.disabled = false; });
+        eventBus.on('file:loaded', () => { if (saveBtn && !isSaving) saveBtn.disabled = false; });
         eventBus.on('file:cleared', () => { if (saveBtn) saveBtn.disabled = true; });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Stamp the Config Version onto the UI Labels
+    // ------------------------------------------------------------
+    //           The header chip and start-screen subtitle were hardcoded in
+    //           the markup and had drifted several releases behind the config
+    //           SSOT, so the running app under-reported its own version.
+    // ------------------------------------------------------------
+    function Na__App__StampVersionLabels(appState) {
+        const version = appState.config?.appVersion;
+        if (!version) return;                                        // <-- Leave the markup fallback in place
+
+        const label = `v${version}`;
+        const ids   = ['Na__App__VersionLabel', 'Na__Upload__Version'];
+        ids.forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = label;
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Wire the Connection-Lost Banner
+    // ------------------------------------------------------------
+    //           The banner is not dismissible. It appears the moment the
+    //           watchdog gives up on the server and clears itself only when the
+    //           server answers again, so there is no window in which the user
+    //           believes they can save but cannot.
+    // ------------------------------------------------------------
+    function Na__App__WireConnectionBanner(eventBus, connectionMonitor) {
+        const bannerEl   = document.getElementById('Na__App__ConnectionBanner');
+        const detailEl   = document.getElementById('Na__ConnectionBanner__Detail');
+        const retryBtn   = document.getElementById('Na__ConnectionBanner__RetryBtn');
+        const controlsEl = document.querySelector('.top-bar__controls');
+
+        eventBus.on('connection:lost', ({ reason }) => {
+            if (detailEl)   detailEl.textContent = reason || connectionMonitor.Na__ConnectionMonitor__LastReason();
+            if (bannerEl)   bannerEl.hidden = false;
+            if (controlsEl) controlsEl.classList.add('is-offline');      // <-- Header controls read as unavailable
+            eventBus.emit('status:hint', { text: 'Server disconnected — your work cannot be saved' });
+        });
+
+        eventBus.on('connection:restored', () => {
+            if (bannerEl)   bannerEl.hidden = true;
+            if (controlsEl) controlsEl.classList.remove('is-offline');
+            eventBus.emit('status:hint', { text: 'Server connection restored' });
+        });
+
+        if (retryBtn) {
+            retryBtn.addEventListener('click', async () => {
+                retryBtn.disabled    = true;
+                retryBtn.textContent = 'Checking…';
+                const ok = await connectionMonitor.Na__ConnectionMonitor__CheckNow();
+                if (!ok && detailEl) {
+                    detailEl.textContent = connectionMonitor.Na__ConnectionMonitor__LastReason();
+                }
+                retryBtn.disabled    = false;
+                retryBtn.textContent = 'Retry now';
+            });
+        }
     }
     // ------------------------------------------------------------
 

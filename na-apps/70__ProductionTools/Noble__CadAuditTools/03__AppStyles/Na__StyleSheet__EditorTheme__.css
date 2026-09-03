@@ -1078,11 +1078,105 @@
 
 
 /* #Region ---
+ * REGION | Connection Banner — Server Unreachable Warning
+ * ----- */
+
+    /* Sits directly under the 54px header, spans the full width, and cannot be
+       dismissed — it clears itself only when the server answers again.        */
+    .Na__ConnectionBanner {
+        position                 : absolute;
+        top                      : 54px;                             /* Header row height */
+        left                     : 0;
+        right                    : 0;
+        z-index                  : 900;                              /* Above panels, below modals */
+        display                  : flex;
+        align-items              : center;
+        gap                      : 12px;
+        padding                  : 10px 18px;
+        background               : #4a1d1d;
+        border-bottom            : 1px solid var(--col-danger);
+        box-shadow               : 0 4px 14px rgba(0, 0, 0, 0.45);
+        color                    : #ffd9d9;
+        font-size                : 0.82rem;
+        animation                : Na__ConnectionBanner__SlideIn 0.18s ease-out;
+    }
+
+    .Na__ConnectionBanner[hidden] { display : none; }                /* [hidden] must beat display:flex */
+
+    /* The entry animation must NEVER be able to conceal this banner. A page
+       that is hidden or minimised when the banner appears can leave its
+       animation parked on the first keyframe indefinitely — with a
+       translateY(-100%) start that parked the warning completely off-screen,
+       which is the exact failure this banner exists to prevent. The start
+       frame is therefore only a 6px offset at 40% opacity: still plainly
+       visible if it never advances.                                          */
+    @keyframes Na__ConnectionBanner__SlideIn {
+        from { transform : translateY(-6px); opacity : 0.4; }
+        to   { transform : translateY(0);    opacity : 1;   }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .Na__ConnectionBanner { animation : none; }
+    }
+
+    .Na__ConnectionBanner__Icon {
+        width                    : 20px;
+        height                   : 20px;
+        flex-shrink              : 0;
+        color                    : var(--col-danger);
+    }
+
+    .Na__ConnectionBanner__Text {
+        display                  : flex;
+        flex-direction           : column;
+        gap                      : 2px;
+        flex                     : 1;
+        min-width                : 0;
+    }
+
+    .Na__ConnectionBanner__Title {
+        color                    : #ffffff;
+        font-weight              : 600;
+        letter-spacing           : 0.01em;
+    }
+
+    .Na__ConnectionBanner__Detail {
+        color                    : #ffb4b4;
+        font-size                : 0.76rem;
+    }
+
+    .Na__ConnectionBanner__Retry {
+        flex-shrink              : 0;
+        padding                  : 6px 16px;
+        background               : var(--col-danger);
+        border                   : none;
+        border-radius            : 4px;
+        color                    : #2a0d0d;
+        font-family              : inherit;
+        font-size                : 0.76rem;
+        font-weight              : 600;
+        cursor                   : pointer;
+        transition               : background 0.12s ease;
+    }
+
+    .Na__ConnectionBanner__Retry:hover    { background : #ff8787; }
+    .Na__ConnectionBanner__Retry:disabled { opacity : 0.6; cursor : progress; }
+
+    /* Header buttons that need the server read as unavailable while it is down */
+    .top-bar__controls.is-offline .btn {
+        opacity                  : 0.45;
+        cursor                   : not-allowed;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
  * REGION | Project Manager — Saved-Project Table
  * ----- */
 
     .Na__ProjectManager__Card {
-        width                    : 940px;
+        width                    : 1090px;                           /* Widened for the Created column */
         max-width                : 100%;
         max-height               : 82vh;
     }
@@ -1112,9 +1206,9 @@
     }
 
     .Na__ProjectManager__Table col.Na__ColW__Version { width : 78px;  }
-    .Na__ProjectManager__Table col.Na__ColW__Saved   { width : 152px; }
-    .Na__ProjectManager__Table col.Na__ColW__Source  { width : 200px; }
-    .Na__ProjectManager__Table col.Na__ColW__Num     { width : 84px;  }
+    .Na__ProjectManager__Table col.Na__ColW__Date    { width : 152px; }   /* Created and Last Saved */
+    .Na__ProjectManager__Table col.Na__ColW__Source  { width : 190px; }
+    .Na__ProjectManager__Table col.Na__ColW__Num     { width : 92px;  }
     .Na__ProjectManager__Table col.Na__ColW__Action  { width : 96px;  }
 
     .Na__ProjectManager__Table thead th {
@@ -1132,6 +1226,51 @@
         border-bottom            : 1px solid var(--border);
         white-space              : nowrap;
     }
+
+    /* --- Sortable Headers | Click to sort, click again to reverse --- */
+
+    .Na__ProjectManager__Table thead th.Na__Th--Sortable {
+        cursor                   : pointer;
+        user-select              : none;
+        transition               : color 0.12s ease, background 0.12s ease;
+    }
+
+    .Na__ProjectManager__Table thead th.Na__Th--Sortable:hover,
+    .Na__ProjectManager__Table thead th.Na__Th--Sortable:focus-visible {
+        color                    : var(--text-primary);
+        background               : var(--bg-surface-hover);
+        outline                  : none;
+    }
+
+    .Na__ProjectManager__Table thead th.Na__Th--Sortable.is-sorted {
+        color                    : var(--text-accent);               /* Active sort column reads as selected */
+    }
+
+    .Na__Th__Arrow {
+        display                  : inline-block;
+        width                    : 12px;
+        margin-left              : 4px;
+        text-align               : center;
+        font-size                : 0.72rem;
+        line-height              : 1;
+        opacity                  : 0;                                /* Hidden until hovered or active */
+        transition               : opacity 0.12s ease;
+    }
+
+    .Na__ProjectManager__Table thead th.Na__Th--Sortable:hover .Na__Th__Arrow,
+    .Na__ProjectManager__Table thead th.Na__Th--Sortable:focus-visible .Na__Th__Arrow {
+        opacity                  : 0.45;                             /* Hint the direction a click would apply */
+    }
+
+    .Na__ProjectManager__Table thead th.is-sorted .Na__Th__Arrow {
+        opacity                  : 1;
+    }
+
+    /* Unsorted headers preview the direction their first click will apply */
+    .Na__ProjectManager__Table thead th[aria-sort="none"][data-sort-default="asc"]  .Na__Th__Arrow::after { content : "\2191"; }
+    .Na__ProjectManager__Table thead th[aria-sort="none"][data-sort-default="desc"] .Na__Th__Arrow::after { content : "\2193"; }
+    .Na__ProjectManager__Table thead th[aria-sort="ascending"]  .Na__Th__Arrow::after { content : "\2191"; }  /* ↑ */
+    .Na__ProjectManager__Table thead th[aria-sort="descending"] .Na__Th__Arrow::after { content : "\2193"; }  /* ↓ */
 
     .Na__ProjectManager__Table tbody td {
         padding                  : 9px 14px;
@@ -1156,9 +1295,12 @@
         font-family              : var(--font-mono);
         color                    : var(--text-accent);
     }
-    .Na__ProjectManager__Table .Na__Cell__Saved   {
+    .Na__ProjectManager__Table .Na__Cell__Date    {
         white-space              : nowrap;                           /* Keep the timestamp on one line */
         font-variant-numeric     : tabular-nums;
+    }
+    .Na__ProjectManager__Table .Na__Cell__Created {
+        color                    : var(--text-dim);                  /* Secondary to the Last Saved date */
     }
     .Na__ProjectManager__Table .Na__Cell__Source  {
         font-family              : var(--font-mono);

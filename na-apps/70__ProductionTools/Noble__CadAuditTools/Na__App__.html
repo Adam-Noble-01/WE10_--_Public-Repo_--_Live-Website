@@ -46,7 +46,7 @@
                     </svg>
                 </div>
                 <h1 class="Na__Upload__Title">Noble CAD Audit Tools</h1>
-                <p class="Na__Upload__Subtitle">v0.4.5</p>
+                <p class="Na__Upload__Subtitle" id="Na__Upload__Version">v0.5.0</p>
                 <p class="Na__Upload__Instruction">Drop a DWG or DXF file here, or click to browse</p>
                 <input type="file" id="Na__Upload__FileInput" accept=".dxf,.dwg" class="Na__Upload__HiddenInput">
                 <div class="Na__Upload__Actions">
@@ -109,18 +109,33 @@
                         <colgroup>
                             <col>                                     <!-- Project — takes the remaining width -->
                             <col class="Na__ColW__Version">
-                            <col class="Na__ColW__Saved">
+                            <col class="Na__ColW__Date">
+                            <col class="Na__ColW__Date">
                             <col class="Na__ColW__Source">
                             <col class="Na__ColW__Num">
                             <col class="Na__ColW__Action">
                         </colgroup>
                         <thead>
-                            <tr>
-                                <th>Project</th>
-                                <th>Version</th>
-                                <th>Saved</th>
-                                <th>Source File</th>
-                                <th class="Na__Col__Num">Removed</th>
+                            <!-- Every th carrying data-sort-key is click-sortable — Na__UI__ProjectManager binds them -->
+                            <tr class="Na__ProjectManager__HeadRow">
+                                <th class="Na__Th--Sortable" data-sort-key="project"        data-sort-type="text" data-sort-default="asc"  tabindex="0" aria-sort="none" title="Sort by project name">
+                                    <span class="Na__Th__Label">Project</span><span class="Na__Th__Arrow" aria-hidden="true"></span>
+                                </th>
+                                <th class="Na__Th--Sortable" data-sort-key="version"        data-sort-type="text" data-sort-default="desc" tabindex="0" aria-sort="none" title="Sort by version">
+                                    <span class="Na__Th__Label">Version</span><span class="Na__Th__Arrow" aria-hidden="true"></span>
+                                </th>
+                                <th class="Na__Th--Sortable" data-sort-key="createdAt"      data-sort-type="date" data-sort-default="desc" tabindex="0" aria-sort="none" title="Sort by the date this project was first created">
+                                    <span class="Na__Th__Label">Created</span><span class="Na__Th__Arrow" aria-hidden="true"></span>
+                                </th>
+                                <th class="Na__Th--Sortable" data-sort-key="savedAt"        data-sort-type="date" data-sort-default="desc" tabindex="0" aria-sort="none" title="Sort by the date this version was saved">
+                                    <span class="Na__Th__Label">Last Saved</span><span class="Na__Th__Arrow" aria-hidden="true"></span>
+                                </th>
+                                <th class="Na__Th--Sortable" data-sort-key="sourceFilename" data-sort-type="text" data-sort-default="asc"  tabindex="0" aria-sort="none" title="Sort by source file">
+                                    <span class="Na__Th__Label">Source File</span><span class="Na__Th__Arrow" aria-hidden="true"></span>
+                                </th>
+                                <th class="Na__Th--Sortable Na__Col__Num" data-sort-key="deletedCount" data-sort-type="number" data-sort-default="desc" tabindex="0" aria-sort="none" title="Sort by entities removed">
+                                    <span class="Na__Th__Label">Removed</span><span class="Na__Th__Arrow" aria-hidden="true"></span>
+                                </th>
                                 <th class="Na__Col__Action"></th>
                             </tr>
                         </thead>
@@ -184,7 +199,7 @@
             <img class="top-bar__logo" src="./01__AppAssets__CadAuditTools/Na__MainLogo__1-1-Ratio__.png" alt="Noble Architecture">
             <div class="top-bar__brand">NOBLE CAD AUDIT TOOLS</div>
             <div class="top-bar__divider"></div>
-            <div class="top-bar__version">v0.4.5</div>
+            <div class="top-bar__version" id="Na__App__VersionLabel">v0.5.0</div>
             <div class="top-bar__file-chip" id="Na__App__FileChip">No file loaded</div>
 
             <div class="top-bar__spacer"></div>
@@ -198,6 +213,27 @@
             </div>
 
         </header>
+        <!-- endregion ---- -->
+
+
+        <!-- ----------------------------------------------------------------- -->
+        <!-- UI BANNER | Connection Lost — server unreachable, saves will fail -->
+        <!-- ----------------------------------------------------------------- -->
+        <div id="Na__App__ConnectionBanner" class="Na__ConnectionBanner" role="alert" aria-live="assertive" hidden>
+
+            <svg class="Na__ConnectionBanner__Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+
+            <div class="Na__ConnectionBanner__Text">
+                <strong class="Na__ConnectionBanner__Title">Server disconnected — your work cannot be saved</strong>
+                <span class="Na__ConnectionBanner__Detail" id="Na__ConnectionBanner__Detail">The local server is not responding.</span>
+            </div>
+
+            <button id="Na__ConnectionBanner__RetryBtn" class="Na__ConnectionBanner__Retry" type="button">Retry now</button>
+
+        </div>
         <!-- endregion ---- -->
 
 

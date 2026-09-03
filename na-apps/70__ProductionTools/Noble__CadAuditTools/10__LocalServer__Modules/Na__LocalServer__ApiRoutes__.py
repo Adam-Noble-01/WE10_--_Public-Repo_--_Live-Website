@@ -107,7 +107,7 @@ def na_route_health():
     return jsonify({
         'status'  : 'ok',
         'app'     : 'Noble CAD Audit Tools',
-        'version' : '0.4.8',
+        'version' : '0.5.0',
     })
 
 # endregion -------------------------------------------------------------------
@@ -437,8 +437,10 @@ def na_route_project_save():
     if not os.path.isfile(temp_dxf_path):
         return jsonify({'error': f'Source DXF not found at: {temp_dxf_path}'}), 404
 
+    version_info = None
+
     try:
-        version_info = na_get_project_version_paths(project_name)       # <-- Auto-incremented version paths
+        version_info = na_get_project_version_paths(project_name)       # <-- Atomically claimed version paths
 
         na_prune_and_save_dxf(temp_dxf_path, deleted_handles, version_info['dxfPath'])  # <-- Write pruned DXF
 
@@ -468,8 +470,26 @@ def na_route_project_save():
         })
 
     except Exception as err:
+        # The version number was reserved by creating an empty DXF. If the save
+        # then failed, release it — otherwise a 0-byte file would sit in the
+        # archive, occupy that version, and list as a real saved project.
+        _na_release_claimed_version(version_info)
         print(f"[Na__ApiRoutes] Error during project save: {err}")
         return jsonify({'error': f'Project save failed: {str(err)}'}), 500
+
+
+def _na_release_claimed_version(version_info):
+    """Delete an empty claimed DXF (and any partial JSON) after a failed save."""
+    if not version_info:
+        return
+    for key in ('dxfPath', 'jsonPath'):
+        path = version_info.get(key)
+        try:
+            if path and os.path.isfile(path) and os.path.getsize(path) == 0:
+                os.remove(path)
+                print(f"[Na__ApiRoutes] Released claimed version file: {os.path.basename(path)}")
+        except Exception as cleanup_err:
+            print(f"[Na__ApiRoutes] Could not release claimed version file: {cleanup_err}")
 
 
 @app.route('/api/projects', methods=['GET'])

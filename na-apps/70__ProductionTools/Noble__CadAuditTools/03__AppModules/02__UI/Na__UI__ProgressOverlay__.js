@@ -22,6 +22,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 01-Sep-2026 - Version 0.5.0
+// - Added 'checking' / 'saving' / 'complete' stage titles for the project-save
+//   flow. Update({stage}) rewrites the title from this map, so an unmapped
+//   stage silently reverted the heading to the generic "Processing…".
+// - ShowError() takes an optional title; it previously hardcoded "Upload
+//   failed" onto every error, including save and export failures.
+//
 // 07-Jul-2026 - Version 0.3.3
 // - Na__ProgressOverlay__Show() gained an { allowCancel } option — hard-delete
 //   (quick, always undoable) shows the overlay without a Cancel button.
@@ -107,13 +114,13 @@
 
         // FUNCTION | Switch the Overlay into an Error State
         // ------------------------------------------------------------
-        Na__ProgressOverlay__ShowError(message) {
+        Na__ProgressOverlay__ShowError(message, title = 'Operation failed') {
             if (!this._overlayEl) return;
 
             this._stopElapsedClock();
             this._overlayEl.classList.add('is-error');
 
-            if (this._titleEl)   this._titleEl.textContent   = 'Upload failed';
+            if (this._titleEl)   this._titleEl.textContent   = title;   // <-- Callers name their own failure
             if (this._messageEl) this._messageEl.textContent = message || 'An unknown error occurred.';
 
             if (this._cancelBtnEl) {
@@ -211,6 +218,9 @@
                 'exporting'  : 'Exporting DXF…',
                 'copying'    : 'Copying to destination…',
                 'loading'    : 'Loading project…',
+                'checking'   : 'Checking connection…',
+                'saving'     : 'Saving project…',
+                'complete'   : 'Saved',
                 'done'       : 'Complete',
             };
             return titles[stage] || 'Processing…';

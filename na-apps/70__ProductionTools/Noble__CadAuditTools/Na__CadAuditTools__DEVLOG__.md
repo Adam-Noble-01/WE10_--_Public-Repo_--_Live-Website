@@ -3,6 +3,118 @@
 
 # ---------------------------------------------------------
 
+## CAD Audit Tools | v0.5.0 — 01-Sep-2026 — Saves Were Never Silent-Failing; They Were Silent-Succeeding
+
+Reported as "it doesn't seem to be saving". It was saving. The server log for
+the session shows four `POST /api/project-save` — all HTTP 200 — three of them
+inside the same second, and `CAD Thorpe concept` v001 and v002 both landed in
+the archive. Nothing failed. Nothing said so either.
+
+Save Project was the only long-running action in the app with no progress
+overlay and no re-entrancy guard, unlike Export DXF which has had both since
+0.3.x. The Thorpe working DXF is 134MB, so a save is several seconds during
+which the button stays live, the cursor stays normal, and the only success
+signal is a status-bar hint 1000px away at the bottom of the screen. The
+interface was indistinguishable from one that had ignored the click — so the
+click was repeated, and each repeat wrote another archived version.
+
+The repeats then exposed a genuine data bug. `na_get_project_version_paths()`
+scanned the folder for the highest `__vNNN__` and returned that plus one — a
+read-modify-write with no interlock, on a route Flask serves threaded. Two
+overlapping saves both resolved to the same version and streamed into the SAME
+path: the archived `v001.dxf` is 134,744,380 bytes against a 134,744,381-byte
+source. One byte short, and still returned 200.
+
+Fixes, in the order they matter:
+
+**Version claims are atomic.** The version is now reserved by creating its DXF
+with `O_CREAT|O_EXCL`; exactly one caller can win a given number and a loser
+retries with the next. Verified with 24 threads hammering the allocator at
+once: 24 unique versions, v001–v024 contiguous, zero collisions. If the save
+then fails, the empty placeholder is released so a failure cannot leave a
+0-byte file squatting on a version number.
+
+**Save Project now behaves like Export DXF.** A re-entrancy guard, the button
+disabled for the duration, a progress overlay through checking → saving →
+saved, and a success message held on screen before it clears. Three rapid
+clicks now produce exactly one POST and exactly one version — verified.
+
+**A connection watchdog, which is what was actually asked for.**
+`Na__AppCore__ConnectionMonitor` polls `/api/health` every 5s with a 4s
+AbortController timeout, so a HUNG server counts as down and not just a
+refused one. Two consecutive misses raise a full-width red banner under the
+header — undismissable, with the reason and a Retry button — and it clears
+itself when the server answers again. Every save now preflights the connection
+LIVE before writing, so a dead server produces a modal that says the work has
+NOT been saved and to restart the server and try again, instead of a request
+disappearing into a closed socket.
+
+One trap worth recording. The banner's entry animation originally started at
+`translateY(-100%)`. A page that is hidden or minimised when the banner appears
+can leave its animation parked on the first keyframe indefinitely — which
+parked the warning entirely off-screen. Caught it in testing: the element
+reported `top: -2px` with a live animation stuck at `currentTime: 0`. The start
+frame is now a 6px offset at 40% opacity, so even permanently parked the banner
+is plainly visible. A warning that can hide itself is worse than no warning.
+
+Also fixed in passing: `Na__ProgressOverlay__Update({stage})` rewrites the title
+from a lookup map, so the save flow's unmapped stages silently reverted the
+heading to a generic "Processing…"; `checking`/`saving`/`complete` are now
+mapped. And `ShowError()` hardcoded "Upload failed" as the heading on every
+error including saves and exports — it now takes a title.
+
+Verified end to end with the server killed mid-session and restarted: banner
+raises on the reason, save refuses with a clear modal and writes nothing,
+Retry reconnects, and the same still-open drawing then saves successfully.
+
+# ---------------------------------------------------------
+
+## CAD Audit Tools | v0.4.9 — 01-Sep-2026 — Saved Projects: Created Column + Sortable Headers
+
+Saved Projects listed every version but ordered them one way only — project
+folder A→Z, then version number — so the thing you saved five minutes ago sat
+wherever its name happened to fall. With 17 rows across 14 projects that is
+already a scan; it does not scale.
+
+Three changes, all in the Project Manager:
+
+**Created column.** Each row now carries the date the PROJECT was first
+created alongside the date THAT VERSION was saved, and the old `Saved` header
+is renamed `Last Saved` to make the pair unambiguous. Created is computed
+server-side as the earliest known save across a project's versions, so every
+row of a project shows the same creation date — v001's Created and Last Saved
+therefore match by definition, which is correct: v001 IS the creation.
+
+**Default order is Last Saved, newest first.** Recent work is always on top.
+
+**Every header sorts.** Click to sort, click the same header again to reverse.
+Text columns open ascending, dates and counts open descending, so the first
+click on any column gives the order you actually wanted. The active column is
+accent-coloured with a direction arrow, inactive headers preview their arrow
+on hover, and `aria-sort` tracks the state. Headers are keyboard reachable —
+Tab to one, Enter or Space to sort.
+
+Two details worth recording. Blank cells sink to the bottom in BOTH
+directions: the presence test runs before the direction multiplier, otherwise
+flipping to descending would float every undated row to the top. And filter
+and sort are now composed through one `_refresh()` path (filter → sort →
+render) — previously `_applyFilter()` rendered directly, so any sort would
+have been discarded the moment someone typed in the filter box.
+
+Backend: `na_list_saved_projects()` now emits `savedAtEpoch` / `createdAtEpoch`
+next to the display strings, so the table sorts on numbers rather than
+re-parsing formatted dates. Versions with no JSON sidecar (the pre-0.3.0
+`TestProject` rows) fall back to the DXF's modified time and show a real date
+instead of an em dash.
+
+Card widened 940px → 1090px for the seventh column. Verified in the running
+app at 1440x900: horizontal overflow 0px, all 17 Open buttons inside the card,
+Project column still 324px, every column sorting both ways, filter and sort
+surviving each other, Refresh preserving the sort, and opening Hanson CAD
+Concept v001 still loading 2,511 entities.
+
+# ---------------------------------------------------------
+
 ## CAD Audit Tools | v0.4.8 — 21-Aug-2026 — The Real SketchUp Killer: Copied Layer Handles
 
 The v0.4.6 dimension-block repair was necessary (the dims were genuinely
