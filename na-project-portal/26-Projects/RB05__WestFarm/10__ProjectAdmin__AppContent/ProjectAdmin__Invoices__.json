@@ -70,6 +70,179 @@
             },
             "createdDate": "14/03/2026, 17:38:45",
             "lastModified": "27/03/2026, 13:17:34"
+        },
+        {
+            "invoiceRef": "INV-RB05-2026-002",
+            "invoiceDate": "04-Sep-2026",
+            "dueDate": "11-Sep-2026",
+            "projectAddress": "",
+            "projectDescription": "Concept Design services delivered for the Period style Georgian Home scheme at West Farm, covering the June 2026 and August 2026 design sessions.",
+            "personalNote": "Two studio days on this invoice are shown at no charge. One in June was lost to illness and one in August did not progress as it should have. In both cases the full day is listed for transparency but only the productive hours have been billed, with 11h 45m written off. Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "unpaid",
+            "lineItems": [
+                {
+                    "description": "Mon 01-Jun-2026 - 1h",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 1.0,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Sat 06-Jun-2026 - 1h 30m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 1.5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Sun 07-Jun-2026 - 4h 15m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 4.25,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Mon 08-Jun-2026 - 9h 30m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 9.5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Tue 09-Jun-2026 - 45m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 0.75,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Tue 09-Jun-2026 - 7h 15m - No Charge",
+                    "itemDescription": "-> Studio day lost to illness\n-> Time recorded in full but not charged\n-> Only the 45m of productive work above has been billed",
+                    "quantity": 7.25,
+                    "unit": "Hours",
+                    "rate": 0,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Sun 14-Jun-2026 - 9h 30m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 9.5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Mon 15-Jun-2026 - 9h",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 9.0,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Sun 21-Jun-2026 - 4h 30m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 4.5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Mon 22-Jun-2026 - 11h 30m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 11.5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 02  |  Concept Design  |  June 2026"
+                },
+                {
+                    "description": "Mon 24-Aug-2026 - 3h 30m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 3.5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 03  |  Concept Design  |  August 2026"
+                },
+                {
+                    "description": "Mon 24-Aug-2026 - 4h 30m - No Charge",
+                    "itemDescription": "-> Studio day where the work did not progress as it should have\n-> Time recorded in full but not charged\n-> Only the 3h 30m of productive work above has been billed",
+                    "quantity": 4.5,
+                    "unit": "Hours",
+                    "rate": 0,
+                    "group": "Session 03  |  Concept Design  |  August 2026"
+                },
+                {
+                    "description": "Tue 25-Aug-2026 - 9h",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 9.0,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 03  |  Concept Design  |  August 2026"
+                },
+                {
+                    "description": "Wed 26-Aug-2026 - 5h 45m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 5.75,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 03  |  Concept Design  |  August 2026"
+                },
+                {
+                    "description": "Thu 27-Aug-2026 - 7h 30m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 7.5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 03  |  Concept Design  |  August 2026"
+                },
+                {
+                    "description": "Fri 28-Aug-2026 - 6h 45m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 6.75,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 03  |  Concept Design  |  August 2026"
+                },
+                {
+                    "description": "Sat 29-Aug-2026 - 4h 15m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 4.25,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 03  |  Concept Design  |  August 2026"
+                },
+                {
+                    "description": "Sun 30-Aug-2026 - 8h",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 8.0,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 03  |  Concept Design  |  August 2026"
+                },
+                {
+                    "description": "Mon 31-Aug-2026 - 7h 15m",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 7.25,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Session 03  |  Concept Design  |  August 2026"
+                }
+            ],
+            "totals": {
+                "subtotal": 2587.5,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 2587.5
+            },
+            "createdDate": "04/09/2026, 09:52:00",
+            "lastModified": "04/09/2026, 09:52:00"
         }
     ]
 }
