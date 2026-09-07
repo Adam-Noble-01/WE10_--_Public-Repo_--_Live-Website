@@ -64,6 +64,7 @@
         "FloorPlanViews__Labels__PreviewLabel": "Preview",
         "FloorPlanViews__Labels__ExitPreviewLabel": "Exit Preview",
         "FloorPlanViews__Labels__AnnotateLabel": "Annotate",
+        "FloorPlanViews__Labels__ThumbnailLabel": "Save Thumbnail",
         "FloorPlanViews__Labels__DeletePlanPrompt": "Delete the floor plan \"{name}\"? Its scene and annotations go with it.",
         "FloorPlanViews__Labels__SaveLabel": "Save Floor Plans",
         "FloorPlanViews__Labels__SavedMessage": "Floor plans saved to R2.",

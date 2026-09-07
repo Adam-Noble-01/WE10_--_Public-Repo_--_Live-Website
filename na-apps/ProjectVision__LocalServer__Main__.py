@@ -11,9 +11,10 @@
 #
 # DESCRIPTION:
 # - Serves static files from the repository root with CORS support
-# - Auto-opens browser to the Project Vision landing page
+# - Serves a card-based project launcher at the server root (localhost only)
+# - Auto-opens the browser to that launcher
 # - Supports hot-reloading in debug mode
-# - Provides health-check API endpoint
+# - Provides health-check and dev project-list API endpoints
 #
 # USAGE:
 #   python ProjectVision__LocalServer__Main__.py
@@ -39,6 +40,9 @@ import time
 import platform
 import argparse
 import traceback
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import ProjectVision__DevLauncher__Shared__ as dev_launcher      # <-- Shared with the Project Admin dev server
 
 try:
     from flask import Flask, send_from_directory, jsonify, abort, request
@@ -66,16 +70,27 @@ DEBUG_MODE               = False                                     # <-- Flask
 CORE_APP_PATH            = '/na-apps/05__ProjectVision__CoreAppCode/'
 PORTAL_ROOT              = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'na-project-portal'))
 PROJECTVISION_CORE_DIR   = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '05__ProjectVision__CoreAppCode'))
-TRUEVISION_CONTENT_DIR   = '30__TrueVision__AppContent'
-TRUEVISION_DATA_FILENAME = 'TrueVision__ProjectData__.json'
 YEAR_FOLDER_PATTERN      = re.compile(r'^(\d{2})-Projects$')
 
-DEFAULT_PROJECT          = 'NP03'                                    # <-- Project code
+TRUEVISION_CONTENT_DIR   = '30__TrueVision__AppContent'
+TRUEVISION_DATA_FILENAME = 'TrueVision__ProjectData__.json'
+
+# SUB-APPLICATION ENTRYPOINTS | Shared with the Project Admin dev server
+SUB_APP_PATHS            = dev_launcher.SUB_APP_PATHS
+
+DEFAULT_PROJECT          = None                                      # <-- Project code (None = open dev landing)
 DEFAULT_YEAR             = '26'                                      # <-- Year folder (2026)
 
 
+def get_landing_url():
+    """Get the local dev landing (project launcher) URL."""
+    return f"http://localhost:{PORT}/"
+
+
 def get_server_url():
-    """Get full URL with default project parameters."""
+    """Get the startup URL - dev landing unless a default project was requested."""
+    if not DEFAULT_PROJECT:
+        return get_landing_url()
     return f"http://localhost:{PORT}{CORE_APP_PATH}index.html?project={DEFAULT_PROJECT}"
 
 
@@ -321,18 +336,40 @@ def _run_targeted_r2_sync(project_folder):
 
 @app.route('/')
 def index():
-    """Redirect root to default project."""
-    url = get_server_url()
-    return f'''
-    <html>
-    <head>
-        <meta http-equiv="refresh" content="0; url={url}" />
-    </head>
-    <body>
-        <p>Redirecting to <a href="{url}">Project Vision ({DEFAULT_PROJECT})</a>...</p>
-    </body>
-    </html>
-    '''
+    """Serve the local dev launcher - a card view of every project."""
+    landing = dev_launcher.get_landing_file(REPO_ROOT)
+
+    if not landing:
+        return (
+            f"<h1>Dev launcher page missing</h1>"
+            f"<p>Expected: na-apps/{dev_launcher.DEV_LANDING_FILENAME}</p>",
+            500
+        )
+
+    response = send_from_directory(landing[0], landing[1])
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route('/api/dev/projects')
+def dev_projects_api():
+    """Merged project list for the local dev launcher page."""
+    try:
+        payload = dev_launcher.collect_dev_projects(REPO_ROOT, DEFAULT_YEAR)
+    except Exception as error:
+        traceback.print_exc()
+        return jsonify({'error': f'{type(error).__name__}: {error}'}), 500
+
+    payload['server'] = {
+        'port'       : PORT,
+        'service'    : 'na-projectvision-local-dev',
+        'repoRoot'   : REPO_ROOT,
+        'portalRoot' : PORTAL_ROOT
+    }
+
+    response = jsonify(payload)
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 
 @app.route('/api/health')
@@ -461,8 +498,9 @@ def open_browser():
     """Open browser after short delay to ensure server is ready."""
     time.sleep(1.5)
 
-    url = get_server_url()
-    print(f"  Opening browser to {url}...")
+    url   = get_server_url()
+    label = 'project launcher' if not DEFAULT_PROJECT else f'project {DEFAULT_PROJECT}'
+    print(f"  Opening browser to {url}  ({label})...")
 
     try:
         webbrowser.open(url)
@@ -515,28 +553,37 @@ def open_browser():
 def print_banner():
     """Print startup banner with server information."""
     base_url = get_base_url()
-    server_url = get_server_url()
 
     print("\n" + "=" * 70)
     print("  Noble Architecture - Project Vision Development Server (Flask)")
     print("=" * 70)
     print(f"\n  Serving from: {REPO_ROOT}")
-    print(f"\n  Server running at: http://localhost:{PORT}/")
-    print(f"\n  Default project: {DEFAULT_PROJECT} (Year: {DEFAULT_YEAR})")
-    print(f"  Debug mode: {'ON' if DEBUG_MODE else 'OFF'}")
+    print(f"  Debug mode:   {'ON' if DEBUG_MODE else 'OFF'}")
 
-    print("\n  Test URLs:")
-    print(f"    - Default ({DEFAULT_PROJECT}): {server_url}")
-    print(f"    - Example (AA00): {base_url}index.html?project=AA00")
-    print(f"    - Example (BH03): {base_url}index.html?project=BH03")
+    print("\n  PROJECT LAUNCHER (start here):")
+    print(f"    {get_landing_url()}")
+    print("    Card view of every project - click straight into any sub-app.")
 
-    print("\n  Sub-Application URLs (via Project Vision):")
-    print(f"    - Project Admin: http://localhost:{PORT}/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/?project={DEFAULT_PROJECT}")
-    print(f"    - PlanVision:    http://localhost:{PORT}/na-apps/20__PlanVision__CoreAppCode/PlanVision__WebApp__Main__.html?project={DEFAULT_PROJECT}")
-    print(f"    - TrueVision:    http://localhost:{PORT}/na-apps/30__TrueVision__CoreAppCode/index.html?project={DEFAULT_PROJECT}")
+    if DEFAULT_PROJECT:
+        print(f"\n  Startup project override: {DEFAULT_PROJECT} (Year: {DEFAULT_YEAR})")
+        print(f"    {get_server_url()}")
 
-    print(f"\n  API:")
-    print(f"    - Health: http://localhost:{PORT}/api/health")
+    try:
+        summary = dev_launcher.collect_dev_projects(REPO_ROOT, DEFAULT_YEAR)
+        live    = sum(1 for item in summary['projects'] if item['isLive'])
+        print(f"\n  Projects found: {len(summary['projects'])} ({live} with app content)")
+    except Exception as error:
+        print(f"\n  Projects found: unavailable ({type(error).__name__}: {error})")
+
+    print("\n  Direct URLs (any project code):")
+    print(f"    - Project Vision: {base_url}index.html?project=XX00")
+    print(f"    - Project Admin:  http://localhost:{PORT}/na-apps/{SUB_APP_PATHS['projectAdmin']}?project=XX00")
+    print(f"    - PlanVision:     http://localhost:{PORT}/na-apps/{SUB_APP_PATHS['planVision']}?project=XX00")
+    print(f"    - TrueVision:     http://localhost:{PORT}/na-apps/{SUB_APP_PATHS['trueVision']}?project=XX00")
+
+    print("\n  API:")
+    print(f"    - Health:   http://localhost:{PORT}/api/health")
+    print(f"    - Projects: http://localhost:{PORT}/api/dev/projects")
 
     print("\n  Press Ctrl+C to stop the server")
     print("=" * 70 + "\n")
@@ -572,8 +619,8 @@ def parse_arguments():
     parser.add_argument(
         '--project',
         type=str,
-        default='NP03',
-        help='Default project code to open (default: NP03)'
+        default=None,
+        help='Open this project directly instead of the project launcher (e.g. NP03)'
     )
 
     parser.add_argument(
@@ -593,7 +640,7 @@ def parse_arguments():
 
     PORT            = args.port
     DEBUG_MODE      = args.debug
-    DEFAULT_PROJECT = args.project
+    DEFAULT_PROJECT = args.project.strip().upper() if args.project else None
     DEFAULT_YEAR    = args.year
 
     return args

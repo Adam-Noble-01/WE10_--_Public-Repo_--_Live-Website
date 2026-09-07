@@ -1,0 +1,103 @@
+{
+    "ElevationViews__Description": "Configuration for the Elevation Views system - the developer-authored 2D elevation and section drawings that sit alongside the floor plans. Per-project elevation definitions live in the project's own TrueVision__ProjectData__.json, nested inside PresentationMode__SavedCameraScenes so they ride the existing R2 dev-key sync path exactly as the floor plans do. All distance values are integer millimetres and are converted to Three.js units in code.",
+
+    "ElevationViews__Enabled": true,
+
+    "ElevationViews__Direction__Config": {
+        "ElevationViews__Direction__Description": "Which way the viewer faces. The azimuth is the compass bearing of the side the viewer STANDS ON, so 0 draws the north elevation seen from the north. World north is -Z, matching the floor plan camera's up vector, which is what makes a plan and an elevation of the same building agree about which wall is which. Free azimuths are allowed; the four presets exist because almost every drawing set uses them.",
+        "ElevationViews__Direction__DefaultAzimuthDeg": 0,
+        "ElevationViews__Direction__StepDeg": 5,
+        "ElevationViews__Direction__Presets": [
+            { "Preset__Label": "North", "Preset__AzimuthDeg": 0 },
+            { "Preset__Label": "East",  "Preset__AzimuthDeg": 90 },
+            { "Preset__Label": "South", "Preset__AzimuthDeg": 180 },
+            { "Preset__Label": "West",  "Preset__AzimuthDeg": 270 }
+        ]
+    },
+
+    "ElevationViews__Plane__Config": {
+        "ElevationViews__Plane__Description": "The vertical drawing plane. It always passes through the origin point below and faces the viewer. In Elevation mode it cuts nothing and simply marks where a section would be taken; in Section mode everything between the viewer and the plane is removed. The X and Z sliders move the plane bodily through the model, which is the whole of the setup - there is no face picking and no dragging in the 3D view.",
+        "ElevationViews__Plane__DefaultOriginXMm": 0,
+        "ElevationViews__Plane__DefaultOriginZMm": 0,
+        "ElevationViews__Plane__OriginMinMm": -60000,
+        "ElevationViews__Plane__OriginMaxMm": 60000,
+        "ElevationViews__Plane__OriginStepMm": 50,
+        "ElevationViews__Plane__ViewDepthDefaultMm": null,
+        "ElevationViews__Plane__ViewDepthMaxMm": 100000
+    },
+
+    "ElevationViews__Gizmo__Config": {
+        "ElevationViews__Gizmo__Description": "The 3D marker shown while an elevation is being set up, so the author can see where the plane sits and which way it looks before previewing anything. It is sized from the model bounds plus a margin rather than from a fixed size, so it reads correctly on a garden room and on a full house. It is removed entirely the moment the drawing itself is opened - a translucent plane hanging in front of an elevation would print.",
+        "ElevationViews__Gizmo__MarginMm": 3000,
+        "ElevationViews__Gizmo__FillColour": "#2e7d4f",
+        "ElevationViews__Gizmo__FillOpacity": 0.07,
+        "ElevationViews__Gizmo__EdgeColour": "#2e7d4f",
+        "ElevationViews__Gizmo__ArrowColour": "#2e7d4f",
+        "ElevationViews__Gizmo__ArrowLengthMm": 2500,
+        "ElevationViews__Gizmo__CutFaceColour": "#c0392b",
+        "ElevationViews__Gizmo__CutFaceOpacity": 0.14
+    },
+
+    "ElevationViews__Camera__Config": {
+        "ElevationViews__Camera__Description": "Orthographic camera looking horizontally at the drawing plane. Under a parallel projection the stand-off distance does not affect scale - only the near and far planes - so it is set generously and left alone. Framing fits the model's extent across the elevation plus a margin.",
+        "ElevationViews__Camera__StandOffMm": 150000,
+        "ElevationViews__Camera__NearMm": 10,
+        "ElevationViews__Camera__FarMm": 500000,
+        "ElevationViews__Camera__FramingMarginMm": 2000,
+        "ElevationViews__Camera__DefaultZoom": 1.0,
+        "ElevationViews__Camera__MinZoom": 0.1,
+        "ElevationViews__Camera__MaxZoom": 20.0
+    },
+
+    "ElevationViews__Navigation__Config": {
+        "ElevationViews__Navigation__Description": "Pan and zoom only, matching the floor plans. Elevation mode locks rotation entirely: dragging slides the camera across the elevation plane, and the wheel or pinch changes orthographic zoom.",
+        "ElevationViews__Navigation__ZoomStepFactor": 1.12,
+        "ElevationViews__Navigation__InvertWheel": false,
+        "ElevationViews__Navigation__PanButton": 0,
+        "ElevationViews__Navigation__EnableTouchPan": true,
+        "ElevationViews__Navigation__EnableTouchPinchZoom": true
+    },
+
+    "ElevationViews__Transition__Config": {
+        "ElevationViews__Transition__Description": "Camera transitions, deliberately identical in shape to the floor plan ones so a drawing set feels like one thing. Moving between two elevations is an instant flip because they are drawing pages; entering and leaving keeps the eased 3D camera move.",
+        "ElevationViews__Transition__IntoElevationMs": 1400,
+        "ElevationViews__Transition__OutOfElevationMs": 1400,
+        "ElevationViews__Transition__BetweenElevationsMs": 0,
+        "ElevationViews__Transition__Easing": "easeInOutCubic"
+    },
+
+    "ElevationViews__SceneGroup__Config": {
+        "ElevationViews__SceneGroup__Description": "Where a newly created elevation scene is filed. Resolution follows the floor plan rule exactly: a group named Elevations wins, then the configured group id, then the first enabled group. A matched group that is switched off is switched on, because an elevation filed into a hidden group would never reach the carousel.",
+        "ElevationViews__SceneGroup__TargetGroupName": "Elevations",
+        "ElevationViews__SceneGroup__TargetGroupId": "Group_005",
+        "ElevationViews__SceneGroup__AutoEnableTargetGroup": true
+    },
+
+    "ElevationViews__Labels__Config": {
+        "ElevationViews__Labels__Description": "User-facing wording for the Dev menu elevation editor. Elevation names themselves are per-project and authored there by the developer.",
+        "ElevationViews__Labels__SectionTitle": "Elevations",
+        "ElevationViews__Labels__AddElevationLabel": "+ Add Elevation",
+        "ElevationViews__Labels__SeedFourSidesLabel": "Seed N / E / S / W",
+        "ElevationViews__Labels__NewElevationNameFormat": "Elevation {index}",
+        "ElevationViews__Labels__PresetNameFormat": "{preset} Elevation",
+        "ElevationViews__Labels__DirectionFieldLabel": "Viewed from",
+        "ElevationViews__Labels__ModeFieldLabel": "Drawing type",
+        "ElevationViews__Labels__ModeElevationLabel": "Elevation",
+        "ElevationViews__Labels__ModeSectionLabel": "Section",
+        "ElevationViews__Labels__PlaneXFieldLabel": "Plane X",
+        "ElevationViews__Labels__PlaneZFieldLabel": "Plane Z",
+        "ElevationViews__Labels__ViewDepthFieldLabel": "View depth",
+        "ElevationViews__Labels__ViewDepthPlaceholder": "Full",
+        "ElevationViews__Labels__CentrePlaneLabel": "Centre on model",
+        "ElevationViews__Labels__PreviewLabel": "Preview",
+        "ElevationViews__Labels__ExitPreviewLabel": "Exit Preview",
+        "ElevationViews__Labels__AnnotateLabel": "Annotate",
+        "ElevationViews__Labels__ThumbnailLabel": "Save Thumbnail",
+        "ElevationViews__Labels__DeleteElevationPrompt": "Delete the elevation \"{name}\"? Its scene, annotations and dimensions go with it.",
+        "ElevationViews__Labels__SaveLabel": "Save Elevations",
+        "ElevationViews__Labels__SavedMessage": "Elevations saved to R2.",
+        "ElevationViews__Labels__SaveFailedMessage": "Elevation save failed - see console.",
+        "ElevationViews__Labels__NoModelMessage": "Load a model before adding elevations.",
+        "ElevationViews__Labels__CutDepthReadoutFormat": "cut {depth} mm into the model"
+    }
+}

@@ -2,6 +2,142 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.18.0  -  07-Sep-2026
+### Elevation Drawings - The Same Sheet, Turned on Its Side
+
+**Overview**
+- Elevations and vertical sections now exist alongside the floor plans, built
+  on the same section cut engine, the same annotation layer, the same
+  dimensioning engine and the same flat parallel render.
+- An elevation is authored from the Dev menu **Elevations** panel: pick which
+  side you are standing on, slide the drawing plane through the model, choose
+  Elevation or Section, preview, annotate, dimension, save.
+- Floor plan and elevation thumbnails now capture the DRAWING rather than the
+  3D model, and both panels gained a **Save Thumbnail** button.
+
+**AN ELEVATION IS TWO NUMBERS AND A MODE, NOT A PICKED FACE**
+- This is the whole difference from the ValeVision elevation tool, and it was
+  the point of rebuilding rather than porting. That tool made you click a
+  building face and then drag a translucent plane along its normal. Three
+  things were wrong with it: picking depends on there being a suitable face to
+  hit, dragging gives no numeric feedback at all, and neither survives the
+  model being re-exported with different geometry.
+- Here the inputs are:
+      AZIMUTH  - the compass bearing of the side the viewer stands on
+      ORIGIN   - a world X/Z point the vertical drawing plane passes through
+      MODE     - elevation (nothing is cut) or section (the plane bites)
+  Everything else - the clip plane, the camera pose, the framing, the drawing
+  axes - is derived from those in ONE place, Na__ElevData__GetAxes and its
+  neighbours. An elevation is therefore reproducible, type-able and diffable,
+  and re-exporting the model cannot silently move it.
+- The plane gizmo survives from the old tool but its role is inverted: it is a
+  READOUT, not a handle. It appears when you touch a row, follows the sliders
+  live, and is removed entirely the moment the drawing opens.
+
+**Why the two sliders have a third number under them**
+- Moving the plane along X and along Z do not contribute equally: for a north
+  elevation only the Z slider changes where the cut lands, and for an east
+  elevation only the X one does. A slider that visibly does nothing is worse
+  than no slider, so the derived depth - the plane's distance along the view
+  axis - is shown live beneath them.
+
+**ONE DRAWING SUBSTRATE, TWO DRAWING TYPES**
+- The markup systems were bound to the floor plan camera specifically: both
+  overlays imported Na__FpCam__ directly and projected a stored X/Z pair as
+  world X and world Z at the cut height. That is correct for a plan and
+  meaningless for an elevation.
+- New module set 40__System__DrawingViewCore holds the seam:
+    Na__DrawView__ActiveView__   - which drawing owns the viewport, and how its
+                                   plane maps to the world and to the screen
+    Na__DrawView__Navigation__   - pan and zoom for any 2D drawing (moved out
+                                   of the floor plan folder and generalised)
+    Na__DrawView__MarkupMount__  - the eleven-module mount and unmount sequence
+- Each drawing system registers an ADAPTER when it takes the viewport. The
+  markup layers, the navigation and the render loop all go through the broker
+  and no longer know which kind of drawing they are on.
+
+**The stored field names still say X and Z**
+- A markup record stores two millimetre values. On a plan they are literally
+  world X and world Z; on an elevation they are horizontal run and height.
+  Renaming the keys would mean migrating every project's saved markup for no
+  behavioural gain, so they were deliberately left alone and the meaning is
+  documented at the broker. Read "...XMm" as drawing axis 1 and "...ZMm" as
+  drawing axis 2.
+
+**The drawing's run is anchored at the world origin, not at the plane**
+- The horizontal position of a point on an elevation is measured along the
+  right axis from the WORLD ORIGIN. Measuring from the movable plane origin
+  would have looked tidier and would have dragged every stored annotation and
+  dimension sideways the moment the author nudged a slider - which is the one
+  edit made constantly. Same reasoning as the dimension snap grid, and there
+  is a harness check that pins it.
+
+**Elevation and section are one drawing with the cut on or off**
+- Nothing else differs: not the camera, not the framing, not the markup. So
+  the switch is one call to the section engine rather than a second code path.
+  An elevation whose plane has been pushed clear of the building is visually
+  identical either way, which is exactly right.
+- The section cut engine gained UpsertVerticalPlane. The cap geometry already
+  solved in a basis built from whatever normal it was handed - it was ported
+  from the ValeVision cross section tool, which cut vertically - so the fills,
+  the profile outlines and the view depth back plane needed no change at all.
+  SetPlaneHeightMm became SetPlaneDistanceMm with the old name kept as a
+  wrapper, because "height" is only half the story now.
+
+**Only one drawing can be up at a time, and the broker enforces it**
+- Every markup module is a singleton bound to whatever mounted it last. A plan
+  and an elevation both mounted would have meant the second silently
+  inheriting the first's undo stack and hotkeys while the first was never torn
+  down. The incoming controller calls ReleaseOtherKind and the outgoing one is
+  told to stand down - so neither controller imports the other.
+- The carousel's single navigation override became a ROUTER LIST for the same
+  reason: with two systems registering, a setter would have let whichever
+  initialised last unhook the other. Each router declines a scene that is not
+  its own, so registration order does not matter.
+
+**Fix - floor plan thumbnails captured the 3D model**
+- The capture always rendered through the composer, whose RenderPass still
+  held the perspective camera, so a plan's thumbnail was a picture of a view
+  nobody was looking at. It now takes the same branch the render loop takes: a
+  flat render through the active drawing camera plus the section overlay.
+- Capture and R2 upload moved into one function so the scene editor, the floor
+  plan editor and the elevation editor cannot drift. Both drawing panels
+  gained a Save Thumbnail button, disabled unless the drawing is previewing -
+  the capture is of the viewport, so from 3D it would file the wrong image.
+- The markup layers are DOM overlays, not WebGL, so a thumbnail carries the
+  linework and poche but not the text. Deliberate: at 480px a room label is an
+  illegible smudge.
+
+**Client measuring covers elevations too**
+- The existing per-project grant now governs both kinds of drawing. A project
+  that lets a client measure a plan lets them measure an elevation of it; two
+  separate switches for one capability would be a trap rather than a feature.
+  Still off unless switched on, still ephemeral, still unsaveable.
+
+**Scene groups**
+- A fifth default group, Elevations, ships disabled. Older projects saved
+  before elevations existed have four groups and will never grow a fifth on
+  their own, so the elevation scene link CREATES the group when neither the
+  name nor the id is found rather than falling back to the first enabled one.
+  Filing an elevation into Exterior 3D Views would be silently wrong.
+
+**What was verified**
+- A geometry harness at 80__Testing__PrototypeEnvironment/
+  Na__Test__ElevationGeometry__.html drives the real modules against a
+  synthetic model: 45 checks covering the azimuth convention, orthonormal
+  axes, plane distance responding only to movement along the view axis, run
+  anchoring, run round-tripping at six bearings, framing span across the
+  elevation, camera orientation, pan staying in plane, and the vertical clip
+  plane keeping the far side. All pass.
+- In the browser: entering an elevation, the screen-to-plane mapping round
+  tripping to zero pixel error, placing a label, flipping between two
+  elevations without markup bleed, handing over to a floor plan, exiting to
+  3D, and capturing a thumbnail in all three states.
+- NOT verified against a real model: local testing has no project API, so no
+  GLB loads. The cut appearance, the framing on real geometry and the look of
+  a finished elevation still want a pass on a live project.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.17.0  -  31-Aug-2026
 ### Client Measuring - The Same Dimension Engine, Gated for the Live App
 

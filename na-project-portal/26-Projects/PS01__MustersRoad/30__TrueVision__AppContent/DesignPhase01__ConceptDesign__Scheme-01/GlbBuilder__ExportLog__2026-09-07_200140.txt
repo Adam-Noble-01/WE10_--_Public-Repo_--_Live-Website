@@ -1,0 +1,795 @@
+===============================================================================
+ TrueVision3D GLB Builder - Export Log
+===============================================================================
+ Model      : PS01__ProposedModel__0.0.1__.skp
+ Export dir : D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01
+ Timestamp  : 2026-09-07_200140
+ Console    : suppressed (OFF)
+-------------------------------------------------------------------------------
+  Project prefix detected: 'PS01__'
+
+=== Analyzing model layers ===
+  Skipping layer '00__Standards' (tag 0 is in ignored range)
+  Found entity on layer '07__Landscape' -> TrueVision__LandscapeEnvironment.glb
+  Found entity on layer '01__OrbitHelperCube' -> 01__OrbitHelperCube.glb
+  Found entity on layer '25__ProposedBuilding__Doors' -> TrueVision__MainBuildingModel__ProposedDoors.glb
+  Found entity on layer '11__ExistingBuilding__Walls' -> TrueVision__MainBuildingModel__ExistingWalls.glb
+  Found entity on layer '13__ExistingBuilding__Roofs' -> TrueVision__MainBuildingModel__ExistingRoofs.glb
+  Found entity on layer '13__ExistingBuilding__Roofs' -> TrueVision__MainBuildingModel__ExistingRoofs.glb
+  Found entity on layer '11__ExistingBuilding__Walls' -> TrueVision__MainBuildingModel__ExistingWalls.glb
+  Found entity on layer '11__ExistingBuilding__Walls' -> TrueVision__MainBuildingModel__ExistingWalls.glb
+  Found entity on layer '11__ExistingBuilding__Walls' -> TrueVision__MainBuildingModel__ExistingWalls.glb
+  Found entity on layer '13__ExistingBuilding__Roofs' -> TrueVision__MainBuildingModel__ExistingRoofs.glb
+  Found entity on layer '13__ExistingBuilding__Roofs' -> TrueVision__MainBuildingModel__ExistingRoofs.glb
+  Found entity on layer '23__ProposedBuilding__Roofs' -> TrueVision__MainBuildingModel__ProposedRoofs.glb
+  Found entity on layer '11__ExistingBuilding__Walls' -> TrueVision__MainBuildingModel__ExistingWalls.glb
+  Found entity on layer '13__ExistingBuilding__Roofs' -> TrueVision__MainBuildingModel__ExistingRoofs.glb
+  Found entity on layer '25__ProposedBuilding__Doors' -> TrueVision__MainBuildingModel__ProposedDoors.glb
+  Found entity on layer '25__ProposedBuilding__Doors' -> TrueVision__MainBuildingModel__ProposedDoors.glb
+  Found entity on layer '13__ExistingBuilding__Roofs' -> TrueVision__MainBuildingModel__ExistingRoofs.glb
+  Found entity on layer '22__ProposedBuilding__Floors' -> TrueVision__MainBuildingModel__ProposedFloors.glb
+  Found entity on layer '21__ProposedBuilding__Walls' -> TrueVision__MainBuildingModel__ProposedWalls.glb
+  Found entity on layer '21__ProposedBuilding__Walls' -> TrueVision__MainBuildingModel__ProposedWalls.glb
+  Found entity on layer '13__ExistingBuilding__Roofs' -> TrueVision__MainBuildingModel__ExistingRoofs.glb
+  Found entity on layer '13__ExistingBuilding__Roofs' -> TrueVision__MainBuildingModel__ExistingRoofs.glb
+  Found entity on layer '14__ExistingBuilding__Windows' -> TrueVision__MainBuildingModel__ExistingWindows.glb
+  Found entity on layer '14__ExistingBuilding__Windows' -> TrueVision__MainBuildingModel__ExistingWindows.glb
+  Found entity on layer '07__Landscape' -> TrueVision__LandscapeEnvironment.glb
+  Found entity on layer '13__ExistingBuilding__Roofs' -> TrueVision__MainBuildingModel__ExistingRoofs.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '25__ProposedBuilding__Doors' -> TrueVision__MainBuildingModel__ProposedDoors.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '29__ProposedBuilding__InteriorDecor' -> TrueVision__MainBuildingModel__ProposedInteriorDecor.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '27__ProposedBuilding__Fixtures' -> TrueVision__MainBuildingModel__ProposedFixtures.glb
+  Found entity on layer '27__ProposedBuilding__Fixtures' -> TrueVision__MainBuildingModel__ProposedFixtures.glb
+  Found entity on layer '27__ProposedBuilding__Fixtures' -> TrueVision__MainBuildingModel__ProposedFixtures.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+  Found entity on layer '17__ExistingBuilding__Fixtures' -> TrueVision__MainBuildingModel__ExistingFixtures.glb
+  Found entity on layer '28__ProposedBuilding__Furniture' -> TrueVision__MainBuildingModel__ProposedFurniture.glb
+
+=== All layers in model ===
+  '00__Standards' (1 entities)
+  '07__Landscape' (2 entities)
+  '01__OrbitHelperCube' (1 entities)
+  'Layer0' (4 entities)
+  '25__ProposedBuilding__Doors' (4 entities)
+  '11__ExistingBuilding__Walls' (5 entities)
+  '13__ExistingBuilding__Roofs' (9 entities)
+  '23__ProposedBuilding__Roofs' (1 entities)
+  '22__ProposedBuilding__Floors' (1 entities)
+  '21__ProposedBuilding__Walls' (2 entities)
+  '14__ExistingBuilding__Windows' (2 entities)
+  '28__ProposedBuilding__Furniture' (17 entities)
+  '29__ProposedBuilding__InteriorDecor' (1 entities)
+  '27__ProposedBuilding__Fixtures' (3 entities)
+  '17__ExistingBuilding__Fixtures' (1 entities)
+=========================
+
+=== Scanning for Storey Containers ===
+  No storey containers found - using flat export mode
+=== End Storey Scan ===
+
+=== Export Plan ===
+  PS01__TrueVision__LandscapeEnvironment__MeshModel__.glb - 2 top-level entities
+  PS01__TrueVision__LandscapeEnvironment__LineworkModel__.glb - 2 top-level entities
+  PS01__01__OrbitHelperCube__MeshModel__.glb - 1 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb - 4 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb - 4 top-level entities
+  PS01__TrueVision__MainBuildingModel__ExistingWalls__MeshModel__.glb - 5 top-level entities
+  PS01__TrueVision__MainBuildingModel__ExistingWalls__LineworkModel__.glb - 5 top-level entities
+  PS01__TrueVision__MainBuildingModel__ExistingRoofs__MeshModel__.glb - 9 top-level entities
+  PS01__TrueVision__MainBuildingModel__ExistingRoofs__LineworkModel__.glb - 9 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedRoofs__MeshModel__.glb - 1 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedRoofs__LineworkModel__.glb - 1 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedFloors__MeshModel__.glb - 1 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedFloors__LineworkModel__.glb - 1 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedWalls__MeshModel__.glb - 2 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedWalls__LineworkModel__.glb - 2 top-level entities
+  PS01__TrueVision__MainBuildingModel__ExistingWindows__MeshModel__.glb - 2 top-level entities
+  PS01__TrueVision__MainBuildingModel__ExistingWindows__LineworkModel__.glb - 2 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedFurniture__MeshModel__.glb - 17 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedFurniture__LineworkModel__.glb - 17 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__MeshModel__.glb - 1 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__LineworkModel__.glb - 1 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedFixtures__MeshModel__.glb - 3 top-level entities
+  PS01__TrueVision__MainBuildingModel__ProposedFixtures__LineworkModel__.glb - 3 top-level entities
+  PS01__TrueVision__MainBuildingModel__ExistingFixtures__MeshModel__.glb - 1 top-level entities
+  PS01__TrueVision__MainBuildingModel__ExistingFixtures__LineworkModel__.glb - 1 top-level entities
+=== End Export Plan ===
+
+Exporting series: PS01__TrueVision__LandscapeEnvironment...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_13_ID19182101...
+    Traversing: 01__DrawnVolume_ID29975272...
+    Traversal complete: 2 entities -> 1 buckets, 72 vertices, 40 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 07__Landscape::Default (72 verts, 40 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__LandscapeEnvironment__MeshModel__.glb (3956 bytes, BIN: 2544 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 3956 bytes
+    Chunk 1: "JSON", Length: 1384 bytes
+    Chunk 2: "BIN\x00", Length: 2544 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_13_ID19182101...
+    Traversing linework: 01__DrawnVolume_ID29975272...
+    Linework traversal complete: 2 entities -> 24 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__LandscapeEnvironment__LineworkModel__.glb (2056 bytes, BIN: 1344 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2056 bytes
+    Chunk 1: "JSON", Length: 684 bytes
+    Chunk 2: "BIN\x00", Length: 1344 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__01__OrbitHelperCube...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_917_ID16615488...
+    Traversal complete: 1 entities -> 1 buckets, 24 vertices, 12 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 01__OrbitHelperCube::Default (24 verts, 12 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__01__OrbitHelperCube__MeshModel__.glb (2276 bytes, BIN: 840 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2276 bytes
+    Chunk 1: "JSON", Length: 1408 bytes
+    Chunk 2: "BIN\x00", Length: 840 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Skipping linework export for OrbitHelperCube (mesh only)
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ProposedDoors...
+  Using virtual flattening for non-destructive world-space export...
+      [DoorHandler] Detected top-level door assembly: ADR001__ExteriorDoubleDoor___ID28949963
+      [DoorHandler] Detected top-level door assembly: ADR002__InteriorDoor___ID29456565
+      [DoorHandler] Detected top-level door assembly: ADR003__SlidingDoor___ID29466565
+      [DoorHandler] Detected top-level door assembly: ADR004__InteriorDoor___ID30124441
+    Traversal complete: 0 entities -> 0 buckets, 0 vertices, 0 triangles
+    [DoorHandler] 4 door assembly(ies) detected — will export with hierarchy preservation
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Total meshes built: 0
+
+    [DoorHandler v2.2.2] Exporting 4 mesh door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Mesh] Building door assembly: ADR001__ExteriorDoubleDoor__
+        [DoorHandler/Mesh] KEEP  child='Na_Cill' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (24 verts, 12 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__-90-Deg__ExteriorDoubleDoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+          [DoorHandler] Mesh: Na__Door__Closed::MAT101__Glass__ClearDefault (24 verts, 12 tris)
+          [DoorHandler] Mesh: Na__Door__Closed::Default (208 verts, 128 tris)
+          [DoorHandler] Mesh: Na__DoorHandle::Default (1288 verts, 888 tris)
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__ExteriorDoubleDoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='MOD002__ROT__90-Deg__ExteriorDoubleDoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler] Mesh: Na__Door__Closed::MAT101__Glass__ClearDefault (24 verts, 12 tris)
+          [DoorHandler] Mesh: Na__Door__Closed::Default (208 verts, 128 tris)
+          [DoorHandler] Mesh: Na__DoorHandle::Default (1288 verts, 888 tris)
+        [DoorHandler/Mesh] KEEP  child='ROT002__RotationPoint__ExteriorDoubleDoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__-90-Deg__ExteriorDoubleDoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Mesh] SKIP  child='MOD002__ROT__90-Deg__ExteriorDoubleDoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Mesh] SKIP  child='Na__ExteriorDoubleDoor__Swing__001' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] SKIP  child='Na__ExteriorDoubleDoor__Swing__002' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] KEEP  child='Na_Frame_Fused' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (48 verts, 32 tris)
+      [DoorHandler/Mesh] Door assembly complete: ADR001__ExteriorDoubleDoor__
+      [DoorHandler/Mesh] Building door assembly: ADR002__InteriorDoor__
+        [DoorHandler/Mesh] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Na__Architrave::Default (62 verts, 36 tris)
+        [DoorHandler/Mesh] KEEP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Na__Architrave::Default (62 verts, 36 tris)
+        [DoorHandler/Mesh] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler] Mesh: Na__DoorPanel::Default (24 verts, 12 tris)
+          [DoorHandler] Mesh: Na__DoorHandle::Default (4596 verts, 2360 tris)
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Mesh] Door assembly complete: ADR002__InteriorDoor__
+      [DoorHandler/Mesh] Building door assembly: ADR003__SlidingDoor__
+        [DoorHandler/Mesh] KEEP  child='Na_Cill' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (24 verts, 12 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD001__MVE__X-2386-mm__SlidingPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (112 verts, 64 tris)
+          [DoorHandler] Mesh: Layer0::MAT101__Glass__ClearDefault (56 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD002__MVE__X-1193-mm__SlidingPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (112 verts, 64 tris)
+          [DoorHandler] Mesh: Layer0::MAT101__Glass__ClearDefault (56 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='MOD003__FIXED__SlidingPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (112 verts, 64 tris)
+          [DoorHandler] Mesh: Layer0::MAT101__Glass__ClearDefault (56 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__SlidingPanelTrack' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='MVE001__MovementPoint__SlidingPanelTrack' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='MVE002__MovementPoint__SlidingPanelTrack' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Mesh] KEEP  child='Na_Frame_Fused' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (48 verts, 32 tris)
+      [DoorHandler/Mesh] Door assembly complete: ADR003__SlidingDoor__
+      [DoorHandler/Mesh] Building door assembly: ADR004__InteriorDoor__
+        [DoorHandler/Mesh] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Layer0::Default (48 verts, 28 tris)
+        [DoorHandler/Mesh] KEEP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Na__Architrave::Default (62 verts, 36 tris)
+        [DoorHandler/Mesh] KEEP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visible_default_path
+          [DoorHandler] Mesh: Na__Architrave::Default (62 verts, 36 tris)
+        [DoorHandler/Mesh] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Mesh] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler] Mesh: Na__DoorPanel::Default (24 verts, 12 tris)
+          [DoorHandler] Mesh: Na__DoorHandle::Default (4596 verts, 2360 tris)
+        [DoorHandler/Mesh] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Mesh] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Mesh] Door assembly complete: ADR004__InteriorDoor__
+    [DoorHandler] Door assembly export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb (501376 bytes, BIN: 468888 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 501376 bytes
+    Chunk 1: "JSON", Length: 32460 bytes
+    Chunk 2: "BIN\x00", Length: 468888 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: ADR001__ExteriorDoubleDoor___ID28949963...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR001__ExteriorDoubleDoor___ID28949963
+    Traversing linework: ADR002__InteriorDoor___ID29456565...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR002__InteriorDoor___ID29456565
+    Traversing linework: ADR003__SlidingDoor___ID29466565...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR003__SlidingDoor___ID29466565
+    Traversing linework: ADR004__InteriorDoor___ID30124441...
+      [DoorHandler/Linework] Detected top-level door assembly: ADR004__InteriorDoor___ID30124441
+    Linework traversal complete: 4 entities -> 0 edges
+    [DoorHandler/Linework] 4 door assembly(ies) detected — will export with hierarchy preservation
+
+    [DoorHandler/Linework v2.2.2] Exporting 4 linework door assembly(ies)... (closed runtime MOD guard active)
+      [DoorHandler/Linework] Building door assembly: ADR001__ExteriorDoubleDoor__
+        [DoorHandler/Linework] KEEP  child='Na_Cill' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 12 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__ExteriorDoubleDoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 520 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__ExteriorDoubleDoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MOD002__ROT__90-Deg__ExteriorDoubleDoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 520 edges
+        [DoorHandler/Linework] KEEP  child='ROT002__RotationPoint__ExteriorDoubleDoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__ExteriorDoubleDoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='MOD002__ROT__90-Deg__ExteriorDoubleDoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+        [DoorHandler/Linework] SKIP  child='Na__ExteriorDoubleDoor__Swing__001' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] SKIP  child='Na__ExteriorDoubleDoor__Swing__002' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='Na_Frame_Fused' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+      [DoorHandler/Linework] Door assembly complete: ADR001__ExteriorDoubleDoor__
+      [DoorHandler/Linework] Building door assembly: ADR002__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 31 edges
+        [DoorHandler/Linework] KEEP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 31 edges
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 338 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR002__InteriorDoor__
+      [DoorHandler/Linework] Building door assembly: ADR003__SlidingDoor__
+        [DoorHandler/Linework] KEEP  child='Na_Cill' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 12 edges
+        [DoorHandler/Linework] KEEP  child='MOD001__MVE__X-2386-mm__SlidingPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 84 edges
+        [DoorHandler/Linework] KEEP  child='MOD002__MVE__X-1193-mm__SlidingPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 84 edges
+        [DoorHandler/Linework] KEEP  child='MOD003__FIXED__SlidingPanel' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 84 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__SlidingPanelTrack' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MVE001__MovementPoint__SlidingPanelTrack' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='MVE002__MovementPoint__SlidingPanelTrack' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] KEEP  child='Na_Frame_Fused' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+      [DoorHandler/Linework] Door assembly complete: ADR003__SlidingDoor__
+      [DoorHandler/Linework] Building door assembly: ADR004__InteriorDoor__
+        [DoorHandler/Linework] KEEP  child='Na__Lining__Container' tag='Layer0' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 24 edges
+        [DoorHandler/Linework] KEEP  child='Na__Architrave__Front' tag='Na__Architrave' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 31 edges
+        [DoorHandler/Linework] KEEP  child='Na__Architrave__Back' tag='Na__Architrave' reason=tag_visible_default_path
+          [DoorHandler/Linework] Lines: 31 edges
+        [DoorHandler/Linework] SKIP  child='Na__DoorSwing__2D' tag='02__Linetype__DoorSwings' reason=tag_in_exclusion_list
+        [DoorHandler/Linework] KEEP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+          [DoorHandler/Linework] Lines: 338 edges
+        [DoorHandler/Linework] KEEP  child='ROT001__RotationPoint__DoorHingeCentre' tag='Layer0' reason=tag_visible_default_path
+        [DoorHandler/Linework] SKIP  child='MOD001__ROT__-90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
+      [DoorHandler/Linework] Door assembly complete: ADR004__InteriorDoor__
+    [DoorHandler/Linework] Door assembly linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb (138720 bytes, BIN: 123872 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 138720 bytes
+    Chunk 1: "JSON", Length: 14820 bytes
+    Chunk 2: "BIN\x00", Length: 123872 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ExistingWalls...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_12_ID28782183...
+    Traversing: 01__DrawnVolume_ID29325797...
+    Traversing: Group_18_ID28785665...
+    Traversing: OuterShell_ID29325946...
+    Traversing: Group_49_ID29415255...
+    Traversal complete: 5 entities -> 1 buckets, 2946 vertices, 1662 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 11__ExistingBuilding__Walls::Default (2946 verts, 1662 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingWalls__MeshModel__.glb (105736 bytes, BIN: 104244 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 105736 bytes
+    Chunk 1: "JSON", Length: 1464 bytes
+    Chunk 2: "BIN\x00", Length: 104244 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_12_ID28782183...
+    Traversing linework: 01__DrawnVolume_ID29325797...
+    Traversing linework: Group_18_ID28785665...
+    Traversing linework: OuterShell_ID29325946...
+    Traversing linework: Group_49_ID29415255...
+    Linework traversal complete: 5 entities -> 444 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingWalls__LineworkModel__.glb (25644 bytes, BIN: 24864 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 25644 bytes
+    Chunk 1: "JSON", Length: 752 bytes
+    Chunk 2: "BIN\x00", Length: 24864 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ExistingRoofs...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 3 instanced placements across 1 definition(s) (1 mesh group(s))
+    Traversing: AWN001__Window___ID28786318...
+    Traversing: Group_36_ID29325579...
+    Traversing: AWN003__Window___ID29403744...
+    Traversing: Group_30_ID29403763...
+    Traversing: AWN004__Window___ID29416200...
+    Traversing: Group_14_ID29415373...
+    Traversing: 01__DrawnVolume_ID29701251...
+    Traversing: Group_24_ID29769551...
+    Traversing: Group_121_ID30039598...
+    Traversal complete: 9 entities -> 2 buckets, 3818 vertices, 2460 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 13__ExistingBuilding__Roofs::MAT101__Glass__ClearDefault (636 verts, 364 tris)
+    Building mesh: 13__ExistingBuilding__Roofs::Default (3182 verts, 2096 tris)
+    Total meshes built: 2
+
+    [Instancing] Building 1 shared mesh(es)...
+      [Instancing] Built shared mesh: 85__RoofLantern__FlatLight (72 verts, 44 tris)
+      [Instancing] 85__RoofLantern__FlatLight: 1 mesh -> 3 nodes
+    [Instancing] Instanced mesh export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingRoofs__MeshModel__.glb (144972 bytes, BIN: 139504 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 144972 bytes
+    Chunk 1: "JSON", Length: 5440 bytes
+    Chunk 2: "BIN\x00", Length: 139504 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 3 instanced placements across 1 definition(s) (1 mesh group(s))
+    Traversing linework: AWN001__Window___ID28786318...
+    Traversing linework: Group_36_ID29325579...
+    Traversing linework: AWN003__Window___ID29403744...
+    Traversing linework: Group_30_ID29403763...
+    Traversing linework: AWN004__Window___ID29416200...
+    Traversing linework: Group_14_ID29415373...
+    Traversing linework: 01__DrawnVolume_ID29701251...
+    Traversing linework: Group_24_ID29769551...
+    Traversing linework: Group_121_ID30039598...
+    Linework traversal complete: 9 entities -> 1663 edges
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: 85__RoofLantern__FlatLight (40 edges)
+      [Instancing/Linework] 85__RoofLantern__FlatLight: 3 nodes
+    [Instancing/Linework] Instanced linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingRoofs__LineworkModel__.glb (97360 bytes, BIN: 95368 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 97360 bytes
+    Chunk 1: "JSON", Length: 1964 bytes
+    Chunk 2: "BIN\x00", Length: 95368 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ProposedRoofs...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_48_ID29415162...
+    Traversal complete: 1 entities -> 1 buckets, 109 vertices, 59 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 23__ProposedBuilding__Roofs::Default (109 verts, 59 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedRoofs__MeshModel__.glb (5296 bytes, BIN: 3844 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 5296 bytes
+    Chunk 1: "JSON", Length: 1424 bytes
+    Chunk 2: "BIN\x00", Length: 3844 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_48_ID29415162...
+    Linework traversal complete: 1 entities -> 67 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedRoofs__LineworkModel__.glb (4504 bytes, BIN: 3752 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 4504 bytes
+    Chunk 1: "JSON", Length: 724 bytes
+    Chunk 2: "BIN\x00", Length: 3752 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ProposedFloors...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_20_ID29700219...
+    Traversal complete: 1 entities -> 2 buckets, 92 vertices, 56 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 13__ExistingBuilding__Roofs::Default (68 verts, 44 tris)
+    Building mesh: 22__ProposedBuilding__Floors::Default (24 verts, 12 tris)
+    Total meshes built: 2
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFloors__MeshModel__.glb (5724 bytes, BIN: 3280 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 5724 bytes
+    Chunk 1: "JSON", Length: 2416 bytes
+    Chunk 2: "BIN\x00", Length: 3280 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_20_ID29700219...
+    Linework traversal complete: 1 entities -> 42 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFloors__LineworkModel__.glb (3056 bytes, BIN: 2352 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 3056 bytes
+    Chunk 1: "JSON", Length: 676 bytes
+    Chunk 2: "BIN\x00", Length: 2352 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ProposedWalls...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: 01__DrawnVolume_ID29465806...
+    Traversing: Group_21_ID29701027...
+    Traversal complete: 2 entities -> 1 buckets, 1303 vertices, 703 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 21__ProposedBuilding__Walls::Default (1303 verts, 703 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedWalls__MeshModel__.glb (47368 bytes, BIN: 45916 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 47368 bytes
+    Chunk 1: "JSON", Length: 1424 bytes
+    Chunk 2: "BIN\x00", Length: 45916 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: 01__DrawnVolume_ID29465806...
+    Traversing linework: Group_21_ID29701027...
+    Linework traversal complete: 2 entities -> 912 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedWalls__LineworkModel__.glb (51812 bytes, BIN: 51072 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 51812 bytes
+    Chunk 1: "JSON", Length: 712 bytes
+    Chunk 2: "BIN\x00", Length: 51072 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ExistingWindows...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: AWN005__Window___ID29770483...
+    Traversing: AWN006__Window___ID29854452...
+    Traversal complete: 2 entities -> 2 buckets, 452 vertices, 276 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 14__ExistingBuilding__Windows::MAT101__Glass__ClearDefault (72 verts, 36 tris)
+    Building mesh: 14__ExistingBuilding__Windows::Default (380 verts, 240 tris)
+    Total meshes built: 2
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingWindows__MeshModel__.glb (18960 bytes, BIN: 16120 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 18960 bytes
+    Chunk 1: "JSON", Length: 2812 bytes
+    Chunk 2: "BIN\x00", Length: 16120 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: AWN005__Window___ID29770483...
+    Traversing linework: AWN006__Window___ID29854452...
+    Linework traversal complete: 2 entities -> 228 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingWindows__LineworkModel__.glb (13532 bytes, BIN: 12768 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 13532 bytes
+    Chunk 1: "JSON", Length: 736 bytes
+    Chunk 2: "BIN\x00", Length: 12768 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ProposedFurniture...
+  Using virtual flattening for non-destructive world-space export...
+    [Instancing] Found 34 instanced placements across 8 definition(s) (12 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 17 placement(s)
+    Traversing: 28_10__Furniture__CornerSofa__SmallVersion__Whitecard_ID30053806...
+    Traversing: 28_10__Furniture__CoffeeTable__Dia800mm__Whitecard_ID30149805...
+    Traversing: Group_1176_ID30373167...
+    Traversing: Group_164_ID30360980...
+    Traversing: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Earthy-Grey_ID30360979...
+    Traversing: Group_2068_ID30360973...
+    Traversing: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Earthy-Grey_ID30360975...
+    Traversing: Group_165_ID30373241...
+    Traversing: 09_01_____Outdoor_Living_____Sofa_01_____2_Seat_ID30148882...
+    Traversing: Component_60_ID30148883...
+    Traversing: 09_01_____Outdoor_Living_____Sofa_01_____2_Seat_ID30381960...
+    Traversal complete: 11 entities -> 2 buckets, 235259 vertices, 83995 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 28__ProposedBuilding__Furniture::Default (235115 verts, 83923 tris)
+    Building mesh: 28__ProposedBuilding__Furniture::MAT101__Glass__ClearDefault2 (144 verts, 72 tris)
+    Total meshes built: 2
+
+    [Instancing] Building 12 shared mesh(es)...
+      [Instancing] Built shared mesh: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey (65304 verts, 24620 tris)
+      [Instancing] 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey_Mirrored (65304 verts, 24620 tris)
+      [Instancing] 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey (mirrored): 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: Component#62 (56775 verts, 21275 tris)
+      [Instancing] Component#62: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: Component#62_Mirrored (56775 verts, 21275 tris)
+      [Instancing] Component#62 (mirrored): 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: Component#61 (56775 verts, 21275 tris)
+      [Instancing] Component#61: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: Component#61_Mirrored (56775 verts, 21275 tris)
+      [Instancing] Component#61 (mirrored): 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: Group#1359 (15497 verts, 6044 tris)
+      [Instancing] Group#1359: 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: Group#1359_Mirrored (15497 verts, 6044 tris)
+      [Instancing] Group#1359 (mirrored): 1 mesh -> 3 nodes
+      [Instancing] Built shared mesh: 09  I  Exterior Sofa 01  I  Back Cushion 01 (4318 verts, 1444 tris)
+      [Instancing] 09  I  Exterior Sofa 01  I  Back Cushion 01: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: 09  I  Exterior Sofa 01  I  Sofa Cushion (3870 verts, 1292 tris)
+      [Instancing] 09  I  Exterior Sofa 01  I  Sofa Cushion: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: 09_01  I  Exterior Sofa 01  I  Framework Side (468 verts, 292 tris)
+      [Instancing] 09_01  I  Exterior Sofa 01  I  Framework Side: 1 mesh -> 2 nodes
+      [Instancing] Built shared mesh: _Defintion4#1 (156 verts, 100 tris)
+      [Instancing] _Defintion4#1: 1 mesh -> 4 nodes
+    [Instancing] Instanced mesh export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFurniture__MeshModel__.glb (22180188 bytes, BIN: 22153588 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 22180188 bytes
+    Chunk 1: "JSON", Length: 26572 bytes
+    Chunk 2: "BIN\x00", Length: 22153588 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    [Instancing] Found 34 instanced placements across 8 definition(s) (12 mesh group(s))
+    [Instancing] Mirrored fallback-to-unique count: 17 placement(s)
+    Traversing linework: 28_10__Furniture__CornerSofa__SmallVersion__Whitecard_ID30053806...
+    Traversing linework: 28_10__Furniture__CoffeeTable__Dia800mm__Whitecard_ID30149805...
+    Traversing linework: Group_1176_ID30373167...
+    Traversing linework: Group_164_ID30360980...
+    Traversing linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Earthy-Grey_ID30360979...
+    Traversing linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey_ID30360977...
+    Traversing linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey_ID30360982...
+    Traversing linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey_ID30360983...
+    Traversing linework: Group_2068_ID30360973...
+    Traversing linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey_ID30360974...
+    Traversing linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey_ID30360976...
+    Traversing linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Earthy-Grey_ID30360975...
+    Traversing linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey_ID30360978...
+    Traversing linework: Group_165_ID30373241...
+    Traversing linework: 09_01_____Outdoor_Living_____Sofa_01_____2_Seat_ID30148882...
+    Traversing linework: Component_60_ID30148883...
+    Traversing linework: 09_01_____Outdoor_Living_____Sofa_01_____2_Seat_ID30381960...
+    Linework traversal complete: 17 entities -> 6835 edges
+
+    [Instancing/Linework] Building shared linework mesh(es)...
+      [Instancing] Built shared linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey (1320 edges)
+      [Instancing/Linework] 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey: 3 nodes
+      [Instancing] Built shared linework: 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey_Mirrored (1320 edges)
+      [Instancing/Linework] 94_01_--_Interior-Furniture_-_Dining_Chair_Fabric_Texture_-_Light_Grey (mirrored): 3 nodes
+      [Instancing] Built shared linework: Component#62 (907 edges)
+      [Instancing/Linework] Component#62: 3 nodes
+      [Instancing] Built shared linework: Component#62_Mirrored (907 edges)
+      [Instancing/Linework] Component#62 (mirrored): 3 nodes
+      [Instancing] Built shared linework: Component#61 (907 edges)
+      [Instancing/Linework] Component#61: 3 nodes
+      [Instancing] Built shared linework: Component#61_Mirrored (907 edges)
+      [Instancing/Linework] Component#61 (mirrored): 3 nodes
+      [Instancing] Built shared linework: Group#1359 (142 edges)
+      [Instancing/Linework] Group#1359: 3 nodes
+      [Instancing] Built shared linework: Group#1359_Mirrored (142 edges)
+      [Instancing/Linework] Group#1359 (mirrored): 3 nodes
+      [Instancing/Linework] 09  I  Exterior Sofa 01  I  Back Cushion 01: 2 nodes
+      [Instancing/Linework] 09  I  Exterior Sofa 01  I  Sofa Cushion: 2 nodes
+      [Instancing] Built shared linework: 09_01  I  Exterior Sofa 01  I  Framework Side (112 edges)
+      [Instancing/Linework] 09_01  I  Exterior Sofa 01  I  Framework Side: 2 nodes
+      [Instancing] Built shared linework: _Defintion4#1 (54 edges)
+      [Instancing/Linework] _Defintion4#1: 4 nodes
+    [Instancing/Linework] Instanced linework export complete
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFurniture__LineworkModel__.glb (775428 bytes, BIN: 758968 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 775428 bytes
+    Chunk 1: "JSON", Length: 16432 bytes
+    Chunk 2: "BIN\x00", Length: 758968 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_162_ID30360981...
+    Traversal complete: 1 entities -> 2 buckets, 38548 vertices, 13314 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 29__ProposedBuilding__InteriorDecor::MAT101__Glass__ClearDefault1 (4020 verts, 1804 tris)
+    Building mesh: 29__ProposedBuilding__InteriorDecor::Default (34528 verts, 11510 tris)
+    Total meshes built: 2
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__MeshModel__.glb (1316512 bytes, BIN: 1313420 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1316512 bytes
+    Chunk 1: "JSON", Length: 3064 bytes
+    Chunk 2: "BIN\x00", Length: 1313420 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_162_ID30360981...
+    Linework traversal complete: 1 entities -> 2060 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__LineworkModel__.glb (116156 bytes, BIN: 115360 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 116156 bytes
+    Chunk 1: "JSON", Length: 768 bytes
+    Chunk 2: "BIN\x00", Length: 115360 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ProposedFixtures...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: OuterShell_ID30378324...
+    Traversing: OuterShell_ID30379077...
+    Traversing: Group_87_ID30005489...
+    Traversal complete: 3 entities -> 1 buckets, 1150 vertices, 748 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 27__ProposedBuilding__Fixtures::Default (1150 verts, 748 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFixtures__MeshModel__.glb (42788 bytes, BIN: 41288 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 42788 bytes
+    Chunk 1: "JSON", Length: 1472 bytes
+    Chunk 2: "BIN\x00", Length: 41288 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: OuterShell_ID30378324...
+    Traversing linework: OuterShell_ID30379077...
+    Traversing linework: Group_87_ID30005489...
+    Linework traversal complete: 3 entities -> 404 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFixtures__LineworkModel__.glb (23452 bytes, BIN: 22624 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 23452 bytes
+    Chunk 1: "JSON", Length: 800 bytes
+    Chunk 2: "BIN\x00", Length: 22624 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: PS01__TrueVision__MainBuildingModel__ExistingFixtures...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_178_ID30381954...
+    Traversal complete: 1 entities -> 1 buckets, 1637 vertices, 1055 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 17__ExistingBuilding__Fixtures::Default (1637 verts, 1055 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingFixtures__MeshModel__.glb (60204 bytes, BIN: 58716 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 60204 bytes
+    Chunk 1: "JSON", Length: 1460 bytes
+    Chunk 2: "BIN\x00", Length: 58716 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_178_ID30381954...
+    Linework traversal complete: 1 entities -> 903 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingFixtures__LineworkModel__.glb (51336 bytes, BIN: 50568 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 51336 bytes
+    Chunk 1: "JSON", Length: 740 bytes
+    Chunk 2: "BIN\x00", Length: 50568 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+      Cleaned up texture cache folder
+-------------------------------------------------------------------------------
+ Export complete. Elapsed: 21.78s
+===============================================================================

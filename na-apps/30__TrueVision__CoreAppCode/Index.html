@@ -496,6 +496,15 @@
                         <!-- Plan rows generated dynamically by Na__FloorPlan__DevMenu__Editor__.js -->
                     </div>
                 </li>
+                <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naElevationDevItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naElevationDevToggle" aria-expanded="false">
+                        Elevations
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel na-pm-dev__panel" id="naElevationDevPanel">
+                        <!-- Elevation rows generated dynamically by Na__Elevation__DevMenu__Editor__.js -->
+                    </div>
+                </li>
                 <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naCacheStorageDevItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naCacheStorageDevToggle" aria-expanded="false">
                         Cache &amp; Storage
@@ -742,6 +751,9 @@
     import { Na__SectionCut__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
     import { Na__FloorPlanMode__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
     import { Na__FloorPlan__DevMenu__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__DevMenu__Editor__.js';
+    import { Na__ElevationMode__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__ModeController__.js';
+    import { Na__Elevation__DevMenu__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__DevMenu__Editor__.js';
+    import { Na__ElevGizmo__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__PlaneGizmo__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -1433,15 +1445,22 @@
         Na__UiFeature__ShowToast
     );
 
-    // FLOOR PLAN BUILDER | Section Cut Engine, 2D Plan Mode, Dev Editor
+    // 2D DRAWINGS | Section Cut Engine, Plan Mode, Elevation Mode, Dev Editors
     // ------------------------------------------------------------
     // The cut engine is initialised unconditionally - it costs nothing until a
     // plane exists, and switching on localClippingEnabled up front avoids a
-    // shader recompile on the first cut. The plan mode controller then loads
-    // its own config, and only mounts the localhost Dev section when the
-    // feature is switched on there.
+    // shader recompile on the first cut. It serves BOTH drawing systems: a
+    // horizontal plane gives a plan, a vertical one gives a section.
+    //
+    // Each mode controller then loads its own config, registers its own
+    // carousel router and only mounts its localhost Dev section when the
+    // feature is switched on there. They arbitrate the viewport between
+    // themselves through the drawing view broker, so the order of these two
+    // blocks does not matter.
+    // @delegate: ./02__Src__AppModules/40__System__DrawingViewCore/
     // @delegate: ./02__Src__AppModules/41__System__SectionCutEngine/
     // @delegate: ./02__Src__AppModules/42__System__FloorPlanViews/
+    // @delegate: ./02__Src__AppModules/45__System__ElevationViews/
     Na__SectionCut__Initialize({
         renderer    : Na__Renderer__Main,
         modelRoot   : Na__ModelGroup__Root,
@@ -1456,6 +1475,22 @@
     }).then((enabled) => {
         if (!enabled) return;                                   // <-- Feature off in config: no Dev section at all
         Na__FloorPlan__DevMenu__Initialize({
+            modelRoot : Na__ModelGroup__Root,
+            camera    : Na__Camera__Main,
+            showToast : Na__UiFeature__ShowToast
+        });
+    });
+
+    Na__ElevGizmo__Initialize(Na__Scene__Main);                 // <-- Setup marker lives in the scene, outside the model root
+
+    Na__ElevationMode__Initialize({
+        camera    : Na__Camera__Main,
+        controls  : Na__Controls__Orbit,
+        canvas    : Na__Renderer__Main.domElement,
+        modelRoot : Na__ModelGroup__Root
+    }).then((enabled) => {
+        if (!enabled) return;                                   // <-- Feature off in config: no Dev section at all
+        Na__Elevation__DevMenu__Initialize({
             modelRoot : Na__ModelGroup__Root,
             camera    : Na__Camera__Main,
             showToast : Na__UiFeature__ShowToast

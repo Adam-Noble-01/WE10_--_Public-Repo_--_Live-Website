@@ -1,0 +1,29 @@
+{
+    "na-project-data-library": {
+        "project-details": {
+            "project-name": "Musters Road",
+            "project-name-nickname": "Musters Road",
+            "project-address": "",
+            "project-description": "Single Storey Flat Roof Rear Extension to the existing Bungalow, providing a new Living Room with Sliding Doors, a Bedroom and an En-Suite, replacing the existing Garden Room Conservatory, delivered under Permitted Development.",
+            "client-name": ""
+        },
+        "project-phase-config": {
+            "active-design-phase": "DesignPhase01",
+            "available-phases": [
+                "DesignPhase01"
+            ],
+            "phase-last-updated": "07-Sep-2026"
+        },
+        "project-documentation": {
+            "phase-content": {
+                "DesignPhase01": {
+                    "phase-folder": "DesignPhase01__ConceptDesign__Content",
+                    "folder-structure": []
+                }
+            }
+        },
+        "design-access-statement": {
+            "das-enabled": false
+        }
+    }
+}

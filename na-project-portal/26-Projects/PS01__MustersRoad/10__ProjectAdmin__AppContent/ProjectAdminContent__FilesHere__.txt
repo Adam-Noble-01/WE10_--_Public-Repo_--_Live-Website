@@ -1,0 +1,1 @@
+This folder contains Project Admin application content.

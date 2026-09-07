@@ -11,7 +11,8 @@
 #
 # DESCRIPTION:
 # - Serves static files with CORS support for local development
-# - Auto-opens browser to default project on startup
+# - Serves the shared project launcher at the server root (localhost only)
+# - Auto-opens browser to that launcher on startup
 # - Provides API endpoints for editor tools integration
 # - Supports hot-reloading in debug mode
 #
@@ -23,6 +24,14 @@
 # -----
 #
 # DEVELOPMENT LOG:
+# 07-Sep-2026 - Version 2.1.0
+# - Added the shared local dev project launcher
+#   - GET /                 - Card view of every project (was: redirect to JS01)
+#   - GET /api/dev/projects - Merged master-index + on-disk project list
+#   - Launcher page and discovery logic are shared with the Project Vision dev
+#     server via na-apps/ProjectVision__DevLauncher__Shared__.py
+#   - --project XX00 still opens a single project directly
+#
 # 31-Jan-2026 - Version 2.0.0
 # - Added Editor Tools API endpoints
 #   - /api/project/<year>/<code>/files - List project files
@@ -62,7 +71,12 @@ import argparse
 import json
 import re
 import shutil
+import traceback
 from datetime import datetime
+
+# Shared project launcher logic, also used by the Project Vision dev server.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')))
+import ProjectVision__DevLauncher__Shared__ as dev_launcher
 
 try:
     from flask import Flask, send_from_directory, request, jsonify, abort
@@ -93,13 +107,20 @@ DEBUG_MODE               = False                                     # <-- Flask
 # Path Settings
 CORE_APP_PATH            = '/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/'
 
-# Default Project (John Smith)
-DEFAULT_PROJECT          = 'JS01'                                    # <-- Project code
+# Startup Project (None = open the project launcher instead)
+DEFAULT_PROJECT          = None                                      # <-- Project code
 DEFAULT_YEAR             = '26'                                      # <-- Year folder (2026)
 
 
+def get_landing_url():
+    """Get the local dev launcher (project card view) URL."""
+    return f"http://localhost:{PORT}/"
+
+
 def get_server_url():
-    """Get full URL with default project parameters."""
+    """Get the startup URL - project launcher unless a project was requested."""
+    if not DEFAULT_PROJECT:
+        return get_landing_url()
     return f"http://localhost:{PORT}{CORE_APP_PATH}?project={DEFAULT_PROJECT}&year={DEFAULT_YEAR}"
 
 
@@ -139,17 +160,40 @@ CORS(app, resources={
 
 @app.route('/')
 def index():
-    """Redirect root to default project."""
-    return f'''
-    <html>
-    <head>
-        <meta http-equiv="refresh" content="0; url={get_server_url()}" />
-    </head>
-    <body>
-        <p>Redirecting to <a href="{get_server_url()}">{DEFAULT_PROJECT}</a>...</p>
-    </body>
-    </html>
-    '''
+    """Serve the shared local dev launcher - a card view of every project."""
+    landing = dev_launcher.get_landing_file(REPO_ROOT)
+
+    if not landing:
+        return (
+            f"<h1>Dev launcher page missing</h1>"
+            f"<p>Expected: na-apps/{dev_launcher.DEV_LANDING_FILENAME}</p>",
+            500
+        )
+
+    response = send_from_directory(landing[0], landing[1])
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route('/api/dev/projects')
+def dev_projects_api():
+    """Merged project list for the local dev launcher page."""
+    try:
+        payload = dev_launcher.collect_dev_projects(REPO_ROOT, DEFAULT_YEAR)
+    except Exception as error:
+        traceback.print_exc()
+        return jsonify({'error': f'{type(error).__name__}: {error}'}), 500
+
+    payload['server'] = {
+        'port'       : PORT,
+        'service'    : 'na-projectadmin-local-dev',
+        'repoRoot'   : REPO_ROOT,
+        'portalRoot' : dev_launcher.get_portal_root(REPO_ROOT)
+    }
+
+    response = jsonify(payload)
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 
 @app.route('/api/health')
@@ -832,8 +876,9 @@ def open_browser():
     """Open browser after short delay to ensure server is ready."""
     time.sleep(1.5)                                                  # <-- Wait for server
     
-    url = get_server_url()
-    print(f"  Opening browser to {url}...")
+    url   = get_server_url()
+    label = 'project launcher' if not DEFAULT_PROJECT else f'project {DEFAULT_PROJECT}'
+    print(f"  Opening browser to {url}  ({label})...")
     
     try:
         webbrowser.open(url)
@@ -893,12 +938,24 @@ def print_banner():
     print("  Noble Architecture - Project Admin Development Server (Flask)")
     print("=" * 70)
     print(f"\n  Serving from: {REPO_ROOT}")
-    print(f"\n  Server running at: {base_url}")
-    print(f"\n  Default project: {DEFAULT_PROJECT} (Year: {DEFAULT_YEAR})")
-    print(f"  Debug mode: {'ON' if DEBUG_MODE else 'OFF'}")
-    
+    print(f"  Debug mode:   {'ON' if DEBUG_MODE else 'OFF'}")
+
+    print("\n  PROJECT LAUNCHER (start here):")
+    print(f"    {get_landing_url()}")
+    print("    Card view of every project - click straight into any sub-app.")
+
+    if DEFAULT_PROJECT:
+        print(f"\n  Startup project override: {DEFAULT_PROJECT} (Year: {DEFAULT_YEAR})")
+        print(f"    {server_url}")
+
+    try:
+        summary = dev_launcher.collect_dev_projects(REPO_ROOT, DEFAULT_YEAR)
+        live    = sum(1 for item in summary['projects'] if item['isLive'])
+        print(f"\n  Projects found: {len(summary['projects'])} ({live} with app content)")
+    except Exception as error:
+        print(f"\n  Projects found: unavailable ({type(error).__name__}: {error})")
+
     print("\n  Test URLs:")
-    print(f"    - Default (JS01): {server_url}")
     print(f"    - Main app: {base_url}")
     print(f"    - Example: {base_url}?project=AA00&year=26")
     
@@ -911,6 +968,7 @@ def print_banner():
     
     print("\n  API Endpoints (Local):")
     print(f"    - Health: http://localhost:{PORT}/api/health")
+    print(f"    - Dev Projects: http://localhost:{PORT}/api/dev/projects")
     print(f"    - Config: http://localhost:{PORT}/api/config")
     print(f"    - Project Files: http://localhost:{PORT}/api/project/<year>/<code>/files")
     print(f"    - Project File: http://localhost:{PORT}/api/project/<year>/<code>/<filename>")
@@ -959,8 +1017,8 @@ def parse_arguments():
     parser.add_argument(
         '--project',
         type=str,
-        default='JS01',
-        help='Default project code to open (default: JS01)'
+        default=None,
+        help='Open this project directly instead of the project launcher (e.g. JS01)'
     )
     
     parser.add_argument(
@@ -980,7 +1038,7 @@ def parse_arguments():
     
     PORT            = args.port
     DEBUG_MODE      = args.debug
-    DEFAULT_PROJECT = args.project
+    DEFAULT_PROJECT = args.project.strip().upper() if args.project else None
     DEFAULT_YEAR    = args.year
     
     return args

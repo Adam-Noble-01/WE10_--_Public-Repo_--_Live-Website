@@ -1,0 +1,113 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Elevation Dev Menu Styles              */
+/* ================================================================= */
+/*
+ * FILE    : Na__Elevation__Styles__DevMenu__.css
+ * MODULE  : Elevation Views - Dev Menu Editor
+ * AUTHOR  : Adam Noble - Noble Architecture
+ * CREATED : 07-Sep-2026
+ *
+ * Styles the localhost-only Elevations section of the Dev menu. The row
+ * card, the sliders and the empty-state note are reused wholesale from
+ * the Floor Plans panel (.na-fp-dev__*) so the two read as one family
+ * rather than two panels that happen to sit near each other. Only the
+ * pieces with no floor plan equivalent are defined here - the compass
+ * button strip, the axis slider labels and the derived cut readout.
+ */
+/* ================================================================= */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Compass Preset Strip                                   */
+/* ----------------------------------------------------------------- */
+
+/* Four equal buttons on one line. They are the ordinary way to set an
+   elevation's direction, so they get the full width rather than being
+   tucked beside the free-bearing field. */
+.na-elev-dev__compass {
+    display                            : grid;
+    grid-template-columns              : repeat(4, 1fr);
+    gap                                : 4px;
+    margin                             : 2px 0 4px;
+}
+
+.na-elev-dev__compass .na-pm-dev__btn {
+    width                              : 100%;
+    padding-left                       : 0;
+    padding-right                      : 0;
+    text-align                         : center;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Drawing Plane Sliders                                  */
+/* ----------------------------------------------------------------- */
+
+/* The axis caption is fixed width so the X and Z sliders start at the
+   same place; a ragged left edge on two sliders that move the same
+   plane reads as two unrelated controls. */
+.na-elev-dev__axis-label {
+    flex                               : 0 0 auto;
+    min-width                          : 58px;
+    font-size                          : 12px;
+    color                              : #4a4a4a;
+}
+
+.na-elev-dev__axis-value {
+    flex                               : 0 0 auto;
+    min-width                          : 74px;
+    text-align                         : right;
+    font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+    font-size                          : 11px;
+    color                              : #4a4a4a;
+    white-space                        : nowrap;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Derived Cut Depth Readout                              */
+/* ----------------------------------------------------------------- */
+
+/* The number the two sliders control between them. Indented under them
+   and set apart in weight, because it is a consequence rather than a
+   control - reading as a third input would invite trying to edit it. */
+.na-elev-dev__readout {
+    margin                             : -2px 0 6px 58px;
+    font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+    font-size                          : 11px;
+    font-style                         : italic;
+    color                              : #6b6b6b;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Narrow Dev Panels                                      */
+/* ----------------------------------------------------------------- */
+
+@media (max-width: 520px) {
+    /* Two rows of two rather than four squeezed buttons. */
+    .na-elev-dev__compass {
+        grid-template-columns          : repeat(2, 1fr);
+    }
+
+    /* Stack the axis caption above its slider rather than squeezing both. */
+    .na-elev-dev__axis-label {
+        min-width                      : 0;
+    }
+
+    .na-elev-dev__axis-value {
+        min-width                      : 0;
+    }
+
+    .na-elev-dev__readout {
+        margin-left                    : 0;
+    }
+}
+
+/* endregion ------------------------------------------------------- */

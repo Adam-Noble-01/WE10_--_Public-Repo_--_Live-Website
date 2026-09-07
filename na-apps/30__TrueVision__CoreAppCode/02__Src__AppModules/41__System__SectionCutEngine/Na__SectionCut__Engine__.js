@@ -12,10 +12,15 @@
 // DESCRIPTION:
 // - This module answers "what gets CUT"; Na__SectionCut__CapMeshes__ answers
 //   "what gets DRAWN". It owns the plane registry, the live clipping plane
-//   array and the public API the floor plan system drives.
-// - Exactly ONE plane cuts at a time. A floor plan shows one storey, so the
-//   multi-plane cross-clipping the ValeVision cross section tool performs is
-//   not needed here and is deliberately absent.
+//   array and the public API the 2D drawing systems drive.
+// - Exactly ONE plane cuts at a time. A floor plan shows one storey and an
+//   elevation shows one face, so the multi-plane cross-clipping the ValeVision
+//   cross section tool performs is not needed here and is deliberately absent.
+// - TWO PLANE ORIENTATIONS, ONE ENGINE. A horizontal plane gives a plan; a
+//   vertical plane gives a section through an elevation. Everything past the
+//   normal - the clip list, the view depth back plane, the cap fills and the
+//   profile outlines - is orientation-agnostic and shared, because the cap
+//   geometry solves in a basis built from whatever normal it is handed.
 // - The active plane is applied to every model material as a THREE clipping
 //   plane (renderer.localClippingEnabled), so the half-space above the cut
 //   disappears from the model, its shadows and the profile-line passes.
@@ -28,13 +33,21 @@
 // INTEGRATION:
 // - Na__SectionCut__Initialize() is called once from Index.html after the
 //   renderer, scene and model root exist.
-// - Na__FloorPlan__ModeController__ drives Upsert / SetActive / Remove.
+// - Na__FloorPlan__ModeController__ and Na__Elevation__ModeController__ drive
+//   Upsert / SetActive / Remove.
 // - The render loop calls Na__SectionCut__RenderOverlay(camera) each frame
-//   immediately after the composer (or the flat plan render).
+//   immediately after the composer (or the flat 2D drawing render).
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 07-Sep-2026 - Version 1.1.0
+// - Added UpsertVerticalPlane for elevation sections, and renamed the datum
+//   mover to SetPlaneDistanceMm now that "height" is only half the story.
+//   SetPlaneHeightMm stays as a wrapper so the floor plan callers are
+//   untouched. The plane record, the clip list and the view depth back plane
+//   were already orientation-agnostic and needed no change.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation for the Floor Plan Builder. The cut/fill maths is
 //   the ported ValeVision engine; the driver around it is new and carries
@@ -112,6 +125,14 @@
     const Na__SectCut__PLAN_NORMAL_X = 0;
     const Na__SectCut__PLAN_NORMAL_Y = -1;
     const Na__SectCut__PLAN_NORMAL_Z = 0;
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Vertical Plane Normal Tolerance
+    // ------------------------------------------------------------
+    // A view direction shorter than this in the horizontal plane is not a
+    // direction at all - it is a straight-down look that belongs to a plan.
+    // ------------------------------------------------------------
+    const Na__SectCut__MIN_NORMAL_LENGTH = 1e-6;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -274,32 +295,24 @@
 // REGION | Public API - Plane Management
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Create or Update a Horizontal Cut Plane by Id
+    // HELPER FUNCTION | Create or Update a Plane Record From a Normal and Offset
     // ------------------------------------------------------------
-    // cutHeightMm is the absolute world height of the cut in millimetres.
-    // The kept half-space is everything BELOW it, which is what a floor plan
-    // shows. depthMm is optional (null = infinite cut downward).
+    // The single body behind both public upserts. normalX/Y/Z point toward the
+    // KEPT half-space and constantUnits is the plane's THREE constant, so
+    // distanceToPoint(p) = n.p + c is positive exactly where geometry survives.
+    // The normal is always REWRITTEN on an existing record, never assumed
+    // unchanged, because an elevation can be spun to a new direction while
+    // keeping its id.
     // ------------------------------------------------------------
-    function Na__SectionCut__UpsertHorizontalPlane(id, cutHeightMm, depthMm) {
-        if (!Na__SectCut__Initialized || !id) return false;
-        if (!Number.isFinite(cutHeightMm)) return false;
-
+    function Na__SectCut__UpsertPlaneRecord(id, normalX, normalY, normalZ, constantUnits, depthUnits) {
         Na__SectMesh__EnsureOverlayScene();
-
-        const heightUnits = Na__Math__ConvertMmToUnits(cutHeightMm);
-        const depthUnits  = (Number.isFinite(depthMm) && depthMm > 0)
-            ? Na__Math__ConvertMmToUnits(depthMm)
-            : null;
 
         let record = Na__SectCut__Planes.get(id);
         if (!record) {
             const meshes = Na__SectMesh__BuildMeshes(id);
             record = {
                 id          : id,
-                plane       : new THREE.Plane(
-                    new THREE.Vector3(Na__SectCut__PLAN_NORMAL_X, Na__SectCut__PLAN_NORMAL_Y, Na__SectCut__PLAN_NORMAL_Z),
-                    heightUnits
-                ),
+                plane       : new THREE.Plane(new THREE.Vector3(normalX, normalY, normalZ), constantUnits),
                 backPlane   : null,
                 depthUnits  : depthUnits,
                 capMesh     : meshes.capMesh,
@@ -308,8 +321,8 @@
             };
             Na__SectCut__Planes.set(id, record);
         } else {
-            record.plane.normal.set(Na__SectCut__PLAN_NORMAL_X, Na__SectCut__PLAN_NORMAL_Y, Na__SectCut__PLAN_NORMAL_Z);
-            record.plane.constant = heightUnits;                                 // <-- Mutated in place: materials keep their reference
+            record.plane.normal.set(normalX, normalY, normalZ);
+            record.plane.constant = constantUnits;                               // <-- Mutated in place: materials keep their reference
             record.depthUnits     = depthUnits;
         }
 
@@ -321,16 +334,92 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Move an Existing Plane to a New Cut Height (Slider Fast Path)
+    // HELPER FUNCTION | Convert an Optional Millimetre Depth to Scene Units
     // ------------------------------------------------------------
-    // liveDrag true throttles the cap rebuild; call once more with false on
-    // release so the final datum always gets an exact, unthrottled pass.
+    function Na__SectCut__DepthUnits(depthMm) {
+        return (Number.isFinite(depthMm) && depthMm > 0)
+            ? Na__Math__ConvertMmToUnits(depthMm)
+            : null;                                                              // <-- null is the ordinary infinite cut
+    }
     // ------------------------------------------------------------
-    function Na__SectionCut__SetPlaneHeightMm(id, cutHeightMm, liveDrag) {
-        const record = Na__SectCut__Planes.get(id);
-        if (!record || !Number.isFinite(cutHeightMm)) return false;
 
-        record.plane.constant = Na__Math__ConvertMmToUnits(cutHeightMm);          // <-- In-place mutation, no re-traversal
+
+    // FUNCTION | Create or Update a Horizontal Cut Plane by Id
+    // ------------------------------------------------------------
+    // cutHeightMm is the absolute world height of the cut in millimetres.
+    // The kept half-space is everything BELOW it, which is what a floor plan
+    // shows. depthMm is optional (null = infinite cut downward).
+    // ------------------------------------------------------------
+    function Na__SectionCut__UpsertHorizontalPlane(id, cutHeightMm, depthMm) {
+        if (!Na__SectCut__Initialized || !id) return false;
+        if (!Number.isFinite(cutHeightMm)) return false;
+
+        return Na__SectCut__UpsertPlaneRecord(
+            id,
+            Na__SectCut__PLAN_NORMAL_X, Na__SectCut__PLAN_NORMAL_Y, Na__SectCut__PLAN_NORMAL_Z,
+            Na__Math__ConvertMmToUnits(cutHeightMm),
+            Na__SectCut__DepthUnits(depthMm)
+        );
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Create or Update a Vertical Cut Plane by Id
+    // ------------------------------------------------------------
+    // THE ELEVATION CASE. viewNormalX/Z is the horizontal direction pointing
+    // FROM the building TOWARD the viewer - the same vector the elevation
+    // camera sits along - and does not need to arrive normalised.
+    //
+    // distanceMm is where the plane sits along that direction, measured from
+    // the world origin. Everything on the VIEWER'S side of it is removed and
+    // everything beyond it is kept, which is what makes pulling the plane
+    // through the building peel the near wall away and expose the section.
+    // Pushed past the outermost geometry it removes nothing, and the result is
+    // an ordinary uncut elevation.
+    //
+    // The kept-side normal is therefore the NEGATED view direction, exactly
+    // mirroring the plan case where a downward normal keeps what is below.
+    // depthMm is optional (null = infinite cut away from the viewer).
+    // ------------------------------------------------------------
+    function Na__SectionCut__UpsertVerticalPlane(id, viewNormalX, viewNormalZ, distanceMm, depthMm) {
+        if (!Na__SectCut__Initialized || !id) return false;
+        if (!Number.isFinite(distanceMm)) return false;
+        if (!Number.isFinite(viewNormalX) || !Number.isFinite(viewNormalZ)) return false;
+
+        const length = Math.sqrt((viewNormalX * viewNormalX) + (viewNormalZ * viewNormalZ));
+        if (length < Na__SectCut__MIN_NORMAL_LENGTH) {
+            console.warn('[TrueVision3D] Vertical cut plane rejected - the view direction has no horizontal component.');
+            return false;
+        }
+
+        const nx = viewNormalX / length;
+        const nz = viewNormalZ / length;
+
+        return Na__SectCut__UpsertPlaneRecord(
+            id,
+            -nx, 0, -nz,                                                         // <-- Keep what lies BEYOND the plane
+            Na__Math__ConvertMmToUnits(distanceMm),
+            Na__SectCut__DepthUnits(depthMm)
+        );
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Move an Existing Plane Along Its Own Normal (Slider Fast Path)
+    // ------------------------------------------------------------
+    // The plane's ORIENTATION is untouched: this only slides it. For a plan
+    // that is the cut height, for an elevation it is how deep the section
+    // plane has been pushed into the building - the same single number in both
+    // cases, which is why one function serves both.
+    //
+    // liveDrag true throttles the cap rebuild; call once more with false on
+    // release so the final position always gets an exact, unthrottled pass.
+    // ------------------------------------------------------------
+    function Na__SectionCut__SetPlaneDistanceMm(id, distanceMm, liveDrag) {
+        const record = Na__SectCut__Planes.get(id);
+        if (!record || !Number.isFinite(distanceMm)) return false;
+
+        record.plane.constant = Na__Math__ConvertMmToUnits(distanceMm);           // <-- In-place mutation, no re-traversal
         Na__SectCut__UpdateBackPlane(record);
 
         if (id === Na__SectCut__ActiveId) {
@@ -342,6 +431,18 @@
         }
         Na__RenderLoop__RequestRender();
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Move an Existing Horizontal Plane to a New Cut Height
+    // ------------------------------------------------------------
+    // The floor plan spelling of SetPlaneDistanceMm. Kept because "height" is
+    // what a plan author is actually setting, and because every existing plan
+    // caller reads correctly through it.
+    // ------------------------------------------------------------
+    function Na__SectionCut__SetPlaneHeightMm(id, cutHeightMm, liveDrag) {
+        return Na__SectionCut__SetPlaneDistanceMm(id, cutHeightMm, liveDrag);
     }
     // ------------------------------------------------------------
 
@@ -541,6 +642,8 @@
     export {
         Na__SectionCut__Initialize,
         Na__SectionCut__UpsertHorizontalPlane,
+        Na__SectionCut__UpsertVerticalPlane,
+        Na__SectionCut__SetPlaneDistanceMm,
         Na__SectionCut__SetPlaneHeightMm,
         Na__SectionCut__SetActivePlane,
         Na__SectionCut__RemovePlane,

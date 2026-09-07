@@ -101,6 +101,13 @@
 @import url('../02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__Styles__DevMenu__.css');
 
 
+/* Elevation Views - Dev Menu Compass Strip + Drawing Plane Sliders */
+/* ----------------------------------------------------------------- */
+/* Imported AFTER the floor plan styles because it reuses their row */
+/* card and slider classes and only adds what has no equivalent. */
+@import url('../02__Src__AppModules/45__System__ElevationViews/Na__Elevation__Styles__DevMenu__.css');
+
+
 /* Plan Annotations - World-Anchored Text Layer + Editing Toolbar */
 /* ----------------------------------------------------------------- */
 @import url('../02__Src__AppModules/43__System__PlanAnnotations/Na__PlanAnnotations__Styles__.css');

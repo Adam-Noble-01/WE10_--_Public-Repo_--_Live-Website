@@ -6,10 +6,10 @@ REM
 REM This script starts a Flask HTTP server for local Project Vision development.
 REM
 REM Usage:
-REM   ProjectVision__LocalServer__Main__.bat                - Start with defaults (NP03 project)
+REM   ProjectVision__LocalServer__Main__.bat                - Start and open the project launcher
 REM   ProjectVision__LocalServer__Main__.bat --debug        - Start with hot-reloading
 REM   ProjectVision__LocalServer__Main__.bat --port 3000    - Use different port
-REM   ProjectVision__LocalServer__Main__.bat --project BH03 - Open different project
+REM   ProjectVision__LocalServer__Main__.bat --project BH03 - Skip the launcher, open one project
 REM   ProjectVision__LocalServer__Main__.bat --no-browser   - Don't auto-open browser
 REM
 REM Requirements:
@@ -34,12 +34,14 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo Starting Flask server on http://localhost:8090
-echo Default project: NP03 (Ashness Close)
+echo Opens the Project Launcher - a card view of every project in the
+echo ProjectVision system, with one-click access to Project Admin,
+echo PlanVision and TrueVision.
 echo.
 echo Command line options:
 echo   --debug         Enable hot-reloading
 echo   --port XXXX     Use different port
-echo   --project XX00  Change default project
+echo   --project XX00  Skip the launcher and open one project directly
 echo   --no-browser    Don't auto-open browser
 echo.
 echo Note:

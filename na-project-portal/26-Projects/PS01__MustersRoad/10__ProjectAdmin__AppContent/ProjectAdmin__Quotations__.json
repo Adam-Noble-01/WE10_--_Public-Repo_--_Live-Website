@@ -1,0 +1,186 @@
+{
+    "quotations": [
+        {
+            "quotationRef": "QUO-PS01-2026-001",
+            "quotationName": "Main Quote",
+            "signatureRequired": true,
+            "quotationDate": "07-Sep-2026",
+            "projectAddress": "255 Musters Road, West Bridgford, Nottingham, NG2 7DD",
+            "projectDescription": "Single Storey Flat Roof Rear Extension to the existing Bungalow, providing a new Living Room with Sliding Doors, a Bedroom and an En-Suite, replacing the existing Garden Room Conservatory, delivered under Permitted Development.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "draft",
+            "lineItems": [
+                {
+                    "description": "Initial Design Consultation",
+                    "itemDescription": "1. A free, no obligation telephone design consultation held on 07-Sep-2026.\n2. Covered the brief for the rear extension, the condition of the existing garden room conservatory, and the routes available through the planning system.\n3. Initial permitted development checks were carried out on the property during the call.",
+                    "quantity": 1,
+                    "unit": "Free",
+                    "rate": 0,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Model Existing Site Conditions",
+                    "itemDescription": "1. Three dimensional model of the existing bungalow, built from the measurement information and photographs supplied by the Client.\n2. Forms the base model from which the existing plans, elevations and site drawings are derived.",
+                    "quantity": 4,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Model Proposed Scheme & Design Development",
+                    "itemDescription": "1. Development of the Client's preliminary layout into a full three dimensional model of the proposed extension.\n2. Resolution of the sliding door opening, the Bedroom and En-Suite arrangement, and the number and position of the flat roof lights.\n3. Forms the base model from which every proposed drawing is derived.",
+                    "quantity": 4,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "TrueVision 3D Experience & Distribution",
+                    "itemDescription": "1. Interactive three dimensional model issued through the Noble Architecture Project Portal, allowing the proposals to be walked through online before anything is committed to.\n2. Provided at no charge. The model is an inherent by-product of Noble Architecture's working method rather than a separately priced deliverable.",
+                    "quantity": 1,
+                    "unit": "Free",
+                    "rate": 0,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Drawing : Existing Site & Block Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:500 & 1:1250\n3. Size  = Iso A2",
+                    "quantity": 1,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Site & Block Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:500 & 1:1250\n3. Size  = Iso A2",
+                    "quantity": 1,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Floor Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Floor Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Elevations",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Elevations",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Coordination, Administration & Permitted Development Submission",
+                    "itemDescription": "1. Preparation and completion of the application for a Certificate of Lawful Development for a Proposed Use or Operation.\n2. Assessment of the proposals against the permitted development criteria prior to submission.\n3. Submission direct to Rushcliffe Borough Council by email, and project administration throughout.\n4. Noble Architecture's appointment concludes at submission. See the Planning Approval contract.",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Fixed Fee Adjustment",
+                    "itemDescription": "1. The fee for this project has been agreed as a fixed, all-inclusive £500.00 including VAT.\n2. This adjustment reconciles the time based schedule above to that agreed fixed fee.\n3. The full twenty hours of work set out above will be carried out in any event.",
+                    "quantity": 1,
+                    "unit": "Discount",
+                    "rate": -83.33,
+                    "group": "Agreed Fixed Fee : **Discount Applied!!"
+                },
+                {
+                    "description": "Managed Application (See Contract)",
+                    "itemDescription": "1. Optional agency service. Noble Architecture is named as your agent on the application and manages all dialogue with Rushcliffe Borough Council after submission.\n2. Not currently included. Your own contact details will be given as the applicant, so the certificate and any case officer queries come directly to you.\n3. Must be agreed in writing before the application is submitted.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 400,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Design Phase 03 - Building Regulations",
+                    "itemDescription": "1. See the Building Regulations contract for more details.\n2. Currently opted out. Sukhi Home Solutions will be acting as the Building Regulations Compliance Agent for this project.\n3. Indicative figure only, subject to a formal quotation should it ever be required.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 1200,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Planning Portal Fee",
+                    "itemDescription": "1. Planning Portal upload service charge, currently £70.83 + VAT (£85.00).\n2. Avoided on this project. Rushcliffe Borough Council accepts submission direct by email, so this charge does not apply.\n3. Shown for information only.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 85,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Lawful Development Certificate Application Fee",
+                    "itemDescription": "1. Statutory fee set by Government and collected by Rushcliffe Borough Council.\n2. A Certificate of Lawfulness for a Proposed Use or Operation is charged at one half of the equivalent full application fee, being £274.00 against the £548.00 householder fee.\n3. Fee schedule effective 1 April 2026, subject to annual indexation.\n4. Payable to Noble Architecture and cleared at least one working day before submission. See the Planning Approval contract.",
+                    "quantity": 0,
+                    "unit": "item",
+                    "rate": 274,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "OS Mapping Data",
+                    "itemDescription": "1. Required for production of the site plan and block plan documents.\n2. MapServe.com used for compliant Ordnance Survey CAD data.\n3. Cost varies with the area of data purchased.",
+                    "quantity": 0,
+                    "unit": "item",
+                    "rate": 40,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "Structural Engineer Fees",
+                    "itemDescription": "1. Structural design of the new opening formed into the existing rear wall, of all beams, lintels and foundations, and of the flat roof structure.\n2. To be appointed by Sukhi Home Solutions. Cost not known at this stage and not included within Noble Architecture's fee.",
+                    "quantity": 0,
+                    "unit": "By Others",
+                    "rate": 0,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "Building Regulations & Building Control Fees",
+                    "itemDescription": "1. A Certificate of Lawful Development carries no Building Regulations approval. A separate Building Control application is required before works commence.\n2. Application fees, inspection fees and all technical submissions to be handled by Sukhi Home Solutions. Not included within Noble Architecture's fee.",
+                    "quantity": 0,
+                    "unit": "By Others",
+                    "rate": 0,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "Measured Building Survey & Specialist Site Surveys",
+                    "itemDescription": "1. No measured building survey, laser scan survey or site dimensional survey is included. The Client will carry out his own survey and supply the measurement information.\n2. Any specialist site survey, including drainage, structural or ground investigation, sits outside Noble Architecture's scope. See the Building Surveying contract.",
+                    "quantity": 0,
+                    "unit": "By Others",
+                    "rate": 0,
+                    "group": "Third Party Fees - **Not Included!!"
+                }
+            ],
+            "totals": {
+                "subtotal": 416.67,
+                "vatApplicable": true,
+                "vatRate": 20,
+                "vat": 83.33,
+                "grandTotal": 500.0
+            },
+            "additionalTerms": "",
+            "createdDate": "07-Sep-2026 at 12:00",
+            "lastModified": "07-Sep-2026 at 12:00"
+        }
+    ]
+}

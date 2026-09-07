@@ -57,6 +57,12 @@
             "PresentationMode__Group__Name": "Floor Plans",
             "PresentationMode__Group__Order": 4,
             "PresentationMode__Group__Enabled": false
+        },
+        {
+            "PresentationMode__Group__Id": "Group_005",
+            "PresentationMode__Group__Name": "Elevations",
+            "PresentationMode__Group__Order": 5,
+            "PresentationMode__Group__Enabled": false
         }
     ]
 }

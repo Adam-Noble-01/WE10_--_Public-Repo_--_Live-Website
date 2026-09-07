@@ -79,7 +79,8 @@
         Na__FpData__GetFloorPlans,
         Na__FpData__GetCutHeightMm,
         Na__FpData__CreatePlan,
-        Na__FpData__DeletePlan
+        Na__FpData__DeletePlan,
+        Na__FpData__FindSceneForPlan
     } from './Na__FloorPlan__ProjectJson__Data__.js';
     import {
         Na__FpCfg__GetLabel,
@@ -122,6 +123,15 @@
     // ------------------------------------------------------------
     import { Na__PlanDimClient__SetAllowed } from '../44__System__PlanDimensions/Na__PlanDimensions__ClientMode__.js';
     import { Na__PlanDim__GetLabel } from '../44__System__PlanDimensions/Na__PlanDimensions__Data__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Thumbnail Capture
+    // ------------------------------------------------------------
+    // @delegate: ../21__System__PresentationMode/Na__PresentationMode__Thumbnail__Renderer.js
+    // ------------------------------------------------------------
+    import {
+        Na__PresentationMode__Thumbnail__CaptureAndUpload
+    } from '../21__System__PresentationMode/Na__PresentationMode__Thumbnail__Renderer.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -242,6 +252,45 @@
     }
     // ------------------------------------------------------------
 
+    // FUNCTION | Capture the Plan on Screen and File It as Its Scene Thumbnail
+    // ------------------------------------------------------------
+    // The plan MUST be previewing for this to mean anything - the capture is
+    // of the viewport, so from 3D it would file a picture of the model as the
+    // plan's card. The button is disabled in that state; this is the second
+    // guard, because a disabled button is a UI fact rather than a rule.
+    // ------------------------------------------------------------
+    async function Na__FpDev__SaveThumbnail(plan) {
+        if (!Na__FloorPlanMode__IsActive() || Na__FloorPlanMode__GetActivePlan() !== plan) {
+            Na__FpDev__Toast('Preview the plan before saving its thumbnail.', true);
+            return false;
+        }
+
+        const config = Na__FpDev__GetConfig();
+        const scene  = config ? Na__FpData__FindSceneForPlan(config, plan) : null;
+        if (!scene) {
+            Na__FpDev__Toast('This plan has no scene to attach a thumbnail to.', true);
+            return false;
+        }
+
+        const sceneId = scene.PresentationMode__Scene__Id;
+
+        try {
+            const result = await Na__PresentationMode__Thumbnail__CaptureAndUpload(sceneId);
+            if (!result.ok) {
+                Na__FpDev__Toast('Thumbnail upload failed: ' + result.error, true);
+                return false;
+            }
+            scene.PresentationMode__Scene__ThumbnailUrl = result.relUrl;         // <-- Saved with the next Save Floor Plans
+            Na__FpDev__Toast('Thumbnail saved to R2: ' + result.relUrl);
+            return true;
+        } catch (error) {
+            console.error('[TrueVision3D] Floor plan thumbnail error:', error);
+            Na__FpDev__Toast('Thumbnail error - see console.', true);
+            return false;
+        }
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -288,8 +337,9 @@
                     Na__FloorPlanMode__EnterPlan(plan);
                 }
             },
-            onAnnotate : () => Na__FloorPlanMode__SetEditMode(!Na__FloorPlanMode__IsEditMode()),
-            onDelete   : () => Na__FpDev__DeletePlan(plan)
+            onAnnotate  : () => Na__FloorPlanMode__SetEditMode(!Na__FloorPlanMode__IsEditMode()),
+            onThumbnail : () => Na__FpDev__SaveThumbnail(plan),
+            onDelete    : () => Na__FpDev__DeletePlan(plan)
         });
     }
     // ------------------------------------------------------------

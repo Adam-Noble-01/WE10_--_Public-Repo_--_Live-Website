@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>TrueVision3D - Elevation Geometry Harness</title>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION  |  Three.js Import Map (mirrors Index.html exactly)       -->
+<!-- ----------------------------------------------------------------- -->
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://esm.sh/three@0.160.0",
+        "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+    }
+}
+</script>
+<!-- endregion -------------------------------------------------------- -->
+
+<style>
+    body  { font-family: ui-monospace, Consolas, monospace; font-size: 13px; padding: 16px; }
+    .pass { color: #1c7c40; }
+    .fail { color: #c0392b; font-weight: 700; }
+    h2    { font-size: 14px; margin: 18px 0 6px; }
+</style>
+</head>
+<body>
+
+<h1>Elevation Geometry Harness</h1>
+<p>
+    Exercises the REAL elevation modules against a synthetic model, because the
+    direction, plane and drawing-axis maths is the part that cannot be checked
+    by eye and would fail silently as markup landing in plausible-but-wrong
+    places. Localhost only; not part of the app.
+</p>
+<div id="out"></div>
+
+<script type="module">
+import * as THREE from 'three';
+
+import {
+    Na__ElevData__GetAxes,
+    Na__ElevData__GetPlaneDistanceMm,
+    Na__ElevData__WorldToRunMm,
+    Na__ElevData__RunToWorldMm,
+    Na__ElevData__SetPlaneOriginMm,
+    Na__ElevData__CreateElevation,
+    Na__ElevData__MODE_SECTION
+} from '../02__Src__AppModules/45__System__ElevationViews/Na__Elevation__ProjectJson__Data__.js';
+
+import { Na__ElevCfg__Load } from '../02__Src__AppModules/45__System__ElevationViews/Na__Elevation__ConfigState__.js';
+
+import {
+    Na__ElevCam__EnsureCamera,
+    Na__ElevCam__GetCamera,
+    Na__ElevCam__SetAxes,
+    Na__ElevCam__PositionForPlane,
+    Na__ElevCam__FrameToBounds,
+    Na__ElevCam__MeasureCentreMm,
+    Na__ElevCam__PanByPlaneUnits,
+    Na__ElevCam__GetPanTargetMm,
+    Na__ElevCam__GetUnitsPerPixel
+} from '../02__Src__AppModules/45__System__ElevationViews/Na__Elevation__OrthoCamera__.js';
+
+import { Na__ElevFrame__MeasureModel } from '../02__Src__AppModules/45__System__ElevationViews/Na__Elevation__Framing__.js';
+
+const out = document.getElementById('out');
+let failures = 0;
+
+function heading(text) {
+    const h = document.createElement('h2');
+    h.textContent = text;
+    out.appendChild(h);
+}
+
+function check(label, actual, expected, tolerance) {
+    const tol = (tolerance === undefined) ? 1e-6 : tolerance;
+    const ok  = (typeof expected === 'number')
+        ? Math.abs(actual - expected) <= tol
+        : String(actual) === String(expected);
+    if (!ok) failures++;
+
+    const line = document.createElement('div');
+    line.className   = ok ? 'pass' : 'fail';
+    line.textContent = (ok ? 'PASS  ' : 'FAIL  ') + label
+        + '   got ' + (typeof actual === 'number' ? actual.toFixed(4) : actual)
+        + '   want ' + (typeof expected === 'number' ? expected.toFixed(4) : expected);
+    out.appendChild(line);
+}
+
+await Na__ElevCfg__Load();
+
+// A scene block: 10 m wide (X), 6 m tall (Y), 8 m deep (Z), centred on origin.
+const block  = new THREE.Mesh(new THREE.BoxGeometry(10, 6, 8), new THREE.MeshBasicMaterial());
+block.position.set(0, 3, 0);
+const root = new THREE.Group();
+root.add(block);
+root.updateMatrixWorld(true);
+
+const sceneConfig = {};
+const persp = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 1000);
+
+// ---------------------------------------------------------------------------
+heading('1. Azimuth to axes - world north is -Z');
+// ---------------------------------------------------------------------------
+const cases = [
+    { az:   0, nx:  0, nz: -1, rx: -1, rz:  0, name: 'North' },
+    { az:  90, nx:  1, nz:  0, rx:  0, rz: -1, name: 'East'  },
+    { az: 180, nx:  0, nz:  1, rx:  1, rz:  0, name: 'South' },
+    { az: 270, nx: -1, nz:  0, rx:  0, rz:  1, name: 'West'  }
+];
+for (const c of cases) {
+    const axes = Na__ElevData__GetAxes({ Elevation__AzimuthDeg: c.az });
+    check(c.name + ' normal X', axes.normalX, c.nx, 1e-9);
+    check(c.name + ' normal Z', axes.normalZ, c.nz, 1e-9);
+    check(c.name + ' right  X', axes.rightX,  c.rx, 1e-9);
+    check(c.name + ' right  Z', axes.rightZ,  c.rz, 1e-9);
+}
+
+// ---------------------------------------------------------------------------
+heading('2. Axes are orthonormal at an arbitrary bearing');
+// ---------------------------------------------------------------------------
+const odd = Na__ElevData__GetAxes({ Elevation__AzimuthDeg: 37 });
+check('normal is unit', Math.hypot(odd.normalX, odd.normalZ), 1, 1e-9);
+check('right is unit',  Math.hypot(odd.rightX,  odd.rightZ),  1, 1e-9);
+check('normal . right', (odd.normalX * odd.rightX) + (odd.normalZ * odd.rightZ), 0, 1e-9);
+
+// ---------------------------------------------------------------------------
+heading('3. Plane distance responds only to movement along the view axis');
+// ---------------------------------------------------------------------------
+const north = Na__ElevData__CreateElevation(sceneConfig, { azimuthDeg: 0 });
+Na__ElevData__SetPlaneOriginMm(north, 0, 0);
+check('at origin', Na__ElevData__GetPlaneDistanceMm(north), 0);
+
+Na__ElevData__SetPlaneOriginMm(north, 4000, 0);        // <-- Sideways for a north elevation
+check('moved along X only', Na__ElevData__GetPlaneDistanceMm(north), 0);
+
+Na__ElevData__SetPlaneOriginMm(north, 4000, -2500);    // <-- Toward the viewer (-Z is north)
+check('moved along Z', Na__ElevData__GetPlaneDistanceMm(north), 2500);
+
+// ---------------------------------------------------------------------------
+heading('4. Drawing run is anchored at the world origin, not the plane');
+// ---------------------------------------------------------------------------
+// A stored point must NOT move when the plane slides - that would drag every
+// annotation sideways the moment the author nudged a slider.
+const runBefore = Na__ElevData__WorldToRunMm(north, 3000, 1000);
+Na__ElevData__SetPlaneOriginMm(north, -9000, 7000);
+const runAfter  = Na__ElevData__WorldToRunMm(north, 3000, 1000);
+check('run unchanged by plane move', runAfter, runBefore);
+
+// ---------------------------------------------------------------------------
+heading('5. Run round-trips back onto the plane');
+// ---------------------------------------------------------------------------
+for (const az of [0, 37, 90, 180, 214, 270]) {
+    const record = Na__ElevData__CreateElevation(sceneConfig, { azimuthDeg: az });
+    Na__ElevData__SetPlaneOriginMm(record, 1500, -3200);
+
+    const world = Na__ElevData__RunToWorldMm(record, 4250);
+    check('az ' + az + ' run round-trip', Na__ElevData__WorldToRunMm(record, world.xMm, world.zMm), 4250, 1e-6);
+
+    const axes = Na__ElevData__GetAxes(record);
+    const onPlane = (world.xMm * axes.normalX) + (world.zMm * axes.normalZ);
+    check('az ' + az + ' lands on the plane', onPlane, Na__ElevData__GetPlaneDistanceMm(record), 1e-6);
+}
+
+// ---------------------------------------------------------------------------
+heading('6. Framing measures the span ACROSS the elevation');
+// ---------------------------------------------------------------------------
+// The block is 10 m in X and 8 m in Z, so a north elevation sees 10 m across
+// and an east elevation sees 8 m, both plus twice the config margin (2000mm).
+const northSpan = Na__ElevFrame__MeasureModel(root, persp, { Elevation__AzimuthDeg: 0 });
+const eastSpan  = Na__ElevFrame__MeasureModel(root, persp, { Elevation__AzimuthDeg: 90 });
+check('north span mm', northSpan.spanMm, 10000 + 4000, 1);
+check('east span mm',  eastSpan.spanMm,   8000 + 4000, 1);
+check('height mm',     northSpan.heightMm, 6000 + 4000, 1);
+check('centre height', northSpan.centreYMm, 3000, 1);
+
+// A 45 degree elevation must see MORE than either face, not less.
+const diagonal = Na__ElevFrame__MeasureModel(root, persp, { Elevation__AzimuthDeg: 45 });
+check('45 deg span exceeds both faces', diagonal.spanMm > northSpan.spanMm ? 'yes' : 'no', 'yes');
+
+// ---------------------------------------------------------------------------
+heading('7. Camera looks along the view axis and pans only in plane');
+// ---------------------------------------------------------------------------
+const east = Na__ElevData__CreateElevation(sceneConfig, { azimuthDeg: 90 });
+Na__ElevData__SetPlaneOriginMm(east, 2000, 0);
+
+const bounds = new THREE.Box3().setFromObject(root);
+Na__ElevCam__EnsureCamera(1600, 900);
+Na__ElevCam__SetAxes(Na__ElevData__GetAxes(east));
+Na__ElevCam__FrameToBounds(bounds, 1600, 900);
+
+const centre = Na__ElevCam__MeasureCentreMm(bounds);
+Na__ElevCam__PositionForPlane(Na__ElevData__GetPlaneDistanceMm(east), centre.runMm, centre.heightMm);
+
+const camera = Na__ElevCam__GetCamera();
+const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+check('looks along -normal X', forward.x, -1, 1e-6);
+check('looks level (Y)',       forward.y,  0, 1e-6);
+check('looks along -normal Z', forward.z,  0, 1e-6);
+
+// The view-axis component of the camera position must survive a pan.
+const axesEast = Na__ElevData__GetAxes(east);
+const distBefore = (camera.position.x * axesEast.normalX) + (camera.position.z * axesEast.normalZ);
+Na__ElevCam__PanByPlaneUnits(3.5, -2.25);
+const distAfter  = (camera.position.x * axesEast.normalX) + (camera.position.z * axesEast.normalZ);
+check('pan does not move the camera through the plane', distAfter, distBefore, 1e-6);
+
+// Screen-down positive must LOWER the camera; screen-right must raise the run.
+const panned = Na__ElevCam__GetPanTargetMm();
+check('pan dv positive moved up (dv was negative)', panned.heightMm > centre.heightMm ? 'yes' : 'no', 'yes');
+check('pan du positive moved right',                panned.runMm    > centre.runMm    ? 'yes' : 'no', 'yes');
+
+// ---------------------------------------------------------------------------
+heading('8. Vertical clip plane keeps what lies beyond it');
+// ---------------------------------------------------------------------------
+// Mirrors what Na__SectionCut__UpsertVerticalPlane builds: normal is the
+// NEGATED view direction and the constant is the plane distance, so
+// distanceToPoint is positive exactly where geometry survives.
+const section = Na__ElevData__CreateElevation(sceneConfig, {
+    azimuthDeg : 0, mode : Na__ElevData__MODE_SECTION
+});
+Na__ElevData__SetPlaneOriginMm(section, 0, -2000);      // <-- Plane 2 m toward the north viewer
+
+const axesSec = Na__ElevData__GetAxes(section);
+const clip = new THREE.Plane(
+    new THREE.Vector3(-axesSec.normalX, 0, -axesSec.normalZ),
+    Na__ElevData__GetPlaneDistanceMm(section) / 1000
+);
+check('near side removed',  clip.distanceToPoint(new THREE.Vector3(0, 1, -3)) < 0 ? 'removed' : 'kept', 'removed');
+check('far side kept',      clip.distanceToPoint(new THREE.Vector3(0, 1,  3)) > 0 ? 'kept'    : 'removed', 'kept');
+check('on the plane is nil', clip.distanceToPoint(new THREE.Vector3(0, 1, -2)), 0, 1e-9);
+
+// ---------------------------------------------------------------------------
+heading('Result');
+// ---------------------------------------------------------------------------
+const summary = document.createElement('div');
+summary.className   = failures === 0 ? 'pass' : 'fail';
+summary.textContent = failures === 0 ? 'ALL CHECKS PASSED' : (failures + ' CHECK(S) FAILED');
+summary.id          = 'summary';
+out.appendChild(summary);
+</script>
+
+</body>
+</html>

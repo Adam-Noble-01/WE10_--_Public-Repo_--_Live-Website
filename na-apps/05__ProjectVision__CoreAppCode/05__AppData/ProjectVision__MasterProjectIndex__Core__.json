@@ -1,5 +1,5 @@
 {
-    "buildTimestamp": "2026-08-31T18:48:18.023931+00:00",
+    "buildTimestamp": "2026-09-07T20:20:19.118106+00:00",
     "projects": {
         "GA06": {
             "projectCode": "GA06",
@@ -104,6 +104,17 @@
             "projectCode": "NP03",
             "projectName": "Ashness Close",
             "projectFolder": "NP03__AshnessClose",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": true,
+                "trueVision": true
+            }
+        },
+        "PS01": {
+            "projectCode": "PS01",
+            "projectName": "Musters Road",
+            "projectFolder": "PS01__MustersRoad",
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,

@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Vision | Local Dev Launcher</title>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- NOTE  |  LOCAL DEVELOPMENT ONLY                                   -->
+    <!-- ----------------------------------------------------------------- -->
+    <!--                                                                   -->
+    <!-- Served by ProjectVision__LocalServer__Main__.py at the server      -->
+    <!-- root ( http://localhost:8090/ ). Developer launcher only; it is    -->
+    <!-- never linked from the live site.                                   -->
+    <!--                                                                   -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg">
+    <meta name="theme-color" content="#172b3a">
+
+<style>
+/* =============================================================================
+ * PROJECT VISION - LOCAL DEV LAUNCHER STYLES
+ * ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | CSS Variables - Design Tokens (mirrors StyleSheet__ProjectVisionApp__)
+ * ----------------------------------------------------------------------------- */
+
+    :root {
+        --Dv_BrandPrimary          : #172b3a;
+        --Dv_BrandAccent           : #2a4a5e;
+        --Dv_BgPrimary             : #f7f9fb;
+        --Dv_BgSecondary           : #ffffff;
+        --Dv_BgTertiary            : #eaeff3;
+        --Dv_TextPrimary           : #333333;
+        --Dv_TextSecondary         : #666666;
+        --Dv_TextMuted             : #999999;
+        --Dv_TextLight             : #ffffff;
+        --Dv_BorderLight           : #dce3e8;
+        --Dv_BorderMedium          : #b8c5cf;
+        --Dv_HeaderHeight          : 60px;
+        --Dv_TransitionFast        : 0.18s ease;
+        --Dv_FontFamily            : 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --Dv_FontMono              : 'Cascadia Mono', 'Consolas', 'SFMono-Regular', ui-monospace, monospace;
+        --Dv_CardRadius            : 12px;
+        --Dv_CardShadow            : 0 2px 12px rgba(0, 0, 0, 0.06);
+        --Dv_CardShadowHover       : 0 10px 30px rgba(0, 0, 0, 0.13);
+
+        --Dv_AppColor__Admin       : #5b8ea5;
+        --Dv_AppColor__PlanVision  : #3b6e8f;
+        --Dv_AppColor__TrueVision  : #172b3a;
+
+        --Dv_Ok                    : #2e7d32;
+        --Dv_OkBg                  : #e8f5e9;
+        --Dv_Warn                  : #b26a00;
+        --Dv_WarnBg                : #fff3e0;
+        --Dv_Bad                   : #c62828;
+        --Dv_BadBg                 : #fbe9e7;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Font Loading - Open Sans from Common Assets
+ * ----------------------------------------------------------------------------- */
+
+    @font-face {
+        font-family   : 'Open Sans';
+        font-style    : normal;
+        font-weight   : 400;
+        font-display  : swap;
+        src           : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family   : 'Open Sans';
+        font-style    : normal;
+        font-weight   : 600;
+        font-display  : swap;
+        src           : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__SemiBold__.ttf') format('truetype');
+    }
+
+    @font-face {
+        font-family   : 'Open Sans';
+        font-style    : normal;
+        font-weight   : 700;
+        font-display  : swap;
+        src           : url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Bold__.ttf') format('truetype');
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Base Styles
+ * ----------------------------------------------------------------------------- */
+
+    *, *::before, *::after {
+        margin      : 0;
+        padding     : 0;
+        box-sizing  : border-box;
+    }
+
+    html, body {
+        min-height              : 100%;
+        background-color        : var(--Dv_BgPrimary);
+        font-family             : var(--Dv_FontFamily);
+        color                   : var(--Dv_TextPrimary);
+        -webkit-font-smoothing  : antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Header - Branding Bar
+ * ----------------------------------------------------------------------------- */
+
+    .dv-header {
+        position          : sticky;
+        top               : 0;
+        display           : flex;
+        align-items       : center;
+        gap               : 14px;
+        height            : var(--Dv_HeaderHeight);
+        padding           : 0 24px;
+        background        : var(--Dv_BgSecondary);
+        border-bottom     : 2px solid var(--Dv_BrandPrimary);
+        box-shadow        : 0 2px 8px rgba(0, 0, 0, 0.06);
+        z-index           : 1000;
+    }
+
+    .dv-header__logo {
+        height  : 40px;
+        width   : auto;
+    }
+
+    .dv-header__title {
+        font-size       : 20px;
+        font-weight     : 600;
+        color           : var(--Dv_BrandPrimary);
+        letter-spacing  : 0.3px;
+    }
+
+    .dv-header__pill {
+        padding         : 3px 10px;
+        border-radius   : 20px;
+        background      : var(--Dv_WarnBg);
+        color           : var(--Dv_Warn);
+        font-size       : 11px;
+        font-weight     : 700;
+        letter-spacing  : 0.8px;
+        text-transform  : uppercase;
+    }
+
+    .dv-header__spacer { flex: 1; }
+
+    .dv-header__status {
+        display      : flex;
+        align-items  : center;
+        gap          : 8px;
+        font-size    : 12px;
+        color        : var(--Dv_TextSecondary);
+        font-family  : var(--Dv_FontMono);
+    }
+
+    .dv-header__dot {
+        width          : 9px;
+        height         : 9px;
+        border-radius  : 50%;
+        background     : var(--Dv_TextMuted);
+    }
+
+    .dv-header__dot--ok  { background: var(--Dv_Ok);  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15); }
+    .dv-header__dot--bad { background: var(--Dv_Bad); box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15); }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Page Shell
+ * ----------------------------------------------------------------------------- */
+
+    .dv-shell {
+        max-width  : 1500px;
+        margin     : 0 auto;
+        padding    : 26px 24px 60px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Toolbar - Search and Filters
+ * ----------------------------------------------------------------------------- */
+
+    .dv-toolbar {
+        display        : flex;
+        align-items    : center;
+        gap            : 12px;
+        flex-wrap      : wrap;
+        margin-bottom  : 22px;
+    }
+
+    .dv-search {
+        position  : relative;
+        flex      : 1 1 320px;
+        min-width : 260px;
+    }
+
+    .dv-search__input {
+        width          : 100%;
+        font-family    : var(--Dv_FontFamily);
+        font-size      : 15px;
+        color          : var(--Dv_TextPrimary);
+        padding        : 12px 120px 12px 42px;
+        border         : 2px solid var(--Dv_BorderLight);
+        border-radius  : 10px;
+        background     : var(--Dv_BgSecondary);
+        outline        : none;
+        transition     : border-color var(--Dv_TransitionFast), box-shadow var(--Dv_TransitionFast);
+    }
+
+    .dv-search__input:focus {
+        border-color  : var(--Dv_BrandAccent);
+        box-shadow    : 0 0 0 4px rgba(42, 74, 94, 0.10);
+    }
+
+    .dv-search__icon {
+        position        : absolute;
+        left            : 14px;
+        top             : 50%;
+        transform       : translateY(-50%);
+        width           : 17px;
+        height          : 17px;
+        fill            : var(--Dv_TextMuted);
+        pointer-events  : none;
+    }
+
+    .dv-search__hint {
+        position        : absolute;
+        right           : 12px;
+        top             : 50%;
+        transform       : translateY(-50%);
+        font-size       : 11px;
+        color           : var(--Dv_TextMuted);
+        font-family     : var(--Dv_FontMono);
+        pointer-events  : none;
+    }
+
+    .dv-chip {
+        appearance      : none;
+        font-family     : var(--Dv_FontFamily);
+        font-size       : 13px;
+        font-weight     : 600;
+        color           : var(--Dv_TextSecondary);
+        background      : var(--Dv_BgSecondary);
+        border          : 2px solid var(--Dv_BorderLight);
+        border-radius   : 20px;
+        padding         : 9px 16px;
+        cursor          : pointer;
+        white-space     : nowrap;
+        transition      : all var(--Dv_TransitionFast);
+    }
+
+    .dv-chip:hover { border-color: var(--Dv_BorderMedium); }
+
+    .dv-chip--active {
+        background    : var(--Dv_BrandPrimary);
+        border-color  : var(--Dv_BrandPrimary);
+        color         : var(--Dv_TextLight);
+    }
+
+    .dv-toolbar__count {
+        font-size    : 12px;
+        color        : var(--Dv_TextMuted);
+        font-family  : var(--Dv_FontMono);
+        white-space  : nowrap;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Recent Strip
+ * ----------------------------------------------------------------------------- */
+
+    .dv-recent {
+        display        : flex;
+        align-items    : center;
+        gap            : 10px;
+        flex-wrap      : wrap;
+        margin-bottom  : 24px;
+        padding        : 12px 16px;
+        background     : var(--Dv_BgTertiary);
+        border-radius  : 10px;
+    }
+
+    .dv-recent[hidden] { display: none; }
+
+    .dv-recent__label {
+        font-size       : 11px;
+        font-weight     : 700;
+        letter-spacing  : 0.8px;
+        text-transform  : uppercase;
+        color           : var(--Dv_TextSecondary);
+    }
+
+    .dv-recent__link {
+        display         : inline-flex;
+        align-items     : center;
+        gap             : 7px;
+        margin          : 2px 4px 2px 0;
+        padding         : 6px 12px;
+        border-radius   : 18px;
+        background      : var(--Dv_BgSecondary);
+        border          : 1px solid var(--Dv_BorderLight);
+        font-size       : 13px;
+        font-weight     : 600;
+        color           : var(--Dv_BrandPrimary);
+        transition      : all var(--Dv_TransitionFast);
+    }
+
+    .dv-recent__link:hover {
+        border-color  : var(--Dv_BrandAccent);
+        transform     : translateY(-1px);
+    }
+
+    .dv-recent__code {
+        font-family     : var(--Dv_FontMono);
+        font-size       : 11px;
+        color           : var(--Dv_TextMuted);
+        letter-spacing  : 0.5px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Year Group Headings
+ * ----------------------------------------------------------------------------- */
+
+    .dv-group { margin-bottom: 34px; }
+
+    .dv-group__head {
+        display        : flex;
+        align-items    : center;
+        gap            : 14px;
+        margin-bottom  : 14px;
+    }
+
+    .dv-group__title {
+        font-size       : 13px;
+        font-weight     : 700;
+        letter-spacing  : 1px;
+        text-transform  : uppercase;
+        color           : var(--Dv_BrandPrimary);
+        white-space     : nowrap;
+    }
+
+    .dv-group__rule {
+        flex        : 1;
+        height      : 1px;
+        background  : var(--Dv_BorderLight);
+    }
+
+    .dv-group__count {
+        font-size    : 12px;
+        color        : var(--Dv_TextMuted);
+        font-family  : var(--Dv_FontMono);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Project Card Grid
+ * ----------------------------------------------------------------------------- */
+
+    .dv-grid {
+        display                : grid;
+        grid-template-columns  : repeat(auto-fill, minmax(340px, 1fr));
+        gap                    : 18px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Project Card
+ * ----------------------------------------------------------------------------- */
+
+    .dv-card {
+        position        : relative;
+        display         : flex;
+        flex-direction  : column;
+        background      : var(--Dv_BgSecondary);
+        border          : 2px solid var(--Dv_BorderLight);
+        border-radius   : var(--Dv_CardRadius);
+        box-shadow      : var(--Dv_CardShadow);
+        overflow        : hidden;
+        transition      : transform var(--Dv_TransitionFast),
+                          box-shadow var(--Dv_TransitionFast),
+                          border-color var(--Dv_TransitionFast);
+    }
+
+    .dv-card::before {
+        content     : '';
+        position    : absolute;
+        top         : 0;
+        left        : 0;
+        right       : 0;
+        height      : 4px;
+        background  : var(--Dv_BrandPrimary);
+        transition  : height var(--Dv_TransitionFast);
+    }
+
+    .dv-card--partial::before   { background: var(--Dv_AppColor__Admin); }
+    .dv-card--empty::before     { background: var(--Dv_BorderMedium); }
+    .dv-card--unindexed::before { background: var(--Dv_Warn); }
+
+    .dv-card:hover {
+        transform     : translateY(-3px);
+        box-shadow    : var(--Dv_CardShadowHover);
+        border-color  : var(--Dv_BorderMedium);
+    }
+
+    .dv-card:hover::before { height: 6px; }
+
+    .dv-card--cursor {
+        border-color  : var(--Dv_BrandAccent);
+        box-shadow    : var(--Dv_CardShadowHover), 0 0 0 4px rgba(42, 74, 94, 0.12);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Card Body - Title Block and Metadata
+ * ----------------------------------------------------------------------------- */
+
+    .dv-card__body {
+        display         : flex;
+        flex-direction  : column;
+        flex            : 1;
+        padding         : 18px 18px 14px;
+    }
+
+    .dv-card__titlerow {
+        display        : flex;
+        align-items    : center;
+        gap            : 10px;
+        margin-bottom  : 6px;
+        min-width      : 0;
+    }
+
+    .dv-card__code {
+        flex-shrink     : 0;
+        padding         : 4px 9px;
+        border-radius   : 6px;
+        background      : var(--Dv_BrandPrimary);
+        color           : var(--Dv_TextLight);
+        font-family     : var(--Dv_FontMono);
+        font-size       : 12px;
+        font-weight     : 700;
+        letter-spacing  : 1px;
+    }
+
+    .dv-card__name {
+        font-size      : 17px;
+        font-weight    : 600;
+        color          : var(--Dv_TextPrimary);
+        line-height    : 1.3;
+        overflow       : hidden;
+        text-overflow  : ellipsis;
+        white-space    : nowrap;
+    }
+
+    .dv-card__folder {
+        font-family     : var(--Dv_FontMono);
+        font-size       : 11px;
+        color           : var(--Dv_TextMuted);
+        margin-bottom   : 8px;
+        overflow        : hidden;
+        text-overflow   : ellipsis;
+        white-space     : nowrap;
+    }
+
+    .dv-card__address {
+        display        : flex;
+        align-items    : center;
+        gap            : 6px;
+        font-size      : 12px;
+        color          : var(--Dv_BrandAccent);
+        margin-bottom  : 8px;
+        overflow       : hidden;
+        text-overflow  : ellipsis;
+        white-space    : nowrap;
+    }
+
+    .dv-card__address svg {
+        flex-shrink  : 0;
+        width        : 12px;
+        height       : 12px;
+        fill         : var(--Dv_BorderMedium);
+    }
+
+    .dv-card__desc {
+        font-size          : 13px;
+        line-height        : 1.55;
+        color              : var(--Dv_TextSecondary);
+        margin-bottom      : 12px;
+        display            : -webkit-box;
+        -webkit-line-clamp : 2;
+        line-clamp         : 2;
+        -webkit-box-orient : vertical;
+        overflow           : hidden;
+        min-height         : 40px;
+    }
+
+    .dv-card__desc--none { color: var(--Dv_TextMuted); font-style: italic; }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Card Facts - Small Status Chips
+ * ----------------------------------------------------------------------------- */
+
+    .dv-facts {
+        display        : flex;
+        flex-wrap      : wrap;
+        gap            : 6px;
+        margin-top     : auto;
+        margin-bottom  : 14px;
+    }
+
+    .dv-fact {
+        display         : inline-flex;
+        align-items     : center;
+        gap             : 5px;
+        padding         : 3px 9px;
+        border-radius   : 5px;
+        background      : var(--Dv_BgTertiary);
+        color           : var(--Dv_TextSecondary);
+        font-size       : 11px;
+        font-weight     : 600;
+        letter-spacing  : 0.2px;
+    }
+
+    .dv-fact--warn { background: var(--Dv_WarnBg); color: var(--Dv_Warn); }
+    .dv-fact--bad  { background: var(--Dv_BadBg);  color: var(--Dv_Bad);  }
+    .dv-fact--pin  { font-family: var(--Dv_FontMono); }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Card Actions - Sub-Application Launch Buttons
+ * ----------------------------------------------------------------------------- */
+
+    .dv-hub {
+        display          : flex;
+        align-items      : center;
+        justify-content  : center;
+        gap              : 8px;
+        margin           : 0 18px 8px;
+        padding          : 11px 14px;
+        border-radius    : 8px;
+        background       : var(--Dv_BrandPrimary);
+        color            : var(--Dv_TextLight);
+        font-size        : 13px;
+        font-weight      : 600;
+        letter-spacing   : 0.3px;
+        transition       : background var(--Dv_TransitionFast);
+    }
+
+    .dv-hub:hover { background: var(--Dv_BrandAccent); }
+
+    .dv-hub svg { width: 15px; height: 15px; fill: currentColor; }
+
+    .dv-actions {
+        display                : grid;
+        grid-template-columns  : repeat(3, 1fr);
+        gap                    : 7px;
+        padding                : 0 18px 16px;
+    }
+
+    .dv-btn {
+        display          : flex;
+        flex-direction   : column;
+        align-items      : center;
+        justify-content  : center;
+        gap              : 5px;
+        padding          : 10px 6px;
+        border           : 1.5px solid var(--Dv_BorderLight);
+        border-radius    : 8px;
+        background       : var(--Dv_BgSecondary);
+        font-size        : 11px;
+        font-weight      : 600;
+        color            : var(--Dv_TextSecondary);
+        text-align       : center;
+        transition       : all var(--Dv_TransitionFast);
+    }
+
+    .dv-btn svg { width: 17px; height: 17px; fill: currentColor; }
+
+    .dv-btn--admin:not(.dv-btn--off):hover {
+        border-color  : var(--Dv_AppColor__Admin);
+        background    : var(--Dv_AppColor__Admin);
+        color         : var(--Dv_TextLight);
+    }
+
+    .dv-btn--plans:not(.dv-btn--off):hover {
+        border-color  : var(--Dv_AppColor__PlanVision);
+        background    : var(--Dv_AppColor__PlanVision);
+        color         : var(--Dv_TextLight);
+    }
+
+    .dv-btn--three:not(.dv-btn--off):hover {
+        border-color  : var(--Dv_AppColor__TrueVision);
+        background    : var(--Dv_AppColor__TrueVision);
+        color         : var(--Dv_TextLight);
+    }
+
+    .dv-btn--off {
+        opacity         : 0.38;
+        cursor          : default;
+        pointer-events  : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Empty and Error States
+ * ----------------------------------------------------------------------------- */
+
+    .dv-state {
+        text-align  : center;
+        padding     : 70px 24px;
+        color       : var(--Dv_TextSecondary);
+    }
+
+    .dv-state__title {
+        font-size      : 18px;
+        font-weight    : 600;
+        color          : var(--Dv_TextPrimary);
+        margin-bottom  : 8px;
+    }
+
+    .dv-state__msg {
+        font-size    : 14px;
+        line-height  : 1.6;
+    }
+
+    .dv-state__pre {
+        display        : inline-block;
+        margin-top     : 14px;
+        padding        : 10px 14px;
+        border-radius  : 8px;
+        background     : var(--Dv_BgTertiary);
+        font-family    : var(--Dv_FontMono);
+        font-size      : 12px;
+        color          : var(--Dv_TextPrimary);
+        text-align     : left;
+        white-space    : pre-wrap;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Footer Tools Strip
+ * ----------------------------------------------------------------------------- */
+
+    .dv-tools {
+        display        : flex;
+        align-items    : center;
+        gap            : 10px;
+        flex-wrap      : wrap;
+        margin-top     : 10px;
+        padding-top    : 20px;
+        border-top     : 1px solid var(--Dv_BorderLight);
+    }
+
+    .dv-tools__label {
+        font-size       : 11px;
+        font-weight     : 700;
+        letter-spacing  : 0.8px;
+        text-transform  : uppercase;
+        color           : var(--Dv_TextMuted);
+        margin-right    : 4px;
+    }
+
+    .dv-tools__link {
+        padding        : 6px 12px;
+        border         : 1px solid var(--Dv_BorderLight);
+        border-radius  : 6px;
+        background     : var(--Dv_BgSecondary);
+        font-family    : var(--Dv_FontMono);
+        font-size      : 12px;
+        color          : var(--Dv_TextSecondary);
+        transition     : all var(--Dv_TransitionFast);
+    }
+
+    .dv-tools__link:hover {
+        border-color  : var(--Dv_BrandAccent);
+        color         : var(--Dv_BrandPrimary);
+    }
+
+    .dv-footnote {
+        margin-top   : 18px;
+        font-size    : 12px;
+        color        : var(--Dv_TextMuted);
+        line-height  : 1.9;
+    }
+
+    .dv-footnote kbd {
+        display              : inline-block;
+        padding              : 1px 6px;
+        border               : 1px solid var(--Dv_BorderMedium);
+        border-bottom-width  : 2px;
+        border-radius        : 4px;
+        background           : var(--Dv_BgSecondary);
+        font-family          : var(--Dv_FontMono);
+        font-size            : 11px;
+        color                : var(--Dv_TextSecondary);
+    }
+
+    .dv-footnote code {
+        font-family  : var(--Dv_FontMono);
+        font-size    : 11px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Responsive
+ * ----------------------------------------------------------------------------- */
+
+    @media (max-width: 640px) {
+
+        .dv-header         { padding: 0 14px; gap: 10px; }
+        .dv-header__logo   { height: 30px; }
+        .dv-header__title  { font-size: 16px; }
+        .dv-header__status { display: none; }
+        .dv-shell          { padding: 18px 14px 40px; }
+        .dv-grid           { grid-template-columns: 1fr; }
+        .dv-search__hint   { display: none; }
+        .dv-search__input  { padding-right: 14px; }
+    }
+
+/* endregion ------------------------------------------------------------------- */
+</style>
+</head>
+<body>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Header Bar                                             -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <header class="dv-header">
+        <img
+            src="https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png"
+            alt="Noble Architecture"
+            class="dv-header__logo"
+        />
+        <span class="dv-header__title">Project Vision</span>
+        <span class="dv-header__pill">Local Dev</span>
+        <span class="dv-header__spacer"></span>
+        <span class="dv-header__status">
+            <span class="dv-header__dot" id="dvStatusDot"></span>
+            <span id="dvStatusText">checking server&hellip;</span>
+        </span>
+    </header>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Main Shell                                             -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <div class="dv-shell">
+
+        <!-- Toolbar | Search and Filter Chips -->
+        <div class="dv-toolbar">
+            <div class="dv-search">
+                <svg class="dv-search__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input
+                    type="text"
+                    class="dv-search__input"
+                    id="dvSearch"
+                    placeholder="Search by code, name or folder&hellip;"
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+                <span class="dv-search__hint" id="dvSearchHint">Enter to open</span>
+            </div>
+
+            <button type="button" class="dv-chip dv-chip--active" data-filter="all">All</button>
+            <button type="button" class="dv-chip"                 data-filter="live">Live only</button>
+            <button type="button" class="dv-chip"                 data-filter="current">Current year</button>
+
+            <span class="dv-toolbar__count" id="dvCount"></span>
+        </div>
+
+        <!-- Recently Opened -->
+        <div class="dv-recent" id="dvRecent" hidden>
+            <span class="dv-recent__label">Recent</span>
+            <span id="dvRecentItems"></span>
+        </div>
+
+        <!-- Project Groups -->
+        <div id="dvResults">
+            <div class="dv-state">
+                <p class="dv-state__title">Loading projects&hellip;</p>
+                <p class="dv-state__msg">Reading the master project index.</p>
+            </div>
+        </div>
+
+        <!-- Tools Strip -->
+        <div class="dv-tools">
+            <span class="dv-tools__label">Dev</span>
+            <a class="dv-tools__link" href="/api/dev/projects" target="_blank">/api/dev/projects</a>
+            <a class="dv-tools__link" href="/api/health" target="_blank">/api/health</a>
+            <a class="dv-tools__link" href="/na-apps/05__ProjectVision__CoreAppCode/05__AppData/ProjectVision__MasterProjectIndex__Core__.json" target="_blank">MasterProjectIndex.json</a>
+            <a class="dv-tools__link" href="#" id="dvReload">Reload index</a>
+        </div>
+
+        <p class="dv-footnote">
+            <kbd>&uarr;</kbd> <kbd>&darr;</kbd> move &nbsp;&middot;&nbsp;
+            <kbd>Enter</kbd> open Project Vision hub &nbsp;&middot;&nbsp;
+            <kbd>1</kbd> Admin &nbsp; <kbd>2</kbd> PlanVision &nbsp; <kbd>3</kbd> TrueVision &nbsp;&middot;&nbsp;
+            <kbd>Esc</kbd> clear search
+            <br>
+            Cards come from <code>ProjectVision__MasterProjectIndex__Core__.json</code> merged with what actually
+            exists on disk under <code>na-project-portal</code>. Run the Project Vision build script after adding a new project.
+        </p>
+
+    </div>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
+<script>
+// =============================================================================
+// PROJECT VISION | Local Dev Launcher
+// =============================================================================
+//
+// FILE       : ProjectVision__LocalServer__DevLanding__.html
+// NAMESPACE  : NaProjectVision.DevLanding
+// AUTHOR     : Adam Noble - Noble Architecture
+// PURPOSE    : Card-based project launcher for the local Flask dev server
+//
+// DESCRIPTION:
+// - Loads the merged project list from /api/dev/projects
+// - Renders one card per project, grouped by project year
+// - Each card deep-links straight into Project Vision, Project Admin,
+//   PlanVision and TrueVision with the correct query string
+// - Type-to-filter search with full keyboard navigation
+//
+// =============================================================================
+
+(function Na__ProjectVision__DevLanding() {
+    'use strict';
+
+    // #region ------------------------------------------------
+    // CONSTANTS | Module Configuration
+    // --------------------------------------------------------
+
+        const RECENT_STORAGE_KEY  = 'na.projectvision.devlanding.recent';
+        const FILTER_STORAGE_KEY  = 'na.projectvision.devlanding.filter';
+        const RECENT_MAX          = 6;
+
+        const ICON__Hub    = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.83 3.41L12 10.96 5.17 7.59 12 4.18zM4 8.82l7 3.5v7.86l-7-3.5V8.82zm9 11.36v-7.86l7-3.5v7.86l-7 3.5z"/></svg>';
+        const ICON__Admin  = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-3-7H9v-2h6v2zm0 4H9v-2h6v2zm-2-8H9V7h4v2z"/></svg>';
+        const ICON__Plans  = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 21V3l18 18H3zm2.5-2.5h11L5.5 7.5v11z"/></svg>';
+        const ICON__Pin    = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>';
+        const ICON__Three  = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.83 3.41L12 10.96 5.17 7.59 12 4.18zM4 8.82l7 3.5v7.86l-7-3.5V8.82zm9 11.36v-7.86l7-3.5v7.86l-7 3.5z"/></svg>';
+
+        const ICONS_BY_ROLE = {
+            admin : ICON__Admin,
+            plans : ICON__Plans,
+            three : ICON__Three
+        };
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // DOM REFERENCES | Cached Elements
+    // --------------------------------------------------------
+
+        const elSearch      = document.getElementById('dvSearch');
+        const elSearchHint  = document.getElementById('dvSearchHint');
+        const elResults     = document.getElementById('dvResults');
+        const elCount       = document.getElementById('dvCount');
+        const elRecent      = document.getElementById('dvRecent');
+        const elRecentItems = document.getElementById('dvRecentItems');
+        const elStatusDot   = document.getElementById('dvStatusDot');
+        const elStatusText  = document.getElementById('dvStatusText');
+        const elReload      = document.getElementById('dvReload');
+        const elChips       = Array.from(document.querySelectorAll('.dv-chip'));
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // STATE | Module State
+    // --------------------------------------------------------
+
+        let allProjects     = [];      // <-- Full merged list from /api/dev/projects
+        let visibleProjects = [];      // <-- Current search + filter result
+        let currentYear     = '';      // <-- Newest project year reported by the server
+        let activeFilter    = 'all';   // <-- all | live | current
+        let cursorIndex     = 0;       // <-- Keyboard highlight position
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // HELPER FUNCTIONS | Escaping and Local Storage
+    // --------------------------------------------------------
+
+        // HELPER | Escape a value for safe HTML interpolation
+        function esc(value) {
+            return String(value === null || value === undefined ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        // HELPER | Read recently opened project codes
+        function readRecent() {
+            try {
+                const parsed = JSON.parse(window.localStorage.getItem(RECENT_STORAGE_KEY) || '[]');
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (err) {
+                return [];
+            }
+        }
+
+        // HELPER | Move a project code to the front of the recent list
+        function pushRecent(projectCode) {
+            if (!projectCode) return;
+            try {
+                const list = readRecent().filter(function(code) { return code !== projectCode; });
+                list.unshift(projectCode);
+                window.localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(list.slice(0, RECENT_MAX)));
+            } catch (err) {
+                /* Storage is a convenience only - ignore failures. */
+            }
+        }
+
+        // HELPER | Persist and restore the chosen filter chip
+        function readFilter() {
+            try {
+                return window.localStorage.getItem(FILTER_STORAGE_KEY) || 'all';
+            } catch (err) {
+                return 'all';
+            }
+        }
+
+        function writeFilter(value) {
+            try { window.localStorage.setItem(FILTER_STORAGE_KEY, value); } catch (err) { /* no-op */ }
+        }
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // FUNCTION | Server Health Indicator
+    // --------------------------------------------------------
+
+        async function refreshServerStatus() {
+            try {
+                const response = await fetch('/api/health', { cache: 'no-store' });
+                const payload  = await response.json();
+
+                elStatusDot.className    = 'dv-header__dot dv-header__dot--ok';
+                elStatusText.textContent = 'localhost:' + payload.port;
+            } catch (err) {
+                elStatusDot.className    = 'dv-header__dot dv-header__dot--bad';
+                elStatusText.textContent = 'server unreachable';
+            }
+        }
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // FUNCTION | Card Rendering
+    // --------------------------------------------------------
+
+        // HELPER | Pluralise a counted noun ("3 scenes" / "1 scene")
+        function plural(count, singular) {
+            return count + ' ' + singular + (count === 1 ? '' : 's');
+        }
+
+        // FUNCTION | Build the small status chips shown on each card
+        function buildFacts(project) {
+            const facts = [];
+
+            if (!project.indexed) {
+                facts.push('<span class="dv-fact dv-fact--warn">Not in index</span>');
+            }
+
+            if (!project.folderExists) {
+                facts.push('<span class="dv-fact dv-fact--bad">Folder missing</span>');
+            }
+
+            if (project.indexStale) {
+                facts.push('<span class="dv-fact dv-fact--warn" title="The master index sub-app flags no longer match what is on disk - rerun the build script">Index stale</span>');
+            }
+
+            if (project.activePhase) {
+                facts.push('<span class="dv-fact">' + esc(project.activePhase) + '</span>');
+            }
+
+            if (project.drawingCount) {
+                facts.push('<span class="dv-fact">' + plural(project.drawingCount, 'drawing') + '</span>');
+            }
+
+            if (project.sceneCount) {
+                facts.push('<span class="dv-fact">' + plural(project.sceneCount, 'scene') + '</span>');
+            }
+
+            if (project.unpaidInvoices) {
+                facts.push('<span class="dv-fact dv-fact--warn">' + plural(project.unpaidInvoices, 'unpaid invoice') + '</span>');
+            }
+
+            if (project.projectPin) {
+                facts.push('<span class="dv-fact dv-fact--pin">PIN ' + esc(project.projectPin) + '</span>');
+            }
+
+            // Archived or unprovisioned projects would otherwise show an empty chip row.
+            if (!facts.length && project.folderExists) {
+                facts.push('<span class="dv-fact">No app content</span>');
+            }
+
+            return facts.join('');
+        }
+
+        // FUNCTION | Build one sub-application launch button
+        function buildButton(subApp, role, label) {
+            const isOn    = Boolean(subApp && subApp.available && subApp.url);
+            const classes = 'dv-btn dv-btn--' + role + (isOn ? '' : ' dv-btn--off');
+            const href    = isOn ? ' href="' + esc(subApp.url) + '"' : '';
+            const title   = isOn ? label + ' – ' + esc(subApp.url)
+                                 : label + ' – no content for this project';
+
+            return '<a class="' + classes + '"' + href + ' title="' + title + '" data-role="' + role + '">'
+                 + ICONS_BY_ROLE[role]
+                 + '<span>' + label + '</span>'
+                 + '</a>';
+        }
+
+        // FUNCTION | Build the full markup for one project card
+        function buildCard(project, index) {
+            const subApps = project.subApps || {};
+
+            const activeCount = ['projectAdmin', 'planVision', 'trueVision'].filter(function(key) {
+                return subApps[key] && subApps[key].available;
+            }).length;
+
+            let stateClass = '';
+            if (!project.indexed)       stateClass = ' dv-card--unindexed';
+            else if (activeCount === 0) stateClass = ' dv-card--empty';
+            else if (activeCount < 3)   stateClass = ' dv-card--partial';
+
+            const descBlock = project.description
+                ? '<p class="dv-card__desc">' + esc(project.description) + '</p>'
+                : '<p class="dv-card__desc dv-card__desc--none">No project description recorded.</p>';
+
+            const addressBlock = project.address
+                ? '<div class="dv-card__address" title="' + esc(project.address) + '">'
+                +   ICON__Pin + '<span>' + esc(project.address) + '</span>'
+                + '</div>'
+                : '';
+
+            return ''
+                + '<div class="dv-card' + stateClass + '" data-index="' + index + '" data-code="' + esc(project.projectCode) + '">'
+                +   '<div class="dv-card__body">'
+                +     '<div class="dv-card__titlerow">'
+                +       '<span class="dv-card__code">' + esc(project.projectCode) + '</span>'
+                +       '<span class="dv-card__name" title="' + esc(project.projectName) + '">' + esc(project.projectName) + '</span>'
+                +     '</div>'
+                +     '<div class="dv-card__folder" title="' + esc(project.projectFolder) + '">' + esc(project.projectFolder) + '</div>'
+                +     addressBlock
+                +     descBlock
+                +     '<div class="dv-facts">' + buildFacts(project) + '</div>'
+                +   '</div>'
+                +   '<a class="dv-hub" href="' + esc(project.hubUrl) + '" data-role="hub">'
+                +     ICON__Hub + '<span>Open Project Vision</span>'
+                +   '</a>'
+                +   '<div class="dv-actions">'
+                +     buildButton(subApps.projectAdmin, 'admin', 'Admin')
+                +     buildButton(subApps.planVision,   'plans', 'PlanVision')
+                +     buildButton(subApps.trueVision,   'three', 'TrueVision')
+                +   '</div>'
+                + '</div>';
+        }
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // FUNCTION | Filtering, Grouping and Rendering
+    // --------------------------------------------------------
+
+        // FUNCTION | Apply the search text and the active filter chip
+        function computeVisible() {
+            const query = elSearch.value.trim().toLowerCase();
+
+            return allProjects.filter(function(project) {
+                if (activeFilter === 'live' && !project.isLive) return false;
+                if (activeFilter === 'current' && project.projectYear !== currentYear) return false;
+                if (!query) return true;
+
+                const haystack = [
+                    project.projectCode,
+                    project.projectName,
+                    project.projectFolder,
+                    project.address,
+                    project.description
+                ].join(' ').toLowerCase();
+
+                return haystack.indexOf(query) !== -1;
+            });
+        }
+
+        // FUNCTION | Render the grouped card grid for the current state
+        function render() {
+            visibleProjects = computeVisible();
+
+            if (cursorIndex >= visibleProjects.length) {
+                cursorIndex = Math.max(0, visibleProjects.length - 1);
+            }
+
+            elCount.textContent = visibleProjects.length + ' of ' + allProjects.length + ' projects';
+
+            if (!visibleProjects.length) {
+                elResults.innerHTML = ''
+                    + '<div class="dv-state">'
+                    +   '<p class="dv-state__title">No matching projects</p>'
+                    +   '<p class="dv-state__msg">Try a different search term, or switch the filter back to All.</p>'
+                    + '</div>';
+                elSearchHint.textContent = 'no matches';
+                return;
+            }
+
+            // GROUP | Bucket the visible projects by project year
+            const groups = [];
+            const lookup = {};
+
+            visibleProjects.forEach(function(project, index) {
+                const year = project.projectYear || 'unknown';
+
+                if (!lookup[year]) {
+                    lookup[year] = { year: year, cards: [] };
+                    groups.push(lookup[year]);
+                }
+
+                lookup[year].cards.push(buildCard(project, index));
+            });
+
+            elResults.innerHTML = groups.map(function(group) {
+                const yearLabel = group.year === 'unknown' ? 'Unknown Year' : '20' + group.year + ' Projects';
+
+                return ''
+                    + '<section class="dv-group">'
+                    +   '<div class="dv-group__head">'
+                    +     '<span class="dv-group__title">' + esc(yearLabel) + '</span>'
+                    +     '<span class="dv-group__rule"></span>'
+                    +     '<span class="dv-group__count">' + group.cards.length + '</span>'
+                    +   '</div>'
+                    +   '<div class="dv-grid">' + group.cards.join('') + '</div>'
+                    + '</section>';
+            }).join('');
+
+            applyCursor();
+        }
+
+        // FUNCTION | Move the keyboard highlight to the current cursor index
+        function applyCursor() {
+            elResults.querySelectorAll('.dv-card--cursor').forEach(function(card) {
+                card.classList.remove('dv-card--cursor');
+            });
+
+            const target = elResults.querySelector('.dv-card[data-index="' + cursorIndex + '"]');
+            if (!target) return;
+
+            target.classList.add('dv-card--cursor');
+
+            const project = visibleProjects[cursorIndex];
+            elSearchHint.textContent = project ? 'Enter → ' + project.projectCode : 'Enter to open';
+        }
+
+        // FUNCTION | Scroll the highlighted card into view for keyboard use
+        function scrollCursorIntoView() {
+            const target = elResults.querySelector('.dv-card--cursor');
+            if (target) target.scrollIntoView({ block: 'nearest' });
+        }
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // FUNCTION | Recent Projects Strip
+    // --------------------------------------------------------
+
+        function renderRecent() {
+            const items = [];
+
+            readRecent().forEach(function(code) {
+                const project = allProjects.find(function(candidate) {
+                    return candidate.projectCode === code;
+                });
+
+                if (!project) return;
+
+                items.push(''
+                    + '<a class="dv-recent__link" href="' + esc(project.hubUrl) + '" data-code="' + esc(code) + '">'
+                    +   '<span class="dv-recent__code">' + esc(code) + '</span>'
+                    +   '<span>' + esc(project.projectName) + '</span>'
+                    + '</a>');
+            });
+
+            elRecent.hidden = items.length === 0;
+            elRecentItems.innerHTML = items.join('');
+        }
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // FUNCTION | Navigation
+    // --------------------------------------------------------
+
+        // FUNCTION | Open the requested sub-app for the highlighted project
+        function openCursorTarget(role) {
+            const project = visibleProjects[cursorIndex];
+            if (!project) return;
+
+            const subApps = project.subApps || {};
+            let url = project.hubUrl;
+
+            if (role === 'admin') url = subApps.projectAdmin && subApps.projectAdmin.url;
+            if (role === 'plans') url = subApps.planVision   && subApps.planVision.url;
+            if (role === 'three') url = subApps.trueVision   && subApps.trueVision.url;
+
+            if (!url) return;
+
+            pushRecent(project.projectCode);
+            window.location.href = url;
+        }
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // FUNCTION | Data Loading
+    // --------------------------------------------------------
+
+        async function loadProjects() {
+            try {
+                const response = await fetch('/api/dev/projects', { cache: 'no-store' });
+
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status + ' from /api/dev/projects');
+                }
+
+                const payload = await response.json();
+
+                allProjects = Array.isArray(payload.projects) ? payload.projects : [];
+                currentYear = payload.currentYear || '';
+
+                renderRecent();
+                render();
+
+            } catch (err) {
+                console.error('[DevLanding] Failed to load project list:', err);
+
+                elResults.innerHTML = ''
+                    + '<div class="dv-state">'
+                    +   '<p class="dv-state__title">Could not load the project list</p>'
+                    +   '<p class="dv-state__msg">The local Flask server did not return a usable /api/dev/projects response.</p>'
+                    +   '<p class="dv-state__pre">' + esc(err && err.message ? err.message : String(err)) + '</p>'
+                    + '</div>';
+            }
+        }
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // EVENT HANDLERS | User Interaction
+    // --------------------------------------------------------
+
+        // EVENT | Live search filtering
+        elSearch.addEventListener('input', function() {
+            cursorIndex = 0;
+            render();
+        });
+
+        // EVENT | Keyboard navigation from the search field
+        elSearch.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                cursorIndex = Math.min(cursorIndex + 1, visibleProjects.length - 1);
+                applyCursor();
+                scrollCursorIntoView();
+                return;
+            }
+
+            if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                cursorIndex = Math.max(cursorIndex - 1, 0);
+                applyCursor();
+                scrollCursorIntoView();
+                return;
+            }
+
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                openCursorTarget('hub');
+                return;
+            }
+
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                elSearch.value = '';
+                cursorIndex = 0;
+                render();
+            }
+        });
+
+        // EVENT | Number shortcuts for the highlighted card
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+            const roleByKey = { '1': 'admin', '2': 'plans', '3': 'three' };
+            const role      = roleByKey[event.key];
+
+            if (!role) return;
+
+            // Do not steal digits while a project code such as "NP03" is being typed.
+            if (document.activeElement === elSearch && elSearch.value.trim() !== '') return;
+
+            event.preventDefault();
+            openCursorTarget(role);
+        });
+
+        // EVENT | Filter chip selection
+        elChips.forEach(function(chip) {
+            chip.addEventListener('click', function() {
+                activeFilter = chip.dataset.filter;
+                writeFilter(activeFilter);
+
+                elChips.forEach(function(other) {
+                    other.classList.toggle('dv-chip--active', other === chip);
+                });
+
+                cursorIndex = 0;
+                render();
+                elSearch.focus();
+            });
+        });
+
+        // EVENT | Record opened projects in the recent list
+        elResults.addEventListener('click', function(event) {
+            const link = event.target.closest('a[data-role]');
+            if (!link) return;
+
+            const card = link.closest('.dv-card');
+            if (card) pushRecent(card.dataset.code);
+        });
+
+        elRecent.addEventListener('click', function(event) {
+            const link = event.target.closest('a[data-code]');
+            if (link) pushRecent(link.dataset.code);
+        });
+
+        // EVENT | Follow the mouse with the keyboard cursor
+        elResults.addEventListener('mouseover', function(event) {
+            const card = event.target.closest('.dv-card');
+            if (!card) return;
+
+            const index = Number(card.dataset.index);
+            if (Number.isNaN(index) || index === cursorIndex) return;
+
+            cursorIndex = index;
+            applyCursor();
+        });
+
+        // EVENT | Manual index reload
+        elReload.addEventListener('click', function(event) {
+            event.preventDefault();
+            loadProjects();
+            refreshServerStatus();
+        });
+
+    // endregion ----------------------------------------------
+
+
+    // #region ------------------------------------------------
+    // INITIALISATION | Boot the Launcher
+    // --------------------------------------------------------
+
+        activeFilter = readFilter();
+
+        elChips.forEach(function(chip) {
+            chip.classList.toggle('dv-chip--active', chip.dataset.filter === activeFilter);
+        });
+
+        elSearch.focus();
+        refreshServerStatus();
+        loadProjects();
+
+    // endregion ----------------------------------------------
+
+})();
+</script>
+
+</body>
+</html>

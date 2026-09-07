@@ -177,7 +177,6 @@
     let Na__PlanDimEdit__Canvas     = null;   // <-- Render canvas events are taken from
     let Na__PlanDimEdit__Dimensions = null;   // <-- LIVE array off the plan record
     let Na__PlanDimEdit__OnChanged  = null;   // <-- Host callback for unsaved-change tracking
-    let Na__PlanDimEdit__CutHeightMm = 0;     // <-- Plan cut height, handed to the vertex editor
     let Na__PlanDimEdit__PlacementGate = null; // <-- Must pass before placement arms (client disclaimer)
     // ------------------------------------------------------------
 
@@ -622,8 +621,7 @@
             Na__PlanDimEdit__ApplySelectionClass();
 
             Na__PlanDimVert__Enter(record, {
-                cutHeightMm : Na__PlanDimEdit__CutHeightMm,
-                onChanged   : Na__PlanDimEdit__NotifyChanged
+                onChanged : Na__PlanDimEdit__NotifyChanged
             });
         });
     }
@@ -818,7 +816,6 @@
         Na__PlanDimEdit__Canvas     = context.canvas;
         Na__PlanDimEdit__Dimensions = Array.isArray(context.dimensions) ? context.dimensions : [];
         Na__PlanDimEdit__OnChanged  = (typeof context.onChanged === 'function') ? context.onChanged : null;
-        Na__PlanDimEdit__CutHeightMm = Number.isFinite(context.cutHeightMm) ? context.cutHeightMm : 0;
 
         // Capture phase on the canvas so a placement click is taken before the
         // pan controls see it; the handler stands down instantly when idle.

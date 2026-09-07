@@ -50,10 +50,11 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Math and Plan Camera Projection
+    // MODULE IMPORTS | Active Drawing View Projection
     // ------------------------------------------------------------
-    import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
-    import { Na__FpCam__ProjectWorldToScreen } from '../42__System__FloorPlanViews/Na__FloorPlan__OrthoCamera__.js';
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js
+    // ------------------------------------------------------------
+    import { Na__DrawView__ProjectPlaneMm } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Dimension Data, Grid, Overlay, Axis Lock and History
@@ -144,7 +145,6 @@
     // Matched to the dimension layer's own plane so a handle sits exactly on
     // the line it belongs to rather than a fraction in front of it.
     // ------------------------------------------------------------
-    let Na__PlanDimVert__PlaneHeightMm = 0;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -164,20 +164,15 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Project One World Millimetre Point to Canvas Pixels
+    // HELPER FUNCTION | Project One Drawing Millimetre Point to Canvas Pixels
+    // ------------------------------------------------------------
+    // The handles land on the drawing plane itself, so they sit exactly on the
+    // line they edit rather than floating in front of it.
     // ------------------------------------------------------------
     function Na__PlanDimVert__ProjectMm(xMm, zMm) {
         const size = Na__PlanDimVert__GetSize();
         if (!size.width || !size.height) return null;
-
-        const worldY = Na__Math__ConvertMmToUnits(Na__PlanDimVert__PlaneHeightMm);
-        return Na__FpCam__ProjectWorldToScreen(
-            Na__Math__ConvertMmToUnits(xMm),
-            worldY,
-            Na__Math__ConvertMmToUnits(zMm),
-            size.width,
-            size.height
-        );
+        return Na__DrawView__ProjectPlaneMm(xMm, zMm, size.width, size.height);
     }
     // ------------------------------------------------------------
 
@@ -442,7 +437,7 @@
 
     // FUNCTION | Open One Dimension for Vertex Editing
     // ------------------------------------------------------------
-    // context: { onChanged, cutHeightMm }
+    // context: { onChanged }
     // ------------------------------------------------------------
     function Na__PlanDimVert__Enter(record, context) {
         if (!record) return false;
@@ -452,12 +447,6 @@
         Na__PlanDimVert__OnChanged = (context && typeof context.onChanged === 'function')
             ? context.onChanged
             : Na__PlanDimVert__OnChanged;
-
-        if (context && Number.isFinite(context.cutHeightMm)) {
-            // Handles sit on the dimension plane, a touch below the cut, so
-            // they land exactly on the line rather than in front of it.
-            Na__PlanDimVert__PlaneHeightMm = context.cutHeightMm - Na__PlanDim__GetLayerSetup().planeOffsetMm;
-        }
 
         if (!Na__PlanDimVert__EnsureHandles()) return false;
 

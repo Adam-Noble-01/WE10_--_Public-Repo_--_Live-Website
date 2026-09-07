@@ -53,20 +53,24 @@
     // MODULE IMPORTS | Math Utilities
     // ------------------------------------------------------------
     import {
-        Na__Math__ConvertMmToUnits,
-        Na__Math__ConvertUnitsToMm
+        Na__Math__ConvertMmToUnits
     } from '../04__MathUtils/Na__Math__Units.js';
     // ------------------------------------------------------------
 
-    // MODULE IMPORTS | Plan Camera Projection
+    // MODULE IMPORTS | Active Drawing View Projection
     // ------------------------------------------------------------
-    // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__OrthoCamera__.js
+    // Dimensions project through whichever 2D drawing currently owns the
+    // viewport. The two millimetre values an endpoint stores are the DRAWING's
+    // axes - world X/Z on a plan, horizontal run and height on an elevation -
+    // so the same lines, ticks and figures serve both without a branch.
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js
     // ------------------------------------------------------------
     import {
-        Na__FpCam__ProjectWorldToScreen,
-        Na__FpCam__GetUnitsPerPixel,
-        Na__FpCam__GetCamera
-    } from '../42__System__FloorPlanViews/Na__FloorPlan__OrthoCamera__.js';
+        Na__DrawView__ProjectPlaneMm,
+        Na__DrawView__ScreenToPlaneMm,
+        Na__DrawView__GetUnitsPerPixel,
+        Na__DrawView__IsActive
+    } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Dimension Data and Config
@@ -131,7 +135,6 @@
     let Na__PlanDimLayer__HostEl     = null;    // <-- Render canvas the layer tracks
     let Na__PlanDimLayer__Dimensions = null;    // <-- LIVE array off the plan record
     let Na__PlanDimLayer__Session    = null;    // <-- LIVE ephemeral client measurements (never saved)
-    let Na__PlanDimLayer__CutHeightMm = 0;      // <-- Plane height the dimensions sit at
     let Na__PlanDimLayer__OnNodeCreated = null; // <-- Editor hook, attached per node
     const Na__PlanDimLayer__Nodes    = new Map(); // <-- id -> { group, parts... }
     // ------------------------------------------------------------
@@ -170,16 +173,10 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Project a World X/Z Millimetre Point to Canvas Pixels
+    // HELPER FUNCTION | Project a Drawing Millimetre Point to Canvas Pixels
     // ------------------------------------------------------------
-    function Na__PlanDimLayer__ProjectMm(xMm, zMm, worldYUnits, size) {
-        return Na__FpCam__ProjectWorldToScreen(
-            Na__Math__ConvertMmToUnits(xMm),
-            worldYUnits,
-            Na__Math__ConvertMmToUnits(zMm),
-            size.width,
-            size.height
-        );
+    function Na__PlanDimLayer__ProjectMm(xMm, zMm, size) {
+        return Na__DrawView__ProjectPlaneMm(xMm, zMm, size.width, size.height);
     }
     // ------------------------------------------------------------
 
@@ -414,13 +411,12 @@
         if (!Na__PlanDimLayer__Root) return;
 
         const size = Na__PlanDimLayer__GetViewportSize();
-        const upp  = Na__FpCam__GetUnitsPerPixel(size.height);
-        if (!upp) return;                                                    // <-- No plan camera yet
+        const upp  = Na__DrawView__GetUnitsPerPixel(size.height);
+        if (!upp) return;                                                    // <-- No 2D drawing on screen yet
 
         const lineSetup = Na__PlanDim__GetLineSetup();
         const textSetup = Na__PlanDim__GetTextSetup();
         const layer     = Na__PlanDim__GetLayerSetup();
-        const worldY    = Na__Math__ConvertMmToUnits(Na__PlanDimLayer__CutHeightMm);
 
         // MM TO PIXELS | One conversion reused for every drawn size this frame
         const mmToPx = (mm) => Na__Math__ConvertMmToUnits(mm) / upp;
@@ -439,13 +435,13 @@
             if (!skeleton) { parts.group.style.display = 'none'; continue; }
 
             // PROJECT | Every world point of the skeleton in one pass
-            const pDS = Na__PlanDimLayer__ProjectMm(skeleton.DS.xMm, skeleton.DS.zMm, worldY, size);
-            const pDE = Na__PlanDimLayer__ProjectMm(skeleton.DE.xMm, skeleton.DE.zMm, worldY, size);
-            const pX1 = Na__PlanDimLayer__ProjectMm(skeleton.X1.xMm, skeleton.X1.zMm, worldY, size);
-            const pT1 = Na__PlanDimLayer__ProjectMm(skeleton.T1.xMm, skeleton.T1.zMm, worldY, size);
-            const pX2 = Na__PlanDimLayer__ProjectMm(skeleton.X2.xMm, skeleton.X2.zMm, worldY, size);
-            const pT2 = Na__PlanDimLayer__ProjectMm(skeleton.T2.xMm, skeleton.T2.zMm, worldY, size);
-            const pMD = Na__PlanDimLayer__ProjectMm(skeleton.MID.xMm, skeleton.MID.zMm, worldY, size);
+            const pDS = Na__PlanDimLayer__ProjectMm(skeleton.DS.xMm, skeleton.DS.zMm, size);
+            const pDE = Na__PlanDimLayer__ProjectMm(skeleton.DE.xMm, skeleton.DE.zMm, size);
+            const pX1 = Na__PlanDimLayer__ProjectMm(skeleton.X1.xMm, skeleton.X1.zMm, size);
+            const pT1 = Na__PlanDimLayer__ProjectMm(skeleton.T1.xMm, skeleton.T1.zMm, size);
+            const pX2 = Na__PlanDimLayer__ProjectMm(skeleton.X2.xMm, skeleton.X2.zMm, size);
+            const pT2 = Na__PlanDimLayer__ProjectMm(skeleton.T2.xMm, skeleton.T2.zMm, size);
+            const pMD = Na__PlanDimLayer__ProjectMm(skeleton.MID.xMm, skeleton.MID.zMm, size);
             if (!pDS || !pDE || !pMD) { parts.group.style.display = 'none'; continue; }
 
             // DROP THE UNREADABLE | A dimension zoomed below the legible floor
@@ -531,7 +527,6 @@
         Na__PlanDimLayer__HostEl        = context.hostElement;
         Na__PlanDimLayer__Dimensions    = Array.isArray(context.dimensions) ? context.dimensions : [];
         Na__PlanDimLayer__Session       = Array.isArray(context.sessionDimensions) ? context.sessionDimensions : null;
-        Na__PlanDimLayer__CutHeightMm   = Number.isFinite(context.cutHeightMm) ? context.cutHeightMm : 0;
         Na__PlanDimLayer__OnNodeCreated = (typeof context.onNodeCreated === 'function') ? context.onNodeCreated : null;
 
         Na__PlanDimLayer__Root = Na__PlanDimLayer__BuildRoot();
@@ -578,15 +573,6 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Move the Layer's Plane Height
-    // ------------------------------------------------------------
-    function Na__PlanDimLayer__SetCutHeightMm(cutHeightMm) {
-        if (!Number.isFinite(cutHeightMm)) return;
-        Na__PlanDimLayer__CutHeightMm = cutHeightMm;
-    }
-    // ------------------------------------------------------------
-
-
     // FUNCTION | Get the Bound Dimension Array
     // ------------------------------------------------------------
     function Na__PlanDimLayer__GetSessionDimensions() {
@@ -628,7 +614,7 @@
     // ------------------------------------------------------------
     function Na__PlanDimLayer__MmToPx(lengthMm) {
         const size = Na__PlanDimLayer__GetViewportSize();
-        const upp  = Na__FpCam__GetUnitsPerPixel(size.height);
+        const upp  = Na__DrawView__GetUnitsPerPixel(size.height);
         if (!upp) return 0;
         return Na__Math__ConvertMmToUnits(lengthMm) / upp;
     }
@@ -646,48 +632,20 @@
         const size = Na__PlanDimLayer__GetViewportSize();
         if (!size.width || !size.height) return null;
 
-        return Na__PlanDimLayer__ProjectMm(
-            xMm,
-            zMm,
-            Na__Math__ConvertMmToUnits(Na__PlanDimLayer__CutHeightMm),
-            size
-        );
+        return Na__PlanDimLayer__ProjectMm(xMm, zMm, size);
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Convert a Pointer Position to a World X/Z in Millimetres
+    // FUNCTION | Convert a Pointer Position to a Point on the Drawing
     // ------------------------------------------------------------
-    // The inverse of ProjectMm, and the entry point for every pick. Takes
-    // VIEWPORT coordinates straight off a pointer event; the conversion into
-    // canvas space happens here so no caller has to remember the header
-    // offset. Under a parallel projection one pixel is a fixed number of scene
-    // units everywhere, so a canvas offset from the centre converts to a world
-    // offset from the camera without a ray solve.
-    //
-    // Deliberately duplicated from the annotation layer's equivalent rather
-    // than imported from it: the dimensioning system must keep working with
-    // annotations switched off, and that helper is bound to the annotation
-    // layer's own host element.
+    // The inverse of ProjectMm, and the entry point for every pick. It reads
+    // the drawing's OWN host element rather than the annotation layer's, so
+    // the dimensioning system keeps working with annotations switched off.
     // ------------------------------------------------------------
     function Na__PlanDimLayer__ScreenToWorldMm(clientX, clientY) {
-        const camera = Na__FpCam__GetCamera();
-        if (!camera || !Na__PlanDimLayer__HostEl) return null;
-
-        const size = Na__PlanDimLayer__GetViewportSize();
-        const upp  = Na__FpCam__GetUnitsPerPixel(size.height);
-        if (!upp) return null;
-
-        const rect    = Na__PlanDimLayer__HostEl.getBoundingClientRect();
-        const localX  = clientX - rect.left;
-        const localY  = clientY - rect.top;
-        const offsetX = localX - (size.width  / 2);
-        const offsetY = localY - (size.height / 2);
-
-        return {
-            posXMm : Na__Math__ConvertUnitsToMm(camera.position.x + (offsetX * upp)),
-            posZMm : Na__Math__ConvertUnitsToMm(camera.position.z + (offsetY * upp))
-        };
+        if (!Na__DrawView__IsActive() || !Na__PlanDimLayer__HostEl) return null;
+        return Na__DrawView__ScreenToPlaneMm(clientX, clientY, Na__PlanDimLayer__HostEl);
     }
     // ------------------------------------------------------------
 
@@ -708,7 +666,6 @@
         Na__PlanDimLayer__Rebuild,
         Na__PlanDimLayer__Sync,
         Na__PlanDimLayer__SyncLayerBox,
-        Na__PlanDimLayer__SetCutHeightMm,
         Na__PlanDimLayer__GetDimensions,
         Na__PlanDimLayer__GetSessionDimensions,
         Na__PlanDimLayer__AllRecords,

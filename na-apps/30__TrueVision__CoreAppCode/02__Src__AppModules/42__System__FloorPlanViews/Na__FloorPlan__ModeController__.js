@@ -28,8 +28,10 @@
 //   perspective camera eases down to the target 3D scene.
 // - Annotation undo history and the editing shortcuts are bound and unbound
 //   with the markup itself, so neither can ever outlive the plan it belongs to.
-// - The render loop asks GetActiveCamera() each frame. A non-null answer means
-//   plan mode owns the view and the composer is bypassed for a flat render.
+// - The render loop asks the DRAWING VIEW BROKER for a camera each frame. A
+//   non-null answer means a 2D drawing owns the view and the composer is
+//   bypassed for a flat render; this controller registers the adapter that
+//   answers it while a plan is on screen.
 //
 // INTEGRATION:
 // - Initialized once from Index.html with the camera, controls, canvas and
@@ -41,6 +43,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 07-Sep-2026 - Version 1.1.0
+// - Plan mode now registers itself with the drawing view broker rather than
+//   being the only 2D drawing the markup layers know about, and drives the
+//   shared 2D navigation instead of its own copy. Entering releases any
+//   elevation first, because there is one annotation layer for both.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation for the Floor Plan Builder.
 //
@@ -58,7 +66,24 @@
         Na__DistanceCulling__SetEnabled,
         Na__DistanceCulling__IsEnabled
     } from '../05__RenderPipeline/Na__RenderEffect__DistanceCulling__.js';
-    import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
+    import {
+        Na__Math__ConvertMmToUnits,
+        Na__Math__ConvertUnitsToMm
+    } from '../04__MathUtils/Na__Math__Units.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Active Drawing View Broker
+    // ------------------------------------------------------------
+    // Registering an adapter here is what lets the shared annotation and
+    // dimension layers draw on a plan without importing the plan camera.
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js
+    // ------------------------------------------------------------
+    import {
+        Na__DrawView__KIND_PLAN,
+        Na__DrawView__SetActiveView,
+        Na__DrawView__ClearActiveView,
+        Na__DrawView__ReleaseOtherKind
+    } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Section Cut Engine
@@ -75,7 +100,7 @@
     // MODULE IMPORTS | Floor Plan Camera, Navigation, Data and Config
     // ------------------------------------------------------------
     // @delegate: ./Na__FloorPlan__OrthoCamera__.js
-    // @delegate: ./Na__FloorPlan__PlanNavigation__.js
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__Navigation__.js
     // @delegate: ./Na__FloorPlan__ProjectJson__Data__.js
     // @delegate: ./Na__FloorPlan__Framing__.js
     // ------------------------------------------------------------
@@ -88,23 +113,28 @@
         Na__FpCam__SetPanTargetMm,
         Na__FpCam__GetPanTargetMm,
         Na__FpCam__SetZoom,
-        Na__FpCam__GetZoom
+        Na__FpCam__GetZoom,
+        Na__FpCam__PanByUnits,
+        Na__FpCam__ZoomByFactor,
+        Na__FpCam__GetUnitsPerPixel
     } from './Na__FloorPlan__OrthoCamera__.js';
     import {
-        Na__FpNav__Attach,
-        Na__FpNav__Detach
-    } from './Na__FloorPlan__PlanNavigation__.js';
+        Na__DrawNav__Attach,
+        Na__DrawNav__Detach
+    } from '../40__System__DrawingViewCore/Na__DrawView__Navigation__.js';
     import {
         Na__FpData__GetCutHeightMm,
         Na__FpData__GetViewDepthMm,
         Na__FpData__GetSavedView,
         Na__FpData__SetSavedView,
-        Na__FpData__GetAnnotations
+        Na__FpData__GetAnnotations,
+        Na__FpData__GetClientDimensionsEnabled
     } from './Na__FloorPlan__ProjectJson__Data__.js';
     import {
         Na__FpCfg__Load,
         Na__FpCfg__IsEnabled,
-        Na__FpCfg__GetTransitionSetup
+        Na__FpCfg__GetTransitionSetup,
+        Na__FpCfg__GetNavigationSetup
     } from './Na__FloorPlan__ConfigState__.js';
     import {
         Na__FpFrame__MeasureModel,
@@ -113,91 +143,24 @@
     } from './Na__FloorPlan__Framing__.js';
     // ------------------------------------------------------------
 
-    // MODULE IMPORTS | Annotation Layer, Editor and Toolbar
+    // MODULE IMPORTS | Markup Stack
     // ------------------------------------------------------------
-    // @delegate: ../43__System__PlanAnnotations/Na__PlanAnnotations__Overlay__.js
+    // Raising and lowering the eleven markup modules in the right order is the
+    // drawing view core's job, because an elevation needs the identical
+    // sequence. This controller supplies the plan's arrays and reads back only
+    // the two per-frame reprojection calls.
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__MarkupMount__.js
     // ------------------------------------------------------------
+    import {
+        Na__DrawMarkup__Mount,
+        Na__DrawMarkup__Unmount,
+        Na__DrawMarkup__SyncLayerBox
+    } from '../40__System__DrawingViewCore/Na__DrawView__MarkupMount__.js';
     import { Na__PlanAnno__Load } from '../43__System__PlanAnnotations/Na__PlanAnnotations__Data__.js';
-
-    // MODULE IMPORTS | Plan Dimensions
-    // ------------------------------------------------------------
-    // @delegate: ../44__System__PlanDimensions/
-    // ------------------------------------------------------------
     import {
         Na__PlanDim__Load,
-        Na__PlanDim__GetPlanDimensions,
-        Na__PlanDim__GetLayerSetup
+        Na__PlanDim__GetPlanDimensions
     } from '../44__System__PlanDimensions/Na__PlanDimensions__Data__.js';
-    import {
-        Na__PlanDimLayer__Mount,
-        Na__PlanDimLayer__Unmount,
-        Na__PlanDimLayer__Sync,
-        Na__PlanDimLayer__SyncLayerBox
-    } from '../44__System__PlanDimensions/Na__PlanDimensions__Overlay__.js';
-    import {
-        Na__PlanDimEdit__Enable,
-        Na__PlanDimEdit__Disable,
-        Na__PlanDimEdit__AttachNode
-    } from '../44__System__PlanDimensions/Na__PlanDimensions__Editor__.js';
-    import {
-        Na__PlanDimGrid__EstablishPlane,
-        Na__PlanDimGrid__Dispose
-    } from '../44__System__PlanDimensions/Na__PlanDimensions__Grid__.js';
-    import {
-        Na__PlanDimHist__Begin,
-        Na__PlanDimHist__End
-    } from '../44__System__PlanDimensions/Na__PlanDimensions__History__.js';
-    import {
-        Na__PlanDimKeys__Attach,
-        Na__PlanDimKeys__Detach
-    } from '../44__System__PlanDimensions/Na__PlanDimensions__Hotkeys__.js';
-    import {
-        Na__PlanDimAxis__Configure,
-        Na__PlanDimAxis__Dispose
-    } from '../44__System__PlanDimensions/Na__PlanDimensions__AxisLock__.js';
-    import {
-        Na__PlanDimVert__Sync,
-        Na__PlanDimVert__Dispose
-    } from '../44__System__PlanDimensions/Na__PlanDimensions__VertexEditor__.js';
-    import {
-        Na__PlanDim__GetSessionDimensions,
-        Na__PlanDim__SetAuthoringMode,
-        Na__PlanDim__AUTHOR_DEV
-    } from '../44__System__PlanDimensions/Na__PlanDimensions__Data__.js';
-    import {
-        Na__PlanDimClient__SetAllowed,
-        Na__PlanDimClient__IsAllowed,
-        Na__PlanDimClient__Mount,
-        Na__PlanDimClient__Refresh,
-        Na__PlanDimClient__Unmount,
-        Na__PlanDimClient__Dispose
-    } from '../44__System__PlanDimensions/Na__PlanDimensions__ClientMode__.js';
-    import { Na__FpData__GetClientDimensionsEnabled } from './Na__FloorPlan__ProjectJson__Data__.js';
-    // ------------------------------------------------------------
-    import {
-        Na__PlanAnnoLayer__Mount,
-        Na__PlanAnnoLayer__Unmount,
-        Na__PlanAnnoLayer__Sync,
-        Na__PlanAnnoLayer__SyncLayerBox
-    } from '../43__System__PlanAnnotations/Na__PlanAnnotations__Overlay__.js';
-    import {
-        Na__PlanAnnoEdit__Enable,
-        Na__PlanAnnoEdit__Disable,
-        Na__PlanAnnoEdit__AttachNode
-    } from '../43__System__PlanAnnotations/Na__PlanAnnotations__Editor__.js';
-    import {
-        Na__PlanAnnoBar__Mount,
-        Na__PlanAnnoBar__Unmount,
-        Na__PlanAnnoBar__Refresh
-    } from '../43__System__PlanAnnotations/Na__PlanAnnotations__Toolbar__.js';
-    import {
-        Na__PlanAnnoHist__Begin,
-        Na__PlanAnnoHist__End
-    } from '../43__System__PlanAnnotations/Na__PlanAnnotations__History__.js';
-    import {
-        Na__PlanAnnoKeys__Attach,
-        Na__PlanAnnoKeys__Detach
-    } from '../43__System__PlanAnnotations/Na__PlanAnnotations__Hotkeys__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Presentation Camera Easing (reused for the flight)
@@ -222,12 +185,13 @@
     // @delegate: ../21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js
     // ------------------------------------------------------------
     import {
-        Na__PresentationMode__UI__SetSceneNavigationOverride
+        Na__PresentationMode__UI__AddSceneNavigationRouter
     } from '../21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
     import {
         Na__FpData__GetPlanForScene,
         Na__FpData__IsFloorPlanScene
     } from './Na__FloorPlan__ProjectJson__Data__.js';
+    import { Na__ElevData__IsElevationScene } from '../45__System__ElevationViews/Na__Elevation__ProjectJson__Data__.js';
     import {
         Na__PresentationMode__ProjectJson__GetActiveConfig
     } from '../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
@@ -419,151 +383,95 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Mount the Annotation Layer for a Plan
+    // HELPER FUNCTION | Hand the Viewport to This Plan
     // ------------------------------------------------------------
-    function Na__FpMode__MountAnnotations(plan) {
-        // Read the per-project grant before anything mounts, so the client
-        // branch below knows whether it exists at all.
-        Na__PlanDimClient__SetAllowed(
-            Na__FpData__GetClientDimensionsEnabled(Na__PresentationMode__ProjectJson__GetActiveConfig())
-        );
+    // The adapter is what the shared markup layers and the shared navigation
+    // steer through, and it is the ONLY place the plan's own axis mapping is
+    // written down:
+    //
+    //     drawing axis 1 -> world X          screen right
+    //     drawing axis 2 -> world Z          screen down
+    //     the third      -> the cut height   fixed
+    //
+    // Registered BEFORE anything mounts, because the layers project on their
+    // very first sync and a missing adapter reads to them as "no drawing yet".
+    //
+    // The cut height is captured per plan rather than read live, so switching
+    // plans installs a new adapter instead of quietly moving an old one - a
+    // stale plane is the one failure that would look like correct markup in
+    // the wrong place.
+    // ------------------------------------------------------------
+    function Na__FpMode__RegisterDrawingView(plan) {
+        const cutHeightUnits = Na__Math__ConvertMmToUnits(Na__FpData__GetCutHeightMm(plan));
 
-        // ONE array reference is shared by the layer, the history stack and the
-        // floor plan record that gets saved. Resolved once here so all three can
-        // never end up bound to different copies.
-        const annotations = Na__FpData__GetAnnotations(plan);
+        Na__DrawView__SetActiveView({
+            kind             : Na__DrawView__KIND_PLAN,
+            getCamera        : Na__FpCam__GetCamera,
+            getUnitsPerPixel : Na__FpCam__GetUnitsPerPixel,
 
-        Na__PlanAnnoLayer__Mount({
-            hostElement   : Na__FpMode__Canvas,
-            annotations   : annotations,
-            cutHeightMm   : Na__FpData__GetCutHeightMm(plan),
-            onNodeCreated : Na__FpMode__EditMode ? Na__PlanAnnoEdit__AttachNode : null
-        });
+            // Called when an elevation takes the viewport. Leaving without a
+            // flight, because the incoming drawing is about to fly the camera
+            // itself and two transitions would fight over it.
+            onRelease : () => Na__FloorPlanMode__ExitPlan(null),
 
-        // DIMENSIONS | Same one-live-array rule as the annotations above
-        // ------------------------------------------------------------
-        // The working plane is established from the model before the layer
-        // mounts, so the first pick already has an extent to be clamped
-        // against. It sits fractionally below the annotation text so a label
-        // placed over a dimension line stays readable.
-        // ------------------------------------------------------------
-        const dimensions   = Na__PlanDim__GetPlanDimensions(plan);
-        const cutHeightMm  = Na__FpData__GetCutHeightMm(plan);
-        const dimLayerCfg  = Na__PlanDim__GetLayerSetup();
+            planeMmToWorldUnits : (axis1Mm, axis2Mm) => ({
+                x : Na__Math__ConvertMmToUnits(axis1Mm),
+                y : cutHeightUnits,
+                z : Na__Math__ConvertMmToUnits(axis2Mm)
+            }),
 
-        Na__PlanDimGrid__EstablishPlane(Na__FpMode__ModelRoot, cutHeightMm - dimLayerCfg.planeOffsetMm);
+            // Under a parallel projection one pixel is a fixed number of scene
+            // units everywhere, so a canvas offset from the centre converts to
+            // a world offset from the camera without a ray solve.
+            screenOffsetToPlaneMm : (offsetXPx, offsetYPx, unitsPerPixel) => {
+                const camera = Na__FpCam__GetCamera();
+                if (!camera) return null;
+                return {
+                    posXMm : Na__Math__ConvertUnitsToMm(camera.position.x + (offsetXPx * unitsPerPixel)),
+                    posZMm : Na__Math__ConvertUnitsToMm(camera.position.z + (offsetYPx * unitsPerPixel))
+                };
+            },
 
-        // The client branch needs interaction wired too - onto their OWN
-        // records only, which the editor decides per record rather than here.
-        const clientMayMeasure = Na__PlanDimClient__IsAllowed();
-
-        Na__PlanDimLayer__Mount({
-            hostElement       : Na__FpMode__Canvas,
-            dimensions        : dimensions,
-            sessionDimensions : Na__PlanDim__GetSessionDimensions(),
-            cutHeightMm       : cutHeightMm,
-            onNodeCreated     : (Na__FpMode__EditMode || clientMayMeasure)
-                ? Na__PlanDimEdit__AttachNode
-                : null
-        });
-
-        // CLIENT PATH | The same engine, bound to the ephemeral session list
-        // and gated behind the disclaimer. Nothing here can reach plan data:
-        // the array it writes into is not attached to any plan record.
-        if (!Na__FpMode__EditMode) {
-            if (!clientMayMeasure) return;
-
-            Na__PlanDimClient__Mount({
-                hostElement : Na__FpMode__Canvas.parentElement || document.body,
-                onChanged   : () => Na__PlanDimLayer__Sync()
-            });
-
-            const sessionList = Na__PlanDim__GetSessionDimensions();
-            // The bar reads its labels from the tool state, so every change
-            // has to reach it - otherwise Measure stays stuck on Cancel once
-            // a dimension completes.
-            const refreshClient = () => {
-                Na__PlanDimLayer__Sync();
-                Na__PlanDimClient__Refresh();
-            };
-
-            Na__PlanDimEdit__Enable({
-                canvas      : Na__FpMode__Canvas,
-                dimensions  : sessionList,
-                cutHeightMm : cutHeightMm,
-                onChanged   : refreshClient
-            });
-            Na__PlanDimHist__Begin(sessionList);
-            Na__PlanDimAxis__Configure(null);
-            Na__PlanDimKeys__Attach({ onAction: refreshClient });
-            return;
-        }
-
-        Na__PlanDimEdit__Enable({
-            canvas      : Na__FpMode__Canvas,
-            dimensions  : dimensions,
-            cutHeightMm : cutHeightMm,                                           // <-- Vertex handles project onto this plane
-            onChanged   : () => {
-                Na__PlanAnnoBar__Refresh();
-                if (typeof Na__FpMode__OnChanged === 'function') Na__FpMode__OnChanged();
-            }
-        });
-
-        // Dimension undo is its own stack, bound to the same live array the
-        // layer and the plan record share. Separate from the annotation stack
-        // so one Ctrl+Z never steps both.
-        Na__PlanDimHist__Begin(dimensions);
-        Na__PlanDimAxis__Configure(Na__PlanAnnoBar__Refresh);
-        Na__PlanDimKeys__Attach({
-            onAction : () => {
-                Na__PlanAnnoBar__Refresh();
-                if (typeof Na__FpMode__OnChanged === 'function') Na__FpMode__OnChanged();
-            }
-        });
-
-        // Undo history is per plan. Binding here also clears it, because one
-        // plan undo stack has no meaning over another plan markup.
-        Na__PlanAnnoHist__Begin(annotations);
-
-        Na__PlanAnnoEdit__Enable({
-            canvas    : Na__FpMode__Canvas,
-            onChanged : () => {
-                Na__PlanAnnoBar__Refresh();
-                if (typeof Na__FpMode__OnChanged === 'function') Na__FpMode__OnChanged();
-            }
-        });
-        Na__PlanAnnoBar__Mount({
-            hostElement : Na__FpMode__Canvas.parentElement || document.body,
-            onDone      : () => Na__FloorPlanMode__SetEditMode(false)
-        });
-        Na__PlanAnnoKeys__Attach({
-            onAction : () => {
-                Na__PlanAnnoBar__Refresh();
-                if (typeof Na__FpMode__OnChanged === 'function') Na__FpMode__OnChanged();
-            }
+            panByPlaneUnits : (du, dv) => Na__FpCam__PanByUnits(du, dv),
+            zoomByFactor    : Na__FpCam__ZoomByFactor
         });
     }
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Tear Down the Annotation Layer
+    // HELPER FUNCTION | Raise the Markup Stack Over This Plan
+    // ------------------------------------------------------------
+    // ONE array reference is shared by the layer, the history stack and the
+    // floor plan record that gets saved. Resolved once here so all three can
+    // never end up bound to different copies.
+    //
+    // The mounting sequence itself lives in the drawing view core, because an
+    // elevation needs the identical one and two copies of it would drift.
+    // ------------------------------------------------------------
+    function Na__FpMode__MountAnnotations(plan) {
+        Na__DrawMarkup__Mount({
+            canvas        : Na__FpMode__Canvas,
+            modelRoot     : Na__FpMode__ModelRoot,
+            annotations   : Na__FpData__GetAnnotations(plan),
+            dimensions    : Na__PlanDim__GetPlanDimensions(plan),
+            editMode      : Na__FpMode__EditMode,
+            clientAllowed : Na__FpData__GetClientDimensionsEnabled(
+                Na__PresentationMode__ProjectJson__GetActiveConfig()
+            ),
+            planeHeightMm : Na__FpData__GetCutHeightMm(plan),
+            onChanged     : () => {
+                if (typeof Na__FpMode__OnChanged === 'function') Na__FpMode__OnChanged();
+            },
+            onAnnotateDone : () => Na__FloorPlanMode__SetEditMode(false)
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Take the Markup Stack Down
     // ------------------------------------------------------------
     function Na__FpMode__UnmountAnnotations() {
-        Na__PlanDimClient__Unmount();                                            // <-- Session measurements are discarded here
-        Na__PlanDim__SetAuthoringMode(Na__PlanDim__AUTHOR_DEV);
-        Na__PlanAnnoKeys__Detach();                                              // <-- Shortcuts must never outlive the plan they edit
-        Na__PlanAnnoHist__End();
-        Na__PlanAnnoBar__Unmount();
-        Na__PlanAnnoEdit__Disable();
-        Na__PlanAnnoLayer__Unmount();
-        Na__PlanDimKeys__Detach();                                               // <-- Same rule for the dimension listeners
-        Na__PlanDimHist__End();
-        Na__PlanDimVert__Dispose();
-        Na__PlanDimAxis__Dispose();
-        Na__PlanDimClient__Dispose();
-        Na__PlanDimEdit__Disable();
-        Na__PlanDimLayer__Unmount();
-        Na__PlanDimGrid__Dispose();                                              // <-- Plane belonged to the plan that is closing
+        Na__DrawMarkup__Unmount();
     }
     // ------------------------------------------------------------
 
@@ -594,6 +502,8 @@
         if (!Na__FpMode__Initialized || !plan) return false;
         if (!Na__FpCfg__IsEnabled()) return false;
 
+        Na__DrawView__ReleaseOtherKind(Na__DrawView__KIND_PLAN);                 // <-- An elevation cannot stay mounted underneath a plan
+
         const alreadyInPlan = (Na__FpMode__State === Na__FpMode__STATE_PLAN);
 
         // Leaving one plan for another: keep how the author framed this one.
@@ -609,8 +519,8 @@
         // FLIP | Already in plan mode: no flight, straight to the new page
         if (alreadyInPlan) {
             Na__FpMode__ApplyPlanCamera(plan);
+            Na__FpMode__RegisterDrawingView(plan);                               // <-- New page, new plane
             Na__FpMode__MountAnnotations(plan);
-            Na__PlanAnnoLayer__Sync();
             Na__RenderLoop__RequestRender();
             Na__FpMode__DispatchChanged();
             return true;
@@ -636,11 +546,11 @@
                 durationMs : durationMs,
                 onComplete : () => {
                     Na__FpMode__ApplyPlanCamera(plan);
+                    Na__FpMode__RegisterDrawingView(plan);                       // <-- Before the layers mount and project
                     Na__FpMode__SuspendThreeDSystems();                          // <-- Orbit must let go of the canvas first
                     Na__FpMode__State = Na__FpMode__STATE_PLAN;                  // <-- Render loop now takes the ortho camera
-                    Na__FpNav__Attach(Na__FpMode__Canvas);
+                    Na__DrawNav__Attach(Na__FpMode__Canvas, Na__FpCfg__GetNavigationSetup());
                     Na__FpMode__MountAnnotations(plan);
-                    Na__PlanAnnoLayer__Sync();
                     Na__RenderLoop__RequestRender();
                     Na__FpMode__DispatchChanged();
                 }
@@ -669,7 +579,8 @@
         // 2D-to-2D transition needs softening.
         Na__FpMode__StoreFraming(plan);
         Na__FpMode__UnmountAnnotations();
-        Na__FpNav__Detach();
+        Na__DrawView__ClearActiveView();                                         // <-- 3D owns the viewport again
+        Na__DrawNav__Detach();
         Na__FpMode__ResumeThreeDSystems();                                       // <-- Orbit and culling come back before the flight down
 
         // PROJECTION | Back to perspective at the pose the plan was seen from
@@ -730,9 +641,7 @@
         Na__FpMode__EditMode = (enabled === true);
 
         if (Na__FpMode__State === Na__FpMode__STATE_PLAN && Na__FpMode__ActivePlan) {
-            Na__FpMode__UnmountAnnotations();
-            Na__FpMode__MountAnnotations(Na__FpMode__ActivePlan);
-            Na__PlanAnnoLayer__Sync();
+            Na__FpMode__MountAnnotations(Na__FpMode__ActivePlan);                // <-- Mount unmounts the previous stack first
             Na__RenderLoop__RequestRender();
         }
         Na__FpMode__DispatchChanged();
@@ -767,6 +676,13 @@
             return Na__FloorPlanMode__EnterPlan(plan);
         }
 
+        // AN ELEVATION SCENE IS NOT OURS TO FLY TO. Claiming it here would
+        // animate the perspective camera to the elevation's pose and then
+        // stop, because the elevation router would never be offered the
+        // scene at all. Declining lets that router take it; the handover
+        // itself is done through the view broker when it enters.
+        if (Na__ElevData__IsElevationScene(scene)) return false;
+
         if (Na__FpMode__State !== Na__FpMode__STATE_IDLE) {
             return Na__FloorPlanMode__ExitPlan(scene);                           // <-- Leave plan mode and fly to the 3D scene
         }
@@ -781,41 +697,16 @@
 // REGION | Public API - Render Loop Integration
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | The Camera the Render Loop Should Use, or null for 3D
-    // ------------------------------------------------------------
-    // Non-null ONLY while plan mode fully owns the view. During the flight in
-    // or out the perspective camera is animating, so the ordinary composer
-    // path must keep running.
-    // ------------------------------------------------------------
-    function Na__FloorPlanMode__GetActiveCamera() {
-        if (Na__FpMode__State !== Na__FpMode__STATE_PLAN) return null;
-        return Na__FpCam__GetCamera();
-    }
-    // ------------------------------------------------------------
-
-
-    // FUNCTION | Per-Frame Sync While Plan Mode Is Active
-    // ------------------------------------------------------------
-    // Reprojects the annotation layer so text tracks the drawing as it pans.
-    // ------------------------------------------------------------
-    function Na__FloorPlanMode__SyncFrame() {
-        if (Na__FpMode__State !== Na__FpMode__STATE_PLAN) return;
-        Na__PlanAnnoLayer__Sync();
-        Na__PlanDimLayer__Sync();                                                // <-- Dimensions reproject in the same pass
-        Na__PlanDimVert__Sync();                                                 // <-- Vertex handles stay planted on their points
-    }
-    // ------------------------------------------------------------
-
-
     // FUNCTION | Handle a Viewport Resize
+    // ------------------------------------------------------------
+    // The camera's frustum aspect is corrected whether or not the plan is on
+    // screen, so switching to it after a resize does not open at the wrong
+    // shape. The markup only moves when the plan is the drawing being shown.
     // ------------------------------------------------------------
     function Na__FloorPlanMode__HandleResize(width, height) {
         Na__FpCam__HandleResize(width, height);
         if (Na__FpMode__State !== Na__FpMode__STATE_PLAN) return;
-        Na__PlanAnnoLayer__SyncLayerBox();                                       // <-- Canvas box moved; the text layer must follow it
-        Na__PlanAnnoLayer__Sync();
-        Na__PlanDimLayer__SyncLayerBox();                                        // <-- And the dimension layer with it
-        Na__PlanDimLayer__Sync();
+        Na__DrawMarkup__SyncLayerBox();                                          // <-- Canvas box moved; the layers must follow it
     }
     // ------------------------------------------------------------
 
@@ -894,7 +785,7 @@
 
         // From here a floor plan scene card switches into 2D rather than
         // flying the perspective camera to a pose it cannot read correctly.
-        Na__PresentationMode__UI__SetSceneNavigationOverride(Na__FpMode__RouteSceneSelection);
+        Na__PresentationMode__UI__AddSceneNavigationRouter(Na__FpMode__RouteSceneSelection);
 
         return planEnabled === true;
     }
@@ -916,8 +807,6 @@
         Na__FloorPlanMode__ExitPlan,
         Na__FloorPlanMode__SetEditMode,
         Na__FloorPlanMode__IsEditMode,
-        Na__FloorPlanMode__GetActiveCamera,
-        Na__FloorPlanMode__SyncFrame,
         Na__FloorPlanMode__HandleResize,
         Na__FloorPlanMode__SetModelRoot,
         Na__FloorPlanMode__IsActive,

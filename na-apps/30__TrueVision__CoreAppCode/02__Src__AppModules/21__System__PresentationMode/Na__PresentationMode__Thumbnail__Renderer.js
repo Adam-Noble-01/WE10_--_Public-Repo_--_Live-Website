@@ -11,28 +11,76 @@
 // CREATED    : 21-Jun-2026
 //
 // DESCRIPTION:
-// - Renders one frame synchronously through the active composer pipeline then
-//   copies the WebGL framebuffer to a 2D canvas IMMEDIATELY - required because
-//   the renderer does not use preserveDrawingBuffer, so the buffer is only
-//   valid in the same task as the render call.
+// - Renders one frame synchronously then copies the WebGL framebuffer to a 2D
+//   canvas IMMEDIATELY - required because the renderer does not use
+//   preserveDrawingBuffer, so the buffer is only valid in the same task as the
+//   render call.
+//
+// - IT RENDERS WHATEVER IS ACTUALLY ON SCREEN, WHICH IS NOT ALWAYS THE 3D
+//   VIEW. A floor plan or an elevation owns the viewport through the drawing
+//   view broker and is drawn FLAT - no composer - with the section overlay on
+//   top, because fog, ambient occlusion and the Sobel pass shade a parallel
+//   drawing like a surface. Capturing through the composer regardless was why
+//   a plan's thumbnail came back as a picture of the 3D model: the pipeline's
+//   RenderPass still held the perspective camera, so the capture rendered a
+//   view nobody was looking at. The branch below is the same one the render
+//   loop takes, for the same reasons.
+//
+// - The markup layers are DOM overlays above the canvas, not WebGL, so a
+//   thumbnail carries the drawing's linework and poche but not its text. That
+//   is deliberate: at 480px a room label would be an illegible smudge, and the
+//   card is meant to show which drawing it is, not to be read.
+//
 // - Downscales to a compact thumbnail (default 480px wide) preserving aspect.
-// - Returns the result as a Promise<Blob> (image/webp) so the caller can
-//   upload it to R2 via the API client.
+// - Returns the result as a Promise<Blob> (image/webp), and CaptureAndUpload
+//   carries it the rest of the way to R2 so all three callers share one path.
 // - Render context (renderer, scene, camera, pipeline getter) must be
 //   registered via SetRenderContext before use.
 //
 // INTEGRATION:
-// - Na__PresentationMode__DevMenu__SceneEditor calls
-//   Na__PresentationMode__Thumbnail__RenderCurrentViewportToWebp().
+// - Na__PresentationMode__DevMenu__SceneEditor, the floor plan Dev editor and
+//   the elevation Dev editor all call CaptureAndUpload.
 // - SetRenderContext is called from Index.html after the renderer exists.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 07-Sep-2026 - Version 1.1.0
+// - Capture now follows the active 2D drawing when there is one, so floor
+//   plans and elevations produce a thumbnail of themselves rather than of the
+//   3D model. Added CaptureAndUpload so the capture, the R2 write and the
+//   returned relative URL live in one place instead of three.
+//
 // 21-Jun-2026 - Version 1.0.0
 // - Ported from ValeVision3D as part of the Presentation Mode transplant.
 //
 // =============================================================================
+
+
+// -----------------------------------------------------------------------------
+// REGION | Module Imports
+// -----------------------------------------------------------------------------
+
+    // MODULE IMPORTS | Active Drawing View and Section Overlay
+    // ------------------------------------------------------------
+    // Asking the broker which camera owns the viewport is what makes a capture
+    // match what is on screen. The import points one way only - neither of
+    // those modules knows this one exists - so no cycle is introduced.
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js
+    // @delegate: ../41__System__SectionCutEngine/Na__SectionCut__Engine__.js
+    // ------------------------------------------------------------
+    import { Na__DrawView__GetCamera } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
+    import { Na__SectionCut__RenderOverlay } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Cloudflare R2 Write Path
+    // ------------------------------------------------------------
+    // @delegate: ../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js
+    // ------------------------------------------------------------
+    import { Na__CfApi__WriteThumbnailWebp } from '../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
@@ -127,6 +175,38 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Draw Exactly What Is on Screen, Once
+    // ------------------------------------------------------------
+    // The same branch the render loop takes. A 2D drawing owns the viewport
+    // whenever the broker hands back a camera, and is drawn FLAT plus the
+    // section overlay; anything else goes through the composer.
+    // ------------------------------------------------------------
+    function Na__PmThumb__DrawCurrentView() {
+        const drawingCamera = Na__DrawView__GetCamera();
+
+        if (drawingCamera && Na__PmThumb__Scene) {
+            Na__PmThumb__Renderer.render(Na__PmThumb__Scene, drawingCamera); // <-- Flat: no fog, no AO, no Sobel
+            Na__SectionCut__RenderOverlay(drawingCamera);                    // <-- Cut fills and profile outlines on top
+            return;
+        }
+
+        const pipelineState = (typeof Na__PmThumb__GetPipelineState === 'function')
+            ? Na__PmThumb__GetPipelineState()
+            : null;
+
+        if (pipelineState && pipelineState.composer) {
+            if (typeof pipelineState.renderProfileNormals === 'function') {
+                pipelineState.renderProfileNormals();                        // <-- Profile lines normals pre-pass
+            }
+            pipelineState.composer.render();                                 // <-- Full post-processing pipeline
+            Na__SectionCut__RenderOverlay(Na__PmThumb__Camera);              // <-- Matches the loop; a no-op with no active cut
+        } else if (Na__PmThumb__Scene && Na__PmThumb__Camera) {
+            Na__PmThumb__Renderer.render(Na__PmThumb__Scene, Na__PmThumb__Camera); // <-- Direct render fallback
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Render Current Viewport to a WebP Blob (async)
     // ------------------------------------------------------------
     async function Na__PresentationMode__Thumbnail__RenderCurrentViewportToWebp(targetWidthPx) {
@@ -144,18 +224,7 @@
         const width = targetWidthPx || Na__PmThumb__DEFAULT_WIDTH;
 
         try {
-            const pipelineState = (typeof Na__PmThumb__GetPipelineState === 'function')
-                ? Na__PmThumb__GetPipelineState()
-                : null;
-
-            if (pipelineState && pipelineState.composer) {
-                if (typeof pipelineState.renderProfileNormals === 'function') {
-                    pipelineState.renderProfileNormals();                    // <-- Profile lines normals pre-pass
-                }
-                pipelineState.composer.render();                             // <-- Full post-processing pipeline
-            } else if (Na__PmThumb__Scene && Na__PmThumb__Camera) {
-                Na__PmThumb__Renderer.render(Na__PmThumb__Scene, Na__PmThumb__Camera); // <-- Direct render fallback
-            }
+            Na__PmThumb__DrawCurrentView();
 
             const blob = await Na__PmThumb__CaptureFromCanvas(canvas, width);
             return blob;                                                     // <-- Return blob to caller for upload
@@ -170,6 +239,31 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Capture and Upload
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Capture the Viewport and Write It to R2 for One Scene
+    // ------------------------------------------------------------
+    // The whole path in one call, so the scene editor, the floor plan editor
+    // and the elevation editor cannot drift in how a thumbnail is made or
+    // where it lands. Returns { ok, relUrl } or { ok: false, error }; the
+    // CALLER writes relUrl onto its own scene record, because only the caller
+    // knows which record that is.
+    // ------------------------------------------------------------
+    async function Na__PresentationMode__Thumbnail__CaptureAndUpload(sceneId, targetWidthPx) {
+        if (!sceneId) return { ok: false, error: 'No scene id supplied' };
+
+        const blob = await Na__PresentationMode__Thumbnail__RenderCurrentViewportToWebp(targetWidthPx);
+        if (!blob) return { ok: false, error: 'Thumbnail render failed' };
+
+        return Na__CfApi__WriteThumbnailWebp(sceneId, blob);
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -177,7 +271,8 @@
     // ------------------------------------------------------------
     export {
         Na__PresentationMode__Thumbnail__SetRenderContext,
-        Na__PresentationMode__Thumbnail__RenderCurrentViewportToWebp
+        Na__PresentationMode__Thumbnail__RenderCurrentViewportToWebp,
+        Na__PresentationMode__Thumbnail__CaptureAndUpload
     };
     // ------------------------------------------------------------
 

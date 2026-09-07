@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__PlanAnnoLayer
 // MODULE     : Plan Annotations - DOM Overlay Layer
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Draw and keep floor plan text pinned to its world position
+// PURPOSE    : Draw and keep 2D drawing text pinned to its point on the sheet
 // CREATED    : 31-Aug-2026
 //
 // DESCRIPTION:
@@ -14,28 +14,37 @@
 //   Three.js geometry. Real DOM text gives true Open Sans rendering at every
 //   zoom, an in-situ editor that is just a contenteditable, and drag handling
 //   for free - none of which a canvas-textured plane in the scene could match.
-// - Each label stores a world X/Z in millimetres. Every sync projects that
-//   through the plan camera to screen pixels, so a label stays exactly over
-//   the room it names while the plan is panned or zoomed.
+// - Each label stores TWO millimetre values, and the drawing currently on
+//   screen decides what they mean: world X/Z on a floor plan, horizontal run
+//   and height on an elevation. Every sync projects them through the active
+//   drawing's camera, so a label stays exactly over the thing it names while
+//   the sheet is panned or zoomed. The layer itself never learns which kind
+//   of drawing it is on - that is the whole point of the broker.
 // - Text is sized in real millimetres and converted to pixels through the
 //   camera's units-per-pixel, so labels scale with the drawing the way CAD
 //   text does. Labels that fall below the readable pixel floor are hidden
 //   rather than drawn as unreadable specks.
-// - Conceptually the layer sits the configured offset below the camera, just
-//   above the cut. Nothing here depends on that height, but it is recorded in
-//   config so a future canvas-plane renderer for image export can reproduce
-//   the same placement.
-// - Only one plan's labels are ever mounted. Switching plans tears the layer
-//   down and rebuilds it, which is what keeps each plan's markup independent.
+// - Conceptually the layer sits the configured offset in front of the drawing
+//   plane. Nothing here depends on that offset, but it is recorded in config
+//   so a future canvas-plane renderer for image export can reproduce the same
+//   placement.
+// - Only one drawing's labels are ever mounted. Switching drawings tears the
+//   layer down and rebuilds it, which keeps each sheet's markup independent.
 //
 // INTEGRATION:
-// - Na__FloorPlan__ModeController__ mounts on entering a plan and unmounts on
-//   leaving, and calls Sync from the render loop while plan mode is active.
+// - Na__FloorPlan__ModeController__ and Na__Elevation__ModeController__ mount
+//   on entering their drawing and unmount on leaving, and call Sync from the
+//   render loop while it is displayed.
 // - Na__PlanAnnotations__Editor__ owns the interaction wired onto each node.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 07-Sep-2026 - Version 1.1.0
+// - Projection moved from the floor plan camera to the active drawing view
+//   broker, so the same layer serves elevations. The stored field names still
+//   say X and Z; they are now the DRAWING's two axes rather than the world's.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation for the Floor Plan Builder.
 //
@@ -49,19 +58,23 @@
     // MODULE IMPORTS | Math Utilities
     // ------------------------------------------------------------
     import {
-        Na__Math__ConvertMmToUnits,
-        Na__Math__ConvertUnitsToMm
+        Na__Math__ConvertMmToUnits
     } from '../04__MathUtils/Na__Math__Units.js';
     // ------------------------------------------------------------
 
-    // MODULE IMPORTS | Plan Camera Projection
+    // MODULE IMPORTS | Active Drawing View Projection
     // ------------------------------------------------------------
-    // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__OrthoCamera__.js
+    // The layer projects through whichever 2D drawing currently owns the
+    // viewport - a floor plan or an elevation - rather than through one named
+    // camera. The two stored millimetre values are the drawing's own axes; see
+    // the broker header for what they mean on each kind of drawing.
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js
     // ------------------------------------------------------------
     import {
-        Na__FpCam__ProjectWorldToScreen,
-        Na__FpCam__GetUnitsPerPixel
-    } from '../42__System__FloorPlanViews/Na__FloorPlan__OrthoCamera__.js';
+        Na__DrawView__ProjectPlaneMm,
+        Na__DrawView__ScreenToPlaneMm,
+        Na__DrawView__GetUnitsPerPixel
+    } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Annotation Data and Config
@@ -102,8 +115,7 @@
     // ------------------------------------------------------------
     let Na__PlanAnnoLayer__Root       = null;    // <-- Container div, or null when unmounted
     let Na__PlanAnnoLayer__HostEl     = null;    // <-- Element the layer is sized against (the canvas)
-    let Na__PlanAnnoLayer__Annotations = null;   // <-- Live annotation array of the mounted plan
-    let Na__PlanAnnoLayer__CutHeightMm = 0;      // <-- Plan cut height; labels project at this world Y
+    let Na__PlanAnnoLayer__Annotations = null;   // <-- Live annotation array of the mounted drawing
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Node Registry and Interaction Hook
@@ -134,19 +146,6 @@
         root.style.left   = host.offsetLeft   + 'px';
         root.style.width  = host.offsetWidth  + 'px';
         root.style.height = host.offsetHeight + 'px';
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | Convert Viewport Coordinates to Canvas-Local Ones
-    // ------------------------------------------------------------
-    // Pointer events report viewport coordinates. Everything downstream works
-    // in canvas space, so this conversion has to happen exactly once, here.
-    // ------------------------------------------------------------
-    function Na__PlanAnnoLayer__ClientToLocal(clientX, clientY) {
-        if (!Na__PlanAnnoLayer__HostEl) return { x: clientX, y: clientY };
-        const rect = Na__PlanAnnoLayer__HostEl.getBoundingClientRect();
-        return { x: clientX - rect.left, y: clientY - rect.top };
     }
     // ------------------------------------------------------------
 
@@ -216,7 +215,6 @@
 
         Na__PlanAnnoLayer__HostEl        = context.hostElement;
         Na__PlanAnnoLayer__Annotations   = Array.isArray(context.annotations) ? context.annotations : [];
-        Na__PlanAnnoLayer__CutHeightMm   = Number.isFinite(context.cutHeightMm) ? context.cutHeightMm : 0;
         Na__PlanAnnoLayer__OnNodeCreated = (typeof context.onNodeCreated === 'function') ? context.onNodeCreated : null;
 
         Na__PlanAnnoLayer__Root = Na__PlanAnnoLayer__BuildRoot();
@@ -318,10 +316,9 @@
 
         const size  = Na__PlanAnnoLayer__GetViewportSize();
         const layer = Na__PlanAnno__GetLayerSetup();
-        const upp   = Na__FpCam__GetUnitsPerPixel(size.height);
-        if (!upp) return;                                                        // <-- No plan camera yet
+        const upp   = Na__DrawView__GetUnitsPerPixel(size.height);
+        if (!upp) return;                                                        // <-- No 2D drawing on screen yet
 
-        const worldY      = Na__Math__ConvertMmToUnits(Na__PlanAnnoLayer__CutHeightMm);
         const annotations = Na__PlanAnno__ReadAll(Na__PlanAnnoLayer__Annotations);
 
         for (let i = 0; i < annotations.length; i++) {
@@ -329,9 +326,7 @@
             const node   = Na__PlanAnnoLayer__Nodes.get(fields.id);
             if (!node) continue;
 
-            const worldX = Na__Math__ConvertMmToUnits(fields.posXMm);
-            const worldZ = Na__Math__ConvertMmToUnits(fields.posZMm);
-            const screen = Na__FpCam__ProjectWorldToScreen(worldX, worldY, worldZ, size.width, size.height);
+            const screen = Na__DrawView__ProjectPlaneMm(fields.posXMm, fields.posZMm, size.width, size.height);
             if (!screen) continue;
 
             // Millimetres to pixels through the parallel projection scale.
@@ -354,13 +349,6 @@
     }
     // ------------------------------------------------------------
 
-
-    // FUNCTION | Update the Cut Height the Layer Projects At
-    // ------------------------------------------------------------
-    function Na__PlanAnnoLayer__SetCutHeightMm(cutHeightMm) {
-        if (Number.isFinite(cutHeightMm)) Na__PlanAnnoLayer__CutHeightMm = cutHeightMm;
-    }
-    // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
 
@@ -385,28 +373,16 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Convert a Pointer Position to a World X/Z in Millimetres
+    // FUNCTION | Convert a Pointer Position to a Point on the Drawing
     // ------------------------------------------------------------
-    // Takes VIEWPORT coordinates straight off a pointer event; the conversion
-    // into canvas space happens here so no caller has to remember the header
-    // offset. Under a parallel projection one pixel is a fixed number of scene
-    // units everywhere, so a canvas offset from the centre converts to a world
-    // offset from the camera without a ray solve. Screen X maps to world +X
-    // and screen Y to world +Z, matching the plan camera's -Z up vector.
+    // Takes VIEWPORT coordinates straight off a pointer event and hands back
+    // the two millimetre values a label stores. The active drawing decides
+    // what they mean in the world - world X/Z on a plan, run and height on an
+    // elevation - so nothing here needs to know which is on screen.
     // ------------------------------------------------------------
-    function Na__PlanAnnoLayer__ScreenToWorldMm(clientX, clientY, cameraXUnits, cameraZUnits) {
-        const size  = Na__PlanAnnoLayer__GetViewportSize();
-        const upp   = Na__FpCam__GetUnitsPerPixel(size.height);
-        if (!upp) return null;
-
-        const local   = Na__PlanAnnoLayer__ClientToLocal(clientX, clientY);
-        const offsetX = local.x - (size.width  / 2);
-        const offsetY = local.y - (size.height / 2);
-
-        return {
-            posXMm : Na__Math__ConvertUnitsToMm(cameraXUnits + (offsetX * upp)),
-            posZMm : Na__Math__ConvertUnitsToMm(cameraZUnits + (offsetY * upp))
-        };
+    function Na__PlanAnnoLayer__ScreenToWorldMm(clientX, clientY) {
+        if (!Na__PlanAnnoLayer__HostEl) return null;
+        return Na__DrawView__ScreenToPlaneMm(clientX, clientY, Na__PlanAnnoLayer__HostEl);
     }
     // ------------------------------------------------------------
 
@@ -434,7 +410,6 @@
         Na__PlanAnnoLayer__SetVisible,
         Na__PlanAnnoLayer__Rebuild,
         Na__PlanAnnoLayer__Sync,
-        Na__PlanAnnoLayer__SetCutHeightMm,
         Na__PlanAnnoLayer__SyncLayerBox,
         Na__PlanAnnoLayer__GetNode,
         Na__PlanAnnoLayer__GetAnnotations,

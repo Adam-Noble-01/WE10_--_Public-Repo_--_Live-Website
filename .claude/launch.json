@@ -4,8 +4,46 @@
     {
       "name": "site-root",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8421"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8421"
+      ],
       "port": 8421
+    },
+    {
+      "name": "projectvision-dev",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "na-apps/ProjectVision__LocalServer__Main__.py",
+        "--no-browser",
+        "--port",
+        "8095"
+      ],
+      "port": 8095,
+      "url": "http://localhost:8095"
+    },
+    {
+      "name": "truevision-static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8433"
+      ],
+      "port": 8433
+    },
+    {
+      "name": "projectadmin-dev",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode/start_local_server.py",
+        "--no-browser",
+        "--port",
+        "8096"
+      ],
+      "port": 8096,
+      "url": "http://localhost:8096"
     }
   ]
 }

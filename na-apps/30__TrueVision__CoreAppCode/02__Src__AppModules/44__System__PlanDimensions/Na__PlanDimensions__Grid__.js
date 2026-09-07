@@ -191,29 +191,61 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Establish the Dimension Working Plane for a Plan
+    // HELPER FUNCTION | Is a Supplied Extent Structurally Usable?
+    // ------------------------------------------------------------
+    // A half-written extent would be worse than none at all - it would clamp
+    // one axis correctly and pin the other to NaN - so all four bounds have to
+    // be present and the right way round before it is trusted.
+    // ------------------------------------------------------------
+    function Na__PlanDimGrid__IsValidExtent(extent) {
+        if (!extent || typeof extent !== 'object') return false;
+        if (!Number.isFinite(extent.minXMm) || !Number.isFinite(extent.maxXMm)) return false;
+        if (!Number.isFinite(extent.minZMm) || !Number.isFinite(extent.maxZMm)) return false;
+        return (extent.maxXMm > extent.minXMm) && (extent.maxZMm > extent.minZMm);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Establish the Dimension Working Plane for a Drawing
     // ------------------------------------------------------------
     // Measures the loaded model to size the plane, then parks that plane at
-    // the supplied height (the plan's cut height, less whatever offset the
+    // the supplied height (on a plan, the cut height less whatever offset the
     // layer config asks for, so dimensions sit just under the camera in the
     // same notional slot the annotation text uses).
     //
     // The returned descriptor is the module's public idea of "the plane":
     //   grid        - step and world-origin anchor
-    //   extentMm    - snapped model footprint plus margin, for bounds checks
+    //   extentMm    - snapped drawing extent plus margin, for bounds checks
     //   heightMm    - where the plane sits in Y
     //   plane       - a real THREE.Plane at that height, normal +Y
     //   measured    - the raw model bounds, or null when nothing was loaded
     //
     // With no model loaded the extent falls back to the maximum span so the
     // system stays usable rather than rejecting every pick.
+    //
+    // extentOverrideMm IS THE ELEVATION PATH. The extent is checked against a
+    // pick's two DRAWING coordinates, and on a plan those happen to be world
+    // X and world Z - which is why the model footprint can serve directly. On
+    // an elevation they are horizontal run and height, and the footprint would
+    // then reject every sensible pick: a wall head at 2400 mm is nowhere near
+    // the model's world Z range. So the elevation controller passes its own
+    // extent, already expressed in the drawing's axes, and this function uses
+    // it verbatim rather than deriving one it has no basis to derive.
     // ------------------------------------------------------------
-    function Na__PlanDimGrid__EstablishPlane(modelRoot, planeHeightMm) {
+    function Na__PlanDimGrid__EstablishPlane(modelRoot, planeHeightMm, extentOverrideMm) {
         const measured = Na__PlanDimGrid__MeasureModelMm(modelRoot);
         const margin   = Na__PlanDimGrid__Setup.planeMarginMm;
         const heightMm = Number.isFinite(planeHeightMm) ? planeHeightMm : 0;
+        const override = Na__PlanDimGrid__IsValidExtent(extentOverrideMm) ? extentOverrideMm : null;
 
-        const extentMm = measured
+        const extentMm = override
+            ? {
+                minXMm : Na__PlanDimGrid__SnapValueMm(override.minXMm - margin),
+                maxXMm : Na__PlanDimGrid__SnapValueMm(override.maxXMm + margin),
+                minZMm : Na__PlanDimGrid__SnapValueMm(override.minZMm - margin),
+                maxZMm : Na__PlanDimGrid__SnapValueMm(override.maxZMm + margin)
+            }
+            : measured
             ? {
                 minXMm : Na__PlanDimGrid__SnapValueMm(measured.minXMm - margin),
                 maxXMm : Na__PlanDimGrid__SnapValueMm(measured.maxXMm + margin),

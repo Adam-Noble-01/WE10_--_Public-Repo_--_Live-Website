@@ -383,24 +383,46 @@
 // REGION | User Interaction Handlers
 // -----------------------------------------------------------------------------
 
-    // MODULE VARIABLES | Optional Scene Navigation Override
+    // MODULE VARIABLES | Scene Navigation Routers
     // ------------------------------------------------------------
-    // The floor plan system registers a router here so a plan scene switches
-    // into 2D plan mode instead of flying the perspective camera to a pose it
-    // could never read correctly. Registration points INWARD - the floor plan
-    // system imports this module, never the reverse - so there is no cycle.
+    // The 2D drawing systems register routers here so a plan or elevation
+    // scene switches into its own drawing mode instead of flying the
+    // perspective camera to a pose it could never read correctly.
+    // Registration points INWARD - those systems import this module, never the
+    // reverse - so there is no cycle.
+    //
+    // A LIST rather than a single slot, because there are now two of them and
+    // a setter would have let whichever initialised last silently unhook the
+    // other. Each router declines a scene that is not its own, so the order
+    // they register in does not matter.
     // ------------------------------------------------------------
-    let Na__PresentationMode__UI__NavigationOverride = null;
+    const Na__PresentationMode__UI__NavigationRouters = [];
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Register a Scene Navigation Override
+    // FUNCTION | Register a Scene Navigation Router
     // ------------------------------------------------------------
     // fn(scene) returns true when it has taken ownership of the navigation.
-    // Returning false falls through to the ordinary camera transition.
+    // Every router returning false falls through to the ordinary camera
+    // transition. Registering the same function twice is a no-op rather than
+    // a double call, so a re-initialised system cannot route a scene twice.
     // ------------------------------------------------------------
-    function Na__PresentationMode__UI__SetSceneNavigationOverride(fn) {
-        Na__PresentationMode__UI__NavigationOverride = (typeof fn === 'function') ? fn : null;
+    function Na__PresentationMode__UI__AddSceneNavigationRouter(fn) {
+        if (typeof fn !== 'function') return false;
+        if (Na__PresentationMode__UI__NavigationRouters.indexOf(fn) !== -1) return false;
+        Na__PresentationMode__UI__NavigationRouters.push(fn);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Offer a Scene to Each Router in Turn
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__RouteScene(scene) {
+        for (let i = 0; i < Na__PresentationMode__UI__NavigationRouters.length; i++) {
+            if (Na__PresentationMode__UI__NavigationRouters[i](scene) === true) return true;
+        }
+        return false;
     }
     // ------------------------------------------------------------
 
@@ -408,14 +430,13 @@
     // HELPER FUNCTION | Navigate to One Scene, Honouring Any Override
     // ------------------------------------------------------------
     // The single place a scene is travelled to, so the card click and the
-    // prev/next stepper can never diverge in how they handle plan scenes.
+    // prev/next stepper can never diverge in how they handle a 2D drawing
+    // scene - a floor plan or an elevation.
     // ------------------------------------------------------------
     function Na__PresentationMode__UI__NavigateToScene(scene, sceneId) {
-        if (Na__PresentationMode__UI__NavigationOverride) {
-            if (Na__PresentationMode__UI__NavigationOverride(scene) === true) {
-                Na__PresentationMode__UI__SetActiveScene(sceneId);           // <-- Override owns the view; still highlight the card
-                return;
-            }
+        if (Na__PresentationMode__UI__RouteScene(scene) === true) {
+            Na__PresentationMode__UI__SetActiveScene(sceneId);               // <-- A router owns the view; still highlight the card
+            return;
         }
 
         Na__PresentationMode__Camera__AnimateToScene(
@@ -656,7 +677,7 @@
         Na__PresentationMode__UI__InitializeSceneCarousel,
         Na__PresentationMode__UI__RenderSceneCarousel,
         Na__PresentationMode__UI__SetActiveScene,
-        Na__PresentationMode__UI__SetSceneNavigationOverride,
+        Na__PresentationMode__UI__AddSceneNavigationRouter,
         Na__PresentationMode__UI__ApplyAdaptiveLayout
     };
     // ------------------------------------------------------------

@@ -48,12 +48,13 @@
     import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
 
-    // MODULE IMPORTS | Plan Camera and Navigation Suppression
+    // MODULE IMPORTS | Active Drawing View and Navigation Suppression
     // ------------------------------------------------------------
-    // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__PlanNavigation__.js
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__Navigation__.js
     // ------------------------------------------------------------
-    import { Na__FpCam__GetCamera } from '../42__System__FloorPlanViews/Na__FloorPlan__OrthoCamera__.js';
-    import { Na__FpNav__SetSuppressed } from '../42__System__FloorPlanViews/Na__FloorPlan__PlanNavigation__.js';
+    import { Na__DrawView__IsActive } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
+    import { Na__DrawNav__SetSuppressed } from '../40__System__DrawingViewCore/Na__DrawView__Navigation__.js';
     import {
         Na__FpFocus__ANNOTATIONS,
         Na__FpFocus__Claim,
@@ -229,7 +230,7 @@
         selection.removeAllRanges();
         selection.addRange(range);
 
-        Na__FpNav__SetSuppressed(true);
+        Na__DrawNav__SetSuppressed(true);
         return true;
     }
     // ------------------------------------------------------------
@@ -266,7 +267,7 @@
         }
 
         Na__PlanAnnoHist__CommitPending();                                        // <-- No-op when the text came back unchanged
-        Na__FpNav__SetSuppressed(false);
+        Na__DrawNav__SetSuppressed(false);
         Na__PlanAnnoEdit__NotifyChanged();
         return true;
     }
@@ -287,7 +288,7 @@
 
         Na__PlanAnnoEdit__EditingId = null;
         Na__PlanAnnoHist__DiscardPending();                                      // <-- Escaped: the baseline was never an edit
-        Na__FpNav__SetSuppressed(false);
+        Na__DrawNav__SetSuppressed(false);
         Na__PlanAnnoEdit__NotifyChanged();
         return true;
     }
@@ -323,7 +324,7 @@
         Na__PlanAnnoEdit__DragStartY = event.clientY;
         Na__PlanAnnoHist__BeginPending();                                        // <-- Baseline before the label can move
 
-        Na__FpNav__SetSuppressed(true);
+        Na__DrawNav__SetSuppressed(true);
 
         const node = Na__PlanAnnoLayer__GetNode(annotationId);
         if (node && node.setPointerCapture) node.setPointerCapture(event.pointerId);
@@ -343,12 +344,9 @@
         if (!Na__PlanAnnoEdit__DragMoved && travelled < interaction.dragThresholdPx) return;
         Na__PlanAnnoEdit__DragMoved = true;
 
-        const camera = Na__FpCam__GetCamera();
-        if (!camera) return;
+        if (!Na__DrawView__IsActive()) return;
 
-        const world = Na__PlanAnnoLayer__ScreenToWorldMm(
-            event.clientX, event.clientY, camera.position.x, camera.position.z
-        );
+        const world = Na__PlanAnnoLayer__ScreenToWorldMm(event.clientX, event.clientY);
         if (!world) return;
 
         Na__PlanAnno__SetPosition(
@@ -380,7 +378,7 @@
         Na__PlanAnnoEdit__DragMoved = false;
 
         // Suppression stays on only while an editor is open.
-        if (!Na__PlanAnnoEdit__EditingId) Na__FpNav__SetSuppressed(false);
+        if (!Na__PlanAnnoEdit__EditingId) Na__DrawNav__SetSuppressed(false);
 
         if (moved) {
             Na__PlanAnnoHist__CommitPending();                                    // <-- Position actually changed
@@ -454,12 +452,9 @@
     function Na__PlanAnnoEdit__HandleCanvasClick(event) {
         if (!Na__PlanAnnoEdit__Enabled || !Na__PlanAnnoEdit__Placing) return;
 
-        const camera = Na__FpCam__GetCamera();
-        if (!camera) return;
+        if (!Na__DrawView__IsActive()) return;
 
-        const world = Na__PlanAnnoLayer__ScreenToWorldMm(
-            event.clientX, event.clientY, camera.position.x, camera.position.z
-        );
+        const world = Na__PlanAnnoLayer__ScreenToWorldMm(event.clientX, event.clientY);
         if (!world) return;
 
         Na__PlanAnnoHist__CaptureNow();                                          // <-- BEFORE the mutation
@@ -604,7 +599,7 @@
         Na__PlanAnnoEdit__Canvas     = null;
         Na__PlanAnnoEdit__OnChanged  = null;
 
-        Na__FpNav__SetSuppressed(false);
+        Na__DrawNav__SetSuppressed(false);
         return true;
     }
     // ------------------------------------------------------------

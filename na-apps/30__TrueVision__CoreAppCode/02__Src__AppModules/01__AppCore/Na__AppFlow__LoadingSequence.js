@@ -162,24 +162,31 @@
     import { Na__ContextMenu__ResetForModelChange } from '../27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js';
     // ------------------------------------------------------------
 
-    // MODULE IMPORTS | Section Cut Engine and 2D Floor Plan Mode
+    // MODULE IMPORTS | Section Cut Engine and 2D Drawing Modes
     // ------------------------------------------------------------
-    // Plan mode owns the view outright while a floor plan is displayed: the
-    // render loop asks it for a camera each frame and, when it answers, draws
-    // flat instead of running the composer.
+    // A 2D drawing - a floor plan or an elevation - owns the view outright
+    // while it is displayed. The render loop asks the DRAWING VIEW BROKER for
+    // a camera each frame and, when it answers, draws flat instead of running
+    // the composer. Asking the broker rather than each controller in turn is
+    // what keeps the loop from growing a branch per drawing type.
+    // @delegate: ../40__System__DrawingViewCore/
     // @delegate: ../41__System__SectionCutEngine/Na__SectionCut__Engine__.js
     // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js
+    // @delegate: ../45__System__ElevationViews/Na__Elevation__ModeController__.js
     // ------------------------------------------------------------
     import {
         Na__SectionCut__RenderOverlay,
         Na__SectionCut__HandleResize,
         Na__SectionCut__SetModelRoot
     } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
+    import { Na__DrawView__GetCamera } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
+    import { Na__DrawMarkup__SyncFrame } from '../40__System__DrawingViewCore/Na__DrawView__MarkupMount__.js';
     import {
-        Na__FloorPlanMode__GetActiveCamera,
-        Na__FloorPlanMode__SyncFrame,
         Na__FloorPlanMode__HandleResize
     } from '../42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
+    import {
+        Na__ElevationMode__HandleResize
+    } from '../45__System__ElevationViews/Na__Elevation__ModeController__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Door Animation System
@@ -913,19 +920,22 @@
         let Na__RenderLoop__OrbitTrailingFrames = 0;
 
         function Na__RenderLoop__RenderFrame(deltaMs) {
-            // FLOOR PLAN MODE | A parallel top-down drawing, not a 3D view.
+            // 2D DRAWING MODE | A parallel drawing, not a 3D view. A floor plan
+            // looking down or an elevation looking sideways - the loop does not
+            // need to know which, only that one of them owns the viewport.
             // Checked FIRST so none of the 3D per-frame work runs: walk/fly
             // physics, orbit updates, door proximity, billboard facing, fog
             // uniforms and distance culling are all meaningless on a drawing,
-            // and culling in particular would hide furniture the plan must show.
-            // The composer is bypassed too - fog, SSAO and the Sobel pass shade
-            // a plan like a surface, which is exactly wrong. A flat render plus
-            // the section overlay leaves the poche and profile lines on their own.
-            const Na__FloorPlan__Camera = Na__FloorPlanMode__GetActiveCamera();
-            if (Na__FloorPlan__Camera) {
-                Na__Renderer__Main.render(Na__Scene__Main, Na__FloorPlan__Camera);
-                Na__SectionCut__RenderOverlay(Na__FloorPlan__Camera);        // <-- Cut fills and profile outlines
-                Na__FloorPlanMode__SyncFrame();                              // <-- Reproject the annotation text onto the new view
+            // and culling in particular would hide furniture the drawing must
+            // show. The composer is bypassed too - fog, SSAO and the Sobel pass
+            // shade a parallel drawing like a surface, which is exactly wrong.
+            // A flat render plus the section overlay leaves the poche and
+            // profile lines on their own.
+            const Na__Drawing__Camera = Na__DrawView__GetCamera();
+            if (Na__Drawing__Camera) {
+                Na__Renderer__Main.render(Na__Scene__Main, Na__Drawing__Camera);
+                Na__SectionCut__RenderOverlay(Na__Drawing__Camera);          // <-- Cut fills and profile outlines
+                Na__DrawMarkup__SyncFrame();                                 // <-- Reproject the markup onto the new view
                 return Na__RenderLoop__ActiveReasons.size > 0;               // <-- Only pan/zoom keeps frames coming
             }
 
@@ -1025,7 +1035,10 @@
 
             Na__LineResolution__Screen.set(width, height);
             Na__SectionCut__HandleResize(width, height);                     // <-- Fat-line resolution for the cut profiles
-            Na__FloorPlanMode__HandleResize(width, height);                  // <-- Ortho frustum aspect + annotation reprojection
+            // Both 2D cameras keep their own aspect, so both are told - each
+            // reprojects its markup only if it is the one on screen.
+            Na__FloorPlanMode__HandleResize(width, height);                  // <-- Ortho frustum aspect + markup reprojection
+            Na__ElevationMode__HandleResize(width, height);
             Na__RenderLoop__RequestRenderOnce();
         });
     }

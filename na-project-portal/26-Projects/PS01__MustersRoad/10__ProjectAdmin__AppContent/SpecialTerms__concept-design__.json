@@ -1,0 +1,24 @@
+{
+    "contractId": "concept-design",
+    "contractName": "Concept Design Stage",
+    "sectionTitle": "Special Terms - Concept Design",
+    "introduction": "The following special conditions apply specifically to this project and supplement the standard terms.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Client Supplied Preliminary Layout",
+            "content": "The Client has prepared a preliminary plan of the proposed Living Room, Bedroom and En-Suite. Noble Architecture will develop that layout into a three dimensional model and derive the formal drawings from it. The preliminary layout is taken as the Client's stated design intent, and Noble Architecture's design development is limited to resolving that layout into a buildable and lawful arrangement rather than to exploring alternative schemes."
+        },
+        {
+            "id": 2,
+            "title": "TrueVision Model Included At No Charge",
+            "content": "A three dimensional model of the existing property and of the proposals is produced as an inherent part of Noble Architecture's working method, since all plans, elevations and site drawings are derived from that single model. Access to the model through the TrueVision experience is therefore provided to the Client at no additional charge. It is included as a by-product of the process and does not form a separately priced deliverable."
+        },
+        {
+            "id": 3,
+            "title": "Scope Of The Concept Design Stage",
+            "content": "The Concept Design stage for this project is deliberately lean, in keeping with the Client's instruction to obtain a lawful development certificate at the lowest reasonable cost and in the shortest reasonable time. It comprises modelling of the existing conditions, modelling of the proposed extension, and development of the Client's preliminary layout. It does not include CGI production, a Design and Access Statement, interior design, alternative scheme options, or material and product specification."
+        }
+    ],
+    "lastUpdated": "07-Sep-2026 at 12:00"
+}

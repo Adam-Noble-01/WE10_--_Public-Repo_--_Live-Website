@@ -225,6 +225,18 @@
         if (handlers.isEditMode) annotateBtn.classList.add('na-pm-dev__btn--primary');
         actions.appendChild(annotateBtn);
 
+        // THUMBNAIL | Only while the plan is on screen, because the capture is
+        // of the viewport: pressing it from 3D would file a picture of the
+        // model as the plan's card, which is exactly the bug it exists to fix.
+        const thumbBtn = Na__FpRow__BuildButton(
+            Na__FpCfg__GetLabel('ThumbnailLabel', 'Save Thumbnail'), '', handlers.onThumbnail
+        );
+        thumbBtn.disabled = !handlers.isActive;
+        thumbBtn.title    = handlers.isActive
+            ? 'Captures the plan as it is framed right now.'
+            : 'Preview the plan first - the thumbnail is a capture of the viewport.';
+        actions.appendChild(thumbBtn);
+
         actions.appendChild(Na__FpRow__BuildButton(
             'Delete', 'na-pm-dev__btn--danger', handlers.onDelete
         ));
@@ -239,7 +251,7 @@
     //   isActive, isEditMode,
     //   onRename, onDatumLive, onDatumCommit,
     //   onOffsetChange, onDepthChange,
-    //   onPreviewToggle, onAnnotate, onDelete
+    //   onPreviewToggle, onAnnotate, onThumbnail, onDelete
     // }
     // ------------------------------------------------------------
     function Na__FpRow__BuildPlanRow(plan, handlers) {

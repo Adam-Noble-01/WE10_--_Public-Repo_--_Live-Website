@@ -1,0 +1,80 @@
+{
+    "projectCode": "PS01",
+    "projectName": "Musters Road",
+    "activeGroupIndex": 0,
+    "modelGroups": [
+        {
+            "groupId": "DesignPhase01__ConceptDesign__ExistingBuilding",
+            "label": "Concept Design - Existing Building",
+            "modelUrls": [
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__01__OrbitHelperCube__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__TrueVision__LandscapeEnvironment__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__TrueVision__MainBuildingModel__ExistingRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__TrueVision__MainBuildingModel__ExistingRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__TrueVision__MainBuildingModel__ExistingWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__TrueVision__MainBuildingModel__ExistingWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__TrueVision__MainBuildingModel__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/PS01__TrueVision__MainBuildingModel__ProposedRoofs__MeshModel__.glb"
+            ]
+        },
+        {
+            "groupId": "DesignPhase01__ConceptDesign__Scheme-01",
+            "label": "Concept Design - Scheme-01",
+            "modelUrls": [
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__01__OrbitHelperCube__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__LandscapeEnvironment__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingFixtures__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingFixtures__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingWindows__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ExistingWindows__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFixtures__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFixtures__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFurniture__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedFurniture__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/PS01__TrueVision__MainBuildingModel__ProposedWalls__MeshModel__.glb"
+            ]
+        }
+    ],
+    "Camera__DefaultPosition": {
+        "Camera__DefaultPosition__Description": "All camera position/target values are integer millimeters; convert to 3D units in code.",
+        "Camera__DefaultPos": {
+            "Camera__DefaultPos__PosX": 10756,
+            "Camera__DefaultPos__PosY": 4794,
+            "Camera__DefaultPos__PosZ": 12217
+        },
+        "Camera__DefaultRotation": {
+            "Camera__DefaultRotation__RotX": -0.1806,
+            "Camera__DefaultRotation__RotY": -0.2299,
+            "Camera__DefaultRotation__RotZ": -0.0416
+        },
+        "Camera__DefaultMisc": {
+            "Camera__DefaultMisc__Fov": 45
+        }
+    },
+    "Navmode__EnabledModes": {
+        "Navmode__EnabledModes__Walk": true,
+        "Navmode__EnabledModes__Fly": true
+    },
+    "OrbitHelperCube__Position": {
+        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
+        "OrbitHelperCube__Position__PosX": 15068,
+        "OrbitHelperCube__Position__PosY": 1485,
+        "OrbitHelperCube__Position__PosZ": -5908
+    }
+}

@@ -112,7 +112,7 @@
 
     // MODULE IMPORTS | Thumbnail Renderer
     // ------------------------------------------------------------
-    import { Na__PresentationMode__Thumbnail__RenderCurrentViewportToWebp } from './Na__PresentationMode__Thumbnail__Renderer.js';
+    import { Na__PresentationMode__Thumbnail__CaptureAndUpload } from './Na__PresentationMode__Thumbnail__Renderer.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Project Utilities
@@ -127,8 +127,7 @@
     // ------------------------------------------------------------
     import {
         Na__CfApi__GetProjectContext,
-        Na__CfApi__MergeAndSaveKeys,
-        Na__CfApi__WriteThumbnailWebp
+        Na__CfApi__MergeAndSaveKeys
     } from '../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
     // ------------------------------------------------------------
 
@@ -1045,17 +1044,14 @@
 
     // FUNCTION | Render Viewport WebP and Upload to R2 via the API Client
     // ------------------------------------------------------------
+    // The render and the upload both live in the thumbnail module now, so a
+    // scene, a floor plan and an elevation are all captured the same way.
+    // ------------------------------------------------------------
     async function Na__PmDev__RegenerateThumbnail(scene) {
         const sceneId = scene.PresentationMode__Scene__Id;
 
         try {
-            const blob = await Na__PresentationMode__Thumbnail__RenderCurrentViewportToWebp(); // <-- Render Three.js viewport
-            if (!blob) {
-                if (Na__PmDev__ShowToast) Na__PmDev__ShowToast('Thumbnail render failed.', true);
-                return;
-            }
-
-            const result = await Na__CfApi__WriteThumbnailWebp(sceneId, blob); // <-- Upload to R2
+            const result = await Na__PresentationMode__Thumbnail__CaptureAndUpload(sceneId);
             if (result.ok) {
                 scene.PresentationMode__Scene__ThumbnailUrl = result.relUrl;  // <-- Store project-relative path
                 if (Na__PmDev__ShowToast) Na__PmDev__ShowToast(`Thumbnail saved to R2: ${result.relUrl}`);
