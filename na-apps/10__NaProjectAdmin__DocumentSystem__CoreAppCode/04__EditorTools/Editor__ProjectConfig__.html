@@ -301,6 +301,7 @@
     let isEmbedded = false;                                          // <-- Running in iframe
     let sessionToken = null;                                         // <-- Auth token for Cloudflare
     let clientDataLoaded = false;                                    // <-- PII data loaded from R2
+    let loadedConfigData = null;                                     // <-- Config exactly as loaded, so save can merge not overwrite
 
     // endregion ----------------------------------------------
 
@@ -376,6 +377,11 @@
     // --------------------------------------------------------
 
     function populateFormFromData(data) {
+        // Retain the config exactly as loaded. generateJson() merges the edited
+        // fields over this, so keys this editor does not manage - notably the
+        // contracts block - survive a save instead of being silently dropped.
+        loadedConfigData = data || null;
+
         // Populate non-PII fields from local config
         document.getElementById('projectCode').value = data.projectCode || '';
         document.getElementById('projectName').value = data.projectName || '';
@@ -575,8 +581,14 @@
         const nowUKTime = window.NaProjectAdmin?.DateFormatter?.nowUKWithTime?.() || new Date().toLocaleString('en-GB');
 
         // Non-PII config only - no client addresses, emails, or phone numbers
+        //
+        // Spread the loaded config FIRST so anything this editor does not manage is
+        // carried through untouched. Without this the contracts block - every
+        // contract's enabled / signed / specialTermsEnabled state - was deleted on
+        // every save, which silently emptied the client portal's contracts nav.
         return {
-            projectCode: projectCode || undefined,
+            ...(loadedConfigData || {}),
+            projectCode: projectCode || loadedConfigData?.projectCode || undefined,
             projectName: document.getElementById('projectName').value || `Project ${projectCode}`,
             projectBriefConcise: document.getElementById('projectBriefConcise').value || undefined,
             projectBriefFull: document.getElementById('projectBriefFull').value || undefined,
@@ -586,7 +598,7 @@
                 quotation: document.getElementById('hasQuotation').checked,
                 specialTerms: document.getElementById('hasSpecialTerms').checked
             },
-            createdDate: nowUK,
+            createdDate: loadedConfigData?.createdDate || nowUK,      // <-- Preserve the real creation date
             lastModified: nowUKTime,
             clientDataStorage: 'cloudflare-r2-encrypted'              // <-- Indicates PII is in R2
         };

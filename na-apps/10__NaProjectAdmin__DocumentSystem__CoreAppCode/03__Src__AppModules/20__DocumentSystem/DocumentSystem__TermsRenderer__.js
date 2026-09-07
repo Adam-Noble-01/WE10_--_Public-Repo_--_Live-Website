@@ -433,7 +433,7 @@
                             html += `
                                 <div class="terms-item">
                                     ${term.title ? `<div class="terms-item__title">${index + 1}. ${escapeHtml(term.title)}</div>` : ''}
-                                    <div class="terms-item__content">${escapeHtml(term.content || '')}</div>
+                                    <div class="terms-item__content">${escapeHtmlWithBold(term.content || '')}</div>
                                 </div>
                             `;
                         }
@@ -459,6 +459,26 @@
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&#039;');
+            }
+            // ---------------------------------------------------------------
+
+            /**
+             * Escape HTML, then honour **bold** markers in special terms content.
+             *
+             * Escaping runs FIRST, so everything between the markers is already
+             * safe before any tag is injected - there is no injection route here.
+             *
+             * The pattern requires a CLOSING pair and permits no asterisk or line
+             * break in between. That leaves the house-style unpaired flag alone
+             * (e.g. a title ending "- **Optional Add-On"), which is meant to be
+             * read literally.
+             *
+             * @param {string} text - Raw term content
+             * @returns {string} Escaped HTML with <strong> applied
+             */
+            function escapeHtmlWithBold(text) {
+                return escapeHtml(text)
+                    .replace(/\*\*([^\s*][^*\n]*?)\*\*/g, '<strong>$1</strong>');
             }
             // ---------------------------------------------------------------
 
