@@ -113,6 +113,7 @@
     let Na__DrawNav__Attached   = false;   // <-- Guard against double-attach
     let Na__DrawNav__Suppressed = false;   // <-- Markup layer owns the pointer
     let Na__DrawNav__Setup      = Na__DrawNav__DEFAULT_SETUP;
+    let Na__DrawNav__OnSettled  = null;    // <-- Host callback: the framing just changed and should be remembered
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Active Drag Tracking
@@ -199,6 +200,7 @@
         const uppDelta = uppBefore - uppAfter;
         if (!uppDelta) {
             Na__RenderLoop__RequestRender();
+            Na__DrawNav__NotifySettled();
             return;                                                              // <-- Clamped at min/max zoom: nothing moved
         }
 
@@ -209,6 +211,22 @@
 
         Na__DrawView__PanByPlaneUnits(offsetX * uppDelta, offsetY * uppDelta);
         Na__RenderLoop__RequestRender();
+        Na__DrawNav__NotifySettled();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Tell the Host the Framing Has Settled
+    // ------------------------------------------------------------
+    // Fired at the END of a pan and after every zoom step, never per pointer
+    // move. The host writes two numbers into its drawing record, so this is
+    // cheap - and doing it here is what makes the framing SAVED rather than
+    // merely current: nothing else in the panel knows the view moved, so a
+    // plan framed and then saved would otherwise store the framing from
+    // whenever it was last closed.
+    // ------------------------------------------------------------
+    function Na__DrawNav__NotifySettled() {
+        if (typeof Na__DrawNav__OnSettled === 'function') Na__DrawNav__OnSettled();
     }
     // ------------------------------------------------------------
 
@@ -324,6 +342,7 @@
         }
         Na__RenderLoop__StopActiveRender(Na__DrawNav__RENDER_REASON);
         Na__RenderLoop__RequestRender();
+        Na__DrawNav__NotifySettled();                                            // <-- The drag is over; remember where it landed
     }
     // ------------------------------------------------------------
 
@@ -361,12 +380,18 @@
     // ------------------------------------------------------------
     // setup is the calling drawing's own navigation feel block; anything
     // omitted falls back to the shared default so a partial block still works.
+    //
+    // onSettled is called at the end of every pan and after every zoom, so the
+    // caller can record how the drawing is framed. Optional, but a drawing
+    // system that omits it will save whatever framing it last happened to
+    // capture rather than the one on screen.
     // ------------------------------------------------------------
-    function Na__DrawNav__Attach(canvas, setup) {
+    function Na__DrawNav__Attach(canvas, setup, onSettled) {
         if (Na__DrawNav__Attached || !canvas) return false;
 
-        Na__DrawNav__Setup  = Object.assign({}, Na__DrawNav__DEFAULT_SETUP, setup || {});
-        Na__DrawNav__Canvas = canvas;
+        Na__DrawNav__Setup     = Object.assign({}, Na__DrawNav__DEFAULT_SETUP, setup || {});
+        Na__DrawNav__Canvas    = canvas;
+        Na__DrawNav__OnSettled = (typeof onSettled === 'function') ? onSettled : null;
 
         canvas.addEventListener('pointerdown',   Na__DrawNav__HandlePointerDown);
         canvas.addEventListener('pointermove',   Na__DrawNav__HandlePointerMove);
@@ -402,6 +427,7 @@
         Na__DrawNav__Attached      = false;
         Na__DrawNav__Canvas        = null;
         Na__DrawNav__Setup         = Na__DrawNav__DEFAULT_SETUP;
+        Na__DrawNav__OnSettled     = null;
 
         Na__RenderLoop__StopActiveRender(Na__DrawNav__RENDER_REASON);
         return true;

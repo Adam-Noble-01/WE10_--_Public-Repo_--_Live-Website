@@ -103,6 +103,7 @@
 
     // MODULE CONSTANTS | Scene Id Formatting
     // ------------------------------------------------------------
+    const Na__ElevLink__THUMB_DIR     = 'PresentationMode/Thumbnails';
     const Na__ElevLink__SCENE_PREFIX  = 'Scene_';
     const Na__ElevLink__SCENE_PADDING = 3;
     // ------------------------------------------------------------
@@ -269,6 +270,13 @@
         scene[Na__ElevLink__SCENE_CAMERA] = built.camera;
         scene[Na__ElevLink__SCENE_ORBIT]  = built.orbit;
         if (groupId) scene[Na__ElevLink__SCENE_GROUP] = groupId;
+
+        // THUMBNAIL | The conventional path, set at creation exactly as an
+        // ordinary scene gets it. Without this a drawing card has nothing to
+        // resolve and shows a placeholder forever - the image only ever
+        // appeared if someone thought to press Save Thumbnail, and the card
+        // gave no hint that it was missing.
+        scene[Na__ElevLink__SCENE_THUMB] = Na__ElevLink__THUMB_DIR + '/' + scene[Na__ElevLink__SCENE_ID] + '.webp';
 
         scenes.push(scene);
         Na__ElevData__LinkToScene(elevation, scene);                             // <-- Writes both directions at once

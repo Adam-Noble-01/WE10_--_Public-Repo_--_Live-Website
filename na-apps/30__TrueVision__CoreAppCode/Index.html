@@ -749,6 +749,7 @@
     import { Na__CfApi__Initialize } from './02__Src__AppModules/80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
     import { Na__ContextMenu__Initialize } from './02__Src__AppModules/27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js';
     import { Na__SectionCut__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
+    import { Na__DrawProfile__SetEnabled } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
     import { Na__FloorPlanMode__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
     import { Na__FloorPlan__DevMenu__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__DevMenu__Editor__.js';
     import { Na__ElevationMode__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__ModeController__.js';
@@ -1165,6 +1166,7 @@
             const pipeline = Na__AppFlow__PipelineRef.current;
             if (!pipeline || !pipeline.toggleProfileLines) return;
             const isNowOn = pipeline.toggleProfileLines();
+            Na__DrawProfile__SetEnabled(isNowOn);                       // <-- One switch: OFF while a drawing is open must mean OFF on the drawing
             Na__UiFeature__UpdateProfileLinesStatus(isNowOn);
             Na__RenderLoop__RequestRender();
         });

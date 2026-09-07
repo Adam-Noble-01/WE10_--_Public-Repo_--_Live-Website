@@ -273,6 +273,38 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Tell the Rest of the App the Scene Set Has Changed
+    // ------------------------------------------------------------
+    // Anything that adds, removes or renames a scene OUTSIDE the Presentation
+    // Scenes editor has to say so, or the carousel keeps showing the strip it
+    // built on load. That is what happened to floor plan and elevation scenes:
+    // they were created correctly and filed into the right group, then stayed
+    // invisible for the rest of the session because nothing re-rendered - which
+    // reads as "adding a plan does not make a scene".
+    //
+    // skipCameraApply is always true here. The scene set changed; the viewer's
+    // camera did not, and jumping it to the default scene mid-edit would throw
+    // away whatever the author was framing.
+    //
+    // The project folder and year come from whatever SetActiveConfig was last
+    // given, so a caller only has to know that something changed.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__ProjectJson__BroadcastScenesChanged() {
+        if (!Na__PresentationMode__ActiveConfig) return false;
+
+        window.dispatchEvent(new CustomEvent('na-presentation-mode-scenes-loaded', {
+            detail : {
+                sceneConfig     : Na__PresentationMode__ActiveConfig,
+                projectFolder   : Na__PresentationMode__ActiveProjectFolder,
+                year            : Na__PresentationMode__ActiveYearCode,
+                skipCameraApply : true
+            }
+        }));
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get Sorted Valid Scenes from Active Config
     // ------------------------------------------------------------
     // Returns EVERY valid scene across every enabled group, in playback order.
@@ -309,7 +341,8 @@
         Na__PresentationMode__ProjectJson__GetActiveConfig,
         Na__PresentationMode__ProjectJson__SetActiveSceneId,
         Na__PresentationMode__ProjectJson__GetActiveSceneId,
-        Na__PresentationMode__ProjectJson__GetSortedScenes
+        Na__PresentationMode__ProjectJson__GetSortedScenes,
+        Na__PresentationMode__ProjectJson__BroadcastScenesChanged
     };
     // ------------------------------------------------------------
 

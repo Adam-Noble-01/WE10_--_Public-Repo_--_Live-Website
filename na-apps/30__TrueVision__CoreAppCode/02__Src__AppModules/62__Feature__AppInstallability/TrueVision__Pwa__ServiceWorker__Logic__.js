@@ -36,6 +36,21 @@
 // - Initial release, ported from the ValeVision3D / Whitecardopedia PWA stack
 //   and retuned for TrueVision's asset mix.
 //
+// 07-Sep-2026 - Version 1.0.2
+// - Bumped the version token for the Elevation Drawings build, which RENAMED a
+//   cross-module export: the scene carousel's SetSceneNavigationOverride became
+//   AddSceneNavigationRouter, and the floor plan navigation module moved into
+//   the drawing view core.
+// - This is the case the token exists for and it is worth spelling out. Live
+//   app modules are stale-while-revalidate, so a warm client serves the OLD
+//   carousel alongside the NEW controllers - a module graph that never existed
+//   as a set. Nothing throws; the routers simply never register, and clicking a
+//   floor plan or elevation thumbnail falls through to the ordinary camera
+//   flight with no cut applied. It reads exactly like the feature was never
+//   wired up, on a build where it was.
+// - RULE OF THUMB: renaming or moving ANY export that crosses a module boundary
+//   needs this token bumped in the same commit. Adding a new export does not.
+//
 // 27-Aug-2026 - Version 1.0.1
 // - Fixed regenerated Presentation Mode scene thumbnails appearing stale on the
 //   live site. Scene_00N.webp is overwritten in place by "Regen Thumb", but the
@@ -53,7 +68,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-08-29-1';                                                                       // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-07-1';                                                                       // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

@@ -115,6 +115,22 @@
     import { Na__PresentationMode__Thumbnail__CaptureAndUpload } from './Na__PresentationMode__Thumbnail__Renderer.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | 2D Drawing Scene Link Keys
+    // ------------------------------------------------------------
+    // Constants only, so a scene row can tell a floor plan or elevation scene
+    // from an ordinary 3D one and refuse to overwrite its derived camera. Both
+    // are pure data modules - importing them adds no behaviour and no cycle.
+    // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__ProjectJson__Data__.js
+    // @delegate: ../45__System__ElevationViews/Na__Elevation__ProjectJson__Data__.js
+    // ------------------------------------------------------------
+    import { Na__FpData__SCENE_PLAN_ID_KEY } from '../42__System__FloorPlanViews/Na__FloorPlan__ProjectJson__Data__.js';
+    import { Na__ElevData__SCENE_ELEV_ID } from '../45__System__ElevationViews/Na__Elevation__ProjectJson__Data__.js';
+    import {
+        Na__DrawView__GetKind,
+        Na__DrawView__KIND_ELEVATION
+    } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Project Utilities
     // ------------------------------------------------------------
     import {
@@ -1003,11 +1019,30 @@
         // three-press ritual, with every ordering of those presses saving a
         // slightly different subset.
         // ------------------------------------------------------------
+        // A DRAWING SCENE'S CAMERA IS DERIVED, NOT CAPTURED. A floor plan or
+        // elevation scene holds the pose its own definition produces - the
+        // top-down cut, or the head-on facade - and that pose is rewritten by
+        // the drawing's own editor whenever its datum, direction or plane
+        // moves. Recapturing the live view into one would overwrite it with
+        // wherever the perspective camera happened to be parked, silently
+        // breaking the approach flight and replacing the drawing's thumbnail
+        // with a picture of the 3D model. Blocked here and signposted, rather
+        // than left as a button that quietly does damage.
+        const drawingKind = Na__PmDev__ResolveDrawingSceneKind(scene);
+
         const updateBtn = document.createElement('button');
         updateBtn.type        = 'button';
         updateBtn.className   = 'na-pm-dev__btn na-pm-dev__btn--primary';
         updateBtn.textContent = 'Update Scene';
         updateBtn.title       = 'Recapture the live view into this scene - camera, FOV, layers, navigation mode and thumbnail - then save';
+
+        if (drawingKind) {
+            updateBtn.disabled = true;
+            updateBtn.title    = 'This is a ' + drawingKind.label + ' scene. Its camera is set by the '
+                               + drawingKind.panel + ' panel, not by the live 3D view - use Preview and '
+                               + 'Save Thumbnail there instead.';
+        }
+
         updateBtn.addEventListener('click', async () => {
             if (updateBtn.disabled) return;
             updateBtn.disabled    = true;                                   // <-- Thumbnail render + upload is async; block a double press
@@ -1041,6 +1076,26 @@
 // -----------------------------------------------------------------------------
 // REGION | Thumbnail Regeneration (R2 upload)
 // -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Is This Scene Driven by a 2D Drawing, and Which Kind?
+    // ------------------------------------------------------------
+    // Returns null for an ordinary 3D scene. The two link keys are imported
+    // from the drawing systems' own data modules rather than spelled out here,
+    // so renaming one cannot leave this check silently matching nothing.
+    // ------------------------------------------------------------
+    function Na__PmDev__ResolveDrawingSceneKind(scene) {
+        if (!scene || typeof scene !== 'object') return null;
+
+        if (scene[Na__FpData__SCENE_PLAN_ID_KEY]) {
+            return { label: 'floor plan', panel: 'Floor Plans' };
+        }
+        if (scene[Na__ElevData__SCENE_ELEV_ID]) {
+            return { label: 'elevation', panel: 'Elevations' };
+        }
+        return null;
+    }
+    // ------------------------------------------------------------
+
 
     // FUNCTION | Render Viewport WebP and Upload to R2 via the API Client
     // ------------------------------------------------------------
@@ -1393,6 +1448,24 @@
     // ------------------------------------------------------------
     async function Na__PmDev__AddSceneFromCamera() {
         if (!Na__PmDev__Camera) return;
+
+        // NOT WHILE A 2D DRAWING IS ON SCREEN. This captures the PERSPECTIVE
+        // camera, which during a plan or elevation preview is parked wherever
+        // the approach flight left it. Pressing it here produced an ordinary 3D
+        // scene sitting in the Floor Plans group - a card that looks like the
+        // drawing and flies you to a 3D view instead, which is worse than no
+        // card at all. The drawing's own panel is where its card is made.
+        const drawingKind = Na__DrawView__GetKind();
+        if (drawingKind) {
+            const panel = (drawingKind === Na__DrawView__KIND_ELEVATION) ? 'Elevations' : 'Floor Plans';
+            if (Na__PmDev__ShowToast) {
+                Na__PmDev__ShowToast(
+                    'You are previewing a ' + drawingKind + '. Use "Add to Scenes" in the '
+                    + panel + ' panel to give it a card.', true
+                );
+            }
+            return;
+        }
 
         const existing   = Na__PmDev__WorkingScenes;                        // <-- Shared array (preserves in-row edits)
         const sceneId    = Na__PmDev__GetNextSceneId(existing);             // <-- Auto Scene_001, Scene_002 ...

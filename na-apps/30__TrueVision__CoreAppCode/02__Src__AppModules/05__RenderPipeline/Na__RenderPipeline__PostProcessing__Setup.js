@@ -85,6 +85,13 @@
     //   setAoSize()           – update AO + blur resolution uniforms
     //   monitorAoFrame()      – feed delta into the perf auto-disable check
     //
+    // Plus three references the 2D drawing views borrow rather than duplicate,
+    // because a drawing and a 3D scene can never be on screen at the same time:
+    //
+    //   profileLinesPassRef   – the Sobel ShaderPass (null when disabled)
+    //   profileNormalTarget   – its full-res normal buffer (null when disabled)
+    //   profileColorTarget    – its half-res colour buffer (null when disabled)
+    //
     // Parameters:
     //   renderer            – the WebGLRenderer
     //   scene               – the Three.js scene
@@ -138,7 +145,9 @@
         let invalidateProfileLinesCache = () => {};
         let profileLinesPassRef = null;
         let profileLinesDepthTexture = null;                               // <-- Depth texture from profile normal pass (avoids separate depth pre-pass)
-        
+        let profileNormalTarget = null;                                    // <-- Exposed for the 2D drawing profile lines module
+        let profileColorTarget  = null;                                    // <-- Exposed for the 2D drawing profile lines module
+
         const profileLinesEnabled = profileLinesConfig
             && profileLinesConfig.RenderEffect__ProfileLines__Enabled === true;
         if (profileLinesEnabled) {
@@ -151,6 +160,8 @@
             invalidateProfileLinesCache = profileLines.invalidateSceneCache;
             profileLinesPassRef = profileLines.pass;
             profileLinesDepthTexture = profileLines.depthTexture;          // <-- Normal pass already writes depth; reuse it
+            profileNormalTarget = profileLines.normalRenderTarget;         // <-- Borrowed by the 2D drawing views; only one is ever on screen
+            profileColorTarget  = profileLines.profileColorRenderTarget;
         }
 
         // DEPTH SOURCE | Use normal-pass depth when available, fall back to dedicated pre-pass
@@ -260,7 +271,10 @@
             monitorAoFrame,
             setFxaaSize,
             toggleAo,
-            toggleProfileLines
+            toggleProfileLines,
+            profileLinesPassRef,                                           // <-- 2D drawing profile lines read the pass and its two buffers
+            profileNormalTarget,
+            profileColorTarget
         };
     }
     // ------------------------------------------------------------

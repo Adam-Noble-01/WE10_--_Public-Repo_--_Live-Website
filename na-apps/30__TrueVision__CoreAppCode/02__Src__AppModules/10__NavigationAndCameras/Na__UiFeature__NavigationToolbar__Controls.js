@@ -35,10 +35,11 @@
 //   'na-navigation-mode-changed' CustomEvent for other interested modules.
 // - Reset View exits Walk/Fly (return-to-orbit) then restores the canonical
 //   project start state via Na__Camera__ProjectStartState.js.
-// - The whole toolbar hides for the duration of 2D floor plan mode, driven by
-//   the 'na-floorplan-mode-changed' broadcast. Orbit / Walk / Fly are
-//   meaningless in an orthographic plan, and the toolbar would otherwise sit
-//   on top of the Plan Annotations bar.
+// - The whole toolbar hides for the duration of ANY 2D drawing - a floor plan
+//   or an elevation - driven by the 'na-floorplan-mode-changed' and
+//   'na-elevation-mode-changed' broadcasts. Orbit / Walk / Fly are meaningless
+//   in an orthographic drawing, and the toolbar would otherwise sit on top of
+//   the annotation and measuring bar.
 //
 // INTEGRATION:
 // - Call Na__UiFeature__InitializeNavigationToolbar(options) from Index.html.
@@ -47,6 +48,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 07-Sep-2026 - Version 1.2.0
+// - Elevations hide the toolbar exactly as floor plans already did. The two
+//   sources are tracked separately and OR-ed, because handing over from a plan
+//   to an elevation takes the plan to idle BEFORE the elevation leaves it - a
+//   single flag would flash the toolbar back over the markup bar mid-handover.
+//
 // 31-Aug-2026 - Version 1.1.0
 // - Toolbar now hides itself for the whole of 2D floor plan mode, so the Plan
 //   Annotations bar has the top of the canvas to itself.
@@ -90,10 +97,11 @@
     const Na__NavToolbar__ActiveClass  = 'na-nav-toolbar__btn--active';      // <-- Pale blue active highlight
     const Na__NavToolbar__WakeClass    = 'na-nav-toolbar--wake';             // <-- Short-lived opaque flash (hotkey mode changes)
     const Na__NavToolbar__MobileToolsOpenClass = 'na-mobile-tools-open';     // <-- Body class: toolbar swapped out for the Tools menu
-    const Na__NavToolbar__HiddenClass  = 'na-nav-toolbar--hidden';           // <-- Toolbar withdrawn entirely (2D plan mode)
+    const Na__NavToolbar__HiddenClass  = 'na-nav-toolbar--hidden';           // <-- Toolbar withdrawn entirely (any 2D drawing)
     const NA__NAV_MODE_CHANGED_EVENT   = 'na-navigation-mode-changed';       // <-- Dispatched on every mode change
     const NA__FLOORPLAN_MODE_CHANGED_EVENT = 'na-floorplan-mode-changed';    // <-- Broadcast by the floor plan mode controller
-    const Na__NavToolbar__FloorPlanIdleState = 'idle';                       // <-- Floor plan state meaning "ordinary 3D"
+    const NA__ELEVATION_MODE_CHANGED_EVENT = 'na-elevation-mode-changed';    // <-- Broadcast by the elevation mode controller
+    const Na__NavToolbar__DrawingIdleState  = 'idle';                        // <-- Drawing state meaning "ordinary 3D"
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | Wake Flash Tuning
@@ -115,6 +123,9 @@
     let Na__NavToolbar__OpenHelpFn     = null;     // <-- Help panel open callback
     let Na__NavToolbar__ActiveMode     = 'orbit';  // <-- Currently active mode ('orbit' | 'walk' | 'fly')
     let Na__NavToolbar__WakeTimerHandle = null;    // <-- Pending wake-flash timeout (or null)
+    let Na__NavToolbar__PlanEngaged      = false;  // <-- A floor plan holds the view (including its transitions)
+    let Na__NavToolbar__ElevationEngaged = false;  // <-- An elevation holds the view (including its transitions)
+    let Na__NavToolbar__ShowPending      = false;  // <-- A deferred re-check is queued; see ApplyDrawingHidden
     let Na__NavToolbar__WakeEnabled     = false;   // <-- False during boot so init does not flash the toolbar
     // ------------------------------------------------------------
 
@@ -125,11 +136,61 @@
 // REGION | Active Mode Display
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Read "Is a Drawing Engaged" Out of a Mode Broadcast
+    // ------------------------------------------------------------
+    // The state string is the authority, because it covers the transitions as
+    // well as the settled view. The boolean is the fallback for a broadcast
+    // whose shape changes, and is named per source since the two controllers
+    // spell their settled flag differently.
+    // ------------------------------------------------------------
+    function Na__NavToolbar__ReadDrawingEngaged(event, settledFlagName) {
+        const detail = (event && event.detail) || {};
+        if (typeof detail.state === 'string') {
+            return detail.state !== Na__NavToolbar__DrawingIdleState;        // <-- entering / shown / leaving all hide
+        }
+        return detail[settledFlagName] === true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Hide the Toolbar While Any 2D Drawing Holds the View
+    // ------------------------------------------------------------
+    // HIDING IS IMMEDIATE; SHOWING WAITS A MICROTASK. Handing over from one
+    // drawing to another is a single synchronous stack: the outgoing drawing
+    // broadcasts idle and only then does the incoming one broadcast entering.
+    // Acting on the idle at once would un-hide the toolbar in the middle of a
+    // handover it is not actually leaving - so a show is deferred until that
+    // stack has finished, by which point the incoming drawing has already put
+    // its flag up and the show simply never happens.
+    //
+    // Tracking the two sources separately is what makes the deferred re-check
+    // correct rather than merely late: it re-reads BOTH flags, so whichever
+    // drawing ends up holding the view wins.
+    // ------------------------------------------------------------
+    function Na__NavToolbar__ApplyDrawingHidden() {
+        if (Na__NavToolbar__PlanEngaged || Na__NavToolbar__ElevationEngaged) {
+            Na__NavToolbar__ShowPending = false;                              // <-- Cancel any show queued a moment ago
+            Na__NavToolbar__SetHidden(true);
+            return;
+        }
+
+        if (Na__NavToolbar__ShowPending) return;                             // <-- One re-check per stack is enough
+        Na__NavToolbar__ShowPending = true;
+
+        queueMicrotask(() => {
+            if (!Na__NavToolbar__ShowPending) return;                        // <-- A drawing claimed the view after all
+            Na__NavToolbar__ShowPending = false;
+            Na__NavToolbar__SetHidden(Na__NavToolbar__PlanEngaged || Na__NavToolbar__ElevationEngaged);
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Withdraw or Restore the Whole Toolbar
     // ------------------------------------------------------------
-    // Used by 2D floor plan mode, which needs the top of the canvas for its
-    // own annotation bar. Distinct from the mobile Tools swap, which hides the
-    // toolbar via a body class so the menu can take the same row.
+    // Used by 2D drawing mode, which needs the top of the canvas for its own
+    // annotation and measuring bar. Distinct from the mobile Tools swap, which
+    // hides the toolbar via a body class so the menu can take the same row.
     // ------------------------------------------------------------
     function Na__NavToolbar__SetHidden(hidden) {
         const toolbar = document.getElementById(Na__NavToolbar__ContainerId);
@@ -348,24 +409,33 @@
             );
         }, { once: true });
 
-        // FLOOR PLAN MODE | Toolbar yields the canvas to the Plan Annotations bar
+        // 2D DRAWING MODE | Toolbar yields the canvas to the markup bar
         // ------------------------------------------------------------
-        // Floor plans are presentation-mode scenes, so by the time a plan opens
-        // body.na-presentation-mode-active has already moved this toolbar from
-        // the bottom of the canvas to the top - landing it directly over the
-        // Plan Annotations bar, and above it in the stacking order.
-        // Orbit / Walk / Fly mean nothing in an orthographic 2D plan, so the
-        // toolbar withdraws for the whole of plan mode rather than being
-        // nudged aside. Any non-idle state counts, so it goes as the transition
-        // starts instead of flashing over the annotation bar while a plan
+        // Floor plans and elevations are presentation-mode scenes, so by the
+        // time one opens body.na-presentation-mode-active has already moved
+        // this toolbar from the bottom of the canvas to the top - landing it
+        // directly over the annotation and measuring bar, and above it in the
+        // stacking order.
+        // Orbit / Walk / Fly mean nothing in an orthographic drawing, so the
+        // toolbar withdraws for the whole of it rather than being nudged
+        // aside. Any non-idle state counts, so it goes as the transition
+        // starts instead of flashing over the markup bar while a drawing
         // loads, and comes back only once the view is fully returned to 3D.
+        //
+        // BOTH SOURCES ARE TRACKED SEPARATELY AND OR-ED, because a handover
+        // takes the outgoing drawing to idle before the incoming one leaves
+        // it. A single shared flag would end the handover in the wrong state
+        // entirely; separate flags plus the deferred show in
+        // ApplyDrawingHidden also stop the toolbar reappearing in between.
         // ------------------------------------------------------------
         window.addEventListener(NA__FLOORPLAN_MODE_CHANGED_EVENT, (event) => {
-            const detail = event.detail || {};
-            const inPlanMode = (typeof detail.state === 'string')
-                ? detail.state !== Na__NavToolbar__FloorPlanIdleState         // <-- entering / plan / leaving all hide
-                : detail.isPlan === true;                                     // <-- Fallback if the detail shape changes
-            Na__NavToolbar__SetHidden(inPlanMode);
+            Na__NavToolbar__PlanEngaged = Na__NavToolbar__ReadDrawingEngaged(event, 'isPlan');
+            Na__NavToolbar__ApplyDrawingHidden();
+        });
+
+        window.addEventListener(NA__ELEVATION_MODE_CHANGED_EVENT, (event) => {
+            Na__NavToolbar__ElevationEngaged = Na__NavToolbar__ReadDrawingEngaged(event, 'isDrawing');
+            Na__NavToolbar__ApplyDrawingHidden();
         });
 
         // Pointer hover / keyboard focus wake is pure CSS - no listeners needed.

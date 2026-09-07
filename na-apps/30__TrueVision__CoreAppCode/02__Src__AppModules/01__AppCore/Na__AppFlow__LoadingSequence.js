@@ -182,6 +182,12 @@
     import { Na__DrawView__GetCamera } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
     import { Na__DrawMarkup__SyncFrame } from '../40__System__DrawingViewCore/Na__DrawView__MarkupMount__.js';
     import {
+        Na__DrawProfile__Initialise,
+        Na__DrawProfile__RenderOverlay,
+        Na__DrawProfile__HandleResize,
+        Na__DrawProfile__InvalidateSceneCache
+    } from '../40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
+    import {
         Na__FloorPlanMode__HandleResize
     } from '../42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
     import {
@@ -440,6 +446,17 @@
         const Na__RenderPipeline__State = Na__RenderPipeline__SetupComposer(Na__Renderer__Main, Na__Scene__Main, Na__Camera__Main, Na__Config__ProfileLines, Na__SceneEffect__FogPass, Na__Config__AmbientOcclusion, Na__Controls__Orbit.target);
         const Na__RenderComposer__Main  = Na__RenderPipeline__State.composer;
         pipelineRef.current = Na__RenderPipeline__State;                     // <-- Write back to index.html ref for ImageExport
+
+        // 2D DRAWING PROFILE LINES | The same silhouette edges, for the flat views.
+        // Handed the pipeline state so it can borrow the 3D effect's two buffers
+        // rather than allocate a second pair that could never be in use at the
+        // same time; it falls back to its own when profile lines are disabled.
+        Na__DrawProfile__Initialise(
+            Na__Renderer__Main,
+            Na__Scene__Main,
+            Na__Config__ProfileLines,
+            Na__RenderPipeline__State
+        );
         const Na__AoPerformanceMonitorStartupDelayMs = (Na__Config__AmbientOcclusion && Number.isFinite(Na__Config__AmbientOcclusion.RenderEffect__AmbientOcclusion__PerformanceMonitorStartupDelayMs))
             ? Na__Config__AmbientOcclusion.RenderEffect__AmbientOcclusion__PerformanceMonitorStartupDelayMs
             : 3000;
@@ -588,6 +605,7 @@
             if (Na__RenderPipeline__State && typeof Na__RenderPipeline__State.invalidateProfileLinesCache === 'function') {
                 Na__RenderPipeline__State.invalidateProfileLinesCache();     // <-- Scene graph changed, rebuild cached profile-line inputs
             }
+            Na__DrawProfile__InvalidateSceneCache();                        // <-- The 2D views keep their own list of the same objects
             window.dispatchEvent(new CustomEvent(NA__REQUEST_RENDER_EVENT)); // <-- Redraw after runtime rebinds or visibility changes
         };
         // ------------------------------------------------------------
@@ -927,13 +945,25 @@
             // physics, orbit updates, door proximity, billboard facing, fog
             // uniforms and distance culling are all meaningless on a drawing,
             // and culling in particular would hide furniture the drawing must
-            // show. The composer is bypassed too - fog, SSAO and the Sobel pass
+            // show. The composer is bypassed too - fog, SSAO and tone mapping
             // shade a parallel drawing like a surface, which is exactly wrong.
-            // A flat render plus the section overlay leaves the poche and
-            // profile lines on their own.
+            // A flat render leaves the poche and the linework on their own.
+            //
+            // THE ONE PASS A DRAWING DOES WANT IS THE EDGE PASS, and bypassing
+            // the composer used to throw it out along with the rest. Flat
+            // shading is what makes a plan read as a drawing, but it is also
+            // what erases every rounded form on it - a curved wall and the
+            // floor behind it resolve to the same colour, and the linework GLB
+            // has no edge to offer because the silhouette of a curve is a
+            // tangent, not a crease. So the Sobel comes back on its own,
+            // OUTSIDE the composer: Na__DrawProfile__ takes two orthographic
+            // pre-passes and inks that missing outline over the drawing.
+            // It goes AFTER the beauty render because it blends onto it, and
+            // BEFORE the cut fills so a poche stays solid.
             const Na__Drawing__Camera = Na__DrawView__GetCamera();
             if (Na__Drawing__Camera) {
                 Na__Renderer__Main.render(Na__Scene__Main, Na__Drawing__Camera);
+                Na__DrawProfile__RenderOverlay(Na__Drawing__Camera);          // <-- Silhouette edges for rounded geometry
                 Na__SectionCut__RenderOverlay(Na__Drawing__Camera);          // <-- Cut fills and profile outlines
                 Na__DrawMarkup__SyncFrame();                                 // <-- Reproject the markup onto the new view
                 return Na__RenderLoop__ActiveReasons.size > 0;               // <-- Only pan/zoom keeps frames coming
@@ -1035,6 +1065,7 @@
 
             Na__LineResolution__Screen.set(width, height);
             Na__SectionCut__HandleResize(width, height);                     // <-- Fat-line resolution for the cut profiles
+            Na__DrawProfile__HandleResize(width, height);                    // <-- Sobel step is in buffer pixels, so it follows the viewport
             // Both 2D cameras keep their own aspect, so both are told - each
             // reprojects its markup only if it is the one on screen.
             Na__FloorPlanMode__HandleResize(width, height);                  // <-- Ortho frustum aspect + markup reprojection

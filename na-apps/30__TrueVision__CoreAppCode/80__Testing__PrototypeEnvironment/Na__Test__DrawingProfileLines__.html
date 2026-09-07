@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>TrueVision3D - Drawing Profile Lines Harness</title>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION  |  Three.js Import Map (mirrors Index.html exactly)       -->
+<!-- ----------------------------------------------------------------- -->
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://esm.sh/three@0.160.0",
+        "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+    }
+}
+</script>
+<!-- endregion -------------------------------------------------------- -->
+
+<style>
+    body    { font-family: ui-monospace, Consolas, monospace; font-size: 13px; padding: 16px; background: #f4f4f4; }
+    h1      { font-size: 16px; }
+    p       { max-width: 70ch; line-height: 1.5; }
+    canvas  { border: 1px solid #bbb; background: #fff; display: block; }
+    .row    { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+    .cell   { background: #fff; padding: 8px; border: 1px solid #ddd; }
+    .cell h2{ font-size: 13px; margin: 0 0 6px; }
+    .pass   { color: #1c7c40; font-weight: 700; }
+    .fail   { color: #c0392b; font-weight: 700; }
+    #out    { margin-top: 14px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<h1>Drawing Profile Lines Harness</h1>
+<p>
+    Exercises the REAL Na__DrawView__ProfileLines__ module against a synthetic
+    model made of the shapes a parallel view actually loses - a sphere, a
+    cylinder, a torus and a curved wall - with one box as a control. The left
+    tile is the flat render the drawing views did before; the right tile is the
+    same render with the silhouette pass composited over it. Localhost only;
+    not part of the app.
+</p>
+
+<div class="row">
+    <div class="cell"><h2>Plan - flat (before)</h2>       <canvas id="planOff"  width="360" height="360"></canvas></div>
+    <div class="cell"><h2>Plan - profile lines</h2>       <canvas id="planOn"   width="360" height="360"></canvas></div>
+    <div class="cell"><h2>Elevation - flat (before)</h2>  <canvas id="elevOff"  width="360" height="360"></canvas></div>
+    <div class="cell"><h2>Elevation - profile lines</h2>  <canvas id="elevOn"   width="360" height="360"></canvas></div>
+</div>
+
+<div id="out"></div>
+
+<script type="module">
+import * as THREE from 'three';
+
+import {
+    Na__DrawProfile__Initialise,
+    Na__DrawProfile__RenderOverlay,
+    Na__DrawProfile__HandleResize,
+    Na__DrawProfile__InvalidateSceneCache,
+    Na__DrawProfile__IsEnabled,
+    Na__DrawProfile__SetEnabled
+} from '../02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
+
+import { Na__SectionClipping__SetPlanes }
+    from '../02__Src__AppModules/05__RenderPipeline/Na__RenderEffect__SectionClipping__State.js';
+
+const out  = document.getElementById('out');
+const log  = (msg, ok) => {
+    const cls = (ok === true) ? 'pass' : (ok === false ? 'fail' : '');
+    out.innerHTML += `<div class="${cls}">${msg}</div>`;
+};
+
+// -----------------------------------------------------------------------------
+// REGION | Synthetic Model - The Shapes a Flat View Loses
+// -----------------------------------------------------------------------------
+
+const SIZE = 360;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xdfe4e8);                                 // <-- Proves the pre-passes suppress it
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+sun.position.set(4, 8, 5);
+scene.add(sun);
+
+const surface = new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.9, metalness: 0.0 });
+
+function place(geometry, x, y, z) {
+    const mesh = new THREE.Mesh(geometry, surface);
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
+    return mesh;
+}
+
+place(new THREE.SphereGeometry(1.0, 48, 32),            -2.4, 1.0,  -2.4);     // <-- Rounded: no hard edge anywhere
+place(new THREE.CylinderGeometry(0.8, 0.8, 2.4, 48),     2.4, 1.2,  -2.4);     // <-- Rounded: silhouette is a tangent
+place(new THREE.TorusGeometry(1.0, 0.35, 24, 64),       -2.4, 1.0,   2.4);     // <-- Rounded and self-overlapping
+place(new THREE.BoxGeometry(1.8, 2.0, 1.8),              2.4, 1.0,   2.4);     // <-- CONTROL: creased, already readable
+
+const curvedWall = place(                                                      // <-- The real-world case: a bowed wall
+    new THREE.CylinderGeometry(2.6, 2.6, 2.6, 64, 1, true, Math.PI * 0.15, Math.PI * 0.7),
+    0.0, 1.3, 0.0
+);
+curvedWall.material = new THREE.MeshStandardMaterial({
+    color: 0xf2f2f2, roughness: 0.9, side: THREE.DoubleSide
+});
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Renderer and the Two Drawing Cameras
+// -----------------------------------------------------------------------------
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(1);
+renderer.setSize(SIZE, SIZE, false);
+renderer.setClearColor(0xdfe4e8, 1);
+renderer.shadowMap.enabled = true;
+renderer.localClippingEnabled = true;                                          // <-- Matches the app; the cut engine sets this
+
+const HALF = 5.0;
+const planCamera = new THREE.OrthographicCamera(-HALF, HALF, HALF, -HALF, 0.1, 100);
+planCamera.position.set(0, 30, 0);
+planCamera.lookAt(0, 0, 0);
+planCamera.updateMatrixWorld(true);
+
+const elevCamera = new THREE.OrthographicCamera(-HALF, HALF, HALF, -HALF, 0.1, 100);
+elevCamera.position.set(0, 1.5, 30);
+elevCamera.lookAt(0, 1.5, 0);
+elevCamera.updateMatrixWorld(true);
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Run
+// -----------------------------------------------------------------------------
+
+// SECTION CUT | A plan is always cut, so the harness cuts too - this is what
+// proves the pre-pass materials are re-clipped rather than showing the whole
+// model where the drawing shows a slice.
+Na__SectionClipping__SetPlanes([ new THREE.Plane(new THREE.Vector3(0, -1, 0), 2.2) ]);
+
+const config = {
+    RenderEffect__ProfileLines__Drawing2dEnabled             : true,
+    RenderEffect__ProfileLines__Drawing2dEdgeColor           : 3355443,
+    RenderEffect__ProfileLines__Drawing2dEdgeThresholdNormal : 0.2,
+    RenderEffect__ProfileLines__Drawing2dEdgeWidth           : 0.55
+};
+
+const ready = Na__DrawProfile__Initialise(renderer, scene, config, null);       // <-- null: allocate own buffers
+log(`Initialise returned ${ready}`, ready === true);
+log(`IsEnabled() -> ${Na__DrawProfile__IsEnabled()}`, Na__DrawProfile__IsEnabled() === true);
+
+Na__DrawProfile__HandleResize(SIZE, SIZE);
+Na__DrawProfile__InvalidateSceneCache();
+
+function blit(targetCanvasId) {
+    const dst = document.getElementById(targetCanvasId).getContext('2d');
+    dst.drawImage(renderer.domElement, 0, 0);
+}
+
+function drawTile(camera, canvasId, withEffect) {
+    Na__DrawProfile__SetEnabled(withEffect);
+    renderer.setRenderTarget(null);
+    renderer.render(scene, camera);                                            // <-- The flat beauty render, exactly as the loop does it
+    const drew = Na__DrawProfile__RenderOverlay(camera);                       // <-- The overlay under test
+    blit(canvasId);
+    return drew;
+}
+
+try {
+    const a = drawTile(planCamera, 'planOff', false);
+    const b = drawTile(planCamera, 'planOn',  true);
+    const c = drawTile(elevCamera, 'elevOff', false);
+    const d = drawTile(elevCamera, 'elevOn',  true);
+
+    log(`RenderOverlay skipped when disabled : plan=${a}, elev=${c}`, a === false && c === false);
+    log(`RenderOverlay drew when enabled     : plan=${b}, elev=${d}`, b === true  && d === true);
+
+    // STATE RESTORATION | The loop renders the section overlay straight after,
+    // and it relies on every one of these being handed back untouched.
+    log(`scene.background restored           : ${scene.background && scene.background.isColor}`, !!(scene.background && scene.background.isColor));
+    log(`scene.overrideMaterial restored     : ${scene.overrideMaterial}`, scene.overrideMaterial === null);
+    log(`renderer.autoClear restored         : ${renderer.autoClear}`, renderer.autoClear === true);
+    log(`shadowMap.autoUpdate restored       : ${renderer.shadowMap.autoUpdate}`, renderer.shadowMap.autoUpdate === true);
+    log(`renderer target restored to canvas  : ${renderer.getRenderTarget()}`, renderer.getRenderTarget() === null);
+
+    const errors = renderer.getContext().getError();
+    log(`WebGL error code after all passes   : ${errors}`, errors === 0);
+
+    log('--- Compare the tiles above: the rounded forms must gain an outline, the box must not change much. ---');
+
+    // BORROWED BUFFERS | The path the real app actually takes. In Index.html
+    // the two buffers come from the 3D profile-lines effect rather than being
+    // allocated here, and its normal buffer carries a DepthTexture that fog and
+    // AO also read - so rendering into a BORROWED pair is worth proving
+    // separately from the self-allocated one exercised above.
+    const sharedNormal = new THREE.WebGLRenderTarget(SIZE, SIZE, {
+        minFilter : THREE.LinearFilter, magFilter : THREE.LinearFilter,
+        format    : THREE.RGBAFormat,   type      : THREE.UnsignedByteType,
+        depthBuffer : true, stencilBuffer : false,
+        depthTexture : new THREE.DepthTexture(SIZE, SIZE, THREE.FloatType)     // <-- As the 3D effect builds it
+    });
+    const sharedColor = new THREE.WebGLRenderTarget(SIZE / 2, SIZE / 2, {
+        minFilter : THREE.LinearFilter, magFilter : THREE.LinearFilter,
+        format    : THREE.RGBAFormat,   type      : THREE.UnsignedByteType,
+        depthBuffer : true, stencilBuffer : false
+    });
+
+    const borrowed = Na__DrawProfile__Initialise(renderer, scene, config, {
+        profileNormalTarget : sharedNormal,
+        profileColorTarget  : sharedColor
+    });
+    Na__DrawProfile__HandleResize(SIZE, SIZE);
+    Na__DrawProfile__InvalidateSceneCache();
+
+    renderer.setRenderTarget(null);
+    renderer.render(scene, elevCamera);
+    const borrowDrew = Na__DrawProfile__RenderOverlay(elevCamera);
+    const borrowErr  = renderer.getContext().getError();
+
+    log(`Borrowed buffers - initialise       : ${borrowed}`,  borrowed === true);
+    log(`Borrowed buffers - overlay drew     : ${borrowDrew}`, borrowDrew === true);
+    log(`Borrowed buffers - WebGL error      : ${borrowErr}`,  borrowErr === 0);
+    log(`Borrowed buffers - not resized      : ${sharedNormal.width}x${sharedNormal.height}`, sharedNormal.width === SIZE);
+} catch (err) {
+    log(`THREW: ${err && err.message}`, false);
+    console.error(err);
+}
+
+// endregion -------------------------------------------------------------------
+</script>
+
+</body>
+</html>

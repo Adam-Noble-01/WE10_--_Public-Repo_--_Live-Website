@@ -100,10 +100,12 @@
     const Na__FpLink__SCENE_GROUP    = 'PresentationMode__Scene__GroupId';
     const Na__FpLink__SCENE_CAMERA   = 'PresentationMode__Scene__CameraPosition';
     const Na__FpLink__SCENE_ORBIT    = 'PresentationMode__Scene__OrbitHelperCubePosition';
+    const Na__FpLink__SCENE_THUMB    = 'PresentationMode__Scene__ThumbnailUrl';
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | Scene Id Formatting
     // ------------------------------------------------------------
+    const Na__FpLink__THUMB_DIR     = 'PresentationMode/Thumbnails';
     const Na__FpLink__SCENE_PREFIX  = 'Scene_';
     const Na__FpLink__SCENE_PADDING = 3;
     // ------------------------------------------------------------
@@ -234,11 +236,19 @@
 
         const scene = {};
         scene[Na__FpLink__SCENE_ID]      = Na__FpLink__NextSceneId(scenes);
+
         scene[Na__FpLink__SCENE_NAME]    = plan.FloorPlan__Name;
         scene[Na__FpLink__SCENE_ORDER]   = scenes.length + 1;                     // <-- Normalised per group below
         scene[Na__FpLink__SCENE_CAMERA]  = built.camera;
         scene[Na__FpLink__SCENE_ORBIT]   = built.orbit;
         if (groupId) scene[Na__FpLink__SCENE_GROUP] = groupId;
+
+        // THUMBNAIL | The conventional path, set at creation exactly as an
+        // ordinary scene gets it. Without this a drawing card has nothing to
+        // resolve and shows a placeholder forever - the image only ever
+        // appeared if someone thought to press Save Thumbnail, and the card
+        // gave no hint that it was missing.
+        scene[Na__FpLink__SCENE_THUMB] = Na__FpLink__THUMB_DIR + '/' + scene[Na__FpLink__SCENE_ID] + '.webp';
 
         scenes.push(scene);
         Na__FpData__LinkPlanToScene(plan, scene);                                 // <-- Writes both directions at once

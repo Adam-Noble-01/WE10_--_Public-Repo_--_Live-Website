@@ -2,6 +2,114 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.19.0  -  07-Sep-2026
+### Profile Lines on the Drawings - Round Things Stop Disappearing
+
+**Overview**
+- Floor plans and elevations now carry the same SketchUp-style silhouette
+  edges the 3D views have had all along. Curved walls, cylinders, bay windows,
+  downpipes and every other rounded form were reading as blank patches on the
+  sheet; they now have an outline.
+- New module `Na__DrawView__ProfileLines__` in `40__System__DrawingViewCore`,
+  serving BOTH drawing kinds from one place because both are the same problem.
+
+**WHY A DRAWING LOST THEM IN THE FIRST PLACE**
+- The 2D render path deliberately bypasses the EffectComposer. That was the
+  right call and stands: fog, SSAO and tone mapping shade a parallel drawing
+  like a surface, which is exactly wrong. But the Sobel edge pass lives in that
+  same composer, so bypassing the one threw out the other with it.
+- Flat shading is what makes a plan read as a drawing, and it is also what
+  erases every rounded form on it. A curved wall and the floor behind it
+  resolve to the same colour, and the linework GLB has nothing to offer
+  because the silhouette of a curve is a TANGENT, not a crease - SketchUp
+  never exported an edge there because there is no edge there.
+
+**WHAT VALEVISION DOES, AND WHERE THIS DIFFERS**
+- ValeVision keeps its composer running in elevation mode and swaps the
+  RenderPass camera to ortho. Because its Sobel pass reads a normal buffer
+  captured through the PERSPECTIVE camera, it needed an ortho-aware twin of
+  the pre-pass writing into the same shared buffers - that is the whole of its
+  `Na__RenderEffect__2dProfileLines__`, and the whole reason it exists.
+- TrueVision cannot copy that, because routing a drawing back through the
+  composer would drag fog and SSAO onto it. So the edge is composited as a
+  TRANSPARENT OVERLAY instead: the pre-passes go to their buffers, and a single
+  full-screen quad is drawn over the finished drawing with the Sobel coverage
+  as its ALPHA. Source-over blending then performs the identical sum the 3D
+  shader does with `mix()`:
+      out = profileColour * blend + canvas * (1 - blend)
+- One quad, no colour capture, no copy, no blit. The beauty pixels are never
+  round-tripped through a render target, so no colour space question arises.
+
+**Switching between drawings and 3D scenes**
+- No new state machine. `Na__DrawView__ActiveView__` already knows which
+  drawing owns the viewport, so flicking through the carousel from an exterior
+  render to a plan to an elevation and back needs nothing added: the loop asks
+  the broker for a camera, and the branch it takes decides which edge pass runs
+  - the ortho overlay, or the perspective one inside the composer.
+- The thumbnail renderer takes the same branch in the same order, so a saved
+  drawing thumbnail is a picture of the drawing people actually see.
+
+**Buffers are borrowed, not duplicated**
+- The pipeline now exposes `profileNormalTarget`, `profileColorTarget` and
+  `profileLinesPassRef`. A drawing and a 3D scene can never be on screen at
+  the same moment, so the 2D pass writes into the 3D effect's own two buffers
+  rather than holding a second full-res pair of them. Own buffers are
+  allocated only when profile lines are switched off entirely.
+
+**Three things it does that the 3D pass does not**
+- SECTION CLIPPING IS RE-APPLIED BY HAND. Both pre-passes replace materials
+  wholesale, and the cut engine assigns its planes per MATERIAL. Without this
+  the pre-passes would see a whole building where the drawing sees a slice, and
+  ink a first floor's outline over a ground floor plan. A plan is always cut,
+  so this is load-bearing rather than defensive.
+- THE SCENE BACKGROUND IS SUPPRESSED. A project may back its scene with a flat
+  colour or with the HDR environment itself, and either gets painted over the
+  clear colour in both pre-passes - a sky texture in a normal buffer reads as
+  thousands of edges that are not there.
+- SHADOW MAPS ARE NOT RE-RENDERED. Three.js redraws every shadow map on each
+  `render()` call and this pass makes two; both draw the scene under an UNLIT
+  material, so not one shadow texel can reach either buffer.
+
+**Line width is fixed, and that is the point**
+- The 3D effect thins its edges with camera distance to imitate aerial
+  perspective. There is no such thing under a parallel projection, and a
+  drawing wants a constant line weight on the sheet at any zoom - which is
+  what a drawn line has. Set by `RenderEffect__ProfileLines__Drawing2dEdgeWidth`.
+
+**Config**
+- Four new keys in the existing `RenderEffect__ProfileLines` block:
+  `Drawing2dEnabled`, `Drawing2dEdgeColor`, `Drawing2dEdgeThresholdNormal`,
+  `Drawing2dEdgeWidth`. Colour and threshold fall back to the 3D values when
+  omitted, so a hand-tuned edge colour is not typed twice and left to drift.
+- The existing Dev menu Profile Lines toggle now governs both. Switching it OFF
+  while a drawing is open and watching nothing happen would read as a bug, so
+  it is one switch rather than two.
+
+**Known limit, by design**
+- A face pointing straight at the camera encodes to the same normal as the
+  cleared background, so a flat-topped object seen from directly above gains
+  no outline from this pass. That is inherent to normal-discontinuity edge
+  detection and is exactly how ValeVision behaves; in a plan those outlines
+  come from the section cut engine's profile outlines instead. Worth revisiting
+  only if plans want every object outlined, which is a different decision.
+
+**Verified**
+- New harness `Na__Test__DrawingProfileLines__.html` in the testing folder,
+  against a synthetic model of the shapes a flat view actually loses - sphere,
+  cylinder, torus, curved wall - with a box as a control, under a live section
+  cut. Both drawing cameras, effect off and on, and the borrowed-buffer path
+  the real app takes.
+- Confirmed: shader compiles, no GL error after any pass, and every piece of
+  renderer state the section overlay depends on is handed back untouched -
+  scene background, override material, autoClear, shadowMap.autoUpdate and the
+  active render target.
+- Confirmed by eye: rounded forms gain outlines in both plan and elevation,
+  the box control is unchanged in plan, and the cut is respected.
+- NOT verified against a real model: local testing has no project API, so no
+  GLB loads. Line weight and colour against real linework on a live project
+  still want a pass.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.18.0  -  07-Sep-2026
 ### Elevation Drawings - The Same Sheet, Turned on Its Side
 
@@ -120,6 +228,113 @@
   their own, so the elevation scene link CREATES the group when neither the
   name nor the id is found rather than falling back to the first enabled one.
   Filing an elevation into Exterior 3D Views would be silently wrong.
+
+**Fix - the PWA cache token, and why the whole feature looked dead**
+- Renaming a cross-module export without bumping PWA_SW_VERSION_TOKEN meant
+  live clients served a module graph that never existed as a set: the OLD
+  scene carousel, which still had the single SetSceneNavigationOverride slot,
+  alongside the NEW controllers calling AddSceneNavigationRouter. App modules
+  are stale-while-revalidate on the live site, so a warm cache does exactly
+  this.
+- Nothing threw. The routers simply never registered, so clicking a floor plan
+  or elevation thumbnail fell through to the ordinary camera flight with no cut
+  applied - which reads precisely like the feature was never wired up, on a
+  build where it was. Both plans AND elevations were affected, because both
+  register through the same renamed function.
+- Token bumped to 2026-09-07-1. The rule is now written into that file: moving
+  or renaming ANY export that crosses a module boundary needs the token bumped
+  in the same commit. Adding a new export does not.
+
+**Fix - Update Scene overwrote a drawing scene's derived camera**
+- A floor plan or elevation scene holds the pose its own definition produces,
+  rewritten by its own editor whenever the datum, direction or plane moves.
+  The Presentation Scenes panel offered Update Scene on those rows like any
+  other, which recaptured the live perspective camera over it - breaking the
+  approach flight, and replacing the drawing's thumbnail with a picture of the
+  3D model.
+- Update Scene is now disabled on drawing scenes and says where the camera
+  actually comes from, rather than being a button that quietly does damage. The
+  two link keys are imported from the drawing systems' own data modules, so
+  renaming one cannot leave the check silently matching nothing.
+- STILL A HAZARD, not yet addressed: deleting a drawing scene from the
+  Presentation Scenes panel leaves its plan or elevation record pointing at a
+  scene id that no longer exists. The drawing still previews from its own panel
+  but loses its carousel card. Deleting from the Floor Plans / Elevations panel
+  removes both correctly.
+
+**Fix - a drawing's carousel card was created, then stayed invisible**
+- Adding a floor plan or an elevation created its scene and filed it in the
+  right group, and then told nobody. The carousel keeps showing the strip it
+  built on load, so the new card did not appear for the rest of the session.
+  From the author's seat that reads as "adding a plan does not make a scene" -
+  and the natural workaround, pressing + Add Scene From Camera while previewing
+  the drawing, captures the PERSPECTIVE camera and produces an ordinary 3D
+  scene sitting in the Floor Plans group. A card that looks like the drawing
+  and flies you to a 3D view is worse than no card at all.
+- Na__PresentationMode__ProjectJson__BroadcastScenesChanged now exists for
+  anything that changes the scene set from OUTSIDE the Presentation Scenes
+  editor. Both drawing panels call it on add, delete and rename.
+
+**The card is now stated, and recoverable**
+- Every plan and elevation row carries its card status: the scene's name and id
+  when linked, or "Not in the carousel" and an ADD TO SCENES button when not.
+  That button is the same create-and-file call the Add path makes, so a drawing
+  that predates the link, or whose scene was deleted from the Presentation
+  Scenes panel, is recovered in one press rather than being unreachable.
+- Shared between both panels rather than written twice, because the wording,
+  the states and the failure it prevents are identical.
+
+**+ Add Scene From Camera refuses while a drawing is on screen**
+- It captures the perspective camera, which during a preview is parked wherever
+  the approach flight left it. It now declines and points at the drawing's own
+  panel instead of silently producing the junk scene described above.
+
+**Fix - the 2D framing was captured too rarely to survive a save**
+- A drawing stores how it was framed - the parallel zoom and the pan target -
+  and reopens at it. That part worked. What did not was WHEN the framing got
+  written: only on flipping to another drawing and on leaving one. Frame a plan
+  nicely, press Save Floor Plans, and the record kept whatever framing was
+  captured the last time it happened to close.
+- With no stored framing at all, opening falls back to fitting the whole MODEL
+  BOUNDS at zoom 1. On a project with any site or landscape around the
+  building that is an enormous extent, so the drawing opens as a speck in the
+  middle of nothing - "the camera is miles away", which is exactly the report.
+- The shared 2D navigation now takes an onSettled callback and fires it at the
+  end of every pan and after every zoom step, including a zoom clamped at its
+  limit. Both controllers record their framing there, so the record always
+  holds the view on screen rather than the last one that happened to be saved.
+- Save and Save Thumbnail additionally call StoreActiveFraming outright. The
+  thumbnail IS the framing, so capturing one without recording the other would
+  leave a card whose picture and whose opening view disagree.
+
+**Fix - drawing scenes had no thumbnail path**
+- An ordinary scene gets PresentationMode/Thumbnails/<id>.webp assigned when it
+  is created. Plan and elevation scenes were given a camera, a group and a name
+  but no thumbnail url, so their cards had nothing to resolve and showed a
+  placeholder - and only ever gained an image if someone thought to press Save
+  Thumbnail. Both scene links now set the conventional path at creation.
+
+**Fix - the navigation toolbar stayed up over an elevation**
+- The toolbar already withdrew for the whole of floor plan mode: presentation
+  scenes move it from the bottom of the canvas to the top, landing it directly
+  over the annotation and measuring bar and above it in the stacking order.
+  Elevations are presentation scenes too and were never wired to it, so the
+  toolbar sat on top of the measuring tools with Orbit / Walk / Fly offering
+  nothing an orthographic drawing can use.
+- It now listens to the elevation broadcast as well, hiding from the START of
+  the transition rather than on arrival, exactly as plans do.
+
+**The two sources are tracked separately, and a show is deferred one microtask**
+- Handing over from one drawing to another is a single synchronous stack: the
+  outgoing drawing broadcasts idle, and only THEN does the incoming one
+  broadcast entering. A shared flag would have ended the handover in the wrong
+  state; separate flags fix that, but the idle still asks for a show before the
+  entering asks for a hide.
+- So hiding is immediate and showing is deferred to a microtask that re-reads
+  both flags. By the time it runs the incoming drawing has claimed the view and
+  the show never happens. Measured with a MutationObserver rather than a poll,
+  because the window it closes is shorter than a frame: a plan-to-elevation
+  handover now produces NO class change at all.
 
 **What was verified**
 - A geometry harness at 80__Testing__PrototypeEnvironment/

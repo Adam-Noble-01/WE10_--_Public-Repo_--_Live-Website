@@ -58,7 +58,8 @@
     // MODULE IMPORTS | Presentation Scene Config and Thumbnail Capture
     // ------------------------------------------------------------
     import {
-        Na__PresentationMode__ProjectJson__GetActiveConfig
+        Na__PresentationMode__ProjectJson__GetActiveConfig,
+        Na__PresentationMode__ProjectJson__BroadcastScenesChanged
     } from '../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
     import {
         Na__PresentationMode__Thumbnail__CaptureAndUpload
@@ -92,7 +93,8 @@
     import {
         Na__ElevCfg__GetDirectionPresets,
         Na__ElevCfg__GetLabel,
-        Na__ElevCfg__FormatLabel
+        Na__ElevCfg__FormatLabel,
+        Na__ElevCfg__GetSceneGroupTarget
     } from './Na__Elevation__ConfigState__.js';
     import {
         Na__ElevFrame__MeasureModel,
@@ -108,6 +110,7 @@
         Na__ElevRow__BuildButton,
         Na__ElevRow__BuildElevationRow
     } from './Na__Elevation__DevMenu__RowBuilders__.js';
+    import { Na__DrawSceneRow__Build } from '../40__System__DrawingViewCore/Na__DrawView__SceneLinkRow__.js';
     import {
         Na__ElevLink__CreateSceneForElevation,
         Na__ElevLink__RemoveSceneForElevation,
@@ -122,6 +125,7 @@
         Na__ElevationMode__IsActive,
         Na__ElevationMode__RefreshActive,
         Na__ElevationMode__GetActiveElevation,
+        Na__ElevationMode__StoreActiveFraming,
         Na__ElevMode__CHANGED_EVENT
     } from './Na__Elevation__ModeController__.js';
     // ------------------------------------------------------------
@@ -271,7 +275,10 @@
             isActive   : isActive,
             isEditMode : isActive && Na__ElevationMode__IsEditMode(),
 
-            onRename : () => Na__ElevLink__SyncSceneName(config, elevation),
+            onRename : () => {
+                Na__ElevLink__SyncSceneName(config, elevation);
+                Na__PresentationMode__ProjectJson__BroadcastScenesChanged();     // <-- The card carries the elevation name
+            },
 
             // A new bearing changes the camera basis outright, so the drawing
             // has to be rebuilt rather than nudged.
@@ -342,6 +349,7 @@
         Na__ElevLink__CreateSceneForElevation(
             config, elevation, Na__ElevDev__Measure(elevation), Na__ElevDev__Fov()
         );
+        Na__PresentationMode__ProjectJson__BroadcastScenesChanged();             // <-- Or the new card stays invisible all session
         Na__ElevDev__Render();
         return elevation;
     }
@@ -403,6 +411,7 @@
         const orphanedSceneId = Na__ElevData__DeleteElevation(config, elevation.Elevation__Id);
         if (orphanedSceneId) Na__ElevLink__RemoveSceneForElevation(config, orphanedSceneId);
 
+        Na__PresentationMode__ProjectJson__BroadcastScenesChanged();             // <-- Drop the card with the elevation
         Na__ElevDev__Render();
         return true;
     }
@@ -427,6 +436,10 @@
             Na__ElevDev__Toast('This elevation has no scene to attach a thumbnail to.', true);
             return false;
         }
+
+        // The thumbnail IS the framing. Recording it here means the card and
+        // the view it opens at can never disagree.
+        Na__ElevationMode__StoreActiveFraming();
 
         try {
             const result = await Na__PresentationMode__Thumbnail__CaptureAndUpload(
@@ -454,6 +467,8 @@
     // same single merge-and-write every other dev-menu save performs.
     // ------------------------------------------------------------
     async function Na__ElevDev__Save() {
+        Na__ElevationMode__StoreActiveFraming();                                 // <-- Save what is on screen, not the last gesture
+
         const context = Na__CfApi__GetProjectContext();
         if (!context.projectFolder) {
             Na__ElevDev__Toast('No project loaded.', true);
@@ -487,6 +502,35 @@
 // REGION | Panel Render
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Build the Carousel Card Status and Action for One Elevation
+    // ------------------------------------------------------------
+    // Creating the card is the same call the Add path makes, so an elevation
+    // that lost its card is recovered rather than needing to be rebuilt.
+    // ------------------------------------------------------------
+    function Na__ElevDev__BuildSceneLinkRow(elevation) {
+        const config = Na__ElevDev__GetConfig();
+
+        return Na__DrawSceneRow__Build({
+            scene       : config ? Na__ElevData__FindSceneFor(config, elevation) : null,
+            groupName   : Na__ElevCfg__GetSceneGroupTarget().groupName,
+            drawingWord : 'elevation',
+            onCreate    : () => {
+                if (!config) {
+                    Na__ElevDev__Toast('No presentation scene config loaded.', true);
+                    return;
+                }
+                Na__ElevLink__CreateSceneForElevation(
+                    config, elevation, Na__ElevDev__Measure(elevation), Na__ElevDev__Fov()
+                );
+                Na__PresentationMode__ProjectJson__BroadcastScenesChanged();
+                Na__ElevDev__Toast('Added "' + elevation.Elevation__Name + '" to the scene carousel.');
+                Na__ElevDev__Render();
+            }
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Rebuild the Whole Elevation Panel
     // ------------------------------------------------------------
     function Na__ElevDev__Render() {
@@ -502,7 +546,9 @@
         const elevations = config ? Na__ElevData__GetElevations(config) : [];
 
         for (let i = 0; i < elevations.length; i++) {
-            Na__ElevDev__Panel.appendChild(Na__ElevDev__BuildRow(elevations[i]));
+            const elevationRow = Na__ElevDev__BuildRow(elevations[i]);
+            elevationRow.appendChild(Na__ElevDev__BuildSceneLinkRow(elevations[i]));
+            Na__ElevDev__Panel.appendChild(elevationRow);
         }
 
         if (elevations.length === 0) {

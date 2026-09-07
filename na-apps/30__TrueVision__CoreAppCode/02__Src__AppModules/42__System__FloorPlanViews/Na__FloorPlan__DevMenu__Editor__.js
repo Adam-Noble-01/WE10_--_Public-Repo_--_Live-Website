@@ -57,7 +57,8 @@
     // MODULE IMPORTS | Presentation Scene Config and Storey Detection
     // ------------------------------------------------------------
     import {
-        Na__PresentationMode__ProjectJson__GetActiveConfig
+        Na__PresentationMode__ProjectJson__GetActiveConfig,
+        Na__PresentationMode__ProjectJson__BroadcastScenesChanged
     } from '../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
     import {
         Na__StoreySystem__GetState,
@@ -84,7 +85,8 @@
     } from './Na__FloorPlan__ProjectJson__Data__.js';
     import {
         Na__FpCfg__GetLabel,
-        Na__FpCfg__FormatLabel
+        Na__FpCfg__FormatLabel,
+        Na__FpCfg__GetSceneGroupTarget
     } from './Na__FloorPlan__ConfigState__.js';
     import {
         Na__FpFrame__MeasureModel
@@ -99,6 +101,13 @@
         Na__FpLink__SyncSceneName,
         Na__FpLink__SyncSceneCamera
     } from './Na__FloorPlan__SceneLink__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Scene Row Builder Shared With the Elevations Panel
+    // ------------------------------------------------------------
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__SceneLinkRow__.js
+    // ------------------------------------------------------------
+    import { Na__DrawSceneRow__Build } from '../40__System__DrawingViewCore/Na__DrawView__SceneLinkRow__.js';
     import {
         Na__FloorPlanMode__EnterPlan,
         Na__FloorPlanMode__ExitPlan,
@@ -106,6 +115,7 @@
         Na__FloorPlanMode__IsEditMode,
         Na__FloorPlanMode__IsActive,
         Na__FloorPlanMode__GetActivePlan,
+        Na__FloorPlanMode__StoreActiveFraming,
         Na__FpMode__CHANGED_EVENT
     } from './Na__FloorPlan__ModeController__.js';
     // ------------------------------------------------------------
@@ -274,6 +284,10 @@
 
         const sceneId = scene.PresentationMode__Scene__Id;
 
+        // The thumbnail IS the framing. Recording it here means the card and
+        // the view it opens at can never disagree.
+        Na__FloorPlanMode__StoreActiveFraming();
+
         try {
             const result = await Na__PresentationMode__Thumbnail__CaptureAndUpload(sceneId);
             if (!result.ok) {
@@ -311,7 +325,10 @@
             isActive   : isActive,
             isEditMode : isActive && Na__FloorPlanMode__IsEditMode(),
 
-            onRename : () => Na__FpLink__SyncSceneName(config, plan),
+            onRename : () => {
+                Na__FpLink__SyncSceneName(config, plan);
+                Na__PresentationMode__ProjectJson__BroadcastScenesChanged();     // <-- The card carries the plan name
+            },
 
             onDatumLive   : () => Na__FpDev__PushLiveCut(plan, true),
             onDatumCommit : () => {
@@ -364,6 +381,7 @@
         if (!plan) return null;
 
         Na__FpLink__CreateSceneForPlan(config, plan, Na__FpDev__Measure(), Na__FpDev__Fov());
+        Na__PresentationMode__ProjectJson__BroadcastScenesChanged();             // <-- Or the new card stays invisible all session
         Na__FpDev__Render();
         return plan;
     }
@@ -411,6 +429,7 @@
         const orphanedSceneId = Na__FpData__DeletePlan(config, plan.FloorPlan__Id);
         if (orphanedSceneId) Na__FpLink__RemoveSceneForPlan(config, orphanedSceneId);
 
+        Na__PresentationMode__ProjectJson__BroadcastScenesChanged();             // <-- Drop the card with the plan
         Na__FpDev__Render();
         return true;
     }
@@ -423,6 +442,8 @@
     // is the same single merge-and-write every other dev-menu save performs.
     // ------------------------------------------------------------
     async function Na__FpDev__Save() {
+        Na__FloorPlanMode__StoreActiveFraming();                                 // <-- Save what is on screen, not the last gesture
+
         const context = Na__CfApi__GetProjectContext();
         if (!context.projectFolder) {
             Na__FpDev__Toast('No project loaded.', true);
@@ -508,6 +529,34 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Build the Carousel Card Status and Action for One Plan
+    // ------------------------------------------------------------
+    // Creating the card is the same call the Add path makes, so a plan that
+    // lost its card - or never had one, because it predates the link - is
+    // recovered rather than needing to be deleted and rebuilt.
+    // ------------------------------------------------------------
+    function Na__FpDev__BuildSceneLinkRow(plan) {
+        const config = Na__FpDev__GetConfig();
+
+        return Na__DrawSceneRow__Build({
+            scene       : config ? Na__FpData__FindSceneForPlan(config, plan) : null,
+            groupName   : Na__FpCfg__GetSceneGroupTarget().groupName,
+            drawingWord : 'plan',
+            onCreate    : () => {
+                if (!config) {
+                    Na__FpDev__Toast('No presentation scene config loaded.', true);
+                    return;
+                }
+                Na__FpLink__CreateSceneForPlan(config, plan, Na__FpDev__Measure(), Na__FpDev__Fov());
+                Na__PresentationMode__ProjectJson__BroadcastScenesChanged();
+                Na__FpDev__Toast('Added "' + plan.FloorPlan__Name + '" to the scene carousel.');
+                Na__FpDev__Render();
+            }
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Rebuild the Whole Floor Plan Panel
     // ------------------------------------------------------------
     function Na__FpDev__Render() {
@@ -523,7 +572,9 @@
         const plans  = config ? Na__FpData__GetFloorPlans(config) : [];
 
         for (let i = 0; i < plans.length; i++) {
-            Na__FpDev__Panel.appendChild(Na__FpDev__BuildRow(plans[i]));
+            const planRow = Na__FpDev__BuildRow(plans[i]);
+            planRow.appendChild(Na__FpDev__BuildSceneLinkRow(plans[i]));
+            Na__FpDev__Panel.appendChild(planRow);
         }
 
         if (plans.length === 0) {

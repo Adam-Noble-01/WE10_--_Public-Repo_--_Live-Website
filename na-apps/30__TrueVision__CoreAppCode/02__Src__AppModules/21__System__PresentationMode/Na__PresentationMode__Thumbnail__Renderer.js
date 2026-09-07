@@ -67,9 +67,11 @@
     // match what is on screen. The import points one way only - neither of
     // those modules knows this one exists - so no cycle is introduced.
     // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js
     // @delegate: ../41__System__SectionCutEngine/Na__SectionCut__Engine__.js
     // ------------------------------------------------------------
     import { Na__DrawView__GetCamera } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
+    import { Na__DrawProfile__RenderOverlay } from '../40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
     import { Na__SectionCut__RenderOverlay } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
     // ------------------------------------------------------------
 
@@ -178,14 +180,18 @@
     // HELPER FUNCTION | Draw Exactly What Is on Screen, Once
     // ------------------------------------------------------------
     // The same branch the render loop takes. A 2D drawing owns the viewport
-    // whenever the broker hands back a camera, and is drawn FLAT plus the
-    // section overlay; anything else goes through the composer.
+    // whenever the broker hands back a camera, and is drawn FLAT plus its two
+    // overlays - the silhouette edges and then the cut fills, in that order;
+    // anything else goes through the composer. The order is copied from the
+    // loop rather than reasoned about again here, because a thumbnail that
+    // composited differently would be a thumbnail of a drawing nobody sees.
     // ------------------------------------------------------------
     function Na__PmThumb__DrawCurrentView() {
         const drawingCamera = Na__DrawView__GetCamera();
 
         if (drawingCamera && Na__PmThumb__Scene) {
-            Na__PmThumb__Renderer.render(Na__PmThumb__Scene, drawingCamera); // <-- Flat: no fog, no AO, no Sobel
+            Na__PmThumb__Renderer.render(Na__PmThumb__Scene, drawingCamera); // <-- Flat: no fog, no AO
+            Na__DrawProfile__RenderOverlay(drawingCamera);                   // <-- Silhouette edges, exactly as the loop draws them
             Na__SectionCut__RenderOverlay(drawingCamera);                    // <-- Cut fills and profile outlines on top
             return;
         }

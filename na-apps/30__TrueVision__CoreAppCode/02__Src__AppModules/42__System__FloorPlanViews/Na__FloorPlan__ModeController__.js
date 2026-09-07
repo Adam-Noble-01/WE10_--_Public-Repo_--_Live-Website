@@ -549,7 +549,11 @@
                     Na__FpMode__RegisterDrawingView(plan);                       // <-- Before the layers mount and project
                     Na__FpMode__SuspendThreeDSystems();                          // <-- Orbit must let go of the canvas first
                     Na__FpMode__State = Na__FpMode__STATE_PLAN;                  // <-- Render loop now takes the ortho camera
-                    Na__DrawNav__Attach(Na__FpMode__Canvas, Na__FpCfg__GetNavigationSetup());
+                    Na__DrawNav__Attach(
+                        Na__FpMode__Canvas,
+                        Na__FpCfg__GetNavigationSetup(),
+                        () => Na__FpMode__StoreFraming(Na__FpMode__ActivePlan)    // <-- Every pan and zoom is remembered as it happens
+                    );
                     Na__FpMode__MountAnnotations(plan);
                     Na__RenderLoop__RequestRender();
                     Na__FpMode__DispatchChanged();
@@ -725,6 +729,21 @@
 // REGION | Public API - State Queries and Initialization
 // -----------------------------------------------------------------------------
 
+    // FUNCTION | Record How the Plan on Screen Is Currently Framed
+    // ------------------------------------------------------------
+    // Navigation already records this as it settles, so this is the belt to
+    // that braces: the Dev menu calls it immediately before saving and before
+    // capturing a thumbnail, so what is written is provably what is on screen
+    // rather than what the last gesture happened to leave behind.
+    // ------------------------------------------------------------
+    function Na__FloorPlanMode__StoreActiveFraming() {
+        if (Na__FpMode__State !== Na__FpMode__STATE_PLAN || !Na__FpMode__ActivePlan) return false;
+        Na__FpMode__StoreFraming(Na__FpMode__ActivePlan);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Is Plan Mode Currently Displaying a Plan?
     // ------------------------------------------------------------
     function Na__FloorPlanMode__IsActive() {
@@ -807,6 +826,7 @@
         Na__FloorPlanMode__ExitPlan,
         Na__FloorPlanMode__SetEditMode,
         Na__FloorPlanMode__IsEditMode,
+        Na__FloorPlanMode__StoreActiveFraming,
         Na__FloorPlanMode__HandleResize,
         Na__FloorPlanMode__SetModelRoot,
         Na__FloorPlanMode__IsActive,

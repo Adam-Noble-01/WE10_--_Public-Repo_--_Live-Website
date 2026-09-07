@@ -580,7 +580,11 @@
                     Na__ElevMode__RegisterDrawingView(elevation);                // <-- Before the layers mount and project
                     Na__ElevMode__SuspendThreeDSystems();                        // <-- Orbit must let go of the canvas first
                     Na__ElevMode__State = Na__ElevMode__STATE_DRAWING;           // <-- Render loop now takes the ortho camera
-                    Na__DrawNav__Attach(Na__ElevMode__Canvas, Na__ElevCfg__GetNavigationSetup());
+                    Na__DrawNav__Attach(
+                        Na__ElevMode__Canvas,
+                        Na__ElevCfg__GetNavigationSetup(),
+                        () => Na__ElevMode__StoreFraming(Na__ElevMode__Active)    // <-- Every pan and zoom is remembered as it happens
+                    );
                     Na__ElevMode__MountMarkup(elevation);
                     Na__RenderLoop__RequestRender();
                     Na__ElevMode__Dispatch();
@@ -780,6 +784,20 @@
 // REGION | Public API - State Queries and Initialization
 // -----------------------------------------------------------------------------
 
+    // FUNCTION | Record How the Elevation on Screen Is Currently Framed
+    // ------------------------------------------------------------
+    // Navigation already records this as it settles; this is what the Dev menu
+    // calls immediately before saving and before capturing a thumbnail, so the
+    // stored framing is provably the one on screen.
+    // ------------------------------------------------------------
+    function Na__ElevationMode__StoreActiveFraming() {
+        if (Na__ElevMode__State !== Na__ElevMode__STATE_DRAWING || !Na__ElevMode__Active) return false;
+        Na__ElevMode__StoreFraming(Na__ElevMode__Active);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Is Elevation Mode Currently Displaying a Drawing?
     // ------------------------------------------------------------
     function Na__ElevationMode__IsActive() {
@@ -862,6 +880,7 @@
         Na__ElevationMode__ExitElevation,
         Na__ElevationMode__SetEditMode,
         Na__ElevationMode__IsEditMode,
+        Na__ElevationMode__StoreActiveFraming,
         Na__ElevationMode__RefreshActive,
         Na__ElevationMode__HandleResize,
         Na__ElevationMode__SetModelRoot,
