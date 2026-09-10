@@ -1,0 +1,142 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Drawing View Core Dev Menu Styles      */
+/* ================================================================= */
+/*
+ * FILE    : Na__DrawView__Styles__DevMenu__.css
+ * MODULE  : Drawing View Core - Dev Menu Shared Rows
+ * AUTHOR  : Adam Noble - Noble Architecture
+ * CREATED : 09-Sep-2026
+ *
+ * Styles the scene link row shared by the Floor Plans and Elevations Dev
+ * menu panels: the card status line and its Add to Scenes action.
+ */
+/* ================================================================= */
+/*
+ * PORT NOTE:
+ * - Ported from : TrueVision3D 02__Src__AppModules/45__System__ElevationViews/Na__Elevation__Styles__DevMenu__.css (scene row rules)
+ * - Ported on   : 09-Sep-2026 for TrueVision3D v2.18.0 (port Phase 2)
+ * - Parity      : verbatim (relocated to the drawing core so Phase 2 has them before the elevation sheet exists)
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Scene Link Row                                         */
+/* ----------------------------------------------------------------- */
+
+.na-draw-dev__scene-row {
+    display                            : flex;
+    align-items                        : center;
+    justify-content                    : space-between;
+    gap                                : 8px;
+    margin-top                         : 4px;
+    padding-top                        : 7px;
+    border-top                         : 1px dashed rgba(0, 0, 0, 0.12);
+}
+
+.na-draw-dev__scene-status {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+    font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+    font-size                          : 11px;
+}
+
+/* Linked is the ordinary state, so it is quiet. */
+.na-draw-dev__scene-status--linked {
+    color                              : #4a4a4a;
+}
+
+/* Missing is not an error, but it does mean nobody can reach the
+   drawing - so it is coloured to be noticed rather than skimmed. */
+.na-draw-dev__scene-status--missing {
+    color                              : #b1560f;
+    font-weight                        : 600;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Folded Drawing Row                                     */
+/* ----------------------------------------------------------------- */
+/*
+ * Every floor plan and elevation row folds down to its name, and only one
+ * is unfolded across both panels at a time - see
+ * 42__System__DrawingViewCore/Na__DrawView__RowAccordion__.js for why.
+ * The card itself is still .na-fp-dev__row, so its border, its active
+ * highlight and its padding are unchanged; these rules only add the
+ * header and hide the body behind it.
+ */
+
+/* A folded card is one line, so it does not need a full card's height. */
+.na-draw-dev__fold:not(.na-draw-dev__fold--open) {
+    padding-top                        : 7px;
+    padding-bottom                     : 7px;
+    margin-bottom                      : 5px;
+}
+
+.na-draw-dev__fold-head {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 7px;
+    width                              : 100%;
+    padding                            : 0;
+    border                             : none;
+    background                         : none;
+    text-align                         : left;
+    font-family                        : inherit;
+    font-size                          : 13px;
+    font-weight                        : 600;
+    color                              : #172b3a;
+    cursor                             : pointer;
+}
+
+.na-draw-dev__fold-head:hover .na-draw-dev__fold-name {
+    text-decoration                    : underline;
+}
+
+.na-draw-dev__fold-head:focus-visible {
+    outline                            : 2px solid #2e7d4f;
+    outline-offset                     : 2px;
+}
+
+/* The same small triangle the menu sections use, laid on its side while
+   the row is folded. */
+.na-draw-dev__fold-arrow {
+    flex                               : 0 0 auto;
+    font-size                          : 10px;
+    line-height                        : 1;
+    color                              : #6b6b6b;
+    transform                          : rotate(-90deg);
+    transition                         : transform 120ms ease;
+}
+
+.na-draw-dev__fold--open .na-draw-dev__fold-arrow {
+    transform                          : rotate(0deg);
+}
+
+/* One line, whatever the drawing is called. */
+.na-draw-dev__fold-name {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+}
+
+/* THE CONTROLS ARE OUT OF REACH UNTIL THE ROW IS OPENED. display:none
+   rather than a height animation, so a folded row cannot be tabbed into
+   or dragged by accident. */
+.na-draw-dev__fold-body {
+    display                            : none;
+}
+
+.na-draw-dev__fold--open .na-draw-dev__fold-body {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 6px;
+}
+
+/* endregion ------------------------------------------------------- */

@@ -1,0 +1,48 @@
+{
+    "DrawingView__Description": "Configuration shared by every 2D drawing TrueVision can show: floor plans, elevations and sections. Holds the render preset applied to the live composer while a drawing owns the viewport, the reversible material overrides, the section adapter naming and the flight timings. Values here are the built-in defaults; the matching keys in Na__AppConfig__Main.json (RenderEffect__ProfileLines__Drawing2d* and DrawingView__Config) override them when present. Read through Na__DrawView__ConfigState__.js. Distances are integer millimetres.",
+
+    "DrawingView__Enabled": true,
+
+    "DrawingView__Render__Config": {
+        "DrawingView__Render__Description": "What the composer preset changes while a drawing is on screen. Fog and ambient occlusion shade a parallel drawing like a surface, so both are switched off; the background becomes the paper colour; the profile line pass runs through the ortho-aware 2D pre-pass at a fixed width.",
+        "DrawingView__Render__BackgroundColour": "#ffffff",
+        "DrawingView__Render__ProfileEdgeWidth": 1.0,
+        "DrawingView__Render__ProfileEdgeColour": null,
+        "DrawingView__Render__ProfileEdgeThresholdNormal": null,
+        "DrawingView__Render__DisableFog": true,
+        "DrawingView__Render__DisableAmbientOcclusion": true
+    },
+
+    "DrawingView__Materials__Config": {
+        "DrawingView__Materials__Description": "Reversible material overrides driven by the per-drawing style toggles. Glass Transparency Off swaps every transparent material for a flat opaque pane; Whitecard swaps every indexed material for the whitecard material under MaxEngine (PureEngine already renders whitecard).",
+        "DrawingView__Materials__OpaqueGlassColour": "#ffffff",
+        "DrawingView__Materials__WhitecardColour": "#ffffff",
+        "DrawingView__Materials__Roughness": 1.0,
+        "DrawingView__Materials__Metalness": 0.0,
+        "DrawingView__Materials__PolygonOffsetFactor": 2,
+        "DrawingView__Materials__PolygonOffsetUnits": 2
+    },
+
+    "DrawingView__Section__Config": {
+        "DrawingView__Section__Description": "How the drawing cut is registered with the existing Cross Sections tool and how it looks. The drawing plane is named with the prefix below and its gizmo stays hidden. The cap fill and profile colours are the dark grey Doous section look, applied to every plan cut and section drawing while the tool is parked; the tool's own colours come back with its sections. DrawingView__Config__Section* in Na__AppConfig__Main.json overrides them.",
+        "DrawingView__Section__PlaneNamePrefix": "DrawingCut__",
+        "DrawingView__Section__FillColour": "#505050",
+        "DrawingView__Section__LineColour": "#505050",
+        "DrawingView__Section__LineWidthPx": 2
+    },
+
+    "DrawingView__Transition__Config": {
+        "DrawingView__Transition__Description": "Flight timings shared by plans and elevations when Na__AppConfig__Main.json carries no DrawingView__Config block.",
+        "DrawingView__Transition__IntoMs": 1400,
+        "DrawingView__Transition__OutOfMs": 1400,
+        "DrawingView__Transition__Easing": "easeInOutCubic"
+    },
+
+    "DrawingView__Labels__Config": {
+        "DrawingView__Labels__Description": "User-facing wording shared by the drawing systems.",
+        "DrawingView__Labels__AddSceneRefusedMessage": "Leave the drawing before adding a scene from the camera. A drawing card is created from its own panel.",
+        "DrawingView__Labels__DrawingsSavedMessage": "Drawings saved to R2.",
+        "DrawingView__Labels__DrawingsSaveFailedMessage": "Drawings save failed - see console.",
+        "DrawingView__Labels__NoProjectMessage": "No project loaded."
+    }
+}
