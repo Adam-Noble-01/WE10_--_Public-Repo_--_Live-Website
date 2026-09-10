@@ -97,19 +97,21 @@ exit, apply style toggles, announce the change) over its own overlay route.
 Everything downstream that calls the preset - the mode controllers, the Layout
 Editor's `SnapshotRenderer__` - then ports unchanged.
 
-#### DIV-2 - The section engine
+#### DIV-2 - The section engine — **REVISED 10-Sep-2026, see TD06**
 
-ValeVision's `42/Na__DrawView__SectionAdapter__.js` wraps the **live Cross Sections
-user tool** (`41__System__CrossSectionView__SystemLogic`), snapshotting and restoring
-the user's own section state around a drawing (D07), including `SuspendLiveTool` and
-`Release`.
+~~TrueVision gets a thin adapter and no section data block.~~ **Superseded.** The
+original reading was factually right about today's TrueVision and wrong about where it
+should end up. Read TD06 below; the rest of this entry is kept only to explain what the
+two engines actually are.
 
-TrueVision has a purpose-built `41__System__SectionCutEngine` with no live user tool
-behind it, so there is no user state to snapshot.
+ValeVision's `42/Na__DrawView__SectionAdapter__.js` wraps the **live Cross Sections user
+tool** (`41__System__CrossSectionView`, 3,655 lines across 7 modules), snapshotting and
+restoring the user's own section state around a drawing (D07).
 
-**Consequence**: TrueVision gets a **thin** `40/Na__DrawView__SectionAdapter__.js`
-exposing the same five entry points over `Na__SectionCut__*`. `SuspendLiveTool` and
-`Release` become documented no-ops. Roughly 150 lines against ValeVision's 400.
+TrueVision's `41__System__SectionCutEngine` (1,892 lines across 4 modules) is a
+purpose-built clipping engine with no user tool, **no serialization, and no persistence
+of any kind** - verified 10-Sep-2026: there is no `Serialize`/`Apply` pair and no
+project-data block. A TrueVision section exists only for as long as the page is open.
 
 #### DIV-3 - Storage location of drawing records
 
@@ -183,6 +185,76 @@ Answered 10-Sep-2026. Each carries the id it is referenced by elsewhere in this 
 | **TD03** | **`PS01__MustersRoad` is the migration reference project.** It carries a basic plan and elevation set. Year folder `26-Projects`, R2 key `NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/TrueVision__ProjectData__.json`, worker `https://na-truevision-api.adam-fb3.workers.dev`. See 3.1 for why this cannot be tested against the repo copy. |
 | **TD04** | **Modern title block only, Noble Architecture branding.** Vector primitives rendered to SVG and PDF from one list: NA logo, then the field rows (client, site address, drawing number, revision, scale, issue date, drawn by). `TitleBlock__Classic__.js` is **not ported** - the only scan that exists is Vale's, and a Vale title block on an NA drawing is a live-output hazard. Classic is added if and when an NA scan exists; the `TitleBlock__Style` field stays in the record so adding it later is additive. |
 | **TD05** | **Client measuring stays and stays aligned.** TrueVision already has `44/Na__PlanDimensions__ClientMode__.js`; it is kept in step with ValeVision's, which costs nothing. |
+| **TD06** | **Section data is recorded in ValeVision's structure, exactly.** Added 10-Sep-2026 at Adam's direction, superseding the original DIV-2 reading. TrueVision gains a `CrossSection__SceneData` block byte-compatible with ValeVision's, a `Serialize`/`Apply` pair over `Na__SectionCut__*`, and per-scene capture and restore. See 3.2. |
+
+### 3.2 Section data recording (TD06)
+
+**The problem this fixes.** TrueVision's section engine has no serialization and no
+persistence. A cut exists only while the page is open. That is survivable for a live
+3D toggle and fatal for drawings: a section drawing cannot reopen with its own cut, a
+sheet viewport has nothing to restore, and the PDF prints an uncut model. ValeVision
+solved this in July 2026 and its tool is the more built-out of the two.
+
+**The contract.** TrueVision writes ValeVision's schema verbatim, so a project document
+from either app is readable by the other:
+
+```jsonc
+"CrossSection__SceneData": {
+    "CrossSection__SceneData__Description" : "...",
+    "CrossSection__SceneData__Version"     : 1,
+    "CrossSection__SceneData__Scenes"      : {
+        "<scene NAME>": {                        // keyed by name: stable across a SketchUp re-sync
+            "gizmosVisible" : true,
+            "sliceDepthM"   : null,              // GLOBAL, metres, null = infinite (no back plane)
+            "fillColor"     : "#505050",
+            "lineColor"     : "#505050",
+            "lineWidthPx"   : 2,
+            "sections": [{
+                "name"         : "DrawingCut__FloorPlan_001",
+                "mode"         : "PLAN",         // "PLAN" | "UPRIGHT"
+                "normalXyz"    : [0, -1, 0],     // rounded to 6 dp
+                "positionMm"   : 1200,           // -plane.constant in mm, 2 dp
+                "enabled"      : true,
+                "gizmoVisible" : false
+            }]
+        }
+    }
+}
+```
+
+**The one place "identical" needed a judgement call.** ValeVision holds slice depth as a
+**single global** `sliceDepthM`; TrueVision holds it **per plane** as `depthUnits`.
+Writing only the global field would silently flatten a TrueVision project whose planes
+carry different depths.
+
+Resolution: emit ValeVision's `sliceDepthM` as the canonical value (the first plane's
+depth, or null), **and** carry an additive `depthMm` on each section object. ValeVision
+ignores the unknown key, so interchange stays byte-compatible in the common case where
+every plane shares a depth; TrueVision reads `depthMm` back in preference and loses
+nothing in the case where they differ. Flagged here rather than buried, because it is
+the only field where the two engines disagree about shape.
+
+**Field mapping**, TrueVision engine to ValeVision schema:
+
+| ValeVision field | TrueVision source |
+|---|---|
+| `name` | plane record `id` |
+| `mode` | derived: normal with a dominant Y component is `PLAN`, otherwise `UPRIGHT` |
+| `normalXyz` | `record.plane.normal`, rounded to 6 dp |
+| `positionMm` | `-record.plane.constant` converted to mm, 2 dp |
+| `enabled` | `record.enabled` |
+| `gizmoVisible` | TrueVision draws no gizmo - written `false`, honoured on read |
+| `fillColor`, `lineColor`, `lineWidthPx` | `Na__SectionCut__GetAppearance()` |
+| `depthMm` *(additive)* | `record.depthUnits` converted to mm |
+
+**Work this adds to Phase B:**
+
+| File | Notes |
+|---|---|
+| `41/Na__SectionCut__Serialize__.js` | The `Serialize`/`Apply` pair, in the shape above. New - no TrueVision counterpart |
+| `41/Na__SectionCut__SceneData__.js` | The block, keyed by scene name; capture on scene update, restore on `na-pm-scene-activated`, skip on a drawing approach scene. Ported from ValeVision's 503-line `Na__CrossSectionView__SceneData.js` |
+| `40/Na__DrawView__ProjectData__.js` (edit) | Save carries the block as a **third** merged key |
+| `40/Na__DrawView__RenameDrawing__.js` | **FOUR** holders after all, not three - the section binding is keyed by scene name and a rename orphans it. Reverts the note added earlier today |
 
 ### 3.1 The repo copy of a project's data is the base file, not the truth (TD03)
 

@@ -20,10 +20,12 @@
 //   drawing scene".
 // - Loaded once per project from the loading sequence event. An absent block
 //   becomes an empty skeleton in memory and is only written on the first save.
-// - ONE WRITER. Save hands the two blocks this system owns to
+// - ONE WRITER. Save hands the three blocks this system owns to
 //   Na__CfApi__MergeAndSaveKeys, which read-merge-writes them into
-//   TrueVision__ProjectData__.json on R2. The Floor Plans, Elevations and
-//   Layout Editor panels all call this and nothing else writes drawing data.
+//   TrueVision__ProjectData__.json on R2: the drawings block, the presentation
+//   block (scene links and groups), and the section bindings (TD06). The Floor
+//   Plans, Elevations and Layout Editor panels all call this and nothing else
+//   writes drawing data.
 //
 // INTEGRATION:
 // - Na__AppFlow__LoadingSequence.js dispatches na-layouteditor-drawingsdata-loaded
@@ -43,12 +45,14 @@
 //                       save utility. TrueVision has no Flask: the na-truevision-api
 //                       Worker does the read-merge-write itself, so Save passes only
 //                       the two owned blocks and never fetches or rebuilds a document.
-//                   (2) SECTION BINDINGS. ValeVision also merges CrossSection__SceneData,
-//                       because its drawing cut drives the live Cross Sections user tool
-//                       whose state is stored per scene. TrueVision's SectionCutEngine
-//                       holds no project-data block at all - a drawing's cut is derived
-//                       from its own record - so there is no third block to carry, and
-//                       no rename can orphan one.
+//                   (2) SECTION BINDINGS. Carried, exactly as ValeVision does. TrueVision's
+//                       SectionCutEngine originally had no persistence of any kind, and an
+//                       earlier draft of this module therefore merged only two blocks. That was
+//                       right about the engine and wrong about the destination: a section
+//                       drawing that cannot reopen with its own cut is not a drawing. Under
+//                       TD06 the engine gains a Serialize/Apply pair and a
+//                       CrossSection__SceneData block in ValeVision's exact schema, and this
+//                       module merges it as the third key. See plan section 3.2.
 //                   (3) MIGRATION. TrueVision arrives with drawings nested inside the
 //                       presentation block; ValeVision never had them there. The whole
 //                       Legacy Migration region below is TrueVision-only.
@@ -110,6 +114,7 @@
     const Na__DrawData__ELEVATIONS_KEY   = 'LayoutEditor__DrawingsData__Elevations';
     const Na__DrawData__SHEETS_KEY       = 'LayoutEditor__DrawingsData__Sheets';
     const Na__DrawData__PRESENTATION_KEY = 'PresentationMode__SavedCameraScenes';
+    const Na__DrawData__CROSSSECTION_KEY = 'CrossSection__SceneData';
     const Na__DrawData__VERSION          = 1;
     // ------------------------------------------------------------
 
@@ -153,6 +158,21 @@
     let Na__DrawData__ProjectCode  = null;    // <-- Project code the block was loaded for
     let Na__DrawData__Initialized  = false;
     let Na__DrawData__MigratedFrom = null;    // <-- Non-null when this session migrated; cleared by the save that lands it
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Section Bindings Provider (TD06)
+    // ------------------------------------------------------------
+    // The section scene-data module hands its block getter over here at init.
+    //
+    // A registration hook rather than the hard import ValeVision uses, for one
+    // reason: this module is armed before the loading sequence and the section
+    // system is not, so importing it here would force the section engine to
+    // load on every project whether or not it has a single cut. Registration
+    // keeps the save complete when the section system is present and silent
+    // when it is not, and neither module has to know the other's load order.
+    // ------------------------------------------------------------
+    let Na__DrawData__SectionBlockProvider = null;   // <-- () => block | null
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -408,11 +428,16 @@
 
     // FUNCTION | Save the Drawings Block and the Scene Links to R2
     // ------------------------------------------------------------
-    // Hands the two blocks this system owns to the Worker, which does the
+    // Hands the blocks this system owns to the Worker, which does the
     // read-merge-write against TrueVision__ProjectData__.json. Nothing is
     // fetched or rebuilt here: the Worker holds the document, so a key another
     // panel wrote between our load and this save survives untouched. That is
     // the whole reason this is one call rather than ValeVision's three steps.
+    //
+    // THE SECTION BINDINGS RIDE WITH THIS SAVE (TD06), and must. They are keyed
+    // by SCENE NAME, so renaming a drawing re-keys an entry in that block - and
+    // a rename that lands the record and the card but not the binding leaves the
+    // drawing opening with no cut at all. One write or none.
     //
     // When this session migrated, the legacy keys are stripped from the
     // presentation config FIRST, so the one write both lands the new block and
@@ -441,6 +466,20 @@
 
         payload[Na__DrawData__BLOCK_KEY] = Na__DrawData__GetBlock();
         if (sceneConfig) payload[Na__DrawData__PRESENTATION_KEY] = sceneConfig;
+
+        // SECTION BINDINGS | Third block, TD06. The provider returns null until
+        // something loads or captures a section, so a project that has never had
+        // a cut never gains the key - the same rule ValeVision follows.
+        if (Na__DrawData__SectionBlockProvider) {
+            try {
+                const sectionBlock = Na__DrawData__SectionBlockProvider();
+                if (sectionBlock) payload[Na__DrawData__CROSSSECTION_KEY] = sectionBlock;
+            } catch (providerError) {
+                // A broken provider must not cost the drawings their save. The
+                // cut is recoverable by re-capturing; an unsaved drawing is not.
+                console.warn('[TrueVision3D] Section bindings provider failed; saving drawings without them.', providerError);
+            }
+        }
 
         try {
             const result = await Na__CfApi__MergeAndSaveKeys(payload);
@@ -474,6 +513,17 @@
 // -----------------------------------------------------------------------------
 // REGION | Initialization
 // -----------------------------------------------------------------------------
+
+    // FUNCTION | Register the Section Bindings Block Getter (TD06)
+    // ------------------------------------------------------------
+    // Called by Na__SectionCut__SceneData__ when it initialises. Passing a
+    // non-function clears the registration rather than throwing at save time.
+    // ------------------------------------------------------------
+    function Na__DrawData__RegisterSectionBlockProvider(getter) {
+        Na__DrawData__SectionBlockProvider = (typeof getter === 'function') ? getter : null;
+    }
+    // ------------------------------------------------------------
+
 
     // FUNCTION | Listen for the Project Block From the Loading Sequence
     // ------------------------------------------------------------
@@ -512,6 +562,7 @@
         Na__DrawData__LOADED_EVENT,
         Na__DrawData__CHANGED_EVENT,
         Na__DrawView__ProjectData__Initialize,
+        Na__DrawData__RegisterSectionBlockProvider,
         Na__DrawData__GetBlock,
         Na__DrawData__Load,
         Na__DrawData__GetProjectCode,
