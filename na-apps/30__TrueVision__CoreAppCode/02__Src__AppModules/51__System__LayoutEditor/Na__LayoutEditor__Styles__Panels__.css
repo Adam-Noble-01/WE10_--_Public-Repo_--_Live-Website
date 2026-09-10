@@ -1,0 +1,347 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (panels)            */
+/* ================================================================= */
+/*
+ * PORT NOTE:
+ * - Ported from : Lantern Designer 30__System__DrawingEditorMode stylesheet (panel column rules)
+ * - Ported on   : 09-Sep-2026 for TrueVision3D v2.21.0 (port Phase 5)
+ * - Parity      : adapted (foldable sections with height grips, delegated controls, layer rows)
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Columns and Grips                                      */
+/* ----------------------------------------------------------------- */
+
+.na-le-panel {
+    position                           : absolute;
+    inset                              : 0;
+    display                            : flex;
+    background                         : #ffffff;
+    font-size                          : 0.78rem;
+    color                              : #172b3a;
+}
+
+.na-le-panel--left  { border-right : 1px solid rgba(23, 43, 58, 0.14); }
+.na-le-panel--right { border-left  : 1px solid rgba(23, 43, 58, 0.14); flex-direction : row-reverse; }
+
+.na-le-panel__scroll {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    overflow-y                         : auto;
+    overflow-x                         : hidden;
+}
+
+.na-le-panel__grip {
+    flex                               : 0 0 6px;
+    cursor                             : col-resize;
+    background                         : transparent;
+    transition                         : background 0.15s;
+}
+
+.na-le-panel__grip:hover {
+    background                         : rgba(26, 127, 196, 0.35);
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Sections                                               */
+/* ----------------------------------------------------------------- */
+
+.na-le-section {
+    border-bottom                      : 1px solid rgba(23, 43, 58, 0.10);
+}
+
+.na-le-section[hidden] {
+    display                            : none;
+}
+
+.na-le-section__header {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    width                              : 100%;
+    padding                            : 8px 10px;
+    border                             : none;
+    background                         : #f4f6f8;
+    color                              : #172b3a;
+    font-size                          : 0.78rem;
+    font-weight                        : 600;
+    text-align                         : left;
+    cursor                             : pointer;
+}
+
+.na-le-section__header:hover {
+    background                         : #e8edf3;
+}
+
+.na-le-section__chevron {
+    width                              : 0;
+    height                             : 0;
+    border-left                        : 5px solid transparent;
+    border-right                       : 5px solid transparent;
+    border-top                         : 6px solid #172b3a;
+    transition                         : transform 0.15s;
+}
+
+.na-le-section.is-folded .na-le-section__chevron {
+    transform                          : rotate(-90deg);
+}
+
+.na-le-section__body {
+    padding                            : 8px 10px;
+    overflow-y                         : auto;
+}
+
+.na-le-section.is-folded .na-le-section__body,
+.na-le-section.is-folded .na-le-section__grip {
+    display                            : none;
+}
+
+.na-le-section__grip {
+    height                             : 5px;
+    cursor                             : row-resize;
+    background                         : transparent;
+}
+
+.na-le-section__grip:hover {
+    background                         : rgba(26, 127, 196, 0.35);
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Rows and Controls                                      */
+/* ----------------------------------------------------------------- */
+
+.na-le-row {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    margin-bottom                      : 6px;
+}
+
+.na-le-row[hidden] {
+    display                            : none;
+}
+
+.na-le-row__label {
+    flex                               : 0 0 78px;
+    color                              : #555;
+    font-size                          : 0.74rem;
+}
+
+.na-le-row--toggle .na-le-row__label {
+    flex                               : 1 1 auto;
+}
+
+.na-le-input,
+.na-le-select {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    padding                            : 3px 6px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 4px;
+    background                         : #ffffff;
+    color                              : #172b3a;
+    font-size                          : 0.76rem;
+    font-family                        : inherit;
+}
+
+.na-le-input:disabled,
+.na-le-select:disabled {
+    background                         : #f4f6f8;
+    color                              : #6c757d;
+}
+
+.na-le-input--check {
+    flex                               : 0 0 auto;
+    width                              : 16px;
+    height                             : 16px;
+    padding                            : 0;
+}
+
+.na-le-input--colour {
+    flex                               : 0 0 44px;
+    height                             : 24px;
+    padding                            : 1px;
+}
+
+.na-le-input--inline {
+    flex                               : 1 1 auto;
+    padding                            : 1px 4px;
+}
+
+.na-le-select--compact {
+    flex                               : 0 0 92px;
+    padding                            : 2px 4px;
+}
+
+.na-le-grid4 {
+    display                            : flex;
+    flex                               : 1 1 auto;
+    gap                                : 4px;
+    min-width                          : 0;
+}
+
+.na-le-grid4 .na-le-input {
+    flex                               : 1 1 0;
+    min-width                          : 0;
+    padding                            : 3px 4px;
+}
+
+.na-le-toggle-group {
+    display                            : flex;
+    flex                               : 1 1 auto;
+    gap                                : 4px;
+}
+
+.na-le-bar {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    align-items                        : center;
+    gap                                : 6px;
+    margin                             : 4px 0 8px;
+}
+
+.na-le-bar[hidden] {
+    display                            : none;
+}
+
+.na-le-block[hidden] {
+    display                            : none;
+}
+
+.na-le-subheading {
+    margin                             : 10px 0 6px;
+    font-size                          : 0.72rem;
+    font-weight                        : 600;
+    text-transform                     : uppercase;
+    letter-spacing                     : 0.04em;
+    color                              : #6c757d;
+}
+
+.na-le-note {
+    margin                             : 4px 0 8px;
+    font-size                          : 0.72rem;
+    line-height                        : 1.35;
+    color                              : #6c757d;
+}
+
+.na-le-note[hidden] {
+    display                            : none;
+}
+
+.na-le-btn {
+    padding                            : 4px 10px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #f4f6f8;
+    color                              : #172b3a;
+    font-size                          : 0.74rem;
+    font-family                        : inherit;
+    cursor                             : pointer;
+    white-space                        : nowrap;
+}
+
+.na-le-btn:hover:not(:disabled) {
+    background                         : #e8edf3;
+}
+
+.na-le-btn:disabled {
+    opacity                            : 0.5;
+    cursor                             : default;
+}
+
+.na-le-btn--primary {
+    border-color                       : #1a7fc4;
+    color                              : #1a7fc4;
+    background                         : #eef5fb;
+}
+
+.na-le-btn--danger {
+    border-color                       : #cc3333;
+    color                              : #cc3333;
+    background                         : #fdf0f0;
+}
+
+.na-le-btn--toggle {
+    flex                               : 1 1 0;
+    padding                            : 4px 6px;
+}
+
+.na-le-btn--active {
+    border-color                       : #1a7fc4;
+    background                         : #1a7fc4;
+    color                              : #ffffff;
+}
+
+.na-le-btn--small {
+    padding                            : 3px 8px;
+}
+
+.na-le-btn--icon {
+    flex                               : 0 0 auto;
+    min-width                          : 38px;
+    padding                            : 2px 4px;
+    font-size                          : 0.68rem;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Layer Rows                                             */
+/* ----------------------------------------------------------------- */
+
+.na-le-layers {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 3px;
+    margin-bottom                      : 6px;
+}
+
+.na-le-layer {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 4px;
+    padding                            : 3px 4px;
+    border                             : 1px solid transparent;
+    border-radius                      : 4px;
+    background                         : #f8f9fa;
+}
+
+.na-le-layer:hover {
+    background                         : #eef2f5;
+}
+
+.na-le-layer--hidden .na-le-layer__name {
+    color                              : #9aa5ad;
+    text-decoration                    : line-through;
+}
+
+.na-le-layer--locked .na-le-layer__name {
+    font-style                         : italic;
+}
+
+.na-le-layer.is-dragging {
+    opacity                            : 0.5;
+}
+
+.na-le-layer.is-drop-target {
+    border-color                       : #1a7fc4;
+}
+
+.na-le-layer__name {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+    cursor                             : default;
+}
+
+/* endregion ------------------------------------------------------- */

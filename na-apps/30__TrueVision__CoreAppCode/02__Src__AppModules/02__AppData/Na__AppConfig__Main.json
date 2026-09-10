@@ -300,6 +300,10 @@
             "SecondFloor",
             "ThirdFloor"
         ]
+    },
+
+    "LayoutEditor__Config": {
+        "LayoutEditor__Config__Description"   : "Layout Editor (re-alignment Phase E). Drawing tabs are visible to everyone; authoring is localhost-only and the web build is read-only.",
+        "LayoutEditor__Config__ReadOnlyOnWeb" : true
     }
 }
-

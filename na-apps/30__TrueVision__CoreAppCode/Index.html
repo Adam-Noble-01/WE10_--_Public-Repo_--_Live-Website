@@ -541,6 +541,16 @@
                         <!-- Controls generated dynamically by Na__ProjectedLinework__DevMenu__Controls__.js -->
                     </div>
                 </li>
+                <!-- @delegate: ./02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__DevMenu__Controls__.js -->
+                <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naLayoutEditorDevItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naLayoutEditorDevToggle" aria-expanded="false">
+                        Layout Editor
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel na-pm-dev__panel" id="naLayoutEditorDevPanel">
+                        <!-- Controls generated dynamically by Na__LayoutEditor__DevMenu__Controls__.js -->
+                    </div>
+                </li>
                 <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naCacheStorageDevItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naCacheStorageDevToggle" aria-expanded="false">
                         Cache &amp; Storage
@@ -787,11 +797,15 @@
     import { Na__SectionCut__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
     import { Na__DrawProfile__SetEnabled } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
     import { Na__DrawView__ProjectData__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__DrawView__RenderPreset__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__RenderPreset__.js';
     import { Na__SectionCut__SceneData__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__SceneData__.js';
     import { Na__PlCfg__SetAppConfig } from './02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__ConfigAccess__.js';
     import { Na__PlOverlay__Initialize } from './02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__SvgOverlay__.js';
     import { Na__PlPipe__Initialize } from './02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__Pipeline__.js';
     import { Na__ProjectedLinework__DevMenu__Initialize } from './02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__DevMenu__Controls__.js';
+    import { Na__LeMode__Initialize } from './02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__ModeController__.js';
+    import { Na__LeTabs__Initialize } from './02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__TabStrip__.js';
+    import { Na__LayoutEditor__DevMenu__Initialize } from './02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__DevMenu__Controls__.js';
     import { Na__FloorPlanMode__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
     import { Na__FloorPlan__DevMenu__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__DevMenu__Editor__.js';
     import { Na__ElevationMode__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__ModeController__.js';
@@ -1541,12 +1555,41 @@
         });
     });
 
+    // DRAWING RENDER PRESET | The one route every drawing render takes
+    // @delegate: ./02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__RenderPreset__.js
+    // Without this the preset holds no renderer, RenderFrame silently returns
+    // false, and every offscreen bake comes back as an untouched black buffer -
+    // which reads as "the drawing is broken" rather than "nothing was drawn".
+    Na__DrawView__RenderPreset__Initialize({
+        renderer : Na__Renderer__Main,
+        scene    : Na__Scene__Main
+    });
+    // ------------------------------------------------------------
+
     // PROJECTED LINEWORK | Config, overlay, pipeline and Dev section (re-alignment Phase D)
     // @delegate: ./02__Src__AppModules/50__System__ProjectedLinework/
     Na__PlCfg__SetAppConfig(Na__AppConfig__Data);                               // <-- Main config overrides the exclusion tokens
     Na__PlOverlay__Initialize({ canvas : Na__Renderer__Main.domElement });
     Na__PlPipe__Initialize({ modelRoot : Na__ModelGroup__Root });
     Na__ProjectedLinework__DevMenu__Initialize({ modelRoot : Na__ModelGroup__Root, showToast : Na__UiFeature__ShowToast });
+    // ------------------------------------------------------------
+
+    // LAYOUT EDITOR | Sheets, tab strip and Dev section (re-alignment Phase E)
+    // @delegate: ./02__Src__AppModules/51__System__LayoutEditor/
+    Na__LeMode__Initialize({
+        renderer    : Na__Renderer__Main,
+        scene       : Na__Scene__Main,
+        camera      : Na__Camera__Main,
+        controls    : Na__Controls__Orbit,
+        pipelineRef : Na__AppFlow__PipelineRef,                                 // <-- Rebuilt on every engine switch; read lazily
+        modelRoot   : Na__ModelGroup__Root,
+        appConfig   : Na__AppConfig__Data,                                      // <-- LayoutEditor__Config (web read-only flag)
+        showToast   : Na__UiFeature__ShowToast
+    }).then((enabled) => {
+        if (!enabled) return;                                                   // <-- Feature off in config: no tabs, no Dev section
+        Na__LeTabs__Initialize();                                               // <-- 3D Model plus one tab per sheet under the header
+        Na__LayoutEditor__DevMenu__Initialize({ showToast : Na__UiFeature__ShowToast });
+    });
     // ------------------------------------------------------------
 
     Na__ElevGizmo__Initialize(Na__Scene__Main);                 // <-- Setup marker lives in the scene, outside the model root

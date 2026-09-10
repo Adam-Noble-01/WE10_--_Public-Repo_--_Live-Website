@@ -300,6 +300,70 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
 // endregion -------------------------------------------------------------------
 
 
+
+// -----------------------------------------------------------------------------
+// REGION | Drawing and Sheet Visibility Control (re-alignment Phase E)
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Snapshot Every Category's Visibility
+    // ------------------------------------------------------------
+    // ValeVision's name for GetVisibilityState. Aliased rather than renamed
+    // because both names now have callers, and the shared Layout Editor modules
+    // use this one - a rename would fork them.
+    // ------------------------------------------------------------
+    function Na__ModelToggle__CaptureVisibilityMap() {
+        return Na__ModelToggle__GetVisibilityState();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Restore a Snapshot Taken by CaptureVisibilityMap
+    // ------------------------------------------------------------
+    function Na__ModelToggle__ApplySceneLayerVisibility(visibilityState) {
+        return Na__ModelToggle__ApplyVisibilityState(visibilityState);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Show or Hide One Category by Key or Token
+    // ------------------------------------------------------------
+    // NOTE: a second, exact-key SetCategoryVisibility already exists above and
+    // is used internally by the toggle buttons. It is left alone. This one is
+    // the TOKEN matcher the shared Layout Editor modules need, and it is
+    // exported under the plain name they import.
+    // The Context Layer style toggle takes the existing building, the site
+    // boundaries, the landscape and the entourage out of a viewport's render,
+    // leaving the proposal on its own.
+    //
+    // MATCHES BY TOKEN, not by exact key. The shared caller names categories the
+    // ValeVision way ("Landscape", "Entourage") while a TrueVision category key
+    // is the full SketchUp path ("TrueVision__LandscapeEnvironment"). An exact
+    // match would silently hide nothing and the toggle would look broken rather
+    // than fail. Returns how many categories were actually changed, so a caller
+    // can tell "nothing matched" from "nothing to do".
+    // ------------------------------------------------------------
+    function Na__ModelToggle__SetCategoryVisibleByToken(categoryKeyOrToken, visible) {
+        if (!categoryKeyOrToken) return 0;
+        const token   = String(categoryKeyOrToken).toLowerCase();
+        const wanted  = visible !== false;
+        let   changed = 0;
+
+        Na__ModelToggle__StateMap.forEach((entry, categoryKey) => {
+            if (String(categoryKey).toLowerCase().indexOf(token) === -1) return;
+            entry.visible = wanted;
+            if (entry.group) entry.group.visible = wanted;
+            Na__ModelToggle__SyncButtonState(categoryKey, wanted);
+            changed += 1;
+        });
+
+        if (changed > 0) Na__RenderLoop__RequestRender();
+        return changed;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
 // -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
@@ -310,7 +374,10 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
         Na__UiFeature__InitializeModelToggleControls,
         Na__ModelToggle__GetVisibilityState,
         Na__ModelToggle__ApplyVisibilityState,
-        Na__ModelToggle__SetAllCategoriesVisible
+        Na__ModelToggle__SetAllCategoriesVisible,
+        Na__ModelToggle__CaptureVisibilityMap,
+        Na__ModelToggle__ApplySceneLayerVisibility,
+        Na__ModelToggle__SetCategoryVisibleByToken as Na__ModelToggle__SetCategoryVisibility
     };
     // ------------------------------------------------------------
 

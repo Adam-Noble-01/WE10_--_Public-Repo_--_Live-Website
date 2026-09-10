@@ -152,8 +152,14 @@
     // a flat white background and the silhouette edge pass at the drawing's own
     // fixed line weight.
     // ------------------------------------------------------------
-    function Na__DrawView__RenderPreset__Enter(styles) {
+    // Accepts either a plain styles object or ValeVision's { camera, styles }
+    // options bag. The camera is not stored - TrueVision's mode controllers own
+    // their cameras and the broker knows which is live - but accepting the bag
+    // means the shared callers, above all the Layout Editor's snapshot renderer,
+    // are byte-identical between the two trees.
+    function Na__DrawView__RenderPreset__Enter(options) {
         if (!Na__DrawPreset__Renderer || !Na__DrawPreset__Scene) return false;
+        const styles = (options && options.styles !== undefined) ? options.styles : options;
 
         if (!Na__DrawPreset__Active) {
             Na__DrawPreset__SavedBackground   = Na__DrawPreset__Scene.background;

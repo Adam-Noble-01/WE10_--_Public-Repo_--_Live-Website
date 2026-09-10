@@ -1,0 +1,341 @@
+{
+    "LayoutEditor__Description": "Layout Editor (port Phase 5): sheets of drawings. A sheet is a paper size with a title block, free-placed viewports onto the project's plans, elevations, sections and 3D scenes at locked scales, and its own text and dimensions. Sheets live in LayoutEditor__DrawingsData.__Sheets in project.json; snapshots and projected linework are R2 assets. Every value here is a built-in default; LayoutEditor__Config in Na__AppConfig__Main.json carries the web read-only guard. Paper distances are millimetres.",
+
+    "LayoutEditor__Enabled": true,
+
+    "LayoutEditor__Sheet__Config": {
+        "LayoutEditor__Sheet__Description": "Paper. Sizes are listed landscape (long edge first); portrait swaps them. MarginMm is the border inset; the title block band sits inside the margin at the foot of the sheet, with BlockGapMm of clear paper between it and the drawing area above. ScreenPixelsPerMm is the base on-screen size at zoom 1; printed output is driven by the PDF exporter, never by this value.",
+        "LayoutEditor__Sheet__DefaultPaperSize": "A3",
+        "LayoutEditor__Sheet__DefaultOrientation": "landscape",
+        "LayoutEditor__Sheet__MarginMm": 5,
+        "LayoutEditor__Sheet__MarginMmNote": "5 mm, matching a Lantern Designer drawing. A sheet from either app trims to the same border, so the two sit together in one pack rather than reading as output from two different offices.",
+        "LayoutEditor__Sheet__BlockGapMm": 3,
+        "LayoutEditor__Sheet__BlockGapMmNote": "Clear paper between the drawing area and the title block strip. Without it the strip reads as a row of the drawing rather than as the sheet own footer. Screen sheet and PDF both honour this value.",
+        "LayoutEditor__Sheet__BorderStrokeMm": 0.5,
+        "LayoutEditor__Sheet__ScreenPixelsPerMm": 3.2,
+        "LayoutEditor__Sheet__DefaultNameFormat": "Drawing {index}",
+        "LayoutEditor__Sheet__PaperSizes": {
+            "A4": { "Label": "A4", "WidthMm": 297, "HeightMm": 210 },
+            "A3": { "Label": "A3", "WidthMm": 420, "HeightMm": 297 },
+            "A2": { "Label": "A2", "WidthMm": 594, "HeightMm": 420 },
+            "A1": { "Label": "A1", "WidthMm": 841, "HeightMm": 594 }
+        }
+    },
+
+    "LayoutEditor__Style__Config": {
+        "LayoutEditor__Style__Description": "How everything printed on a sheet that is not a view is painted. Read by the chrome module, which draws the on-screen sheet and the PDF from one primitive list. FontFamily leads with Helvetica because that is what jsPDF embeds; Open Sans is the app face and metrically close enough for labels.",
+        "LayoutEditor__Style__FontFamily": "Helvetica, Arial, 'Open Sans', sans-serif",
+        "LayoutEditor__Style__PaperColour": "#ffffff",
+        "LayoutEditor__Style__InkColour": "#172b3a",
+        "LayoutEditor__Style__FrameLineColour": "#8a949c",
+        "LayoutEditor__Style__MutedTextColour": "#6c757d",
+        "LayoutEditor__Style__SelectionColour": "#336699",
+        "LayoutEditor__Style__FrameStrokeMm": 0.25,
+        "LayoutEditor__Style__FrameLabelFontMm": 2.4,
+        "LayoutEditor__Style__FrameLabelHeightMm": 5,
+        "LayoutEditor__Style__CellPaddingMm": 1.9,
+
+        "LayoutEditor__Style__FrameLabelWeight": "bold",
+        "LayoutEditor__Style__FrameLabelTrackingMm": 0.16,
+        "LayoutEditor__Style__FrameLabelUppercase": true,
+
+        "LayoutEditor__Style__TitleLabelWeight": "normal",
+        "LayoutEditor__Style__TitleLabelTrackingMm": 0.05,
+        "LayoutEditor__Style__TitleLabelUppercase": true,
+        "LayoutEditor__Style__TitleValueWeight": "normal",
+        "LayoutEditor__Style__TitleValueWeightNote": "Regular, not bold. jsPDF standard Helvetica only embeds regular and bold by reference - there is no semi-bold cut available without shipping a font file - so regular is the lighter of the two weights this title block can actually offer on both screen and PDF.",
+
+        "LayoutEditor__Style__TrackingNote": "Letter spacing in millimetres, not ems, because a PDF content stream sets character spacing in the page unit. Both painters add it after every glyph and the text measurer counts it, so a tracked run truncates in the same place on screen as on paper."
+    },
+
+    "LayoutEditor__TitleBlock__Config": {
+        "LayoutEditor__TitleBlock__Description": "Two styles (D26). Modern is a vector strip: the Vale logo and one row of fields from Rows, sized and typeset to match a Lantern Designer drawing so the two apps issue the same title block. Classic is the office's scanned title block stretched to the full sheet with the text fields overlaid at the anchors below; A4, A2 and A1 fall back to the A3 scan until their scans are added. Fields default from the project and are editable per sheet.",
+        "LayoutEditor__TitleBlock__DefaultStyle": "modern",
+        "LayoutEditor__TitleBlock__HeightMm": 10,
+        "LayoutEditor__TitleBlock__HeightMmNote": "The printed height of a Lantern Designer title block strip. It was 16 mm, and no arrangement of a label and a value fills that much band - the strip read as an empty box with writing in its corners rather than as a title block.",
+        "LayoutEditor__TitleBlock__LogoAssetPath": "../01__Assets__NaApps__CommonAssets/NaApps__CommonGraphics/NaBrandGraphic__CompanyLogo__w2048xh500px__.png",
+        "LayoutEditor__TitleBlock__LogoCellWidthMm": 34,
+        "LayoutEditor__TitleBlock__LogoWidthMm": 33,
+        "LayoutEditor__TitleBlock__LogoMaxHeightMm": 5.5,
+        "LayoutEditor__TitleBlock__LogoAspectWidthOverHeight": 4.096,
+        "LayoutEditor__TitleBlock__LogoAspectWidthOverHeightNote": "The asset is 2048 x 500 px, so 4.096 (re-measured 10-Sep-2026 when the Vale mark was replaced with the Noble Architecture one; the Vale asset was 2000 x 444 and 4.5). The asset cache hands the chrome a data URL and no dimensions, and both painters stretch an image to whatever rectangle they are given, so the aspect has to be stated here rather than measured. It was assumed to be 4.2, which printed the Vale mark 7 percent too tall on every sheet. Re-measure this if the logo file is ever replaced.",
+        "LayoutEditor__TitleBlock__LogoPaddingVMm": 1.8,
+        "LayoutEditor__TitleBlock__LogoPaddingHMm": 2.5,
+        "LayoutEditor__TitleBlock__FontSizeLabelMm": 1.6,
+        "LayoutEditor__TitleBlock__FontSizeValueMm": 2.2,
+        "LayoutEditor__TitleBlock__FieldPaddingHMm": 1.4,
+        "LayoutEditor__TitleBlock__FieldPaddingTopMm": 2.4,
+        "LayoutEditor__TitleBlock__FieldPaddingBottomMm": 0.8,
+        "LayoutEditor__TitleBlock__FieldLabelOffsetTopMm": 1.5,
+        "LayoutEditor__TitleBlock__FieldPaddingNote": "The label hangs from the top of the strip at FieldLabelOffsetTopMm; the value is optically centred in the band left between FieldPaddingTopMm and FieldPaddingBottomMm. That is what makes a cell read as a small caption over a value, rather than as two runs pinned to opposite edges of a box - which is what pinning the value to the foot of the strip used to give.",
+        "LayoutEditor__TitleBlock__DrawnByDefault": "Noble Architecture",
+        "LayoutEditor__TitleBlock__Rows": [
+            { "Key": "Client",        "Label": "Client",        "WidthMm": 30 },
+            { "Key": "SiteAddress",   "Label": "Site Address",  "WidthMm": 50 },
+            { "Key": "Title",         "Label": "Drawing Title", "WidthMm": 40 },
+            { "Key": "DrawingNumber", "Label": "Drawing No.",   "WidthMm": 18 },
+            { "Key": "Revision",      "Label": "Rev",           "WidthMm": 8  },
+            { "Key": "Scale",         "Label": "Scale",         "WidthMm": 20 },
+            { "Key": "Date",          "Label": "Date",          "WidthMm": 16 },
+            { "Key": "DrawnBy",       "Label": "Drawn By",      "WidthMm": 20 }
+        ],
+        "LayoutEditor__TitleBlock__ClassicScanAssets": {
+            "A3": "./02__Src__AppModules/90__System__PageLayoutSystem/PageLayoutSystem__TitleBlock__A3__.png",
+            "A4": "./02__Src__AppModules/90__System__PageLayoutSystem/PageLayoutSystem__TitleBlock__A3__.png",
+            "A2": "./02__Src__AppModules/90__System__PageLayoutSystem/PageLayoutSystem__TitleBlock__A3__.png",
+            "A1": "./02__Src__AppModules/90__System__PageLayoutSystem/PageLayoutSystem__TitleBlock__A3__.png"
+        },
+        "LayoutEditor__TitleBlock__ClassicFieldAnchorsNote": "Paper-mm anchors per paper size, measured from the top-left of the sheet, for the text overlaid on the scan. FontMm is the value size. Adjust once against the scan and every sheet follows.",
+        "LayoutEditor__TitleBlock__ClassicFieldAnchors": {
+            "A3": {
+                "Client":        { "X": 292, "Y": 262, "FontMm": 2.4, "Align": "left" },
+                "SiteAddress":   { "X": 292, "Y": 268, "FontMm": 2.2, "Align": "left" },
+                "Title":         { "X": 292, "Y": 276, "FontMm": 2.6, "Align": "left" },
+                "DrawingNumber": { "X": 330, "Y": 289, "FontMm": 2.4, "Align": "left" },
+                "Revision":      { "X": 372, "Y": 289, "FontMm": 2.4, "Align": "left" },
+                "Scale":         { "X": 292, "Y": 283, "FontMm": 2.2, "Align": "left" },
+                "Date":          { "X": 330, "Y": 283, "FontMm": 2.2, "Align": "left" },
+                "DrawnBy":       { "X": 372, "Y": 283, "FontMm": 2.2, "Align": "left" }
+            }
+        }
+    },
+
+    "LayoutEditor__Scales__Config": {
+        "LayoutEditor__Scales__Description": "Locked scales for 2D viewports (D27). A viewport quotes one of these; the three-way toggle on the Viewport Settings panel steps through them.",
+        "LayoutEditor__Scales__AvailableScaleDenominators": [20, 50, 100],
+        "LayoutEditor__Scales__DefaultScaleDenominator": 50,
+        "LayoutEditor__Scales__ScaleLabelPrefix": "1:",
+        "LayoutEditor__Scales__NotToScaleLabel": "NTS"
+    },
+
+    "LayoutEditor__Viewport__Config": {
+        "LayoutEditor__Viewport__Description": "Viewports are free rectangles in paper millimetres (D29). A 2D viewport is a window onto a drawing at its scale: edge handles crop or extend the window, dragging inside pans it, corners do nothing. A 3D viewport is a raster snapshot: corners scale it proportionally, edges crop. Snapshot densities are pixels per paper millimetre on screen; the PDF exporter has its own.",
+        "LayoutEditor__Viewport__DefaultWidthMm": 180,
+        "LayoutEditor__Viewport__DefaultHeightMm": 120,
+        "LayoutEditor__Viewport__MinSizeMm": 20,
+        "LayoutEditor__Viewport__HandleSizePx": 9,
+        "LayoutEditor__Viewport__HandleHitRadiusPx": 10,
+        "LayoutEditor__Viewport__ShowScaleLabel": true,
+        "LayoutEditor__Viewport__DefaultStylesNote": "What a new viewport starts with. Projected Linework is off so laying out a sheet never triggers a projection; switch it on per viewport when the layout is settled, the way a raster viewport becomes a vector one in SketchUp LayOut. The raster underlay renders either way.",
+        "LayoutEditor__Viewport__DefaultStyles": {
+            "BaseImage": true,
+            "ProjectedLinework": false,
+            "ProfileLinework": false,
+            "GlassOpaque": true,
+            "Whitecard": true,
+            "HiddenLines": false,
+            "ContextLayer": true,
+            "EnhanceWhitecard": true
+        },
+        "LayoutEditor__Viewport__AssetFolder": "LayoutEditor/Snapshots"
+    },
+
+    "LayoutEditor__Raster__Config": {
+        "LayoutEditor__Raster__Description": "Resolution of the viewport pictures (the 2D underlay and the 3D snapshot) in pixels per paper millimetre, with a longest-side cap per level. Low is 152 dpi, Medium 305 dpi (print quality at paper size) and High 508 dpi, so a picture stays sharp zoomed in. The working level is global, remembered per browser and starts at DefaultLevel; the PDF and the Dev bakes always use ExportLevel. ScaleWithDevicePixelRatio multiplies the working levels by the screen density (up to 2x) so a high-density screen stays sharp.",
+        "LayoutEditor__Raster__DefaultLevel": "medium",
+        "LayoutEditor__Raster__ExportLevel": "high",
+        "LayoutEditor__Raster__ScaleWithDevicePixelRatio": true,
+        "LayoutEditor__Raster__Levels": {
+            "low":    { "PixelsPerMm": 6,  "MaxPixels": 3072 },
+            "medium": { "PixelsPerMm": 12, "MaxPixels": 5120 },
+            "high":   { "PixelsPerMm": 20, "MaxPixels": 8192 }
+        }
+    },
+    "LayoutEditor__Text__Config": {
+        "LayoutEditor__Text__Description": "Sheet text (D31). Sizes are paper millimetres. Weights are the Open Sans cuts the app loads.",
+        "LayoutEditor__Text__FontFamily": "'Open Sans', Helvetica, Arial, sans-serif",
+        "LayoutEditor__Text__DefaultSizeMm": 3,
+        "LayoutEditor__Text__MinSizeMm": 1.5,
+        "LayoutEditor__Text__MaxSizeMm": 14,
+        "LayoutEditor__Text__SizeStepMm": 0.5,
+        "LayoutEditor__Text__AllowedWeights": [300, 400, 600],
+        "LayoutEditor__Text__DefaultWeight": 400,
+        "LayoutEditor__Text__DefaultColour": "#172b3a",
+        "LayoutEditor__Text__DefaultText": "Text",
+        "LayoutEditor__Text__LeaderStrokeMm": 0.2
+    },
+
+    "LayoutEditor__Dimensions__Config": {
+        "LayoutEditor__Dimensions__Description": "Sheet dimensions (D32) drawn in paper millimetres. A dimension placed over a 2D viewport reports paper length times the viewport's scale denominator, so it measures the model; elsewhere it reports paper millimetres. Precision is decimal places; the units suffix follows the figure.",
+        "LayoutEditor__Dimensions__DefaultTextSizeMm": 2.5,
+        "LayoutEditor__Dimensions__MinTextSizeMm": 1.5,
+        "LayoutEditor__Dimensions__MaxTextSizeMm": 8,
+        "LayoutEditor__Dimensions__DefaultColour": "#172b3a",
+        "LayoutEditor__Dimensions__AllowedTerminators": ["tick", "arrow", "dot"],
+        "LayoutEditor__Dimensions__DefaultTerminator": "tick",
+        "LayoutEditor__Dimensions__DefaultOffsetMm": 8,
+        "LayoutEditor__Dimensions__InferenceRadiusPx": 10,
+        "LayoutEditor__Dimensions__ExtensionGapMm": 1.5,
+        "LayoutEditor__Dimensions__ExtensionOvershootMm": 1.5,
+        "LayoutEditor__Dimensions__TickLengthMm": 1.5,
+        "LayoutEditor__Dimensions__StrokeMm": 0.25,
+        "LayoutEditor__Dimensions__TextGapMm": 0.8,
+        "LayoutEditor__Dimensions__DefaultPrecision": 0,
+        "LayoutEditor__Dimensions__DefaultUnitsSuffix": " mm",
+        "LayoutEditor__Dimensions__ThousandsSeparator": ","
+    },
+
+    "LayoutEditor__Panels__Config": {
+        "LayoutEditor__Panels__Description": "The two side columns (Layers on the left; Viewport, Text, Dimensions and Styles on the right). Widths are seeded from here on first use and then remembered for the session.",
+        "LayoutEditor__Panels__LeftWidthPx": 250,
+        "LayoutEditor__Panels__RightWidthPx": 300,
+        "LayoutEditor__Panels__MinWidthPx": 190,
+        "LayoutEditor__Panels__MaxWidthPx": 520,
+        "LayoutEditor__Panels__CollapseOthersOnOpen": false
+    },
+
+    "LayoutEditor__Navigation__Config": {
+        "LayoutEditor__Navigation__Description": "Wheel zooms about the cursor; middle or right drag pans; touch pinches. Left click is for editing.",
+        "LayoutEditor__Navigation__ZoomMin": 0.15,
+        "LayoutEditor__Navigation__ZoomMax": 8,
+        "LayoutEditor__Navigation__ZoomWheelStep": 0.0016,
+        "LayoutEditor__Navigation__FitPaddingPx": 32
+    },
+
+    "LayoutEditor__Snapping__Config": {
+        "LayoutEditor__Snapping__Description": "Object snaps on the projected linework inside 2D viewports, for placing and dragging sheet dimensions. RadiusPx is the pick radius on screen at any zoom. Endpoints and midpoints of every painted segment are candidates; an endpoint wins a near tie. HiddenLines adds the hidden class as a source. The toggle (toolbar button or the Snap__Toggle key binding) is remembered per browser.",
+        "LayoutEditor__Snapping__Enabled": true,
+        "LayoutEditor__Snapping__RadiusPx": 14,
+        "LayoutEditor__Snapping__Endpoints": true,
+        "LayoutEditor__Snapping__Midpoints": true,
+        "LayoutEditor__Snapping__HiddenLines": false,
+        "LayoutEditor__Snapping__MarkerSizePx": 18
+    },
+    "LayoutEditor__History__Config": {
+        "LayoutEditor__History__Description": "Undo and redo per sheet. Every announced change is one step (a drag is one step); MaxSteps is how many are kept.",
+        "LayoutEditor__History__MaxSteps": 50
+    },
+    "LayoutEditor__Selection__Config": {
+        "LayoutEditor__Selection__Description": "How a press finds things on the paper. HitToleranceMm is paper millimetres at 100 percent (it shrinks as you zoom in); a drag starts past DragThresholdMm; grips are drawn GripSizePx square on screen at any zoom.",
+        "LayoutEditor__Selection__HitToleranceMm": 1.5,
+        "LayoutEditor__Selection__DragThresholdMm": 0.5,
+        "LayoutEditor__Selection__GripSizePx": 9
+    },
+    "LayoutEditor__Lineweights__Config": {
+        "LayoutEditor__Lineweights__Description": "Printed line weights in points (1 pt = 0.3528 mm), the unit a drawing office reads. These are the defaults a new sheet starts with; the Sheet panel edits them per sheet. ViewportPt is the visible projected linework; the hidden, authored and section classes keep their ratios from the Linework block.",
+        "LayoutEditor__Lineweights__ViewportPt": 0.30,
+        "LayoutEditor__Lineweights__DimensionPt": 0.35,
+        "LayoutEditor__Lineweights__MinPt": 0.05,
+        "LayoutEditor__Lineweights__MaxPt": 3,
+        "LayoutEditor__Lineweights__StepPt": 0.05
+    },
+    "LayoutEditor__Shapes__Config": {
+        "LayoutEditor__Shapes__Description": "The Draw tool's vector shapes (lines, polylines, polygons). Defaults for a new shape; the Vectors panel edits them. CloseRadiusPx is how near the first point a click has to land to close a polygon. DefaultStroked draws the edges; with it off a new shape is its fill alone, so DefaultFilled must be on as well or the shape would have nothing to show.",
+        "LayoutEditor__Shapes__DefaultStrokeColour": "#172b3a",
+        "LayoutEditor__Shapes__DefaultStrokePt": 0.20,
+        "LayoutEditor__Shapes__DefaultStroked": true,
+        "LayoutEditor__Shapes__DefaultFillColour": "#e4e8ec",
+        "LayoutEditor__Shapes__DefaultFilled": false,
+        "LayoutEditor__Shapes__CloseRadiusPx": 10
+    },
+    "LayoutEditor__Enhance__Config": {
+        "LayoutEditor__Enhance__Description": "The Enhance Whitecard viewport style: the image export's levels and high-pass sharpen, applied to a viewport's render. A white point of 205 sends the shaded whitecard faces to paper white while the linework stays dark.",
+        "LayoutEditor__Enhance__LevelsBlack": 0,
+        "LayoutEditor__Enhance__LevelsWhite": 205,
+        "LayoutEditor__Enhance__LevelsGamma": 1.0,
+        "LayoutEditor__Enhance__SharpenEnabled": true,
+        "LayoutEditor__Enhance__SharpenRadius": 2.0,
+        "LayoutEditor__Enhance__SharpenBlendMode": "Overlay",
+        "LayoutEditor__Enhance__SharpenOpacity": 1.0
+    },
+    "LayoutEditor__AutoSave__Config": {
+        "LayoutEditor__AutoSave__Description": "A browser draft of every change, put back on the next load while unsaved, and a project save of its own DebounceMs after a sheet is created, renamed, reordered or deleted. Localhost only; the web build is read-only.",
+        "LayoutEditor__AutoSave__Enabled": true,
+        "LayoutEditor__AutoSave__DebounceMs": 1500,
+        "LayoutEditor__AutoSave__DraftEnabled": true
+    },
+    "LayoutEditor__Linework__Config": {
+        "LayoutEditor__Linework__Description": "Paper-millimetre stroke widths for the projected linework inside sheet viewports (they print at these widths at any scale). Colours follow the Projected Linework appearance block so a sheet matches its scene.",
+        "LayoutEditor__Linework__VisibleWidthMm": 0.25,
+        "LayoutEditor__Linework__HiddenWidthMm": 0.18,
+        "LayoutEditor__Linework__HiddenDashMm": 1.2,
+        "LayoutEditor__Linework__AuthoredWidthMm": 0.2,
+        "LayoutEditor__Linework__SectionWidthMm": 0.5,
+        "LayoutEditor__Linework__MinSegmentPaperMm": 0.05
+    },
+    "LayoutEditor__Pdf__Config": {
+        "LayoutEditor__Pdf__Description": "jsPDF at true paper size. 2D viewports write the projected linework, dimensions and text as vectors; underlays and 3D viewports are placed as raster images at the Raster block's export level. The vendored UMD build is injected as a classic script on first use.",
+        "LayoutEditor__Pdf__FilenamePattern": "Na__{projectCode}__{sheetName}__{paperSize}.pdf",
+        "LayoutEditor__Pdf__Author": "Noble Architecture Ltd",
+        "LayoutEditor__Pdf__Creator": "TrueVision3D Layout Editor",
+        "LayoutEditor__Pdf__JsPdfScriptPath": "./02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js"
+    },
+
+    "LayoutEditor__Labels__Config": {
+        "LayoutEditor__Labels__Description": "User-facing wording.",
+        "LayoutEditor__Labels__ModelTab": "3D Model",
+        "LayoutEditor__Labels__AddSheetTab": "+",
+        "LayoutEditor__Labels__AddSheetTitle": "New sheet",
+        "LayoutEditor__Labels__LayersTitle": "Layers",
+        "LayoutEditor__Labels__ViewportTitle": "Viewport",
+        "LayoutEditor__Labels__TextTitle": "Text",
+        "LayoutEditor__Labels__DimensionsTitle": "Dimensions",
+        "LayoutEditor__Labels__StylesTitle": "Render Composites",
+        "LayoutEditor__Labels__SheetTitle": "Sheet",
+        "LayoutEditor__Labels__NoSelection": "Select a viewport on the sheet.",
+        "LayoutEditor__Labels__NoSheets": "No sheets yet. Add one from the Dev menu or the + tab.",
+        "LayoutEditor__Labels__ReadOnlyNote": "Read-only on the web build.",
+        "LayoutEditor__Labels__DownloadPdf": "Download PDF",
+        "LayoutEditor__Labels__AddViewport": "Add Viewport",
+        "LayoutEditor__Labels__AddText": "Add Text",
+        "LayoutEditor__Labels__AddDimension": "Add Dimension",
+        "LayoutEditor__Labels__ImportFromScene": "Import From Scene",
+        "LayoutEditor__Labels__EditInDrawing": "Edit In Drawing",
+        "LayoutEditor__Labels__SavedMessage": "Sheets saved to R2.",
+        "LayoutEditor__Labels__SaveFailedMessage": "Sheet save failed - see console.",
+        "LayoutEditor__Labels__DeleteSheetPrompt": "Delete the sheet \"{name}\"? Its viewports, text and dimensions go with it.",
+        "LayoutEditor__Labels__PdfReadyMessage": "PDF downloaded.",
+        "LayoutEditor__Labels__PdfFailedMessage": "PDF export failed - see console.",
+        "LayoutEditor__Labels__SnapToggle": "Snap",
+        "LayoutEditor__Labels__SnapToggleTitle": "Snap dimensions to the linework endpoints and midpoints (F3)",
+        "LayoutEditor__Labels__ProjectingLinework": "Projecting linework",
+        "LayoutEditor__Labels__Undo": "Undo",
+        "LayoutEditor__Labels__Redo": "Redo",
+        "LayoutEditor__Labels__MenuEditView": "Edit viewport content",
+        "LayoutEditor__Labels__MenuFinishView": "Finish editing content",
+        "LayoutEditor__Labels__MenuLock": "Lock viewport",
+        "LayoutEditor__Labels__MenuUnlock": "Unlock viewport",
+        "LayoutEditor__Labels__MenuCentre": "Recentre content",
+        "LayoutEditor__Labels__MenuDeleteViewport": "Delete viewport",
+        "LayoutEditor__Labels__MenuEditText": "Edit text",
+        "LayoutEditor__Labels__MenuDeleteText": "Delete text",
+        "LayoutEditor__Labels__MenuDeleteDimension": "Delete dimension",
+        "LayoutEditor__Labels__MenuZoomFit": "Zoom to fit",
+        "LayoutEditor__Labels__MenuSnapOn": "Snapping on",
+        "LayoutEditor__Labels__MenuSnapOff": "Snapping off",
+        "LayoutEditor__Labels__EditingViewNote": "Editing viewport content: drag to reposition, Esc to finish",
+        "LayoutEditor__Labels__LockedLabel": "Locked",
+        "LayoutEditor__Labels__LockedNote": "Locked",
+        "LayoutEditor__Labels__DraftRestored": "Unsaved sheet changes from this browser were restored. Save Sheets keeps them.",
+        "LayoutEditor__Labels__ToolDraw": "Draw",
+        "LayoutEditor__Labels__ShapesTitle": "Vectors",
+        "LayoutEditor__Labels__ShapeStroked": "Edges",
+        "LayoutEditor__Labels__ShapeStroke": "Edge colour",
+        "LayoutEditor__Labels__ShapeStrokePt": "Edge pt",
+        "LayoutEditor__Labels__ShapeFill": "Fill",
+        "LayoutEditor__Labels__ShapeFillColour": "Fill colour",
+        "LayoutEditor__Labels__ShapeClosed": "Closed",
+        "LayoutEditor__Labels__ShapeSelectedNote": "Editing the selected shape.",
+        "LayoutEditor__Labels__ShapeDefaultsNote": "Nothing selected: these settings apply to new shapes.",
+        "LayoutEditor__Labels__ShapeEitherNote": "Edges and fill are either or: switching one off switches the other on, so a shape always shows.",
+        "LayoutEditor__Labels__ShapeDrawNote": "Draw tool (L): click points, click the first point to close a polygon, Enter or double-click to finish a line, Esc to abandon.",
+        "LayoutEditor__Labels__ShapeAxisNote": "Arrow keys lock the axis for the next point (left or right locks across, up or down locks down the page); press the same key again to release. A snap still gives the free coordinate, so lock an axis and hover a vertex to line up with it.",
+        "LayoutEditor__Labels__StyleEnhanceWhitecard": "Enhance Whitecard",
+        "LayoutEditor__Labels__StyleBaseImage": "Base Image",
+        "LayoutEditor__Labels__StyleContextLayer": "Context Layer",
+        "LayoutEditor__Labels__Lineweights": "Lineweights (pt)",
+        "LayoutEditor__Labels__ViewportLinesPt": "Viewport lines",
+        "LayoutEditor__Labels__DimensionLinesPt": "Dimension lines",
+        "LayoutEditor__Labels__MenuEditDimText": "Edit dimension value",
+        "LayoutEditor__Labels__MenuDeleteShape": "Delete shape",
+        "LayoutEditor__Labels__MenuCloseShape": "Close shape",
+        "LayoutEditor__Labels__MenuOpenShape": "Open shape",
+        "LayoutEditor__Labels__RasterLabel": "Raster",
+        "LayoutEditor__Labels__RasterLow": "Low",
+        "LayoutEditor__Labels__RasterMedium": "Medium",
+        "LayoutEditor__Labels__RasterHigh": "High",
+        "LayoutEditor__Labels__RasterTitle": "Working resolution of the viewport pictures on screen. The PDF always exports at High.",
+        "LayoutEditor__Labels__RasterGlobal": "Raster (all sheets)",
+        "LayoutEditor__Labels__RasterNote": "Global working resolution of every viewport picture. The PDF always exports at High."
+    }
+}

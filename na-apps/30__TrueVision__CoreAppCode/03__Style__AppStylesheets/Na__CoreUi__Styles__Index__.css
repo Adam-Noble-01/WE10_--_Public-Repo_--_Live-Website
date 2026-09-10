@@ -132,3 +132,10 @@
 /* ----------------------------------------------------------------- */
 @import url('../02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__Styles__Main__.css');
 /* endregion -------------------------------------------------------- */
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Layout Editor - Stage, Paper, Panels                    */
+/* ----------------------------------------------------------------- */
+@import url('../02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__Styles__Main__.css');
+@import url('../02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__Styles__Panels__.css');
+/* endregion -------------------------------------------------------- */

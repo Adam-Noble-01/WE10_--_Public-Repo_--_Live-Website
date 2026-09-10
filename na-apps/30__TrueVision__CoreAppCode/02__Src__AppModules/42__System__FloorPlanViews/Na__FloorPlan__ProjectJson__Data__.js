@@ -61,6 +61,22 @@
 // endregion -------------------------------------------------------------------
 
 
+    // MODULE IMPORTS | The Drawings Block (records moved here in v2.21.0)
+    // ------------------------------------------------------------
+    // Records used to live nested inside PresentationMode__SavedCameraScenes.
+    // They now live in the top-level LayoutEditor__DrawingsData block, and this
+    // module reads them from there. The sceneConfig argument is kept on every
+    // public function because the SCENE side of the link - which scene shows
+    // which drawing - genuinely still lives in the presentation block.
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js
+    // ------------------------------------------------------------
+    import {
+        Na__DrawData__GetFloorPlansArray,
+        Na__DrawData__GetClientDimensionsEnabled,
+        Na__DrawData__SetClientDimensionsEnabled
+    } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    // ------------------------------------------------------------
+
 // -----------------------------------------------------------------------------
 // REGION | Module Constants
 // -----------------------------------------------------------------------------
@@ -195,9 +211,13 @@
     // the config the save path will write.
     // ------------------------------------------------------------
     function Na__FpData__GetFloorPlans(sceneConfig) {
-        if (!sceneConfig || typeof sceneConfig !== 'object') return [];
+        // NO sceneConfig GUARD. The records moved to the top-level drawings
+        // block in v2.21.0, so reading them does not need the scene config at
+        // all - and callers legitimately pass null. The old guard returned an
+        // empty set for every one of them, which read as "this project has no
+        // drawings" on a project that had two.
 
-        const raw = sceneConfig[Na__FpData__FLOOR_PLANS_KEY];
+        const raw = Na__DrawData__GetFloorPlansArray();                                    // <-- Top-level drawings block, not the scene config
         if (!Array.isArray(raw)) return [];                                      // <-- A project with no plans reads as an empty set
 
         return raw
@@ -334,11 +354,7 @@
     // HELPER FUNCTION | Ensure the Floor Plans Array Exists on the Block
     // ------------------------------------------------------------
     function Na__FpData__EnsureArray(sceneConfig) {
-        if (!sceneConfig || typeof sceneConfig !== 'object') return null;
-        if (!Array.isArray(sceneConfig[Na__FpData__FLOOR_PLANS_KEY])) {
-            sceneConfig[Na__FpData__FLOOR_PLANS_KEY] = [];
-        }
-        return sceneConfig[Na__FpData__FLOOR_PLANS_KEY];
+        return Na__DrawData__GetFloorPlansArray();                                         // <-- Live array from the drawings block
     }
     // ------------------------------------------------------------
 
@@ -476,8 +492,7 @@
     // the tool.
     // ------------------------------------------------------------
     function Na__FpData__GetClientDimensionsEnabled(sceneConfig) {
-        if (!sceneConfig || typeof sceneConfig !== 'object') return false;
-        return sceneConfig[Na__FpData__CLIENT_DIMS_KEY] === true;
+        return Na__DrawData__GetClientDimensionsEnabled();                                 // <-- Migrated with the records in v2.21.0
     }
     // ------------------------------------------------------------
 
@@ -485,9 +500,7 @@
     // FUNCTION | Grant or Withhold Client Measuring for This Project
     // ------------------------------------------------------------
     function Na__FpData__SetClientDimensionsEnabled(sceneConfig, enabled) {
-        if (!sceneConfig || typeof sceneConfig !== 'object') return false;
-        sceneConfig[Na__FpData__CLIENT_DIMS_KEY] = (enabled === true);
-        return true;
+        return Na__DrawData__SetClientDimensionsEnabled(enabled === true);                 // <-- Migrated with the records in v2.21.0
     }
     // ------------------------------------------------------------
 

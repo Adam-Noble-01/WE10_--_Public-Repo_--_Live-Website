@@ -1,0 +1,698 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (shell, paper)      */
+/* ================================================================= */
+/*
+ * PORT NOTE:
+ * - Ported from : Lantern Designer 30__System__DrawingEditorMode stylesheet (stage and paper rules)
+ * - Ported on   : 09-Sep-2026 for TrueVision3D v2.21.0 (port Phase 5)
+ * - Parity      : adapted (tab strip, frames, handles, rubber band and inline editor are TrueVision's)
+ */
+
+/* Paper geometry is never declared here: the surface writes paper pixels
+   (millimetres times ScreenPixelsPerMm) inline, and the zoom is one CSS
+   transform on the paper element. */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Published Heights and Shell Hiding                     */
+/* ----------------------------------------------------------------- */
+
+:root {
+    --Vale_LayoutTabStripHeight        : 0px;                         /* <-- Written by the tab strip when it is shown */
+    --Vale_LayoutLeftPanelWidth        : 250px;                       /* <-- Seeded from config by the panel host */
+    --Vale_LayoutRightPanelWidth       : 300px;
+    --Vale_LayoutGreyStage             : #d8dcdf;
+}
+
+/* While the editor is on screen the 3D overlays stand aside. The canvas
+   itself stays in the DOM (visibility only) so snapshots can render.
+   The two dropdown menus (Tools & Settings and the localhost Dev Tools
+   container) belong to the 3D Model tab only: they sit above the host at
+   z-index 1001 and would otherwise cover the sheet panels, so a drawing
+   tab hides them outright rather than letting them float over the paper.
+   The breadcrumb trail goes with them: it is fixed to the top left, which
+   on a drawing tab is the sheet panel column, and it navigates away from
+   the model rather than around the drawing, so it has nothing to say while
+   a sheet is open. It returns with the 3D Model tab, folded or unfolded
+   exactly as it was left. */
+body.na-layout-editor--active .na-dropdown-menu,
+body.na-layout-editor--active #naBreadcrumbNav,
+body.na-layout-editor--active #naPresentationCarousel,
+body.na-layout-editor--active #naNavToolbar,
+body.na-layout-editor--active #naNavHelpPanel,
+body.na-layout-editor--active .na-export-overlay,
+body.na-layout-editor--active .na-projected-linework,
+body.na-layout-editor--active .controls-instructions-panel {
+    display                            : none !important;
+}
+
+body.na-le-dragging,
+body.na-le-dragging * {
+    user-select                        : none;
+    -webkit-user-select                : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Tab Strip                                              */
+/* ----------------------------------------------------------------- */
+
+.na-le-tabs {
+    position                           : fixed;
+    top                                : var(--Vale_HeaderHeight);
+    left                               : 0;
+    right                              : 0;
+    height                             : var(--Vale_LayoutTabStripHeight);
+    display                            : flex;
+    align-items                        : stretch;
+    gap                                : 2px;
+    padding                            : 0 12px;
+    box-sizing                         : border-box;
+    background                         : #f4f6f8;
+    border-bottom                      : 1px solid rgba(23, 43, 58, 0.14);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    z-index                            : 999;                         /* <-- Under the header (1000) and the menus (1001) */
+    overflow-x                         : auto;
+    overflow-y                         : hidden;
+}
+
+.na-le-tabs[hidden] {
+    display                            : none;
+}
+
+.na-le-tabs__tab {
+    flex                               : 0 0 auto;
+    margin-top                         : 4px;
+    padding                            : 0 14px;
+    border                             : 1px solid rgba(23, 43, 58, 0.14);
+    border-bottom                      : none;
+    border-radius                      : 6px 6px 0 0;
+    background                         : #e9edf0;
+    color                              : #172b3a;
+    font-size                          : 0.8rem;
+    font-weight                        : 400;
+    cursor                             : pointer;
+    white-space                        : nowrap;
+}
+
+.na-le-tabs__tab:hover {
+    background                         : #ffffff;
+}
+
+.na-le-tabs__tab--active {
+    background                         : #ffffff;
+    font-weight                        : 600;
+    box-shadow                         : 0 2px 0 0 #ffffff;           /* <-- Joins the tab to the surface below */
+}
+
+.na-le-tabs__tab--model {
+    margin-right                       : 8px;
+}
+
+.na-le-tabs__tab--add {
+    font-weight                        : 600;
+    color                              : #1a7fc4;
+}
+
+.na-le-tabs__rename {
+    margin-top                         : 4px;
+    padding                            : 0 8px;
+    font-size                          : 0.8rem;
+    border                             : 1px solid #1a7fc4;
+    border-radius                      : 6px 6px 0 0;
+    outline                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Host, Shell and Stage                                  */
+/* ----------------------------------------------------------------- */
+
+.na-le-host {
+    position                           : fixed;
+    top                                : calc(var(--Vale_HeaderHeight) + var(--Vale_LayoutTabStripHeight));
+    left                               : 0;
+    right                              : 0;
+    bottom                             : 0;
+    z-index                            : 600;                         /* <-- Above the canvas and export frame, below the menus */
+    background                         : var(--Vale_LayoutGreyStage);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    color                              : #172b3a;
+}
+
+.na-le-host[hidden] {
+    display                            : none;
+}
+
+/* The one grid row is pinned to the host height and every item has
+   min-height 0: a grid item's default minimum is its content, so without
+   these the centre column would grow to the height of the stage's scroll
+   content (a page plus its roaming room) instead of the stage scrolling. */
+
+.na-le-shell {
+    display                            : grid;
+    grid-template-columns              : var(--Vale_LayoutLeftPanelWidth) minmax(0, 1fr) var(--Vale_LayoutRightPanelWidth);
+    grid-template-rows                 : minmax(0, 1fr);
+    width                              : 100%;
+    height                             : 100%;
+}
+
+.na-le-column {
+    position                           : relative;
+    min-width                          : 0;
+    min-height                         : 0;
+    height                             : 100%;
+}
+
+.na-le-centre {
+    display                            : flex;
+    flex-direction                     : column;
+    min-width                          : 0;
+    min-height                         : 0;
+    height                             : 100%;
+    overflow                           : hidden;
+}
+
+.na-le-centre__toolbar {
+    flex                               : 0 0 auto;
+}
+
+.na-le-stage {
+    position                           : relative;
+    flex                               : 1 1 auto;
+    min-height                         : 0;
+    overflow                           : auto;
+    outline                            : none;
+    touch-action                       : none;
+    background                         : var(--Vale_LayoutGreyStage);
+}
+
+.na-le-stage--panning {
+    cursor                             : grabbing;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Toolbar                                                */
+/* ----------------------------------------------------------------- */
+
+.na-le-toolbar {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 6px;
+    padding                            : 6px 10px;
+    background                         : #ffffff;
+    border-bottom                      : 1px solid rgba(23, 43, 58, 0.14);
+    overflow-x                         : auto;
+}
+
+.na-le-toolbar__name {
+    font-size                          : 0.82rem;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    max-width                          : 220px;
+}
+
+.na-le-toolbar__gap {
+    flex                               : 0 0 1px;
+    align-self                         : stretch;
+    margin                             : 0 4px;
+    background                         : rgba(23, 43, 58, 0.14);
+}
+
+.na-le-toolbar__btn {
+    padding                            : 4px 10px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #f4f6f8;
+    color                              : #172b3a;
+    font-size                          : 0.76rem;
+    cursor                             : pointer;
+    white-space                        : nowrap;
+}
+
+.na-le-toolbar__btn:hover:not(:disabled) {
+    background                         : #e8edf3;
+}
+
+.na-le-toolbar__btn:disabled {
+    opacity                            : 0.5;
+    cursor                             : default;
+}
+
+.na-le-toolbar__btn--active {
+    border-color                       : #1a7fc4;
+    color                              : #1a7fc4;
+    background                         : #eef5fb;
+}
+
+.na-le-toolbar__btn--attention {
+    border-color                       : #d99a1e;
+    background                         : #fff6e3;
+}
+
+.na-le-toolbar__label {
+    font-size                          : 0.74rem;
+    color                              : #6c757d;
+    white-space                        : nowrap;
+}
+.na-le-toolbar__select {
+    padding                            : 3px 6px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #f4f6f8;
+    color                              : #172b3a;
+    font-size                          : 0.76rem;
+    cursor                             : pointer;
+}
+.na-le-toolbar__note {
+    margin-left                        : auto;
+    font-size                          : 0.74rem;
+    color                              : #6c757d;
+    white-space                        : nowrap;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Paper and Its Layers                                   */
+/* ----------------------------------------------------------------- */
+
+.na-le-room {
+    position                           : relative;                    /* <-- Sized by the surface: paper plus a stage on every side */
+}
+
+.na-le-scaler {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    display                            : block;
+    box-sizing                         : content-box;
+}
+
+.na-le-paper {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    transform-origin                   : 0 0;
+    background                         : #ffffff;
+    box-shadow                         : 0 6px 26px rgba(0, 0, 0, 0.22);
+    overflow                           : visible;
+}
+
+.na-le-paper[hidden] {
+    display                            : none;
+}
+
+.na-le-paper__viewports,
+.na-le-paper__chrome,
+.na-le-paper__markup,
+.na-le-paper__handles {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    width                              : 100%;
+    height                             : 100%;
+}
+
+.na-le-paper__viewports  { z-index : 1; }
+.na-le-paper__chrome     { z-index : 2; pointer-events : none; }
+.na-le-paper__markup     { z-index : 3; pointer-events : none; }
+.na-le-paper__handles    { z-index : 4; pointer-events : none; }
+
+.na-le-paper__chrome,
+.na-le-paper__markup {
+    overflow                           : visible;
+}
+
+/* Text on the paper keeps its geometry under the transform */
+.na-le-paper__chrome text,
+.na-le-paper__markup text,
+.na-le-frame__markup-svg text {
+    dominant-baseline                  : alphabetic;
+    white-space                        : pre;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Viewport Frames                                        */
+/* ----------------------------------------------------------------- */
+
+.na-le-frame {
+    position                           : absolute;
+    overflow                           : hidden;
+    background                         : #ffffff;
+    box-sizing                         : border-box;
+}
+
+.na-le-frame[hidden] {
+    display                            : none;
+}
+
+.na-le-frame__body {
+    position                           : absolute;
+    inset                              : 0;
+}
+
+.na-le-frame__underlay,
+.na-le-frame__snapshot {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    display                            : block;
+    max-width                          : none;
+    pointer-events                     : none;
+    user-select                        : none;
+    image-rendering                    : auto;
+}
+
+.na-le-frame__underlay[hidden],
+.na-le-frame__snapshot[hidden] {
+    display                            : none;
+}
+
+.na-le-frame__linework,
+.na-le-frame__markup {
+    position                           : absolute;
+    inset                              : 0;
+    pointer-events                     : none;
+}
+
+.na-le-frame__linework-svg,
+.na-le-frame__markup-svg {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    display                            : block;
+    overflow                           : hidden;
+}
+
+.na-le-frame__linework-svg path {
+    shape-rendering                    : geometricPrecision;
+}
+
+.na-le-frame__empty {
+    position                           : absolute;
+    inset                              : 0;
+    display                            : flex;
+    align-items                        : center;
+    justify-content                    : center;
+    padding                            : 8px;
+    text-align                         : center;
+    font-size                          : 11px;
+    color                              : #6c757d;
+    background                         : repeating-linear-gradient(45deg, #fafbfc, #fafbfc 6px, #f0f2f4 6px, #f0f2f4 12px);
+}
+
+.na-le-frame__empty[hidden] {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Selection, Handles, Rubber Band, Inline Editor         */
+/* ----------------------------------------------------------------- */
+
+.na-le-selection {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1.5px solid #336699;
+    pointer-events                     : none;
+}
+
+.na-le-selection--readonly {
+    border-style                       : dashed;
+}
+
+.na-le-handle {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    background                         : #ffffff;
+    border                             : 1px solid #336699;
+    border-radius                      : 1px;
+    pointer-events                     : none;
+}
+
+.na-le-handle--disabled {
+    background                         : #e9edf0;
+    border-color                       : #9aa5ad;
+    border-radius                      : 50%;
+}
+
+.na-le-rubber-band {
+    position                           : absolute;
+    height                             : 0;
+    border-top                         : 1px dashed #336699;
+    transform-origin                   : 0 0;
+    pointer-events                     : none;
+}
+
+/* An arrow key has locked the edge to an axis: red across, green down,   */
+/* the colours a SketchUp user already reads, and solid so a locked edge  */
+/* is never mistaken for a free one.                                      */
+
+.na-le-rubber-band--x {
+    border-top-style                   : solid;
+    border-top-color                   : #c0392b;
+}
+
+.na-le-rubber-band--y {
+    border-top-style                   : solid;
+    border-top-color                   : #2e7d32;
+}
+
+.na-le-text-editor {
+    position                           : absolute;
+    box-sizing                         : content-box;
+    padding                            : 0 2px;
+    margin                             : 0;
+    border                             : 1px solid #336699;
+    background                         : #ffffff;
+    font-family                        : 'Open Sans', Helvetica, Arial, sans-serif;
+    line-height                        : 1.2;
+    outline                            : none;
+    pointer-events                     : auto;
+    z-index                            : 5;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Dev Menu Section                                       */
+/* ----------------------------------------------------------------- */
+
+.na-le-dev__sheets {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 4px;
+    margin                             : 6px 0;
+}
+
+.na-le-dev__sheet {
+    flex-wrap                          : wrap;
+}
+
+.na-le-dev__sheet--active .na-le-dev__sheet-name {
+    font-weight                        : 600;
+    color                              : #1a7fc4;
+}
+
+.na-le-dev__sheet-name {
+    flex                               : 1 1 100%;
+    min-width                          : 0;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Snap Marker and Linework Progress                      */
+/* ----------------------------------------------------------------- */
+
+/* Square for an endpoint, triangle for a midpoint (the AutoCAD glyphs);
+   size and border are written inline, counter-scaled by the zoom. */
+.na-le-osnap {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1.5px solid #d97706;
+    background                         : rgba(217, 119, 6, 0.12);
+    pointer-events                     : none;
+    z-index                            : 6;
+}
+
+.na-le-osnap[hidden] {
+    display                            : none;
+}
+
+.na-le-osnap--mid {
+    border-radius                      : 0;
+    clip-path                          : polygon(50% 0, 100% 100%, 0 100%);
+    background                         : rgba(217, 119, 6, 0.55);
+    border                             : none;
+}
+
+.na-le-frame__progress {
+    position                           : absolute;
+    left                               : 6px;
+    top                                : 6px;
+    padding                            : 3px 8px;
+    border-radius                      : 4px;
+    background                         : rgba(23, 43, 58, 0.82);
+    color                              : #ffffff;
+    font-size                          : 10px;
+    line-height                        : 1.3;
+    white-space                        : nowrap;
+    pointer-events                     : none;
+    z-index                            : 4;
+}
+
+.na-le-frame__progress[hidden] {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Selection States, Notes and the Context Menu           */
+/* ----------------------------------------------------------------- */
+
+/* The outline is drawn inside the scaled paper, so its note is scaled
+   back by --na-le-note-scale (set by the handles) to read the same at
+   any zoom. */
+
+.na-le-selection--editing {
+    border-style                       : dashed;
+    border-color                       : #d97706;
+}
+
+.na-le-selection--locked {
+    border-style                       : solid;
+    border-color                       : #9aa5ad;
+}
+
+.na-le-selection[data-na-note]::after {
+    content                            : attr(data-na-note);
+    position                           : absolute;
+    left                               : 0;
+    bottom                             : 100%;
+    margin-bottom                      : 3px;
+    padding                            : 2px 8px;
+    border-radius                      : 3px;
+    background                         : #d97706;
+    color                              : #ffffff;
+    font-size                          : 11px;
+    line-height                        : 1.3;
+    white-space                        : nowrap;
+    transform                          : scale(var(--na-le-note-scale, 1));
+    transform-origin                   : left bottom;
+}
+
+.na-le-selection--locked[data-na-note]::after {
+    background                         : #6c757d;
+}
+
+.na-le-menu {
+    position                           : fixed;
+    z-index                            : 1200;                        /* <-- Above the header and the menus */
+    min-width                          : 190px;
+    padding                            : 4px 0;
+    border                             : 1px solid rgba(23, 43, 58, 0.18);
+    border-radius                      : 6px;
+    background                         : #ffffff;
+    box-shadow                         : 0 8px 24px rgba(0, 0, 0, 0.18);
+    font-size                          : 0.78rem;
+    color                              : #172b3a;
+}
+
+.na-le-menu__item {
+    display                            : block;
+    width                              : 100%;
+    padding                            : 6px 14px 6px 28px;
+    border                             : 0;
+    background                         : transparent;
+    color                              : inherit;
+    font                               : inherit;
+    text-align                         : left;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+    position                           : relative;
+}
+
+.na-le-menu__item:hover:not(:disabled),
+.na-le-menu__item:focus-visible {
+    background                         : #eef2f6;
+    outline                            : none;
+}
+
+.na-le-menu__item:disabled {
+    opacity                            : 0.45;
+    cursor                             : default;
+}
+
+.na-le-menu__item--danger {
+    color                              : #b42318;
+}
+
+.na-le-menu__item--checked::before {
+    content                            : "";
+    position                           : absolute;
+    left                               : 11px;
+    top                                : 50%;
+    width                              : 8px;
+    height                             : 8px;
+    border-radius                      : 50%;
+    background                         : #1a7fc4;
+    transform                          : translateY(-50%);
+}
+
+.na-le-menu__separator {
+    height                             : 1px;
+    margin                             : 4px 0;
+    background                         : rgba(23, 43, 58, 0.14);
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Grips and Inference                                    */
+/* ----------------------------------------------------------------- */
+
+.na-le-grip {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    background                         : #ffffff;
+    border                             : 1px solid #336699;
+    border-radius                      : 1px;
+    pointer-events                     : none;
+    z-index                            : 5;
+}
+
+.na-le-grip--offset {
+    border-radius                      : 50%;
+    background                         : #d97706;
+    border-color                       : #b45309;
+}
+
+.na-le-osnap--infer {
+    border-radius                      : 50%;
+    border-style                       : solid;
+    background                         : transparent;
+}
+
+/* endregion ------------------------------------------------------- */

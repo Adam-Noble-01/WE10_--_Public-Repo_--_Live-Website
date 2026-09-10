@@ -81,6 +81,18 @@
 // endregion -------------------------------------------------------------------
 
 
+    // MODULE IMPORTS | The Drawings Block (records moved here in v2.21.0)
+    // ------------------------------------------------------------
+    // Records used to live nested inside PresentationMode__SavedCameraScenes.
+    // They now live in the top-level LayoutEditor__DrawingsData block, and this
+    // module reads them from there. The sceneConfig argument is kept on every
+    // public function because the SCENE side of the link - which scene shows
+    // which drawing - genuinely still lives in the presentation block.
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js
+    // ------------------------------------------------------------
+    import { Na__DrawData__GetElevationsArray } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    // ------------------------------------------------------------
+
 // -----------------------------------------------------------------------------
 // REGION | Module Constants
 // -----------------------------------------------------------------------------
@@ -249,9 +261,13 @@
     // the config the save path will write.
     // ------------------------------------------------------------
     function Na__ElevData__GetElevations(sceneConfig) {
-        if (!sceneConfig || typeof sceneConfig !== 'object') return [];
+        // NO sceneConfig GUARD. The records moved to the top-level drawings
+        // block in v2.21.0, so reading them does not need the scene config at
+        // all - and callers legitimately pass null. The old guard returned an
+        // empty set for every one of them, which read as "this project has no
+        // drawings" on a project that had two.
 
-        const raw = sceneConfig[Na__ElevData__ELEVATIONS_KEY];
+        const raw = Na__DrawData__GetElevationsArray();                                    // <-- Top-level drawings block, not the scene config
         if (!Array.isArray(raw)) return [];                                      // <-- A project with no elevations reads as an empty set
 
         return raw
@@ -483,11 +499,7 @@
     // HELPER FUNCTION | Ensure the Elevations Array Exists on the Block
     // ------------------------------------------------------------
     function Na__ElevData__EnsureArray(sceneConfig) {
-        if (!sceneConfig || typeof sceneConfig !== 'object') return null;
-        if (!Array.isArray(sceneConfig[Na__ElevData__ELEVATIONS_KEY])) {
-            sceneConfig[Na__ElevData__ELEVATIONS_KEY] = [];
-        }
-        return sceneConfig[Na__ElevData__ELEVATIONS_KEY];
+        return Na__DrawData__GetElevationsArray();                                         // <-- Live array from the drawings block
     }
     // ------------------------------------------------------------
 
