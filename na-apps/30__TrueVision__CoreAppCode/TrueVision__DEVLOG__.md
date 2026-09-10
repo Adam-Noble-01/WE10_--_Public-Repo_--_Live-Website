@@ -2,6 +2,110 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.24.0  -  11-Sep-2026
+### The Drawing Editor Arrives - Tabs, Sheets, Viewports at Scale
+
+**Overview**
+- TrueVision now has ValeVision's drawing system. Drawing tabs under the header,
+  paper sheets from A4 to A1, viewports onto plans and elevations at 1:20, 1:50
+  and 1:100, a Photoshop-style layer stack, text, dimensions, vector shapes,
+  title blocks, undo, autosave and a true-size PDF.
+- Underneath it: the projected linework engine, section cuts that are finally
+  RECORDED rather than lost on reload, and a drawing core that matches
+  ValeVision file for file.
+- Four releases' worth of work in one entry, because they landed together:
+  2.21.0 drawing core, 2.22.0 projected linework, 2.23.0 Layout Editor,
+  2.24.0 authoring gate. Full detail in the commits and in
+  `TrueVision__PLAN__ValeVisionRealign__DrawingSystems__.md`.
+
+**WHERE DRAWINGS LIVE NOW, AND THE MIGRATION THAT MOVED THEM**
+- Floor plans and elevations used to be nested inside
+  `PresentationMode__SavedCameraScenes`. They are now in a top-level
+  `LayoutEditor__DrawingsData` block, because Layout Editor sheets have nowhere
+  sensible to live under the presentation block and the two are written by
+  different panels.
+- The migration is non-destructive: a project's legacy keys are left exactly
+  where they are until a save has actually landed the new block, and that one
+  write does both. A failed save leaves R2 as it was.
+- THREE keys migrate, not two. `__FloorPlans` and `__Elevations` are the obvious
+  pair; `__ClientDimensionsEnabled` is a scalar sitting between them and is the
+  easy one to miss. Moving two of three would have silently switched client
+  measuring off on every project that had it on.
+- Run for real on PS01 Musters Road: one plan, one elevation and the flag, with
+  the legacy keys cleared in the same write. Nothing lost.
+
+**SECTION CUTS ARE RECORDED, IN VALEVISION'S SCHEMA EXACTLY**
+- The section engine had no serialization and no persistence of any kind. A cut
+  existed only while the page was open. Survivable for a live 3D toggle and
+  fatal for drawings: a section drawing could not reopen with its own cut, a
+  sheet viewport had nothing to restore, and the PDF printed an uncut model.
+- TrueVision now writes `CrossSection__SceneData` byte-compatible with
+  ValeVision's, so a project document from either app is readable by the other.
+- Slice depth flattens to ValeVision's single global field. No additive key, no
+  superset: two schemas that are ninety-five percent alike are worse than one,
+  and the differences are where the bugs live.
+- A ROUND-TRIP TEST CAUGHT A SIGN ERROR nothing else would have. positionMm was
+  being negated, mirroring ValeVision's line, but the two engines store
+  plane.constant with opposite signs for the same normal. Every cut was written
+  at minus its own position - a plan at 1200 stored as -1200. It looked entirely
+  plausible in isolation.
+
+**THREE THINGS ONLY RUNNING IT FOUND**
+- THE CSS VARIABLE RENAME. The port harness rewrote `--Vale_*` to `--Na_*`, and
+  TrueVision's own stylesheets use `--Vale_*` - 35 occurrences, a legacy of the
+  original port. The sheet detached from `--Vale_HeaderHeight` and rendered
+  2649 px tall. Both harnesses passed throughout.
+- THE DATA MODULES STILL READ THE OLD PLACE. The migration moved the records and
+  the floor plan and elevation modules kept reading the emptied presentation
+  key, so a project with two drawings reported none. Their
+  `if (!sceneConfig) return []` guards were stale for the same reason - callers
+  legitimately pass null now.
+- THE RENDER PRESET WAS NEVER INITIALISED. RenderFrame returned false in silence
+  and every offscreen bake came back as an untouched BLACK buffer, which reads
+  as "the drawing is broken" rather than "nothing was drawn".
+
+**Two new verification harnesses, and why there are two**
+- `Na__Verify__ModuleGraph__` proves every FILE resolves, walking the graph the
+  way a browser does. `Na__Verify__Exports__` proves every NAME does. Different
+  faults, same symptom - a blank page - and the second is the one this port
+  throws constantly, because a module asking for a name the other tree renamed
+  parses fine, resolves fine, and throws at runtime.
+- Both prove themselves by being deliberately broken. The graph walker also
+  walks every import map target on its own, because a vendor entry point nothing
+  imports YET is invisible to a live-graph walk until the phase that first
+  imports it - which is exactly how the clipper2-js fault took ValeVision down.
+
+**Authoring is no longer tied to localhost**
+- One gate, `Na__DevGate__IsAuthoringEnabled`, replaces eleven files each testing
+  the hostname. It opens on localhost or on a persisted unlock
+  (`?authoring=on`, or `Na__DevGate__Unlock()`), because an installable drawing
+  app that can only be edited while a Python server happens to be running is not
+  a tool.
+- It deliberately does NOT decide where project data comes from. The loader
+  keeps the raw hostname test: unlocking authoring on the live site must not
+  make it start hunting for a repository path that is not there.
+
+**Verified**
+- PS01 loads all twelve model categories on r184 and renders. The Layout Editor
+  opens with "3D Model | Drawing 1 | +", the viewport scene list is populated
+  from the project's own scenes grouped by scene group - including both migrated
+  drawings - and adding a plan viewport bakes a 3240 x 2160 underlay through the
+  drawing render route with the plan's room labels drawn on the sheet at scale.
+- 240 files pass both harnesses; the live module graph is 322 modules.
+
+**NOT verified**
+- The PDF has not been exported and measured. A 1:50 viewport printed at 100
+  percent measuring true with a ruler is the acceptance test and it has not been
+  run.
+- Image export, Video Studio, and the section cut tool's drag and flip.
+- Offline boot from the service worker cache, and a Windows PWA install.
+- Plan viewport framing wants an eye that knows what the drawing should look
+  like. The pipeline demonstrably renders; whether the camera frames the plan
+  the way a drawing should is a judgement this cannot make for itself.
+- Phase C is part done. Ground Floor Plan quick action, Pick Face, the gizmo
+  grip, the scene editor splits and sections-filed-by-type are still to come.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.20.0  -  10-Sep-2026
 ### The Renderer Comes In-House - three r184, Vendored
 

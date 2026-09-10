@@ -1,6 +1,6 @@
 # TrueVision 3D - ValeVision Re-Alignment: Drawing Systems, Projected Linework, Layout Editor
 
-**Status**: AGREED - decisions answered 10-Sep-2026 (section 3). Ready to start Phase A.
+**Status**: PHASES A, B, D, E, F LANDED (11-Sep-2026). Phase C partially done - remaining items listed in section 12.
 **Created**: 10-Sep-2026
 **Owner**: Adam Noble
 
@@ -734,49 +734,38 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 
 | Phase | Item | State | Version | Notes |
 |---|---|---|---|---|
-| - | Survey of both trees | x | - | 10-Sep-2026, this document |
-| - | Decisions TD01-TD05 agreed | x | - | 10-Sep-2026, section 3 |
-| A | Vendor the four libraries | x | 2.20.0 | 598 files; index JSON + README authored |
-| A | `.gitignore` negations verified | x | 2.20.0 | THREE `build/` dirs, not one; `git add --dry-run` stages 598/598 |
-| A | Import map switched | x | 2.20.0 | 11 entries; `THREE.REVISION` reads 184 at runtime |
-| A | Module graph verification harness | x | 2.20.0 | `Na__Verify__ModuleGraph__.mjs`; two-pass; proven by deliberate break |
-| A | r184 touch points re-verified (6.3) | x | 2.20.0 | Static surface + live PS01 render |
-| A | RGBELoader → HDRLoader | x | 2.20.0 | Deprecated upstream at r180; pure rename |
-| A | Service worker retargeted + precache | x | 2.20.0 | Path-based vendor test, runs first; token `2026-09-10-1` |
-| A | Drawing profile lines on r184 | x | 2.20.0 | Harness passes; GL error 0; verified by pixel count |
-| A | **Live-project pass (PS01)** | x | 2.20.0 | 12 categories, mesh + linework, renders correctly - see 12.1 for the URL |
-| A | Offline boot test | - | 2.20.0 | Acceptance test for the PWA; do with Phase F |
-| A | Image export / Video Studio / section-cut pass | - | 2.20.0 | Not exercised yet; low risk, worth a look before Phase D |
-| B | `ProjectData__` (owner + one writer) | x | 2.21.0 | Migration proven on live PS01 |
+| - | Survey of both trees | x | - | 10-Sep-2026 |
+| - | Decisions TD01-TD06 agreed | x | - | Section 3 |
+| **A** | **Version-locked libraries (r184 set)** | **x** | 2.20.0 | Live on www.noble-architecture.com; THREE.REVISION reads 184 |
+| A | `.gitignore` negations | x | 2.20.0 | THREE `build/` dirs; 598/598 stage; verified live |
+| A | Module graph + export harnesses | x | 2.20.0 | Both prove themselves by deliberate break |
+| A | RGBELoader → HDRLoader | x | 2.20.0 | |
+| A | Service worker retargeted + precache | x | 2.20.0 | |
+| **B** | **Drawing core re-alignment** | **x** | 2.21.0 | 15 files in `40__System__DrawingViewCore` |
+| B | `ProjectData__` + migration | x | 2.21.0 | **Completed on live PS01**: 1 plan, 1 elevation, client-dims flag; legacy keys cleared |
 | B | `ConfigState__`, `StyleRows__`, `RowAccordion__` | x | 2.21.0 | verbatim |
-| B | `Transitions__`, `MaterialPreset__` | x | 2.21.0 | adapted - no engine split, toolbar API differs |
-| B | `AppConfig__.json`, `Styles__DevMenu__.css` | x | 2.21.0 | |
-| B | `SectionAdapter__` (thin, DIV-2) | - | 2.21.0 | ~150 lines over `Na__SectionCut__*` |
-| B | `RenderPreset__` (DIV-1) | - | 2.21.0 | ValeVision's interface over the overlay route |
-| B | `RenameDrawing__` | - | 2.21.0 | **THREE** holders here, not ValeVision's four - no section binding to re-key |
-| B | `MarkupFocus__` relocated | - | 2.21.0 | `42/Na__FloorPlan__MarkupFocus__.js` → `40/Na__DrawView__MarkupFocus__.js` |
-| B | `Na__CfApi__WriteProjectAsset` | - | 2.21.0 | ~120 lines over the existing /r2/write |
-| B | Repoint 42 and 45 data modules at `Na__DrawData__*` | - | 2.21.0 | Delete the two `SyncSceneName` helpers outright |
-| B | `Na__DevSavedKeys` gains the block key | - | 2.21.0 | **First.** See 3.1 |
-| B | DIV-3 migration, proved against PS01 | - | 2.21.0 | Read R2, not the repo file |
-| B | Render loop pause/resume | - | 2.21.0 | Landed early for Phase E |
-| C | Scene editor splits + confirm dialog | - | 2.21.x | |
-| C | Ground Floor Plan + style rows | - | 2.21.x | |
-| C | Dimension splits | - | 2.21.x | |
-| C | FacePick + GizmoGrip | - | 2.21.x | |
-| C | Sections filed by type | - | 2.21.x | |
-| D | Projection engine (15 verbatim files) | - | 2.22.0 | |
-| D | 8 adapted files | - | 2.22.0 | `StageSampler__` is the real work |
-| D | Integration edits (5 files) | - | 2.22.0 | |
-| D | House-scale timings recorded | - | 2.22.0 | |
-| E | Shell, model, navigation (12 files) | - | 2.23.0 | |
-| E | Viewports (9 files) | - | 2.23.0 | |
-| E | Tools, panels, chrome (25 files) | - | 2.23.0 | |
-| E | PDF export + dev controls | - | 2.23.0 | |
-| F | Authoring gate | - | 2.24.0 | Depends on Q1 |
-| F | Manifest + service worker | - | 2.24.0 | |
-| F | Windows install test | - | 2.24.0 | |
-| - | Parity ledger updated | - | - | Each phase closes rows in the Pending back-port table |
+| B | `Transitions__`, `MaterialPreset__` | x | 2.21.0 | adapted |
+| B | `SectionAdapter__` (DIV-2) | x | 2.21.0 | Pass-through; Suspend/Release documented no-ops |
+| B | `RenderPreset__` (DIV-1) | x | 2.21.0 | ValeVision's 8 exports over the overlay route |
+| B | `RenameDrawing__`, `MarkupFocus__` | x | 2.21.0 | Four holders; sheet re-stamp lazily imported |
+| B | `Na__CfApi__WriteProjectAsset` + `R2AssetUpload__` | x | 2.21.0 | No worker deploy needed |
+| B | 42/45 data modules repointed | x | 2.21.0 | Incl. stale `sceneConfig` guards and the client-dims flag |
+| **TD06** | **Section data in ValeVision's schema** | **x** | 2.21.0 | `Serialize__` + `SceneData__`; round-trip test caught a sign error |
+| **C** | Styles, exclusions, linework asset on both records | x | 2.21.0 | ValeVision key names exactly |
+| C | Confirm dialog, dimension config + preview splits | x | 2.21.0 | |
+| C | Ground Floor Plan quick action | - | 2.21.x | Not yet ported |
+| C | FacePick + GizmoGrip | - | 2.21.x | Not yet ported |
+| C | Scene editor splits (RowBuilders, Reorder) | - | 2.21.x | Not yet ported |
+| C | Sections filed by drawing type | - | 2.21.x | Not yet ported |
+| **D** | **Projected linework** | **x** | 2.22.0 | 24 files; 6 gaps, all real missing pieces |
+| D | House-scale timings recorded | - | 2.22.0 | Not measured yet |
+| **E** | **Layout Editor** | **x** | 2.23.0 | 49 files; tabs, sheets, viewports at scale, panels, PDF |
+| E | Verified on PS01 | x | 2.23.0 | Underlay bakes, scene markup draws at scale |
+| E | NA branding + logo aspect | x | 2.23.0 | Vale mark replaced; aspect re-measured 4.096 |
+| **F** | **Authoring gate (TD01)** | **x** | 2.24.0 | 11 surfaces routed; URL + console unlock |
+| F | Manifest Layout Editor launch mode | - | 2.24.0 | Not yet done |
+| F | Windows install + offline boot test | - | 2.24.0 | Needs a person at the machine |
+| - | Parity ledger updated | ~ | - | Phase 0 row closed; rest pending |
 
 ### 12.1 How to actually run a real project on localhost
 
