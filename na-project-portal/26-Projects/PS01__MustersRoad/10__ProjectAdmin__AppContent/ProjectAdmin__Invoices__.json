@@ -1,3 +1,129 @@
 {
-    "invoices": []
+    "invoices": [
+        {
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "createdDate": "10-Sep-2026 at 21:20",
+            "dueDate": "18-Sep-2026",
+            "invoiceDate": "11-Sep-2026",
+            "invoiceRef": "INV-PS01-2026-001",
+            "lastModified": "10-Sep-2026 at 21:20",
+            "lineItems": [
+                {
+                    "description": "Initial Design Consultation",
+                    "itemDescription": "1. A free, no obligation telephone design consultation held on 07-Sep-2026.\n2. Covered the brief for the rear extension, the condition of the existing garden room conservatory, and the routes available through the planning system.\n3. Initial permitted development checks were carried out on the property during the call.",
+                    "quantity": 1,
+                    "unit": "Free",
+                    "rate": 0,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Model Existing Site Conditions",
+                    "itemDescription": "1. Three dimensional model of the existing bungalow, built from the measurement information and photographs supplied by you.\n2. Forms the base model from which the existing plans, elevations and site drawings are derived.",
+                    "quantity": 4,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Model Proposed Scheme & Design Development",
+                    "itemDescription": "1. Development of your preliminary layout into a full three dimensional model of the proposed extension.\n2. Resolution of the sliding door opening, the Bedroom and En-Suite arrangement, and the number and position of the flat roof lights.\n3. Forms the base model from which every proposed drawing is derived.",
+                    "quantity": 4,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "TrueVision 3D Experience & Distribution",
+                    "itemDescription": "1. Interactive three dimensional model issued through the Noble Architecture Project Portal, allowing the proposals to be walked through online before anything is committed to.\n2. Provided at no charge. The model is an inherent by-product of Noble Architecture's working method rather than a separately priced deliverable.",
+                    "quantity": 1,
+                    "unit": "Free",
+                    "rate": 0,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Drawing : Existing Site & Block Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:500 & 1:1250\n3. Size  = Iso A2",
+                    "quantity": 1,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Site & Block Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:500 & 1:1250\n3. Size  = Iso A2",
+                    "quantity": 1,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Floor Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Floor Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Elevations",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Elevations",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Coordination, Administration & Permitted Development Submission",
+                    "itemDescription": "1. Preparation and completion of the application for a Certificate of Lawful Development for a Proposed Use or Operation.\n2. Assessment of the proposals against the permitted development criteria prior to submission.\n3. Submission direct to Rushcliffe Borough Council by email, and project administration throughout.\n4. Fixed fee for design services agreed at £500.00 as per Quote Ref: QUO-PS01-2026-001. Noble Architecture's appointment concludes at submission. See the Planning Approval contract.",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "OS MasterMap® Data",
+                    "itemDescription": "1. Ordnance Survey OS MasterMap® CAD data covering 255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD, supplied as DWG Black & White 'Standard'.\n2. Required for production of the Site Plan and Block Plan documents that Rushcliffe Borough Council requires with the application.\n3. Obtained from MapServe.com at a total cost of £44.15, confirmed on 10-Sep-2026.\n4. Recharged to you at £45.00. This item was quoted at £40.00; the two hectare data area required for this site prices marginally higher than that allowance.",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 45,
+                    "group": "Third Party Costs : Recharged At Cost"
+                },
+                {
+                    "description": "Lawful Development Certificate Application Fee",
+                    "itemDescription": "1. Statutory fee set by Government and collected by Rushcliffe Borough Council, currently £274.00. A Certificate of Lawfulness for a Proposed Use or Operation is charged at one half of the equivalent £548.00 householder application fee.\n2. THIS FEE IS NOT CHARGED BY NOBLE ARCHITECTURE AND IS NOT INCLUDED IN THE TOTAL BELOW. It is shown here for completeness only, which is why it carries a nil value.\n3. You will pay Rushcliffe Borough Council directly. Noble Architecture will obtain the full payment details, the correct reference and the accepted method of payment on your behalf, and will pass them to you before the application is submitted.\n4. The application cannot be lodged with the council until this fee has cleared.",
+                    "quantity": 0,
+                    "unit": "By Client",
+                    "rate": 274,
+                    "group": "Payable Direct To The Council : **Not Charged By Noble Architecture!!"
+                }
+            ],
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.\n\nPlease note that the Lawful Development Certificate application fee of £274.00 is payable by you directly to Rushcliffe Borough Council and does not form part of this invoice. Noble Architecture will obtain the payment details and reference from the council and pass them to you, so that nothing is left for you to chase.",
+            "projectAddress": "",
+            "projectDescription": "Design Services & Third Party Costs - Single Storey Flat Roof Rear Extension to the existing Bungalow, providing a new Living Room with Sliding Doors, a Bedroom and an En-Suite, replacing the existing Garden Room Conservatory, delivered under Permitted Development.",
+            "status": "unpaid",
+            "totals": {
+                "grandTotal": 545,
+                "subtotal": 545,
+                "vat": 0,
+                "vatApplicable": false,
+                "vatRate": 0
+            }
+        }
+    ]
 }
