@@ -675,8 +675,16 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 | A | **Live-project pass (PS01)** | x | 2.20.0 | 12 categories, mesh + linework, renders correctly - see 12.1 for the URL |
 | A | Offline boot test | - | 2.20.0 | Acceptance test for the PWA; do with Phase F |
 | A | Image export / Video Studio / section-cut pass | - | 2.20.0 | Not exercised yet; low risk, worth a look before Phase D |
-| B | 11 new drawing-core files | - | 2.21.0 | |
-| B | `MarkupFocus__` relocated | - | 2.21.0 | |
+| B | `ProjectData__` (owner + one writer) | x | 2.21.0 | Migration proven on live PS01 |
+| B | `ConfigState__`, `StyleRows__`, `RowAccordion__` | x | 2.21.0 | verbatim |
+| B | `Transitions__`, `MaterialPreset__` | x | 2.21.0 | adapted - no engine split, toolbar API differs |
+| B | `AppConfig__.json`, `Styles__DevMenu__.css` | x | 2.21.0 | |
+| B | `SectionAdapter__` (thin, DIV-2) | - | 2.21.0 | ~150 lines over `Na__SectionCut__*` |
+| B | `RenderPreset__` (DIV-1) | - | 2.21.0 | ValeVision's interface over the overlay route |
+| B | `RenameDrawing__` | - | 2.21.0 | **THREE** holders here, not ValeVision's four - no section binding to re-key |
+| B | `MarkupFocus__` relocated | - | 2.21.0 | `42/Na__FloorPlan__MarkupFocus__.js` → `40/Na__DrawView__MarkupFocus__.js` |
+| B | `Na__CfApi__WriteProjectAsset` | - | 2.21.0 | ~120 lines over the existing /r2/write |
+| B | Repoint 42 and 45 data modules at `Na__DrawData__*` | - | 2.21.0 | Delete the two `SyncSceneName` helpers outright |
 | B | `Na__DevSavedKeys` gains the block key | - | 2.21.0 | **First.** See 3.1 |
 | B | DIV-3 migration, proved against PS01 | - | 2.21.0 | Read R2, not the repo file |
 | B | Render loop pause/resume | - | 2.21.0 | Landed early for Phase E |
