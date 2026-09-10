@@ -1,0 +1,107 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Projected Linework Styles               */
+/* ================================================================= */
+/*
+ * PORT NOTE:
+ * - Ported from : Lantern Designer 02__Src__AppModules/27__System__ProjectedEdges2d/VghLantern__ProjectedEdges__Styles__Main__.css
+ * - Ported on   : 09-Sep-2026 for TrueVision3D v2.20.0 (port Phase 4)
+ * - Parity      : adapted (layer rules only; toolbar button and progress overlay not carried; Dev menu rows added)
+ */
+
+/* Linework colour, width and dash are NOT declared here. They are written as
+   presentation attributes by the overlay module from config, because a CSS rule
+   would beat the attribute and take the config file out of the loop, and because
+   attributes are what carry the layer onto an exported image. */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Overlay Layer                                          */
+/* ----------------------------------------------------------------- */
+
+/* Beneath the annotation (20) and dimension (40) layers, above the canvas.
+   top / left / width / height are written inline by the overlay module from
+   the canvas container's own offset box, as the markup layers do, because the
+   canvas starts below the app header. */
+.na-projected-linework {
+    position                           : absolute;
+    z-index                            : 10;
+    pointer-events                     : none;
+    overflow                           : hidden;
+    contain                            : layout paint;
+}
+
+/* A drawing is thousands of subpaths in four paths. Geometric precision keeps
+   the linework true when the drawing is zoomed well past sheet scale. */
+.na-projected-linework path {
+    shape-rendering                    : geometricPrecision;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Dev Menu Section                                       */
+/* ----------------------------------------------------------------- */
+
+.na-pl-dev__timings {
+    width                              : 100%;
+    border-collapse                    : collapse;
+    font-size                          : 11px;
+    color                              : #172b3a;
+    margin                             : 6px 0;
+}
+
+.na-pl-dev__timings th,
+.na-pl-dev__timings td {
+    text-align                         : left;
+    padding                            : 2px 4px;
+    border-bottom                      : 1px solid #e3e7ea;
+    font-weight                        : 400;
+}
+
+.na-pl-dev__timings th {
+    color                              : #5a6d7a;
+    width                              : 55%;
+}
+
+.na-pl-dev__assets {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 3px;
+    margin-top                         : 6px;
+}
+
+.na-pl-dev__asset {
+    display                            : flex;
+    justify-content                    : space-between;
+    align-items                        : center;
+    font-size                          : 12px;
+    color                              : #172b3a;
+}
+
+.na-pl-dev__badge {
+    font-size                          : 10px;
+    text-transform                     : uppercase;
+    letter-spacing                     : 0.4px;
+    padding                            : 1px 6px;
+    border-radius                      : 8px;
+    background                         : #e3e7ea;
+    color                              : #5a6d7a;
+}
+
+.na-pl-dev__badge--cached {
+    background                         : #dff2e6;
+    color                              : #2a7d4f;
+}
+
+.na-pl-dev__badge--stale {
+    background                         : #fbeed6;
+    color                              : #9a6b12;
+}
+
+.na-pl-dev__badge--missing {
+    background                         : #f6dcda;
+    color                              : #b2372f;
+}
+
+/* endregion ------------------------------------------------------- */

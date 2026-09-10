@@ -92,6 +92,37 @@
     const Na__FpData__PLAN_ANNOTATIONS  = 'FloorPlan__Annotations';
     // ------------------------------------------------------------
 
+
+    // MODULE CONSTANTS | Per-Drawing Style Toggles, Exclusions and Linework Asset
+    // ------------------------------------------------------------
+    // Added 10-Sep-2026 (re-alignment Phase C). Key names and defaults are
+    // ValeVision's exactly, so a drawing record is readable by both apps.
+    //
+    // projectedLinework defaults OFF because the projection is the slow part of
+    // opening a drawing, and a record written before the feature existed must
+    // not suddenly start baking on load.
+    // ------------------------------------------------------------
+    const Na__FpData__REC_STYLES   = 'FloorPlan__Styles';
+    const Na__FpData__REC_EXCLUDE  = 'FloorPlan__ExcludeCategoryTokens';
+    const Na__FpData__REC_LINEWORK = 'FloorPlan__LineworkAsset';
+
+    const Na__FpData__STYLE_KEYS = Object.freeze({
+        projectedLinework : 'Styles__ProjectedLinework',
+        profileLinework   : 'Styles__ProfileLinework',
+        glassOpaque       : 'Styles__GlassOpaque',
+        whitecard         : 'Styles__Whitecard',
+        hiddenLines       : 'Styles__HiddenLines'
+    });
+    const Na__FpData__STYLE_DEFAULTS = Object.freeze({
+        projectedLinework : false,
+        profileLinework   : true,
+        glassOpaque       : false,
+        whitecard         : true,
+        hiddenLines       : false
+    });
+    // ------------------------------------------------------------
+
+
     // MODULE CONSTANTS | Id Formatting
     // ------------------------------------------------------------
     const Na__FpData__ID_PREFIX  = 'FloorPlan_';
@@ -495,12 +526,113 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Styles, Exclusions and the Baked Linework Asset (Phase C)
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Fill In Every Style Key on a Record
+    // ------------------------------------------------------------
+    // Mutates the record so the defaults are written on first read. A record
+    // that keeps returning defaults without storing them would silently change
+    // behaviour the first time an unrelated save happened to persist them.
+    // ------------------------------------------------------------
+    function Na__FpData__NormaliseStyles(plan) {
+        let styles = plan[Na__FpData__REC_STYLES];
+        if (!styles || typeof styles !== 'object') {
+            styles = {};
+            plan[Na__FpData__REC_STYLES] = styles;
+        }
+        Object.keys(Na__FpData__STYLE_KEYS).forEach((name) => {
+            const key = Na__FpData__STYLE_KEYS[name];
+            if (typeof styles[key] !== 'boolean') styles[key] = Na__FpData__STYLE_DEFAULTS[name];
+        });
+        return styles;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read a Record's Style Toggles as Plain Flags
+    // ------------------------------------------------------------
+    function Na__FpData__GetStyles(plan) {
+        const flags = Object.assign({}, Na__FpData__STYLE_DEFAULTS);
+        if (!plan) return flags;
+        const styles = Na__FpData__NormaliseStyles(plan);
+        Object.keys(Na__FpData__STYLE_KEYS).forEach((name) => {
+            flags[name] = styles[Na__FpData__STYLE_KEYS[name]] === true;
+        });
+        return flags;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set One Style Toggle by Its Flag Name
+    // ------------------------------------------------------------
+    function Na__FpData__SetStyle(plan, name, enabled) {
+        if (!plan || !Na__FpData__STYLE_KEYS[name]) return false;
+        Na__FpData__NormaliseStyles(plan)[Na__FpData__STYLE_KEYS[name]] = (enabled === true);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read a Record's Category Exclusion Tokens
+    // ------------------------------------------------------------
+    // null means "use the AppConfig default list", which is not the same as an
+    // empty array, which means "exclude nothing". Returns a COPY, so a caller
+    // filtering the list cannot quietly edit the saved record.
+    // ------------------------------------------------------------
+    function Na__FpData__GetExcludeTokens(plan) {
+        if (!plan) return null;
+        const tokens = plan[Na__FpData__REC_EXCLUDE];
+        return Array.isArray(tokens) ? tokens.slice() : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set the Exclusion Tokens (null Restores the Default List)
+    // ------------------------------------------------------------
+    function Na__FpData__SetExcludeTokens(plan, tokens) {
+        if (!plan) return false;
+        plan[Na__FpData__REC_EXCLUDE] = Array.isArray(tokens) ? tokens.slice() : null;
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read the Baked Linework Asset Reference
+    // ------------------------------------------------------------
+    function Na__FpData__GetLineworkAsset(plan) {
+        if (!plan) return null;
+        const asset = plan[Na__FpData__REC_LINEWORK];
+        return (asset && typeof asset === 'object') ? asset : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Write the Baked Linework Asset Reference (null Clears It)
+    // ------------------------------------------------------------
+    function Na__FpData__SetLineworkAsset(plan, asset) {
+        if (!plan) return false;
+        plan[Na__FpData__REC_LINEWORK] = (asset && typeof asset === 'object') ? asset : null;
+        return true;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
     // MODULE EXPORTS | Floor Plan Project Data API
     // ------------------------------------------------------------
     export {
+        Na__FpData__GetStyles,
+        Na__FpData__SetStyle,
+        Na__FpData__GetExcludeTokens,
+        Na__FpData__SetExcludeTokens,
+        Na__FpData__GetLineworkAsset,
+        Na__FpData__SetLineworkAsset,
         Na__FpData__FLOOR_PLANS_KEY,
         Na__FpData__SCENE_PLAN_ID_KEY,
         Na__FpData__GetFloorPlans,

@@ -193,6 +193,40 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Resolve a Project-Relative Asset to a Primary and Fallback URL
+    // ------------------------------------------------------------
+    // Added 10-Sep-2026 for the projected linework port. Baked linework and
+    // sheet snapshots are written to R2 and read back by every client, including
+    // ones that never had the Dev menu open.
+    //
+    // R2 IS THE PRIMARY AND THE REPOSITORY IS THE FALLBACK, in that order and
+    // not the other way round. These assets are written by the authoring machine
+    // straight to R2 and are never committed, so the repository copy is either
+    // absent or stale by definition. The fallback exists only for the case where
+    // an asset WAS committed by hand at some point; it costs one 404 on a cold
+    // read and saves a blank drawing.
+    //
+    // projectFolderId is the "YYYY/Folder" form from NormalizeProjectFolderId.
+    // The year is taken from it rather than the URL so a caller resolving an
+    // asset for a project other than the one on screen still gets the right key.
+    // ------------------------------------------------------------
+    function Na__AppUtils__ResolveAssetUrl(projectFolderId, relativePath) {
+        if (!projectFolderId || !relativePath) return { primary: null, fallback: null };
+
+        const parts        = String(projectFolderId).split('/');
+        const yearFull     = parts.length > 1 ? parts[0] : Na__AppUtils__DefaultProjectYear;
+        const folderName   = parts.length > 1 ? parts.slice(1).join('/') : parts[0];
+        const yearShort    = String(yearFull).slice(-2);                             // <-- R2 uses "26-Projects", not "2026-Projects"
+        const contentPath  = `${yearShort}-Projects/${folderName}/${Na__AppUtils__TvContentDir}/${relativePath}`;
+
+        return {
+            primary  : `${Na__AppUtils__CdnBaseUrl}/${Na__AppUtils__R2Prefix}/${contentPath}`,
+            fallback : `${window.location.origin}/na-project-portal/${contentPath}`
+        };
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -286,6 +320,7 @@
         Na__AppUtils__GetProjectFolderFromUrl,
         Na__AppUtils__GetYearFromUrl,
         Na__AppUtils__NormalizeProjectFolderId,
+        Na__AppUtils__ResolveAssetUrl,
         Na__AppUtils__FetchTrueVisionProjectData,
         Na__AppUtils__ExtractModelGroup,
         Na__AppUtils__GetActiveGroupIndex,

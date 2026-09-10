@@ -390,6 +390,68 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Write Any Project-Relative Asset to R2
+    // ------------------------------------------------------------
+    // The general form of the thumbnail write above, for the drawing systems:
+    // baked linework JSON, sheet viewport snapshots, and whatever the Layout
+    // Editor needs next.
+    //
+    // ValeVision needed a whole new Worker route, a path guard, a wrangler
+    // deploy and a Flask mirror for this. TrueVision needs none of it: the
+    // na-truevision-api Worker already exposes a generic /r2/write over the
+    // NaProjectPortal prefix, and the thumbnail path above already proves the
+    // base64 binary route works. This is the wrapper and nothing more.
+    //
+    // relativePath is project-relative, e.g. "LayoutEditor/Linework/x__abc.json".
+    // The guard below is not security - the Worker key is the security - it is
+    // there to stop a caller writing outside the app's own content folder by
+    // accident, which is the mistake that silently corrupts a neighbouring app.
+    // ------------------------------------------------------------
+    const Na__CfApi__AssetPathPattern = /^(PresentationMode\/Thumbnails|LayoutEditor\/(Linework|Snapshots))\/[A-Za-z0-9_.\-]+\.(webp|png|json)$/;
+
+    async function Na__CfApi__WriteProjectAsset(relativePath, payload, contentType) {
+        const ctx = Na__CfApi__GetProjectContext();
+        if (!ctx.projectFolder) {
+            return { ok: false, error: 'No project-folder in URL' };
+        }
+        if (!Na__CfApi__AssetPathPattern.test(relativePath || '')) {
+            return { ok: false, error: `Refused asset path "${relativePath}" - must sit under PresentationMode/Thumbnails, LayoutEditor/Linework or LayoutEditor/Snapshots` };
+        }
+
+        // A Blob goes up base64; anything else is treated as JSON.
+        let data, encoding, resolvedType;
+        if (payload instanceof Blob) {
+            data         = await Na__CfApi__BlobToBase64(payload);
+            encoding     = 'base64';
+            resolvedType = contentType || payload.type || 'application/octet-stream';
+        } else {
+            data         = payload;
+            encoding     = undefined;
+            resolvedType = contentType || 'application/json';
+        }
+
+        const yearFolderName = `${ctx.yearCode}-Projects`;
+        const key = `${Na__CfApi__R2Prefix}/${yearFolderName}/${ctx.projectFolder}`
+                  + `/${Na__CfApi__TvContentDir}/${relativePath}`;
+
+        const writeResult = await Na__CfApi__WriteKey({
+            key         : key,
+            data        : data,
+            encoding    : encoding,
+            contentType : resolvedType
+        });
+
+        if (!writeResult.ok) return writeResult;
+
+        return {
+            ok        : true,
+            relUrl    : relativePath,
+            publicUrl : Na__CfApi__BuildContentCdnUrl(ctx.projectFolder, ctx.yearCode, relativePath)
+        };
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -410,7 +472,8 @@
         Na__CfApi__WriteProjectData,
         Na__CfApi__MergeAndSaveKeys,
         Na__CfApi__DeleteProjectKeys,
-        Na__CfApi__WriteThumbnailWebp
+        Na__CfApi__WriteThumbnailWebp,
+        Na__CfApi__WriteProjectAsset
     };
     // ------------------------------------------------------------
 

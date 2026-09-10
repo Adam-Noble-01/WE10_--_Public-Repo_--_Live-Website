@@ -119,6 +119,37 @@
     const Na__ElevData__MODE_SECTION   = 'section';     // <-- The plane bites
     // ------------------------------------------------------------
 
+
+    // MODULE CONSTANTS | Per-Drawing Style Toggles, Exclusions and Linework Asset
+    // ------------------------------------------------------------
+    // Added 10-Sep-2026 (re-alignment Phase C). Key names and defaults are
+    // ValeVision's exactly, so a drawing record is readable by both apps.
+    //
+    // projectedLinework defaults OFF because the projection is the slow part of
+    // opening a drawing, and a record written before the feature existed must
+    // not suddenly start baking on load.
+    // ------------------------------------------------------------
+    const Na__ElevData__REC_STYLES   = 'Elevation__Styles';
+    const Na__ElevData__REC_EXCLUDE  = 'Elevation__ExcludeCategoryTokens';
+    const Na__ElevData__REC_LINEWORK = 'Elevation__LineworkAsset';
+
+    const Na__ElevData__STYLE_KEYS = Object.freeze({
+        projectedLinework : 'Styles__ProjectedLinework',
+        profileLinework   : 'Styles__ProfileLinework',
+        glassOpaque       : 'Styles__GlassOpaque',
+        whitecard         : 'Styles__Whitecard',
+        hiddenLines       : 'Styles__HiddenLines'
+    });
+    const Na__ElevData__STYLE_DEFAULTS = Object.freeze({
+        projectedLinework : false,
+        profileLinework   : true,
+        glassOpaque       : false,
+        whitecard         : true,
+        hiddenLines       : false
+    });
+    // ------------------------------------------------------------
+
+
     // MODULE CONSTANTS | Id Formatting
     // ------------------------------------------------------------
     const Na__ElevData__ID_PREFIX  = 'Elevation_';
@@ -626,12 +657,113 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Styles, Exclusions and the Baked Linework Asset (Phase C)
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Fill In Every Style Key on a Record
+    // ------------------------------------------------------------
+    // Mutates the record so the defaults are written on first read. A record
+    // that keeps returning defaults without storing them would silently change
+    // behaviour the first time an unrelated save happened to persist them.
+    // ------------------------------------------------------------
+    function Na__ElevData__NormaliseStyles(elevation) {
+        let styles = elevation[Na__ElevData__REC_STYLES];
+        if (!styles || typeof styles !== 'object') {
+            styles = {};
+            elevation[Na__ElevData__REC_STYLES] = styles;
+        }
+        Object.keys(Na__ElevData__STYLE_KEYS).forEach((name) => {
+            const key = Na__ElevData__STYLE_KEYS[name];
+            if (typeof styles[key] !== 'boolean') styles[key] = Na__ElevData__STYLE_DEFAULTS[name];
+        });
+        return styles;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read a Record's Style Toggles as Plain Flags
+    // ------------------------------------------------------------
+    function Na__ElevData__GetStyles(elevation) {
+        const flags = Object.assign({}, Na__ElevData__STYLE_DEFAULTS);
+        if (!elevation) return flags;
+        const styles = Na__ElevData__NormaliseStyles(elevation);
+        Object.keys(Na__ElevData__STYLE_KEYS).forEach((name) => {
+            flags[name] = styles[Na__ElevData__STYLE_KEYS[name]] === true;
+        });
+        return flags;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set One Style Toggle by Its Flag Name
+    // ------------------------------------------------------------
+    function Na__ElevData__SetStyle(elevation, name, enabled) {
+        if (!elevation || !Na__ElevData__STYLE_KEYS[name]) return false;
+        Na__ElevData__NormaliseStyles(elevation)[Na__ElevData__STYLE_KEYS[name]] = (enabled === true);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read a Record's Category Exclusion Tokens
+    // ------------------------------------------------------------
+    // null means "use the AppConfig default list", which is not the same as an
+    // empty array, which means "exclude nothing". Returns a COPY, so a caller
+    // filtering the list cannot quietly edit the saved record.
+    // ------------------------------------------------------------
+    function Na__ElevData__GetExcludeTokens(elevation) {
+        if (!elevation) return null;
+        const tokens = elevation[Na__ElevData__REC_EXCLUDE];
+        return Array.isArray(tokens) ? tokens.slice() : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set the Exclusion Tokens (null Restores the Default List)
+    // ------------------------------------------------------------
+    function Na__ElevData__SetExcludeTokens(elevation, tokens) {
+        if (!elevation) return false;
+        elevation[Na__ElevData__REC_EXCLUDE] = Array.isArray(tokens) ? tokens.slice() : null;
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read the Baked Linework Asset Reference
+    // ------------------------------------------------------------
+    function Na__ElevData__GetLineworkAsset(elevation) {
+        if (!elevation) return null;
+        const asset = elevation[Na__ElevData__REC_LINEWORK];
+        return (asset && typeof asset === 'object') ? asset : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Write the Baked Linework Asset Reference (null Clears It)
+    // ------------------------------------------------------------
+    function Na__ElevData__SetLineworkAsset(elevation, asset) {
+        if (!elevation) return false;
+        elevation[Na__ElevData__REC_LINEWORK] = (asset && typeof asset === 'object') ? asset : null;
+        return true;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
     // MODULE EXPORTS | Elevation Project Data API
     // ------------------------------------------------------------
     export {
+        Na__ElevData__GetStyles,
+        Na__ElevData__SetStyle,
+        Na__ElevData__GetExcludeTokens,
+        Na__ElevData__SetExcludeTokens,
+        Na__ElevData__GetLineworkAsset,
+        Na__ElevData__SetLineworkAsset,
         Na__ElevData__ELEVATIONS_KEY,
         Na__ElevData__SCENE_ELEV_ID,
         Na__ElevData__MODE_ELEVATION,
