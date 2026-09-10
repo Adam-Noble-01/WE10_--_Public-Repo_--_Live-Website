@@ -776,6 +776,7 @@
     import { Na__ContextMenu__Initialize } from './02__Src__AppModules/27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js';
     import { Na__SectionCut__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
     import { Na__DrawProfile__SetEnabled } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
+    import { Na__DrawView__ProjectData__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__FloorPlanMode__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
     import { Na__FloorPlan__DevMenu__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__DevMenu__Editor__.js';
     import { Na__ElevationMode__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__ModeController__.js';
@@ -1392,6 +1393,21 @@
             });
         }
     }
+    // ------------------------------------------------------------
+
+
+    // ARM THE DRAWINGS DATA LISTENER (must precede the loading sequence)
+    // ------------------------------------------------------------
+    // This only registers a window listener, so it costs nothing on a project
+    // with no drawings. It is placed HERE, above the loading sequence, rather
+    // than with the other drawing systems further down, because the loading
+    // sequence dispatches the drawings block exactly once and a listener
+    // attached afterwards never hears it. It happens to survive lower down
+    // today - the dispatch sits behind several awaits - but that is a property
+    // of the fetches above it, not a guarantee, and the failure mode is a
+    // project that silently opens with no drawings.
+    // @delegate: ./02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js
+    Na__DrawView__ProjectData__Initialize();
     // ------------------------------------------------------------
 
 

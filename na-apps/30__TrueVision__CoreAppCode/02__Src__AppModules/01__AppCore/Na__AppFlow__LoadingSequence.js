@@ -294,6 +294,7 @@
     // keys always come from the complete base file.
     const Na__DevSavedKeys = [
         'PresentationMode__SavedCameraScenes',   // <-- Saved camera scenes (Presentation Mode)
+        'LayoutEditor__DrawingsData',            // <-- Floor plans, elevations, sheets and their markup (v2.21.0)
         'Navmode__EnabledModes',                 // <-- Walk / Fly enable flags
         'Navmode__OrbitMaxDistanceMm',           // <-- Per-project orbit zoom cap
         'RenderEffect__AssetCullDistanceMm',     // <-- Per-project furniture / decor cull distance
@@ -832,6 +833,27 @@
                     sceneConfig   : Na__SceneConfig,
                     projectFolder : projectFolder,                           // <-- Folder + year drive R2 thumbnail URL resolution
                     year          : yearCode
+                }
+            }));
+        }
+
+        // BROADCAST THE DRAWINGS BLOCK (floor plans, elevations, Layout Editor sheets)
+        // Dispatched unconditionally, and AFTER the scenes above, for two reasons.
+        // Unconditionally, because a project with no block still needs the empty
+        // skeleton built - the dev panels create the first drawing into it. After
+        // the scenes, because the scene config is what the legacy migration reads:
+        // before v2.21.0 drawings lived inside PresentationMode__SavedCameraScenes,
+        // and a project saved before then still holds them there. The config is
+        // passed in the detail rather than looked up, so the migration never
+        // depends on which listener ran first.
+        {
+            const Na__DrawingsBlock = (Na__ProjectData__Full && Na__ProjectData__Full['LayoutEditor__DrawingsData']) || null;
+            const Na__SceneConfigForDrawings = (Na__ProjectData__Full && Na__ProjectData__Full['PresentationMode__SavedCameraScenes']) || null;
+            window.dispatchEvent(new CustomEvent('na-layouteditor-drawingsdata-loaded', {
+                detail : {
+                    block       : Na__DrawingsBlock,                         // <-- null on a project that has never saved drawings
+                    sceneConfig : Na__SceneConfigForDrawings,                // <-- Migration source for pre-v2.21.0 projects
+                    projectCode : projectCode
                 }
             }));
         }
