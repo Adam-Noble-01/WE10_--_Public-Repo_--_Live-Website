@@ -178,12 +178,28 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Find an Entry Key by Scene Name
+    // HELPER FUNCTION | Find an Entry Key by Scene Id First, Then Name
     // ------------------------------------------------------------
-    function Na__SectSceneData__FindEntryKey(sceneName) {
-        if (!Na__SectSceneData__Block || !sceneName) return null;
+    // Entries are keyed by NAME, which is what makes them survive a SketchUp
+    // re-sync. The cost is that a rename made before the rename path existed
+    // orphaned the entry under the old name. Each entry therefore also carries
+    // the scene id it was captured against, and the id is tried FIRST: that
+    // recovers an orphan without anyone having to notice one.
+    // ------------------------------------------------------------
+    function Na__SectSceneData__FindEntryKey(sceneName, sceneId) {
+        if (!Na__SectSceneData__Block) return null;
         const scenes = Na__SectSceneData__Block[Na__SectSceneData__SCENES_KEY] || {};
-        return Object.prototype.hasOwnProperty.call(scenes, sceneName) ? sceneName : null;
+
+        if (sceneId) {
+            const keys = Object.keys(scenes);
+            for (let i = 0; i < keys.length; i++) {
+                const entry = scenes[keys[i]];
+                if (entry && entry.sceneId === sceneId) return keys[i];
+            }
+        }
+
+        if (sceneName && Object.prototype.hasOwnProperty.call(scenes, sceneName)) return sceneName;
+        return null;
     }
     // ------------------------------------------------------------
 
@@ -201,10 +217,12 @@
     // an entry holding an empty sections array, which is a real value meaning
     // "this scene shows no cut" - not the same as having no entry.
     // ------------------------------------------------------------
-    function Na__SectSceneData__CaptureForScene(sceneName) {
+    function Na__SectSceneData__CaptureForScene(sceneName, sceneId) {
         if (!sceneName) return false;
-        const block  = Na__SectSceneData__EnsureBlock();
-        block[Na__SectSceneData__SCENES_KEY][sceneName] = Na__SectSerialize__Serialize();
+        const block    = Na__SectSceneData__EnsureBlock();
+        const snapshot = Na__SectSerialize__Serialize();
+        if (sceneId) snapshot.sceneId = sceneId;                                 // <-- Lets a later rename find an orphaned entry
+        block[Na__SectSceneData__SCENES_KEY][sceneName] = snapshot;
         return true;
     }
     // ------------------------------------------------------------
@@ -228,12 +246,17 @@
     // the carousel card but not this leaves the drawing opening with no cut at
     // all, and nothing says so.
     // ------------------------------------------------------------
-    function Na__SectSceneData__RenameScene(oldName, newName) {
-        if (!Na__SectSceneData__Block || !oldName || !newName || oldName === newName) return false;
+    function Na__SectSceneData__RenameSceneKey(oldName, newName, sceneId) {
+        if (!Na__SectSceneData__Block || !newName) return false;
         const scenes = Na__SectSceneData__Block[Na__SectSceneData__SCENES_KEY] || {};
-        if (!Object.prototype.hasOwnProperty.call(scenes, oldName)) return false;
-        scenes[newName] = scenes[oldName];
-        delete scenes[oldName];
+
+        const sourceKey = Na__SectSceneData__FindEntryKey(oldName, sceneId);     // <-- Id first, so an orphan is still found
+        if (!sourceKey || sourceKey === newName) return false;
+
+        const entry = scenes[sourceKey];
+        if (sceneId) entry.sceneId = sceneId;                                    // <-- Backfill on any entry that predates the id
+        scenes[newName] = entry;
+        delete scenes[sourceKey];
         return true;
     }
     // ------------------------------------------------------------
@@ -241,8 +264,8 @@
 
     // FUNCTION | Restore a Scene's Cut, or Clear
     // ------------------------------------------------------------
-    function Na__SectSceneData__RestoreForScene(sceneName) {
-        const key = Na__SectSceneData__FindEntryKey(sceneName);
+    function Na__SectSceneData__RestoreForScene(sceneName, sceneId) {
+        const key = Na__SectSceneData__FindEntryKey(sceneName, sceneId);
 
         if (!key) {
             Na__SectionCut__RemoveAllPlanes();                                   // <-- No entry: a cut must not leak in from the last scene
@@ -287,7 +310,8 @@
             const sceneName = detail.sceneName || (detail.scene && detail.scene.PresentationMode__Scene__Name) || null;
             if (!sceneName) return;
 
-            Na__SectSceneData__RestoreForScene(sceneName);
+            const sceneId = detail.sceneId || (detail.scene && detail.scene.PresentationMode__Scene__Id) || null;
+            Na__SectSceneData__RestoreForScene(sceneName, sceneId);
         });
     }
     // ------------------------------------------------------------
@@ -310,7 +334,7 @@
         Na__SectSceneData__FindEntryKey,
         Na__SectSceneData__CaptureForScene,
         Na__SectSceneData__RemoveForScene,
-        Na__SectSceneData__RenameScene,
+        Na__SectSceneData__RenameSceneKey,
         Na__SectSceneData__RestoreForScene
     };
     // ------------------------------------------------------------
