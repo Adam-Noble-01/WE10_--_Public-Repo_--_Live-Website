@@ -5,7 +5,7 @@
     // MODULE IMPORTS | Three.js
     // ------------------------------------------------------------
     import * as THREE from 'three';
-    import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+    import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';                                  // <-- Was RGBELoader, deprecated upstream at r180 (see below)
     // ------------------------------------------------------------
 
 
@@ -73,7 +73,7 @@
             : 1.0;
 
         try {
-            const hdrTexture = await new RGBELoader().loadAsync(hdriUrl);
+            const hdrTexture = await new HDRLoader().loadAsync(hdriUrl);                            // <-- HDRLoader is RGBELoader renamed; identical behaviour
             hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
 
             const pmremGenerator = new THREE.PMREMGenerator(renderer);

@@ -1,0 +1,63 @@
+{
+    "TrueVision__Dependencies__ImportMap__Index__": {
+        "description"           : "Browser import-map targets for the version-locked vendor libraries used by TrueVision3D. Paths are relative to Index.html (the TrueVision3D app root). This file is the SSOT for the import map declared inline in Index.html; a browser cannot read an import map from JSON, so the two must be kept in sync by hand. Keys are identical to the ValeVision3D and Vale Lantern Designer import maps so the projected linework modules port between the three apps without edits.",
+        "lockedSetDate"         : "10-Sep-2026",
+        "mirrorOf"              : "WebApps/ValeVision3D/04__Lib__ThirdParty__VersionLocked (byte-identical vendor folders 01 to 04, 596 files)",
+        "replaces"              : "The esm.sh import map that pinned three@0.160.0 over the network. Removed 10-Sep-2026 (v2.20.0): a network-fetched renderer is neither reproducible nor offline-capable, and an installable PWA needs both.",
+        "coordinatedSetNote"    : "Do not upgrade three / three-mesh-bvh / clipper2-js / three-edge-projection independently; vendors 01 to 04 form one coordinated 3D and projection set and must move together with the ValeVision3D and Lantern Designer copies. Vendor 03 (clipper2-js) is imported by three-edge-projection's SilhouetteGenerator at module load, so the import map must carry it even though no TrueVision3D module calls it directly. jsPDF is vendored separately under 02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked and is not part of this set.",
+        "gitignoreWarning"      : "The repository .gitignore ignores 'build/'. Without the explicit negation lines added for this folder, 01__Vendor__ThreeJs__v0.184.0/build/ is silently untracked and the live GitHub Pages site 404s on the import map. Verify with: git check-ignore -v na-apps/30__TrueVision__CoreAppCode/04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+
+        "vendors": {
+            "01__Vendor__ThreeJs__v0.184.0": {
+                "npmName"       : "three",
+                "version"       : "0.184.0",
+                "revision"      : "184",
+                "entry"         : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+                "core"          : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.core.js",
+                "coreNote"      : "three.module.js imports ./three.core.js relatively; both files must ship and both are precached by the TrueVision service worker.",
+                "addons"        : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/examples/jsm/",
+                "webgpu"        : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.webgpu.js",
+                "tsl"           : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.tsl.js",
+                "usedBy"        : "The whole app. Upgraded from r160 on 10-Sep-2026; see the touch-point checklist in TrueVision__PLAN__ValeVisionRealign__DrawingSystems__.md section 6.3."
+            },
+            "02__Vendor__ThreeMeshBvh__v0.9.9": {
+                "npmName"       : "three-mesh-bvh",
+                "version"       : "0.9.9",
+                "entry"         : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/index.js",
+                "worker"        : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/workers/index.js",
+                "webgpu"        : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/webgpu/index.js",
+                "usedBy"        : "50__System__ProjectedLinework (intersection edge pass, main thread only) - lands in Phase D"
+            },
+            "03__Vendor__Clipper2Js__v0.9.0": {
+                "npmName"       : "clipper2-js",
+                "version"       : "0.9.0",
+                "entry"         : "./04__Lib__ThirdParty__VersionLocked/03__Vendor__Clipper2Js__v0.9.0/fesm2020/clipper2-js.mjs",
+                "usedBy"        : "04__Vendor__ThreeEdgeProjection (SilhouetteGenerator imports Path64, Clipper and FillRule at module load); no TrueVision3D module imports it directly. Omitting it breaks EVERY module on the page with 'Failed to resolve module specifier clipper2-js' - ValeVision shipped without it once and the app failed to load (v2.21.1)."
+            },
+            "04__Vendor__ThreeEdgeProjection__v0.0.10": {
+                "npmName"       : "three-edge-projection",
+                "version"       : "0.0.10",
+                "commit"        : "f794481125e935303575171daf454b528ac396e3",
+                "entry"         : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/index.js",
+                "worker"        : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/worker/index.js",
+                "webgpu"        : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/webgpu/index.js",
+                "usedBy"        : "50__System__ProjectedLinework (legacy reference backend for the diff harness, WebGPU backend, vendored intersection generator) - lands in Phase D",
+                "knownUpstreamBug": "utils/bvhcastEdges.js line 55 compares a number to a boolean so FrontSide meshes never backface cull; the ported soup builder fixes this before the kernel ever sees a triangle."
+            }
+        },
+
+        "importMap": {
+            "three"                         : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+            "three/addons/"                 : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/examples/jsm/",
+            "three/webgpu"                  : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.webgpu.js",
+            "three/tsl"                     : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.tsl.js",
+            "three-mesh-bvh"                : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/index.js",
+            "three-mesh-bvh/worker"         : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/workers/index.js",
+            "three-mesh-bvh/webgpu"         : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/webgpu/index.js",
+            "clipper2-js"                   : "./04__Lib__ThirdParty__VersionLocked/03__Vendor__Clipper2Js__v0.9.0/fesm2020/clipper2-js.mjs",
+            "three-edge-projection"         : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/index.js",
+            "three-edge-projection/worker"  : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/worker/index.js",
+            "three-edge-projection/webgpu"  : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/webgpu/index.js"
+        }
+    }
+}

@@ -2,6 +2,144 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.20.0  -  10-Sep-2026
+### The Renderer Comes In-House - three r184, Vendored
+
+**Overview**
+- three.js is no longer fetched from esm.sh. The app now runs a version-locked
+  vendor set held in the repository: three r184, three-mesh-bvh 0.9.9,
+  clipper2-js 0.9.0 and three-edge-projection 0.0.10, in a new app-root folder
+  `04__Lib__ThirdParty__VersionLocked/`.
+- This is Phase A of the ValeVision re-alignment
+  (`TrueVision__PLAN__ValeVisionRealign__DrawingSystems__.md`). The four vendors
+  are copied byte-for-byte from ValeVision, which copied them from the Lantern
+  Designer, so all three apps run identical geometry code. That is the thing
+  that will let the projected linework and Layout Editor modules port across
+  without edits.
+
+**WHY MOVE OFF A CDN THAT WAS WORKING**
+- It was not reproducible. esm.sh can change what it serves for a tag, and an
+  outage takes the app down with it.
+- It could not go offline, which is fatal for an installable PWA. The whole
+  point of the install is an app that opens.
+- It could not carry the projection stack. three-mesh-bvh and
+  three-edge-projection are pinned to a three revision; the exact hidden-line
+  work the drawings need does not exist on r160 at all.
+
+**THE TRAP IN THE REPOSITORY THAT ALMOST ATE THE RENDERER**
+- `.gitignore` ignores `build/`. The vendored renderer ships as
+  `01__Vendor__ThreeJs__v0.184.0/build/three.module.js`.
+- Left alone, `git add` stages 575 of 598 files, the push succeeds, nothing
+  looks wrong locally, and the LIVE site 404s on the import map. There is no
+  local symptom whatsoever, because locally the files are on disk.
+- It is worse than one folder: `build/` matches THREE directories in the vendor
+  tree, and the third is `three-mesh-bvh/src/core/build/`, holding eight SOURCE
+  files that `src/index.js` imports at module load. PlanVision hit this same rule
+  once and solved it the same way.
+- Negations added, then verified the only way worth trusting: `git add --dry-run`
+  stages 598 of 598.
+
+**Verification, and what it caught**
+- New harness `80__Testing__PrototypeEnvironment/Na__Verify__ModuleGraph__.mjs`
+  reads the import map out of `Index.html` and walks the module graph the way a
+  browser resolves it. `node --check` cannot see this class of fault: every file
+  parses while the graph as a whole is broken.
+- It walks in two passes. The first follows the live app graph. The second walks
+  EVERY import map target on its own, because the first pass has a blind spot
+  that is precisely the one that took ValeVision down: a vendor entry point
+  nothing imports yet is never reached, so its broken specifier stays invisible
+  until the phase that first imports it - at which point it breaks every module
+  on the page rather than just the new one.
+- Proven by breaking it on purpose: deleting the `clipper2-js` map entry is
+  caught by pass two and missed entirely by pass one.
+- It found one REAL defect and one bug in itself. The bug: three-mesh-bvh heads
+  its generated files with `/* This file is generated from "raycast.template.js". */`,
+  which reads as an import unless comments are stripped first. A harness that
+  cries wolf twice gets ignored the third time, when it is right.
+
+**The real defect, left in place deliberately**
+- `three-edge-projection/src/worker/SilhouetteGeneratorWorker.js` imports
+  `'../SilhouetteGenerator'` with no file extension, which no browser can
+  resolve. It is upstream's bug, and ValeVision has the identical file.
+- It is reachable ONLY through the `three-edge-projection/worker` map entry.
+  Neither app imports that entry - both use the main entry plus a dynamic
+  `three-edge-projection/webgpu`, and the projection system brings its own
+  worker pool. Traced rather than assumed.
+- Left unpatched to keep the vendor folders byte-identical across the three
+  apps, and recorded as a named known issue in the harness so it prints on every
+  run and never fails the build. If Phase D ever imports that entry, it breaks
+  the page, and the harness says so in as many words.
+
+**Service worker**
+- The vendor cache bucket survives, but it is selected by a PATH test now rather
+  than by remote origin, and that test runs FIRST in the classifier. Vendor files
+  are `.js`, so the shell-asset pattern would otherwise sweep them into the shell
+  bucket - which is stale-while-revalidate on the live site, and a half-updated
+  three.js is not a thing that can be reasoned about.
+- The renderer is precached into the vendor bucket at install. Without it, a user
+  who installs and goes offline before ever loading a project gets a dead icon.
+  `three.core.js` is listed alongside `three.module.js` because the latter
+  imports the former with a RELATIVE specifier; caching only the entry point
+  produces an app that boots online and fails offline.
+- Token bumped to `2026-09-10-1`.
+
+**One deprecation the upgrade surfaced**
+- `RGBELoader` was renamed `HDRLoader` upstream at r180 and now warns on every
+  boot. In r184 `RGBELoader extends HDRLoader` and does nothing else, so the swap
+  is a rename and no more. Done, and the warning is gone.
+
+**Verified**
+- App boots with zero console errors. `THREE.REVISION` reads `184` at runtime,
+  from the vendored file, and the vendor path serves 200.
+- All ten `three/addons/` paths the app imports exist in r184. The renamed FXAA
+  shader still exposes `tDiffuse` and `resolution`. `OrbitControls` extends the
+  new `Controls` base and all three construction sites already pass
+  `(camera, domElement)`.
+- The fat-line depth-bias patch still lands: r184's LineMaterial still contains
+  `#include <logdepthbuf_fragment>`, and the chunk still writes `gl_FragDepth`.
+  Checked the chunk body, not just the include, because a chunk that survives by
+  name and stops writing the variable would make the patch a silent no-op.
+- Drawing profile lines harness passes on r184 in full: both cameras, both the
+  own-buffer and borrowed-buffer paths, `WebGL error code after all passes: 0`,
+  and every piece of renderer state the section overlay depends on handed back
+  untouched - background, override material, autoClear, shadowMap.autoUpdate and
+  the active render target.
+- Confirmed by pixel count rather than by eye, because the off-screen tile reads
+  as blank in a screen capture while having rendered perfectly: the flat tiles
+  carry 0 dark pixels and the profile-line tiles carry 924 (plan) and 914
+  (elevation). Rounded forms gain outlines in both drawing cameras; the box
+  control does not change.
+
+**Verified against a real project**
+- PS01 Musters Road loads all twelve model categories from the CDN, mesh and
+  linework both, and renders correctly on r184: whitecard materials, glazing,
+  furniture, ground plane, scene carousel, the Exterior 3D Views group.
+- The fat-line linework draws over the mesh without z-fighting, which is the
+  depth-bias patch doing its job on r184 rather than merely still compiling.
+
+**Two things that made this look broken when it was not, both worth knowing**
+- The project path is gated on BOTH url parameters:
+  `?project=PS01&project-folder=PS01__MustersRoad&year=26`. With only
+  `project-folder` the app falls through to a default document pointing at
+  ValeVision's Clough GLBs, loads zero categories, and reads exactly like a dead
+  build. An earlier draft of this entry blamed a missing `/api` endpoint; that is
+  the legacy Whitecardopedia path and TrueVision does not use it. Localhost reads
+  the repository copy and overlays the dev keys from R2, and both halves work.
+- Sampling the WebGL canvas with `drawImage` to check whether a frame rendered
+  reports a perfectly good scene as one flat colour, because the renderer runs
+  without `preserveDrawingBuffer` and a read outside the render call gets a
+  cleared buffer. The screenshot was right and the measurement was wrong. The
+  pixel counts quoted above for the profile-lines harness are trustworthy for the
+  opposite reason: that harness reads inside its own render.
+
+**NOT verified**
+- Image export (viewport and tiled), Video Studio, and the section cut tool's
+  add / drag / flip / per-scene restore. All low risk - none of them touch the
+  shader surface the upgrade moved - but none has been run.
+- Offline boot from the service worker cache. That is the acceptance test for the
+  installable PWA and belongs with Phase F, once the authoring gate lands.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.19.0  -  07-Sep-2026
 ### Profile Lines on the Drawings - Round Things Stop Disappearing
 

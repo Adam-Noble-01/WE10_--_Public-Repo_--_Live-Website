@@ -48,18 +48,44 @@
 
 
     <!-- ----------------------------------------------------------------- -->
-    <!-- REGION  |  Three.js Import Map                                    -->
+    <!-- REGION  |  Version-Locked Vendor Import Map                       -->
     <!-- ----------------------------------------------------------------- -->
-    
+    <!--                                                                   -->
+    <!-- SSOT for these paths is:                                          -->
+    <!--   04__Lib__ThirdParty__VersionLocked/                             -->
+    <!--       TrueVision__Dependencies__ImportMap__Index__.json           -->
+    <!-- A browser cannot read an import map from JSON, so that file and   -->
+    <!-- this block must be kept in sync BY HAND.                          -->
+    <!--                                                                   -->
+    <!-- Replaced the esm.sh three@0.160.0 map on 10-Sep-2026 (v2.20.0).   -->
+    <!-- A network-fetched renderer is neither reproducible nor offline-   -->
+    <!-- capable, and it cannot carry the coordinated projection set that  -->
+    <!-- 50__System__ProjectedLinework needs.                              -->
+    <!--                                                                   -->
+    <!-- clipper2-js is NOT unused: three-edge-projection's                -->
+    <!-- SilhouetteGenerator imports it at module load, and a missing      -->
+    <!-- entry throws "Failed to resolve module specifier" against EVERY   -->
+    <!-- module on the page, not just the projection ones.                 -->
+    <!-- ----------------------------------------------------------------- -->
+
     <script type="importmap">
     {
         "imports": {
-            "three": "https://esm.sh/three@0.160.0",
-            "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+            "three"                        : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+            "three/addons/"                : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/examples/jsm/",
+            "three/webgpu"                 : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.webgpu.js",
+            "three/tsl"                    : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.tsl.js",
+            "three-mesh-bvh"               : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/index.js",
+            "three-mesh-bvh/worker"        : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/workers/index.js",
+            "three-mesh-bvh/webgpu"        : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/webgpu/index.js",
+            "clipper2-js"                  : "./04__Lib__ThirdParty__VersionLocked/03__Vendor__Clipper2Js__v0.9.0/fesm2020/clipper2-js.mjs",
+            "three-edge-projection"        : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/index.js",
+            "three-edge-projection/worker" : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/worker/index.js",
+            "three-edge-projection/webgpu" : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/webgpu/index.js"
         }
     }
     </script>
-    
+
     <!-- endregion -------------------------------------------------------- -->
     
 

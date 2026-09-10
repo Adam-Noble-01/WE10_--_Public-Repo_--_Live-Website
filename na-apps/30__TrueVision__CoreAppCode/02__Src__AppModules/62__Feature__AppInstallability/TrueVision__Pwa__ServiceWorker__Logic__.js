@@ -18,8 +18,10 @@
 //     tv-data-vN    : project data and app config JSON (network-first)
 //     tv-models-vN  : GLB / GLTF models from the R2 CDN (network-first with a
 //                     slow-network grace window, LRU capped)
-//     tv-vendor-vN  : version-pinned third-party ES modules (three.js on
-//                     esm.sh), cache-first because the URLs are immutable
+//     tv-vendor-vN  : version-locked third-party ES modules (three r184,
+//                     three-mesh-bvh, clipper2-js, three-edge-projection) served
+//                     same-origin from 04__Lib__ThirdParty__VersionLocked/,
+//                     cache-first because a locked set never changes in place
 // - Deliberately NOT precaching the full module graph. TrueVision has around a
 //   hundred modules that move constantly, and a hand-maintained precache list
 //   would be wrong within a week. Only the boot-critical handful is precached;
@@ -32,6 +34,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 10-Sep-2026 - Version 1.1.0
+// - three.js moved off esm.sh and into the same-origin version-locked vendor
+//   folder (v2.20.0). The vendor bucket survives, but it is now selected by a
+//   PATH test rather than a remote origin, and that test runs FIRST in the
+//   classifier because vendor files are .js and would otherwise be swept into
+//   the shell bucket by PWA_SW_PATTERN_SHELL_ASSET. Shell is
+//   stale-while-revalidate on the live site, which is the wrong strategy for a
+//   renderer: a half-updated three.js is not a thing that can be reasoned about.
+// - esm.sh is no longer a trusted remote origin, so PWA_SW_REMOTE_ORIGINS_OWNED
+//   holds the R2 CDN alone.
+// - NOTE for offline: three.module.js imports ./three.core.js RELATIVELY. Both
+//   files must be reachable or the app boots online and dies offline.
+//
 // 27-Aug-2026 - Version 1.0.0
 // - Initial release, ported from the ValeVision3D / Whitecardopedia PWA stack
 //   and retuned for TrueVision's asset mix.
@@ -68,7 +83,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-07-1';                                                                       // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-10-1';                                                                       // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
@@ -97,8 +112,15 @@
         '/na-apps/01__Assets__NaApps__CommonAssets/'                                                                                // <-- Shared Noble Architecture assets
     ];
     const PWA_SW_REMOTE_ORIGIN_CDN          = 'https://cdn.noble-architecture.com';                                                  // <-- R2 CDN: models and project data
-    const PWA_SW_REMOTE_ORIGIN_ESM          = 'https://esm.sh';                                                                      // <-- Version-pinned three.js modules
-    const PWA_SW_REMOTE_ORIGINS_OWNED       = [PWA_SW_REMOTE_ORIGIN_CDN, PWA_SW_REMOTE_ORIGIN_ESM];                                  // <-- Trusted CORS-enabled remote hosts
+    const PWA_SW_REMOTE_ORIGINS_OWNED       = [PWA_SW_REMOTE_ORIGIN_CDN];                                                            // <-- Trusted CORS-enabled remote hosts
+
+    // The version-locked vendor libraries (three r184, three-mesh-bvh,
+    // clipper2-js, three-edge-projection) moved from esm.sh to this same-origin
+    // folder on 10-Sep-2026 (v2.20.0). They are immutable for the life of a
+    // version-locked set, so they keep the cache-first vendor bucket - but the
+    // classifier now recognises them by PATH rather than by remote origin, and
+    // that test must run BEFORE the shell-asset pattern, which also matches .js.
+    const PWA_SW_VENDOR_PATH_TOKEN          = '/04__Lib__ThirdParty__VersionLocked/';                                                // <-- Same-origin version-locked vendor folder
     // ------------------------------------------------------------
 
 
@@ -123,6 +145,27 @@
         '02__Src__AppModules/02__AppData/Na__AppConfig__Main.json',
         '02__Src__AppModules/02__AppData/Na__AppConfig__Hotkeys.json',
         '02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Manifest__Fallback__.webmanifest'
+    ];
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | Boot-Critical Vendor Precache List (relative to scope)
+    // ------------------------------------------------------------
+    // These go into the VENDOR bucket, not the shell bucket, because that is
+    // where the fetch classifier looks for them. Precaching them into shell
+    // would look right and do nothing.
+    //
+    // Only the renderer is listed. Without it, a user who installs the app and
+    // goes offline before ever loading a project gets a dead icon: every module
+    // on the page imports 'three', and the import map now points at a file that
+    // was never fetched. Everything else populates naturally on first use.
+    //
+    // three.core.js is NOT optional padding - three.module.js imports it with a
+    // relative specifier, so caching only the entry point produces an app that
+    // boots online and fails offline, which is the worst of both.
+    const PWA_SW_VENDOR_PRECACHE_RELATIVE   = [                                                                                     // <-- Best-effort; a miss never fails install
+        '04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js',
+        '04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.core.js'
     ];
     // ------------------------------------------------------------
 
@@ -164,7 +207,7 @@
     function TrueVision__Pwa__ServiceWorker__Logic__ClassifyRequest(request) {
         const requestUrl    = request.url || '';                                                                                    // <-- Snapshot the URL
 
-        if (requestUrl.indexOf(PWA_SW_REMOTE_ORIGIN_ESM) === 0) return 'vendor';                                                    // <-- Version-pinned third-party module
+        if (requestUrl.indexOf(PWA_SW_VENDOR_PATH_TOKEN) !== -1) return 'vendor';                                                   // <-- Version-locked vendor library (path test, before the .js shell pattern)
         if (PWA_SW_PATTERN_MODEL_GLB.test(requestUrl)) return 'model';                                                              // <-- 3D model GLB / GLTF
         if (PWA_SW_PATTERN_HDRI.test(requestUrl)) return 'hdri';                                                                    // <-- HDR environment map
 
@@ -323,14 +366,19 @@
         installEvent.waitUntil((async () => {
             try {
                 const shellCache    = await caches.open(PWA_SW_CACHE_NAME_SHELL);                                                   // <-- Open the shell cache
+                const vendorCache   = await caches.open(PWA_SW_CACHE_NAME_VENDOR);                                                  // <-- Open the vendor cache
                 const scopePrefix   = TrueVision__Pwa__ServiceWorker__Logic__GetScopePathPrefix();                                  // <-- Resolve the scope prefix
-                const absoluteUrls  = PWA_SW_SHELL_PRECACHE_RELATIVE.map(relative => `${scopePrefix}${relative}`);                  // <-- Build absolute URLs
 
-                await Promise.all(absoluteUrls.map(async (absoluteUrl) => {
+                const precacheJobs  = [                                                                                             // <-- Pair each list with its destination bucket
+                    ...PWA_SW_SHELL_PRECACHE_RELATIVE.map(relative  => ({ url: `${scopePrefix}${relative}`, cache: shellCache })),
+                    ...PWA_SW_VENDOR_PRECACHE_RELATIVE.map(relative => ({ url: `${scopePrefix}${relative}`, cache: vendorCache }))
+                ];
+
+                await Promise.all(precacheJobs.map(async (job) => {
                     try {
-                        const response = await fetch(absoluteUrl, { cache: 'reload' });                                             // <-- Force a fresh fetch
+                        const response = await fetch(job.url, { cache: 'reload' });                                                 // <-- Force a fresh fetch
                         if (response && response.ok) {
-                            await shellCache.put(absoluteUrl, response.clone());                                                    // <-- Best-effort precache
+                            await job.cache.put(job.url, response.clone());                                                         // <-- Best-effort precache
                         }
                     } catch (resourceError) {
                         // Silent: a missing precache entry must never fail the install

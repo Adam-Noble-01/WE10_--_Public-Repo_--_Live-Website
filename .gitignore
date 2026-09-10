@@ -34,6 +34,16 @@ public/build/
 !na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js
 !na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js
 
+# TrueVision version-locked three.js / BVH / projection runtime (must be deployed to live)
+# The `build/` rule above hits THREE directories inside this vendor tree:
+#   01__Vendor__ThreeJs__v0.184.0/build/           - three.module.js and three.core.js
+#   02__Vendor__ThreeMeshBvh__v0.9.9/build/        - the packaged UMD/ESM bundles
+#   02__Vendor__ThreeMeshBvh__v0.9.9/src/core/build/ - 8 SOURCE files imported at module load
+# Without these negations the push succeeds, nothing looks wrong locally, and the live
+# site 404s on the import map. Verify with `git check-ignore -v <a build/ file>`.
+!na-apps/30__TrueVision__CoreAppCode/04__Lib__ThirdParty__VersionLocked/**/build/
+!na-apps/30__TrueVision__CoreAppCode/04__Lib__ThirdParty__VersionLocked/**/build/**
+
 # Internal tools and private content - uncomment to prevent them from being included in GitHub
 # SN20_-_Static-Web-Applications/
 # private/
