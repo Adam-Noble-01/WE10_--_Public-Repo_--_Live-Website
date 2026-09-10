@@ -580,6 +580,32 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | List the Live Cut Plane Records (Read-Only View)
+    // ------------------------------------------------------------
+    // Added 10-Sep-2026 for TD06, so Na__SectionCut__Serialize__ can capture the
+    // cut without reaching into the engine's private Map.
+    //
+    // Returns a NEW array of NEW objects each time. The THREE.Plane inside is
+    // the live one by reference and is not to be mutated - the clipping list
+    // holds the same object, so writing to it changes the render without going
+    // through Upsert, and the caps are then computed from a plane the engine
+    // does not know has moved. Reading is safe; that is all this is for.
+    // ------------------------------------------------------------
+    function Na__SectionCut__GetPlaneRecords() {
+        const records = [];
+        Na__SectCut__Planes.forEach((record) => {
+            records.push({
+                id         : record.id,
+                plane      : record.plane,                                       // <-- Live reference: READ ONLY
+                depthUnits : record.depthUnits,
+                enabled    : record.enabled
+            });
+        });
+        return records;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Override the Cut Appearance Live
     // ------------------------------------------------------------
     function Na__SectionCut__SetAppearance(appearance) {
@@ -655,6 +681,7 @@
         Na__SectionCut__IsCutting,
         Na__SectionCut__GetActivePlaneId,
         Na__SectionCut__GetAppearance,
+        Na__SectionCut__GetPlaneRecords,
         Na__SectionCut__SetAppearance
     };
     // ------------------------------------------------------------

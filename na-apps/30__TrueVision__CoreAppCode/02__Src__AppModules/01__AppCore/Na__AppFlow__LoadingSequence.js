@@ -858,6 +858,18 @@
             }));
         }
 
+        // BROADCAST THE SECTION SCENE BINDINGS (TD06)
+        // A separate top-level key, in ValeVision's exact schema, so a project
+        // document written by either app is readable by the other. Dispatched
+        // after the scenes so a listener can resolve a name immediately, and
+        // unconditionally so a project with no bindings still clears any stale
+        // in-memory block from a previous project in the same session.
+        window.dispatchEvent(new CustomEvent('na-crosssection-scenedata-loaded', {
+            detail : {
+                block : (Na__ProjectData__Full && Na__ProjectData__Full['CrossSection__SceneData']) || null
+            }
+        }));
+
         // LOAD ALL MODELS VIA MULTI-MODEL LOADER
         try {
             let Na__LoadedModelGroups = null;                                 // <-- Map of category -> THREE.Group

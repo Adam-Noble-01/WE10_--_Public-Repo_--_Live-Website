@@ -777,6 +777,7 @@
     import { Na__SectionCut__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
     import { Na__DrawProfile__SetEnabled } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
     import { Na__DrawView__ProjectData__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__SectionCut__SceneData__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__SceneData__.js';
     import { Na__FloorPlanMode__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
     import { Na__FloorPlan__DevMenu__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__DevMenu__Editor__.js';
     import { Na__ElevationMode__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__ModeController__.js';
@@ -1408,6 +1409,7 @@
     // project that silently opens with no drawings.
     // @delegate: ./02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js
     Na__DrawView__ProjectData__Initialize();
+    Na__SectionCut__SceneData__Initialize();   // <-- Same reason: the section bindings are dispatched once, right after the drawings block
     // ------------------------------------------------------------
 
 

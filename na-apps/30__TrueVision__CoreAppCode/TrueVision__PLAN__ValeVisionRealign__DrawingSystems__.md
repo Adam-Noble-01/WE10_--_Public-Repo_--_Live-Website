@@ -222,17 +222,17 @@ from either app is readable by the other:
 }
 ```
 
-**The one place "identical" needed a judgement call.** ValeVision holds slice depth as a
-**single global** `sliceDepthM`; TrueVision holds it **per plane** as `depthUnits`.
-Writing only the global field would silently flatten a TrueVision project whose planes
-carry different depths.
+**Slice depth: ValeVision's shape wins, and TrueVision flattens to it.** ValeVision holds
+slice depth as a **single global** `sliceDepthM`; TrueVision holds it **per plane** as
+`depthUnits`. Settled 10-Sep-2026: write the global field and nothing else. A TrueVision
+project whose planes carry different depths collapses to the first plane's depth on
+capture, and every plane takes that depth on restore.
 
-Resolution: emit ValeVision's `sliceDepthM` as the canonical value (the first plane's
-depth, or null), **and** carry an additive `depthMm` on each section object. ValeVision
-ignores the unknown key, so interchange stays byte-compatible in the common case where
-every plane shares a depth; TrueVision reads `depthMm` back in preference and loses
-nothing in the case where they differ. Flagged here rather than buried, because it is
-the only field where the two engines disagree about shape.
+No additive field, no superset. The schema is ValeVision's, exactly, because two apps
+that are ninety-five percent the same shape are worse than useless - the differences are
+where the bugs live, and every extra key is a thing the other app will one day be
+expected to honour. TrueVision is early enough in its drawing life that flattening costs
+nothing real.
 
 **Field mapping**, TrueVision engine to ValeVision schema:
 
@@ -245,7 +245,7 @@ the only field where the two engines disagree about shape.
 | `enabled` | `record.enabled` |
 | `gizmoVisible` | TrueVision draws no gizmo - written `false`, honoured on read |
 | `fillColor`, `lineColor`, `lineWidthPx` | `Na__SectionCut__GetAppearance()` |
-| `depthMm` *(additive)* | `record.depthUnits` converted to mm |
+| *(no per-plane depth)* | `record.depthUnits` collapses into the global `sliceDepthM` |
 
 **Work this adds to Phase B:**
 
