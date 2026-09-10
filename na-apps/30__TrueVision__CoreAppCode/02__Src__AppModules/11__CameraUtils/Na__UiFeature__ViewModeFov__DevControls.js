@@ -40,7 +40,7 @@
 
     // MODULE IMPORTS | Project Loader Utilities
     // ------------------------------------------------------------
-    import { Na__AppUtils__IsRunningOnLocalhost } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Walk / Fly FOV Override Setters
@@ -288,7 +288,7 @@
             showToast                                                        // <-- Toast callback
         } = params || {};
 
-        if (!Na__AppUtils__IsRunningOnLocalhost()) return;                   // <-- Hide on production
+        if (!Na__DevGate__IsAuthoringEnabled()) return;                   // <-- Hide on production
 
         const menuItem = document.getElementById(Na__ViewModeFov__ItemId);
         const toggleBtn = document.getElementById(Na__ViewModeFov__ToggleId);

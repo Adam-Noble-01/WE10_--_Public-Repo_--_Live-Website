@@ -110,7 +110,7 @@
     import { Na__RenderLoop__RequestRender, Na__RenderLoop__Pause, Na__RenderLoop__Resume } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     import { Na__DrawView__Transitions__SuspendThreeD, Na__DrawView__Transitions__ResumeThreeD } from '../40__System__DrawingViewCore/Na__DrawView__Transitions__.js';
     import { Na__PlPipe__CHANGED_EVENT, Na__PlPipe__STATUS_READY } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Pipeline__.js';
-    import { Na__AppUtils__IsRunningOnLocalhost } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -149,7 +149,7 @@
     // FUNCTION | May This Session Edit Sheets
     // ------------------------------------------------------------
     function Na__LeMode__IsEditable() {
-        return Na__AppUtils__IsRunningOnLocalhost() || !Na__LeCfg__IsReadOnlyOnWeb();
+        return Na__DevGate__IsAuthoringEnabled() || !Na__LeCfg__IsReadOnlyOnWeb();
     }
     // ------------------------------------------------------------
 

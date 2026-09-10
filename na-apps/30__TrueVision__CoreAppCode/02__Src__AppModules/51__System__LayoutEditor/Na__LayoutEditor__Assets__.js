@@ -46,7 +46,6 @@
     // MODULE IMPORTS | App Utilities, Drawing Data and Config
     // ------------------------------------------------------------
     import {
-        Na__AppUtils__IsRunningOnLocalhost,
         Na__AppUtils__NormalizeProjectFolderId,
         Na__AppUtils__ResolveAssetUrl
     } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
@@ -54,6 +53,8 @@
     import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__LeCfg__GetViewportSetup } from './Na__LayoutEditor__ConfigState__.js';
     // ------------------------------------------------------------
+
+    import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
 
 // endregion -------------------------------------------------------------------
 
@@ -141,7 +142,7 @@
     // FUNCTION | Can This Session Write Assets
     // ------------------------------------------------------------
     function Na__LeAssets__CanUpload() {
-        return Na__AppUtils__IsRunningOnLocalhost() && !!Na__DrawData__GetProjectCode();
+        return Na__DevGate__IsAuthoringEnabled() && !!Na__DrawData__GetProjectCode();
     }
     // ------------------------------------------------------------
 

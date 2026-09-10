@@ -13,7 +13,7 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    import { Na__AppUtils__IsRunningOnLocalhost } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
 
 // endregion -------------------------------------------------------------------
 
@@ -26,7 +26,7 @@
         const devMenuContainer = document.getElementById('naDevToolsMenuContainer');
         if (!devMenuContainer) return;
 
-        if (!Na__AppUtils__IsRunningOnLocalhost()) {
+        if (!Na__DevGate__IsAuthoringEnabled()) {
             devMenuContainer.style.display = 'none';
             return;
         }

@@ -64,9 +64,7 @@
     import { Na__AppUtils__R2AssetUpload } from '../03__AppUtils/Na__AppUtils__R2AssetUpload__.js';
     import {
         Na__AppUtils__ResolveAssetUrl,
-        Na__AppUtils__NormalizeProjectFolderId,
-        Na__AppUtils__IsRunningOnLocalhost
-    } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+        Na__AppUtils__NormalizeProjectFolderId } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
 
@@ -90,6 +88,8 @@
         Na__PlPipe__GetModelFingerprint
     } from './Na__ProjectedLinework__Pipeline__.js';
     // ------------------------------------------------------------
+
+    import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
 
 // endregion -------------------------------------------------------------------
 
@@ -485,7 +485,7 @@
     // the web build, not a lost project.json.
     // ------------------------------------------------------------
     async function Na__PlStore__BakeBeforeSave(showToast, includeDrawingIds) {
-        if (!Na__AppUtils__IsRunningOnLocalhost()) return null;
+        if (!Na__DevGate__IsAuthoringEnabled()) return null;
         if (!Na__PlCfg__IsEnabled() || !Na__PlCfg__GetPersistenceSetup().bakeOnSave) return null;
 
         try {

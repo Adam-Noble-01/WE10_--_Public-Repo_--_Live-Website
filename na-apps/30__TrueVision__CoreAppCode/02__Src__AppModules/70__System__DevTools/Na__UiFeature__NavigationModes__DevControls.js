@@ -39,7 +39,7 @@
 
     // MODULE IMPORTS | Project Loader Utilities
     // ------------------------------------------------------------
-    import { Na__AppUtils__IsRunningOnLocalhost } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Cloudflare R2 API Client
@@ -110,7 +110,7 @@
     // FUNCTION | Initialize Navigation Modes Dev Controls
     // ------------------------------------------------------------
     function Na__UiFeature__InitializeNavigationModesDevControls({ isWalkEnabled, isFlyEnabled, onSaved, showToast } = {}) {
-        if (!Na__AppUtils__IsRunningOnLocalhost()) return;                   // <-- Dev menu only on localhost
+        if (!Na__DevGate__IsAuthoringEnabled()) return;                   // <-- Dev menu only on localhost
 
         const menuItem  = document.getElementById(Na__NavModesDevMenu__ItemId);
         const toggleBtn = document.getElementById(Na__NavModesDevMenu__ToggleId);

@@ -41,7 +41,7 @@
 
     // MODULE IMPORTS | Project Loader Utilities
     // ------------------------------------------------------------
-    import { Na__AppUtils__IsRunningOnLocalhost } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Cloudflare R2 API Client
@@ -105,7 +105,7 @@
     // FUNCTION | Initialize Localhost-Only Save Button
     // ------------------------------------------------------------
     function Na__UiFeature__InitializeSaveCameraButton(camera, controls, showToast) {
-        if (!Na__AppUtils__IsRunningOnLocalhost()) return;                   // <-- Only on localhost
+        if (!Na__DevGate__IsAuthoringEnabled()) return;                   // <-- Only on localhost
 
         const menuItem = document.getElementById('naSaveCameraSettingsItem');
         const button   = document.getElementById('naSaveCameraSettingsButton');

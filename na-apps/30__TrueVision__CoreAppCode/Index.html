@@ -796,6 +796,7 @@
     import { Na__ContextMenu__Initialize } from './02__Src__AppModules/27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js';
     import { Na__SectionCut__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
     import { Na__DrawProfile__SetEnabled } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
+    import { Na__DevGate__Initialize } from './02__Src__AppModules/03__AppUtils/Na__AppUtils__DevGate__.js';
     import { Na__DrawView__ProjectData__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__DrawView__RenderPreset__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__RenderPreset__.js';
     import { Na__SectionCut__SceneData__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__SceneData__.js';
@@ -1422,6 +1423,15 @@
             });
         }
     }
+    // ------------------------------------------------------------
+
+
+    // RESOLVE THE AUTHORING GATE (must precede every dev surface)
+    // @delegate: ./02__Src__AppModules/03__AppUtils/Na__AppUtils__DevGate__.js
+    // Resolved once, here, so an ?authoring=on parameter is honoured before any
+    // panel asks. A gate that changed answer mid-session would leave half the
+    // dev surfaces built and half not.
+    Na__DevGate__Initialize();
     // ------------------------------------------------------------
 
 

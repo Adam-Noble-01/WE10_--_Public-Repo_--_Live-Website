@@ -11,7 +11,7 @@
 // CREATED    : 21-Jun-2026
 //
 // DESCRIPTION:
-// - Gated behind Na__AppUtils__IsRunningOnLocalhost(); invisible on hosted builds.
+// - Gated behind Na__DevGate__IsAuthoringEnabled(); invisible on hosted builds.
 // - Renders a scene list inside the static #naPmDevEditorPanel container.
 // - Per-scene controls: Name, FOV slider with live lens-mm readout,
 //   Transition Time slider, Update From Camera, Regenerate Thumbnail,
@@ -134,7 +134,6 @@
     // MODULE IMPORTS | Project Utilities
     // ------------------------------------------------------------
     import {
-        Na__AppUtils__IsRunningOnLocalhost,
         Na__AppUtils__GetProjectCodeFromUrl
     } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     // ------------------------------------------------------------
@@ -159,6 +158,8 @@
         Na__NavigationModes__IsModeAvailable
     } from '../10__NavigationAndCameras/Na__NavigationModes__Switcher.js';
     // ------------------------------------------------------------
+
+    import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
 
 // endregion -------------------------------------------------------------------
 
@@ -1552,7 +1553,7 @@
     // FUNCTION | Initialize Localhost-Only Presentation Mode Scene Editor
     // ------------------------------------------------------------
     function Na__PresentationMode__DevMenu__InitializeSceneEditor(camera, controls, showToast) {
-        if (!Na__AppUtils__IsRunningOnLocalhost()) return;                   // <-- Production guard: never shown hosted
+        if (!Na__DevGate__IsAuthoringEnabled()) return;                   // <-- Production guard: never shown hosted
 
         Na__PmDev__Camera    = camera;
         Na__PmDev__Controls  = controls;
