@@ -763,6 +763,23 @@
 // endregion -------------------------------------------------------------------
 
 
+
+    // FUNCTION | Azimuth From a Wall's Outward Normal (D16)
+    // ------------------------------------------------------------
+    // Face pick hands back the XZ normal of the wall the user clicked; an
+    // elevation is stored as the bearing of the side the VIEWER stands on.
+    // World north is -Z, hence atan2(x, -z) rather than the usual atan2(z, x).
+    // Rounded to a whole degree because the sliders work in whole degrees and a
+    // stored 43.7 would jump the moment anyone touched one.
+    // ------------------------------------------------------------
+    function Na__ElevData__AzimuthFromNormal(normalX, normalZ) {
+        if (!Number.isFinite(normalX) || !Number.isFinite(normalZ)) return 0;
+        const degrees = Math.atan2(normalX, -normalZ) * (180 / Math.PI);
+        return Na__ElevData__WrapAzimuth(Math.round(degrees));
+    }
+    // ------------------------------------------------------------
+
+
 // -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
@@ -770,6 +787,7 @@
     // MODULE EXPORTS | Elevation Project Data API
     // ------------------------------------------------------------
     export {
+        Na__ElevData__AzimuthFromNormal,
         Na__ElevData__GetStyles,
         Na__ElevData__SetStyle,
         Na__ElevData__GetExcludeTokens,

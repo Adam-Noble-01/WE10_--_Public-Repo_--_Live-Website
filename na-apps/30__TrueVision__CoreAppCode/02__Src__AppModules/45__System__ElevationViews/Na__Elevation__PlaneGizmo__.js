@@ -391,6 +391,19 @@
 // endregion -------------------------------------------------------------------
 
 
+
+    // FUNCTION | The Gizmo's Face Mesh (D16)
+    // ------------------------------------------------------------
+    // Exposed so the grip can raycast against the GIZMO ONLY. Dragging the plane
+    // must not hit the building behind it - a drag that grabbed a wall instead
+    // of the handle would move the plane to wherever that wall is.
+    // ------------------------------------------------------------
+    function Na__ElevGizmo__GetFaceMesh() {
+        return Na__ElevGizmo__FaceMesh;
+    }
+    // ------------------------------------------------------------
+
+
 // -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
@@ -398,6 +411,7 @@
     // MODULE EXPORTS | Elevation Plane Gizmo API
     // ------------------------------------------------------------
     export {
+        Na__ElevGizmo__GetFaceMesh,
         Na__ElevGizmo__Initialize,
         Na__ElevGizmo__Show,
         Na__ElevGizmo__Hide,

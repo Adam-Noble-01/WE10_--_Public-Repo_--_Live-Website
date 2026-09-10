@@ -401,6 +401,35 @@
 // endregion -------------------------------------------------------------------
 
 
+
+    // FUNCTION | Get the Face Pick Setup (D16)
+    // ------------------------------------------------------------
+    // The click threshold is in PIXELS and matters: picking a wall is a click,
+    // not a drag, and without a threshold every tiny mouse tremble during the
+    // press reads as an orbit and the pick never fires.
+    // ------------------------------------------------------------
+    function Na__ElevCfg__GetFacePickSetup() {
+        return {
+            clickThresholdPx : Na__ElevCfg__Num('ElevationViews__FacePick__Config', 'ElevationViews__FacePick__ClickThresholdPx', 4),
+            cursor           : Na__ElevCfg__Val('ElevationViews__FacePick__Config', 'ElevationViews__FacePick__Cursor', 'crosshair')
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Get the Gizmo Grip Setup (D16)
+    // ------------------------------------------------------------
+    // Dragging the plane recomputes the cut, which is the expensive part, so the
+    // drag is throttled rather than run per pointer event.
+    // ------------------------------------------------------------
+    function Na__ElevCfg__GetGripSetup() {
+        return {
+            dragRecomputeMs : Na__ElevCfg__Num('ElevationViews__Grip__Config', 'ElevationViews__Grip__DragRecomputeMs', 90)
+        };
+    }
+    // ------------------------------------------------------------
+
+
 // -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
@@ -408,6 +437,8 @@
     // MODULE EXPORTS | Elevation Config State API
     // ------------------------------------------------------------
     export {
+        Na__ElevCfg__GetFacePickSetup,
+        Na__ElevCfg__GetGripSetup,
         Na__ElevCfg__Load,
         Na__ElevCfg__IsEnabled,
         Na__ElevCfg__GetDirectionSetup,

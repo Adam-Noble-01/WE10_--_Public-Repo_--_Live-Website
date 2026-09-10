@@ -812,6 +812,8 @@
     import { Na__ElevationMode__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__ModeController__.js';
     import { Na__Elevation__DevMenu__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__DevMenu__Editor__.js';
     import { Na__ElevGizmo__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__PlaneGizmo__.js';
+    import { Na__ElevPick__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__FacePick__.js';
+    import { Na__ElevGrip__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__GizmoGrip__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -1603,6 +1605,8 @@
     // ------------------------------------------------------------
 
     Na__ElevGizmo__Initialize(Na__Scene__Main);                 // <-- Setup marker lives in the scene, outside the model root
+    Na__ElevPick__Initialize({ renderer : Na__Renderer__Main, camera : Na__Camera__Main, modelRoot : Na__ModelGroup__Root });   // <-- Seed an elevation by clicking a wall (D16)
+    Na__ElevGrip__Initialize({ renderer : Na__Renderer__Main, camera : Na__Camera__Main, controls : Na__Controls__Orbit });     // <-- Drag the plane by its gizmo (D16)
 
     Na__ElevationMode__Initialize({
         camera    : Na__Camera__Main,
