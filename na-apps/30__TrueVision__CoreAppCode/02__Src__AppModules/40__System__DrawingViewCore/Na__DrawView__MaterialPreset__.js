@@ -221,7 +221,21 @@
     // ------------------------------------------------------------
     function Na__DrawView__MaterialPreset__Enter(styles) {
         if (Na__DrawMat__Active) Na__DrawView__MaterialPreset__Exit();          // <-- Re-entry re-walks from a clean model
-        Na__DrawMat__Styles = Object.assign({ glassOpaque : false, whitecard : true }, styles || {});
+        // TWO KEY CONVENTIONS, as in the render preset. A drawing record spells
+        // these Styles__GlassOpaque / Styles__Whitecard; a Layout Editor viewport
+        // spells them glassOpaque / whitecard. Reading one convention only means
+        // the other silently takes the defaults, and a ticked Glass Transparency
+        // Off renders exactly as though it were not.
+        const Na__DrawMat__Read = (recordKey, viewportKey, fallback) => {
+            const src = styles || {};
+            if (typeof src[recordKey]   === 'boolean') return src[recordKey];
+            if (typeof src[viewportKey] === 'boolean') return src[viewportKey];
+            return fallback;
+        };
+        Na__DrawMat__Styles = {
+            glassOpaque : Na__DrawMat__Read('Styles__GlassOpaque', 'glassOpaque', false),
+            whitecard   : Na__DrawMat__Read('Styles__Whitecard',   'whitecard',   true)
+        };
         Na__DrawMat__Active = true;
 
         const setup = Na__DrawCfg__GetMaterialSetup();

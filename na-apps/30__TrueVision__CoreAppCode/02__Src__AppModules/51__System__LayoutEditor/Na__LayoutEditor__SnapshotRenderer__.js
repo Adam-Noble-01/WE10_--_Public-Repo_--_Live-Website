@@ -362,8 +362,20 @@
                 Na__DrawView__MaterialPreset__Enter(styles || {});
                 contextSaved = Na__LeSnap__HideContext(styles);
                 Na__DrawView__SectionAdapter__ReapplyClipping();
+                // THE ORTHO CAMERA GOES IN HERE, not the main one. ValeVision
+                // passes Na__LeSnap__Camera at this point and is right to: its
+                // ComposerPreset swaps the composer's RenderPass camera to the
+                // framed ortho, so the render uses the ortho regardless and this
+                // argument only feeds the view-offset maths.
+                //
+                // TrueVision has no composer in the drawing path (DIV-1), so
+                // nothing else is holding the ortho camera and whatever is
+                // passed here is what actually draws. Passing the main camera
+                // renders the live 3D view into the viewport at whatever the
+                // user was looking at - which is a picture, at no scale at all,
+                // that looks enough like a drawing to be believed.
                 const result = await Na__StaticExport__RenderToCanvas({
-                    renderer : Na__LeSnap__Renderer, scene : Na__LeSnap__Scene, camera : Na__LeSnap__Camera,
+                    renderer : Na__LeSnap__Renderer, scene : Na__LeSnap__Scene, camera : camera,
                     getRenderPipelineState : () => Na__LeSnap__Pipeline(),
                     elevationOverrides     : Na__DrawView__RenderPreset__GetExportOverrides(),
                     renderFrame            : (cam) => Na__DrawView__RenderPreset__RenderFrame(cam),   // <-- Flat render + silhouette + cut, the screen's exact order

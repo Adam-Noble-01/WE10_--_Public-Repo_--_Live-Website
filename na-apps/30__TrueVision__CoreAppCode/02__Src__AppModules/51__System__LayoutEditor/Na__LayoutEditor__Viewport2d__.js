@@ -146,7 +146,13 @@
     // ------------------------------------------------------------
     function Na__LeVp2d__Describe(viewport) {
         const source = Na__LeModel__ResolveViewportSource(viewport);
-        const definition = source.plan ? Na__PlView__FromPlan(source.plan) : (source.elevation ? Na__PlView__FromElevation(source.elevation) : null);
+        // The viewport's own Render Composites toggles override the drawing
+        // record's, so a sheet can show the same drawing two ways - and so a
+        // toggle in the panel governs the linework as well as the raster.
+        const override   = viewport.Viewport__Styles || null;
+        const definition = source.plan
+            ? Na__PlView__FromPlan(source.plan, override)
+            : (source.elevation ? Na__PlView__FromElevation(source.elevation, override) : null);
         return { source : source, definition : definition, window : Na__LeVp2d__Window(viewport) };
     }
     // ------------------------------------------------------------

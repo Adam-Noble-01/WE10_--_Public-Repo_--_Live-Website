@@ -110,20 +110,37 @@
 
     // HELPER FUNCTION | Fill In Every Style Toggle
     // ------------------------------------------------------------
-    // A record written before a toggle existed simply lacks the key. Reading a
-    // missing key as OFF would silently change how an old drawing prints, so
-    // each one defaults to the value that reproduces the previous behaviour.
+    // TWO KEY CONVENTIONS REACH THIS FUNCTION, and they are both correct.
+    // A drawing record stores its toggles under `Styles__ProjectedLinework`
+    // (FloorPlan__Styles / Elevation__Styles), while a Layout Editor viewport
+    // stores the same toggles under plain `projectedLinework` in
+    // Viewport__Styles. Reading only one convention does not throw and does not
+    // log: every toggle simply falls back to its default, so a viewport with
+    // Glass Transparency Off ticked renders exactly as though it were not, and
+    // the control looks broken rather than absent.
+    //
+    // A record written before a toggle existed genuinely lacks the key in either
+    // spelling, so each default is the value that reproduces the old behaviour.
     // ------------------------------------------------------------
     function Na__DrawPreset__NormaliseStyles(styles) {
         const s = (styles && typeof styles === 'object') ? styles : {};
+
+        // Reads the record spelling, then the viewport spelling, then the default.
+        const read = (recordKey, viewportKey, fallback) => {
+            if (typeof s[recordKey]   === 'boolean') return s[recordKey];
+            if (typeof s[viewportKey] === 'boolean') return s[viewportKey];
+            return fallback;
+        };
+
         return {
-            projectedLinework : s.Styles__ProjectedLinework !== false,
-            profileLinework   : s.Styles__ProfileLinework   !== false,
-            glassOpaque       : s.Styles__GlassOpaque       === true,
-            whitecard         : s.Styles__Whitecard         === true,
-            hiddenLines       : s.Styles__HiddenLines       === true,
-            baseImage         : s.Styles__BaseImage         !== false,
-            contextLayer      : s.Styles__ContextLayer      !== false
+            projectedLinework : read('Styles__ProjectedLinework', 'projectedLinework', true),
+            profileLinework   : read('Styles__ProfileLinework',   'profileLinework',   true),
+            glassOpaque       : read('Styles__GlassOpaque',       'glassOpaque',       false),
+            whitecard         : read('Styles__Whitecard',         'whitecard',         false),
+            hiddenLines       : read('Styles__HiddenLines',       'hiddenLines',       false),
+            baseImage         : read('Styles__BaseImage',         'baseImage',         true),
+            contextLayer      : read('Styles__ContextLayer',      'contextLayer',      true),
+            enhanceWhitecard  : read('Styles__EnhanceWhitecard',  'enhanceWhitecard',  false)
         };
     }
     // ------------------------------------------------------------
