@@ -154,6 +154,12 @@
                 alt="Noble Architecture"
                 class="app-header__logo-left"
             />
+
+            <!-- Dev Tools trigger slot (localhost only).
+                 Filled at runtime by Na__UiFeature__DevMenu__LocalhostOnly.js, which moves
+                 #naDevToolsMenuContainer in here once the authoring gate passes; the menu's
+                 own markup stays in its region further down this file. -->
+            <div class="app-header__dev-slot" id="naHeaderDevToolsSlot"></div>
         </div>
         
         <div class="app-header__logo-container app-header__logo-container--right">
@@ -588,9 +594,11 @@
                         </p>
                     </div>
                 </li>
+                <li class="na-dev-menu__resize-row" aria-hidden="true">
+                    <div class="na-dev-menu__resize-handle" id="naDevMenuResizeHandle"></div>
+                </li>
             </ul>
         </details>
-        <div class="na-dev-menu__resize-handle" id="naDevMenuResizeHandle" aria-hidden="true"></div>
     </div>
 
     <!-- ----------------------------------------------------------------- -->
@@ -799,6 +807,7 @@
     import { Na__DevGate__Initialize } from './02__Src__AppModules/03__AppUtils/Na__AppUtils__DevGate__.js';
     import { Na__DrawView__ProjectData__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__DrawView__RenderPreset__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__RenderPreset__.js';
+    import { Na__DrawView__MaterialPreset__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__MaterialPreset__.js';
     import { Na__SectionCut__SceneData__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__SceneData__.js';
     import { Na__PlCfg__SetAppConfig } from './02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__ConfigAccess__.js';
     import { Na__PlOverlay__Initialize } from './02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__SvgOverlay__.js';
@@ -1576,6 +1585,14 @@
         renderer : Na__Renderer__Main,
         scene    : Na__Scene__Main
     });
+
+    // DRAWING MATERIAL PRESET | Whitecard and Glass Transparency Off
+    // @delegate: ./02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__MaterialPreset__.js
+    // Without the model root this holds nothing to traverse, so both toggles
+    // swap zero materials and report success. The controls look wired, tick and
+    // untick, re-render - and change nothing, which is the hardest kind of
+    // broken to spot.
+    Na__DrawView__MaterialPreset__Initialize({ modelRoot : Na__ModelGroup__Root });
     // ------------------------------------------------------------
 
     // PROJECTED LINEWORK | Config, overlay, pipeline and Dev section (re-alignment Phase D)

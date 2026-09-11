@@ -61,12 +61,6 @@
     opacity                            : 1;
 }
 
-.na-dropdown-menu--dev-localhost {
-    left                               : 20px;
-    right                              : auto;
-    transform-origin                   : top left;
-}
-
 .na-dropdown-menu__details {
     background                          : rgba(255, 255, 255, 0.95);
     border                              : 1px solid rgba(0, 0, 0, 0.12);
@@ -107,12 +101,6 @@
     .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) .na-dropdown-menu__details {
         max-height                     : calc((100vh - var(--Vale_HeaderHeight) - 28px) / 1.2);
         overflow-y                     : auto;
-    }
-
-    /* Dev Tools (localhost only) drops below the toolbar row so the two
-       never stack on a narrow dev window; clients never see this menu.   */
-    .na-dropdown-menu--dev-localhost {
-        top                            : calc(var(--Vale_HeaderHeight) + 82px);
     }
 }
 

@@ -122,9 +122,23 @@
 
     // HELPER FUNCTION | Is This Material Slot Transparent?
     // ------------------------------------------------------------
+    // TRANSMISSION IS THE ONE THAT GETS MISSED. Glazing exported through
+    // KHR_materials_transmission arrives as a MeshPhysicalMaterial with
+    // transparent FALSE and opacity 1 - it is see-through because light passes
+    // through it, not because the slot is blended. A detector that only asks
+    // about transparent/opacity declares that glass opaque already, skips it,
+    // and Glass Transparency Off leaves every window exactly as it was while
+    // reporting success.
+    //
+    // ior alone is not enough to go on: plenty of opaque materials carry one.
+    // transmission above zero is the property that actually means "you can see
+    // through this".
     function Na__DrawMat__IsTransparent(material) {
         if (!material) return false;
-        return material.transparent === true || (typeof material.opacity === 'number' && material.opacity < 1.0);
+        if (material.transparent === true) return true;
+        if (typeof material.opacity === 'number' && material.opacity < 1.0) return true;
+        if (typeof material.transmission === 'number' && material.transmission > 0) return true;
+        return false;
     }
     // ------------------------------------------------------------
 

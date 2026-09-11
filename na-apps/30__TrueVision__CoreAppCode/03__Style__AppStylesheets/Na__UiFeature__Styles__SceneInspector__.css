@@ -2,43 +2,9 @@
 /* REGION  |  Scene Inspector - Dev Tools Panel                      */
 /* ================================================================= */
 
-/* Dev Tools Menu - Resizable Left Panel */
-/* ----------------------------------------------------------------- */
-.na-dropdown-menu--dev-localhost {
-    position                           : fixed;
-    max-height                         : calc((100vh - var(--Vale_HeaderHeight) - 10px) / 1.2);
-    overflow-y                         : auto;
-}
-
-.na-dropdown-menu--dev-localhost .na-dropdown-menu__details {
-    width                              : 100%;
-    min-width                          : 290px;
-}
-
-
-/* Dev Menu Resize Handle - Bottom-Right Drag Corner */
-/* ----------------------------------------------------------------- */
-.na-dev-menu__resize-handle {
-    position                           : absolute;
-    bottom                             : 0;
-    right                              : 0;
-    width                              : 18px;
-    height                             : 18px;
-    cursor                             : se-resize;
-    z-index                            : 10;
-    opacity                            : 0.35;
-    transition                         : opacity 0.15s ease;
-    background-image                   : radial-gradient(circle, rgba(23, 43, 58, 0.6) 1px, transparent 1px);
-    background-size                    : 4px 4px;
-    background-position                : bottom 3px right 3px;
-    background-repeat                  : repeat;
-    background-clip                    : content-box;
-    padding                            : 2px;
-}
-
-.na-dev-menu__resize-handle:hover {
-    opacity                            : 0.75;
-}
+/* Shell, trigger and flyout geometry for the Dev Tools menu now live in   */
+/* Na__UiFeature__Styles__DevToolsMenu__.css - this file styles only the    */
+/* Scene Inspector panel that sits inside it.                              */
 
 
 /* Inspector Header - Stats Row and Scan Button */
