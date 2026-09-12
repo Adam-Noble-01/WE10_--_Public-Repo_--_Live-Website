@@ -225,6 +225,10 @@ import { fileURLToPath } from 'node:url';
                 const specifier = match[1] || match[2];
                 if (!specifier) continue;
                 if (specifier.startsWith('data:') || specifier.startsWith('http')) continue;      // <-- Not a disk file
+                // A TEMPLATE LITERAL IS NOT A PATH. `import(`./${name}.js`)` is a
+                // specifier computed at runtime; there is no file on disk to check
+                // and the text between the braces is an expression, not a module.
+                if (specifier.indexOf('${') !== -1) continue;
 
                 let resolvedPath = null;
 

@@ -139,8 +139,16 @@ const SRC_ROOT   = resolve(APP_ROOT, '02__Src__AppModules');
 
     // FUNCTION | Every .js File Under a Directory
     // ------------------------------------------------------------
+    // THIRD-PARTY TREES ARE SKIPPED. node_modules and the vendored library
+    // folders are not this codebase's code: they have their own build steps,
+    // their own conventions, and faults in them are not faults we can or should
+    // fix. A checker that reports a dependency's internals is a checker that
+    // gets ignored.
+    const SKIP_DIRS = new Set(['node_modules', 'dist', '00__Archive', '00__ArchivedVersions']);
+
     function CollectJsFiles(dir, acc = []) {
         for (const entry of readdirSync(dir)) {
+            if (SKIP_DIRS.has(entry)) continue;
             const full = join(dir, entry);
             const st   = statSync(full);
             if (st.isDirectory()) CollectJsFiles(full, acc);
