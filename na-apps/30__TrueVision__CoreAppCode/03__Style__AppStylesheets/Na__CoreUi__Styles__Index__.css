@@ -46,6 +46,13 @@
 @import url('Na__UiFeature__Styles__AppHeader__.css');
 
 
+/* Dev Tools Menu - Header Trigger + Left Flyout (localhost only) */
+/* ----------------------------------------------------------------- */
+/* Imported AFTER the dropdown and header sheets because it overrides */
+/* the floating dropdown geometry those two establish.                */
+@import url('Na__UiFeature__Styles__DevToolsMenu__.css');
+
+
 /* Controls Instructions Panel - Navigation Help */
 /* ----------------------------------------------------------------- */
 @import url('Na__UiFeature__Styles__ControlsHelpPanel__.css');

@@ -1,0 +1,176 @@
+/* =============================================================================
+ * TRUEVISION3D - DEV TOOLS MENU (LOCALHOST ONLY) - SHELL STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__UiFeature__Styles__DevToolsMenu__.css
+ * NAMESPACE  : Na__UiFeature
+ * MODULE     : DevTools Menu Shell
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Header-mounted Dev Tools trigger plus its left-hand flyout panel
+ * CREATED    : 11-Sep-2026
+ *
+ * DESCRIPTION:
+ * - The Dev Tools trigger is a small pill button that sits in the top bar
+ *   immediately right of the Noble Architecture logo. It is moved into the
+ *   header slot at runtime by Na__UiFeature__DevMenu__LocalhostOnly.js, so it
+ *   only ever appears once the authoring gate has passed.
+ * - Opening it drops the panel down the left edge, clearing the drawing tab
+ *   strip: the panel top is header height plus the published tab strip height,
+ *   so it never covers the tabs whether or not a drawing tab is open.
+ * - The panel is the menu list itself (position: fixed), which keeps the
+ *   drag-resize corner anchored to the panel rather than to the header.
+ *
+ * NOTE:
+ * - The container must never carry a transform. A transformed ancestor becomes
+ *   the containing block for position: fixed descendants, which would trap the
+ *   flyout inside the 60px header instead of the viewport.
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * DEVELOPMENT LOG:
+ * 11-Sep-2026 - Version 1.0.0
+ * - Menu lifted out of the top-left canvas corner, where it overlapped the
+ *   drawing tab strip, and split into a header trigger plus a below-tabs panel.
+ *
+ * ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Header-Mounted Trigger
+ * ----------------------------------------------------------------------------- */
+
+    /* CONTAINER | Plain Flex Item in the Top Bar */
+    /* ------------------------------------------------------------ */
+    .na-dropdown-menu--dev-localhost {
+        position                           : static;                   /* <-- Laid out by the header flex row */
+        top                                : auto;
+        left                               : auto;
+        right                              : auto;
+        transform                          : none;                     /* <-- Must stay none, see NOTE in the file header */
+        max-height                         : none;
+        overflow                           : visible;
+        opacity                            : 0.65;                     /* <-- Muted while idle, full on hover / focus / open */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* TRIGGER | Pill Button Chrome */
+    /* ------------------------------------------------------------ */
+    .na-dropdown-menu--dev-localhost .na-dropdown-menu__details {
+        width                              : auto;
+        min-width                          : 0;                        /* <-- Drops the 220px dropdown floor */
+        background                         : transparent;
+        border                             : 1px solid rgba(23, 43, 58, 0.22);
+        border-radius                      : 5px;
+    }
+
+    .na-dropdown-menu--dev-localhost:hover .na-dropdown-menu__details,
+    .na-dropdown-menu--dev-localhost:focus-within .na-dropdown-menu__details,
+    .na-dropdown-menu--dev-localhost .na-dropdown-menu__details[open] {
+        box-shadow                         : none;                     /* <-- The panel carries the shadow, not the trigger */
+        background                         : rgba(23, 43, 58, 0.07);
+        border-color                       : rgba(23, 43, 58, 0.42);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* TRIGGER | Label and Arrow */
+    /* ------------------------------------------------------------ */
+    .na-dropdown-menu--dev-localhost .na-dropdown-menu__summary {
+        padding                            : 5px 10px;
+        gap                                : 7px;
+        font-size                          : 0.70rem;
+        font-weight                        : 700;
+        letter-spacing                     : 0.08em;
+        text-transform                     : uppercase;
+        color                              : rgba(23, 43, 58, 0.78);
+        white-space                        : nowrap;
+    }
+
+    .na-dropdown-menu--dev-localhost .na-dropdown-menu__arrow {
+        font-size                          : 0.70rem;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Left-Hand Flyout Panel
+ * ----------------------------------------------------------------------------- */
+
+    /* PANEL | The Menu List Is the Flyout */
+    /* ------------------------------------------------------------ */
+    .na-dropdown-menu--dev-localhost .na-dropdown-menu__list {
+        position                           : fixed;
+        top                                : calc(var(--Vale_HeaderHeight) + var(--Vale_LayoutTabStripHeight, 0px) + 10px);  /* <-- Clears the header and the drawing tabs */
+        left                               : 20px;
+        width                              : 300px;                    /* <-- Drag-resize writes an inline width over this */
+        max-height                         : calc((100vh - var(--Vale_HeaderHeight) - var(--Vale_LayoutTabStripHeight, 0px) - 28px) / 1.2);
+        overflow-y                         : auto;
+        overscroll-behavior                : contain;
+        padding                            : 8px 0 16px 0;
+        border                             : 1px solid rgba(0, 0, 0, 0.12);
+        border-radius                      : 6px;
+        background                         : rgba(255, 255, 255, 0.97);
+        box-shadow                         : 0 10px 26px rgba(0, 0, 0, 0.18);
+        transform-origin                   : top left;
+        transform                          : scale(1.2) translateY(-6px);  /* <-- 1.2 keeps the dev controls at their established size */
+    }
+
+    .na-dropdown-menu--dev-localhost .na-dropdown-menu__details[open] .na-dropdown-menu__list {
+        transform                          : scale(1.2) translateY(0);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* PANEL | Drag-Resize Corner */
+    /* ------------------------------------------------------------ */
+    .na-dev-menu__resize-row {
+        height                             : 0;                        /* <-- Zero-height carrier; the handle is absolute */
+        padding                            : 0;
+        margin                             : 0;
+    }
+
+    .na-dev-menu__resize-handle {
+        position                           : absolute;
+        bottom                             : 0;
+        right                              : 0;
+        width                              : 18px;
+        height                             : 18px;
+        cursor                             : se-resize;
+        z-index                            : 10;
+        opacity                            : 0.35;
+        transition                         : opacity 0.15s ease;
+        background-image                   : radial-gradient(circle, rgba(23, 43, 58, 0.6) 1px, transparent 1px);
+        background-size                    : 4px 4px;
+        background-position                : bottom 3px right 3px;
+        background-repeat                  : repeat;
+        background-clip                    : content-box;
+        padding                            : 2px;
+    }
+
+    .na-dev-menu__resize-handle:hover {
+        opacity                            : 0.75;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Responsive | Narrow Dev Windows (<=768px)
+ * -----------------------------------------------------------------------------
+ * The floating navigation toolbar owns the row directly under the header on a
+ * narrow window, so the panel drops below it rather than stacking on top.
+ * ----------------------------------------------------------------------------- */
+
+    @media (max-width: 768px) {
+
+        .na-dropdown-menu--dev-localhost .na-dropdown-menu__list {
+            top                            : calc(var(--Vale_HeaderHeight) + var(--Vale_LayoutTabStripHeight, 0px) + 72px);
+            max-height                     : calc((100vh - var(--Vale_HeaderHeight) - var(--Vale_LayoutTabStripHeight, 0px) - 90px) / 1.2);
+        }
+    }
+
+/* endregion ------------------------------------------------------------------- */
