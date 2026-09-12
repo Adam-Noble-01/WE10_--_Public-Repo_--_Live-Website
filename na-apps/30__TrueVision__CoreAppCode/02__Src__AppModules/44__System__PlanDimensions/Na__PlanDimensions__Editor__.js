@@ -102,7 +102,7 @@
     // @delegate: ./Na__PlanDimensions__AxisLock__.js
     // @delegate: ./Na__PlanDimensions__VertexEditor__.js
     // @delegate: ./Na__PlanDimensions__History__.js
-    // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__MarkupFocus__.js
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js
     // ------------------------------------------------------------
     import {
         Na__PlanDimAxis__Resolve,
@@ -136,10 +136,10 @@
         Na__PlanDimCross__Dispose
     } from './Na__PlanDimensions__Crosshair__.js';
     import {
-        Na__FpFocus__DIMENSIONS,
-        Na__FpFocus__Claim,
-        Na__FpFocus__Release
-    } from '../42__System__FloorPlanViews/Na__FloorPlan__MarkupFocus__.js';
+        Na__DrawFocus__DIMENSIONS,
+        Na__DrawFocus__Claim,
+        Na__DrawFocus__Release
+    } from '../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -474,7 +474,7 @@
             const record = Na__PlanDim__Create(Na__PlanDimEdit__Dimensions, span, null);
             if (record) {
                 Na__PlanDimEdit__SelectedId = record[Na__PlanDim__F_ID];
-                Na__FpFocus__Claim(Na__FpFocus__DIMENSIONS);                 // <-- Shared keys now belong to this layer
+                Na__DrawFocus__Claim(Na__DrawFocus__DIMENSIONS);                 // <-- Shared keys now belong to this layer
                 Na__PlanDimLayer__Rebuild();
                 Na__PlanDimLayer__Sync();
                 Na__PlanDimEdit__ApplySelectionClass();
@@ -596,7 +596,7 @@
                 : Na__PlanDim__GetLineSetup().defaultOffsetMm;
             Na__PlanDimEdit__DragMoved       = false;
 
-            Na__FpFocus__Claim(Na__FpFocus__DIMENSIONS);                     // <-- Shared keys now belong to this layer
+            Na__DrawFocus__Claim(Na__DrawFocus__DIMENSIONS);                     // <-- Shared keys now belong to this layer
             Na__PlanDimHist__BeginPending();                                 // <-- Baseline before the offset can move
             Na__PlanDimEdit__ApplySelectionClass();
         });
@@ -617,7 +617,7 @@
             Na__PlanDimHist__DiscardPending();
 
             Na__PlanDimEdit__SelectedId = record[Na__PlanDim__F_ID];
-            Na__FpFocus__Claim(Na__FpFocus__DIMENSIONS);
+            Na__DrawFocus__Claim(Na__DrawFocus__DIMENSIONS);
             Na__PlanDimEdit__ApplySelectionClass();
 
             Na__PlanDimVert__Enter(record, {
@@ -711,7 +711,7 @@
     function Na__PlanDimEdit__ClearSelection() {
         if (Na__PlanDimVert__IsActive()) Na__PlanDimVert__Exit();
         Na__PlanDimEdit__SelectedId = null;
-        Na__FpFocus__Release(Na__FpFocus__DIMENSIONS);
+        Na__DrawFocus__Release(Na__DrawFocus__DIMENSIONS);
         Na__PlanDimEdit__ApplySelectionClass();
     }
 
@@ -761,7 +761,7 @@
         }
 
         Na__PlanDimEdit__SelectedId = null;
-        Na__FpFocus__Release(Na__FpFocus__DIMENSIONS);
+        Na__DrawFocus__Release(Na__DrawFocus__DIMENSIONS);
         Na__PlanDimLayer__Rebuild();
         Na__PlanDimLayer__Sync();
         Na__PlanDimEdit__NotifyChanged();

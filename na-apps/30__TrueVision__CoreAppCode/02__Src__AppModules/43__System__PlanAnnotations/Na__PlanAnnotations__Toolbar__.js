@@ -79,7 +79,7 @@
     // MODULE IMPORTS | Dimension Axis Constraints and Focus Arbiter
     // ------------------------------------------------------------
     // @delegate: ../44__System__PlanDimensions/Na__PlanDimensions__AxisLock__.js
-    // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__MarkupFocus__.js
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js
     // ------------------------------------------------------------
     import {
         Na__PlanDimAxis__IsOrthoMode,
@@ -98,10 +98,10 @@
     import { Na__PlanDimEdit__GetSelectedRecord } from '../44__System__PlanDimensions/Na__PlanDimensions__Editor__.js';
     import { Na__PlanDimLayer__Sync } from '../44__System__PlanDimensions/Na__PlanDimensions__Overlay__.js';
     import {
-        Na__FpFocus__DIMENSIONS,
-        Na__FpFocus__CAP_DELETE,
-        Na__FpFocus__ShouldHandle
-    } from '../42__System__FloorPlanViews/Na__FloorPlan__MarkupFocus__.js';
+        Na__DrawFocus__DIMENSIONS,
+        Na__DrawFocus__CAP_DELETE,
+        Na__DrawFocus__ShouldHandle
+    } from '../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js';
     // ------------------------------------------------------------
 
 
@@ -402,7 +402,7 @@
                 // layer they act on. The focused layer gets first refusal and
                 // the key falls through to whichever layer actually has a
                 // selection.
-                if (Na__FpFocus__ShouldHandle(Na__FpFocus__DIMENSIONS, Na__FpFocus__CAP_DELETE)) {
+                if (Na__DrawFocus__ShouldHandle(Na__DrawFocus__DIMENSIONS, Na__DrawFocus__CAP_DELETE)) {
                     Na__PlanDimEdit__DeleteSelectedDimension();
                 } else {
                     Na__PlanAnnoEdit__DeleteSelected();

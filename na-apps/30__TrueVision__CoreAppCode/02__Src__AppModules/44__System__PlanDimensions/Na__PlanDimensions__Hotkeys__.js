@@ -17,7 +17,7 @@
 //     place key - have no counterpart in the annotation layer, so they are
 //     always live and need no arbitration.
 //     SHARED keys - Delete, Ctrl+Z, Ctrl+Y - are also bound by the annotation
-//     hotkeys. Those go through Na__FloorPlan__MarkupFocus__, so one Ctrl+Z
+//     hotkeys. Those go through Na__DrawView__MarkupFocus__, so one Ctrl+Z
 //     steps ONE undo stack rather than both, and one Delete removes one thing.
 //   Without that arbitration a single Delete would take out a room name and a
 //   dimension at the same time, which loses work silently.
@@ -48,20 +48,20 @@
 
     // MODULE IMPORTS | Render Loop and Markup Focus Arbiter
     // ------------------------------------------------------------
-    // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__MarkupFocus__.js
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js
     // ------------------------------------------------------------
     import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     import {
-        Na__FpFocus__DIMENSIONS,
-        Na__FpFocus__CAP_UNDO,
-        Na__FpFocus__CAP_REDO,
-        Na__FpFocus__CAP_DELETE,
-        Na__FpFocus__RegisterProbe,
-        Na__FpFocus__UnregisterProbe,
-        Na__FpFocus__Claim,
-        Na__FpFocus__ShouldHandle,
-        Na__FpFocus__AnyCanAct
-    } from '../42__System__FloorPlanViews/Na__FloorPlan__MarkupFocus__.js';
+        Na__DrawFocus__DIMENSIONS,
+        Na__DrawFocus__CAP_UNDO,
+        Na__DrawFocus__CAP_REDO,
+        Na__DrawFocus__CAP_DELETE,
+        Na__DrawFocus__RegisterProbe,
+        Na__DrawFocus__UnregisterProbe,
+        Na__DrawFocus__Claim,
+        Na__DrawFocus__ShouldHandle,
+        Na__DrawFocus__AnyCanAct
+    } from '../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Dimension Data, Editor, Axis Lock, Vertices, History
@@ -168,7 +168,7 @@
     function Na__PlanDimKeys__ShouldTake(capability) {
         if (Na__PlanDimEdit__IsPlacing()) return true;
         if (Na__PlanDimVert__IsActive())  return true;
-        return Na__FpFocus__ShouldHandle(Na__FpFocus__DIMENSIONS, capability);
+        return Na__DrawFocus__ShouldHandle(Na__DrawFocus__DIMENSIONS, capability);
     }
     // ------------------------------------------------------------
 
@@ -284,13 +284,13 @@
             const isRedo = (key === setup.redoKey);
 
             if (isUndo || isRedo) {
-                const capability = isUndo ? Na__FpFocus__CAP_UNDO : Na__FpFocus__CAP_REDO;
+                const capability = isUndo ? Na__DrawFocus__CAP_UNDO : Na__DrawFocus__CAP_REDO;
 
                 if (!Na__PlanDimKeys__ShouldTake(capability)) {
                     // Not ours. Swallow it anyway if NO layer can act, so a
                     // Ctrl+Z at the bottom of both stacks never reaches the
                     // browser's own edit history.
-                    if (!Na__FpFocus__AnyCanAct(capability)) {
+                    if (!Na__DrawFocus__AnyCanAct(capability)) {
                         event.preventDefault();
                         event.stopPropagation();
                     }
@@ -308,14 +308,14 @@
                 Na__PlanDimKeys__Notify('ortho');
                 handled = true;
             } else if (key === setup.placeKey) {
-                Na__FpFocus__Claim(Na__FpFocus__DIMENSIONS);                     // <-- Starting a dimension is a claim
+                Na__DrawFocus__Claim(Na__DrawFocus__DIMENSIONS);                     // <-- Starting a dimension is a claim
                 Na__PlanDimEdit__BeginPlacement();
                 Na__PlanDimKeys__Notify('place-armed');
                 handled = true;
             } else if (setup.deleteKeys.indexOf(key) !== -1) {
                 // SHARED | Delete goes to whichever layer actually has a
                 // selection, with focus breaking the tie when both do.
-                if (!Na__PlanDimKeys__ShouldTake(Na__FpFocus__CAP_DELETE)) return;
+                if (!Na__PlanDimKeys__ShouldTake(Na__DrawFocus__CAP_DELETE)) return;
                 Na__PlanDimKeys__Delete();
                 handled = true;                                                  // <-- Backspace must never navigate back
             }
@@ -350,7 +350,7 @@
 
         // The arbiter asks these before handing over a shared key, so it never
         // has to reach into this system's state itself.
-        Na__FpFocus__RegisterProbe(Na__FpFocus__DIMENSIONS, {
+        Na__DrawFocus__RegisterProbe(Na__DrawFocus__DIMENSIONS, {
             canUndo   : Na__PlanDimHist__CanUndo,
             canRedo   : Na__PlanDimHist__CanRedo,
             canDelete : () => Na__PlanDimEdit__GetSelectedId() !== null
@@ -369,7 +369,7 @@
         if (!Na__PlanDimKeys__Attached) return false;
 
         window.removeEventListener('keydown', Na__PlanDimKeys__HandleKeyDown, true);
-        Na__FpFocus__UnregisterProbe(Na__FpFocus__DIMENSIONS);                   // <-- Stop being offered keys after detaching
+        Na__DrawFocus__UnregisterProbe(Na__DrawFocus__DIMENSIONS);                   // <-- Stop being offered keys after detaching
         Na__PlanDimKeys__Attached = false;
         Na__PlanDimKeys__OnAction = null;
         return true;

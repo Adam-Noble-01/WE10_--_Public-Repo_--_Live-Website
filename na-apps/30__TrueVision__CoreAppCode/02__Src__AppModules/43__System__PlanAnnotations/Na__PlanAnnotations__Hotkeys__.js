@@ -55,18 +55,18 @@
     // Dimensions bind Ctrl+Z, Ctrl+Y and Delete too. Without arbitration one
     // press would step BOTH undo stacks and one Delete would remove a label
     // AND a dimension.
-    // @delegate: ../42__System__FloorPlanViews/Na__FloorPlan__MarkupFocus__.js
+    // @delegate: ../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js
     // ------------------------------------------------------------
     import {
-        Na__FpFocus__ANNOTATIONS,
-        Na__FpFocus__CAP_UNDO,
-        Na__FpFocus__CAP_REDO,
-        Na__FpFocus__CAP_DELETE,
-        Na__FpFocus__RegisterProbe,
-        Na__FpFocus__UnregisterProbe,
-        Na__FpFocus__ShouldHandle,
-        Na__FpFocus__AnyCanAct
-    } from '../42__System__FloorPlanViews/Na__FloorPlan__MarkupFocus__.js';
+        Na__DrawFocus__ANNOTATIONS,
+        Na__DrawFocus__CAP_UNDO,
+        Na__DrawFocus__CAP_REDO,
+        Na__DrawFocus__CAP_DELETE,
+        Na__DrawFocus__RegisterProbe,
+        Na__DrawFocus__UnregisterProbe,
+        Na__DrawFocus__ShouldHandle,
+        Na__DrawFocus__AnyCanAct
+    } from '../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Annotation Data, Overlay, Editor and History
@@ -329,12 +329,12 @@
             else if (key === setup.undoKey || key === setup.redoKey) {
                 // SHARED | Only act when the arbiter hands this over.
                 const isUndo     = (key === setup.undoKey);
-                const capability = isUndo ? Na__FpFocus__CAP_UNDO : Na__FpFocus__CAP_REDO;
+                const capability = isUndo ? Na__DrawFocus__CAP_UNDO : Na__DrawFocus__CAP_REDO;
 
-                if (Na__FpFocus__ShouldHandle(Na__FpFocus__ANNOTATIONS, capability)) {
+                if (Na__DrawFocus__ShouldHandle(Na__DrawFocus__ANNOTATIONS, capability)) {
                     handled = isUndo ? Na__PlanAnnoKeys__Undo() : Na__PlanAnnoKeys__Redo();
                     handled = true;
-                } else if (!Na__FpFocus__AnyCanAct(capability)) {
+                } else if (!Na__DrawFocus__AnyCanAct(capability)) {
                     handled = true;                                              // <-- Nobody can act; swallow it anyway
                 } else {
                     return;                                                      // <-- The dimension layer is taking it
@@ -359,8 +359,8 @@
             // copy the author intended for text elsewhere on the page still works.
         } else if (!modified && !event.altKey && setup.deleteKeys.indexOf(key) !== -1) {
             // SHARED | Delete goes to whichever layer actually has a selection.
-            if (!Na__FpFocus__ShouldHandle(Na__FpFocus__ANNOTATIONS, Na__FpFocus__CAP_DELETE)) {
-                if (!Na__FpFocus__AnyCanAct(Na__FpFocus__CAP_DELETE)) {
+            if (!Na__DrawFocus__ShouldHandle(Na__DrawFocus__ANNOTATIONS, Na__DrawFocus__CAP_DELETE)) {
+                if (!Na__DrawFocus__AnyCanAct(Na__DrawFocus__CAP_DELETE)) {
                     event.preventDefault();                                      // <-- Backspace must never navigate back
                     event.stopPropagation();
                 }
@@ -397,7 +397,7 @@
             ? context.onAction
             : null;
 
-        Na__FpFocus__RegisterProbe(Na__FpFocus__ANNOTATIONS, {
+        Na__DrawFocus__RegisterProbe(Na__DrawFocus__ANNOTATIONS, {
             canUndo   : Na__PlanAnnoHist__CanUndo,
             canRedo   : Na__PlanAnnoHist__CanRedo,
             canDelete : () => Na__PlanAnnoEdit__GetSelected() !== null
@@ -420,7 +420,7 @@
         if (!Na__PlanAnnoKeys__Attached) return false;
 
         window.removeEventListener('keydown', Na__PlanAnnoKeys__HandleKeyDown, true);
-        Na__FpFocus__UnregisterProbe(Na__FpFocus__ANNOTATIONS);                  // <-- Stop being offered keys after detaching
+        Na__DrawFocus__UnregisterProbe(Na__DrawFocus__ANNOTATIONS);                  // <-- Stop being offered keys after detaching
         Na__PlanAnnoKeys__Attached = false;
         Na__PlanAnnoKeys__OnAction = null;
         return true;

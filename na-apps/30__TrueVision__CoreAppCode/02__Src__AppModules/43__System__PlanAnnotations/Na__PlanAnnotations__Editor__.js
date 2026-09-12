@@ -56,10 +56,10 @@
     import { Na__DrawView__IsActive } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
     import { Na__DrawNav__SetSuppressed } from '../40__System__DrawingViewCore/Na__DrawView__Navigation__.js';
     import {
-        Na__FpFocus__ANNOTATIONS,
-        Na__FpFocus__Claim,
-        Na__FpFocus__Release
-    } from '../42__System__FloorPlanViews/Na__FloorPlan__MarkupFocus__.js';
+        Na__DrawFocus__ANNOTATIONS,
+        Na__DrawFocus__Claim,
+        Na__DrawFocus__Release
+    } from '../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Annotation Data and Overlay
@@ -179,9 +179,9 @@
         if (node) node.classList.add(Na__PlanAnnoEdit__CLASS_SELECTED);
 
         if (Na__PlanAnnoEdit__SelectedId) {
-            Na__FpFocus__Claim(Na__FpFocus__ANNOTATIONS);
+            Na__DrawFocus__Claim(Na__DrawFocus__ANNOTATIONS);
         } else {
-            Na__FpFocus__Release(Na__FpFocus__ANNOTATIONS);
+            Na__DrawFocus__Release(Na__DrawFocus__ANNOTATIONS);
         }
 
         if (typeof Na__PlanAnnoEdit__OnChanged === 'function') Na__PlanAnnoEdit__OnChanged();
