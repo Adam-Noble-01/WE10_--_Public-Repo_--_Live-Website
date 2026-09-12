@@ -191,9 +191,17 @@
         const select = document.createElement('select');
         select.className = 'na-pm-dev__select';
         const current = Na__PlCfg__GetPerformanceSetup().backend;
+        // 'auto' on its own says nothing. Spell out what it will pick, so the
+        // dropdown reads as a decision rather than a shrug.
+        const autoSuffix = Na__ProjectedLinework__WebGpuBackend__IsHardwareCapable()
+            ? ' (webgpu for elevations, cpu for cuts)'
+            : ' (cpu - no usable GPU)';
+
         Na__PlDev__BACKENDS.forEach((name) => {
             const option = document.createElement('option');
-            option.value = name; option.textContent = name; option.selected = (name === current);
+            option.value = name;
+            option.textContent = (name === 'auto') ? name + autoSuffix : name;
+            option.selected = (name === current);
             select.appendChild(option);
         });
         select.addEventListener('change', () => {
@@ -275,12 +283,32 @@
             const row  = document.createElement('div');
             row.className = 'na-pl-dev__asset';
             const name = document.createElement('span');
+
+            // WHICH BACKEND THIS DRAWING WILL ACTUALLY USE, worked out the same
+            // way the render works it out - by asking the resolver, not by
+            // repeating its rules here where the two could drift apart.
+            //
+            // It is shown PER DRAWING because that is where the decision is
+            // made: "auto" is not one answer for the session, it is one answer
+            // per view, and a panel that only said "auto" would be telling the
+            // truth while hiding everything worth knowing.
+            const resolved = Na__PlProjector__BuildOptions(definition).Backend;
+            const because  = (resolved === 'cpu' && definition.Cut) ? ' - has a cut' : '';
+
+            const backend = document.createElement('span');
+            backend.className   = 'na-pl-dev__backend';
+            backend.textContent = resolved + because;
+            backend.style.opacity = '0.7';
+            backend.style.marginLeft = 'auto';
+            backend.style.paddingRight = '8px';
+
             name.textContent = definition.DrawingName + ' (' + definition.Kind + ')';
             const status = Na__PlStore__AssetStatus(definition, model);
             const badge  = document.createElement('span');
             badge.className   = 'na-pl-dev__badge na-pl-dev__badge--' + status;
             badge.textContent = Na__PlCfg__GetLabel(status === 'cached' ? 'StatusCached' : status === 'stale' ? 'StatusStale' : 'StatusMissing', status);
             row.appendChild(name);
+            row.appendChild(backend);
             row.appendChild(badge);
             list.appendChild(row);
         });
