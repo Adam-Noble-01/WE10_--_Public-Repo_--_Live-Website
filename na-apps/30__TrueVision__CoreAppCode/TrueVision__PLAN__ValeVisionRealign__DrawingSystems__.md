@@ -518,6 +518,12 @@ This is the seam every later phase attaches to, so it goes in before the big sys
 - `42/Na__FloorPlan__MarkupFocus__.js` → `40/Na__DrawView__MarkupFocus__.js`, namespace
   `Na__DrawFocus__`. ValeVision made the same move; the arbiter serves both drawing
   kinds and does not belong to floor plans.
+  **DONE 12-Sep-2026, and it was only half done before that.** The new file was
+  created in Phase B but nothing was repointed at it, so it sat as dead code while
+  the annotations editor, hotkeys and toolbar and the dimensions editor and hotkeys
+  all kept importing the old one. Two arbiters, each with its own module-level answer
+  to "who owns the keyboard". Both export the same thirteen names, so the repoint was
+  mechanical; the old file is deleted.
 - `40/Na__DrawView__MarkupMount__.js` - dimension config getters come from the split
   `ConfigState__` module.
 - `01__AppCore/Na__AppFlow__LoadingSequence.js` - load the drawings block after project
@@ -748,6 +754,7 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 | B | `SectionAdapter__` (DIV-2) | x | 2.21.0 | Pass-through; Suspend/Release documented no-ops |
 | B | `RenderPreset__` (DIV-1) | x | 2.21.0 | ValeVision's 8 exports over the overlay route |
 | B | `RenameDrawing__`, `MarkupFocus__` | x | 2.21.0 | Four holders; sheet re-stamp lazily imported |
+| B | `MarkupFocus__` actually WIRED (7.2 relocation) | x | 2.24.1 | The ported arbiter was dead code until 12-Sep: all five callers still imported `42/Na__FloorPlan__MarkupFocus__` under `Na__FpFocus__`, so TrueVision ran two arbiters. Callers repointed, old file deleted |
 | B | `Na__CfApi__WriteProjectAsset` + `R2AssetUpload__` | x | 2.21.0 | No worker deploy needed |
 | B | 42/45 data modules repointed | x | 2.21.0 | Incl. stale `sceneConfig` guards and the client-dims flag |
 | **TD06** | **Section data in ValeVision's schema** | **x** | 2.21.0 | `Serialize__` + `SceneData__`; round-trip test caught a sign error |
@@ -765,7 +772,12 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 | **F** | **Authoring gate (TD01)** | **x** | 2.24.0 | 11 surfaces routed; URL + console unlock |
 | F | Manifest Layout Editor launch mode | - | 2.24.0 | Not yet done |
 | F | Windows install + offline boot test | - | 2.24.0 | Needs a person at the machine |
-| - | Parity ledger updated | ~ | - | Phase 0 row closed; rest pending |
+| **G** | **Projection backend chosen from hardware** | **x** | 2.24.0 | `auto` default; WebGPU probe rejects software fallback adapters; anything with a drawing CUT stays on the CPU because the GPU backend cannot apply one |
+| G | Dev menu reports the resolved backend | x | 2.24.0 | Per drawing, because `auto` is one answer per view |
+| **H** | **Dev Tools menu moved into the top bar** | **x** | 2.24.0 | Trigger beside the logo; flyout drops only when pressed, clearing the tab strip; the drag handle sizes the panel, not the header flex item |
+| **R** | **Return trip: TrueVision -> ValeVision** | **x** | VV 2.22.0/2.22.1 | Glass transmission, viewport style override, Context Layer, backend auto + probe, DevGate, both harnesses, the header dev menu. See ValeVision's parity ledger for the deliberate non-ports |
+| R | Render Composites panel column | x | VV 2.22.1 | The 12-Sep move to the LEFT column had not come back; ValeVision's file header said left while its code said right |
+| - | Parity ledger updated | x | - | Both directions recorded; ValeVision's ledger carries the return-trip table |
 
 ### 12.1 How to actually run a real project on localhost
 
