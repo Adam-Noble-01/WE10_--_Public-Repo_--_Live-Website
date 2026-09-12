@@ -138,6 +138,7 @@
     import { Na__LeNav__Fit } from './Na__LayoutEditor__Navigation__.js';
     import { Na__LeHist__CanUndo, Na__LeHist__CanRedo, Na__LeHist__Undo, Na__LeHist__Redo } from './Na__LayoutEditor__History__.js';
     import { Na__LeMenu__Open, Na__LeMenu__Close } from './Na__LayoutEditor__ContextMenu__.js';
+    import { Na__LeForce__IsRunning, Na__LeForce__Viewport, Na__LeForce__Sheet } from './Na__LayoutEditor__ForceRender__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
     // ------------------------------------------------------------
 
@@ -611,6 +612,9 @@
             return [
                 { label : label('MenuZoomFit', 'Zoom to fit'), onSelect : () => Na__LeNav__Fit() },
                 { label : snapping ? label('MenuSnapOff', 'Snapping off') : label('MenuSnapOn', 'Snapping on'), checked : snapping, onSelect : () => Na__LeOsnap__Toggle() },
+                { separator : true },
+                { label : label('MenuForceRenderSheet', 'Re-render every viewport on this sheet'), disabled : Na__LeForce__IsRunning(),
+                  onSelect : () => { void Na__LeForce__Sheet(sheet); } },
                 { separator : true }
             ].concat(history);
         }
@@ -642,6 +646,16 @@
             { label : label('MenuCentre', 'Recentre content'), disabled : locked, onSelect : () => Na__LeTools__RecentreViewport(sheet, found.id) },
             { label : viewport.Viewport__Locked === true ? label('MenuUnlock', 'Unlock viewport') : label('MenuLock', 'Lock viewport'), disabled : layerLocked, checked : viewport.Viewport__Locked === true,
               onSelect : () => Na__LeModel__UpdateViewport(sheet, found.id, { locked : viewport.Viewport__Locked !== true }) },
+            { separator : true },
+            // BOTH SCOPES ARE OFFERED ON A VIEWPORT, not just its own. Half the
+            // time the frame under the cursor is simply the one nearest the
+            // hand, and the thing actually wanted is the whole sheet; making
+            // that require a right click on empty paper would be a small,
+            // regular annoyance on a sheet that is mostly viewports.
+            { label : label('MenuForceRenderViewport', 'Re-render this viewport'), disabled : Na__LeForce__IsRunning(),
+              onSelect : () => { void Na__LeForce__Viewport(sheet, found.id); } },
+            { label : label('MenuForceRenderSheet', 'Re-render every viewport on this sheet'), disabled : Na__LeForce__IsRunning(),
+              onSelect : () => { void Na__LeForce__Sheet(sheet); } },
             { separator : true }, del, { separator : true }
         ].concat(history);
     }

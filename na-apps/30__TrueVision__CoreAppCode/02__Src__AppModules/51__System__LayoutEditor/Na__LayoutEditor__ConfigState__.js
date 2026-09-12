@@ -431,18 +431,27 @@
     // ------------------------------------------------------------
     function Na__LeCfg__GetRasterSetup() {
         const block = Na__LeCfg__Val('Raster', 'Levels', null);
-        const level = (name, ppm, maxPx) => {
+        const level = (name, ppm, maxPx, samples) => {
             const spec = (block && typeof block === 'object' && block[name] && typeof block[name] === 'object') ? block[name] : {};
             return {
-                pixelsPerMm : Number.isFinite(spec.PixelsPerMm) && spec.PixelsPerMm > 0 ? spec.PixelsPerMm : ppm,
-                maxPixels   : Number.isFinite(spec.MaxPixels)   && spec.MaxPixels   > 0 ? spec.MaxPixels   : maxPx
+                pixelsPerMm      : Number.isFinite(spec.PixelsPerMm) && spec.PixelsPerMm > 0 ? spec.PixelsPerMm : ppm,
+                maxPixels        : Number.isFinite(spec.MaxPixels)   && spec.MaxPixels   > 0 ? spec.MaxPixels   : maxPx,
+                // A record written before supersampling existed has no key here,
+                // so the fallback is the level's intended count rather than 1.
+                // Falling back to 1 would quietly leave every project on the old
+                // aliased picture and look like the feature had not shipped.
+                antiAliasSamples : Number.isFinite(spec.AntiAliasSamples) && spec.AntiAliasSamples > 0 ? spec.AntiAliasSamples : samples
             };
         };
         return {
             defaultLevel : Na__LeCfg__Val('Raster', 'DefaultLevel', 'medium'),
             exportLevel  : Na__LeCfg__Val('Raster', 'ExportLevel', 'high'),
             scaleWithDpr : Na__LeCfg__Val('Raster', 'ScaleWithDevicePixelRatio', true) !== false,
-            levels       : { low : level('low', 4, 2048), medium : level('medium', 8, 4096), high : level('high', 12, 6144) }
+            levels       : {
+                low    : level('low',     4, 2048,  1),
+                medium : level('medium',  8, 4096,  4),
+                high   : level('high',   12, 6144, 16)
+            }
         };
     }
     // ------------------------------------------------------------

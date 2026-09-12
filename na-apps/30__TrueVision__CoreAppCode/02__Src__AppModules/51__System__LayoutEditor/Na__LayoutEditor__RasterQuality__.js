@@ -127,7 +127,16 @@
         const setup = Na__LeCfg__GetRasterSetup();
         const spec  = setup.levels[level] || setup.levels.medium;
         const dpr   = scaleWithDpr && setup.scaleWithDpr ? Math.min(Na__LeRaster__MAX_DPR, Math.max(1, window.devicePixelRatio || 1)) : 1;
-        return { level : level, pixelsPerMm : spec.pixelsPerMm * dpr, maxPixels : spec.maxPixels };
+        return {
+            level            : level,
+            pixelsPerMm      : spec.pixelsPerMm * dpr,
+            maxPixels        : spec.maxPixels,
+            // NOT scaled by the device pixel ratio, and deliberately so. More
+            // pixels give a staircase smaller steps; only more samples give it
+            // fewer. A dense screen has already been paid for in pixelsPerMm
+            // and has no reason to pay again in render passes.
+            antiAliasSamples : spec.antiAliasSamples
+        };
     }
     // ------------------------------------------------------------
 
@@ -149,11 +158,20 @@
 
     // FUNCTION | Pixel Size for a Paper Size Under a Profile (longest side capped)
     // ------------------------------------------------------------
+    // The profile's sample count rides along in the result, because every
+    // caller that wants a size wants the quality that goes with it and there is
+    // no case for a picture rendered at one level's resolution and another's
+    // anti-aliasing.
+    // ------------------------------------------------------------
     function Na__LeRaster__Fit(widthMm, heightMm, profile) {
         let w = Math.max(0, widthMm) * profile.pixelsPerMm, h = Math.max(0, heightMm) * profile.pixelsPerMm;
         const longest = Math.max(w, h);
         if (longest > profile.maxPixels) { w *= profile.maxPixels / longest; h *= profile.maxPixels / longest; }
-        return { w : Math.max(Na__LeRaster__MIN_PX, Math.round(w)), h : Math.max(Na__LeRaster__MIN_PX, Math.round(h)) };
+        return {
+            w       : Math.max(Na__LeRaster__MIN_PX, Math.round(w)),
+            h       : Math.max(Na__LeRaster__MIN_PX, Math.round(h)),
+            samples : Number.isFinite(profile.antiAliasSamples) ? profile.antiAliasSamples : 1
+        };
     }
     // ------------------------------------------------------------
 

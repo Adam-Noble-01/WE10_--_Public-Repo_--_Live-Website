@@ -2,6 +2,120 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.25.0  -  12-Sep-2026
+### Supersampling - The Pixel Stops Guessing
+
+**Overview**
+- Every picture the app produces that is not the live viewport is now rendered
+  several times with sub-pixel camera jitter and averaged: the still image
+  export, the Layout Editor's 2D drawing underlays, and the 3D snapshot that
+  sits under every sheet viewport.
+- The static exporter has been rebuilt on ValeVision's design at the same time -
+  shared tile plan, gutter overscan, canvas probe, context-loss guard - because
+  the tile is the unit supersampling is cheap in.
+
+**WHY RESOLUTION WAS NEVER GOING TO FIX THIS**
+- A pixel is not a small square of colour. It is ONE measurement taken at one
+  infinitely small point and painted as a square afterwards. The renderer asks
+  one yes-or-no question per pixel: wall, or glazing bar.
+- A line two degrees off horizontal answers "row 100" for thirty pixels and then
+  jumps to "row 101". The shallower the line the longer the step - and buildings
+  are made of shallow lines: eaves, ridges, cills, transoms, string courses.
+  Whitecard is the worst case there is, because aliasing severity scales with
+  the contrast across the edge and a black line on a white field with nothing
+  else in frame is the maximum.
+- Exporting bigger only makes the steps smaller. It never makes them fewer.
+- FXAA, which is all the pipeline had, cannot reach it either. FXAA is handed
+  the already-broken image and walks along an edge looking for where the step
+  ends, giving up after about twenty pixels. A thirty-pixel step outruns the
+  search, so the staircase survives and everything is smeared in the attempt.
+  Blur without accuracy, which is exactly what the exports looked like.
+- Now each pixel is sampled sixteen times from sixteen slightly different camera
+  positions and averaged, so a bar covering a third of a pixel lands on five of
+  the sixteen and the pixel records a third-of-the-way-to-black grey. The pixel
+  has stopped being a yes or no and become a measurement of coverage, and the
+  staircase dissolves on its own.
+- Measured on a two-degree line: one sample gives 2 grey levels and zero partial
+  pixels. Four gives 5. Sixteen gives 17. The count is exact, which is what says
+  the jitter pattern is right.
+
+**THE JITTER GOES INTO THE PROJECTION, NOT THE SCENE PASS**
+- This is the decision the whole thing turns on. TrueVision's picture is not
+  made of geometry, it is made of LINE WORK: the profile-line Sobel, the section
+  cut outlines, fog, SSAO. Jittering only the scene render - which is what
+  three's own SSAARenderPass does - would have smoothed the walls beautifully
+  and left every line as stepped as before. Since the lines are the drawing,
+  that would have been close to useless.
+- Shifting the projection at the root means every downstream pass inherits it.
+- FXAA is switched off while supersampling. It would soften each sample before
+  the average, so the result would be sixteen blurred pictures averaged into one
+  blurred picture. Removing it is why the output is sharper AND smoother at
+  once - those only feel like opposites when blur is the only tool available.
+
+**THE THREE FAULTS FOUND ON THE WAY, EACH WORSE THAN THE ALIASING**
+- THE SILHOUETTE SOBEL RAN AT VIEWPORT RESOLUTION AND WAS STRETCHED. The tiled
+  renderer resized the renderer for a tile and never resized the profile-line
+  buffers, so a drawing baked at 4000 px had its outline computed at 1920 and
+  scaled up. That, not the aliasing, was most of the blur people were seeing on
+  drawing underlays. Both buffer owners are now resized per tile and restored.
+- THE 3D SNAPSHOT NEVER WENT THROUGH THE COMPOSER AT ALL. The tiled renderer
+  accepted a pipeline getter for ValeVision signature parity and ignored it,
+  falling through to a bare renderer.render. So the base image under every sheet
+  viewport had no profile lines, no ambient occlusion, no fog, and a different
+  colour transfer from the live view - while the snapshot code carefully toggled
+  a profile-lines pass that was never running. It takes the live loop's own
+  per-frame sequence now, so a baked viewport matches the screen it came from.
+- THERE WAS NO GUTTER. Tiles were rendered edge to edge, so every screen-space
+  effect sampled a clamped buffer boundary at the joins. Tiles now carry 32 px
+  of overscan that is cropped on composite. Verified: on a 4800 px output the
+  worst column-to-column jump does not fall on a tile boundary.
+
+**THE STILL EXPORTER, REBUILT**
+- It used to resize the live renderer AND composer to the full requested size
+  and render once. At 4096 that is 25 megapixels of half-float ping-pong buffers
+  plus a depth pre-pass and two profile-line targets - gigabytes - and when the
+  context died the download was a blank PNG with no error at all.
+- It now tiles like everything else, never allocating more than about one
+  viewport of framebuffer whatever the output size, and it fails LOUDLY: an
+  unbackable canvas or a lost context throws a message the overlay shows.
+- The supersampling makes the existing high-pass sharpen honest, which is a
+  quieter win worth naming. Sharpening exaggerates places where brightness
+  changes quickly over a short distance - and a stair step IS one. The filter
+  was spending part of its effort making the artefacts more prominent. Given a
+  clean source, all of it goes into the drawing.
+
+**COLOUR SPACE, WHICH IS WHERE THIS COULD HAVE GONE WRONG QUIETLY**
+- Three applies the sRGB output transfer only when rendering to the canvas,
+  never to a render target. A drawing frame diverted into an offscreen buffer to
+  be averaged therefore comes out linear, and a straight copy back would have
+  washed out every export in the app.
+- The present pass applies the transfer for that route only. At one sample the
+  result is byte-identical to what the canvas would have received - verified
+  swatch by swatch, #404040 to 64,64,64 and #2e6f9e to 46,111,158 - and above
+  one sample the average is taken in linear light, which is where averaging
+  belongs.
+- The composer route needs none of this and gets none: its samples are averaged
+  and copied out raw, exactly as the FXAA pass they replace would have done.
+
+**WHAT IT COSTS**
+- Linear in the sample count: sixteen samples is sixteen renders. A still is one
+  frame, so a 3072 x 2048 export lands in about three seconds.
+- Layout Editor viewports take their count from the working quality level, so
+  Low stays at one sample for fast drafting, Medium averages four, and High -
+  which is also the level the PDF and the Dev bakes always use - averages
+  sixteen. Both numbers are config, per level.
+- Shadow maps are drawn once per tile and reused by the remaining samples. The
+  lights and geometry are frozen and only the view camera moves, so every later
+  shadow pass would redraw identical maps.
+
+**NOT DONE, DELIBERATELY**
+- The live viewport is untouched. Rendering sixteen times per frame would take
+  60 fps to under 4 and there is no version of that trade worth making. The
+  progressive refinement version - accumulating samples in the idle time after
+  the camera stops, free while interacting - is a real opportunity and a
+  separate piece of work.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.24.0  -  11-Sep-2026
 ### The Drawing Editor Arrives - Tabs, Sheets, Viewports at Scale
 

@@ -508,8 +508,9 @@
 
     // FUNCTION | Change a Viewport (any subset of its fields)
     // ------------------------------------------------------------
-    // patch: { rect, scaleDenominator, pan, imageMm, imageOffset, styles, markupMode,
-    //          name, layerId, sceneId, drawingId, kind, showScaleLabel, snapshotAsset }
+    // patch: { rect, scaleDenominator, pan, imageMm, imageOffset, styles, modelLayers,
+    //          markupMode, name, layerId, sceneId, drawingId, kind, showScaleLabel,
+    //          snapshotAsset }
     // silent: true skips the change event (live drags announce on release).
     // ------------------------------------------------------------
     function Na__LeModel__UpdateViewport(sheet, viewportId, patch, silent) {
@@ -522,6 +523,15 @@
         if (patch.imageOffset) viewport.Viewport__ImageOffsetMm = Object.assign({}, viewport.Viewport__ImageOffsetMm, patch.imageOffset);
         if (patch.styles) {
             Na__LeModel__STYLE_KEYS.forEach((key) => { if (typeof patch.styles[key] === 'boolean') viewport.Viewport__Styles[key] = patch.styles[key]; });
+        }
+        if (patch.modelLayers) {
+            // MERGED, NOT REPLACED, so the panel can send one category at a
+            // time. The normaliser below drops anything set back to true, so
+            // switching a category on again removes the key rather than
+            // recording a redundant "yes".
+            const merged = Object.assign({}, viewport.Viewport__ModelLayers || {});
+            Object.keys(patch.modelLayers).forEach((key) => { if (typeof patch.modelLayers[key] === 'boolean') merged[key] = patch.modelLayers[key]; });
+            viewport.Viewport__ModelLayers = merged;
         }
         if (patch.scaleDenominator !== undefined) viewport.Viewport__ScaleDenominator = Na__LeScale__Coerce(patch.scaleDenominator);
         if (patch.markupMode === 'scene' || patch.markupMode === 'sheet') viewport.Viewport__MarkupMode = patch.markupMode;

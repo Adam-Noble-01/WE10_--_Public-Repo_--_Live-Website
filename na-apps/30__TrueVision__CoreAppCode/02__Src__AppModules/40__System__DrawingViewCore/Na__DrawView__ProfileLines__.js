@@ -564,6 +564,15 @@
         const savedShadowAuto  = renderer.shadowMap.autoUpdate;
         renderer.getClearColor(Na__DrawProfile__SavedClearColor);                 // <-- Copied in place; restored after the pre-passes
 
+        // WHERE THE BEAUTY IMAGE IS. Usually the canvas, and this used to say
+        // so outright. A SUPERSAMPLED BAKE DRAWS THE WHOLE FRAME INTO AN
+        // OFFSCREEN TARGET instead, and an edge pass that insists on the canvas
+        // would ink onto a buffer nobody is averaging - the picture keeps its
+        // flat render and loses every silhouette. So the composite goes back to
+        // whatever was bound when this was called, which is the canvas on
+        // screen and the sample target during a bake.
+        const outputTarget = renderer.getRenderTarget();
+
         // SHADOWS OFF | Three.js re-renders every shadow map on each render()
         // call, and this function makes two of them. Both draw the scene under
         // an UNLIT material - a normal encode and a flat colour - so not one
@@ -613,9 +622,9 @@
             meshObjects[i].material = Na__DrawProfile__MeshMaterials[i];
         }
 
-        // COMPOSITE | Straight onto the canvas, over the drawing already there
+        // COMPOSITE | Straight onto the beauty image, over the drawing already there
         scene.background = savedBackground;                                      // <-- Restored before anything else can render the scene
-        renderer.setRenderTarget(null);
+        renderer.setRenderTarget(outputTarget);
         renderer.setClearColor(Na__DrawProfile__SavedClearColor, savedClearAlpha);
         renderer.autoClear = false;                                              // <-- The beauty image must survive this draw
         renderer.render(Na__DrawProfile__QuadScene, Na__DrawProfile__QuadCamera);

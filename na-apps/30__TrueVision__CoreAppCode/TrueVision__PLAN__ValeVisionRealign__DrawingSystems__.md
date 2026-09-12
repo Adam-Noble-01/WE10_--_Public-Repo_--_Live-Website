@@ -48,9 +48,10 @@ Delivered at the end of this work, TrueVision has:
 6. An **installable Windows PWA** that opens straight into the Layout Editor and is
    usable as drawing software.
 
-Out of scope: the legacy `90__System__PageLayoutSystem` browser tab (it stays until
-the Layout Editor supersedes it, then it is retired in a separate pass), any SketchUp
-plugin change, and any change to ValeVision beyond ledger updates.
+Out of scope: the legacy `90__System__PageLayoutSystem` browser tab (it stayed until
+the Layout Editor superseded it, then it was retired in a separate pass - done
+12-Sep-2026, see TD02), any SketchUp plugin change, and any change to ValeVision
+beyond ledger updates.
 
 ---
 
@@ -181,7 +182,7 @@ Answered 10-Sep-2026. Each carries the id it is referenced by elsewhere in this 
 | Id | Decision |
 |---|---|
 | **TD01** | **Authoring runs from both origins, via an unlock flag.** A new `03__AppUtils/Na__AppUtils__DevGate__.js` exports `Na__DevGate__IsAuthoringEnabled()`, true for localhost **or** a persisted unlock flag. Every existing `hostname === 'localhost'` test in the dev menu, scene editor, drawing panels and Layout Editor routes through it. The installed Windows PWA therefore authors from the live origin without a local server running, and the fast localhost edit-reload loop is untouched. |
-| **TD02** | **`90__System__PageLayoutSystem` stays through this work.** It is the source of the vendored jsPDF UMD the exporter injects. Its browser tab and UI are retired in a separate pass once the Layout Editor ships, not during it. |
+| **TD02** | **`90__System__PageLayoutSystem` stayed through this work, and was retired after it.** It is the source of the vendored jsPDF UMD the exporter injects, so it could not go during the port. Retired 12-Sep-2026: the "Create Drawing" button, its handler in `Na__UiFeature__ImageExport__Controls.js`, the dead `--secondary` button CSS, and all eight page-layout source files are gone. `jspdf.umd.js` and `PageLayoutSystem__TitleBlock__A3__.png` remain in the folder because the Layout Editor config points at both by path; see that folder's README. |
 | **TD03** | **`PS01__MustersRoad` is the migration reference project.** It carries a basic plan and elevation set. Year folder `26-Projects`, R2 key `NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/TrueVision__ProjectData__.json`, worker `https://na-truevision-api.adam-fb3.workers.dev`. See 3.1 for why this cannot be tested against the repo copy. |
 | **TD04** | **Modern title block only, Noble Architecture branding.** Vector primitives rendered to SVG and PDF from one list: NA logo, then the field rows (client, site address, drawing number, revision, scale, issue date, drawn by). `TitleBlock__Classic__.js` is **not ported** - the only scan that exists is Vale's, and a Vale title block on an NA drawing is a live-output hazard. Classic is added if and when an NA scan exists; the `TitleBlock__Style` field stays in the record so adding it later is additive. |
 | **TD05** | **Client measuring stays and stays aligned.** TrueVision already has `44/Na__PlanDimensions__ClientMode__.js`; it is kept in step with ValeVision's, which costs nothing. |
@@ -775,7 +776,18 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 | **G** | **Projection backend chosen from hardware** | **x** | 2.24.0 | `auto` default; WebGPU probe rejects software fallback adapters; anything with a drawing CUT stays on the CPU because the GPU backend cannot apply one |
 | G | Dev menu reports the resolved backend | x | 2.24.0 | Per drawing, because `auto` is one answer per view |
 | **H** | **Dev Tools menu moved into the top bar** | **x** | 2.24.0 | Trigger beside the logo; flyout drops only when pressed, clearing the tab strip; the drag handle sizes the panel, not the header flex item |
+| **I** | **Supersampled anti-aliasing (new module)** | **x** | 2.25.0 | `05__RenderPipeline/Na__RenderEffect__Supersampler__.js`. D3D N-rooks patterns, re-centred; jitter premultiplied into the projection so the Sobel and the cut outlines get it too, not just geometry. Verified in-browser: 1 sample -> 2 grey levels, 4 -> 5, 16 -> 17 on a 2-degree line |
+| I | Tiled exporter rebuilt on ValeVision's design | x | 2.25.0 | Shared `TilePlan__` + `AsyncYield__` ported; gutter overscan, canvas probe, context-loss guard. Always tiles now, so the gutter applies even to a one-tile image |
+| I | **Profile-line buffers resized per tile** | **x** | 2.25.0 | They never were. The drawing Sobel ran at viewport resolution and was stretched across the sheet - most of the blur on 2D underlays was this, not aliasing. BOTH owners resized (`setProfileLinesSize` for the shared pair, `DrawProfile__HandleResize` for its own) and restored |
+| I | **3D snapshot routed through the composer** | **x** | 2.25.0 | The tiled renderer took `getRenderPipelineState` for signature parity and ignored it, so every sheet's 3D base image was a bare `renderer.render`: no profile lines, no AO, no fog, wrong colour transfer - while `Render3d` toggled a pass that never ran. DIV-1 is unaffected: a 2D drawing still passes `renderFrame` and that still wins |
+| I | Overlays honour the bound render target | x | 2.25.0 | `Na__DrawProfile__RenderOverlay` and `Na__SectMesh__RenderOverlay` both hard-coded `setRenderTarget(null)`. On screen that is a no-op; during a supersampled bake it inked onto a buffer nobody averages |
+| I | sRGB transfer on the target route | x | 2.25.0 | Three applies the output transfer only to the canvas, never to a render target, so a diverted drawing frame comes back linear. Present pass encodes for that route only. Verified byte-identical to the canvas route at 1 sample, swatch by swatch |
+| I | Still exporter no longer resizes the composer | x | 2.25.0 | Was 25 MP of half-float ping-pong at 4096 and a silent blank PNG on context loss; now tiles, and throws a message the overlay shows. `RenderToDataUrl` is async; both handlers catch so a failure cannot leave the button locked |
+| I | Sample counts are config, per quality level | x | 2.25.0 | Layout Editor Low 1 / Medium 4 / High 16 (High is also the PDF and bake level); image export 16. `Na__LeRaster__Fit` carries the count with the size |
+| I | Live viewport left alone | - | 2.25.0 | Deliberate: 16x per frame is 60 fps -> under 4. Progressive refinement in the idle time after the camera stops is the real opportunity and a separate job |
+| I | Tested by Adam | - | 2.25.0 | Awaiting sign-off before the ValeVision port |
 | **R** | **Return trip: TrueVision -> ValeVision** | **x** | VV 2.22.0/2.22.1 | Glass transmission, viewport style override, Context Layer, backend auto + probe, DevGate, both harnesses, the header dev menu. See ValeVision's parity ledger for the deliberate non-ports |
+| R | Supersampler + tiled exporter back-port | - | - | Pending Adam's sign-off. ValeVision already has the tile plan and a video-studio supersampler; the port is the shared module, the per-tile supersampling in its static exporter, and the profile-buffer resize check |
 | R | Render Composites panel column | x | VV 2.22.1 | The 12-Sep move to the LEFT column had not come back; ValeVision's file header said left while its code said right |
 | - | Parity ledger updated | x | - | Both directions recorded; ValeVision's ledger carries the return-trip table |
 

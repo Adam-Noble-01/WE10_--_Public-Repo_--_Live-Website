@@ -215,29 +215,41 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
 
     // FUNCTION | Build Toggle Buttons from Loaded Groups Map
     // ------------------------------------------------------------
+    // THE STATE MAP IS FILLED BEFORE THE BUTTONS, and independently of them.
+    // It used to be filled inside the button loop, behind an early return when
+    // the dev menu's list container was missing from the page - which was fine
+    // while the map served only those buttons. It no longer does: the Layout
+    // Editor's Context Layer toggle and its per-viewport Model Layers panel
+    // both read this map, and both ship to everyone. A production page that
+    // dropped the dev markup would have left them silently controlling
+    // nothing, which is the worst of the available failures because it looks
+    // like the toggle simply has no effect on that model.
     function Na__ModelToggle__BuildButtons(loadedGroups) {
+        Na__ModelToggle__StateMap.clear();                               // <-- Clear stale category references
+        if (loadedGroups) {
+            loadedGroups.forEach((group, categoryKey) => {
+                Na__ModelToggle__StateMap.set(categoryKey, {
+                    group   : group,                                     // <-- THREE.Group reference
+                    visible : true                                       // <-- Default: visible
+                });
+            });
+        }
+
         const listContainer = document.getElementById(Na__ModelToggle__ListId);  // <-- Get button list container
         if (!listContainer) {
-            console.warn('[TrueVision3D] Model toggle list container not found');
-            return;                                                      // <-- Exit if no container
+            console.warn('[TrueVision3D] Model toggle list container not found - categories registered, dev buttons skipped');
+            return;                                                      // <-- No dev UI, but the map above is live
         }
 
         listContainer.innerHTML = '';                                    // <-- Clear any existing buttons
-        Na__ModelToggle__StateMap.clear();                               // <-- Clear stale category references
 
         if (!loadedGroups || loadedGroups.size === 0) {
             listContainer.style.display = 'none';                        // <-- Hide if no groups
             return;
         }
 
-        // BUILD STATE MAP AND BUTTONS FOR EACH LOADED CATEGORY
+        // BUILD A BUTTON FOR EACH LOADED CATEGORY
         loadedGroups.forEach((group, categoryKey) => {
-            // REGISTER STATE
-            Na__ModelToggle__StateMap.set(categoryKey, {
-                group   : group,                                         // <-- THREE.Group reference
-                visible : true                                           // <-- Default: visible
-            });
-
             // CREATE BUTTON ELEMENT
             const displayName = Na__ModelToggle__ResolveDisplayName(categoryKey);  // <-- Resolve friendly name
             const button      = document.createElement('button');        // <-- Create button element
@@ -325,6 +337,43 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Every Category the Model Actually Loaded
+    // ------------------------------------------------------------
+    // In load order, which is the order the loader's priority list puts them
+    // in. The Layout Editor's Model Layers panel lists these and nothing else:
+    // a category with no GLB behind it is not a choice anyone can make.
+    // ------------------------------------------------------------
+    function Na__ModelToggle__GetCategoryKeys() {
+        const keys = [];
+        Na__ModelToggle__StateMap.forEach((entry, categoryKey) => keys.push(categoryKey));
+        return keys;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Show or Hide One Category by Its Exact Key
+    // ------------------------------------------------------------
+    // THE EXACT-KEY SETTER, EXPORTED. The token matcher below is exported
+    // under the plain SetCategoryVisibility name because the shared Layout
+    // Editor modules call it with ValeVision's shorter category words, and it
+    // is right for them. It is wrong for anything naming a TrueVision category
+    // in full: "TrueVision__MainBuildingModel__Existing" is a substring of
+    // nine longer keys, so hiding the existing building by token would take
+    // its walls, roofs, windows and the rest with it. Anything holding a real
+    // category key wants this one.
+    // ------------------------------------------------------------
+    function Na__ModelToggle__SetCategoryVisibleByKey(categoryKey, visible) {
+        const entry = Na__ModelToggle__StateMap.get(categoryKey);
+        if (!entry) return false;                                        // <-- Not loaded this session: nothing to hide
+        const wanted  = visible !== false;
+        entry.visible = wanted;
+        if (entry.group) entry.group.visible = wanted;
+        Na__ModelToggle__SyncButtonState(categoryKey, wanted);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Show or Hide One Category by Key or Token
     // ------------------------------------------------------------
     // NOTE: a second, exact-key SetCategoryVisibility already exists above and
@@ -377,6 +426,8 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
         Na__ModelToggle__SetAllCategoriesVisible,
         Na__ModelToggle__CaptureVisibilityMap,
         Na__ModelToggle__ApplySceneLayerVisibility,
+        Na__ModelToggle__GetCategoryKeys,
+        Na__ModelToggle__SetCategoryVisibleByKey,
         Na__ModelToggle__SetCategoryVisibleByToken as Na__ModelToggle__SetCategoryVisibility
     };
     // ------------------------------------------------------------

@@ -38,6 +38,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Sep-2026 - Version 1.2.0
+// - The draw-tool and axis-lock instruction paragraphs are gone from the
+//   panel body; they took more height than the controls they explained.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - The Edges toggle, the either-or rule that keeps a shape visible, and
 //   rows that hide when they have nothing to say.
@@ -108,12 +112,12 @@
         const either = Na__LePanels__Note(Na__LeCfg__GetLabel('ShapeEitherNote', 'Edges and fill are either or: switching one off switches the other on, so a shape always shows.'));
         either.setAttribute('data-na-block', 'either');
         body.appendChild(either);
-        const hint = Na__LePanels__Note(Na__LeCfg__GetLabel('ShapeDrawNote', 'Draw tool (L): click points, click the first point to close a polygon, Enter or double-click to finish a line, Esc to abandon.'));
-        hint.setAttribute('data-na-block', 'hint');
-        body.appendChild(hint);
-        const axis = Na__LePanels__Note(Na__LeCfg__GetLabel('ShapeAxisNote', 'Arrow keys lock the axis for the next point (left or right locks across, up or down locks down the page); press the same key again to release. A snap still gives the free coordinate, so lock an axis and hover a vertex to line up with it.'));
-        axis.setAttribute('data-na-block', 'axis');
-        body.appendChild(axis);
+        // THE DRAW AND AXIS INSTRUCTIONS ARE NOT PRINTED HERE ANY MORE. Two
+        // paragraphs of prose pushed the actual controls off the top of a
+        // short panel, and they are reference material read once - they live
+        // in the labels config (ShapeDrawNote, ShapeAxisNote) and in the
+        // module headers, where they can be read without costing panel height
+        // on every session.
     }
     // ------------------------------------------------------------
 

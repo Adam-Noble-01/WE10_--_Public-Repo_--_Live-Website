@@ -16,7 +16,9 @@
 //   viewport hides the two that only mean something on a drawing.
 //
 // INTEGRATION:
-// - Registered into the right column by the mode controller.
+// - Registered into the LEFT column by the mode controller, under Drawing
+//   Layers and above Model Layers: the three panels that together say what
+//   a viewport's picture is made of.
 //
 // -----------------------------------------------------------------------------
 //
@@ -30,6 +32,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Sep-2026 - Version 1.5.0
+// - A force render button, scoped by the selection: the selected viewport
+//   when there is one, every viewport on the sheet when there is not.
+//
+// 12-Sep-2026 - Version 1.4.0
+// - Moved to the left column, under Drawing Layers. It belongs with the
+//   other two "what goes in the picture" panels, not with the property
+//   editors for whatever happens to be selected.
+//
 // 10-Sep-2026 - Version 1.3.0
 // - Context Layer toggle, last in the list. The section is called Render Composites.
 //
@@ -53,11 +64,15 @@
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__KIND_2D, Na__LeModel__GetActiveSheet, Na__LeModel__GetSelectedViewport, Na__LeModel__UpdateViewport } from './Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeForce__CHANGED_EVENT, Na__LeForce__IsRunning, Na__LeForce__GetProgress, Na__LeForce__Viewport, Na__LeForce__Sheet } from './Na__LayoutEditor__ForceRender__.js';
     import {
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
         Na__LePanels__Row,
         Na__LePanels__Input,
+        Na__LePanels__Button,
+        Na__LePanels__Refresh,
+        Na__LePanels__IsEditable,
         Na__LePanels__Note
     } from './Na__LayoutEditor__PanelHost__.js';
     // ------------------------------------------------------------
@@ -72,6 +87,7 @@
     // MODULE CONSTANTS | Section Id and the Toggle Set
     // ------------------------------------------------------------
     const Na__LePanelStyles__ID = 'styles';
+    let   Na__LePanelStyles__Listening = false;
     // THE LIST IS IN DRAWING ORDER, and Context Layer sits last because it is
     // the layer furthest back: the rendered picture everything else is drawn
     // over. Switching it off leaves the projected linework alone on the paper,
@@ -97,7 +113,7 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Build the Toggles
+    // HELPER FUNCTION | Build the Toggles and the Force Render Button
     // ------------------------------------------------------------
     function Na__LePanelStyles__Build(body) {
         const note = Na__LePanels__Note(Na__LeCfg__GetLabel('NoSelection', 'Select a viewport on the sheet.'));
@@ -110,6 +126,36 @@
             row.setAttribute('data-na-toggle', toggle.key);
             body.appendChild(row);
         });
+
+        // THE WAY OUT WHEN A PICTURE IS WRONG AND THE VIEWPORT DISAGREES.
+        // It sits under the toggles because that is what it rebuilds, and its
+        // wording changes with the selection rather than the button moving or
+        // doubling: one button, two scopes, and the label says which you are
+        // about to get before you press it.
+        const row = document.createElement('div');
+        row.className = 'na-le-row na-le-row--buttons';
+        row.setAttribute('data-na-block', 'force');
+        row.appendChild(Na__LePanels__Button('', 'style-force', 'na-le-btn--wide'));
+        body.appendChild(row);
+
+        if (!Na__LePanelStyles__Listening) {                                       // <-- One listener for the module, not one per build
+            window.addEventListener(Na__LeForce__CHANGED_EVENT, () => Na__LePanels__Refresh(Na__LePanelStyles__ID));
+            Na__LePanelStyles__Listening = true;
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What the Button Says Right Now
+    // ------------------------------------------------------------
+    function Na__LePanelStyles__ForceLabel(viewport) {
+        if (Na__LeForce__IsRunning()) {
+            const p = Na__LeForce__GetProgress();
+            return Na__LeCfg__GetLabel('ForceRenderBusy', 'Rendering') + ' ' + Math.min(p.done + 1, p.total) + '/' + p.total + '...';
+        }
+        return viewport
+            ? Na__LeCfg__GetLabel('ForceRenderViewport', 'Render Selected Viewport')
+            : Na__LeCfg__GetLabel('ForceRenderDocument', 'Render Document Viewports');
     }
     // ------------------------------------------------------------
 
@@ -119,6 +165,13 @@
     function Na__LePanelStyles__Refresh(body) {
         const viewport = Na__LeModel__GetSelectedViewport();
         body.querySelector('[data-na-block="note"]').hidden = !!viewport;
+
+        const force  = body.querySelector('[data-na-block="force"]');
+        const button = force.querySelector('[data-na-control="style-force"]');
+        button.textContent = Na__LePanelStyles__ForceLabel(viewport);
+        button.disabled    = Na__LeForce__IsRunning() || !Na__LePanels__IsEditable();
+        force.hidden       = !Na__LePanels__IsEditable();
+
         Na__LePanelStyles__TOGGLES.forEach((toggle) => {
             const row = body.querySelector('[data-na-toggle="' + toggle.key + '"]');
             row.hidden = !viewport || (toggle.twoDOnly && viewport.Viewport__Kind !== Na__LeModel__KIND_2D);
@@ -140,7 +193,13 @@
             styles[key] = el.checked;
             Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { styles : styles });
         });
-        return Na__LePanels__RegisterSection('right', {
+        Na__LePanels__OnControl('click', 'style-force', () => {
+            const sheet = Na__LeModel__GetActiveSheet();
+            if (!sheet || Na__LeForce__IsRunning()) return;
+            const viewport = Na__LeModel__GetSelectedViewport();
+            void (viewport ? Na__LeForce__Viewport(sheet, viewport.Viewport__Id) : Na__LeForce__Sheet(sheet));
+        });
+        return Na__LePanels__RegisterSection('left', {
             id : Na__LePanelStyles__ID, title : Na__LeCfg__GetLabel('StylesTitle', 'Render Composites'),
             build : Na__LePanelStyles__Build, refresh : Na__LePanelStyles__Refresh
         });

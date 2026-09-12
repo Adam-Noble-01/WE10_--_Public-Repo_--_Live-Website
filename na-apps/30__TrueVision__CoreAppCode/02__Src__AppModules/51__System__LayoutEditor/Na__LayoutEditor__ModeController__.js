@@ -95,6 +95,7 @@
     import { Na__LePanelDims__Register } from './Na__LayoutEditor__Panel__Dimensions__.js';
     import { Na__LePanelShapes__Register } from './Na__LayoutEditor__Panel__Shapes__.js';
     import { Na__LePanelStyles__Register } from './Na__LayoutEditor__Panel__Styles__.js';
+    import { Na__LePanelModelLayers__Register } from './Na__LayoutEditor__Panel__ModelLayers__.js';
     import { Na__LeToolbar__Mount } from './Na__LayoutEditor__Toolbar__.js';
     import { Na__LeSnap__Initialize, Na__LeSnap__ResetFingerprints } from './Na__LayoutEditor__SnapshotRenderer__.js';
     import { Na__LeOsnap__Clear } from './Na__LayoutEditor__Snapping__.js';
@@ -187,13 +188,20 @@
 
         Na__LeSurface__Mount(Na__LeMode__Stage, { editable : editable });
         Na__LePanels__Mount({ left : host.querySelector('.na-le-column--left'), right : host.querySelector('.na-le-column--right'), editable : editable, showToast : toast });
+        // LEFT COLUMN | Sheet, then the three things a drawing is made of:
+        // its own layers, the render composites that make its picture, and the
+        // model categories that picture is allowed to see. Left to right is
+        // now "what is on the paper" against "what the selection's properties
+        // are", instead of layers on one side and everything else on the other.
         Na__LePanelSheet__Register();
         Na__LePanelLayers__Register();
+        Na__LePanelStyles__Register();
+        Na__LePanelModelLayers__Register();
+        // RIGHT COLUMN | The selected item's properties
         Na__LePanelViewport__Register();
         Na__LePanelText__Register();
         Na__LePanelDims__Register();
         Na__LePanelShapes__Register();
-        Na__LePanelStyles__Register();
         Na__LeToolbar__Mount(host.querySelector('.na-le-centre__toolbar'), { editable : editable, showToast : toast });
     }
     // ------------------------------------------------------------

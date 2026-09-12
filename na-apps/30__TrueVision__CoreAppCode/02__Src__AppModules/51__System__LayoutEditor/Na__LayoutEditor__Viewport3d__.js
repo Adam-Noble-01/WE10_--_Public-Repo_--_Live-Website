@@ -64,6 +64,7 @@
     import { Na__LeCfg__GetLabel } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__GetSheets, Na__LeModel__GetViewports, Na__LeModel__ResolveViewportSource, Na__LeModel__UpdateViewport } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSnap__Render3d, Na__LeSnap__IsReady, Na__LeSnap__GetModelFingerprint } from './Na__LayoutEditor__SnapshotRenderer__.js';
+    import { Na__LeModelLayers__Token } from './Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeRaster__Working, Na__LeRaster__Export, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
     import {
         Na__LeAssets__CanvasToBlob,
@@ -121,6 +122,7 @@
             JSON.stringify(scene.PresentationMode__Scene__OrbitHelperCubePosition || null),
             JSON.stringify(scene.PresentationMode__Scene__ModelLayerVisibility || null),
             JSON.stringify(viewport.Viewport__Styles),
+            Na__LeModelLayers__Token(viewport),
             Math.round((viewport.Viewport__ImageMm.WidthMm / viewport.Viewport__ImageMm.HeightMm) * 1000),
             Na__LeSnap__GetModelFingerprint()
         ];
@@ -192,7 +194,7 @@
         const px = Na__LeVp3d__PixelSize(viewport, profile);
         state.inFlight = true;
         try {
-            const result = await Na__LeSnap__Render3d(scene, viewport.Viewport__Styles, px.w, px.h);
+            const result = await Na__LeSnap__Render3d(scene, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples);
             if (!result) return;
             const blob    = await Na__LeAssets__CanvasToBlob(result.canvas, 'image/webp', 0.9);
             const dataUrl = blob ? await Na__LeAssets__BlobToDataUrl(blob) : result.canvas.toDataURL('image/png');
@@ -217,7 +219,11 @@
         if (state.timer) window.clearTimeout(state.timer);
         state.timer = window.setTimeout(async () => {
             state.timer = null;
-            if (Na__LeVp3d__Interacting || state.inFlight || !state.lastArgs) return;
+            // NOT NOW MEANS LATER. See the note on the 2D scheduler: returning
+            // here dropped the render outright and left the frame showing a
+            // snapshot of a pose or a frame it no longer had.
+            if (!state.lastArgs) return;
+            if (Na__LeVp3d__Interacting || state.inFlight) { Na__LeVp3d__Schedule(state, viewportId); return; }
             const { sheet, viewport } = state.lastArgs;
             const scene = Na__LeModel__ResolveViewportSource(viewport).scene;
             if (!scene) return;
@@ -280,6 +286,25 @@
             return;
         }
         Na__LeVp3d__Schedule(state, viewport.Viewport__Id);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Throw Away the Stored Snapshot and Render This Viewport Again
+    // ------------------------------------------------------------
+    // Goes straight to the renderer: the saved asset is what a forced render
+    // is trying to get past, so it is neither read nor trusted here. The new
+    // picture is uploaded in its place by RenderNow as usual.
+    // ------------------------------------------------------------
+    async function Na__LeVp3d__ForceRender(sheet, viewport) {
+        const state = Na__LeVp3d__States.get(viewport.Viewport__Id);
+        if (!state || !state.lastArgs) return false;                             // <-- Never painted: the next refresh draws it anyway
+        const scene = Na__LeModel__ResolveViewportSource(viewport).scene;
+        if (!scene) return false;
+        if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
+        state.key = null; state.triedAsset = null;                                // <-- Nothing on screen is trusted from here
+        await Na__LeVp3d__RenderNow(state, sheet, viewport, scene, Na__LeVp3d__Fingerprint(viewport, scene), Na__LeRaster__Working());
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -417,6 +442,7 @@
         Na__LeVp3d__Release,
         Na__LeVp3d__SetInteracting,
         Na__LeVp3d__RenderForExport,
+        Na__LeVp3d__ForceRender,
         Na__LeVp3d__Bake
     };
     // ------------------------------------------------------------

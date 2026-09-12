@@ -236,9 +236,10 @@
 
     // HELPER FUNCTION | Resolve a Record's Exclusion Tokens (null = the defaults)
     // ------------------------------------------------------------
-    function Na__PlView__Tokens(recordTokens) {
-        const list = Array.isArray(recordTokens) ? recordTokens : Na__PlCfg__GetDefaultExclusionTokens();
-        return list
+    function Na__PlView__Tokens(recordTokens, extraTokens) {
+        const list  = Array.isArray(recordTokens) ? recordTokens : Na__PlCfg__GetDefaultExclusionTokens();
+        const whole = Array.isArray(extraTokens) && extraTokens.length > 0 ? list.concat(extraTokens) : list;
+        return whole
             .map((token) => String(token || '').trim().toLowerCase())
             .filter((token) => token.length > 0);
     }
@@ -308,7 +309,7 @@
 
     // FUNCTION | Build the View Definition for a Floor Plan
     // ------------------------------------------------------------
-    function Na__PlView__FromPlan(plan, stylesOverride) {
+    function Na__PlView__FromPlan(plan, stylesOverride, extraExcludeTokens) {
         if (!plan) return null;
         const basis = Na__PlView__PlanBasis();
 
@@ -323,7 +324,7 @@
             Axis2Sign     : 1,                                                   // <-- Drawing y down = world Z = the broker's axis 2
             Cut           : Na__PlView__PlanCut(plan),
             Styles        : Na__PlView__Flags(Na__FpData__GetStyles(plan), stylesOverride),
-            ExcludeTokens : Na__PlView__Tokens(Na__FpData__GetExcludeTokens(plan)),
+            ExcludeTokens : Na__PlView__Tokens(Na__FpData__GetExcludeTokens(plan), extraExcludeTokens),
             RecordHash    : null
         };
         definition.RecordHash = Na__PlView__RecordHash(definition);
@@ -334,7 +335,7 @@
 
     // FUNCTION | Build the View Definition for an Elevation or Section
     // ------------------------------------------------------------
-    function Na__PlView__FromElevation(elevation, stylesOverride) {
+    function Na__PlView__FromElevation(elevation, stylesOverride, extraExcludeTokens) {
         if (!elevation) return null;
         const axes  = Na__ElevData__GetAxes(elevation);
         const basis = Na__PlView__ElevationBasis(axes);
@@ -350,7 +351,7 @@
             Axis2Sign     : -1,                                                  // <-- Drawing y down = minus height; the broker's axis 2 is height
             Cut           : Na__PlView__ElevationCut(elevation, axes),
             Styles        : Na__PlView__Flags(Na__ElevData__GetStyles(elevation), stylesOverride),
-            ExcludeTokens : Na__PlView__Tokens(Na__ElevData__GetExcludeTokens(elevation)),
+            ExcludeTokens : Na__PlView__Tokens(Na__ElevData__GetExcludeTokens(elevation), extraExcludeTokens),
             RecordHash    : null
         };
         definition.RecordHash = Na__PlView__RecordHash(definition);

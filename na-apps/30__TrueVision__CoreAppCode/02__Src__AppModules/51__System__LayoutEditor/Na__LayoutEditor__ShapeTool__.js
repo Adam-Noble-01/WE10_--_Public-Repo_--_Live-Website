@@ -40,6 +40,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Sep-2026 - Version 1.2.0
+// - Rectangles can be drawn. The close-the-polygon test now asks where the
+//   next point would LAND rather than where the cursor is, so hovering the
+//   first vertex to borrow a coordinate no longer snaps the shape shut into
+//   a triangle; and Shift holds its axis against a snap the way an arrow key
+//   lock already did, instead of being cancelled by it.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - Arrow key axis lock (Na__LayoutEditor__AxisLock__), which beats a snap
 //   by taking the snapped point's free coordinate, and releases as soon as
@@ -68,7 +75,7 @@
     import { Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom, Na__LeSurface__Refresh } from './Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeOsnap__Snap, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
     import { Na__LeGrips__ShowBand, Na__LeGrips__HideBand } from './Na__LayoutEditor__Grips__.js';
-    import { Na__LeAxis__Get, Na__LeAxis__Clear, Na__LeAxis__Apply, Na__LeAxis__Constrain } from './Na__LayoutEditor__AxisLock__.js';
+    import { Na__LeAxis__Get, Na__LeAxis__Clear, Na__LeAxis__Apply, Na__LeAxis__Hold, Na__LeAxis__Constrain } from './Na__LayoutEditor__AxisLock__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -90,30 +97,56 @@
 // REGION | Helpers
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Where the New Edge Ends: a Lock, Then a Snap, Then Shift
+    // HELPER FUNCTION | Where the New Edge Ends: a Held Axis, Then a Snap
     // ------------------------------------------------------------
     // An arrow key lock wins outright, but takes the free coordinate from
     // whatever the cursor snapped to, so locking the axis and hovering a
     // vertex elsewhere on the drawing lines the edge up with that vertex.
-    // With no lock a snap beats Shift, as in AutoCAD.
+    //
+    // SHIFT NOW BEHAVES THE SAME WAY. It used to lose to a snap - "a snap
+    // beats Shift, as in AutoCAD" - which reads as reasonable until you try
+    // to draw a rectangle: the fourth corner is found by holding an axis and
+    // hovering the first corner to borrow its other coordinate, and a snap
+    // that wins puts the point ON the first corner instead. Shift now picks
+    // the axis from the free cursor and lets the snap supply the distance
+    // along it.
     // ------------------------------------------------------------
     function Na__LeShape__SnapOrConstrain(sheet, last, point, shift) {
         const snap = Na__LeOsnap__Snap(sheet, point);
         const at   = snap.snapped ? { x : snap.x, y : snap.y } : point;
-        if (Na__LeAxis__Get() && last) return Na__LeAxis__Apply(last, at);
+        if (last && Na__LeAxis__Get()) return Na__LeAxis__Apply(last, at);        // <-- Arrow key lock: the axis is named outright
+        if (last && shift)             return Na__LeAxis__Hold(last, point, at);  // <-- Shift: the cursor names the axis, the snap measures along it
         if (snap.snapped) return at;
         return Na__LeAxis__Constrain(last, point, shift);
     }
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Is the Cursor Back on the First Point (a polygon closes there)
+    // HELPER FUNCTION | Would the Next Point Land on the First One (a polygon closes there)
     // ------------------------------------------------------------
-    function Na__LeShape__NearFirst(pointMm) {
+    // TAKES THE RESOLVED POINT, NOT THE RAW CURSOR, and that distinction is
+    // the whole fix. Asking "is the cursor near the first vertex" closed the
+    // shape whenever the cursor went anywhere near where it started -
+    // including the one moment you most need it not to. Three sides of a
+    // rectangle down, you hold the axis across from the third corner and
+    // hover the first corner to pick up its x; the cursor is then right on
+    // top of the first vertex, so the old test closed the shape from corner
+    // three straight back to corner one and left a triangle. Every attempt
+    // at a rectangle ended the same way.
+    //
+    // Asking instead "would the point I am about to place land on the first
+    // vertex" answers correctly in both cases. Held across from corner three,
+    // the point resolves to corner four - a rectangle's height away from the
+    // first vertex - so nothing closes and the corner lands square. Held down
+    // the page from corner four, or hovering the first vertex with no
+    // constraint at all, the point resolves onto the first vertex itself and
+    // the polygon closes, which is what was wanted.
+    // ------------------------------------------------------------
+    function Na__LeShape__NearFirst(resolved) {
         const draft = Na__LeShape__Draft;
         if (!draft || draft.points.length < 3) return false;
         const radiusMm = Na__LeCfg__GetShapeSetup().closeRadiusPx / (Na__LeSurface__GetPixelsPerMm() * Na__LeSurface__GetZoom());
-        return Math.hypot(pointMm.x - draft.points[0][0], pointMm.y - draft.points[0][1]) <= radiusMm;
+        return Math.hypot(resolved.x - draft.points[0][0], resolved.y - draft.points[0][1]) <= radiusMm;
     }
     // ------------------------------------------------------------
 
@@ -130,10 +163,10 @@
     // ------------------------------------------------------------
     function Na__LeShape__Click(sheet, pointMm, shift, defaults) {
         const draft = Na__LeShape__Draft;
-        if (draft && Na__LeShape__NearFirst(pointMm)) return Na__LeShape__Finish(sheet, true);   // <-- Back on the first point: a polygon
-        const last = draft ? draft.points[draft.points.length - 1] : null;
-        const p    = last ? Na__LeShape__SnapOrConstrain(sheet, last, pointMm, shift) : Na__LeOsnap__Snap(sheet, pointMm);
-        const pt   = [ p.x, p.y ];
+        const last  = draft ? draft.points[draft.points.length - 1] : null;
+        const p     = last ? Na__LeShape__SnapOrConstrain(sheet, last, pointMm, shift) : Na__LeOsnap__Snap(sheet, pointMm);
+        if (draft && Na__LeShape__NearFirst(p)) return Na__LeShape__Finish(sheet, true);         // <-- The point itself lands on the first one: a polygon
+        const pt = [ p.x, p.y ];
         if (!draft) {
             const d    = defaults || {};
             const item = Na__LeModel__CreateShape(sheet, [ pt ], {
@@ -162,12 +195,12 @@
         const draft = Na__LeShape__Draft;
         if (!draft) { Na__LeOsnap__Snap(sheet, pointMm); return false; }   // <-- Marker before the first click
         const last = draft.points[draft.points.length - 1];
-        if (Na__LeShape__NearFirst(pointMm)) {
+        const p    = Na__LeShape__SnapOrConstrain(sheet, last, pointMm, shift);
+        if (Na__LeShape__NearFirst(p)) {
             Na__LeOsnap__ShowMarker({ x : draft.points[0][0], y : draft.points[0][1], kind : 'end' });   // <-- Closing is on offer
             Na__LeGrips__ShowBand(last, draft.points[0], null);
             return true;
         }
-        const p = Na__LeShape__SnapOrConstrain(sheet, last, pointMm, shift);
         Na__LeGrips__ShowBand(last, [ p.x, p.y ], Na__LeAxis__Get());
         return true;
     }

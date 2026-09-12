@@ -274,7 +274,21 @@
             toggleProfileLines,
             profileLinesPassRef,                                           // <-- 2D drawing profile lines read the pass and its two buffers
             profileNormalTarget,
-            profileColorTarget
+            profileColorTarget,
+
+            // EXPORT HOOKS | The two passes a supersampled export has to reach
+            // ------------------------------------------------------------
+            // fxaaPassRef is switched OFF while supersampling. FXAA would
+            // soften every sample before the average, so the result would be
+            // sixteen blurred pictures averaged into one blurred picture.
+            // fogPassRef is re-synced per tile and per sample, because the fog
+            // shader rebuilds world positions from the camera's inverse
+            // projection - and a tile's sub-frustum and a sample's jitter both
+            // change it. Left stale, the fog planes land in a different place
+            // on every tile and the joins band.
+            // ------------------------------------------------------------
+            fxaaPassRef : fxaaPass,
+            fogPassRef  : fogPass || null
         };
     }
     // ------------------------------------------------------------

@@ -96,7 +96,8 @@
         "RenderEffect__ProfileLines__Drawing2dEnabled"             : true,
         "RenderEffect__ProfileLines__Drawing2dEdgeColor"           : 3355443,
         "RenderEffect__ProfileLines__Drawing2dEdgeThresholdNormal" : 0.2,
-        "RenderEffect__ProfileLines__Drawing2dEdgeWidth"           : 0.55
+        "RenderEffect__ProfileLines__Drawing2dEdgeWidth"           : 0.55,
+        "RenderEffect__ProfileLines__Drawing2dEdgeWidthNote"       : "Measured in pixels of the Sobel buffer. Until v2.25.0 the export path never resized that buffer, so a sheet baked at 4000 px had its outline found at viewport resolution and scaled up - which made the line both blurred and, by accident, thicker on paper. It is now found at the real output resolution. If a baked drawing reads finer than it used to, this is the number to raise; it is the only thing that sets the weight, because a drawn line keeps its weight on the sheet at any zoom and does not scale with the export."
     },
     "RenderEffect__AmbientOcclusion": {
         "RenderEffect__AmbientOcclusion__Description"      : "Screen-space ambient occlusion. RadiusMm sets the world-space sampling radius controlling shadow strip width at geometry junctions. CullDistanceMm (e.g. 10000 = 10m) skips AO for pixels beyond that distance from the camera to save GPU. BlurRadius (1-3) controls the gaussian smoothing applied after AO to reduce noise. Distance values are integer millimeters; convert to 3D units in code.",
@@ -125,12 +126,14 @@
         "sensorHeightMM": 24
     },
     "ImageExport__Panel": {
-        "ImageExport__Panel__Description"           : "Custom export panel settings: aspect ratio, resolution, and custom mode toggle.",
+        "ImageExport__Panel__Description"           : "Custom export panel settings: aspect ratio, resolution, custom mode toggle, and how many sub-pixel samples each tile is averaged from.",
         "ImageExport__Panel__CustomEnabled"         : true,
         "ImageExport__Panel__AspectRatios"          : ["3:2", "4:3", "16:9"],
         "ImageExport__Panel__DefaultAspectIndex"    : 0,
         "ImageExport__Panel__Resolutions"           : [1024, 2048, 4096],
-        "ImageExport__Panel__DefaultResolutionIndex": 1
+        "ImageExport__Panel__DefaultResolutionIndex": 2,
+        "ImageExport__Panel__AntiAliasSamples"      : 16,
+        "ImageExport__Panel__AntiAliasSamplesNote"  : "Renders each tile this many times with sub-pixel camera jitter and averages the results, so a near-horizontal eaves or a sub-pixel glazing bar records how much of each pixel it really covers instead of winning or losing the pixel outright. Only 1 (off), 2, 4, 8 and 16 exist; anything else rounds down. Resolution is not a substitute - a bigger image gets smaller steps, not fewer - and FXAA cannot repair it, because a step on a two-degree line is longer than FXAA can see along. 16 because a still is one frame and whitecard line work is the case that needs every level. The cost is linear: 16 samples is 16 renders."
     },
     "Navmode__Settings": {
         "Navmode__Settings__Description": "All navmode values are integer millimeters where noted; convert to 3D units in code.",

@@ -298,8 +298,15 @@
 
         const savedAutoClear = renderer.autoClear;
 
+        // WHERE THE COMPOSITED IMAGE IS. This used to name the canvas outright,
+        // which is right on screen and wrong during a supersampled bake: that
+        // draws the whole frame into an offscreen target, and caps insisting on
+        // the canvas would land on a buffer nobody reads. Whatever was bound on
+        // the way in is the image these fills belong on.
+        const outputTarget = renderer.getRenderTarget();
+
         renderer.autoClear = false;
-        renderer.setRenderTarget(null);                                          // <-- Draw straight to the screen
+        renderer.setRenderTarget(outputTarget);                                  // <-- The canvas on screen; the sample target during a bake
         renderer.clearDepth();                                                   // <-- Fresh depth: fills sit on the composited image
         renderer.render(Na__SectMesh__OverlayScene, camera);
 

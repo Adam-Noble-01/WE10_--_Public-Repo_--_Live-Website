@@ -235,6 +235,46 @@
     display                            : none;
 }
 
+/* A GROUP SUBHEAD inside a long list of toggles. It is a note, not a section
+   header: the sections fold and these do not, and one foldable thing inside
+   another foldable thing is a maze. */
+.na-le-note--heading {
+    margin                             : 10px 0 4px;
+    padding-bottom                     : 2px;
+    border-bottom                      : 1px solid #e6eaee;
+    color                              : #46596b;
+    font-size                          : 0.68rem;
+    font-weight                        : 700;
+    text-transform                     : uppercase;
+    letter-spacing                     : 0.06em;
+}
+
+.na-le-note--heading:first-child {
+    margin-top                         : 0;
+}
+
+/* A ROW THAT IS ONLY BUTTONS, with no label column to line up against. */
+.na-le-row--buttons {
+    gap                                : 6px;
+    margin-bottom                      : 8px;
+}
+
+.na-le-row--buttons .na-le-btn {
+    flex                               : 1 1 auto;
+}
+
+/* A BUTTON THAT IS THE WHOLE ROW, for an action rather than a choice. */
+.na-le-btn--wide {
+    width                              : 100%;
+    padding                            : 6px 10px;
+    font-weight                        : 600;
+}
+
+.na-le-btn--wide:disabled {
+    opacity                            : 0.6;
+    cursor                             : default;
+}
+
 .na-le-btn {
     padding                            : 4px 10px;
     border                             : 1px solid #ccd3d8;

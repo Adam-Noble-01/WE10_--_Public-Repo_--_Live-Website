@@ -71,6 +71,7 @@
     import { Na__LeChrome__ToSvgMarkup } from './Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeMarkup__BuildScenePrimitives } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeSnap__Render2d, Na__LeSnap__DrawingCentreMm, Na__LeSnap__GetPipelineFingerprint } from './Na__LayoutEditor__SnapshotRenderer__.js';
+    import { Na__LeModelLayers__Token, Na__LeModelLayers__ExcludeTokens } from './Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeRaster__Get, Na__LeRaster__Working, Na__LeRaster__Export, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
     // ------------------------------------------------------------
 
@@ -150,9 +151,15 @@
         // record's, so a sheet can show the same drawing two ways - and so a
         // toggle in the panel governs the linework as well as the raster.
         const override   = viewport.Viewport__Styles || null;
+        // AND THE MODEL LAYERS PANEL GOES IN AS EXCLUSION TOKENS, which is the
+        // whole of how a hidden category leaves the vectors. The tokens are
+        // part of the definition, so they are part of its RecordHash, so two
+        // viewports of one drawing that hide different things key differently
+        // and cache separately without another word being said about it.
+        const exclude    = Na__LeModelLayers__ExcludeTokens(viewport);
         const definition = source.plan
-            ? Na__PlView__FromPlan(source.plan, override)
-            : (source.elevation ? Na__PlView__FromElevation(source.elevation, override) : null);
+            ? Na__PlView__FromPlan(source.plan, override, exclude)
+            : (source.elevation ? Na__PlView__FromElevation(source.elevation, override, exclude) : null);
         return { source : source, definition : definition, window : Na__LeVp2d__Window(viewport) };
     }
     // ------------------------------------------------------------
@@ -177,17 +184,22 @@
 
     // FUNCTION | The Four Classes for a Definition: Cache, Baked Asset, Then Render
     // ------------------------------------------------------------
-    function Na__LeVp2d__EnsureLinework(definition, onPhase) {
+    function Na__LeVp2d__EnsureLinework(definition, onPhase, force) {
         if (!definition) return Promise.resolve(null);
-        const cached = Na__PlPipe__GetCached(definition);
+        const cached = force === true ? null : Na__PlPipe__GetCached(definition);   // <-- A forced render ignores what is already known
         if (cached) return Promise.resolve(cached);
         const modelFp = Na__LeSnap__GetPipelineFingerprint();
         const key     = Na__PlView__CacheKey(definition, modelFp);
+        if (force === true) { Na__LeVp2d__Linework.delete(key); Na__LeVp2d__PathCache.delete(key); }
         if (Na__LeVp2d__Linework.has(key)) return Na__LeVp2d__Linework.get(key);
         const fingerprint = Na__PlView__Fingerprint(definition, modelFp);
         const promise = (async () => {
             try {
-                const stored = await Na__PlStore__LoadForDefinition(definition, fingerprint, key);
+                // THE BAKED ASSET IS SKIPPED WHEN FORCED. Reading it back is the
+                // whole point of the store on an ordinary paint, and exactly the
+                // wrong answer when someone has asked for a fresh projection:
+                // the stored copy is the thing they are trying to get past.
+                const stored = force === true ? null : await Na__PlStore__LoadForDefinition(definition, fingerprint, key);
                 if (stored) { Na__PlPipe__Remember(key, definition, stored, fingerprint, 'asset'); return stored; }
                 const startedAt = performance.now();
                 const result = await Na__PlPipe__RenderDefinition(definition, null, null, onPhase);
@@ -328,7 +340,17 @@
         if (state.timer) window.clearTimeout(state.timer);
         state.timer = window.setTimeout(() => {
             state.timer = null;
-            if (Na__LeVp2d__Interacting || state.inFlight || !state.lastArgs) return;
+            // NOT NOW MEANS LATER, NOT NEVER. This used to return here, and the
+            // render it was holding was simply dropped: state.timer was already
+            // null, so nothing was outstanding, and wantedKey stayed different
+            // from renderedKey with nobody left to reconcile them. The viewport
+            // then sat showing a picture of a window it no longer had - the
+            // frame resized, the underlay still drawn for the old one - until
+            // something unrelated happened to schedule another render. That is
+            // the drift. Re-arm instead, and the pointer-up or the in-flight
+            // render that blocked us is simply the thing we wait for.
+            if (!state.lastArgs) return;
+            if (Na__LeVp2d__Interacting || state.inFlight) { Na__LeVp2d__ScheduleUnderlay(state, viewportId); return; }
             const args = state.lastArgs;
             const described = Na__LeVp2d__Describe(args.viewport);
             if (!described.definition) return;
@@ -337,7 +359,7 @@
             const px      = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Working());   // <-- The global working level
             const windowSnapshot = described.window;
             state.inFlight = true;
-            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h).then((result) => {
+            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples).then((result) => {
                 state.inFlight = false;
                 if (!Na__LeVp2d__States.has(viewportId) || Na__LeVp2d__States.get(viewportId) !== state) return;
                 if (result) {
@@ -382,9 +404,26 @@
             if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
             state.underlay.hidden = true;
             state.wantedKey = state.renderedKey;                                 // <-- Nothing outstanding while it is off
+            // AND THE OLD PICTURE IS FORGOTTEN IF THE WINDOW HAS MOVED SINCE.
+            // Switching the base image off does not stop the viewport being
+            // resized, panned or rescaled; it only stops us re-rendering while
+            // nobody can see it. Keeping the last picture across that meant
+            // switching the base image back on painted a drawing of the old
+            // window, stretched into the new frame, for as long as the fresh
+            // render took - seconds, at high raster - and it reads exactly like
+            // the drawing has drifted. Better to show nothing until there is
+            // something true to show.
+            const rendered = state.renderedWindow;
+            const moved    = !rendered
+                || Math.abs(rendered.OriginX  - win.OriginX)  > 0.5
+                || Math.abs(rendered.OriginY  - win.OriginY)  > 0.5
+                || Math.abs(rendered.WidthMm  - win.WidthMm)  > 0.5
+                || Math.abs(rendered.HeightMm - win.HeightMm) > 0.5;
+            if (moved) { state.renderedKey = null; state.renderedWindow = null; state.wantedKey = null; }
         } else {
             const key = [ described.definition.RecordHash, modelFp, Math.round(win.CentreX), Math.round(win.CentreY),
-                          Math.round(win.WidthMm), Math.round(win.HeightMm), styles.whitecard, styles.glassOpaque, styles.profileLinework, styles.enhanceWhitecard, styles.contextLayer, Na__LeRaster__Get() ].join('|');
+                          Math.round(win.WidthMm), Math.round(win.HeightMm), styles.whitecard, styles.glassOpaque, styles.profileLinework, styles.enhanceWhitecard, styles.contextLayer,
+                          Na__LeModelLayers__Token(viewport), Na__LeRaster__Get() ].join('|');
             Na__LeVp2d__PlaceUnderlay(state, win, ppm);
             state.wantedKey = key;
             if (key !== state.renderedKey) Na__LeVp2d__ScheduleUnderlay(state, viewport.Viewport__Id);
@@ -493,6 +532,65 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Throw Away Everything Known About This Viewport and Draw It Again
+    // ------------------------------------------------------------
+    // Returns a promise that settles when the picture and the vectors are both
+    // back. Awaited rather than debounced, so a caller stepping through a
+    // sheet can wait for one viewport before starting the next instead of
+    // launching every render at once and watching them queue.
+    //
+    // BOTH HALVES ARE REDONE, because "the composite is wrong" never tells you
+    // which half is wrong. The raster carries the whitecard, the glass and the
+    // context; the vectors carry the projection. Forcing one and trusting the
+    // other would leave the same class of complaint half-fixed.
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__ForceRender(sheet, viewport, onPhase) {
+        const state = Na__LeVp2d__States.get(viewport.Viewport__Id);
+        if (!state || !state.lastArgs) return false;                             // <-- Never painted: the next refresh draws it anyway
+        const described = Na__LeVp2d__Describe(viewport);
+        if (!described.definition) return false;
+        const ppm    = state.lastArgs.ppm;
+        const styles = viewport.Viewport__Styles;
+
+        state.renderedKey = null; state.renderedWindow = null;                    // <-- Nothing on screen is trusted from here
+        state.lineworkKey = null; state.lineworkSvg = null;
+        state.classes = null; state.classesKey = null;
+        if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
+
+        // VECTORS | Re-project, ignoring every cache and the baked asset
+        if (styles.projectedLinework !== false) {
+            Na__LeVp2d__ShowProgress(state, '');
+            const classes = await Na__LeVp2d__EnsureLinework(described.definition, (phase) => { Na__LeVp2d__ShowProgress(state, phase); if (onPhase) onPhase(phase); }, true);
+            Na__LeVp2d__HideProgress(state);
+            if (classes && Na__LeVp2d__States.get(viewport.Viewport__Id) === state) {
+                Na__LeVp2d__PaintLinework(state, viewport, Na__PlView__CacheKey(described.definition, Na__LeSnap__GetPipelineFingerprint()), classes, ppm);
+            }
+        }
+
+        // RASTER | Render the picture for the window the viewport has NOW
+        if (styles.baseImage !== false) {
+            const frame  = viewport.Viewport__FrameMm;
+            const px     = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Working());
+            const window0 = described.window;
+            state.inFlight = true;
+            let result = null;
+            try {
+                result = await Na__LeSnap__Render2d(described.definition, window0, styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples);
+            } finally {
+                state.inFlight = false;
+            }
+            if (result && Na__LeVp2d__States.get(viewport.Viewport__Id) === state) {
+                state.underlay.src   = result.dataUrl;
+                state.renderedWindow = { OriginX : window0.OriginX, OriginY : window0.OriginY, WidthMm : window0.WidthMm, HeightMm : window0.HeightMm };
+                state.renderedKey    = state.wantedKey;
+                Na__LeVp2d__PlaceUnderlay(state, Na__LeVp2d__Window(viewport), ppm);
+            }
+        }
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | A Fresh Underlay at Export Resolution (not cached)
     // ------------------------------------------------------------
     function Na__LeVp2d__RenderForExport(viewport) {
@@ -501,7 +599,7 @@
         if (viewport.Viewport__Styles.baseImage === false) return Promise.resolve(null);   // <-- Vector only: the PDF carries the linework alone
         const frame = viewport.Viewport__FrameMm;
         const px    = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());   // <-- Always the export level, whatever is on screen
-        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h);
+        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples);
     }
     // ------------------------------------------------------------
 
@@ -525,6 +623,7 @@
         Na__LeVp2d__Release,
         Na__LeVp2d__SetInteracting,
         Na__LeVp2d__RenderForExport,
+        Na__LeVp2d__ForceRender,
         Na__LeVp2d__GetSnapSource
     };
     // ------------------------------------------------------------

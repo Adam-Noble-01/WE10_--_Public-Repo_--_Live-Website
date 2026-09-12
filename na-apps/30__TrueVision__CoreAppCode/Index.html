@@ -209,7 +209,7 @@
         
         <span id="statusText" style="display: none;">Initializing...</span>
         
-        <!-- Layout View Loading Overlay (Spinner + Status Messages) -->
+        <!-- Image Export Loading Overlay (Spinner + Status Messages) -->
         <div class="na-layout-loading-overlay" id="naLayoutLoadingOverlay">
             <div class="loading-spinner"></div>
             <p class="na-layout-loading-overlay__status" id="naLayoutLoadingStatus">Rendering Your Image...</p>
@@ -276,18 +276,17 @@
                                 id="naImageExportResolutionSlider"
                                 class="na-dropdown-menu__slider"
                                 min="0"
-                                max="3"
+                                max="2"
                                 step="1"
-                                value="1"
+                                value="2"
                             />
-                            <span class="na-dropdown-menu__value" id="naImageExportResolutionValue">2k</span>
+                            <span class="na-dropdown-menu__value" id="naImageExportResolutionValue">4k</span>
                         </div>
                         <div class="na-dropdown-menu__panel-row na-dropdown-menu__panel-row--toggle">
                             <span class="na-dropdown-menu__panel-title">Enhance Whitecard</span>
                             <input type="checkbox" id="naImageExportEnhanceToggle" class="na-dropdown-menu__checkbox" checked />
                         </div>
                         <button class="na-dropdown-menu__action" id="naImageExportAction">Download Image</button>
-                        <button class="na-dropdown-menu__action na-dropdown-menu__action--secondary" id="naLayoutViewAction">Create Drawing</button>
                     </div>
                 </li>
                 <li class="na-dropdown-menu__item" id="naStoreyViewItem" style="display:none;">

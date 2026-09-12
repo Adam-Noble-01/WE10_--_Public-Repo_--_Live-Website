@@ -2,14 +2,22 @@
 // REGION | UI Feature - Image Export Controls
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Three.js Utilities
-    // ------------------------------------------------------------
-    import * as THREE from 'three';
-    // ------------------------------------------------------------
-
     // MODULE IMPORTS | Post Process Pipeline
     // ------------------------------------------------------------
     import { Na__PostProcess__RunPipeline } from './Na__ImageExport__PostProcessEffects__Pipeline.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Tiled, Supersampled Static Renderer
+    // @delegate: ./Na__ImageExport__StaticExport__TiledRenderer.js
+    // ------------------------------------------------------------
+    // The export used to resize the live renderer and composer to the FULL
+    // requested size and render once. At 4096 that is 25 megapixels of
+    // half-float ping-pong buffers plus a depth pre-pass and two profile-line
+    // targets, which is gigabytes, and when the context died the download was a
+    // blank PNG with no error. The tiled renderer never allocates more than one
+    // tile whatever the output, and supersamples each of them.
+    // ------------------------------------------------------------
+    import { Na__StaticExport__RenderToCanvas } from './Na__ImageExport__StaticExport__TiledRenderer.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Viewport Overlays
@@ -29,8 +37,19 @@
         defaultAspectIndex   : 'ImageExport__Panel__DefaultAspectIndex',
         resolutions         : 'ImageExport__Panel__Resolutions',
         defaultResolutionIndex: 'ImageExport__Panel__DefaultResolutionIndex',
-        customEnabled       : 'ImageExport__Panel__CustomEnabled'
+        customEnabled       : 'ImageExport__Panel__CustomEnabled',
+        antiAliasSamples    : 'ImageExport__Panel__AntiAliasSamples'
     };
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | Supersampling Fallback
+    // ------------------------------------------------------------
+    // Used when the config block predates the key. A still is one frame, so
+    // sixteen samples costs seconds on a job the user already waits for, and
+    // the whitecard line work is exactly the case that needs all sixteen.
+    // ------------------------------------------------------------
+    const Na__UiFeature__DefaultAntiAliasSamples = 16;
     // ------------------------------------------------------------
 
     // endregion --------------------------------------------------------------
@@ -89,54 +108,27 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Resolve Render Pipeline State from Getter
+    // HELPER FUNCTION | How Many Samples This Export Should Average
     // ------------------------------------------------------------
-    function Na__UiFeature__ResolveRenderPipelineState(getRenderPipelineState) {
-        if (typeof getRenderPipelineState !== 'function') {
-            return {
-                composer: null,
-                renderProfileNormals: () => {},
-                setProfileLinesSize: () => {},
-                setDepthPrePassSize: () => {},
-                setAoSize: () => {},
-                setFxaaSize: () => {}
-            };
-        }
-
-        const pipelineState = getRenderPipelineState();
-        if (!pipelineState) {
-            return {
-                composer: null,
-                renderProfileNormals: () => {},
-                setProfileLinesSize: () => {},
-                setDepthPrePassSize: () => {},
-                setAoSize: () => {},
-                setFxaaSize: () => {}
-            };
-        }
-
-        // BACKWARD COMPAT | Legacy getter may return composer directly
-        // ------------------------------------------------------------
-        if (typeof pipelineState.render === 'function' && !pipelineState.composer) {
-            return {
-                composer: pipelineState,
-                renderProfileNormals: () => {},
-                setProfileLinesSize: () => {},
-                setDepthPrePassSize: () => {},
-                setAoSize: () => {},
-                setFxaaSize: () => {}
-            };
-        }
-
-        return {
-            composer            : pipelineState.composer || null,
-            renderProfileNormals: (typeof pipelineState.renderProfileNormals === 'function') ? pipelineState.renderProfileNormals : () => {},
-            setProfileLinesSize : (typeof pipelineState.setProfileLinesSize === 'function') ? pipelineState.setProfileLinesSize : () => {},
-            setDepthPrePassSize : (typeof pipelineState.setDepthPrePassSize === 'function') ? pipelineState.setDepthPrePassSize : () => {},
-            setAoSize           : (typeof pipelineState.setAoSize === 'function') ? pipelineState.setAoSize : () => {},
-            setFxaaSize         : (typeof pipelineState.setFxaaSize === 'function') ? pipelineState.setFxaaSize : () => {}
-        };
+    // The tiled renderer rounds whatever comes out of here down to a count it
+    // has a jitter pattern for, so a config typo costs quality and never
+    // correctness.
+    // ------------------------------------------------------------
+    function Na__UiFeature__ResolveAntiAliasSamples(exportConfig) {
+        const requested = exportConfig ? exportConfig[Na__UiFeature__ExportConfigKeys.antiAliasSamples] : null;
+        return Number.isFinite(requested) && requested > 0 ? requested : Na__UiFeature__DefaultAntiAliasSamples;
     }
+    // ------------------------------------------------------------
+
+
+    // NOTE | Pipeline resolution moved out of this file
+    // ------------------------------------------------------------
+    // Resolving the composer, its resize helpers and its pre-passes is now the
+    // tiled renderer's job, because it is the thing that has to resize them per
+    // tile and put them all back. Two resolvers is two places to forget a new
+    // buffer, and the one that forgets is the one that leaves the live viewport
+    // rendering at export size.
+    // @delegate: ./Na__ImageExport__StaticExport__TiledRenderer.js
     // ------------------------------------------------------------
 
     // endregion --------------------------------------------------------------
@@ -148,114 +140,65 @@
 
     // FUNCTION | Render Scene to DataURL with Current Export Settings
     // ------------------------------------------------------------
-    // Shared by both "Export Now" and "Layout View" handlers.
-    // Renders the scene at the configured resolution and aspect ratio,
-    // applies post-processing if enhance is enabled, and returns an
-    // object with the dataUrl and image metadata.
+    // Shared by both "Export Now" and "Layout View" handlers. Renders the
+    // scene at the configured resolution and aspect ratio through the tiled,
+    // supersampled static renderer, applies post-processing if enhance is
+    // enabled, and returns the dataUrl with its image metadata.
     //
-    // Returns: { dataUrl, width, height, aspectRatio }
+    // ASYNC BECAUSE THE TILED RENDERER YIELDS BETWEEN TILES. A twenty-five
+    // megapixel export that never lets the browser breathe is an export that
+    // paints no progress and can be killed as an unresponsive page.
+    //
+    // WHY THE SHARPEN CARES ABOUT THE SUPERSAMPLING, which is not obvious:
+    // the high-pass sharpen looks for places where brightness changes quickly
+    // over a short distance and exaggerates them. A stair step IS a place
+    // where brightness changes quickly over a short distance, and the filter
+    // cannot tell an artefact from a window reveal. On an aliased render the
+    // sharpen was spending part of its effort making the staircases more
+    // prominent. Given a supersampled source every piece of local contrast is
+    // a real edge and all of it goes into the drawing.
+    //
+    // Returns: Promise<{ dataUrl, width, height, aspectRatio }>
     // ------------------------------------------------------------
-    function Na__UiFeature__RenderToDataUrl(renderer, scene, camera, getRenderPipelineState, postProcessConfig, isEnhanceEnabled, isCustomEnabled, exportConfig, ratioIndex, resIndex) {
+    async function Na__UiFeature__RenderToDataUrl(renderer, scene, camera, getRenderPipelineState, postProcessConfig, isEnhanceEnabled, isCustomEnabled, exportConfig, ratioIndex, resIndex) {
 
-        // NON-CUSTOM MODE | Render at current viewport size
+        // TARGET SIZE | Custom picks its own; otherwise the viewport's own pixels
         // ------------------------------------------------------------
-        if (!isCustomEnabled) {
-            const pipelineState = Na__UiFeature__ResolveRenderPipelineState(getRenderPipelineState); // <-- Resolve render pipeline state
-            const composer = pipelineState.composer; // <-- Composer reference
+        let targetWidth  = renderer.domElement.width;
+        let targetHeight = renderer.domElement.height;
+        let aspectRatio  = null;                                             // <-- Null means viewport native
 
-            if (composer) {
-                pipelineState.renderProfileNormals(); // <-- Refresh profile normals before compose render
-                composer.render(); // <-- Render via post-processing composer
-            } else {
-                renderer.render(scene, camera); // <-- Direct render fallback
-            }
-
-            // Apply post-processing if enhance is enabled
-            // ------------------------------------------------------------
-            let finalCanvas = renderer.domElement; // <-- Default to renderer canvas
-            if (isEnhanceEnabled && postProcessConfig) {
-                const offscreenCanvas    = document.createElement('canvas'); // <-- Create offscreen canvas
-                offscreenCanvas.width    = renderer.domElement.width; // <-- Set width
-                offscreenCanvas.height   = renderer.domElement.height; // <-- Set height
-                const offscreenCtx       = offscreenCanvas.getContext('2d'); // <-- Get context
-                offscreenCtx.drawImage(renderer.domElement, 0, 0); // <-- Copy renderer canvas
-                finalCanvas              = Na__PostProcess__RunPipeline(offscreenCanvas, postProcessConfig); // <-- Apply post-processing
-            }
-
-            const dataUrl = finalCanvas.toDataURL('image/png'); // <-- Get data URL from final canvas
-            return {
-                dataUrl     : dataUrl,                           // <-- PNG data URL
-                width       : renderer.domElement.width,         // <-- Rendered width in pixels
-                height      : renderer.domElement.height,        // <-- Rendered height in pixels
-                aspectRatio : null                               // <-- No custom aspect ratio (viewport native)
-            };
+        if (isCustomEnabled) {
+            const ratio  = Na__UiFeature__ParseAspectRatio(exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex]);
+            targetHeight = exportConfig[Na__UiFeature__ExportConfigKeys.resolutions][resIndex];
+            targetWidth  = Math.round(targetHeight * (ratio.width / ratio.height));
+            aspectRatio  = exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex];
         }
 
-        // CUSTOM MODE | Render at configured aspect ratio and resolution
+        // RENDER | Tiled and supersampled, through the live pipeline
         // ------------------------------------------------------------
-        const ratio         = Na__UiFeature__ParseAspectRatio(exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex]); // <-- Parse selected aspect ratio
-        const targetHeight  = exportConfig[Na__UiFeature__ExportConfigKeys.resolutions][resIndex]; // <-- Target height from resolution slider
-        const targetWidth   = Math.round(targetHeight * (ratio.width / ratio.height)); // <-- Calculate width from ratio
+        const result = await Na__StaticExport__RenderToCanvas({
+            renderer, scene, camera,
+            getRenderPipelineState : getRenderPipelineState,
+            antiAliasSamples       : Na__UiFeature__ResolveAntiAliasSamples(exportConfig),
+            targetWidth            : Math.max(16, Math.round(targetWidth)),
+            targetHeight           : Math.max(16, Math.round(targetHeight))
+        });
 
-        const size           = renderer.getSize(new THREE.Vector2()); // <-- Store current renderer size
-        const pixelRatio     = renderer.getPixelRatio(); // <-- Store current pixel ratio
-        const pipelineState  = Na__UiFeature__ResolveRenderPipelineState(getRenderPipelineState); // <-- Resolve render pipeline state
-        const composer       = pipelineState.composer; // <-- Composer reference
-        const originalAspect = camera.aspect; // <-- Store original camera aspect
-
-        renderer.setPixelRatio(1); // <-- Set pixel ratio to 1 for exact resolution
-        renderer.setSize(targetWidth, targetHeight); // <-- Resize renderer to target dimensions
-
-        camera.aspect = targetWidth / targetHeight; // <-- Update camera aspect ratio
-        camera.updateProjectionMatrix(); // <-- Apply camera changes
-
-        if (composer) {
-            composer.setSize(targetWidth, targetHeight); // <-- Resize composer
-            pipelineState.setDepthPrePassSize(targetWidth, targetHeight); // <-- Resize depth pre-pass RT
-            pipelineState.setProfileLinesSize(targetWidth, targetHeight); // <-- Resize profile lines render target
-            pipelineState.setAoSize(targetWidth, targetHeight); // <-- Resize AO uniforms
-            pipelineState.setFxaaSize(targetWidth, targetHeight); // <-- Resize FXAA uniforms
-            pipelineState.renderProfileNormals(); // <-- Refresh profile normals at export dimensions
-            composer.render(); // <-- Render via composer
-        } else {
-            renderer.render(scene, camera); // <-- Direct render fallback
-        }
-
-        // Apply post-processing if enhance is enabled
+        // POST PROCESS | Levels and sharpen on the finished image
         // ------------------------------------------------------------
-        let finalCanvas = renderer.domElement; // <-- Default to renderer canvas
+        // The tiled renderer already hands back its own 2D canvas, so nothing
+        // needs copying off the WebGL canvas first the way it used to.
+        let finalCanvas = result.canvas;
         if (isEnhanceEnabled && postProcessConfig) {
-            const offscreenCanvas    = document.createElement('canvas'); // <-- Create offscreen canvas
-            offscreenCanvas.width    = targetWidth; // <-- Set width
-            offscreenCanvas.height   = targetHeight; // <-- Set height
-            const offscreenCtx       = offscreenCanvas.getContext('2d'); // <-- Get context
-            offscreenCtx.drawImage(renderer.domElement, 0, 0); // <-- Copy renderer canvas
-            finalCanvas              = Na__PostProcess__RunPipeline(offscreenCanvas, postProcessConfig); // <-- Apply post-processing
-        }
-
-        const dataUrl = finalCanvas.toDataURL('image/png'); // <-- Get data URL from final canvas
-
-        // Restore renderer, camera, and composer to original state
-        // ------------------------------------------------------------
-        camera.aspect = originalAspect; // <-- Restore camera aspect
-        camera.updateProjectionMatrix(); // <-- Apply camera restore
-
-        renderer.setPixelRatio(pixelRatio); // <-- Restore pixel ratio
-        renderer.setSize(size.x, size.y); // <-- Restore renderer size
-        if (composer) {
-            composer.setSize(size.x, size.y); // <-- Restore composer size
-            pipelineState.setDepthPrePassSize(size.x, size.y); // <-- Restore depth pre-pass RT size
-            pipelineState.setProfileLinesSize(size.x, size.y); // <-- Restore profile lines render target size
-            pipelineState.setAoSize(size.x, size.y); // <-- Restore AO uniforms
-            pipelineState.setFxaaSize(size.x, size.y); // <-- Restore FXAA uniforms
-            pipelineState.renderProfileNormals(); // <-- Refresh profile normals for live viewport after restore
+            finalCanvas = Na__PostProcess__RunPipeline(result.canvas, postProcessConfig);
         }
 
         return {
-            dataUrl     : dataUrl,                               // <-- PNG data URL
-            width       : targetWidth,                           // <-- Rendered width in pixels
-            height      : targetHeight,                          // <-- Rendered height in pixels
-            aspectRatio : exportConfig[Na__UiFeature__ExportConfigKeys.aspectRatios][ratioIndex]  // <-- Selected aspect ratio string
+            dataUrl     : finalCanvas.toDataURL('image/png'),                // <-- PNG data URL
+            width       : result.width,                                      // <-- Rendered width in pixels
+            height      : result.height,                                     // <-- Rendered height in pixels
+            aspectRatio : aspectRatio                                        // <-- Selected aspect ratio string, or null
         };
     }
     // ------------------------------------------------------------
@@ -282,7 +225,6 @@
         const resSlider        = document.getElementById('naImageExportResolutionSlider');
         const resValue         = document.getElementById('naImageExportResolutionValue');
         const exportButton     = document.getElementById('naImageExportAction');
-        const layoutViewButton = document.getElementById('naLayoutViewAction'); // <-- Layout View button
         const enhanceToggle    = document.getElementById('naImageExportEnhanceToggle'); // <-- Enhance Whitecard toggle
         
         if (!toggleButton || !panel || !customToggle || !ratioSlider || !ratioValue || !resSlider || !resValue || !exportButton) {
@@ -402,7 +344,7 @@
             if (exportInProgress) return;                                    // <-- Ignore if already running
             exportInProgress = true;                                         // <-- Lock
 
-            // DOM references for loading overlay (shared with layout view)
+            // DOM references for loading overlay
             // ------------------------------------------------------------
             const loadingOverlay = document.getElementById('naLayoutLoadingOverlay'); // <-- Overlay container
             const loadingStatus  = document.getElementById('naLayoutLoadingStatus');  // <-- Status text element
@@ -420,13 +362,36 @@
             // DEFER RENDER | Allow overlay to paint before blocking render
             // ------------------------------------------------------------
             requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
+                requestAnimationFrame(async () => {
 
-                    const result = Na__UiFeature__RenderToDataUrl(          // <-- Render using shared helper
-                        renderer, scene, camera, getRenderPipelineState,
-                        postProcessConfig, isEnhanceEnabled,
-                        isCustomEnabled, exportConfig, ratioIndex, resIndex
-                    );
+                    // THE RENDER CAN NOW FAIL OUT LOUD, and must be caught.
+                    // The tiled renderer throws rather than hand back a blank
+                    // PNG when the canvas cannot be backed or the GPU context
+                    // dies. Without this the rejection is swallowed by the
+                    // animation frame and the button stays locked forever.
+                    let result = null;
+                    try {
+                        result = await Na__UiFeature__RenderToDataUrl(       // <-- Render using shared helper
+                            renderer, scene, camera, getRenderPipelineState,
+                            postProcessConfig, isEnhanceEnabled,
+                            isCustomEnabled, exportConfig, ratioIndex, resIndex
+                        );
+                    } catch (exportError) {
+                        console.warn('[TrueVision3D ImageExport] Export failed:', exportError);
+                        if (loadingStatus) loadingStatus.textContent = exportError.message || 'The image could not be exported.';
+                        setTimeout(() => {
+                            if (loadingOverlay) {
+                                loadingOverlay.classList.add('na-layout-loading-overlay--fade-out');
+                                setTimeout(() => {
+                                    loadingOverlay.classList.remove('na-layout-loading-overlay--visible');
+                                    loadingOverlay.classList.remove('na-layout-loading-overlay--fade-out');
+                                }, 400);
+                            }
+                            exportButton.classList.remove('is-loading');
+                            exportInProgress = false;                        // <-- Unlock: a failed export must not disable the button for good
+                        }, 3000);
+                        return;
+                    }
 
                     const filename = isCustomEnabled                         // <-- Generate filename based on mode
                         ? `TrueVision3D__${result.width}x${result.height}.png`
@@ -458,112 +423,6 @@
                 });
             });
         });
-        // ------------------------------------------------------------
-
-
-        // ------------------------------------------------------------
-        // SUB FUNCTION | Handle Layout View Action (with Loading Overlay)
-        // ------------------------------------------------------------
-        let layoutViewInProgress = false;                                    // <-- Guard against double-click
-
-        if (layoutViewButton) {
-            layoutViewButton.addEventListener('click', () => {
-                if (layoutViewInProgress) return;                            // <-- Ignore if already running
-                layoutViewInProgress = true;                                 // <-- Lock
-
-                // DOM references for layout loading overlay
-                // ------------------------------------------------------------
-                const loadingOverlay = document.getElementById('naLayoutLoadingOverlay'); // <-- Overlay container
-                const loadingStatus  = document.getElementById('naLayoutLoadingStatus');  // <-- Status text element
-
-                // SHOW OVERLAY | Phase 1 - "Rendering Your Image..."
-                // ------------------------------------------------------------
-                layoutViewButton.classList.add('is-loading');                 // <-- Dim the button
-                if (loadingOverlay && loadingStatus) {
-                    loadingStatus.textContent = 'Rendering Your Image...';   // <-- Phase 1 message
-                    loadingStatus.classList.remove('na-layout-loading-overlay__status--success'); // <-- Reset success state
-                    loadingOverlay.classList.remove('na-layout-loading-overlay--fade-out');        // <-- Reset fade-out
-                    loadingOverlay.classList.add('na-layout-loading-overlay--visible');            // <-- Show overlay
-                }
-
-                // DEFER RENDER | Allow overlay to paint before blocking render
-                // ------------------------------------------------------------
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-
-                        const result = Na__UiFeature__RenderToDataUrl(       // <-- Render using shared helper
-                            renderer, scene, camera, getRenderPipelineState,
-                            postProcessConfig, isEnhanceEnabled,
-                            isCustomEnabled, exportConfig, ratioIndex, resIndex
-                        );
-
-                        // UPDATE OVERLAY | Phase 2 - "Sending To Drawing Document..."
-                        // ------------------------------------------------------------
-                        if (loadingStatus) {
-                            loadingStatus.textContent = 'Sending To Drawing Document...'; // <-- Phase 2 message
-                        }
-
-                        // Store rendered image data on window global for new tab to read
-                        // ------------------------------------------------------------
-                        window.__Na__PageLayout__PendingImage = {            // <-- Set global property
-                            dataUrl     : result.dataUrl,                    // <-- PNG data URL
-                            width       : result.width,                      // <-- Image width in pixels
-                            height      : result.height,                     // <-- Image height in pixels
-                            aspectRatio : result.aspectRatio                 // <-- Aspect ratio string or null
-                        };
-
-                        // Open the Page Layout System in a new browser tab
-                        // ------------------------------------------------------------
-                        window.open('./../90__System__PageLayoutSystem/Na__PageLayoutSystem__Layout__.html', '_blank'); // <-- Open layout page
-
-                        // HELPER | Dismiss overlay with success state
-                        // ------------------------------------------------------------
-                        function Na__LayoutView__DismissOverlay() {
-                            if (loadingStatus) {
-                                loadingStatus.textContent = 'Success! See new tab for your Drawing Layout'; // <-- Phase 3 message
-                                loadingStatus.classList.add('na-layout-loading-overlay__status--success');   // <-- Green text
-                            }
-
-                            setTimeout(() => {
-                                if (loadingOverlay) {
-                                    loadingOverlay.classList.add('na-layout-loading-overlay--fade-out');     // <-- Start fade-out
-                                    setTimeout(() => {
-                                        loadingOverlay.classList.remove('na-layout-loading-overlay--visible');  // <-- Hide completely
-                                        loadingOverlay.classList.remove('na-layout-loading-overlay--fade-out'); // <-- Reset fade class
-                                    }, 400);
-                                }
-                                layoutViewButton.classList.remove('is-loading');  // <-- Re-enable button
-                                layoutViewInProgress = false;                    // <-- Unlock
-                            }, 2500);
-                        }
-
-                        // LISTEN FOR POSTMESSAGE | Layout tab confirms it loaded successfully
-                        // ------------------------------------------------------------
-                        let layoutMessageReceived = false;                   // <-- Track if message arrived
-
-                        function Na__LayoutView__OnMessage(event) {
-                            if (event.data && event.data.type === 'Na__PageLayout__Ready') {
-                                layoutMessageReceived = true;                // <-- Mark received
-                                window.removeEventListener('message', Na__LayoutView__OnMessage); // <-- Clean up listener
-                                Na__LayoutView__DismissOverlay();            // <-- Show success and dismiss
-                            }
-                        }
-
-                        window.addEventListener('message', Na__LayoutView__OnMessage); // <-- Register listener
-
-                        // TIMEOUT FALLBACK | Dismiss after 8s if no postMessage received
-                        // ------------------------------------------------------------
-                        setTimeout(() => {
-                            if (!layoutMessageReceived) {
-                                window.removeEventListener('message', Na__LayoutView__OnMessage); // <-- Clean up listener
-                                Na__LayoutView__DismissOverlay();            // <-- Dismiss regardless
-                            }
-                        }, 8000);
-
-                    });
-                });
-            });
-        }
         // ------------------------------------------------------------
     }
     // ------------------------------------------------------------

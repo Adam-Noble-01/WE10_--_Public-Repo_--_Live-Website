@@ -34,6 +34,16 @@
       "port": 8433
     },
     {
+      "name": "truevision-static-alt",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8442"
+      ],
+      "port": 8442
+    },
+    {
       "name": "projectadmin-dev",
       "runtimeExecutable": "python",
       "runtimeArgs": [

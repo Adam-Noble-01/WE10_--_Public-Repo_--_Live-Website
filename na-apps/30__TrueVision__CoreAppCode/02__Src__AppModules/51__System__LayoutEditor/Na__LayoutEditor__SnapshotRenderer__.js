@@ -40,6 +40,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Sep-2026 - Version 1.4.0
+// - Per-viewport Model Layers: named model categories come out of the render
+//   alongside the Context Layer rule, under one captured visibility map.
+//
 // 10-Sep-2026 - Version 1.3.0
 // - Context Layer off takes the existing building and its surroundings out of the picture; the visibility is put back afterwards.
 //
@@ -116,7 +120,7 @@
     // MODULE IMPORTS | Scene Pose, Visibility, Sections, Tiled Renderer
     // ------------------------------------------------------------
     import { Na__PresentationMode__Camera__ApplySceneCameraState } from '../21__System__PresentationMode/Na__PresentationMode__Camera__SceneTransition.js';
-    import { Na__ModelToggle__CaptureVisibilityMap, Na__ModelToggle__ApplySceneLayerVisibility, Na__ModelToggle__SetCategoryVisibility } from '../26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js';
+    import { Na__ModelToggle__CaptureVisibilityMap, Na__ModelToggle__ApplySceneLayerVisibility, Na__ModelToggle__SetCategoryVisibility, Na__ModelToggle__SetCategoryVisibleByKey } from '../26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js';
     import { Na__SectSerialize__Serialize, Na__SectSerialize__Apply } from '../41__System__SectionCutEngine/Na__SectionCut__Serialize__.js';
     import { Na__StaticExport__RenderToCanvas } from '../30__System__ImageExport/Na__ImageExport__StaticExport__TiledRenderer.js';
     import { Na__PlView__KIND_PLAN, Na__PlView__Hash } from '../50__System__ProjectedLinework/Na__ProjectedLinework__ViewDefinition__.js';
@@ -326,15 +330,26 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Take the Context Out of the Picture, or Leave It Alone
+    // HELPER FUNCTION | Take Out of the Picture Whatever This Viewport Hides
     // ------------------------------------------------------------
-    // Returns the visibility map to put back afterwards, or null when the
-    // style leaves the context in and nothing was touched.
+    // Two rules, one capture. Context Layer off removes the whole surrounding
+    // set in one gesture; the Model Layers panel removes named categories one
+    // at a time. They compose - a viewport can drop the context AND the
+    // proposal's furniture - and the single captured map puts all of it back.
+    //
+    // Returns the visibility map to restore afterwards, or null when the
+    // viewport hides nothing and the scene was never touched. Capturing
+    // nothing in that case matters: the capture walks every loaded category,
+    // and most viewports hide nothing at all.
     // ------------------------------------------------------------
-    function Na__LeSnap__HideContext(styles) {
-        if (!styles || styles.contextLayer !== false) return null;
+    function Na__LeSnap__HideForViewport(styles, modelLayers) {
+        const wantsContext = !!styles && styles.contextLayer === false;
+        const hidden       = modelLayers ? Object.keys(modelLayers).filter((key) => modelLayers[key] === false) : [];
+        if (!wantsContext && hidden.length === 0) return null;
+
         const saved = Na__ModelToggle__CaptureVisibilityMap();
-        Na__LeSnap__CONTEXT_CATEGORIES.forEach((key) => Na__ModelToggle__SetCategoryVisibility(key, false));
+        if (wantsContext) Na__LeSnap__CONTEXT_CATEGORIES.forEach((key) => Na__ModelToggle__SetCategoryVisibility(key, false));
+        hidden.forEach((key) => Na__ModelToggle__SetCategoryVisibleByKey(key, false));   // <-- Exact keys: see the note on that setter
         return saved;
     }
     // ------------------------------------------------------------
@@ -342,9 +357,11 @@
 
     // FUNCTION | Render a 2D Drawing Window Offscreen
     // ------------------------------------------------------------
-    // Returns { dataUrl, widthPx, heightPx } (png), or null.
+    // Returns { dataUrl, widthPx, heightPx } (png), or null. modelLayers is the
+    // viewport's Viewport__ModelLayers map, or null for a viewport showing
+    // everything the model has.
     // ------------------------------------------------------------
-    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx) {
+    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx, modelLayers, antiAliasSamples) {
         if (!Na__LeSnap__IsReady() || !definition) return Promise.resolve(null);
         return Na__LeSnap__Enqueue(async () => {
             const wasSuspended = Na__DrawView__Transitions__IsSuspended();
@@ -360,7 +377,7 @@
                 if (!wasSuspended) Na__DrawView__Transitions__SuspendThreeD();     // <-- Distance culling off for the picture
                 Na__DrawView__RenderPreset__Enter({ camera : camera, styles : styles || {} });
                 Na__DrawView__MaterialPreset__Enter(styles || {});
-                contextSaved = Na__LeSnap__HideContext(styles);
+                contextSaved = Na__LeSnap__HideForViewport(styles, modelLayers);
                 Na__DrawView__SectionAdapter__ReapplyClipping();
                 // THE ORTHO CAMERA GOES IN HERE, not the main one. ValeVision
                 // passes Na__LeSnap__Camera at this point and is right to: its
@@ -379,6 +396,7 @@
                     getRenderPipelineState : () => Na__LeSnap__Pipeline(),
                     elevationOverrides     : Na__DrawView__RenderPreset__GetExportOverrides(),
                     renderFrame            : (cam) => Na__DrawView__RenderPreset__RenderFrame(cam),   // <-- Flat render + silhouette + cut, the screen's exact order
+                    antiAliasSamples       : antiAliasSamples,                                        // <-- Each tile drawn N times on sub-pixel jitter and averaged
                     targetWidth : Math.max(16, Math.round(widthPx)), targetHeight : Math.max(16, Math.round(heightPx))
                 });
                 if (styles && styles.enhanceWhitecard === true) await Na__LeEnhance__Apply(result.canvas);   // <-- Levels and sharpen: the whitecard greys go to paper white
@@ -405,7 +423,7 @@
     // ------------------------------------------------------------
     // Returns { canvas, widthPx, heightPx }, or null. The caller converts.
     // ------------------------------------------------------------
-    function Na__LeSnap__Render3d(sceneRecord, styles, widthPx, heightPx) {
+    function Na__LeSnap__Render3d(sceneRecord, styles, widthPx, heightPx, modelLayers, antiAliasSamples) {
         if (!Na__LeSnap__IsReady() || !sceneRecord) return Promise.resolve(null);
         return Na__LeSnap__Enqueue(async () => {
             const camera   = Na__LeSnap__Camera;
@@ -425,11 +443,20 @@
             try {
                 Na__PresentationMode__Camera__ApplySceneCameraState(camera, controls, sceneRecord);
                 Na__DrawView__MaterialPreset__Enter(styles || {});
-                Na__LeSnap__HideContext(styles);                                   // <-- The saved map above already puts it back
+                Na__LeSnap__HideForViewport(styles, modelLayers);                   // <-- The saved map above already puts it back
                 if (pass) pass.enabled = !(styles && styles.profileLinework === false);
+                // NO renderFrame HERE, ON PURPOSE. That absence is what puts a
+                // 3D snapshot on the COMPOSER route, so it is drawn by the same
+                // per-frame sequence the live viewport uses - profile lines,
+                // ambient occlusion, fog and all. Until v2.25.0 the tiled
+                // renderer ignored the pipeline and fell back to a bare
+                // renderer.render, which is why this toggled a profile-lines
+                // pass that never ran and why the base image under every 3D
+                // viewport looked nothing like the screen it came from.
                 const result = await Na__StaticExport__RenderToCanvas({
                     renderer : Na__LeSnap__Renderer, scene : Na__LeSnap__Scene, camera : camera,
                     getRenderPipelineState : () => Na__LeSnap__Pipeline(),
+                    antiAliasSamples       : antiAliasSamples,                                        // <-- Each tile drawn N times on sub-pixel jitter and averaged
                     targetWidth : Math.max(16, Math.round(widthPx)), targetHeight : Math.max(16, Math.round(heightPx))
                 });
                 if (styles && styles.enhanceWhitecard === true) await Na__LeEnhance__Apply(result.canvas);

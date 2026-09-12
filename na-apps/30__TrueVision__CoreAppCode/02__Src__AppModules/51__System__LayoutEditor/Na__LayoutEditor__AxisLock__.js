@@ -143,6 +143,29 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Hold an Axis Chosen by the Cursor, Taking the Free Coordinate From a Snap
+    // ------------------------------------------------------------
+    // What Shift means once a snap is in play. `aim` is the free cursor, and
+    // it only picks WHICH axis is held - the nearer one, as Nearest does.
+    // `source` is what supplies the coordinate along that axis, so a snapped
+    // vertex lines the edge up with itself without dragging the edge off the
+    // axis, exactly as an arrow-key lock does.
+    //
+    // THE ALTERNATIVE WAS LETTING A SNAP WIN OUTRIGHT, which is what this
+    // module used to do and what broke rectangles: hovering the first corner
+    // to borrow its x silently abandoned the constraint and put the point on
+    // the corner itself. A constraint that a stray snap can cancel is not a
+    // constraint.
+    // ------------------------------------------------------------
+    function Na__LeAxis__Hold(anchor, aim, source) {
+        const a = Na__LeAxis__Anchor(anchor);
+        if (!a) return { x : source.x, y : source.y };
+        const across = Math.abs(aim.x - a.x) >= Math.abs(aim.y - a.y);            // <-- The cursor says which axis; the snap says how far along it
+        return across ? { x : source.x, y : a.y } : { x : a.x, y : source.y };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Constrained Point: a Lock First, Then Shift, Else Free
     // ------------------------------------------------------------
     function Na__LeAxis__Constrain(anchor, point, shift) {
@@ -170,6 +193,7 @@
         Na__LeAxis__Clear,
         Na__LeAxis__Apply,
         Na__LeAxis__Nearest,
+        Na__LeAxis__Hold,
         Na__LeAxis__Constrain
     };
     // ------------------------------------------------------------

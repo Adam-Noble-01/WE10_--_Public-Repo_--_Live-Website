@@ -182,6 +182,20 @@
         const offset = viewport.Viewport__ImageOffsetMm || {};
         viewport.Viewport__ImageOffsetMm = { X : Na__LeRec__Num(offset.X, 0), Y : Na__LeRec__Num(offset.Y, 0) };
 
+        // MODEL LAYERS | Only the categories switched OFF are kept
+        // A viewport records dissent, not consent: an absent key is on. That
+        // way a model that gains a category later shows it in every viewport
+        // instead of inheriting a silence nobody meant, and a viewport nobody
+        // has touched carries no field at all.
+        const modelLayers = viewport.Viewport__ModelLayers;
+        if (modelLayers && typeof modelLayers === 'object') {
+            const kept = {};
+            Object.keys(modelLayers).forEach((key) => { if (modelLayers[key] === false) kept[key] = false; });
+            viewport.Viewport__ModelLayers = Object.keys(kept).length > 0 ? kept : null;
+        } else {
+            viewport.Viewport__ModelLayers = null;
+        }
+
         // STYLES | A stored flag stands; anything unset takes the configured default
         const styles   = viewport.Viewport__Styles || {};
         const defaults = setup.defaultStyles;
