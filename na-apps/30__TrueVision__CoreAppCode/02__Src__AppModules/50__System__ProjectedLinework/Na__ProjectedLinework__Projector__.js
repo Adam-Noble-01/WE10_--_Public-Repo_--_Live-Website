@@ -86,6 +86,8 @@
     } from './Na__ProjectedLinework__CpuBackend__.js';
     import {
         Na__ProjectedLinework__WebGpuBackend__IsAvailable,
+        Na__ProjectedLinework__WebGpuBackend__IsHardwareCapable,
+        Na__ProjectedLinework__WebGpuBackend__GetProbe,
         Na__ProjectedLinework__WebGpuBackend__ProjectView
     } from './Na__ProjectedLinework__WebGpuBackend__.js';
     // ------------------------------------------------------------
@@ -99,6 +101,7 @@
 
     // MODULE CONSTANTS | Backend Names and Units
     // ------------------------------------------------------------
+    const Na__PlProjector__BACKEND_AUTO   = 'auto';
     const Na__PlProjector__BACKEND_CPU    = 'cpu';
     const Na__PlProjector__BACKEND_WEBGPU = 'webgpu';
     const Na__PlProjector__BACKEND_LEGACY = 'legacy';
@@ -121,13 +124,51 @@
 
     // HELPER FUNCTION | Settle Which Backend Will Actually Run
     // ------------------------------------------------------------
-    function Na__PlProjector__ResolveBackend(requested) {
-        if (requested === Na__PlProjector__BACKEND_WEBGPU) {
-            if (Na__ProjectedLinework__WebGpuBackend__IsAvailable()) return Na__PlProjector__BACKEND_WEBGPU;
-            console.info('[TrueVision3D ProjectedLinework] WebGPU was asked for but is not available here; using the CPU backend.');
+    // THE ONE RULE THAT OUTRANKS SPEED: a view with a drawing cut must go to the
+    // CPU backend, whatever was asked for.
+    //
+    // The GPU backend has no cut handling at all - it never calls SplitByCut and
+    // never sees definition.Cut. Give it a floor plan and it happily projects the
+    // whole building, roof included, instead of the storey below the cut. The
+    // drawing that comes back is not slightly wrong, it is a different drawing,
+    // and nothing on the sheet says so. Every floor plan carries a cut by
+    // definition, and so does a section-mode elevation; a plain elevation does
+    // not, which is where the GPU path is both correct and worth having.
+    //
+    // 'legacy' is exempt from the rule because it is a diagnostic that exists to
+    // give the Diff harness something known-good to compare against, and it is
+    // only ever selected by hand.
+    //
+    // definition may be absent (a warm-up or a probe render), in which case there
+    // is no cut to protect and the hardware alone decides.
+    function Na__PlProjector__ResolveBackend(requested, definition) {
+        if (requested === Na__PlProjector__BACKEND_LEGACY) return Na__PlProjector__BACKEND_LEGACY;
+
+        const hasCut  = !!(definition && definition.Cut);
+        const capable = Na__ProjectedLinework__WebGpuBackend__IsHardwareCapable();
+
+        // AUTO | The default. Fastest backend that is CORRECT for this view.
+        if (requested === Na__PlProjector__BACKEND_AUTO) {
+            if (hasCut)  return Na__PlProjector__BACKEND_CPU;
+            if (capable) return Na__PlProjector__BACKEND_WEBGPU;
             return Na__PlProjector__BACKEND_CPU;
         }
-        if (requested === Na__PlProjector__BACKEND_LEGACY) return Na__PlProjector__BACKEND_LEGACY;
+
+        // EXPLICIT WEBGPU | Honoured on the views it can actually draw.
+        if (requested === Na__PlProjector__BACKEND_WEBGPU) {
+            if (hasCut) {
+                console.info('[TrueVision3D ProjectedLinework] WebGPU was asked for, but this view has a drawing cut '
+                    + 'and the GPU backend cannot apply one. Using the CPU backend so the drawing is right.');
+                return Na__PlProjector__BACKEND_CPU;
+            }
+            if (capable) return Na__PlProjector__BACKEND_WEBGPU;
+
+            const probe = Na__ProjectedLinework__WebGpuBackend__GetProbe();
+            console.info('[TrueVision3D ProjectedLinework] WebGPU was asked for but is not usable here ('
+                + (probe ? probe.Reason : 'the hardware probe has not finished yet') + '); using the CPU backend.');
+            return Na__PlProjector__BACKEND_CPU;
+        }
+
         return Na__PlProjector__BACKEND_CPU;
     }
     // ------------------------------------------------------------
@@ -142,8 +183,8 @@
     function Na__PlProjector__BuildOptions(definition, backendOverride) {
         const projection  = Na__PlCfg__GetProjectionSetup();
         const performance = Na__PlCfg__GetPerformanceSetup();
-        const requested   = backendOverride || performance.backend || Na__PlProjector__BACKEND_CPU;
-        const backend     = Na__PlProjector__ResolveBackend(requested);
+        const requested   = backendOverride || performance.backend || Na__PlProjector__BACKEND_AUTO;
+        const backend     = Na__PlProjector__ResolveBackend(requested, definition);
 
         return {
             Backend                  : backend,

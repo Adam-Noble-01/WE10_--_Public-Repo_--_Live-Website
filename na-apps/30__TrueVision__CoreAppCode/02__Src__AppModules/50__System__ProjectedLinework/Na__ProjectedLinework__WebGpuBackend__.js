@@ -119,6 +119,13 @@ import * as THREE from 'three';
     let Na__ProjectedLinework__WebGpuBackend__Unusable   =  false;
     // ------------------------------------------------------------
 
+    // MODULE VARIABLES | The Hardware Probe Result
+    // ------------------------------------------------------------
+    // Settled once per session and cached. Null until the probe has run.
+    let Na__ProjectedLinework__WebGpuBackend__Probe      =  null;   // <-- { Capable, Reason, Adapter }
+    let Na__ProjectedLinework__WebGpuBackend__Probing    =  null;   // <-- In-flight probe promise
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -128,12 +135,116 @@ import * as THREE from 'three';
 
     // FUNCTION | Whether This Browser Could Possibly Run the GPU Path
     // ------------------------------------------------------------
-    // Only answers the cheap question. Whether a device can actually be acquired is
-    // settled by Warm, because asking costs a device request.
+    // Only answers the cheap, synchronous question: does the API exist at all.
+    // It is NOT a capability test and must not be used as one - navigator.gpu is
+    // present in every current Chromium build, including on machines where the
+    // adapter request goes on to fail outright or hand back a software
+    // rasteriser. Na__ProjectedLinework__WebGpuBackend__ProbeHardware answers the
+    // question that actually matters.
     export function Na__ProjectedLinework__WebGpuBackend__IsAvailable() {
         return !Na__ProjectedLinework__WebGpuBackend__Unusable &&
                (typeof navigator !== 'undefined') &&
                !!navigator.gpu;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Ask the Machine What Graphics Hardware It Actually Has
+    // ------------------------------------------------------------
+    // Resolves { Capable, Reason, Adapter } and caches it for the session. Never
+    // rejects: a machine without a usable GPU is an ordinary condition, and every
+    // caller's answer to it is the same.
+    //
+    // powerPreference 'high-performance' asks for the discrete card on a machine
+    // with both. IT IS CURRENTLY IGNORED ON WINDOWS (crbug 369219127) and Chromium
+    // says so in the console on every probe, so treat it as a hint that will start
+    // working rather than a guarantee that does. It costs nothing to ask, and on a
+    // single-GPU workstation the question does not arise; on a hybrid laptop the
+    // browser picks, and the worst case is the integrated chip - still a real
+    // adapter, still correct, just less of a win than the discrete one would be.
+    //
+    // A FALLBACK ADAPTER IS REPORTED AS NOT CAPABLE, and that is the important
+    // part of this function. When no real GPU is reachable the browser may still
+    // return an adapter backed by a SOFTWARE rasteriser. It satisfies every API
+    // check, runs the compute shader correctly, and is SLOWER than the CPU
+    // backend it would be displacing - so accepting it would make the app choose
+    // the slow path while reporting that it had chosen the fast one.
+    export async function Na__ProjectedLinework__WebGpuBackend__ProbeHardware() {
+        if (Na__ProjectedLinework__WebGpuBackend__Probe)   return Na__ProjectedLinework__WebGpuBackend__Probe;
+        if (Na__ProjectedLinework__WebGpuBackend__Probing) return Na__ProjectedLinework__WebGpuBackend__Probing;
+
+        Na__ProjectedLinework__WebGpuBackend__Probing = (async function() {
+            const settle = (capable, reason, adapterInfo) => {
+                Na__ProjectedLinework__WebGpuBackend__Probe = {
+                    Capable : capable,
+                    Reason  : reason,
+                    Adapter : adapterInfo || null
+                };
+                return Na__ProjectedLinework__WebGpuBackend__Probe;
+            };
+
+            if (typeof navigator === 'undefined' || !navigator.gpu) {
+                return settle(false, 'This browser has no WebGPU API.', null);
+            }
+
+            try {
+                const adapter = await navigator.gpu.requestAdapter({ powerPreference : 'high-performance' });
+                if (!adapter) {
+                    return settle(false, 'WebGPU is present but no adapter was granted (driver blocklisted, or disabled).', null);
+                }
+
+                // adapter.info is the current shape; requestAdapterInfo() is the
+                // older one. Neither is guaranteed, and a missing description is
+                // not a reason to refuse the card - only to describe it vaguely.
+                let info = adapter.info || null;
+                if (!info && typeof adapter.requestAdapterInfo === 'function') {
+                    try { info = await adapter.requestAdapterInfo(); } catch (infoError) { info = null; }
+                }
+
+                const described = {
+                    Vendor       : (info && info.vendor)       || 'unknown',
+                    Architecture : (info && info.architecture) || 'unknown',
+                    Device       : (info && info.device)       || '',
+                    Description  : (info && info.description)  || '',
+                    IsFallback   : adapter.isFallbackAdapter === true
+                };
+
+                if (described.IsFallback) {
+                    return settle(false, 'Only a software fallback adapter is available, which is slower than the CPU backend.', described);
+                }
+
+                return settle(true, 'Hardware adapter granted.', described);
+
+            } catch (probeError) {
+                return settle(false, 'The adapter request failed: ' + (probeError && probeError.message ? probeError.message : probeError), null);
+            }
+        })();
+
+        return Na__ProjectedLinework__WebGpuBackend__Probing;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Cached Probe Result, or null If It Has Not Run
+    // ------------------------------------------------------------
+    // Synchronous, for the places that cannot await - the backend resolver on a
+    // render already in flight, and the dev menu drawing its status line.
+    export function Na__ProjectedLinework__WebGpuBackend__GetProbe() {
+        return Na__ProjectedLinework__WebGpuBackend__Probe;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is the Hardware Good Enough, As Far As We Know Right Now?
+    // ------------------------------------------------------------
+    // False before the probe has run, deliberately. An unprobed machine takes the
+    // CPU path for that one render rather than gambling; the probe is started at
+    // boot, so this is only ever the answer for a render in the first moments of
+    // a session.
+    export function Na__ProjectedLinework__WebGpuBackend__IsHardwareCapable() {
+        return !Na__ProjectedLinework__WebGpuBackend__Unusable
+            && !!Na__ProjectedLinework__WebGpuBackend__Probe
+            && Na__ProjectedLinework__WebGpuBackend__Probe.Capable === true;
     }
     // ------------------------------------------------------------
 

@@ -82,6 +82,7 @@
         Na__PlView__Fingerprint
     } from './Na__ProjectedLinework__ViewDefinition__.js';
     import { Na__PlStage__Describe } from './Na__ProjectedLinework__ModelStage__.js';
+    import { Na__ProjectedLinework__WebGpuBackend__ProbeHardware } from './Na__ProjectedLinework__WebGpuBackend__.js';
     import {
         Na__PlProjector__BuildOptions,
         Na__PlProjector__Collect,
@@ -641,6 +642,20 @@
         window.addEventListener(Na__PlPipe__SECTION_EVENT,      reevaluate);   // <-- Slider commit moved the cut
         window.addEventListener(Na__PlPipe__VISIBILITY_EVENT,   reevaluate);   // <-- A category toggled
         window.addEventListener('na-render-engine-changed',     reevaluate);
+
+        // HARDWARE PROBE | Started at boot, deliberately, and not awaited.
+        // The backend resolver reads the cached answer synchronously on every
+        // render, and answers "no GPU" until the probe lands. Starting it here
+        // means that window is the first second of a session rather than the
+        // first drawing somebody opens - and because it is not awaited, a machine
+        // where the adapter request hangs still boots at the normal speed and
+        // simply uses the CPU.
+        void Na__ProjectedLinework__WebGpuBackend__ProbeHardware().then((probe) => {
+            console.log('[TrueVision3D ProjectedLinework] Graphics probe: '
+                + (probe.Capable ? 'hardware adapter granted' : 'no usable GPU')
+                + (probe.Adapter ? ' [' + [probe.Adapter.Vendor, probe.Adapter.Architecture].filter(Boolean).join(' ') + ']' : '')
+                + ' - ' + probe.Reason);
+        });
 
         void Na__PlCfg__Ready().then(() => {
             console.log('[TrueVision3D ProjectedLinework] Loaded, enabled: ' + Na__PlCfg__IsEnabled() + '.');

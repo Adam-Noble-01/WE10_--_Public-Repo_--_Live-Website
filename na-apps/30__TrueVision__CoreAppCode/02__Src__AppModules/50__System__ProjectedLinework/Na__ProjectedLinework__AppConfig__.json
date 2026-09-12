@@ -24,8 +24,8 @@
     },
 
     "ProjectedLinework__Performance__Config": {
-        "ProjectedLinework__Performance__Description": "Who does the work and how it is scheduled. Backend: 'cpu' is the module's own kernel spread across web workers, the default and the reference output; 'webgpu' hands the occlusion pass to the graphics card and falls back to cpu where WebGPU is missing; 'legacy' is the unmodified vendored generator kept so the Diff harness always has something known-good to compare against (legacy and webgpu ignore the drawing cut). MaxWorkers is a ceiling: the pool takes one fewer than the core count. Below MinimumEdgesForWorkers the kernel runs inline. Above MaxTrianglesForExactLinework the drawing reports why and keeps the composer render alone rather than starting a computation that would take minutes.",
-        "ProjectedLinework__Performance__Backend": "cpu",
+        "ProjectedLinework__Performance__Description": "Who does the work and how it is scheduled. Backend: 'auto' is the default and picks the fastest backend that is CORRECT for each view - the GPU cannot apply a drawing cut, so every floor plan and every section-mode elevation goes to the CPU whatever the hardware is, and a plain elevation goes to the GPU when a hardware adapter is granted. 'cpu' is the module's own kernel spread across web workers, available everywhere and the reference output. 'webgpu' forces the graphics card where the view allows it, still falling back on cut views and on machines with no usable adapter. 'legacy' is the unmodified vendored generator kept so the Diff harness always has something known-good to compare against; legacy and webgpu ignore the drawing cut, which is why auto never sends a cut view to either. The hardware probe asks for a high-performance adapter so a workstation picks its discrete card, and rejects a software fallback adapter, which satisfies every API check while being slower than the CPU backend it would displace. MaxWorkers is a ceiling: the pool takes one fewer than the core count. Below MinimumEdgesForWorkers the kernel runs inline. Above MaxTrianglesForExactLinework the drawing reports why and keeps the composer render alone rather than starting a computation that would take minutes.",
+        "ProjectedLinework__Performance__Backend": "auto",
         "ProjectedLinework__Performance__MaxWorkers": 8,
         "ProjectedLinework__Performance__MinimumEdgesForWorkers": 8000,
         "ProjectedLinework__Performance__ClipBvhMaxLeafSize": 4,
@@ -100,7 +100,7 @@
         "ProjectedLinework__Labels__ForceRenderLabel": "Force Render",
         "ProjectedLinework__Labels__BakeLabel": "Bake All to R2",
         "ProjectedLinework__Labels__ClearCacheLabel": "Clear Cache",
-        "ProjectedLinework__Labels__DiffLabel": "Run Diff (cpu vs legacy)",
+        "ProjectedLinework__Labels__DiffLabel": "Run Diff",
         "ProjectedLinework__Labels__StatusIdle": "No drawing on screen.",
         "ProjectedLinework__Labels__StatusWorking": "Projecting...",
         "ProjectedLinework__Labels__StatusReady": "Linework ready.",

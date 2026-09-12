@@ -70,7 +70,7 @@
         iterationTimeMs         : 30,
         minimumSegmentLengthMm  : 1.0,
         edgeLiftWorldUnits      : 0.000001,
-        backend                 : 'cpu',
+        backend                 : 'auto',
         maxWorkers              : 8,
         minimumEdgesForWorkers  : 8000,
         clipBvhMaxLeafSize      : 4,

@@ -200,8 +200,127 @@ const SRC_ROOT   = resolve(APP_ROOT, '02__Src__AppModules');
         }
     }
 
+    // ---------------------------------------------------------------
+    // PASS 2 | Na__ identifiers used but never imported or declared
+    // ---------------------------------------------------------------
+    // Pass 1 checks that every import RESOLVES. It is blind to the opposite
+    // fault: an identifier USED with no import at all. Both end in a blank page,
+    // and the second is the one a hand-edit produces - add a call, forget the
+    // import line, and every static check still passes.
+    //
+    // A general no-undef needs full scope analysis. This does not, because the
+    // codebase is rigorously Na__-prefixed: any Na__ identifier a file uses must
+    // be declared in that file or imported into it. That single convention turns
+    // an expensive check into a cheap one, and it is worth having - it is how
+    // Na__ProjectedLinework__WebGpuBackend__GetProbe reached the browser as a
+    // ReferenceError on 12-Sep-2026 with both harnesses reporting success.
+    const undefinedUses = [];
+
+    for (const file of files) {
+        const source = StripComments(readFileSync(file, 'utf8'));
+
+        const imported = new Set();
+        const namedImport = /import\s*\{([^}]*)\}\s*from/g;
+        let m;
+        while ((m = namedImport.exec(source)) !== null) {
+            m[1].split(',').map(p => p.trim()).filter(Boolean).forEach((part) => {
+                const pieces = part.split(/\s+as\s+/);
+                imported.add((pieces[1] || pieces[0]).trim());       // <-- `X as Y` binds Y
+            });
+        }
+        // Namespace and default imports bind one local name each.
+        const nsImport = /import\s+(?:\*\s+as\s+)?([A-Za-z0-9_$]+)\s+from/g;
+        while ((m = nsImport.exec(source)) !== null) imported.add(m[1]);
+
+        const declared = new Set();
+        const declPattern = /(?:function|class|const|let|var)\s+(Na__[A-Za-z0-9_$]*)/g;
+        while ((m = declPattern.exec(source)) !== null) declared.add(m[1]);
+
+        // DESTRUCTURING BINDS NAMES TOO, and this codebase leans on it: the
+        // loading sequence takes one options object and renames every field out
+        // of it - `const { distanceCulling : Na__Config__DistanceCulling } = ...`.
+        // Those are declarations, not uses, and missing them reports the whole
+        // of a module's configuration as undefined.
+        const destructure = /(?:const|let|var)\s*\{([\s\S]*?)\}\s*=/g;
+        while ((m = destructure.exec(source)) !== null) {
+            const renamed = /:\s*(Na__[A-Za-z0-9_$]+)/g;
+            let r;
+            while ((r = renamed.exec(m[1])) !== null) declared.add(r[1]);
+            const shorthand = /(^|[,{\s])(Na__[A-Za-z0-9_$]+)\s*(?=[,}])/g;
+            while ((r = shorthand.exec(m[1])) !== null) declared.add(r[2]);
+        }
+
+        // Function parameters, for the same reason.
+        const params = /function\s+[A-Za-z0-9_$]*\s*\(([^)]*)\)/g;
+        while ((m = params.exec(source)) !== null) {
+            const p = /(Na__[A-Za-z0-9_$]+)/g;
+            let r;
+            while ((r = p.exec(m[1])) !== null) declared.add(r[1]);
+        }
+
+        // STRING LITERALS ARE STRIPPED BEFORE THE USE SCAN, because in this
+        // codebase the module FILENAMES are Na__-prefixed too. Without this,
+        // every `from '../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js'`
+        // reads as a use of an identifier by that name and the check reports a
+        // dozen faults that are not faults - which is exactly how a checker
+        // stops being read.
+        // Also drop the import statements themselves. `import { X as Y }` binds
+        // Y, but the line still contains the text X, which would otherwise read
+        // as a use of an identifier this file never has.
+        const codeOnly = source
+            .replace(/'[^'\n]*'|"[^"\n]*"|`[^`]*`/g, "''")
+            .replace(/import\s*\{[^}]*\}\s*from[^;\n]*;?/g, '')
+            .replace(/import\s+[^;\n]*from[^;\n]*;?/g, '')
+            // Export blocks too. `export { X as Y }` PUBLISHES Y under a new
+            // name; it is not a use of Y, and this codebase aliases on export
+            // constantly to give a module a public name distinct from its
+            // internal one. Without this every one of those reads as undefined.
+            .replace(/export\s*\{[^}]*\}(\s*from[^;\n]*)?;?/g, '');
+
+        // PROPERTY KEYS ARE NOT IDENTIFIERS. userData.Na__ModelType and
+        // { Na__DrawPreset__Substitute : true } are data this codebase stamps on
+        // three.js objects, and they follow the same naming convention as the
+        // functions because they belong to the same modules. A check that cannot
+        // tell a property from a binding reports every one of them.
+        const used = new Set();
+        // No lookahead inside this pattern. A trailing (?!...) makes the engine
+        // backtrack into the identifier to satisfy itself, so Na__LeTabs__HEIGHT_PX
+        // gets reported as Na__LeTabs__HEIGHT_P. The object-key test below is done
+        // on the text AFTER the match instead, where it cannot chew the name.
+        const usePattern = /(^|[^.\w$])(Na__[A-Za-z0-9_$]+)/g;
+        while ((m = usePattern.exec(codeOnly)) !== null) {
+            const after = codeOnly.slice(m.index + m[0].length);
+            if (/^\s*:/.test(after)) continue;                   // <-- object literal key
+            used.add(m[2]);
+        }
+
+        for (const name of used) {
+            if (imported.has(name) || declared.has(name)) continue;
+            undefinedUses.push({ file, name });
+        }
+    }
+
+    if (undefinedUses.length > 0) {
+        console.log(`  FAIL - ${undefinedUses.length} Na__ identifier(s) used but never imported or declared:`);
+        console.log('');
+        for (const u of undefinedUses) {
+            console.log(`    ${relative(APP_ROOT, u.file)}`);
+            console.log(`        "${u.name}"  ->  no import and no declaration in this file`);
+        }
+        if (failures.length > 0) {
+            console.log('');
+            console.log(`  ...and ${failures.length} unresolved import(s), listed below.`);
+            for (const f of failures) {
+                console.log(`    ${relative(APP_ROOT, f.file)}`);
+                console.log(`        "${f.name}"  from  "${f.from}"  ->  ${f.reason}`);
+            }
+        }
+        process.exit(1);
+    }
+
     if (failures.length === 0) {
-        console.log('  PASS - every named import resolves to a real export.');
+        console.log('  PASS - every named import resolves to a real export,');
+        console.log('         and every Na__ identifier used is imported or declared.');
         process.exit(0);
     }
 
