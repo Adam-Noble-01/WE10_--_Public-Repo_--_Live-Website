@@ -20,11 +20,14 @@
 // - The rubber band is one dashed line in the handles layer, shared by the
 //   dimension and the shape tools. It takes the locked axis's colour
 //   while an arrow key holds the edge to an axis.
+// - The rubber box is the rectangle tool's counterpart: the four edges the
+//   rectangle will have, dashed like the band, solid while Shift holds it
+//   square.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetSurface__ renders the grips into the handles
 //   layer; Na__LayoutEditor__SheetTools__ asks what a press grabbed; the
-//   dimension and shape tools stretch the band.
+//   dimension and shape tools stretch the band, the rectangle tool the box.
 //
 // -----------------------------------------------------------------------------
 //
@@ -38,6 +41,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.2.0
+// - ShowBox and HideBox: the rubber box the rectangle tool stretches, its
+//   edge counter-scaled like the grips.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - ShowBand takes the locked axis and colours the band by it.
 //
@@ -55,7 +62,7 @@
     // ------------------------------------------------------------
     import { Na__LeCfg__GetSelectionSetup } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__IsLayerLocked } from './Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm } from './Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from './Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeMarkup__DimensionSkeleton } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt } from './Na__LayoutEditor__ShapeGeometry__.js';
     // ------------------------------------------------------------
@@ -67,9 +74,10 @@
 // REGION | Module State
 // -----------------------------------------------------------------------------
 
-    // MODULE VARIABLES | The Rubber Band
+    // MODULE VARIABLES | The Rubber Band and the Rubber Box
     // ------------------------------------------------------------
     let Na__LeGrips__Band = null;
+    let Na__LeGrips__Box  = null;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -161,6 +169,40 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Stretch the Box Between Two Opposite Corners ({ x, y } or [x, y])
+    // ------------------------------------------------------------
+    // The rectangle tool's preview: the four edges the rectangle will have,
+    // in the band's dashed blue. square draws it solid, the way a locked band
+    // goes solid, so a held constraint shows without reading anything. The
+    // edge is counter-scaled like the grips, so it stays thin at any zoom.
+    // ------------------------------------------------------------
+    function Na__LeGrips__ShowBox(start, end, square) {
+        const layer = Na__LeSurface__GetElements().handles;
+        if (!layer) return false;
+        const sx = Array.isArray(start) ? start[0] : start.x, sy = Array.isArray(start) ? start[1] : start.y;
+        const ex = Array.isArray(end)   ? end[0]   : end.x,   ey = Array.isArray(end)   ? end[1]   : end.y;
+        if (!Na__LeGrips__Box) Na__LeGrips__Box = document.createElement('div');
+        Na__LeGrips__Box.className = 'na-le-rubber-box' + (square ? ' na-le-rubber-box--square' : '');
+        if (Na__LeGrips__Box.parentNode !== layer) layer.appendChild(Na__LeGrips__Box);
+        const ppm = Na__LeSurface__GetPixelsPerMm();
+        Na__LeGrips__Box.style.left        = (Math.min(sx, ex) * ppm) + 'px';
+        Na__LeGrips__Box.style.top         = (Math.min(sy, ey) * ppm) + 'px';
+        Na__LeGrips__Box.style.width       = (Math.abs(ex - sx) * ppm) + 'px';
+        Na__LeGrips__Box.style.height      = (Math.abs(ey - sy) * ppm) + 'px';
+        Na__LeGrips__Box.style.borderWidth = Math.max(1, 1 / Na__LeSurface__GetZoom()) + 'px';
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take the Box Away
+    // ------------------------------------------------------------
+    function Na__LeGrips__HideBox() {
+        if (Na__LeGrips__Box && Na__LeGrips__Box.parentNode) Na__LeGrips__Box.parentNode.removeChild(Na__LeGrips__Box);
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -213,6 +255,8 @@
         Na__LeGrips__Render,
         Na__LeGrips__ShowBand,
         Na__LeGrips__HideBand,
+        Na__LeGrips__ShowBox,
+        Na__LeGrips__HideBox,
         Na__LeGrips__DimensionGrab,
         Na__LeGrips__ShapeGrab
     };

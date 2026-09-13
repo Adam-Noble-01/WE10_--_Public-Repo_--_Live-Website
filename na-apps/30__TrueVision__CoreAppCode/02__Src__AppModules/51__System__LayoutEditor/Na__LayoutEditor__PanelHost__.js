@@ -324,6 +324,59 @@
     function Na__LePanels__GetContext() { return Na__LePanels__Context; }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | A Small "Advanced" Fold Directly Under a Section's Title
+    // ------------------------------------------------------------
+    // Call from a section's build function, FIRST, so the toggle is the top line
+    // of the body. It does not hide rows of its own: it puts `is-advanced` on the
+    // section root, and any element in that section carrying `na-le-adv` is shown
+    // only while that class is present. So a panel marks its rarely-used controls
+    // with one class, wherever they sit - inline in an existing row or as rows of
+    // their own - and the fold reveals them all together.
+    //
+    // WHY NOT A NESTED SECTION. A fold inside a fold is a maze, and the controls
+    // this reveals belong INSIDE the rows they modify, not in a separate list a
+    // person has to match back up by name.
+    //
+    // Remembered per section like the fold itself, so someone curating a sheet
+    // does not have to reopen it on every selection.
+    // ------------------------------------------------------------
+    function Na__LePanels__AdvancedToggle(body, sectionId, label) {
+        const root   = body.closest('.na-le-section');
+        const button = document.createElement('button');
+        button.type      = 'button';
+        button.className = 'na-le-adv-toggle';
+        button.innerHTML = '<span class="na-le-adv-toggle__chevron" aria-hidden="true"></span><span class="na-le-adv-toggle__label"></span>';
+        button.querySelector('.na-le-adv-toggle__label').textContent = label || 'Advanced';
+
+        const open = Na__LePanels__Recall('advanced-' + sectionId, '0') === '1';
+        if (root) root.classList.toggle('is-advanced', open);
+        button.setAttribute('aria-expanded', String(open));
+
+        button.addEventListener('click', () => {
+            const now = !(root && root.classList.contains('is-advanced'));
+            if (root) root.classList.toggle('is-advanced', now);
+            button.setAttribute('aria-expanded', String(now));
+            Na__LePanels__Remember('advanced-' + sectionId, now ? '1' : '0');
+            Na__LePanels__Refresh(sectionId);                                     // <-- The controls it reveals may need filling
+        });
+
+        body.appendChild(button);
+        return button;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is a Section's Advanced Fold Open
+    // ------------------------------------------------------------
+    // Refresh functions ask this so they only fill controls a person can see.
+    // ------------------------------------------------------------
+    function Na__LePanels__IsAdvanced(sectionId) {
+        const entry = Na__LePanels__Sections.get(sectionId);
+        return !!(entry && entry.root.classList.contains('is-advanced'));
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -412,6 +465,8 @@
         Na__LePanels__OnControl,
         Na__LePanels__IsEditable,
         Na__LePanels__GetContext,
+        Na__LePanels__AdvancedToggle,
+        Na__LePanels__IsAdvanced,
         Na__LePanels__Row,
         Na__LePanels__Input,
         Na__LePanels__Select,

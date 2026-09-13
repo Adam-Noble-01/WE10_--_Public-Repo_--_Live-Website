@@ -264,6 +264,22 @@ body.na-le-dragging * {
     color                              : #6c757d;
     white-space                        : nowrap;
 }
+
+/* The eyedropper's running commentary. It shrinks to an ellipsis rather than
+   pushing the rest of the toolbar off the end, and carries the full line in
+   its title attribute so nothing is actually lost on a narrow window.      */
+.na-le-toolbar__hint {
+    flex                               : 0 1 auto;
+    min-width                          : 0;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+    padding                            : 3px 8px;
+    border-radius                      : 5px;
+    background                         : #f3eefd;
+    color                              : #5b21b6;
+    font-size                          : 0.74rem;
+}
 .na-le-toolbar__select {
     padding                            : 3px 6px;
     border                             : 1px solid #ccd3d8;
@@ -472,6 +488,21 @@ body.na-le-dragging * {
 .na-le-rubber-band--y {
     border-top-style                   : solid;
     border-top-color                   : #2e7d32;
+}
+
+/* The rectangle tool's rubber box: the four edges the rectangle will     */
+/* have, dashed like the band, and solid while Shift holds it square.     */
+/* The edge width is set inline, counter-scaled like the grips.           */
+
+.na-le-rubber-box {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1px dashed #336699;
+    pointer-events                     : none;
+}
+
+.na-le-rubber-box--square {
+    border-style                       : solid;
 }
 
 .na-le-text-editor {
@@ -693,6 +724,114 @@ body.na-le-dragging * {
     border-radius                      : 50%;
     border-style                       : solid;
     background                         : transparent;
+}
+
+/* EYEDROPPER | Two boxes on the handles layer: the violet one is the object
+   whose properties are being held, the green one is what the pointer is over
+   and would take them. Red says that one cannot: wrong kind, or a locked
+   layer. The pad and the border are counter-scaled in the module, so these
+   rules carry the colours and nothing that changes with zoom.              */
+
+.na-le-dropper {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border-style                       : dashed;
+    pointer-events                     : none;
+    z-index                            : 7;
+}
+
+.na-le-dropper[hidden] {
+    display                            : none;
+}
+
+.na-le-dropper--source {
+    border-color                       : #7c3aed;
+    border-style                       : solid;
+    background                         : rgba(124, 58, 237, 0.10);
+}
+
+.na-le-dropper--target {
+    border-color                       : #16a34a;
+    background                         : rgba(22, 163, 74, 0.12);
+}
+
+.na-le-dropper--refuse {
+    border-color                       : #dc2626;
+    background                         : rgba(220, 38, 38, 0.08);
+}
+
+/* VIEWPORT CARRY | A viewport moved by a point on its own linework
+   (Na__LayoutEditor__ViewportSnapMove__). The carried frame multiplies, so
+   the drawing underneath shows through it and can be aimed at. The ring
+   marks the carried point, a cross marks each acquired tracking point, and
+   a guide runs from a tracking point to the carried one: red when level,
+   green when plumb - the axis-lock colours. Sizes and stroke widths are
+   counter-scaled in the module, so these rules carry colour and nothing
+   that changes with zoom.                                                  */
+
+.na-le-frame--carried {
+    mix-blend-mode                     : multiply;
+    outline                            : 1px dashed #d97706;
+}
+
+.na-le-carry-base {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1.5px solid #d97706;
+    border-radius                      : 50%;
+    background                         : rgba(217, 119, 6, 0.18);
+    pointer-events                     : none;
+    z-index                            : 6;
+}
+
+.na-le-track-point {
+    position                           : absolute;
+    pointer-events                     : none;
+    z-index                            : 6;
+    --na-le-track-stroke               : 1.5px;
+}
+
+.na-le-track-point::before,
+.na-le-track-point::after {
+    content                            : '';
+    position                           : absolute;
+    background                         : #d97706;
+}
+
+.na-le-track-point::before {
+    left                               : 0;
+    right                              : 0;
+    top                                : 50%;
+    height                             : var(--na-le-track-stroke);
+    transform                          : translateY(-50%);
+}
+
+.na-le-track-point::after {
+    top                                : 0;
+    bottom                             : 0;
+    left                               : 50%;
+    width                              : var(--na-le-track-stroke);
+    transform                          : translateX(-50%);
+}
+
+.na-le-track-guide {
+    position                           : absolute;
+    box-sizing                         : content-box;
+    pointer-events                     : none;
+    z-index                            : 5;
+}
+
+.na-le-track-guide--x {
+    border-top                         : 1px dashed #c0392b;
+}
+
+.na-le-track-guide--y {
+    border-left                        : 1px dashed #2e7d32;
+}
+
+.na-le-carry-base[hidden],
+.na-le-track-guide[hidden] {
+    display                            : none;
 }
 
 /* endregion ------------------------------------------------------- */

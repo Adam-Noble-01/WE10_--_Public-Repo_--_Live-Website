@@ -39,6 +39,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.3.0
+// - Refresh is coalesced onto the next animation frame, so a drag that asks for
+//   a rebuild on every pointer move gets one per painted frame, and several
+//   listeners reacting to one change share one rebuild. RefreshNow is the
+//   synchronous path; SetSheet and Unmount cancel anything still booked.
+//
 // 10-Sep-2026 - Version 1.2.0
 // - Grips for a selected dimension or shape in the handles layer.
 //
@@ -111,6 +117,8 @@
     let Na__LeSurface__Editable  = false;
     let Na__LeSurface__EditingId = null;    // <-- Viewport whose content is being repositioned (double-click)
     let Na__LeSurface__OnAsset   = null;
+    let Na__LeSurface__Pending   = null;    // <-- Reasons waiting for the next animation frame
+    let Na__LeSurface__Frame     = 0;       // <-- The requestAnimationFrame handle holding them
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -153,6 +161,7 @@
     // FUNCTION | Remove the Paper and Forget the Sheet
     // ------------------------------------------------------------
     function Na__LeSurface__Unmount() {
+        Na__LeSurface__CancelPending();                                          // <-- A booked rebuild must not land on a torn-down paper
         if (Na__LeSurface__OnAsset) window.removeEventListener(Na__LeChrome__ASSET_EVENT, Na__LeSurface__OnAsset);
         Na__LeSurface__OnAsset = null;
         if (Na__LeSurface__Sheet) Na__LeSurface__ReleaseFrames();
@@ -187,6 +196,8 @@
     // ------------------------------------------------------------
     function Na__LeSurface__SetSheet(sheet) {
         if (!Na__LeSurface__Paper) return false;
+        Na__LeSurface__CancelPending();                                          // <-- A full rebuild covers whatever was queued
+
         if (Na__LeSurface__Sheet && (!sheet || sheet.Sheet__Id !== Na__LeSurface__Sheet.Sheet__Id)) Na__LeSurface__ReleaseFrames();
         Na__LeSurface__Sheet  = sheet || null;
         Na__LeSurface__Layout = sheet ? Na__LeLayout__Solve(sheet) : null;
@@ -207,9 +218,41 @@
 
     // FUNCTION | Refresh Part of the Paper After a Model Change
     // ------------------------------------------------------------
-    // reason: 'frames' | 'chrome' | 'markup' | 'selection' | 'all'
+    // reason: 'frames' | 'chrome' | 'markup' | 'selection' | 'sheet' | 'all'
+    //
+    // COALESCED ONTO THE NEXT ANIMATION FRAME. Every redraw here rebuilds a
+    // whole SVG layer as a string and swaps the node in, which is affordable
+    // once a frame and ruinous once a pointer event. A gaming mouse reports
+    // several hundred moves a second and a shape drag called this on every
+    // one of them, so the editor spent its time rebuilding pictures nobody
+    // ever saw - the screen only shows sixty. Several callers also react to
+    // the same model change, so one edit could ask for the same rebuild three
+    // or four times over.
+    //
+    // Asking twice in a frame is now free: the reasons are merged and the
+    // work happens once, just before the browser paints. Use RefreshNow only
+    // where the DOM must be correct before the next statement runs.
     // ------------------------------------------------------------
     function Na__LeSurface__Refresh(reason) {
+        if (!Na__LeSurface__Sheet) return;
+        if (!Na__LeSurface__Pending) Na__LeSurface__Pending = new Set();
+        Na__LeSurface__Pending.add(reason || 'all');
+        if (Na__LeSurface__Frame) return;                                        // <-- Already booked for this frame
+        Na__LeSurface__Frame = window.requestAnimationFrame(() => {
+            Na__LeSurface__Frame = 0;
+            const reasons = Na__LeSurface__Pending;
+            Na__LeSurface__Pending = null;
+            if (!reasons || !Na__LeSurface__Sheet) return;
+            if (reasons.has('all') || reasons.has('sheet')) { Na__LeSurface__RefreshNow(reasons.has('all') ? 'all' : 'sheet'); return; }
+            reasons.forEach((name) => Na__LeSurface__RefreshNow(name));
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Refresh Part of the Paper Right Now, Without Waiting for a Frame
+    // ------------------------------------------------------------
+    function Na__LeSurface__RefreshNow(reason) {
         if (!Na__LeSurface__Sheet) return;
         const all = !reason || reason === 'all';
         if (all || reason === 'sheet') { Na__LeSurface__Layout = Na__LeLayout__Solve(Na__LeSurface__Sheet); Na__LeSurface__SetSheet(Na__LeSurface__Sheet); return; }
@@ -217,6 +260,19 @@
         if (all || reason === 'frames' || reason === 'chrome') Na__LeSurface__RefreshChrome();
         if (all || reason === 'markup')    Na__LeSurface__RefreshMarkup();
         if (all || reason === 'frames' || reason === 'markup' || reason === 'selection') Na__LeSurface__RefreshSelection();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Drop a Frame That Is Still Booked
+    // ------------------------------------------------------------
+    // A pending rebuild must never land on a sheet that has since been torn
+    // down or swapped, so leaving the editor and changing sheet both cancel.
+    // ------------------------------------------------------------
+    function Na__LeSurface__CancelPending() {
+        if (Na__LeSurface__Frame) window.cancelAnimationFrame(Na__LeSurface__Frame);
+        Na__LeSurface__Frame   = 0;
+        Na__LeSurface__Pending = null;
     }
     // ------------------------------------------------------------
 
@@ -443,6 +499,7 @@
         Na__LeSurface__Unmount,
         Na__LeSurface__SetSheet,
         Na__LeSurface__Refresh,
+        Na__LeSurface__RefreshNow,
         Na__LeSurface__SetZoom,
         Na__LeSurface__GetZoom,
         Na__LeSurface__GetPixelsPerMm,

@@ -6,7 +6,8 @@
     "DrawingView__Render__Config": {
         "DrawingView__Render__Description": "What the composer preset changes while a drawing is on screen. Fog and ambient occlusion shade a parallel drawing like a surface, so both are switched off; the background becomes the paper colour; the profile line pass runs through the ortho-aware 2D pre-pass at a fixed width.",
         "DrawingView__Render__BackgroundColour": "#ffffff",
-        "DrawingView__Render__ProfileEdgeWidth": 1.0,
+        "DrawingView__Render__ProfileEdgeWidth": 0.55,
+        "DrawingView__Render__ProfileEdgeWidthNote": "Set 1.0 -> 0.55 on 13-Sep-2026 to match the width the drawing view has always drawn at. CAUTION: this file is not currently loaded in TrueVision - Na__DrawCfg__Load() is exported but never called - so the value that actually applies is the edgeWidth fallback in Na__DrawView__ConfigState__.js, also 0.55. Until 13-Sep-2026 Na__AppConfig__Main.json supplied 0.55 as Drawing2dEdgeWidth and masked that. Layout Editor viewports take their width from the Render Composites config instead, per viewport.",
         "DrawingView__Render__ProfileEdgeColour": null,
         "DrawingView__Render__ProfileEdgeThresholdNormal": null,
         "DrawingView__Render__DisableFog": true,

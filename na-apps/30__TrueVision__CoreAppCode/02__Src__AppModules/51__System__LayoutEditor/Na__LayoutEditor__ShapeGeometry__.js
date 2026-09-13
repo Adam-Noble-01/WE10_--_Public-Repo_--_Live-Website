@@ -39,6 +39,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.2.0
+// - Shape__Gradient reaches the primitive (Na__LayoutEditor__GradientTool__). A
+//   gradient counts as a fill for painting and for hit testing, over its whole
+//   area, alpha end included.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - Shape__Stroked: the edges can be switched off, leaving the fill.
 // - A fill no longer needs the shape to be closed, on the paper or in the
@@ -157,11 +162,16 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Does a Point Hit the Shape (an edge within tolerance, or the fill)
+    // FUNCTION | Does a Point Hit the Shape (an edge within tolerance, or the fill or gradient)
+    // ------------------------------------------------------------
+    // A gradient hits across its whole area, alpha end included. A fade is
+    // mostly see-through by design, and a shape that could only be picked up
+    // by its opaque half would be hard to find again; lock its layer to click
+    // through it to what is underneath.
     // ------------------------------------------------------------
     function Na__LeShapeGeo__Hit(shape, point, toleranceMm) {
         if (Na__LeShapeGeo__DistanceToEdge(shape, point) <= toleranceMm) return true;
-        return !!shape.Shape__FillColour && Na__LeShapeGeo__Contains(shape, point);
+        return (!!shape.Shape__FillColour || !!shape.Shape__Gradient) && Na__LeShapeGeo__Contains(shape, point);
     }
     // ------------------------------------------------------------
 
@@ -192,16 +202,17 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Push the Shape as One Polyline Primitive (edges, fill, or both)
+    // FUNCTION | Push the Shape as One Polyline Primitive (edges, fill, gradient, or a mix)
     // ------------------------------------------------------------
     function Na__LeShapeGeo__Push(list, shape) {
         const pts = Na__LeShapeGeo__Points(shape);
         if (pts.length < 2) return false;
-        const closed  = shape.Shape__Closed === true && pts.length > 2;
-        const stroked = shape.Shape__Stroked !== false;
-        const fill    = (pts.length > 2 && typeof shape.Shape__FillColour === 'string') ? shape.Shape__FillColour : null;
-        if (!stroked && !fill) return false;                                 // <-- Nothing to paint
-        Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed);
+        const closed   = shape.Shape__Closed === true && pts.length > 2;
+        const stroked  = shape.Shape__Stroked !== false;
+        const fill     = (pts.length > 2 && typeof shape.Shape__FillColour === 'string') ? shape.Shape__FillColour : null;
+        const gradient = (pts.length > 2 && shape.Shape__Gradient && typeof shape.Shape__Gradient === 'object') ? shape.Shape__Gradient : null;
+        if (!stroked && !fill && !gradient) return false;                    // <-- Nothing to paint
+        Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed, gradient);
         return true;
     }
     // ------------------------------------------------------------

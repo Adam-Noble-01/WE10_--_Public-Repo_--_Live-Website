@@ -253,6 +253,169 @@
     margin-top                         : 0;
 }
 
+/* ----------------------------------------------------------------- */
+/* REGION  |  Advanced Fold                                          */
+/* ----------------------------------------------------------------- */
+
+/* THE SMALL TOGGLE UNDER A SECTION TITLE. Deliberately quieter than the
+   section header above it - smaller, no fill, no rule - so it reads as a
+   property of the section rather than as another section. */
+.na-le-adv-toggle {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 6px;
+    width                              : 100%;
+    margin                             : -2px 0 8px;
+    padding                            : 2px 0;
+    border                             : none;
+    background                         : transparent;
+    color                              : #6c7a86;
+    font-size                          : 0.66rem;
+    font-weight                        : 600;
+    letter-spacing                     : 0.05em;
+    text-transform                     : uppercase;
+    text-align                         : left;
+    cursor                             : pointer;
+}
+
+.na-le-adv-toggle:hover {
+    color                              : #1a7fc4;
+}
+
+.na-le-adv-toggle__chevron {
+    width                              : 0;
+    height                             : 0;
+    border-left                        : 4px solid transparent;
+    border-right                       : 4px solid transparent;
+    border-top                         : 5px solid currentColor;
+    transform                          : rotate(-90deg);
+    transition                         : transform 0.15s;
+}
+
+.na-le-section.is-advanced .na-le-adv-toggle {
+    color                              : #1a7fc4;
+}
+
+.na-le-section.is-advanced .na-le-adv-toggle__chevron {
+    transform                          : none;
+}
+
+/* EVERYTHING MARKED ADVANCED IS GONE UNTIL THE FOLD IS OPEN. !important
+   because these sit inside rows whose own display rules would otherwise
+   win on specificity. */
+.na-le-section:not(.is-advanced) .na-le-adv {
+    display                            : none !important;
+}
+
+/* THE INLINE CLUSTER inside a toggle row: colour, line type, weight, then the
+   row's own checkbox after it. The label gives way first - it ellipsises
+   rather than pushing the controls off the edge - which is why the panel can
+   be dragged wider while curating and narrow again afterwards. */
+.na-le-row--toggle .na-le-row__label {
+    min-width                          : 0;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+}
+
+.na-le-row__adv {
+    display                            : flex;
+    flex                               : 0 0 auto;
+    align-items                        : center;
+    gap                                : 4px;
+}
+
+.na-le-row__adv .na-le-select,
+.na-le-row__adv .na-le-input {
+    flex                               : 0 0 auto;
+    padding                            : 1px 3px;
+    font-size                          : 0.7rem;
+}
+
+.na-le-adv-colour  { width : 92px; }
+.na-le-adv-type    { width : 82px; }
+.na-le-adv-weight  { width : 52px; text-align : right; }
+
+/* THE UNIT AFTER A COMPOSITE WEIGHT: a multiplication sign for a factor of
+   the sheet master, "px" for a render-buffer width. Two kinds of number in
+   one column need telling apart without reading the tooltip. */
+.na-le-adv-unit {
+    flex                               : 0 0 16px;
+    color                              : #8a96a0;
+    font-size                          : 0.66rem;
+}
+
+/* A CLUSTER THAT DOES NOT APPLY to the selected viewport - edge styles on a
+   3D viewport, a 2D-only weight on a 3D one - is removed even with the fold
+   open, rather than offering controls that would change nothing. */
+.na-le-adv--off,
+.na-le-list--no-edges .na-le-row__adv,
+.na-le-list--no-edges .na-le-adv-head {
+    display                            : none !important;
+}
+
+/* A SWATCH BESIDE THE COLOUR SELECT. A native option list cannot be relied on
+   to paint its own backgrounds, and a grey called "Mid Grey" is not a grey
+   anyone can see. The swatch shows the colour the line will actually be. */
+.na-le-adv-swatch {
+    flex                               : 0 0 12px;
+    width                              : 12px;
+    height                             : 12px;
+    border                             : 1px solid rgba(23, 43, 58, 0.25);
+    border-radius                      : 2px;
+}
+
+/* A CATEGORY THIS VIEWPORT HAS RESTYLED gets a marker on its label and a reset
+   button, so a curated row can be told from an inherited one at a glance. */
+.na-le-row.is-overridden .na-le-row__label {
+    color                              : #1a7fc4;
+    font-weight                        : 600;
+}
+
+.na-le-adv-reset {
+    flex                               : 0 0 18px;
+    width                              : 18px;
+    height                             : 18px;
+    padding                            : 0;
+    border                             : 1px solid transparent;
+    border-radius                      : 3px;
+    background                         : transparent;
+    color                              : #8a96a0;
+    font-size                          : 0.78rem;
+    line-height                        : 1;
+    cursor                             : pointer;
+    visibility                         : hidden;
+}
+
+.na-le-row.is-overridden .na-le-adv-reset {
+    visibility                         : visible;
+}
+
+.na-le-adv-reset:hover {
+    border-color                       : #ccd3d8;
+    color                              : #172b3a;
+}
+
+/* THE COLUMN HEADINGS for the inline cluster, shown once above a list rather
+   than repeated per row. Aligned to the same widths as the controls below. */
+.na-le-adv-head {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    margin                             : 0 0 4px;
+    color                              : #8a96a0;
+    font-size                          : 0.62rem;
+    font-weight                        : 600;
+    letter-spacing                     : 0.04em;
+    text-transform                     : uppercase;
+}
+
+.na-le-adv-head__spacer { flex : 1 1 auto; }
+.na-le-adv-head__cell   { flex : 0 0 auto; }
+
+/* endregion ------------------------------------------------------- */
+
+
 /* A ROW THAT IS ONLY BUTTONS, with no label column to line up against. */
 .na-le-row--buttons {
     gap                                : 6px;
@@ -382,6 +545,75 @@
     text-overflow                      : ellipsis;
     white-space                        : nowrap;
     cursor                             : default;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Gradient Rows (Vectors panel)                          */
+/* ----------------------------------------------------------------- */
+
+/* THE SETTINGS BLOCK sits under its toggle the way the fill colour row sits
+   under Fill, with a faint rule down its left so the rows read as the
+   gradient's own rather than as more shape properties. */
+.na-le-grad {
+    margin                             : -2px 0 6px;
+    padding-left                       : 8px;
+    border-left                        : 2px solid #e6eaee;
+}
+
+/* AN ALPHA END has no colour of its own - the solid end lends it one - so its
+   colour well goes. visibility rather than display keeps the tick in place. */
+.na-le-grad-stop.is-alpha .na-le-input--colour {
+    visibility                         : hidden;
+}
+
+.na-le-grad-alpha {
+    display                            : inline-flex;
+    align-items                        : center;
+    gap                                : 4px;
+    color                              : #555;
+    font-size                          : 0.72rem;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+}
+
+.na-le-input--range {
+    flex                               : 1 1 auto;
+    min-width                          : 40px;
+    height                             : 18px;
+    padding                            : 0;
+    border                             : none;
+    background                         : transparent;
+    accent-color                       : #1a7fc4;
+}
+
+.na-le-grad-readout {
+    flex                               : 0 0 34px;
+    color                              : #555;
+    font-size                          : 0.72rem;
+    font-variant-numeric               : tabular-nums;
+    text-align                         : right;
+}
+
+.na-le-grad-angle {
+    flex                               : 0 0 50px;
+    width                              : 50px;
+    text-align                         : right;
+}
+
+/* THE PREVIEW is painted from the same stops as the paper, over a
+   checkerboard so the alpha end reads as see-through rather than as white. */
+.na-le-grad-preview {
+    flex                               : 0 0 24px;
+    width                              : 24px;
+    height                             : 24px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 4px;
+    background-color                   : #ffffff;
+    background-size                    : 100% 100%, 8px 8px;
+    background-repeat                  : no-repeat, repeat;
 }
 
 /* endregion ------------------------------------------------------- */

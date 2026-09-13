@@ -60,7 +60,7 @@
     import { Na__LeModel__KIND_2D, Na__LeModel__GetLayers, Na__LeModel__GetFields, Na__LeModel__IsLayerVisible } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeChrome__Build, Na__LeChrome__DrawToPdf } from './Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeMarkup__BuildScenePrimitives, Na__LeMarkup__BuildSheetPrimitives } from './Na__LayoutEditor__MarkupBridge__.js';
-    import { Na__LeVp2d__CLASS_ORDER, Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__StrokeRules, Na__LeVp2d__RenderForExport } from './Na__LayoutEditor__Viewport2d__.js';
+    import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__StyleBands } from './Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeVp3d__RenderForExport } from './Na__LayoutEditor__Viewport3d__.js';
     import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
@@ -148,23 +148,26 @@
     // ------------------------------------------------------------
     function Na__LePdf__DrawLinework(doc, sheet, viewport, described, classes) {
         const win   = described.window;
-        const rules = Na__LeVp2d__StrokeRules(sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.ViewportPt : null);
         const setup = Na__LeCfg__GetLineworkSetup();
         const D     = win.Denominator;
         const minLen = setup.minSegmentPaperMm;
         const frame  = viewport.Viewport__FrameMm;
         const showHidden = viewport.Viewport__Styles.hiddenLines === true;
-        Na__LeVp2d__CLASS_ORDER.forEach((name) => {
-            if (name === 'hidden' && !showHidden) return;
-            const segments = classes[name];
+        // THE SAME BANDS THE SCREEN PAINTS. The PDF is paper millimetres already,
+        // so widths and dash patterns go in unscaled; the screen multiplies both
+        // by the denominator because its SVG is drawn in model millimetres.
+        const bands = Na__LeVp2d__StyleBands(viewport, sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.ViewportPt : null, classes, showHidden);
+        bands.forEach((band) => {
+            const segments = classes[band.className];
             if (!segments || segments.length < 4) return;
-            const rule = rules[name];
-            const rgb  = Na__LePdf__Rgb(rule.colour);
+            const rgb  = Na__LePdf__Rgb(band.colour);
             doc.setDrawColor(rgb[0], rgb[1], rgb[2]);
-            doc.setLineWidth(rule.widthMm);
+            doc.setLineWidth(band.widthMm);
             doc.setLineCap('round');
-            try { doc.setLineDashPattern(rule.dashMm > 0 ? [ rule.dashMm, rule.dashMm ] : [], 0); } catch (e) { /* older build */ }
-            for (let i = 0; i + 3 < segments.length; i += 4) {
+            try { doc.setLineDashPattern(band.dashMm && band.dashMm.length ? band.dashMm : [], 0); } catch (e) { /* older build */ }
+            const count = band.indices ? band.indices.length : Math.floor(segments.length / 4);
+            for (let k = 0; k < count; k++) {
+                const i  = (band.indices ? band.indices[k] : k) * 4;
                 const x1 = frame.X + ((segments[i]     - win.OriginX) / D), y1 = frame.Y + ((segments[i + 1] - win.OriginY) / D);
                 const x2 = frame.X + ((segments[i + 2] - win.OriginX) / D), y2 = frame.Y + ((segments[i + 3] - win.OriginY) / D);
                 if (Math.abs(x2 - x1) < minLen && Math.abs(y2 - y1) < minLen) continue;

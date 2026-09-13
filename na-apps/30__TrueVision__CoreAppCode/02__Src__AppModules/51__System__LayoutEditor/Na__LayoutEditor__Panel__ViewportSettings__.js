@@ -82,6 +82,7 @@
     import { Na__LeVp2d__Describe, Na__LeVp2d__CentreOnDrawing } from './Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeRaster__LEVELS, Na__LeRaster__Get, Na__LeRaster__Set } from './Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeMarkup__ImportFromScene } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeClip__IsCopyName } from './Na__LayoutEditor__ViewportClipboard__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Scenes and Groups
@@ -314,7 +315,9 @@
             const c = Na__LePanelViewport__Current();
             const d = Na__LePanelViewport__Describe(el.value);
             if (!c || !d) return;
-            Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { sceneId : el.value, drawingId : d.drawingId, kind : d.kind, snapshotAsset : null });
+            const patch = { sceneId : el.value, drawingId : d.drawingId, kind : d.kind, snapshotAsset : null };
+            if (Na__LeClip__IsCopyName(c.viewport)) patch.name = '';                  // <-- A pasted copy's placeholder name described the old scene: the caption follows the new one
+            Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, patch);
             if (d.kind === Na__LeModel__KIND_2D) Na__LeVp2d__CentreOnDrawing(c.sheet, c.viewport);
         });
         Na__LePanels__OnControl('click', 'vp-scale', (e, el, role) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { scaleDenominator : parseFloat(role) }); });

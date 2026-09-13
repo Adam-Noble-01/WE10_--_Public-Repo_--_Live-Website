@@ -45,6 +45,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.2.0
+// - Asset schema 2: an owner tag per segment, stored as [ id, count ] runs per
+//   class with the key table in Meta.OwnerKeys.
+// - An untagged block is refused on read and never written, and the bake will
+//   not upload an untagged result. GPU renders made before every kept render was
+//   routed to the CPU had been cached untagged, and restored them would have
+//   left the Layout Editor edge styles doing nothing.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - RememberRender keeps a fresh render in IndexedDB so a reload paints without computing.
 // - BakeAll and BakeBeforeSave skip drawings with Projected Linework off unless a caller names them (sheet viewports) or forces.
@@ -90,6 +98,15 @@
     // ------------------------------------------------------------
 
     import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Segment Owner Tags
+    // ------------------------------------------------------------
+    import {
+        Na__PlOwners__Read,
+        Na__PlOwners__Attach,
+        Na__PlOwners__Has
+    } from './Na__ProjectedLinework__Owners__.js';
 
 // endregion -------------------------------------------------------------------
 
@@ -100,7 +117,12 @@
 
     // MODULE CONSTANTS | Block Identity and Record Slots
     // ------------------------------------------------------------
-    const Na__PlStore__SCHEMA_VERSION = 1;
+    // SCHEMA 2 ADDED THE OWNER TAGS. A v1 block is perfectly good geometry and
+    // is still refused, deliberately: it cannot say which category any of its
+    // lines belongs to, so a drawing restored from one would quietly ignore
+    // every per-category colour and weight the viewport asked for and look like
+    // the feature was broken. Refusing costs one re-render per drawing, once.
+    const Na__PlStore__SCHEMA_VERSION = 2;
     const Na__PlStore__DECIMALS       = 2;
     const Na__PlStore__FACTOR         = Math.pow(10, Na__PlStore__DECIMALS);
     const Na__PlStore__CLASSES        = [ 'visible', 'hidden', 'authored', 'section' ];
@@ -132,6 +154,55 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Run-Length Encode One Class's Owner Tags
+    // ------------------------------------------------------------
+    // Segments arrive grouped by the instance that produced them, so a drawing
+    // with 80,000 visible segments across 30 categories encodes to a few hundred
+    // runs. Written as [ id, count ] pairs, which is both a fraction of the size
+    // of one integer per segment and readable when auditing an asset by eye.
+    // ------------------------------------------------------------
+    function Na__PlStore__EncodeOwners(owners) {
+        if (!owners || owners.length === 0) return [];
+        const runs = [];
+        let current = owners[0];
+        let length  = 1;
+        for (let i = 1; i < owners.length; i++) {
+            if (owners[i] === current) { length++; continue; }
+            runs.push([ current, length ]);
+            current = owners[i];
+            length  = 1;
+        }
+        runs.push([ current, length ]);
+        return runs;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Expand Owner Runs Back to One Id per Segment
+    // ------------------------------------------------------------
+    // Returns null when the runs do not add up to the segment count the
+    // coordinates actually carry. A short or long tag buffer would colour the
+    // wrong lines, which looks like a projection fault forever; refusing it
+    // drops the drawing back to class colours, which looks like nothing.
+    // ------------------------------------------------------------
+    function Na__PlStore__DecodeOwners(runs, segmentCount) {
+        if (!Array.isArray(runs)) return null;
+        const out = new Uint16Array(segmentCount);
+        let at = 0;
+        for (let i = 0; i < runs.length; i++) {
+            const pair = runs[i];
+            if (!Array.isArray(pair) || pair.length < 2) return null;
+            const id    = pair[0] | 0;
+            const count = pair[1] | 0;
+            if (count < 0 || (at + count) > segmentCount) return null;
+            out.fill(id, at, at + count);
+            at += count;
+        }
+        return at === segmentCount ? out : null;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Build the Asset Block From a Rendered Result
     // ------------------------------------------------------------
     // Returns null when a class is over the storage ceiling, which the caller
@@ -141,6 +212,11 @@
         const setup   = Na__PlCfg__GetPersistenceSetup();
         const blocks  = {};
         let   total   = 0;
+        // THE TAGS ARE NON-ENUMERABLE ON THE CLASSES OBJECT, which is what keeps
+        // every other consumer of it untouched - and exactly why they have to be
+        // written out by hand here. A structured clone or a JSON round trip would
+        // drop them silently.
+        const tags    = Na__PlOwners__Read(classes);
 
         for (let i = 0; i < Na__PlStore__CLASSES.length; i++) {
             const name     = Na__PlStore__CLASSES[i];
@@ -153,6 +229,7 @@
             }
             total += count;
             blocks[name] = { SegmentCount : count, Coordinates : Na__PlStore__RoundBuffer(segments) };
+            if (tags) blocks[name].OwnerRuns = Na__PlStore__EncodeOwners(tags.Owners[name]);
         }
 
         const stamp = new Date();
@@ -171,7 +248,9 @@
                 CoordinateSpace    : 'drawing millimetres, x right, y down',
                 CoordinateOrder    : 'x0, y0, x1, y1',
                 CoordinateDecimals : Na__PlStore__DECIMALS,
-                SegmentCount       : total
+                SegmentCount       : total,
+                OwnerDescription   : 'OwnerKeys is the model category behind each owner id; index 0 is the unknown owner, which every style lookup resolves to its configured fallback. Each class carries OwnerRuns as [ id, count ] pairs covering its segments in order.',
+                OwnerKeys          : tags ? tags.OwnerKeys.slice() : null
             },
             Classes : blocks
         };
@@ -197,6 +276,8 @@
         }
 
         const classes = {};
+        const restored = {};
+        let   allTagged = Array.isArray(block.Meta.OwnerKeys);
         for (let i = 0; i < Na__PlStore__CLASSES.length; i++) {
             const name  = Na__PlStore__CLASSES[i];
             const entry = block.Classes[name];
@@ -205,6 +286,24 @@
             const out    = new Float32Array(usable);
             for (let k = 0; k < usable; k++) out[k] = coordinates[k];
             classes[name] = out;
+
+            if (allTagged) {
+                const tags = Na__PlStore__DecodeOwners(entry ? entry.OwnerRuns : null, usable / 4);
+                if (tags) restored[name] = tags; else allTagged = false;
+            }
+        }
+        // AN UNTAGGED BLOCK IS STALE, NOT MERELY PLAINER. Every render the pipeline
+        // keeps is tagged (Na__PlProjector__ResolveBackend), so a block with no owner
+        // runs - or runs that do not add up to its segments - came from a GPU render
+        // made before that rule existed. Restoring it would paint every category in
+        // its class colour and silently ignore every edge style the viewport asks
+        // for. Refusing costs one re-render, and the re-render is stored tagged.
+        //
+        // ALL FOUR CLASSES OR NONE, for the same reason: three tagged classes and
+        // one untagged would style most of a drawing and quietly not the rest.
+        if (!allTagged || !Na__PlOwners__Attach(classes, restored, block.Meta.OwnerKeys)) {
+            console.info('[TrueVision3D ProjectedLinework] Stored linework for ' + block.Meta.ViewKey + ' carries no category tags; ignoring it so it re-renders with them.');
+            return null;
         }
         return classes;
     }
@@ -393,6 +492,7 @@
     async function Na__PlStore__RememberRender(definition, result) {
         if (!definition || !result || !result.Classes || !result.CacheKey) return false;
         if (!Na__PlCfg__GetPersistenceSetup().enabled) return false;
+        if (!Na__PlOwners__Has(result.Classes)) return false;                   // <-- Never store what a reload would have to refuse
         const block = Na__PlStore__Serialise(definition, result.Classes, { Fingerprint : result.Fingerprint, Backend : result.Report ? result.Report.Backend : 'cpu' });
         if (!block) return false;
         return Na__PlStore__StoreInBrowser(result.CacheKey, block);
@@ -417,12 +517,18 @@
         const cacheKey    = Na__PlView__CacheKey(definition, modelFingerprint);
         let   classes     = Na__PlPipe__GetCached(definition);
         let   backend     = 'cache';
+        if (classes && !Na__PlOwners__Has(classes)) classes = null;               // <-- An untagged result must never reach R2
 
         if (!classes) {
             const result = await Na__PlPipe__RenderDefinition(definition, null, null, null);
             classes = result.Classes;
             backend = result.Report.Backend;
             Na__PlPipe__Remember(cacheKey, definition, classes, fingerprint, 'render');
+        }
+
+        if (!Na__PlOwners__Has(classes)) {
+            console.warn('[TrueVision3D ProjectedLinework] ' + definition.ViewKey + ' rendered without category tags; not baked.');
+            return 'refused';
         }
 
         const block = Na__PlStore__Serialise(definition, classes, { Fingerprint : fingerprint, Backend : backend });

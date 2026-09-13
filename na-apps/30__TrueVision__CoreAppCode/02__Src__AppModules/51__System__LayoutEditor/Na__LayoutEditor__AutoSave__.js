@@ -41,6 +41,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.1.0
+// - The browser draft is written DraftDebounceMs after the editing pauses rather
+//   than inside every change. It is a synchronous disk write of every sheet, so
+//   doing it per click stalled the editor. Flushed when the tab is hidden or
+//   closed; a queued write is dropped when a new project loads.
+//
 // 10-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -83,6 +89,7 @@
     let Na__LeAuto__ShowToast = null;
     let Na__LeAuto__Editable  = false;
     let Na__LeAuto__Timer     = null;
+    let Na__LeAuto__DraftTimer = null;     // <-- The browser draft waits for a pause in the editing
     let Na__LeAuto__Saving    = false;
     let Na__LeAuto__Again     = false;     // <-- A structural change arrived while a save was in flight
     let Na__LeAuto__Restoring = false;
@@ -134,6 +141,39 @@
         const key = Na__LeAuto__Key();
         if (!key) return;
         try { window.localStorage.removeItem(key); } catch (e) { /* nothing to clear */ }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Write the Draft Once the Editing Pauses
+    // ------------------------------------------------------------
+    // THIS USED TO RUN ON EVERY CHANGE, INSIDE THE CLICK. It stringifies every
+    // sheet in the project and hands the lot to localStorage, which is a
+    // synchronous disk write on the main thread - so each delete, each style
+    // paint and each nudge waited on the disk before the browser could paint
+    // the result. On a project with a few full sheets that is the difference
+    // between an editor that answers and one that stutters.
+    //
+    // The draft is crash insurance, not a save. Written a moment after the
+    // last change it protects exactly as much work, and it is flushed when the
+    // tab is hidden or closed so leaving the page never loses the last edit.
+    // ------------------------------------------------------------
+    function Na__LeAuto__ScheduleDraft() {
+        if (Na__LeAuto__DraftTimer) window.clearTimeout(Na__LeAuto__DraftTimer);
+        Na__LeAuto__DraftTimer = window.setTimeout(() => {
+            Na__LeAuto__DraftTimer = null;
+            Na__LeAuto__WriteDraft();
+        }, Na__LeCfg__GetAutoSaveSetup().draftDebounceMs);
+    }
+    function Na__LeAuto__FlushDraft() {
+        if (!Na__LeAuto__DraftTimer) return false;
+        window.clearTimeout(Na__LeAuto__DraftTimer);
+        Na__LeAuto__DraftTimer = null;
+        return Na__LeAuto__WriteDraft();
+    }
+    function Na__LeAuto__DropDraftWrite() {
+        if (Na__LeAuto__DraftTimer) window.clearTimeout(Na__LeAuto__DraftTimer);
+        Na__LeAuto__DraftTimer = null;
     }
     // ------------------------------------------------------------
 
@@ -190,9 +230,9 @@
     // ------------------------------------------------------------
     function Na__LeAuto__OnModelChanged(event) {
         const reason = (event.detail && event.detail.reason) || '';
-        if (reason === 'loaded') { Na__LeAuto__RestoreDraft(); return; }
+        if (reason === 'loaded') { Na__LeAuto__DropDraftWrite(); Na__LeAuto__RestoreDraft(); return; }   // <-- A write still queued from the last project must not overwrite this one's draft
         if (Na__LeAuto__IGNORED.indexOf(reason) >= 0) return;
-        Na__LeAuto__WriteDraft();
+        Na__LeAuto__ScheduleDraft();
         if (Na__LeAuto__Editable && Na__LeCfg__GetAutoSaveSetup().enabled && Na__LeAuto__STRUCTURAL.indexOf(reason) >= 0) Na__LeAuto__Schedule();
     }
     // ------------------------------------------------------------
@@ -226,6 +266,8 @@
         Na__LeAuto__Ready = true;
         window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeAuto__OnModelChanged);
         window.addEventListener(Na__DrawData__CHANGED_EVENT, Na__LeAuto__OnDrawingsData);
+        window.addEventListener('pagehide', () => Na__LeAuto__FlushDraft());                                      // <-- Closing the tab keeps the last edit
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Na__LeAuto__FlushDraft(); });
         return true;
     }
     // ------------------------------------------------------------

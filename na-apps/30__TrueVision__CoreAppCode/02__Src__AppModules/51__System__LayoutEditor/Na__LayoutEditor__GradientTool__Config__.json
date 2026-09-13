@@ -1,0 +1,49 @@
+{
+    "LayoutEditor__GradientTool__Meta": {
+        "Meta__FileName"        : "Na__LayoutEditor__GradientTool__Config__.json",
+        "Meta__Description"     : "The linear gradient fill on a vector shape, owned by Na__LayoutEditor__GradientTool__.js and switched on from the Vectors panel. A gradient runs from a start colour to an end colour across the shape, and either end may be Alpha - transparent - so a closed polygon drawn on a vector layer over a drawing and run alpha to white fades that drawing out into the page.",
+        "Meta__Version"         : "1.0.0",
+        "Meta__Created"         : "13-Sep-2026",
+        "Meta__Author"          : "Adam Noble - Noble Architecture",
+
+        "Meta__WhereTheEndsSit" : "The gradient is fitted to the shape itself, not to the paper and not to a bounding box: the start colour lands exactly on the shape's furthest point back along the direction and the end colour on its furthest point forward. Rotate the direction and the ends move round the outline with it, so a fade always spans the whole polygon whatever its shape.",
+        "Meta__Direction"       : "AngleDeg is the direction the gradient travels from start to end, measured anticlockwise the way a protractor and Adobe's gradient tools read it: 0 runs left to right, 90 bottom to top, 180 right to left, 270 top to bottom.",
+        "Meta__Blend"           : "BlendPct is where the two ends meet half and half, as a percentage of the way along the direction - the midpoint diamond on an Illustrator or Photoshop gradient. 50 is an even fade. Lower brings the end colour in sooner; higher holds the start colour for longer before it gives way.",
+        "Meta__WhyAlphaTakesTheOtherColour" : "An Alpha end has no colour of its own. The mix is done with premultiplied alpha, which is the same as the transparent end borrowing the colour of the solid one, so an alpha-to-white fade is white all the way along at a falling opacity. Mixing a stored colour straight through transparent black instead would put a grey band through the middle of every fade.",
+        "Meta__WhyThePdfIsAStrip" : "A PDF shading cannot carry transparency, and jsPDF has no soft-mask shading, so the PDF draws the gradient as a thin strip image with an alpha soft mask, rotated to the direction and clipped to the shape's own outline. The outline stays a true vector edge; only the smooth tone inside is sampled. The strip has to go in as a PNG: this jsPDF build's raw RGBA path drops the alpha channel on the floor and would print every fade as a solid block."
+    },
+
+    "LayoutEditor__GradientTool__Defaults": {
+        "Defaults__Description" : "What the Gradient toggle starts from on a shape that has never had one, and what the Draw tool uses while nothing is selected. Alpha to white, left to right, an even blend.",
+        "Defaults__On"          : false,
+        "Defaults__StartColour" : "#ffffff",
+        "Defaults__StartAlpha"  : true,
+        "Defaults__EndColour"   : "#ffffff",
+        "Defaults__EndAlpha"    : false,
+        "Defaults__BlendPct"    : 50,
+        "Defaults__AngleDeg"    : 0
+    },
+
+    "LayoutEditor__GradientTool__Rendering": {
+        "Rendering__Description"     : "CurveStops is how many equal steps of colour an uneven blend is broken into on screen - SVG has no midpoint hint, so the curve is written out as stops, spaced so each step changes the colour by the same amount. The PDF strip takes PdfSamplesPerMm samples per paper millimetre along the direction, kept between PdfMinSamples and PdfMaxSamples; at 4 per millimetre a fade across a whole A1 sheet still steps by well under one percent of opacity.",
+        "Rendering__CurveStops"      : 32,
+        "Rendering__PdfSamplesPerMm" : 4,
+        "Rendering__PdfMinSamples"   : 64,
+        "Rendering__PdfMaxSamples"   : 2048
+    },
+
+    "LayoutEditor__GradientTool__Labels": {
+        "Labels__Description"    : "The Vectors panel wording for the gradient rows. The long explanations are tooltips rather than notes, so the rows cost no more panel height than the controls themselves.",
+        "Labels__Gradient"       : "Gradient",
+        "Labels__GradientTitle"  : "A linear gradient fill. It replaces the solid fill while it is on.",
+        "Labels__Start"          : "Start",
+        "Labels__End"            : "End",
+        "Labels__Alpha"          : "Alpha",
+        "Labels__AlphaTitle"     : "Transparent at this end, so whatever is underneath shows through. Only one end can be alpha.",
+        "Labels__Blend"          : "Blend",
+        "Labels__BlendTitle"     : "Where the two ends meet half and half along the direction. 50% is an even fade; lower brings the end colour in sooner, higher holds the start colour longer.",
+        "Labels__Direction"      : "Direction",
+        "Labels__DirectionTitle" : "The way the gradient runs from start to end, in degrees anticlockwise: 0 left to right, 90 bottom to top, 180 right to left, 270 top to bottom.",
+        "Labels__PreviewTitle"   : "Preview over a checkerboard, which shows where the gradient is transparent."
+    }
+}

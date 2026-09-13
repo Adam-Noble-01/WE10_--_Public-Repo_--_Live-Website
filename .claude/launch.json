@@ -34,6 +34,26 @@
       "port": 8433
     },
     {
+      "name": "truevision-static-verify",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8444"
+      ],
+      "port": 8444
+    },
+    {
+      "name": "truevision-static-snapmove",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8457"
+      ],
+      "port": 8457
+    },
+    {
       "name": "truevision-static-alt",
       "runtimeExecutable": "python",
       "runtimeArgs": [

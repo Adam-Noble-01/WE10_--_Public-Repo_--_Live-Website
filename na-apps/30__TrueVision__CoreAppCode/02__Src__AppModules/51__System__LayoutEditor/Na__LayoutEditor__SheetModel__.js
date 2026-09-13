@@ -31,7 +31,8 @@
 //                 EndXMm, EndYMm, OffsetMm, TextSizeMm, Colour, Terminator,
 //                 Precision, UnitsSuffix, OverrideText
 //     Shape       Shape__Id, LayerId, Points [[x, y], ...], Closed, Stroked, StrokeColour,
-//                 StrokePt, FillColour (null for none)
+//                 StrokePt, FillColour (null for none), Gradient (null for none;
+//                 the shape is Na__LayoutEditor__GradientTool__'s)
 //   Paper coordinates are millimetres from the sheet's top-left, y down.
 //
 // - The active sheet and the selection are session state, held here so the
@@ -53,6 +54,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.3.1
+// - CreateShape and UpdateShape carry Shape__Gradient (the gradient key: an
+//   object, or null to clear it). The normaliser copies it, so no two shapes
+//   ever share one.
+//
+// 13-Sep-2026 - Version 1.3.0
+// - InsertViewport: a whole viewport record goes onto a sheet with a fresh id
+//   and a single announcement, for the viewport clipboard's paste and duplicate.
+//
 // 10-Sep-2026 - Version 1.2.1
 // - CreateShape and UpdateShape carry Shape__Stroked (the edges toggle).
 //
@@ -108,6 +118,12 @@
         Na__LeRec__NormaliseShape
     } from './Na__LayoutEditor__SheetRecords__.js';
     import { Na__LeScale__Coerce } from './Na__LayoutEditor__ScaleManager__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Projected Edge Styles and Composite Weights
+    // ------------------------------------------------------------
+    import { Na__LeEdge__FIELD, Na__LeEdge__CAT_FIELD } from './Na__LayoutEditor__EdgeStyles__.js';
+    import { Na__LeComposite__FIELD, Na__LeComposite__Clamp } from './Na__LayoutEditor__RenderComposites__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -491,6 +507,29 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Add a Whole Viewport Record (a paste or a duplicate)
+    // ------------------------------------------------------------
+    // Where CreateViewport builds a viewport from a handful of options, this
+    // takes a complete record - scene, scale, crop, window, composites, model
+    // layers, edge styles - deep-copies it and gives it a fresh id, so a
+    // viewport set up once can be put down again with every setting intact.
+    // A layer id the sheet does not have falls back to the default viewport
+    // layer. Appended last, so it draws in front on its layer. One
+    // announcement, so one undo step.
+    // ------------------------------------------------------------
+    function Na__LeModel__InsertViewport(sheet, record) {
+        if (!sheet || !record || typeof record !== 'object') return null;
+        const viewport = JSON.parse(JSON.stringify(record));
+        viewport.Viewport__Id = Na__LeRec__NextId(sheet.Sheet__Viewports, 'Viewport_', 'Viewport__Id');
+        if (!Na__LeModel__GetLayerById(sheet, viewport.Viewport__LayerId)) viewport.Viewport__LayerId = null;
+        Na__LeRec__NormaliseViewport(viewport, Na__LeModel__DefaultLayerId(sheet, 'viewport'));
+        sheet.Sheet__Viewports.push(viewport);
+        Na__LeModel__Touch('viewports', sheet.Sheet__Id, viewport.Viewport__Id);
+        return viewport;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Remove a Viewport and the Sheet Dimensions Measuring Through It
     // ------------------------------------------------------------
     function Na__LeModel__DeleteViewport(sheet, viewportId) {
@@ -509,8 +548,8 @@
     // FUNCTION | Change a Viewport (any subset of its fields)
     // ------------------------------------------------------------
     // patch: { rect, scaleDenominator, pan, imageMm, imageOffset, styles, modelLayers,
-    //          markupMode, name, layerId, sceneId, drawingId, kind, showScaleLabel,
-    //          snapshotAsset }
+    //          projectedEdges, compositeWeights, markupMode, name, layerId,
+    //          sceneId, drawingId, kind, showScaleLabel, snapshotAsset }
     // silent: true skips the change event (live drags announce on release).
     // ------------------------------------------------------------
     function Na__LeModel__UpdateViewport(sheet, viewportId, patch, silent) {
@@ -532,6 +571,32 @@
             const merged = Object.assign({}, viewport.Viewport__ModelLayers || {});
             Object.keys(patch.modelLayers).forEach((key) => { if (typeof patch.modelLayers[key] === 'boolean') merged[key] = patch.modelLayers[key]; });
             viewport.Viewport__ModelLayers = merged;
+        }
+        if (patch.projectedEdges) {
+            // MERGED, ONE CATEGORY AT A TIME, and a null value CLEARS that
+            // category rather than storing an empty entry - which is how the
+            // panel's Reset button leaves no trace that anything was touched.
+            const held   = viewport[Na__LeEdge__FIELD] || {};
+            const merged = Object.assign({}, held[Na__LeEdge__CAT_FIELD] || {});
+            Object.keys(patch.projectedEdges).forEach((key) => {
+                const value = patch.projectedEdges[key];
+                if (value === null || value === undefined) { delete merged[key]; return; }
+                if (typeof value === 'object') merged[key] = value;
+            });
+            const next = {};
+            next[Na__LeEdge__CAT_FIELD] = merged;
+            next['Edges__UpdatedIso']   = new Date().toISOString();             // <-- Stamped where a change is known to have happened, not in the normaliser
+            viewport[Na__LeEdge__FIELD] = next;
+        }
+        if (patch.compositeWeights) {
+            const merged = Object.assign({}, viewport[Na__LeComposite__FIELD] || {});
+            Object.keys(patch.compositeWeights).forEach((key) => {
+                const value = patch.compositeWeights[key];
+                if (value === null || value === undefined) { delete merged[key]; return; }
+                const clamped = Na__LeComposite__Clamp(key, parseFloat(value));
+                if (Number.isFinite(clamped)) merged[key] = clamped;
+            });
+            viewport[Na__LeComposite__FIELD] = merged;
         }
         if (patch.scaleDenominator !== undefined) viewport.Viewport__ScaleDenominator = Na__LeScale__Coerce(patch.scaleDenominator);
         if (patch.markupMode === 'scene' || patch.markupMode === 'sheet') viewport.Viewport__MarkupMode = patch.markupMode;
@@ -736,7 +801,8 @@
             Shape__StrokeColour : opts.strokeColour,
             Shape__StrokePt     : opts.strokePt,
             Shape__FillColour   : (typeof opts.fillColour === 'string') ? opts.fillColour : null,
-            Shape__Stroked      : opts.stroked !== false
+            Shape__Stroked      : opts.stroked !== false,
+            Shape__Gradient     : (opts.gradient && typeof opts.gradient === 'object') ? opts.gradient : null   // <-- The normaliser copies it, so the caller's object is never shared
         }, layerId);
         sheet.Sheet__Shapes.push(item);
         if (opts.silent) Na__LeModel__Dirty = true; else Na__LeModel__Touch('shapes', sheet.Sheet__Id, item.Shape__Id);   // <-- The draw tool announces once, on finishing
@@ -750,6 +816,7 @@
         if (typeof patch.strokeColour === 'string') item.Shape__StrokeColour = patch.strokeColour;
         if (Number.isFinite(patch.strokePt)) item.Shape__StrokePt = patch.strokePt;
         if (patch.fillColour !== undefined) item.Shape__FillColour = (typeof patch.fillColour === 'string') ? patch.fillColour : null;
+        if (patch.gradient !== undefined) item.Shape__Gradient = (patch.gradient && typeof patch.gradient === 'object') ? patch.gradient : null;   // <-- null clears it; the normaliser below copies it fresh
         if (typeof patch.stroked === 'boolean') item.Shape__Stroked = patch.stroked;
         if (typeof patch.layerId === 'string') item.Shape__LayerId = patch.layerId;
         Na__LeRec__NormaliseShape(item, item.Shape__LayerId);
@@ -893,6 +960,7 @@
         Na__LeModel__GetViewports,
         Na__LeModel__GetViewportById,
         Na__LeModel__CreateViewport,
+        Na__LeModel__InsertViewport,
         Na__LeModel__DeleteViewport,
         Na__LeModel__UpdateViewport,
         Na__LeModel__ResolveViewportSource,

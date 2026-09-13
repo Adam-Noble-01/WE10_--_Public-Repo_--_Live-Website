@@ -47,6 +47,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.1.0
+// - Every render the pipeline keeps resolves to the CPU backend, the only one
+//   that tags each line with its model category. An explicit backend override
+//   (the Dev menu Run Diff, which keeps nothing) still gets the speed rules.
+//   auto used to send plain elevations to the GPU on a capable machine, and on
+//   exactly that machine the Layout Editor's per-category edge styles did nothing.
+// - The collection carries an OwnerTable built from its instance list, shared by
+//   the per-view stage pass and the cached intersection pass.
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 4.
 //
@@ -75,6 +84,7 @@
         Na__PlStage__BuildStageGroup
     } from './Na__ProjectedLinework__ModelStage__.js';
     import {
+        Na__PlSampler__BuildOwnerTable,
         Na__PlSampler__Collect,
         Na__PlSampler__Sample,
         Na__PlSampler__CountTriangles
@@ -122,6 +132,22 @@
 // REGION | Options
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Say Once Why a Kept Render Is on the CPU
+    // ------------------------------------------------------------
+    // Once per session and only when it could surprise someone: a backend other
+    // than cpu was configured, or a GPU is present that auto used to pick.
+    // ------------------------------------------------------------
+    let Na__PlProjector__TaggedCpuNoted = false;
+    function Na__PlProjector__NoteTaggedCpu(requested) {
+        if (Na__PlProjector__TaggedCpuNoted) return;
+        Na__PlProjector__TaggedCpuNoted = true;
+        console.info('[TrueVision3D ProjectedLinework] Kept linework renders on the CPU backend (configured: ' + requested + '). '
+            + 'Only the CPU backend tags each line with its model category, which the Layout Editor edge styles need. '
+            + 'WebGPU and legacy remain available to the Dev menu Run Diff.');
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Settle Which Backend Will Actually Run
     // ------------------------------------------------------------
     // THE ONE RULE THAT OUTRANKS SPEED: a view with a drawing cut must go to the
@@ -141,7 +167,29 @@
     //
     // definition may be absent (a warm-up or a probe render), in which case there
     // is no cut to protect and the hardware alone decides.
-    function Na__PlProjector__ResolveBackend(requested, definition) {
+    //
+    // AND A SECOND RULE THAT OUTRANKS SPEED, ADDED 13-Sep-2026: every render the
+    // pipeline KEEPS goes to the CPU backend, because only the CPU backend tags each
+    // line with the model category it came from. Kept means the on-screen drawing,
+    // every Layout Editor viewport, the browser cache and the R2 bake - and those
+    // share one cache, so a single untagged result poisons all of them.
+    //
+    // Until this rule, 'auto' sent plain elevations to the GPU on any machine with
+    // a hardware adapter. The vendored GPU generator returns one merged buffer with
+    // no provenance, so on exactly the workstation the drawings are made on, every
+    // per-category edge style in the Layout Editor silently did nothing - walls
+    // stayed the class colour whatever the panel said. A drawing that ignores its
+    // styles is as wrong as a floor plan that ignores its cut.
+    //
+    // diagnostic is true only when a caller names a backend explicitly for a render
+    // it will NOT keep - the Dev menu's Run Diff. Only then do the old speed rules
+    // apply, so the card can still be measured against the CPU.
+    function Na__PlProjector__ResolveBackend(requested, definition, diagnostic) {
+        if (diagnostic !== true) {
+            if (requested !== Na__PlProjector__BACKEND_CPU || Na__ProjectedLinework__WebGpuBackend__IsHardwareCapable()) Na__PlProjector__NoteTaggedCpu(requested);
+            return Na__PlProjector__BACKEND_CPU;
+        }
+
         if (requested === Na__PlProjector__BACKEND_LEGACY) return Na__PlProjector__BACKEND_LEGACY;
 
         const hasCut  = !!(definition && definition.Cut);
@@ -184,7 +232,7 @@
         const projection  = Na__PlCfg__GetProjectionSetup();
         const performance = Na__PlCfg__GetPerformanceSetup();
         const requested   = backendOverride || performance.backend || Na__PlProjector__BACKEND_AUTO;
-        const backend     = Na__PlProjector__ResolveBackend(requested, definition);
+        const backend     = Na__PlProjector__ResolveBackend(requested, definition, !!backendOverride);   // <-- An explicit override is the Diff harness: a render nothing keeps
 
         return {
             Backend                  : backend,
@@ -231,8 +279,17 @@
             glassOpaque   : definition.Styles.glassOpaque
         });
         collected.TriangleTotal     = Na__PlSampler__CountTriangles(collected);
-        collected.AuthoredEdges     = Na__PlAuthored__Collect(modelRoot, { excludeTokens : definition.ExcludeTokens });
+        // THE OWNER TABLE IS A PROPERTY OF THE COLLECTION, settled here before
+        // anything reads an edge. Built from the instance list in order, so the
+        // per-view stage pass and the per-collection intersection pass agree
+        // about which id means which category. The authored walk extends it with
+        // any linework-only category that carried no mesh instance of its own.
+        collected.OwnerTable        = Na__PlSampler__BuildOwnerTable(collected);
+        const authoredCollected     = Na__PlAuthored__Collect(modelRoot, { excludeTokens : definition.ExcludeTokens, ownerTable : collected.OwnerTable });
+        collected.AuthoredEdges     = authoredCollected.Edges;
+        collected.AuthoredOwners    = authoredCollected.Owners;
         collected.IntersectionEdges = new Float64Array(0);
+        collected.IntersectionOwners = new Uint16Array(0);
         collected.HasIntersections  = false;
         collected.Report            = { CollectMs : 0, BvhCount : 0, BvhMs : 0, IntersectionMs : 0, IntersectionCount : 0, PairsTested : 0, PairsSkipped : 0, SelfReused : 0 };
 

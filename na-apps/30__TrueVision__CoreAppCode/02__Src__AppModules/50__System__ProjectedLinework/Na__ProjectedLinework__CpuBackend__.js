@@ -78,6 +78,15 @@
     import { Na__ProjectedLinework__WorkerPool__Run } from './Na__ProjectedLinework__WorkerPool__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Segment Owner Tags
+    // ------------------------------------------------------------
+    import {
+        Na__PlOwners__Concat,
+        Na__PlOwners__Blank,
+        Na__PlOwners__Attach
+    } from './Na__ProjectedLinework__Owners__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -127,6 +136,29 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Append Segments and Their Owner Tags Together
+    // ------------------------------------------------------------
+    // target is { Segments, Owners } and is mutated. Owners null means this
+    // render is not tagging at all, in which case only the coordinates move.
+    //
+    // THE TAG LENGTH IS DERIVED FROM THE SEGMENTS, never trusted. A half that
+    // arrives with no tags (an empty clip, a backend that does not tag) is
+    // padded with the unknown owner to exactly its own segment count, so the
+    // two buffers cannot drift apart no matter which half was missing.
+    // ------------------------------------------------------------
+    function Na__PlCpu__Append(target, segments, owners) {
+        const add = segments || new Float32Array(0);
+        target.Segments = Na__PlCpu__ConcatSegments(target.Segments, add);
+        if (target.Owners !== null) {
+            const count = Math.floor(add.length / 4);
+            const tags  = (owners && owners.length === count) ? owners : Na__PlOwners__Blank(count);
+            target.Owners = Na__PlOwners__Concat(target.Owners, tags);
+        }
+        return target;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Throw If the Render Has Been Abandoned
     // ------------------------------------------------------------
     function Na__PlCpu__CheckAbort(settings) {
@@ -172,7 +204,13 @@
 
         const startedAt = performance.now();
         const limits    = { MaxPairs : options ? options.IntersectionMaxPairs : 0, SelfMaxTriangles : options ? options.IntersectionSelfMaxTriangles : 0 };
-        collected.IntersectionEdges = await Na__PlEdges__ExtractIntersectionEdges(collected.Instances, slicer, collected.Report, limits);
+        // THE COLLECTION'S OWN OWNER TABLE, not a fresh one. This pass is cached
+        // per collection and the stage pass runs per view, so if the two built
+        // their own tables the ids in the cached intersection buffer would mean
+        // different categories from the ids in this view's stage buffer.
+        const found = await Na__PlEdges__ExtractIntersectionEdges(collected.Instances, slicer, collected.Report, limits, collected.OwnerTable || null);
+        collected.IntersectionEdges  = found.Edges;
+        collected.IntersectionOwners = found.Owners;
         collected.Report.IntersectionMs    = Math.round(performance.now() - startedAt);
         collected.Report.IntersectionCount = Math.floor(collected.IntersectionEdges.length / 6);
         collected.HasIntersections         = true;
@@ -207,16 +245,34 @@
         mark(Na__PlCpu__PHASE_OCCLUDERS, startedAt);
         Na__PlCpu__CheckAbort(settings);
 
+        // OWNER TAGS | On when the collection carries a table, which the
+        // projector builds from the instance list. Absent is a working render
+        // with class colours only, which is what every other backend produces.
+        const ownerTable = collected.OwnerTable || null;
+        const tagging    = ownerTable !== null;
+        const blank      = () => (tagging ? Na__PlOwners__Blank(0) : null);
+        const tagsFor    = (edgeBuffer, existing) => {
+            if (!tagging) return null;
+            if (existing) return existing;
+            return Na__PlOwners__Blank(Math.floor((edgeBuffer ? edgeBuffer.length : 0) / 6));
+        };
+
         // EDGES | Hard and silhouette per instance, the cut lines placed, then
         // everything divided at the drawing cut.
         announce(Na__PlCpu__PHASE_EDGES);
         startedAt = performance.now();
-        const stageEdges = Na__PlEdges__ExtractStageEdges(collected.Instances, up[0], up[1], up[2], options.AngleThresholdDegrees);
-        const combined   = Na__PlCpu__Concat(stageEdges, collected.IntersectionEdges);
-        const split      = Na__PlEdges__SplitByCut(combined, definition.Cut);
-        const authored   = Na__PlEdges__SplitByCut(collected.AuthoredEdges, definition.Cut);
-        const modelEdges = Na__PlEdges__ToViewSpace(split.Kept, viewMap, options.EdgeLiftWorldUnits);
-        const drawnEdges = Na__PlEdges__ToViewSpace(authored.Kept, viewMap, options.EdgeLiftWorldUnits);
+        const stage      = Na__PlEdges__ExtractStageEdges(collected.Instances, up[0], up[1], up[2], options.AngleThresholdDegrees, ownerTable);
+        const combined   = Na__PlCpu__Concat(stage.Edges, collected.IntersectionEdges);
+        // The intersection buffer is cached per collection and can be empty
+        // because the pass was skipped on a house-scale model, so its tag count
+        // is taken from its own edge count rather than assumed to exist.
+        const combinedOwners = tagging
+            ? Na__PlOwners__Concat(stage.Owners, tagsFor(collected.IntersectionEdges, collected.IntersectionOwners))
+            : null;
+        const split      = Na__PlEdges__SplitByCut(combined, definition.Cut, combinedOwners);
+        const authored   = Na__PlEdges__SplitByCut(collected.AuthoredEdges, definition.Cut, tagsFor(collected.AuthoredEdges, collected.AuthoredOwners));
+        const modelEdges = Na__PlEdges__ToViewSpace(split.Kept, viewMap, options.EdgeLiftWorldUnits, split.KeptOwners);
+        const drawnEdges = Na__PlEdges__ToViewSpace(authored.Kept, viewMap, options.EdgeLiftWorldUnits, authored.KeptOwners);
         mark(Na__PlCpu__PHASE_EDGES, startedAt);
         Na__PlCpu__CheckAbort(settings);
 
@@ -227,7 +283,7 @@
         mark(Na__PlCpu__PHASE_CLIPPING, startedAt);
         Na__PlCpu__CheckAbort(settings);
 
-        let authoredResult = { Segments : new Float32Array(0), HiddenSegments : null };
+        let authoredResult = { Segments : new Float32Array(0), HiddenSegments : null, Owners : null, HiddenOwners : null };
         if (drawnEdges.Count > 0) {
             announce(Na__PlCpu__PHASE_AUTHORED);
             startedAt = performance.now();
@@ -238,25 +294,49 @@
 
         // HIDDEN | What the occluders covered, plus what lies between the
         // viewer and the cut. Only assembled when the drawing asked for it.
-        let hidden = new Float32Array(0);
+        const hidden = { Segments : new Float32Array(0), Owners : blank() };
         if (options.IncludeHiddenEdges) {
-            hidden = Na__PlCpu__ConcatSegments(modelResult.HiddenSegments, authoredResult.HiddenSegments);
-            hidden = Na__PlCpu__ConcatSegments(hidden, Na__PlEdges__ToDrawingSegments(split.Removed,    viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm));
-            hidden = Na__PlCpu__ConcatSegments(hidden, Na__PlEdges__ToDrawingSegments(authored.Removed, viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm));
+            Na__PlCpu__Append(hidden, modelResult.HiddenSegments,    modelResult.HiddenOwners);
+            Na__PlCpu__Append(hidden, authoredResult.HiddenSegments, authoredResult.HiddenOwners);
+            const aboveCut      = Na__PlEdges__ToDrawingSegments(split.Removed,    viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm, split.RemovedOwners);
+            const aboveCutDrawn = Na__PlEdges__ToDrawingSegments(authored.Removed, viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm, authored.RemovedOwners);
+            Na__PlCpu__Append(hidden, aboveCut.Segments,      aboveCut.Owners);
+            Na__PlCpu__Append(hidden, aboveCutDrawn.Segments, aboveCutDrawn.Owners);
         }
 
         // SECTION | The outline of cut material, straight to the page; the
         // light crossings (glass) join the visible class as thin lines.
-        const section = Na__PlEdges__ToDrawingSegments(sampled.SectionEdges,      viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm);
-        const light   = Na__PlEdges__ToDrawingSegments(sampled.SectionEdgesLight, viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm);
+        const section = Na__PlEdges__ToDrawingSegments(sampled.SectionEdges,      viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm, tagging ? sampled.SectionOwners      : null);
+        const light   = Na__PlEdges__ToDrawingSegments(sampled.SectionEdgesLight, viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm, tagging ? sampled.SectionOwnersLight : null);
+
+        const visible  = Na__PlCpu__Append({ Segments : new Float32Array(0), Owners : blank() }, modelResult.Segments, modelResult.Owners);
+        Na__PlCpu__Append(visible, light.Segments, light.Owners);
+        const drawn    = Na__PlCpu__Append({ Segments : new Float32Array(0), Owners : blank() }, authoredResult.Segments, authoredResult.Owners);
+        const cutLines = Na__PlCpu__Append({ Segments : new Float32Array(0), Owners : blank() }, section.Segments, section.Owners);
+
+        const classes = {
+            visible  : visible.Segments,
+            hidden   : hidden.Segments,
+            authored : drawn.Segments,
+            section  : cutLines.Segments
+        };
+
+        // ATTACH, DO NOT MERGE. The tags are hidden on the classes object as
+        // non-enumerable properties, so every existing consumer - the class
+        // loops, the segment count, the serialiser - sees exactly the four
+        // arrays it saw before. Attach refuses a mismatched buffer and says so,
+        // in which case the drawing paints per class and is still correct.
+        if (tagging) {
+            Na__PlOwners__Attach(classes, {
+                visible  : visible.Owners,
+                hidden   : hidden.Owners,
+                authored : drawn.Owners,
+                section  : cutLines.Owners
+            }, ownerTable.Keys);
+        }
 
         return {
-            Classes : {
-                visible  : Na__PlCpu__ConcatSegments(modelResult.Segments, light),
-                hidden   : hidden,
-                authored : authoredResult.Segments,
-                section  : section
-            },
+            Classes       : classes,
             Phases        : phases,
             EdgeCount     : modelEdges.Count + drawnEdges.Count,
             OccluderCount : soup.TriCount,

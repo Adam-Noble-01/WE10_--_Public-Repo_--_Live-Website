@@ -42,6 +42,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.6.1
+// - The gradient tool's config (Na__LayoutEditor__GradientTool__Config__.json)
+//   is waited on with the others, so the first shape defaults read the real file.
+//
+// 13-Sep-2026 - Version 1.6.0
+// - Shapes were never routed to a redraw. 'shape' and 'shapes' now refresh the
+//   markup exactly as text and dimensions do. A deleted or restyled vector used
+//   to stay on the paper unchanged until some unrelated edit repainted the sheet,
+//   which read as a slow editor rather than as a missing route.
+// - A text, dimension or vector change refreshes only its own panel; viewport
+//   and structural changes still refresh every section.
+//
 // 10-Sep-2026 - Version 1.5.0
 // - A raster level change refreshes the frames.
 //
@@ -74,6 +86,9 @@
     // MODULE IMPORTS | Config, Model, Surface, Navigation, Tools, Panels, Toolbar, Snapshots
     // ------------------------------------------------------------
     import { Na__LeCfg__SetAppConfig, Na__LeCfg__Ready, Na__LeCfg__IsEnabled, Na__LeCfg__IsReadOnlyOnWeb, Na__LeCfg__GetLabel } from './Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeEdge__Ready } from './Na__LayoutEditor__EdgeStyles__.js';
+    import { Na__LeComposite__Ready } from './Na__LayoutEditor__RenderComposites__.js';
+    import { Na__LeGrad__Ready } from './Na__LayoutEditor__GradientTool__.js';
     import {
         Na__LeModel__CHANGED_EVENT,
         Na__LeModel__Initialize,
@@ -295,6 +310,48 @@
 // REGION | Model and Request Handling
 // -----------------------------------------------------------------------------
 
+    // MODULE CONSTANTS | Which Model Reasons Redraw the Sheet's Own Markup
+    // ------------------------------------------------------------
+    // EVERY markup kind must be listed. Shapes were missing from this route
+    // for a fortnight and the symptom was baffling rather than obvious: the
+    // model updated, the undo stack recorded it, the sheet was marked dirty -
+    // and nothing redrew, so a deleted vector sat on the paper and a restyled
+    // one kept its old colour until some unrelated edit forced a repaint. It
+    // read as "the editor is slow", not "the editor never drew it".
+    //
+    // Singular is one item changing, plural is the collection changing (an
+    // add or a delete). The model dispatches both spellings, so both are here.
+    // ------------------------------------------------------------
+    const Na__LeMode__MARKUP_REASONS = Object.freeze([
+        'annotation', 'annotations',
+        'dimension',  'dimensions',
+        'shape',      'shapes'
+    ]);
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The One Panel a Change Concerns (null means all of them)
+    // ------------------------------------------------------------
+    // Refreshing all eight sections on every keystroke-sized change rebuilt a
+    // lot of DOM nobody was looking at. A change to a text, a dimension or a
+    // vector is shown by exactly one panel, so only that panel is asked.
+    //
+    // VIEWPORT CHANGES STILL REFRESH EVERYTHING, on purpose. Three sections
+    // describe the selected viewport - Viewport, Render Composites and Model
+    // Layers - and they reach it through the selection rather than naming the
+    // record, so a narrowed refresh would leave two of them showing the state
+    // from before the click. A viewport commit happens once per drag, not once
+    // per move, so the full refresh costs nothing anyone can feel.
+    // ------------------------------------------------------------
+    function Na__LeMode__PanelFor(reason) {
+        if (reason === 'annotation' || reason === 'annotations') return 'text';
+        if (reason === 'dimension'  || reason === 'dimensions')  return 'dimensions';
+        if (reason === 'shape'      || reason === 'shapes')      return 'shapes';
+        return null;                                                            // <-- Viewports and structural changes: everything may have moved
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Route a Model Change to the Right Refresh
     // ------------------------------------------------------------
     function Na__LeMode__OnSheetsChanged(event) {
@@ -306,11 +363,11 @@
             Na__LeSurface__SetSheet(active);
         } else if (reason === 'sheet-updated' || reason === 'fields') Na__LeSurface__Refresh(reason === 'fields' ? 'chrome' : 'sheet');
         else if (reason === 'viewports' || reason === 'viewport') Na__LeSurface__Refresh('frames');
-        else if (reason === 'annotations' || reason === 'annotation' || reason === 'dimensions' || reason === 'dimension') Na__LeSurface__Refresh('markup');
+        else if (Na__LeMode__MARKUP_REASONS.indexOf(reason) !== -1) Na__LeSurface__Refresh('markup');
         else if (reason === 'layers') Na__LeSurface__Refresh('all');
         else if (reason === 'selection') { Na__LeSurface__Refresh('markup'); Na__LeSurface__Refresh('selection'); }
         else if (reason === 'active') { if (active) Na__LeSurface__SetSheet(active); }
-        Na__LePanels__Refresh();
+        Na__LePanels__Refresh(Na__LeMode__PanelFor(reason));
     }
     // ------------------------------------------------------------
 
@@ -342,7 +399,13 @@
         if (!context) return Promise.resolve(false);
         Na__LeMode__Context = context;
         Na__LeCfg__SetAppConfig(context.appConfig || null);
-        Na__LeMode__ReadyOnce = Na__LeCfg__Ready().then(() => {
+        // THE EDGE STYLE AND COMPOSITE CONFIGS LOAD WITH THE EDITOR'S OWN. The
+        // record normaliser prunes a stored edge style that matches its default,
+        // and it can only do that honestly once the defaults are known; waiting
+        // here means the first sheet a project opens is normalised against the
+        // real files rather than the built-in fallbacks. Neither fetch rejects,
+        // so a missing file slows nothing and blocks nothing.
+        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready() ]).then(() => {
             if (!Na__LeCfg__IsEnabled()) return false;
             Na__LeModel__Initialize();
             Na__LeHist__Initialize();                                        // <-- Undo and redo listen to the model from the start

@@ -56,6 +56,7 @@
     // ------------------------------------------------------------
     import { Na__PlCfg__GetSkipObjectNames } from './Na__ProjectedLinework__ConfigAccess__.js';
     import { Na__PlSampler__NameMatches } from './Na__ProjectedLinework__StageSampler__.js';
+    import { Na__PlOwners__IdFor }         from './Na__ProjectedLinework__Owners__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -135,29 +136,37 @@
 
     // FUNCTION | Gather the Authored Edges of the Model in Scene Space
     // ------------------------------------------------------------
-    // rules: { excludeTokens }. Returns a Float64Array of six doubles per
-    // segment. Visibility is honoured up the tree exactly as the sampler
-    // honours it for meshes.
+    // rules: { excludeTokens, ownerTable }. Returns { Edges, Owners } - Edges a
+    // Float64Array of six doubles per segment, Owners one category id per
+    // segment or null when no table was supplied. Visibility is honoured up the
+    // tree exactly as the sampler honours it for meshes.
     // ------------------------------------------------------------
     function Na__PlAuthored__Collect(modelRoot, rules) {
-        const collected = [];
-        if (!modelRoot) return new Float64Array(0);
+        const collected  = [];
+        const ownerTable = (rules && rules.ownerTable) ? rules.ownerTable : null;
+        const owners     = ownerTable ? [] : null;
+        if (!modelRoot) return { Edges : new Float64Array(0), Owners : owners ? new Uint16Array(0) : null };
 
         const excludeTokens = (rules && rules.excludeTokens) || [];
         const skipNames     = Na__PlCfg__GetSkipObjectNames();
 
         modelRoot.updateMatrixWorld(true);
 
+        // THE CATEGORY TRAVELS DOWN THE STACK WITH THE OBJECT. The walk starts
+        // at the model root's children, which ARE the categories, so every node
+        // below one inherits its name - and the SketchUp-drawn linework inside a
+        // wall group is tagged as a wall, the same as the wall's own hard edges.
         const stack = [];
         for (let i = 0; i < modelRoot.children.length; i++) {
             const category = modelRoot.children[i];
             if (category.visible === false) continue;
             if (Na__PlSampler__NameMatches(category.name, excludeTokens)) continue;
-            stack.push(category);
+            stack.push({ object : category, category : category.name || '' });
         }
 
         while (stack.length > 0) {
-            const object3d = stack.pop();
+            const entry    = stack.pop();
+            const object3d = entry.object;
             if (object3d.visible === false) continue;
             if (Na__PlSampler__NameMatches(object3d.name, skipNames)) continue;
 
@@ -165,20 +174,29 @@
             const isLinework = data[Na__PlAuthored__TYPE_KEY] === Na__PlAuthored__TYPE_LINEWORK;
 
             if (isLinework) {
+                const ownerId  = ownerTable ? Na__PlOwners__IdFor(ownerTable, entry.category) : 0;
+                const runStart = collected.length;
                 object3d.traverse((node) => {
                     if (node.visible === false) return;
                     if (node.isLineSegments2 === true || node.isLineSegments === true || node.isLine === true) {
                         Na__PlAuthored__PushSegments(node, collected);
                     }
                 });
+                if (owners) {
+                    const added = (collected.length - runStart) / 6;
+                    for (let k = 0; k < added; k++) owners.push(ownerId);
+                }
                 continue;                                                        // <-- The root's subtree is done
             }
 
             const children = object3d.children;
-            for (let c = 0; c < children.length; c++) stack.push(children[c]);
+            for (let c = 0; c < children.length; c++) stack.push({ object : children[c], category : entry.category });
         }
 
-        return new Float64Array(collected);
+        return {
+            Edges  : new Float64Array(collected),
+            Owners : owners ? new Uint16Array(owners) : null
+        };
     }
     // ------------------------------------------------------------
 

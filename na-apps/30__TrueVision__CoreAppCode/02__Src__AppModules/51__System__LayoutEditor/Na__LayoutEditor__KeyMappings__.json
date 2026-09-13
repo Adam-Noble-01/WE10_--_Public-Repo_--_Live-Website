@@ -235,6 +235,36 @@
                 "ModifierMatch" : "Exact"
             },
             {
+                "Id"            : "Edit__Copy",
+                "Label"         : "Copy the selected viewport",
+                "Action"        : "Edit__Copy",
+                "Enabled"       : true,
+                "Keys"          : [ "c", "C" ],
+                "Modifiers"     : [ "Ctrl" ],
+                "ModifierMatch" : "Exact",
+                "Note"          : "With no viewport selected the key is left to the browser, so copying text from a panel still works."
+            },
+            {
+                "Id"            : "Edit__Paste",
+                "Label"         : "Paste the copied viewport as a new one: new id, new name, every setting kept",
+                "Action"        : "Edit__Paste",
+                "Enabled"       : true,
+                "Keys"          : [ "v", "V" ],
+                "Modifiers"     : [ "Ctrl" ],
+                "ModifierMatch" : "Exact",
+                "Note"          : "On the sheet it came from the paste steps clear of the original; on another sheet it lands in the same place."
+            },
+            {
+                "Id"            : "Edit__Duplicate",
+                "Label"         : "Duplicate the selected viewport (copy and paste in one, the clipboard is left alone)",
+                "Action"        : "Edit__Duplicate",
+                "Enabled"       : true,
+                "Keys"          : [ "d", "D" ],
+                "Modifiers"     : [ "Ctrl" ],
+                "ModifierMatch" : "Exact",
+                "Note"          : "Taken from the browser while a sheet is open, where Ctrl+D would otherwise bookmark the page. Bare D is still the Dimension tool."
+            },
+            {
                 "Id"            : "Edit__Deselect",
                 "Label"         : "Clear the selection and abandon any placement (space bar)",
                 "Action"        : "Edit__Deselect",
@@ -260,6 +290,16 @@
                 "Keys"          : [ "l", "L" ],
                 "Modifiers"     : [],
                 "ModifierMatch" : "Exact"
+            },
+            {
+                "Id"            : "Tool__Rectangle",
+                "Label"         : "Rectangle tool: draw a rectangle corner to corner",
+                "Action"        : "Tool__Rectangle",
+                "Enabled"       : true,
+                "Keys"          : [ "r", "R" ],
+                "Modifiers"     : [],
+                "ModifierMatch" : "Exact",
+                "Note"          : "Click one corner then the opposite one, or drag from one to the other; Shift keeps it square. What it makes is an ordinary closed vector, so its corners are then dragged by their grips like any polygon's. Exact modifiers leave Ctrl+R to the browser."
             },
             {
                 "Id"            : "Edit__NudgeLeft",
@@ -323,6 +363,16 @@
                 "Keys"          : [ "d", "D" ],
                 "Modifiers"     : [],
                 "ModifierMatch" : "Exact"
+            },
+            {
+                "Id"            : "Tool__Eyedropper",
+                "Label"         : "Eyedropper: match properties from one object onto another",
+                "Action"        : "Tool__Eyedropper",
+                "Enabled"       : true,
+                "Keys"          : [ "b", "B" ],
+                "Modifiers"     : [],
+                "ModifierMatch" : "Exact",
+                "Note"          : "B for Brush, as in the format painter every office application binds to the same idea. Click the object to copy from, then each object to copy onto; Alt+click picks a new source and Escape puts the dropper down."
             }
         ]
     },
@@ -363,7 +413,18 @@
             { "Action" : "Edit__NudgeDown",       "Label" : "Nudge down",                "Group" : "Editing"    },
             { "Action" : "Tool__Select",          "Label" : "Select tool",               "Group" : "Tools"      },
             { "Action" : "Tool__Text",            "Label" : "Text tool",                 "Group" : "Tools"      },
-            { "Action" : "Tool__Dimension",       "Label" : "Dimension tool",            "Group" : "Tools"      }
+            { "Action" : "Tool__Dimension",       "Label" : "Dimension tool",            "Group" : "Tools"      },
+            { "Action" : "Tool__Draw",            "Label" : "Draw tool",                 "Group" : "Tools"      },
+            { "Action" : "Tool__Rectangle",       "Label" : "Rectangle tool",            "Group" : "Tools"      },
+            { "Action" : "Tool__Eyedropper",      "Label" : "Eyedropper tool",           "Group" : "Tools"      },
+            { "Action" : "Snap__Toggle",          "Label" : "Toggle object snapping",    "Group" : "Tools"      },
+            { "Action" : "Edit__Undo",            "Label" : "Undo",                      "Group" : "Editing"    },
+            { "Action" : "Edit__Redo",            "Label" : "Redo",                      "Group" : "Editing"    },
+            { "Action" : "Edit__Copy",            "Label" : "Copy a viewport",           "Group" : "Editing"    },
+            { "Action" : "Edit__Paste",           "Label" : "Paste a viewport",          "Group" : "Editing"    },
+            { "Action" : "Edit__Duplicate",       "Label" : "Duplicate a viewport",      "Group" : "Editing"    },
+            { "Action" : "Edit__Deselect",        "Label" : "Clear the selection",       "Group" : "Editing"    },
+            { "Action" : "Edit__Finish",          "Label" : "Finish the shape",          "Group" : "Editing"    }
         ]
     }
 }

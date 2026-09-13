@@ -55,6 +55,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Sep-2026 - Version 1.2.0
+// - Every producing and dividing function takes an optional owner table or
+//   buffer and keeps one category id per edge aligned with the geometry.
+//   ExtractStageEdges, ExtractIntersectionEdges and ToDrawingSegments now
+//   return { Edges|Segments, Owners }; SplitByCut adds KeptOwners and
+//   RemovedOwners; ToViewSpace adds Owners. Pass no owners and the output
+//   geometry is byte-identical to 1.1.0.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - Intersection pass takes a pair budget and a self-test triangle cap; over budget it is skipped and reported.
 //
@@ -86,6 +94,15 @@
     // MODULE IMPORTS | View Map Placement
     // ------------------------------------------------------------
     import { Na__PlSoup__TurnPoint } from './Na__ProjectedLinework__SoupBuilder__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Segment Owner Tags
+    // ------------------------------------------------------------
+    // Every function below that produces or divides edges takes an OPTIONAL
+    // owner buffer and keeps it aligned. Passing none is the old behaviour
+    // exactly: the geometry is identical and nothing downstream can tell.
+    // ------------------------------------------------------------
+    import { Na__PlOwners__IdFor } from './Na__ProjectedLinework__Owners__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -298,14 +315,23 @@
     // upX/Y/Z is the viewer direction in scene space (the vector the view
     // sends to +Y). It is turned into each instance's own frame once, so the
     // silhouette test is answered against normals that were never transformed.
+    //
+    // ownerTable, when supplied, collects one category id per EDGE. Every edge
+    // of one instance shares an id, so the tag is written once per instance
+    // over the run it just pushed rather than once per edge.
+    //
+    // Returns { Edges, Owners } - Owners null when no table was supplied.
     // ------------------------------------------------------------
-    function Na__PlEdges__ExtractStageEdges(instances, upX, upY, upZ, thresholdAngle) {
+    function Na__PlEdges__ExtractStageEdges(instances, upX, upY, upZ, thresholdAngle, ownerTable) {
         const collected = [];
+        const owners    = ownerTable ? [] : null;
 
         for (let m = 0; m < instances.length; m++) {
             const instance   = instances[m];
             const candidates = Na__PlEdges__Analyse(instance.geometry, thresholdAngle);
             const e          = instance.matrixWorld.elements;
+            const ownerId    = ownerTable ? Na__PlOwners__IdFor(ownerTable, instance.categoryName) : 0;
+            const runStart   = collected.length;
 
             Na__PlEdges__LocalDirection.set(upX, upY, upZ);
             Na__PlEdges__InverseMatrix.copy(instance.matrixWorld).invert();
@@ -334,9 +360,17 @@
 
                 Na__PlEdges__PushWorld(collected, e, conditional, i);
             }
+
+            if (owners) {
+                const added = (collected.length - runStart) / 6;                  // <-- PushWorld writes six doubles per edge
+                for (let k = 0; k < added; k++) owners.push(ownerId);
+            }
         }
 
-        return new Float64Array(collected);
+        return {
+            Edges  : new Float64Array(collected),
+            Owners : owners ? new Uint16Array(owners) : null
+        };
     }
     // ------------------------------------------------------------
 
@@ -394,9 +428,17 @@
     // geometry; separated solids (world boxes that miss) are never tested.
     // slicer, when supplied, is awaited between pairs so a large model does
     // not hold the interface for the whole pass.
+    //
+    // OWNERSHIP OF A JUNCTION LINE. Where a wall passes through a roof, the
+    // line belongs to both and can only be tagged as one. It is tagged as
+    // instance A, which is also the frame every pushed line is transformed
+    // into, so the tag and the coordinates agree about whose edge this is.
+    //
+    // Returns { Edges, Owners } - Owners null when no table was supplied.
     // ------------------------------------------------------------
-    async function Na__PlEdges__ExtractIntersectionEdges(instances, slicer, report, limits) {
+    async function Na__PlEdges__ExtractIntersectionEdges(instances, slicer, report, limits, ownerTable) {
         const collected = [];
+        const owners    = ownerTable ? [] : null;
         const boxes     = [];
         const maxPairs  = (limits && Number.isFinite(limits.MaxPairs) && limits.MaxPairs > 0) ? limits.MaxPairs : Infinity;
         const selfCap   = (limits && Number.isFinite(limits.SelfMaxTriangles) && limits.SelfMaxTriangles > 0) ? limits.SelfMaxTriangles : Infinity;
@@ -412,12 +454,14 @@
         if (overlapping > maxPairs) {
             console.info('[TrueVision3D ProjectedLinework] Intersection edges skipped: over ' + maxPairs + ' overlapping instance pairs (ProjectedLinework__Projection__IntersectionMaxPairs).');
             if (report) { report.PairsTested = 0; report.PairsSkipped = overlapping; report.SelfReused = 0; report.IntersectionSkipped = 'pairs'; }
-            return new Float64Array(0);
+            return { Edges : new Float64Array(0), Owners : owners ? new Uint16Array(0) : null };
         }
 
         let pairsTested = 0, pairsSkipped = 0, selfReused = 0, selfSkipped = 0;
         for (let i = 0; i < instances.length; i++) {
             const instanceA = instances[i];
+            const ownerId   = ownerTable ? Na__PlOwners__IdFor(ownerTable, instanceA.categoryName) : 0;
+            const runStart  = collected.length;
             const bvhA      = Na__PlEdges__BoundsTree(instanceA.geometry);
             if (slicer) await slicer.Tick();
             let selfLocal = Na__PlEdges__SelfIntersections.get(instanceA.geometry);
@@ -463,6 +507,11 @@
                     Na__PlEdges__PushWorld(collected, e, Na__PlEdges__Pair, 0);
                 }
             }
+
+            if (owners) {
+                const added = (collected.length - runStart) / 6;                   // <-- Self lines and every pair line, all in A's frame
+                for (let k = 0; k < added; k++) owners.push(ownerId);
+            }
         }
         if (report) {
             report.PairsTested  = pairsTested;
@@ -470,7 +519,10 @@
             report.SelfReused   = selfReused;
             report.SelfSkipped  = selfSkipped;
         }
-        return new Float64Array(collected);
+        return {
+            Edges  : new Float64Array(collected),
+            Owners : owners ? new Uint16Array(owners) : null
+        };
     }
     // ------------------------------------------------------------
 
@@ -489,9 +541,18 @@
     //     Removed  the parts between the viewer and the cut plane
     // Parts beyond the view depth are dropped from both. Passing a null cut
     // returns every edge as kept.
+    //
+    // stageOwners, when supplied, is one id per input edge. Owners come back as
+    // KeptOwners and RemovedOwners, and a straddling edge writes its id into
+    // BOTH halves - the wall is still the wall on either side of the plane.
     // ------------------------------------------------------------
-    function Na__PlEdges__SplitByCut(stageEdges, cut) {
-        if (!cut) return { Kept : stageEdges, Removed : new Float64Array(0) };
+    function Na__PlEdges__SplitByCut(stageEdges, cut, stageOwners) {
+        if (!cut) {
+            return {
+                Kept : stageEdges, Removed : new Float64Array(0),
+                KeptOwners : stageOwners || null, RemovedOwners : stageOwners ? new Uint16Array(0) : null
+            };
+        }
 
         const nx = cut.NormalX, ny = cut.NormalY, nz = cut.NormalZ;
         const d  = cut.DistanceUnits;
@@ -499,10 +560,13 @@
 
         const kept    = [];
         const removed = [];
+        const keptOwners    = stageOwners ? [] : null;
+        const removedOwners = stageOwners ? [] : null;
         const count   = Math.floor(stageEdges.length / 6);
 
         for (let i = 0; i < count; i++) {
             const at = i * 6;
+            const owner = stageOwners ? stageOwners[i] : 0;
             let x0 = stageEdges[at],     y0 = stageEdges[at + 1], z0 = stageEdges[at + 2];
             let x1 = stageEdges[at + 3], y1 = stageEdges[at + 4], z1 = stageEdges[at + 5];
 
@@ -518,8 +582,8 @@
             }
 
             // Wholly on one side of the cut.
-            if (s0 >= d && s1 >= d) { kept.push(x0, y0, z0, x1, y1, z1); continue; }
-            if (s0 <  d && s1 <  d) { removed.push(x0, y0, z0, x1, y1, z1); continue; }
+            if (s0 >= d && s1 >= d) { kept.push(x0, y0, z0, x1, y1, z1);    if (keptOwners)    keptOwners.push(owner);    continue; }
+            if (s0 <  d && s1 <  d) { removed.push(x0, y0, z0, x1, y1, z1); if (removedOwners) removedOwners.push(owner); continue; }
 
             // Straddling: split at the plane.
             const t  = (d - s0) / (s1 - s0);
@@ -531,9 +595,15 @@
                 removed.push(x0, y0, z0, mx, my, mz);
                 kept.push(mx, my, mz, x1, y1, z1);
             }
+            if (keptOwners)    keptOwners.push(owner);                             // <-- One edge in, one edge into each half
+            if (removedOwners) removedOwners.push(owner);
         }
 
-        return { Kept : new Float64Array(kept), Removed : new Float64Array(removed) };
+        return {
+            Kept : new Float64Array(kept), Removed : new Float64Array(removed),
+            KeptOwners    : keptOwners    ? new Uint16Array(keptOwners)    : null,
+            RemovedOwners : removedOwners ? new Uint16Array(removedOwners) : null
+        };
     }
     // ------------------------------------------------------------
 
@@ -549,10 +619,17 @@
     // Three things in one sweep: turn through the view map, lift every edge a
     // hair towards the viewer (so a line lying in its own surface is not
     // judged hidden by it), and drop edges that point straight at the viewer.
+    //
+    // EDGES ARE DROPPED HERE, which is exactly why the owner buffer has to be
+    // rebuilt rather than carried. An edge that lands on a single point is not
+    // written, so the output index no longer matches the input index and a
+    // passed-through owner buffer would shift the whole drawing's colours by
+    // however many degenerate edges the model happened to have.
     // ------------------------------------------------------------
-    function Na__PlEdges__ToViewSpace(stageEdges, viewMap, yOffset) {
+    function Na__PlEdges__ToViewSpace(stageEdges, viewMap, yOffset, stageOwners) {
         const sourceCount = Math.floor(stageEdges.length / 6);
         const verts       = new Float64Array(sourceCount * 6);
+        const owners      = stageOwners ? new Uint16Array(sourceCount) : null;
         const lift        = (typeof yOffset === 'number') ? yOffset : 0;
         const turned      = new Float64Array(6);
         let   kept        = 0;
@@ -575,10 +652,15 @@
             const out = kept * 6;
             verts[out]     = x0; verts[out + 1] = y0; verts[out + 2] = z0;
             verts[out + 3] = x1; verts[out + 4] = y1; verts[out + 5] = z1;
+            if (owners) owners[kept] = stageOwners[i];
             kept++;
         }
 
-        return { Count : kept, Verts : verts.slice(0, kept * 6) };
+        return {
+            Count  : kept,
+            Verts  : verts.slice(0, kept * 6),
+            Owners : owners ? owners.slice(0, kept) : null
+        };
     }
     // ------------------------------------------------------------
 
@@ -587,13 +669,19 @@
     // ------------------------------------------------------------
     // For the classes that are never occlusion-tested (the section outline,
     // the lines above the cut): turn, read x and z, divide by the scale.
+    //
+    // Returns { Segments, Owners }. Owners is null unless stageOwners was
+    // supplied, and is rebuilt rather than carried because short segments are
+    // dropped here, which moves every index after them.
     // ------------------------------------------------------------
-    function Na__PlEdges__ToDrawingSegments(stageEdges, viewMap, scaleDivisor, minimumLengthMm) {
+    function Na__PlEdges__ToDrawingSegments(stageEdges, viewMap, scaleDivisor, minimumLengthMm, stageOwners) {
         const count     = Math.floor(stageEdges.length / 6);
         const out       = new Float32Array(count * 4);
+        const owners    = stageOwners ? new Uint16Array(count) : null;
         const turned    = new Float64Array(6);
         const minimumSq = minimumLengthMm * minimumLengthMm;
         let   written   = 0;
+        let   tagged    = 0;
 
         for (let i = 0; i < count; i++) {
             Na__PlSoup__TurnPoint(viewMap, stageEdges, i * 6,     turned, 0);
@@ -605,9 +693,13 @@
             if (((dx * dx) + (dy * dy)) < minimumSq) continue;
 
             out[written++] = x0; out[written++] = y0; out[written++] = x1; out[written++] = y1;
+            if (owners) owners[tagged++] = stageOwners[i];
         }
 
-        return out.slice(0, written);
+        return {
+            Segments : out.slice(0, written),
+            Owners   : owners ? owners.slice(0, tagged) : null
+        };
     }
     // ------------------------------------------------------------
 

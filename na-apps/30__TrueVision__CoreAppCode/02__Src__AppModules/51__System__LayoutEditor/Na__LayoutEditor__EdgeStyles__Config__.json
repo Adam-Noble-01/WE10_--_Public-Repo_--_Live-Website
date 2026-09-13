@@ -1,0 +1,60 @@
+{
+    "LayoutEditor__EdgeStyles__Meta": {
+        "Meta__FileName"        : "Na__LayoutEditor__EdgeStyles__Config__.json",
+        "Meta__Description"     : "The vocabulary of the projected linework layer: the edge colours, the line types and the bounds of a weight factor. Nothing here says which object gets which - that is Na__LayoutEditor__ModelLayers__Config__.json's job. This file says only what the choices ARE, so both that config and the per-viewport overrides speak one small alphabet.",
+        "Meta__Version"         : "1.0.0",
+        "Meta__Created"         : "12-Sep-2026",
+        "Meta__Author"          : "Adam Noble - Noble Architecture",
+
+        "Meta__SsotSource"      : "Na__DataLib__CoreIndex__EdgeMaterials__.json",
+        "Meta__SsotPath"        : "%AppData%/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/",
+        "Meta__SsotVersionRead" : "2.0.0",
+
+        "Meta__WhyAliases"      : "The SSOT names a colour MTE103__LineColour__DarkGrey__L40, which is the right name for a SketchUp material and a terrible one to store a thousand times in a project file. The alias is the short name a record holds; Colour__SsotKey is the thread back to the SSOT, so renaming either side is traceable rather than silent.",
+        "Meta__WhichSwatches"   : "The six greys are exactly the SSOT's own AssemblyStudioEdgeColourSwatchKeys set - the palette already in use in SketchUp - so a drawing and the model it came from grade their edges the same way. They are listed dark to light, which is also the order they read as depth.",
+        "Meta__WhereWeightGoes" : "A weight FACTOR is never a width. It multiplies the sheet's master viewport lineweight (Sheet__Lineweights.ViewportPt), so raising the master raises everything together and the relative hierarchy - walls over windows over furniture - survives untouched.",
+        "Meta__DashUnits"       : "LineType__PatternMm is in PAPER millimetres, the same unit as the linework widths, and is multiplied by the scale denominator when it is drawn. A dash therefore measures the same on the sheet at 1:50 and at 1:200, which is what a drawn dash does.",
+        "Meta__WhichClasses"    : "AppliesToClasses names the line classes a category style is allowed to restyle. The section class is deliberately absent: a section outline's job is to read as cut material whatever was cut, so it keeps its own class colour and weight. Add 'section' here to change that; no code cares."
+    },
+
+    "LayoutEditor__EdgeStyles__Colours": [
+        { "Colour__Alias": "black",       "Colour__Label": "Black",            "Colour__Hex": "#000000", "Colour__SsotKey": "MTE101__LineColour__AbsoluteBlack",        "Colour__Note": "Full ink weight - structure, the things a drawing is about" },
+        { "Colour__Alias": "soft-black",  "Colour__Label": "Soft Black",       "Colour__Hex": "#333333", "Colour__SsotKey": "MTE102__LineColour__SoftBlack__L20",      "Colour__Note": "Lightness 20 - the projected linework class default" },
+        { "Colour__Alias": "dark-grey",   "Colour__Label": "Dark Grey",        "Colour__Hex": "#666666", "Colour__SsotKey": "MTE103__LineColour__DarkGrey__L40",       "Colour__Note": "Lightness 40 - openings and fixtures" },
+        { "Colour__Alias": "mid-dark-grey","Colour__Label": "Medium Dark Grey","Colour__Hex": "#737373", "Colour__SsotKey": "MTE103__LineColour__MediumDarkGrey__L50", "Colour__Note": "Lightness 50" },
+        { "Colour__Alias": "mid-grey",    "Colour__Label": "Mid Grey",         "Colour__Hex": "#999999", "Colour__SsotKey": "MTE104__LineColour__MidGrey__L60",        "Colour__Note": "Lightness 60 - furniture, the things that are only there for scale" },
+        { "Colour__Alias": "light-grey",  "Colour__Label": "Light Grey",       "Colour__Hex": "#D9D9D9", "Colour__SsotKey": "MTE107__LineColour__LightGrey__L85",      "Colour__Note": "Lightness 85 - decor, planting, entourage; present but not read" }
+    ],
+
+    "LayoutEditor__EdgeStyles__LineTypes": [
+        { "LineType__Alias": "solid",       "LineType__Label": "Solid",       "LineType__PatternMm": [],                          "LineType__Note": "No dash. Also means 'whatever the line class already does', so a hidden line stays dashed at its class dash unless a category asks for something else." },
+        { "LineType__Alias": "dashed",      "LineType__Label": "Dashed",      "LineType__PatternMm": [2.5, 1.5],                  "LineType__Note": "General hidden or removed work" },
+        { "LineType__Alias": "dashed-fine", "LineType__Label": "Dashed Fine", "LineType__PatternMm": [1.2, 0.8],                  "LineType__Note": "Tighter dash for small-scale plans" },
+        { "LineType__Alias": "centre",      "LineType__Label": "Centre",      "LineType__PatternMm": [8.0, 2.0, 2.0, 2.0],        "LineType__Note": "Long-short-long. The steelwork and setting-out centre line." },
+        { "LineType__Alias": "centre-fine", "LineType__Label": "Centre Fine", "LineType__PatternMm": [5.0, 1.5, 1.0, 1.5],        "LineType__Note": "Centre line for tighter drawings" },
+        { "LineType__Alias": "phantom",     "LineType__Label": "Phantom",     "LineType__PatternMm": [12.0, 2.0, 2.0, 2.0, 2.0, 2.0], "LineType__Note": "Long-short-short. Movement, swings, alternate positions." },
+        { "LineType__Alias": "dotted",      "LineType__Label": "Dotted",      "LineType__PatternMm": [0.4, 1.2],                  "LineType__Note": "Concealed services, overhead extents" }
+    ],
+
+    "LayoutEditor__EdgeStyles__Weight": {
+        "Weight__Description" : "Bounds for a per-category weight factor. 1.0 is the sheet's master viewport lineweight exactly; 0.5 is half of it.",
+        "Weight__Min"         : 0.10,
+        "Weight__Max"         : 3.00,
+        "Weight__Step"        : 0.05,
+        "Weight__Decimals"    : 2,
+        "Weight__Default"     : 1.00
+    },
+
+    "LayoutEditor__EdgeStyles__Classes": {
+        "Classes__Description"      : "How a category style meets a line class. The class supplies the base ratio and the fallback colour; the category supplies the multiplier, the colour and the dash.",
+        "Classes__AppliesToClasses" : [ "visible", "hidden", "authored" ],
+        "Classes__SolidMeansClassDefault" : true
+    },
+
+    "LayoutEditor__EdgeStyles__Fallback": {
+        "Fallback__Description"   : "What an unrecognised or missing value reads as. A category the model loaded that no config has heard of lands here, which is a black solid line at full master weight - visible and obviously unstyled, rather than invisible.",
+        "Fallback__ColourAlias"   : "black",
+        "Fallback__LineTypeAlias" : "solid",
+        "Fallback__WeightFactor"  : 1.00
+    }
+}

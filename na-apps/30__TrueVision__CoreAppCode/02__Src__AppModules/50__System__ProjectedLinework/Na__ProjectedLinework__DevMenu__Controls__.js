@@ -193,14 +193,15 @@
         const current = Na__PlCfg__GetPerformanceSetup().backend;
         // 'auto' on its own says nothing. Spell out what it will pick, so the
         // dropdown reads as a decision rather than a shrug.
-        const autoSuffix = Na__ProjectedLinework__WebGpuBackend__IsHardwareCapable()
-            ? ' (webgpu for elevations, cpu for cuts)'
-            : ' (cpu - no usable GPU)';
+        // EVERY KEPT RENDER IS CPU NOW (Na__PlProjector__ResolveBackend), because
+        // only the CPU backend tags each line with its model category. The other
+        // choices are labelled for the one thing they still do: feed Run Diff.
+        const autoSuffix = ' (cpu - tags every line)';
 
         Na__PlDev__BACKENDS.forEach((name) => {
             const option = document.createElement('option');
             option.value = name;
-            option.textContent = (name === 'auto') ? name + autoSuffix : name;
+            option.textContent = (name === 'auto') ? name + autoSuffix : (name === 'cpu' ? name : name + ' (Run Diff only)');
             option.selected = (name === current);
             select.appendChild(option);
         });
@@ -231,7 +232,7 @@
             const name = [ a.Vendor, a.Architecture ].filter(Boolean).join(' ');
             hardware.textContent = 'GPU: ' + (name || 'hardware adapter')
                 + (a.Description ? ' (' + a.Description + ')' : '')
-                + ' - used for elevations without a cut. Plans and sections always run on the CPU, which is the only backend that can apply one.';
+                + ' - measured by Run Diff only. Kept linework renders on the CPU, the only backend that tags each line with its model category and the only one that can apply a cut.';
         };
 
         describeHardware(Na__ProjectedLinework__WebGpuBackend__GetProbe());
@@ -293,7 +294,7 @@
             // per view, and a panel that only said "auto" would be telling the
             // truth while hiding everything worth knowing.
             const resolved = Na__PlProjector__BuildOptions(definition).Backend;
-            const because  = (resolved === 'cpu' && definition.Cut) ? ' - has a cut' : '';
+            const because  = resolved === 'cpu' ? (definition.Cut ? ' - tagged, has a cut' : ' - tagged') : '';
 
             const backend = document.createElement('span');
             backend.className   = 'na-pl-dev__backend';

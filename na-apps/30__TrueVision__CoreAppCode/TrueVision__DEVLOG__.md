@@ -2,6 +2,621 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.29.0  -  13-Sep-2026
+### Gradient Fills - Fade a Drawing Out Into the Page
+
+**Overview**
+- The Vectors panel has a Gradient toggle beside Fill. Switch it on and the
+  shape is filled with a linear gradient: a start colour, an end colour, a Blend
+  slider and a Direction from 0 to 360 degrees. Either end can be Alpha.
+- The case it was built for: draw a closed polygon on a vector layer over a
+  drawing, switch the edges off and run alpha to white, and the drawing fades
+  out into the page. Colour to colour works the same way.
+- Alpha to white is the default. Authored in TrueVision first; ValeVision gets
+  it once this is signed off.
+
+**HOW THE CONTROLS READ**
+- DIRECTION is the way the gradient travels from start to end, anticlockwise like
+  a protractor and like Adobe's gradient tools: 0 left to right, 90 bottom to
+  top, 180 right to left, 270 top to bottom. A slider and a number box kept in
+  step, and a preview swatch over a checkerboard so the alpha end reads as
+  see-through rather than as white.
+- BLEND is where the two ends meet half and half along the direction - the
+  midpoint diamond on an Illustrator gradient. 50% is an even fade; lower brings
+  the end colour in sooner, higher holds the start colour longer.
+- ALPHA is a tick on each end. Only one end can be alpha: ticking one gives the
+  other its colour back, because alpha to alpha would paint nothing.
+- The gradient is FITTED TO THE SHAPE. The start colour lands on the outline's
+  furthest point back along the direction and the end colour on its furthest
+  point forward, so the fade spans the whole polygon at any angle.
+
+**HOW IT SITS BESIDE FILL AND EDGES**
+- A gradient IS the fill. Switching it on switches the solid fill off, and the
+  other way round.
+- It counts as the fill for the either-or rule. Edges off with a gradient on
+  leaves the gradient alone - that is the fade - instead of bringing a grey
+  solid fill back; gradient off with nothing else left brings the edges back.
+- The settings outlive the toggle, so a gradient switched off and on again comes
+  back as it was rather than starting over.
+- A two-point line hides the toggle, exactly as it hides Fill.
+- A gradient hits for selection across its whole area, alpha end included. Lock
+  its layer to click through a fade to the viewport underneath.
+
+**WHY AN ALPHA END DOES NOT FADE THROUGH GREY**
+- The ends are mixed with premultiplied alpha. A transparent end contributes no
+  colour, which comes to the same thing as borrowing the solid end's, so alpha to
+  white is white at a falling opacity all the way along. Mixing a stored colour
+  straight through transparency puts a grey band through the middle of a fade -
+  the classic halo - and the tests pin that it does not happen.
+
+**THE PDF, AND THE TRAP IN THIS JSPDF BUILD**
+- A PDF shading cannot carry transparency, so the PDF gets the gradient as a thin
+  strip image with an alpha soft mask, turned to the direction by jsPDF's own
+  image rotation and clipped to the shape's outline. The outline stays a true
+  vector edge. It paints in three passes: any solid fill, the gradient, then the
+  edges on top.
+- IT HAS TO BE A PNG. jsPDF 4.1.0's raw RGBA image path returns the alpha under a
+  key its image writer never reads, so the soft mask is dropped without a word and
+  every fade would print as a solid white block. The strip is encoded as a PNG,
+  whose path builds the soft mask properly.
+- Screen and paper come from one colour function. SVG has no midpoint hint, so an
+  uneven blend is written out as 32 stops spaced in equal steps of colour rather
+  than equal steps of distance.
+
+**ONE DRAG IS ONE UNDO STEP**
+- The Blend and Direction sliders redraw the shape silently on every input event
+  and announce once on release, so a drag from one end to the other is a single
+  history step rather than one per pixel.
+
+**VERIFIED**
+- 19 checks on the maths in Node: the defaults, the borrowed colour, the blend
+  midpoint landing exactly, stop ordering, the both-alpha refusal, angle
+  wrapping, the direction at 0, 45, 90 and 270 degrees, unique SVG ids and
+  degenerate shapes painting nothing.
+- In the app on PS01's PD Drawing sheet: the toggle, the either-or rules, alpha
+  exclusivity, live slider redraws with no history step until release and exactly
+  one after, and the record, the panel and the SVG agreeing.
+- A test PDF through the exporter's own draw path, rendered back with pdf.js
+  beside the screen SVG over a checkerboard: eleven sampled pixels match within 2
+  levels in 255, the soft masks and clips are present, a solid fill shows through
+  an alpha end and the edges sit on top. The sheet was restored to its loaded
+  state and its browser draft cleared.
+
+**WIRING**
+- New: `Na__LayoutEditor__GradientTool__.js` (`Na__LeGrad__`) and
+  `Na__LayoutEditor__GradientTool__Config__.json` - the record, the colour curve,
+  both painters, the panel preview and the Vectors panel rows.
+- New record key `Shape__Gradient` on a shape: null for none, otherwise
+  `Gradient__StartColour`, `Gradient__StartOpacity`, `Gradient__EndColour`,
+  `Gradient__EndOpacity`, `Gradient__BlendPct` and `Gradient__AngleDeg`. It lives
+  inside `Sheet__Shapes`, so no new top-level key; older records read as none.
+- Touched: the Vectors panel, sheet chrome (both painters), shape geometry (push
+  and hit test), sheet records, sheet model, sheet tools (defaults), shape tool,
+  eyedropper (the gradient travels, null included), mode controller (config
+  ready) and the panel stylesheet. Nothing outside `51__System__LayoutEditor`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.28.0  -  13-Sep-2026
+### Viewports Copy, Paste and Snap Into Line - Set One Up Once, Line Them Up by Their Corners
+
+**Overview**
+- Two changes to how viewports are handled in the Layout Editor, both authored in
+  TrueVision first. ValeVision gets them once they are signed off.
+- COPY AND PASTE. Ctrl+C copies the selected viewport, Ctrl+V pastes it as a new
+  one and Ctrl+D duplicates it in one step. The right-click menu offers all three.
+  The paste has a fresh id and a new name, and every other setting of the one it
+  came from: scene, scale, crop, window, render composites, model layers, edge
+  styles.
+- MOVE BY A POINT. With the Select tool, hover a 2D viewport's linework and the
+  snap marker shows the corner a press would carry it by. Drag, and that corner
+  snaps onto the corners of the other drawings on the sheet - or, having rested
+  on one of them first, locks level with it or plumb below it along a dashed guide.
+
+**WHY A PASTE CHANGES ONLY THREE THINGS**
+- Setting a viewport up is the slow part of a sheet. A copy that dropped half its
+  settings would only move the work somewhere else, so the record is copied whole
+  and only the id, the name and the position are new.
+- WHERE IT LANDS. On the sheet it was copied from, 10 mm down and right of the
+  original, and again past every copy already there, so repeated pastes fan out
+  instead of stacking invisibly. On another sheet, in the same place, so a viewport
+  set up once sits in the same spot on every sheet of a set. From the menu on bare
+  paper, with its corner where the click was. Always kept on the paper.
+- THE NAME. "Elevation 2" pastes as "Elevation 2 copy", then "Elevation 2 copy 2",
+  unique on the sheet. A copy of a copy does not become "copy 2 copy".
+- THE NAME IS A PLACEHOLDER. Choose a different scene for the copy in the Viewport
+  panel and the copy name is cleared, so the caption follows the new scene instead
+  of reading "Elevation 2 copy" over the east elevation. A name typed by hand is
+  never touched.
+- A COPY ARRIVES UNLOCKED, because the next thing done to it is always moving it.
+- The 3D snapshot reference travels with the copy. The stored picture is keyed on
+  what the camera saw, not on the viewport, so a 3D copy shows at once instead of
+  rendering again.
+- ONE PASTE IS ONE UNDO STEP. Ctrl+Z takes it off the sheet, Ctrl+Y puts it back.
+
+**MOVING BY A POINT, THE CAD WAY**
+- Grabbing the frame and nudging by eye is how two drawings end up almost, but not
+  quite, in line. A viewport now moves the way a block does in CAD: by a base point
+  on its own drawing, dropped exactly on a point of another.
+- Nothing that already owned a press gave anything up. A handle still crops,
+  content editing still pans, a lock still refuses, and a press that is not on a
+  linework point still moves the frame the old way.
+- THE CARRIED FRAME GOES TO MULTIPLY while it moves, so the drawing underneath
+  shows through it and its corners can be aimed at.
+- TRACKING. Laying one elevation over another is rarely the goal; lining them up
+  side by side is. Rest the cursor on a corner of the other drawing for a moment -
+  a small cross marks it - then carry: whenever the carried corner comes level with
+  it the move locks onto that line and a red dashed guide shows it, and plumb below
+  it, a green one. This is AutoCAD's object snap tracking. Resting is what acquires
+  a point; merely crossing one does not, so the pointer's route to the grab never
+  litters the sheet with references. The points are used up by the move they were
+  acquired for, and Escape clears them.
+- SHIFT holds the carry to the nearer axis. Snapping off (F3) turns all of it off.
+- The corners come from the projected linework, so a viewport needs Projected
+  Linework on to be carried by a point.
+
+**CTRL+Z NO LONGER GOES MISSING AFTER USING THE PANEL**
+- Choosing a scene in the Viewport panel left the focus on the select, and every
+  shortcut was ignored while a form control had the focus - so Ctrl+Z straight
+  afterwards did nothing. A text field still keeps every key. A select or a
+  checkbox now passes Ctrl+Z, Ctrl+Y, Ctrl+C, Ctrl+V and Ctrl+D through to the
+  sheet, and keeps its own arrows and letters.
+
+**VERIFIED**
+- In the app on PS01's PD Drawing sheet with pointer and key events, R2 writes
+  blocked for the run: a paste matches its original field for field apart from id,
+  name and position; undo and redo; a duplicate of a copy is named "copy 2"; the
+  menu paste lands at the click; the scene change hands the name back; Ctrl+Z works
+  from the focused select while a bare letter is still left to it; a carried corner
+  lands on Elevation 1's corner to the full floating-point value; tracking holds the
+  carried corner exactly level with an acquired one; Shift holds the axis exactly;
+  snapping off gives back the plain move; Escape clears tracking points. The sheet
+  was put back to its loaded state afterwards.
+
+**WIRING**
+- New: `Na__LayoutEditor__ViewportClipboard__.js` (`Na__LeClip__`) and
+  `Na__LayoutEditor__ViewportSnapMove__.js` (`Na__LeVpMove__`).
+- Touched: the sheet model (`InsertViewport`), snapping (`FindOnViewport`, a viewport
+  exclusion in `Find`, one shared per-viewport search), the sheet tools (hover,
+  press, drag, release, keys, menu, the focus rule), the Viewport panel (the name
+  hand-back), the key map and its fallback (`Edit__Copy`, `Edit__Paste`,
+  `Edit__Duplicate`), the config (a Clipboard block, five Snapping keys, six labels)
+  and the stylesheet. No record field was added: a paste is an ordinary viewport.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.27.0  -  13-Sep-2026
+### The Rectangle Tool - Corner to Corner, Then It Is Just a Polygon
+
+**Overview**
+- A new Layout Editor tool on the R key, beside Draw on the toolbar. Two
+  corners instead of four sides: click one corner and then the opposite one,
+  or press on one corner and drag to the other. Shift keeps it square.
+- What it draws is an ordinary vector. The moment the second corner lands the
+  rectangle is a closed four-point shape like any the Draw tool makes: the
+  Select tool drags its corners one at a time by their grips, the Vectors panel
+  restyles it, the eyedropper matches it and the PDF prints it.
+- Authored in TrueVision first; signed off and ported to ValeVision the same day
+  (ValeVision v2.25.0).
+
+**NO NEW KIND OF RECORD**
+- The rectangle is written through the same `CreateShape` call the Draw tool
+  uses, with the same Vectors panel defaults - edge colour, edge weight, edges
+  on or off, fill. There is no rectangle flag on the record, so nothing that
+  reads `Sheet__Shapes` had to learn one, and ValeVision will read these
+  records unchanged.
+- Once drawn it is deliberately NOT kept rectangular: drag a corner and it
+  becomes a quadrilateral, exactly as a polygon would.
+
+**NOTHING IS WRITTEN UNTIL THE SECOND CORNER LANDS**
+- The Draw tool creates its shape silently on the first click, because a
+  polyline is built one vertex at a time. A rectangle is known whole the moment
+  its second corner is, so this tool previews with a dashed rubber box on the
+  handles layer and creates the shape in one announced call.
+- That buys three things. An abandoned rectangle leaves nothing to delete or
+  undo. The browser draft never catches a half-drawn one. And the preview can
+  never snap to its own corners now that the sheet's vectors are snap
+  candidates - a record-based preview would have had three corners chasing
+  the cursor.
+- One call is one undo step per rectangle, and the new rectangle is selected as
+  it lands, so its grips show and the Vectors panel edits it at once. The tool
+  stays up for the next one.
+
+**BOTH WAYS OF DRAWING**
+- Click-and-click is how the Draw tool already works; press-and-drag is what a
+  hand does by instinct with a rectangle. Both work, which makes this the one
+  placing tool that is handed the pointer RELEASE as well as the press and the
+  move. The stage captures the pointer for it, so a drag that leaves the stage
+  still lands its corner.
+- A second corner with no width or no height is not a corner: the tool keeps
+  waiting instead of writing a flat shape, so a double click cannot leave a
+  sliver. The minimum is the select tool's drag threshold at the current zoom.
+- Both corners snap, to the linework and to the sheet's own vectors. With Shift
+  the square is sized on the longer side, and the snap marker is taken away if
+  squaring pulls the corner off the snapped point rather than marking a point
+  the corner is not on. The box goes solid while Shift holds it square, the way
+  the rubber band goes solid under an axis lock.
+
+**GETTING OUT**
+- Escape, Space, a right click, a second finger or picking another tool
+  abandons a half-drawn rectangle.
+- The arrow keys are swallowed while one is being drawn: there is no axis to
+  lock, and nudging whatever was selected before it would be a surprise edit.
+
+**WIRING**
+- New: `Na__LayoutEditor__RectangleTool__.js` (`Na__LeRect__`).
+- Touched: the sheet tools (tool slot, press, move, release, cancel, arrows, the
+  R case), the toolbar button, `Na__LeGrips__ShowBox` / `HideBox`, the rubber
+  box rule in the main stylesheet, the key map and its built-in fallback, and
+  the labels (`ToolRectangle`, `ToolRectangleTitle`, `ShapeRectangleNote`).
+  Nothing outside `51__System__LayoutEditor`.
+- The R binding lives in `Na__LayoutEditor__KeyMappings__.json` with every other
+  binding. Its modifiers match exactly, so Ctrl+R still reloads the page.
+
+**Verification**
+- Rectangle tool harness against stubbed dependencies: 41 checks - both drawing
+  modes, flat and too-small corners, Shift in all four quarters, snapping of
+  both corners, the marker hidden when squaring leaves the snap, cancel, a lost
+  release, another pointer's release, the zoom-scaled minimum, live defaults.
+- In the app on PS01's A2 sheet, with real pointer and key events on the stage:
+  20 checks - R picks the tool, the box stretches and nothing is written
+  mid-draw, both modes land the right corners with the panel defaults, the new
+  shape is selected with four grips, Shift lands an exact square, Escape and a
+  right click abandon, the arrows do not nudge mid-draw, Ctrl+Z removes exactly
+  one rectangle, and the Select tool drags one corner while the other three stay
+  put. R2 writes were blocked for the run and the sheet was undone back to where
+  it started.
+- Every edited module parses and both edited JSON files are valid.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.26.1  -  13-Sep-2026
+### Vectors Redraw, the Click Stops Waiting on the Disk, and Vectors Snap to Vectors
+
+**Overview**
+- First test of the eyedropper on two vectors: several clicks, no visible
+  change, and deleting a vector took seconds to show. Snapping also had
+  nothing to offer a line drawn on open paper. Three separate faults, fixed at
+  the root rather than worked around in the eyedropper.
+
+**THE REAL BUG: VECTORS WERE NEVER ROUTED TO A REDRAW**
+- The model announces each change with a reason - `annotation`, `dimension`,
+  `shape` and their plurals. The mode controller turned text and dimension
+  reasons into a markup redraw. It had no line for `shape` or `shapes`.
+- So a vector edit did everything except appear: the record changed, the undo
+  stack took a step, the sheet was marked dirty - and the paper kept showing
+  the old picture until some unrelated edit happened to repaint it.
+- That one gap was the whole of the complaint. The eyedropper painted the
+  vector on the first click; it only LOOKED like it needed several. A deleted
+  vector was gone at once; it only LOOKED like the delete took seconds.
+- The markup reasons are now one named list, with a note that every markup kind
+  must be in it, because this failure mode reads as "slow" rather than "wrong"
+  and is easy to reintroduce with the next kind.
+- Direction checked while in there, and it was always right: B, click the object
+  that looks right, click the object that should match - the second takes the
+  style of the first.
+
+**EVERY CLICK WAS WAITING ON THE DISK**
+- The browser draft (crash insurance for unsaved sheets) was written INSIDE
+  every change: every sheet in the project stringified and handed to
+  localStorage, which is a synchronous disk write on the main thread. Each
+  delete, nudge and style paint queued behind it before the browser could paint
+  the result.
+- It is now written 600 ms after the editing pauses, and flushed when the tab is
+  hidden or closed, so it protects exactly as much work without sitting in the
+  click. A write still queued when another project loads is dropped rather than
+  written over that project's own draft. `DraftDebounceMs` in the config.
+
+**ONE REBUILD PER FRAME, NOT PER POINTER EVENT**
+- A markup redraw rebuilds the whole SVG layer as a string and swaps it in.
+  Dragging a shape asked for one on every pointer move - several hundred a
+  second on a high-rate mouse, for a screen that shows sixty - and several
+  listeners reacting to the same change each asked again.
+- Surface refreshes are now booked onto the next animation frame and merged, so
+  any number of requests in a frame cost one rebuild. `RefreshNow` remains for
+  anything that needs the DOM correct before its next statement; nothing does
+  today. Leaving the editor or changing sheet cancels a booked frame.
+- The drawing tabs were also rebuilt on every change. They now rebuild only
+  when a tab would look different, which also stops a model change from wiping
+  out a half-typed sheet rename.
+- A text, dimension or vector change refreshes only its own panel instead of
+  all eight. Viewport changes still refresh everything, because three panels
+  describe the selected viewport.
+- Undo is untouched: still one step per announced change, so painting five
+  vectors is still five undos.
+
+**VECTORS SNAP TO VECTORS**
+- Snapping only knew the projected linework inside 2D viewports. A line drawn on
+  open paper had nothing to hold, and closing a polygon exactly was luck.
+- The sheet's own vectors now offer every vertex and every edge midpoint (a
+  closed shape includes its closing edge), and dimensions offer the two points
+  they measure, so dimensions chain. Hidden layers offer nothing; locked layers
+  still do, because locked means "don't change me", not "don't line up with me".
+- Endpoints beat midpoints on a near tie as before. Between the two sources the
+  closer point wins; on an exact tie the sheet's markup wins, because it is
+  drawn on top.
+- THE THING BEING MOVED NEVER SNAPS TO ITSELF. A dragged vertex skips itself and
+  the midpoints of the two edges it drags; a dragged dimension end skips that
+  end. Without this the point snaps to where it already is and chases the cursor.
+- The shape being drawn skips only the vertex just placed. Its first vertex is
+  now a real snap target, so a polygon closes exactly on it and a rectangle's
+  last corner can borrow the first corner's coordinate on bare paper.
+- A linear scan of the live records rather than an index, deliberately. The draw
+  tool adds each vertex silently, so an index would be stale at exactly the
+  moment it matters. Measured: 0.09 ms per pointer move with 500 vectors
+  (4,000 vertices) and 200 dimensions. `SheetObjects` in the snapping config.
+
+**Verification**
+- Snapping harness against stubbed dependencies: 29 checks, including exclusion,
+  layers, zoom-scaled radius, source priority and the cost figure above.
+- Eyedropper harness re-run: 52 checks.
+- Every module in the Layout Editor folder parses and every JSON file is valid.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.27.0  -  13-Sep-2026
+### Edge Styles - Walls Black, Windows Grey, Furniture Faint
+
+**Overview**
+- Projected linework in a 2D Layout Editor viewport now draws each SketchUp
+  category in its own colour, line type and weight. Walls and roofs are black at
+  full weight, openings and fixtures step back to dark grey, furniture and
+  planting sit at mid and light grey - a depth cue the drawing gets for free.
+- Every new viewport starts from config defaults, so nobody has to set this up.
+  Someone curating a sheet can override any category in any one viewport.
+- The Render Composites layers gained line weights, and the 2D profile outline
+  width moved out of the main app config into them.
+- The controls sit behind a small Advanced fold under each section title.
+  Folded, both panels look exactly as they did.
+- Authored in TrueVision. ValeVision gets it once Adam signs it off.
+
+**THE PROJECTION USED TO FORGET**
+- An edge was found on a wall, clipped for occlusion, and landed in one merged
+  `visible` buffer with every other visible edge in the model. By the time
+  anything drew, the wall and the sofa were the same array.
+- New `Na__ProjectedLinework__Owners__.js` gives every category a small integer,
+  and every stage now carries one per EDGE, then one per SEGMENT: the sampler's
+  section crossings, the authored-linework walk, the edge extractor, the cut
+  split, the view transform, the clip kernel, the worker protocol and the pool
+  merge. A clipped edge that becomes three visible pieces stamps all three.
+- The tags ride on the classes object as NON-ENUMERABLE properties, so every
+  existing consumer sees exactly the four arrays it saw before. The segment count
+  uses `Object.keys`; an enumerable fifth key would have reported NaN segments.
+- One owner table per COLLECTION, built from the instance list in order. Stage
+  edges are extracted per view but intersection lines are cached per collection;
+  separate tables would have drawn walls in the roof style.
+- A junction line where a wall passes through a roof is tagged as instance A, the
+  same frame its coordinates are pushed in.
+
+**THREE CONFIG FILES, ONE SMALL ALPHABET**
+- `Na__LayoutEditor__EdgeStyles__Config__.json` (new) - the vocabulary only. Six
+  greys from the SSOT edge materials (`Na__DataLib__CoreIndex__EdgeMaterials__.json`,
+  its own AssemblyStudioEdgeColourSwatchKeys set), each an alias carrying its MTE
+  key for traceability. Seven line types as paper-millimetre dash patterns: solid,
+  dashed, dashed fine, centre (long-short-long, for steelwork), centre fine,
+  phantom, dotted. Weight bounds 0.10 to 3.00.
+- `Na__LayoutEditor__ModelLayers__Config__.json` (1.0.0 -> 1.1.0) - every row gained
+  `Layer__EdgeWeightFactor`, `Layer__EdgeColour` and `Layer__EdgeLineType`. Walls,
+  floors, roofs 1.00 black; windows and doors 0.80 dark grey; stairs 0.90 soft black;
+  fixtures 0.75 dark grey; furniture 0.50 mid grey; decor 0.50 light grey; site
+  boundaries 0.75 soft black DASHED. Existing carries the same values as Proposed,
+  as agreed - lighter retained work is a drawing decision, one row each.
+- `Na__LayoutEditor__RenderComposites__Config__.json` (new) - one row per layer in a
+  viewport's picture. The Render Composites panel is now built from it.
+
+**THE RECORD: CURATION ONLY, WRITTEN OUT IN FULL**
+- `Viewport__ProjectedEdges` stores ONLY the categories someone restyled, each in
+  full: human label, weight, colour, line type. A project file can be audited
+  without cross-referencing two configs. Visibility is NOT in it; that stays in
+  `Viewport__ModelLayers`, so each fact has one home.
+- The normaliser coerces every value into something the palette contains and
+  DELETES an entry that has come back round to the config default, so the file only
+  holds real decisions. It waits for both configs before pruning; pruning against
+  the built-in fallback would delete a deliberate "draw windows black".
+- `Viewport__CompositeWeights` is a flat key-to-number map under the same rule.
+- An uncurated viewport carries neither field, so an ordinary project file is the
+  size it was.
+
+**WHERE A LINE'S WIDTH COMES FROM**
+- paper width = sheet master (`Sheet__Lineweights.ViewportPt`) x class ratio
+  (unchanged) x Projected Linework composite weight x Hidden Lines composite weight
+  (hidden class only) x category weight factor.
+- Raising the master still thickens the whole drawing, and the hierarchy survives.
+- Category styles apply to visible, hidden and authored lines. The section outline
+  keeps its class colour and weight, because a cut reads as cut material whatever
+  was cut. `Classes__AppliesToClasses` changes that without code.
+- `solid` on a hidden line means "keep the class dash".
+
+**PAINTING IN BANDS**
+- A tagged class is bucketed by RESOLVED STYLE, not by category: thirty categories
+  that land on black-solid-1.0 are one path. One lookup per owner id, not per
+  segment. The heaviest band draws last, so corners read right.
+- The PDF exporter draws the same bands, so paper matches screen.
+- Restyling changes the paint, never the projection. The style token is in the path
+  cache and the repaint guard, and deliberately not in the linework cache key.
+
+**THE FIRST CUT WORKED ON ONE MACHINE AND NOT THE OTHER**
+- Adam tested it and every edge style control did nothing. The owner tags were only
+  threaded through the CPU backend, and `auto` sends a plain elevation to WebGPU
+  wherever the hardware probe grants an adapter - which his workstation (NVIDIA
+  Ampere) does. The vendored GPU generator returns one merged buffer with no
+  provenance, so the painter had nothing to style. The verification browser has no
+  GPU, so it ran the CPU path and passed. The render log's `edges: 0` was the tell.
+- THE FIX IS A SECOND CORRECTNESS RULE in `Na__PlProjector__ResolveBackend`, beside
+  the cut rule: every render the pipeline KEEPS runs on the CPU. Kept means the
+  drawing on screen, every Layout Editor viewport, the browser cache and the R2
+  bake, and they share one cache, so one untagged result poisons all of them. Only
+  an explicit backend override - how Run Diff asks, and Run Diff keeps nothing -
+  still gets the GPU.
+- The bake had been rendering with `auto` too, despite the WebGPU module's note that
+  bakes stay on the CPU. On that workstation, Save Elevations would have put
+  untagged linework on R2. It cannot now.
+- UNTAGGED IS STALE. Persistence refuses a block without owner runs (the GPU renders
+  from that first test were already in the browser cache) and never writes or bakes
+  one, and the Layout Editor treats an untagged in-memory result as a miss. A reload
+  heals it; no cache clear is needed.
+- The cost is the GPU speed-up for plain elevations drawn on screen. On PS01 the GPU
+  took 2.6 s for Elevation_001, and the CPU pool is in the same range at that size.
+  The GPU path's own notes (single precision, a 128 MB buffer per call, stalls in a
+  background tab) already made it the less dependable of the two. The Dev menu says
+  "cpu - tags every line" and labels the other backends "Run Diff only".
+
+**THE 2D OUTLINE WIDTH MOVED**
+- `RenderEffect__ProfileLines__Drawing2dEdgeWidth` (0.55) is gone from
+  `Na__AppConfig__Main.json`, with a note where it was. For viewports it is the
+  profileLinework row's weight (0.55 px), overridable per viewport. The Section
+  Outline weight (2 px) is applied per viewport bake as well. Both are screen-space
+  widths, set for one render and put back afterwards, the same way the profile
+  pass's enabled flag already was.
+- Only the PIXEL weights enter the underlay cache key. A factor weight thickens the
+  vector drawing and changes no pixel of the render behind it.
+- CAUGHT IN TESTING: once the main-config key was gone, the standalone drawing view
+  resolved its profile width to 1.0, not 0.55. The width it had always drawn at had
+  come from that key alone, and the fallback underneath was 1.0. The fallback in
+  `Na__DrawView__ConfigState__.js` is now 0.55, and so is the JSON beside it.
+- FOUND ON THE WAY, NOT CHANGED: `Na__DrawView__AppConfig__.json` is never loaded in
+  TrueVision. `Na__DrawCfg__Load()` is exported and nothing calls it, so every value
+  in that file is ignored and the drawing view runs on its fallbacks. Wiring it in
+  would change any key where the file and the fallbacks disagree, so it is flagged
+  as a separate task.
+
+**THE ADVANCED FOLD**
+- A small toggle under the section title. Folded, both panels are unchanged.
+- Model Layers: colour (with a swatch), line type and weight inline in every row
+  between the name and the checkbox, column headings once above the list, a reset
+  per row, and Reset Styles for the whole viewport. Hidden for a 3D viewport, which
+  has no projected linework to style.
+- Render Composites: a weight beside every composite that draws a line, with its
+  unit (x for a factor of the master, px for a buffer width). Section Outline
+  appears only inside the fold, because a weight is all it has.
+- A restyled row is marked in blue with its reset button showing.
+- Each label now names its checkbox explicitly. With three controls between the
+  name and the checkbox, an implicit label adopted the first of them, so clicking
+  "Walls" opened the colour dropdown.
+- Panel max width 520 -> 680 px, for room while curating.
+
+**BAKED LINEWORK RE-RENDERS ONCE**
+- Asset schema 1 -> 2: owners stored as [ id, count ] runs per class, with the key
+  table in Meta.OwnerKeys - a few hundred runs rather than one integer per segment.
+- A v1 asset is refused and re-rendered. It cannot say which category any line
+  belongs to, and restoring it would quietly ignore every edge style.
+
+**Files**
+- New: `50/Na__ProjectedLinework__Owners__.js`, `51/Na__LayoutEditor__EdgeStyles__.js`
+  and its config, `51/Na__LayoutEditor__RenderComposites__.js` and its config.
+- Projection: StageSampler, AuthoredEdges, EdgeExtractor, ClipKernel, ClipWorker,
+  WorkerPool, CpuBackend, Projector, Persistence, DevMenu Controls, AppConfig.
+- Layout Editor: ModelLayers and its config, SheetRecords, SheetModel, Viewport2d,
+  PdfExporter, SnapshotRenderer, PanelHost, Panel Styles, Panel ModelLayers,
+  ModeController (waits for both new configs), Styles Panels css, AppConfig.
+- Drawing core: `Na__DrawView__ConfigState__.js` (fallback), `Na__DrawView__AppConfig__.json`.
+- Main config: `Na__AppConfig__Main.json`.
+- `PWA_SW_VERSION_TOKEN` was already bumped to `2026-09-13-1` in the working tree
+  alongside v2.26.0, which covers this change too.
+
+**Verification**
+- Node, on the shipped kernel and owners modules: 9 tests pass. One tag per emitted
+  segment in edge order; shards tag only their own range; tags survive sink growth
+  past 70,000 segments; the min-length filter drops a segment and its tag together;
+  tags are invisible to Object.keys and JSON; a mismatched buffer is refused.
+- Static linkage check: 994 named imports across the 78 modules in 50 and 51, none
+  missing. It was added after `node --check` passed a PanelHost that did not export
+  the Advanced fold, which broke the whole editor on load.
+- In the app on PS01, CPU path, read-only load, nothing saved: both elevation
+  viewports projected tagged, with every segment owned (Viewport 1: 3,984 segments
+  across 10 categories, none unknown). Eight bands per viewport where there had been
+  one path per class, and widths exact against the maths: a 0.30 pt master at 1:50
+  gives walls 5.29, windows and doors 4.23 (0.80), fixtures 3.97 (0.75), landscape
+  3.17 (0.60), with authored lines keeping their 0.8 class ratio inside every band.
+- Per-viewport overrides: fixtures set to centre line painted `400 100 100 100`
+  (8,2,2,2 x 50), walls at 1.40 painted 7.41, existing windows went light grey, and
+  the other viewport stayed untouched. A Projected Linework weight of 1.5 on the
+  second viewport scaled every band there and nothing in the first. The record held
+  exactly the three categories, in full. Reset pruned both viewports back to no
+  field and the SVG came back byte-identical, and restating a default pruned itself.
+  The PDF exporter's band list matched the screen band for band.
+- Panel: six SSOT colours, seven line types, weights inline; restyled rows marked with
+  reset showing; the label still toggles its checkbox; folded, no advanced control
+  visible. Render Composites shows x and px weights, with Section Outline only
+  inside the fold.
+- GPU fix: kept elevation and plan renders resolve to cpu, and Run Diff's overrides
+  are honoured. A poisoned cache (an untagged copy of real linework planted in the
+  pipeline) was refused by persistence and healed to a tagged result on the next
+  repaint, with the category bands back. The GPU route itself needs Adam's machine.
+- Backing layer: a Profile Linework px change re-rendered that viewport's underlay
+  and not the other's; a factor weight did not re-render it; the global section width
+  was restored after the bake.
+
+**ValeVision**
+- Not ported. Awaiting Adam's re-test and sign-off on TrueVision first. ValeVision's
+  `auto` backend has the same GPU route and needs the kept-render rule as well as
+  the owner tags.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.26.0  -  12-Sep-2026
+### The Eyedropper - Make That One Look Like This One
+
+**Overview**
+- A new Layout Editor tool on the B key. Click the object that already looks
+  right, then click every object that should match it. The picked style stays
+  on the dropper, so the second, third and fourth target each cost one click.
+- Text, dimensions and vector shapes. Viewports are deliberately left out while
+  the new viewport system is being built; the hook for them is cut and
+  documented in the module header.
+- Authored in TrueVision first. ValeVision gets it once this is signed off.
+
+**WHAT TRAVELS, AND WHY THE LIST IS SHORT**
+- The whole tool turns on one split: STYLE travels, CONTENT AND GEOMETRY DO NOT.
+  A text's words, a dimension's span and a vector's points belong to that object.
+  Copy those and you have not restyled anything, you have overwritten it.
+- Text carries size, weight, colour and alignment. A dimension carries text size,
+  colour, terminator, precision and unit suffix. A vector carries edge colour,
+  edge weight, edges on/off and fill - where a null fill is a real value that
+  clears the target's fill rather than being skipped as missing.
+- THE DIMENSION OFFSET IS NOT A STYLE. It is where the dimension line sits, so
+  copying it moves the target instead of restyling it. There is a config flag for
+  offices that want it; it ships off.
+- THE LAYER NEVER TRAVELS, in any kind. A layer is where a thing lives, not how
+  it looks, and shuffling objects between layers behind a style click would be
+  the most surprising thing this tool could do.
+- All of that lives in ONE trait table at the top of the module. The extractor
+  and the applier are generic and know no field names, so a new trait is one
+  line and the viewport expansion is an entry, not a rewrite.
+
+**KINDS DO NOT MIX**
+- A dimension style cannot land on a text. The two share almost no traits, so a
+  cross-kind paste would be a silent partial one - a few fields landing, most
+  not - and a refusal that says why is worth more than that.
+- The refusal is visible before the click, not after: the box under the pointer
+  goes red and the cursor turns, so a wrong target announces itself on hover.
+
+**THE THINGS THAT MAKE IT FAST**
+- B with something already selected arms the dropper ALREADY LOADED from that
+  selection, so the common path - spot the good one, click it, press B, click
+  the rest - costs one key and no extra click.
+- The tool never selects and never drags. A run of style clicks would otherwise
+  keep swapping the right-hand properties panel out from under the user.
+- A click on bare paper is ignored rather than treated as "unload". Missing a
+  small dimension by two millimetres is common, and losing the picked style to
+  that miss would be infuriating. Escape is the way out, one stage at a time:
+  it empties the dropper before it clears the selection.
+- Alt+click re-picks the source without putting the tool down.
+- Copy and Paste properties on the right-click menu drive the same dropper, so
+  the tool is reachable without the hotkey and the two paths cannot disagree.
+
+**ONE PAINT IS ONE UNDO STEP**
+- Every write goes through the model's own `Update` call, non-silent, exactly as
+  a panel edit does. Painting five items is therefore five undos rather than one
+  lump - which is what you want when the fourth one was a mistake.
+- The held style is a snapshot taken at pick time, not a live reference. Undo the
+  source away and the dropper still holds what it lifted.
+
+**WIRING**
+- New: `Na__LayoutEditor__Eyedropper__.js` (`Na__LeDrop__`).
+- Touched: the key map and its built-in fallback, the config block and its
+  getter, the labels, the sheet tools, the toolbar, the stylesheet. Nothing
+  outside `51__System__LayoutEditor`.
+- The B binding lives in `Na__LayoutEditor__KeyMappings__.json` with every other
+  binding, so it is rebindable without touching code. The action catalogue in
+  that file also picked up the six actions that were bindable but unlisted.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.25.0  -  12-Sep-2026
 ### Supersampling - The Pixel Stops Guessing
 

@@ -37,6 +37,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Sep-2026 - Version 1.1.0
+// - The config gained a per-category edge style (weight factor, colour alias,
+//   line type alias) and this module indexes it. EdgeDefault(categoryKey) is
+//   what a newly drawn viewport starts from; Na__LayoutEditor__EdgeStyles__.js
+//   layers the per-viewport overrides on top of it.
+//
 // 12-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -71,6 +77,15 @@
     let Na__LeModelLayers__LoadPromise = null;
     // ------------------------------------------------------------
 
+    // MODULE VARIABLES | Category Key to Its Configured Edge Style
+    // ------------------------------------------------------------
+    // Built once when the config lands. The renderers ask this per CATEGORY per
+    // paint, which on a busy sheet is thousands of times a second, so it is a
+    // Map rather than a walk of five groups looking for a key.
+    // ------------------------------------------------------------
+    let Na__LeModelLayers__EdgeIndex   = null;   // <-- categoryKey -> { weight, colour, lineType }
+    // ------------------------------------------------------------
+
     // MODULE CONSTANTS | Fallbacks Used Before the Fetch Lands, or Instead of It
     // ------------------------------------------------------------
     // A failed fetch must not empty the panel: without wording the categories
@@ -103,6 +118,7 @@
                         return null;
                     }
                     Na__LeModelLayers__Config = await response.json();
+                    Na__LeModelLayers__BuildEdgeIndex();
                 } catch (error) {
                     console.warn('[TrueVision3D LayoutEditor] Model layer map unavailable - categories will use generated labels.', error);
                 }
@@ -110,6 +126,14 @@
             })();
         }
         return Na__LeModelLayers__LoadPromise;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Whether the Real Layer Map Is In Hand
+    // ------------------------------------------------------------
+    function Na__LeModelLayers__IsLoaded() {
+        return Na__LeModelLayers__Config !== null;
     }
     // ------------------------------------------------------------
 
@@ -124,6 +148,51 @@
             stripPrefix   : block['Fallback__StripPrefix']   || Na__LeModelLayers__FALLBACK.stripPrefix,
             splitOnDouble : block['Fallback__SplitOnDouble'] || Na__LeModelLayers__FALLBACK.splitOnDouble
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Index Every Row's Configured Edge Style by Category Key
+    // ------------------------------------------------------------
+    // A row that names no edge style of its own inherits the config's
+    // EdgeDefaults block, so a new category can be added to the file with two
+    // fields instead of five.
+    // ------------------------------------------------------------
+    function Na__LeModelLayers__BuildEdgeIndex() {
+        Na__LeModelLayers__EdgeIndex = new Map();
+        if (!Na__LeModelLayers__Config) return;
+
+        const shared = Na__LeModelLayers__Config['LayoutEditor__ModelLayers__EdgeDefaults'] || {};
+        const base   = {
+            weight   : Number.isFinite(shared['EdgeDefaults__WeightFactor']) ? shared['EdgeDefaults__WeightFactor'] : 1.00,
+            colour   : shared['EdgeDefaults__Colour']   || 'black',
+            lineType : shared['EdgeDefaults__LineType'] || 'solid'
+        };
+
+        (Na__LeModelLayers__Config['LayoutEditor__ModelLayers__Groups'] || []).forEach((group) => {
+            (group['Group__Layers'] || []).forEach((layer) => {
+                const key = layer['Layer__CategoryKey'];
+                if (!key) return;
+                Na__LeModelLayers__EdgeIndex.set(key, {
+                    weight   : Number.isFinite(layer['Layer__EdgeWeightFactor']) ? layer['Layer__EdgeWeightFactor'] : base.weight,
+                    colour   : layer['Layer__EdgeColour']   || base.colour,
+                    lineType : layer['Layer__EdgeLineType'] || base.lineType
+                });
+            });
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Configured Edge Style for One Category (null When Unlisted)
+    // ------------------------------------------------------------
+    // Null is a real answer, not a failure: a category the model loaded that this
+    // config has never heard of has no configured style, and the edge style
+    // module turns that into its own fallback rather than guessing here.
+    // ------------------------------------------------------------
+    function Na__LeModelLayers__EdgeDefault(categoryKey) {
+        if (!Na__LeModelLayers__EdgeIndex) Na__LeModelLayers__BuildEdgeIndex();
+        return Na__LeModelLayers__EdgeIndex.get(categoryKey) || null;
     }
     // ------------------------------------------------------------
 
@@ -171,7 +240,11 @@
                 const key = layer['Layer__CategoryKey'];
                 if (!remaining.has(key)) return;                                  // <-- The model did not load it: it is not a choice
                 remaining.delete(key);
-                rows.push({ key : key, label : layer['Layer__Label'] || Na__LeModelLayers__Generated(key), tags : layer['Layer__SketchUpTags'] || [] });
+                rows.push({
+                    key   : key,
+                    label : layer['Layer__Label'] || Na__LeModelLayers__Generated(key),
+                    tags  : layer['Layer__SketchUpTags'] || []
+                });
             });
             if (rows.length > 0) groups.push({ id : group['Group__Id'] || 'group', label : group['Group__Label'] || '', layers : rows });
         });
@@ -257,7 +330,9 @@
     export {
         Na__LeModelLayers__FIELD,
         Na__LeModelLayers__Ready,
+        Na__LeModelLayers__IsLoaded,
         Na__LeModelLayers__Groups,
+        Na__LeModelLayers__EdgeDefault,
         Na__LeModelLayers__IsOn,
         Na__LeModelLayers__HiddenKeys,
         Na__LeModelLayers__Token,

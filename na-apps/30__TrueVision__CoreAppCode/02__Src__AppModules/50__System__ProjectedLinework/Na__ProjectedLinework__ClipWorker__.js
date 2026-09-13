@@ -47,7 +47,11 @@
 //     OUT  { Type : 'Ready', Generation }
 //
 //     IN   { Type : 'Clip', Generation, JobId, EdgeStart, EdgeEnd }
-//     OUT  { Type : 'Done', Generation, JobId, Segments, PairsTested }
+//     OUT  { Type : 'Done', Generation, JobId, Segments, Owners, PairsTested }
+//
+// Owners and HiddenOwners are one category id per returned SEGMENT, present only
+// when the loaded edge set carried owner tags. They are transferred alongside the
+// coordinates so the two halves of one answer cannot be separated in flight.
 //     OUT  { Type : 'Failed', Generation, JobId, Message }
 //
 // Generation is the pool's run counter. A message carrying a stale generation is
@@ -133,6 +137,8 @@ import { Na__ProjectedLinework__ClipKernel__Clip } from './Na__ProjectedLinework
                     JobId          : message.JobId,
                     Segments       : spent,
                     HiddenSegments : null,
+                    Owners         : null,
+                    HiddenOwners   : null,
                     PairsTested    : 0
                 },
                 [ spent.buffer ]
@@ -149,6 +155,15 @@ import { Na__ProjectedLinework__ClipKernel__Clip } from './Na__ProjectedLinework
                 Na__ProjectedLinework__ClipWorker__Options
             );
 
+            // EVERY BUFFER THIS REPLY CARRIES, handed over rather than copied;
+            // this worker will not touch any of them again. Built as a list
+            // because there are now up to four and a nested ternary over four
+            // optional buffers is how a transfer gets quietly forgotten.
+            const handOver  =  [ result.Segments.buffer ];
+            if (result.HiddenSegments) handOver.push(result.HiddenSegments.buffer);
+            if (result.Owners)         handOver.push(result.Owners.buffer);
+            if (result.HiddenOwners)   handOver.push(result.HiddenOwners.buffer);
+
             self.postMessage(
                 {
                     Type           : 'Done',
@@ -156,11 +171,11 @@ import { Na__ProjectedLinework__ClipKernel__Clip } from './Na__ProjectedLinework
                     JobId          : message.JobId,
                     Segments       : result.Segments,
                     HiddenSegments : result.HiddenSegments,                   // <-- Null unless IncludeHiddenEdges was asked for (TrueVision addition)
+                    Owners         : result.Owners,                           // <-- Null unless the loaded edges carried category tags
+                    HiddenOwners   : result.HiddenOwners,
                     PairsTested    : result.PairsTested
                 },
-                result.HiddenSegments
-                    ? [ result.Segments.buffer, result.HiddenSegments.buffer ]
-                    : [ result.Segments.buffer ]                              // <-- Handed over rather than copied; this worker will not touch it again
+                handOver
             );
         } catch (clipError) {
             self.postMessage({

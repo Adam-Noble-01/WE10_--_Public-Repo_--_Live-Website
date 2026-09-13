@@ -1,0 +1,96 @@
+{
+    "LayoutEditor__RenderComposites__Meta": {
+        "Meta__FileName"        : "Na__LayoutEditor__RenderComposites__Config__.json",
+        "Meta__Description"     : "One row per layer that goes into the picture a viewport shows: what it is called, whether it means anything on a 3D viewport, whether it carries a toggle, and - new in 1.0.0 - how thick its lines are. The Render Composites panel is built from this file, so adding a composite is a config edit.",
+        "Meta__Version"         : "1.0.0",
+        "Meta__Created"         : "12-Sep-2026",
+        "Meta__Author"          : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyWeightsHere"  : "Until v2.27.0 the thickness of the 2D backing picture's outline lived in Na__AppConfig__Main.json as RenderEffect__ProfileLines__Drawing2dEdgeWidth - one global number, nowhere near the panel that switches the effect on, and not adjustable per viewport. It is now Composite__Weight on the profileLinework row below, which is both where a person looks for it and a value a single viewport can override.",
+        "Meta__WeightKinds"     : "factor = a multiplier on the sheet's master viewport lineweight (Sheet__Lineweights.ViewportPt), so the drawing keeps its hierarchy when the master moves. pixels = a real pixel count in the render buffer, which is what a screen-space effect actually consumes. none = this composite draws no line and gets no control; the row is still listed so the file is a complete inventory rather than a selective one.",
+        "Meta__PerViewport"     : "A viewport stores an override only for a weight it has actually been given, in Viewport__CompositeWeights. Everything untouched reads this file, so changing a default here moves every viewport that never disagreed.",
+        "Meta__WeightTwoDOnly"  : "Weight__TwoDOnly marks a weight that only applies to a 2D viewport even though the composite's toggle also means something in 3D. The profile outline on a 3D viewport is the 3D composer's distance-scaled effect, with its own width in Na__AppConfig__Main.json; this weight sets the fixed 2D Sobel width only.",
+        "Meta__KeyStability"    : "Composite__Key is what saved viewports already hold and must not be renamed. baseImage is labelled Context Layer for exactly this reason - see the note in Na__LayoutEditor__Panel__Styles__.js."
+    },
+
+    "LayoutEditor__RenderComposites__Layers": [
+        {
+            "Composite__Key"      : "projectedLinework",
+            "Composite__Label"    : "Projected Linework",
+            "Composite__TwoDOnly" : true,
+            "Composite__Toggle"   : true,
+            "Composite__Order"    : 10,
+            "Composite__Note"     : "The exact vector drawing over the picture. Its weight multiplies every class AND every per-category factor, so it is the one number that thickens or thins the whole vector drawing in this viewport without touching the sheet master.",
+            "Composite__Weight"   : { "Weight__Kind": "factor", "Weight__Default": 1.00, "Weight__Min": 0.10, "Weight__Max": 3.00, "Weight__Step": 0.05, "Weight__Label": "Weight" }
+        },
+        {
+            "Composite__Key"      : "profileLinework",
+            "Composite__Label"    : "Profile Linework Effect",
+            "Composite__TwoDOnly" : false,
+            "Composite__Toggle"   : true,
+            "Composite__Order"    : 20,
+            "Composite__Note"     : "The screen-space silhouette found by the Sobel pass on the backing render - the layer that stops a curved wall reading as a blank patch. Measured in pixels of that buffer at the real output resolution (v2.25.0 resized it per tile; before that a baked sheet found its outline at viewport resolution and stretched it).",
+            "Composite__Weight"   : { "Weight__Kind": "pixels", "Weight__TwoDOnly": true, "Weight__Default": 0.55, "Weight__Min": 0.10, "Weight__Max": 4.00, "Weight__Step": 0.05, "Weight__Label": "Edge px" }
+        },
+        {
+            "Composite__Key"      : "sectionOutline",
+            "Composite__Label"    : "Section Outline",
+            "Composite__TwoDOnly" : true,
+            "Composite__Toggle"   : false,
+            "Composite__Order"    : 30,
+            "Composite__Note"     : "The inked edge of cut material on the backing render, drawn by the section mesh overlay. It has no toggle of its own - a drawing either has a cut or it has not - but it does have a weight, and a heavy cut line is most of what makes a plan read as a plan.",
+            "Composite__Weight"   : { "Weight__Kind": "pixels", "Weight__Default": 2.00, "Weight__Min": 0.50, "Weight__Max": 8.00, "Weight__Step": 0.25, "Weight__Label": "Cut px" }
+        },
+        {
+            "Composite__Key"      : "hiddenLines",
+            "Composite__Label"    : "Hidden Lines",
+            "Composite__TwoDOnly" : true,
+            "Composite__Toggle"   : true,
+            "Composite__Order"    : 40,
+            "Composite__Note"     : "What the occluders covered, drawn dashed. Its weight multiplies the hidden class only, on top of the projected linework weight, so hidden work can be quietened without thinning anything that is actually visible.",
+            "Composite__Weight"   : { "Weight__Kind": "factor", "Weight__Default": 1.00, "Weight__Min": 0.10, "Weight__Max": 3.00, "Weight__Step": 0.05, "Weight__Label": "Weight" }
+        },
+        {
+            "Composite__Key"      : "glassOpaque",
+            "Composite__Label"    : "Glass Transparency Off",
+            "Composite__TwoDOnly" : false,
+            "Composite__Toggle"   : true,
+            "Composite__Order"    : 50,
+            "Composite__Note"     : "Transparent materials occlude like walls. Changes what is drawn, not how thickly.",
+            "Composite__Weight"   : { "Weight__Kind": "none" }
+        },
+        {
+            "Composite__Key"      : "whitecard",
+            "Composite__Label"    : "Whitecard",
+            "Composite__TwoDOnly" : false,
+            "Composite__Toggle"   : true,
+            "Composite__Order"    : 60,
+            "Composite__Note"     : "Materials replaced with white card. A shading choice; no linework of its own.",
+            "Composite__Weight"   : { "Weight__Kind": "none" }
+        },
+        {
+            "Composite__Key"      : "enhanceWhitecard",
+            "Composite__Label"    : "Enhance Whitecard",
+            "Composite__TwoDOnly" : false,
+            "Composite__Toggle"   : true,
+            "Composite__Order"    : 70,
+            "Composite__Note"     : "Levels and sharpen over the finished raster so whitecard greys reach paper white. A post pass on pixels; it has no line to weight.",
+            "Composite__Weight"   : { "Weight__Kind": "none" }
+        },
+        {
+            "Composite__Key"      : "baseImage",
+            "Composite__Label"    : "Context Layer",
+            "Composite__TwoDOnly" : false,
+            "Composite__Toggle"   : true,
+            "Composite__Order"    : 80,
+            "Composite__Note"     : "The rendered picture everything else is drawn over - the layer furthest back. Off leaves the vector drawing alone on the paper. The key stays baseImage so every saved viewport keeps its meaning.",
+            "Composite__Weight"   : { "Weight__Kind": "none" }
+        }
+    ],
+
+    "LayoutEditor__RenderComposites__Fallback": {
+        "Fallback__Description"  : "A composite key a saved viewport holds that this file does not list keeps working as a plain toggle with no weight, rather than vanishing from the panel.",
+        "Fallback__WeightKind"   : "none",
+        "Fallback__WeightFactor" : 1.00
+    }
+}

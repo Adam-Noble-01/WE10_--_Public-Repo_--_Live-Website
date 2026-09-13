@@ -33,6 +33,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.2.0
+// - Shape__Gradient on the shape record: null for none, otherwise made whole by
+//   Na__LayoutEditor__GradientTool__ as a fresh object on every normalise. A
+//   gradient counts as the fill in the guard that keeps a shape visible.
+//
 // 10-Sep-2026 - Version 1.1.4
 // - Shape__Stroked on the shape record, defaulting on, with the guard that
 //   a shape with no fill keeps its edges.
@@ -75,6 +80,28 @@
         Na__LeCfg__GetShapeSetup
     } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeScale__Coerce, Na__LeScale__SheetLabel } from './Na__LayoutEditor__ScaleManager__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Projected Edge Styles and Composite Weights
+    // ------------------------------------------------------------
+    // Both modules are leaves: they read their own config and know nothing about
+    // records, so importing them here cannot cycle.
+    // ------------------------------------------------------------
+    import {
+        Na__LeEdge__FIELD,
+        Na__LeEdge__CAT_FIELD,
+        Na__LeEdge__IsLoaded,
+        Na__LeEdge__IsColour,
+        Na__LeEdge__IsLineType,
+        Na__LeEdge__ClampWeight,
+        Na__LeEdge__Default
+    } from './Na__LayoutEditor__EdgeStyles__.js';
+    import {
+        Na__LeComposite__FIELD,
+        Na__LeComposite__Row,
+        Na__LeComposite__Clamp
+    } from './Na__LayoutEditor__RenderComposites__.js';
+    import { Na__LeGrad__Normalise } from './Na__LayoutEditor__GradientTool__.js';   // <-- A leaf too: it reaches only the panel host, which reaches only the config
     import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__PresentationMode__ProjectJson__GetActiveConfig } from '../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
     // ------------------------------------------------------------
@@ -152,6 +179,79 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Keep Only the Edge Styles Someone Actually Chose
+    // ------------------------------------------------------------
+    // A stored entry is written out in full - label and all three values - so a
+    // project file can be read without cross-referencing the config. In exchange
+    // it is pruned hard: every value is coerced into something the palette
+    // actually contains, and an entry that has come back round to the config
+    // default is deleted, so the file only ever holds real decisions.
+    //
+    // THE PRUNE WAITS FOR THE CONFIG. Before the fetch lands the "default" is a
+    // built-in black solid line, and deleting against that would throw away a
+    // deliberate choice of black solid. Until it lands, entries are cleaned but
+    // never dropped.
+    // ------------------------------------------------------------
+    function Na__LeRec__NormaliseProjectedEdges(block) {
+        if (!block || typeof block !== 'object') return null;
+        const source = block[Na__LeEdge__CAT_FIELD];
+        if (!source || typeof source !== 'object') return null;
+
+        const canPrune = Na__LeEdge__IsLoaded();
+        const kept     = {};
+
+        Object.keys(source).forEach((key) => {
+            const entry = source[key];
+            if (!entry || typeof entry !== 'object') return;
+
+            const fallback = Na__LeEdge__Default(key);
+            const weight   = Na__LeEdge__ClampWeight(entry['Category__EdgeWeightFactor']);
+            const colour   = Na__LeEdge__IsColour(entry['Category__EdgeColour'])     ? entry['Category__EdgeColour']   : fallback.colour;
+            const lineType = Na__LeEdge__IsLineType(entry['Category__EdgeLineType']) ? entry['Category__EdgeLineType'] : fallback.lineType;
+
+            if (canPrune && weight === Na__LeEdge__ClampWeight(fallback.weight) && colour === fallback.colour && lineType === fallback.lineType) {
+                return;                                                            // <-- Back to the default: the record says nothing
+            }
+
+            kept[key] = {
+                'Category__Label'            : typeof entry['Category__Label'] === 'string' && entry['Category__Label'] ? entry['Category__Label'] : key,
+                'Category__EdgeWeightFactor' : weight,
+                'Category__EdgeColour'       : colour,
+                'Category__EdgeLineType'     : lineType
+            };
+        });
+
+        if (Object.keys(kept).length === 0) return null;
+
+        const out = {};
+        out['Edges__Description'] = 'Projected linework style for this viewport only, per SketchUp model category. Weight is a multiplier on the sheet master viewport lineweight; the colour and line type are aliases from Na__LayoutEditor__EdgeStyles__Config__.json. A category absent from this list draws at the default in Na__LayoutEditor__ModelLayers__Config__.json. Visibility is NOT here - that is Viewport__ModelLayers.';
+        if (typeof block['Edges__UpdatedIso'] === 'string') out['Edges__UpdatedIso'] = block['Edges__UpdatedIso'];
+        out[Na__LeEdge__CAT_FIELD] = kept;
+        return out;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Keep Only the Composite Weights Someone Actually Set
+    // ------------------------------------------------------------
+    // A flat map of key to number, because a composite weight is one number with
+    // no wording worth repeating. A key the config has never heard of, or one
+    // whose composite has no weight at all, is dropped rather than carried.
+    // ------------------------------------------------------------
+    function Na__LeRec__NormaliseCompositeWeights(block) {
+        if (!block || typeof block !== 'object') return null;
+        const kept = {};
+        Object.keys(block).forEach((key) => {
+            const row = Na__LeComposite__Row(key);
+            if (!row || row.weight.kind === 'none') return;
+            const value = Na__LeComposite__Clamp(key, block[key]);
+            if (Number.isFinite(value)) kept[key] = value;
+        });
+        return Object.keys(kept).length > 0 ? kept : null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Fill a Viewport Record's Defaults
     // ------------------------------------------------------------
     function Na__LeRec__NormaliseViewport(viewport, defaultLayerId) {
@@ -210,6 +310,13 @@
             enhanceWhitecard  : pick('enhanceWhitecard'),
             contextLayer      : pick('contextLayer')
         };
+        // PROJECTED EDGE STYLES and COMPOSITE WEIGHTS | Curation, stored only
+        // where it happened. Both are null on a viewport nobody has curated,
+        // which is the overwhelming majority, so the ordinary project file is
+        // exactly the size it was before the feature existed.
+        viewport[Na__LeEdge__FIELD]      = Na__LeRec__NormaliseProjectedEdges(viewport[Na__LeEdge__FIELD]);
+        viewport[Na__LeComposite__FIELD] = Na__LeRec__NormaliseCompositeWeights(viewport[Na__LeComposite__FIELD]);
+
         if (viewport.Viewport__MarkupMode !== 'sheet') viewport.Viewport__MarkupMode = 'scene';
         if (viewport.Viewport__ShowScaleLabel === undefined) viewport.Viewport__ShowScaleLabel = setup.showScaleLabel;
         // SNAPSHOT ASSET | { Asset__Path, Asset__Fingerprint, Asset__PixelWidth }.
@@ -278,8 +385,10 @@
         if (typeof item.Shape__StrokeColour !== 'string') item.Shape__StrokeColour = setup.defaultStrokeColour;
         item.Shape__StrokePt = Na__LeRec__Num(item.Shape__StrokePt, setup.defaultStrokePt);
         if (typeof item.Shape__FillColour !== 'string') item.Shape__FillColour = null;
+        item.Shape__Gradient = Na__LeGrad__Normalise(item.Shape__Gradient);              // <-- A fresh object or null: no two shapes ever hold the same gradient
         item.Shape__Stroked = item.Shape__Stroked !== false;                             // <-- A record written before the flag existed drew its edges
-        const canFill = item.Shape__FillColour !== null && item.Shape__Points.length > 2;  // <-- Two points enclose nothing, so they cannot be a fill
+        const filled  = item.Shape__FillColour !== null || item.Shape__Gradient !== null;   // <-- A gradient is a fill as far as visibility goes
+        const canFill = filled && item.Shape__Points.length > 2;                            // <-- Two points enclose nothing, so they cannot be a fill
         if (!item.Shape__Stroked && !canFill) item.Shape__Stroked = true;                   // <-- Edges or fill, never neither: an invisible shape is a lost shape
         return item;
     }

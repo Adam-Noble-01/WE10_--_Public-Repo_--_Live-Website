@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LePanelShapes
 // MODULE     : Layout Editor - Vectors Panel
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Edges, edge colour and weight, fill and closure for the selected shape, or the defaults for the next one
+// PURPOSE    : Edges, edge colour and weight, fill, gradient and closure for the selected shape, or the defaults for the next one
 // CREATED    : 10-Sep-2026
 //
 // DESCRIPTION:
@@ -19,9 +19,15 @@
 //   states a drawing wants: edges alone (a line or an outline), edges with
 //   a fill, or a fill alone (a solid, a mask, a block of tone). Switching
 //   one off switches the other on, so a shape is never invisible.
-// - The edge colour and weight rows go away while the edges are off, and
-//   the fill colour while there is no fill, so the panel only ever shows
-//   what is in play.
+// - A GRADIENT IS A FILL. Its rows and everything about the gradient itself
+//   belong to Na__LayoutEditor__GradientTool__; this panel keeps only how it
+//   sits beside the rest of the shape. Switching the gradient on switches the
+//   solid fill off and the other way round, and it counts as the fill for
+//   the either-or rule - so edges off with a gradient on leaves a gradient
+//   alone, the fade-a-drawing-out case, instead of bringing a grey fill back.
+// - The edge colour and weight rows go away while the edges are off, the
+//   fill colour while there is no fill and the gradient settings while there
+//   is no gradient, so the panel only ever shows what is in play.
 //
 // INTEGRATION:
 // - Registered by the mode controller in the right column.
@@ -31,13 +37,20 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Panel__Shapes__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Parity        : verbatim until 1.3.0
+// - Divergences   : Console prefix, header and folder numbers only; the gradient
+//                   rows (1.3.0) are TrueVision-first and go back with the gradient tool.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.3.0
+// - The Gradient toggle and its rows, from Na__LayoutEditor__GradientTool__. A
+//   gradient replaces the solid fill and counts as the fill for the either-or
+//   rule. Its sliders redraw the shape silently while they move and announce
+//   once on release, so a whole drag is one undo step.
+//
 // 12-Sep-2026 - Version 1.2.0
 // - The draw-tool and axis-lock instruction paragraphs are gone from the
 //   panel body; they took more height than the controls they explained.
@@ -56,11 +69,13 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Config, Model, Tools and Panel Host
+    // MODULE IMPORTS | Config, Model, Tools, Surface, Gradient Tool and Panel Host
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__GetLineweightSetup } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__GetActiveSheet, Na__LeModel__GetSelection, Na__LeModel__UpdateShape } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeTools__GetShapeDefaults, Na__LeTools__SetShapeDefaults } from './Na__LayoutEditor__SheetTools__.js';
+    import { Na__LeSurface__Refresh } from './Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeGrad__BuildRows, Na__LeGrad__RefreshRows, Na__LeGrad__RegisterControls } from './Na__LayoutEditor__GradientTool__.js';
     import {
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
@@ -109,6 +124,11 @@
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeFill', 'Fill'), Na__LePanels__Input('checkbox', 'shape-filled')));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeFillColour', 'Fill colour'), Na__LePanels__Input('color', 'shape-fill')));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeClosed', 'Closed'), Na__LePanels__Input('checkbox', 'shape-closed')));
+        // THE GRADIENT GOES LAST, after the fills and Closed. Its block is the
+        // one part of this panel that opens and shuts, and at the foot of the
+        // list it opens downwards - switching it on moves no other control out
+        // from under the pointer.
+        Na__LeGrad__BuildRows(body);
         const either = Na__LePanels__Note(Na__LeCfg__GetLabel('ShapeEitherNote', 'Edges and fill are either or: switching one off switches the other on, so a shape always shows.'));
         either.setAttribute('data-na-block', 'either');
         body.appendChild(either);
@@ -118,6 +138,21 @@
         // in the labels config (ShapeDrawNote, ShapeAxisNote) and in the
         // module headers, where they can be read without costing panel height
         // on every session.
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Gradient in Play: the Selected Shape's, or the Defaults'
+    // ------------------------------------------------------------
+    // Returns { on, gradient }. gradient is a record even while on is false - the
+    // defaults keep their settings through the toggle - so switching a shape's
+    // gradient on starts from the last settings used rather than from scratch.
+    // ------------------------------------------------------------
+    function Na__LePanelShapes__Gradient() {
+        const selected = Na__LePanelShapes__Selected();
+        const d = Na__LeTools__GetShapeDefaults();
+        if (selected) return { on : !!selected.item.Shape__Gradient, gradient : selected.item.Shape__Gradient || d.gradient };
+        return { on : d.gradientOn === true, gradient : d.gradient };
     }
     // ------------------------------------------------------------
 
@@ -146,6 +181,7 @@
         el('shape-stroke').parentNode.hidden  = !values.stroked;
         el('shape-pt').parentNode.hidden      = !values.stroked;
         el('shape-fill').parentNode.hidden    = !values.filled;
+        Na__LeGrad__RefreshRows(body, Object.assign({ canFill : canFill }, Na__LePanelShapes__Gradient()));
         body.querySelector('[data-na-block="either"]').hidden = !canFill;
         body.querySelector('[data-na-block="note"]').textContent = selected
             ? Na__LeCfg__GetLabel('ShapeSelectedNote', 'Editing the selected shape.')
@@ -176,6 +212,37 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Apply a Change Silently While a Slider Is Moving
+    // ------------------------------------------------------------
+    // The selected shape is updated without an announcement and only the markup
+    // is redrawn, so the history does not take a step for every pixel of drag.
+    // The release sends the same change through Apply, which announces it once,
+    // and the whole drag becomes one undo step.
+    // ------------------------------------------------------------
+    function Na__LePanelShapes__ApplyLive(patch, defaultsPatch) {
+        const selected = Na__LePanelShapes__Selected();
+        if (selected) { Na__LeModel__UpdateShape(selected.sheet, selected.item.Shape__Id, patch, true); Na__LeSurface__Refresh('markup'); return; }
+        if (defaultsPatch) Na__LeTools__SetShapeDefaults(defaultsPatch);        // <-- Nothing on the paper to redraw; the preview swatch already shows it
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Switch the Gradient On or Off
+    // ------------------------------------------------------------
+    // On: the gradient is the fill now, so a solid fill steps aside. Off: if no
+    // solid fill is left either, the edges come back, exactly as they do when
+    // the fill is switched off - a shape is never left with nothing to show.
+    // ------------------------------------------------------------
+    function Na__LePanelShapes__ToggleGradient(on, gradient) {
+        if (on) { Na__LePanelShapes__Apply({ gradient : gradient, fillColour : null }, { gradientOn : true, gradient : gradient, filled : false }); return; }
+        const selected  = Na__LePanelShapes__Selected();
+        const keepsFill = selected ? !!selected.item.Shape__FillColour : Na__LeTools__GetShapeDefaults().filled === true;
+        if (keepsFill) { Na__LePanelShapes__Apply({ gradient : null }, { gradientOn : false }); return; }
+        Na__LePanelShapes__Apply({ gradient : null, stroked : true }, { gradientOn : false, stroked : true });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Register the Section and Its Controls
     // ------------------------------------------------------------
     function Na__LePanelShapes__Register() {
@@ -184,15 +251,22 @@
         Na__LePanels__OnControl('change', 'shape-fill',   (e, el) => Na__LePanelShapes__Apply({ fillColour : el.value }, { fillColour : el.value }));
         Na__LePanels__OnControl('change', 'shape-filled', (e, el) => {
             const colour = Na__LePanelShapes__FillColour();
-            if (el.checked) { Na__LePanelShapes__Apply({ fillColour : colour }, { filled : true }); return; }
+            if (el.checked) { Na__LePanelShapes__Apply({ fillColour : colour, gradient : null }, { filled : true, gradientOn : false }); return; }   // <-- A solid fill replaces a gradient
+            if (Na__LePanelShapes__Gradient().on) { Na__LePanelShapes__Apply({ fillColour : null }, { filled : false }); return; }                 // <-- A gradient still fills it
             Na__LePanelShapes__Apply({ fillColour : null, stroked : true }, { filled : false, stroked : true });   // <-- No fill left, so the edges come back
         });
         Na__LePanels__OnControl('change', 'shape-stroked', (e, el) => {
             if (el.checked) { Na__LePanelShapes__Apply({ stroked : true }, { stroked : true }); return; }
+            if (Na__LePanelShapes__Gradient().on) { Na__LePanelShapes__Apply({ stroked : false }, { stroked : false }); return; }   // <-- The gradient is the fill: a gradient alone is the fade
             const colour = Na__LePanelShapes__FillColour();
             Na__LePanelShapes__Apply({ stroked : false, fillColour : colour }, { stroked : false, filled : true, fillColour : colour });   // <-- No edges left, so the fill comes on
         });
         Na__LePanels__OnControl('change', 'shape-closed', (e, el) => Na__LePanelShapes__Apply({ closed : el.checked }, null));
+        Na__LeGrad__RegisterControls({
+            read   : Na__LePanelShapes__Gradient,
+            toggle : Na__LePanelShapes__ToggleGradient,
+            write  : (gradient, live) => (live ? Na__LePanelShapes__ApplyLive : Na__LePanelShapes__Apply)({ gradient : gradient }, { gradient : gradient })
+        });
         return Na__LePanels__RegisterSection('right', {
             id : Na__LePanelShapes__ID, title : Na__LeCfg__GetLabel('ShapesTitle', 'Vectors'),
             build : Na__LePanelShapes__Build, refresh : Na__LePanelShapes__Refresh

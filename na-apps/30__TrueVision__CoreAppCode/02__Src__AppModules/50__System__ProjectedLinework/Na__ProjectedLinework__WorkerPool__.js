@@ -245,6 +245,29 @@ import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedL
     }
     // ------------------------------------------------------------
 
+
+    // SUB FUNCTION | Join Every Slice's Owner Tags Into One Buffer
+    // ------------------------------------------------------------
+    // The same join over Uint16. It is a separate function rather than a generic
+    // one because the two buffers must be joined in the SAME order to stay
+    // aligned, and two callers passing their lists to one clever helper is how
+    // that ordering gets broken later.
+    function Na__ProjectedLinework__WorkerPool__JoinOwners(parts) {
+        let total  =  0;
+        for (let i = 0; i < parts.length; i++) total  +=  parts[i].length;
+
+        const joined  =  new Uint16Array(total);
+        let   at      =  0;
+
+        for (let i = 0; i < parts.length; i++) {
+            joined.set(parts[i], at);
+            at  +=  parts[i].length;
+        }
+
+        return joined;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -257,13 +280,23 @@ import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedL
     // settings carries MaxWorkers, the AbortSignal, an OnProgress callback taking a
     // fraction, and YieldEveryMs for the main thread fallback.
     //
-    // Returns { Segments, HiddenSegments } for the view, already in drawing
-    // millimetres. HiddenSegments is null unless options.IncludeHiddenEdges was
-    // set (TrueVision addition: the hidden line class rides the same pass).
+    // Returns { Segments, HiddenSegments, Owners, HiddenOwners } for the view,
+    // already in drawing millimetres. HiddenSegments is null unless
+    // options.IncludeHiddenEdges was set (TrueVision addition: the hidden line
+    // class rides the same pass); the two owner buffers are null unless the edge
+    // set carried category tags.
+    //
+    // SHARDS COME BACK IN WHATEVER ORDER THEY FINISH, which has never mattered:
+    // segments within a class are order-independent. It does not matter now
+    // either, because a shard's owners are appended in the same step as its
+    // segments - so whatever order the shards land in, index k of the joined
+    // owner buffer still describes segment k.
     export async function Na__ProjectedLinework__WorkerPool__Run(soup, edges, options, settings) {
         const config  =  settings || {};
 
-        if (edges.Count === 0 || soup.TriCount === 0) return { Segments : new Float32Array(0), HiddenSegments : null };
+        if (edges.Count === 0 || soup.TriCount === 0) {
+            return { Segments : new Float32Array(0), HiddenSegments : null, Owners : null, HiddenOwners : null };
+        }
 
         const threshold  =  (typeof config.MinimumEdgesForWorkers === 'number')
             ? config.MinimumEdgesForWorkers
@@ -302,6 +335,8 @@ import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedL
         const slices      =  Na__ProjectedLinework__WorkerPool__Slices(edges.Count, workers.length);
         const collected   =  [];
         const hidden      =  [];                                              // <-- Hidden line parts, when the kernel was asked for them
+        const owners        =  [];                                            // <-- One category id per segment, when the edges carried tags
+        const hiddenOwners  =  [];
 
         return new Promise(function(resolve, reject) {
             let nextSlice  =  0;
@@ -364,6 +399,8 @@ import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedL
 
                     collected.push(message.Segments);
                     if (message.HiddenSegments) hidden.push(message.HiddenSegments);
+                    if (message.Owners)       owners.push(message.Owners);          // <-- Same step as the segments, so the two stay aligned
+                    if (message.HiddenOwners) hiddenOwners.push(message.HiddenOwners);
                     completed++;
 
                     if (typeof config.OnProgress === 'function') {
@@ -373,7 +410,9 @@ import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedL
                     if (completed >= slices.length) {
                         settle(resolve, {
                             Segments       : Na__ProjectedLinework__WorkerPool__Join(collected),
-                            HiddenSegments : hidden.length ? Na__ProjectedLinework__WorkerPool__Join(hidden) : null
+                            HiddenSegments : hidden.length ? Na__ProjectedLinework__WorkerPool__Join(hidden) : null,
+                            Owners         : owners.length       ? Na__ProjectedLinework__WorkerPool__JoinOwners(owners)       : null,
+                            HiddenOwners   : hiddenOwners.length ? Na__ProjectedLinework__WorkerPool__JoinOwners(hiddenOwners) : null
                         });
                         return;
                     }
@@ -408,6 +447,8 @@ import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedL
         const slicer  =  Na__ProjectedLinework__Scheduler__CreateSlicer(config.YieldEveryMs);
         const parts   =  [];
         const hidden  =  [];
+        const owners        =  [];
+        const hiddenOwners  =  [];
 
         for (let i = 0; i < slices.length; i++) {
             await slicer.Tick();
@@ -421,6 +462,8 @@ import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedL
             );
             parts.push(result.Segments);
             if (result.HiddenSegments) hidden.push(result.HiddenSegments);
+            if (result.Owners)       owners.push(result.Owners);
+            if (result.HiddenOwners) hiddenOwners.push(result.HiddenOwners);
 
             if (typeof config.OnProgress === 'function') {
                 config.OnProgress((i + 1) / slices.length);
@@ -429,7 +472,9 @@ import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedL
 
         return {
             Segments       : Na__ProjectedLinework__WorkerPool__Join(parts),
-            HiddenSegments : hidden.length ? Na__ProjectedLinework__WorkerPool__Join(hidden) : null
+            HiddenSegments : hidden.length ? Na__ProjectedLinework__WorkerPool__Join(hidden) : null,
+            Owners         : owners.length       ? Na__ProjectedLinework__WorkerPool__JoinOwners(owners)       : null,
+            HiddenOwners   : hiddenOwners.length ? Na__ProjectedLinework__WorkerPool__JoinOwners(hiddenOwners) : null
         };
     }
     // ------------------------------------------------------------

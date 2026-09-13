@@ -72,7 +72,7 @@
     // ------------------------------------------------------------
     const Na__DrawCfg__FALLBACKS = Object.freeze({
         backgroundColour    : '#ffffff',
-        edgeWidth           : 1.0,
+        edgeWidth           : 0.55,                                          // <-- 13-Sep-2026: was 1.0. With Drawing2dEdgeWidth gone from the main config this fallback is what the drawing view actually draws at, so it mirrors the shipped 0.55
         edgeColour          : null,
         edgeThresholdNormal : null,
         profileEnabled      : true,

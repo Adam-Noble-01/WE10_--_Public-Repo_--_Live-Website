@@ -84,6 +84,14 @@
     } from './Na__ProjectedLinework__ConfigAccess__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Segment Owner Tags
+    // ------------------------------------------------------------
+    import {
+        Na__PlOwners__CreateTable,
+        Na__PlOwners__IdFor
+    } from './Na__ProjectedLinework__Owners__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -182,6 +190,24 @@
             occludes      : !transparent || rules.glassOpaque === true || rules.transparentOccludes === true,
             categoryName  : categoryName
         });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Build the Owner Table for a Collection, in Instance Order
+    // ------------------------------------------------------------
+    // ONE TABLE PER COLLECTION, built once and deterministically. The stage
+    // edges are extracted per view while the intersection lines are cached per
+    // collection, so if each pass built its own table the same id would mean
+    // different categories in the two buffers and a drawing would colour its
+    // walls with the roof style. Walking the instance list in order settles
+    // every id before either pass starts.
+    // ------------------------------------------------------------
+    function Na__PlSampler__BuildOwnerTable(collected) {
+        const table = Na__PlOwners__CreateTable();
+        const list  = (collected && collected.Instances) ? collected.Instances : [];
+        for (let i = 0; i < list.length; i++) Na__PlOwners__IdFor(table, list[i].categoryName);
+        return table;
     }
     // ------------------------------------------------------------
 
@@ -392,7 +418,12 @@
     //   TriangleTotal, OccluderCount
     // ------------------------------------------------------------
     function Na__PlSampler__Sample(collected, cut) {
-        const instances = collected.Instances;
+        const instances  = collected.Instances;
+        // A CUT LINE BELONGS TO WHATEVER WAS CUT. The crossing callback below is
+        // handed the instance it came from, so the section class can be styled
+        // per category exactly like the visible one - which is how a cut wall
+        // reads heavier than a cut worktop without either being special-cased.
+        const ownerTable = collected.OwnerTable || null;
 
         let total         = 0;
         let occluderCount = 0;
@@ -411,6 +442,8 @@
         const inverted = new Uint8Array(kept);
         const sectionHeavy = [];
         const sectionLight = [];
+        const sectionHeavyOwners = ownerTable ? [] : null;
+        const sectionLightOwners = ownerTable ? [] : null;
         let   written  = 0;
 
         // PASS TWO | Fill, fan-triangulating each clipped polygon.
@@ -432,6 +465,10 @@
             (crossing, instance) => {
                 const target = instance.isTransparent ? sectionLight : sectionHeavy;
                 target.push(crossing[0], crossing[1], crossing[2], crossing[3], crossing[4], crossing[5]);
+                if (ownerTable) {
+                    const tags = instance.isTransparent ? sectionLightOwners : sectionHeavyOwners;
+                    tags.push(Na__PlOwners__IdFor(ownerTable, instance.categoryName));
+                }
             }
         );
 
@@ -443,6 +480,8 @@
             Instances         : instances,
             SectionEdges      : new Float64Array(sectionHeavy),
             SectionEdgesLight : new Float64Array(sectionLight),
+            SectionOwners      : sectionHeavyOwners ? new Uint16Array(sectionHeavyOwners) : null,
+            SectionOwnersLight : sectionLightOwners ? new Uint16Array(sectionLightOwners) : null,
             TriangleTotal     : total,
             OccluderCount     : occluderCount
         };
@@ -476,6 +515,7 @@
     // MODULE EXPORTS | Projected Linework Stage Sampler API
     // ------------------------------------------------------------
     export {
+        Na__PlSampler__BuildOwnerTable,
         Na__PlSampler__Collect,
         Na__PlSampler__Sample,
         Na__PlSampler__CountTriangles,

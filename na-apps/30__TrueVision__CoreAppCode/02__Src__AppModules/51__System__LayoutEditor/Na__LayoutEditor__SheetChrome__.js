@@ -43,6 +43,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.2.0
+// - A polyline primitive can carry a Gradient (a Shape__Gradient record), and
+//   both painters hand it to Na__LayoutEditor__GradientTool__. The SVG writes a
+//   <linearGradient> and fills the path with it; the PDF paints in three passes -
+//   any solid fill, the gradient clipped to the outline, then the edges on top.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - Letter spacing carried on a text primitive and honoured by both painters
 //   and the measurer, which the title block labels and the frame captions now
@@ -70,6 +76,7 @@
     import { Na__LeModel__ResolveViewportSource, Na__LeModel__IsLayerVisible, Na__LeModel__KIND_2D } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeTitleModern__Build }  from './Na__LayoutEditor__TitleBlock__Modern__.js';
     import { Na__LeTitleClassic__Build } from './Na__LayoutEditor__TitleBlock__Classic__.js';
+    import { Na__LeGrad__SvgPaint, Na__LeGrad__DrawPdf } from './Na__LayoutEditor__GradientTool__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -205,12 +212,16 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Push a Polyline (points as [x, y] pairs), Optionally Closed and Filled
+    // FUNCTION | Push a Polyline (points as [x, y] pairs), Optionally Closed, Filled and Graded
     // ------------------------------------------------------------
-    function Na__LeChrome__PushPolyline(list, points, strokeColour, strokeMm, fillColour, closed) {
+    // gradient is optional and last, so every existing caller is unchanged. It is
+    // a Shape__Gradient record, and both painters hand it to the gradient tool.
+    // ------------------------------------------------------------
+    function Na__LeChrome__PushPolyline(list, points, strokeColour, strokeMm, fillColour, closed, gradient) {
         if (!points || points.length < 2) return;
         list.push({ Kind : Na__LeChrome__KIND_POLYLINE, Points : points, StrokeColour : strokeColour || null,
-                    StrokeMm : strokeMm || 0, FillColour : fillColour || null, Closed : closed === true });
+                    StrokeMm : strokeMm || 0, FillColour : fillColour || null, Closed : closed === true,
+                    Gradient : (gradient && typeof gradient === 'object') ? gradient : null });
     }
     // ------------------------------------------------------------
 
@@ -364,9 +375,17 @@
                    '" stroke="' + primitive.StrokeColour + '" stroke-width="' + R(primitive.StrokeMm) + '" stroke-linecap="round"' + dash(primitive) + '/>';
         }
         if (primitive.Kind === Na__LeChrome__KIND_POLYLINE) {
-            const d = primitive.Points.map((p, i) => (i === 0 ? 'M' : 'L') + R(p[0]) + ' ' + R(p[1])).join('') + (primitive.Closed ? 'Z' : '');
-            return '<path d="' + d + '" fill="' + (primitive.FillColour || 'none') + '" stroke="' + (primitive.StrokeColour || 'none') +
-                   '" stroke-width="' + R(primitive.StrokeMm) + '" stroke-linejoin="round" stroke-linecap="round"/>';
+            const d     = primitive.Points.map((p, i) => (i === 0 ? 'M' : 'L') + R(p[0]) + ' ' + R(p[1])).join('') + (primitive.Closed ? 'Z' : '');
+            const edges = '" stroke="' + (primitive.StrokeColour || 'none') + '" stroke-width="' + R(primitive.StrokeMm) + '" stroke-linejoin="round" stroke-linecap="round"/>';
+            // A GRADIENT PAINTS OVER ANY SOLID FILL AND UNDER THE EDGES. The solid
+            // fill gets a path of its own so the gradient's alpha end shows it
+            // through; the edges ride on the gradient's path, on top of both.
+            const paint = primitive.Gradient ? Na__LeGrad__SvgPaint(primitive.Points, primitive.Gradient) : null;
+            if (paint) {
+                const solid = primitive.FillColour ? '<path d="' + d + '" fill="' + primitive.FillColour + '" stroke="none"/>' : '';
+                return paint.defs + solid + '<path d="' + d + '" fill="' + paint.fill + edges;
+            }
+            return '<path d="' + d + '" fill="' + (primitive.FillColour || 'none') + edges;
         }
         if (primitive.Kind === Na__LeChrome__KIND_TEXT) {
             const anchor = primitive.Align === 'right' ? 'end' : (primitive.Align === 'center' ? 'middle' : 'start');
@@ -450,6 +469,15 @@
             }
             const fill = primitive.FillColour ? Na__LeChrome__Rgb(primitive.FillColour) : null;
             const stroke = primitive.StrokeColour ? Na__LeChrome__Rgb(primitive.StrokeColour) : null;
+            if (primitive.Gradient) {
+                // A GRADIENT GOES IN THREE PASSES rather than one fill-and-stroke:
+                // any solid fill, then the gradient clipped over it, then the edges
+                // on top, so the gradient's solid end can never paint over an edge.
+                if (fill)   { doc.setFillColor(fill.R, fill.G, fill.B); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'F', primitive.Closed === true); }
+                Na__LeGrad__DrawPdf(doc, primitive.Points, primitive.Gradient);
+                if (stroke) { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash({ DashMm : 0 }); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'S', primitive.Closed === true); }
+                return;
+            }
             if (fill)   doc.setFillColor(fill.R, fill.G, fill.B);
             if (stroke) { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash({ DashMm : 0 }); }
             doc.lines(rel, first[0], first[1], [ 1, 1 ], fill ? (stroke ? 'FD' : 'F') : 'S', primitive.Closed === true);

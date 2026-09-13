@@ -127,6 +127,12 @@
     import { Na__PlStage__Describe } from '../50__System__ProjectedLinework/Na__ProjectedLinework__ModelStage__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | The Two Screen-Space Line Widths a Composite Weight Sets
+    // ------------------------------------------------------------
+    import { Na__DrawProfile__SetEdgeWidth } from '../40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
+    import { Na__SectCutCfg__GetAppearance, Na__SectCutCfg__SetAppearance } from '../41__System__SectionCutEngine/Na__SectionCut__ConfigState__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -360,8 +366,14 @@
     // Returns { dataUrl, widthPx, heightPx } (png), or null. modelLayers is the
     // viewport's Viewport__ModelLayers map, or null for a viewport showing
     // everything the model has.
+    //
+    // weights is { profilePx, sectionPx } from the viewport's Render Composites,
+    // or null for the configured widths. Both are SCREEN-SPACE widths - the Sobel
+    // sampling offset and the cut outline's line material - so they are set for
+    // the length of this one render and put back afterwards, exactly like the
+    // profile pass's enabled flag already is.
     // ------------------------------------------------------------
-    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx, modelLayers, antiAliasSamples) {
+    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights) {
         if (!Na__LeSnap__IsReady() || !definition) return Promise.resolve(null);
         return Na__LeSnap__Enqueue(async () => {
             const wasSuspended = Na__DrawView__Transitions__IsSuspended();
@@ -370,12 +382,30 @@
             const passWasOn    = pass ? pass.enabled : null;                       // <-- The preset's exit forces it on; the 3D toggle owns it
             let cutApplied = false;
             let contextSaved = null;                                               // <-- Visibility to put back when the context was hidden
+            const wantProfile = weights && Number.isFinite(weights.profilePx) && weights.profilePx > 0;
+            const wantSection = weights && Number.isFinite(weights.sectionPx) && weights.sectionPx > 0;
+            const sectionWas  = wantSection ? Na__SectCutCfg__GetAppearance().lineWidthPx : null;
+            let   profileWas  = null;
             try {
                 Na__DrawView__SectionAdapter__SuspendLiveTool();
+                // THE OUTLINE WIDTH GOES IN BEFORE THE CUT IS BUILT. The cap
+                // meshes read it when they are created, so setting it after
+                // ApplyCut would draw this viewport at whatever width the last
+                // one left behind.
+                if (wantSection) Na__SectCutCfg__SetAppearance({ lineWidthPx : weights.sectionPx });
                 cutApplied = Na__LeSnap__ApplyCut(definition);
                 const camera = Na__LeSnap__FrameOrtho(definition, windowMm);
                 if (!wasSuspended) Na__DrawView__Transitions__SuspendThreeD();     // <-- Distance culling off for the picture
                 Na__DrawView__RenderPreset__Enter({ camera : camera, styles : styles || {} });
+                // AND THE PROFILE WIDTH GOES IN AFTER THE PRESET. Enter applies
+                // the drawing's configured width as part of its styles, so an
+                // override set any earlier is simply overwritten. SetEdgeWidth
+                // with a non-number changes nothing and answers the current
+                // width, which is the value to hand back afterwards.
+                if (wantProfile) {
+                    profileWas = Na__DrawProfile__SetEdgeWidth(NaN);
+                    Na__DrawProfile__SetEdgeWidth(weights.profilePx);
+                }
                 Na__DrawView__MaterialPreset__Enter(styles || {});
                 contextSaved = Na__LeSnap__HideForViewport(styles, modelLayers);
                 Na__DrawView__SectionAdapter__ReapplyClipping();
@@ -408,8 +438,10 @@
                 if (contextSaved) Na__ModelToggle__ApplySceneLayerVisibility(contextSaved);
                 Na__DrawView__MaterialPreset__Exit();
                 Na__DrawView__RenderPreset__Exit();
+                if (profileWas !== null) Na__DrawProfile__SetEdgeWidth(profileWas);                 // <-- The next viewport or drawing starts from the configured width
                 if (pass && passWasOn !== null) pass.enabled = passWasOn;
                 if (cutApplied) Na__DrawView__SectionAdapter__RemovePlane(Na__LeSnap__CUT_ID);
+                if (sectionWas !== null) Na__SectCutCfg__SetAppearance({ lineWidthPx : sectionWas });
                 Na__DrawView__SectionAdapter__Release();
                 if (!wasSuspended) Na__DrawView__Transitions__ResumeThreeD();
                 Na__RenderLoop__RequestRender();

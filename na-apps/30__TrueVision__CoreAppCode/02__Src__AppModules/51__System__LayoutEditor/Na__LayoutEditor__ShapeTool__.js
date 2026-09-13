@@ -40,6 +40,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.3.1
+// - A new shape takes the Vectors panel's gradient default when it is on, so a
+//   run of fades can be drawn straight off with nothing selected.
+//
+// 13-Sep-2026 - Version 1.3.0
+// - The sheet's own vectors are snap candidates (Na__LayoutEditor__Snapping__),
+//   including this shape's earlier vertices, so a polygon closes exactly on its
+//   first point. The vertex just placed is excluded from the next pick.
+//
 // 12-Sep-2026 - Version 1.2.0
 // - Rectangles can be drawn. The close-the-polygon test now asks where the
 //   next point would LAND rather than where the cursor is, so hovering the
@@ -112,12 +121,30 @@
     // along it.
     // ------------------------------------------------------------
     function Na__LeShape__SnapOrConstrain(sheet, last, point, shift) {
-        const snap = Na__LeOsnap__Snap(sheet, point);
+        const snap = Na__LeOsnap__Snap(sheet, point, Na__LeShape__OwnExclusion());
         const at   = snap.snapped ? { x : snap.x, y : snap.y } : point;
         if (last && Na__LeAxis__Get()) return Na__LeAxis__Apply(last, at);        // <-- Arrow key lock: the axis is named outright
         if (last && shift)             return Na__LeAxis__Hold(last, point, at);  // <-- Shift: the cursor names the axis, the snap measures along it
         if (snap.snapped) return at;
         return Na__LeAxis__Constrain(last, point, shift);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What the Shape Being Drawn Must Not Snap To
+    // ------------------------------------------------------------
+    // The vertex just placed is where the rubber band starts, so it is the
+    // one point the next vertex can never usefully land on - offering it
+    // would park the marker under the cursor every time the pointer set off.
+    // Every other vertex of the draft stays a candidate, and that is the
+    // improvement: the first corner is now a real snap target, so a polygon
+    // closes EXACTLY on it and a rectangle's last corner can borrow its
+    // coordinate even on bare paper with no linework underneath.
+    // ------------------------------------------------------------
+    function Na__LeShape__OwnExclusion() {
+        const draft = Na__LeShape__Draft;
+        if (!draft) return null;
+        return { kind : 'shape', id : draft.id, index : draft.points.length - 1 };
     }
     // ------------------------------------------------------------
 
@@ -159,7 +186,7 @@
 
     // FUNCTION | A Click With the Draw Tool
     // ------------------------------------------------------------
-    // defaults: { strokeColour, strokePt, fillColour, filled, stroked }
+    // defaults: { strokeColour, strokePt, fillColour, filled, stroked, gradientOn, gradient }
     // ------------------------------------------------------------
     function Na__LeShape__Click(sheet, pointMm, shift, defaults) {
         const draft = Na__LeShape__Draft;
@@ -170,7 +197,8 @@
         if (!draft) {
             const d    = defaults || {};
             const item = Na__LeModel__CreateShape(sheet, [ pt ], {
-                strokeColour : d.strokeColour, strokePt : d.strokePt, fillColour : d.filled ? d.fillColour : null, closed : false, stroked : true, silent : true
+                strokeColour : d.strokeColour, strokePt : d.strokePt, fillColour : d.filled ? d.fillColour : null,
+                gradient : d.gradientOn ? d.gradient : null, closed : false, stroked : true, silent : true
             });
             if (!item) return false;
             Na__LeShape__Draft = { id : item.Shape__Id, points : [ pt ], stroked : d.stroked !== false };   // <-- Drawn with edges, finished as the default asks

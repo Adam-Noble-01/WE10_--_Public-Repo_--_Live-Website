@@ -29,6 +29,9 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.5.0
+// - Rectangle tool button (R), beside Draw.
+//
 // 10-Sep-2026 - Version 1.4.0
 // - Raster select: the working resolution of the viewport pictures (Low, Medium, High).
 //
@@ -60,10 +63,14 @@
         Na__LeTools__TOOL_TEXT,
         Na__LeTools__TOOL_DIMENSION,
         Na__LeTools__TOOL_DRAW,
+        Na__LeTools__TOOL_RECT,
+        Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__CHANGED_EVENT,
         Na__LeTools__SetTool,
-        Na__LeTools__GetTool
+        Na__LeTools__GetTool,
+        Na__LeTools__ArmEyedropper
     } from './Na__LayoutEditor__SheetTools__.js';
+    import { Na__LeDrop__CHANGED_EVENT, Na__LeDrop__GetHint } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeNav__Fit, Na__LeNav__ZoomTo } from './Na__LayoutEditor__Navigation__.js';
     import { Na__LeOsnap__CHANGED_EVENT, Na__LeOsnap__IsEnabled, Na__LeOsnap__Toggle } from './Na__LayoutEditor__Snapping__.js';
     import { Na__LeHist__CHANGED_EVENT, Na__LeHist__CanUndo, Na__LeHist__CanRedo, Na__LeHist__Undo, Na__LeHist__Redo } from './Na__LayoutEditor__History__.js';
@@ -133,6 +140,12 @@
         if (redo) redo.disabled = !Na__LeHist__CanRedo();
         const raster = Na__LeToolbar__Root.querySelector('[data-na-toolbar="raster"]');
         if (raster && raster.value !== Na__LeRaster__Get()) raster.value = Na__LeRaster__Get();
+        const hint = Na__LeToolbar__Root.querySelector('[data-na-toolbar="dropper-hint"]');
+        if (hint) {
+            const armed = tool === Na__LeTools__TOOL_EYEDROP;
+            hint.hidden = !armed;
+            if (armed) { hint.textContent = Na__LeDrop__GetHint(); hint.title = hint.textContent; }
+        }
         const zoom = Na__LeToolbar__Root.querySelector('[data-na-toolbar="zoom"]');
         if (zoom) zoom.textContent = Math.round(Na__LeSurface__GetZoom() * 100) + '%';
         const sheet = Na__LeModel__GetActiveSheet();
@@ -183,12 +196,31 @@
             [ [ Na__LeTools__TOOL_SELECT, Na__LeCfg__GetLabel('ToolSelect', 'Select'), 'Select and move (V)' ],
               [ Na__LeTools__TOOL_TEXT, Na__LeCfg__GetLabel('ToolText', 'Text'), 'Place text (T)' ],
               [ Na__LeTools__TOOL_DIMENSION, Na__LeCfg__GetLabel('ToolDimension', 'Dimension'), 'Place a dimension in three clicks: start, end, then where the line sits (D)' ],
-              [ Na__LeTools__TOOL_DRAW, Na__LeCfg__GetLabel('ToolDraw', 'Draw'), 'Draw lines and polygons: click points, click the first point to close, Enter to finish (L)' ] ].forEach((entry) => {
-                const button = Na__LeToolbar__Button(entry[1], 'tool-' + entry[0], entry[2], () => Na__LeTools__SetTool(entry[0]));
+              [ Na__LeTools__TOOL_DRAW, Na__LeCfg__GetLabel('ToolDraw', 'Draw'), 'Draw lines and polygons: click points, click the first point to close, Enter to finish (L)' ],
+              [ Na__LeTools__TOOL_RECT, Na__LeCfg__GetLabel('ToolRectangle', 'Rectangle'), Na__LeCfg__GetLabel('ToolRectangleTitle', 'Draw a rectangle (R): click one corner then the opposite corner, or drag from one to the other. Shift keeps it square, Esc abandons it.') ],
+              [ Na__LeTools__TOOL_EYEDROP, Na__LeCfg__GetLabel('ToolEyedropper', 'Eyedropper'), Na__LeCfg__GetLabel('ToolEyedropperTitle', 'Match properties (B): click the object to copy FROM, then each object to copy ONTO. Alt+click picks a new source, Esc finishes.') ] ].forEach((entry) => {
+                // The eyedropper arms through its own call so the button behaves
+                // exactly as the B key does: with something selected it comes up
+                // already loaded from that selection.
+                // ------------------------------------
+                const pick   = () => (entry[0] === Na__LeTools__TOOL_EYEDROP ? Na__LeTools__ArmEyedropper() : Na__LeTools__SetTool(entry[0]));
+                const button = Na__LeToolbar__Button(entry[1], 'tool-' + entry[0], entry[2], pick);
                 button.setAttribute('data-na-tool', entry[0]);
                 root.appendChild(button);
             });
             root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('SnapToggle', 'Snap'), 'snap', Na__LeCfg__GetLabel('SnapToggleTitle', 'Snap dimensions to the linework endpoints and midpoints (F3)'), () => Na__LeOsnap__Toggle()));
+
+            // EYEDROPPER HINT | What the dropper is holding and what to do next.
+            // It lives beside the tool buttons because that is where the eye
+            // already is when the tool is picked up, and it shrinks rather than
+            // pushing the rest of the toolbar off the end.
+            // ------------------------------------
+            const hint = document.createElement('span');
+            hint.className = 'na-le-toolbar__hint';
+            hint.setAttribute('data-na-toolbar', 'dropper-hint');
+            hint.hidden = true;
+            root.appendChild(hint);
+
             root.appendChild(Na__LeToolbar__Gap());
             root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('Undo', 'Undo'), 'undo', 'Undo the last change to this sheet (Ctrl+Z)', () => Na__LeHist__Undo()));
             root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('Redo', 'Redo'), 'redo', 'Redo the change just undone (Ctrl+Y)', () => Na__LeHist__Redo()));
@@ -232,7 +264,7 @@
         container.appendChild(root);
         Na__LeToolbar__Root = root;
         Na__LeToolbar__Listeners = () => Na__LeToolbar__Sync();
-        [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
+        [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
         Na__LeToolbar__Sync();
         return true;
     }
@@ -243,7 +275,7 @@
     // ------------------------------------------------------------
     function Na__LeToolbar__Unmount() {
         if (Na__LeToolbar__Listeners) {
-            [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
+            [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
         }
         if (Na__LeToolbar__Root && Na__LeToolbar__Root.parentNode) Na__LeToolbar__Root.parentNode.removeChild(Na__LeToolbar__Root);
         Na__LeToolbar__Root = Na__LeToolbar__Listeners = null;

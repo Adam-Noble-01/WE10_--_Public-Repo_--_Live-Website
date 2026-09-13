@@ -39,6 +39,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Sep-2026 - Version 1.5.0
+// - Per-category linework. The projection now tags every segment with the model
+//   category it came from, so one class can be painted as several bands - walls
+//   black and full weight, windows dark grey and thinner, furniture light grey -
+//   from one projected result. Stroke rules also pick up the viewport's
+//   Projected Linework and Hidden Lines composite weights, and dashes are
+//   patterns rather than a single figure so centre lines are expressible.
+//   An untagged result paints exactly as 1.4.1 did.
+//
 // 10-Sep-2026 - Version 1.4.1
 // - Base Image off: no underlay is rendered, shown or exported; the frame keeps its linework alone.
 //
@@ -72,6 +81,13 @@
     import { Na__LeMarkup__BuildScenePrimitives } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeSnap__Render2d, Na__LeSnap__DrawingCentreMm, Na__LeSnap__GetPipelineFingerprint } from './Na__LayoutEditor__SnapshotRenderer__.js';
     import { Na__LeModelLayers__Token, Na__LeModelLayers__ExcludeTokens } from './Na__LayoutEditor__ModelLayers__.js';
+    import {
+        Na__LeEdge__Effective,
+        Na__LeEdge__AppliesToClasses,
+        Na__LeEdge__SolidMeansClassDefault,
+        Na__LeEdge__Token
+    } from './Na__LayoutEditor__EdgeStyles__.js';
+    import { Na__LeComposite__Factor, Na__LeComposite__Token, Na__LeComposite__Weight, Na__LeComposite__RasterToken } from './Na__LayoutEditor__RenderComposites__.js';
     import { Na__LeRaster__Get, Na__LeRaster__Working, Na__LeRaster__Export, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
     // ------------------------------------------------------------
 
@@ -91,6 +107,7 @@
     } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Pipeline__.js';
     import { Na__PlStore__LoadForDefinition, Na__PlStore__RememberRender } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Persistence__.js';
     import { Na__PlOverlay__BuildPathData } from '../50__System__ProjectedLinework/Na__ProjectedLinework__SvgOverlay__.js';
+    import { Na__PlOwners__Read, Na__PlOwners__KeyFor, Na__PlOwners__Has } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Owners__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -187,7 +204,11 @@
     function Na__LeVp2d__EnsureLinework(definition, onPhase, force) {
         if (!definition) return Promise.resolve(null);
         const cached = force === true ? null : Na__PlPipe__GetCached(definition);   // <-- A forced render ignores what is already known
-        if (cached) return Promise.resolve(cached);
+        // AN UNTAGGED RESULT IS A MISS HERE. The pipeline cache is shared with the
+        // drawing view, and a result with no owner tags cannot draw one category
+        // style: it paints the whole viewport in class colours and makes the edge
+        // style controls look broken.
+        if (cached && Na__PlOwners__Has(cached)) return Promise.resolve(cached);
         const modelFp = Na__LeSnap__GetPipelineFingerprint();
         const key     = Na__PlView__CacheKey(definition, modelFp);
         if (force === true) { Na__LeVp2d__Linework.delete(key); Na__LeVp2d__PathCache.delete(key); }
@@ -225,31 +246,191 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Path Data per Class, Built Once per Result
+    // HELPER FUNCTION | The Token for Everything That Changes How Linework Is Inked
     // ------------------------------------------------------------
-    function Na__LeVp2d__PathsFor(key, classes) {
-        let paths = Na__LeVp2d__PathCache.get(key);
-        if (paths) return paths;
-        paths = {};
-        Na__LeVp2d__CLASS_ORDER.forEach((name) => { paths[name] = Na__PlOverlay__BuildPathData(classes ? classes[name] : null); });
-        Na__LeVp2d__PathCache.set(key, paths);
-        if (Na__LeVp2d__PathCache.size > 16) Na__LeVp2d__PathCache.delete(Na__LeVp2d__PathCache.keys().next().value);
-        return paths;
+    // ONE FUNCTION, TWO READERS. PaintLinework stamps it into lineworkKey and
+    // Fill compares against it to decide whether a repaint is needed. If the two
+    // built it separately and ever disagreed, Fill would never find a match and
+    // would rebuild every frame's SVG on every refresh - correct, and slow enough
+    // to feel broken on a busy sheet.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__StyleToken(viewport) {
+        return Na__LeEdge__Token(viewport) + '#' + Na__LeComposite__Token(viewport);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Screen-Space Widths This Viewport's Underlay Renders At
+    // ------------------------------------------------------------
+    // The Profile Linework and Section Outline composite weights, handed to the
+    // snapshot renderer, which sets them for one render and puts them back.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__RasterWeights(viewport) {
+        return {
+            profilePx : Na__LeComposite__Weight(viewport, 'profileLinework'),
+            sectionPx : Na__LeComposite__Weight(viewport, 'sectionOutline')
+        };
     }
     // ------------------------------------------------------------
 
 
     // FUNCTION | Paper Stroke Rules per Class
     // ------------------------------------------------------------
-    function Na__LeVp2d__StrokeRules(masterPt) {
+    // The base rule for each line class, before any per-category style. Three
+    // multipliers stack on the configured paper widths, in this order:
+    //
+    //   scale             the sheet's master viewport lineweight, which sets the
+    //                     VISIBLE width and leaves the other classes their
+    //                     configured ratios to it
+    //   vector            this viewport's Projected Linework composite weight -
+    //                     one number that thickens or thins the whole vector
+    //                     drawing without touching the sheet master
+    //   hiddenFactor      this viewport's Hidden Lines composite weight, on the
+    //                     hidden class alone, so hidden work can be quietened
+    //                     without thinning anything actually visible
+    //
+    // Dashes are arrays of paper millimetres now, not a single number: a centre
+    // line is long-short-long and cannot be expressed as one figure.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__StrokeRules(viewport, masterPt) {
         const setup = Na__LeCfg__GetLineworkSetup();
-        const scale = Number.isFinite(masterPt) ? Na__LeCfg__PtToMm(masterPt) / setup.visibleWidthMm : 1;   // <-- The sheet's viewport weight sets the visible width; the classes keep their ratios
+        const scale = Number.isFinite(masterPt) ? Na__LeCfg__PtToMm(masterPt) / setup.visibleWidthMm : 1;
+        const vector       = Na__LeComposite__Factor(viewport, 'projectedLinework');
+        const hiddenFactor = Na__LeComposite__Factor(viewport, 'hiddenLines');
+        const dash         = setup.hiddenDashMm > 0 ? [ setup.hiddenDashMm, setup.hiddenDashMm ] : [];
         return {
-            visible  : { colour : Na__PlCfg__GetAppearance('visible').StrokeColour,  widthMm : setup.visibleWidthMm  * scale, dashMm : 0 },
-            hidden   : { colour : Na__PlCfg__GetAppearance('hidden').StrokeColour,   widthMm : setup.hiddenWidthMm   * scale, dashMm : setup.hiddenDashMm },
-            authored : { colour : Na__PlCfg__GetAppearance('authored').StrokeColour, widthMm : setup.authoredWidthMm * scale, dashMm : 0 },
-            section  : { colour : Na__PlCfg__GetAppearance('section').StrokeColour,  widthMm : setup.sectionWidthMm  * scale, dashMm : 0 }
+            visible  : { colour : Na__PlCfg__GetAppearance('visible').StrokeColour,  widthMm : setup.visibleWidthMm  * scale * vector, dashMm : [] },
+            hidden   : { colour : Na__PlCfg__GetAppearance('hidden').StrokeColour,   widthMm : setup.hiddenWidthMm   * scale * vector * hiddenFactor, dashMm : dash },
+            authored : { colour : Na__PlCfg__GetAppearance('authored').StrokeColour, widthMm : setup.authoredWidthMm * scale * vector, dashMm : [] },
+            section  : { colour : Na__PlCfg__GetAppearance('section').StrokeColour,  widthMm : setup.sectionWidthMm  * scale * vector, dashMm : [] }
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Break Each Class Into Bands of One Style
+    // ------------------------------------------------------------
+    // Returns [ { className, colour, widthMm, dashMm, indices } ] in paint order.
+    // indices is null for a band that is the WHOLE class, which is the answer
+    // whenever there is nothing to distinguish - an untagged result, a class the
+    // config does not let categories restyle, or a viewport whose categories all
+    // resolve to the same look. In that case this produces exactly the four
+    // rules the module produced before per-category styling existed.
+    //
+    // A TAGGED CLASS IS BUCKETED BY RESOLVED STYLE, not by category. Thirty
+    // categories that all land on black-solid-1.0 are one band and one path, so
+    // the common case costs one pass over the segments and nothing else.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__StyleBands(viewport, masterPt, classes, showHidden) {
+        const rules   = Na__LeVp2d__StrokeRules(viewport, masterPt);
+        const tags    = Na__PlOwners__Read(classes);
+        const styled  = Na__LeEdge__AppliesToClasses();
+        const classDefaultDash = Na__LeEdge__SolidMeansClassDefault();
+        const bands   = [];
+
+        Na__LeVp2d__CLASS_ORDER.forEach((name) => {
+            if (name === 'hidden' && !showHidden) return;
+            const segments = classes ? classes[name] : null;
+            if (!segments || segments.length < 4) return;
+            const base  = rules[name];
+            const count = Math.floor(segments.length / 4);
+
+            if (!tags || styled.indexOf(name) === -1) {
+                bands.push({ className : name, colour : base.colour, widthMm : base.widthMm, dashMm : base.dashMm, indices : null });
+                return;
+            }
+
+            const owners = tags.Owners[name];
+            if (!owners || owners.length !== count) {                              // <-- Defensive: paint the class rather than mis-colour it
+                bands.push({ className : name, colour : base.colour, widthMm : base.widthMm, dashMm : base.dashMm, indices : null });
+                return;
+            }
+
+            // ONE LOOKUP PER OWNER ID, not one per segment. A model has tens of
+            // categories and a drawing has tens of thousands of segments.
+            const byOwner = new Map();
+            const resolve = (id) => {
+                let style = byOwner.get(id);
+                if (style) return style;
+                const effective = Na__LeEdge__Effective(viewport, Na__PlOwners__KeyFor(tags.OwnerKeys, id));
+                const dash = (effective.lineType === 'solid' && classDefaultDash) ? base.dashMm : effective.patternMm;
+                style = {
+                    colour  : effective.hex,
+                    widthMm : base.widthMm * effective.weight,
+                    dashMm  : dash,
+                    key     : effective.hex + '|' + (Math.round(base.widthMm * effective.weight * 10000) / 10000) + '|' + dash.join(',')
+                };
+                byOwner.set(id, style);
+                return style;
+            };
+
+            const buckets = new Map();
+            for (let i = 0; i < count; i++) {
+                const style = resolve(owners[i]);
+                let list = buckets.get(style.key);
+                if (!list) { list = { style : style, indices : [] }; buckets.set(style.key, list); }
+                list.indices.push(i);
+            }
+
+            if (buckets.size === 1) {                                             // <-- Every category agrees: one path, as before
+                const only = buckets.values().next().value;
+                bands.push({ className : name, colour : only.style.colour, widthMm : only.style.widthMm, dashMm : only.style.dashMm, indices : null });
+                return;
+            }
+
+            // HEAVIEST LAST INSIDE A CLASS. Two lines of different weight meeting
+            // at a corner read better with the heavier one drawn over the lighter,
+            // which is also how the class order itself is arranged.
+            Array.from(buckets.values())
+                .sort((a, b) => a.style.widthMm - b.style.widthMm)
+                .forEach((bucket) => {
+                    bands.push({
+                        className : name,
+                        colour    : bucket.style.colour,
+                        widthMm   : bucket.style.widthMm,
+                        dashMm    : bucket.style.dashMm,
+                        indices   : Uint32Array.from(bucket.indices)
+                    });
+                });
+        });
+
+        return bands;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Path Data per Band, Built Once per Result and Style
+    // ------------------------------------------------------------
+    // The cache key carries the style token as well as the linework key, because
+    // the same projected geometry legitimately draws several ways.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__BandPaths(cacheKey, bands, classes) {
+        let paths = Na__LeVp2d__PathCache.get(cacheKey);
+        if (paths) return paths;
+        paths = bands.map((band) => {
+            const segments = classes[band.className];
+            if (band.indices === null) return Na__PlOverlay__BuildPathData(segments);
+            return Na__LeVp2d__PathDataFor(segments, band.indices);
+        });
+        Na__LeVp2d__PathCache.set(cacheKey, paths);
+        if (Na__LeVp2d__PathCache.size > 16) Na__LeVp2d__PathCache.delete(Na__LeVp2d__PathCache.keys().next().value);
+        return paths;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Path Data for a Chosen Subset of One Class
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PathDataFor(segments, indices) {
+        if (!segments || !indices || indices.length === 0) return '';
+        const round = (value) => Math.round(value * 100) / 100;
+        const parts = new Array(indices.length);
+        for (let k = 0; k < indices.length; k++) {
+            const at = indices[k] * 4;
+            parts[k] = 'M' + round(segments[at]) + ' ' + round(segments[at + 1]) +
+                       'L' + round(segments[at + 2]) + ' ' + round(segments[at + 3]);
+        }
+        return parts.join('');
     }
     // ------------------------------------------------------------
 
@@ -259,20 +440,27 @@
     function Na__LeVp2d__PaintLinework(state, viewport, key, classes, ppm) {
         const win = Na__LeVp2d__Window(viewport);
         const D      = win.Denominator;
-        const rules  = Na__LeVp2d__StrokeRules(state.masterPt);
-        const paths  = Na__LeVp2d__PathsFor(key, classes);
         const showHidden = viewport.Viewport__Styles.hiddenLines === true;
+        // THE STYLE TOKEN IS BOTH THE PATH CACHE KEY AND THE REPAINT GUARD. It is
+        // deliberately NOT part of the linework cache key: restyling a category
+        // changes how the drawing is painted, not what was projected, so a colour
+        // change must never trigger a re-projection.
+        const styleToken = Na__LeVp2d__StyleToken(viewport);
+        const bands  = Na__LeVp2d__StyleBands(viewport, state.masterPt, classes, showHidden);
+        const paths  = Na__LeVp2d__BandPaths(key + '@' + showHidden + '@' + styleToken, bands, classes);
         let body = '';
-        Na__LeVp2d__CLASS_ORDER.forEach((name) => {
-            if (name === 'hidden' && !showHidden) return;
-            if (!paths[name]) return;
-            const rule = rules[name];
-            body += '<path d="' + paths[name] + '" fill="none" stroke="' + rule.colour + '" stroke-width="' + (rule.widthMm * D) +
-                    '" stroke-linecap="round" stroke-linejoin="round"' + (rule.dashMm > 0 ? ' stroke-dasharray="' + (rule.dashMm * D) + ' ' + (rule.dashMm * D) + '"' : '') + '/>';
+        bands.forEach((band, index) => {
+            const d = paths[index];
+            if (!d) return;
+            const dashAttr = (band.dashMm && band.dashMm.length > 0)
+                ? ' stroke-dasharray="' + band.dashMm.map((mm) => mm * D).join(' ') + '"'
+                : '';
+            body += '<path d="' + d + '" fill="none" stroke="' + band.colour + '" stroke-width="' + (band.widthMm * D) +
+                    '" stroke-linecap="round" stroke-linejoin="round"' + dashAttr + '/>';
         });
         state.linework.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="na-le-frame__linework-svg" viewBox="' +
             win.OriginX + ' ' + win.OriginY + ' ' + win.WidthMm + ' ' + win.HeightMm + '" preserveAspectRatio="none" focusable="false" aria-hidden="true">' + body + '</svg>';
-        state.lineworkKey  = key + '|' + showHidden + '|' + D + '|' + state.masterPt;
+        state.lineworkKey  = key + '|' + showHidden + '|' + D + '|' + state.masterPt + '|' + styleToken;
         state.lineworkSvg  = state.linework.firstElementChild;
         state.classes      = classes;                                             // <-- Snap source
         state.classesKey   = key;
@@ -359,7 +547,7 @@
             const px      = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Working());   // <-- The global working level
             const windowSnapshot = described.window;
             state.inFlight = true;
-            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples).then((result) => {
+            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(args.viewport)).then((result) => {
                 state.inFlight = false;
                 if (!Na__LeVp2d__States.has(viewportId) || Na__LeVp2d__States.get(viewportId) !== state) return;
                 if (result) {
@@ -423,7 +611,9 @@
         } else {
             const key = [ described.definition.RecordHash, modelFp, Math.round(win.CentreX), Math.round(win.CentreY),
                           Math.round(win.WidthMm), Math.round(win.HeightMm), styles.whitecard, styles.glassOpaque, styles.profileLinework, styles.enhanceWhitecard, styles.contextLayer,
-                          Na__LeModelLayers__Token(viewport), Na__LeRaster__Get() ].join('|');
+                          Na__LeModelLayers__Token(viewport), Na__LeRaster__Get() ]
+                          .concat(Na__LeComposite__RasterToken(viewport) ? [ Na__LeComposite__RasterToken(viewport) ] : [])   // <-- Appended only when set, so every existing key is unchanged
+                          .join('|');
             Na__LeVp2d__PlaceUnderlay(state, win, ppm);
             state.wantedKey = key;
             if (key !== state.renderedKey) Na__LeVp2d__ScheduleUnderlay(state, viewport.Viewport__Id);
@@ -438,12 +628,13 @@
             Na__LeVp2d__HideProgress(state);
         } else {
             const cacheKey = Na__PlView__CacheKey(described.definition, modelFp);
-            const paintKey = cacheKey + '|' + (styles.hiddenLines === true) + '|' + win.Denominator + '|' + state.masterPt;
+            const paintKey = cacheKey + '|' + (styles.hiddenLines === true) + '|' + win.Denominator + '|' + state.masterPt + '|' + Na__LeVp2d__StyleToken(viewport);
             if (state.lineworkKey === paintKey && state.lineworkSvg) {
                 state.lineworkSvg.setAttribute('viewBox', win.OriginX + ' ' + win.OriginY + ' ' + win.WidthMm + ' ' + win.HeightMm);
                 Na__LeVp2d__SizeLayer(state.lineworkSvg, viewport, ppm);
             } else {
-                const classes = Na__PlPipe__GetCached(described.definition);
+                const cachedClasses = Na__PlPipe__GetCached(described.definition);
+                const classes = (cachedClasses && Na__PlOwners__Has(cachedClasses)) ? cachedClasses : null;   // <-- Untagged: fall through, EnsureLinework re-renders it tagged
                 if (classes) Na__LeVp2d__PaintLinework(state, viewport, cacheKey, classes, ppm);
                 else {
                     Na__LeVp2d__ShowProgress(state, '');
@@ -575,7 +766,7 @@
             state.inFlight = true;
             let result = null;
             try {
-                result = await Na__LeSnap__Render2d(described.definition, window0, styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples);
+                result = await Na__LeSnap__Render2d(described.definition, window0, styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport));
             } finally {
                 state.inFlight = false;
             }
@@ -599,7 +790,7 @@
         if (viewport.Viewport__Styles.baseImage === false) return Promise.resolve(null);   // <-- Vector only: the PDF carries the linework alone
         const frame = viewport.Viewport__FrameMm;
         const px    = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());   // <-- Always the export level, whatever is on screen
-        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples);
+        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport));
     }
     // ------------------------------------------------------------
 
@@ -614,6 +805,7 @@
     // ------------------------------------------------------------
     export {
         Na__LeVp2d__CLASS_ORDER,
+        Na__LeVp2d__StyleBands,
         Na__LeVp2d__Window,
         Na__LeVp2d__Describe,
         Na__LeVp2d__CentreOnDrawing,
